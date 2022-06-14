@@ -23,7 +23,7 @@ class AnimationManager
   using Animation = hippy::Animation;
 
  public:
-  AnimationManager();
+  AnimationManager(std::shared_ptr<RootNode> root_node);
 
   inline std::weak_ptr<DomManager> GetDomManager() {
     return dom_manager_;
@@ -85,6 +85,7 @@ class AnimationManager
   ~AnimationManager() {}
 
  private:
+  std::weak_ptr<RootNode> root_node_;
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
   std::unordered_map<uint32_t, std::shared_ptr<Animation>> animation_map_;

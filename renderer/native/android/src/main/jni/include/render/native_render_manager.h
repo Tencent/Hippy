@@ -24,24 +24,24 @@ class NativeRenderManager : public RenderManager {
 
   int32_t GetId() { return id_; }
 
-  void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void MoveRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
-  void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
-  void EndBatch() override;
+  void CreateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void UpdateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void DeleteRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void MoveRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void UpdateLayout(std::weak_ptr<RootNode> root_node, const std::vector<std::shared_ptr<DomNode>>& nodes) override;
+  void MoveRenderNode(std::weak_ptr<RootNode> root_node, std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
+  void EndBatch(std::weak_ptr<RootNode> root_node) override;
 
-  void BeforeLayout() override;
-  void AfterLayout() override;
+  void BeforeLayout(std::weak_ptr<RootNode> root_node) override;
+  void AfterLayout(std::weak_ptr<RootNode> root_node) override;
 
   using DomValue = tdf::base::DomValue;
 
-  void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void AddEventListener(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
-  void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void RemoveEventListener(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
-  void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
+  void CallFunction(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
                     uint32_t cb_id) override;
 
   void SetDensity(float density) { density_ = density; }
@@ -56,7 +56,7 @@ class NativeRenderManager : public RenderManager {
   static bool Erase(const std::shared_ptr<NativeRenderManager>& render_manager);
 
  private:
-  inline void MarkTextDirty(uint32_t node_id);
+  inline void MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id);
 
   inline float DpToPx(float dp) const;
 

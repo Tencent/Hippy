@@ -1,5 +1,7 @@
 #include "dom/root_node.h"
 
+#include <stack>
+
 #include "dom/diff_utils.h"
 #include "dom/render_manager.h"
 
@@ -14,10 +16,9 @@ constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
 constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
 
 RootNode::RootNode(uint32_t id)
-        : DomNode(id, 0,  "", "",
+        : DomNode(id, 0, 0, "", "",
                   std::unordered_map<std::string, std::shared_ptr<DomValue>>(),
-                  std::unordered_map<std::string, std::shared_ptr<DomValue>>(),
-                  nullptr) {}
+                  std::unordered_map<std::string, std::shared_ptr<DomValue>>()) {}
 
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
@@ -160,11 +161,19 @@ void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>> &&nodes) {
     }
 }
 
+void RootNode::CallFunction(uint32_t id, const std::string &name, const DomArgument &param,
+                            const CallFunctionCallback &cb) {
+  auto node = GetNode(id);
+  if (node) {
+    node->CallFunction(name, param, cb);
+  }
+}
+
 void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager) {
   FlushDomOperations(render_manager);
   FlushEventOperations(render_manager);
   DoAndFlushLayout(render_manager);
-  render_manager->EndBatch();
+  render_manager->EndBatch(GetSelf());
 }
 
 void RootNode::AddEvent(uint32_t id, const std::string& event_name) {
@@ -173,6 +182,98 @@ void RootNode::AddEvent(uint32_t id, const std::string& event_name) {
 
 void RootNode::RemoveEvent(uint32_t id, const std::string& event_name) {
   event_operations_.push_back({EventOperation::kOpRemove, id, event_name});
+}
+
+void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
+  auto weak_target = event->GetTarget();
+  auto event_name = event->GetType();
+  auto target = weak_target.lock();
+  if (target) {
+    std::stack<std::shared_ptr<DomNode>> capture_list = {};
+    // 执行捕获流程，注：target节点event.StopPropagation并不会阻止捕获流程
+    if (event->CanCapture()) {
+      // 获取捕获列表
+      auto parent = target->GetParent();
+      while (parent) {
+        capture_list.push(parent);
+        parent = parent->GetParent();
+      }
+    }
+    auto capture_target_listeners = target->GetEventListener(event_name, true);
+    auto bubble_target_listeners = target->GetEventListener(event_name, false);
+    // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
+    auto runner = delegate_task_runner_.lock();
+    if (runner) {
+      std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
+      task->func_ = [capture_list = std::move(capture_list),
+                   capture_target_listeners = std::move(capture_target_listeners),
+                   bubble_target_listeners = std::move(bubble_target_listeners),
+                   dom_event = std::move(event),
+                   event_name]() mutable {
+        // 执行捕获流程
+        std::queue<std::shared_ptr<DomNode>> bubble_list = {};
+        while (!capture_list.empty()) {
+          auto capture_node = capture_list.top();
+          capture_list.pop();
+          dom_event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
+          auto listeners = capture_node->GetEventListener(event_name, true);
+          for (const auto& listener : listeners) {
+            listener->cb(dom_event);  // StopPropagation并不会影响同级的回调调用
+          }
+          if (dom_event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
+            return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
+          }
+          bubble_list.push(std::move(capture_node));
+        }
+        // 执行本身节点回调
+        dom_event->SetCurrentTarget(dom_event->GetTarget());
+        for (const auto& listener : capture_target_listeners) {
+          listener->cb(dom_event);
+        }
+        if (dom_event->IsPreventCapture()) {
+          return;
+        }
+        for (const auto& listener : bubble_target_listeners) {
+          listener->cb(dom_event);
+        }
+        if (dom_event->IsPreventBubble()) {
+          return;
+        }
+        // 执行冒泡流程
+        while (!bubble_list.empty()) {
+          auto bubble_node = bubble_list.front();
+          bubble_list.pop();
+          dom_event->SetCurrentTarget(bubble_node);
+          auto listeners = bubble_node->GetEventListener(event_name, false);
+          for (const auto& listener : listeners) {
+            listener->cb(dom_event);
+          }
+          if (dom_event->IsPreventBubble()) {
+            break;
+          }
+        }
+      };
+      runner->PostTask(std::move(task));
+    }
+  }
+}
+
+void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
+  auto render_manager = render_manager_.lock();
+  TDF_BASE_DCHECK(render_manager);
+  if (!render_manager) {
+    return;
+  }
+  TDF_BASE_DCHECK(node);
+
+  // 更新 layout tree
+  node->ParseLayoutStyleInfo();
+
+  // 更新属性
+  std::vector<std::shared_ptr<DomNode>> nodes;
+  nodes.push_back(node);
+  render_manager->UpdateRenderNode(GetSelf(), std::move(nodes));
+  SyncWithRenderManager(render_manager);
 }
 
 std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {
@@ -186,17 +287,30 @@ std::shared_ptr<DomNode> RootNode::GetNode(uint32_t id) {
   return found->second.lock();
 }
 
+std::tuple<float, float> RootNode::GetRootSize() {
+  return GetLayoutSize();
+}
+
+void RootNode::SetRootSize(float width, float height) {
+  SetLayoutSize(width, height);
+}
+
+void RootNode::SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
+  SetRootNode(GetSelf());
+  render_manager_ = render_manager;
+}
+
 void RootNode::DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager) {
   // Before Layout
-  render_manager->BeforeLayout();
+  render_manager->BeforeLayout(GetSelf());
   // 触发布局计算
   std::vector<std::shared_ptr<DomNode>> layout_changed_nodes;
   DoLayout(layout_changed_nodes);
   // After Layout
-  render_manager->AfterLayout();
+  render_manager->AfterLayout(GetSelf());
 
   if (!layout_changed_nodes.empty()) {
-    render_manager->UpdateLayout(layout_changed_nodes);
+    render_manager->UpdateLayout(GetSelf(), layout_changed_nodes);
   }
 }
 
@@ -204,16 +318,16 @@ void RootNode::FlushDomOperations(const std::shared_ptr<RenderManager>& render_m
   for (auto& dom_operation : dom_operations_) {
     switch (dom_operation.op) {
       case DomOperation::kOpCreate:
-        render_manager->CreateRenderNode(std::move(dom_operation.nodes));
+        render_manager->CreateRenderNode(GetSelf(), std::move(dom_operation.nodes));
         break;
       case DomOperation::kOpUpdate:
-        render_manager->UpdateRenderNode(std::move(dom_operation.nodes));
+        render_manager->UpdateRenderNode(GetSelf(), std::move(dom_operation.nodes));
         break;
       case DomOperation::kOpDelete:
-        render_manager->DeleteRenderNode(std::move(dom_operation.nodes));
+        render_manager->DeleteRenderNode(GetSelf(), std::move(dom_operation.nodes));
         break;
       case DomOperation::kOpMove:
-        render_manager->MoveRenderNode(std::move(dom_operation.nodes));
+        render_manager->MoveRenderNode(GetSelf(), std::move(dom_operation.nodes));
         break;
       default:
         break;
@@ -231,10 +345,10 @@ void RootNode::FlushEventOperations(const std::shared_ptr<RenderManager>& render
 
     switch (event_operation.op) {
       case EventOperation::kOpAdd:
-        render_manager->AddEventListener(node, event_operation.name);
+        render_manager->AddEventListener(GetSelf(), node, event_operation.name);
         break;
       case EventOperation::kOpRemove:
-        render_manager->RemoveEventListener(node, event_operation.name);
+        render_manager->RemoveEventListener(GetSelf(), node, event_operation.name);
         break;
       default:
         break;
@@ -256,6 +370,10 @@ void RootNode::OnDomNodeDeleted(const std::shared_ptr<DomNode> &node) {
     }
     nodes_.erase(node->GetId());
   }
+}
+
+std::shared_ptr<RootNode> RootNode::GetSelf() {
+  return std::static_pointer_cast<RootNode>(shared_from_this());
 }
 
 }  // namespace dom

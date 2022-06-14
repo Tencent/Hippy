@@ -144,13 +144,13 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  auto scope = runtime->GetScope();
 #ifdef ANDROID_NATIVE_RENDER
   std::shared_ptr<NativeRenderManager>
       render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
-
   float density = render_manager->GetDensity();
   uint32_t root_id = dom_manager->GetRootId();
-  auto node = dom_manager->GetNode(root_id);
+  auto node = dom_manager->GetNode(scope->GetRootNode(), root_id);
   auto layout_node = node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
 #else
@@ -158,7 +158,6 @@ void DoBind(JNIEnv* j_env,
       render_manager = nullptr;
 #endif
 
-  auto scope = runtime->GetScope();
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);

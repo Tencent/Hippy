@@ -21,7 +21,9 @@ namespace hippy {
 inline namespace dom {
 using Scene = hippy::dom::Scene;
 
-AnimationManager::AnimationManager() {}
+AnimationManager::AnimationManager(std::shared_ptr<RootNode> root_node) {
+  root_node_ = root_node;
+}
 
 void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
   for (const std::shared_ptr<DomInfo>& node: nodes) {

@@ -69,22 +69,21 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void Init(uint32_t root_id);
   void SetRenderManager(std::shared_ptr<RenderManager> render_manager);
   uint32_t GetRootId() const;
-  std::shared_ptr<DomNode> GetNode(uint32_t id) const;
+  std::shared_ptr<DomNode> GetNode(std::weak_ptr<RootNode> root_node, uint32_t id) const;
 
-  void CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void EndBatch();
+  void CreateDomNodes(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void UpdateDomNodes(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void MoveDomNodes(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void DeleteDomNodes(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomInfo>>&& nodes);
+  void UpdateAnimation(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes);
+  void EndBatch(std::weak_ptr<RootNode> root_node);
   // 返回0代表失败，正常id从1开始
-  void AddEventListener(uint32_t dom_id, const std::string& event_name, uint64_t listener_id, bool use_capture,
+  void AddEventListener(std::weak_ptr<RootNode> root_node, uint32_t dom_id, const std::string& event_name, uint64_t listener_id, bool use_capture,
                         const EventCallback& cb);
-  void RemoveEventListener(uint32_t id, const std::string& name, uint64_t listener_id);
-  void CallFunction(uint32_t id, const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
-  std::tuple<float, float> GetRootSize();
-  void SetRootSize(float width, float height);
-  void DoLayout();
+  void RemoveEventListener(std::weak_ptr<RootNode> root_node, uint32_t id, const std::string& name, uint64_t listener_id);
+  void CallFunction(std::weak_ptr<RootNode> root_node, uint32_t id, const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
+  void SetRootSize(std::weak_ptr<RootNode> root_node, float width, float height);
+  void DoLayout(std::weak_ptr<RootNode> root_node);
   void PostTask(const Scene&& scene);
   std::shared_ptr<CommonTask> PostDelayedTask(const Scene&& scene, uint64_t delay);
   void CancelTask(std::shared_ptr<CommonTask> task);
@@ -102,18 +101,13 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
 
  private:
   int32_t id_;
-  std::shared_ptr<RootNode> root_node_;
+  uint32_t root_id_;
   std::shared_ptr<LayerOptimizedRenderManager> optimized_render_manager_;
   std::weak_ptr<RenderManager> render_manager_;
   std::weak_ptr<TaskRunner> delegate_task_runner_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
-
-  void HandleEvent(const std::shared_ptr<DomEvent>& event);
-  void AddEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
-  void RemoveEventListenerOperation(const std::shared_ptr<DomNode>& node, const std::string& name);
-  void UpdateRenderNode(const std::shared_ptr<DomNode>& node);
 
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(DomManager);
 

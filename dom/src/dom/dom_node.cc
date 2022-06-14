@@ -7,6 +7,7 @@
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
+#include "dom/root_node.h"
 #include "dom/serializer.h"
 
 namespace hippy {
@@ -34,7 +35,7 @@ using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
 DomNode::DomNode(uint32_t id, uint32_t pid, std::string tag_name, std::string view_name,
                  std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
                  std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
-                 const std::shared_ptr<DomManager>& dom_manager)
+                 std::weak_ptr<RootNode> weak_root_node)
     : id_(id),
       pid_(pid),
       tag_name_(std::move(tag_name)),
@@ -43,10 +44,30 @@ DomNode::DomNode(uint32_t id, uint32_t pid, std::string tag_name, std::string vi
       dom_ext_map_(
           std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(dom_ext_map))),
       is_virtual_(false),
-      dom_manager_(dom_manager),
+      root_node_(weak_root_node),
       current_callback_id_(0),
       func_cb_map_(nullptr),
       event_listener_map_(nullptr) {
+  layout_node_ = hippy::dom::CreateLayoutNode();
+}
+
+DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
+                 std::string view_name,
+                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&style_map,
+                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&dom_ext_map)
+        : id_(id),
+          pid_(pid),
+          index_(index),
+          tag_name_(std::move(tag_name)),
+          view_name_(std::move(view_name)),
+          style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+                  std::move(style_map))),
+          dom_ext_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+                  std::move(dom_ext_map))),
+          is_virtual_(false),
+          current_callback_id_(0),
+          func_cb_map_(nullptr),
+          event_listener_map_(nullptr) {
   layout_node_ = hippy::dom::CreateLayoutNode();
 }
 
@@ -165,10 +186,10 @@ void DomNode::DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
 }
 
 void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
-    dom_manager->HandleEvent(event);
+  auto root_node = root_node_.lock();
+  TDF_BASE_DCHECK(root_node);
+  if (root_node) {
+    root_node->HandleEvent(std::move(event));
   }
 }
 
@@ -187,9 +208,11 @@ void DomNode::SetLayoutOrigin(float x, float y) {
 }
 
 void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture, const EventCallback& cb) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
+  auto root_node = root_node_.lock();
+  TDF_BASE_DCHECK(root_node);
+  if (root_node) {
+    current_callback_id_ += 1;
+    TDF_BASE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
     if (!event_listener_map_) {
       event_listener_map_ = std::make_shared<
           std::unordered_map<std::string, std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>>();
@@ -197,7 +220,7 @@ void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bo
     auto it = event_listener_map_->find(name);
     if (it == event_listener_map_->end()) {
       (*event_listener_map_)[name] = {};
-      dom_manager->AddEventListenerOperation(shared_from_this(), name);
+      root_node->AddEvent(GetId(), name);
     }
     if (use_capture) {
       (*event_listener_map_)[name][kCapture].push_back(std::make_shared<EventListenerInfo>(listener_id, cb));
@@ -208,9 +231,9 @@ void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bo
 }
 
 void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
+  auto root_node = root_node_.lock();
+  TDF_BASE_DCHECK(root_node);
+  if (root_node) {
     if (!event_listener_map_) {
       return;
     }
@@ -245,7 +268,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id)
       bubble_listeners.erase(bubble_it);
     }
     if (capture_listeners.empty() && bubble_listeners.empty()) {
-      dom_manager->RemoveEventListenerOperation(shared_from_this(), name);
+      root_node->RemoveEvent(GetId(), name);
       event_listener_map_->erase(it);
     }
   }
@@ -341,9 +364,9 @@ void DomNode::CallFunction(const std::string& name, const DomArgument& param, co
     cb_id = current_callback_id_;
     (*func_cb_map_)[name][current_callback_id_] = cb;
   }
-  auto dom_manager = dom_manager_.lock();
-  if (dom_manager) {
-    dom_manager->GetRenderManager()->CallFunction(shared_from_this(), name, param, cb_id);
+  auto root_node = root_node_.lock();
+  if (root_node) {
+    root_node->GetRenderManager()->CallFunction(root_node_, shared_from_this(), name, param, cb_id);
   }
 }
 
@@ -382,13 +405,13 @@ void DomNode::EmplaceStyleMap(const std::string& key, const DomValue& value) {
 
 void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
                                const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
+  auto root_node = root_node_.lock();
+  TDF_BASE_DCHECK(root_node);
+  if (root_node) {
     this->UpdateDiff(update_style, update_dom_ext);
     this->UpdateStyle(update_style);
     this->UpdateDomExt(update_dom_ext);
-    dom_manager->UpdateRenderNode(shared_from_this());
+    root_node->UpdateRenderNode(shared_from_this());
   }
 }
 

@@ -28,6 +28,7 @@
 
 #include "base/logging.h"
 #include "core/base/common.h"
+#include "dom/root_node.h"
 #include "jni/jni_env.h"
 
 constexpr char kId[] = "id";
@@ -106,7 +107,8 @@ bool NativeRenderManager::Erase(const std::shared_ptr<NativeRenderManager>& rend
   return NativeRenderManager::Erase(render_manager->id_);
 }
 
-void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
+void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
+                                           std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -167,10 +169,11 @@ void NativeRenderManager::CreateRenderNode(std::vector<std::shared_ptr<hippy::do
   CallNativeMethod(buffer_pair, "createNode");
 }
 
-void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
+                                           std::vector<std::shared_ptr<DomNode>>&& nodes) {
   for (const auto& n : nodes) {
     if (n->GetViewName() == "Text") {
-      MarkTextDirty(n->GetId());
+      MarkTextDirty(root_node, n->GetId());
     }
   }
 
@@ -214,9 +217,11 @@ void NativeRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>
   CallNativeMethod(buffer_pair, "updateNode");
 }
 
-void NativeRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {}
+void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                         std::vector<std::shared_ptr<DomNode>> &&nodes) {}
 
-void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
+                                           std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -250,7 +255,8 @@ void NativeRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>
 
 }
 
-void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
+                                       const std::vector<std::shared_ptr<DomNode>>& nodes) {
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -279,7 +285,8 @@ void NativeRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode
   CallNativeMethod(buffer_pair, "updateLayout");
 }
 
-void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
+void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                         std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -307,30 +314,33 @@ void NativeRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids, int32
   j_env->DeleteLocalRef(j_class);
 }
 
-void NativeRenderManager::EndBatch() { CallNativeMethod("endBatch"); }
+void NativeRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) { CallNativeMethod("endBatch"); }
 
-void NativeRenderManager::BeforeLayout(){}
+void NativeRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node){}
 
-void NativeRenderManager::AfterLayout() {
+void NativeRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
   // 更新布局信息前处理事件监听
   HandleListenerOps(event_listener_ops_, "updateEventListener");
 }
 
-void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+void NativeRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
+                                           std::weak_ptr<DomNode> dom_node, const std::string& name) {
   auto node = dom_node.lock();
   if (node) {
     event_listener_ops_[node->GetId()].emplace_back(ListenerOp(true, dom_node, name));
   }
 }
 
-void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
+void NativeRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
+                                              std::weak_ptr<DomNode> dom_node, const std::string& name) {
   auto node = dom_node.lock();
   if (node) {
     event_listener_ops_[node->GetId()].emplace_back(ListenerOp(false, dom_node, name));
   }
 }
 
-void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
+void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
+                                       std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
                                       uint32_t cb_id) {
   std::shared_ptr<DomNode> node = domNode.lock();
   if (node == nullptr) {
@@ -495,11 +505,11 @@ void NativeRenderManager::HandleListenerOps(std::map<uint32_t, std::vector<Liste
   CallNativeMethod(buffer_pair, method_name);
 }
 
-void NativeRenderManager::MarkTextDirty(uint32_t node_id) {
-  auto dom_manager = dom_manager_.lock();
-  TDF_BASE_DCHECK(dom_manager);
-  if (dom_manager) {
-    auto node = dom_manager->GetNode(node_id);
+void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id) {
+  auto root_node = weak_root_node.lock();
+  TDF_BASE_DCHECK(root_node);
+  if (root_node) {
+    auto node = root_node->GetNode(node_id);
     TDF_BASE_DCHECK(node);
     if (node) {
       auto diff_style = node->GetDiffStyle();
