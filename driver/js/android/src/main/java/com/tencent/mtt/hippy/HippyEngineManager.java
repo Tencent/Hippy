@@ -88,6 +88,7 @@ public abstract class HippyEngineManager extends HippyEngine {
     private String mDebugJs;
     private boolean enableV8Serialization = true;
     private int mGroupId = -1;
+    private String mRemoteServerUrl;
 
     Builder() {
     }
@@ -135,6 +136,11 @@ public abstract class HippyEngineManager extends HippyEngine {
       return this;
     }
 
+    Builder setRemoteDebugUrl(String remoteServerUrl) {
+      mRemoteServerUrl = remoteServerUrl;
+      return this;
+    }
+
     HippyEngineManager build() {
       if (mCoreBundleLoader == null && !mSupportDev) {
         throw new RuntimeException("In non-debug mode, it must be set core bundle loader!");
@@ -163,6 +169,7 @@ public abstract class HippyEngineManager extends HippyEngine {
         params.codeCacheTag = mCoreBundleLoader.getCodeCacheTag();
       }
       params.groupId = mGroupId;
+      params.remoteServerUrl = mRemoteServerUrl;
       params.check();
 
       HippyEngineManager hippyEngineManager;

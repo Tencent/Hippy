@@ -27,8 +27,8 @@ public class DevSupportManager {
   private UUID mInstanceUUID = UUID.randomUUID();
 
   public DevSupportManager(HippyGlobalConfigs configs, boolean enableDev, String serverHost,
-      String bundleName) {
-    this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
+      String bundleName, String remoteServerUrl) {
+    this.mDevImp = DevFactory.create(configs, enableDev, serverHost, bundleName, remoteServerUrl);
     mSupportDev = enableDev;
   }
 
@@ -50,6 +50,10 @@ public class DevSupportManager {
 
   public String createResourceUrl(String resName) {
     return mDevImp.createResourceUrl(resName);
+  }
+
+  public String createDebugUrl(String host) {
+    return mDevImp.createDebugUrl(host, null, mInstanceUUID.toString());
   }
 
   public void handleException(Throwable throwable) {
