@@ -73,6 +73,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     @Override
     public void setAdapter(@Nullable Adapter adapter) {
         listAdapter = (ADP) adapter;
+        if (adapter != null) {
+            setOnTouchListener(listAdapter);
+        }
         super.setAdapter(adapter);
     }
 
