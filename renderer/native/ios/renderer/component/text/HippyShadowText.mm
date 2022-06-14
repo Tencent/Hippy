@@ -722,8 +722,10 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             hippy::MeasureFunction measureFunc =
                 [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                      float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-                return textMeasureFunc(weakSelf, width, widthMeasureMode,
-                                       height, heightMeasureMode, layoutContext);
+                    @autoreleasepool {
+                        return textMeasureFunc(weakSelf, width, widthMeasureMode,
+                                               height, heightMeasureMode, layoutContext);
+                    }
             };
             node->GetLayoutNode()->SetMeasureFunction(measureFunc);
         }

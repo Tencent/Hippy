@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-project("native_render")
+project("native_renderer")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." REALPATH)
 
@@ -26,28 +26,39 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 
-# region jni
-get_filename_component(JNI_DIR "${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni" REALPATH)
-include_directories(${JNI_DIR}/include)
+# region library
+add_library(${PROJECT_NAME} STATIC)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+target_compile_definitions(${PROJECT_NAME} INTERFACE "ANDROID_NATIVE_RENDER")
 # endregion
 
 # region dom
-get_filename_component(DOM_DIR "${PROJECT_ROOT_DIR}/dom" REALPATH)
-include_directories(${DOM_DIR}/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/dom/include)
 # endregion
 
-# region core
-get_filename_component(CORE_DIR "${PROJECT_ROOT_DIR}/driver/js/core/" REALPATH)
-include_directories(${CORE_DIR}/include)
-include_directories(${CORE_DIR}/third_party/base/include)
+# region core base
+# TODO: will be removed when the base library is complete
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/third_party/base/include)
 # endregion
 
+# region jni common
+# TODO: will be removed when the base library is complete
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/include)
+# endregion
+
+# region source set
 set(SOURCE_SET
-        src/render/native_render_jni.cc
-        src/render/native_render_manager.cc)
-message("SOURCE_SET: ${SOURCE_SET}")
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-add_library(${PROJECT_NAME} STATIC ${SOURCE_SET})
-target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-target_link_libraries(${PROJECT_NAME})
+    src/render/native_render_manager.cc)
+set(SOURCE_SET_STANDALONE
+    src/render/native_render_jni.cc)
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+# The linker treats `.a` and `.o` files are different:
+#   * `.o` files from `.a` file only referenced `.o` object files are linked.
+#   * `.o` files in the linker always go inside, referenced or not.
+#
+# The `SOURCE_SET_STANDALONE` including static initializers,
+# so its visibility must be PUBLIC.
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
+# endregion

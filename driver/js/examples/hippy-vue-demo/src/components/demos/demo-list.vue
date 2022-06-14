@@ -251,8 +251,10 @@ export default {
   #demo-list .style-two-image {
     height: 140px;
   }
-  .item-style {
+  #demo-list .item-style {
     background-color: white;
+    padding-top: 12px;
+    padding-bottom: 12px;
     /*width: 100px;*/ /* configure li style if horizontal ul is set*/
   }
 </style>
