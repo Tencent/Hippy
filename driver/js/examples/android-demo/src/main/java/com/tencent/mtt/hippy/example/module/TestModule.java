@@ -31,6 +31,14 @@ public class TestModule extends HippyNativeModuleBase {
         hippyRootView.getContext().startActivity(intent);
     }
 
+    @HippyMethod(name = "remoteDebug")
+    public void debugRemote(int instanceid, String remoteServerUrl) {
+        ViewGroup hippyRootView = mContext.getRootView();
+        Intent intent = new Intent();
+        intent.putExtra("remoteServerUrl", remoteServerUrl);
+        intent.setClass(hippyRootView.getContext(), BaseActivity.class);
+        hippyRootView.getContext().startActivity(intent);
+    }
 
     /***
      * TestModule

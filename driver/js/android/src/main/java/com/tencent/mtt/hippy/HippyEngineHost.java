@@ -36,11 +36,11 @@ public abstract class HippyEngineHost {
     ContextHolder.initAppContext(mApplication);
   }
 
-  public HippyEngineManager createDebugHippyEngineManager(String debugJs) {
+  public HippyEngineManager createDebugHippyEngineManager(String debugJs, String remoteServerUrl) {
     HippyEngineManager.Builder builder = new HippyEngineManager.Builder();
     builder.setHippyGlobalConfigs(getHippyGlobalConfigs()).setCoreBundleLoader(null)
         .setPackages(getPackages()).setSupportDev(true)
-        .setDebugJs(debugJs).setGroupId(getGroupId());
+        .setDebugJs(debugJs).setGroupId(getGroupId()).setRemoteDebugUrl(remoteServerUrl);
 
     return builder.build();
   }
