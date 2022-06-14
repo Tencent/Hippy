@@ -19,19 +19,19 @@
  */
 
 #include "devtools/adapter/hippy_tracing_adapter.h"
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "devtools/trace_control.h"
 #endif
 
 namespace hippy::devtools {
 void HippyTracingAdapter::StartTracing() {
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   TraceControl::GetInstance().StartTracing();
 #endif
 }
 
 void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   TraceControl::GetInstance().StopTracing();
   if (callback) {
     callback(TraceControl::GetInstance().GetTracingContent());

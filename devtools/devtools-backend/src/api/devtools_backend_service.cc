@@ -45,7 +45,7 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
 }
 
 void DevtoolsBackendService::Create() {
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   data_channel_->GetNotificationCenter()->vm_response_notification =
       std::make_shared<DefaultVmResponseAdapter>([DEVTOOLS_WEAK_THIS](const std::string &data) {
         DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsBackendService)

@@ -30,7 +30,7 @@
 #include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "dom/dom_manager.h"
 
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "core/base/string_view_utils.h"
 #include "devtools/trace_control.h"
 #endif
@@ -78,7 +78,7 @@ void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHan
   devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
 }
 
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 void DevtoolsDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl) {
   TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
 }

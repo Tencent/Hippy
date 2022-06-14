@@ -138,7 +138,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 }
 
 void DomainDispatch::DispatchToVm(const std::string& data) {
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   BACKEND_LOGD(TDF_BACKEND, "JSDebugger, params=%s.", data.c_str());
   // if not in debug mode, then not send msg to v8
   if (!data_channel_->GetProvider()->runtime_adapter->IsDebug()) {

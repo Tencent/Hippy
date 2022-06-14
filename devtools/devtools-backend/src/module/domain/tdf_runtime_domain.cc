@@ -35,7 +35,7 @@ void TdfRuntimeDomain::RegisterMethods() {
 void TdfRuntimeDomain::RegisterCallback() {}
 
 void TdfRuntimeDomain::Resume(const BaseRequest& request) {
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   if (!GetDataProvider()->runtime_adapter->IsDebug()) {
     BACKEND_LOGD(TDF_BACKEND, "not in debug mode, return.");
     return;  // don't send msg to v8 if not debug mode
