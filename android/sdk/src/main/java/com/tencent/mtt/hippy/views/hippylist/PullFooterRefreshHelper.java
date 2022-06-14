@@ -32,7 +32,6 @@ class PullFooterRefreshHelper extends PullRefreshHelper {
     PullFooterRefreshHelper(@NonNull HippyRecyclerView recyclerView,
             @NonNull RenderNode renderNode) {
         super(recyclerView, renderNode);
-        recyclerView.setOnTouchListener(this);
     }
 
     @Override

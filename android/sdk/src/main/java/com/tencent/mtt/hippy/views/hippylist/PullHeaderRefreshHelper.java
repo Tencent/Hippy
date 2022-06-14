@@ -30,7 +30,6 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
 
     PullHeaderRefreshHelper(HippyRecyclerView recyclerView, RenderNode renderNode) {
         super(recyclerView, renderNode);
-        recyclerView.setOnTouchListener(this);
     }
 
     @Override
