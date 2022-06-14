@@ -30,7 +30,7 @@
 #include "api/devtools_config.h"
 #include "api/devtools_backend_service.h"
 
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "v8/libplatform/v8-tracing.h"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
@@ -56,7 +56,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   inline std::shared_ptr<NotificationCenter> GetNotificationCenter() {
       return devtools_service_->GetNotificationCenter();
   }
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
   void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message);
@@ -64,7 +64,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
 #endif
 
  private:
-#ifdef JS_V8
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   void SendVmData(v8_inspector::StringView string_view);
 #endif
 
