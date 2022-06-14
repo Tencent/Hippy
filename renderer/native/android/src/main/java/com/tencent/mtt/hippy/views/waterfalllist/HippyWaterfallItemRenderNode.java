@@ -33,10 +33,9 @@ public class HippyWaterfallItemRenderNode extends RenderNode {
     static final String TAG = "HippyWaterfallItemNode";
     IRecycleItemTypeChange mRecycleItemTypeChangeListener;
 
-    public HippyWaterfallItemRenderNode(int id, @Nullable Map<String, Object> props,
-            @NonNull String className, @NonNull ViewGroup hippyRootView,
-            @NonNull ControllerManager controllerManager, boolean lazy) {
-        super(id, props, className, hippyRootView, controllerManager, lazy);
+    public HippyWaterfallItemRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
+        super(rootId, id, props, className, controllerManager, isLazyLoad);
     }
 
     @Override

@@ -40,6 +40,7 @@
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
 #include "dom/dom_value.h"
+#include "dom/root_node.h"
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif
@@ -66,6 +67,7 @@ class Scope {
   using DomManager = hippy::dom::DomManager;
   using DomValue = tdf::base::DomValue;
   using RenderManager = hippy::dom::RenderManager;
+  using RootNode = hippy::dom::RootNode;
   using UriLoader = hippy::base::UriLoader;
   using FunctionData = hippy::napi::FunctionData;
   using BindingData = hippy::napi::BindingData;
@@ -164,6 +166,14 @@ class Scope {
     return render_manager_;
   }
 
+  inline std::weak_ptr<RootNode> GetRootNode() {
+    return root_node_;
+  }
+
+  inline void SetRootNode(std::weak_ptr<RootNode> root_node) {
+    root_node_ = root_node;
+  }
+
 #ifdef ENABLE_INSPECTOR
   inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
     devtools_data_source_ = devtools_data_source;
@@ -197,6 +207,7 @@ class Scope {
   std::shared_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
+  std::weak_ptr<RootNode> root_node_;
 #ifdef ENABLE_INSPECTOR
   std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
 #endif

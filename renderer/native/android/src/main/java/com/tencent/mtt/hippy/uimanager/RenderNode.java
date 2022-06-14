@@ -17,9 +17,8 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.text.TextUtils;
-import android.util.SparseArray;
+import android.util.SparseIntArray;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -48,6 +47,7 @@ public class RenderNode {
     protected int mWidth;
     protected int mHeight;
     protected final int mId;
+    protected final int mRootId;
     @NonNull
     protected final String mClassName;
     @NonNull
@@ -55,7 +55,7 @@ public class RenderNode {
     @NonNull
     protected final List<RenderNode> mChildrenUnattached = new ArrayList<>();
     @NonNull
-    protected final ControllerManager mComponentManager;
+    protected final ControllerManager mControllerManager;
     @Nullable
     protected Map<String, Object> mProps;
     @Nullable
@@ -65,33 +65,36 @@ public class RenderNode {
     @Nullable
     protected RenderNode mParent;
     @Nullable
-    protected ViewGroup mRootView;
-    @Nullable
     protected Object mExtra;
     @Nullable
     protected List<RenderNode> mMoveNodes;
     @Nullable
-    protected SparseArray<Integer> mDeletedChildren;
+    protected SparseIntArray mDeletedChildren;
 
-    public RenderNode(int id, @NonNull String className,
-            @NonNull ControllerManager componentManager) {
+    public RenderNode(int rootId, int id, @NonNull String className,
+            @NonNull ControllerManager controllerManager) {
         mId = id;
+        mRootId = rootId;
         mClassName = className;
-        mComponentManager = componentManager;
+        mControllerManager = controllerManager;
     }
 
-    public RenderNode(int id, @Nullable Map<String, Object> props, @NonNull String className,
-            @NonNull ViewGroup rootView, @NonNull ControllerManager componentManager,
+    public RenderNode(int rootId, int id, @Nullable Map<String, Object> props, @NonNull String className,
+            @NonNull ControllerManager componentManager,
             boolean isLazyLoad) {
         mId = id;
         mClassName = className;
-        mRootView = rootView;
-        mComponentManager = componentManager;
+        mRootId = rootId;
+        mControllerManager = componentManager;
         mProps = props;
         mPropsToUpdate = null;
         if (isLazyLoad) {
             setNodeFlag(FLAG_LAZY_LOAD);
         }
+    }
+
+    public int getRootId() {
+        return mRootId;
     }
 
     public int getId() {
@@ -146,6 +149,10 @@ public class RenderNode {
         return 0;
     }
 
+    protected boolean isRoot() {
+        return false;
+    }
+
     public View createViewRecursive() {
         View view = createView();
         setNodeFlag(FLAG_UPDATE_LAYOUT | FLAG_UPDATE_EVENT | FLAG_UPDATE_EXTRA);
@@ -178,7 +185,8 @@ public class RenderNode {
         return false;
     }
 
-    public void addChild(RenderNode node, int index) {
+    public void addChild(@NonNull RenderNode node, int index) {
+        index = (index < 0) ? 0 : Math.min(index, mChildren.size());
         mChildren.add(index, node);
         node.mParent = this;
     }
@@ -200,7 +208,7 @@ public class RenderNode {
     public void addDeleteChild(@NonNull RenderNode node) {
         if (node.hasView()) {
             if (mDeletedChildren == null) {
-                mDeletedChildren = new SparseArray<>();
+                mDeletedChildren = new SparseIntArray();
             }
             int index = mChildren.indexOf(node);
             if (index >= 0) {
@@ -225,7 +233,7 @@ public class RenderNode {
 
     public void deleteSubviewIfNeeded() {
         if (mClassName.equals(NodeProps.ROOT_NODE) && checkNodeFlag(FLAG_ALREADY_DELETED)) {
-            mComponentManager.deleteRootView(mId);
+            mControllerManager.deleteRootView(mId);
             return;
         }
         if (mDeletedChildren == null) {
@@ -233,8 +241,8 @@ public class RenderNode {
         }
         for (int i = 0; i < mDeletedChildren.size(); i++) {
             int key = mDeletedChildren.keyAt(i);
-            mComponentManager
-                    .deleteChild(mId, mDeletedChildren.keyAt(i), mDeletedChildren.get(key));
+            mControllerManager
+                    .deleteChild(mRootId, mId, mDeletedChildren.keyAt(i), mDeletedChildren.get(key));
         }
         mDeletedChildren.clear();
     }
@@ -249,7 +257,7 @@ public class RenderNode {
             // update node not need to diff props in this batch cycle.
             setNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
             mParent.addChildToPendingList(this);
-            return mComponentManager.createView(mRootView, mId, mClassName, getProps());
+            return mControllerManager.createView(mRootId, mId, mClassName, getProps());
         }
         return null;
     }
@@ -259,7 +267,7 @@ public class RenderNode {
     }
 
     private boolean hasView() {
-        return mComponentManager.hasView(mId);
+        return mControllerManager.hasView(mRootId, mId);
     }
 
     protected void addChildToPendingList(RenderNode renderNode) {
@@ -292,8 +300,8 @@ public class RenderNode {
             });
             for (int i = 0; i < mChildrenUnattached.size(); i++) {
                 RenderNode renderNode = mChildrenUnattached.get(i);
-                mComponentManager
-                        .addChild(mId, renderNode.getId(), renderNode.indexFromParent());
+                mControllerManager
+                        .addChild(mRootId, mId, renderNode.getId(), renderNode.indexFromParent());
             }
             mChildrenUnattached.clear();
         }
@@ -302,7 +310,7 @@ public class RenderNode {
             events = mEvents;
             resetNodeFlag(FLAG_UPDATE_EVENT);
         }
-        mComponentManager.updateView(mId, mClassName, mPropsToUpdate, events);
+        mControllerManager.updateView(mRootId, mId, mClassName, mPropsToUpdate, events);
         mPropsToUpdate = null;
         resetNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
         if (mMoveNodes != null && !mMoveNodes.isEmpty()) {
@@ -313,18 +321,18 @@ public class RenderNode {
                 }
             });
             for (RenderNode moveNode : mMoveNodes) {
-                mComponentManager.moveView(moveNode.getId(), getId(),
+                mControllerManager.moveView(mRootId, moveNode.getId(), mId,
                         moveNode.indexFromParent());
             }
             mMoveNodes.clear();
         }
         if (checkNodeFlag(FLAG_UPDATE_LAYOUT) && !TextUtils
                 .equals(NodeProps.ROOT_NODE, mClassName)) {
-            mComponentManager.updateLayout(mClassName, mId, mX, mY, mWidth, mHeight);
+            mControllerManager.updateLayout(mClassName, mRootId, mId, mX, mY, mWidth, mHeight);
             resetNodeFlag(FLAG_UPDATE_LAYOUT);
         }
         if (checkNodeFlag(FLAG_UPDATE_EXTRA)) {
-            mComponentManager.updateExtra(mId, mClassName, mExtra);
+            mControllerManager.updateExtra(mRootId, mId, mClassName, mExtra);
             resetNodeFlag(FLAG_UPDATE_EXTRA);
         }
     }
@@ -352,7 +360,7 @@ public class RenderNode {
     }
 
     public void measureInWindow(@NonNull Promise promise) {
-        mComponentManager.measureInWindow(mId, promise);
+        mControllerManager.measureInWindow(mRootId, mId, promise);
     }
 
     public void addMoveNodes(@NonNull List<RenderNode> moveNodes) {
@@ -383,13 +391,13 @@ public class RenderNode {
 
     protected void batchStart() {
         if (!checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD)) {
-            mComponentManager.onBatchStart(mClassName, mId);
+            mControllerManager.onBatchStart(mRootId, mId, mClassName);
         }
     }
 
     protected void batchComplete() {
         if (!checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD)) {
-            mComponentManager.onBatchComplete(mClassName, mId);
+            mControllerManager.onBatchComplete(mRootId, mId, mClassName);
         }
     }
 }

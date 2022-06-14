@@ -226,7 +226,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
     //purge view
     NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
-    [self.renderContext purgeViewsFromHippyTags:objects];
+    [self.renderContext purgeViewsFromHippyTags:objects onRootTag:self.rootTag];
     //purge cache
     [_cachedItems removeObjectsForKeys:furthestIndexPaths];
 }
@@ -359,7 +359,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
     [shadowView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag onRootTag:shadowView.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
@@ -631,7 +631,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (void)cleanUpCachedItems {
     //purge view
     NSArray<NSNumber *> *objects = [_cachedItems allValues];
-    [self.renderContext purgeViewsFromHippyTags:objects];
+    [self.renderContext purgeViewsFromHippyTags:objects onRootTag:self.rootTag];
     //purge cache
     [_cachedItems removeAllObjects];
 }

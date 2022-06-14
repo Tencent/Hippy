@@ -42,8 +42,4 @@
     return [hashTable anyObject];
 }
 
-- (void)registerAsRootView:(id<HippyRenderContext>) renderContext {
-    [renderContext registerRootView:self];
-}
-
 @end

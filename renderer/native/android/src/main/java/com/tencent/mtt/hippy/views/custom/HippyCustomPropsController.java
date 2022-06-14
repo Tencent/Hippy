@@ -45,7 +45,7 @@ public class HippyCustomPropsController extends HippyViewController {
         }
         NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
         if (nativeRenderer != null) {
-            RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view.getId());
+            RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view);
             if (node != null) {
                 node.setNodeFlag(FLAG_HAS_DTEB_ID);
             }

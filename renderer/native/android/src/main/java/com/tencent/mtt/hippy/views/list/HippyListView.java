@@ -516,11 +516,11 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
         }
     }
 
-    private Map<String, Object> getItemViewProps(int id) {
+    private Map<String, Object> getItemViewProps(View view) {
         if (nativeRenderer == null) {
             return null;
         }
-        RenderNode node = nativeRenderer.getRenderManager().getRenderNode(id);
+        RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view);
         if (node == null) {
             return null;
         }
@@ -540,7 +540,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
         myEnd += parentStart;
 
         HippyListItemView itemView = (HippyListItemView) view;
-        Map<String, Object> props = getItemViewProps(itemView.getId());
+        Map<String, Object> props = getItemViewProps(itemView);
         if (props == null) {
             return;
         }
