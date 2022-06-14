@@ -112,7 +112,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         if (this.mIsDevModule) {
             mDebugWebSocketClient = new DebugWebSocketClient();
             mDebugWebSocketClient.setOnReceiveDataCallback(this);
-            mDebugWebSocketClient.connect(getDebugWsUrl(), new DebugWebSocketClient.JSDebuggerCallback() {
+            String debugUrl = mContext.getDevSupportManager().createDebugUrl(mDebugServerHost);
+            mDebugWebSocketClient.connect(debugUrl, new DebugWebSocketClient.JSDebuggerCallback() {
               @SuppressWarnings("unused")
               @Override
               public void onSuccess(String response) {
@@ -142,7 +143,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                     mIsDevModule, mDebugInitJSFrameworkCallback, groupId,
                     v8InitParams,
                     localCachePath,
-                    getDebugWsUrl());
+                    mContext.getDevSupportManager().createDebugUrl(mDebugServerHost)
+                );
                 mInit = true;
             } catch (Throwable e) {
                 if (mBridgeCallback != null) {
@@ -151,14 +153,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             }
         }
     }
-
-  private String getDebugWsUrl() {
-    if (TextUtils.isEmpty(mDebugServerHost)) {
-      mDebugServerHost = DEFAULT_LOCAL_HOST;
-    }
-    String clientId = mContext.getDevSupportManager().getDevInstanceUUID();  // 方便区分不同的 Hippy 调试页面
-    return String.format(Locale.US, DEBUG_WEBSOCKET_URL, mDebugServerHost, clientId);
-  }
 
     @Override
     public long getV8RuntimeId() {
