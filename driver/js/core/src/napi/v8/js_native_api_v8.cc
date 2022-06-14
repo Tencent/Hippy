@@ -252,7 +252,7 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
 #endif
       TDF_BASE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
-#ifdef ENABLE_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
       auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform_->GetTracingController());
       DEVTOOLS_JS_REGISTER_TRACE_CONTROL(trace);
 #endif
