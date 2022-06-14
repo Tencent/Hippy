@@ -77,6 +77,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
     HippyDevManager *_devManager;
+    std::mutex _moduleDataMutex;
 }
 
 @synthesize flowID = _flowID;
@@ -256,15 +257,18 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
  * Used by HippyUIManager
  */
 - (HippyModuleData *)moduleDataForName:(NSString *)moduleName {
+    std::lock_guard<std::mutex> lock(_moduleDataMutex);
     return _moduleDataByName[moduleName];
 }
 
 - (id)moduleForName:(NSString *)moduleName {
+    std::lock_guard<std::mutex> lock(_moduleDataMutex);
     id module = _moduleDataByName[moduleName].instance;
     return module;
 }
 
 - (BOOL)moduleIsInitialized:(Class)moduleClass {
+    std::lock_guard<std::mutex> lock(_moduleDataMutex);
     return _moduleDataByName[HippyBridgeModuleNameForClass(moduleClass)].hasInstance;
 }
 
@@ -801,6 +805,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [self->_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
+            std::lock_guard<std::mutex> lock(self->_moduleDataMutex);
             [self->_displayLink invalidate];
             self->_displayLink = nil;
 
@@ -1078,6 +1083,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)partialBatchDidFlush {
+    std::lock_guard<std::mutex> lock(_moduleDataMutex);
     NSArray<HippyModuleData *> *moduleDataByID = _valid ? _moduleDataByID : [_moduleDataByID copy];
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsPartialBatchDidFlush) {
@@ -1089,6 +1095,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)batchDidComplete {
+    std::lock_guard<std::mutex> lock(_moduleDataMutex);
     NSArray<HippyModuleData *> *moduleDataByID = _valid ? _moduleDataByID : [_moduleDataByID copy];
     for (HippyModuleData *moduleData in moduleDataByID) {
         if (moduleData.hasInstance && moduleData.implementsBatchDidComplete) {
@@ -1106,6 +1113,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     //    if (!_valid) {
     //        return nil;
     //    }
+    std::unique_lock<std::mutex> lock(_moduleDataMutex);
     NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
     if (moduleID >= [moduleDataByID count]) {
         if (_valid) {
@@ -1141,6 +1149,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         return nil;
     }
 
+    if (lock.owns_lock()) {
+        lock.unlock();
+    }
     @try {
         BOOL shouldInvoked = YES;
         if ([self.methodInterceptor respondsToSelector:@selector(shouldInvokeWithModuleName:methodName:arguments:argumentsValues:containCallback:)]) {
