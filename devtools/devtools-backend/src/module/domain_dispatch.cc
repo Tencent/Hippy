@@ -35,7 +35,7 @@
 #include "module/domain/tdf_runtime_domain.h"
 #include "module/domain_register.h"
 #include "module/inspect_props.h"
-#include "nlohmann/json.hpp"
+#include "devtools_base/devtools_json.h"
 #include "tunnel/tunnel_service.h"
 
 namespace hippy::devtools {

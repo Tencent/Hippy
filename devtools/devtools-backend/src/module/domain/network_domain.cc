@@ -21,7 +21,7 @@
 #include "module/domain/network_domain.h"
 #include "devtools_base/logging.h"
 #include "module/domain_register.h"
-#include "nlohmann/json.hpp"
+#include "devtools_base/devtools_json.h"
 
 namespace hippy::devtools {
 constexpr char kResponseBody[] = "body";

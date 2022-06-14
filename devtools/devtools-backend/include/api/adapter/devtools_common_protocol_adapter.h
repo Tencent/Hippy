@@ -21,7 +21,7 @@
 #pragma once
 
 #include <string>
-#include "nlohmann/json.hpp"
+#include "devtools_base/devtools_json.h"
 
 namespace hippy::devtools {
 /**

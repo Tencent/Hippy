@@ -18,19 +18,9 @@
  * limitations under the License.
  */
 
-#include "module/request/network_response_body_request.h"
-#include <string>
-#include "devtools_base/parse_json_util.h"
-#include "devtools_base/devtools_json.h"
+#pragma once
 
-constexpr char kFrontendRequestId[] = "requestId";
-
-namespace hippy::devtools {
-void NetworkResponseBodyRequest::Deserialize(const std::string& params) {
-  auto params_json = nlohmann::json::parse(params, nullptr, false);
-  if (params_json.is_discarded()) {
-    return;
-  }
-  request_id_ = TdfParseJsonUtil::GetJsonValue(params_json, kFrontendRequestId, request_id_);
-}
-}  // namespace hippy::devtools
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#include "nlohmann/json.hpp"
+#pragma clang diagnostic pop
