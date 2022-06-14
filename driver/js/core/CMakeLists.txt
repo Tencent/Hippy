@@ -24,7 +24,7 @@ project("core")
 
 get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../../.." REALPATH)
 
-include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
@@ -42,26 +42,14 @@ endif ()
 
 # region vm
 if ("${JS_ENGINE}" STREQUAL "V8")
-  InfraPackage_Add(V8
-      REMOTE "driver/js/core/third_party/v8/${V8_COMPONENT}/android-${ANDROID_ARCH_NAME}.tgz"
-      LOCAL ${V8_COMPONENT})
-  target_link_libraries(${PROJECT_NAME} PUBLIC v8)
+  GlobalPackages_Add(v8)
+  target_link_libraries(${PROJECT_NAME} PRIVATE v8)
 
+  # The following definitions are used by PUBLIC header files
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_V8")
-
   get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
   if (V8_WITHOUT_INSPECTOR)
     target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
-  endif ()
-
-  get_target_property(V8_AUX_DEPS v8 INTERFACE_V8_AUX_DEPS)
-  if (V8_AUX_DEPS)
-    foreach (__item IN LISTS V8_AUX_DEPS)
-      add_custom_command(
-          TARGET ${PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E
-          copy "${__item}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-    endforeach ()
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
@@ -125,8 +113,7 @@ if (ENABLE_INSPECTOR)
       src/devtools/adapter/impl/hippy_screen_adapter.cc
       src/devtools/adapter/impl/hippy_tracing_adapter.cc
       src/devtools/devtools_data_source.cc
-      src/devtools/devtools_utils.cc
-      src/devtools/trace_control.cc)
+      src/devtools/devtools_utils.cc)
 endif ()
 if ("${JS_ENGINE}" STREQUAL "V8")
   list(APPEND SOURCE_SET
@@ -139,6 +126,10 @@ if ("${JS_ENGINE}" STREQUAL "V8")
     list(APPEND SOURCE_SET
         src/runtime/v8/inspector/v8_channel_impl.cc
         src/runtime/v8/inspector/v8_inspector_client_impl.cc)
+    if (ENABLE_INSPECTOR)
+      list(APPEND SOURCE_SET
+          src/devtools/trace_control.cc)
+    endif ()
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET
