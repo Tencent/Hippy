@@ -1113,44 +1113,44 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     //    if (!_valid) {
     //        return nil;
     //    }
-    std::unique_lock<std::mutex> lock(_moduleDataMutex);
-    NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
-    if (moduleID >= [moduleDataByID count]) {
-        if (_valid) {
-            HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
-        }
-        return nil;
-    }
-    HippyModuleData *moduleData = moduleDataByID[moduleID];
-    if (HIPPY_DEBUG && !moduleData) {
-        if (_valid) {
-            HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
-        }
-        return nil;
-    }
-    // not for UI Actions if NO==_valid
-    if (!_valid) {
-        if ([[moduleData name] isEqualToString:@"UIManager"]) {
+    id<HippyBridgeMethod> method = nil;
+    HippyModuleData *moduleData = nil;
+    {
+        std::lock_guard<std::mutex> lock(_moduleDataMutex);
+        NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
+        if (moduleID >= [moduleDataByID count]) {
+            if (_valid) {
+                HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
+            }
             return nil;
         }
-    }
-    NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
-    if (methodID >= [methods count]) {
-        if (_valid) {
-            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)_valid);
+        moduleData = moduleDataByID[moduleID];
+        if (HIPPY_DEBUG && !moduleData) {
+            if (_valid) {
+                HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
+            }
+            return nil;
         }
-        return nil;
-    }
-    id<HippyBridgeMethod> method = methods[methodID];
-    if (HIPPY_DEBUG && !method) {
-        if (_valid) {
-            HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+        // not for UI Actions if NO==_valid
+        if (!_valid) {
+            if ([[moduleData name] isEqualToString:@"UIManager"]) {
+                return nil;
+            }
         }
-        return nil;
-    }
-
-    if (lock.owns_lock()) {
-        lock.unlock();
+        NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
+        if (methodID >= [methods count]) {
+            if (_valid) {
+                HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)_valid);
+            }
+            return nil;
+        }
+        method = methods[methodID];
+        if (HIPPY_DEBUG && !method) {
+            if (_valid) {
+                HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+            }
+            return nil;
+        }
     }
     @try {
         BOOL shouldInvoked = YES;
