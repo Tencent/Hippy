@@ -21,6 +21,7 @@ import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -50,8 +51,8 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   private final Stack<DevFloatButton> mDebugButtonStack;
   private final LiveReloadController mLiveReloadController;
 
-  DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName) {
-    mFetchHelper = new DevServerHelper(configs, serverHost);
+  DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName, String remoteServerUrl) {
+    mFetchHelper = new DevServerHelper(configs, serverHost, remoteServerUrl);
     mServerConfig = new DevServerConfig(serverHost, bundleName);
     mDebugButtonStack = new Stack<>();
     mHostButtonMap = new HashMap<>();
@@ -140,6 +141,12 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
         }
       }
     }, url);
+  }
+
+  @Override
+  public String createDebugUrl(String host, String componentName, String debugClientId) {
+    return mFetchHelper.createDebugURL(host, !TextUtils.isEmpty(componentName) ? componentName :
+            mServerConfig.getBundleName(), debugClientId);
   }
 
   @Override

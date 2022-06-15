@@ -29,59 +29,56 @@ constexpr char kNodePropertyViewName[] = "name";
 constexpr char kNodePropertyStyle[] = "style";
 constexpr char kNodePropertyExt[] = "ext";
 
-
 using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
 
-DomNode::DomNode(uint32_t id, uint32_t pid, std::string tag_name, std::string view_name,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>>&& style_map,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>>&& dom_ext_map,
+DomNode::DomNode(uint32_t id,
+                 uint32_t pid,
+                 int32_t index,
+                 std::string tag_name,
+                 std::string view_name,
+                 std::shared_ptr<std::unordered_map<std::string,
+                                                    std::shared_ptr<DomValue>>> style_map,
+                 std::shared_ptr<std::unordered_map<std::string,
+                                                    std::shared_ptr<DomValue>>> dom_ext_map,
                  std::weak_ptr<RootNode> weak_root_node)
     : id_(id),
       pid_(pid),
+      index_(index),
       tag_name_(std::move(tag_name)),
       view_name_(std::move(view_name)),
-      style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(style_map))),
-      dom_ext_map_(
-          std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(dom_ext_map))),
+      style_map_(std::move(style_map)),
+      dom_ext_map_(std::move(dom_ext_map)),
       is_virtual_(false),
-      root_node_(weak_root_node),
+      root_node_(std::move(weak_root_node)),
       current_callback_id_(0),
       func_cb_map_(nullptr),
       event_listener_map_(nullptr) {
   layout_node_ = hippy::dom::CreateLayoutNode();
 }
 
-DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name,
+DomNode::DomNode(uint32_t id,
+                 uint32_t pid,
+                 int32_t index,
+                 std::string tag_name,
                  std::string view_name,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&style_map,
-                 std::unordered_map<std::string, std::shared_ptr<DomValue>> &&dom_ext_map)
-        : id_(id),
-          pid_(pid),
-          index_(index),
-          tag_name_(std::move(tag_name)),
-          view_name_(std::move(view_name)),
-          style_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
-                  std::move(style_map))),
-          dom_ext_map_(std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
-                  std::move(dom_ext_map))),
-          is_virtual_(false),
-          current_callback_id_(0),
-          func_cb_map_(nullptr),
-          event_listener_map_(nullptr) {
-  layout_node_ = hippy::dom::CreateLayoutNode();
+                 std::shared_ptr<std::unordered_map<std::string,
+                                                    std::shared_ptr<DomValue>>> style_map,
+                 std::shared_ptr<std::unordered_map<std::string,
+                                                    std::shared_ptr<DomValue>>> dom_ext_map)
+    : DomNode(id,
+              pid,
+              index,
+              std::move(tag_name),
+              std::move(view_name),
+              std::move(style_map),
+              std::move(dom_ext_map),
+              std::make_shared<RootNode>()) {
 }
 
 DomNode::DomNode(uint32_t id, uint32_t pid)
-    : id_(id),
-      pid_(pid),
-      is_virtual_(false),
-      current_callback_id_(0),
-      func_cb_map_(nullptr),
-      event_listener_map_(nullptr) {
-  layout_node_ = hippy::dom::CreateLayoutNode();
-}
+  : DomNode(id, pid, -1, "", "", nullptr, nullptr) {}
 
-DomNode::DomNode(): DomNode(0, 0) {}
+DomNode::DomNode() : DomNode(0, 0) {}
 
 DomNode::~DomNode() = default;
 
@@ -104,13 +101,17 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(size_t index) {
 int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
   std::shared_ptr<RefInfo> ref_info = dom_info->ref_info;
   if (ref_info) {
-    for (uint32_t i = 0 ; i < children_.size() ; ++i) {
+    for (uint32_t i = 0; i < children_.size(); ++i) {
       auto child = children_[i];
       if (ref_info->ref_id == child->GetId()) {
         if (ref_info->relative_to_ref == RelativeType::kFront) {
-          children_.insert(children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i), dom_info->dom_node);
+          children_.insert(
+              children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i),
+              dom_info->dom_node);
         } else {
-          children_.insert(children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i + 1), dom_info->dom_node);
+          children_.insert(
+              children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i + 1),
+              dom_info->dom_node);
         }
         break;
       }
@@ -128,7 +129,8 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
   if (view_name_ == "Text") {
     return index;
   }
-  layout_node_->InsertChild(dom_info->dom_node->GetLayoutNode(), hippy::base::checked_numeric_cast<int32_t,uint32_t>(index));
+  layout_node_->InsertChild(dom_info->dom_node->GetLayoutNode(),
+                            hippy::base::checked_numeric_cast<int32_t, uint32_t>(index));
   return index;
 }
 
@@ -207,7 +209,10 @@ void DomNode::SetLayoutOrigin(float x, float y) {
   layout_node_->SetPosition(hippy::Edge::EdgeTop, y);
 }
 
-void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture, const EventCallback& cb) {
+void DomNode::AddEventListener(const std::string& name,
+                               uint64_t listener_id,
+                               bool use_capture,
+                               const EventCallback& cb) {
   auto root_node = root_node_.lock();
   TDF_BASE_DCHECK(root_node);
   if (root_node) {
@@ -215,7 +220,8 @@ void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bo
     TDF_BASE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
     if (!event_listener_map_) {
       event_listener_map_ = std::make_shared<
-          std::unordered_map<std::string, std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>>();
+          std::unordered_map<std::string,
+                             std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>>();
     }
     auto it = event_listener_map_->find(name);
     if (it == event_listener_map_->end()) {
@@ -223,9 +229,13 @@ void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bo
       root_node->AddEvent(GetId(), name);
     }
     if (use_capture) {
-      (*event_listener_map_)[name][kCapture].push_back(std::make_shared<EventListenerInfo>(listener_id, cb));
+      (*event_listener_map_)[name][kCapture].push_back(std::make_shared<EventListenerInfo>(
+          listener_id,
+          cb));
     } else {
-      (*event_listener_map_)[name][kBubble].push_back(std::make_shared<EventListenerInfo>(listener_id, cb));
+      (*event_listener_map_)[name][kBubble].push_back(std::make_shared<EventListenerInfo>(
+          listener_id,
+          cb));
     }
   }
 }
@@ -304,9 +314,10 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
 
 void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   auto not_equal = std::not_equal_to<>();
-  bool changed = not_equal(layout_.left, layout_node_->GetLeft()) || not_equal(layout_.top, layout_node_->GetTop()) ||
-                 not_equal(layout_.width, layout_node_->GetWidth()) ||
-                 not_equal(layout_.height, layout_node_->GetHeight());
+  bool changed = not_equal(layout_.left, layout_node_->GetLeft())
+      || not_equal(layout_.top, layout_node_->GetTop()) ||
+      not_equal(layout_.width, layout_node_->GetWidth()) ||
+      not_equal(layout_.height, layout_node_->GetHeight());
   layout_.left = layout_node_->GetLeft();
   layout_.top = layout_node_->GetTop();
   layout_.width = layout_node_->GetWidth();
@@ -344,18 +355,23 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
     DomValueObjectType layout_obj;
     layout_obj[kLayoutLayoutKey] = layout_param;
     auto event =
-        std::make_shared<DomEvent>(kLayoutEvent, weak_from_this(), std::make_shared<DomValue>(std::move(layout_obj)));
+        std::make_shared<DomEvent>(kLayoutEvent,
+                                   weak_from_this(),
+                                   std::make_shared<DomValue>(std::move(layout_obj)));
     HandleEvent(event);
   }
-  for (auto& it : children_) {
+  for (auto& it: children_) {
     it->TransferLayoutOutputsRecursive(changed_nodes);
   }
 }
 
-void DomNode::CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb) {
+void DomNode::CallFunction(const std::string& name,
+                           const DomArgument& param,
+                           const CallFunctionCallback& cb) {
   if (!func_cb_map_) {
     func_cb_map_ =
-        std::make_shared<std::unordered_map<std::string, std::unordered_map<uint32_t, CallFunctionCallback>>>();
+        std::make_shared<std::unordered_map<std::string,
+                                            std::unordered_map<uint32_t, CallFunctionCallback>>>();
   }
   auto cb_id = kInvalidId;
   if (cb) {
@@ -365,9 +381,18 @@ void DomNode::CallFunction(const std::string& name, const DomArgument& param, co
     (*func_cb_map_)[name][current_callback_id_] = cb;
   }
   auto root_node = root_node_.lock();
-  if (root_node) {
-    root_node->GetRenderManager()->CallFunction(root_node_, shared_from_this(), name, param, cb_id);
+  if (!root_node) {
+    return;
   }
+  auto dom_manager = root_node->GetDomManager().lock();
+  if (!dom_manager) {
+    return;
+  }
+  auto render_manager = dom_manager->GetRenderManager().lock();
+  if (!render_manager) {
+    return;
+  }
+  render_manager->CallFunction(root_node_, weak_from_this(), name, param, cb_id);
 }
 
 CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) {
@@ -387,7 +412,9 @@ CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) 
   return nullptr;
 }
 
-bool DomNode::HasEventListeners() { return event_listener_map_ != nullptr && !event_listener_map_->empty(); }
+bool DomNode::HasEventListeners() {
+  return event_listener_map_ != nullptr && !event_listener_map_->empty();
+}
 
 void DomNode::EmplaceStyleMap(const std::string& key, const DomValue& value) {
   auto iter = style_map_->find(key);
@@ -395,7 +422,7 @@ void DomNode::EmplaceStyleMap(const std::string& key, const DomValue& value) {
     iter->second = std::make_shared<DomValue>(value);
   } else {
     bool replaced = false;
-    for (auto& style : *style_map_) {
+    for (auto& style: *style_map_) {
       replaced = ReplaceStyle(*style.second, key, value);
       if (replaced) return;
     }
@@ -403,8 +430,10 @@ void DomNode::EmplaceStyleMap(const std::string& key, const DomValue& value) {
   }
 }
 
-void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
-                               const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
+void DomNode::UpdateProperties(const std::unordered_map<std::string,
+                                                        std::shared_ptr<DomValue>>& update_style,
+                               const std::unordered_map<std::string,
+                                                        std::shared_ptr<DomValue>>& update_dom_ext) {
   auto root_node = root_node_.lock();
   TDF_BASE_DCHECK(root_node);
   if (root_node) {
@@ -421,8 +450,10 @@ void DomNode::UpdateDomNodeStyleAndParseLayoutInfo(
   ParseLayoutStyleInfo();
 }
 
-void DomNode::UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
-                         const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
+void DomNode::UpdateDiff(const std::unordered_map<std::string,
+                                                  std::shared_ptr<DomValue>>& update_style,
+                         const std::unordered_map<std::string,
+                                                  std::shared_ptr<DomValue>>& update_dom_ext) {
   auto style_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_style);
   auto ext_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_dom_ext);
   auto style_update = std::get<0>(style_diff_value);
@@ -437,17 +468,20 @@ void DomNode::UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<D
   this->SetDiffStyle(diff_value);
 }
 
-void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext) {
+void DomNode::UpdateDomExt(const std::unordered_map<std::string,
+                                                    std::shared_ptr<DomValue>>& update_dom_ext) {
   if (update_dom_ext.empty()) return;
 
-  for (const auto& v : update_dom_ext) {
+  for (const auto& v: update_dom_ext) {
     if (this->dom_ext_map_ == nullptr) {
-      this->dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+      this->dom_ext_map_ =
+          std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
     }
 
     auto iter = this->dom_ext_map_->find(v.first);
     if (iter == this->dom_ext_map_->end()) {
-      std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(*v.second)};
+      std::pair<std::string, std::shared_ptr<DomValue>>
+          pair = {v.first, std::make_shared<DomValue>(*v.second)};
       this->dom_ext_map_->insert(pair);
       continue;
     }
@@ -460,17 +494,20 @@ void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr
   }
 }
 
-void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+void DomNode::UpdateStyle(const std::unordered_map<std::string,
+                                                   std::shared_ptr<DomValue>>& update_style) {
   if (update_style.empty()) return;
 
-  for (const auto& v : update_style) {
+  for (const auto& v: update_style) {
     if (this->style_map_ == nullptr) {
-      this->style_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+      this->style_map_ =
+          std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
     }
 
     auto iter = this->style_map_->find(v.first);
     if (iter == this->style_map_->end()) {
-      std::pair<std::string, std::shared_ptr<DomValue>> pair = {v.first, std::make_shared<DomValue>(*v.second)};
+      std::pair<std::string, std::shared_ptr<DomValue>>
+          pair = {v.first, std::make_shared<DomValue>(*v.second)};
       this->style_map_->insert(pair);
       continue;
     }
@@ -488,7 +525,7 @@ void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_styl
   TDF_BASE_DCHECK(update_style.IsObject());
 
   auto style_object = style_map.ToObjectChecked();
-  for (auto& v : update_style.ToObjectChecked()) {
+  for (auto& v: update_style.ToObjectChecked()) {
     auto iter = style_object.find(v.first);
     if (iter == style_object.end()) {
       style_object[v.first] = v.second;
@@ -511,7 +548,7 @@ bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomVal
     }
 
     bool replaced = false;
-    for (auto& o : object) {
+    for (auto& o: object) {
       replaced = ReplaceStyle(o.second, key, value);
       if (replaced) break;
     }
@@ -521,7 +558,7 @@ bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomVal
   if (style.IsArray()) {
     auto& array = style.ToArrayChecked();
     bool replaced = false;
-    for (auto& a : array) {
+    for (auto& a: array) {
       replaced = ReplaceStyle(a, key, value);
       if (replaced) break;
     }
@@ -618,9 +655,10 @@ bool DomNode::Deserialize(DomValue value) {
   DomValueObjectType style;
   flag = dom_node_obj[kNodePropertyStyle].ToObject(style);
   if (flag) {
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
-    for (const auto& [key, value] : style) {
-      (*style_map)[key] = std::make_shared<DomValue>(value);
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>
+        style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    for (const auto& p: style) {
+      (*style_map)[p.first] = std::make_shared<DomValue>(p.second);
     }
     SetStyleMap(std::move(style_map));
   } else {
@@ -631,9 +669,10 @@ bool DomNode::Deserialize(DomValue value) {
   DomValueObjectType ext;
   flag = dom_node_obj[kNodePropertyExt].ToObject(ext);
   if (flag) {
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
-    for (const auto& [key, value] : ext) {
-      (*ext_map)[key] = std::make_shared<DomValue>(value);
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>
+        ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    for (const auto& p: ext) {
+      (*ext_map)[p.first] = std::make_shared<DomValue>(p.second);
     }
     SetExtStyleMap(std::move(ext_map));
   } else {

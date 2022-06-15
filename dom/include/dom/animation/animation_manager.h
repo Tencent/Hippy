@@ -16,6 +16,7 @@ inline namespace dom {
 
 class DomManager;
 class RenderManager;
+class RootNode;
 
 class AnimationManager
     : public DomActionInterceptor, public std::enable_shared_from_this<AnimationManager> {
@@ -23,7 +24,15 @@ class AnimationManager
   using Animation = hippy::Animation;
 
  public:
-  AnimationManager(std::shared_ptr<RootNode> root_node);
+  AnimationManager();
+
+  inline std::weak_ptr<RootNode> GetRootNode() {
+    return root_node_;
+  }
+
+  inline void SetRootNode(std::weak_ptr<RootNode> root_node) {
+    root_node_ = root_node;
+  }
 
   inline std::weak_ptr<DomManager> GetDomManager() {
     return dom_manager_;
@@ -85,6 +94,16 @@ class AnimationManager
   ~AnimationManager() {}
 
  private:
+  void ParseAnimation(const std::shared_ptr<DomNode>& node);
+  void FetchAnimationsFromObject(const std::string& prop,
+                                 const std::shared_ptr<DomValue>& value,
+                                 std::unordered_map<uint32_t, std::string>& result);
+  void FetchAnimationsFromArray(DomValue& value,
+                                std::unordered_map<uint32_t, std::string>& result);
+  void UpdateCubicBezierAnimation(double current,
+                                  uint32_t related_animation_id,
+                                  std::vector<std::shared_ptr<DomNode>>& update_nodes);
+
   std::weak_ptr<RootNode> root_node_;
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
@@ -104,15 +123,6 @@ class AnimationManager
    */
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> node_animation_props_map_;
   uint64_t listener_id_;
-  void ParseAnimation(const std::shared_ptr<DomNode>& node);
-  void FetchAnimationsFromObject(const std::string& prop,
-                                 std::shared_ptr<DomValue> value,
-                                 std::unordered_map<uint32_t, std::string>& result);
-  void FetchAnimationsFromArray(DomValue& value,
-                                std::unordered_map<uint32_t, std::string>& result);
-  void UpdateCubicBezierAnimation(double current,
-                                  uint32_t related_animation_id,
-                                  std::vector<std::shared_ptr<DomNode>>& update_nodes);
 
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);
 };

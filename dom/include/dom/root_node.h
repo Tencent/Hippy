@@ -11,6 +11,21 @@ class RootNode : public DomNode {
   using TaskRunner = hippy::base::TaskRunner;
 
   RootNode(uint32_t id);
+  RootNode();
+
+  inline std::weak_ptr<DomManager> GetDomManager() {
+    return dom_manager_;
+  }
+  inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) {
+    dom_manager_ = dom_manager;
+  }
+  inline std::shared_ptr<AnimationManager> GetAnimationManager() { return animation_manager_; }
+  inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) {
+    delegate_task_runner_ = runner;
+  }
+  inline std::weak_ptr<TaskRunner> GetDelegateTaskRunner() {
+    return delegate_task_runner_;
+  }
 
   void CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
@@ -31,10 +46,8 @@ class RootNode : public DomNode {
   std::shared_ptr<DomNode> GetNode(uint32_t id);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
-
-  inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) { delegate_task_runner_ = runner; }
-  inline std::shared_ptr<RenderManager> GetRenderManager() { return render_manager_.lock(); }
-  void SetRenderManager(std::shared_ptr<RenderManager> render_manager);
+  void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
+  void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
  private:
   struct DomOperation {
@@ -61,15 +74,15 @@ class RootNode : public DomNode {
 
   void FlushDomOperations(const std::shared_ptr<RenderManager>& render_manager);
   void FlushEventOperations(const std::shared_ptr<RenderManager>& render_manager);
-
   void OnDomNodeCreated(const std::shared_ptr<DomNode>& node);
   void OnDomNodeDeleted(const std::shared_ptr<DomNode>& node);
+  std::weak_ptr<RootNode> GetWeakSelf();
 
   std::unordered_map<uint32_t, std::weak_ptr<DomNode>> nodes_;
   std::weak_ptr<TaskRunner> delegate_task_runner_;
-  std::weak_ptr<RenderManager> render_manager_;
-
-  std::shared_ptr<RootNode> GetSelf();
+  std::weak_ptr<DomManager> dom_manager_;
+  std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
+  std::shared_ptr<AnimationManager> animation_manager_;
 };
 
 }  // namespace dom

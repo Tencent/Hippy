@@ -26,6 +26,8 @@ public interface DevServerInterface {
 
   void loadRemoteResource(String url, DevServerCallBack serverCallBack);
 
+  String createDebugUrl(String host, String componentName, String debugClientId);
+
   void setDevServerCallback(DevServerCallBack devServerCallback);
 
   void attachToHost(Context context);
