@@ -20,7 +20,4 @@
 
 #pragma once
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunknown-warning-option"
 #include "nlohmann/json.hpp"
-#pragma clang diagnostic pop
