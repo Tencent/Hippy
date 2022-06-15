@@ -30,8 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, weak)id<HippyRenderContext> renderContext;
 
-- (void)registerAsRootView:(id<HippyRenderContext>) renderContext;
-
 @end
 
 NS_ASSUME_NONNULL_END

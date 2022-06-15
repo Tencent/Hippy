@@ -217,6 +217,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, readonly) std::shared_ptr<hippy::DomManager> domManager;
 @property (nonatomic, readonly) std::shared_ptr<NativeRenderManager> renderManager;
 @property (nonatomic, readonly) std::shared_ptr<hippy::AnimationManager> animationManager;
+@property (nonatomic, readonly) std::shared_ptr<hippy::RootNode> rootNode;
 
 /**
  * The launch options that were used to initialize the bridge.

@@ -43,6 +43,7 @@
 @interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
+    std::shared_ptr<hippy::RootNode> _rootNode;
     HippyBridge *_bridge;
 }
 
@@ -132,7 +133,7 @@
 std::string mock;
 
 - (void)saveBtnClick {
-    mock = _bridge.domManager->GetSnapShot();
+    mock = _bridge.domManager->GetSnapShot(_rootNode);
 }
 
 - (void)loadBtnClick {
@@ -159,30 +160,35 @@ std::string mock;
     //5.create dom nodes with datas
 
     hippy::DomManager::RootInfo info {(uint32_t)rootTag, (float)view.bounds.size.width, (float)view.bounds.size.height};
-    _domManager->SetSnapShot(mock, info);
+    std::function<void()> func = [domManager = _domManager, rootNode = _rootNode, nodesData, info](){
+        domManager->SetSnapShot(rootNode, nodesData, info);
+    };
+    _domManager->PostTask(hippy::Scene({func}));
 }
 
 - (void)initRenderContextWithRootView:(UIView *)rootView {
     int hippyTag = [[rootView hippyTag] intValue];
     HippyAssert(0 != hippyTag && 0 == hippyTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
     if (rootView && hippyTag) {
+        _rootNode = std::make_shared<hippy::RootNode>(hippyTag);
         _domManager = std::make_shared<hippy::DomManager>();
-        _domManager->Init(hippyTag);
+        _domManager->Init();
         auto width = CGRectGetWidth(rootView.bounds);
         auto height = CGRectGetHeight(rootView.bounds);
         std::weak_ptr<hippy::DomManager> weakDomManager = _domManager;
-        std::function<void()> func = [weakDomManager, rootView, width, height](){
-            auto domManager = weakDomManager.lock();
-            if (domManager) {
-                domManager->GetAnimationManager()->SetDomManager(weakDomManager);
-                domManager->SetRootSize(width, height);
+        std::weak_ptr<hippy::RootNode> weakRootNode = _rootNode;
+        std::function<void()> func = [weakRootNode, rootView, width, height](){
+            auto rootNode = weakRootNode.lock();
+            if (rootNode) {
+                rootNode->GetAnimationManager()->SetRootNode(rootNode);
+                rootNode->SetRootSize(width, height);
             }
         };
         _domManager->PostTask(hippy::Scene({func}));
 
         _nativeRenderManager = std::make_shared<NativeRenderManager>();
         _nativeRenderManager->SetFrameworkProxy(self);
-        _nativeRenderManager->RegisterRootView(rootView);
+        _nativeRenderManager->RegisterRootView(rootView, _rootNode);
         _nativeRenderManager->SetDomManager(_domManager);
         
         _domManager->SetRenderManager(_nativeRenderManager);
