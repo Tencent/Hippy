@@ -22,6 +22,7 @@ project("native_renderer")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." REALPATH)
 
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
@@ -34,7 +35,9 @@ target_compile_definitions(${PROJECT_NAME} INTERFACE "ANDROID_NATIVE_RENDER")
 # endregion
 
 # region dom
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/dom/include)
+GlobalPackages_Add(dom)
+# Just reference the `dom` header files, no library needed
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:dom,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region core base
