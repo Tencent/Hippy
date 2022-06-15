@@ -2353,7 +2353,7 @@
 					USE_TAITANK,
 					"DEBUG=1",
 					"$(inherited)",
-					"TDF_SERVICE_ENABLED=1",
+					"ENABLE_INSPECTOR=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
@@ -2391,6 +2391,11 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"COCOAPODS=1",
+					"ENABLE_INSPECTOR=1",
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../core/third_party/base/include",
