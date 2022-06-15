@@ -73,7 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${websocketpp_SOURCE_DIR})
 
 # region nlohmann_json
 InfraPackage_Add(json
-    REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
+    REMOTE "devtools/backend/third_party/json/3.9.1/json.zip"
     LOCAL "third_party/json")
 add_compile_definitions(
     # no exception
