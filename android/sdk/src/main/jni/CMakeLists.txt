@@ -24,7 +24,7 @@ project("hippy")
 
 get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../../../../.." REALPATH)
 
-include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
@@ -50,6 +50,15 @@ endif ()
 # region core
 add_subdirectory(${PROJECT_ROOT_DIR}/core ${CMAKE_CURRENT_BINARY_DIR}/core)
 target_link_libraries(${PROJECT_NAME} PRIVATE core)
+# endregion
+
+# region v8
+GlobalPackages_Add(v8)
+target_link_libraries(${PROJECT_NAME} PRIVATE v8)
+get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
+if (V8_WITHOUT_INSPECTOR)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
+endif ()
 # endregion
 
 # region source set
