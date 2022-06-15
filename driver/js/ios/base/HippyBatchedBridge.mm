@@ -489,7 +489,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 - (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     auto strongDomManager = domManager.lock();
     if (strongDomManager) {
-        self.rootNode->SetDelegateTaskRunner(self.javaScriptExecutor.pScope->GetTaskRunner());
         self.javaScriptExecutor.pScope->SetDomManager(strongDomManager);
 #ifdef ENABLE_INSPECTOR
         hippy::DomManager::Insert(strongDomManager);

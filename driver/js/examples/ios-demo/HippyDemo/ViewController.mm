@@ -239,7 +239,9 @@ std::string mock;
                 name.assign([mockNode[key] UTF8String]);
             }
         }
-        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, name, name, std::move(style_map), std::move(ext_map), _domManager);
+        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> style;
+        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> dom_ext;
+        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, 0, name, name, style, dom_ext, _rootNode);
         dom_node_vector.push_back(dom_node);
     }
     return dom_node_vector;

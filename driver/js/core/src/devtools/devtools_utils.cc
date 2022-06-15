@@ -53,19 +53,18 @@ DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& dom_n
                                            const std::shared_ptr<DomManager>& dom_manager) {
   DomainMetas metas(dom_node->GetId());
   metas.SetParentId(dom_node->GetPid());
-  //TODO dom层增加了多root node能力，需要适配
-//  metas.SetRootId(dom_manager->GetRootId());
-//  if (dom_node->GetId() == dom_manager->GetRootId()) {
-//    metas.SetClassName(kDefaultNodeName);
-//    metas.SetNodeName(kDefaultNodeName);
-//    metas.SetLocalName(kDefaultNodeName);
-//    metas.SetNodeValue(kDefaultNodeName);
-//  } else {
-//    metas.SetClassName(dom_node->GetViewName());
-//    metas.SetNodeName(dom_node->GetTagName());
-//    metas.SetLocalName(dom_node->GetTagName());
-//    metas.SetNodeValue(ParseNodeKeyProps(kText, dom_node->GetExtStyle()));
-//  }
+  metas.SetRootId(dom_manager->GetRootId());
+  if (dom_node->GetId() == dom_manager->GetRootId()) {
+    metas.SetClassName(kDefaultNodeName);
+    metas.SetNodeName(kDefaultNodeName);
+    metas.SetLocalName(kDefaultNodeName);
+    metas.SetNodeValue(kDefaultNodeName);
+  } else {
+    metas.SetClassName(dom_node->GetViewName());
+    metas.SetNodeName(dom_node->GetTagName());
+    metas.SetLocalName(dom_node->GetTagName());
+    metas.SetNodeValue(ParseNodeKeyProps(kText, dom_node->GetExtStyle()));
+  }
   metas.SetStyleProps(ParseNodeProps(dom_node->GetStyleMap()));
   metas.SetTotalProps(ParseNodeKeyProps(kAttributes, dom_node->GetExtStyle()));
   auto children = dom_node->GetChildren();

@@ -287,7 +287,7 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        std::move(u8_view_name),
                                        style,
                                        ext,
-                                       scope->GetRootNode());
+                                       scope->GetRootNode().lock());
   return std::make_tuple(true, "", dom_node);
 }
 

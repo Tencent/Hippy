@@ -54,7 +54,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
           std::string view_name,
           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map,
           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> dom_ext_map,
-          std::weak_ptr<RootNode> weak_root_node);
+          std::shared_ptr<RootNode> weak_root_node);
 
   DomNode(uint32_t id,
           uint32_t pid,

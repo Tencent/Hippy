@@ -480,7 +480,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode || !domNode) {
         return @{};
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     NSNumber *rootTag = @(root_id);
     NSNumber *hippyTag = @(domNode->GetId());
     NSString *viewName = [NSString stringWithUTF8String:domNode->GetViewName().c_str()];
@@ -647,7 +647,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t rootTag = strongRootNode->GetRenderInfo().id;
+    int32_t rootTag = strongRootNode->GetId();
     NSArray<HippyRenderUIBlock> *previousPendingUIBlocks = _pendingUIBlocks;
     _pendingUIBlocks = [NSMutableArray new];
     __weak HippyUIManager *weakManager = self;
@@ -687,7 +687,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    NSNumber *rootNodeTag = @(strongRootNode->GetRenderInfo().id);
+    NSNumber *rootNodeTag = @(strongRootNode->GetId());
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
     HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
     NSMutableDictionary *dicProps = [NSMutableDictionary dictionaryWithCapacity:nodes.size()];
@@ -744,7 +744,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         return;
     }
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
-    NSNumber *rootTag = @(strongRootNode->GetRenderInfo().id);
+    NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
         NSNumber *hippyTag = @(node->GetRenderInfo().id);
         NSDictionary *styleProps = unorderedMapDomValueToDictionary(node->GetStyleMap());
@@ -762,7 +762,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         return;
     }
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
-    NSNumber *rootTag = @(strongRootNode->GetRenderInfo().id);
+    NSNumber *rootTag = @(strongRootNode->GetId());
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
         HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:@(tag) onRootTag:rootTag];
@@ -798,7 +798,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         return;
     }
     std::lock_guard<std::mutex> lock([self shadowQueueLock]);
-    NSNumber *rootTag = @(strongRootNode->GetRenderInfo().id);
+    NSNumber *rootTag = @(strongRootNode->GetId());
     for (auto &layoutInfoTuple : layoutInfos) {
         int32_t tag = std::get<0>(layoutInfoTuple);
         NSNumber *hippyTag = @(tag);
@@ -907,7 +907,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     HippyShadowView *shadowView = [self shadowViewForHippyTag:@(node_id) onRootTag:@(root_id)];
     [shadowView addEventName:name];
     if (name == hippy::kClickEvent) {
@@ -993,7 +993,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     UIView *view = [self viewForHippyTag:@(hippyTag) onRootTag:@(root_id)];
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kClickEvent];
@@ -1023,7 +1023,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     UIView *view = [self viewForHippyTag:@(hippyTag) onRootTag:@(root_id)];
     if (view) {
         BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:hippy::kLongClickEvent];
@@ -1054,7 +1054,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     AssertMainQueue();
     UIView *view = [self viewForHippyTag:@(hippyTag) onRootTag:@(root_id)];
     HippyViewEventType eventType = hippy::kPressIn == type ? HippyViewEventType::HippyViewEventTypePressIn : HippyViewEventType::HippyViewEventTypePressOut;
@@ -1089,7 +1089,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     UIView *view = [self viewForHippyTag:@(hippyTag) onRootTag:@(root_id)];
     if (view) {
         // todo 默认值应该有个值代表未知
@@ -1138,7 +1138,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     UIView *view = [self viewForHippyTag:@(hippyTag) onRootTag:@(root_id)];
     if (view) {
         HippyViewEventType event_type = hippy::kShowEvent == type ? HippyViewEventTypeShow : HippyViewEventTypeDismiss;
@@ -1170,7 +1170,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     int32_t hippyTag = node_id;
     if (eventName == hippy::kClickEvent ||
         eventName ==hippy::kLongClickEvent ||
@@ -1209,7 +1209,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     UIView *view = [self viewForHippyTag:@(node_id) onRootTag:@(root_id)];
     if (view) {
         std::string name_ = name;
@@ -1249,7 +1249,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     std::string name_ = name;
     [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyUIManager *uiManager = (HippyUIManager *)renderContext;
@@ -1271,7 +1271,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    int32_t root_id = strongRootNode->GetRenderInfo().id;
+    int32_t root_id = strongRootNode->GetId();
     HippyShadowView *rootView = [_shadowViewRegistry rootComponentForTag:@(root_id)];
     // Gather blocks to be executed now that all view hierarchy manipulations have
     // been completed (note that these may still take place before layout has finished)
