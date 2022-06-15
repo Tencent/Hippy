@@ -275,14 +275,18 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   // create node
   std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
   std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
-
+  auto style = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+      std::move(std::get<2>(props_tuple)));
+  auto ext = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+      std::move(std::get<3>(props_tuple)));
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple),
                                        std::get<2>(pid_tuple),
+                                       0,
                                        std::move(u8_tag_name),
                                        std::move(u8_view_name),
-                                       std::move(std::get<2>(props_tuple)),
-                                       std::move(std::get<3>(props_tuple)),
+                                       style,
+                                       ext,
                                        scope->GetRootNode());
   return std::make_tuple(true, "", dom_node);
 }
