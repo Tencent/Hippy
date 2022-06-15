@@ -2,7 +2,7 @@
 
 ![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy) [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Tencent/Hippy)](https://github.com/Tencent/Hippy/releases)
 
-English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hippy/)
+[Homepage](//tencent.github.io/Hippy/)
 
 ## 💡 Introduction
 
@@ -48,7 +48,9 @@ For Windows developers:
 
 For iOS, we recommend to use iOS simulator when first try. However, you can change the Xcode configuration to install the app to iPhone if you are an iOS expert.
 
-1. Run `npm run init` at root directory.
+1. `cd` to `driver/js/`.
+
+2. Run `npm run init`.
 
    > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
    >
@@ -58,11 +60,11 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
    >
    > `npm run build`: Build each front-end sdk package.  
 
-2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
+3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]`.
 
-3. Install CocoaPods with `brew install cocoapods` and configure CocoaPods dependencies with `pod install` at `driver/js/examples/ios-demo` directory.
+4. Install CocoaPods with `brew install cocoapods` and configure CocoaPods dependencies with `pod install` at `driver/js/examples/ios-demo` directory.
 
-4. Start the Xcode and build the iOS app with `open driver/js/examples/ios-demo/HippyDemo.xcworkspace`.
+5. Start the Xcode and build the iOS app with `open driver/js/examples/ios-demo/HippyDemo.xcworkspace`.
 
 > If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
 >
@@ -74,7 +76,9 @@ For Android, we recommend using the real cellphone for better develop experience
 
 Before build the android app, please make sure the SDK and NDK is installed, And *DO NOT* update the build toolchain.
 
-1. Run `npm run init` at root directory.
+1. `cd` to `driver/js/`.
+
+2. Run `npm run init`.
 
    > This command is combined with `npm install && npx lerna bootstrap && npm run build`.
    >
@@ -84,10 +88,10 @@ Before build the android app, please make sure the SDK and NDK is installed, And
    >
    > `npm run build`: Build each front-end sdk package.  
 
-2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Open the `Hippy Project` at root directory with Android Studio.
-4. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
-5. Open the project with Android Studio, run and install the apk.
+3. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]`.
+4. Open the `Hippy Project` at root directory with Android Studio.
+5. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
+6. Open the project with Android Studio, run and install the apk.
 
 > If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
 >
@@ -98,19 +102,20 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 ### Debug the js demo
 
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
-2. Run `npm run init:example [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
+2. `cd` to `driver/js/`.   
+3. Run `npm run init:example [hippy-react-demo|hippy-vue-demo]`.
+4. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev`.
 
 > Or you can `cd` to `driver/js/examples/hippy-react-demo` or `driver/js/examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
 >
-> On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `driver/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
+> On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `driver/js/packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` again.
 >
 > More details for debugging can be read in [Hippy Debug Document](https://hippyjs.org/#/guide/debug).
 
 ### Build the js production demo
 
 1. Follow [Build the iOS simulator with js demo](https://github.com/Tencent/Hippy#build-the-ios-simulator-with-js-demo) or [Build the Android app with js demo](https://github.com/Tencent/Hippy#build-the-android-app-with-js-demo) first to build the App.
-2. `cd` to examples `hippy-react-demo` or `hippy-vue-demo`.
+2. `cd` to `driver/js/examples/hippy-react-demo` or `driver/js/examples/hippy-vue-demo`.
 3. Run `npm install` to install demo js dependencies.
 4. Run `npm run hippy:vendor` and `npm run hippy:build` in sequence to build the production `vendor.[android|ios].js` and `index.[android|ios].js`.
 
