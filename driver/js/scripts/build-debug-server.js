@@ -9,7 +9,7 @@ const {
 module.exports = buildDebugServer;
 
 function buildDebugServer() {
-  const DEBUG_SERVER_PATH = path.join(__dirname, '../driver/js/packages/hippy-debug-server');
+  const DEBUG_SERVER_PATH = path.join(__dirname, '../packages/hippy-debug-server');
 
   pushd(DEBUG_SERVER_PATH);
 
