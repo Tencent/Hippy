@@ -18,6 +18,8 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
+import android.view.MotionEvent;
+import android.view.View.OnTouchListener;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
 import androidx.recyclerview.widget.ItemLayoutParams;
@@ -26,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.DiffUtils.PatchType;
@@ -39,6 +42,7 @@ import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created on 2020/12/22.
@@ -46,7 +50,7 @@ import java.util.ArrayList;
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
-        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams {
+        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams, OnTouchListener {
 
     private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HippyEngineContext hpContext;
@@ -153,6 +157,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         if (parentNode != null) {
             hpContext.getRenderManager().getControllerManager()
                     .deleteChild(parentNode.getId(), renderNode.getId());
+        } else {
+            hpContext.getRenderManager().getControllerManager().removeViewFromRegistry(renderNode.getId());
         }
         renderNode.setRecycleItemTypeChangeListener(null);
     }
@@ -209,6 +215,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     public void onFooterDestroy() {
         if (footerRefreshHelper != null) {
             footerRefreshHelper.onDestroy();
+            footerRefreshHelper = null;
         }
     }
 
@@ -221,6 +228,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     public void onHeaderDestroy() {
         if (headerRefreshHelper != null) {
             headerRefreshHelper.onDestroy();
+            headerRefreshHelper = null;
         }
     }
 
@@ -470,5 +478,16 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             return;
         }
         lp.height = getItemHeight(position);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (headerRefreshHelper != null) {
+            headerRefreshHelper.onTouch(v, event);
+        }
+        if (footerRefreshHelper != null) {
+            footerRefreshHelper.onTouch(v, event);
+        }
+        return false;
     }
 }

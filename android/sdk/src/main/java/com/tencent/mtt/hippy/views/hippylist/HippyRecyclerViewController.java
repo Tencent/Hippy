@@ -48,9 +48,6 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     public static final String SCROLL_TO_INDEX = "scrollToIndex";
     public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
     public static final String SCROLL_TO_TOP = "scrollToTop";
-    public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
-    public static final String COLLAPSE_PULL_HEADER_WITH_OPTIONS = "collapsePullHeaderWithOptions";
-    public static final String EXPAND_PULL_HEADER = "expandPullHeader";
     public static final String HORIZONTAL = "horizontal";
 
     public HippyRecyclerViewController() {
@@ -65,6 +62,11 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     @Override
     public View getChildAt(HRW viewGroup, int index) {
         return viewGroup.getChildAtWithCaches(index);
+    }
+
+    @Override
+    public void onViewDestroy(HRW viewGroup) {
+        ((HRW) viewGroup).getRecyclerView().onDestroy();
     }
 
     /**
@@ -241,35 +243,6 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
             }
             case SCROLL_TO_TOP: {
                 view.scrollToTop();
-                break;
-            }
-            case COLLAPSE_PULL_HEADER: {
-                getAdapter(view).onHeaderRefreshCompleted();
-                break;
-            }
-            case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
-                HippyMap valueMap = dataArray.getMap(0);
-                if (valueMap == null) {
-                    return;
-                }
-                final int time = valueMap.getInt("time");
-                final HippyRecyclerListAdapter adapter = getAdapter(view);
-                if (adapter == null) {
-                    return;
-                }
-                if (time > 0) {
-                    view.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.onHeaderRefreshCompleted();
-                        }
-                    }, time);
-                } else {
-                    adapter.onHeaderRefreshCompleted();
-                }
-            }
-            case EXPAND_PULL_HEADER: {
-                getAdapter(view).enableHeaderRefresh();
                 break;
             }
         }
