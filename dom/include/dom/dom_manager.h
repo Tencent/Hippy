@@ -56,7 +56,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   ~DomManager() = default;
 
   inline int32_t GetId() { return id_; }
-
+  inline std::weak_ptr<RenderManager> GetRenderManager() { return render_manager_; }
 
   void Init();
   void SetRenderManager(const std::weak_ptr<RenderManager>& render_manager);

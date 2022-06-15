@@ -183,7 +183,7 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
   FlushDomOperations(render_manager);
   FlushEventOperations(render_manager);
   DoAndFlushLayout(render_manager);
-  render_manager->EndBatch(GetSelf());
+  render_manager->EndBatch(GetWeakSelf());
 }
 
 void RootNode::AddEvent(uint32_t id, const std::string& event_name) {
@@ -269,7 +269,11 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
 }
 
 void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
-  auto render_manager = render_manager_.lock();
+  auto dom_manager = dom_manager_.lock();
+  if (!dom_manager) {
+    return;
+  }
+  auto render_manager = dom_manager->GetRenderManager().lock();
   TDF_BASE_DCHECK(render_manager);
   if (!render_manager) {
     return;
@@ -282,7 +286,7 @@ void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
   // 更新属性
   std::vector<std::shared_ptr<DomNode>> nodes;
   nodes.push_back(node);
-  render_manager->UpdateRenderNode(GetSelf(), std::move(nodes));
+  render_manager->UpdateRenderNode(GetWeakSelf(), std::move(nodes));
   SyncWithRenderManager(render_manager);
 }
 
@@ -305,22 +309,17 @@ void RootNode::SetRootSize(float width, float height) {
   SetLayoutSize(width, height);
 }
 
-void RootNode::SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
-  SetRootNode(GetSelf());
-  render_manager_ = render_manager;
-}
-
 void RootNode::DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager) {
   // Before Layout
-  render_manager->BeforeLayout(GetSelf());
+  render_manager->BeforeLayout(GetWeakSelf());
   // 触发布局计算
   std::vector<std::shared_ptr<DomNode>> layout_changed_nodes;
   DoLayout(layout_changed_nodes);
   // After Layout
-  render_manager->AfterLayout(GetSelf());
+  render_manager->AfterLayout(GetWeakSelf());
 
   if (!layout_changed_nodes.empty()) {
-    render_manager->UpdateLayout(GetSelf(), layout_changed_nodes);
+    render_manager->UpdateLayout(GetWeakSelf(), layout_changed_nodes);
   }
 }
 
@@ -328,16 +327,16 @@ void RootNode::FlushDomOperations(const std::shared_ptr<RenderManager>& render_m
   for (auto& dom_operation : dom_operations_) {
     switch (dom_operation.op) {
       case DomOperation::kOpCreate:
-        render_manager->CreateRenderNode(GetSelf(), std::move(dom_operation.nodes));
+        render_manager->CreateRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
       case DomOperation::kOpUpdate:
-        render_manager->UpdateRenderNode(GetSelf(), std::move(dom_operation.nodes));
+        render_manager->UpdateRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
       case DomOperation::kOpDelete:
-        render_manager->DeleteRenderNode(GetSelf(), std::move(dom_operation.nodes));
+        render_manager->DeleteRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
       case DomOperation::kOpMove:
-        render_manager->MoveRenderNode(GetSelf(), std::move(dom_operation.nodes));
+        render_manager->MoveRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
       default:
         break;
@@ -355,10 +354,10 @@ void RootNode::FlushEventOperations(const std::shared_ptr<RenderManager>& render
 
     switch (event_operation.op) {
       case EventOperation::kOpAdd:
-        render_manager->AddEventListener(GetSelf(), node, event_operation.name);
+        render_manager->AddEventListener(GetWeakSelf(), node, event_operation.name);
         break;
       case EventOperation::kOpRemove:
-        render_manager->RemoveEventListener(GetSelf(), node, event_operation.name);
+        render_manager->RemoveEventListener(GetWeakSelf(), node, event_operation.name);
         break;
       default:
         break;
@@ -382,7 +381,7 @@ void RootNode::OnDomNodeDeleted(const std::shared_ptr<DomNode> &node) {
   }
 }
 
-std::shared_ptr<RootNode> RootNode::GetSelf() {
+std::weak_ptr<RootNode> RootNode::GetWeakSelf() {
   return std::static_pointer_cast<RootNode>(shared_from_this());
 }
 

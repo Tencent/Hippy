@@ -384,7 +384,11 @@ void DomNode::CallFunction(const std::string& name,
   if (!root_node) {
     return;
   }
-  auto render_manager = root_node->GetRenderManager().lock();
+  auto dom_manager = root_node->GetDomManager().lock();
+  if (!dom_manager) {
+    return;
+  }
+  auto render_manager = dom_manager->GetRenderManager().lock();
   if (!render_manager) {
     return;
   }

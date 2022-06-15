@@ -47,7 +47,6 @@ class RootNode : public DomNode {
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
-  void SetRenderManager(std::shared_ptr<RenderManager> render_manager);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
  private:
@@ -75,17 +74,15 @@ class RootNode : public DomNode {
 
   void FlushDomOperations(const std::shared_ptr<RenderManager>& render_manager);
   void FlushEventOperations(const std::shared_ptr<RenderManager>& render_manager);
-
   void OnDomNodeCreated(const std::shared_ptr<DomNode>& node);
   void OnDomNodeDeleted(const std::shared_ptr<DomNode>& node);
+  std::weak_ptr<RootNode> GetWeakSelf();
 
   std::unordered_map<uint32_t, std::weak_ptr<DomNode>> nodes_;
   std::weak_ptr<TaskRunner> delegate_task_runner_;
   std::weak_ptr<DomManager> dom_manager_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
-
-  std::shared_ptr<RootNode> GetSelf();
 };
 
 }  // namespace dom
