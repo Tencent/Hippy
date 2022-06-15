@@ -22,7 +22,7 @@ InfraPackage_Add(asio
 
 # InfaPackage nlohmann_json
 InfraPackage_Add(json
-  REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
+  REMOTE "devtools/backend/third_party/json/3.9.1/json.zip"
   LOCAL "third_party/json"
 )
 include_directories(${json_SOURCE_DIR}/include)
