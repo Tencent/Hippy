@@ -81,14 +81,14 @@ class NativeRenderManager : public RenderManager {
     }
   };
 
-  void HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name);
+  void HandleListenerOps(std::map<uint32_t, std::vector<ListenerOp>>& ops, const std::string& method_name);
 
  private:
   int32_t id_;
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<tdf::base::Serializer> serializer_;
   float density_ = 1.0f;
-  std::vector<ListenerOp> event_listener_ops_;
+  std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 
   std::weak_ptr<DomManager> dom_manager_;
 };

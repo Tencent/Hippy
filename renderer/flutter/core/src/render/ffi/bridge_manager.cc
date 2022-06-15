@@ -116,6 +116,7 @@ void BridgeManager::InitInstance(int32_t engine_id, int32_t root_id, Sp<hippy::R
   dom_manager->Init(root_id);
   DomManager::Insert(dom_manager);
   dom_manager->SetRenderManager(render_manager);
+  dom_manager->GetAnimationManager()->SetDomManager(dom_manager);
   BindDomManager(root_id, dom_manager);
   BindRenderManager(root_id, render_manager);
 }

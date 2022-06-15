@@ -317,11 +317,17 @@ void NativeRenderManager::AfterLayout() {
 }
 
 void NativeRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-  event_listener_ops_.emplace_back(ListenerOp(true, dom_node, name));
+  auto node = dom_node.lock();
+  if (node) {
+    event_listener_ops_[node->GetId()].emplace_back(ListenerOp(true, dom_node, name));
+  }
 }
 
 void NativeRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) {
-  event_listener_ops_.emplace_back(ListenerOp(false, dom_node, name));
+  auto node = dom_node.lock();
+  if (node) {
+    event_listener_ops_[node->GetId()].emplace_back(ListenerOp(false, dom_node, name));
+  }
 }
 
 void NativeRenderManager::CallFunction(std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
@@ -448,46 +454,33 @@ void NativeRenderManager::CallNativeMeasureMethod(const int32_t id, const float 
 
 }
 
-void NativeRenderManager::HandleListenerOps(std::vector<ListenerOp>& ops, const std::string& method_name) {
+void NativeRenderManager::HandleListenerOps(std::map<uint32_t, std::vector<ListenerOp>>& ops,
+                                            const std::string& method_name) {
   if (ops.empty()) {
     return;
   }
 
-  auto len = ops.size();
   tdf::base::DomValue::DomValueArrayType event_listener_ops;
-  size_t index = 0;
-  while (index < len) {
-    std::shared_ptr<DomNode> dom_node = ops[index].dom_node.lock();
-    if (dom_node == nullptr) {
-      index++;
-      continue;
-    }
-
-    auto current_id = dom_node->GetId();
-    bool current_add = ops[index].add;
+  for (auto iter = ops.begin(); iter != ops.end(); ++iter) {
     tdf::base::DomValue::DomValueObjectType op;
-    op[kId] = tdf::base::DomValue(current_id);
     tdf::base::DomValue::DomValueObjectType events;
-    events[ops[index].name] = tdf::base::DomValue(current_add);
-    index++;
 
-    while (index < len) {
-      std::shared_ptr<DomNode> node = ops[index].dom_node.lock();
-      if (node == nullptr) {
-        index++;
+    const std::vector<ListenerOp> &listener_ops = iter->second;
+    const auto len = listener_ops.size();
+    std::vector<ListenerOp>::size_type index = 0;
+    for (; index < len; index++) {
+      const ListenerOp &listener_op = listener_ops[index];
+      std::shared_ptr<DomNode> dom_node = listener_op.dom_node.lock();
+      if (dom_node == nullptr) {
         break;
       }
-      if (node->GetId() == current_id) {
-        // batch add or remove operations with the same nodes together.
-        events[ops[index].name] = tdf::base::DomValue(ops[index].add);
-        index++;
-      } else {
-        break;
-      }
+      events[listener_op.name] = tdf::base::DomValue(listener_op.add);
     }
-
-    op[kProps] = events;
-    event_listener_ops.emplace_back(op);
+    if (index == len) {
+      op[kId] = tdf::base::DomValue(iter->first);
+      op[kProps] = events;
+      event_listener_ops.emplace_back(op);
+    }
   }
 
   ops.clear();

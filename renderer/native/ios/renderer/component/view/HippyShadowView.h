@@ -129,11 +129,6 @@ extern NSString *const HippyShadowViewDiffTag;
 @property(nonatomic, assign) UIEdgeInsets paddingAsInsets;
 
 /**
- * Indicate whether the view corresponding to this can animate
- */
-@property (nonatomic, assign) BOOL animated;
-
-/**
  * z-index, used to override sibling order in the view
  */
 @property (nonatomic, assign) NSInteger zIndex;

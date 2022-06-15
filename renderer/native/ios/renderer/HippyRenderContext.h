@@ -29,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class HippyViewManager;
 @class HippyShadowView;
-@class HippyAnimator;
 
 @protocol HippyRenderContext;
 
@@ -53,8 +52,6 @@ typedef void (^HippyViewUpdateCompletedBlock)(id<HippyRenderContext> renderConte
 - (__kindof UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
 
 - (void)purgeViewsFromHippyTags:(NSArray<NSNumber *> *)hippyTag;
-
-- (HippyAnimator *)animator;
 
 - (void)addUIBlock:(HippyRenderUIBlock)block;
 

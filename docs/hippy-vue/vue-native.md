@@ -288,7 +288,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 ---
 
-# ImageLoaderModule
+# ImageLoader
 
 通过该模块可以对远程图片进行相应操作
 
@@ -296,13 +296,13 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 ## 方法
 
-### ImageLoaderModule.getSize
+### ImageLoader.getSize
 
 `(url: string) => Promise<{width, height}>` 获取图片大小（会同时预加载图片）。
 
 > * url - 图片地址
 
-### ImageLoaderModule.prefetch
+### ImageLoader.prefetch
 
 `(url: string) => void` 用于预加载图片。
 
@@ -318,7 +318,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 `(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
 
-> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](hippy-vue/components?id=样式内特殊属性) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
+> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](style/layout?id=collapsable) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
 
 ---
 

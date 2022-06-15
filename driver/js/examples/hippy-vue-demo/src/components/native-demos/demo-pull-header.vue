@@ -48,18 +48,19 @@
       <li
         v-for="(ui, index) in dataSource"
         :key="index"
+        class="item-style"
         :type="'row-' + ui.style"
       >
         <style-one
-          v-if="ui.style == 1"
+          v-if="ui.style === 1"
           :item-bean="ui.itemBean"
         />
         <style-two
-          v-if="ui.style == 2"
+          v-if="ui.style === 2"
           :item-bean="ui.itemBean"
         />
         <style-five
-          v-if="ui.style == 5"
+          v-if="ui.style === 5"
           :item-bean="ui.itemBean"
         />
       </li>
@@ -277,4 +278,11 @@ export default {
 #demo-pull-header .style-two-image {
   height: 140px;
 }
+
+#demo-pull-header .item-style {
+  background-color: white;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
 </style>

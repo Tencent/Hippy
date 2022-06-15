@@ -23,6 +23,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
@@ -33,6 +34,11 @@ void main() {
   // debugProfileBuildsEnabled = true; //向 Timeline 事件中添加 build 信息
   // debugPrintRebuildDirtyWidgets = true; // 记录每帧重建的 widget
   // debugProfilePaintsEnabled = true;
+  if (Platform.isAndroid) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
+      statusBarColor: Colors.black,
+    ));
+  }
   runApp(MyApp());
 }
 
@@ -57,6 +63,11 @@ class _MyAppState extends State<MyApp> {
           appBar: AppBar(
             title: Text('Voltron动态化方案'),
             backgroundColor: Color(0xFF40b883),
+            systemOverlayStyle: Platform.isAndroid
+                ? SystemUiOverlayStyle.light.copyWith(
+                    statusBarColor: Colors.black,
+                  )
+                : null,
           ),
           body: MainPageWidget(),
         ),

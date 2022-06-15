@@ -30,6 +30,8 @@
 #include "core/base/string_view_utils.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
+#include "jni/jni_env.h"
+#include "jni/scoped_java_ref.h"
 
 namespace hippy::runtime {
 
