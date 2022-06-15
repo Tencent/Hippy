@@ -41,13 +41,10 @@ using DomValueArrayType = tdf::base::DomValue::DomValueArrayType;
 
 DomManager::DomManager() {
   id_ = global_dom_manager_key.fetch_add(1);
-  animation_manager_ = std::make_shared<AnimationManager>();
-  interceptors_.push_back(animation_manager_);
   dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
 }
 
-void DomManager::Init(uint32_t root_id) {
-  root_id_ = root_id;
+void DomManager::Init() {
   StartTaskRunner();
 }
 
@@ -75,157 +72,150 @@ bool DomManager::Erase(int32_t id) {
   return true;
 }
 
-bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
+bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) {
+  return DomManager::Erase(dom_manager->id_);
+}
 
-void DomManager::SetRenderManager(std::shared_ptr<RenderManager> render_manager) {
+void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_manager) {
 #ifdef ENABLE_LAYER_OPTIMIZATION
-  optimized_render_manager_ = std::make_shared<LayerOptimizedRenderManager>(render_manager);
+  optimized_render_manager_ = std::make_shared<LayerOptimizedRenderManager>(render_manager.lock());
   render_manager_ = optimized_render_manager_;
 #else
   render_manager_ = render_manager;
 #endif
-  animation_manager_->SetRenderManager(render_manager);
 }
 
-uint32_t DomManager::GetRootId() const { return root_id_; }
-
-std::shared_ptr<DomNode> DomManager::GetNode(std::weak_ptr<RootNode> root_node, uint32_t id) const {
-  auto host = root_node.lock();
-  if (!host) {
+std::shared_ptr<DomNode> DomManager::GetNode(const std::weak_ptr<RootNode>& weak_root_node,
+                                             uint32_t id) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return nullptr;
   }
-  return host->GetNode(id);
+  return root_node->GetNode(id);
 }
 
-void DomManager::CreateDomNodes(std::weak_ptr<RootNode> root_node,
+void DomManager::CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
-    interceptor->OnDomNodeCreate(nodes);
-  }
-  host->CreateDomNodes(std::move(nodes));
+  root_node->CreateDomNodes(std::move(nodes));
 }
 
-void DomManager::UpdateDomNodes(std::weak_ptr<RootNode> root_node,
+void DomManager::UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
-    interceptor->OnDomNodeUpdate(nodes);
-  }
-  host->UpdateDomNodes(std::move(nodes));
+  root_node->UpdateDomNodes(std::move(nodes));
 }
 
-void DomManager::MoveDomNodes(std::weak_ptr<RootNode> root_node,
+void DomManager::MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                               std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  for (std::shared_ptr<DomActionInterceptor> interceptor : interceptors_) {
-    interceptor->OnDomNodeMove(nodes);
-  }
-  host->MoveDomNodes(std::move(nodes));
+  root_node->MoveDomNodes(std::move(nodes));
 }
 
-void DomManager::UpdateAnimation(std::weak_ptr<RootNode> root_node,
+void DomManager::UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
                                  std::vector<std::shared_ptr<DomNode>>&& nodes) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  host->UpdateAnimation(std::move(nodes));
+  root_node->UpdateAnimation(std::move(nodes));
 }
 
-void DomManager::DeleteDomNodes(std::weak_ptr<RootNode> root_node,
+void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  for (const std::shared_ptr<DomActionInterceptor>& interceptor : interceptors_) {
-    interceptor->OnDomNodeDelete(nodes);
-  }
-  host->DeleteDomNodes(std::move(nodes));
+  root_node->DeleteDomNodes(std::move(nodes));
 }
 
-void DomManager::EndBatch(std::weak_ptr<RootNode> root_node) {
+void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   DCHECK_RUN_THREAD()
   auto render_manager = render_manager_.lock();
   TDF_BASE_DCHECK(render_manager);
   if (!render_manager) {
     return;
   }
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  host->SyncWithRenderManager(render_manager);
+  root_node->SyncWithRenderManager(render_manager);
 }
 
-void DomManager::AddEventListener(std::weak_ptr<RootNode> root_node,
-                                  uint32_t dom_id, const std::string& event_name, uint64_t listener_id,
-                                  bool use_capture, const EventCallback& cb) {
+void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
+                                  uint32_t dom_id,
+                                  const std::string& event_name,
+                                  uint64_t listener_id,
+                                  bool use_capture,
+                                  const EventCallback& cb) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  auto node = host->GetNode(dom_id);
+  auto node = root_node->GetNode(dom_id);
   if (!node) {
     return;
   }
   node->AddEventListener(event_name, listener_id, use_capture, cb);
 }
 
-void DomManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
+void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node,
                                      uint32_t id, const std::string& name, uint64_t listener_id) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  auto node = host->GetNode(id);
+  auto node = root_node->GetNode(id);
   if (!node) {
     return;
   }
   node->RemoveEventListener(name, listener_id);
 }
 
-void DomManager::CallFunction(std::weak_ptr<RootNode> root_node,
+void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
                               uint32_t id, const std::string& name, const DomArgument& param,
                               const CallFunctionCallback& cb) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  host->CallFunction(id, name, param, cb);
+  root_node->CallFunction(id, name, param, cb);
 }
 
-void DomManager::SetRootSize(std::weak_ptr<RootNode> root_node, float width, float height) {
+void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node,
+                             float width,
+                             float height) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
-  host->SetRootSize(width, height);
+  root_node->SetRootSize(width, height);
 }
 
-void DomManager::DoLayout(std::weak_ptr<RootNode> root_node) {
+void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {
   DCHECK_RUN_THREAD()
-  auto host = root_node.lock();
-  if (!host) {
+  auto root_node = weak_root_node.lock();
+  if (!root_node) {
     return;
   }
   auto render_manager = render_manager_.lock();
@@ -234,7 +224,7 @@ void DomManager::DoLayout(std::weak_ptr<RootNode> root_node) {
   if (!render_manager) {
     return;
   }
-  host->DoAndFlushLayout(render_manager);
+  root_node->DoAndFlushLayout(render_manager);
 }
 
 void DomManager::PostTask(const Scene&& scene) {
@@ -254,33 +244,13 @@ void DomManager::CancelTask(std::shared_ptr<CommonTask> task) {
   dom_task_runner_->CancelTask(std::move(task));
 }
 
-void DomManager::AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor) {
-  interceptors_.push_back(interceptor);
-}
-
-void DomManager::Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse) {
- if (!root_node_) {
-   return;
- }
-
- std::stack<std::shared_ptr<DomNode>> stack;
- stack.push(root_node_);
- while(!stack.empty()) {
-   auto top = stack.top();
-   stack.pop();
-   on_traverse(top);
-   auto children = top->GetChildren();
-   if (!children.empty()) {
-     for (auto it = children.rbegin(); it != children.rend(); ++it) {
-       stack.push(*it);
-     }
-   }
- }
-}
-
-DomManager::bytes DomManager::GetSnapShot() {
+DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_node) {
+  DCHECK_RUN_THREAD()
+  if (!root_node) {
+    return {};
+  }
   DomValueArrayType array;
-  Traverse([&array](const std::shared_ptr<DomNode>& node) {
+  root_node->Traverse([&array](const std::shared_ptr<DomNode>& node) {
     array.emplace_back(node->Serialize());
   });
   Serializer serializer;
@@ -290,7 +260,9 @@ DomManager::bytes DomManager::GetSnapShot() {
   return {reinterpret_cast<const char*>(ret.first), ret.second};
 }
 
-bool DomManager::SetSnapShot(const bytes& buffer, const RootInfo& root_info) {
+bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node,
+                           const bytes& buffer, const RootInfo& root_info) {
+  DCHECK_RUN_THREAD()
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
   DomValue value;
   deserializer.ReadHeader();
@@ -303,20 +275,13 @@ bool DomManager::SetSnapShot(const bytes& buffer, const RootInfo& root_info) {
   if (array.empty()) {
     return false;
   }
-  auto weak_dom_manager = weak_from_this();
-  auto root_node = std::make_shared<DomNode>();
-  flag = root_node->Deserialize(array[0]);
-  if (!flag) {
-    return false;
-  }
-  if (root_node->GetPid() != 0) {
+  auto snapshot_root_node = std::make_shared<RootNode>();
+  if (snapshot_root_node->GetPid() != 0) {
     return false;
   }
   auto orig_root_id = root_node->GetId();
-  root_node_ = std::make_shared<RootNode>(root_info.root_id);
-  root_node_->SetDomManager(weak_dom_manager);
-  root_node_->SetLayoutSize(root_info.width, root_info.height);
   std::vector<std::shared_ptr<DomInfo>> nodes;
+  std::weak_ptr<DomManager> weak_dom_manager = weak_from_this();
   for (uint32_t i = 1; i < array.size(); ++i) {
     auto node = array[i];
     auto dom_node = std::make_shared<DomNode>();
@@ -324,25 +289,15 @@ bool DomManager::SetSnapShot(const bytes& buffer, const RootInfo& root_info) {
     if (!flag) {
       return false;
     }
-
-    dom_node->SetDomManager(weak_dom_manager);
+    dom_node->SetRootNode(root_node);
     if (dom_node->GetPid() == orig_root_id) {
-      dom_node->SetPid(root_info.root_id);
+      dom_node->SetPid(root_node->GetId());
     }
     nodes.push_back(std::make_shared<DomInfo>(dom_node, nullptr));
   }
 
-  std::vector<std::function<void()>> ops = {
-      [weak_dom_manager, nodes{std::move(nodes)}]() mutable {
-        auto dom_manager = weak_dom_manager.lock();
-        if (!dom_manager) {
-          return;
-        }
-        dom_manager->CreateDomNodes(std::move(nodes));
-        dom_manager->EndBatch();
-      }
-  };
-  PostTask(Scene(std::move(ops)));
+  CreateDomNodes(root_node, std::move(nodes));
+  EndBatch(root_node);
 
   return true;
 }

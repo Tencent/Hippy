@@ -149,9 +149,9 @@ void DoBind(JNIEnv* j_env,
   std::shared_ptr<NativeRenderManager>
       render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
   float density = render_manager->GetDensity();
-  uint32_t root_id = dom_manager->GetRootId();
-  auto node = dom_manager->GetNode(scope->GetRootNode(), root_id);
-  auto layout_node = node->GetLayoutNode();
+  // todo get rootNode
+  auto root_node = std::make_shared<hippy::RootNode>();
+  auto layout_node = root_node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
 #else
   std::shared_ptr<RenderManager>
@@ -161,7 +161,7 @@ void DoBind(JNIEnv* j_env,
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);
-  dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
+  root_node->SetDelegateTaskRunner(scope->GetTaskRunner());
 #ifdef ANDROID_NATIVE_RENDER
   render_manager->SetDomManager(dom_manager);
 #endif
@@ -174,14 +174,16 @@ void DoBind(JNIEnv* j_env,
 jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
   TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
   auto dom_manager = std::make_shared<DomManager>();
-  dom_manager->Init(static_cast<uint32_t>(j_root_id));
+  dom_manager->Init();
   std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
   dom_manager->PostTask(hippy::Scene({[weak_dom_manager]{
     auto dom_manager = weak_dom_manager.lock();
     if (!dom_manager) {
       return;
     }
-    dom_manager->GetAnimationManager()->SetDomManager(weak_dom_manager);
+    // todo get rootNode
+    auto root_node = std::make_shared<hippy::RootNode>();
+    root_node->SetDomManager(weak_dom_manager);
   }}));
   DomManager::Insert(dom_manager);
   return dom_manager->GetId();

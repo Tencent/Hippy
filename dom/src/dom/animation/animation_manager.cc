@@ -14,6 +14,7 @@
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
+#include "dom/root_node.h"
 
 constexpr char kVSyncKey[] = "frameupdate";
 
@@ -21,9 +22,7 @@ namespace hippy {
 inline namespace dom {
 using Scene = hippy::dom::Scene;
 
-AnimationManager::AnimationManager(std::shared_ptr<RootNode> root_node) {
-  root_node_ = root_node;
-}
+AnimationManager::AnimationManager() : listener_id_(0) {}
 
 void AnimationManager::OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) {
   for (const std::shared_ptr<DomInfo>& node: nodes) {
@@ -90,7 +89,7 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
 
 void AnimationManager::FetchAnimationsFromObject(
     const std::string& prop,
-    std::shared_ptr<DomValue> value,
+    const std::shared_ptr<DomValue>& value,
     std::unordered_map<uint32_t, std::string>& result) {
   if (value->IsObject()) {
     tdf::base::DomValue::DomValueObjectType obj;
@@ -178,9 +177,14 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
     if (!dom_manager) {
       return;
     }
+    auto root_node = root_node_.lock();
+    if (!root_node) {
+      return;
+    }
     listener_id_ = hippy::dom::FetchListenerId();
     auto weak_animation_manager = weak_from_this();
-    dom_manager->AddEventListener(dom_manager->GetRootId(),
+    dom_manager->AddEventListener(root_node,
+                                  root_node->GetId(),
                                   kVSyncKey,
                                   listener_id_,
                                   false,
@@ -200,7 +204,7 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
                                     }};
                                     dom_manager->PostTask(Scene(std::move(ops)));
                                   });
-    dom_manager->EndBatch();
+    dom_manager->EndBatch(root_node);
   }
 }
 
@@ -214,8 +218,15 @@ void AnimationManager::RemoveActiveAnimation(uint32_t id) {
   }
   if (size == 1 && active_animations_.empty()) {
     auto dom_manager = dom_manager_.lock();
+    if (!dom_manager) {
+      return;
+    }
+    auto root_node = root_node_.lock();
+    if (!root_node) {
+      return;
+    }
     if (dom_manager) {
-      dom_manager->RemoveEventListener(dom_manager->GetRootId(), kVSyncKey, listener_id_);
+      dom_manager->RemoveEventListener(root_node, root_node->GetId(), kVSyncKey, listener_id_);
     }
   }
 }
@@ -263,7 +274,7 @@ void AnimationManager::UpdateCubicBezierAnimation(double current,
     if (prop_it == props.end()) {
       continue;
     }
-    auto dom_node = dom_manager->GetNode(node_props_it->first);
+    auto dom_node = dom_manager->GetNode(root_node_, node_props_it->first);
     if (!dom_node) {
       continue;
     }
@@ -288,8 +299,7 @@ void AnimationManager::UpdateAnimation() {
 
   auto now = hippy::base::MonotonicallyIncreasingTime();
   std::vector<std::shared_ptr<DomNode>> update_nodes;
-  for (uint32_t i = 0; i < active_animations_.size(); ++i) {
-    auto animation = active_animations_[i];
+  for (const auto& animation : active_animations_) {
     auto animation_id = animation->GetId();
     auto parent_id = animation->GetParentId();
     auto related_animation_id = parent_id;
@@ -301,8 +311,8 @@ void AnimationManager::UpdateAnimation() {
       UpdateCubicBezierAnimation(current, related_animation_id, update_nodes);
     });
   }
-  dom_manager->UpdateAnimation(std::move(update_nodes));
-  dom_manager->EndBatch();
+  dom_manager->UpdateAnimation(root_node_, std::move(update_nodes));
+  dom_manager->EndBatch(root_node_);
 }
 
 }  // namespace dom

@@ -2,6 +2,9 @@
 
 #include <stack>
 
+#include "dom/animation/animation_manager.h"
+#include "dom/deserializer.h"
+#include "dom/dom_value.h"
 #include "dom/diff_utils.h"
 #include "dom/render_manager.h"
 
@@ -15,10 +18,17 @@ constexpr char kDomTreeCreated[] = "DomTreeCreated";
 constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
 constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
 
+using Deserializer = tdf::base::Deserializer;
+using Serializer = tdf::base::Serializer;
+using DomValueArrayType = tdf::base::DomValue::DomValueArrayType;
+
 RootNode::RootNode(uint32_t id)
-        : DomNode(id, 0, 0, "", "",
-                  std::unordered_map<std::string, std::shared_ptr<DomValue>>(),
-                  std::unordered_map<std::string, std::shared_ptr<DomValue>>()) {}
+        : DomNode(id, 0, 0, "", "",nullptr,nullptr) {
+  animation_manager_ = std::make_shared<AnimationManager>();
+  interceptors_.push_back(animation_manager_);
+}
+
+RootNode::RootNode(): RootNode(0) {}
 
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
@@ -374,6 +384,26 @@ void RootNode::OnDomNodeDeleted(const std::shared_ptr<DomNode> &node) {
 
 std::shared_ptr<RootNode> RootNode::GetSelf() {
   return std::static_pointer_cast<RootNode>(shared_from_this());
+}
+
+void RootNode::AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor) {
+  interceptors_.push_back(interceptor);
+}
+
+void RootNode::Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse) {
+  std::stack<std::shared_ptr<DomNode>> stack;
+  stack.push(shared_from_this());
+  while(!stack.empty()) {
+    auto top = stack.top();
+    stack.pop();
+    on_traverse(top);
+    auto children = top->GetChildren();
+    if (!children.empty()) {
+      for (auto it = children.rbegin(); it != children.rend(); ++it) {
+        stack.push(*it);
+      }
+    }
+  }
 }
 
 }  // namespace dom
