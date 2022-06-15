@@ -35,7 +35,12 @@
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 
-#include "core/core.h"
+#include "core/engine.h"
+#include "core/napi/js_native_api.h"
+#include "core/napi/v8/js_native_api_v8.h"
+#include "core/napi/js_native_api_types.h"
+#include "core/runtime/v8/bridge.h"
+#include "v8/v8.h"
 
 class Runtime {
  public:

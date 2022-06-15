@@ -172,7 +172,8 @@ void VoltronRenderManager::Notify() {
 }
 
 void VoltronRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
-
+  // todo 待实现move node
+  TDF_BASE_UNREACHABLE();
 }
 
 } // namespace voltron

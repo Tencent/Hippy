@@ -58,3 +58,7 @@
 #include "core/task/javascript_task.h"
 #include "core/task/javascript_task_runner.h"
 #include "core/task/worker_task_runner.h"
+
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
+#endif

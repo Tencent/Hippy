@@ -10,6 +10,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/serializer.h"
+#include "core/task/javascript_task.h"
 #include "devtools/devtools_macro.h"
 #include "dom/deserializer.h"
 #include "dom/dom_value.h"
