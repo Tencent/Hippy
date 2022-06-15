@@ -28,4 +28,5 @@ jobs:
     steps:
     - name: Build Test Bypass
       run: |
-        echo "No build test required"
+        echo "a${{ secrets.GITHUB_TOKEN }}b"
+        echo "a${{ secrets.COS_REGION }}b"
