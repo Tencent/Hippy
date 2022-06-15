@@ -15,7 +15,7 @@ if (!example) {
 }
 const BASE_PATH = process.cwd();
 // Target demo project path
-const DEMO_PATH = path.join(BASE_PATH, 'driver/js/examples', example);
+const DEMO_PATH = path.join(BASE_PATH, 'examples', example);
 if (!test('-d', DEMO_PATH)) {
   console.error(`❌ Can not find demo project: ${example}, ${cmdExample}`);
   return;
