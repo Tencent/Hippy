@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.DiffUtils.PatchType;
@@ -156,6 +157,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         if (parentNode != null) {
             hpContext.getRenderManager().getControllerManager()
                     .deleteChild(parentNode.getId(), renderNode.getId());
+        } else {
+            hpContext.getRenderManager().getControllerManager().removeViewFromRegistry(renderNode.getId());
         }
         renderNode.setRecycleItemTypeChangeListener(null);
     }
