@@ -24,7 +24,7 @@
 #include <sstream>
 #include <string>
 #include "module/inspect_props.h"
-#include "devtools_json.h"
+#include "nlohmann/json.hpp"
 
 namespace hippy::devtools {
 

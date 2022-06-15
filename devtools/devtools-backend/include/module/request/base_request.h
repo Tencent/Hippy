@@ -22,7 +22,7 @@
 
 #include <string>
 #include "module/request/deserializer.h"
-#include "devtools_base/devtools_json.h"
+#include "nlohmann/json.hpp"
 
 namespace hippy::devtools {
 

@@ -20,7 +20,7 @@
 
 #pragma once
 #include <string>
-#include "devtools_json.h"
+#include "nlohmann/json.hpp"
 
 namespace hippy::devtools {
 
