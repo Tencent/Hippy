@@ -257,7 +257,7 @@
 		664C2FAB282CA415003608D6 /* devtools_data_source.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = devtools_data_source.h; sourceTree = "<group>"; };
 		664C2FAE282CA41F003608D6 /* devtools_data_source.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_data_source.cc; sourceTree = "<group>"; };
 		78D3D06A282A823100E8CAFD /* hippy_vm_request_adapter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hippy_vm_request_adapter.h; sourceTree = "<group>"; };
-		78E04434283CCB040038A877 /* devtools_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_utils.cc; sourceTree = "<group>"; };
+		78E04434283CCB040038A877 /* devtools_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_utils.cc; sourceTree = "<group>"; tabWidth = 2; };
 		78E04436283CCB0C0038A877 /* devtools_utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = devtools_utils.h; sourceTree = "<group>"; };
 		78E04437283CCB0C0038A877 /* devtools_macro.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = devtools_macro.h; sourceTree = "<group>"; };
 		9252AE8A2809532F00B27E50 /* root_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = root_node.cc; sourceTree = "<group>"; };
