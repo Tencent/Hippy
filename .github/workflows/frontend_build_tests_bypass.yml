@@ -11,9 +11,9 @@ on:
       - 'driver/js/packages/**'
       - 'driver/js/examples/hippy-*-demo/**'
       - 'driver/js/core/js/**/*.js'
+      - 'driver/js/scripts/**/*.js'
       - 'package*.json'
       - 'scripts/**/*.js'
-
 jobs:
   frontend_build_tests:
     runs-on: ubuntu-latest

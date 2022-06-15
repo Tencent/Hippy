@@ -5,8 +5,8 @@ const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 
-const hippyReactPackage = require('../driver/js/packages/hippy-react/package.json');
-const hippyReactWebPackage = require('../driver/js/packages/hippy-react-web/package.json');
+const hippyReactPackage = require('../packages/hippy-react/package.json');
+const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
 
 function banner(name, version) {
   const startYear = 2017;
@@ -41,10 +41,14 @@ function banner(name, version) {
 `;
 }
 
+function resolvePackage(src, extra = 'src') {
+  return path.resolve(__dirname, '../packages/', src, extra);
+}
+
 const builds = {
   '@hippy/react': {
-    entry: './driver/js/packages/hippy-react/src/index.ts',
-    dest: './driver/js/packages/hippy-react/dist/index.js',
+    entry: resolvePackage('hippy-react', 'src/index.ts'),
+    dest: resolvePackage('hippy-react', 'dist/index.js'),
     format: 'es',
     banner: banner('@hippy/react', hippyReactPackage.version),
     external(id) {
@@ -56,8 +60,8 @@ const builds = {
     },
   },
   '@hippy/react-web': {
-    entry: './driver/js/packages/hippy-react-web/src/index.ts',
-    dest: './driver/js/packages/hippy-react-web/dist/index.js',
+    entry: resolvePackage('hippy-react-web', 'src/index.ts'),
+    dest: resolvePackage('hippy-react-web', 'dist/index.js'),
     format: 'es',
     banner: banner('@hippy/react-web', hippyReactWebPackage.version),
     external(id) {

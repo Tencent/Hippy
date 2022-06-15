@@ -1,9 +1,9 @@
 {
   "include": [
-    "driver/js/packages/**/*.js"
+    "packages/**/*.js"
   ],
   "exclude": [
-    "driver/js/packages/**/__tests__/*.test.js"
+    "packages/**/__tests__/*.test.js"
   ],
   "reporter": [
     "lcov",
