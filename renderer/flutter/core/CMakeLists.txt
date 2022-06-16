@@ -40,6 +40,14 @@ include_directories(${DOM_DIR}/include)
 set(LINKED_LIBS
         dom)
 
+if (ENABLE_INSPECTOR STREQUAL "true")
+    add_definitions(-DENABLE_INSPECTOR)
+    message("render core DEVTOOLS_DIR： ${DEVTOOLS_DIR}")
+    include_directories(${DEVTOOLS_DIR}/include)
+    add_subdirectory(${DEVTOOLS_DIR} devtools_backend)
+    list(APPEND LINKED_LIBS devtools_backend)
+endif ()
+
 if ("${BUILD_SHARED_LIB}" STREQUAL "true")
     #add base sub
     set(FRAMEWORK_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../driver/js/core)

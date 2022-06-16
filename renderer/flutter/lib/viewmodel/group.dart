@@ -23,8 +23,6 @@ import 'dart:collection';
 import 'package:collection/collection.dart';
 
 import '../render.dart';
-import '../style.dart';
-import '../util.dart';
 import 'view_model.dart';
 
 class GroupViewModel extends RenderViewModel {
@@ -33,8 +31,6 @@ class GroupViewModel extends RenderViewModel {
 
   // pull intercept
   bool interceptPullUp = false;
-
-  bool isUsingStack = false;
 
   final List<RenderViewModel> _children = [];
 
@@ -77,7 +73,6 @@ class GroupViewModel extends RenderViewModel {
     _children.addAll(viewModel.children);
     _childrenMap.addAll(viewModel._childrenMap);
     _sortedIdList.addAll(viewModel.sortedIdList);
-    isUsingStack = viewModel.isUsingStack;
   }
 
   @override
@@ -145,10 +140,7 @@ class GroupViewModel extends RenderViewModel {
     child.parent = null;
     children.remove(child);
     _childrenMap.remove(child.id);
-  }
-
-  bool isOverflowVisible() {
-    return enumValueToString(ContainOverflow.visible) == overflow;
+    _sortedIdList.remove(child.id);
   }
 }
 
@@ -171,26 +163,6 @@ class DivContainerViewModel {
         name = viewModel.name,
         childrenMap = viewModel.childrenMap {
     sortedIdList.addAll(viewModel.sortedIdList);
-  }
-
-  set stackFlag(bool flag) {
-    _viewModel.isUsingStack = flag;
-  }
-
-  bool needStack() {
-    if (sortedIdList.length == 1) {
-      var id = sortedIdList[0];
-      var childrenViewModel = childrenMap[id];
-      if (childrenViewModel != null &&
-          childrenViewModel.layoutY != null &&
-          childrenViewModel.layoutX != null &&
-          childrenViewModel.layoutY! >= 0 &&
-          childrenViewModel.layoutX! >= 0 &&
-          enumValueToString(ContainOverflow.visible) != overflow) {
-        return false;
-      }
-    }
-    return true;
   }
 
   @override

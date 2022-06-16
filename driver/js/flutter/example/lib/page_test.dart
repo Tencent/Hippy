@@ -18,36 +18,29 @@
 // limitations under the License.
 //
 
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
-const bool kUseVoltronDemo = true;
-const bool kIsAndroidPlatform = true;
+import 'my_api_provider.dart';
 
-const String kHippyBundleDir = 'hippy-bundle';
-const String kVoltronBundleDir = 'voltron-hippy-bundle';
-const String kAndroidDir = 'android';
-const String kIOSDir = 'ios';
-const String kBundleDir = kUseVoltronDemo ? kVoltronBundleDir : kHippyBundleDir;
-const String kPlatform = kIsAndroidPlatform ? kAndroidDir : kIOSDir;
+const bool kUseHippyVueDemo = false;
+
+const String kHippyVueBundleDir = 'hippy-vue-demo';
+const String kHippyReactBundleDir = 'hippy-react-demo';
+const String kBundleDir = kUseHippyVueDemo ? kHippyVueBundleDir : kHippyReactBundleDir;
+const String kPlatform = 'android'; // ios and android use same bundle
 const String kVendorPath = "jsbundle/$kBundleDir/$kPlatform/vendor.$kPlatform.js";
 const String kIndexPath = "jsbundle/$kBundleDir/$kPlatform/index.$kPlatform.js";
 
-VoltronJSLoaderManager generateManager({bool? debugMode}) {
-  var initParams = EngineInitParams();
-  // 可选，是否开启voltron debug模式
-  initParams.debugMode = debugMode ?? false;
-  // 可选：是否打印引擎的完整的log。默认为false
-  initParams.enableLog = true;
-  // 可选：debugMode = false 时必须设置coreJSAssetsPath或coreJSFilePath（debugMode = true时，所有jsbundle都是从debug server上下载）
-  initParams.coreJSAssetsPath = kVendorPath;
-
-  initParams.engineMonitor = Monitor();
-
-  return VoltronJSLoaderManager.createLoaderManager(initParams, (code, msg) {
-    LogUtils.i('loadEngine', 'code($code), msg($msg)');
-  });
+enum PageStatus {
+  init,
+  loading,
+  success,
+  error,
 }
 
 class Monitor extends EngineMonitor {
@@ -74,27 +67,87 @@ class PageTestWidget extends StatefulWidget {
 }
 
 class _PageTestWidgetState extends State<PageTestWidget> {
+  PageStatus pageStatus = PageStatus.init;
   late VoltronJSLoaderManager _loaderManager;
   late VoltronJSLoader _jsLoader;
   late String _bundle;
-  late bool _debugMode;
+  int _errorCode = -1;
   Offset offsetA = Offset(20, 300);
 
   @override
   void initState() {
+    super.initState();
     _bundle = widget.bundle ?? kIndexPath;
-    _debugMode = widget.debugMode;
-    _loaderManager = generateManager(debugMode: _debugMode);
+    _initVoltronData();
+  }
+
+  _initVoltronData() async {
+    IosDeviceInfo? deviceData;
+    if (Platform.isIOS) {
+      try {
+        deviceData = await DeviceInfoPlugin().iosInfo;
+      } catch (err) {
+        setState(() {
+          pageStatus = PageStatus.error;
+        });
+      }
+    }
+    var initParams = EngineInitParams();
+    initParams.debugMode = widget.debugMode;
+    initParams.enableLog = true;
+    initParams.coreJSAssetsPath = kVendorPath;
+    initParams.codeCacheTag = "common";
+    initParams.providers = [
+      MyAPIProvider(),
+    ];
+    initParams.engineMonitor = Monitor();
+    _loaderManager = VoltronJSLoaderManager.createLoaderManager(
+      initParams,
+      (statusCode, msg) {
+        LogUtils.i(
+          'loadEngine',
+          'code($statusCode), msg($msg)',
+        );
+        if (statusCode == EngineInitStatus.ok) {
+          setState(() {
+            pageStatus = PageStatus.success;
+          });
+        } else {
+          setState(() {
+            pageStatus = PageStatus.error;
+            _errorCode = statusCode.value;
+          });
+        }
+      },
+    );
+    var loadParams = ModuleLoadParams();
+    loadParams.componentName = "Demo";
+    loadParams.codeCacheTag = "Demo";
+    if (_bundle.startsWith('http://') || _bundle.startsWith('https://')) {
+      loadParams.jsHttpPath = _bundle;
+    } else {
+      loadParams.jsAssetsPath = _bundle;
+    }
+    loadParams.jsParams = VoltronMap();
+    loadParams.jsParams?.push(
+      "msgFromNative",
+      "Hi js developer, I come from native code!",
+    );
+    if (deviceData != null) {
+      loadParams.jsParams?.push(
+        "isSimulator",
+        !deviceData.isPhysicalDevice,
+      );
+    }
     _jsLoader = _loaderManager.createLoader(
-      generateParams(_bundle),
-      moduleListener: (status, msg, viewModel) {
+      loadParams,
+      moduleListener: (status, msg) {
         LogUtils.i(
           "flutterRender",
           "loadModule status($status), msg ($msg)",
         );
       },
     );
-    super.initState();
   }
 
   @override
@@ -106,124 +159,117 @@ class _PageTestWidgetState extends State<PageTestWidget> {
 
   @override
   Widget build(BuildContext context) {
+    Widget child;
+    if (pageStatus == PageStatus.success) {
+      child = Scaffold(
+        body: VoltronWidget(
+          loader: _jsLoader,
+        ),
+      );
+      if (widget.debugMode) {
+        child = Stack(
+          children: [
+            child,
+            reloadWidget(),
+          ],
+        );
+      }
+    } else if (pageStatus == PageStatus.error) {
+      child = Center(
+        child: Text('init engine error, code: ${_errorCode.toString()}'),
+      );
+    } else {
+      child = Container();
+    }
+    if (Platform.isAndroid) {
+      child = SafeArea(
+        bottom: false,
+        child: child,
+      );
+    }
+    return Material(
+      child: child,
+    );
+  }
+
+  Widget reloadWidget() {
     final size = MediaQuery.of(context).size;
     final height = size.height;
-
-    final voltronWidget = Scaffold(
-      body: VoltronWidget(loader: _jsLoader),
-    );
-
-    return Material(
-        child: _debugMode
-            ? Stack(
-                children: [
-                  voltronWidget,
-                  Positioned(
-                    left: offsetA.dx,
-                    top: offsetA.dy,
-                    child: Draggable(
-                      //创建可以被拖动的Widget
-                      child: FloatingActionButton(
-                        child: Icon(Icons.refresh),
-                        backgroundColor: Color(0xFF40b883),
-                        onPressed: () {
-                          Future.delayed(Duration.zero, () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PageTestWidget(
-                                  _bundle,
-                                  _debugMode,
-                                ),
-                              ),
-                            );
-                          });
-                        },
-                      ),
-                      //拖动过程中的Widget
-                      feedback: FloatingActionButton(
-                        child: Icon(Icons.refresh),
-                        backgroundColor: Color(0xFF40b883),
-                        onPressed: () {
-                          Future.delayed(Duration.zero, () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PageTestWidget(
-                                  _bundle,
-                                  _debugMode,
-                                ),
-                              ),
-                            );
-                          });
-                        },
-                      ),
-                      //拖动过程中，在原来位置停留的Widget，设定这个可以保留原本位置的残影，如果不需要可以直接设置为Container()
-                      childWhenDragging: Container(),
-
-                      // FloatingActionButton(
-                      //   tooltip: 'Increment',
-                      //   child: Icon(Icons.add), onPressed: () {},
-                      // ),
-                      //拖动结束后的Widget
-                      onDraggableCanceled: (velocity, offset) {
-                        // 计算组件可移动范围  更新位置信息
-                        setState(
-                          () {
-                            var x = offset.dx;
-                            var y = offset.dy;
-                            if (offset.dx < 0) {
-                              x = 20;
-                            }
-
-                            if (offset.dx > 375) {
-                              x = 335;
-                            }
-
-                            if (offset.dy < kBottomNavigationBarHeight) {
-                              y = kBottomNavigationBarHeight;
-                            }
-
-                            if (offset.dy > height - 100) {
-                              y = height - 100;
-                            }
-
-                            offsetA = Offset(x, y);
-                          },
-                        );
-                      },
-                    ),
+    return Positioned(
+      left: offsetA.dx,
+      top: offsetA.dy,
+      child: Draggable(
+        //创建可以被拖动的Widget
+        child: FloatingActionButton(
+          child: Icon(Icons.refresh),
+          backgroundColor: Color(0xFF40b883),
+          onPressed: () {
+            Future.delayed(Duration.zero, () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PageTestWidget(
+                    _bundle,
+                    widget.debugMode,
                   ),
-                ],
-              )
-            : voltronWidget);
+                ),
+              );
+            });
+          },
+        ),
+        //拖动过程中的Widget
+        feedback: FloatingActionButton(
+          child: Icon(Icons.refresh),
+          backgroundColor: Color(0xFF40b883),
+          onPressed: () {
+            Future.delayed(Duration.zero, () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PageTestWidget(
+                    _bundle,
+                    widget.debugMode,
+                  ),
+                ),
+              );
+            });
+          },
+        ),
+        //拖动过程中，在原来位置停留的Widget，设定这个可以保留原本位置的残影，如果不需要可以直接设置为Container()
+        childWhenDragging: Container(),
+
+        // FloatingActionButton(
+        //   tooltip: 'Increment',
+        //   child: Icon(Icons.add), onPressed: () {},
+        // ),
+        //拖动结束后的Widget
+        onDraggableCanceled: (velocity, offset) {
+          // 计算组件可移动范围  更新位置信息
+          setState(
+            () {
+              var x = offset.dx;
+              var y = offset.dy;
+              if (offset.dx < 0) {
+                x = 20;
+              }
+
+              if (offset.dx > 375) {
+                x = 335;
+              }
+
+              if (offset.dy < kBottomNavigationBarHeight) {
+                y = kBottomNavigationBarHeight;
+              }
+
+              if (offset.dy > height - 100) {
+                y = height - 100;
+              }
+
+              offsetA = Offset(x, y);
+            },
+          );
+        },
+      ),
+    );
   }
-}
-
-ModuleLoadParams generateParams(String bundle) {
-  var loadParams = ModuleLoadParams();
-
-  if (bundle.startsWith('http://') || bundle.startsWith('https://')) {
-    loadParams.jsHttpPath = bundle;
-  } else {
-    loadParams.jsAssetsPath = bundle;
-  }
-
-  // 必须：指定要加载的Hippy模块里的组件（component）。componentName对应的是js文件中的"appName"，比如：
-  // var hippy = new Voltron({
-  //     appName: "Demo",
-  //     entryPage: App
-  // });
-  loadParams.componentName = "Demo";
-
-  // 可选：二选一设置。自己开发的业务模块的jsbundle的文件路径（assets路径和文件路径二选一，优先使用assets路径）
-  // debugMode = false 时必须设置jsAssetsPath或jsFilePath
-  // （debugMode =true时，所有jsbundle都是从debug server上下载）
-  // 可选：发送给Voltron前端模块的参数
-  loadParams.jsParams = VoltronMap();
-  loadParams.jsParams!.push(
-      "msgFromNative",
-      "Hi js developer, I come from "
-          "native code!");
-  return loadParams;
 }

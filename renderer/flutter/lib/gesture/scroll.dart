@@ -21,6 +21,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:voltron_renderer/common.dart';
 
 import '../render.dart';
 import '../viewmodel.dart';
@@ -31,7 +32,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   bool scrollEndDragEventEnable = false;
   bool momentumScrollBeginEventEnable = false;
   bool momentumScrollEndEventEnable = false;
-  bool scrollEventEnable = true;
+  bool scrollEventEnable = false;
   bool scrollEnable = true;
   int scrollEventThrottle = 400;
   int preloadItemNumber = 0;
@@ -159,11 +160,12 @@ class _ScrollEventHelper {
     event["contentSize"] = contentSize;
     event["layoutMeasurement"] = layoutMeasurement;
 
-    view.context.bridgeManager.execNativeEvent(
-      view.rootId,
+    var params = VoltronMap.fromMap(event);
+
+    view.context.eventHandler.receiveUIComponentEvent(
       view.id,
       scrollEventType,
-      event,
+      params,
     );
   }
 

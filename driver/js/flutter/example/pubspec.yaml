@@ -40,15 +40,10 @@ flutter:
   assets:
     - assets/
     - jsbundle/
-    - jsbundle/assets/
-    - jsbundle/hippy-bundle/ios/
-    - jsbundle/hippy-bundle/ios/assets/
-    - jsbundle/hippy-bundle/android/
-    - jsbundle/hippy-bundle/android/assets/
-    - jsbundle/voltron-hippy-bundle/android/
-    - jsbundle/voltron-hippy-bundle/android/assets/
-    - jsbundle/voltron-hippy-bundle/ios/
-    - jsbundle/voltron-hippy-bundle/ios/assets/
+    - jsbundle/hippy-vue-demo/android/
+    - jsbundle/hippy-vue-demo/android/assets/
+    - jsbundle/hippy-react-demo/android/
+    - jsbundle/hippy-react-demo/android/assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

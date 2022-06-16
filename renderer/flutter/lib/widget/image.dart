@@ -46,7 +46,7 @@ class _ImageWidgetState extends FRState<ImageWidget> {
   @override
   Widget build(BuildContext context) {
     LogUtils.dWidget("ImageWidget",
-        "build image widget:(id: ${widget.viewModel.id}, name: ${widget.viewModel.name}, parent: ${widget.viewModel.parent?.id})");
+        "image widget:(id: ${widget.viewModel.id}, name: ${widget.viewModel.name}, parent: ${widget.viewModel.parent?.id})");
     return ChangeNotifierProvider.value(
       value: widget.viewModel,
       child: Consumer<ImageRenderViewModel>(

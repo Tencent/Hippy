@@ -20,10 +20,12 @@
 //
 
 import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:tencent_voltron_render/voltron_render.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 import 'page_test.dart';
 
@@ -32,6 +34,11 @@ void main() {
   // debugProfileBuildsEnabled = true; //向 Timeline 事件中添加 build 信息
   // debugPrintRebuildDirtyWidgets = true; // 记录每帧重建的 widget
   // debugProfilePaintsEnabled = true;
+  if (Platform.isAndroid) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
+      statusBarColor: Colors.black,
+    ));
+  }
   runApp(MyApp());
 }
 
@@ -56,14 +63,17 @@ class _MyAppState extends State<MyApp> {
           appBar: AppBar(
             title: Text('Voltron动态化方案'),
             backgroundColor: Color(0xFF40b883),
+            systemOverlayStyle: Platform.isAndroid
+                ? SystemUiOverlayStyle.light.copyWith(
+                    statusBarColor: Colors.black,
+                  )
+                : null,
           ),
           body: MainPageWidget(),
         ),
       ),
     );
     // return MaterialApp(
-    //   title: 'Kraken Browser',
-    //   // theme: ThemeData.dark(),
     //   home: VoltronPage(),
     // );
   }
@@ -197,7 +207,7 @@ class _VoltronPageState extends State<VoltronPage> {
             'loadEngine',
             'code($statusCode), msg($msg)',
           );
-          if (statusCode == EngineStatus.ok) {
+          if (statusCode == EngineInitStatus.ok) {
             pageStatus = PageStatus.success;
             setState(() {});
           } else {
@@ -224,7 +234,7 @@ class _VoltronPageState extends State<VoltronPage> {
 
       _jsLoader = _loaderManager.createLoader(
         loadParams,
-        moduleListener: (status, msg, viewModel) {
+        moduleListener: (status, msg) {
           LogUtils.i(
             "flutterRender",
             "loadModule status($status), msg ($msg)",

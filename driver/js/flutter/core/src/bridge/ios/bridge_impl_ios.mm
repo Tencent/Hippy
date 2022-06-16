@@ -24,6 +24,7 @@
 #import "VoltronFlutterBridge.h"
 #import "core/scope.h"
 
+
 #define Addr2Str(addr) (addr?[NSString stringWithFormat:@"%ld", (long)addr]:@"0")
 
 static NSMutableDictionary *getKeepContainer() {
@@ -37,6 +38,76 @@ static NSMutableDictionary *getKeepContainer() {
 
 NSString* U16ToNSString(const char16_t *source) {
   return [[NSString alloc] initWithCharacters:(const unichar*)source length:std::char_traits<char16_t>::length(source)];
+}
+
+tdf::base::DomValue OCTypeToDomValue(id value) {
+    if ([value isKindOfClass:[NSString class]]) {
+        return tdf::base::DomValue([value UTF8String]);
+    }
+    else if ([value isKindOfClass:[NSNumber class]]) {
+        CFNumberRef numberRef = (__bridge CFNumberRef)value;
+        CFNumberType numberType = CFNumberGetType(numberRef);
+        if (kCFNumberSInt32Type == numberType ||
+            kCFNumberSInt64Type == numberType ||
+            kCFNumberShortType == numberType ||
+            kCFNumberIntType == numberType ||
+            kCFNumberLongType == numberType ||
+            kCFNumberLongLongType == numberType) {
+            return tdf::base::DomValue([value unsignedIntValue]);
+        }
+        else if (kCFNumberFloatType == numberType ||
+                 kCFNumberDoubleType == numberType) {
+            return tdf::base::DomValue([value doubleValue]);
+        }
+        else {
+            BOOL flag = [value boolValue];
+            return tdf::base::DomValue(flag);;
+        }
+    }
+    else if (value == [NSNull null]) {
+        return tdf::base::DomValue::Null();
+    }
+    else if ([value isKindOfClass:[NSDictionary class]]) {
+        tdf::base::DomValue::DomValueObjectType object;
+        for (NSString *key in value) {
+            std::string objKey = [key UTF8String];
+            id objValue = [value objectForKey:key];
+            auto dom_obj = OCTypeToDomValue(objValue);
+            object[objKey] = std::move(dom_obj);
+        }
+        return tdf::base::DomValue(std::move(object));
+    }
+    else if ([value isKindOfClass:[NSArray class]]) {
+        tdf::base::DomValue::DomValueArrayType array;
+        for (id obj in value) {
+            auto dom_obj = OCTypeToDomValue(obj);
+            array.push_back(std::move(dom_obj));
+        }
+        return tdf::base::DomValue(std::move(array));
+    }
+    else {
+        return tdf::base::DomValue::Undefined();
+    }
+}
+
+void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
+    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+    NSString *paramsStr = [NSString stringWithCString:params.c_str()
+                                                encoding:[NSString defaultCStringEncoding]];
+    NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *jsonError;
+    NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
+                                          options:NSJSONReadingMutableContainers
+                                            error:&jsonError];
+    if (jsonError == nil) {
+        tdf::base::DomValue value = OCTypeToDomValue(paramDict);
+        std::shared_ptr<tdf::base::DomValue> domValue = std::make_shared<tdf::base::DomValue>(value);
+        bridge.jscExecutor.pScope->LoadInstance(domValue);
+    }
+}
+
+void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback) {
+    CallFunction(runtime_id, u"destroyInstance", "", std::move(callback));
 }
 
 int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platform_runtime,
@@ -56,7 +127,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     NSString *globalConfig = U16ToNSString(char_globalConfig);
     NSString *wsURL = U16ToNSString(char_ws_url);
     BOOL debugMode = is_dev_module ? YES : NO;
-    [bridge initJSFramework:globalConfig wsURL:testWsURL debugMode:debugMode completion:^(BOOL succ) {
+    [bridge initJSFramework:globalConfig wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
         callback(succ ? 1 : 0);
     }];
 

@@ -52,6 +52,9 @@ class ListItemViewModel extends GroupViewModel {
   }
 
   @override
+  bool get withBoxPadding => false;
+
+  @override
   bool operator ==(Object other) {
     return other is ListItemViewModel && shouldSticky == other.shouldSticky && super == (other);
   }

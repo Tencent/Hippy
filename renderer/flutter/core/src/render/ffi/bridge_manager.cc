@@ -60,6 +60,10 @@ int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id,
     return result;
 }
 
+BridgeRuntime::BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {
+
+}
+
 std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, Sp<BridgeRuntime> runtime) {
   std::unique_lock<std::mutex> lock(bridge_mutex_);
   auto bridge_manager_iter = bridge_map_.find(engine_id);
@@ -108,9 +112,11 @@ void BridgeManager::ReverseTraversal(int32_t engine_id, const std::function<void
 }
 
 void BridgeManager::InitInstance(int32_t engine_id, int32_t root_id, Sp<hippy::RenderManager> render_manager) {
-  Sp<DomManager> dom_manager = std::make_shared<DomManager>(engine_id);
+  Sp<DomManager> dom_manager = std::make_shared<DomManager>();
+  dom_manager->Init(root_id);
   DomManager::Insert(dom_manager);
   dom_manager->SetRenderManager(render_manager);
+  dom_manager->GetAnimationManager()->SetDomManager(dom_manager);
   BindDomManager(root_id, dom_manager);
   BindRenderManager(root_id, render_manager);
 }

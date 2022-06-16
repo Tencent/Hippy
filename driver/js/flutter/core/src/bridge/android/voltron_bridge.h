@@ -31,7 +31,7 @@ class VoltronBridge : public Bridge {
  public:
   VoltronBridge(std::shared_ptr<JSBridgeRuntime> runtime);
   ~VoltronBridge();
-#ifdef ENABLE_INSPECTOR
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   void SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) override;
   void SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) override;
 #endif
