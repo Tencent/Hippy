@@ -28,6 +28,7 @@
 #include <vector>
 
 #include "base/logging.h"
+#include "core/base/string_view_utils.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
 #include "core/task/javascript_task.h"
@@ -47,6 +48,7 @@ using TryCatch = hippy::napi::TryCatch;
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
+constexpr char kHippyModuleName[] = "name";
 constexpr uint64_t kInvalidListenerId = 0;
 
 Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
@@ -339,7 +341,12 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
 
 void Scope::LoadInstance(const std::shared_ptr<DomValue>& value) {
   std::weak_ptr<Ctx> weak_context = context_;
+#ifdef ENABLE_INSPECTOR
+  std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
+  auto cb = [weak_context, value, weak_data_source]() mutable {
+#else
   auto cb = [weak_context, value]() mutable {
+#endif
     std::shared_ptr<Ctx> context = weak_context.lock();
     if (context) {
       std::shared_ptr<CtxValue> fn = context->GetJsFn(kLoadInstanceFuncName);
@@ -347,6 +354,20 @@ void Scope::LoadInstance(const std::shared_ptr<DomValue>& value) {
       TDF_BASE_DCHECK(is_fn);
       if (is_fn) {
         auto param = context->CreateCtxValue(value);
+#ifdef ENABLE_INSPECTOR
+        std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
+        auto devtools_data_source = weak_data_source.lock();
+        if (module_name_value && devtools_data_source != nullptr) {
+          unicode_string_view module_name;
+          bool flag = context->GetValueString(module_name_value, &module_name);
+          if (flag) {
+            std::string u8_module_name = hippy::base::StringViewUtils::ToU8StdStr(module_name);
+            devtools_data_source->SetContextName(u8_module_name);
+          } else {
+            TDF_BASE_DLOG(ERROR) << "module name get error. GetValueString return false";
+          }
+        }
+#endif
         std::shared_ptr<CtxValue> argv[] = {param};
         context->CallFunction(fn, 1, argv);
       } else {
