@@ -21,3 +21,9 @@
 library inspector;
 
 export 'inspector/dev.dart';
+export 'inspector/dev_factory.dart';
+export 'inspector/dev_server_config.dart';
+export 'inspector/dev_server_helper.dart';
+export 'inspector/dev_server_impl.dart';
+export 'inspector/dev_server_impl_disable.dart';
+export 'inspector/dev_server_interface.dart';

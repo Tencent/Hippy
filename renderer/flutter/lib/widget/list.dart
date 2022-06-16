@@ -206,8 +206,7 @@ class _ListViewWidgetState extends FRState<ListViewWidget> {
     return list;
   }
 
-  Widget addPullHeaderAndPullFooter(
-      ListViewDetailModel viewModel, Widget list) {
+  Widget addPullHeaderAndPullFooter(ListViewDetailModel viewModel, Widget list) {
     Widget? header;
     Widget? footer;
     Widget? refresher;
@@ -234,10 +233,9 @@ class _ListViewWidgetState extends FRState<ListViewWidget> {
                   height: viewModel.pullHeaderViewModel?.height ?? 0,
                   builder: (context, status) => header!,
                   onOffsetChange: (offset) {
-                    var headerStatus = viewModel
-                        .refreshEventDispatcher.refreshController.headerStatus;
-                    if (headerStatus != RefreshStatus.refreshing &&
-                        offset > 0) {
+                    var headerStatus =
+                        viewModel.refreshEventDispatcher.refreshController.headerStatus;
+                    if (headerStatus != RefreshStatus.refreshing && offset > 0) {
                       var params = VoltronMap();
                       params.push('contentOffset', offset);
                       pullHeaderViewModel?.sendEvent(
@@ -254,8 +252,8 @@ class _ListViewWidgetState extends FRState<ListViewWidget> {
                   height: viewModel.pullFooterViewModel?.height ?? 0,
                   builder: (context, status) => footer!,
                   onOffsetChange: (offset) {
-                    var footerStatus = viewModel
-                        .refreshEventDispatcher.refreshController.footerStatus;
+                    var footerStatus =
+                        viewModel.refreshEventDispatcher.refreshController.footerStatus;
                     if (footerStatus != LoadStatus.loading && offset > 0) {
                       var params = VoltronMap();
                       params.push('contentOffset', offset);
@@ -305,12 +303,10 @@ class StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double width;
   final double height;
 
-  StickyTabBarDelegate(
-      {required this.child, required this.width, required this.height});
+  StickyTabBarDelegate({required this.child, required this.width, required this.height});
 
   @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     return child;
   }
 

@@ -76,7 +76,7 @@ class VoltronJSLoaderManager {
   }
 
   void destroy() {
-    _engine.destroyEngine();
+    // _engine.destroyEngine();
   }
 
   void sendData(String event, Object params) {
@@ -123,12 +123,12 @@ class VoltronJSLoader with RendererLoader {
 
   void destroy() {
     var originViewModel = _instance;
+    _instance = null;
     if (originViewModel != null) {
       _jsLoaderManager._execute(() {
         _jsLoaderManager._engine.destroyInstance(originViewModel);
       });
     }
-    _instance = null;
   }
 
   @override

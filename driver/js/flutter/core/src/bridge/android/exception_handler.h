@@ -42,6 +42,5 @@ class ExceptionHandler {
                                 const unicode_string_view &desc,
                                 const unicode_string_view &stack);
 
-  static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::Value> error);
 };
 }

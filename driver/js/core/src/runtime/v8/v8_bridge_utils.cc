@@ -10,6 +10,7 @@
 #include "core/base/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/serializer.h"
+#include "core/task/javascript_task.h"
 #include "devtools/devtools_macro.h"
 #include "dom/deserializer.h"
 #include "dom/dom_value.h"
@@ -466,8 +467,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
     }
     TDF_BASE_DCHECK(action.encoding() ==
         unicode_string_view::Encoding::Utf16);
-    if (runtime->IsDebug() &&
-        action.utf16_value() == u"onWebsocketMsg") {
+    if (runtime->IsDebug() && action.utf16_value() == u"onWebsocketMsg") {
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
@@ -662,6 +662,50 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
       scope->GetContext()->ThrowException("LoadInstance param error");
     }
   };
+  runner->PostTask(task);
+}
+
+void V8BridgeUtils::UnloadInstance(
+    int32_t runtime_id,
+    std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb) {
+  TDF_BASE_DLOG(INFO) << "Destroy instance runtime_id = " << runtime_id;
+  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+  if (!runtime) {
+    TDF_BASE_DLOG(WARNING) << "Destroy instance failed runtime_id invalid";
+    return;
+  }
+  std::shared_ptr<JavaScriptTaskRunner> runner =
+      runtime->GetEngine()->GetJSRunner();
+  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+  task->callback = [runtime, cb = std::move(cb)] {
+    std::shared_ptr<Scope> scope = runtime->GetScope();
+    if (!scope) {
+      TDF_BASE_DLOG(WARNING) << "Destroy instance invalid";
+      return;
+    }
+    std::shared_ptr<Ctx> context = scope->GetContext();
+    if (!runtime->GetBridgeFunc()) {
+      TDF_BASE_DLOG(INFO) << "init bridge func";
+      unicode_string_view name(kHippyBridgeName);
+      std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
+      bool is_fn = context->IsFunction(fn);
+      TDF_BASE_DLOG(INFO) << "is_fn = " << is_fn;
+
+      if (!is_fn) {
+        cb(CALL_FUNCTION_CB_STATE::NO_METHOD_ERROR, u"hippyBridge not find");
+        return;
+      } else {
+        runtime->SetBridgeFunc(fn);
+      }
+    }
+    std::shared_ptr<CtxValue> action_value = context->CreateString(u"destroyInstance");
+    std::shared_ptr<CtxValue> params = context->CreateNull();
+
+    std::shared_ptr<CtxValue> argv[] = {action_value, params};
+    context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
+    cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
+  };
+
   runner->PostTask(task);
 }
 

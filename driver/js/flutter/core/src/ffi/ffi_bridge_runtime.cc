@@ -26,6 +26,8 @@
 #include "ffi/ffi_bridge_runtime.h"
 
 namespace voltron {
+JSBridgeRuntime::JSBridgeRuntime(int32_t engine_id): BridgeRuntime(engine_id) {}
+
 void FFIJSBridgeRuntime::CallDart(std::u16string &moduleName, std::u16string &moduleFunc, std::u16string &callId,
                                   std::string params, bool bridgeParamJson,
                                   std::function<void()> callback) {
@@ -35,7 +37,7 @@ void FFIJSBridgeRuntime::CallDart(std::u16string &moduleName, std::u16string &mo
                      params = std::move(params), bridgeParamJson,
       callback_ = std::move(callback)]() {
     call_native_func(engine_id, moduleName_.c_str(), moduleFunc_.c_str(),
-                     callId_.c_str(), params.data(), params.length(), bridgeParamJson);
+                     callId_.c_str(), params.data(), static_cast<uint32_t>(params.length()), bridgeParamJson);
     if (callback_) {
       callback_();
     }
@@ -61,26 +63,30 @@ void FFIJSBridgeRuntime::ReportJSException(std::u16string &description_stream, s
 }
 
 void FFIJSBridgeRuntime::SendResponse(const uint16_t* source, int len) {
-  void* copy = (void*)malloc(len * sizeof(uint16_t));
-  memset(copy, 0, len * sizeof(uint16_t));
-  memcpy(copy, (void*)source, len * sizeof(uint16_t));
+  if (len <= 0) {
+    return;
+  }
+  std::u16string sour_str(reinterpret_cast<const char16_t *>(source),
+                          static_cast<unsigned int>(len));
   assert(send_response_func != nullptr);
-  const Work work = [engine_id = engine_id_, data = (uint16_t*)copy, len]() {
-    send_response_func(engine_id, data, len);
-    free(data);
+  const Work work = [engine_id = engine_id_, sour_str = std::move(sour_str)]() {
+    send_response_func(engine_id, reinterpret_cast<const uint16_t *>(sour_str.c_str()),
+                       static_cast<int32_t>(sour_str.length()));
   };
   const Work* work_ptr = new Work(work);
   PostWorkToDart(work_ptr);
 }
 
 void FFIJSBridgeRuntime::SendNotification(const uint16_t* source, int len) {
-  void* copy = (void*)malloc(len * sizeof(uint16_t));
-  memset(copy, 0, len * sizeof(uint16_t));
-  memcpy(copy, (void*)source, len * sizeof(uint16_t));
+  if (len <= 0) {
+    return;
+  }
+  std::u16string sour_str(reinterpret_cast<const char16_t *>(source),
+                          static_cast<unsigned int>(len));
   assert(send_notification_func != nullptr);
-  const Work work = [engine_id = engine_id_, data = (uint16_t*)copy, len]() {
-    send_notification_func(engine_id, data, len);
-    free(data);
+  const Work work = [engine_id = engine_id_, sour_str = std::move(sour_str)]() {
+    send_notification_func(engine_id, reinterpret_cast<const uint16_t *>(sour_str.c_str()),
+                           static_cast<int32_t>(sour_str.length()));
   };
   const Work* work_ptr = new Work(work);
   PostWorkToDart(work_ptr);
@@ -94,7 +100,7 @@ void FFIJSBridgeRuntime::Destroy() {
   }
 }
 
-FFIJSBridgeRuntime::FFIJSBridgeRuntime(int32_t engine_id) : engine_id_(engine_id), JSBridgeRuntime(engine_id) {}
+FFIJSBridgeRuntime::FFIJSBridgeRuntime(int32_t engine_id) : JSBridgeRuntime(engine_id), engine_id_(engine_id) {}
 
 void FFIJSBridgeRuntime::SetRuntimeId(int64_t runtime_id) { runtime_id_ = runtime_id; }
 

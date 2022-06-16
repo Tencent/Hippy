@@ -1,5 +1,7 @@
+set(CMAKE_SYSTEM_NAME "Android")
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-    cmake_minimum_required(VERSION 3.4.1)
+    cmake_minimum_required(VERSION 3.14.0)
 elseif ((CMAKE_SYSTEM_NAME STREQUAL "Darwin") OR (CMAKE_SYSTEM_NAME STREQUAL "iOS"))
     cmake_minimum_required(VERSION 3.19.0)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -32,6 +34,7 @@ set(RENDER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../renderer/flutter/core)
 
 # 添加子模块
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    message("JS_ENGINE:" ${JS_ENGINE})
     include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/framework_platform_android.cmake)
 endif ()
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/framework_core.cmake)
@@ -53,6 +56,55 @@ set(LINKED_LIBS
         ${FRAMEWORK_CORE_DEPS})
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+    # region ABI_COMPILE_OPTIONS
+    set(ABI_COMPILE_OPTIONS
+            -fomit-frame-pointer
+            -fno-threadsafe-statics
+            -fno-strict-aliasing
+            -fno-short-enums
+            -fno-unique-section-names
+            -fno-trigraphs
+            -Werror
+            -Wall
+            -Wextra
+            -Wextra-semi
+            -Wconversion
+            -Wimplicit-fallthrough
+            -Wimplicit-int-conversion
+            -Wloop-analysis
+            -Wmissing-field-initializers
+            -Wunused-local-typedefs
+            -Wstring-conversion
+            -Wthread-safety
+            -Wtautological-overlap-compare
+            -Wunreachable-code
+            -Wenum-compare-conditional
+            -Wheader-hygiene
+            -Wshadow
+            -Wno-unused-parameter
+            -Wno-trigraphs
+            --param=ssp-buffer-size=4
+            -pipe
+            -Os)
+    message("ANDROID_ABI: ${ANDROID_ABI}")
+    if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
+        set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
+                -mfloat-abi=softfp)
+    elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
+        # (Empty)
+    elseif (${ANDROID_ABI} STREQUAL "x86")
+        set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
+                -m32
+                -mssse3
+                -mfpmath=sse)
+    elseif (${ANDROID_ABI} STREQUAL "x86_64")
+        set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
+                -m64
+                -mpopcnt
+                -msse4.2)
+    else ()
+        message(FATAL_ERROR "${ANDROID_ABI} is not supported")
+    endif ()
     set(SRC_FILES ${SRC_FILES}
             ${FRAMEWORK_INSPECTOR_SRC})
     set(LINKED_LIBS ${LINKED_LIBS}
@@ -70,6 +122,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
             # file are automatically included.
             ${SRC_FILES}
     )
+    target_compile_options(${CMAKE_LIBRARY_NAME} PRIVATE ${ABI_COMPILE_OPTIONS})
     target_link_libraries(${CMAKE_LIBRARY_NAME} ${LINKED_LIBS})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++ -fprofile-instr-generate -fcoverage-mapping -std=c++17")

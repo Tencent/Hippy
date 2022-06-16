@@ -37,7 +37,7 @@ class BridgeRuntime {
 public:
 
   virtual ~BridgeRuntime() = default;
-  explicit BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {};
+  explicit BridgeRuntime(int32_t engine_id);
 
   EXPORT int64_t CalculateNodeLayout(int32_t instance_id, int32_t node_id,
                                      double width, int32_t width_mode,
