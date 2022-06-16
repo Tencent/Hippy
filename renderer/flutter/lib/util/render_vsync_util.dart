@@ -22,7 +22,7 @@ import 'dart:collection';
 
 import 'package:flutter/scheduler.dart';
 
-import '../bridge/render_bridge.dart';gu
+import '../bridge/render_bridge.dart';
 
 class RenderVsyncUtil {
   static const String kDoFrame = "frameupdate";
