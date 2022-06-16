@@ -24,7 +24,7 @@ if (!test('-d', DEMO_PATH)) {
 pushd(DEMO_PATH);
 
 const execOptions = { stdio: 'inherit' };
-console.log(`1/2 Start to install ${example} dependencies`);
+console.log(`1/2 Start to install ${example} dependencies.`);
 rm('-rf', './node_modules');
 exec('npm install --legacy-peer-deps', execOptions);
 
