@@ -23,7 +23,7 @@ It should note is that an animation itself is a View, it will drive all the chil
 
 * actions detailed explanation
   
-  Different from React, it combines single animation Animation and animation sequence AnimationSet into one, if it is an object, use Animation to process it; if it is an animation sequence array, use AnimationSet to process it. For specific information of single animation parameter, refer to [Animation module](../hippy-react/modules.md?id=animation) and [Example (https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations).
+  Different from React, it combines single animation Animation and animation sequence AnimationSet into one, if it is an object, use Animation to process it; if it is an animation sequence array, use AnimationSet to process it. For specific information of animation parameter, refer to [HippyReact Animation module](../hippy-react/modules.md?id=animation) and [Example](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations).
 
 ```vue
 <template>
@@ -95,16 +95,17 @@ export default {
 </script>
 ```
 
-  For special instructions, a new animation will be automatically created after the actions are replaced, you need to manually start the new animation. There are two methods:
-  * Replace the actions => call `this.[animation ref].start()` after a certain time (such as setTimeout) (recommend)
-  * `playing = false`=> replace actions => delay after a certain time (such as setTimeout) `playing = true`
-  
-  Version `2.12.2` and above supports parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
-  
-  Version `2.6.0` add new `backgroundColor` background color gradient animation support, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
-  * set `actions` to decorate `backgroundColor`
-  * set `valueType` to `color`
-  * set `startValue` and `toValue` to [color value](style/color.md)
+  > For special instructions, a new animation will be automatically created after the actions are replaced, you need to manually start the new animation. There are two methods:
+  > 
+  >* Replace the actions => After a certain delay (e.g. SetTimeout) or in `actionsDidUpdate` (supported after 2.14.0), call `this.[animation ref].start()` (recommended).
+  > * Set `playing = false`=> replace actions => delay after a certain time (such as setTimeout) or in `actionsDidUpdate` (supported after 2.14.0), set `playing = true`
+   
+  > Version `2.12.2` and the above support parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
+   
+  > Version `2.6.0` and the above support `backgroundColor` background color gradient animation, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  > * set `actions` to decorate `backgroundColor`
+  > * set `valueType` to `color`
+  > * set `startValue` and `toValue` to [color value](style/color.md)
 
 ## Events
 
@@ -146,7 +147,7 @@ export default {
 
 # dialog
 
-[[Example:demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
+[[Example: demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
 
 Used for modal pop-up window, the default background is transparent, needs to add a `<div>` with background color to fill.
 
@@ -172,7 +173,7 @@ Used for modal pop-up window, the default background is transparent, needs to ad
 
 # swiper
 
-[[Example:demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[Example: demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
 A container that supports paging, its each child container component will be regarded as a separate page, corresponding the native `ViewPager` component, it can only contain `<swiper-slide>` components.
 
@@ -204,7 +205,7 @@ A container that supports paging, its each child container component will be reg
 
 # swiper-slide
 
-[[Example:demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[Example: demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
 Subcontainer of the flipping component container.
 
@@ -212,7 +213,7 @@ Subcontainer of the flipping component container.
 
 # pull-header
 
-[[Example:demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+[[Example: demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
 
 Dropdown refresh component, nested in `ul` as first child element
 
@@ -234,7 +235,7 @@ Dropdown refresh component, nested in `ul` as first child element
 
 # pull-footer
 
-[[Example:demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+[[Example: demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
 
 Pull-up refresh component, nested in `ul` as last child element
 
@@ -251,7 +252,7 @@ Pull-up refresh component, nested in `ul` as last child element
 
 ### collapsePullFooter
 
-`() => void` Collapse the bottom refresh bar `<pull-footer>`。
+`() => void` Collapse the bottom refresh bar `<pull-footer>`.
 
 ---
 
@@ -259,7 +260,7 @@ Pull-up refresh component, nested in `ul` as last child element
 
 > minimum supported version 2.9.0
 
-[[Example:demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
+[[Example: demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
 
 Waterfall flow component, the child element must be `waterfall-item`, waterfall flow component drop-down needs to use `ul-refresh-wrapper` in the outermost layer when refresh, you can use `pull-footer` in the `waterfall` to show the pull-up loading text.
 
