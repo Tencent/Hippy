@@ -152,8 +152,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
       final controller = findController(node.name);
 
       if (controller != null) {
-        final validProps = AnimationUtil.getRenderNodeStyleByAnimationRule(newProps);
-        ControllerUpdateUtil.updateProps(controller, node, validProps);
+        ControllerUpdateUtil.updateProps(controller, node, newProps);
         controller.onAfterUpdateProps(_context, node);
       }
     }

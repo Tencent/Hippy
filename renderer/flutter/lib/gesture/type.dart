@@ -19,6 +19,8 @@
 //
 
 enum GestureType {
+  click,
+  longClick,
   pressIn,
   pressOut,
   touchDown,

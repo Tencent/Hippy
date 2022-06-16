@@ -20,7 +20,6 @@
 
 library util;
 
-export 'util/animation_util.dart';
 export 'util/diff.dart';
 export 'util/dimension_util.dart';
 export 'util/enum_util.dart';

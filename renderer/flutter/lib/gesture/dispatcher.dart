@@ -27,6 +27,40 @@ import 'handle.dart';
 import 'processor.dart';
 import 'type.dart';
 
+class NativeGestureDispatcherManager {
+  static final NativeGestureDispatcherManager _singleton = NativeGestureDispatcherManager();
+
+  static NativeGestureDispatcherManager getInstance() {
+    return _singleton;
+  }
+
+  final List<PointerEvent> _pointerEventHistory = [];
+
+  void addPointEvent(PointerEvent event) {
+    var original = event.original;
+    if (original != null) {
+      if (!_pointerEventHistory.contains(original)) {
+        _pointerEventHistory.add(original);
+      }
+    }
+  }
+
+  bool judgeExist(PointerEvent event) {
+    var original = event.original;
+    if (original != null) {
+      if (_pointerEventHistory.contains(original)) {
+        return true;
+      } else {
+        _pointerEventHistory.add(original);
+        if (_pointerEventHistory.length > 50) {
+          _pointerEventHistory.removeRange(0, 30);
+        }
+      }
+    }
+    return false;
+  }
+}
+
 class NativeGestureDispatcher implements GestureHandleCallback {
   static const String kTag = "NativeGestureDispatcher";
 
@@ -35,18 +69,12 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   final RenderContext _context;
   NativeGestureProcessor? _gestureProcessor;
 
-  bool clickable = false;
-  bool longClickable = false;
   bool interceptTouchEvent = false;
 
   bool listenAttachedToWindow = false;
   bool listenDetachedFromWindow = false;
 
   bool get enableScroll => false;
-
-  bool get canClick => clickable;
-
-  bool get canLongClick => longClickable;
 
   final HashSet<GestureType> _gestureTypes = HashSet();
 
@@ -108,14 +136,26 @@ class NativeGestureDispatcher implements GestureHandleCallback {
     return true;
   }
 
+  void handlePressIn() {
+    if (needHandle(GestureType.pressIn)) {
+      NativeGestureHandle.handlePressIn(_context, _id, _rootId);
+    }
+  }
+
+  void handlePressOut() {
+    if (needHandle(GestureType.pressOut)) {
+      NativeGestureHandle.handlePressOut(_context, _id, _rootId);
+    }
+  }
+
   void handleClick() {
-    if (clickable) {
+    if (needHandle(GestureType.click)) {
       NativeGestureHandle.handleClick(_context, _id, _rootId);
     }
   }
 
   void handleLongClick() {
-    if (longClickable) {
+    if (needHandle(GestureType.longClick)) {
       NativeGestureHandle.handleLongClick(_context, _id, _rootId);
     }
   }
@@ -133,6 +173,9 @@ class NativeGestureDispatcher implements GestureHandleCallback {
   }
 
   void handleOnTouchEvent(PointerEvent event) {
+    if (NativeGestureDispatcherManager.getInstance().judgeExist(event)) {
+      return;
+    }
     _gestureProcessor ??= NativeGestureProcessor(callback: this);
     _gestureProcessor!.onTouchEvent(event);
   }

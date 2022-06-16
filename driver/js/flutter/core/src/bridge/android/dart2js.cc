@@ -25,8 +25,6 @@
 namespace voltron {
 namespace bridge {
 
-const char kHippyBridgeName[] = "hippyBridge";
-
 void CallJSFunction(int64_t runtime_id, const unicode_string_view& action_name, bytes params_data,
                     std::function<void(int64_t)> callback) {
   TDF_BASE_DCHECK(runtime_id <= std::numeric_limits<std::int32_t>::max()

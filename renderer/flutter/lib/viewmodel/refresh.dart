@@ -19,8 +19,6 @@
 //
 
 import 'package:flutter/widgets.dart';
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:voltron_renderer/render.dart';
 
 import '../controller.dart';
@@ -39,8 +37,6 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
   RenderViewModel? get content => _content;
 
   RefreshWrapperItemRenderViewModel? get header => _refreshWrapperItemRenderViewModel;
-
-  RefreshController get controller => refreshEventDispatcher.refreshController;
 
   RefreshEventDispatcher get dispatcher => refreshEventDispatcher;
 
@@ -71,7 +67,6 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
     refreshWrapperRenderContentViewModel = RefreshWrapperRenderContentViewModel(
       header: viewModel.header,
       content: viewModel.content,
-      controller: viewModel.controller,
       dispatcher: viewModel.dispatcher,
     );
   }
@@ -109,18 +104,19 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
   @override
   void doDispose() {
     super.doDispose();
-    controller.dispose();
   }
 }
 
 class RefreshWrapperRenderContentViewModel {
   RefreshWrapperItemRenderViewModel? header;
   RenderViewModel? content;
-  RefreshController controller;
   RefreshEventDispatcher dispatcher;
 
-  RefreshWrapperRenderContentViewModel(
-      {this.header, this.content, required this.controller, required this.dispatcher});
+  RefreshWrapperRenderContentViewModel({
+    this.header,
+    this.content,
+    required this.dispatcher,
+  });
 
   @override
   // ignore: unnecessary_overrides
@@ -131,6 +127,5 @@ class RefreshWrapperRenderContentViewModel {
       other is RefreshWrapperRenderContentViewModel &&
       header == other.header &&
       content == other.content &&
-      controller == other.controller &&
       dispatcher == other.dispatcher;
 }

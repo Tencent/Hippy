@@ -69,14 +69,15 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
         scope->GetDevtoolsDataSource()->Bind(static_cast<int32_t>(runtime_id), dom_manager->GetId(), 0);
       }
 #endif
+      std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
+          dom_manager->SetRootSize((float) width, (float) height);
+      }};
+      dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
+      if (params_length > 0) {
+          std::string param_str(params, static_cast<unsigned int>(params_length));
+          BridgeImpl::LoadInstance(runtime_id, std::move(param_str));
+      }
     }
-    dom_manager->StartTaskRunner();
-    std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
-      dom_manager->SetRootSize((float)width, (float)height);
-    }};
-    dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
-
-    CallFunctionFFI(engine_id, action, params, params_length, callback_id);
   }
 }
 
@@ -84,8 +85,11 @@ EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char1
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     bridge_manager->DestroyInstance(engine_id, root_id);
-
-    CallFunctionFFI(engine_id, action, nullptr, 0, callback_id);
+    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
+    if (runtime) {
+      auto runtime_id = runtime->GetRuntimeId();
+      BridgeImpl::UnloadInstance(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+    }
   }
 }
 
@@ -155,11 +159,9 @@ EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const c
         BridgeImpl::CallFunction(runtime_id, action, std::string{},
                                  [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
       } else {
-        auto copy_params = voltron::CopyCharToChar(params, params_length);
-        std::string params_str(copy_params, params_length);
-        BridgeImpl::CallFunction(runtime_id, action, std::move(params_str), [callback_id, copy_params](int64_t value) {
+        std::string params_str(params, static_cast<unsigned int>(params_length));
+        BridgeImpl::CallFunction(runtime_id, action, std::move(params_str), [callback_id](int64_t value) {
           CallGlobalCallback(callback_id, value);
-          delete copy_params;
         });
       }
     }

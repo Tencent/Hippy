@@ -20,7 +20,6 @@
 
 library widget;
 
-export 'widget/animation.dart';
 export 'widget/base.dart';
 export 'widget/div.dart';
 export 'widget/image.dart';

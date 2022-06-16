@@ -47,6 +47,8 @@ typedef Callback = void Function(dynamic param, Error? e);
 class VoltronBridgeManager implements Destroyable {
   static const String _kTag = 'Voltron_bridge';
 
+  static const String kDefaultLocalHost = "localhost:38989";
+
   static const int kBridgeTypeSingleThread = 2;
   static const int kBridgeTypeNormal = 1;
   static const int kBridgeTypeRemoteDebug = 0;
@@ -61,6 +63,7 @@ class VoltronBridgeManager implements Destroyable {
   bool _isFrameWorkInit = false;
   bool _isBridgeInit = false;
   final bool _isDevModule;
+  final String _debugServerHost;
 
   bool get isDevModule => _isDevModule;
   final bool _isSingleThread;
@@ -78,15 +81,20 @@ class VoltronBridgeManager implements Destroyable {
   VoltronBundleLoader? get coreBundleLoader => _coreBundleLoader;
 
   VoltronBridgeManager(
-      EngineContext context, VoltronBundleLoader? coreBundleLoader, int groupId, int id,
-      {VoltronThirdPartyAdapter? thirdPartyAdapter,
-      int bridgeType = kBridgeTypeNormal,
-      bool isDevModule = false})
-      : _context = context,
+    EngineContext context,
+    VoltronBundleLoader? coreBundleLoader,
+    int groupId,
+    int id, {
+    VoltronThirdPartyAdapter? thirdPartyAdapter,
+    int bridgeType = kBridgeTypeNormal,
+    bool isDevModule = false,
+    String debugServerHost = '',
+  })  : _context = context,
         _coreBundleLoader = coreBundleLoader,
         _groupId = groupId,
         _engineId = id,
         _isDevModule = isDevModule,
+        _debugServerHost = debugServerHost,
         _thirdPartyAdapter = thirdPartyAdapter,
         _isSingleThread = bridgeType == kBridgeTypeSingleThread {
     sBridgeNum++;
@@ -108,33 +116,44 @@ class VoltronBridgeManager implements Destroyable {
     try {
       _handleVoltronInspectorInit();
       _context.startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitBridge);
+      var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
-          getGlobalConfigs(), _isSingleThread, _isDevModule, _groupId, _engineId, (value) {
-        var thirdPartyAdapter = _thirdPartyAdapter;
-        if (thirdPartyAdapter != null) {
-          thirdPartyAdapter.setVoltronBridgeId(value);
-        }
-
-        _context.startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventLoadCommonJs);
-        var coreBundleLoader = _coreBundleLoader;
-        if (coreBundleLoader != null) {
-          coreBundleLoader.load(this, (param, e) {
-            _isFrameWorkInit = param == 1;
-            Error? error;
-            if (!_isFrameWorkInit) {
-              error = StateError("load coreJsBundle failed,check your core jsBundle");
-            } else {
-              bridgeMap[_engineId] = this;
-            }
-            callback(_isFrameWorkInit, error);
-          });
-        } else {
-          _isFrameWorkInit = true;
-          callback(_isFrameWorkInit, null);
-          bridgeMap[_engineId] = this;
-        }
-      }, await _context.devSupportManager?.getTracingDataDir() ?? "",
-      _context.devSupportManager?.getDebugUrl() ?? "");
+        getGlobalConfigs(),
+        _isSingleThread,
+        _isDevModule,
+        _groupId,
+        _engineId,
+        (value) {
+          var thirdPartyAdapter = _thirdPartyAdapter;
+          if (thirdPartyAdapter != null) {
+            thirdPartyAdapter.setVoltronBridgeId(value);
+          }
+          _context.startTimeMonitor.startEvent(
+            EngineMonitorEventKey.engineLoadEventLoadCommonJs,
+          );
+          var coreBundleLoader = _coreBundleLoader;
+          if (coreBundleLoader != null) {
+            coreBundleLoader.load(this, (ret, e) {
+              _isFrameWorkInit = ret == 1;
+              Error? error;
+              if (!_isFrameWorkInit) {
+                error = StateError(
+                  "load coreJsBundle failed,check your core jsBundle",
+                );
+              } else {
+                bridgeMap[_engineId] = this;
+              }
+              callback(_isFrameWorkInit, error);
+            });
+          } else {
+            _isFrameWorkInit = true;
+            callback(_isFrameWorkInit, null);
+            bridgeMap[_engineId] = this;
+          }
+        },
+        tracingDataDir,
+        _getDebugWsUrl(),
+      );
       _sendDebugInfo({'v8RuntimeId': _v8RuntimeId});
       _isBridgeInit = true;
     } catch (e) {
@@ -147,53 +166,87 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
-  Future<dynamic> runBundle(int id, VoltronBundleLoader? loader, ModuleListener? moduleListener,
-      RootWidgetViewModel? rootWidget) async {
+  String _getDebugWsUrl() {
+    var debugServerHost = _debugServerHost;
+    if (debugServerHost.isEmpty) {
+      debugServerHost = kDefaultLocalHost;
+    }
+    String clientId = _context.devSupportManager.getDevInstanceUUID(); // 方便区分不同的 Hippy 调试页面
+    return "ws://$debugServerHost/debugger-proxy?role=android_client&clientId=$clientId";
+  }
+
+  Future<dynamic> runBundle(
+    int id,
+    VoltronBundleLoader? loader,
+    ModuleListener? moduleListener,
+    RootWidgetViewModel? rootViewModel,
+  ) async {
     if (!_isFrameWorkInit) {
       _loadModuleListener = moduleListener;
-      notifyModuleLoaded(
-          EngineStatus.wrongState, "load module error. VoltronBridge not initialized", rootWidget);
+      _notifyModuleLoaded(
+        ModuleLoadStatus.engineUninit,
+        "load module error. VoltronBridge not initialized",
+        rootViewModel,
+      );
       return;
     }
-
     _loadModuleListener = moduleListener;
-
-    if (rootWidget != null) {
-      rootWidget.timeMonitor?.startEvent(EngineMonitorEventKey.moduleLoadEventLoadBundle);
+    if (rootViewModel != null) {
+      rootViewModel.timeMonitor?.startEvent(
+        EngineMonitorEventKey.moduleLoadEventLoadBundle,
+      );
     }
     if (loader == null) {
-      notifyModuleLoaded(EngineStatus.wrongState,
-          "load module error. VoltronBridge isInit:$_isFrameWorkInit, loader: $loader", null);
+      _notifyModuleLoaded(
+        ModuleLoadStatus.varialeNull,
+        "load module error. jsBundleLoader==null",
+        rootViewModel,
+      );
       return;
     }
 
     final bundleUniKey = loader.bundleUniKey;
     if (isEmpty(bundleUniKey)) {
-      notifyModuleLoaded(
-          EngineStatus.variableUnInit, "load module error. loader.getBundleUniKey=null", null);
+      _notifyModuleLoaded(
+        ModuleLoadStatus.varialeNull,
+        "load module error. loader.getBundleUniKey=null",
+        rootViewModel,
+      );
       return;
     }
     if (_loadBundleInfo.contains(bundleUniKey)) {
-      notifyModuleLoaded(EngineStatus.variableUnInit,
-          "load module error. loader.getBundleUniKey=$bundleUniKey", null);
+      _notifyModuleLoaded(
+        ModuleLoadStatus.repeatLoad,
+        "load module error. loader.getBundleUniKey=$bundleUniKey",
+        rootViewModel,
+      );
       return true;
     }
-
     _sendDebugInfo({'rawPath': loader.rawPath});
     await loader.load(this, (param, e) {
       var success = param == 1;
       if (success) {
         LogUtils.i(_kTag, "load module success");
         _loadBundleInfo.add(bundleUniKey!);
-        if (rootWidget != null) {
-          notifyModuleLoaded(EngineStatus.ok, null, rootWidget);
+        if (rootViewModel != null) {
+          _notifyModuleLoaded(
+            ModuleLoadStatus.ok,
+            null,
+            rootViewModel,
+          );
         } else {
-          notifyModuleLoaded(EngineStatus.wrongState,
-              "load module error. loader.load failed. check the file.", null);
+          _notifyModuleLoaded(
+            ModuleLoadStatus.errRunBundle,
+            "load module error. loader.load failed. check the file.",
+            rootViewModel,
+          );
         }
       } else {
-        notifyModuleLoaded(EngineStatus.wrongState,
-            "load module error. loader.load failed. check the file.", null);
+        _notifyModuleLoaded(
+          ModuleLoadStatus.errRunBundle,
+          "load module error. loader.load failed. check the file.",
+          rootViewModel,
+        );
       }
     });
   }
@@ -349,12 +402,17 @@ class VoltronBridgeManager implements Destroyable {
     return objectToJson(globalParams);
   }
 
-  void notifyModuleLoaded(
-      EngineStatus statusCode, final String? msg, final RootWidgetViewModel? rootWidget) {
+  void _notifyModuleLoaded(
+    ModuleLoadStatus statusCode,
+    final String? msg,
+    final RootWidgetViewModel? rootWidgetViewModel,
+  ) {
+    if (statusCode != ModuleLoadStatus.ok) {
+      rootWidgetViewModel?.onLoadError(statusCode);
+    }
     var loadModuleListener = _loadModuleListener;
     if (loadModuleListener != null) {
-      loadModuleListener(statusCode, msg, rootWidget);
-      _loadModuleListener = null;
+      loadModuleListener(statusCode, msg);
     }
   }
 

@@ -21,6 +21,7 @@ dependencies:
   package_info_plus: ^1.4.2
   intl: ^0.17.0
   connectivity_plus: ^2.3.0
+  uuid: ^3.0.6
   voltron_renderer:
     path: ../../../renderer/flutter/
 

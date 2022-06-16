@@ -45,7 +45,7 @@ class EngineContext implements Destroyable {
   late final GlobalConfigs _globalConfigs;
 
   // Dev support manager
-  DevSupportManager? _devSupportManager;
+  late DevSupportManager _devSupportManager;
 
   final TimeMonitor _startTimeMonitor;
 
@@ -55,6 +55,7 @@ class EngineContext implements Destroyable {
   final int _id;
 
   final bool _isDevMode;
+  final String _debugServerHost;
 
   GlobalConfigs get globalConfigs => _globalConfigs;
 
@@ -62,7 +63,7 @@ class EngineContext implements Destroyable {
 
   VoltronBridgeManager get bridgeManager => _bridgeManager;
 
-  DevSupportManager? get devSupportManager => _devSupportManager;
+  DevSupportManager get devSupportManager => _devSupportManager;
 
   RenderManager get renderManager => _renderContext.renderManager;
 
@@ -77,15 +78,18 @@ class EngineContext implements Destroyable {
     VoltronBundleLoader? coreLoader,
     int bridgeType,
     bool isDevModule,
+    String serverHost,
     int groupId,
     VoltronThirdPartyAdapter? thirdPartyAdapter,
     GlobalConfigs globalConfigs,
     int id,
     TimeMonitor monitor,
     EngineMonitor engineMonitor,
+    DevSupportManager devSupportManager,
   )   : _globalConfigs = globalConfigs,
         _id = id,
         _isDevMode = isDevModule,
+        _debugServerHost = serverHost,
         _startTimeMonitor = monitor {
     _renderContext = JSRenderContext(
       this,
@@ -101,9 +105,10 @@ class EngineContext implements Destroyable {
       _id,
       thirdPartyAdapter: thirdPartyAdapter,
       bridgeType: bridgeType,
-      isDevModule: isDevModule,
+      isDevModule: _isDevMode,
+      debugServerHost: _debugServerHost,
     );
-    _devSupportManager = DevSupportManager(_globalConfigs, _isDevMode, null, null);
+    _devSupportManager = devSupportManager;
   }
 
   List<ViewControllerGenerator>? processControllers(List<APIProvider>? packages) {
@@ -150,7 +155,7 @@ class EngineContext implements Destroyable {
 
   void handleException(JsError error) {
     var devSupportManager = _devSupportManager;
-    if (_isDevMode && devSupportManager != null) {
+    if (_isDevMode) {
       devSupportManager.handleException(error);
     } else {
       globalConfigs.exceptionHandlerAdapter?.handleJsException(error);

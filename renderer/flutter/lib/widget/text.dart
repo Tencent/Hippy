@@ -58,7 +58,6 @@ class _TextWidgetState extends FRState<TextWidget> {
     var data = textModel.data;
     if (data != null) {
       return Container(
-        alignment: textModel.getAlignment(),
         padding: textModel.padding,
         child: RichText(
           text: data.text,

@@ -67,8 +67,7 @@ class AssetBundleLoader implements VoltronBundleLoader {
     var watch = Stopwatch();
     watch.start();
     try {
-      result = await bridge.runScriptFromAssets(
-          _assetPath, canUseCodeCache, codeCacheTag, (value) {
+      result = await bridge.runScriptFromAssets(_assetPath, canUseCodeCache, codeCacheTag, (value) {
         watch.stop();
         LogUtils.profile("runScriptFromAssets", watch.elapsedMilliseconds);
         callback(value, null);
@@ -111,8 +110,7 @@ class FileBundleLoader implements VoltronBundleLoader {
 
   final String _codeCacheTag;
 
-  FileBundleLoader(String? filePath,
-      {bool canUseCodeCache = false, String codeCacheTag = ''})
+  FileBundleLoader(String? filePath, {bool canUseCodeCache = false, String codeCacheTag = ''})
       : _filePath = filePath,
         _canUseCodeCache = canUseCodeCache,
         _codeCacheTag = codeCacheTag;
@@ -148,8 +146,8 @@ class FileBundleLoader implements VoltronBundleLoader {
     var watch = Stopwatch();
     watch.start();
     try {
-      result = await bridge.runScriptFromFile(
-          _filePath!, _filePath!, _canUseCodeCache, _codeCacheTag, (value) {
+      result = await bridge
+          .runScriptFromFile(_filePath!, _filePath!, _canUseCodeCache, _codeCacheTag, (value) {
         watch.stop();
         LogUtils.profile("runScriptFromFile", watch.elapsedMilliseconds);
         callback(value, null);
@@ -165,6 +163,8 @@ class FileBundleLoader implements VoltronBundleLoader {
 class HttpBundleLoader implements VoltronBundleLoader {
   static const String kFileStr = "file://";
 
+  bool _isDebugMode = false;
+
   String? _filePath;
 
   final String? _url;
@@ -173,9 +173,11 @@ class HttpBundleLoader implements VoltronBundleLoader {
 
   final String _codeCacheTag;
 
-  HttpBundleLoader(String? url,
-      {bool canUseCodeCache = false, String codeCacheTag = ''})
-      : _url = url,
+  HttpBundleLoader(
+    String? url, {
+    bool canUseCodeCache = false,
+    String codeCacheTag = '',
+  })  : _url = url,
         _canUseCodeCache = canUseCodeCache,
         _codeCacheTag = codeCacheTag;
 
@@ -201,6 +203,10 @@ class HttpBundleLoader implements VoltronBundleLoader {
   @override
   String? get rawPath => _url;
 
+  void setIsDebugMode(bool isDebugMode) {
+    _isDebugMode = isDebugMode;
+  }
+
   @override
   Future<bool> load(VoltronBridgeManager bridge, Callback callback) async {
     var reg = RegExp(r"^https?:\/\/");
@@ -213,11 +219,16 @@ class HttpBundleLoader implements VoltronBundleLoader {
     watch.start();
     try {
       result = await bridge.runScriptFromFile(
-          _filePath!, _filePath!, _canUseCodeCache, _codeCacheTag, (value) {
-        watch.stop();
-        LogUtils.profile("runScriptFromFile", watch.elapsedMilliseconds);
-        callback(value, null);
-      });
+        _filePath!,
+        _filePath!,
+        _canUseCodeCache,
+        _codeCacheTag,
+        (value) {
+          watch.stop();
+          LogUtils.profile("runScriptFromFile", watch.elapsedMilliseconds);
+          callback(value, null);
+        },
+      );
     } catch (e) {
       callback(-1, StateError(e.toString()));
     }
