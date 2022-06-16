@@ -109,6 +109,11 @@ bool NativeRenderManager::Erase(const std::shared_ptr<NativeRenderManager>& rend
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<hippy::dom::DomNode>>&& nodes) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -166,11 +171,16 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
   serializer_->WriteValue(DomValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
-  CallNativeMethod(buffer_pair, "createNode");
+  CallNativeMethod("createNode", root->GetId(), buffer_pair);
 }
 
 void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+
   for (const auto& n : nodes) {
     if (n->GetViewName() == "Text") {
       MarkTextDirty(root_node, n->GetId());
@@ -214,7 +224,7 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
   serializer_->WriteValue(DomValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
-  CallNativeMethod(buffer_pair, "updateNode");
+  CallNativeMethod("updateNode", root->GetId(), buffer_pair);
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
@@ -222,6 +232,10 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -248,7 +262,7 @@ void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  j_env->CallVoidMethod(j_object, j_method_id, j_int_array);
+  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), j_int_array);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_int_array);
   j_env->DeleteLocalRef(j_class);
@@ -257,6 +271,11 @@ void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
 
 void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
                                        const std::vector<std::shared_ptr<DomNode>>& nodes) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+
   serializer_->Release();
   serializer_->WriteHeader();
 
@@ -282,11 +301,16 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
   serializer_->WriteValue(DomValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
-  CallNativeMethod(buffer_pair, "updateLayout");
+  CallNativeMethod("updateLayout", root->GetId(), buffer_pair);
 }
 
 void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
                                          std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -308,19 +332,24 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  j_env->CallVoidMethod(j_object, j_method_id, j_int_array, to_pid, from_pid);
+  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), j_int_array, to_pid, from_pid);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_int_array);
   j_env->DeleteLocalRef(j_class);
 }
 
-void NativeRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) { CallNativeMethod("endBatch"); }
+void NativeRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
+  auto root = root_node.lock();
+  if (root) {
+    CallNativeMethod("endBatch", root->GetId());
+  }
+}
 
 void NativeRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node){}
 
 void NativeRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
   // 更新布局信息前处理事件监听
-  HandleListenerOps(event_listener_ops_, "updateEventListener");
+  HandleListenerOps(root_node, event_listener_ops_, "updateEventListener");
 }
 
 void NativeRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
@@ -342,6 +371,11 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
 void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
                                        std::weak_ptr<DomNode> domNode, const std::string& name, const DomArgument& param,
                                       uint32_t cb_id) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+
   std::shared_ptr<DomNode> node = domNode.lock();
   if (node == nullptr) {
     TDF_BASE_LOG(ERROR) << "CallJs bad node";
@@ -375,7 +409,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
 
   jstring j_name = j_env->NewStringUTF(name.c_str());
 
-  j_env->CallVoidMethod(j_object, j_method_id, node->GetId(), (jlong)cb_id, j_name, j_buffer);
+  j_env->CallVoidMethod(j_object, j_method_id, root->GetId(), node->GetId(), (jlong)cb_id, j_name, j_buffer);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_name);
@@ -386,7 +420,7 @@ float NativeRenderManager::DpToPx(float dp) const { return dp * density_; }
 
 float NativeRenderManager::PxToDp(float px) const { return px / density_; }
 
-void NativeRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method) {
+void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t root_id, const std::pair<uint8_t*, size_t>& buffer) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -409,13 +443,13 @@ void NativeRenderManager::CallNativeMethod(const std::pair<uint8_t*, size_t>& bu
     return;
   }
 
-  j_env->CallVoidMethod(j_object, j_method_id, j_buffer);
+  j_env->CallVoidMethod(j_object, j_method_id, root_id, j_buffer);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_class);
 }
 
-void NativeRenderManager::CallNativeMethod(const std::string& method) {
+void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t root_id) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -432,7 +466,7 @@ void NativeRenderManager::CallNativeMethod(const std::string& method) {
     return;
   }
 
-  j_env->CallVoidMethod(j_object, j_method_id);
+  j_env->CallVoidMethod(j_object, j_method_id, root_id);
   JNIEnvironment::ClearJEnvException(j_env);
   j_env->DeleteLocalRef(j_class);
 
@@ -464,8 +498,14 @@ void NativeRenderManager::CallNativeMeasureMethod(const int32_t id, const float 
 
 }
 
-void NativeRenderManager::HandleListenerOps(std::map<uint32_t, std::vector<ListenerOp>>& ops,
+void NativeRenderManager::HandleListenerOps(std::weak_ptr<RootNode> root_node,
+                                            std::map<uint32_t, std::vector<ListenerOp>>& ops,
                                             const std::string& method_name) {
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+
   if (ops.empty()) {
     return;
   }
@@ -502,7 +542,7 @@ void NativeRenderManager::HandleListenerOps(std::map<uint32_t, std::vector<Liste
   serializer_->WriteHeader();
   serializer_->WriteValue(DomValue(event_listener_ops));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
-  CallNativeMethod(buffer_pair, method_name);
+  CallNativeMethod(method_name, root->GetId(), buffer_pair);
 }
 
 void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id) {

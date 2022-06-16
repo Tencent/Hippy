@@ -62,9 +62,9 @@ class NativeRenderManager : public RenderManager {
 
   inline float PxToDp(float px) const;
 
-  void CallNativeMethod(const std::pair<uint8_t*, size_t>& buffer, const std::string& method);
+  void CallNativeMethod(const std::string& method, uint32_t root_id, const std::pair<uint8_t*, size_t>& buffer);
 
-  void CallNativeMethod(const std::string& method);
+  void CallNativeMethod(const std::string& method, uint32_t root_id);
 
   void CallNativeMeasureMethod(const int32_t id, const float width, const int32_t width_mode, const float height,
                                const int32_t height_mode, int64_t& result);
@@ -81,7 +81,7 @@ class NativeRenderManager : public RenderManager {
     }
   };
 
-  void HandleListenerOps(std::map<uint32_t, std::vector<ListenerOp>>& ops, const std::string& method_name);
+  void HandleListenerOps(std::weak_ptr<RootNode> root_node, std::map<uint32_t, std::vector<ListenerOp>>& ops, const std::string& method_name);
 
  private:
   int32_t id_;

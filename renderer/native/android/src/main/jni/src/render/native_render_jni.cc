@@ -22,6 +22,7 @@
 
 #include "render/native_render_jni.h"
 
+#include "bridge/root_node_repo.h"
 #include "dom/deserializer.h"
 #include "dom/dom_value.h"
 #include "dom/render_manager.h"
@@ -38,6 +39,7 @@ using NativeRenderManager = hippy::dom::NativeRenderManager;
 using RenderManager = hippy::dom::RenderManager;
 using RootNode = hippy::dom::RootNode;
 using Scene = hippy::dom::Scene;
+using RootNodeRepo = hippy::bridge::RootNodeRepo;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
@@ -103,14 +105,18 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
     return;
   }
 
+  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
+  if (root_node == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "UpdateRootSize root_node is nullptr";
+    return;
+  }
+
   auto width = static_cast<float>(j_width);
   auto height = static_cast<float>(j_height);
 
   std::vector<std::function<void()>> ops;
-  ops.emplace_back([dom_manager, width, height]{
+  ops.emplace_back([dom_manager, root_node, width, height]{
     TDF_BASE_LOG(INFO) << "update root size width = " << width << ", height = " << height << std::endl;
-    // todo get rootNode
-    auto root_node = std::make_shared<hippy::RootNode>();
     dom_manager->SetRootSize(root_node, width, height);
     dom_manager->DoLayout(root_node);
     dom_manager->EndBatch(root_node);
@@ -132,8 +138,13 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j
     TDF_BASE_DLOG(WARNING) << "UpdateNodeSize dom_manager is nullptr";
     return;
   }
-  // todo get rootNode
-  auto root_node = std::make_shared<hippy::RootNode>();
+
+  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
+  if (root_node == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize root_node is nullptr";
+    return;
+  }
+
   auto node = dom_manager->GetNode(root_node,
                                    hippy::base::checked_numeric_cast<jlong, uint32_t>(j_node_id));
   if (node == nullptr) {
@@ -172,8 +183,13 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
   }
-  // todo get rootNode
-  auto root_node = std::make_shared<hippy::RootNode>();
+
+  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
+  if (root_node == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "DoCallBack root_node is nullptr";
+    return;
+  }
+
   auto node = dom_manager->GetNode(root_node,
                                    hippy::base::checked_numeric_cast<jlong, uint32_t>(j_node_id));
   if (node == nullptr) {
@@ -215,8 +231,13 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
     return;
   }
-  // todo get rootNode
-  auto root_node = std::make_shared<hippy::RootNode>();
+
+  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
+  if (root_node == nullptr) {
+    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent root_node is nullptr";
+    return;
+  }
+
   auto node = dom_manager->GetNode(root_node,
                                    hippy::base::checked_numeric_cast<jlong, uint32_t>(j_dom_id));
   if (node == nullptr) {
