@@ -587,18 +587,23 @@ DomValue DomNode::Serialize() const {
   result[kNodePropertyViewName] = view_name;
 
   DomValueObjectType style_map_value;
-  for (const auto& value: *style_map_) {
-    style_map_value[value.first] = *value.second;
+  if (style_map_) {
+    for (const auto& value: *style_map_) {
+      style_map_value[value.first] = *value.second;
+    }
+    auto style_map = DomValue(std::move(style_map_value));
+    result[kNodePropertyStyle] = style_map;
   }
-  auto style_map = DomValue(std::move(style_map_value));
-  result[kNodePropertyStyle] = style_map;
-
-  DomValueObjectType dom_ext_map_value;
-  for (const auto& value: *dom_ext_map_) {
-    dom_ext_map_value[value.first] = *value.second;
+ 
+  if (dom_ext_map_) {
+    DomValueObjectType dom_ext_map_value;
+    for (const auto& value: *dom_ext_map_) {
+      dom_ext_map_value[value.first] = *value.second;
+    }
+    auto dom_ext_map = DomValue(std::move(dom_ext_map_value));
+    result[kNodePropertyExt] = dom_ext_map;
   }
-  auto dom_ext_map = DomValue(std::move(dom_ext_map_value));
-  result[kNodePropertyExt] = dom_ext_map;
+  
   return DomValue(std::move(result));
 }
 
@@ -652,32 +657,29 @@ bool DomNode::Deserialize(DomValue value) {
     return false;
   }
 
-  DomValueObjectType style;
-  flag = dom_node_obj[kNodePropertyStyle].ToObject(style);
-  if (flag) {
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>
-        style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
-    for (const auto& p: style) {
-      (*style_map)[p.first] = std::make_shared<DomValue>(p.second);
+  auto style_obj = dom_node_obj[kNodePropertyStyle];
+  if (style_obj.IsObject()) {
+    auto style = style_obj.ToObjectChecked();
+    if (flag) {
+      std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>
+          style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+      for (const auto& p: style) {
+        (*style_map)[p.first] = std::make_shared<DomValue>(p.second);
+      }
+      SetStyleMap(std::move(style_map));
     }
-    SetStyleMap(std::move(style_map));
-  } else {
-    TDF_BASE_LOG(ERROR) << "Deserialize style error";
-    return false;
   }
 
   DomValueObjectType ext;
-  flag = dom_node_obj[kNodePropertyExt].ToObject(ext);
-  if (flag) {
+  auto ext_obj = dom_node_obj[kNodePropertyExt];
+  if (ext_obj.IsObject()) {
+    auto ext = ext_obj.ToObjectChecked();
     std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>
         ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
     for (const auto& p: ext) {
       (*ext_map)[p.first] = std::make_shared<DomValue>(p.second);
     }
     SetExtStyleMap(std::move(ext_map));
-  } else {
-    TDF_BASE_LOG(ERROR) << "Deserialize ext error";
-    return false;
   }
 
   return true;

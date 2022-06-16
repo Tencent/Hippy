@@ -260,8 +260,7 @@ DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_
   return {reinterpret_cast<const char*>(ret.first), ret.second};
 }
 
-bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node,
-                           const bytes& buffer, const RootInfo& root_info) {
+bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer) {
   DCHECK_RUN_THREAD()
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
   DomValue value;
@@ -274,12 +273,16 @@ bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node,
   value.ToArray(array);
   if (array.empty()) {
     return false;
-  }
-  auto snapshot_root_node = std::make_shared<RootNode>();
-  if (snapshot_root_node->GetPid() != 0) {
+  };
+  auto orig_root_node = std::make_shared<DomNode>();
+  flag = orig_root_node->Deserialize(array[0]);
+  if (!flag) {
     return false;
   }
-  auto orig_root_id = root_node->GetId();
+  if (orig_root_node->GetPid() != 0) {
+    return false;
+  }
+  auto orig_root_id = orig_root_node->GetId();
   std::vector<std::shared_ptr<DomInfo>> nodes;
   std::weak_ptr<DomManager> weak_dom_manager = weak_from_this();
   for (uint32_t i = 1; i < array.size(); ++i) {

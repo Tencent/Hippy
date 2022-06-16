@@ -133,7 +133,21 @@
 std::string mock;
 
 - (void)saveBtnClick {
-    mock = _bridge.domManager->GetSnapShot(_rootNode);
+    std::weak_ptr<hippy::DomManager> weak_dom_manager = _bridge.domManager;
+    std::weak_ptr<hippy::RootNode> weak_root_node = _bridge.rootNode;
+    std::function<void()> func = [weak_dom_manager , weak_root_node](){
+        auto dom_manager = weak_dom_manager.lock();
+        if (!dom_manager) {
+            return;
+        }
+        auto root_node = weak_root_node.lock();
+        if (!root_node) {
+            return;
+        }
+        mock = dom_manager->GetSnapShot(root_node);
+    };
+    _bridge.domManager->PostTask(hippy::Scene({func}));
+   
 }
 
 - (void)loadBtnClick {
@@ -155,13 +169,23 @@ std::string mock;
     [self initRenderContextWithRootView:view];
 
     //4.mock data
-    auto nodesData = mock; // [self mockNodesData];
+    auto nodes_data = mock; // [self mockNodesData];
     
     //5.create dom nodes with datas
 
-    hippy::DomManager::RootInfo info {(uint32_t)rootTag, (float)view.bounds.size.width, (float)view.bounds.size.height};
-    std::function<void()> func = [domManager = _domManager, rootNode = _rootNode, nodesData, info](){
-        domManager->SetSnapShot(rootNode, nodesData, info);
+    _rootNode->SetRootSize((float)view.bounds.size.width, (float)view.bounds.size.height);
+    std::weak_ptr<hippy::DomManager> weak_dom_manager = _domManager;
+    std::weak_ptr<hippy::RootNode> weak_root_node = _rootNode;
+    std::function<void()> func = [weak_dom_manager, weak_root_node, nodes_data](){
+        auto dom_manager = weak_dom_manager.lock();
+        if (!dom_manager) {
+            return;
+        }
+        auto root_node = weak_root_node.lock();
+        if (!root_node) {
+            return;
+        }
+        dom_manager->SetSnapShot(root_node, nodes_data);
     };
     _domManager->PostTask(hippy::Scene({func}));
 }

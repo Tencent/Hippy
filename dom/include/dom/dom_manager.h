@@ -99,9 +99,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void TerminateTaskRunner() { dom_task_runner_->Terminate(); }
 
   bytes GetSnapShot(const std::shared_ptr<RootNode>& root_node);
-  bool SetSnapShot(const std::shared_ptr<RootNode>& root_node,
-                   const bytes& buffer,
-                   const RootInfo& root_info);
+  bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer);
 
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
   static std::shared_ptr<DomManager> Find(int32_t id);
