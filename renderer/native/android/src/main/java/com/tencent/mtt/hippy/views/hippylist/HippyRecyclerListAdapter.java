@@ -155,6 +155,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         if (parentNode != null) {
             mNativeRenderer.getRenderManager().getControllerManager()
                     .deleteChild(parentNode.getId(), renderNode.getId());
+        } else {
+            mNativeRenderer.getRenderManager().getControllerManager().removeViewFromRegistry(renderNode.getId());
         }
         renderNode.setRecycleItemTypeChangeListener(null);
     }
