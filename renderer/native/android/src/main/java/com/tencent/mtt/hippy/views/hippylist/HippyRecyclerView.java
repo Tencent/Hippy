@@ -64,6 +64,12 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         super(context, attrs, defStyle);
     }
 
+    public void onDestroy() {
+        if (stickyHeaderHelper != null) {
+            stickyHeaderHelper.detachSticky();
+        }
+    }
+
     public ADP getAdapter() {
         return listAdapter;
     }
@@ -353,7 +359,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
      */
     @Override
     public void onViewAbound(HippyRecyclerViewHolder viewHolder) {
-        if (viewHolder.bindNode != null && !viewHolder.bindNode.isDeleted()) {
+        if (viewHolder.bindNode != null) {
             getAdapter().deleteExistRenderView(viewHolder.bindNode);
         }
     }

@@ -31,10 +31,12 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerListAdapter;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerView;
-import com.tencent.mtt.hippy.views.hippylist.PullHeaderRefreshHelper;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 
+import com.tencent.renderer.utils.ArrayUtils;
+import com.tencent.renderer.utils.MapUtils;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +47,7 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
     public static final String CLASS_NAME = "PullHeaderView";
     private static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
     private static final String EXPAND_PULL_HEADER = "expandPullHeader";
+    private static final String COLLAPSE_PULL_HEADER_WITH_OPTIONS = "collapsePullHeaderWithOptions";
 
     @Override
     protected View createViewImpl(Context context) {
@@ -64,8 +67,8 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
         pullHeaderView.onDestroy();
     }
 
-    private void execListViewFunction(@NonNull HippyListView listView,
-            @NonNull String functionName) {
+    private void execListViewFunction(@NonNull final HippyListView listView,
+            @NonNull String functionName, @NonNull List params) {
         switch (functionName) {
             case COLLAPSE_PULL_HEADER: {
                 listView.onHeaderRefreshFinish();
@@ -75,6 +78,23 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
                 listView.onHeaderRefresh();
                 break;
             }
+            case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
+                Map element = ArrayUtils.getMapValue(params, 0);
+                if (element == null) {
+                    return;
+                }
+                final int time = MapUtils.getIntValue(element, "time");
+                if (time > 0) {
+                    listView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            listView.onHeaderRefreshFinish();
+                        }
+                    }, time);
+                } else {
+                    listView.onHeaderRefreshFinish();
+                }
+            }
             default: {
                 LogUtils.w(TAG, "Unknown function name: " + functionName);
             }
@@ -82,7 +102,7 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
     }
 
     private void execRecyclerViewFunction(@NonNull HippyRecyclerView recyclerView,
-            @NonNull String functionName) {
+            @NonNull String functionName, @NonNull List params) {
         switch (functionName) {
             case COLLAPSE_PULL_HEADER: {
                 recyclerView.getAdapter().onHeaderRefreshCompleted();
@@ -91,6 +111,27 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
             case EXPAND_PULL_HEADER: {
                 recyclerView.getAdapter().enableHeaderRefresh();
                 break;
+            }
+            case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
+                Map element = ArrayUtils.getMapValue(params, 0);
+                if (element == null) {
+                    return;
+                }
+                final int time = MapUtils.getIntValue(element, "time");
+                final HippyRecyclerListAdapter adapter = recyclerView.getAdapter();
+                if (adapter == null) {
+                    return;
+                }
+                if (time > 0) {
+                    recyclerView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.onHeaderRefreshCompleted();
+                        }
+                    }, time);
+                } else {
+                    adapter.onHeaderRefreshCompleted();
+                }
             }
             default: {
                 LogUtils.w(TAG, "Unknown function name: " + functionName);
@@ -110,9 +151,9 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
         super.dispatchFunction(pullHeaderView, functionName, params);
         View parent = pullHeaderView.getRecyclerView();
         if (parent instanceof HippyListView) {
-            execListViewFunction((HippyListView) parent, functionName);
+            execListViewFunction((HippyListView) parent, functionName, params);
         } else if (parent instanceof HippyRecyclerView) {
-            execRecyclerViewFunction((HippyRecyclerView) parent, functionName);
+            execRecyclerViewFunction((HippyRecyclerView) parent, functionName, params);
         }
     }
 }

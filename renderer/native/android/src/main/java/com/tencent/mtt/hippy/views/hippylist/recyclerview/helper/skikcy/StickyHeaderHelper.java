@@ -86,7 +86,7 @@ public class StickyHeaderHelper extends OnScrollListener implements
     /**
      * 如果当前stickHolder和新的stickyHolder 不一样，那么把当前的stickyHolder删除掉，并还原HeaderView的Translation
      */
-    private void detachSticky() {
+    public void detachSticky() {
         if (headerOrgViewHolder != null) {
             removeViewFromParent(this.currentHeaderView);
             currentHeaderView.setTranslationY(0);

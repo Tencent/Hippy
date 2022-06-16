@@ -198,15 +198,15 @@ public class RenderManager {
         if (node == null) {
             return;
         }
+        int childCount = node.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            deleteSelfFromParent(node.getChildAt(0));
+        }
         if (node.mParent != null) {
             node.mParent.removeChild(node);
         }
         mNodes.remove(node.getId());
         node.setNodeFlag(FLAG_ALREADY_DELETED);
-        int childCount = node.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            deleteSelfFromParent(node.getChildAt(i));
-        }
     }
 
     @Nullable
