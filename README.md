@@ -2,7 +2,7 @@
 
 ![Hippy Group](https://img.shields.io/badge/group-Hippy-blue.svg) [![license](https://img.shields.io/badge/license-Apache%202-blue)](https://github.com/Tencent/Hippy/blob/master/LICENSE) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Tencent/Hippy/pulls) ![node](https://img.shields.io/badge/node-%3E%3D10.0.0-green.svg) [![Actions Status](https://github.com/Tencent/Hippy/workflows/build/badge.svg?branch=master)](https://github.com/Tencent/Hippy/actions) [![Codecov](https://img.shields.io/codecov/c/github/Tencent/Hippy)](https://codecov.io/gh/Tencent/Hippy) [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Tencent/Hippy)](https://github.com/Tencent/Hippy/releases)
 
-English | [简体中文](./README.zh_CN.md) | [Homepage](//tencent.github.io/Hippy/)
+[Homepage](//tencent.github.io/Hippy/)
 
 ## 💡 Introduction
 
@@ -138,12 +138,10 @@ Hippy
 │   ├── hippy-vue-css-loader          # Webpack loader for convert CSS text to JS AST.
 │   ├── hippy-vue-loader              # Forked from vue-loader to do some hippy customization.
 │   ├── hippy-vue-native-components   # Native components extensions for hippy-vue.
-│   ├── hippy-vue-router              # Vue router for hippy-vue.
-│   └── types                         # Global type definition.
+│   └── hippy-vue-router              # Vue router for hippy-vue.
 ├── ios
 │   └── sdk                           # iOS SDK
 ├── android
-│   ├── support_ui                    # Android native components.
 │   └── sdk                           # Android SDK.
 ├── core                              # JS modules implemented by C++, binding to JS engine.
 ├── docker                            # Native release docker image and build scripts.

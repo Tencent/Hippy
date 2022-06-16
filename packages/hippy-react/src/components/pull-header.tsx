@@ -22,7 +22,6 @@ import React from 'react';
 import { Fiber } from '@hippy/react-reconciler';
 import { LayoutableProps } from '../types';
 import { callUIFunction } from '../modules/ui-manager-module';
-import { Device } from '../native';
 import Element from '../dom/element-node';
 
 interface CollapsePullHeaderOptions {
@@ -60,15 +59,10 @@ class PullHeader extends React.Component<PullHeaderProps, {}> {
    * @param {CollapsePullHeaderOptions} [options] - additional config for pull header
    */
   public collapsePullHeader(options: CollapsePullHeaderOptions) {
-    if (Device.platform.OS === 'android') {
-      callUIFunction(this.instance as Fiber, 'collapsePullHeader', [options]);
+    if (typeof options !== 'undefined') {
+      callUIFunction(this.instance as Element, 'collapsePullHeaderWithOptions', [options]);
     } else {
-      // iOS is not supported if param invalid, so create a new function name for compatibility
-      if (typeof options !== 'undefined') {
-        callUIFunction(this.instance as Element, 'collapsePullHeaderWithOptions', [options]);
-      } else {
-        callUIFunction(this.instance as Element, 'collapsePullHeader', []);
-      }
+      callUIFunction(this.instance as Element, 'collapsePullHeader', []);
     }
   }
 
