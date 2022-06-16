@@ -11,9 +11,12 @@ on:
       - 'driver/js/packages/**'
       - 'driver/js/examples/hippy-*-demo/**'
       - 'driver/js/core/js/**/*.js'
+      - 'driver/js/scripts/**/*.js'
       - 'package*.json'
       - 'scripts/**/*.js'
-
+defaults:
+  run:
+    working-directory: driver/js
 jobs:
   frontend_build_tests:
     runs-on: ubuntu-latest
@@ -21,14 +24,16 @@ jobs:
       matrix:
         node: [ 14.x, 17.x ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: setup-node
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           registry-url: https://npm.pkg.github.com
+          cache: 'npm'
+          cache-dependency-path: driver/js/package-lock.json
       - name: install
-        run: npm install && lerna bootstrap
+        run: npm ci && lerna bootstrap
       - name: lint & build
         run: npm run lint & npm run build
       - name: test

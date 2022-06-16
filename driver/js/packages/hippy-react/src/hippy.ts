@@ -129,7 +129,7 @@ class HippyReact implements HippyReact {
     if (process.env.NODE_ENV === 'development') {
       injectIntoDevTools({
         bundleType: 1,
-        version: HippyReact.version,
+        version: React.version,
         rendererPackageName: 'hippy-react',
       });
     }

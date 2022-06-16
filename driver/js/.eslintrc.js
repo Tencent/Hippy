@@ -5,7 +5,7 @@ function resolveVue(p) {
 }
 
 function resolvePackage(src, extra = 'src') {
-  return path.resolve(__dirname, './driver/js/packages/', src, extra);
+  return path.resolve(__dirname, './packages/', src, extra);
 }
 
 module.exports = {
@@ -141,7 +141,7 @@ module.exports = {
           ['core', resolveVue('core')],
           ['shared', resolveVue('shared')],
           ['sfc', resolveVue('sfc')],
-          ['he', path.resolve(__dirname, './driver/js/packages/hippy-vue/src/util/entity-decoder')],
+          ['he', path.resolve(__dirname, './packages/hippy-vue/src/util/entity-decoder')],
         ],
       },
     },
