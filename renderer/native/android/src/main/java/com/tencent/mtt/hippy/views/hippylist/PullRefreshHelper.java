@@ -38,7 +38,7 @@ import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.AnimatorListene
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 
-public abstract class PullRefreshHelper implements OnTouchListener {
+public abstract class PullRefreshHelper {
 
     public enum PullRefreshStatus {
         PULL_STATUS_FOLDED,
@@ -104,8 +104,7 @@ public abstract class PullRefreshHelper implements OnTouchListener {
         return mContainer;
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
+    public void onTouch(View v, MotionEvent event) {
         if (mLastPosition == -1) {
             mLastPosition = isVertical() ? event.getRawY() : event.getRawX();
             mStartPosition = mLastPosition;
@@ -136,7 +135,6 @@ public abstract class PullRefreshHelper implements OnTouchListener {
                 }
                 break;
         }
-        return false;
     }
 
     protected void endAnimation() {
