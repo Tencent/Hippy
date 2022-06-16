@@ -66,10 +66,16 @@ class WaterfallViewModel extends ScrollableModel {
     contentInset = viewModel.contentInset;
     realItemList = viewModel.children.whereType<WaterfallItemViewModel>().toList();
     var localContainBannerView = viewModel.containBannerView;
-    var localBannerViewModel = viewModel.children[0];
     if (localContainBannerView) {
-      containBannerView = viewModel.containBannerView;
-      bannerViewModel = localBannerViewModel;
+      RenderViewModel? localBannerViewModel;
+      try {
+        localBannerViewModel =
+            viewModel.children.firstWhere((element) => element is DivRenderViewModel);
+        containBannerView = viewModel.containBannerView;
+        bannerViewModel = localBannerViewModel;
+      } catch (err) {
+        containBannerView = false;
+      }
     }
     var localContainPullFooter = viewModel.containPullFooter;
     var localPullFooterViewModel =

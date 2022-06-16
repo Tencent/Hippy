@@ -20,9 +20,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:voltron_renderer/engine/loader.dart';
 
 import '../common.dart';
+import '../engine.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
@@ -45,9 +45,13 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   bool _loadCompleted = false;
 
+  int _loadErrCode = 0;
+
   bool _loadError = false;
 
   int get id => _instanceId;
+
+  int get loadErrCode => _loadErrCode;
 
   ContextWrapper? _wrapper;
 
@@ -78,7 +82,8 @@ class RootWidgetViewModel extends ChangeNotifier {
     checkUpdateDimension(-1, -1, false, false);
   }
 
-  void onLoadError() {
+  void onLoadError(errCode) {
+    _loadErrCode = errCode;
     _loadError = true;
     _loadCompleted = true;
     notifyChange();
@@ -207,13 +212,13 @@ class RootWidgetViewModel extends ChangeNotifier {
 
 class VoltronWidget extends StatefulWidget {
   // 页面加载过程中的loading widget
-  final Widget? loadingWidget;
+  final ModuleLoadingBuilder? loadingBuilder;
 
   // 页面加载错误widget
-  final Widget? errorWidget;
+  final ModuleErrorBuilder? errorBuilder;
 
   // 空页面展示widget
-  final Widget? emptyWidget;
+  final EmptyBuilder? emptyBuilder;
 
   // 是否支持可变高度，为false时，在仅高度变化，宽不变的场景下，父布局size保证第一次测量高度
   // 设置为true的情况下，会导致input组件无法自动滚动
@@ -227,9 +232,9 @@ class VoltronWidget extends StatefulWidget {
   const VoltronWidget({
     Key? key,
     required this.loader,
-    this.loadingWidget,
-    this.errorWidget,
-    this.emptyWidget,
+    this.loadingBuilder,
+    this.errorBuilder,
+    this.emptyBuilder,
     this.resizedHeight = false,
     this.height = -1,
   }) : super(key: key);
@@ -274,7 +279,7 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     LogUtils.i("root_widget", "build root widget");
     return LayoutBuilder(builder: (context, constraints) {
       if (hasDispose) {
-        return _empty();
+        return _empty(context);
       }
       if (widget.resizedHeight) {
         // 高度自适应外层布局模式
@@ -312,66 +317,80 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
 
   Widget _contentWithHeight(double height) {
     return WillPopScope(
-        onWillPop: () async {
-          return !(widget.loader.back(() {
-            Navigator.of(context).pop();
-          }));
-        },
-        child: ChangeNotifierProvider.value(
-            value: viewModel, child: _contentWithHeightByRepaint(height)));
+      onWillPop: () async {
+        return !(widget.loader.back(() {
+          Navigator.of(context).pop();
+        }));
+      },
+      child: ChangeNotifierProvider.value(
+        value: viewModel,
+        child: _contentWithHeightByRepaint(height),
+      ),
+    );
   }
 
   Widget _contentWithHeightByRepaint(double height) {
     // 需要使用RepaintBoundary包裹，以便获取当前的页面快照
     return RepaintBoundary(
-        key: viewModel.rootKey,
-        child: SizedBox(width: double.infinity, height: height, child: _contentWithStatus()));
+      key: viewModel.rootKey,
+      child: SizedBox(
+        width: double.infinity,
+        height: height,
+        child: _contentWithStatus(),
+      ),
+    );
   }
 
   Widget _contentWithStatus() {
-    return Consumer<RootWidgetViewModel>(builder: (context, viewModel, widget) {
-      var model = LoadingModel(!(viewModel.loadFinish), viewModel.loadError);
-      LogUtils.dWidget("root_widget", "build content start");
-      if (model.isLoading) {
-        LogUtils.dWidget("root_widget", "build content loading");
-        return _loading();
-      } else if (model.isError) {
-        LogUtils.dWidget("root_widget", "build content error");
-        return _error();
-      } else {
-        LogUtils.dWidget("root_widget", "build content");
-        return _content(viewModel);
-      }
-    });
+    return Consumer<RootWidgetViewModel>(
+      builder: (context, viewModel, widget) {
+        var model = LoadingModel(!(viewModel.loadFinish), viewModel.loadError);
+        LogUtils.dWidget("root_widget", "build content start");
+        if (model.isLoading) {
+          LogUtils.dWidget("root_widget", "build content loading");
+          return _loading(context);
+        } else if (model.isError) {
+          LogUtils.dWidget("root_widget", "build content error");
+          return _error(context, viewModel);
+        } else {
+          LogUtils.dWidget("root_widget", "build content");
+          return _content(viewModel);
+        }
+      },
+    );
   }
 
-  Widget _loading() {
-    var loadingWidget = widget.loadingWidget;
-    if (loadingWidget != null) {
-      return loadingWidget;
+  Widget _loading(BuildContext context) {
+    var loadingBuilder = widget.loadingBuilder;
+    if (loadingBuilder != null) {
+      return loadingBuilder(context);
     }
     return Center(
-        child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: const [
-        CircularProgressIndicator(),
-        Text("Loading"),
-      ],
-    ));
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: const [
+          CircularProgressIndicator(),
+          Text("Loading"),
+        ],
+      ),
+    );
   }
 
-  Widget _error() {
-    var errorWidget = widget.errorWidget;
-    if (errorWidget != null) {
-      return errorWidget;
+  Widget _error(BuildContext context, RootWidgetViewModel viewModel) {
+    var errorBuilder = widget.errorBuilder;
+    int errCode = viewModel.loadErrCode;
+    if (errorBuilder != null) {
+      return errorBuilder(context, errCode);
     }
-    return const Center(child: Text("Load error"));
+    return Center(
+      child: Text("Load error, code: ${errCode.toString()}"),
+    );
   }
 
-  Widget _empty() {
-    var emptyWidget = widget.emptyWidget;
-    if (emptyWidget != null) {
-      return emptyWidget;
+  Widget _empty(BuildContext context) {
+    var emptyBuilder = widget.loadingBuilder;
+    if (emptyBuilder != null) {
+      return emptyBuilder(context);
     }
     return const Center(child: Text("Empty page"));
   }
@@ -390,7 +409,7 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     if (nodeList.isNotEmpty) {
       return _container(context, nodeList);
     } else {
-      return _empty();
+      return _empty(context);
     }
   }
 
@@ -451,6 +470,19 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     hasDispose = true;
   }
 }
+
+typedef EmptyBuilder = Widget Function(
+  BuildContext context,
+);
+
+typedef ModuleLoadingBuilder = Widget Function(
+  BuildContext context,
+);
+
+typedef ModuleErrorBuilder = Widget Function(
+  BuildContext context,
+  int statusCode,
+);
 
 typedef OnLoadCompleteListener = Function(int loadTime, List<EngineMonitorEvent> loadEvents);
 

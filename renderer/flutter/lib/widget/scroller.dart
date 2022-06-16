@@ -78,11 +78,9 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
       physics = const NeverScrollableScrollPhysics();
     } else {
       if (widgetModel.pagingEnable) {
-        physics =
-            const PageScrollPhysics().applyTo(const BouncingScrollPhysics());
+        physics = const PageScrollPhysics().applyTo(const BouncingScrollPhysics());
         if (!widgetModel.bounces) {
-          physics =
-              const PageScrollPhysics().applyTo(const ClampingScrollPhysics());
+          physics = const PageScrollPhysics().applyTo(const ClampingScrollPhysics());
         }
       }
     }
@@ -92,21 +90,12 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
     }
 
     var scrollView = SingleChildScrollView(
-        scrollDirection: direction,
-        controller: widgetModel.controller,
-        physics: physics,
-        // scrollView只允许有一个子节点，所以这里只需要生成第0个节点的widget即可
-        child: direction == Axis.vertical
-            ? Column(
-                children: [
-                  generateByViewModel(context, widgetModel.children[0]),
-                ],
-              )
-            : Row(
-                children: [
-                  generateByViewModel(context, widgetModel.children[0]),
-                ],
-              ));
+      scrollDirection: direction,
+      controller: widgetModel.controller,
+      physics: physics,
+      // scrollView只允许有一个子节点，所以这里只需要生成第0个节点的widget即可
+      child: generateByViewModel(context, widgetModel.children[0]),
+    );
 
     Widget scrollBar = scrollView;
     if (widgetModel.showScrollIndicator) {
@@ -157,8 +146,7 @@ class ScrollNotificationListener extends StatefulWidget {
   }
 }
 
-class _ScrollNotificationListenerState
-    extends State<ScrollNotificationListener> {
+class _ScrollNotificationListenerState extends State<ScrollNotificationListener> {
   static const double kExtraScrollEndOffset = 5;
   bool _scrollFlingStartHandle = false;
   bool _hasReachEnd = false;
@@ -174,8 +162,8 @@ class _ScrollNotificationListenerState
                 // dragDetails 非空表示手指开始拖动
                 _scrollFlingStartHandle = false;
                 var scrollSize = _scrollSize(scrollNotification);
-                widget.scrollGestureDispatcher.handleScrollBegin(
-                    widget.viewModel, scrollSize.width, scrollSize.height);
+                widget.scrollGestureDispatcher
+                    .handleScrollBegin(widget.viewModel, scrollSize.width, scrollSize.height);
               } else {
                 // dragDetails 表示fling手势开始
                 _scrollFlingStartHandle = true;
@@ -189,14 +177,14 @@ class _ScrollNotificationListenerState
                 // dragDetails 表示fling中
                 if (!_scrollFlingStartHandle) {
                   _scrollFlingStartHandle = true;
-                  widget.scrollGestureDispatcher.handleScrollEnd(
-                      widget.viewModel, scrollSize.width, scrollSize.height);
+                  widget.scrollGestureDispatcher
+                      .handleScrollEnd(widget.viewModel, scrollSize.width, scrollSize.height);
                   widget.scrollGestureDispatcher.handleScrollMomentumBegin(
                       widget.viewModel, scrollSize.width, scrollSize.height);
                 }
               }
-              widget.scrollGestureDispatcher.handleScroll(
-                  widget.viewModel, scrollSize.width, scrollSize.height);
+              widget.scrollGestureDispatcher
+                  .handleScroll(widget.viewModel, scrollSize.width, scrollSize.height);
             } else if (scrollNotification is ScrollEndNotification) {
               var scrollSize = _scrollSize(scrollNotification);
               if (scrollNotification.dragDetails == null) {
@@ -208,17 +196,16 @@ class _ScrollNotificationListenerState
                   return false;
                 }
               } else {
-                widget.scrollGestureDispatcher.handleScrollEnd(
-                    widget.viewModel, scrollSize.width, scrollSize.height);
+                widget.scrollGestureDispatcher
+                    .handleScrollEnd(widget.viewModel, scrollSize.width, scrollSize.height);
               }
             }
 
-            if (judgeReachEnd(scrollNotification.metrics.pixels,
-                scrollNotification.metrics.maxScrollExtent)) {
+            if (judgeReachEnd(
+                scrollNotification.metrics.pixels, scrollNotification.metrics.maxScrollExtent)) {
               if (!_hasReachEnd) {
                 _hasReachEnd = true;
-                widget.scrollGestureDispatcher
-                    .handleScrollReachedEnd(widget.viewModel);
+                widget.scrollGestureDispatcher.handleScrollReachedEnd(widget.viewModel);
               }
             } else {
               _hasReachEnd = false;
@@ -242,11 +229,8 @@ class _ScrollNotificationListenerState
 
     var extraOffset = 0.0;
     for (var i = 1; i <= preloadNumber; i++) {
-      extraOffset +=
-          widget.viewModel.children?[widget.viewModel.childCount - i].height ??
-              0;
-      if (curScrollOffset + extraOffset + kExtraScrollEndOffset >=
-          maxScrollOffset) {
+      extraOffset += widget.viewModel.children?[widget.viewModel.childCount - i].height ?? 0;
+      if (curScrollOffset + extraOffset + kExtraScrollEndOffset >= maxScrollOffset) {
         return true;
       }
     }

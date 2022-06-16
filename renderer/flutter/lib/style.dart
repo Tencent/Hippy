@@ -29,7 +29,6 @@ export 'style/flex_value.dart';
 export 'style/image_virtual_node.dart';
 export 'style/prop.dart';
 export 'style/style_node.dart';
-// export 'style/text.dart';
 export 'style/text_virtual_node.dart';
 export 'style/update.dart';
 export 'style/virtual_node_manager.dart';

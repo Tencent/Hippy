@@ -22,6 +22,7 @@
 
 #include <string>
 #include <vector>
+#include <ctime>
 #include "api/adapter/data/serializable.h"
 
 namespace hippy::devtools {

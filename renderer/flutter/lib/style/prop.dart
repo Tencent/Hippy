@@ -181,7 +181,7 @@ class NodeProps {
   static const String kOnScrollEndDrag = "onScrollEndDrag";
   static const String kOnMomentumScrollBegin = "onMomentumScrollBegin";
   static const String kOnMomentumScrollEnd = "onMomentumScrollEnd";
-  static const String kOnScrollEnable = "onScrollEnable";
+  static const String kOnScrollEnable = "onScroll";
   static const String kScrollEnable = "scrollEnabled";
   static const String kScrollEventThrottle = "scrollEventThrottle";
 
@@ -201,7 +201,7 @@ class NodeProps {
 
   static const String kViewClassName = "View";
   static const String kTextClassName = "Text";
-  static const String kImageClassName = "Text";
+  static const String kImageClassName = "Image";
 
   /// 节点样式，包含内联样式
   static const String kStyle = "style";
@@ -220,54 +220,6 @@ class NodeProps {
 
   static const String kVisible = "visible";
   static const String kRepeatCount = "repeatCount";
-
-  /// 动画相关
-  // animation
-  static const String kAnimation = 'animation';
-  static const String kAnimationKeyFramePropertyMap = 'animationPropertyMap';
-  static const String kAnimationKeyFramePropertyName = 'propertyName';
-  static const String kAnimationKeyFramePropertyValue = 'value';
-  static const String kAnimationKeyFrameFrom = 'from';
-  static const String kAnimationKeyFrameTo = 'to';
-  static const String kAnimationKeyFrameZeroPercent = '0%';
-  static const String kAnimationKeyFrameHundredPercent = '100%';
-
-  /// keyframe selector的百分比数字
-  static const String kAnimationKeyFrameSelectorPercent = 'animationKeyFrameSelectorPercent';
-
-  /// 需要根据animation规则操作的属性Map
-  static const String kAnimationPropertyOptionMap = 'animationPropertyOptionMap';
-
-  /// animation动画播放结束后，animationFillModel为'none'时，需要设置的属性集
-  static const String kAnimationEndPropertyMap = 'animationEndPropertyMap';
-  static const String kAnimationDuration = 'animationDuration';
-  static const String kAnimationTimingFunction = 'animationTimingFunction';
-  static const String kAnimationDelay = 'animationDelay';
-  static const String kAnimationIterationCount = 'animationIterationCount';
-  static const String kAnimationDirection = 'animationDirection';
-  static const String kAnimationFillModel = 'animationFillModel';
-  static const String kAnimationPlayState = 'animationPlayState';
-  // transition
-  static const String kTransition = 'transition';
-  static const String kTransitionPropertyAll = 'all';
-  static const String kTransitionProperty = 'transitionProperty';
-  static const String kTransitionDuration = 'transitionDuration';
-  static const String kTransitionTimingFunction = 'transitionTimingFunction';
-  static const String kTransitionDelay = 'transitionDelay';
-
-  /// 当前voltron支持的动画属性集合
-  static const List<String> animationSupportPropertyList = [
-    kWidth,
-    kHeight,
-    kTop,
-    kRight,
-    kBottom,
-    kLeft,
-    kOpacity,
-    kBackgroundColor,
-    kTransform,
-    kTransformOrigin,
-  ];
 
   static final HashSet<String> _justLayoutPropSet = HashSet<String>();
   static HashSet<String> get justLayoutPropSet {
@@ -418,73 +370,4 @@ Clip toOverflow(String overflowString) {
     return Clip.hardEdge;
   }
   return Clip.hardEdge;
-}
-
-/// 动画相关
-/// 过渡效果的速度曲线
-class TimingFunction {
-  // 规定以相同速度开始至结束的过渡效果（等于 cubic-bezier(0,0,1,1)）
-  static const String kLinear = 'linear';
-  // 规定慢速开始，然后变快，然后慢速结束的过渡效果（cubic-bezier(0.25,0.1,0.25,1)）
-  static const String kEase = 'ease';
-  // 规定以慢速开始的过渡效果（等于 cubic-bezier(0.42,0,1,1)）
-  static const String kEaseIn = 'ease-in';
-  // 规定以慢速结束的过渡效果（等于 cubic-bezier(0,0,0.58,1)）
-  static const String kEaseOut = 'ease-out';
-  // 规定以慢速开始和结束的过渡效果（等于 cubic-bezier(0.42,0,0.58,1)）
-  static const String kEaseInOut = 'ease-in-out';
-}
-
-Curve resizeModeToCurve(String timingFunction) {
-  final strategyMap = {
-    TimingFunction.kLinear: Curves.linear,
-    TimingFunction.kEase: Curves.ease,
-    TimingFunction.kEaseIn: Curves.easeIn,
-    TimingFunction.kEaseOut: Curves.easeOut,
-    TimingFunction.kEaseInOut: Curves.easeInOut,
-  };
-
-  return strategyMap[timingFunction] ?? Curves.linear;
-}
-
-/// 动画的播放次数
-class AnimationIterationCount {
-  // 一个数字，定义应该播放多少次动画
-  static const String n = 'n';
-  // 指定动画应该播放无限次（永远）
-  static const String kInfinite = 'infinite';
-}
-
-/// 指定是否应该轮流反向播放动画。
-class AnimationDirection {
-  // 动画按正常播放(默认值)
-  static const String kNormal = 'normal';
-  // 动画反向播放
-  static const String kReverse = 'reverse';
-  // 动画在奇数次（1、3、5...）正向播放，在偶数次（2、4、6...）反向播放 (TODO: 暂不支持)
-  static const String kAlternate = 'alternate';
-  // 动画在奇数次（1、3、5...）反向播放，在偶数次（2、4、6...）正向播放 (TODO: 暂不支持)
-  static const String kAlternateReverse = 'alternateReverse';
-}
-
-/// 规定当动画不播放时（当动画完成时，或当动画有一个延迟未开始播放时），要应用到元素的样式
-class AnimationFillMode {
-  // 动画在动画执行之前和之后不会应用任何样式到目标元素(默认值)
-  static const String kNone = 'none';
-  // 在动画结束后（由 animation-iteration-count 决定），动画将应用该属性值
-  static const String kForwards = 'forwards';
-  // 动画将应用在 animation-delay 定义期间启动动画的第一次迭代的关键帧中定义的属性值。
-  // 这些都是 from 关键帧中的值（当 animation-direction 为 "normal" 或 "alternate" 时）
-  // 或 to 关键帧中的值（当 animation-direction 为 "reverse" 或 "alternate-reverse" 时）。
-  static const String kBackwards = 'backwards';
-  // 动画遵循 forwards 和 backwards 的规则。也就是说，动画会在两个方向上扩展动画属性。
-  static const String kBoth = 'both';
-}
-
-/// 指定动画是否正在运行或已暂停
-class AnimationPlayState {
-  // 运行的动画(默认)
-  static const String kRunning = 'running';
-  // 暂停动画
-  static const String lPaused = 'paused';
 }

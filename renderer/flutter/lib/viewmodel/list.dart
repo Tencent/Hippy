@@ -190,7 +190,8 @@ class ListViewModel extends ScrollableModel {
 
   @override
   void dispose() {
-    refreshEventDispatcher.refreshController.dispose();
+    // pull_to_refresh will auto dispose after 1.5
+    // refreshEventDispatcher.refreshController.dispose();
     super.dispose();
   }
 

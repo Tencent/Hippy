@@ -25,10 +25,12 @@
 #include <utility>
 
 namespace voltron {
+
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 void VoltronBridge::SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (runtime_) {
     const uint16_t* source = message->string().characters16();
-    int len = message->string().length();
+    int len = static_cast<int>(message->string().length());
     runtime_->SendResponse(source, len);
   }
 }
@@ -36,10 +38,11 @@ void VoltronBridge::SendResponse(std::unique_ptr<v8_inspector::StringBuffer> mes
 void VoltronBridge::SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (runtime_) {
     const uint16_t* source = message->string().characters16();
-    int len = message->string().length();
+    int len = static_cast<int>(message->string().length());
     runtime_->SendNotification(source, len);
   }
 }
+#endif
 
 voltron::VoltronBridge::VoltronBridge(std::shared_ptr<JSBridgeRuntime> runtime)
     : runtime_(std::move(runtime)) {}

@@ -27,8 +27,6 @@ import 'js_api_provider.dart';
 
 // 引擎初始化时的参数设置
 class EngineInitParams {
-  EngineType iEngineType = EngineType.rn;
-
   // 可选参数 核心的js bundle的assets路径（assets路径和文件路径二选一，优先使用assets路径），debugMode = false时有效
   String? coreJSAssetsPath;
 
@@ -50,15 +48,14 @@ class EngineInitParams {
   // 可选参数 调试模式
   bool debugMode = false;
 
-  // 可选参数 引擎模式 默认为NORMAL
-  EngineMode engineMode = EngineMode.normal;
-
-  // 可选参数 是否开启调试模式，默认为false，不开启
   // 可选参数 Server的jsbundle名字，默认为"index.bundle"。debugMode = true时有效
   String debugBundleName = "index.bundle";
 
   // 可选参数 Server的Host。默认为"localhost:38989"。debugMode = true时有效
   String debugServerHost = "localhost:38989";
+
+  // 可选参数 引擎模式 默认为NORMAL
+  EngineMode engineMode = EngineMode.normal;
 
   // 可选参数 自定义的，用来提供Native modules、JavaScript modules、View controllers的管理器。1个或多个
   List<APIProvider>? providers;

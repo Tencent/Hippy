@@ -78,9 +78,9 @@ std::string Base64::Decode(const std::string &input) {
     uint32_t c = input[i] == '=' ? 0 & i++ : kDecodingTable[static_cast<int>(input[i++])];
     uint32_t d = input[i] == '=' ? 0 & i++ : kDecodingTable[static_cast<int>(input[i++])];
     uint32_t triple = (a << 3 * 6) + (b << 2 * 6) + (c << 1 * 6) + (d << 0 * 6);
-    if (j < out_len) out[j++] = (triple >> 2 * 8) & 0xFF;
-    if (j < out_len) out[j++] = (triple >> 1 * 8) & 0xFF;
-    if (j < out_len) out[j++] = (triple >> 0 * 8) & 0xFF;
+    if (j < out_len) out[j++] = static_cast<char>((triple >> 2 * 8) & 0xFF);
+    if (j < out_len) out[j++] = static_cast<char>((triple >> 1 * 8) & 0xFF);
+    if (j < out_len) out[j++] = static_cast<char>((triple >> 0 * 8) & 0xFF);
   }
   return out;
 }

@@ -25,8 +25,8 @@ inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view&
         if (static_cast<uint8_t>(ch) < 0x80) {
           u8 += ch;
         } else {
-          u8 += (0xc0 | ch >> 6);
-          u8 += (0x80 | (ch & 0x3f));
+          u8 += static_cast<char>((0xc0 | ch >> 6));
+          u8 += static_cast<char>((0x80 | (ch & 0x3f)));
         }
       }
       stream << u8;

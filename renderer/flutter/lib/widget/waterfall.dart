@@ -62,7 +62,7 @@ class _WaterfallWidgetState extends FRState<WaterfallWidget> {
   }
 
   Widget generateWaterfallFlow(WaterfallViewModel viewModel) {
-    return SliverWaterfallFlow(
+    Widget waterfallFlow = SliverWaterfallFlow(
       gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
         crossAxisCount: viewModel.numberOfColumns,
         mainAxisSpacing: viewModel.interItemSpacing,
@@ -79,6 +79,14 @@ class _WaterfallWidgetState extends FRState<WaterfallWidget> {
         childCount: viewModel.realItemList.length,
       ),
     );
+    var contentInset = viewModel.contentInset;
+    if (contentInset != null) {
+      waterfallFlow = SliverPadding(
+        padding: contentInset,
+        sliver: waterfallFlow,
+      );
+    }
+    return waterfallFlow;
   }
 
   Widget _waterfall(WaterfallViewModel viewModel) {
@@ -108,13 +116,6 @@ class _WaterfallWidgetState extends FRState<WaterfallWidget> {
       viewModel: viewModel,
       scrollGestureDispatcher: viewModel.scrollGestureDispatcher,
     );
-    var contentInset = viewModel.contentInset;
-    if (contentInset != null) {
-      waterfall = Padding(
-        padding: contentInset,
-        child: waterfall,
-      );
-    }
     return waterfall;
   }
 }
