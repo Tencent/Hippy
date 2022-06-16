@@ -393,9 +393,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             uint32_t rootTag = [tag unsignedIntValue];
             strongSelf->_rootNode = std::make_shared<hippy::RootNode>(rootTag);
             strongSelf->_rootNode->SetDelegateTaskRunner(strongSelf.batchedBridge.javaScriptExecutor.pScope->GetTaskRunner());
+            strongSelf->_rootNode->GetAnimationManager()->SetRootNode(strongSelf->_rootNode);
             strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetRootNode(strongSelf->_rootNode);
             strongSelf->_domManager = std::make_shared<hippy::DomManager>();
             strongSelf->_domManager->Init();
+            strongSelf->_rootNode->SetDomManager(strongSelf->_domManager);
             strongSelf->_rootNode->GetLayoutNode()->SetScaleFactor(scale);
             std::weak_ptr<hippy::DomManager> weakDomManager = strongSelf->_domManager;
             std::weak_ptr<hippy::RootNode> weakRootNode = strongSelf->_rootNode;
@@ -404,7 +406,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 if (!rootNode) {
                     return;
                 }
-                rootNode->GetAnimationManager()->SetDomManager(weakDomManager);
                 rootNode->SetRootSize(size.width, size.height);
             };
             strongSelf->_domManager->PostTask(hippy::Scene({func}));

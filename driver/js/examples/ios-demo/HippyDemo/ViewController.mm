@@ -195,8 +195,10 @@ std::string mock;
     HippyAssert(0 != hippyTag && 0 == hippyTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
     if (rootView && hippyTag) {
         _rootNode = std::make_shared<hippy::RootNode>(hippyTag);
+        _rootNode->GetAnimationManager()->SetRootNode(_rootNode);
         _domManager = std::make_shared<hippy::DomManager>();
         _domManager->Init();
+        _rootNode->SetDomManager(_domManager);
         auto width = CGRectGetWidth(rootView.bounds);
         auto height = CGRectGetHeight(rootView.bounds);
         std::weak_ptr<hippy::DomManager> weakDomManager = _domManager;
@@ -204,7 +206,6 @@ std::string mock;
         std::function<void()> func = [weakRootNode, rootView, width, height](){
             auto rootNode = weakRootNode.lock();
             if (rootNode) {
-                rootNode->GetAnimationManager()->SetRootNode(rootNode);
                 rootNode->SetRootSize(width, height);
             }
         };

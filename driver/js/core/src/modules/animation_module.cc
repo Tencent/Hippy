@@ -283,7 +283,6 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
   def.constructor = [weak_scope](size_t argument_count,
                                  const std::shared_ptr<CtxValue> arguments[])
       -> std::shared_ptr<CubicBezierAnimation> {
-
     auto scope = weak_scope.lock();
     if (!scope) {
       return nullptr;

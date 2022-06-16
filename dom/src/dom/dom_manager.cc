@@ -160,7 +160,7 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
 
 void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
                                   uint32_t dom_id,
-                                  const std::string& event_name,
+                                  const std::string& name,
                                   uint64_t listener_id,
                                   bool use_capture,
                                   const EventCallback& cb) {
@@ -173,7 +173,7 @@ void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
   if (!node) {
     return;
   }
-  node->AddEventListener(event_name, listener_id, use_capture, cb);
+  node->AddEventListener(name, listener_id, use_capture, cb);
 }
 
 void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node,

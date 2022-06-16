@@ -287,7 +287,7 @@ CreateNode(const std::shared_ptr<Ctx> &context,
                                        std::move(u8_view_name),
                                        style,
                                        ext,
-                                       scope->GetRootNode().lock());
+                                       scope->GetRootNode());
   return std::make_tuple(true, "", dom_node);
 }
 
@@ -448,8 +448,10 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
             auto ref_info_tuple = CreateRefInfo(
                 context, context->CopyArrayElement(info, 1), scope);
             dom_infos.push_back(std::make_shared<DomInfo>(
-                std::make_shared<DomNode>(std::get<2>(id_tuple),
-                                          std::get<2>(pid_tuple)),
+                std::make_shared<DomNode>(
+                    std::get<2>(id_tuple),
+                    std::get<2>(pid_tuple),
+                    scope->GetRootNode()),
                 std::get<2>(ref_info_tuple)));
           }
         }
@@ -488,8 +490,10 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
             return nullptr;
           }
           dom_infos.push_back(std::make_shared<DomInfo>(
-              std::make_shared<DomNode>(std::get<2>(id_tuple),
-                                        std::get<2>(pid_tuple)),
+              std::make_shared<DomNode>(
+                  std::get<2>(id_tuple),
+                  std::get<2>(pid_tuple),
+                  scope->GetRootNode()),
               nullptr));
         }
       }

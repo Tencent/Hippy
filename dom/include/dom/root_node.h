@@ -27,6 +27,12 @@ class RootNode : public DomNode {
     return delegate_task_runner_;
   }
 
+  virtual void AddEventListener(const std::string& name,
+                                uint64_t listener_id,
+                                bool use_capture,
+                                const EventCallback& cb) override;
+  virtual void RemoveEventListener(const std::string& name, uint64_t listener_id) override;
+
   void CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
@@ -36,11 +42,9 @@ class RootNode : public DomNode {
                     const DomArgument &param, const CallFunctionCallback &cb);
   void SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager);
   void DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager);
-
   void AddEvent(uint32_t id, const std::string& event_name);
   void RemoveEvent(uint32_t id, const std::string& event_name);
   void HandleEvent(const std::shared_ptr<DomEvent> &event);
-
   void UpdateRenderNode(const std::shared_ptr<DomNode> &node);
 
   std::shared_ptr<DomNode> GetNode(uint32_t id);

@@ -23,14 +23,30 @@ using Serializer = tdf::base::Serializer;
 using DomValueArrayType = tdf::base::DomValue::DomValueArrayType;
 
 RootNode::RootNode(uint32_t id)
-        : DomNode(id, 0, 0, "", "",nullptr,nullptr) {
+        : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}) {
   animation_manager_ = std::make_shared<AnimationManager>();
   interceptors_.push_back(animation_manager_);
 }
 
 RootNode::RootNode(): RootNode(0) {}
 
+void RootNode::AddEventListener(const std::string& name,
+                                uint64_t listener_id,
+                                bool use_capture,
+                                const EventCallback& cb) {
+  DomNode::AddEventListener(name, listener_id, use_capture, cb);
+  AddEvent(GetId(), name);
+}
+
+void RootNode::RemoveEventListener(const std::string& name, uint64_t listener_id) {
+  DomNode::RemoveEventListener(name, listener_id);
+  RemoveEvent(GetId(), name);
+}
+
 void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
+  for (const auto& interceptor : interceptors_) {
+    interceptor->OnDomNodeCreate(nodes);
+  }
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node_info : nodes) {
     auto node = node_info->dom_node;
@@ -58,6 +74,9 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
 }
 
 void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
+  for (const auto& interceptor : interceptors_) {
+    interceptor->OnDomNodeUpdate(nodes);
+  }
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
   for (const auto& node_info : nodes) {
     std::shared_ptr<DomNode> dom_node = GetNode(node_info->dom_node->GetId());
@@ -106,28 +125,34 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
 }
 
 void RootNode::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>> &&nodes) {
-    std::vector<std::shared_ptr<DomNode>> nodes_to_move;
-    for (const auto& node_info : nodes) {
-        std::shared_ptr<DomNode> parent_node = GetNode(node_info->dom_node->GetPid());
-        if (parent_node == nullptr) {
-            continue;
-        }
-        auto node = parent_node->RemoveChildById(node_info->dom_node->GetId());
-        if (node == nullptr) {
-            continue;
-        }
-        nodes_to_move.push_back(node);
-        parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, node_info->ref_info));
-    }
-    for(const auto& node: nodes_to_move) {
-        node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex()});
-    }
-    if (!nodes_to_move.empty()) {
-        dom_operations_.push_back({DomOperation::kOpMove, nodes_to_move});
-    }
+  for (const auto& interceptor : interceptors_) {
+    interceptor->OnDomNodeMove(nodes);
+  }
+  std::vector<std::shared_ptr<DomNode>> nodes_to_move;
+  for (const auto& node_info : nodes) {
+      std::shared_ptr<DomNode> parent_node = GetNode(node_info->dom_node->GetPid());
+      if (parent_node == nullptr) {
+          continue;
+      }
+      auto node = parent_node->RemoveChildById(node_info->dom_node->GetId());
+      if (node == nullptr) {
+          continue;
+      }
+      nodes_to_move.push_back(node);
+      parent_node->AddChildByRefInfo(std::make_shared<DomInfo>(node, node_info->ref_info));
+  }
+  for(const auto& node: nodes_to_move) {
+      node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex()});
+  }
+  if (!nodes_to_move.empty()) {
+      dom_operations_.push_back({DomOperation::kOpMove, nodes_to_move});
+  }
 }
 
 void RootNode::DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
+  for (const auto& interceptor : interceptors_) {
+    interceptor->OnDomNodeDelete(nodes);
+  }
   std::vector<std::shared_ptr<DomNode>> nodes_to_delete;
   for (const auto & it : nodes) {
     std::shared_ptr<DomNode> node = GetNode(it->dom_node->GetId());

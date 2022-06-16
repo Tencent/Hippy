@@ -34,18 +34,6 @@ class AnimationManager
     root_node_ = root_node;
   }
 
-  inline std::weak_ptr<DomManager> GetDomManager() {
-    return dom_manager_;
-  }
-
-  inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) {
-    dom_manager_ = dom_manager;
-  }
-
-  inline void SetRenderManager(std::weak_ptr<RenderManager> render_manager) {
-    render_manager_ = render_manager;
-  }
-
   void OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeUpdate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
   void OnDomNodeMove(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
@@ -103,10 +91,9 @@ class AnimationManager
   void UpdateCubicBezierAnimation(double current,
                                   uint32_t related_animation_id,
                                   std::vector<std::shared_ptr<DomNode>>& update_nodes);
+  std::shared_ptr<RenderManager> GetRenderManager();
 
   std::weak_ptr<RootNode> root_node_;
-  std::weak_ptr<DomManager> dom_manager_;
-  std::weak_ptr<RenderManager> render_manager_;
   std::unordered_map<uint32_t, std::shared_ptr<Animation>> animation_map_;
   std::unordered_map<uint32_t, std::weak_ptr<CommonTask>> delayed_animation_task_map_;
   std::vector<std::shared_ptr<Animation>> active_animations_;

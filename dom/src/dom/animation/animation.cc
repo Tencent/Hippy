@@ -150,7 +150,11 @@ void Animation::Start() {
   } else {
     std::weak_ptr<Animation> weak_animation = animation;
     std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
-    auto dom_manager = animation_manager->GetDomManager().lock();
+    auto root_node = animation_manager->GetRootNode().lock();
+    if (!root_node) {
+      return;
+    }
+    auto dom_manager = root_node->GetDomManager().lock();
     if (!dom_manager) {
       return;
     }
@@ -163,7 +167,11 @@ void Animation::Start() {
       if (!animation_manager) {
         return;
       }
-      auto dom_manager = animation_manager->GetDomManager().lock();
+      auto root_node = animation_manager->GetRootNode().lock();
+      if (!root_node) {
+        return;
+      }
+      auto dom_manager = root_node->GetDomManager().lock();
       if (!dom_manager) {
         return;
       }
@@ -257,7 +265,11 @@ void Animation::Destroy() {
   if (!animation_manager) {
     return;
   }
-  auto dom_manager = animation_manager->GetDomManager().lock();
+  auto root_node = animation_manager->GetRootNode().lock();
+  if (!root_node) {
+    return;
+  }
+  auto dom_manager = root_node->GetDomManager().lock();
   if (!dom_manager) {
     return;
   }
@@ -334,7 +346,11 @@ void Animation::Resume() {
   if (!animation_manager) {
     return;
   }
-  auto dom_manager = animation_manager->GetDomManager().lock();
+  auto root_node = animation_manager->GetRootNode().lock();
+  if (!root_node) {
+    return;
+  }
+  auto dom_manager = root_node->GetDomManager().lock();
   if (!dom_manager) {
     return;
   }
@@ -418,7 +434,11 @@ void Animation::Repeat(uint64_t now) {
     }
     animation_manager->AddActiveAnimation(self);
   } else {
-    auto dom_manager = animation_manager->GetDomManager().lock();
+    auto root_node = animation_manager->GetRootNode().lock();
+    if (!root_node) {
+      return;
+    }
+    auto dom_manager = root_node->GetDomManager().lock();
     if (!dom_manager) {
       return;
     }

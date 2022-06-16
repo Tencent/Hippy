@@ -54,17 +54,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
           std::string view_name,
           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map,
           std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> dom_ext_map,
-          std::shared_ptr<RootNode> weak_root_node);
+          std::weak_ptr<RootNode> weak_root_node);
 
-  DomNode(uint32_t id,
-          uint32_t pid,
-          int32_t index,
-          std::string tag_name,
-          std::string view_name,
-          std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map,
-          std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> dom_ext_map);
-
-  DomNode(uint32_t id, uint32_t pid);
+  DomNode(uint32_t id, uint32_t pid, std::weak_ptr<RootNode> weak_root_node);
   DomNode();
   virtual ~DomNode();
 
@@ -106,6 +98,12 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline int32_t GetIndex() const { return index_; }
   inline void SetRootNode(std::weak_ptr<RootNode> root_node) { root_node_ = root_node; }
 
+  virtual void AddEventListener(const std::string& name,
+                                uint64_t listener_id,
+                                bool use_capture,
+                                const EventCallback& cb);
+  virtual void RemoveEventListener(const std::string& name, uint64_t listener_id);
+
   int32_t GetSelfIndex();
   int32_t GetChildIndex(uint32_t id);
 
@@ -129,17 +127,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   const LayoutResult& GetLayoutResult() const { return layout_; }
   const LayoutResult& GetRenderLayoutResult() const { return render_layout_; }
 
-  void AddEventListener(const std::string& name,
-                        uint64_t listener_id,
-                        bool use_capture,
-                        const EventCallback& cb);
-  void RemoveEventListener(const std::string& name, uint64_t listener_id);
 
-  // RenderListener 没有捕获冒泡流程，EventListener 拥有捕获冒泡流程
-  void AddRenderListener(const std::string& name,
-                         const RenderCallback& cb,
-                         const CallFunctionCallback& callback);
-  void RemoveRenderListener(const std::string& name, uint32_t id);
   std::vector<std::shared_ptr<DomNode::EventListenerInfo>> GetEventListener(const std::string& name,
                                                                             bool is_capture);
   const std::shared_ptr<std::unordered_map<std::string,
