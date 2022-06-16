@@ -474,4 +474,19 @@ public class ControllerManager {
                 message);
         mRenderer.handleRenderException(exception);
     }
+
+    public void removeViewFromRegistry(int id) {
+        View view = mControllerRegistry.getView(id);
+        if (view instanceof ViewGroup) {
+            for (int i = ((ViewGroup) view).getChildCount() - 1; i >= 0; i--) {
+                View child = ((ViewGroup) view).getChildAt(i);
+                if (child != null) {
+                    removeViewFromRegistry(child.getId());
+                }
+            }
+        }
+        if (view != null) {
+            mControllerRegistry.removeView(view.getId());
+        }
+    }
 }

@@ -35,6 +35,7 @@ import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.utils.MapUtils;
 import java.util.Map;
@@ -48,18 +49,17 @@ import java.util.Map;
 public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> extends
         HippyViewController<HRW> {
 
+    private static final String TAG = "HippyRecyclerViewController";
     public static final String CLASS_NAME = "ListView";
     public static final String EXTRA_CLASS_NAME = "RecyclerView";
     public static final String SCROLL_TO_INDEX = "scrollToIndex";
     public static final String SCROLL_TO_CONTENT_OFFSET = "scrollToContentOffset";
     public static final String SCROLL_TO_TOP = "scrollToTop";
-    public static final String COLLAPSE_PULL_HEADER = "collapsePullHeader";
-    public static final String COLLAPSE_PULL_HEADER_WITH_OPTIONS = "collapsePullHeaderWithOptions";
-    public static final String EXPAND_PULL_HEADER = "expandPullHeader";
     public static final String HORIZONTAL = "horizontal";
 
-    public HippyRecyclerViewController() {
-
+    @Override
+    public void onViewDestroy(HRW viewGroup) {
+        ((HRW) viewGroup).getRecyclerView().onDestroy();
     }
 
     @Override
@@ -251,34 +251,8 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 view.scrollToTop();
                 break;
             }
-            case COLLAPSE_PULL_HEADER: {
-                getAdapter(view).onHeaderRefreshCompleted();
-                break;
-            }
-            case COLLAPSE_PULL_HEADER_WITH_OPTIONS: {
-                HippyMap valueMap = dataArray.getMap(0);
-                if (valueMap == null) {
-                    return;
-                }
-                final int time = valueMap.getInt("time");
-                final HippyRecyclerListAdapter adapter = getAdapter(view);
-                if (adapter == null) {
-                    return;
-                }
-                if (time > 0) {
-                    view.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.onHeaderRefreshCompleted();
-                        }
-                    }, time);
-                } else {
-                    adapter.onHeaderRefreshCompleted();
-                }
-            }
-            case EXPAND_PULL_HEADER: {
-                getAdapter(view).enableHeaderRefresh();
-                break;
+            default: {
+                LogUtils.w(TAG, "Unknown function name: " + functionName);
             }
         }
     }
