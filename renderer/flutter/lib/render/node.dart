@@ -20,6 +20,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:voltron_renderer/render.dart';
+import 'package:voltron_renderer/util/render_vsync_util.dart';
 
 import '../common.dart';
 import '../controller.dart';
@@ -37,6 +38,26 @@ class RootRenderNode extends RenderNode {
   RenderViewModel createRenderViewModel(RenderContext context) {
     return RootRenderViewModel(
         id, rootId, name, context, context.getInstance(id));
+  }
+
+  @override
+  void addEvent(Set<String> eventNameList) {
+    for (final eventName in eventNameList) {
+      if (eventName == RenderVsyncUtil.kDoFrame) {
+        RenderVsyncUtil.registerDoFrameListener(renderViewModel.rootId, id);
+      }
+      _eventHolders.add(EventHolder(eventName));
+    }
+  }
+
+  @override
+  void removeEvent(Set<String> eventNameList) {
+    for (final eventName in eventNameList) {
+      if (eventName == RenderVsyncUtil.kDoFrame) {
+        RenderVsyncUtil.unregisterDoFrameListener(renderViewModel.rootId, id);
+      }
+      _eventHolders.remove(EventHolder(eventName));
+    }
   }
 }
 
