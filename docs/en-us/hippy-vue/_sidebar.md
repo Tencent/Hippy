@@ -1,10 +1,10 @@
 <!-- docs/hippy-vue/_sidebar.md -->
 
 * Hippy-Vue
-  * [介绍](hippy-vue/introduction.md)
-  * [核心组件](hippy-vue/components.md)
-  * [扩展组件](hippy-vue/external-components.md)
-  * [模块](hippy-vue/vue-native.md)
-  * [事件](hippy-vue/native-event.md)
-  * [自定义组件和模块](hippy-vue/customize.md)
-  * [路由](hippy-vue/router.md)
+  * [Introduction](hippy-vue/introduction.md)
+  * [Core Component](hippy-vue/components.md)
+  * [Extended Component](hippy-vue/external-components.md)
+  * [Module](hippy-vue/vue-native.md)
+  * [Event](hippy-vue/native-event.md)
+  * [Custom Component & Module](hippy-vue/customize.md)
+  * [Router](hippy-vue/router.md)
