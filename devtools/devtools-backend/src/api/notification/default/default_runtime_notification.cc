@@ -22,11 +22,13 @@
 
 constexpr char kRuntimeEventUpdateContextInfo[] = "TDFRuntime.updateContextInfo";
 constexpr char kContextName[] = "contextName";
+constexpr char kPrefixContextName[] = "HippyContext: ";
 
 namespace hippy::devtools {
 void DefaultRuntimeNotification::UpdateContextName(const std::string& context_name) {
   nlohmann::json params = nlohmann::json::object();
-  params[kContextName] = context_name;
+  auto frontend_context_name = kPrefixContextName + context_name;
+  params[kContextName] = frontend_context_name;
   InspectEvent inspect_event(kRuntimeEventUpdateContextInfo, params.dump());
   if (tunnel_service_) {
     tunnel_service_->SendDataToFrontend(inspect_event.ToJsonString());
