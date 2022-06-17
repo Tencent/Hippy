@@ -1,26 +1,26 @@
-# 自定义组件和模块
+# Customized Components and Modules
 
 # Vue.registerElement
 
-hippy-vue 提供了 `registerElement` 方法来注册组件，将 template 中的 tag 和原生组件映射起来。
+hippy-vue provides a `registerElement` method to register components, mapping tags in the template to native components.
 
-## 示例
+## Example
 
 ```javascript
 import Vue from 'vue';
 
 /*
- * 直接注册一个 ComponentName 到终端组件，这里推荐单词首字母大写的拼写。
- * template 里可以直接用 <ComponentName />
- * ComponentName 必须跟终端组件名称一致，且不能包含 Hippy 字符。
+ * Register a ComponentName directly to the native component. Here, it is recommended to use the capital letter for the first letter.
+ * <ComponentName /> can be used directly in the template.
+ * ComponentName must match the name of the native component and cannot contain the Hippy character.
  */
 Vue.registerElement('MyView');
 
 /*
- * 也可以注册一个小写的 tagname，然后通过参数映射到 ComponentName 终端组件
- * 但是 tagname 忽略大小写后也不能和 ComponentName 相同。(如 tag name 命名为 my-view, component name 不能命名为 MyView)
- * template 里可以直接用 <tagname />，同样会映射 ComponentName 组件上。
- * ComponentName 必须跟终端组件名称一致，不能包含 Hippy 字符。
+ * You can also register a lowercase tagname and map it to the ComponentName native component via the parameter
+ * But tagname cannot be the same as the ComponentName even after ignoring case. (If the tag name is named my-view, the component name cannot be named MyView)
+ * <tagname /> can be used directly in the template, it will also map to ComponentName components.
+ * ComponentName must match the native component and cannot contain Hippy characters.
  */
 Vue.registerElement('h-my-view', {
   component: {
@@ -29,17 +29,17 @@ Vue.registerElement('h-my-view', {
 });
 ```
 
-## 绑定终端事件返回值
+## Binding Native Event Return Value
 
-因为 hippy-vue 采用了和浏览器一致的事件模型，又希望能统一双端的事件（有的时候双端事件返回值不一样），所以采取了手动修改事件返回值的方案，需要显式声明每个事件的返回值。
+Because hippy-vue uses the same event model as the browser, and hopes to unify the events at both ends (sometimes the return values of the events at both ends are different), so the scheme of manually modifying the return values of the events is adopted, and the return value of each event needs to be explicitly declared.
 
-这一步是在注册组件时通过 `processEventData` 方法进行处理的，它有三个参数：
+This step is processed by the `processEventData` method, it has three parameters:
 
-* event: 终端回调函数里接收到的事件实例，需要对它进行修改
-* nativeEventName: 终端的原生事件名称
-* nativeEventParams：终端的原生事件返回体
+* event: The event instance received in the native callback function, it needs to be modified
+* nativeEventName: Native event name of the native
+* nativeEventParams：Native event return body of the native
 
-例如，hippy-vue 的 [hi-swiper 组件](//github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/swiper.js#L4)，它是 swiper 实际渲染的对应节点。
+For example, the [hi-swiper component](//github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/swiper.js#L4) of hippy-vue is the counterpart node of the actual rendering of the swiper.
 
 ```javascript
 component: {
@@ -47,7 +47,7 @@ component: {
   processEventData(event, nativeEventName, nativeEventParams) {
     switch (nativeEventName) {
     case 'onPageSelected':
-      // 显式将 native 的事件参数 nativeEventParams 的值赋予 hippy-vue 真正绑定的事件 event
+      // Explicitly assign the value of the event parameter nativeEventParams of native to the event that hippyvue is really bound to
       event.currentSlide = nativeEventParams.position;
       break;
     case 'onPageScroll':
@@ -64,22 +64,22 @@ component: {
 
 # Vue.component
 
-当你需要处理更加复杂的交互、事件、生命周期的时候，需要通过 `Vue.component` 注册一个单独的组件，registerElement 只能做到很基本的元素名称到组件的映射，和基本的参数映射。
+When you need to deal with more complex interactions, events, life cycle, you need to register a single component through `vue.component`, registerElement can only do the very basic mapping - element name mapping to component and basic parameter mapping.
 
-详情参考：//cn.vuejs.org/v2/guide/components-registration.html
+For more information: //cn.vuejs.org/v2/guide/components-registration.html
 
-## 事件处理
+## Event Handler
 
-通过 `Vue.component` 自定义的组件，若需要将终端事件传给组件外层，需要做额外处理，有两种方式：
+Customized components defined by `vue.component`, if you need to pass native events to the outer component, you need to do additional processing, there are two ways:
 
-* 使用 `render` 函数（推荐）
+* use `render` function (recommend)
 
 ```javascript
   Vue.component('Swiper', {
     /*
-     * 可以用 render 函数的方式
-     * 'pageScroll'是传输给终端的事件名（传输终端时会被自动转成转成onPageScroll）
-     * 'dragging' 是真正暴露给用户使用的事件名
+     * You can use the render function
+     * 'pageScroll' is the event name transmitted to the native (it will be automatically converted into onPageScroll during the transmission)
+     * 'dragging' is the name of the event that is actually exposed to the user
      */
     render(h) {
         const on = {
@@ -98,14 +98,14 @@ component: {
 });
 ```
 
-* 使用 `template`
+* Use `template`
 
 ```javascript
   Vue.component('Swiper', {
     /*
-     * 可以用 template 的方式，HippyVue会在运行时将其转换成 render 函数
-     * 'pageScroll'是传输给终端的事件名（传输终端时会被自动转成onPageScroll）
-     * 'dragging' 是真正暴露给用户使用的事件名
+     * You can use a template, which HippyVue will convert it to a render function at run time
+     * 'pageScroll' is the event name transmitted to the native (it will be automatically converted into onPageScroll during the transmission)
+     * 'dragging' is the name of the event that is actually exposed to the user
      */
     template: `
       <hi-swiper
@@ -120,11 +120,11 @@ component: {
 });
 ```
 
-# 自定义模块
+# Customized Modules
 
-> 该范例仅可以在 Android 下运行。
+> This example can only run under Android.
 
-hippy-vue 的模块其实只是一个 `Vue.Native.callNative` 调用，写个 `function` 即可。
+The hippy-vue module is just a `Vue.Native.callNative` call, you can only write a `function`.
 
 ```js
 import Vue from 'vue';
@@ -137,7 +137,7 @@ function helloNative(msg) {
   Vue.Native.callNative("TestModule", "helloNative", msg)
 }
 
-// 这个是需要终端回调的
+// This one requires a native callback.
 function helloNativeWithPromise(msg) {
   return Vue.Native.callNativeWithPromise("TestModule", "helloNativeWithPromise", msg);
 }
