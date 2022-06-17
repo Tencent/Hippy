@@ -56,7 +56,7 @@ class RootRenderNode extends RenderNode {
       if (eventName == RenderVsyncUtil.kDoFrame) {
         RenderVsyncUtil.unregisterDoFrameListener(renderViewModel.rootId, id);
       }
-      _eventHolders.remove(EventHolder(eventName));
+      _eventHolders.add(EventHolder(eventName, isAdd: false));
     }
   }
 }
