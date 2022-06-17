@@ -216,6 +216,13 @@ static unicode_string_view NSStringToU8(NSString* str) {
                         [deviceInfo addEntriesFromDictionary:customObjects];
                     }
                 }
+                if ([strongSelf.bridge isKindOfClass:[HippyBatchedBridge class]]) {
+                    HippyBridge *clientBridge = [(HippyBatchedBridge *)strongSelf.bridge parentBridge];
+                    NSString *deviceName = [[UIDevice currentDevice] name];
+                    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, clientBridge]);
+                    NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
+                    [deviceInfo addEntriesFromDictionary:debugInfo];
+                }
                 NSError *JSONSerializationError = nil;
                 NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:&JSONSerializationError];
                 if (JSONSerializationError) {
