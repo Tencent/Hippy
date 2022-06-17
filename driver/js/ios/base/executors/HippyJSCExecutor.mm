@@ -870,7 +870,9 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
         devInfo.versionId = bundleURLProvider.versionId;
         devInfo.wsURL = bundleURLProvider.wsURL;
     }
-    return [devInfo assembleFullWSURL];
+    NSString *deviceName = [[UIDevice currentDevice] name];
+    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, [(HippyBatchedBridge *)bridge parentBridge]]);
+    return [devInfo assembleFullWSURLWithClientId:clientId];
 }
 
 @end
