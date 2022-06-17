@@ -6,13 +6,15 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: setup-node
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v3
         with:
           node-version: 14.x
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
       - name: Install
         run: |
           npm install commitlint-plugin-function-rules@1.6.0 @commitlint/cli@16.2.1 @commitlint/config-conventional@16.2.1 @commitlint/lint@16.2.1 @commitlint/prompt-cli@16.2.1

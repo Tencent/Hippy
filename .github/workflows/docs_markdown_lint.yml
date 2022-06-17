@@ -13,13 +13,13 @@ jobs:
   markdownlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
       - name: setup-node
-        uses: actions/setup-node@master
+        uses: actions/setup-node@v3
         with:
           node-version: 14.x
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
       - name: Install
         run: |
           npm install markdown-it@12.3.2 markdownlint-cli@0.31.1

@@ -33,6 +33,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderAttachListener;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IHeaderHost;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHeaderHelper;
+import java.util.ArrayList;
 
 /**
  * Created  on 2020/12/22. Description
@@ -66,6 +67,12 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         super(context, attrs, defStyle);
     }
 
+    public void onDestroy() {
+        if (stickyHeaderHelper != null) {
+            stickyHeaderHelper.detachSticky();
+        }
+    }
+
     public ADP getAdapter() {
         return listAdapter;
     }
@@ -73,6 +80,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     @Override
     public void setAdapter(@Nullable Adapter adapter) {
         listAdapter = (ADP) adapter;
+        if (adapter != null) {
+            setOnTouchListener(listAdapter);
+        }
         super.setAdapter(adapter);
     }
 
