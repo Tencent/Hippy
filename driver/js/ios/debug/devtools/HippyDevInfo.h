@@ -34,6 +34,6 @@
 
 - (void)parseWsURLWithURLQuery:(NSString *)query;
 
--(NSString *)assembleFullWSURL;
+-(NSString *)assembleFullWSURLWithClientId:(NSString *)clientId;
 
 @end

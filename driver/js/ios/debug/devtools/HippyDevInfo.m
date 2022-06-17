@@ -94,14 +94,11 @@ static NSString *UUIDForContextName(NSString *contextName) {
     _wsURL = [debugWsURL substringFromIndex:range.location + range.length];
 }
 
-- (NSString *)assembleFullWSURL {
+- (NSString *)assembleFullWSURLWithClientId:(NSString *)clientId {
   if (self.port.length <= 0) {
     self.port = [self.scheme isEqualToString:HippyDevWebSocketSchemeWs] ? @"80" : @"443";
   }
-  NSString *contextName = @"";
-  NSString *uuid = UUIDForContextName(contextName);
   NSCharacterSet *allowedChar = [[NSCharacterSet characterSetWithCharactersInString:@"?!@#$^&%*+,:;='\"`<>()[]{}/\\| "] invertedSet];
-  NSString *encodeName = [contextName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
   NSString *deviceName = [[UIDevice currentDevice] name];
   NSString *encodedDeviceName = [deviceName stringByAddingPercentEncodingWithAllowedCharacters:allowedChar];
   NSString *addressPrefix = [NSString stringWithFormat:@"%@://%@:%@/debugger-proxy", self.scheme, self.ipAddress, self.port];
@@ -114,7 +111,7 @@ static NSString *UUIDForContextName(NSString *contextName) {
   } else {
     addressPrefix = [NSString stringWithFormat:@"%@?", addressPrefix];
   }
-  NSString *devAddress = [NSString stringWithFormat:@"%@clientId=%@&platform=1&role=ios_client&contextName=%@&deviceName=%@", addressPrefix, uuid, encodeName, encodedDeviceName];
+  NSString *devAddress = [NSString stringWithFormat:@"%@clientId=%@&platform=1&role=ios_client&deviceName=%@", addressPrefix, clientId, encodedDeviceName];
   if (self.versionId.length > 0) {
     devAddress = [NSString stringWithFormat:@"%@&hash=%@", devAddress, self.versionId];
   }
