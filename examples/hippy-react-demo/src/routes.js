@@ -163,7 +163,7 @@ export default [
   },
   {
     path: '/NetInfo',
-    name: 'NetInfo 能力',
+    name: 'Network 能力',
     component: PAGE_LIST.NetInfo,
     meta: {
       style: 2,
