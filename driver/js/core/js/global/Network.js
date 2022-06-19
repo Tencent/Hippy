@@ -22,7 +22,6 @@ global.Headers = class Headers {
     if (typeof name !== 'string' || typeof value !== 'string') {
       return;
     }
-
     if (this.has(name)) {
       const curr = this._headers[name];
       curr.push(value);
@@ -36,7 +35,6 @@ global.Headers = class Headers {
     if (typeof name !== 'string' || typeof value !== 'string') {
       return;
     }
-
     this._headers[name] = [value];
   }
 
@@ -44,15 +42,13 @@ global.Headers = class Headers {
     if (!this._headers['Content-Type'] && !this._headers['content-type']) {
       this._headers['content-type'] = ['text/plain;charset=UTF-8'];
     }
-    const ret = Object.assign({}, this._headers);
-    return ret;
+    return Object.assign({}, this._headers);
   }
 
   delete(name) {
     if (typeof name !== 'string') {
       return;
     }
-
     if (typeof this._headers[name] !== 'undefined') {
       delete this._headers.name;
     }
@@ -62,7 +58,6 @@ global.Headers = class Headers {
     if (typeof name !== 'string') {
       return undefined;
     }
-
     return this._headers[name];
   }
 
@@ -70,7 +65,6 @@ global.Headers = class Headers {
     if (typeof name !== 'string') {
       return false;
     }
-
     return (typeof this._headers[name] !== 'undefined');
   }
 };
@@ -78,7 +72,7 @@ global.Headers = class Headers {
 global.Response = class Response {
   constructor(response) {
     const resp = response || {};
-    this.status = resp.statusCode || 404;
+    this.status = resp.statusCode === undefined ? 200 : resp.statusCode;
     this.statusText = resp.statusLine || 'Not Found';
     this.headers = resp.respHeaders || {};
     this.body = resp.respBody || '';
@@ -102,37 +96,44 @@ global.Response = class Response {
   }
 };
 
+const methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
+
+function normalizeMethod(method) {
+  const upCased = method.toUpperCase();
+  return methods.indexOf(upCased) > -1 ? upCased : method;
+}
+
 global.fetch = (url, options) => {
   if (typeof url !== 'string') {
     return Promise.reject(new Error('only String url supported'));
   }
 
-  const opts = options || {};
-
+  const { method, headers, body, ...otherOptions } = options || {};
   let reqHeads = {};
-  if (opts.headers) {
-    if (opts.headers instanceof Headers) {
-      reqHeads = opts.headers.getAll();
-    } else if (opts.headers.constructor === Object) {
-      const headers = new Headers(opts.headers);
+  if (headers) {
+    if (headers instanceof global.Headers) {
       reqHeads = headers.getAll();
+    } else if (headers.constructor === Object) {
+      const headersInstance = new global.Headers(headers);
+      reqHeads = headersInstance.getAll();
     } else {
       return Promise.reject(new Error('Only Headers instance or a pure object is acceptable for headers option'));
     }
   }
 
   const reqOptions = {
-    method: opts.method || 'GET',
     url,
+    method: normalizeMethod(method || 'GET'),
     headers: reqHeads || {},
-    body: opts.body || '',
+    body: body || '',
+    ...otherOptions,
   };
 
   return new Promise((resolve, reject) => {
     const result = Hippy.bridge.callNativeWithPromise('network', 'fetch', reqOptions);
     result.then((resp) => {
       if (typeof resp === 'object') {
-        const responseData = new Response(resp);
+        const responseData = new global.Response(resp);
         resolve(responseData);
       } else {
         reject(resp);
