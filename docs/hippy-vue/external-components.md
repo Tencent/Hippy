@@ -231,7 +231,11 @@ export default {
 
 ### collapsePullHeader
 
-`() => void` 收起顶部刷新条 `<pull-header>`。当使用了`pull-header`后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
+`(otions: { time: number }) => void` 收起顶部刷新条 `<pull-header>`。当使用了 `pull-header` 后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
+
+> options 参数，最低支持版本 `2.14.0`
+>
+>* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
 ---
 
