@@ -20,6 +20,8 @@ fetch('//mywebsite.com/mydata.json');
 
 fetch 函数也支持 HTTP 请求的配置。
 
+> 低版本仅支持 `method | headers | body` 参数设置，`2.14.0` 及以上版本支持所有自定义参数透传，如 `redirect: 'follow'`
+
 ```javascript
 fetch('//mywebsite.com/endpoint/', {
   method: 'POST',
@@ -31,6 +33,7 @@ fetch('//mywebsite.com/endpoint/', {
     firstParam: 'yourValue',
     secondParam: 'yourOtherValue',
   }),
+  redirect: 'follow', // `2.14.0` 及以上版本支持
 });
 ```
 

@@ -20,6 +20,8 @@ fetch('//mywebsite.com/mydata.json');
 
 The `fetch` function also supports the configuration of HTTP requests.
 
+> only support `method | headers | body` parameters at lower version, version `2.14.0` or above support any customized parameters, e.g. `redirect: 'follow'`
+
 ```javascript
 fetch('//mywebsite.com/endpoint/', {
   method: 'POST',
@@ -31,6 +33,7 @@ fetch('//mywebsite.com/endpoint/', {
     firstParam: 'yourValue',
     secondParam: 'yourOtherValue',
   }),
+  redirect: 'follow', // version `2.14.0` or above 
 });
 ```
 

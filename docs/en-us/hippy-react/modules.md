@@ -336,7 +336,7 @@ Asynchronously determines whether the device is connected to the Internet and wh
 
 ### NetInfo.fetch
 
-`() => Promise<NetInfo>` Used to obtain the current network status.
+`() => Promise<string>` Used to obtain the current network status.
 
 ### NetInfo.removeEventListener
 
@@ -360,14 +360,15 @@ For common network requests,, please refer to: [Getting Started - Network Reques
 `(url: string) => Promise<string>` Get all cookies for the specified url
 
 >- url: string - The target url that needs to get the cookie.
+>- return value:  `Promise<string>`, return string like `name=hippy;network=mobile`.
 
 ### NetworkModule.setCookie
 
-`(url: string, keyValue: string, expires?: String) => <void> Set cookie
+`(url: string, keyValue: string, expires?: Date) => <void> Set cookie
 
 >- url: string - The target url that needs to set the cookie.
->- keyValue: string - Key-value pair to set.
->- expires?: string - Set the timeout for cookies.
+>- keyValue: string - Key-value pair to set, e.g. `name=hippy;network=mobile`.
+>- expires?: Date - Set the timeout for cookies.
 
 ---
 
