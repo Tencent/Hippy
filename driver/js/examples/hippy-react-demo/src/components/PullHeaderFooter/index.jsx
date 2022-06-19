@@ -76,6 +76,7 @@ export default class PullHeaderFooterExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
+    this.onFooterPulling = this.onFooterPulling.bind(this);
   }
 
   async componentDidMount() {
@@ -165,6 +166,10 @@ export default class PullHeaderFooterExample extends React.Component {
         pullingText: '继续下拉，触发刷新',
       });
     }
+  }
+
+  onFooterPulling(evt) {
+    console.log('onFooterPulling', evt);
   }
 
   /**
@@ -296,6 +301,7 @@ export default class PullHeaderFooterExample extends React.Component {
         onHeaderReleased={this.onHeaderReleased}
         onHeaderPulling={this.onHeaderPulling}
         onFooterReleased={this.onEndReached}
+        onFooterPulling={this.onFooterPulling}
       />
     );
   }
