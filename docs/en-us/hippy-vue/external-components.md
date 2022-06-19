@@ -230,7 +230,11 @@ Dropdown refresh component, nested in `ul` as first child element
 
 ### collapsePullHeader
 
-`() => void` collapse the top refresh bar `<pull-header>`. When using the `pull-header`, you need to call the method to take back the pull-header after each pull-down refresh ends.
+`(otions: { time: number }) => void` collapse the top refresh bar `<pull-header>`. When using the `pull-header`, you need to call the method to take back the pull-header after each pull-down refresh ends.
+
+> options parameter，`minimum supported version 2.14.0`
+>
+>* time: number: specify how much delay collapsing the pull-header, the unit is ms.
 
 ---
 
