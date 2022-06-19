@@ -257,7 +257,7 @@ The `set-cookie` Header returned by the fetch service in Hippy will automaticall
 
 Return Value:
 
-* `Prmoise<string>`, like `name=someone;Gender=female` string, need to manually parse.
+* `Prmoise<string>` like `name=hippy;network=mobile` string.
 
 ### set(url, keyValue, expireDate)
 
@@ -266,7 +266,7 @@ Attributes:
 | Props | Type     | Require | Description |
 | -------- | -------- | -------- |  -------- |
 | url | string | yes       | Gets the cookie set under the specified URL |
-| keyValue | string | yes       | The full string that needs to be set to the Cookie, for example`name=someone;gender=female` |
+| keyValue | string | yes       | The full string that needs to be set to the Cookie, for example`name=hippy;network=mobile` |
 | expireDate | Date | no | Date type of expiration time, it will not expired if not fill in. |
 
 ---
@@ -354,7 +354,7 @@ Determine whether the device is connected to the Internet and used a mobile data
 
 ### NetInfo.fetch
 
-`() => Promise<NetInfo>` Used to get the current network status.
+`() => Promise<string>` Used to get the current network status.
 
 ### NetInfo.removeEventListener
 

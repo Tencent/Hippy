@@ -306,7 +306,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 [[NetInfo 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/NetInfo)
 
-通过该接口可以获得当前设备的网络状态，也可以注册一个监听器，当系统网络切换的时候，得到一个通知。
+通过该接口可以获得当前设备的网络状态；也可以注册一个监听器，当系统网络切换的时候，得到网络变化通知。
 
 安卓的开发者，在请求网络状态之前，你需要在 app 的 `AndroidManifest.xml` 加入以下配置 :
 
@@ -336,7 +336,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### NetInfo.fetch
 
-`() => Promise<NetInfo>` 用于获取当前的网络状态。
+`() => Promise<string>` 用于获取当前的网络状态。
 
 ### NetInfo.removeEventListener
 
@@ -357,17 +357,18 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### NetworkModule.getCookies
 
-`(url: string) => Promise<string>` 获取指定 url 的所有 cookie
+`(url: string) => Promise<string>` 获取指定 url 下的所有 cookies
 
 > - url: string - 需要获取 cookie 的目标 url
+> - 返回值：`Prmoise<string>`，获取到诸如 `name=hippy;network=mobile` 的字符串。
 
 ### NetworkModule.setCookie
 
-`(url: string, keyValue: string, expires?: string) => Promise<void>` 设置 Cookie
+`(url: string, keyValue: string, expires?: Date) => Promise<void>` 设置 Cookie
 
-> - url: string - 需要获取 cookie 的目标 url
-> - keyValue: string - 需要设置的键值对
-> - expires?: string - 设置 Cookie 的超市时间
+> - url: string - 需要设置 cookie 的目标 url
+> - keyValue: string - 需要设置的键值对，如 `name=hippy;network=mobile`
+> - expires?: Date - 设置 Cookie 的过期时间，默认为空，会通过 `toUTCString` 转成 `String` 传给客户端
 
 ---
 
