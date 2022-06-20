@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
   buttonView: {
     borderColor: SKIN_COLOR.mainLight,
     borderWidth: 2,
+    borderStyle: 'solid',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
