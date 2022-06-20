@@ -129,6 +129,7 @@ export default {
   padding-bottom: 10px;
   margin-bottom: 10px;
   border-bottom-width: 1px;
+  border-style: solid;
   border-bottom-color: gainsboro;
 }
 </style>

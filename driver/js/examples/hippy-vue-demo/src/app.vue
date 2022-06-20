@@ -193,6 +193,7 @@ export default {
     justify-content: center;
     background-color: #fff;
     border-top-width: 1px;
+    border-style: solid;
     border-top-color: #eee;
   }
   .bottom-tab {
@@ -208,6 +209,7 @@ export default {
   .bottom-tab:not(:last-child) {
     border-right-width: 1px;
     border-right-color: #eee;
+    border-style: solid;
   }
   .bottom-tab.activated .bottom-tab-text {
     color: #4c9afa;
