@@ -75,6 +75,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     public static final int BRIDGE_TYPE_SINGLE_THREAD = 2;
     public static final int BRIDGE_TYPE_NORMAL = 1;
 
+    public static final int DESTROY_CLOSE = 0;
+    public static final int DESTROY_RELOAD = 1;
+
     final HippyEngineContext mContext;
     final HippyBundleLoader mCoreBundleLoader;
     HippyBridge mHippyBridge;
@@ -239,7 +242,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             @Override
             public void Call(long result, Message message, String action, String reason) {
                 boolean success = result == 0;
-                mHippyBridge.onDestroy();
+                mHippyBridge.onDestroy(msg.arg1 == DESTROY_RELOAD);
                 if (destroyCallback != null) {
                     RuntimeException exception = null;
                     if (!success) {
@@ -486,6 +489,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         Message message = mHandler
                 .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_LOAD_INSTANCE, map);
         mHandler.sendMessage(message);
+        mContext.getDevSupportManager().getInspector().updateContextName(name);
     }
 
     @Override
@@ -531,7 +535,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     @Override
-    public void destroyBridge(Callback<Boolean> callback) {
+    public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
         assert (mHandler != null);
         //noinspection ConstantConditions
         if (mHandler == null) {
@@ -539,6 +543,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
 
         Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
+        message.arg1 = isReload ? DESTROY_RELOAD : DESTROY_CLOSE;
         mHandler.sendMessage(message);
     }
 
