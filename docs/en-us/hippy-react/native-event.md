@@ -21,11 +21,23 @@ Remember to call the method of removing listeners when you don't need to use the
 this.call.remove()
 ```
 
-# Instance Destruction Event
+# JS Engine Destroy Event
 
 `Minimum supported version 2.3.4`
 
-This event will be triggered when the hippy js engine or context is destroyed. The hippy business can`destroyInstance` do some operations when leaving by listening to the event, but the callback function cannot be used`async`.
+This event will be triggered before the hippy js engine is destroyed to ensure that the last js code in the callback function is executed. The hippy business can do some operations when leaving by monitoring the `dealloc` event, but the callback function cannot use `async`
+
+```jsx
+Hippy.on('dealloc', () => {
+    // do something
+});
+```
+
+# RootView Destroy Event
+
+`Minimum supported version 2.3.4`
+
+This event is triggered when RootView is unloaded. unlike `dealloc`,  `destroyInstance` is triggered earlier than `dealloc`, but does not block the JS thread.
 
 ```jsx
 Hippy.on('destroyInstance', () => {
