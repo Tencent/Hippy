@@ -159,6 +159,7 @@ export default {
   background-color: #ffdb00;
   border-color: #e9b156;
   border-width: 1px;
+  border-style: solid;
   border-radius: 20px;
 }
 
