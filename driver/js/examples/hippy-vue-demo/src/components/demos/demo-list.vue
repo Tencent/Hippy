@@ -125,7 +125,7 @@ export default {
             return resolve(null);
           }
           return resolve(mockData);
-        }, 300);
+        }, 800);
       });
     },
     onDelete(event) {
@@ -201,6 +201,8 @@ export default {
     font-size: 11px;
     color: #aaa;
     align-self: center;
+    height: 30px;
+    line-height: 30px;
   }
 
   #demo-list .article-title {
@@ -251,10 +253,21 @@ export default {
   #demo-list .style-two-image {
     height: 140px;
   }
+
+  #demo-list .style-five-image-container {
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 8px;
+    flex: 1;
+  }
+
   #demo-list .item-style {
     background-color: white;
     padding-top: 12px;
     padding-bottom: 12px;
+    border-bottom-width: 1px;
+    border-bottom-color: #e5e5e5;
+    border-style: solid;
     /*width: 100px;*/ /* configure li style if horizontal ul is set*/
   }
 </style>

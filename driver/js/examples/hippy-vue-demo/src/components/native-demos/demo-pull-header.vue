@@ -137,13 +137,13 @@ export default {
     },
     async onRefresh() {
       // 重新获取数据
-      this.refreshText = '刷新数据中，请稍等3秒，完成后将自动收起';
+      this.refreshText = '刷新数据中请稍等，完成后将自动收起';
       const dataSource = await this.mockFetchData();
-      await (new Promise(resolve => setTimeout(() => resolve(), 3000)));
-      this.refreshText = REFRESH_TEXT;
+      await (new Promise(resolve => setTimeout(() => resolve(), 800)));
       this.dataSource = dataSource.reverse();
       // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致released事件不能再次触发
-      this.$refs.pullHeader.collapsePullHeader();
+      this.$refs.pullHeader.collapsePullHeader({ time: 0 });
+      this.refreshText = REFRESH_TEXT;
     },
     async onEndReached() {
       const { dataSource } = this;
@@ -206,6 +206,8 @@ export default {
   font-size: 11px;
   color: #aaa;
   align-self: center;
+  height: 30px;
+  line-height: 30px;
 }
 
 #demo-pull-header #toolbar {
@@ -220,8 +222,8 @@ export default {
 
 #demo-pull-header .ul-refresh-text {
   color: white;
-  height: 60px;
-  line-height: 60px;
+  height: 50px;
+  line-height: 50px;
   text-align: center;
 }
 
@@ -279,10 +281,20 @@ export default {
   height: 140px;
 }
 
+#demo-pull-header .style-five-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
+
 #demo-pull-header .item-style {
   background-color: white;
   padding-top: 12px;
   padding-bottom: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: #e5e5e5;
+  border-style: solid;
 }
 
 </style>
