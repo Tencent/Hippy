@@ -1,9 +1,9 @@
-## Hippy Web Renderer 自定义模块
+# Hippy Web Renderer 自定义模块
 
 Hippy开发过程中可能有很多场景使用当前的能力是无法满足的，可能就会需要使用三方库来提供一下额外的能力或者需要对齐终端的自定义模块的提供。这就涉及到如何
 自定义模块
 
-### 模块的扩展
+# 模块的扩展
 
 接下来将以CustomModule为例，从头介绍如何扩展Module。
 
@@ -11,18 +11,18 @@ Hippy开发过程中可能有很多场景使用当前的能力是无法满足的
 
 * 创建`HippyWebModule`的子类。
 
-* 设置Moduel的name属性。
+* 设置`Moduel`的`name`属性。
 
-* 实现Moduel需要暴露给前端的api。
+* 实现`Module`需要暴露给前端的`api`。
 
-### 扩展HippyWebModule
+# 扩展HippyWebModule
 
-HippyWebModule类，标准化了HippyWebRender可使用的模块的标准。提供了一些HippyWebRender的上下文。在一个自定义组件中有几个比较重要的属性：
+`HippyWebModule`类，标准化了HippyWebRender可使用的模块的标准。提供了一些HippyWebRender的上下文。在一个自定义组件中有几个比较重要的属性：
 
 * name:定义了模块的名字，也是跟前端侧使用`callNative(moduleName，methodName)`中的moduleName相映射的
 * context:提供了一系列的方法
 
-```typescript
+```javascript
 sendEvent(type: string, params: any);//发送事件
 sendUiEvent(nodeId: number, type: string, params: any);//发送ui相关事件
 sendGestureEvent(e: HippyTransferData.NativeGestureEvent);//发送手势事件

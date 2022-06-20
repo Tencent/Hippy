@@ -1,27 +1,27 @@
-## Hippy Web Renderer 自定义组件
+# Hippy Web Renderer 自定义组件
 
 Hippy开发过程中可能有很多场景使用当前的能力是无法满足的，这就需要对UI组件封转或者引入一些三方的功能来完成需求。就需要使用
 自定义组件
 
-### 组件的扩展
+# 组件的扩展
 
 接下来将以CustomView为例，从头介绍如何扩展组件。
 
 扩展组件包括：
 
-*扩展 HippyView。
+*扩展 `HippyView`。
 
 *实现 实现构造方法。
 
-*实现 设置自定义组件的tagName。
+*实现 设置自定义组件的`tagName`。
 
-*实现 构造自定义组件的dom。
+*实现 构造自定义组件的`dom`。
 
-*实现 自定义组件的api能力。
+*实现 自定义组件的`api能力`。
 
 *实现 自定义组件的属性。
 
-### 扩展 HippyView
+# 扩展 HippyView
 
 HippyView类，实现了一些HippyBaseView的接口和属性定义。在一个自定义组件中有几个比较重要的属性：
 
@@ -39,15 +39,15 @@ HippyView类，实现了一些HippyBaseView的接口和属性定义。在一个�
 
 第一步：
 
-继承自HippyView。
+继承自`HippyView`。
 
 实现构造方法。
 
-设置自定义组件的tagName为CustomView，这样业务侧使用的时候就可以设置nativeName="CustomView"。
+设置自定义组件的`tagName`为`CustomView`，这样业务侧使用的时候就可以设置nativeName="CustomView"。
 
 构造自定义组件的dom，我们为创建了一个video节点给dom属性。注意dom属性在构造方法结束前一定要设置上。
 
-```typescript
+```javascript
 
 import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 
@@ -67,7 +67,7 @@ class CustomView extends HippyView {
 
 实现自定义组件的属性
 
-```typescript
+```javascript
 
 import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 
@@ -95,24 +95,22 @@ class CustomView extends HippyView {
 
 上面这个例子中 ：
 
-我们为CustomView实现了一个属性src,当业务侧修改src属性当时候就会触发这里当set src()方法，我们就可以进行一些行为。
+我们为`CustomView`实现了一个属性`src`,当业务侧修改src属性当时候就会触发这里当`set src()`方法，我们就可以进行一些行为。
 
-我们还实现两个组件的方法play和pause，当业务侧使用 callUIFunction(this.instance, 'play'/'pause', []);时就可以掉用到这里的两个方法。
+我们还实现两个组件的方法play和pause，当业务侧使用 `callUIFunction(this.instance, 'play'/'pause', []);`时就可以掉用到这里的两个方法。
 
-在pause()方法中,我们使用sendUiEvent向业务侧使用的CustomView组件发送了一个onPause事件，业务侧的CustomView属性上设置的onPause回调就会被触发
+在`pause()`方法中,我们使用`sendUiEvent`向业务侧使用的`CustomView`组件发送了一个`onPause`事件，业务侧的`CustomView`属性上设置的`onPause`回调就会被触发
 
 >关于props：
+>
+>&emsp; `HippyWebRenderer`底层默认会将业务侧传递过来的原始`props`存储到组件到`props`属性上，然后针对更新的`prop`项逐个调用与之对应的key的set方法，来让组件获得一个更新时机，从而进行一些行为。
+>
+>&emsp; `props`里面有一个对象`style`，承载了所有业务侧设置的样式。默认也是由`HippyWebRenderer`设置到自定义组件到`dom`上，中间其实会有一层转换主要是`style`中的值有一些是`hippy`特有的，需要进行一次翻译才可以设置到`dom`的`style`上。
+>关于`context`:
+>
+>自定义组件被构造的时候会传入一个`context`，用来提供了一些关键的方法：
 
->>HippyWebRenderer底层默认会将业务侧传递过来的原始props存储到组件到props属性上，然后针对更新的prop项逐个调用与之对应的key的set方法，来让组件获得一个
-更新时机，从而进行一些行为。
-
->>props里面有一个对象style，承载了所有业务侧设置的样式。默认也是由HippyWebRenderer设置到自定义组件到dom上，中间其实会有一层转换主要是style中的值有
-一些是hippy特有的，需要进行一次翻译才可以设置到dom的style上。
-
->关于context:
->>自定义组件被构造的时候会传入一个context，用来提供了一些关键的方法：
->>
-```typescript
+```javascript
 export interface ComponentContext {
      sendEvent: (type: string, params: any) => void;//向业务侧发送全局事件
      sendUiEvent: (id: number, type: string, params: any) => void;//向某个组件实例发送事件
@@ -122,22 +120,23 @@ export interface ComponentContext {
 }
 ```
 
-### 复杂组件
+# 复杂组件
 
 有的时候我们可能需要提供一个容器，用来装载一些已有的组件。而这个容器有一些特殊的形态或者行为，比如需要自己管理子节点插入和移除，或者修改样式和拦截属性等。那么
 这个时候就需要使用一些复杂的组件实现方式
 
 >关于组件自己实现子节点的dom插入和删除
->>HippyWebRender默认的组件dom插入和删除，是使用Web的
+>
+>`HippyWebRender`默认的组件`dom`插入和删除，是使用Web的
 
-```typescript
+```javascript
 Node.insertBefore<T extends Node>(node: T, child: Node | null): T;
 Node.removeChild<T extends Node>(child: T): T;
 ```
 
->>来将子组件的dom插入和删除的。如果组件不希望以这种默认的形式来实现就需要自己实现
+>来将子组件的`dom`插入和删除的。如果组件不希望以这种默认的形式来实现就需要自己实现
 
-```typescript
+```javascript
 class CustomView extends HippyView{
     insertChild (child: HippyBaseView, childPosition: number){
         ...
@@ -148,12 +147,12 @@ class CustomView extends HippyView{
 }
 ```
 
->>管理子组件的插入与删除逻辑并且记录要插入和删除的组件
+>管理子组件的插入与删除逻辑并且记录要插入和删除的组件
+>关于组件`props`更新的拦截
+>
+>需要实现组件的`updateProps方法`
 
->关于组件props更新的拦截
->>需要实现组件的updateProps方法
-
-```typescript
+```javascript
 class CustomView extends HippyView{
     
     updateProps (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void){
@@ -162,5 +161,5 @@ class CustomView extends HippyView{
 }
 ```
 
->>上面的例子中，data是组件本次更新的props数据信息，defaultProcess()是HippyWebRenderer默认处理props更新的方法，开发者可以
->>在这里拦截修改更新的数据后，依然使用默认的props更新方法进行更新，也可以不用默认的方法自行进行属性更新的遍历和操作。
+>上面的例子中，`data`是组件本次更新的`props`数据信息，`defaultProcess()`是`HippyWebRenderer`默认处理`props`更新的方法，开发者可以
+>在这里拦截修改更新的数据后，依然使用默认的props更新方法进行更新，也可以不用默认的方法自行进行属性更新的遍历和操作。
