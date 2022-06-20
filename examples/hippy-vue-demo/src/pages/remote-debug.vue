@@ -118,6 +118,7 @@ export default {
   height: 80px;
   color: #242424;
   border-width: 1px;
+  border-style: solid;
   border-color: #ccc;
   font-size: 16px;
   margin: 20px;
@@ -128,6 +129,7 @@ export default {
   border-width: 1px;
   padding-left: 10px;
   padding-right: 10px;
+  border-style: solid;
   margin-top: 5px;
   margin-bottom: 5px;
   margin-left: 20px;
