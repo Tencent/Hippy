@@ -627,27 +627,26 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return YES;
     }
     else if (self.backgroundImage) {
-        CGFloat backgroundPositionX = self.backgroundPositionX;
-        CGFloat backgroundPositionY = self.backgroundPositionY;
         UIImage *decodedImage = self.backgroundImage;
         if (!decodedImage) {
             contentBlock(nil);
         }
-
+        CGFloat backgroundPositionX = self.backgroundPositionX;
+        CGFloat backgroundPositionY = self.backgroundPositionY;
         UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-        //160,80
-        CGSize size = theFrame.size;
-
-        [image drawInRect:(CGRect) { CGPointZero, size }];
-        //180,121.33333333
+        //draw background image
         CGSize imageSize = decodedImage.size;
-        //160,80
         CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
-        //180,121.33333333
         CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
-
-        [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
-                                     drawSize.height)];
+        [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX,
+                                            borderInsets.top + backgroundPositionY,
+                                            drawSize.width,
+                                            drawSize.height)];
+        //draw border
+        CGSize size = theFrame.size;
+        [image drawInRect:(CGRect) { CGPointZero, size }];
+        
+        //output image
         UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         contentBlock(resultingImage);
