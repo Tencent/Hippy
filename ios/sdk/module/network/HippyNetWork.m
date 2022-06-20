@@ -199,6 +199,9 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
         for (NSString *allValues in keysvalues) {
             @autoreleasepool {
                 NSArray<NSString *> *value = [allValues componentsSeparatedByString:@"="];
+                if ([value count] < 2) {
+                    continue;
+                }
                 NSDictionary *dictionary = @{NSHTTPCookieName: value[0], NSHTTPCookieValue: value[1], NSHTTPCookieExpires: expireString, NSHTTPCookiePath: path, NSHTTPCookieDomain: domain};
                 NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:dictionary];
                 if (cookie) {
