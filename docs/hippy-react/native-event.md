@@ -21,11 +21,23 @@ this.call = hippyEventEmitter.addListener('rotate', evt => console.log(evt.resul
 this.call.remove()
 ```
 
-# 实例销毁事件
+# JS 引擎销毁事件
 
 `最低支持版本 2.3.4`
 
-当 hippy js 引擎或者 context 被销毁时会触发该事件，hippy业务可以通过监听 `destroyInstance` 事件做一些离开时的操作，但回调函数不能使用 `async`
+当 hippy js 引擎被销毁前会触发该事件，能够保证回调函数里的最后一句 js 代码被执行到，hippy 业务可以通过监听 `dealloc` 事件做一些离开时的操作，但回调函数不能使用 `async`
+
+```jsx
+Hippy.on('dealloc', () => {
+    // do something
+});
+```
+
+# 界面节点销毁事件 
+
+`最低支持版本 2.3.4`
+
+当 RootView 被卸载时调用该事件，与 `dealloc` 不同的是该事件早于 `dealloc` 触发，但不会阻塞 JS 线程。
 
 ```jsx
 Hippy.on('destroyInstance', () => {
