@@ -111,7 +111,7 @@ export default {
             return resolve(null);
           }
           return resolve(mockData);
-        }, 3000);
+        }, 800);
       });
     },
     onIdle() {
@@ -199,12 +199,12 @@ export default {
 
 #demo-pull-footer .pull-footer {
   background-color: #40b883;
+  height: 40px;
 }
 
 #demo-pull-footer .pull-footer-text {
   color: white;
-  height: 60px;
-  line-height: 60px;
+  line-height: 40px;
   text-align: center;
 }
 
@@ -262,10 +262,20 @@ export default {
   height: 140px;
 }
 
+#demo-pull-footer .style-five-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
+
 #demo-pull-footer .item-style {
   background-color: white;
   padding-top: 12px;
   padding-bottom: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: #e5e5e5;
+  border-style: solid;
 }
 
 </style>
