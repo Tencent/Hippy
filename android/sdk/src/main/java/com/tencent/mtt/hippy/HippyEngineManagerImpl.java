@@ -212,7 +212,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           }
         });
       }
-    });
+    }, false);
   }
 
   protected void onDestroy() {
@@ -877,7 +877,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           }
         });
       }
-    });
+    }, true);
   }
 
   @Override
@@ -1087,8 +1087,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       mRenderManager.getControllerManager().addControllers(apiProviders);
     }
 
-    public void destroyBridge(Callback<Boolean> callback) {
-      mBridgeManager.destroyBridge(callback);
+    public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
+      mBridgeManager.destroyBridge(callback, isReload);
     }
 
     void runScript(@NonNull String script) {

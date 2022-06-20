@@ -255,9 +255,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy(boolean isReload) {
         if (mDebugWebSocketClient != null) {
-            mDebugWebSocketClient.closeQuietly();
+            mDebugWebSocketClient.close(isReload ? Inspector.CLOSE_RELOAD : Inspector.CLOSE_DESTROY, "");
             mDebugWebSocketClient = null;
         }
         if (mInspector != null) {

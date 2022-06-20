@@ -46,6 +46,12 @@ public class DebugWebSocketClient implements WebSocketClient.WebSocketListener {
     }
   }
 
+  public void close(int code, String reason) {
+    if (mWebSocket != null) {
+      mWebSocket.requestClose(code, reason);
+    }
+  }
+
   public void sendMessage(String message) {
     if (mWebSocket == null) {
       LogUtils.e("sendMessage", "mWebSocket is null");
