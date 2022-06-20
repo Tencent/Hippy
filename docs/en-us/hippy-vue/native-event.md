@@ -44,15 +44,27 @@ const app = getApp();
 app.$off('rotate', this.listener);
 ```
 
-# Instance Destroy Event
+# JS Engine Destroy Event
 
-`minimum supported version 2.3.4`
+`Minimum supported version 2.3.4`
 
-This event will be called when the hippy js engine or context is destroyed. The hippy business can do some operations when leaving by monitoring the `destroyInstance` event, but the callback function cannot use `async`
+This event will be triggered before the hippy js engine is destroyed to ensure that the last js code in the callback function is executed. The hippy business can do some operations when leaving by monitoring the `dealloc` event, but the callback function cannot use `async`
+
+```jsx
+Hippy.on('dealloc', () => {
+    // do something
+});
+```
+
+# RootView Destroy Event
+
+`Minimum supported version 2.3.4`
+
+This event is triggered when RootView is unloaded. unlike `dealloc`,  `destroyInstance` is triggered earlier than `dealloc`, but does not block the JS thread.
 
 ```jsx
 Hippy.on('destroyInstance', () => {
-    // do something
+  // do something
 });
 ```
 
