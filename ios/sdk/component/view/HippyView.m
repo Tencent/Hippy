@@ -645,16 +645,23 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             }
 
             UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-            CGSize size = theFrame.size;
-
-            [image drawInRect:(CGRect) { CGPointZero, size }];
+            //draw background image
             CGSize imageSize = decodedImage.size;
             CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
 
             CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
 
-            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
-                                         drawSize.height)];
+            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.f, (targetSize.height - drawSize.height) / 2.f);
+            
+            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                borderInsets.top + backgroundPositionY + originOffset.y,
+                                                drawSize.width,
+                                                drawSize.height)];
+            //draw border
+            CGSize size = theFrame.size;
+            [image drawInRect:(CGRect) { CGPointZero, size }];
+            
+            //output image
             UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
             contentBlock(resultingImage);
