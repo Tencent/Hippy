@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',
@@ -23,6 +24,7 @@ const styles = StyleSheet.create({
   wrapper: {
     borderColor: '#eee',
     borderWidth: 1,
+    borderStyle: 'solid',
     paddingHorizontal: 10,
     paddingVertical: 5,
     marginVertical: 10,
