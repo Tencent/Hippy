@@ -174,7 +174,6 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
         _borderTopRightRadius = -1;
         _borderBottomLeftRadius = -1;
         _borderBottomRightRadius = -1;
-        _borderStyle = HippyBorderStyleSolid;
         _backgroundColor = super.backgroundColor;
         self.layer.shadowOffset = CGSizeZero;
         self.layer.shadowRadius = 0.f;
@@ -536,7 +535,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     UIColor *backgroundColor = self.backgroundColor;
 
     BOOL useIOSBorderRendering = !HippyRunningInTestEnvironment() && HippyCornerRadiiAreEqual(cornerRadii) && HippyBorderInsetsAreEqual(borderInsets)
-                                 && HippyBorderColorsAreEqual(borderColors) && _borderStyle == HippyBorderStyleSolid &&
+                                 && HippyBorderColorsAreEqual(borderColors) && (_borderStyle == HippyBorderStyleSolid || _borderStyle == HippyBorderStyleUnset) &&
 
                                  // iOS draws borders in front of the content whereas CSS draws them behind
                                  // the content. For this reason, only use iOS border drawing when clipping
@@ -615,25 +614,17 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }
     NSInteger clipToBounds = self.clipsToBounds;
     NSString *backgroundSize = self.backgroundSize;
-    UIImage *image = HippyGetBorderImage(
-        self.borderStyle, theFrame.size, cornerRadii, borderInsets, borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
-    if (image == nil) {
-        contentBlock(nil);
-        return YES;
-    }
-
+    UIImage *borderImage = HippyGetBorderImage(self.borderStyle, theFrame.size, cornerRadii, borderInsets,
+                                               borderColors, backgroundColor.CGColor, clipToBounds, !self.gradientObject);
     if (!self.backgroundImage && !self.gradientObject) {
-        contentBlock(image);
-        return YES;
+        contentBlock(borderImage);
+        return nil != borderImage;
     }
     else if (self.backgroundImage) {
         UIImage *decodedImage = self.backgroundImage;
-        if (!decodedImage) {
-            contentBlock(nil);
-        }
         CGFloat backgroundPositionX = self.backgroundPositionX;
         CGFloat backgroundPositionY = self.backgroundPositionY;
-        UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
+        UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, 0);
         //draw background image
         CGSize imageSize = decodedImage.size;
         CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
@@ -643,14 +634,15 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
                                             drawSize.width,
                                             drawSize.height)];
         //draw border
-        CGSize size = theFrame.size;
-        [image drawInRect:(CGRect) { CGPointZero, size }];
+        if (borderImage) {
+            CGSize size = theFrame.size;
+            [borderImage drawInRect:(CGRect) { CGPointZero, size }];
+        }
         
         //output image
         UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         contentBlock(resultingImage);
-        return NO;
     }
     else if (self.gradientObject) {
         CGSize size = theFrame.size;
@@ -661,9 +653,9 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
         info.size = size;
         info.cornerRadii = cornerRadii;
-        UIGraphicsBeginImageContextWithOptions(size, NO, image.scale);
+        UIGraphicsBeginImageContextWithOptions(size, NO, 0);
         [self.gradientObject drawInContext:UIGraphicsGetCurrentContext() canvasInfo:info];
-        [image drawInRect:(CGRect) { CGPointZero, size }];
+        [borderImage drawInRect:(CGRect) { CGPointZero, size }];
         UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         contentBlock(resultingImage);
