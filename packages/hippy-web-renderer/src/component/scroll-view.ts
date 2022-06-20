@@ -133,6 +133,17 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     // TODO to implement
   }
 
+  public get contentContainerStyle() {
+    return this.props[NodeProps.CONTENT_CONTAINER_STYLE];
+  }
+
+  public set contentContainerStyle(value) {
+    this.props[NodeProps.CONTENT_CONTAINER_STYLE] = value;
+    if (this.dom?.childNodes.length === 1) {
+      setElementStyle(this.dom?.childNodes[0] as HTMLElement, this.contentContainerStyle);
+    }
+  }
+
   public get scrollEnabled() {
     return this.props[NodeProps.CONTENT_CONTAINER_STYLE];
   }
@@ -170,6 +181,12 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
   public async beforeMount(parent: HippyBaseView, position: number): Promise<void> {
     await super.beforeMount(parent, position);
     this.init();
+  }
+
+  public async beforeChildMount(child: HippyBaseView, childPosition: number) {
+    if (childPosition === 0 && this.contentContainerStyle) {
+      setElementStyle(child.dom!, this.contentContainerStyle);
+    }
   }
 
   public async beforeRemove(): Promise<void> {
