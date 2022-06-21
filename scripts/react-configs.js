@@ -1,10 +1,10 @@
 const path = require('path');
+const fs = require('fs');
 const typescript = require('rollup-plugin-typescript2');
 const replace = require('@rollup/plugin-replace');
 // const alias = require('@rollup/plugin-alias');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
-
 const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
 
@@ -41,6 +41,26 @@ function banner(name, version) {
 `;
 }
 
+const hippyReactWebPath = path.resolve(__dirname, '../packages/hippy-react-web');
+const hippyReactWebComponentsPath = `${hippyReactWebPath}/src/components`;
+const hippyReactWebModulesPath = `${hippyReactWebPath}/src/modules`;
+const getHippyReactWebModules = () => {
+  const hippyReactWebmodules = [];
+  fs.readdirSync(hippyReactWebModulesPath).forEach((file) => {
+    const moduleFilePath = `${hippyReactWebModulesPath}/${file}`;
+    if (fs.lstatSync(moduleFilePath).isDirectory()) {
+      if (fs.lstatSync(`${moduleFilePath}/index.ts`).isFile()) {
+        hippyReactWebmodules.push(`${moduleFilePath}/index.ts`);
+      }
+    } else {
+      hippyReactWebmodules.push(moduleFilePath);
+    }
+  });
+  return hippyReactWebmodules;
+};
+const hippyReactWebComponents = fs.readdirSync(hippyReactWebComponentsPath).map(filename => `${hippyReactWebComponentsPath}/${filename}`);
+const hippyReactWebModules = getHippyReactWebModules();
+
 const builds = {
   '@hippy/react': {
     entry: './packages/hippy-react/src/index.ts',
@@ -56,19 +76,38 @@ const builds = {
     },
   },
   '@hippy/react-web': {
-    entry: './packages/hippy-react-web/src/index.ts',
+    entry: [
+      './packages/hippy-react-web/src/index.ts',
+      ...hippyReactWebComponents,
+      ...hippyReactWebModules,
+    ],
     dest: './packages/hippy-react-web/dist/index.js',
     format: 'es',
     banner: banner('@hippy/react-web', hippyReactWebPackage.version),
+    output: {
+      dir: './packages/hippy-react-web/dist',
+      format: 'es',
+      entryFileNames: (bundle) => {
+        if (bundle.facadeModuleId.includes('src/index.ts')) return '[name].js';
+        if (bundle.facadeModuleId.includes('src/modules/')) return 'modules/[name].js';
+        return 'lib/[name].js';
+      },
+      chunkFileNames: 'chunk/[name].[hash].js',
+    },
     external(id) {
       return !![
         'react',
         'react-dom',
-        'animated-scroll-to',
         'swiper',
         '@hippy/rmc-list-view',
         'rmc-pull-to-refresh',
       ].find(ext => id.startsWith(ext));
+    },
+    onwarn(warning) {
+      // 来自 rmc-pull-to-refresh 依赖的报错
+      if (warning.code === 'THIS_IS_UNDEFINED') {
+        return;
+      }
     },
   },
 };
@@ -99,14 +138,14 @@ function genConfig(name) {
         },
       }),
     ].concat(opts.plugins || []),
-    output: {
+    output: opts?.output ? opts.output : {
       name,
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,
       exports: 'auto',
     },
-    onwarn: (msg, warn) => {
+    onwarn: opts?.onwarn ? opts.onwarn : (msg, warn) => {
       if (!/Circular/.test(msg)) {
         warn(msg);
       }
