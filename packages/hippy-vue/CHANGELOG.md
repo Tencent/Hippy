@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
+
+
+### Bug Fixes
+
+* **hippy-vue:** update hippy-vue node test ([14d2242](https://github.com/Tencent/Hippy/commit/14d224258dd99ecef14bdda0ccc6ed1b7945a4ad))
+
+
+### Features
+
+* **hippy-vue:** merge vue updating attriute operation ([ac36f8f](https://github.com/Tencent/Hippy/commit/ac36f8f877fc50d6fc265856746f553ee5a5a9a7))
+* **hippy-vue:** rm compatible process for endReached & loadMore event ([d320eb1](https://github.com/Tencent/Hippy/commit/d320eb1cf113bc0151af71c601e74aca610592bc))
+* **hippy-vue:** support to remove event & merge alias event registered ([b34d7ef](https://github.com/Tencent/Hippy/commit/b34d7efdcef876b41de79108058ae71512407be8))
+* **react:** change updateNode to batch operation & perf event binding ([fdae46a](https://github.com/Tencent/Hippy/commit/fdae46aed86a7f2d2034645c6912e372a5d1b4e5))
+
+
+
+
+
 ## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
 
 **Note:** Version bump only for package @hippy/vue

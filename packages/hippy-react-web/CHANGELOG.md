@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
+
+
+### Features
+
+* **hippy-react-web:** perfect hippy-react-web components ([#1427](https://github.com/Tencent/Hippy/issues/1427)) ([f6a6c01](https://github.com/Tencent/Hippy/commit/f6a6c015d985d0191e5afb53854ecdf8c8e069b5))
+* **hippy-react-web:** support tree-sharking & fix issues ([#2069](https://github.com/Tencent/Hippy/issues/2069)) ([75ece3b](https://github.com/Tencent/Hippy/commit/75ece3bb372350254966fba0e028fb4b11903bfd))
+
+
+
+
+
 ## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
 
 

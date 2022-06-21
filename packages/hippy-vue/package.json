@@ -1,6 +1,6 @@
 {
   "name": "@hippy/vue",
-  "version": "2.13.10",
+  "version": "2.14.0",
   "description": "Vue binding for Hippy native framework",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",

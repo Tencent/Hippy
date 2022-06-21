@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
+
+
+### Bug Fixes
+
+* **devtools:** support node 17 for md4 hash ([41a4695](https://github.com/Tencent/Hippy/commit/41a46957fb12f5adb84d04f811e0bb14214652f0))
+
+
+
+
+
 ## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
 
 **Note:** Version bump only for package @hippy/debug-server

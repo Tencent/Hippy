@@ -1,6 +1,6 @@
 {
   "name": "@hippy/react-web",
-  "version": "2.2.1",
+  "version": "2.14.0",
   "description": "Web Adapter for Hippy React",
   "main": "dist/index.js",
   "homepage": "http://hippyjs.org",
@@ -17,12 +17,12 @@
     "Web"
   ],
   "dependencies": {
+    "@hippy/rmc-list-view": "^1.0.0",
     "animated-scroll-to": "^2.2.0",
     "bezier-easing": "^2.1.0",
     "normalize-css-color": "^1.0.2",
     "react": "^16.11.0",
     "react-dom": "^16.11.0",
-    "@hippy/rmc-list-view": "^1.0.0",
     "rmc-pull-to-refresh": "^1.0.13",
     "swiper": "^6.7.0",
     "ua-parser-js": "~0.7.28"

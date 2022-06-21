@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
+
+
+### Bug Fixes
+
+* **hippy-react-web:**  fix hippy-react-web some issues ([#1850](https://github.com/Tencent/Hippy/issues/1850)) ([43b785b](https://github.com/Tencent/Hippy/commit/43b785b46bedf60dd812acd91401e18b0270d23b))
+
+
+### Features
+
+* **devtools:** support react-devtools ([5a7bdf7](https://github.com/Tencent/Hippy/commit/5a7bdf76675a658282c6dfebc7ce0b3564bab897))
+* **hippy-react:** add callUIFunction debug log ([5944182](https://github.com/Tencent/Hippy/commit/5944182dc6f4e61bbb471253e9efe74c90f51c1e))
+* **hippy-vue:** merge vue updating attriute operation ([ac36f8f](https://github.com/Tencent/Hippy/commit/ac36f8f877fc50d6fc265856746f553ee5a5a9a7))
+* **hippy-vue:** support to remove event & merge alias event registered ([b34d7ef](https://github.com/Tencent/Hippy/commit/b34d7efdcef876b41de79108058ae71512407be8))
+* **react,vue:** add collapsePullHeaderWithOptions api ([af0129a](https://github.com/Tencent/Hippy/commit/af0129a57af36b25ef90f6514b93578fc65568fe))
+* **react:** change updateNode to batch operation & perf event binding ([fdae46a](https://github.com/Tencent/Hippy/commit/fdae46aed86a7f2d2034645c6912e372a5d1b4e5))
+
+
+
+
+
 ## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
 
 **Note:** Version bump only for package @hippy/react

@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
+
+
+### Features
+
+* **hippy-vue:** add animaiton actionsDidUpdate hook ([f61b48e](https://github.com/Tencent/Hippy/commit/f61b48e83d6154b05be9fa40e3739672038a91c4))
+* **hippy-vue:** refactor vue animation events ([e98a0d7](https://github.com/Tencent/Hippy/commit/e98a0d7d97c9a3080f3be92c4e4a22071fec89a8))
+* **react,vue:** add collapsePullHeaderWithOptions api ([af0129a](https://github.com/Tencent/Hippy/commit/af0129a57af36b25ef90f6514b93578fc65568fe))
+
+
+
+
+
 ## [2.13.10](https://github.com/Tencent/Hippy/compare/2.13.9...2.13.10) (2022-05-25)
 
 **Note:** Version bump only for package @hippy/vue-native-components
