@@ -22,16 +22,10 @@
 
 #pragma once
 
-#include "core/base/base_time.h"
 #include "core/base/common.h"
 #include "core/base/file.h"
 #include "core/base/macros.h"
-#include "core/base/task.h"
-#include "core/base/task_runner.h"
-#include "core/base/thread.h"
-#include "core/base/thread_id.h"
 #include "core/base/uri_loader.h"
-#include "core/base/string_view_utils.h"
 #include "core/engine.h"
 #include "core/modules/console_module.h"
 #include "core/modules/contextify_module.h"
@@ -56,8 +50,3 @@
 #include "core/napi/jsc/js_native_jsc_helper.h"
 #include "core/napi/jsc/js_native_turbo_jsc.h"
 #endif
-
-#include "core/task/common_task.h"
-#include "core/task/javascript_task.h"
-#include "core/task/javascript_task_runner.h"
-#include "core/task/worker_task_runner.h"

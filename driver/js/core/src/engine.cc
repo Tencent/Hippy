@@ -22,94 +22,77 @@
 
 #include "core/engine.h"
 
+#include <utility>
+
 #include "core/scope.h"
-#include "core/task/javascript_task.h"
+#include "footstone/task.h"
+#include "footstone/worker.h"
 
-constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
+using TaskRunner = footstone::TaskRunner;
+using Task = footstone::Task;
 
-Engine::Engine(std::unique_ptr<RegisterMap> map, const std::shared_ptr<VMInitParam>& init_param)
-    : vm_(nullptr), map_(std::move(map)), scope_cnt_(0) {
-  SetupThreads();
-
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [=] { CreateVM(init_param); };
-  js_runner_->PostTask(task);
+Engine::Engine(std::shared_ptr<TaskRunner> js,
+               std::shared_ptr<TaskRunner> worker,
+               std::unique_ptr<RegisterMap> map,
+               const std::shared_ptr<VMInitParam>& init_param)
+    : js_runner_(std::move(js)),
+      worker_task_runner_(std::move(worker)),
+      vm_(nullptr),
+      map_(std::move(map)),
+      scope_cnt_(0) {
+  FOOTSTONE_DCHECK(js_runner_);
+  auto cb = [=] { CreateVM(init_param); };
+  js_runner_->PostTask(std::move(cb));
 }
 
 Engine::~Engine() {
-  TDF_BASE_DLOG(INFO) << "~Engine";
+  FOOTSTONE_DLOG(INFO) << "~Engine";
   std::lock_guard<std::mutex> lock(cnt_mutex_);
-  TDF_BASE_DCHECK(scope_cnt_ == 0) << "this engine is in use";
+  FOOTSTONE_DCHECK(scope_cnt_ == 0) << "this engine is in use";
 }
 
-void Engine::TerminateRunner() {
-  TDF_BASE_DLOG(INFO) << "~TerminateRunner";
-  {
-    std::lock_guard<std::mutex> lock(js_runner_mutex_);
-    if (js_runner_) {
-      js_runner_->Terminate();
-      js_runner_ = nullptr;
-    }
-  }
-
-  if (worker_task_runner_) {
-    worker_task_runner_->Terminate();
-    worker_task_runner_ = nullptr;
-  }
-}
+void Engine::TerminateRunner() {}
 
 std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
                                            std::unique_ptr<RegisterMap> map) {
-  TDF_BASE_DLOG(INFO) << "Engine CreateScope";
+  FOOTSTONE_DLOG(INFO) << "Engine CreateScope";
   std::shared_ptr<Scope> scope =
       std::make_shared<Scope>(this, name, std::move(map));
   scope->wrapper_ = std::make_unique<ScopeWrapper>(scope);
 
-  JavaScriptTask::Function cb = [scope_ = scope] { scope_->Initialized(); };
-  if (js_runner_->IsJsThread()) {
+  auto cb = [scope_ = scope] { scope_->Initialized(); };
+  if (footstone::Worker::IsTaskRunning() && js_runner_ == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = cb;
-    js_runner_->PostTask(std::move(task));
+    js_runner_->PostTask(std::move(cb));
   }
-
   return scope;
 }
 
-void Engine::SetupThreads() {
-  TDF_BASE_DLOG(INFO) << "Engine SetupThreads";
-  js_runner_ = std::make_shared<JavaScriptTaskRunner>();
-  js_runner_->Start();
-
-  worker_task_runner_ =
-          std::make_shared<WorkerTaskRunner>(kDefaultWorkerPoolSize);
-}
-
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
-  TDF_BASE_DLOG(INFO) << "Engine CreateVM";
+  FOOTSTONE_DLOG(INFO) << "Engine CreateVM";
   vm_ = hippy::napi::CreateVM(param);
 
   auto it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      TDF_BASE_DLOG(INFO) << "run VMCreatedCB begin";
+      FOOTSTONE_DLOG(INFO) << "run VMCreatedCB begin";
       f(vm_.get());
-      TDF_BASE_DLOG(INFO) << "run VMCreatedCB end";
+      FOOTSTONE_DLOG(INFO) << "run VMCreatedCB end";
       map_->erase(it);
     }
   }
 }
 
 void Engine::Enter() {
-  TDF_BASE_DLOG(INFO) << "Engine Enter";
+  FOOTSTONE_DLOG(INFO) << "Engine Enter";
   std::lock_guard<std::mutex> lock(cnt_mutex_);
   ++scope_cnt_;
 }
 
 void Engine::Exit() {
-  TDF_BASE_DLOG(INFO) << "Engine Exit";
+  FOOTSTONE_DLOG(INFO) << "Engine Exit";
   std::lock_guard<std::mutex> lock(cnt_mutex_);
   --scope_cnt_;
 }

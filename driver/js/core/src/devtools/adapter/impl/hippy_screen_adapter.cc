@@ -74,11 +74,11 @@ void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
 }
 
 hippy::dom::DomArgument HippyScreenAdapter::makeFrameCallbackArgument(uint64_t id) const {
-  tdf::base::DomValue::DomValueObjectType dom_value_object;
-  dom_value_object[kFrameCallbackId] = tdf::base::DomValue(static_cast<int32_t>(id));
-  tdf::base::DomValue::DomValueArrayType dom_value_array;
-  dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
-  tdf::base::DomValue argument_dom_value(dom_value_array);
+  footstone::value::HippyValue::HippyValueObjectType dom_value_object;
+  dom_value_object[kFrameCallbackId] = footstone::value::HippyValue(static_cast<int32_t>(id));
+  footstone::value::HippyValue::DomValueArrayType dom_value_array;
+  dom_value_array.push_back(footstone::value::HippyValue(dom_value_object));
+  footstone::value::HippyValue argument_dom_value(dom_value_array);
   hippy::dom::DomArgument argument(argument_dom_value);
   return argument;
 }
@@ -95,9 +95,9 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
       hippy::dom::DomArgument argument = makeScreenRequestArgument(request);
       std::function screen_shot_callback = [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
         DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
-        tdf::base::DomValue result_dom_value;
+        footstone::value::HippyValue result_dom_value;
         arg->ToObject(result_dom_value);
-        tdf::base::DomValue::DomValueObjectType base64_dom_value;
+        footstone::value::HippyValue::HippyValueObjectType base64_dom_value;
         if (result_dom_value.IsArray()) {
           base64_dom_value = result_dom_value.ToArrayChecked()[0].ToObjectChecked();
         } else {
@@ -115,13 +115,13 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
 }
 
 hippy::dom::DomArgument HippyScreenAdapter::makeScreenRequestArgument(const ScreenRequest& request) const {
-  tdf::base::DomValue::DomValueObjectType dom_value_object;
-  dom_value_object[kRequestMaxWidth] = tdf::base::DomValue(request.req_width);
-  dom_value_object[kRequestMaxHeight] = tdf::base::DomValue(request.req_height);
-  dom_value_object[kQuality] = tdf::base::DomValue(request.quality);
-  tdf::base::DomValue::DomValueArrayType dom_value_array;
-  dom_value_array.push_back(tdf::base::DomValue(dom_value_object));
-  tdf::base::DomValue argument_dom_value(dom_value_array);
+  footstone::value::HippyValue::HippyValueObjectType dom_value_object;
+  dom_value_object[kRequestMaxWidth] = footstone::value::HippyValue(request.req_width);
+  dom_value_object[kRequestMaxHeight] = footstone::value::HippyValue(request.req_height);
+  dom_value_object[kQuality] = footstone::value::HippyValue(request.quality);
+  footstone::value::HippyValue::DomValueArrayType dom_value_array;
+  dom_value_array.push_back(footstone::value::HippyValue(dom_value_object));
+  footstone::value::HippyValue argument_dom_value(dom_value_array);
   hippy::dom::DomArgument argument(argument_dom_value);
   return argument;
 }

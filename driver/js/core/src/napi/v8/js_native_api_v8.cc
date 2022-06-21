@@ -25,7 +25,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
+#include "footstone/check.h"
 #include "core/base/common.h"
 #include "core/napi/v8/serializer.h"
 #ifdef ENABLE_INSPECTOR
@@ -38,8 +39,8 @@
 namespace hippy {
 namespace napi {
 
-using unicode_string_view = tdf::base::unicode_string_view;
-using DomValue = tdf::base::DomValue;
+using unicode_string_view = footstone::stringview::unicode_string_view;
+using HippyValue = footstone::value::HippyValue;
 using StringViewUtils = hippy::base::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 
@@ -47,7 +48,7 @@ std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  TDF_BASE_DLOG(INFO) << "JsCallbackFunc begin";
+  FOOTSTONE_DLOG(INFO) << "JsCallbackFunc begin";
 
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
@@ -64,7 +65,7 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   JsCallback callback = fn_data->callback_;
   std::shared_ptr<Scope> scope = fn_data->scope_.lock();
   if (!scope) {
-    TDF_BASE_LOG(FATAL) << "JsCallbackFunc scope error";
+    FOOTSTONE_LOG(FATAL) << "JsCallbackFunc scope error";
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -72,19 +73,19 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   v8::Isolate* isolate = info.GetIsolate();
   if (!isolate) {
-    TDF_BASE_LOG(ERROR) << "JsCallbackFunc isolate error";
+    FOOTSTONE_LOG(ERROR) << "JsCallbackFunc isolate error";
     return;
   }
 
   v8::HandleScope handle_scope(isolate);
   v8::Local<v8::Context> context = isolate->GetCurrentContext();
   if (context.IsEmpty()) {
-    TDF_BASE_LOG(ERROR) << "JsCallbackFunc context empty";
+    FOOTSTONE_LOG(ERROR) << "JsCallbackFunc context empty";
     return;
   }
 
   v8::Context::Scope context_scope(context);
-  TDF_BASE_DLOG(INFO) << "callback_info info.length = " << info.Length();
+  FOOTSTONE_DLOG(INFO) << "callback_info info.length = " << info.Length();
   for (int i = 0; i < info.Length(); i++) {
     callback_info.AddValue(std::make_shared<V8CtxValue>(isolate, info[i]));
   }
@@ -113,23 +114,23 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
 }
 
 void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  TDF_BASE_DLOG(INFO) << "NativeCallbackFunc";
+  FOOTSTONE_DLOG(INFO) << "NativeCallbackFunc";
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
-    TDF_BASE_LOG(ERROR) << "NativeCallbackFunc data is empty";
+    FOOTSTONE_LOG(ERROR) << "NativeCallbackFunc data is empty";
     info.GetReturnValue().SetUndefined();
     return;
   }
 
   auto* cb_tuple = reinterpret_cast<CBTuple*>(data->Value());
   CBDataTuple data_tuple(*cb_tuple, info);
-  TDF_BASE_DLOG(INFO) << "run native cb begin";
+  FOOTSTONE_DLOG(INFO) << "run native cb begin";
   cb_tuple->fn_(static_cast<void*>(&data_tuple));
-  TDF_BASE_DLOG(INFO) << "run native cb end";
+  FOOTSTONE_DLOG(INFO) << "run native cb end";
 }
 
 void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  TDF_BASE_DLOG(INFO) << "v8 GetInternalBinding begin";
+  FOOTSTONE_DLOG(INFO) << "v8 GetInternalBinding begin";
 
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
@@ -151,7 +152,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   std::shared_ptr<Scope> scope = binding_data->scope_.lock();
   if (!scope) {
-    TDF_BASE_LOG(ERROR) << "GetInternalBinding scope error";
+    FOOTSTONE_LOG(ERROR) << "GetInternalBinding scope error";
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -178,11 +179,11 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  TDF_BASE_DLOG(INFO) << "module_name = " << module_name;
+  FOOTSTONE_DLOG(INFO) << "module_name = " << module_name;
   std::shared_ptr<V8CtxValue> module_value =
       std::static_pointer_cast<V8CtxValue>(scope->GetModuleValue(module_name));
   if (module_value) {
-    TDF_BASE_DLOG(INFO) << "use module cache, module = " << module_name;
+    FOOTSTONE_DLOG(INFO) << "use module cache, module = " << module_name;
     v8::Local<v8::Value> function =
         v8::Local<v8::Value>::New(isolate, module_value->global_value_);
     info.GetReturnValue().Set(function);
@@ -191,7 +192,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
 
   auto module_class = binding_data->map_.find(module_name);
   if (module_class == binding_data->map_.end()) {
-    TDF_BASE_LOG(WARNING) << "can not find module " << module_name;
+    FOOTSTONE_LOG(WARNING) << "can not find module " << module_name;
     info.GetReturnValue().SetUndefined();
     return;
   }
@@ -207,7 +208,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
             isolate, JsCallbackFunc,
             v8::External::New(isolate, static_cast<void*>(fn_data.get())));
     scope->SaveFunctionData(std::move(fn_data));
-    TDF_BASE_DLOG(INFO) << "bind fn_name = " << fn_name;
+    FOOTSTONE_DLOG(INFO) << "bind fn_name = " << fn_name;
     v8::Local<v8::String> name = v8_ctx->CreateV8String(fn_name);
     constructor->Set(name, function_template, v8::PropertyAttribute::ReadOnly);
   }
@@ -218,7 +219,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
                         std::make_shared<V8CtxValue>(isolate, function));
   info.GetReturnValue().Set(function);
 
-  TDF_BASE_DLOG(INFO) << "v8 GetInternalBinding end";
+  FOOTSTONE_DLOG(INFO) << "v8 GetInternalBinding end";
 }
 
 std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
@@ -231,16 +232,16 @@ std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
 }
 
 V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
-  TDF_BASE_DLOG(INFO) << "V8VM begin";
+  FOOTSTONE_DLOG(INFO) << "V8VM begin";
   {
     std::lock_guard<std::mutex> lock(mutex_);
     if (platform_ != nullptr) {
 #if defined(V8_X5_LITE) && defined(THREAD_LOCAL_PLATFORM)
-      TDF_BASE_DLOG(INFO) << "InitializePlatform";
+      FOOTSTONE_DLOG(INFO) << "InitializePlatform";
       v8::V8::InitializePlatform(platform_.get());
 #endif
     } else {
-      TDF_BASE_DLOG(INFO) << "NewDefaultPlatform";
+      FOOTSTONE_DLOG(INFO) << "NewDefaultPlatform";
       platform_ = v8::platform::NewDefaultPlatform();
 
       v8::V8::SetFlagsFromString("--wasm-disable-structured-cloning",
@@ -250,7 +251,7 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
 #else
       v8::V8::InitializePlatform(platform_.get());
 #endif
-      TDF_BASE_DLOG(INFO) << "Initialize";
+      FOOTSTONE_DLOG(INFO) << "Initialize";
       v8::V8::Initialize();
 #if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
       auto trace = reinterpret_cast<v8::platform::tracing::TracingController*>(platform_->GetTracingController());
@@ -268,7 +269,7 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param) : VM(param) {
   isolate_ = v8::Isolate::New(create_params_);
   isolate_->Enter();
   isolate_->SetCaptureStackTraceForUncaughtExceptions(true);
-  TDF_BASE_DLOG(INFO) << "V8VM end";
+  FOOTSTONE_DLOG(INFO) << "V8VM end";
 }
 
 V8VM::~V8VM() {
@@ -292,7 +293,7 @@ void V8VM::PlatformDestroy() {
 }
 
 std::shared_ptr<Ctx> V8VM::CreateContext() {
-  TDF_BASE_DLOG(INFO) << "CreateContext";
+  FOOTSTONE_DLOG(INFO) << "CreateContext";
   return std::make_shared<V8Ctx>(isolate_);
 }
 
@@ -378,7 +379,7 @@ unicode_string_view V8TryCatch::GetExceptionMsg() {
 }
 
 std::shared_ptr<CtxValue> GetInternalBindingFn(const std::shared_ptr<Scope>& scope) {
-  TDF_BASE_DLOG(INFO) << "GetInternalBindingFn";
+  FOOTSTONE_DLOG(INFO) << "GetInternalBindingFn";
 
   std::shared_ptr<V8Ctx> ctx =
       std::static_pointer_cast<V8Ctx>(scope->GetContext());
@@ -486,7 +487,7 @@ unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
               << ": " << msg;
   std::string u8_str = description.str();
   unicode_string_view desc(reinterpret_cast<const uint8_t*>(u8_str.c_str()));
-  TDF_BASE_DLOG(INFO) << "description = " << desc;
+  FOOTSTONE_DLOG(INFO) << "description = " << desc;
   return desc;
 }
 
@@ -531,13 +532,13 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
   std::string u8_str = stack_stream.str();
   unicode_string_view stack_str(
       reinterpret_cast<const uint8_t*>(u8_str.c_str()));
-  TDF_BASE_DLOG(INFO) << "stack = " << stack_str;
+  FOOTSTONE_DLOG(INFO) << "stack = " << stack_str;
   return stack_str;
 }
 
 #include "dom/scene_builder.h"
 bool V8Ctx::RegisterGlobalInJs() {
-  TDF_BASE_DLOG(INFO) << "RegisterGlobalInJs";
+  FOOTSTONE_DLOG(INFO) << "RegisterGlobalInJs";
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -554,7 +555,7 @@ bool V8Ctx::RegisterGlobalInJs() {
 
 bool V8Ctx::SetGlobalJsonVar(const unicode_string_view& name,
                              const unicode_string_view& json) {
-  TDF_BASE_DLOG(INFO) << "SetGlobalJsonVar name = " << name
+  FOOTSTONE_DLOG(INFO) << "SetGlobalJsonVar name = " << name
                       << ", json = " << json;
 
   if (StringViewUtils::IsEmpty(name) || StringViewUtils::IsEmpty(json)) {
@@ -577,7 +578,7 @@ bool V8Ctx::SetGlobalJsonVar(const unicode_string_view& name,
 
 bool V8Ctx::SetGlobalStrVar(const unicode_string_view& name,
                             const unicode_string_view& str) {
-  TDF_BASE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
+  FOOTSTONE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
   if (StringViewUtils::IsEmpty(name)) {
     return false;
   }
@@ -593,7 +594,7 @@ bool V8Ctx::SetGlobalStrVar(const unicode_string_view& name,
 bool V8Ctx::SetGlobalObjVar(const unicode_string_view& name,
                             const std::shared_ptr<CtxValue>& obj,
                             const PropertyAttribute& attr) {
-  TDF_BASE_DLOG(INFO) << "SetGlobalStrVar name = " << name
+  FOOTSTONE_DLOG(INFO) << "SetGlobalStrVar name = " << name
                       << ", attr = " << attr;
   if (StringViewUtils::IsEmpty(name)) {
     return false;
@@ -620,7 +621,7 @@ bool V8Ctx::SetGlobalObjVar(const unicode_string_view& name,
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(
     const unicode_string_view& name) {
-  TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
+  FOOTSTONE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
   if (StringViewUtils::IsEmpty(name)) {
     return nullptr;
   }
@@ -638,14 +639,14 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalStrVar(
 
 std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
     const unicode_string_view& name) {
-  TDF_BASE_DLOG(INFO) << "GetGlobalObjVar name = " << name;
+  FOOTSTONE_DLOG(INFO) << "GetGlobalObjVar name = " << name;
   return GetGlobalStrVar(name);
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue>& object,
     const unicode_string_view& name) {
-  TDF_BASE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
+  FOOTSTONE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(object);
   v8::HandleScope handle_scope(isolate_);
@@ -665,7 +666,7 @@ std::shared_ptr<CtxValue> V8Ctx::GetProperty(
 
 bool V8Ctx::DeleteProperty(const std::shared_ptr<CtxValue>& object,
                            const unicode_string_view& name) {
-  TDF_BASE_DLOG(INFO) << "DeleteProperty name =" << name;
+  FOOTSTONE_DLOG(INFO) << "DeleteProperty name =" << name;
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(object);
   v8::HandleScope handle_scope(isolate_);
@@ -684,7 +685,7 @@ bool V8Ctx::DeleteProperty(const std::shared_ptr<CtxValue>& object,
 
 void V8Ctx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                  const ModuleClassMap& modules) {
-  TDF_BASE_DLOG(INFO) << "RegisterGlobalModule";
+  FOOTSTONE_DLOG(INFO) << "RegisterGlobalModule";
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -717,7 +718,7 @@ void V8Ctx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
 void V8Ctx::RegisterNativeBinding(const unicode_string_view& name,
                                   base::RegisterFunction fn,
                                   void* data) {
-  TDF_BASE_DLOG(INFO) << "RegisterNativeBinding name = " << name;
+  FOOTSTONE_DLOG(INFO) << "RegisterNativeBinding name = " << name;
 
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
@@ -744,7 +745,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
                                            bool is_use_code_cache,
                                            unicode_string_view* cache,
                                            bool is_copy) {
-  TDF_BASE_LOG(INFO) << "V8Ctx::RunScript file_name = " << file_name
+  FOOTSTONE_LOG(INFO) << "V8Ctx::RunScript file_name = " << file_name
                      << ", is_use_code_cache = " << is_use_code_cache
                      << ", cache = " << cache << ", is_copy = " << is_copy;
   v8::HandleScope handle_scope(isolate_);
@@ -760,7 +761,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
         source = v8::String::NewFromOneByte(
             isolate_, reinterpret_cast<const uint8_t*>(str.c_str()),
             v8::NewStringType::kInternalized,
-            base::checked_numeric_cast<size_t, int>(str.length()));
+            footstone::check::checked_numeric_cast<size_t, int>(str.length()));
       } else {
         auto* one_byte =
             new ExternalOneByteStringResourceImpl(
@@ -776,7 +777,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
             isolate_,
             reinterpret_cast<const uint16_t*>(str.c_str()),
             v8::NewStringType::kNormal,
-            base::checked_numeric_cast<size_t, int>(str.length()));
+            footstone::check::checked_numeric_cast<size_t, int>(str.length()));
       } else {
         auto* two_byte = new ExternalStringResourceImpl(
             reinterpret_cast<const uint16_t*>(str.c_str()), str.length());
@@ -792,7 +793,7 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
                               bytes.length() / sizeof(char16_t));
       source = v8::String::NewFromTwoByte(
           isolate_, reinterpret_cast<const uint16_t*>(str.c_str()),
-          v8::NewStringType::kNormal, base::checked_numeric_cast<size_t, int>(str.length()));
+          v8::NewStringType::kNormal, footstone::check::checked_numeric_cast<size_t, int>(str.length()));
       break;
     }
     case unicode_string_view::Encoding::Utf8: {
@@ -803,12 +804,12 @@ std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
       break;
     }
     default: {
-      TDF_BASE_UNREACHABLE();
+      FOOTSTONE_UNREACHABLE();
     }
   }
 
   if (source.IsEmpty()) {
-    TDF_BASE_DLOG(WARNING) << "v8_source empty, file_name = " << file_name;
+    FOOTSTONE_DLOG(WARNING) << "v8_source empty, file_name = " << file_name;
     return nullptr;
   }
 
@@ -837,13 +838,13 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
       const unicode_string_view::u8string& str = cache->utf8_value();
       auto* cached_data =
           new v8::ScriptCompiler::CachedData(
-              str.c_str(), base::checked_numeric_cast<size_t, int>(str.length()),
+              str.c_str(), footstone::check::checked_numeric_cast<size_t, int>(str.length()),
               v8::ScriptCompiler::CachedData::BufferNotOwned);
       v8::ScriptCompiler::Source script_source(source, origin, cached_data);
       script = v8::ScriptCompiler::Compile(
           context, &script_source, v8::ScriptCompiler::kConsumeCodeCache);
     } else {
-      TDF_BASE_UNREACHABLE();
+      FOOTSTONE_UNREACHABLE();
     }
   } else {
     if (is_use_code_cache && cache) {
@@ -856,7 +857,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
           v8::ScriptCompiler::CreateCodeCache(
               script.ToLocalChecked()->GetUnboundScript());
       *cache = unicode_string_view(cached_data->data,
-                                   base::checked_numeric_cast<int,
+                                   footstone::check::checked_numeric_cast<int,
                                                                      size_t>(cached_data->length));
     } else {
       script = v8::Script::Compile(context, source, &origin);
@@ -877,7 +878,7 @@ std::shared_ptr<CtxValue> V8Ctx::InternalRunScript(
 }
 
 std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const unicode_string_view& name) {
-  TDF_BASE_DLOG(INFO) << "GetJsFn name = " << name;
+  FOOTSTONE_DLOG(INFO) << "GetJsFn name = " << name;
   if (StringViewUtils::IsEmpty(name)) {
     return nullptr;
   }
@@ -916,7 +917,7 @@ void V8Ctx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) 
 
   if (!IsFunction(exception_handler)) {
     const auto& source_code = GetNativeSourceCode(kErrorHandlerJSName);
-    TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
+    FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
     unicode_string_view str_view(source_code.data_, source_code.length_);
     exception_handler =
         RunScript(str_view, error_handle_name, false, nullptr, false);
@@ -933,7 +934,7 @@ void V8Ctx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) 
       CallFunction(exception_handler, 2, args);
   if (try_catch.HasCaught()) {
     auto message = try_catch.Message();
-    TDF_BASE_LOG(WARNING) << "HippyExceptionHandler error, desc = "
+    FOOTSTONE_LOG(WARNING) << "HippyExceptionHandler error, desc = "
                           << GetMsgDesc(message)
                           << ", stack = " << GetStackInfo(message);
   }
@@ -943,10 +944,10 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     const std::shared_ptr<CtxValue>& function,
     size_t argument_count,
     const std::shared_ptr<CtxValue> arguments[]) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx CallJs begin";
+  FOOTSTONE_DLOG(INFO) << "V8Ctx CallJs begin";
 
   if (!function) {
-    TDF_BASE_LOG(ERROR) << "function is nullptr";
+    FOOTSTONE_LOG(ERROR) << "function is nullptr";
     return nullptr;
   }
 
@@ -954,7 +955,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope contextScope(context);
   if (context.IsEmpty() || context->Global().IsEmpty()) {
-    TDF_BASE_LOG(ERROR) << "CallJs context error";
+    FOOTSTONE_LOG(ERROR) << "CallJs context error";
     return nullptr;
   }
 
@@ -963,7 +964,7 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
   if (!handle_value->IsFunction()) {
-    TDF_BASE_LOG(WARNING) << "CallJs handle_value is not a function";
+    FOOTSTONE_LOG(WARNING) << "CallJs handle_value is not a function";
     return nullptr;
   }
 
@@ -975,18 +976,18 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     if (argument) {
       args[i] = v8::Local<v8::Value>::New(isolate_, argument->global_value_);
     } else {
-      TDF_BASE_LOG(WARNING) << "CallJs argument error, i = " << i;
+      FOOTSTONE_LOG(WARNING) << "CallJs argument error, i = " << i;
       return nullptr;
     }
   }
 
-  TDF_BASE_DLOG(INFO) << "v8 CallJs call begin";
+  FOOTSTONE_DLOG(INFO) << "v8 CallJs call begin";
   v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
       context, context->Global(), static_cast<int>(argument_count), args);
-  TDF_BASE_DLOG(INFO) << "v8 CallJs call end";
+  FOOTSTONE_DLOG(INFO) << "v8 CallJs call end";
 
   if (maybe_result.IsEmpty()) {
-    TDF_BASE_DLOG(INFO) << "maybe_result is empty";
+    FOOTSTONE_DLOG(INFO) << "maybe_result is empty";
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, maybe_result.ToLocalChecked());
@@ -1072,7 +1073,7 @@ v8::Local<v8::String> V8Ctx::CreateV8String(
     }
     default:break;
   }
-  TDF_BASE_UNREACHABLE();
+  FOOTSTONE_UNREACHABLE();
 }
 
 std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
@@ -1133,7 +1134,7 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
         if (props_key->IsString()) {
           key_obj = *v8::String::Utf8Value(isolate_, props_key);
         } else {
-          TDF_BASE_LOG(ERROR)
+          FOOTSTONE_LOG(ERROR)
           << "ToJsValueWrapper parse v8::Object err, props_key illegal";
           return nullptr;
         }
@@ -1146,11 +1147,11 @@ std::shared_ptr<JSValueWrapper> V8Ctx::ToJsValueWrapper(
     return std::make_shared<JSValueWrapper>(std::move(ret));
   }
 
-  // TDF_BASE_UNIMPLEMENTED();
+  // FOOTSTONE_UNIMPLEMENTED();
   return nullptr;
 }
 
-std::shared_ptr<DomValue> V8Ctx::ToDomValue(
+std::shared_ptr<HippyValue> V8Ctx::ToDomValue(
     const std::shared_ptr<CtxValue>& value) {
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
@@ -1161,18 +1162,18 @@ std::shared_ptr<DomValue> V8Ctx::ToDomValue(
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, global_value);
   if (handle_value->IsUndefined()) {
-    return std::make_shared<DomValue>(DomValue::Undefined());
+    return std::make_shared<HippyValue>(HippyValue::Undefined());
   } else if (handle_value->IsNull()) {
-    return std::make_shared<DomValue>(DomValue::Null());
+    return std::make_shared<HippyValue>(HippyValue::Null());
   } else if (handle_value->IsBoolean()) {
     bool v8_value = handle_value->ToBoolean(isolate_)->Value();
-    return std::make_shared<DomValue>(v8_value);
+    return std::make_shared<HippyValue>(v8_value);
   } else if (handle_value->IsString()) {
-    return std::make_shared<DomValue>(
+    return std::make_shared<HippyValue>(
         *v8::String::Utf8Value(isolate_, handle_value));
   } else if (handle_value->IsNumber()) {
     double v8_value = handle_value->ToNumber(context).ToLocalChecked()->Value();
-    return std::make_shared<DomValue>(v8_value);
+    return std::make_shared<HippyValue>(v8_value);
   } else if (handle_value->IsArray()) {
     v8::Local<v8::Object> v8_value =
         handle_value->ToObject(context).ToLocalChecked();
@@ -1187,18 +1188,18 @@ std::shared_ptr<DomValue> V8Ctx::ToDomValue(
         .ToLocalChecked()
         ->Uint32Value(context)
         .FromMaybe(0);
-    DomValue::DomValueArrayType ret;
+    HippyValue::DomValueArrayType ret;
     for (uint32_t i = 0; i < len; i++) {
       v8::Local<v8::Value> element = v8_value->Get(context, i).ToLocalChecked();
-      std::shared_ptr<DomValue> value_obj =
+      std::shared_ptr<HippyValue> value_obj =
           ToDomValue(std::make_shared<V8CtxValue>(isolate_, element));
       ret.push_back(*value_obj);
     }
-    return std::make_shared<DomValue>(std::move(ret));
+    return std::make_shared<HippyValue>(std::move(ret));
   } else if (handle_value->IsObject()) {
     v8::Local<v8::Object> v8_value =
         handle_value->ToObject(context).ToLocalChecked();
-    DomValue::DomValueObjectType ret;
+    HippyValue::HippyValueObjectType ret;
     v8::MaybeLocal<v8::Array> maybe_props =
         v8_value->GetOwnPropertyNames(context);
     if (!maybe_props.IsEmpty()) {
@@ -1213,20 +1214,20 @@ std::shared_ptr<DomValue> V8Ctx::ToDomValue(
         if (props_key->IsString()) {
           key_obj = *v8::String::Utf8Value(isolate_, props_key);
         } else {
-          TDF_BASE_LOG(ERROR)
+          FOOTSTONE_LOG(ERROR)
           << "ToJsValueWrapper parse v8::Object err, props_key illegal";
           return nullptr;
         }
 
-        std::shared_ptr<DomValue> value_obj = ToDomValue(
+        std::shared_ptr<HippyValue> value_obj = ToDomValue(
             std::make_shared<V8CtxValue>(isolate_, props_value));
         ret[key_obj] = *value_obj;
       }
     }
-    return std::make_shared<DomValue>(std::move(ret));
+    return std::make_shared<HippyValue>(std::move(ret));
   }
 
-  // TDF_BASE_NOTIMPLEMENTED();
+  // FOOTSTONE_NOTIMPLEMENTED();
   return nullptr;
 }
 
@@ -1267,7 +1268,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return CreateBoolean(wrapper->BooleanValue());
   } else if (wrapper->IsArray()) {
     auto arr = wrapper->ArrayValue();
-    auto len = base::checked_numeric_cast<size_t, int32_t>(arr.size());
+    auto len = footstone::check::checked_numeric_cast<size_t, int32_t>(arr.size());
     std::shared_ptr<CtxValue> args[len];
     for (auto i = 0; i < len; ++i) {
       args[i] =
@@ -1292,7 +1293,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
           std::static_pointer_cast<V8CtxValue>(
               CreateCtxValue(std::make_shared<JSValueWrapper>(obj_value)));
       const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-      TDF_BASE_DCHECK(!global_value.IsEmpty());
+      FOOTSTONE_DCHECK(!global_value.IsEmpty());
       v8::Local<v8::Value> handle_value =
           v8::Local<v8::Value>::New(isolate_, global_value);
       v8_obj->Set(context, key, handle_value).ToChecked();
@@ -1300,12 +1301,12 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return std::make_shared<V8CtxValue>(isolate_, v8_obj);
   }
 
-  TDF_BASE_UNIMPLEMENTED();
+  FOOTSTONE_UNIMPLEMENTED();
   return nullptr;
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
-    const std::shared_ptr<DomValue>& value) {
+    const std::shared_ptr<HippyValue>& value) {
   if (!value) {
     return nullptr;
   }
@@ -1327,7 +1328,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     auto len = arr.size();
     std::shared_ptr<CtxValue> args[len];
     for (size_t i = 0; i < len; ++i) {
-      args[i] = CreateCtxValue(std::make_shared<DomValue>(arr[i]));
+      args[i] = CreateCtxValue(std::make_shared<HippyValue>(arr[i]));
     }
     return CreateArray(arr.size(), args);
   } else if (value->IsObject()) {
@@ -1346,9 +1347,9 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
       v8::Local<v8::String> key = CreateV8String(obj_key_view);
       std::shared_ptr<V8CtxValue> ctx_value =
           std::static_pointer_cast<V8CtxValue>(
-              CreateCtxValue(std::make_shared<DomValue>(obj_value)));
+              CreateCtxValue(std::make_shared<HippyValue>(obj_value)));
       const v8::Global<v8::Value>& global_value = ctx_value->global_value_;
-      TDF_BASE_DCHECK(!global_value.IsEmpty());
+      FOOTSTONE_DCHECK(!global_value.IsEmpty());
       v8::Local<v8::Value> handle_value =
           v8::Local<v8::Value>::New(isolate_, global_value);
       v8_obj->Set(context, key, handle_value).ToChecked();
@@ -1356,12 +1357,12 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return std::make_shared<V8CtxValue>(isolate_, v8_obj);
   }
 
-  // TDF_BASE_NOTIMPLEMENTED();
+  // FOOTSTONE_NOTIMPLEMENTED();
   return nullptr;
 }
 
 bool V8Ctx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) {
-  TDF_BASE_DCHECK(lhs != nullptr && rhs != nullptr);
+  FOOTSTONE_DCHECK(lhs != nullptr && rhs != nullptr);
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -1369,14 +1370,14 @@ bool V8Ctx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<C
   std::shared_ptr<V8CtxValue> ctx_rhs = std::static_pointer_cast<V8CtxValue>(rhs);
 
   const v8::Global<v8::Value>& global_lhs = ctx_lhs->global_value_;
-  TDF_BASE_DCHECK(!global_lhs.IsEmpty());
+  FOOTSTONE_DCHECK(!global_lhs.IsEmpty());
   v8::Local<v8::Value> local_lhs = v8::Local<v8::Value>::New(isolate_, global_lhs);
 
   const v8::Global<v8::Value>& global_rhs = ctx_rhs->global_value_;
-  TDF_BASE_DCHECK(!global_rhs.IsEmpty());
+  FOOTSTONE_DCHECK(!global_rhs.IsEmpty());
   v8::Local<v8::Value> local_rhs = v8::Local<v8::Value>::New(isolate_, global_rhs);
 
-  TDF_BASE_DCHECK(!local_lhs.IsEmpty());
+  FOOTSTONE_DCHECK(!local_lhs.IsEmpty());
 
   v8::Maybe<bool> maybe = local_lhs->Equals(context, local_rhs);
   if(maybe.IsNothing()) {
@@ -1386,9 +1387,9 @@ bool V8Ctx::Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<C
 }
 
 unicode_string_view V8Ctx::ToStringView(v8::Local<v8::String> str) const {
-  TDF_BASE_DCHECK(!str.IsEmpty());
+  FOOTSTONE_DCHECK(!str.IsEmpty());
   v8::String* v8_string = v8::String::Cast(*str);
-  auto len = base::checked_numeric_cast<int, size_t>(v8_string->Length());
+  auto len = footstone::check::checked_numeric_cast<int, size_t>(v8_string->Length());
   if (v8_string->IsOneByte()) {
     std::string one_byte_string;
     one_byte_string.resize(len);
@@ -1452,8 +1453,8 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
     size_t count,
     std::shared_ptr<CtxValue> value[]) {
   int array_size;
-  if (!base::numeric_cast<size_t, int>(count, array_size)) {
-    TDF_BASE_LOG(ERROR) << "array length out of boundary";
+  if (!footstone::check::numeric_cast<size_t, int>(count, array_size)) {
+    FOOTSTONE_LOG(ERROR) << "array length out of boundary";
     return nullptr;
   }
   v8::HandleScope handle_scope(isolate_);
@@ -1467,11 +1468,11 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
     if (ctx_value) {
       handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
     } else {
-      TDF_BASE_LOG(ERROR) << "array item error";
+      FOOTSTONE_LOG(ERROR) << "array item error";
       return nullptr;
     }
     if (!array->Set(context, static_cast<uint32_t >(i), handle_value).FromMaybe(false)) {
-      TDF_BASE_LOG(ERROR) << "set array item failed";
+      FOOTSTONE_LOG(ERROR) << "set array item failed";
       return nullptr;
     }
   }
@@ -1498,14 +1499,14 @@ std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
 }
 
 std::shared_ptr<CtxValue> V8Ctx::CreateError(const unicode_string_view& msg) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::CreateError msg = " << msg;
+  FOOTSTONE_DLOG(INFO) << "V8Ctx::CreateError msg = " << msg;
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
 
   v8::Local<v8::Value> error = v8::Exception::Error(CreateV8String(msg));
   if (error.IsEmpty()) {
-    TDF_BASE_LOG(INFO) << "error is empty";
+    FOOTSTONE_LOG(INFO) << "error is empty";
     return nullptr;
   }
   return std::make_shared<V8CtxValue>(isolate_, error);
@@ -1582,7 +1583,7 @@ bool V8Ctx::GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* result
 
 bool V8Ctx::GetValueString(const std::shared_ptr<CtxValue>& value,
                            unicode_string_view* result) {
-  TDF_BASE_DLOG(INFO) << "V8Ctx::GetValueString";
+  FOOTSTONE_DLOG(INFO) << "V8Ctx::GetValueString";
   if (!value || !result) {
     return false;
   }
@@ -1956,19 +1957,19 @@ void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_
     return;
   }
   if (!callback) {
-    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("callback function nullptr"));
+    scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("callback function nullptr"));
     return;
   }
 
   if (context.IsEmpty() || context->Global().IsEmpty()) {
-    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("v8 context is empty"));
+    scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("v8 context is empty"));
     return;
   }
 
   std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(callback);
   v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
   if (!handle_value->IsFunction()) {
-    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("callback is not a function"));
+    scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("callback is not a function"));
     return;
   }
 
@@ -1977,7 +1978,7 @@ void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_
   auto param = v8::Local<v8::Value>::New(isolate_, instance);
   v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(context, context->Global(), 1, &param);
   if (maybe_result.IsEmpty()) {
-    scope->GetContext()->ThrowException(tdf::base::unicode_string_view("maybe_result is empty"));
+    scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("maybe_result is empty"));
     return;
   }
 }

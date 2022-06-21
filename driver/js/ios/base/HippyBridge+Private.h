@@ -23,6 +23,7 @@
 #import "HippyBridge.h"
 #import "HippyJSCExecutor.h"
 #include "dom/dom_manager.h"
+#include "footstone/worker_manager.h"
 
 @class HippyModuleData;
 

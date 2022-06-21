@@ -24,17 +24,17 @@
 #import "HippyDefines.h"
 #include "dom/dom_node.h"
 #include "dom/dom_listener.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN id domValueToOCType(const tdf::base::DomValue *const pDomValue);
+HIPPY_EXTERN id domValueToOCType(const footstone::value::HippyValue *const pDomValue);
 
-extern tdf::base::DomValue OCTypeToDomValue(id value);
+extern footstone::value::HippyValue OCTypeToDomValue(id value);
 
-HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> &domValuesObject);
+HIPPY_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> &domValuesObject);
 
-extern std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
+extern std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
 
 HIPPY_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
 
@@ -44,7 +44,7 @@ HIPPY_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
 
 HIPPY_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
-HIPPY_EXTERN NSNumber *domValueToNumber(const tdf::base::DomValue *const pDomValue);
+HIPPY_EXTERN NSNumber *domValueToNumber(const footstone::value::HippyValue *const pDomValue);
 
 HIPPY_EXTERN NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 

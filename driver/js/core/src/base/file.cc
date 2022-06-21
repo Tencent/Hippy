@@ -24,7 +24,6 @@
 
 #include <dirent.h>
 #include <sys/stat.h>
-
 #include <iostream>
 
 namespace hippy::base {
@@ -32,13 +31,13 @@ namespace hippy::base {
 bool HippyFile::SaveFile(const unicode_string_view& file_path,
                          const std::string& content,
                          std::ios::openmode mode) {
-  TDF_BASE_DLOG(INFO) << "SaveFile file_path = " << file_path;
+  FOOTSTONE_DLOG(INFO) << "SaveFile file_path = " << file_path;
   unicode_string_view owner(""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
   std::ofstream file(path, mode);
   if (file.is_open()) {
     std::streamsize len;
-    bool is_success = numeric_cast<size_t, std::streamsize>(content.length(), len);
+    bool is_success = footstone::numeric_cast<size_t, std::streamsize>(content.length(), len);
     if (is_success) {
       file.write(content.c_str(), len);
     }
@@ -50,12 +49,12 @@ bool HippyFile::SaveFile(const unicode_string_view& file_path,
 }
 
 int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
-  TDF_BASE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
+  FOOTSTONE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
   unicode_string_view owner(""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(dir_full_path, owner);
   DIR* dir_parent = opendir(path);
   if (!dir_parent) {
-    TDF_BASE_DLOG(INFO) << "RmFullPath dir_parent null";
+    FOOTSTONE_DLOG(INFO) << "RmFullPath dir_parent null";
     return -1;
   }
   struct dirent* dir;
@@ -68,7 +67,7 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
     unicode_string_view view_sub_path =
         StringViewUtils::ConstCharPointerToStrView(sub_path.c_str(),
                                                    sub_path.length());
-    TDF_BASE_DLOG(INFO) << "RmFullPath sub_path = " << sub_path;
+    FOOTSTONE_DLOG(INFO) << "RmFullPath sub_path = " << sub_path;
     if (lstat(sub_path.c_str(), &st) == -1) {
       continue;
     }
@@ -84,32 +83,32 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
     }
   }
   if (rmdir(path) == -1) {
-    TDF_BASE_DLOG(INFO) << "RmFullPath delete dir_full_path fail, path = "
+    FOOTSTONE_DLOG(INFO) << "RmFullPath delete dir_full_path fail, path = "
                         << dir_full_path;
     closedir(dir_parent);
     return -1;
   }
   closedir(dir_parent);
-  TDF_BASE_DLOG(INFO) << "RmFullPath succ";
+  FOOTSTONE_DLOG(INFO) << "RmFullPath succ";
   return 0;
 }
 
 int HippyFile::CreateDir(const unicode_string_view& path, mode_t mode) {
-  TDF_BASE_DLOG(INFO) << "CreateDir path = " << path;
+  FOOTSTONE_DLOG(INFO) << "CreateDir path = " << path;
   unicode_string_view owner(""_u8s);
   const char* dir_path = StringViewUtils::ToConstCharPointer(path, owner);
   return mkdir(dir_path, mode);
 }
 
 int HippyFile::CheckDir(const unicode_string_view& path, int mode) {
-  TDF_BASE_DLOG(INFO) << "CheckDir path = " << path;
+  FOOTSTONE_DLOG(INFO) << "CheckDir path = " << path;
   unicode_string_view owner(""_u8s);
   const char* dir_path = StringViewUtils::ToConstCharPointer(path, owner);
   return access(dir_path, mode);
 }
 
 uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
-  TDF_BASE_DLOG(INFO) << "GetFileModifytime file_path = " << file_path;
+  FOOTSTONE_DLOG(INFO) << "GetFileModifytime file_path = " << file_path;
   unicode_string_view view_owner(""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(file_path, view_owner);
   struct stat statInfo{};
@@ -121,8 +120,8 @@ uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
   if (fstat(fd, &statInfo)) {
     return 0;
   }
-  uint64_t modify_time = checked_numeric_cast<time_t, uint64_t>(statInfo.st_mtime);
-  TDF_BASE_DLOG(INFO) << "modify_time = " << modify_time;
+  uint64_t modify_time = footstone::checked_numeric_cast<time_t, uint64_t>(statInfo.st_mtime);
+  FOOTSTONE_DLOG(INFO) << "modify_time = " << modify_time;
   fclose(fp);
   return modify_time;
 }

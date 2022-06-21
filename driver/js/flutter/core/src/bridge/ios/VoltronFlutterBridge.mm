@@ -31,7 +31,7 @@
 #import "VoltronFlutterBridge.h"
 #import "utils/VoltronLog.h"
 #import "utils/VoltronUtils.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 
 using StringViewUtils = hippy::base::StringViewUtils;
 
@@ -146,7 +146,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     std::u16string cModule = NSStringToU16(module);
     std::u16string cMethod = NSStringToU16(method);
     std::u16string cCallId = NSStringToU16(callId);
-    
+
     self.platformRuntime->CallDart(cModule, cMethod, cCallId, std::move(CopyToStr(data)), true,
                                     nullptr);
     return nil;
@@ -173,7 +173,7 @@ static std::string CopyToStr(NSData* data) {
     std::string copy_str(reinterpret_cast<const char*>(origin_buf), [data length]);
     return copy_str;
   }
-    
+
   return nullptr;
 }
 

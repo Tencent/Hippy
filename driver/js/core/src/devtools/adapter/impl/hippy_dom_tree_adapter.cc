@@ -23,7 +23,7 @@
 #include <string>
 
 #include "devtools/devtools_utils.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "dom/node_props.h"
 #include "devtools/devtools_utils.h"
 
@@ -46,18 +46,18 @@ void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas meta
       callback(is_success);
       return;
     }
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style_map{};
+    std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> style_map{};
     for (auto &meta : metas_list) {
       if (meta.IsDouble()) {
-        style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToDouble())});
+        style_map.insert({meta.GetKey(), std::make_shared<footstone::value::HippyValue>(meta.ToDouble())});
       } else if (meta.IsString()) {
-        style_map.insert({meta.GetKey(), std::make_shared<tdf::base::DomValue>(meta.ToString())});
+        style_map.insert({meta.GetKey(), std::make_shared<footstone::value::HippyValue>(meta.ToString())});
       }
     }
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(hippy_dom->dom_id));
     if (dom_manager) {
       auto node = dom_manager->GetNode(hippy_dom->root_node, static_cast<uint32_t>(node_id));
-      node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>{});
+      node->UpdateProperties(style_map, std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>{});
       is_success = true;
     }
     callback(is_success);
@@ -94,7 +94,7 @@ void HippyDomTreeAdapter::GetDomainData(int32_t node_id,
   if (!callback) {
     return;
   }
-  tdf::base::DomValue domValue;
+  footstone::value::HippyValue domValue;
   std::weak_ptr<HippyDomData> weak_hippy_dom = hippy_dom_;
   std::function func = [weak_hippy_dom, node_id, is_root, depth, callback] {
     std::shared_ptr<HippyDomData> hippy_dom = weak_hippy_dom.lock();

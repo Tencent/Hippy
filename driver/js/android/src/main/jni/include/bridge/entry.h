@@ -27,9 +27,11 @@
 namespace hippy {
 namespace bridge {
 
-void InitNativeLogHandler(JNIEnv* j_env,
-                          __unused jobject j_object,
-                          jobject j_logger);
+void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
+
+jint CreateWorkerManager(JNIEnv* j_env, __unused jobject j_obj);
+
+void DestroyWorkerManager(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id);
 
 jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
@@ -39,6 +41,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
+                   jint j_worker_manager_id,
                    jobject j_vm_init_param,
                    jstring j_data_dir,
                    jstring j_ws_url);
@@ -87,7 +90,7 @@ void UpdateAnimationNode(JNIEnv* j_env,
                          jint j_offset,
                          jint j_length);
 
-jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj);
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id);
 
 jint CreateAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
 

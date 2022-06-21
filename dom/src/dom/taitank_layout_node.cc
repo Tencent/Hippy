@@ -3,7 +3,7 @@
 #include <map>
 #include <mutex>
 
-#include "base/logging.h"
+#include "footstone/logging.h"
 #include "dom/node_props.h"
 
 namespace hippy {
@@ -123,8 +123,8 @@ TAITANK_GET_STYLE_DECL(Direction, HPDirection, HPDirection::DirectionLTR)
   if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDoubleChecked()); \
   Set##NAME(GetStyle##NAME(k##STYLENAME), value);
 
-static void CheckValueType(tdf::base::DomValue::Type type) {
-  TDF_BASE_DCHECK(type == tdf::base::DomValue::Type::kNumber || type == tdf::base::DomValue::Type::kObject);
+static void CheckValueType(footstone::value::HippyValue::Type type) {
+  FOOTSTONE_DCHECK(type == footstone::value::HippyValue::Type::kNumber || type == footstone::value::HippyValue::Type::kObject);
 }
 
 static LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
@@ -137,7 +137,7 @@ static LayoutMeasureMode ToLayoutMeasureMode(MeasureMode measure_mode) {
   if (measure_mode == MeasureMode::MeasureModeAtMost) {
     return LayoutMeasureMode::AtMost;
   }
-  TDF_BASE_UNREACHABLE();
+  FOOTSTONE_UNREACHABLE();
 }
 
 static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
@@ -150,7 +150,7 @@ static CSSDirection GetCSSDirectionFromEdge(Edge edge) {
   } else if (Edge::EdgeBottom == edge) {
     return CSSDirection::CSSBottom;
   } else {
-    TDF_BASE_UNREACHABLE();
+    FOOTSTONE_UNREACHABLE();
   }
 }
 
@@ -177,17 +177,17 @@ void TaitankLayoutNode::CalculateLayout(float parent_width, float parent_height,
   } else if (direction == Direction::RTL) {
     taitank_direction = HPDirection::DirectionRTL;
   } else {
-    TDF_BASE_UNREACHABLE();
+    FOOTSTONE_UNREACHABLE();
   }
   engine_node_->layout(parent_width, parent_height, engine_node_->GetConfig(), taitank_direction, layout_context);
 }
 
 void TaitankLayoutNode::SetLayoutStyles(
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
+    std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) {
   Parser(style_map);
 }
 
-void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
+void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) {
   if (style_map.find(kWidth) != style_map.end()) {
     SET_STYLE_VALUE(Width, 0)
   }

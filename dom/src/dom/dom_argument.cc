@@ -2,9 +2,9 @@
 
 #include <vector>
 
-#include "base/logging.h"
-#include "dom/deserializer.h"
-#include "dom/serializer.h"
+#include "footstone/logging.h"
+#include "footstone/deserializer.h"
+#include "footstone/serializer.h"
 
 namespace hippy {
 inline namespace dom {
@@ -15,7 +15,7 @@ DomArgument::~DomArgument() = default;
 
 bool DomArgument::ToBson(std::vector<uint8_t>& bson) const {
   if (argument_type_ == ArgumentType::OBJECT) {
-    auto dom_value = std::any_cast<tdf::base::DomValue>(data_);
+    auto dom_value = std::any_cast<footstone::value::HippyValue>(data_);
     return ConvertObjectToBson(dom_value, bson);
   } else if (argument_type_ == ArgumentType::BSON) {
     bson = std::any_cast<std::vector<uint8_t>>(data_);
@@ -24,9 +24,9 @@ bool DomArgument::ToBson(std::vector<uint8_t>& bson) const {
   return false;
 }
 
-bool DomArgument::ToObject(tdf::base::DomValue& dom_value) const {
+bool DomArgument::ToObject(footstone::value::HippyValue& dom_value) const {
   if (argument_type_ == ArgumentType::OBJECT) {
-    dom_value = std::any_cast<tdf::base::DomValue>(data_);
+    dom_value = std::any_cast<footstone::value::HippyValue>(data_);
     return true;
   } else if (argument_type_ == ArgumentType::BSON) {
     auto bson = std::any_cast<std::vector<uint8_t>>(data_);
@@ -36,8 +36,8 @@ bool DomArgument::ToObject(tdf::base::DomValue& dom_value) const {
   return false;
 }
 
-bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std::vector<uint8_t>& bson) {
-  tdf::base::Serializer serializer;
+bool DomArgument::ConvertObjectToBson(const footstone::value::HippyValue& dom_value, std::vector<uint8_t>& bson) {
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteValue(dom_value);
   std::pair<uint8_t*, size_t> pair = serializer.Release();
@@ -46,8 +46,8 @@ bool DomArgument::ConvertObjectToBson(const tdf::base::DomValue& dom_value, std:
   return true;
 }
 
-bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, tdf::base::DomValue& dom_value) {
-  tdf::base::Deserializer deserializer(bson);
+bool DomArgument::ConvertBsonToObject(const std::vector<const uint8_t>& bson, footstone::value::HippyValue& dom_value) {
+  footstone::value::Deserializer deserializer(bson);
   deserializer.ReadHeader();
   bool ret = deserializer.ReadValue(dom_value);
   return ret;

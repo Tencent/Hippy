@@ -24,10 +24,10 @@
 
 #include <jni.h>
 #include <string>
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
 
 class JniUtils {
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using bytes = std::string;
 
  public:

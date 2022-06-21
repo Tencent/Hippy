@@ -38,7 +38,7 @@
 #import "UIView+Hippy.h"
 #import "HippyBundleURLProvider.h"
 #include "scope.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "HippyDomNodeUtils.h"
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
@@ -164,7 +164,7 @@ NSNumber *AllocRootViewTag() {
                     if (success) {
                         [weakSelf bundleFinishedLoading:bridge.batchedBridge];
                     }
-                    
+
                     if ([delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
                         [delegate rootView:weakSelf didLoadFinish:success];
                     }
@@ -315,7 +315,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
 
     [_contentView removeAllSubviews];
-        
+
     [self runApplication:bridge];
 
     _contentView.backgroundColor = self.backgroundColor;
@@ -333,8 +333,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                             @"id": _contentView.hippyTag,
                             @"params": _appProperties ?: @{},
                             @"version": HippySDKVersion};
-    tdf::base::DomValue value = OCTypeToDomValue(param);
-    std::shared_ptr<tdf::base::DomValue> domValue = std::make_shared<tdf::base::DomValue>(value);
+    footstone::value::HippyValue value = OCTypeToDomValue(param);
+    std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     bridge.javaScriptExecutor.pScope->LoadInstance(domValue);
 }
 

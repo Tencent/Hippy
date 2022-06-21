@@ -27,7 +27,7 @@
 #include <memory>
 #include <unordered_map>
 #import "HippyDomNodeUtils.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
@@ -191,7 +191,7 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
               viewName:(const std::string &)viewName
                viewTag:(int32_t)hippyTag
             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
-                params:(const tdf::base::DomValue &)params
+                params:(const footstone::value::HippyValue &)params
               callback:(hippy::CallFunctionCallback)cb;
 
 - (void)registerExtraComponent:(NSDictionary<NSString *, Class> *)extraComponent;

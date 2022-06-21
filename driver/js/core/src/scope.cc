@@ -27,17 +27,17 @@
 #include <string>
 #include <vector>
 
-#include "base/logging.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
+#include "footstone/task.h"
+#include "footstone/task_runner.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
-#include "core/task/javascript_task.h"
-#include "core/task/javascript_task_runner.h"
 #ifdef JS_V8
 #include "core/napi/v8/js_native_api_v8.h"
 #endif
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
@@ -60,18 +60,18 @@ Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
       map_(std::move(map)) {}
 
 Scope::~Scope() {
-  TDF_BASE_DLOG(INFO) << "~Scope";
+  FOOTSTONE_DLOG(INFO) << "~Scope";
   engine_->Exit();
 }
 
 void Scope::WillExit() {
-  TDF_BASE_DLOG(INFO) << "WillExit begin";
+  FOOTSTONE_DLOG(INFO) << "WillExit begin";
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function cb = hippy::base::MakeCopyable(
+  auto cb = hippy::base::MakeCopyable(
       [weak_context, p = std::move(promise)]() mutable {
-        TDF_BASE_LOG(INFO) << "run js WillExit begin";
+        FOOTSTONE_LOG(INFO) << "run js WillExit begin";
         std::shared_ptr<CtxValue> rst = nullptr;
         std::shared_ptr<Ctx> context = weak_context.lock();
         if (context) {
@@ -83,30 +83,28 @@ void Scope::WillExit() {
         }
         p.set_value(rst);
       });
-  std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
-  if (runner->IsJsThread()) {
+  auto runner = engine_->GetJSRunner();
+  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = cb;
-    runner->PostTask(task);
+    runner->PostTask(std::move(cb));
   }
 
   future.get();
-  TDF_BASE_DLOG(INFO) << "ExitCtx end";
+  FOOTSTONE_DLOG(INFO) << "ExitCtx end";
 }
 
 void Scope::Initialized() {
-  TDF_BASE_DLOG(INFO) << "Scope Initialized";
+  FOOTSTONE_DLOG(INFO) << "Scope Initialized";
   engine_->Enter();
   context_ = engine_->GetVM()->CreateContext();
   if (context_ == nullptr) {
-    TDF_BASE_DLOG(ERROR) << "CreateContext return nullptr";
+    FOOTSTONE_DLOG(ERROR) << "CreateContext return nullptr";
     return;
   }
   std::shared_ptr<Scope> self = wrapper_->scope_.lock();
   if (!self) {
-    TDF_BASE_DLOG(ERROR) << "Scope wrapper_ error_";
+    FOOTSTONE_DLOG(ERROR) << "Scope wrapper_ error_";
     return;
   }
   RegisterMap::const_iterator it =
@@ -114,28 +112,28 @@ void Scope::Initialized() {
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      TDF_BASE_DLOG(INFO) << "run ContextCreatedCB begin";
+      FOOTSTONE_DLOG(INFO) << "run ContextCreatedCB begin";
       f(wrapper_.get());
-      TDF_BASE_DLOG(INFO) << "run ContextCreatedCB end";
+      FOOTSTONE_DLOG(INFO) << "run ContextCreatedCB end";
       map_->erase(it);
     }
   }
-  TDF_BASE_DLOG(INFO) << "Scope RegisterGlobalInJs";
+  FOOTSTONE_DLOG(INFO) << "Scope RegisterGlobalInJs";
   context_->RegisterGlobalModule(self,
                                  ModuleRegister::instance()->GetGlobalList());
   ModuleClassMap map(ModuleRegister::instance()->GetInternalList());
   binding_data_ = std::make_unique<BindingData>(self, map);
 
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
-  TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
+  FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
   unicode_string_view str_view(source_code.data_, source_code.length_);
   std::shared_ptr<CtxValue> function =
       context_->RunScript(str_view, kHippyBootstrapJSName);
 
   bool is_func = context_->IsFunction(function);
-  TDF_BASE_CHECK(is_func) << "bootstrap return not function, len = "
+  FOOTSTONE_CHECK(is_func) << "bootstrap return not function, len = "
                           << source_code.length_;
-  // TODO(super): The following statement will be removed when TDF_BASE_CHECK
+  // TODO(super): The following statement will be removed when FOOTSTONE_CHECK
   // will be cause abort
   if (!is_func) {
     return;
@@ -150,9 +148,9 @@ void Scope::Initialized() {
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
-      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIZED begin";
+      FOOTSTONE_DLOG(INFO) << "run SCOPE_INITIALIZED begin";
       f(wrapper_.get());
-      TDF_BASE_DLOG(INFO) << "run SCOPE_INITIALIZED end";
+      FOOTSTONE_DLOG(INFO) << "run SCOPE_INITIALIZED end";
       map_->erase(it);
     }
   }
@@ -188,7 +186,7 @@ void Scope::AddListener(const EventListenerInfo& event_listener_info,
   uint32_t dom_id = event_listener_info.dom_id;
   std::string event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
-  TDF_BASE_DCHECK(js_function != nullptr);
+  FOOTSTONE_DCHECK(js_function != nullptr);
 
   // bind dom event id and js function
   auto event_node_it = bind_listener_map_.find(dom_id);
@@ -210,7 +208,7 @@ void Scope::RemoveListener(const EventListenerInfo& event_listener_info,
   uint32_t dom_id = event_listener_info.dom_id;
   std::string event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
-  TDF_BASE_DCHECK(js_function != nullptr);
+  FOOTSTONE_DCHECK(js_function != nullptr);
 
   // unbind dom event id and js function
   auto event_node_it = bind_listener_map_.find(dom_id);
@@ -228,7 +226,7 @@ bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
   std::string event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
-  TDF_BASE_DCHECK(js_function != nullptr);
+  FOOTSTONE_DCHECK(js_function != nullptr);
 
   auto id_it = bind_listener_map_.find(dom_id);
   if (id_it == bind_listener_map_.end()) {
@@ -240,7 +238,7 @@ bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
   }
 
   for (const auto& v : name_it->second) {
-    TDF_BASE_DCHECK(v.second != nullptr);
+    FOOTSTONE_DCHECK(v.second != nullptr);
     if (v.second != nullptr) {
       bool ret = context_->Equals(v.second, js_function);
       if (ret)
@@ -255,7 +253,7 @@ uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
   std::string event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
-  TDF_BASE_DCHECK(js_function != nullptr);
+  FOOTSTONE_DCHECK(js_function != nullptr);
 
   auto event_node_it = bind_listener_map_.find(dom_id);
   if (event_node_it == bind_listener_map_.end()) {
@@ -266,7 +264,7 @@ uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
     return kInvalidListenerId;
   }
   for (const auto& v : bind_listener_map_[dom_id][event_name]) {
-    TDF_BASE_DCHECK(v.second != nullptr);
+    FOOTSTONE_DCHECK(v.second != nullptr);
     if (v.second != nullptr) {
       bool ret = context_->Equals(v.second, js_function);
       if (ret)
@@ -280,7 +278,7 @@ void Scope::RunJS(const unicode_string_view& data,
                   const unicode_string_view& name,
                   bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function callback = [data, name, is_copy, weak_context] {
+  auto callback = [data, name, is_copy, weak_context] {
 #ifdef JS_V8
     auto context =
         std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
@@ -295,13 +293,11 @@ void Scope::RunJS(const unicode_string_view& data,
 #endif
   };
 
-  std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
-  if (runner->IsJsThread()) {
+  auto runner = engine_->GetJSRunner();
+  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     callback();
   } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = callback;
-    runner->PostTask(task);
+    runner->PostTask(std::move(callback));
   }
 }
 
@@ -311,7 +307,7 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
   std::weak_ptr<Ctx> weak_context = context_;
-  JavaScriptTask::Function cb = hippy::base::MakeCopyable(
+  auto cb = hippy::base::MakeCopyable(
       [data, name, is_copy, weak_context, p = std::move(promise)]() mutable {
         std::shared_ptr<CtxValue> rst = nullptr;
 #ifdef JS_V8
@@ -330,18 +326,16 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
       });
 
   auto runner = engine_->GetJSRunner();
-  if (runner->IsJsThread()) {
+  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = cb;
-    runner->PostTask(task);
+    runner->PostTask(std::move(cb));
   }
   std::shared_ptr<CtxValue> ret = future.get();
   return ret;
 }
 
-void Scope::LoadInstance(const std::shared_ptr<DomValue>& value) {
+void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
   std::weak_ptr<Ctx> weak_context = context_;
 #ifdef ENABLE_INSPECTOR
   std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
@@ -353,7 +347,7 @@ void Scope::LoadInstance(const std::shared_ptr<DomValue>& value) {
     if (context) {
       std::shared_ptr<CtxValue> fn = context->GetJsFn(kLoadInstanceFuncName);
       bool is_fn = context->IsFunction(fn);
-      TDF_BASE_DCHECK(is_fn);
+      FOOTSTONE_DCHECK(is_fn);
       if (is_fn) {
         auto param = context->CreateCtxValue(value);
 #ifdef ENABLE_INSPECTOR
@@ -366,7 +360,7 @@ void Scope::LoadInstance(const std::shared_ptr<DomValue>& value) {
             std::string u8_module_name = hippy::base::StringViewUtils::ToU8StdStr(module_name);
             devtools_data_source->SetContextName(u8_module_name);
           } else {
-            TDF_BASE_DLOG(ERROR) << "module name get error. GetValueString return false";
+            FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
           }
         }
 #endif
@@ -378,11 +372,9 @@ void Scope::LoadInstance(const std::shared_ptr<DomValue>& value) {
     }
   };
   auto runner = engine_->GetJSRunner();
-  if (runner->IsJsThread()) {
+  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
-    auto task = std::make_shared<JavaScriptTask>();
-    task->callback = cb;
-    runner->PostTask(task);
+    runner->PostTask(std::move(cb));
   }
 }

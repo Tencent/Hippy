@@ -32,7 +32,7 @@ using StringViewUtils = hippy::base::StringViewUtils;
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime,
                                          const unicode_string_view& desc,
                                          const unicode_string_view& stack) {
-  TDF_BASE_DLOG(INFO) << "ReportJsException begin";
+  FOOTSTONE_DLOG(INFO) << "ReportJsException begin";
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_exception = JniUtils::StrViewToJString(j_env, desc);
@@ -51,5 +51,5 @@ void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime
   j_env->DeleteLocalRef(j_exception);
   j_env->DeleteLocalRef(j_stack_trace);
 
-  TDF_BASE_DLOG(INFO) << "ReportJsException end";
+  FOOTSTONE_DLOG(INFO) << "ReportJsException end";
 }

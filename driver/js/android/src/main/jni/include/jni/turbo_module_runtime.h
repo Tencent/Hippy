@@ -42,7 +42,7 @@ class TurboModuleRuntime {
   }
 
   ~TurboModuleRuntime() {
-    TDF_BASE_DLOG(INFO) << "~TurboModuleRuntime()";
+    FOOTSTONE_DLOG(INFO) << "~TurboModuleRuntime()";
     JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     if (turbo_module_manager_obj_) {
       env->DeleteGlobalRef(turbo_module_manager_obj_);

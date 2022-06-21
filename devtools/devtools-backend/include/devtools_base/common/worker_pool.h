@@ -58,7 +58,7 @@ class WorkerPool {
   int size_;
   std::mutex mutex_;
 
-  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(WorkerPool);
+  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(WorkerPool);
 };
 }  // namespace runner
 }  // namespace hippy::devtools

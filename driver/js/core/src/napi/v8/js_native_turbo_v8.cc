@@ -22,20 +22,20 @@
 
 #include "core/napi/v8/js_native_turbo_v8.h"
 
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 
 namespace hippy::napi {
 
 V8TurboEnv::V8TurboEnv(const std::shared_ptr<Ctx> &context)
     : TurboEnv(context) {
-  TDF_BASE_DLOG(INFO) << "V8TurboEnv()";
+  FOOTSTONE_DLOG(INFO) << "V8TurboEnv()";
   CreateHostObjectConstructor();
 }
 
 V8TurboEnv::~V8TurboEnv() {
-  TDF_BASE_DLOG(INFO) << "~V8TurboEnv()";
+  FOOTSTONE_DLOG(INFO) << "~V8TurboEnv()";
   if (!host_object_constructor_.IsEmpty()) {
     host_object_constructor_.Reset();
   }
@@ -49,7 +49,7 @@ V8TurboEnv::~V8TurboEnv() {
 void V8TurboEnv::AddHostObjectTracker(
     const std::shared_ptr<HostObjectTracker> &host_object_tracker) {
   host_object_tracker_list_.push_back(host_object_tracker);
-  TDF_BASE_DLOG(INFO) << "AddHostObjectTracker " << host_object_tracker_list_.size();
+  FOOTSTONE_DLOG(INFO) << "AddHostObjectTracker " << host_object_tracker_list_.size();
 }
 
 void V8TurboEnv::CreateHostObjectConstructor() {
@@ -103,7 +103,7 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
     const std::shared_ptr<napi::CtxValue> &name,
     int param_count,
     HostFunctionType func) {
-  TDF_BASE_DLOG(INFO) << "enter createFunction";
+  FOOTSTONE_DLOG(INFO) << "enter createFunction";
 
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(context_);
   v8::Isolate *isolate = v8_ctx->isolate_;

@@ -33,7 +33,7 @@ public:
   using DomArgument = hippy::DomArgument;
   using DomManager = hippy::DomManager;
   using DomNode = hippy::DomNode;
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
   using DomEvent = hippy::DomEvent;
   using LayoutSize = hippy::LayoutSize;
   using LayoutMeasureMode = hippy::LayoutMeasureMode;
@@ -60,9 +60,9 @@ public:
 
 private:
   void ConsumeQueue();
-  static EncodableValue DecodeDomValueMap(const SpMap<DomValue> &value_map);
-  static EncodableValue DecodeDomValue(const DomValue &value);
-  static DomValue EncodeDomValue(const EncodableValue &value);
+  static EncodableValue DecodeDomValueMap(const SpMap<HippyValue> &value_map);
+  static EncodableValue DecodeDomValue(const HippyValue &value);
+  static HippyValue EncodeDomValue(const EncodableValue &value);
   void SetNodeCustomMeasure(const Sp<DomNode> &dom_node) const;
   Sp<VoltronRenderQueue> queue_;
 

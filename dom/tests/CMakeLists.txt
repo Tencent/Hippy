@@ -52,4 +52,4 @@ message("CORE_SRC_FILES:${CORE_SRC_FILES}")
 message("DOM_UT_FILES:${DOM_UT_FILES}")
 
 add_executable(unit_test main.cc ${DOM_UT_FILES} ${CORE_SRC_FILES} ${COMMON_SRC_FILES})
-target_link_libraries(unit_test gtest_main nlohmann_json::nlohmann_json tdf_base tdf_base_common dom)
+target_link_libraries(unit_test gtest_main nlohmann_json::nlohmann_json footstone dom)

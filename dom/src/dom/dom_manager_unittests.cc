@@ -25,32 +25,32 @@ using namespace nlohmann;
 
 const char kBasePath[] = "./dependency/";
 
-std::shared_ptr<DomValue> JsonToDomValue(const json& json) {
+std::shared_ptr<HippyValue> JsonToDomValue(const json& json) {
   if (json.is_number_integer() || json.is_number_unsigned()) {
-    return std::make_shared<DomValue>(json.get<int>());
+    return std::make_shared<HippyValue>(json.get<int>());
   } else if (json.is_boolean()) {
-    return std::make_shared<DomValue>(json.get<bool>());
+    return std::make_shared<HippyValue>(json.get<bool>());
   } else if (json.is_number_float()) {
-    return std::make_shared<DomValue>(json.get<float>());
+    return std::make_shared<HippyValue>(json.get<float>());
   } else if (json.is_string()) {
-    return std::make_shared<DomValue>(json.get<json::string_t>());
+    return std::make_shared<HippyValue>(json.get<json::string_t>());
   } else if (json.is_null()) {
-    return std::make_shared<DomValue>(DomValue::Null());
+    return std::make_shared<HippyValue>(HippyValue::Null());
   } else if (json.is_array()) {
-    DomValue::DomValueArrayType ret;
+    HippyValue::DomValueArrayType ret;
     auto array = json.get<json::array_t>();
     for (const auto& j : array) {
       auto v = JsonToDomValue(j);
       ret.push_back(*v);
     }
-    return std::make_shared<DomValue>(ret);
+    return std::make_shared<HippyValue>(ret);
   } else if (json.is_object()) {
-    DomValue::DomValueObjectType ret;
+    HippyValue::HippyValueObjectType ret;
     auto object = json.get<json::object_t>();
     for (const auto& kv : object) {
       ret[kv.first] = *JsonToDomValue(kv.second);
     }
-    return std::make_shared<DomValue>(ret);
+    return std::make_shared<HippyValue>(ret);
   }
   return nullptr;
 }
@@ -67,8 +67,8 @@ std::vector<std::shared_ptr<hippy::DomInfo>> ParserJson(const std::string& json_
     auto id = node_info["id"].get<int>();
     auto pid = node_info["pId"].get<int>();
     auto view_name = node_info["name"].get<json::string_t>();
-    std::unordered_map<std::string, std::shared_ptr<DomValue>> style_map;
-    std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map;
+    std::unordered_map<std::string, std::shared_ptr<HippyValue>> style_map;
+    std::unordered_map<std::string, std::shared_ptr<HippyValue>> dom_ext_map;
     if (!node_info["props"].empty()) {
       auto props = node_info["props"].get<json::object_t>();
       for (const auto& kv : props) {

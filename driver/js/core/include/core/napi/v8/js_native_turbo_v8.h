@@ -56,7 +56,7 @@ class V8TurboEnv : public TurboEnv {
   class HostObjectTracker {
    public:
     void ResetHostObject() {
-      TDF_BASE_DLOG(INFO) << "HostObjectTracker ResetHostObject";
+      FOOTSTONE_DLOG(INFO) << "HostObjectTracker ResetHostObject";
       if (!is_reset_) {
         is_reset_ = true;
         if (host_proxy_) {
@@ -80,8 +80,8 @@ class V8TurboEnv : public TurboEnv {
     }
 
     ~HostObjectTracker() {
-      TDF_BASE_DLOG(INFO) << "~HostObjectTracker";
-      TDF_BASE_CHECK(is_reset_);
+      FOOTSTONE_DLOG(INFO) << "~HostObjectTracker";
+      FOOTSTONE_CHECK(is_reset_);
     }
 
     bool equals(IHostProxy *proxy) { return host_proxy_ == proxy; }
@@ -92,7 +92,7 @@ class V8TurboEnv : public TurboEnv {
     IHostProxy *host_proxy_;
 
     static void Destroyed(const v8::WeakCallbackInfo<HostObjectTracker> &data) {
-      TDF_BASE_DLOG(INFO) << "Destroyed HostObjectTracker in GC.";
+      FOOTSTONE_DLOG(INFO) << "Destroyed HostObjectTracker in GC.";
       v8::HandleScope handle_scope(data.GetIsolate());
       data.GetParameter()->ResetHostObject();
     }
@@ -110,7 +110,7 @@ class V8TurboEnv : public TurboEnv {
           v8::Local<v8::External>::Cast(info.This()->GetInternalField(0));
       HostObjectProxy *host_object_proxy =
           reinterpret_cast<HostObjectProxy *>(data->Value());
-      TDF_BASE_CHECK(host_object_proxy);
+      FOOTSTONE_CHECK(host_object_proxy);
 
       V8TurboEnv &v8_turbo_env = host_object_proxy->v8_turbo_env_;
       std::shared_ptr<HostObject> host_object = host_object_proxy->host_object_;
@@ -143,7 +143,7 @@ class V8TurboEnv : public TurboEnv {
       V8TurboEnv &v8_turbo_env =
           const_cast<V8TurboEnv &>(host_function_proxy.v8_turbo_env_);
       v8::Isolate *isolate = callback_info.GetIsolate();
-      TDF_BASE_DLOG(INFO) << "enter call";
+      FOOTSTONE_DLOG(INFO) << "enter call";
 
       std::vector<std::shared_ptr<CtxValue>> arg_values;
       auto arg_size = callback_info.Length();
@@ -159,7 +159,7 @@ class V8TurboEnv : public TurboEnv {
           v8_turbo_env,
           this_val,
           arg_values.data(),
-          hippy::base::checked_numeric_cast<int, size_t>(arg_size));
+          footstone::check::checked_numeric_cast<int, size_t>(arg_size));
       std::shared_ptr<V8CtxValue> v8_result =
           std::static_pointer_cast<V8CtxValue>(result);
       callback_info.GetReturnValue().Set(v8_result->global_value_);
@@ -167,7 +167,7 @@ class V8TurboEnv : public TurboEnv {
 
     static void HostFunctionCallback(
         const v8::FunctionCallbackInfo<v8::Value> &info) {
-      TDF_BASE_DLOG(INFO) << "enter HostFunctionCallback";
+      FOOTSTONE_DLOG(INFO) << "enter HostFunctionCallback";
       v8::HandleScope handle_scope(v8::Isolate::GetCurrent());
       v8::Local<v8::External> data = v8::Local<v8::External>::Cast(info.Data());
       HostFunctionProxy *host_function_proxy =
@@ -184,7 +184,7 @@ class V8TurboEnv : public TurboEnv {
     void Destroy() override {
       func_ = [](const TurboEnv &env, const std::shared_ptr<CtxValue> &this_val,
                  const std::shared_ptr<CtxValue> *args, size_t count) {
-        TDF_BASE_DLOG(INFO) << "enter HostFunctionProxy destroy";
+        FOOTSTONE_DLOG(INFO) << "enter HostFunctionProxy destroy";
         return env.context_->CreateUndefined();
       };
     }

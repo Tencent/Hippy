@@ -716,6 +716,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
+            mLinkHelper = new Linker();
+            if (mDebugMode && mRootView != null) {
+              mLinkHelper.createDomHolder(mRootView.getId());
+            } else {
+              mLinkHelper.createDomHolder();
+            }
+
             mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders,
                     enableV8Serialization);
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
@@ -723,12 +730,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
             // If in debug mode, root view will be reused after reload,
             // so not need to generate root id again.
-            mLinkHelper = new Linker();
-            if (mDebugMode && mRootView != null) {
-                mLinkHelper.createDomHolder(mRootView.getId());
-            } else {
-                mLinkHelper.createDomHolder();
-            }
             mLinkHelper.createAnimationManager();
             mLinkHelper.createRenderer(NATIVE_RENDER);
             mLinkHelper.setFrameworkProxy(HippyEngineManagerImpl.this);

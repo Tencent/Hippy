@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 EXTERN_C int32_t RegisterCallFunc(int32_t type, void *func) {
-  TDF_BASE_DLOG(INFO) << "start register func, type " << type;
+  FOOTSTONE_DLOG(INFO) << "start register func, type " << type;
   if (type == static_cast<int>(RenderFFIRegisterFuncType::kGlobalCallback)) {
     global_callback_func = reinterpret_cast<global_callback>(func);
     return true;
@@ -49,7 +49,7 @@ EXTERN_C int32_t RegisterCallFunc(int32_t type, void *func) {
   } else if (ex_register_func != nullptr) {
     return ex_register_func(type, func);
   }
-  TDF_BASE_DLOG(ERROR) << "register func error, unknown type " << type;
+  FOOTSTONE_DLOG(ERROR) << "register func error, unknown type " << type;
   return false;
 }
 
@@ -62,7 +62,7 @@ bool CallGlobalCallback(int32_t callback_id, int64_t value) {
     PostWorkToDart(work_ptr);
     return true;
   } else {
-    TDF_BASE_DLOG(ERROR) << "call callback error, func not found";
+    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
   }
   return false;
 }
@@ -81,7 +81,7 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, int32_t root_id,
         std::vector<std::function<void()>> ops = {[keep, params_len, copy_params, bridge_manager,
                                                       call_id_str]() {
           bool is_keep = keep;
-          TDF_BASE_DLOG(INFO) << "CallNativeFunctionFFI call_id" << call_id_str;
+          FOOTSTONE_DLOG(INFO) << "CallNativeFunctionFFI call_id" << call_id_str;
           std::unique_ptr<EncodableValue> decode_params =
               StandardMessageCodec::GetInstance().DecodeMessage(copy_params,
                                                                 params_len);
@@ -115,7 +115,7 @@ EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id,
           voltron::ReleaseCopy(copy_params);
 
           auto dom_node = dom_manager->GetNode(node_id);
-          TDF_BASE_DLOG(INFO) << "CallNativeEventFFI event_name:" << event_name
+          FOOTSTONE_DLOG(INFO) << "CallNativeEventFFI event_name:" << event_name
                               << " node_id:" << node_id << " node:" << dom_node;
           if (dom_node) {
             render_manager->CallEvent(dom_node, event_name, decode_params);

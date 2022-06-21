@@ -33,6 +33,11 @@ public class Linker implements LinkHelper {
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
     private AnimationManagerProxy mAniManagerProxy;
+    private int mWorkerManagerId;
+
+    public Linker() {
+      mWorkerManagerId = createWorkerManager();
+    }
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy frameworkProxy) {
@@ -139,14 +144,14 @@ public class Linker implements LinkHelper {
         private final int mInstanceId;
 
         public DomHolder() {
-            mInstanceId = createDomInstance();
+            mInstanceId = createDomInstance(mWorkerManagerId);
         }
 
         /**
          * Support init dom holder with existing root node id
          */
         public DomHolder(int rootId) {
-            mInstanceId = createDomInstance();
+            mInstanceId = createDomInstance(mWorkerManagerId);
             addRoot(mInstanceId, rootId);
         }
 
@@ -201,12 +206,15 @@ public class Linker implements LinkHelper {
         }
     }
 
+    private native int createWorkerManager();
+    private native void destroyWorkerManager(int workerManagerId);
+
     /**
      * Create native (C++) dom manager instance.
      *
      * @return the unique id of native (C++) dom manager
      */
-    private native int createDomInstance();
+    private native int createDomInstance(int workerManagerId);
 
     /**
      * Create native (C++) dom manager instance.

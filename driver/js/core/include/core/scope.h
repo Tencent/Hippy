@@ -25,27 +25,25 @@
 #include <string>
 #include <unordered_map>
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
+#include "footstone/task.h"
 #include "core/base/common.h"
-#include "core/base/task.h"
 #include "core/base/uri_loader.h"
 #include "core/engine.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"
-#include "core/task/worker_task_runner.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/animation/cubic_bezier_animation.h"
 #include "dom/animation/animation_set.h"
 #include "dom/dom_manager.h"
 #include "dom/render_manager.h"
 #include "dom/scene_builder.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "dom/root_node.h"
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif
 
-class JavaScriptTaskRunner;
 class ModuleBase;
 class Scope;
 
@@ -59,13 +57,13 @@ class ScopeWrapper {
 
 class Scope {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using AnimationManager = hippy::dom::AnimationManager;
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
   using DomManager = hippy::dom::DomManager;
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
   using RenderManager = hippy::dom::RenderManager;
   using RootNode = hippy::dom::RootNode;
   using UriLoader = hippy::base::UriLoader;
@@ -73,6 +71,8 @@ class Scope {
   using BindingData = hippy::napi::BindingData;
   using Encoding = hippy::napi::Encoding;
   using EventListenerInfo = hippy::dom::EventListenerInfo;
+  using TaskRunner = footstone::runner::TaskRunner;
+  using Task = footstone::Task;
   template <typename T>
   using InstanceDefine = hippy::napi::InstanceDefine<T>;
 
@@ -129,18 +129,18 @@ class Scope {
                                       const unicode_string_view& name,
                                       bool is_copy = true);
 
-  void LoadInstance(const std::shared_ptr<DomValue>& value);
+  void LoadInstance(const std::shared_ptr<HippyValue>& value);
 
-  inline std::shared_ptr<JavaScriptTaskRunner> GetTaskRunner() {
+  inline std::shared_ptr<TaskRunner> GetTaskRunner() {
     return engine_->GetJSRunner();
   }
 
-  inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
+  inline std::shared_ptr<TaskRunner> GetWorkerTaskRunner() {
     return engine_->GetWorkerTaskRunner();
   }
 
-  inline void AddTask(std::unique_ptr<hippy::base::Task> task) {
-    std::shared_ptr<JavaScriptTaskRunner> runner = engine_->GetJSRunner();
+  inline void AddTask(std::unique_ptr<Task> task) {
+    std::shared_ptr<TaskRunner> runner = engine_->GetJSRunner();
     if (runner) {
       runner->PostTask(std::move(task));
     }

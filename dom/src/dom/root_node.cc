@@ -3,8 +3,8 @@
 #include <stack>
 
 #include "dom/animation/animation_manager.h"
-#include "dom/deserializer.h"
-#include "dom/dom_value.h"
+#include "footstone/deserializer.h"
+#include "footstone/hippy_value.h"
 #include "dom/diff_utils.h"
 #include "dom/render_manager.h"
 
@@ -18,9 +18,10 @@ constexpr char kDomTreeCreated[] = "DomTreeCreated";
 constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
 constexpr char kDomTreeDeleted[] = "DomTreeDeleted";
 
-using Deserializer = tdf::base::Deserializer;
-using Serializer = tdf::base::Serializer;
-using DomValueArrayType = tdf::base::DomValue::DomValueArrayType;
+using Deserializer = footstone::value::Deserializer;
+using Serializer = footstone::value::Serializer;
+using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+using Task = footstone::Task;
 
 RootNode::RootNode(uint32_t id)
         : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}) {
@@ -239,8 +240,7 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
     // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
     auto runner = delegate_task_runner_.lock();
     if (runner) {
-      std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-      task->func_ = [capture_list = std::move(capture_list),
+      auto func = [capture_list = std::move(capture_list),
                    capture_target_listeners = std::move(capture_target_listeners),
                    bubble_target_listeners = std::move(bubble_target_listeners),
                    dom_event = std::move(event),
@@ -292,7 +292,7 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
           }
         }
       };
-      runner->PostTask(std::move(task));
+      runner->PostTask(std::move(func));
     }
   }
 }
@@ -303,11 +303,11 @@ void RootNode::UpdateRenderNode(const std::shared_ptr<DomNode>& node) {
     return;
   }
   auto render_manager = dom_manager->GetRenderManager().lock();
-  TDF_BASE_DCHECK(render_manager);
+  FOOTSTONE_DCHECK(render_manager);
   if (!render_manager) {
     return;
   }
-  TDF_BASE_DCHECK(node);
+  FOOTSTONE_DCHECK(node);
 
   // 更新 layout tree
   node->ParseLayoutStyleInfo();

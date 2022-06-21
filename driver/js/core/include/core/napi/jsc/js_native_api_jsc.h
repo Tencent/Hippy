@@ -28,15 +28,15 @@
 #include <mutex>
 #include <vector>
 
-#include "base/logging.h"
-#include "base/unicode_string_view.h"
+#include "footstone/logging.h"
+#include "footstone/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/scope.h"
 #include "core/modules/scene_builder.h"
 #include "core/modules/animation_module.h"
 #include "dom/scene_builder.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "core/modules/event_module.h"
 #include "dom/dom_event.h"
 
@@ -81,9 +81,9 @@ class JSCCtxValue;
 
 class JSCCtx : public Ctx {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using JSValueWrapper = hippy::base::JSValueWrapper;
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
 
   explicit JSCCtx(JSContextGroupRef vm) {
     context_ = JSGlobalContextCreateInGroup(vm, nullptr);
@@ -160,7 +160,7 @@ class JSCCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateMap(const std::map<
       std::shared_ptr<CtxValue>,
       std::shared_ptr<CtxValue>>& map) override {
-    TDF_BASE_UNIMPLEMENTED();
+    FOOTSTONE_UNIMPLEMENTED();
     return nullptr;
   }
   virtual std::shared_ptr<CtxValue> CreateError(
@@ -180,7 +180,7 @@ class JSCCtx : public Ctx {
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
                             unicode_string_view* result) override;
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override {
-    TDF_BASE_UNIMPLEMENTED();
+    FOOTSTONE_UNIMPLEMENTED();
     return false;
   }
 
@@ -222,12 +222,12 @@ class JSCCtx : public Ctx {
 
   virtual bool Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) override;
 
-  virtual std::shared_ptr<DomValue> ToDomValue(
+  virtual std::shared_ptr<HippyValue> ToDomValue(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<DomArgument> ToDomArgument(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
-      const std::shared_ptr<DomValue>& value) override;
+      const std::shared_ptr<HippyValue>& value) override;
 
   template <typename T>
   std::shared_ptr<JSCCtxValue> RegisterPrototype(const std::shared_ptr<InstanceDefine<T>> instance_define);
@@ -246,8 +246,8 @@ class JSCCtx : public Ctx {
   bool is_exception_handled_;
 };
 
-inline tdf::base::unicode_string_view ToStrView(JSStringRef str) {
-  return tdf::base::unicode_string_view(
+inline footstone::stringview::unicode_string_view ToStrView(JSStringRef str) {
+  return footstone::stringview::unicode_string_view(
       reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str)),
       JSStringGetLength(str));
 }
@@ -278,7 +278,7 @@ class JSCTryCatch : public TryCatch {
   virtual bool IsVerbose();
   virtual void SetVerbose(bool verbose);
   virtual std::shared_ptr<CtxValue> Exception();
-  virtual tdf::base::unicode_string_view GetExceptionMsg();
+  virtual footstone::stringview::unicode_string_view GetExceptionMsg();
 
  private:
   std::shared_ptr<JSCCtxValue> exception_;
@@ -293,7 +293,7 @@ inline void JSCCtx::RegisterClasses(std::weak_ptr<Scope> scope) {
   RegisterJsClass(animation);
   auto animation_set = hippy::RegisterAnimationSet(scope);
   RegisterJsClass(animation_set);
-  
+
 }
 
 template <typename T>

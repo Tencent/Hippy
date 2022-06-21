@@ -100,7 +100,7 @@ class Animation {
   }
 
   inline void SetStartValue(double start_value) {
-    start_value = start_value_;
+    start_value_ = start_value;
   }
 
   inline AnimationStartCb GetAnimationStartCb() {

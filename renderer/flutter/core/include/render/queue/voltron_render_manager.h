@@ -65,7 +65,7 @@ public:
 
 private:
   void MarkTextDirty(uint32_t node_id);
-  static void MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff_style,
+  static void MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> diff_style,
                          const char *prop_name,
                          std::shared_ptr<LayoutNode> layout_node);
 

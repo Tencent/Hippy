@@ -51,9 +51,9 @@
 //#import "HippyBridge+LocalFileSource.h"
 //#include "ios_loader.h"
 //#import "HippyBridge+Private.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "core/napi/jsc/js_native_api_jsc.h"
-#include "core/task/javascript_task.h"
+#include "footstone/task.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
 #include "core/task/javascript_task_runner.h"
@@ -73,7 +73,7 @@ struct __attribute__((packed)) ModuleData {
 
 using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
 using memory_ptr = std::unique_ptr<void, decltype(&free)>;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 
@@ -733,12 +733,11 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
     Engine *engine = [[VoltronJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
     if (engine) {
-        if (engine->GetJSRunner()->IsJsThread() == false) {
-            std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-            task->callback = block;
-            engine->GetJSRunner()->PostTask(task);
+        auto runner = engine->GetJSRunner();
+        if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
+          block();
         } else {
-            block();
+          engine->GetJSRunner()->PostTask(block);
         }
     }
 }

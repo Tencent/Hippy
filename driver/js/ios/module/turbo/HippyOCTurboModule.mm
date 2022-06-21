@@ -34,7 +34,7 @@
 #include <JavaScriptCore/JSObjectRef.h>
 #import "NSObject+HippyTurbo.h"
 #import "HippyLog.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #import "HippyBridge+Private.h"
 #import "HippyJSCExecutor.h"
 #import "HippyTurboModuleManager.h"
@@ -42,7 +42,7 @@
 using namespace hippy;
 using namespace napi;
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 @interface HippyOCTurboModule () {
@@ -65,7 +65,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
     if (self = [self init]) {
         _bridge = bridge;
         _turboModule = std::make_shared<HippyTurboModule>(std::string([moduleName UTF8String]));
-        
+
         __weak HippyOCTurboModule *weakSelf = self;
         _turboModule->callback_ = [weakSelf](const TurboEnv& env,
                                              const std::shared_ptr<napi::CtxValue> &thisVal,
@@ -193,11 +193,11 @@ static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::
          const char* json = [str UTF8String];
          result = context->CreateObject(json);
      */
-    
+
     if (!dict) {
         return context->CreateNull();
     }
-    
+
     std::shared_ptr<napi::JSCCtx> jscCtx = std::static_pointer_cast<napi::JSCCtx>(context);
     JSClassDefinition cls_def = kJSClassDefinitionEmpty;
     cls_def.className = [@"Object" UTF8String];
@@ -210,7 +210,7 @@ static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::
         std::shared_ptr<JSCCtxValue> ctx_value =
             std::static_pointer_cast<JSCCtxValue>(propRef);
         JSValueRef valueRef = ctx_value->value_;
-        
+
         JSStringRef propName = JSStringCreateWithCFString((__bridge CFStringRef)propertyName);
         JSValueRef jsError = NULL;
         JSObjectSetProperty(jscCtx->context_,
@@ -230,7 +230,7 @@ static std::shared_ptr<napi::CtxValue> convertNSArrayToCtxValue(const std::share
     if (!array) {
         return context->CreateNull();
     }
-    
+
     size_t size = static_cast<size_t>(array.count);
     std::shared_ptr<napi::CtxValue> buffer[size];
     for (size_t idx = 0; idx < array.count; idx++) {
@@ -248,13 +248,13 @@ static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shar
         HippyJSCExecutor *jsExecutor = (HippyJSCExecutor *)module.bridge.javaScriptExecutor;
         JSValueRef jsValueObj = [jsExecutor JSTurboObjectWithName:name];
         JSObjectRef jsObj = JSValueToObject(jscCtx->context_, jsValueObj, NULL);
-        
+
         JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(jscCtx->context_);
         JSContext *ctx = [JSContext contextWithJSGlobalContextRef:globalContextRef];
         JSValue *jsValue = [JSValue valueWithJSValueRef:jsValueObj inContext:ctx];
         HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
         [turboManager bindJSObject:jsValue toModuleName:name];
-        
+
         return std::make_shared<JSCCtxValue>(jscCtx->context_, jsObj);
     }
     return std::make_shared<JSCCtxValue>(jscCtx->context_, JSValueMakeNull(jscCtx->context_));
@@ -351,13 +351,13 @@ static NSArray *convertJSIArrayToNSArray(const std::shared_ptr<napi::JSCCtx> &co
 
 static NSObject *convertJSIObjectToTurboObject(const std::shared_ptr<napi::JSCCtx> &context,
                                                const std::shared_ptr<napi::JSCCtxValue> &value,
-                                               HippyOCTurboModule *module) {    
+                                               HippyOCTurboModule *module) {
     JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(context->context_);
     JSContext *ctx = [JSContext contextWithJSGlobalContextRef:globalContextRef];
     JSValue *jsValue = [JSValue valueWithJSValueRef:value->value_ inContext:ctx];
     HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
     NSString *moduleNameStr = [turboManager turboModuleNameForJSObject:jsValue];
-    
+
     if (moduleNameStr) {
         HippyOCTurboModule *turboModule = [module.bridge turboModuleWithName:moduleNameStr];
         return turboModule;
@@ -379,7 +379,7 @@ static NSDictionary *convertJSIObjectToNSDictionary(const std::shared_ptr<napi::
         HippyLogError(@"convertJSIJsonToDict failed:%@", jsonObj);
         return nil;
     }
-    
+
     JSPropertyNameArrayRef names = JSObjectCopyPropertyNames(context->context_, object);
     size_t len = JSPropertyNameArrayGetCount(names);
 

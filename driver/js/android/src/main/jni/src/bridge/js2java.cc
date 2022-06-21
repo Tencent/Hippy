@@ -24,10 +24,10 @@
 
 #include <memory>
 
-#include "base/logging.h"
-#include "base/unicode_string_view.h"
+#include "footstone/logging.h"
+#include "footstone/unicode_string_view.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "core/napi/v8/serializer.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
@@ -35,7 +35,7 @@
 
 namespace hippy::bridge {
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using bytes = std::string;
@@ -54,7 +54,7 @@ void CallNative(hippy::napi::CBDataTuple* data) {
     jstring j_module = JniUtils::StrViewToJString(j_env, module);
     jstring j_func = JniUtils::StrViewToJString(j_env, func);
     jstring j_cb_id = JniUtils::StrViewToJString(j_env, cb_id);
-    auto len = hippy::base::checked_numeric_cast<size_t, jsize>(buffer.length());
+    auto len = footstone::check::checked_numeric_cast<size_t, jsize>(buffer.length());
     if (is_heap_buffer == 1) {  // Direct
       j_buffer = j_env->NewDirectByteBuffer(
           const_cast<void*>(reinterpret_cast<const void*>(buffer.c_str())),

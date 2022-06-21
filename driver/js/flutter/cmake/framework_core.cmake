@@ -49,12 +49,6 @@ else ()
             ${FRAMEWORK_CORE_SRC_DIR}/napi/jsc/js_native_turbo_jsc.cc)
 endif ()
 
-add_subdirectory(${FRAMEWORK_CORE_DIR}/third_party/base base)
-set(FRAMEWORK_CORE_DEPS tdf_base tdf_base_common)
-
-include_directories(${FRAMEWORK_CORE_DIR}/include)
-include_directories(${FRAMEWORK_CORE_DIR}/third_party/base/include)
-
 if (ENABLE_INSPECTOR STREQUAL "true")
   include("../../../../buildconfig/cmake/InfraPackagesModule.cmake")
   include("../../../../buildconfig/cmake/compiler_toolchain.cmake")

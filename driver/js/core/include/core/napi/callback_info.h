@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/scope.h"
@@ -49,7 +49,7 @@ class ReturnValue {
 
 class ExceptionValue {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   ExceptionValue() = default;
   ExceptionValue(const ExceptionValue &) = delete;

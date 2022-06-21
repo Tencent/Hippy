@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
-#include "base/logging.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/jsc/js_native_jsc_helper.h"
@@ -36,10 +36,10 @@
 namespace hippy {
 namespace napi {
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 
 
 JSValueRef JsCallbackFunc(JSContextRef ctx,
@@ -89,7 +89,7 @@ JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,
                            const unicode_string_view& module_name,
                            ModuleClass module) {
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
-  TDF_BASE_DCHECK(module_name.encoding() ==
+  FOOTSTONE_DCHECK(module_name.encoding() ==
                   unicode_string_view::Encoding::Latin1);
   cls_def.className = module_name.latin1_value().c_str();
   JSClassRef cls_ref = JSClassCreate(&cls_def);
@@ -97,7 +97,7 @@ JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,
   JSClassRelease(cls_ref);
   for (auto fn : module) {
     JSClassDefinition fn_def = kJSClassDefinitionEmpty;
-    TDF_BASE_DCHECK(fn.first.encoding() ==
+    FOOTSTONE_DCHECK(fn.first.encoding() ==
                     unicode_string_view::Encoding::Latin1);
     fn_def.className = fn.first.latin1_value().c_str();
     fn_def.callAsFunction = JsCallbackFunc;
@@ -263,7 +263,7 @@ bool JSCCtx::RegisterGlobalInJs() {
                       JSContextGetGlobalObject(context_),
                       kJSPropertyAttributeDontDelete, nullptr);
   JSStringRelease(global_ref);
-  
+
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   JSClassRef cls_ref = JSClassCreate(&cls_def);
   JSObjectRef hippy_obj = JSObjectMake(context_, cls_ref, nullptr);
@@ -444,7 +444,7 @@ void JSCCtx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
 void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
-  TDF_BASE_UNIMPLEMENTED();
+  FOOTSTONE_UNIMPLEMENTED();
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
@@ -549,7 +549,7 @@ std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
     return std::make_shared<JSValueWrapper>(ret);
   }
 
-  TDF_BASE_UNIMPLEMENTED();
+  FOOTSTONE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -601,7 +601,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
     }
     return std::make_shared<JSCCtxValue>(context_, obj_ref);
   }
-  TDF_BASE_UNIMPLEMENTED();
+  FOOTSTONE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -621,27 +621,27 @@ bool JSCCtx::Equals(const std::shared_ptr<CtxValue>& lhs,
   return ret;
 };
 
-std::shared_ptr<DomValue> JSCCtx::ToDomValue(const std::shared_ptr<CtxValue>& value) {
+std::shared_ptr<HippyValue> JSCCtx::ToDomValue(const std::shared_ptr<CtxValue>& value) {
   std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   if (JSValueIsUndefined(context_, value_ref)) {
-    return std::make_shared<DomValue>(DomValue::Undefined());
+    return std::make_shared<HippyValue>(HippyValue::Undefined());
   } else if (JSValueIsNull(context_, value_ref)) {
-    return std::make_shared<DomValue>(DomValue::Null());
+    return std::make_shared<HippyValue>(HippyValue::Null());
   } else if (JSValueIsBoolean(context_, value_ref)) {
     bool jsc_value = JSValueToBoolean(context_, value_ref);
-    return std::make_shared<DomValue>(jsc_value);
+    return std::make_shared<HippyValue>(jsc_value);
   } else if (JSValueIsString(context_, value_ref)) {
     JSStringRef str_ref = JSValueToStringCopy(context_, value_ref, nullptr);
     size_t size = JSStringGetMaximumUTF8CStringSize(str_ref);
     std::vector<char> buffer(size);
     JSStringGetUTF8CString(str_ref, buffer.data(), size);
-    std::shared_ptr<DomValue> ret = std::make_shared<DomValue>(buffer.data());
+    std::shared_ptr<HippyValue> ret = std::make_shared<HippyValue>(buffer.data());
     JSStringRelease(str_ref);
     return ret;
   } else if (JSValueIsNumber(context_, value_ref)) {
     double jsc_value = JSValueToNumber(context_, value_ref, nullptr);
-    return std::make_shared<DomValue>(jsc_value);
+    return std::make_shared<HippyValue>(jsc_value);
   } else if (JSValueIsArray(context_, value_ref)) {
     JSObjectRef array_ref = JSValueToObject(context_, value_ref, nullptr);
     JSStringRef prop_name = JSStringCreateWithCharacters(
@@ -649,19 +649,19 @@ std::shared_ptr<DomValue> JSCCtx::ToDomValue(const std::shared_ptr<CtxValue>& va
     JSValueRef val = JSObjectGetProperty(context_, array_ref, prop_name, nullptr);
     JSStringRelease(prop_name);
     uint32_t count = JSValueToNumber(context_, val, nullptr);
-    DomValue::DomValueArrayType ret;
+    HippyValue::DomValueArrayType ret;
     for (uint32_t i = 0; i < count; ++i) {
       JSValueRef element = JSObjectGetPropertyAtIndex(context_, array_ref, i, nullptr);
-      std::shared_ptr<DomValue> value_obj = ToDomValue(
+      std::shared_ptr<HippyValue> value_obj = ToDomValue(
         std::make_shared<JSCCtxValue>(context_, element));
       ret.push_back(*value_obj);
     }
-    return std::make_shared<DomValue>(std::move(ret));
+    return std::make_shared<HippyValue>(std::move(ret));
   } else if (JSValueIsObject(context_, value_ref)) {
     JSObjectRef obj_value = JSValueToObject(context_, value_ref, nullptr);
     JSPropertyNameArrayRef name_arry = JSObjectCopyPropertyNames(context_, obj_value);
     size_t len = JSPropertyNameArrayGetCount(name_arry);
-    DomValue::DomValueObjectType ret;
+    HippyValue::HippyValueObjectType ret;
     for (uint32_t i = 0; i < len; ++i) {
       JSStringRef props_key = JSPropertyNameArrayGetNameAtIndex(name_arry, i);
       JSValueRef props_value =
@@ -672,15 +672,15 @@ std::shared_ptr<DomValue> JSCCtx::ToDomValue(const std::shared_ptr<CtxValue>& va
       std::string key_obj(buffer.data());
       std::shared_ptr<JSCCtxValue> props_value_obj =
         std::make_shared<JSCCtxValue>(context_, props_value);
-      std::shared_ptr<DomValue> value_obj =
+      std::shared_ptr<HippyValue> value_obj =
         ToDomValue(props_value_obj);
       ret[key_obj] = *value_obj;
     }
     JSPropertyNameArrayRelease(name_arry);
-    return std::make_shared<DomValue>(ret);
+    return std::make_shared<HippyValue>(ret);
   }
 
-  TDF_BASE_UNIMPLEMENTED();
+  FOOTSTONE_UNIMPLEMENTED();
   return nullptr;
 }
 
@@ -691,23 +691,23 @@ std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValu
     std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
     JSValueRef value_ref = ctx_value->value_;
     if (JSValueIsUndefined(context_, value_ref)) {
-      return std::make_shared<DomArgument>(DomValue::Undefined());
+      return std::make_shared<DomArgument>(HippyValue::Undefined());
     } else if (JSValueIsNull(context_, value_ref)) {
-      return std::make_shared<DomArgument>(DomValue::Null());
+      return std::make_shared<DomArgument>(HippyValue::Null());
     } else if (JSValueIsBoolean(context_, value_ref)) {
       bool jsc_value = JSValueToBoolean(context_, value_ref);
-      return std::make_shared<DomArgument>(DomValue(jsc_value));
+      return std::make_shared<DomArgument>(HippyValue(jsc_value));
     } else if (JSValueIsString(context_, value_ref)) {
       JSStringRef str_ref = JSValueToStringCopy(context_, value_ref, nullptr);
       size_t size = JSStringGetMaximumUTF8CStringSize(str_ref);
       std::vector<char> buffer(size);
       JSStringGetUTF8CString(str_ref, buffer.data(), size);
-      std::shared_ptr<DomArgument> ret = std::make_shared<DomArgument>(DomValue(buffer.data()));
+      std::shared_ptr<DomArgument> ret = std::make_shared<DomArgument>(HippyValue(buffer.data()));
       JSStringRelease(str_ref);
       return ret;
     } else if (JSValueIsNumber(context_, value_ref)) {
       double jsc_value = JSValueToNumber(context_, value_ref, nullptr);
-      return std::make_shared<DomArgument>(DomValue(jsc_value));
+      return std::make_shared<DomArgument>(HippyValue(jsc_value));
     } else if (JSValueIsArray(context_, value_ref)) {
       JSObjectRef array_ref = JSValueToObject(context_, value_ref, nullptr);
       JSStringRef prop_name = JSStringCreateWithCharacters(
@@ -715,19 +715,19 @@ std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValu
       JSValueRef val = JSObjectGetProperty(context_, array_ref, prop_name, nullptr);
       JSStringRelease(prop_name);
       uint32_t count = JSValueToNumber(context_, val, nullptr);
-      DomValue::DomValueArrayType ret;
+      HippyValue::DomValueArrayType ret;
       for (uint32_t i = 0; i < count; ++i) {
         JSValueRef element = JSObjectGetPropertyAtIndex(context_, array_ref, i, nullptr);
-        std::shared_ptr<DomValue> value_obj = ToDomValue(
+        std::shared_ptr<HippyValue> value_obj = ToDomValue(
           std::make_shared<JSCCtxValue>(context_, element));
         ret.push_back(*value_obj);
       }
-      return std::make_shared<DomArgument>(DomValue(std::move(ret)));
+      return std::make_shared<DomArgument>(HippyValue(std::move(ret)));
     } else if (JSValueIsObject(context_, value_ref)) {
       JSObjectRef obj_value = JSValueToObject(context_, value_ref, nullptr);
       JSPropertyNameArrayRef name_arry = JSObjectCopyPropertyNames(context_, obj_value);
       size_t len = JSPropertyNameArrayGetCount(name_arry);
-      DomValue::DomValueObjectType ret;
+      HippyValue::HippyValueObjectType ret;
       for (uint32_t i = 0; i < len; ++i) {
         JSStringRef props_key = JSPropertyNameArrayGetNameAtIndex(name_arry, i);
         JSValueRef props_value =
@@ -738,20 +738,20 @@ std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValu
         std::string key_obj(buffer.data());
         std::shared_ptr<JSCCtxValue> props_value_obj =
           std::make_shared<JSCCtxValue>(context_, props_value);
-        std::shared_ptr<DomValue> value_obj =
+        std::shared_ptr<HippyValue> value_obj =
           ToDomValue(props_value_obj);
         ret[key_obj] = *value_obj;
       }
       JSPropertyNameArrayRelease(name_arry);
-      return std::make_shared<DomArgument>(DomValue(std::move(ret)));
+      return std::make_shared<DomArgument>(HippyValue(std::move(ret)));
     }
 
-    TDF_BASE_UNIMPLEMENTED();
+    FOOTSTONE_UNIMPLEMENTED();
     return nullptr;
   #endif
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>& wrapper) {
+std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<HippyValue>& wrapper) {
   if (!wrapper) {
     return nullptr;
   }
@@ -771,7 +771,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>
     auto arr = wrapper->ToArrayChecked();
     std::shared_ptr<CtxValue> args[arr.size()];
     for (auto i = 0; i < arr.size(); ++i) {
-      args[i] = CreateCtxValue(std::make_shared<DomValue>(arr[i]));
+      args[i] = CreateCtxValue(std::make_shared<HippyValue>(arr[i]));
     }
     return CreateArray(arr.size(), args);
   } else if (wrapper->IsObject()) {
@@ -786,14 +786,14 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<DomValue>
         auto obj_value = p.second;
         JSStringRef prop_key = JSStringCreateWithUTF8CString(obj_key.c_str());
         std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(
-          CreateCtxValue(std::make_shared<DomValue>(obj_value)));
+          CreateCtxValue(std::make_shared<HippyValue>(obj_value)));
         JSValueRef prop_value = ctx_value->value_;
         JSObjectSetProperty(context_, obj_ref, prop_key, prop_value, kJSPropertyAttributeNone, nullptr);
         JSStringRelease(prop_key);
       }
       return std::make_shared<JSCCtxValue>(context_, obj_ref);
     }
-    TDF_BASE_UNIMPLEMENTED();
+    FOOTSTONE_UNIMPLEMENTED();
     return nullptr;
 }
 

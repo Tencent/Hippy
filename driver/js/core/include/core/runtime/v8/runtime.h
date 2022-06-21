@@ -48,6 +48,7 @@ class Runtime {
   using Bridge = hippy::Bridge;
 
   Runtime(bool enable_v8_serialization, bool is_dev);
+
   inline bool IsEnableV8Serialization() { return enable_v8_serialization_; }
   inline bool IsDebug() { return is_debug_; }
   inline int32_t GetId() { return id_; }

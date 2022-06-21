@@ -29,7 +29,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 设置 Taitank Layout 的属性
    * @param style_map 属性的map
    */
-  void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) override;
+  void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) override;
 
   /**
    * @brief 设置宽度
@@ -124,13 +124,13 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @return 宽度
    */
   float GetStyleWidth() override;
-  
+
   /**
    * @brief 获取设置的高度
    * @return 高度
    */
   float GetStyleHeight() override;
-    
+
   /**
    * @brief 是否 overflow
    * @param overflow
@@ -173,7 +173,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
    * @brief 节点标脏
    */
   void MarkDirty() override;
-  
+
   /**
    * @brief 打印节点树信息
    */
@@ -196,7 +196,7 @@ class TaitankLayoutNode : public LayoutNode, public std::enable_shared_from_this
   /**
    * @brief 解析属性
    */
-  void Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map);
+  void Parser(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map);
 
   /**
    * @brief 设置方向

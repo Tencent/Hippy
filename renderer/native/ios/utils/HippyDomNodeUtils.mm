@@ -22,15 +22,15 @@
 
 #import "HippyDomNodeUtils.h"
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using DomManager = hippy::DomManager;
 using DomNode = hippy::DomNode;
 using LayoutResult = hippy::LayoutResult;
-using DomValueType = tdf::base::DomValue::Type;
-using DomValueNumberType = tdf::base::DomValue::NumberType;
+using DomValueType = footstone::value::HippyValue::Type;
+using DomValueNumberType = footstone::value::HippyValue::NumberType;
 using RenderInfo = hippy::DomNode::RenderInfo;
 
-id domValueToOCType(const DomValue *const pDomValue) {
+id domValueToOCType(const HippyValue *const pDomValue) {
     DomValueType type = pDomValue->GetType();
     id value = [NSNull null];
     switch (type) {
@@ -41,21 +41,21 @@ id domValueToOCType(const DomValue *const pDomValue) {
             value = [NSString stringWithUTF8String:pDomValue->ToStringChecked().c_str()];
             break;
         case DomValueType::kObject: {
-            DomValue::DomValueObjectType objectType = pDomValue->ToObjectChecked();
-            std::unordered_map<std::string, std::shared_ptr<DomValue>> map(objectType.size());
+            HippyValue::HippyValueObjectType objectType = pDomValue->ToObjectChecked();
+            std::unordered_map<std::string, std::shared_ptr<HippyValue>> map(objectType.size());
             for (const auto &pair : objectType) {
-                map[pair.first] = std::make_shared<DomValue>(pair.second);
+                map[pair.first] = std::make_shared<HippyValue>(pair.second);
             }
-            std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> shared_map =
-                    std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(map));
+            std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> shared_map =
+                    std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(std::move(map));
             value = unorderedMapDomValueToDictionary(shared_map);
         }
             break;
         case DomValueType::kArray: {
-            DomValue::DomValueArrayType domValueArray = pDomValue->ToArrayChecked();
+            HippyValue::DomValueArrayType domValueArray = pDomValue->ToArrayChecked();
             NSMutableArray *array = [NSMutableArray arrayWithCapacity:domValueArray.size()];
             for (auto it = domValueArray.begin(); it != domValueArray.end(); it++) {
-                const DomValue &v = *it;
+                const HippyValue &v = *it;
                 id subValue = domValueToOCType(&v);
                 [array addObject:subValue];
             }
@@ -72,9 +72,9 @@ id domValueToOCType(const DomValue *const pDomValue) {
     return value;
 }
 
-DomValue OCTypeToDomValue(id value) {
+HippyValue OCTypeToDomValue(id value) {
     if ([value isKindOfClass:[NSString class]]) {
-        return DomValue([value UTF8String]);
+        return HippyValue([value UTF8String]);
     }
     else if ([value isKindOfClass:[NSNumber class]]) {
         CFNumberRef numberRef = (__bridge CFNumberRef)value;
@@ -85,61 +85,61 @@ DomValue OCTypeToDomValue(id value) {
             kCFNumberIntType == numberType ||
             kCFNumberLongType == numberType ||
             kCFNumberLongLongType == numberType) {
-            return DomValue([value unsignedIntValue]);
+            return HippyValue([value unsignedIntValue]);
         }
         else if (kCFNumberFloatType == numberType ||
                  kCFNumberDoubleType == numberType) {
-            return DomValue([value doubleValue]);
+            return HippyValue([value doubleValue]);
         }
         else {
             BOOL flag = [value boolValue];
-            return DomValue(flag);;
+            return HippyValue(flag);;
         }
     }
     else if (value == [NSNull null]) {
-        return DomValue::Null();
+        return HippyValue::Null();
     }
     else if ([value isKindOfClass:[NSDictionary class]]) {
-        DomValue::DomValueObjectType object;
+        HippyValue::HippyValueObjectType object;
         for (NSString *key in value) {
             std::string objKey = [key UTF8String];
             id objValue = [value objectForKey:key];
             auto dom_obj = OCTypeToDomValue(objValue);
             object[objKey] = std::move(dom_obj);
         }
-        return DomValue(std::move(object));
+        return HippyValue(std::move(object));
     }
     else if ([value isKindOfClass:[NSArray class]]) {
-        DomValue::DomValueArrayType array;
+        HippyValue::DomValueArrayType array;
         for (id obj in value) {
             auto dom_obj = OCTypeToDomValue(obj);
             array.push_back(std::move(dom_obj));
         }
-        return DomValue(std::move(array));
+        return HippyValue(std::move(array));
     }
     else {
-        return DomValue::Undefined();
+        return HippyValue::Undefined();
     }
 }
 
-NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> &domValuesObject) {
+NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> &domValuesObject) {
     NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithCapacity:domValuesObject->size()];
     for (auto it = domValuesObject->begin(); it != domValuesObject->end(); it++) {
         NSString *key = [NSString stringWithUTF8String:it->first.c_str()];
-        std::shared_ptr<DomValue> domValue = it->second;
+        std::shared_ptr<HippyValue> domValue = it->second;
         id value = domValueToOCType(domValue.get());
         [dic setObject:value forKey:key];
     }
     return [dic copy];
 }
 
-std::unordered_map<std::string, std::shared_ptr<DomValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary) {
-    std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>> style;
+std::unordered_map<std::string, std::shared_ptr<HippyValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary) {
+    std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> style;
     for (NSString *key in dictionary) {
         id value = dictionary[key];
         std::string style_key = [key UTF8String];
-        tdf::base::DomValue dom_value = OCTypeToDomValue(value);
-        style[style_key] = std::make_shared<tdf::base::DomValue>(std::move(dom_value));
+        footstone::value::HippyValue dom_value = OCTypeToDomValue(value);
+        style[style_key] = std::make_shared<footstone::value::HippyValue>(std::move(dom_value));
     }
     return style;
 }
@@ -160,7 +160,7 @@ CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode) {
     return CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
 }
 
-NSNumber *domValueToNumber(const DomValue *const pDomValue) {
+NSNumber *domValueToNumber(const HippyValue *const pDomValue) {
     NSCAssert(pDomValue->IsNumber(), @"domvalue should be a number");
     NSNumber *number = nil;
     switch (pDomValue->GetNumberType()) {
@@ -186,7 +186,7 @@ NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode) 
     auto &styles = domNode->GetStyleMap();
     auto &extStyles = domNode->GetExtStyle();
     auto capacity = 0;
-   
+
     if (styles) {
       capacity += styles->size();
     }

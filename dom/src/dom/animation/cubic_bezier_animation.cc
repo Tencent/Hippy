@@ -26,7 +26,7 @@
 #include <utility>
 #include <regex>
 
-#include "core/base/base_time.h"
+#include "footstone/base_time.h"
 #include "dom/animation/animation_manager.h"
 
 namespace hippy {

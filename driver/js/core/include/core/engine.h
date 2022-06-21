@@ -26,11 +26,10 @@
 #include <mutex>
 #include <vector>
 
-#include "base/logging.h"
+#include "footstone/logging.h"
+#include "footstone/task_runner.h"
 #include "core/base/common.h"
 #include "core/napi/js_native_api_types.h"
-#include "core/task/javascript_task_runner.h"
-#include "core/task/worker_task_runner.h"
 
 class Scope;
 
@@ -40,8 +39,11 @@ class Engine {
   using VM = hippy::napi::VM;
   using VMInitParam = hippy::napi::VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
+  using TaskRunner = footstone::TaskRunner;
 
   Engine(
+      std::shared_ptr<TaskRunner> js,
+      std::shared_ptr<TaskRunner> worker,
       std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>(),
       const std::shared_ptr<VMInitParam>& param = nullptr);
   virtual ~Engine();
@@ -54,23 +56,22 @@ class Engine {
   inline std::shared_ptr<VM> GetVM() { return vm_; }
 
   void TerminateRunner();
-  inline std::shared_ptr<JavaScriptTaskRunner> GetJSRunner() {
+  inline std::shared_ptr<TaskRunner> GetJSRunner() {
     std::lock_guard<std::mutex> lock(js_runner_mutex_);
     return js_runner_;
   }
-  inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
+  inline std::shared_ptr<TaskRunner> GetWorkerTaskRunner() {
     return worker_task_runner_;
   }
 
  private:
-  void SetupThreads();
   void CreateVM(const std::shared_ptr<VMInitParam>& param);
 
  private:
   static const uint32_t kDefaultWorkerPoolSize;
 
-  std::shared_ptr<JavaScriptTaskRunner> js_runner_;
-  std::shared_ptr<WorkerTaskRunner> worker_task_runner_;
+  std::shared_ptr<TaskRunner> js_runner_;
+  std::shared_ptr<TaskRunner> worker_task_runner_;
   std::shared_ptr<VM> vm_;
   std::unique_ptr<RegisterMap> map_;
   std::mutex cnt_mutex_;

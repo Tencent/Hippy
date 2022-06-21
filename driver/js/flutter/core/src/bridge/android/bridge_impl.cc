@@ -33,7 +33,7 @@
 #include "exception_handler.h"
 #include "js2dart.h"
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
@@ -58,7 +58,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
                                  const std::function<void(int64_t)> &callback,
                                  const char16_t* char_data_dir,
                                  const char16_t* char_ws_url) {
-  TDF_BASE_LOG(INFO) << "InitInstance begin, single_thread_mode = "
+  FOOTSTONE_LOG(INFO) << "InitInstance begin, single_thread_mode = "
                      << single_thread_mode
                      << ", bridge_param_json = "
                      << bridge_param_json
@@ -73,7 +73,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
   }
   int64_t runtime_id = 0;
   RegisterFunction scope_cb = [runtime_id, outerCallback = callback](void *) {
-    TDF_BASE_LOG(INFO) << "run scope cb";
+    FOOTSTONE_LOG(INFO) << "run scope cb";
     outerCallback(runtime_id);
   };
   auto call_native_cb = [](void* p) {
@@ -109,11 +109,11 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
                                    const char16_t *code_cache_dir_str,
                                    bool can_use_code_cache,
                                    std::function<void(int64_t)> callback) {
-  TDF_BASE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
+  FOOTSTONE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
                       << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING)
+    FOOTSTONE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
     return false;
   }
@@ -123,7 +123,7 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
       .time_since_epoch()
       .count();
   if (!script_path_str) {
-    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
+    FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
     return false;
   }
   unicode_string_view script_path = unicode_string_view(script_path_str);
@@ -132,7 +132,7 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
   auto pos = StringViewUtils::FindLastOf(script_path, EXTEND_LITERAL('/'));
   unicode_string_view base_path = StringViewUtils::SubStr(script_path, 0, pos + 1);
 
-  TDF_BASE_DLOG(INFO) << "RunScriptFromFile path = " << script_path
+  FOOTSTONE_DLOG(INFO) << "RunScriptFromFile path = " << script_path
                       << ", script_name = " << script_name
                       << ", base_path = " << base_path
                       << ", code_cache_dir = " << code_cache_dir;
@@ -150,7 +150,7 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
   task->callback = [runtime, script_path, script_name,
       can_use_code_cache, code_cache_dir,
       time_begin, callBack_ = std::move(callback)] {
-    TDF_BASE_DLOG(INFO) << "RunScriptFromFile enter";
+    FOOTSTONE_DLOG(INFO) << "RunScriptFromFile enter";
 
     bool flag = V8BridgeUtils::RunScriptWithoutLoader(runtime,
                                                       script_name,
@@ -174,7 +174,7 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
         .time_since_epoch()
         .count();
 
-    TDF_BASE_DLOG(INFO) << "runScriptFromFile = " << (time_end - time_begin) << ", uri = " << script_path;
+    FOOTSTONE_DLOG(INFO) << "runScriptFromFile = " << (time_end - time_begin) << ", uri = " << script_path;
     int64_t value = !flag ? 0 : 1;
     callBack_(value);
     return flag;
@@ -191,11 +191,11 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
                                      const char16_t *code_cache_dir_str,
                                      std::function<void(int64_t)> callback,
                                      const char16_t *asset_content_str) {
-  TDF_BASE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
+  FOOTSTONE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
                       << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING)
+    FOOTSTONE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
     return false;
   }
@@ -208,7 +208,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
   unicode_string_view code_cache_dir = unicode_string_view(code_cache_dir_str);
   unicode_string_view asset_content = unicode_string_view(asset_content_str);
 
-  TDF_BASE_DLOG(INFO) << "RunScriptFromAssets asset_name = " << asset_name_str
+  FOOTSTONE_DLOG(INFO) << "RunScriptFromAssets asset_name = " << asset_name_str
                       << ", code_cache_dir = " << code_cache_dir;
 
   auto runner = runtime->GetEngine()->GetJSRunner();
@@ -218,7 +218,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
   task->callback = [runtime, asset_name,
       can_use_code_cache, code_cache_dir, asset_content,
       time_begin, callBack_ = std::move(callback)] {
-    TDF_BASE_DLOG(INFO) << "RunScriptFromFile enter";
+    FOOTSTONE_DLOG(INFO) << "RunScriptFromFile enter";
 
     bool flag = V8BridgeUtils::RunScriptWithoutLoader(runtime,
                                                       asset_name,
@@ -235,7 +235,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
         .time_since_epoch()
         .count();
 
-    TDF_BASE_DLOG(INFO)
+    FOOTSTONE_DLOG(INFO)
     << "runScriptFromAsset = " << (time_end - time_begin) << ", asset_name = " << asset_name;
     int64_t value = !flag ? 0 : 1;
     callBack_(value);
@@ -263,9 +263,9 @@ void BridgeImpl::Destroy(int64_t runtimeId,
 
 void BridgeImpl::BindDomManager(int64_t runtime_id,
                                 const std::shared_ptr<DomManager> &dom_manager) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "Bind dom Manager failed, runtime_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "Bind dom Manager failed, runtime_id invalid";
     return;
   }
   runtime->GetScope()->SetDomManager(dom_manager);
@@ -275,11 +275,11 @@ void BridgeImpl::BindDomManager(int64_t runtime_id,
 
 void BridgeImpl::LoadInstance(int64_t runtime_id,
                               std::string&& params) {
-  V8BridgeUtils::LoadInstance(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id), std::move(params));
+  V8BridgeUtils::LoadInstance(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id), std::move(params));
 }
 
 void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback) {
-    V8BridgeUtils::UnloadInstance(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id),
+    V8BridgeUtils::UnloadInstance(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id),
                                   [callback = std::move(callback)](
                                           hippy::runtime::CALL_FUNCTION_CB_STATE state,
                                           const unicode_string_view &msg) {
@@ -288,9 +288,9 @@ void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)>
 }
 
 std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(hippy::base::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING) << "GetScope failed, runtime_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "GetScope failed, runtime_id invalid";
     return nullptr;
   }
   return runtime->GetScope();

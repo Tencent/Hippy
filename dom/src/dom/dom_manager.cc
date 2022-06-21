@@ -15,38 +15,39 @@
 #include "dom/macro.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
-#include "dom/serializer.h"
-#include "dom/deserializer.h"
+#include "footstone/serializer.h"
+#include "footstone/deserializer.h"
 #include "dom/scene_builder.h"
 
 #ifdef HIPPY_TEST
 #define DCHECK_RUN_THREAD() {}
 #else
 #define DCHECK_RUN_THREAD() \
-  { TDF_BASE_DCHECK(dom_task_runner_->Id() == hippy::base::ThreadId::GetCurrent()); }
+  { FOOTSTONE_DCHECK(footstone::Worker::IsTaskRunning() && dom_task_runner_ == footstone::runner::TaskRunner::GetCurrentTaskRunner()); }
 #endif
 
 namespace hippy {
 inline namespace dom {
 
 using DomNode = hippy::DomNode;
-using Serializer = tdf::base::Serializer;
-using Deserializer = tdf::base::Deserializer;
+using Task = footstone::Task;
+using TaskRunner = footstone::TaskRunner;
+using Serializer = footstone::value::Serializer;
+using Deserializer = footstone::value::Deserializer;
 
 static std::unordered_map<int32_t, std::shared_ptr<DomManager>> dom_manager_map;
 static std::mutex mutex;
 static std::atomic<int32_t> global_dom_manager_key{0};
 
-using DomValueArrayType = tdf::base::DomValue::DomValueArrayType;
+using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
 
 DomManager::DomManager() {
   id_ = global_dom_manager_key.fetch_add(1);
-  dom_task_runner_ = std::make_shared<hippy::base::TaskRunner>();
 }
 
-void DomManager::Init() {
-  StartTaskRunner();
-}
+DomManager::~DomManager() {}
+
+void DomManager::Init() {}
 
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
   std::lock_guard<std::mutex> lock(mutex);
@@ -147,7 +148,7 @@ void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   DCHECK_RUN_THREAD()
   auto render_manager = render_manager_.lock();
-  TDF_BASE_DCHECK(render_manager);
+  FOOTSTONE_DCHECK(render_manager);
   if (!render_manager) {
     return;
   }
@@ -220,7 +221,7 @@ void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {
   }
   auto render_manager = render_manager_.lock();
   // check render_manager, measure text dependent render_manager
-  TDF_BASE_DCHECK(render_manager);
+  FOOTSTONE_DCHECK(render_manager);
   if (!render_manager) {
     return;
   }
@@ -228,20 +229,20 @@ void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {
 }
 
 void DomManager::PostTask(const Scene&& scene) {
-  std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-  task->func_ = [scene = scene] { scene.Build(); };
-  dom_task_runner_->PostTask(std::move(task));
+  auto func = [scene = scene] { scene.Build(); };
+  dom_task_runner_->PostTask(std::move(func));
 }
 
-std::shared_ptr<CommonTask> DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
-  std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-  task->func_ = [scene = std::move(scene)] { scene.Build(); };
-  dom_task_runner_->PostDelayedTask(task, delay);
-  return task;
+// todo
+std::shared_ptr<Task> DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
+  auto func = [scene = std::move(scene)] { scene.Build(); };
+  dom_task_runner_->PostDelayedTask(std::move(func), footstone::TimeDelta::FromNanoseconds(
+      static_cast<int64_t>(delay)));
+  return nullptr;
 }
 
-void DomManager::CancelTask(std::shared_ptr<CommonTask> task) {
-  dom_task_runner_->CancelTask(std::move(task));
+void DomManager::CancelTask(std::shared_ptr<Task> task) {
+  // dom_task_runner_->CancelTask(std::move(task));
 }
 
 DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_node) {
@@ -255,7 +256,7 @@ DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_
   });
   Serializer serializer;
   serializer.WriteHeader();
-  serializer.WriteValue(DomValue(array));
+  serializer.WriteValue(HippyValue(array));
   auto ret = serializer.Release();
   return {reinterpret_cast<const char*>(ret.first), ret.second};
 }
@@ -263,7 +264,7 @@ DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_
 bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer) {
   DCHECK_RUN_THREAD()
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
-  DomValue value;
+  HippyValue value;
   deserializer.ReadHeader();
   auto flag = deserializer.ReadValue(value);
   if (!flag || !value.IsArray()) {

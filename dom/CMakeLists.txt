@@ -35,6 +35,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/modules/footstone/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/core/include)
+
 # region layout engine
 if (NOT DEFINED LAYOUT_ENGINE)
   set(LAYOUT_ENGINE "Taitank")
@@ -57,12 +60,6 @@ else ()
 endif ()
 # endregion
 
-# region core base
-# TODO: will be removed when the base library is complete
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/third_party/base/include)
-# endregion
-
 # region source set
 set(SOURCE_SET
     src/dom/animation/animation.cc
@@ -70,20 +67,17 @@ set(SOURCE_SET
     src/dom/animation/animation_math.cc
     src/dom/animation/animation_set.cc
     src/dom/animation/cubic_bezier_animation.cc
-    src/dom/deserializer.cc
     src/dom/diff_utils.cc
     src/dom/dom_argument.cc
     src/dom/dom_event.cc
     src/dom/dom_listener.cc
     src/dom/dom_manager.cc
     src/dom/dom_node.cc
-    src/dom/dom_value.cc
     src/dom/layer_optimized_render_manager.cc
     src/dom/layout_node.cc
     src/dom/root_node.cc
     src/dom/scene.cc
-    src/dom/scene_builder.cc
-    src/dom/serializer.cc)
+    src/dom/scene_builder.cc)
 if (${LAYOUT_ENGINE} STREQUAL "Yoga")
   list(APPEND SOURCE_SET src/dom/yoga_layout_node.cc)
 elseif (${LAYOUT_ENGINE} STREQUAL "Taitank")

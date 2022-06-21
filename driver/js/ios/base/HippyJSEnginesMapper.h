@@ -29,7 +29,9 @@
 
 - (std::shared_ptr<Engine>)JSEngineForKey:(NSString *)key;
 
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key;
+- (std::shared_ptr<Engine>)createJSEngineForKey:(std::shared_ptr<footstone::TaskRunner>)js
+      :(std::shared_ptr<footstone::TaskRunner>)worker
+      :(NSString *)key;
 
 - (void)removeEngineForKey:(NSString *)key;
 

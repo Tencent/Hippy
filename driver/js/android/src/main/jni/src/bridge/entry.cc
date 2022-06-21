@@ -1,4 +1,3 @@
-#include <__bit_reference>
 /*
  *
  * Tencent is pleased to support the open source community by making
@@ -36,15 +35,17 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/root_node_repo.h"
-#include "core/base/string_view_utils.h"
+#include "core/base/persistent_object_map.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "dom/node_props.h"
-#include "dom/deserializer.h"
 #include "dom/dom_manager.h"
-#include "dom/dom_value.h"
+#include "footstone/deserializer.h"
+#include "footstone/hippy_value.h"
+#include "footstone/string_view_utils.h"
+#include "footstone/worker_manager.h"
 #include "jni/exception_handler.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
@@ -65,10 +66,20 @@ REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cp
                     "(Lcom/tencent/mtt/hippy/IHippyNativeLogHandler;)V",
                     InitNativeLogHandler)
 
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "createWorkerManager",
+             "()I",
+             CreateWorkerManager)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "destroyWorkerManager",
+             "(I)V",
+             DestroyWorkerManager)
+
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-             "JLcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;Ljava/lang/String;)J",
+             "JILcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;Ljava/lang/String;)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -104,7 +115,7 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createDomInstance",
-             "()I",
+             "(I)I",
              CreateDomInstance)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
@@ -128,7 +139,10 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
     "(J[BII)V",
     LoadInstance)
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
+using TaskRunner = footstone::runner::TaskRunner;
+using Task = footstone::runner::Task;
+using WorkerManager = footstone::WorkerManager;
 using u8string = unicode_string_view::u8string;
 using StringViewUtils = hippy::base::StringViewUtils;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
@@ -147,6 +161,12 @@ enum INIT_CB_STATE {
 };
 
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
+constexpr uint32_t kDefaultNumberOfThreads = 3;
+constexpr char kDomRunnerName[] = "hippy_dom";
+
+static std::atomic<uint32_t> global_worker_manager_key{1};
+
+tdf::base::PersistentObjectMap<uint32_t, std::shared_ptr<footstone::WorkerManager>> worker_manager_map;
 
 void DoBind(JNIEnv* j_env,
             __unused jobject j_obj,
@@ -160,9 +180,9 @@ void DoBind(JNIEnv* j_env,
 #ifdef ANDROID_NATIVE_RENDER
   auto& map = NativeRenderManager::PersistentMap();
   std::shared_ptr<NativeRenderManager> render_manager = nullptr;
-  bool ret = map.Find(hippy::base::checked_numeric_cast<jint, int32_t>(j_render_id), render_manager);
+  bool ret = map.Find(footstone::check::checked_numeric_cast<jint, int32_t>(j_render_id), render_manager);
   if (!ret) {
-    TDF_BASE_DLOG(WARNING) << "DoBind render_manager invalid";
+    FOOTSTONE_DLOG(WARNING) << "DoBind render_manager invalid";
     return;
   }
 #else
@@ -226,17 +246,31 @@ void DoConnect(JNIEnv* j_env,
   }
 }
 
-jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj) {
+jint CreateWorkerManager(JNIEnv* j_env, __unused jobject j_obj) {
+  auto worker_manager = std::make_shared<footstone::WorkerManager>(kDefaultNumberOfThreads);
+  auto id = global_worker_manager_key.fetch_add(1);
+  worker_manager_map.Insert(id, worker_manager);
+  return footstone::check::checked_numeric_cast<uint32_t, jint>(id);
+}
+
+void DestroyWorkerManager(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id) {
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_worker_manager_id);
+  auto flag = worker_manager_map.Find(id, worker_manager);
+  if (flag && worker_manager) {
+    worker_manager->Terminate();
+    worker_manager_map.Erase(id);
+  }
+}
+
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id) {
   auto dom_manager = std::make_shared<DomManager>();
-  dom_manager->Init();
-  std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
-  dom_manager->PostTask(hippy::Scene({[weak_dom_manager]{
-    auto dom_manager = weak_dom_manager.lock();
-    if (!dom_manager) {
-      return;
-    }
-  }}));
   DomManager::Insert(dom_manager);
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
+  FOOTSTONE_DCHECK(flag);
+  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
+  dom_manager->SetTaskRunner(runner);
   return dom_manager->GetId();
 }
 
@@ -249,7 +283,6 @@ jint CreateAnimationManager(JNIEnv* j_env,
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
   auto dom_manager = DomManager::Find(j_dom_id);
   if (dom_manager) {
-    dom_manager->TerminateTaskRunner();
     DomManager::Erase(static_cast<int32_t>(j_dom_id));
   }
 }
@@ -278,9 +311,9 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
   {
     std::lock_guard<std::mutex> lock(log_mutex);
     if (!is_initialized) {
-      tdf::base::LogMessage::InitializeDelegate([logger, j_method](
+      footstone::log::LogMessage::InitializeDelegate([logger, j_method](
           const std::ostringstream& stream,
-          tdf::base::LogSeverity severity) {
+          footstone::log::LogSeverity severity) {
         std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
         JNIEnv* j_env = instance->AttachCurrentThread();
 
@@ -303,12 +336,12 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
                           jobject j_cb) {
-  TDF_BASE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
+  FOOTSTONE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
-      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+      footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING)
+    FOOTSTONE_DLOG(WARNING)
     << "HippyBridgeImpl runScriptFromUri, j_runtime_id invalid";
     return false;
   }
@@ -318,7 +351,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
       .time_since_epoch()
       .count();
   if (!j_uri) {
-    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
+    FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
     return false;
   }
   const unicode_string_view uri = JniUtils::ToStrView(j_env, j_uri);
@@ -328,18 +361,16 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   size_t len = StringViewUtils::GetLength(uri);
   unicode_string_view script_name = StringViewUtils::SubStr(uri, pos + 1, len);
   unicode_string_view base_path = StringViewUtils::SubStr(uri, 0, pos + 1);
-  TDF_BASE_DLOG(INFO) << "runScriptFromUri uri = " << uri
+  FOOTSTONE_DLOG(INFO) << "runScriptFromUri uri = " << uri
                       << ", script_name = " << script_name
                       << ", base_path = " << base_path
                       << ", code_cache_dir = " << code_cache_dir;
 
   auto runner = runtime->GetEngine()->GetJSRunner();
   std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [ctx, base_path] {
+  runner->PostTask([ctx, base_path] {
     ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
-  };
-  runner->PostTask(task);
+  });
 
   std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
   auto bridge = std::static_pointer_cast<ADRBridge>(runtime->GetBridge());
@@ -353,11 +384,10 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   }
 
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_cb);
-  task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, save_object_ = std::move(save_object), script_name,
+  auto func = [runtime, save_object_ = std::move(save_object), script_name,
       j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
       time_begin] {
-    TDF_BASE_DLOG(INFO) << "runScriptFromUri enter";
+    FOOTSTONE_DLOG(INFO) << "runScriptFromUri enter";
     bool flag = V8BridgeUtils::RunScript(runtime, script_name, j_can_use_code_cache,
                                          code_cache_dir, uri, aasset_manager != nullptr);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
@@ -365,7 +395,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
         .time_since_epoch()
         .count();
 
-    TDF_BASE_DLOG(INFO) << "runScriptFromUri = " << (time_end - time_begin) << ", uri = " << uri;
+    FOOTSTONE_DLOG(INFO) << "runScriptFromUri = " << (time_end - time_begin) << ", uri = " << uri;
     if (flag) {
       hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
     } else {
@@ -377,7 +407,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     return flag;
   };
 
-  runner->PostTask(task);
+  runner->PostTask(std::move(func));
 
   return true;
 }
@@ -398,10 +428,11 @@ jlong InitInstance(JNIEnv* j_env,
                    jboolean j_is_dev_module,
                    jobject j_callback,
                    jlong j_group_id,
+                   jint j_worker_manager_id,
                    jobject j_vm_init_param,
                    jstring j_data_dir,
                    jstring j_ws_url) {
-  TDF_BASE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
+  FOOTSTONE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
                      << ", j_bridge_param_json = "
                      << static_cast<uint32_t>(j_enable_v8_serialization)
@@ -416,16 +447,16 @@ jlong InitInstance(JNIEnv* j_env,
     jclass cls = j_env->GetObjectClass(j_vm_init_param);
     jfieldID init_field = j_env->GetFieldID(cls, "initialHeapSize", "J");
     jlong initial_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, init_field);
-    param->initial_heap_size_in_bytes = hippy::base::checked_numeric_cast<jlong, size_t>(
+    param->initial_heap_size_in_bytes = footstone::check::checked_numeric_cast<jlong, size_t>(
         initial_heap_size_in_bytes);
     jfieldID max_field = j_env->GetFieldID(cls, "maximumHeapSize", "J");
     jlong maximum_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, max_field);
-    param->maximum_heap_size_in_bytes = hippy::base::checked_numeric_cast<jlong, size_t>(
+    param->maximum_heap_size_in_bytes = footstone::check::checked_numeric_cast<jlong, size_t>(
         maximum_heap_size_in_bytes);
-    TDF_BASE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
+    FOOTSTONE_CHECK(initial_heap_size_in_bytes <= maximum_heap_size_in_bytes);
   }
   RegisterFunction scope_cb = [save_object_ = std::move(save_object)](void*) {
-    TDF_BASE_LOG(INFO) << "run scope cb";
+    FOOTSTONE_LOG(INFO) << "run scope cb";
     hippy::bridge::CallJavaMethod(save_object_->GetObj(),INIT_CB_STATE::SUCCESS);
   };
   auto call_native_cb = [](void* p) {
@@ -440,11 +471,15 @@ jlong InitInstance(JNIEnv* j_env,
   std::shared_ptr<ADRBridge> bridge = std::make_shared<ADRBridge>(j_env, j_object);
   const unicode_string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
   const unicode_string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
+  FOOTSTONE_DCHECK(flag);
   auto runtime_id = V8BridgeUtils::InitInstance(
       static_cast<bool>(j_enable_v8_serialization),
       static_cast<bool>(j_is_dev_module),
       global_config,
       static_cast<int64_t>(j_group_id),
+      worker_manager,
       param,
       bridge,
       scope_cb,
@@ -461,7 +496,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
                      jboolean j_is_reload,
                      jobject j_callback) {
   auto ret = V8BridgeUtils::DestroyInstance(
-      hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id), nullptr, static_cast<bool>(j_is_reload));
+      footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id), nullptr, static_cast<bool>(j_is_reload));
   if (ret) {
     hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
   } else {
@@ -476,7 +511,7 @@ void LoadInstance(JNIEnv* j_env,
                   jint j_offset,
                   jint j_length) {
   auto buffer_data = JniUtils::AppendJavaByteArrayToBytes(j_env, j_byte_array, j_offset, j_length);
-  V8BridgeUtils::LoadInstance(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
+  V8BridgeUtils::LoadInstance(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
       std::move(buffer_data));
 }
 

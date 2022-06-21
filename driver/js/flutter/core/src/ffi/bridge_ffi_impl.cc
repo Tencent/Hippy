@@ -22,7 +22,7 @@
 
 #include <memory>
 
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "dom/dom_manager.h"
 #include "ffi/bridge_ffi_impl.h"
 #include "ffi/ffi_bridge_runtime.h"
@@ -183,7 +183,7 @@ EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id, int32_t is_relo
 }
 
 EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, int32_t event_type, const char16_t* content, const char16_t* extra) {
-  TDF_BASE_DLOG(INFO) << "NotifyNetworkEvent, request_id " << request_id << " event_type:" << std::to_string(event_type);
+  FOOTSTONE_DLOG(INFO) << "NotifyNetworkEvent, request_id " << request_id << " event_type:" << std::to_string(event_type);
 #if ENABLE_INSPECTOR
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (!bridge_manager) {

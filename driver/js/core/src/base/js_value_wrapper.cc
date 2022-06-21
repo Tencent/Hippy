@@ -22,7 +22,7 @@
 
 #include "core/base/js_value_wrapper.h"
 
-#include "core/base/hash.h"
+#include "footstone/hash.h"
 
 using JSValueWrapper = hippy::base::JSValueWrapper;
 

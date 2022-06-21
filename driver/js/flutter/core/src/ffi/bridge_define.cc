@@ -30,7 +30,7 @@ send_notification send_notification_func = nullptr;
 destroy_function destroy_func = nullptr;
 
 int32_t RegisterCallFuncEx(int32_t type, void *func) {
-  TDF_BASE_DLOG(INFO) << "start register func, type " << type;
+  FOOTSTONE_DLOG(INFO) << "start register func, type " << type;
   if (type == FFIRegisterFuncType::kCallNative) {
     call_native_func = reinterpret_cast<call_native>(func);
     return true;
@@ -50,6 +50,6 @@ int32_t RegisterCallFuncEx(int32_t type, void *func) {
     destroy_func = reinterpret_cast<destroy_function>(func);
     return true;
   }
-  TDF_BASE_DLOG(ERROR) << "register func error, unknown type " << type;
+  FOOTSTONE_DLOG(ERROR) << "register func error, unknown type " << type;
   return false;
 }
