@@ -41,6 +41,21 @@ class RootRenderNode extends RenderNode {
         id, rootId, name, context, context.getInstance(id));
   }
 
+  @override
+  void update() {
+    for (final holder in _eventHolders) {
+      if (holder.eventName == kDoFrame) {
+        final renderManager = renderViewModel.context.renderManager;
+        if (holder.isAdd) {
+          renderManager.addAnimationNode(this);
+        } else {
+          renderManager.removeAnimationNode(this);
+        }
+      }
+    }
+    super.update();
+  }
+
   executeAnimationEvent() {
     renderViewModel.context.bridgeManager.execNativeEvent(rootId, rootId, kDoFrame, {});
   }
