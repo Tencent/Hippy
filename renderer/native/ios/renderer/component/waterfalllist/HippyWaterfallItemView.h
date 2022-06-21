@@ -21,11 +21,11 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyTouchesView.h"
+#import "HippyView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface HippyWaterfallItemView : HippyTouchesView
+@interface HippyWaterfallItemView : HippyView
 
 @property (nonatomic, copy) NSString *type;
 
