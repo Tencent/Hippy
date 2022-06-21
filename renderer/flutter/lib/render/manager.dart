@@ -425,9 +425,7 @@ class RenderManager
       var uiNode = controllerManager.findNode(instanceId, id);
       if (uiNode != null) {
         uiNode.addEvent({eventName});
-        if (uiNode is RootRenderNode && eventName == RootRenderNode.kDoFrame) {
-          addAnimationNode(uiNode);
-        }
+        addNullUINodeIfNeeded(uiNode);
       }
     }
   }
@@ -439,9 +437,7 @@ class RenderManager
       var uiNode = controllerManager.findNode(instanceId, id);
       if (uiNode != null) {
         uiNode.removeEvent({eventName});
-        if (uiNode is RootRenderNode && eventName == RootRenderNode.kDoFrame) {
-          removeAnimationNode(uiNode);
-        }
+        addNullUINodeIfNeeded(uiNode);
       }
     }
   }
