@@ -130,6 +130,10 @@ class CoreApi implements APIProvider {
           QrController.kClassName,
           (object) => QrController(),
         ),
+        ViewControllerGenerator(
+          RootNodeController.kClassName,
+              (object) => RootNodeController(),
+        ),
       ];
 
   @override

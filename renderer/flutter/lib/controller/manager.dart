@@ -135,8 +135,8 @@ class ControllerManager implements InstanceLifecycleEventListener {
     return _controllerRegistry.getRenderTree(instanceId);
   }
 
-  VoltronViewController? findController(String name) {
-    if (name == NodeProps.kRootNode) {
+  VoltronViewController? findController(String name, { bool canFindRootNode = false }) {
+    if (name == NodeProps.kRootNode && !canFindRootNode) {
       return null;
     }
     var controller = _controllerRegistry.getViewController(name);
@@ -205,7 +205,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
   }
 
   void updateEvents(RenderNode node, Set<EventHolder> holders) {
-    final controller = findController(node.name);
+    final controller = findController(node.name, canFindRootNode: true);
     if (controller != null) {
       controller.updateEvents(node.renderViewModel, holders);
     }

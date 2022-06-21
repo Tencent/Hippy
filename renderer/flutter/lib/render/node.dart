@@ -29,8 +29,6 @@ import '../viewmodel.dart';
 import '../widget.dart';
 
 class RootRenderNode extends RenderNode {
-  static const String kDoFrame = 'frameupdate';
-
   RootRenderNode(int id, String className, RenderTree root,
       ControllerManager controllerManager, VoltronMap? props)
       : super(id, className, root, controllerManager, props);
@@ -39,25 +37,6 @@ class RootRenderNode extends RenderNode {
   RenderViewModel createRenderViewModel(RenderContext context) {
     return RootRenderViewModel(
         id, rootId, name, context, context.getInstance(id));
-  }
-
-  @override
-  void update() {
-    for (final holder in _eventHolders) {
-      if (holder.eventName == kDoFrame) {
-        final renderManager = renderViewModel.context.renderManager;
-        if (holder.isAdd) {
-          renderManager.addAnimationNode(this);
-        } else {
-          renderManager.removeAnimationNode(this);
-        }
-      }
-    }
-    super.update();
-  }
-
-  executeAnimationEvent() {
-    renderViewModel.context.bridgeManager.execNativeEvent(rootId, rootId, kDoFrame, {});
   }
 }
 
