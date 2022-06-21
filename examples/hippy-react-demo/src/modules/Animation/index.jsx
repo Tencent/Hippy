@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
   button: {
     borderColor: SKIN_COLOR.mainLight,
     borderWidth: 2,
+    borderStyle: 'solid',
     justifyContent: 'center',
     alignItems: 'center',
     width: 70,
