@@ -44,3 +44,4 @@ export 'controller/view_pager.dart';
 export 'controller/waterfall.dart';
 export 'controller/waterfall_item.dart';
 export 'controller/web_view.dart';
+export 'controller/root_node.dart';

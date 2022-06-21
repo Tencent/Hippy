@@ -202,7 +202,7 @@ class RenderManager
     implements Destroyable, InstanceLifecycleEventListener, EngineLifecycleEventListener {
   final List<RenderNode> _uiUpdateNodes = [];
   final List<RenderNode> _nullUiUpdateNodes = [];
-  final List<RootRenderNode> _animationNodes = [];
+  final List<int> _animationNodeIds = [];
   final Set<RenderNode> _updateRenderNodes = {};
 
   final ControllerManager _controllerManager;
@@ -442,15 +442,15 @@ class RenderManager
     }
   }
 
-  void addAnimationNode(RootRenderNode node) {
-    if (!_animationNodes.contains(node)) {
-      _animationNodes.add(node);
+  void addAnimationNodeId(int id) {
+    if (!_animationNodeIds.contains(id)) {
+      _animationNodeIds.add(id);
     }
   }
 
-  void removeAnimationNode(RootRenderNode node) {
-    if (_animationNodes.contains(node)) {
-      _animationNodes.remove(node);
+  void removeAnimationNodeId(int id) {
+    if (_animationNodeIds.contains(id)) {
+      _animationNodeIds.remove(id);
     }
   }
 
@@ -552,8 +552,8 @@ class RenderManager
       updateRender();
     }
 
-    for (final animationNode in _animationNodes) {
-      animationNode.executeAnimationEvent();
+    for (final id in _animationNodeIds) {
+      context.bridgeManager.execNativeEvent(id, id, RootNodeController.kDoFrame, {});
     }
   }
 

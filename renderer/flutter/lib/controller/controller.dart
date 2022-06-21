@@ -397,9 +397,16 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
           case NativeGestureHandle.kPressOut:
             renderViewModel.setCanPressOut(holder.isAdd);
             break;
+          default:
+            handleExtraEvent(renderViewModel, holder);
+            break;
         }
       }
     }
+  }
+
+  void handleExtraEvent(T renderViewModel, EventHolder eventHolder) {
+    // empty
   }
 
   R createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
