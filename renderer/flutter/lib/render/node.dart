@@ -20,7 +20,6 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:voltron_renderer/render.dart';
-import 'package:voltron_renderer/util/render_vsync_util.dart';
 
 import '../common.dart';
 import '../controller.dart';
@@ -30,6 +29,8 @@ import '../viewmodel.dart';
 import '../widget.dart';
 
 class RootRenderNode extends RenderNode {
+  static const String kDoFrame = 'frameupdate';
+
   RootRenderNode(int id, String className, RenderTree root,
       ControllerManager controllerManager, VoltronMap? props)
       : super(id, className, root, controllerManager, props);
@@ -40,24 +41,8 @@ class RootRenderNode extends RenderNode {
         id, rootId, name, context, context.getInstance(id));
   }
 
-  @override
-  void addEvent(Set<String> eventNameList) {
-    for (final eventName in eventNameList) {
-      if (eventName == RenderVsyncUtil.kDoFrame) {
-        RenderVsyncUtil.registerDoFrameListener(renderViewModel.rootId, id);
-      }
-      _eventHolders.add(EventHolder(eventName));
-    }
-  }
-
-  @override
-  void removeEvent(Set<String> eventNameList) {
-    for (final eventName in eventNameList) {
-      if (eventName == RenderVsyncUtil.kDoFrame) {
-        RenderVsyncUtil.unregisterDoFrameListener(renderViewModel.rootId, id);
-      }
-      _eventHolders.add(EventHolder(eventName, isAdd: false));
-    }
+  executeAnimationEvent() {
+    renderViewModel.context.bridgeManager.execNativeEvent(rootId, rootId, kDoFrame, {});
   }
 }
 
