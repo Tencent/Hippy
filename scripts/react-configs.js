@@ -104,7 +104,7 @@ const builds = {
       ].find(ext => id.startsWith(ext));
     },
     onwarn(warning) {
-      // 来自 rmc-pull-to-refresh 依赖的报错
+      //  ignore warning from package 'rmc-pull-to-refresh'
       if (warning.code === 'THIS_IS_UNDEFINED') {
         return;
       }
