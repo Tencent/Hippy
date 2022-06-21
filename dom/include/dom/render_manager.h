@@ -7,7 +7,7 @@
 #include "dom/dom_argument.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 
 namespace hippy {
 inline namespace dom {

@@ -1,7 +1,7 @@
 #include "dom/animation/animation.h"
 
-#include "core/base/base_time.h"
-#include "base/logging.h"
+#include "footstone/base_time.h"
+#include "footstone/logging.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "dom/root_node.h"
@@ -47,7 +47,7 @@ Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double star
     Animation(
         cnt,
         delay,
-        hippy::base::MonotonicallyIncreasingTime(),
+        footstone::time::MonotonicallyIncreasingTime(),
         duration,
         0,
         start_value,
@@ -62,7 +62,7 @@ Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double star
 
 Animation::Animation(int32_t cnt) : Animation(cnt,
                                               0,
-                                              hippy::base::MonotonicallyIncreasingTime(),
+                                              footstone::time::MonotonicallyIncreasingTime(),
                                               0,
                                               0,
                                               0,
@@ -95,7 +95,7 @@ void Animation::AddEventListener(const std::string& event, AnimationCb cb) {
   } else if (event == kAnimationRepeatKey) {
     on_repeat_ = std::move(cb);
   } else {
-    TDF_BASE_DLOG(WARNING) << "event error, event = " << event;
+    FOOTSTONE_DLOG(WARNING) << "event error, event = " << event;
   }
 }
 
@@ -109,7 +109,7 @@ void Animation::RemoveEventListener(const std::string& event) {
   } else if (event == kAnimationRepeatKey) {
     on_repeat_ = nullptr;
   } else {
-    TDF_BASE_DLOG(WARNING) << "event error, event = " << event;
+    FOOTSTONE_DLOG(WARNING) << "event error, event = " << event;
   }
 }
 
@@ -135,7 +135,7 @@ void Animation::Start() {
       return;
     }
   }
-  auto now = hippy::base::MonotonicallyIncreasingTime();
+  auto now = footstone::time::MonotonicallyIncreasingTime();
   last_begin_time_ = now;
   if (delay_ == 0) {
     if (HasChildren()) {
@@ -176,7 +176,7 @@ void Animation::Start() {
         return;
       }
 
-      auto now = hippy::base::MonotonicallyIncreasingTime();
+      auto now = footstone::time::MonotonicallyIncreasingTime();
       auto delay = animation->GetDelay();
       animation->SetExecTime(delay); // reduce latency impact of task_runner
       animation->SetLastBeginTime(now);
@@ -217,7 +217,7 @@ void Animation::Run(uint64_t now, AnimationOnRun on_run) {
     case Animation::Status::kPause:
     case Animation::Status::kEnd:
     case Animation::Status::kDestroy:
-    default:TDF_BASE_UNREACHABLE();
+    default:FOOTSTONE_UNREACHABLE();
   }
 
   if (HasChildren()) {
@@ -300,11 +300,10 @@ void Animation::Destroy() {
     if (!task_runner) {
       return;
     }
-    auto task = std::make_shared<CommonTask>();
-    task->func_ = [on_cancel = std::move(on_cancel)]() {
+    auto func = [on_cancel = std::move(on_cancel)]() {
       on_cancel();
     };
-    task_runner->PostTask(std::move(task));
+    task_runner->PostTask(std::move(func));
   }
 }
 
@@ -332,7 +331,7 @@ void Animation::Pause() {
   animation_manager->RemoveActiveAnimation(id_);
   animation_manager->CancelDelayedAnimation(id_);
   animation_manager->RemoveDelayedAnimationRecord(id_);
-  auto now = hippy::base::MonotonicallyIncreasingTime();
+  auto now = footstone::time::MonotonicallyIncreasingTime();
   exec_time_ += (now - last_begin_time_);
   last_begin_time_ = now;
 }
@@ -383,7 +382,7 @@ void Animation::Resume() {
         return;
       }
       animation_manager->RemoveDelayedAnimationRecord(animation->GetId());
-      auto now = hippy::base::MonotonicallyIncreasingTime();
+      auto now = footstone::time::MonotonicallyIncreasingTime();
       auto delay = animation->GetDelay();
       animation->SetExecTime(delay);
       animation->SetLastBeginTime(now);
@@ -392,7 +391,7 @@ void Animation::Resume() {
     auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
     animation_manager->AddDelayedAnimationRecord(id_, task);
   } else if (exec_time >= delay && exec_time < delay + duration) {
-    auto now = hippy::base::MonotonicallyIncreasingTime();
+    auto now = footstone::time::MonotonicallyIncreasingTime();
     last_begin_time_ = now;
     animation_manager->AddActiveAnimation(animation);
   }
@@ -450,7 +449,7 @@ void Animation::Repeat(uint64_t now) {
       if (!animation_manager) {
         return;
       }
-      auto now = hippy::base::MonotonicallyIncreasingTime();
+      auto now = footstone::time::MonotonicallyIncreasingTime();
       auto delay = animation->GetDelay();
       animation->SetExecTime(delay);
       animation->SetLastBeginTime(now);

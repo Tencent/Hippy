@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include "core/base/base_time.h"
+#include "footstone/base_time.h"
 #include "dom/dom_node.h"
 #include "dom/macro.h"
 #include "dom/node_props.h"
@@ -79,7 +79,7 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
           animation_nodes_map_.insert({animation_id, nodeIds});
         }
         auto animation = GetAnimation(animation_id);
-        node->EmplaceStyleMap(pair.second, DomValue(animation->GetStartValue()));
+        node->EmplaceStyleMap(pair.second, HippyValue(animation->GetStartValue()));
       }
     }
   } else {
@@ -89,10 +89,10 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
 
 void AnimationManager::FetchAnimationsFromObject(
     const std::string& prop,
-    const std::shared_ptr<DomValue>& value,
+    const std::shared_ptr<HippyValue>& value,
     std::unordered_map<uint32_t, std::string>& result) {
   if (value->IsObject()) {
-    tdf::base::DomValue::DomValueObjectType obj;
+    footstone::value::HippyValue::HippyValueObjectType obj;
     if (value->ToObject(obj)) {
       for (auto item: obj) {
         if (item.first == kAnimationId) {
@@ -105,7 +105,7 @@ void AnimationManager::FetchAnimationsFromObject(
           }
         } else {
           if (item.second.IsObject()) {
-            FetchAnimationsFromObject(item.first, std::make_shared<DomValue>(item.second), result);
+            FetchAnimationsFromObject(item.first, std::make_shared<HippyValue>(item.second), result);
           } else if (item.second.IsArray()) {
             FetchAnimationsFromArray(item.second, result);
           }
@@ -115,19 +115,19 @@ void AnimationManager::FetchAnimationsFromObject(
   }
 }
 
-void AnimationManager::FetchAnimationsFromArray(DomValue& value,
+void AnimationManager::FetchAnimationsFromArray(HippyValue& value,
                                                 std::unordered_map<uint32_t, std::string>& result) {
   if (value.IsArray()) {
-    tdf::base::DomValue::DomValueArrayType array;
+    footstone::value::HippyValue::DomValueArrayType array;
     if (value.ToArray(array)) {
       for (auto& val: array) {
         if (val.IsObject()) {
-          tdf::base::DomValue::DomValueObjectType obj;
+          footstone::value::HippyValue::HippyValueObjectType obj;
           if (val.ToObject(obj)) {
             for (auto& item: obj) {
               if (item.second.IsObject()) {
                 FetchAnimationsFromObject(item.first,
-                                          std::make_shared<DomValue>(item.second), result);
+                                          std::make_shared<HippyValue>(item.second), result);
               } else if (item.second.IsArray()) {
                 FetchAnimationsFromArray(item.second, result);
               }
@@ -284,15 +284,15 @@ void AnimationManager::UpdateCubicBezierAnimation(double current,
     if (!dom_node) {
       continue;
     }
-    DomValue prop_value(current);
+    HippyValue prop_value(current);
     dom_node->EmplaceStyleMap(prop_it->second, prop_value);
-    TDF_BASE_DLOG(INFO) << "animation related_animation_id = " << related_animation_id
+    FOOTSTONE_DLOG(INFO) << "animation related_animation_id = " << related_animation_id
                         << ", key = " << prop_it->second << ", value = " << prop_value;
-    std::unordered_map<std::string, std::shared_ptr<DomValue>> diff_value = {
-        {prop_it->second, std::make_shared<DomValue>(std::move(prop_value))}
+    std::unordered_map<std::string, std::shared_ptr<HippyValue>> diff_value = {
+        {prop_it->second, std::make_shared<HippyValue>(std::move(prop_value))}
     };
     dom_node->SetDiffStyle(std::make_shared<
-        std::unordered_map<std::string, std::shared_ptr<DomValue>>>(std::move(diff_value)));
+        std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(std::move(diff_value)));
     update_nodes.push_back(dom_node);
   }
 }
@@ -319,7 +319,7 @@ void AnimationManager::UpdateAnimation() {
     return;
   }
 
-  auto now = hippy::base::MonotonicallyIncreasingTime();
+  auto now = footstone::time::MonotonicallyIncreasingTime();
   std::vector<std::shared_ptr<DomNode>> update_nodes;
   for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i < active_animations_.size(); ++i) {
     auto animation = active_animations_[i];

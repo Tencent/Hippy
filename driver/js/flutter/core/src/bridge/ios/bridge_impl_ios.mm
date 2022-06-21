@@ -40,9 +40,9 @@ NSString* U16ToNSString(const char16_t *source) {
   return [[NSString alloc] initWithCharacters:(const unichar*)source length:std::char_traits<char16_t>::length(source)];
 }
 
-tdf::base::DomValue OCTypeToDomValue(id value) {
+footstone::value::HippyValue OCTypeToDomValue(id value) {
     if ([value isKindOfClass:[NSString class]]) {
-        return tdf::base::DomValue([value UTF8String]);
+        return footstone::value::HippyValue([value UTF8String]);
     }
     else if ([value isKindOfClass:[NSNumber class]]) {
         CFNumberRef numberRef = (__bridge CFNumberRef)value;
@@ -53,40 +53,40 @@ tdf::base::DomValue OCTypeToDomValue(id value) {
             kCFNumberIntType == numberType ||
             kCFNumberLongType == numberType ||
             kCFNumberLongLongType == numberType) {
-            return tdf::base::DomValue([value unsignedIntValue]);
+            return footstone::value::HippyValue([value unsignedIntValue]);
         }
         else if (kCFNumberFloatType == numberType ||
                  kCFNumberDoubleType == numberType) {
-            return tdf::base::DomValue([value doubleValue]);
+            return footstone::value::HippyValue([value doubleValue]);
         }
         else {
             BOOL flag = [value boolValue];
-            return tdf::base::DomValue(flag);;
+            return footstone::value::HippyValue(flag);;
         }
     }
     else if (value == [NSNull null]) {
-        return tdf::base::DomValue::Null();
+        return footstone::value::HippyValue::Null();
     }
     else if ([value isKindOfClass:[NSDictionary class]]) {
-        tdf::base::DomValue::DomValueObjectType object;
+        footstone::value::HippyValue::HippyValueObjectType object;
         for (NSString *key in value) {
             std::string objKey = [key UTF8String];
             id objValue = [value objectForKey:key];
             auto dom_obj = OCTypeToDomValue(objValue);
             object[objKey] = std::move(dom_obj);
         }
-        return tdf::base::DomValue(std::move(object));
+        return footstone::value::HippyValue(std::move(object));
     }
     else if ([value isKindOfClass:[NSArray class]]) {
-        tdf::base::DomValue::DomValueArrayType array;
+        footstone::value::HippyValue::DomValueArrayType array;
         for (id obj in value) {
             auto dom_obj = OCTypeToDomValue(obj);
             array.push_back(std::move(dom_obj));
         }
-        return tdf::base::DomValue(std::move(array));
+        return footstone::value::HippyValue(std::move(array));
     }
     else {
-        return tdf::base::DomValue::Undefined();
+        return footstone::value::HippyValue::Undefined();
     }
 }
 
@@ -100,8 +100,8 @@ void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
                                           options:NSJSONReadingMutableContainers
                                             error:&jsonError];
     if (jsonError == nil) {
-        tdf::base::DomValue value = OCTypeToDomValue(paramDict);
-        std::shared_ptr<tdf::base::DomValue> domValue = std::make_shared<tdf::base::DomValue>(value);
+        footstone::value::HippyValue value = OCTypeToDomValue(paramDict);
+        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
         bridge.jscExecutor.pScope->LoadInstance(domValue);
     }
 }

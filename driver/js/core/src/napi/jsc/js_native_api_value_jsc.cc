@@ -24,8 +24,8 @@
 
 #include <iostream>
 
-#include "base/logging.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/jsc/js_native_api_jsc.h"
 #include "core/napi/jsc/js_native_jsc_helper.h"
@@ -34,7 +34,7 @@
 namespace hippy {
 namespace napi {
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) {
@@ -220,7 +220,7 @@ bool JSCCtx::IsFunction(const std::shared_ptr<CtxValue>& value) {
 
 unicode_string_view JSCCtx::CopyFunctionName(
     const std::shared_ptr<CtxValue>& function) {
-  TDF_BASE_UNIMPLEMENTED();
+  FOOTSTONE_UNIMPLEMENTED();
   return "";
 }
 
@@ -278,7 +278,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
   for (const auto& it : object) {
     unicode_string_view key;
     auto flag = GetValueString(it.first, &key);
-    TDF_BASE_DCHECK(flag);
+    FOOTSTONE_DCHECK(flag);
     if (!flag) {
       auto error = CreateError("CreateObject");
       SetException(std::static_pointer_cast<JSCCtxValue>(error));
@@ -457,7 +457,7 @@ unicode_string_view JSCCtx::GetExceptionMsg(
   }
   std::u16string str = u"message: " + u16_msg + u", stack: " + u16_stack;
   unicode_string_view ret(str.c_str(), str.length());
-  TDF_BASE_DLOG(ERROR) << "GetExceptionMsg msg = " << ret;
+  FOOTSTONE_DLOG(ERROR) << "GetExceptionMsg msg = " << ret;
   return ret;
 }
 
@@ -478,11 +478,11 @@ void JSCCtx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception)
       GetGlobalObjVar(kHippyErrorHandlerName);
   if (!IsFunction(exception_handler)) {
     const auto& source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
-    TDF_BASE_DCHECK(source_code.data_ && source_code.length_);
+    FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
     unicode_string_view content(source_code.data_, source_code.length_);
     exception_handler = RunScript(content, kErrorHandlerJSName);
     bool is_func = IsFunction(exception_handler);
-    TDF_BASE_CHECK(is_func)
+    FOOTSTONE_CHECK(is_func)
         << "HandleUncaughtJsError ExceptionHandle.js don't return function!!!";
     SetGlobalObjVar(kHippyErrorHandlerName, exception_handler,
                     PropertyAttribute::ReadOnly);
@@ -499,7 +499,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
   JSStringRef ret;
   switch (encoding) {
     case unicode_string_view::Encoding::Unkown: {
-      TDF_BASE_UNREACHABLE();
+      FOOTSTONE_UNREACHABLE();
       break;
     }
     case unicode_string_view::Encoding::Latin1: {
@@ -529,7 +529,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
       break;
     }
     default:
-      TDF_BASE_UNIMPLEMENTED();
+      FOOTSTONE_UNIMPLEMENTED();
       break;
   }
   return ret;

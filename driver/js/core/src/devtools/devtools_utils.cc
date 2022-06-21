@@ -150,9 +150,9 @@ bool DevToolsUtil::IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, d
   return in_top_offset && in_bottom_offset;
 }
 
-std::string DevToolsUtil::ParseDomValue(const DomValue& dom_value) {
+std::string DevToolsUtil::ParseDomValue(const HippyValue& dom_value) {
   if (!dom_value.IsObject()) {
-    TDF_BASE_DLOG(INFO) << "ParseTotalProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << "ParseTotalProps, node props is not object";
     return "{}";
   }
   std::string node_str = "{";
@@ -227,7 +227,7 @@ std::string DevToolsUtil::ParseDomValue(const DomValue& dom_value) {
 
 std::string DevToolsUtil::ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props) {
   if (!node_props || node_props->empty()) {
-    TDF_BASE_DLOG(INFO) << "ParseNodeKeyProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << "ParseNodeKeyProps, node props is not object";
     return node_key == kAttributes ? "{}" : "";
   }
   if (!node_key.empty()) {
@@ -236,7 +236,7 @@ std::string DevToolsUtil::ParseNodeKeyProps(const std::string& node_key, const N
         continue;
       }
       if (node_key == kAttributes && node_prop.second->IsObject()) {
-        std::unordered_map<std::string, DomValue> sec = node_prop.second->ToObjectChecked();
+        std::unordered_map<std::string, HippyValue> sec = node_prop.second->ToObjectChecked();
         return ParseNodeProps(sec);
       }
       if (node_key == kText && node_prop.second->IsString()) {
@@ -249,7 +249,7 @@ std::string DevToolsUtil::ParseNodeKeyProps(const std::string& node_key, const N
 
 std::string DevToolsUtil::ParseNodeProps(const NodePropsUnorderedMap& node_props) {
   if (!node_props || node_props->empty()) {
-    TDF_BASE_DLOG(INFO) << "ParseNodeProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << "ParseNodeProps, node props is not object";
     return "{}";
   }
   std::string node_str = "{";
@@ -261,9 +261,9 @@ std::string DevToolsUtil::ParseNodeProps(const NodePropsUnorderedMap& node_props
   return node_str;
 }
 
-std::string DevToolsUtil::ParseNodeProps(const std::unordered_map<std::string, DomValue>& node_props) {
+std::string DevToolsUtil::ParseNodeProps(const std::unordered_map<std::string, HippyValue>& node_props) {
   if (node_props.empty()) {
-    TDF_BASE_DLOG(INFO) << "ParseNodeProps, node props is not object";
+    FOOTSTONE_DLOG(INFO) << "ParseNodeProps, node props is not object";
     return "{}";
   }
   std::string node_str = "{";
@@ -279,7 +279,7 @@ std::string DevToolsUtil::ParseNodeProps(const std::unordered_map<std::string, D
 void DevToolsUtil::AppendDomKeyValue(std::string& node_str,
                                      bool& first_object,
                                      const std::string& node_key,
-                                     const DomValue& dom_value) {
+                                     const HippyValue& dom_value) {
   if (dom_value.IsBoolean()) {
     node_str += first_object ? "\"" : ",\"";
     node_str += node_key;

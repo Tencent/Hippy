@@ -25,12 +25,13 @@
 #include <memory>
 #include <tuple>
 
+#include "footstone/check.h"
 #include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 
 using namespace hippy::napi;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 bool IsBasicNumberType(const std::string &type) {
@@ -131,7 +132,7 @@ std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(TurboEnv &turb
       if (!context->GetValueNumber(value, &num)) {
         return std::make_tuple(false, "value must be int", false);
       }
-      j_args.i = hippy::base::checked_numeric_cast<int32_t, jint>(num);
+      j_args.i = footstone::check::checked_numeric_cast<int32_t, jint>(num);
     } else {
       double num;
       if (!context->GetValueNumber(value, &num)) {
@@ -139,11 +140,11 @@ std::tuple<bool, std::string, bool> ConvertUtils::HandleBasicType(TurboEnv &turb
       }
 
       if (type == kDouble) {  // double
-        j_args.d = hippy::base::checked_numeric_cast<double, jdouble>(num);
+        j_args.d = footstone::check::checked_numeric_cast<double, jdouble>(num);
       } else if (type == kFloat) {  // float
-        j_args.f = hippy::base::checked_numeric_cast<double, jfloat>(num);
+        j_args.f = footstone::check::checked_numeric_cast<double, jfloat>(num);
       } else if (type == kLong) {  // long
-        j_args.j = hippy::base::checked_numeric_cast<double, jlong>(num);
+        j_args.j = footstone::check::checked_numeric_cast<double, jlong>(num);
       }
     }
 
@@ -187,7 +188,7 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
       return std::make_tuple(false, "value must be string", false);
     }
 
-    TDF_BASE_DLOG(INFO) << "Promise callId " << str.c_str();
+    FOOTSTONE_DLOG(INFO) << "Promise callId " << str.c_str();
     jstring module_name_str = j_env->NewStringUTF(module_name.c_str());
     jstring method_name_str = j_env->NewStringUTF(method_name.c_str());
     jstring call_id_str = j_env->NewStringUTF(str.c_str());
@@ -290,7 +291,7 @@ ConvertUtils::HandleObjectType(TurboEnv &turbo_env,
         j_args.l = ref->GetObj();
       } else if (type == kLongObject) {
         jlong jlong_value;
-        if (!hippy::base::numeric_cast<double, jlong>(num_value, jlong_value)) {
+        if (!footstone::check::numeric_cast<double, jlong>(num_value, jlong_value)) {
           return std::make_tuple(true, "value out of jlong boundary", false);
         }
         auto ref = std::make_shared<JavaRef>(j_env, j_env->NewObject(
@@ -336,7 +337,7 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv &turbo_
     }
 
     jobject key_j_obj = j_env->NewStringUTF(key_str.c_str());
-    TDF_BASE_DLOG(INFO) << "key " << key_str.c_str();
+    FOOTSTONE_DLOG(INFO) << "key " << key_str.c_str();
 
     // value
     std::shared_ptr<CtxValue> item = context->CopyArrayElement(array, i + 1);
@@ -421,7 +422,7 @@ std::unordered_map<std::string, MethodInfo> ConvertUtils::GetMethodMap(
     return method_map;
   }
 
-  TDF_BASE_DLOG(INFO) << "initMethodMap origin string" << method_map_str.c_str();
+  FOOTSTONE_DLOG(INFO) << "initMethodMap origin string" << method_map_str.c_str();
 
   bool is_name = true;
   std::string method_name;
@@ -448,7 +449,7 @@ std::unordered_map<std::string, MethodInfo> ConvertUtils::GetMethodMap(
           MethodInfo method_info;
           method_info.signature_ = method_sig;
           method_map[method_name] = method_info;
-          TDF_BASE_DLOG(INFO) << "initMethodMap " << method_name.c_str() << "=" <<
+          FOOTSTONE_DLOG(INFO) << "initMethodMap " << method_name.c_str() << "=" <<
                               method_sig.c_str();
           method_name.clear();
           method_sig.clear();
@@ -527,7 +528,7 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ConvertMe
       method_info.signature_.find_last_of(')') + 1);
   if (kLong == return_type) {
     auto result = j_env->CallLongMethodA(obj, method_info.method_id_, args);
-    ret = ctx->CreateNumber(hippy::base::checked_numeric_cast<jlong, double>(result));
+    ret = ctx->CreateNumber(footstone::check::checked_numeric_cast<jlong, double>(result));
   } else if (kInt == return_type) {
     jint result = j_env->CallIntMethodA(obj, method_info.method_id_, args);
     ret = ctx->CreateNumber(result);
@@ -599,7 +600,7 @@ std::tuple<bool,
   unicode_string_view str_view = JniUtils::ToStrView(j_env, sig);
   std::string signature = StringViewUtils::ToU8StdStr(str_view);
   j_env->DeleteLocalRef(sig);
-  TDF_BASE_DLOG(INFO) << "toJsValueInArray " << signature.c_str();
+  FOOTSTONE_DLOG(INFO) << "toJsValueInArray " << signature.c_str();
 
   if (kUnSupportedType == signature) {
     return std::make_tuple(false, "toJsValueInArray error",
@@ -710,7 +711,7 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ToJsMap(T
 }
 
 bool ConvertUtils::Init() {
-  TDF_BASE_DLOG(INFO) << "enter init";
+  FOOTSTONE_DLOG(INFO) << "enter init";
 
   JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass hippy_array_clazz_local =
@@ -780,7 +781,7 @@ bool ConvertUtils::Init() {
 }
 
 bool ConvertUtils::Destroy() {
-  TDF_BASE_DLOG(INFO) << "enter destroy";
+  FOOTSTONE_DLOG(INFO) << "enter destroy";
   hippy_array_constructor = nullptr;
   hippy_array_push_object = nullptr;
   hippy_array_get_sig = nullptr;

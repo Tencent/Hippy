@@ -46,13 +46,13 @@
 #import "HippyComponentMap.h"
 #import "dom/root_node.h"
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
 using DomManager = hippy::DomManager;
 using DomNode = hippy::DomNode;
 using LayoutResult = hippy::LayoutResult;
-using DomValueType = tdf::base::DomValue::Type;
-using DomValueNumberType = tdf::base::DomValue::NumberType;
+using DomValueType = footstone::value::HippyValue::Type;
+using DomValueNumberType = footstone::value::HippyValue::NumberType;
 using LayoutResult = hippy::LayoutResult;
 using RenderInfo = hippy::DomNode::RenderInfo;
 using CallFunctionCallback = hippy::CallFunctionCallback;
@@ -424,7 +424,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
 }
 
-- (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag 
+- (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag
                                     onRootTag:(NSNumber *)rootTag {
     HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
     return [self createViewRecursivelyFromShadowView:shadowView];
@@ -830,7 +830,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
               viewName:(const std::string &)viewName
                viewTag:(int32_t)hippyTag
             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
-                params:(const DomValue &)params
+                params:(const HippyValue &)params
               callback:(CallFunctionCallback)cb {
     NSString *name = [NSString stringWithUTF8String:functionName.c_str()];
     DomValueType type = params.GetType();
@@ -1006,7 +1006,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                     if (node) {
                         auto event = std::make_shared<hippy::DomEvent>(hippy::kClickEvent, node,
                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                       static_cast<std::shared_ptr<DomValue>>(nullptr));
+                                                                       static_cast<std::shared_ptr<HippyValue>>(nullptr));
                         node->HandleEvent(event);
                     }
                 }];
@@ -1036,7 +1036,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                     if (node) {
                         auto event = std::make_shared<hippy::DomEvent>(hippy::kLongClickEvent, node,
                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                       static_cast<std::shared_ptr<DomValue>>(nullptr));
+                                                                       static_cast<std::shared_ptr<HippyValue>>(nullptr));
                         node->HandleEvent(event);
                     }
                 }];
@@ -1070,7 +1070,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                     if (node) {
                         auto event = std::make_shared<hippy::DomEvent>(block_type, node,
                                                                        canBePreventedInCapturing, canBePreventedInBubbling,
-                                                                       static_cast<std::shared_ptr<DomValue>>(nullptr));
+                                                                       static_cast<std::shared_ptr<HippyValue>>(nullptr));
                         node->HandleEvent(event);
                     }
                 }];
@@ -1112,10 +1112,10 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             if (strongSelf) {
                 [strongSelf domNodeForHippyTag:hippyTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
-                        tdf::base::DomValue::DomValueObjectType domValue;
-                        domValue["page_x"] = tdf::base::DomValue(point.x);
-                        domValue["page_y"] = tdf::base::DomValue(point.y);
-                        std::shared_ptr<tdf::base::DomValue> value = std::make_shared<tdf::base::DomValue>(domValue);
+                        footstone::value::HippyValue::HippyValueObjectType domValue;
+                        domValue["page_x"] = footstone::value::HippyValue(point.x);
+                        domValue["page_y"] = footstone::value::HippyValue(point.y);
+                        std::shared_ptr<footstone::value::HippyValue> value = std::make_shared<footstone::value::HippyValue>(domValue);
                         if (node) {
                             auto event = std::make_shared<DomEvent>(type_, node, canBePreventedInCapturing,
                                                                     canBePreventedInBubbling,value);
@@ -1150,7 +1150,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             if (strongSelf) {
                 [strongSelf domNodeForHippyTag:hippyTag onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> node) {
                     if (node) {
-                        std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(true);
+                        std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(true);
                         auto event = std::make_shared<DomEvent>(type, node, canBePreventedInCapturing,
                                                                 canBePreventedInBubbling, domValue);
                         node->HandleEvent(event);
@@ -1227,8 +1227,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
                 if (strongSelf) {
                     [strongSelf domNodeForHippyTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> domNode) {
                         if (domNode) {
-                            DomValue value = [body toDomValue];
-                            std::shared_ptr<DomValue> domValue = std::make_shared<DomValue>(std::move(value));
+                            HippyValue value = [body toDomValue];
+                            std::shared_ptr<HippyValue> domValue = std::make_shared<HippyValue>(std::move(value));
                             auto event = std::make_shared<DomEvent>(name_, domNode, canBePreventedInCapturing,
                                                                     canBePreventedInBubbling, domValue);
                             domNode->HandleEvent(event);

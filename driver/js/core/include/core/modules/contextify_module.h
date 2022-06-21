@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api_types.h"
@@ -31,7 +31,7 @@ class Scope;
 
 class ContextifyModule : public ModuleBase {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using CtxValue = hippy::napi::CtxValue;
 
   ContextifyModule() {}

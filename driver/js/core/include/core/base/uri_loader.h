@@ -26,14 +26,14 @@
 #include <string>
 #include <vector>
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
 
 namespace hippy {
 namespace base {
 
 class UriLoader {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using u8string = unicode_string_view::u8string;
 
   UriLoader() {}

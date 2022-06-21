@@ -33,7 +33,7 @@ static jmethodID j_to_string_method_id;
 static jmethodID j_get_scheme_method_id;
 static jmethodID j_get_path_method_id;
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 std::shared_ptr<Uri> Uri::Create(const unicode_string_view& uri) {
@@ -76,7 +76,7 @@ bool Uri::Destroy() {
 }
 
 Uri::Uri(const unicode_string_view& uri) {
-  TDF_BASE_DCHECK(uri.encoding() != unicode_string_view::Encoding::Unkown);
+  FOOTSTONE_DCHECK(uri.encoding() != unicode_string_view::Encoding::Unkown);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_str_uri = JniUtils::StrViewToJString(j_env, uri);
   j_obj_uri_ =
@@ -96,7 +96,7 @@ Uri::~Uri() {
 }
 
 unicode_string_view Uri::Normalize() {
-  TDF_BASE_DCHECK(j_obj_uri_);
+  FOOTSTONE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject j_normalize_uri =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_normalize_method_id);
@@ -112,7 +112,7 @@ unicode_string_view Uri::Normalize() {
 }
 
 unicode_string_view Uri::GetScheme() {
-  TDF_BASE_DCHECK(j_obj_uri_);
+  FOOTSTONE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_scheme =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id);
@@ -125,7 +125,7 @@ unicode_string_view Uri::GetScheme() {
 }
 
 unicode_string_view Uri::GetPath() {
-  TDF_BASE_DCHECK(j_obj_uri_);
+  FOOTSTONE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_path =
       (jstring)j_env->CallObjectMethod(j_obj_uri_, j_get_path_method_id);

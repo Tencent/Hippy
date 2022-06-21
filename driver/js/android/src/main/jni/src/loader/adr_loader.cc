@@ -25,13 +25,13 @@
 #include <future>
 
 #include "core/runtime/v8/runtime.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/uri.h"
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 using HippyFile = hippy::base::HippyFile;
 using u8string = unicode_string_view::u8string;
@@ -45,23 +45,23 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
                                         std::function<void(u8string)> cb) {
   std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
   if (!uri_obj) {
-    TDF_BASE_DLOG(ERROR) << "uri error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "uri error, uri = " << uri;
     cb(u8string());
     return false;
   }
   unicode_string_view schema = uri_obj->GetScheme();
   if (StringViewUtils::IsEmpty(schema)) {
-    TDF_BASE_DLOG(ERROR) << "schema error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "schema error, uri = " << uri;
     cb(u8string());
     return false;
   }
   unicode_string_view path = uri_obj->GetPath();
   if (StringViewUtils::IsEmpty(path)) {
-    TDF_BASE_DLOG(ERROR) << "path error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "path error, uri = " << uri;
     cb(u8string());
     return false;
   }
-  TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
+  FOOTSTONE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
     return LoadByFile(path, cb);
@@ -72,11 +72,11 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     if (aasset_manager_) {
       return LoadByAsset(path, cb, false);
     }
-    TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
     cb(u8string());
     return false;
   } else {
-    TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
+    FOOTSTONE_DLOG(ERROR) << "schema error, schema = " << schema;
     cb(u8string());
     return false;
   }
@@ -86,20 +86,20 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
                                         u8string& content) {
   std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
   if (!uri_obj) {
-    TDF_BASE_DLOG(ERROR) << "uri error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "uri error, uri = " << uri;
     return false;
   }
   unicode_string_view schema = uri_obj->GetScheme();
   if (StringViewUtils::IsEmpty(schema)) {
-    TDF_BASE_DLOG(ERROR) << "schema error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "schema error, uri = " << uri;
     return false;
   }
   unicode_string_view path = uri_obj->GetPath();
   if (StringViewUtils::IsEmpty(path)) {
-    TDF_BASE_DLOG(ERROR) << "path error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "path error, uri = " << uri;
     return false;
   }
-  TDF_BASE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
+  FOOTSTONE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
     return HippyFile::ReadFile(path, content, false);
@@ -119,27 +119,26 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
       return ReadAsset(path, aasset_manager_, content, false);
     }
 
-    TDF_BASE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
+    FOOTSTONE_DLOG(ERROR) << "aasset_manager error, uri = " << uri;
     return false;
   } else {
-    TDF_BASE_DLOG(ERROR) << "schema error, schema = " << schema;
+    FOOTSTONE_DLOG(ERROR) << "schema error, schema = " << schema;
     return false;
   }
 }
 
 bool ADRLoader::LoadByFile(const unicode_string_view& path,
                            const std::function<void(u8string)>& cb) {
-  std::shared_ptr<WorkerTaskRunner> runner = runner_.lock();
+  auto runner = runner_.lock();
   if (!runner) {
     return false;
   }
-  std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
-  task->func_ = [path, cb] {
+  auto func = [path, cb] {
     u8string ret;
     HippyFile::ReadFile(path, ret, false);
     cb(std::move(ret));
   };
-  runner->PostTask(std::move(task));
+  runner->PostTask(std::move(func));
 
   return true;
 }
@@ -147,18 +146,17 @@ bool ADRLoader::LoadByFile(const unicode_string_view& path,
 bool ADRLoader::LoadByAsset(const unicode_string_view& path,
                             const std::function<void(u8string)>& cb,
                             bool is_auto_fill) {
-  TDF_BASE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
-  std::shared_ptr<WorkerTaskRunner> runner = runner_.lock();
+  FOOTSTONE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
+  auto runner = runner_.lock();
   if (!runner) {
     return false;
   }
-  std::unique_ptr<CommonTask> task = std::make_unique<CommonTask>();
-  task->func_ = [path, aasset_manager = aasset_manager_, is_auto_fill, cb] {
+  auto func = [path, aasset_manager = aasset_manager_, is_auto_fill, cb] {
     u8string ret;
     ReadAsset(path, aasset_manager, ret, is_auto_fill);
     cb(std::move(ret));
   };
-  runner->PostTask(std::move(task));
+  runner->PostTask(std::move(func));
 
   return true;
 }
@@ -179,7 +177,7 @@ bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
     return true;
   }
 
-  TDF_BASE_DLOG(ERROR) << "jni fetch_resource_method_id error";
+  FOOTSTONE_DLOG(ERROR) << "jni fetch_resource_method_id error";
   return false;
 }
 
@@ -188,50 +186,50 @@ void OnResourceReady(JNIEnv* j_env,
                      jobject j_byte_buffer,
                      jlong j_runtime_id,
                      jlong j_request_id) {
-  TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = " << j_runtime_id;
-  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  FOOTSTONE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = " << j_runtime_id;
+  auto runtime = Runtime::Find(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
-    TDF_BASE_DLOG(WARNING)
+    FOOTSTONE_DLOG(WARNING)
         << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
     return;
   }
   std::shared_ptr<Scope> scope = runtime->GetScope();
   if (!scope) {
-    TDF_BASE_DLOG(WARNING) << "HippyBridgeImpl onResourceReady, scope invalid";
+    FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl onResourceReady, scope invalid";
     return;
   }
 
   std::shared_ptr<ADRLoader> loader =
       std::static_pointer_cast<ADRLoader>(scope->GetUriLoader());
   int64_t request_id = j_request_id;
-  TDF_BASE_DLOG(INFO) << "request_id = " << request_id;
+  FOOTSTONE_DLOG(INFO) << "request_id = " << request_id;
   auto cb = loader->GetRequestCB(request_id);
   if (!cb) {
-    TDF_BASE_DLOG(WARNING) << "cb not found" << request_id;
+    FOOTSTONE_DLOG(WARNING) << "cb not found" << request_id;
     return;
   }
   if (!j_byte_buffer) {
-    TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
+    FOOTSTONE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
     cb(u8string());
     return;
   }
   int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
-  TDF_BASE_DLOG(INFO) << "len = " << len;
+  FOOTSTONE_DLOG(INFO) << "len = " << len;
   if (len == -1) {
-    TDF_BASE_DLOG(ERROR)
+    FOOTSTONE_DLOG(ERROR)
         << "HippyBridgeImpl onResourceReady, BufferCapacity error";
     cb(u8string());
     return;
   }
   void* buff = (j_env)->GetDirectBufferAddress(j_byte_buffer);
   if (!buff) {
-    TDF_BASE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
+    FOOTSTONE_DLOG(INFO) << "HippyBridgeImpl onResourceReady, buff null";
     cb(u8string());
     return;
   }
 
   u8string str(reinterpret_cast<const char8_t_*>(buff),
-               hippy::base::checked_numeric_cast<jlong, size_t>(len));
+               footstone::check::checked_numeric_cast<jlong, size_t>(len));
   cb(std::move(str));
 }
 

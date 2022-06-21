@@ -27,7 +27,7 @@ namespace bridge {
 
 void CallJSFunction(int64_t runtime_id, const unicode_string_view& action_name, bytes params_data,
                     std::function<void(int64_t)> callback) {
-  TDF_BASE_DCHECK(runtime_id <= std::numeric_limits<std::int32_t>::max()
+  FOOTSTONE_DCHECK(runtime_id <= std::numeric_limits<std::int32_t>::max()
                       && runtime_id >= std::numeric_limits<std::int32_t>::min());
   V8BridgeUtils::CallJs(action_name, static_cast<int32_t>(runtime_id),
                         [callback](CALLFUNCTION_CB_STATE state, const unicode_string_view& msg) {

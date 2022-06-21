@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <random>
 
-#include "dom/serializer.h"
+#include "footstone/serializer.h"
 
 namespace hippy {
 namespace dom {
@@ -27,7 +27,7 @@ size_t Variant(T value, uint8_t* buffer, size_t len) {
   return variant_length;
 }
 
-void CheckUint32(tdf::base::Serializer& serializer, uint32_t value, size_t last_size) {
+void CheckUint32(footstone::value::Serializer& serializer, uint32_t value, size_t last_size) {
   size_t len = sizeof(uint32_t) * 8 / 7 + 1;
   uint8_t* expect = (uint8_t*)malloc(len);
   memset(expect, 0, len);
@@ -42,7 +42,7 @@ void CheckUint32(tdf::base::Serializer& serializer, uint32_t value, size_t last_
   free(expect);
 }
 
-void CheckInt32(tdf::base::Serializer& serializer, int32_t value, size_t last_size) {
+void CheckInt32(footstone::value::Serializer& serializer, int32_t value, size_t last_size) {
   size_t len = sizeof(int32_t) * 8 / 7 + 1;
   uint8_t* expect = (uint8_t*)malloc(len);
   memset(expect, 0, len);
@@ -61,7 +61,7 @@ void CheckInt32(tdf::base::Serializer& serializer, int32_t value, size_t last_si
   free(expect);
 }
 
-void CheckDouble(tdf::base::Serializer& serializer, double value, size_t last_size) {
+void CheckDouble(footstone::value::Serializer& serializer, double value, size_t last_size) {
   uint8_t* expect = (uint8_t*)malloc(sizeof(double));
   memset(expect, 0, sizeof(double));
   memcpy(expect, &value, sizeof(double));
@@ -88,7 +88,7 @@ bool IsOneByteString(std::string& value) {
   return one_byte_string;
 }
 
-void CheckString(tdf::base::Serializer& serializer, std::string value, size_t last_size) {
+void CheckString(footstone::value::Serializer& serializer, std::string value, size_t last_size) {
   size_t string_tag_length = 1;
   tdf::base::SerializationTag tag = tdf::base::SerializationTag::kOneByteString;
 
@@ -123,7 +123,7 @@ void CheckString(tdf::base::Serializer& serializer, std::string value, size_t la
 }
 
 TEST(SerializerTest, Release) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.Release();
   EXPECT_EQ(serializer.buffer_ == nullptr, true) << "Serializer buffer is not equal to nullptr.";
   EXPECT_EQ(serializer.buffer_size_, 0) << "Serializer buffer_size is not equal to 0.";
@@ -131,7 +131,7 @@ TEST(SerializerTest, Release) {
 }
 
 TEST(SerializerTest, WriteHeader) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   EXPECT_EQ(serializer.buffer_ != nullptr, true) << "Serializer buffer should not equal to nullptr.";
   EXPECT_EQ(serializer.buffer_size_, 2) << "Serializer buffer_size is not equal to 2.";
@@ -140,7 +140,7 @@ TEST(SerializerTest, WriteHeader) {
 }
 
 TEST(SerializerTest, WriteOddball) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
 
   serializer.WriteOddball(tdf::base::Oddball::kUndefined);
@@ -165,7 +165,7 @@ TEST(SerializerTest, WriteOddball) {
 }
 
 TEST(SerializerTest, WriteUint32) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
 
   CheckUint32(serializer, 0, serializer.buffer_size_);
@@ -185,7 +185,7 @@ TEST(SerializerTest, WriteUint32) {
 }
 
 TEST(SerializerTest, WriteInt32) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
 
   CheckInt32(serializer, 0, serializer.buffer_size_);
@@ -205,7 +205,7 @@ TEST(SerializerTest, WriteInt32) {
 }
 
 TEST(SerializerTest, WriteDouble) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
 
   CheckDouble(serializer, 0, serializer.buffer_size_);
@@ -231,7 +231,7 @@ TEST(SerializerTest, WriteDouble) {
 }
 
 TEST(SerializerTest, WriteString) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
 
   CheckString(serializer, "", serializer.buffer_size_);

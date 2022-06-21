@@ -30,17 +30,18 @@
 #include <string>
 #include <vector>
 
-#include "base/logging.h"
-#include "base/unicode_string_view.h"
+#include "footstone/logging.h"
+#include "footstone/unicode_string_view.h"
+#include "footstone/check.h"
 #include "core/base/common.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 
 namespace hippy {
 namespace base {
 
 class HippyFile {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   static bool SaveFile(const unicode_string_view& file_name,
                        const std::string& content,
                        std::ios::openmode mode = std::ios::out |
@@ -64,7 +65,7 @@ class HippyFile {
       file.clear();
       file.seekg(0, std::ios_base::beg);
       size_t data_size;
-      if (!numeric_cast<std::streamsize, size_t>(size + (is_auto_fill ? 1:0), data_size)) {
+      if (!footstone::check::numeric_cast<std::streamsize, size_t>(size + (is_auto_fill ? 1:0), data_size)) {
         file.close();
         return false;
       }
@@ -72,7 +73,7 @@ class HippyFile {
       auto read_size =
           file.read(reinterpret_cast<char *>(&bytes[0]), size).gcount();
       if (size != read_size) {
-        TDF_BASE_DLOG(WARNING)
+        FOOTSTONE_DLOG(WARNING)
             << "ReadFile file_path = " << file_path << ", size = " << size
             << ", read_size = " << read_size;
       }
@@ -80,12 +81,12 @@ class HippyFile {
         bytes.back() = '\0';
       }
       file.close();
-      TDF_BASE_DLOG(INFO) << "ReadFile succ, file_path = " << file_path
+      FOOTSTONE_DLOG(INFO) << "ReadFile succ, file_path = " << file_path
                           << ", size = " << size
                           << ", read_size = " << read_size;
       return true;
     }
-    TDF_BASE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
+    FOOTSTONE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
     return false;
   }
 };

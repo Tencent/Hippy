@@ -26,13 +26,12 @@
 #include <memory>
 #include <string>
 
-#include "base/logging.h"
+#include "footstone/logging.h"
 #include "core/base/uri_loader.h"
 #include "core/modules/module_register.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/native_source_code.h"
-#include "core/task/common_task.h"
-#include "core/task/javascript_task.h"
+#include "footstone/task.h"
 #if JS_V8
 #include "core/napi/v8/js_native_api_v8.h"
 #endif
@@ -40,7 +39,7 @@
 REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
 REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -57,7 +56,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
 #else
   auto context = info.GetScope()->GetContext();
 #endif
-  TDF_BASE_CHECK(context);
+  FOOTSTONE_CHECK(context);
 
   unicode_string_view key;
   if (!context->GetValueString(info[0], &key)) {
@@ -66,7 +65,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
     return;
   }
 
-  TDF_BASE_DLOG(INFO) << "RunInThisContext key = " << key;
+  FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
   const auto& source_code =
       hippy::GetNativeSourceCode(StringViewUtils::ToU8StdStr(key));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
@@ -77,7 +76,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
   auto ret = context->RunScript(str_view, key);
 #endif
   if (try_catch->HasCaught()) {
-    TDF_BASE_DLOG(ERROR) << "GetNativeSourceCode error = "
+    FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = "
                          << try_catch->GetExceptionMsg();
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
@@ -92,14 +91,14 @@ void ContextifyModule::RemoveCBFunc(const unicode_string_view& uri) {
 void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
-  TDF_BASE_CHECK(context);
+  FOOTSTONE_CHECK(context);
   unicode_string_view uri;
   if (!context->GetValueString(info[0], &uri)) {
     info.GetExceptionValue()->Set(
         context, "The first argument must be non-empty string.");
     return;
   }
-  TDF_BASE_DLOG(INFO) << "uri = " << uri;
+  FOOTSTONE_DLOG(INFO) << "uri = " << uri;
 
   std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
   std::shared_ptr<hippy::napi::CtxValue> param = info[1];
@@ -115,11 +114,11 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   if (context->IsFunction(function)) {
     cb_func_map_[uri] = function;
   } else {
-    TDF_BASE_DLOG(INFO) << "cb is not function";
+    FOOTSTONE_DLOG(INFO) << "cb is not function";
     function = nullptr;
   }
 
-  TDF_BASE_DLOG(INFO) << "RequestUntrustedContent uri = " << uri;
+  FOOTSTONE_DLOG(INFO) << "RequestUntrustedContent uri = " << uri;
 
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
@@ -144,15 +143,13 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
     }
 
     if (code.empty()) {
-      TDF_BASE_DLOG(WARNING) << "Load uri = " << uri << ", code empty";
+      FOOTSTONE_DLOG(WARNING) << "Load uri = " << uri << ", code empty";
     } else {
-      TDF_BASE_DLOG(INFO) << "Load uri = " << uri << ", len = " << code.length()
+      FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << code.length()
                           << ", encode = " << encode
                           << ", code = " << unicode_string_view(code);
     }
-    std::shared_ptr<JavaScriptTask> js_task =
-        std::make_shared<JavaScriptTask>();
-    js_task->callback = [this, weak_scope, weak_function,
+    auto callback = [this, weak_scope, weak_function,
                          move_code = std::move(code), cur_dir, file_name,
                          uri]() {
       std::shared_ptr<Scope> scope = weak_scope.lock();
@@ -164,7 +161,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       std::shared_ptr<CtxValue> error = nullptr;
       if (!move_code.empty()) {
         auto last_dir_str_obj = ctx->GetGlobalStrVar(kHippyCurDirKey);
-        TDF_BASE_DLOG(INFO) << "cur_dir = " << cur_dir;
+        FOOTSTONE_DLOG(INFO) << "cur_dir = " << cur_dir;
         ctx->SetGlobalStrVar(kHippyCurDirKey, cur_dir);
         std::shared_ptr<TryCatch> try_catch =
             CreateTryCatchScope(true, scope->GetContext());
@@ -175,7 +172,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
                              hippy::napi::PropertyAttribute::None);
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
-          TDF_BASE_DLOG(ERROR) << "RequestUntrustedContent error = "
+          FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = "
                                << try_catch->GetExceptionMsg();
         }
       } else {
@@ -185,7 +182,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
 
       std::shared_ptr<CtxValue> function = weak_function.lock();
       if (function) {
-        TDF_BASE_DLOG(INFO) << "run js cb";
+        FOOTSTONE_DLOG(INFO) << "run js cb";
         if (!error) {
           error = ctx->CreateNull();
         }
@@ -196,7 +193,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
     };
     auto runner = scope->GetTaskRunner();
     if (runner) {
-      runner->PostTask(js_task);
+      runner->PostTask(std::move(callback));
     }
   };
   if (loader) {

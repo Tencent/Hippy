@@ -5,7 +5,7 @@
 #include "scoped_java_ref.h"
 
 // #include "base/android/jni_android.h"
-// #include "base/logging.h"
+// #include "footstone/logging.h"
 #define DCHECK(a)
 #define DCHECK_EQ(a, b)
 

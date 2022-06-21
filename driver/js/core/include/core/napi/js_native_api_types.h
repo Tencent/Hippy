@@ -28,10 +28,10 @@
 #include <string>
 #include <unordered_map>
 
-#include "base/logging.h"
+#include "footstone/logging.h"
 #include "core/base/common.h"
 #include "core/base/js_value_wrapper.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
 
@@ -59,11 +59,11 @@ using JsCallback = std::function<void(const CallbackInfo& info)>;
 
 // Map: FunctionName -> Callback (e.g. "Log" -> ConsoleModule::Log)
 using ModuleClass =
-    std::unordered_map<tdf::base::unicode_string_view, hippy::napi::JsCallback>;
+    std::unordered_map<footstone::stringview::unicode_string_view, hippy::napi::JsCallback>;
 
 // Map: ClassName -> ModuleClass (e.g. "ConsoleModule" -> [ModuleClass])
 using ModuleClassMap =
-    std::unordered_map<tdf::base::unicode_string_view, ModuleClass>;
+    std::unordered_map<footstone::stringview::unicode_string_view, ModuleClass>;
 
 enum Encoding {
   UNKNOWN_ENCODING,
@@ -96,7 +96,7 @@ using InstanceConstructor = std::function<std::shared_ptr<T>(size_t argument_cou
 
 template <typename T>
 struct PropertyDefine {
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   GetterCallback<T> getter;
   SetterCallback<T> setter;
@@ -105,7 +105,7 @@ struct PropertyDefine {
 
 template <typename T>
 struct FunctionDefine {
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   FunctionCallback<T> cb;
   unicode_string_view name;
@@ -113,7 +113,7 @@ struct FunctionDefine {
 
 template <typename T>
 struct InstanceDefine {
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   InstanceConstructor<T> constructor;
   std::vector<PropertyDefine<T>> properties{};
@@ -125,11 +125,11 @@ struct InstanceDefine {
 class Ctx {
  public:
   using JSValueWrapper = hippy::base::JSValueWrapper;
-  using unicode_string_view = tdf::base::unicode_string_view;
-  using DomValue = tdf::base::DomValue;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using HippyValue = footstone::value::HippyValue;
 
   Ctx() {}
-  virtual ~Ctx() { TDF_BASE_DLOG(INFO) << "~Ctx"; }
+  virtual ~Ctx() { FOOTSTONE_DLOG(INFO) << "~Ctx"; }
 
   virtual bool RegisterGlobalInJs() = 0;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) = 0;
@@ -235,12 +235,12 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<JSValueWrapper>& wrapper) = 0;
 
-  virtual std::shared_ptr<DomValue> ToDomValue(
+  virtual std::shared_ptr<HippyValue> ToDomValue(
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<DomArgument> ToDomArgument(
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
-      const std::shared_ptr<DomValue>& value) = 0;
+      const std::shared_ptr<HippyValue>& value) = 0;
 
   virtual bool Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) = 0;
 };
@@ -250,7 +250,7 @@ struct VMInitParam {};
 class VM {
  public:
   VM(std::shared_ptr<VMInitParam> param = nullptr){}
-  virtual ~VM() { TDF_BASE_DLOG(INFO) << "~VM"; }
+  virtual ~VM() { FOOTSTONE_DLOG(INFO) << "~VM"; }
 
   virtual std::shared_ptr<Ctx> CreateContext() = 0;
 };
@@ -267,7 +267,7 @@ class TryCatch {
   virtual bool IsVerbose() = 0;
   virtual void SetVerbose(bool verbose) = 0;
   virtual std::shared_ptr<CtxValue> Exception() = 0;
-  virtual tdf::base::unicode_string_view GetExceptionMsg() = 0;
+  virtual footstone::stringview::unicode_string_view GetExceptionMsg() = 0;
 
  protected:
   bool enable_;

@@ -95,7 +95,7 @@ bool JNIEnvironment::ClearJEnvException(JNIEnv* j_env) {
 }
 
 JNIEnv* JNIEnvironment::AttachCurrentThread() {
-  TDF_BASE_CHECK(j_vm_);
+  FOOTSTONE_CHECK(j_vm_);
 
   JNIEnv* j_env = nullptr;
   jint ret = j_vm_->GetEnv(reinterpret_cast<void**>(&j_env), JNI_VERSION_1_4);
@@ -108,14 +108,14 @@ JNIEnv* JNIEnvironment::AttachCurrentThread() {
     char thread_name[16];
     int err = prctl(PR_GET_NAME, thread_name);
     if (err < 0) {
-      TDF_BASE_DLOG(ERROR) << "prctl(PR_GET_NAME) Error = " << err;
+      FOOTSTONE_DLOG(ERROR) << "prctl(PR_GET_NAME) Error = " << err;
       args.name = nullptr;
     } else {
       args.name = thread_name;
     }
 
     ret = j_vm_->AttachCurrentThread(&j_env, &args);
-    TDF_BASE_DCHECK(JNI_OK == ret);
+    FOOTSTONE_DCHECK(JNI_OK == ret);
     thread_local JNIEnvAutoRelease env_auto_release(j_vm_);
   }
 

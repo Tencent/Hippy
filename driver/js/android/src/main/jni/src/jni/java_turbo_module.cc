@@ -25,7 +25,7 @@
 #include "jni/jni_utils.h"
 
 using namespace hippy::napi;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 static jclass argument_utils_clazz;
@@ -37,7 +37,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
     const std::shared_ptr<CtxValue> &this_val,
     const std::shared_ptr<CtxValue> *args,
     size_t count) {
-  TDF_BASE_DLOG(INFO) << "[turbo-perf] enter invokeJavaMethod";
+  FOOTSTONE_DLOG(INFO) << "[turbo-perf] enter invokeJavaMethod";
 
   std::shared_ptr<Ctx> ctx = turbo_env.context_;
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
@@ -59,7 +59,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
     v8_ctx->ThrowException(unicode_string_view((std::move(exception_info))));
     return v8_ctx->CreateUndefined();
   }
-  TDF_BASE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
+  FOOTSTONE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
 
   // arguments count
   std::vector<std::shared_ptr<CtxValue>> arg_values;
@@ -102,31 +102,31 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   std::shared_ptr<CtxValue> ret = v8_ctx->CreateUndefined();
 
   // args convert
-  TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertJSIArgsToJNIArgs";
+  FOOTSTONE_DLOG(INFO) << "[turbo-perf] enter convertJSIArgsToJNIArgs";
   auto jni_tuple = ConvertUtils::ConvertJSIArgsToJNIArgs(
       turbo_env, name_, method, method_arg_types, arg_values);
-  TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
+  FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
   if (!std::get<0>(jni_tuple)) {
     v8_ctx->ThrowException(unicode_string_view(std::get<1>(jni_tuple)));
     return v8_ctx->CreateUndefined();
   }
   jni_args = std::get<2>(jni_tuple);
-  TDF_BASE_DLOG(INFO) << "[turbo-perf] enter convertMethodResultToJSValue";
+  FOOTSTONE_DLOG(INFO) << "[turbo-perf] enter convertMethodResultToJSValue";
 
   // call method
   auto js_tuple = ConvertUtils::ConvertMethodResultToJSValue(
       turbo_env, impl_->GetObj(), method_info, jni_args->args_.data());
-  TDF_BASE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
+  FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
   if (!std::get<0>(js_tuple)) {
     v8_ctx->ThrowException(unicode_string_view(std::get<1>(js_tuple)));
     return v8_ctx->CreateUndefined();
   }
 
-  TDF_BASE_DLOG(INFO) << "[turbo-perf] exit invokeJavaMethod";
+  FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit invokeJavaMethod";
 
   if (JNIEnvironment::ClearJEnvException(
       JNIEnvironment::GetInstance()->AttachCurrentThread())) {
-    TDF_BASE_LOG(ERROR) << "ClearJEnvException when %s", call_info.c_str();
+    FOOTSTONE_LOG(ERROR) << "ClearJEnvException when %s", call_info.c_str();
     return v8_ctx->CreateUndefined();
   }
 
@@ -156,7 +156,7 @@ JavaTurboModule::JavaTurboModule(const std::string &name,
 }
 
 JavaTurboModule::~JavaTurboModule() {
-  TDF_BASE_DLOG(INFO) << "~JavaTurboModule " << name_.c_str();
+  FOOTSTONE_DLOG(INFO) << "~JavaTurboModule " << name_.c_str();
 }
 
 std::shared_ptr<CtxValue> JavaTurboModule::Get(

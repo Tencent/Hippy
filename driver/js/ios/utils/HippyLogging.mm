@@ -23,7 +23,7 @@
 #import "HippyLogging.h"
 #include <string>
 #include <mutex>
-#include "logging.h"
+#include "footstone/logging.h"
 
 static BOOL GetFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
     //[INFO:cubic_bezier_animation.cc(146)] animation exec_time_ = 514, delay = 500, duration = 1000
@@ -52,7 +52,7 @@ static BOOL GetFileNameAndLineNumberFromLogMessage(NSString *message, NSString *
 static void registerTDFLogHandler() {
     static std::once_flag flag;
     std::call_once(flag, [](){
-        std::function<void (const std::ostringstream &, tdf::base::LogSeverity)> logFunction = [](const std::ostringstream &stream, tdf::base::LogSeverity serverity) {
+        std::function<void (const std::ostringstream &, footstone::log::LogSeverity)> logFunction = [](const std::ostringstream &stream, footstone::log::LogSeverity serverity) {
             @autoreleasepool {
                 std::string string = stream.str();
                 if (string.length()) {
@@ -65,7 +65,7 @@ static void registerTDFLogHandler() {
                 }
             }
         };
-        tdf::base::LogMessage::InitializeDelegate(logFunction);
+      footstone::log::LogMessage::InitializeDelegate(logFunction);
     });
 }
 

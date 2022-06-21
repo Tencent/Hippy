@@ -22,8 +22,8 @@
 
 #include "core/modules/scene_builder.h"
 
-#include "base/unicode_string_view.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/unicode_string_view.h"
+#include "footstone/string_view_utils.h"
 #include "core/modules/scene_builder.h"
 #include "core/modules/ui_manager_module.h"
 #include "core/napi/js_native_api_types.h"
@@ -36,9 +36,9 @@ using InstanceDefine = hippy::napi::InstanceDefine<T>;
 template <typename T>
 using FunctionDefine = hippy::napi::FunctionDefine<T>;
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -146,17 +146,17 @@ GetNodeTagName(const std::shared_ptr<Ctx> &context,
   return std::make_tuple(true, "", std::move(tag_name));
 }
 
-std::tuple<bool, std::string, std::unordered_map<std::string, std::shared_ptr<DomValue>>>
+std::tuple<bool, std::string, std::unordered_map<std::string, std::shared_ptr<HippyValue>>>
 GetNodeStyle(const std::shared_ptr<Ctx> &context,
-             std::unordered_map<std::string, DomValue> &props) {
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> ret;
+             std::unordered_map<std::string, HippyValue> &props) {
+  std::unordered_map<std::string, std::shared_ptr<HippyValue>> ret;
   // parse style
   auto style_it = props.find(kNodePropertyStyle);
   if (style_it != props.end()) {
     if (style_it->second.IsObject()) {
-      std::unordered_map<std::string, DomValue> style_obj = style_it->second.ToObjectChecked();
+      std::unordered_map<std::string, HippyValue> style_obj = style_it->second.ToObjectChecked();
       for (const auto &p : style_obj) {
-        ret[p.first] = std::make_shared<DomValue>(p.second);
+        ret[p.first] = std::make_shared<HippyValue>(p.second);
       }
     }
     props.erase(style_it);
@@ -166,30 +166,30 @@ GetNodeStyle(const std::shared_ptr<Ctx> &context,
 }
 
 std::tuple<bool, std::string,
-           std::unordered_map<std::string, std::shared_ptr<DomValue>>>
+           std::unordered_map<std::string, std::shared_ptr<HippyValue>>>
 GetNodeExtValue(const std::shared_ptr<Ctx> &context,
-                std::unordered_map<std::string, DomValue> &props) {
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map;
+                std::unordered_map<std::string, HippyValue> &props) {
+  std::unordered_map<std::string, std::shared_ptr<HippyValue>> dom_ext_map;
   // parse ext value
   for (const auto &p : props) {
-    dom_ext_map[p.first] = std::make_shared<DomValue>(std::move(p.second));
+    dom_ext_map[p.first] = std::make_shared<HippyValue>(std::move(p.second));
   }
   return std::make_tuple(true, "", std::move(dom_ext_map));
 }
 
 std::tuple<bool, std::string,
-           std::unordered_map<std::string, std::shared_ptr<DomValue>>,
-           std::unordered_map<std::string, std::shared_ptr<DomValue>>>
+           std::unordered_map<std::string, std::shared_ptr<HippyValue>>,
+           std::unordered_map<std::string, std::shared_ptr<HippyValue>>>
 GetNodeProps(const std::shared_ptr<Ctx> &context, const std::shared_ptr<CtxValue> &node) {
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> style_map;
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> dom_ext_map;
+  std::unordered_map<std::string, std::shared_ptr<HippyValue>> style_map;
+  std::unordered_map<std::string, std::shared_ptr<HippyValue>> dom_ext_map;
   std::shared_ptr<CtxValue> props = context->GetProperty(node, kNodePropertyProps);
   if (!props) {
     return std::make_tuple(false, "node does not contain props",
                            std::move(style_map),
                            std::move(dom_ext_map));
   }
-  std::shared_ptr<DomValue> props_obj = context->ToDomValue(props);
+  std::shared_ptr<HippyValue> props_obj = context->ToDomValue(props);
   if (!props_obj) {
     return std::make_tuple(false, "to dom value failed",
                            std::move(style_map),
@@ -202,7 +202,7 @@ GetNodeProps(const std::shared_ptr<Ctx> &context, const std::shared_ptr<CtxValue
                            std::move(dom_ext_map));
   }
 
-  std::unordered_map<std::string, DomValue> props_map = props_obj->ToObjectChecked();
+  std::unordered_map<std::string, HippyValue> props_map = props_obj->ToObjectChecked();
   auto style_tuple = GetNodeStyle(context, props_map);
   if (!std::get<2>(style_tuple).empty()) {
     style_map = std::move(std::get<2>(style_tuple));
@@ -276,11 +276,11 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   // create node
   std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
   std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
-  auto style = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+  auto style = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(
       std::move(std::get<2>(props_tuple)));
-  auto ext = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+  auto ext = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(
       std::move(std::get<3>(props_tuple)));
-  TDF_BASE_CHECK(!scope->GetDomManager().expired());
+  FOOTSTONE_CHECK(!scope->GetDomManager().expired());
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple),
                                        std::get<2>(pid_tuple),
                                        0,
@@ -363,16 +363,16 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
                              const size_t argument_count,
                              const std::shared_ptr<CtxValue> arguments[],
                              hippy::dom::EventListenerInfo& listener_info){
-  TDF_BASE_DCHECK(argument_count == 4 || argument_count == 3);
+  FOOTSTONE_DCHECK(argument_count == 4 || argument_count == 3);
 
   int32_t dom_id;
   bool ret = context->GetValueNumber(arguments[0], &dom_id);
-  TDF_BASE_CHECK(ret) << "get dom id failed";
+  FOOTSTONE_CHECK(ret) << "get dom id failed";
 
-  tdf::base::unicode_string_view str_view;
+  footstone::stringview::unicode_string_view str_view;
   ret = context->GetValueString(arguments[1], &str_view);
   std::string event_name = hippy::base::StringViewUtils::ToU8StdStr(str_view);
-  TDF_BASE_DCHECK(ret) << "get event name failed";
+  FOOTSTONE_DCHECK(ret) << "get event name failed";
 
   listener_info.dom_id = static_cast<uint32_t>(dom_id);
   listener_info.event_name = event_name;
@@ -386,10 +386,10 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
     // capture support pass object { capture: bool }
     if (context->IsObject(arguments[3])) {
       capture_parameter = context->GetProperty(arguments[3], kEventCapture);
-      TDF_BASE_DCHECK(capture_parameter != nullptr);
+      FOOTSTONE_DCHECK(capture_parameter != nullptr);
     }
     ret = context->GetValueBoolean(capture_parameter, &use_capture);
-    TDF_BASE_DCHECK(ret) << "get use capture failed";
+    FOOTSTONE_DCHECK(ret) << "get use capture failed";
   }
   listener_info.use_capture = use_capture;
 }
@@ -443,7 +443,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       auto weak_dom_manager = scope->GetDomManager();
       std::shared_ptr<CtxValue> nodes = arguments[0];
       std::shared_ptr<Ctx> context = scope->GetContext();
-      TDF_BASE_CHECK(context);
+      FOOTSTONE_CHECK(context);
       auto len = context->GetArrayLength(nodes);
       std::vector<std::shared_ptr<DomInfo>> dom_infos;
       for (uint32_t i = 0; i < len; ++i) {
@@ -488,7 +488,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     if (scope) {
       std::shared_ptr<CtxValue> nodes = arguments[0];
       std::shared_ptr<Ctx> context = scope->GetContext();
-      TDF_BASE_CHECK(context);
+      FOOTSTONE_CHECK(context);
       auto len = context->GetArrayLength(nodes);
       std::vector<std::shared_ptr<DomInfo>> dom_infos;
       for (uint32_t i = 0; i < len; ++i) {

@@ -29,7 +29,7 @@
 #include "dom/dom_manager.h"
 #include "NativeRenderManager.h"
 #include "dom/dom_node.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #import "DemoConfigs.h"
 #import "HippyBridge+Private.h"
 #import "HippyFrameworkProxy.h"
@@ -100,9 +100,9 @@
     bridge.methodInterceptor = self;
 
     rootView.frame = self.view.bounds;
-    
+
     [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView screenScale:[UIScreen mainScreen].scale];
-    
+
     //4.set frameworkProxy for bridge.If bridge cannot handle frameworkProxy protocol, it will forward to {self}
     bridge.frameworkProxy = self;
     bridge.renderManager->RegisterExtraComponent(@{@"MyView": [MyViewManager class]});
@@ -115,7 +115,7 @@
 #define btnHeight 100
 
 - (void)runDemoWithoutRuntime {
-    
+
     UIButton *saveButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     saveButton.frame = CGRectMake(0, StatusBarOffset, self.view.frame.size.width / 2, btnHeight);
     [saveButton addTarget:self action:@selector(saveBtnClick) forControlEvents:UIControlEventTouchUpInside];
@@ -147,7 +147,7 @@ std::string mock;
         mock = dom_manager->GetSnapShot(root_node);
     };
     _bridge.domManager->PostTask(hippy::Scene({func}));
-   
+
 }
 
 - (void)loadBtnClick {
@@ -156,10 +156,10 @@ std::string mock;
 
     //1.set up root view
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, btnHeight + StatusBarOffset, self.view.bounds.size.width, self.view.bounds.size.height - btnHeight - StatusBarOffset)];
-        
+
     view.backgroundColor = [UIColor whiteColor];
     view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    
+
     //2.set root tag for root view. root tag is of the essence
     int32_t rootTag = 20;
     view.hippyTag = @(rootTag);
@@ -170,7 +170,7 @@ std::string mock;
 
     //4.mock data
     auto nodes_data = mock; // [self mockNodesData];
-    
+
     //5.create dom nodes with datas
 
     _rootNode->SetRootSize((float)view.bounds.size.width, (float)view.bounds.size.height);
@@ -215,14 +215,14 @@ std::string mock;
         _nativeRenderManager->SetFrameworkProxy(self);
         _nativeRenderManager->RegisterRootView(rootView, _rootNode);
         _nativeRenderManager->SetDomManager(_domManager);
-        
+
         _domManager->SetRenderManager(_nativeRenderManager);
     }
 }
 
 - (std::vector<std::shared_ptr<hippy::DomNode>>) mockNodesData {
     std::vector<std::shared_ptr<hippy::DomNode>> dom_node_vector;
-    using StyleMap = std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>;
+    using StyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>;
     NSString *mockDataPath = [[NSBundle mainBundle] pathForResource:@"create_node" ofType:@"json"];
     NSData *mockData = [NSData dataWithContentsOfFile:mockDataPath];
     NSArray<NSDictionary<NSString *, id> *> *mockJson = [NSJSONSerialization JSONObjectWithData:mockData options:(NSJSONReadingOptions)0 error:nil];
@@ -248,12 +248,12 @@ std::string mock;
                 auto all_props = dictionaryToUnorderedMapDomValue(props);
                 auto style_props = all_props["style"];
                 if (style_props) {
-                    if (tdf::base::DomValue::Type::kObject == style_props->GetType()) {
+                    if (footstone::value::HippyValue::Type::kObject == style_props->GetType()) {
                         auto style_object = style_props->ToObjectChecked();
                         for (auto iter = style_object.begin(); iter != style_object.end(); iter++) {
                             const std::string &iter_key = iter->first;
                             auto &iter_value = iter->second;
-                            style_map[iter_key] = std::make_shared<tdf::base::DomValue>(std::move(iter_value));
+                            style_map[iter_key] = std::make_shared<footstone::value::HippyValue>(std::move(iter_value));
                         }
                     }
                     all_props.erase("style");
@@ -264,8 +264,8 @@ std::string mock;
                 name.assign([mockNode[key] UTF8String]);
             }
         }
-        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> style;
-        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> dom_ext;
+        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> style;
+        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> dom_ext;
         std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, 0, name, name, style, dom_ext, _rootNode);
         dom_node_vector.push_back(dom_node);
     }
@@ -276,7 +276,7 @@ std::string mock;
     NSDictionary *dic1 = @{@"name": @"zs", @"gender": @"male"};
     NSDictionary *dic2 = @{@"name": @"ls", @"gender": @"male"};
     NSDictionary *dic3 = @{@"name": @"ww", @"gender": @"female"};
-            
+
     NSDictionary *ret = @{@"info1": dic1, @"info2": dic2, @"info3": dic3};
     return ret;
 }

@@ -26,7 +26,7 @@
 #include <tuple>
 
 #include "core/modules/module_register.h"
-#include "core/task/javascript_task.h"
+#include "footstone/task.h"
 #include "dom/node_props.h"
 #include "dom/dom_node.h"
 #include "dom/dom_event.h"
@@ -34,9 +34,10 @@
 
 REGISTER_MODULE(UIManagerModule, CallUIFunction)
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
+using TaskRunner = footstone::runner::TaskRunner;
 
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -49,7 +50,7 @@ UIManagerModule::~UIManagerModule() = default;
 void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
-  TDF_BASE_CHECK(context);
+  FOOTSTONE_CHECK(context);
 
   int32_t id = 0;
   auto id_value = context->ToDomValue(info[0]);
@@ -63,7 +64,7 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
     name = name_value->ToStringChecked();
   }
 
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> param;
+  std::unordered_map<std::string, std::shared_ptr<HippyValue>> param;
   DomArgument param_value = *(context->ToDomArgument(info[2]));
   hippy::CallFunctionCallback cb = nullptr;
   bool flag = context->IsFunction(info[3]);
@@ -71,13 +72,11 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
     auto func = info[3];
     std::weak_ptr<Ctx> weak_context = context;
     std::weak_ptr<CtxValue> weak_func = func;
-    std::weak_ptr<JavaScriptTaskRunner> weak_runner = scope->GetTaskRunner();
-    cb = [weak_context, func,
-          weak_runner](const std::shared_ptr<DomArgument> &argument) -> void {
+    std::weak_ptr<TaskRunner> weak_runner = scope->GetTaskRunner();
+    cb = [weak_context, func, weak_runner](const std::shared_ptr<DomArgument> &argument) -> void {
       auto runner = weak_runner.lock();
       if (runner) {
-        std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-        task->callback = [weak_context, func, argument]() {
+        auto cb = [weak_context, func, argument]() {
           auto context = weak_context.lock();
           if (!context) {
             return;
@@ -87,11 +86,11 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
             return;
           }
 
-          DomValue value;
+          HippyValue value;
           bool flag = argument->ToObject(value);
           if (flag) {
             auto param = context->CreateCtxValue(
-                std::make_shared<DomValue>(std::move(value)));
+                std::make_shared<HippyValue>(std::move(value)));
             if (param) {
               const std::shared_ptr<CtxValue> argus[] = {param};
               context->CallFunction(func, 1, argus);
@@ -104,7 +103,7 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
             context->ThrowException(unicode_string_view("param ToObject failed"));
           }
         };
-        runner->PostTask(task);
+        runner->PostTask(std::move(cb));
       }
     };
   }
@@ -114,6 +113,6 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
       dom_manager_weak.lock()->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
     }
   }};
-  TDF_BASE_CHECK(!dom_manager_weak.expired());
+  FOOTSTONE_CHECK(!dom_manager_weak.expired());
   dom_manager_weak.lock()->PostTask(hippy::dom::Scene(std::move(ops)));
 }

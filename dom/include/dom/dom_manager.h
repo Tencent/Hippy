@@ -6,17 +6,16 @@
 #include <memory>
 #include <vector>
 
-#include "base/logging.h"
-#include "base/macros.h"
-#include "core/base/common.h"
-#include "core/base/task_runner.h"
-#include "core/task/common_task.h"
+#include "footstone/logging.h"
+#include "footstone/macros.h"
+#include "footstone/task_runner.h"
+#include "footstone/worker_manager.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
 #include "dom/dom_listener.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "dom/layout_node.h"
 #include "dom/scene.h"
 
@@ -43,8 +42,9 @@ struct DomInfo;
 class DomManager : public std::enable_shared_from_this<DomManager> {
  public:
   using bytes = std::string;
-  using DomValue = tdf::base::DomValue;
-  using TaskRunner = hippy::base::TaskRunner;
+  using HippyValue = footstone::value::HippyValue;
+  using TaskRunner = footstone::runner::TaskRunner;
+  using Task = footstone::Task;
 
   struct RootInfo {
     uint32_t root_id;
@@ -53,10 +53,13 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   };
 
   DomManager();
-  ~DomManager() = default;
+  ~DomManager();
 
   inline int32_t GetId() { return id_; }
   inline std::weak_ptr<RenderManager> GetRenderManager() { return render_manager_; }
+  inline void SetTaskRunner(std::shared_ptr<TaskRunner> runner) {
+    dom_task_runner_ =  runner;
+  }
 
   void Init();
   void SetRenderManager(const std::weak_ptr<RenderManager>& render_manager);
@@ -93,10 +96,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height);
   void DoLayout(const std::weak_ptr<RootNode>& weak_root_node);
   void PostTask(const Scene&& scene);
-  std::shared_ptr<CommonTask> PostDelayedTask(const Scene&& scene, uint64_t delay);
-  void CancelTask(std::shared_ptr<CommonTask> task);
-  void StartTaskRunner() { dom_task_runner_->Start(); }
-  void TerminateTaskRunner() { dom_task_runner_->Terminate(); }
+  std::shared_ptr<Task> PostDelayedTask(const Scene&& scene, uint64_t delay);
+  void CancelTask(std::shared_ptr<Task> task);
 
   bytes GetSnapShot(const std::shared_ptr<RootNode>& root_node);
   bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer);
@@ -112,7 +113,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::weak_ptr<RenderManager> render_manager_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
 
-  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(DomManager);
+  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(DomManager);
 
   friend DomNode;
 };

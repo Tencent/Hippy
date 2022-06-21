@@ -27,7 +27,7 @@
 #import "dom/dom_manager.h"
 #import "RenderVsyncManager.h"
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
 using DomManager = hippy::DomManager;
@@ -136,7 +136,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
     @autoreleasepool {
         std::shared_ptr<DomNode> node = dom_node.lock();
         if (node) {
-            DomValue dom_value;
+            HippyValue dom_value;
             param.ToObject(dom_value);
             [uiManager_ dispatchFunction:name viewName:node->GetViewName()
                                  viewTag:node->GetId() onRootNode:root_node params:dom_value

@@ -21,14 +21,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "dom/dom_argument.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol OCTypeToFunctionCallbackType <NSObject>
 
-- (tdf::base::DomValue)toDomValue;
+- (footstone::value::HippyValue)toDomValue;
 
 - (hippy::DomArgument)toDomArgument;
 

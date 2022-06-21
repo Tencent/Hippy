@@ -22,13 +22,13 @@
 
 #import "OCTypeToDomArgument.h"
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::DomArgument;
 
 @implementation NSObject (DomArgument)
 
-- (DomValue)toDomValue {
-    return DomValue::Undefined();
+- (HippyValue)toDomValue {
+    return HippyValue::Undefined();
 }
 
 - (DomArgument)toDomArgument {
@@ -39,40 +39,40 @@ using DomArgument = hippy::DomArgument;
 
 @implementation NSArray (DomArgument)
 
-- (DomValue)toDomValue {
-    DomValue::DomValueArrayType array;
+- (HippyValue)toDomValue {
+    HippyValue::DomValueArrayType array;
     for (NSObject *obj in self) {
         array.push_back([obj toDomValue]);
     }
-    return DomValue(array);
+    return HippyValue(array);
 }
 
 @end
 
 @implementation NSDictionary (DomArgument)
 
-- (DomValue)toDomValue {
-    __block DomValue::DomValueObjectType domObj([self count]);
+- (HippyValue)toDomValue {
+    __block HippyValue::HippyValueObjectType domObj([self count]);
     [self enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
         std::string objKey = [key UTF8String];
-        DomValue value = [obj toDomValue];
+        HippyValue value = [obj toDomValue];
         domObj[objKey] = value;
     }];
-    return DomValue(domObj);
+    return HippyValue(domObj);
 }
 
 @end
 
 @implementation NSNumber (DomArgument)
 
-- (DomValue)toDomValue {
+- (HippyValue)toDomValue {
     const char *objcType = [self objCType];
     if (0 == strcmp(objcType, @encode(float)) ||
         0 == strcmp(objcType, @encode(double))) {
-        return DomValue([self doubleValue]);
+        return HippyValue([self doubleValue]);
     }
     else {
-        return DomValue([self intValue]);
+        return HippyValue([self intValue]);
     }
 }
 
@@ -80,8 +80,8 @@ using DomArgument = hippy::DomArgument;
 
 @implementation NSString (DomArgument)
 
-- (DomValue)toDomValue {
-    return DomValue([self UTF8String]);
+- (HippyValue)toDomValue {
+    return HippyValue([self UTF8String]);
 }
 
 @end

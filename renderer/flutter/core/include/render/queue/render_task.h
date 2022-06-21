@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "encodable_value.h"
 #include "render/ffi/common_header.h"
 #include "render_op.h"

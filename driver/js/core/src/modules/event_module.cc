@@ -26,8 +26,8 @@
 #include "core/scope.h"
 #include "dom/dom_event.h"
 #include "dom/dom_node.h"
-#include "dom/dom_value.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/hippy_value.h"
+#include "footstone/string_view_utils.h"
 
 template <typename T>
 using InstanceDefine = hippy::napi::InstanceDefine<T>;
@@ -57,8 +57,8 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
                             DomEvent* event, size_t argument_count,
                             const std::shared_ptr<CtxValue> arguments[])
       -> std::shared_ptr<CtxValue> {
-    event->StopPropagation();    
-    TDF_BASE_LOG(INFO) << "stop propagation" << std::endl;
+    event->StopPropagation();
+    FOOTSTONE_LOG(INFO) << "stop propagation" << std::endl;
     return nullptr;
   };
   def.functions.emplace_back(std::move(stop_propagation));
@@ -70,11 +70,11 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     auto scope = weak_scope.lock();
     if (scope) {
       if (event == nullptr) {
-        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
+        scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
         return scope->GetContext()->CreateUndefined();
       }
       std::string type = event->GetType();
-      tdf::base::unicode_string_view string_view = tdf::base::unicode_string_view(type);
+      footstone::stringview::unicode_string_view string_view = footstone::stringview::unicode_string_view(type);
       std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateString(string_view);
       return ctx_value;
     }
@@ -87,17 +87,21 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   id.name = "id";
   id.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      if (event == nullptr) {
-        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
-        return scope->GetContext()->CreateUndefined();
-      }
-      auto dom_node = event->GetTarget();
-      uint32_t id = dom_node.lock()->GetId();
-      std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(id);
-      return ctx_value;
+    if (!scope) {
+      return nullptr;
     }
-    return nullptr;
+    if (!event) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
+      return nullptr;
+    }
+    auto weak_dom_node = event->GetTarget();
+    auto dom_node = weak_dom_node.lock();
+    if (!dom_node) {
+      return nullptr;
+    }
+    uint32_t id = dom_node->GetId();
+    std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(id);
+    return ctx_value;
   };
   id.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
   def.properties.emplace_back(std::move(id));
@@ -106,17 +110,21 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   current_id.name = "currentId";
   current_id.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      if (event == nullptr) {
-        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
-        return scope->GetContext()->CreateUndefined();
-      }
-      auto dom_node = event->GetCurrentTarget();
-      uint32_t current_id = dom_node.lock()->GetId();
-      std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(current_id);
-      return ctx_value;
+    if (!scope) {
+      return nullptr;
     }
-    return nullptr;
+    if (!event) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
+      return nullptr;
+    }
+    auto weak_dom_node = event->GetCurrentTarget();
+    auto dom_node = weak_dom_node.lock();
+    if (!dom_node) {
+      return nullptr;
+    }
+    uint32_t current_id = dom_node->GetId();
+    std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(current_id);
+    return ctx_value;
   };
   current_id.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
   def.properties.emplace_back(std::move(current_id));
@@ -125,17 +133,21 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   target.name = "target";
   target.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      if (event == nullptr) {
-        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
-        return scope->GetContext()->CreateUndefined();
-      }
-      auto dom_node = event->GetTarget();
-      uint32_t target_id = dom_node.lock()->GetId();
-      std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(target_id);
-      return ctx_value;
+    if (!scope) {
+      return nullptr;
     }
-    return nullptr;
+    if (!event) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
+      return nullptr;
+    }
+    auto weak_dom_node = event->GetTarget();
+    auto dom_node = weak_dom_node.lock();
+    if (!dom_node) {
+      return nullptr;
+    }
+    uint32_t target_id = dom_node->GetId();
+    std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(target_id);
+    return ctx_value;
   };
   target.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
   def.properties.emplace_back(std::move(target));
@@ -144,17 +156,21 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   current_target.name = "currentTarget";
   current_target.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      if (event == nullptr) {
-        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
-        return scope->GetContext()->CreateUndefined();
-      }
-      auto dom_node = event->GetCurrentTarget();
-      uint32_t current_target_id = dom_node.lock()->GetId();
-      std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(current_target_id);
-      return ctx_value;
+    if (!scope) {
+      return nullptr;
     }
-    return nullptr;
+    if (!event) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
+      return nullptr;
+    }
+    auto weak_dom_node = event->GetCurrentTarget();
+    auto dom_node = weak_dom_node.lock();
+    if (!dom_node) {
+      return nullptr;
+    }
+    uint32_t current_target_id = dom_node->GetId();
+    std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(current_target_id);
+    return ctx_value;
   };
   current_target.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
   def.properties.emplace_back(std::move(current_target));
@@ -163,17 +179,17 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   event_phase.name = "eventPhase";
   event_phase.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      if (event == nullptr) {
-        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
-        return scope->GetContext()->CreateUndefined();
-      }
-      auto event_phase = event->GetEventPhase();
-      uint8_t event_phase_number = static_cast<uint8_t>(event_phase);
-      std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(event_phase_number);
-      return ctx_value;
+    if (!scope) {
+      return nullptr;
     }
-    return nullptr;
+    if (!event) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
+      return nullptr;
+    }
+    auto event_phase = event->GetEventPhase();
+    uint8_t event_phase_number = static_cast<uint8_t>(event_phase);
+    std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(event_phase_number);
+    return ctx_value;
   };
   event_phase.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
   def.properties.emplace_back(std::move(event_phase));
@@ -182,19 +198,19 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   params.name = "params";
   params.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
-    if (scope) {
-      if (event == nullptr) {
-        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
-        return scope->GetContext()->CreateUndefined();
-      }
-      std::shared_ptr<tdf::base::DomValue> parameter = event->GetValue();
-      std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateUndefined();
-      if (parameter != nullptr) {
-        ctx_value = scope->GetContext()->CreateCtxValue(parameter);
-      }
-      return ctx_value;
+    if (!scope)  {
+      return nullptr;
     }
-    return nullptr;
+    if (!event) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
+      return nullptr;
+    }
+    std::shared_ptr<footstone::value::HippyValue> parameter = event->GetValue();
+    std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateUndefined();
+    if (parameter) {
+      ctx_value = scope->GetContext()->CreateCtxValue(parameter);
+    }
+    return ctx_value;
   };
   params.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
   def.properties.emplace_back(std::move(params));

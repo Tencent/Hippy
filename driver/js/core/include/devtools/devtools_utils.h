@@ -33,11 +33,11 @@ namespace hippy::devtools {
  */
 class DevToolsUtil {
  public:
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
   using DomNodeMetas = hippy::devtools::DomNodeMetas;
   using DomainMetas = hippy::devtools::DomainMetas;
   using DomNodeLocation = hippy::devtools::DomNodeLocation;
-  using NodePropsUnorderedMap = std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>;
+  using NodePropsUnorderedMap = std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>;
 
   static DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
 
@@ -58,11 +58,11 @@ class DevToolsUtil {
   static bool IsLocationHitNode(const std::shared_ptr<DomNode>& dom_node, double x, double y);
   static std::string ParseNodeKeyProps(const std::string& node_key, const NodePropsUnorderedMap& node_props);
   static std::string ParseNodeProps(const NodePropsUnorderedMap& node_props);
-  static std::string ParseNodeProps(const std::unordered_map<std::string, DomValue>& node_props);
-  static std::string ParseDomValue(const DomValue& value);
+  static std::string ParseNodeProps(const std::unordered_map<std::string, HippyValue>& node_props);
+  static std::string ParseDomValue(const HippyValue& value);
   static void AppendDomKeyValue(std::string& node_str,
                                 bool& first_object,
                                 const std::string& node_key,
-                                const DomValue& dom_value);
+                                const HippyValue& dom_value);
 };
 }  // namespace hippy::devtools

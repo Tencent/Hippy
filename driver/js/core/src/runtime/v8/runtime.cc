@@ -26,6 +26,7 @@
 #include <unordered_map>
 
 using V8Ctx = hippy::napi::V8Ctx;
+using WorkerManager = footstone::WorkerManager;
 
 static std::unordered_map<int32_t, std::shared_ptr<Runtime>> runtime_map;
 static std::mutex mutex;

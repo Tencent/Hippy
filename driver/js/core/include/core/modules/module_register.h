@@ -27,7 +27,7 @@
 #include <memory>
 #include <string>
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
 #include "core/base/macros.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
@@ -50,7 +50,7 @@
 
 class ModuleRegister {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   static ModuleRegister* instance();
 

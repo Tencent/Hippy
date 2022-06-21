@@ -44,12 +44,12 @@
 #import "HippyBridge+LocalFileSource.h"
 #include "ios_loader.h"
 #import "HippyBridge+Private.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
+#include "footstone/task_runner.h"
 #include "core/napi/jsc/js_native_api_jsc.h"
-#include "core/task/javascript_task.h"
+#include "footstone/task.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
-#include "core/task/javascript_task_runner.h"
 #include "core/engine.h"
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
@@ -67,7 +67,7 @@ struct __attribute__((packed)) ModuleData {
 
 using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
 using memory_ptr = std::unique_ptr<void, decltype(&free)>;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 
@@ -87,7 +87,7 @@ static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::functi
     NSURL *url = HippyURLWithString(URIString, NULL);
     if ([url isFileURL]) {
         NSString *result = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
-        u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]?:""));
+        u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]?[result UTF8String]:""));
         cb(std::move(content));;
     }
     else {
@@ -155,7 +155,10 @@ HIPPY_EXPORT_MODULE()
         // unless JSContextGroupRef is deallocated
         self.executorkey = execurotkey;
         self.bridge = bridge;
-        std::shared_ptr<Engine> engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
+        auto workerManager = std::make_shared<footstone::WorkerManager>(2);
+        [self.bridge setUpWorkerManager: workerManager];
+        auto js_runner = self.bridge.workerManager->CreateTaskRunner("hippy_js");
+        std::shared_ptr<Engine> engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:js_runner:nullptr:self.executorkey];
         std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String] ?: "";
         std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
@@ -723,22 +726,20 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
-        if (engine->GetJSRunner()->IsJsThread() == false) {
-            std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-            task->callback = block;
-            engine->GetJSRunner()->PostTask(task);
-        } else {
+        auto runner = engine->GetJSRunner();
+        if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
             block();
+        } else {
+            engine->GetJSRunner()->PostTask(block);
         }
+
     }
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
-        std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-        task->callback = block;
-        engine->GetJSRunner()->PostTask(task);
+        engine->GetJSRunner()->PostTask(block);
     }
 }
 

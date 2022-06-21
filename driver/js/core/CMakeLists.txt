@@ -56,13 +56,7 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
 endif ()
 # endregion
 
-# region base
-add_subdirectory(third_party/base)
-target_include_directories(${PROJECT_NAME} PUBLIC third_party/base/include)
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC tdf_base
-    PUBLIC tdf_base_common)
-# endregion
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/modules/footstone/include)
 
 # region jni common
 # TODO: will be removed when the base library is complete
@@ -90,10 +84,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)
 set(SOURCE_SET
     src/base/file.cc
     src/base/js_value_wrapper.cc
-    src/base/task.cc
-    src/base/task_runner.cc
-    src/base/thread.cc
-    src/base/thread_id.cc
     src/engine.cc
     src/modules/animation_module.cc
     src/modules/event_module.cc
@@ -101,11 +91,7 @@ set(SOURCE_SET
     src/modules/module_register.cc
     src/napi/callback_info.cc
     src/napi/js_native_turbo.cc
-    src/scope.cc
-    src/task/common_task.cc
-    src/task/javascript_task.cc
-    src/task/javascript_task_runner.cc
-    src/task/worker_task_runner.cc)
+    src/scope.cc)
 if (ENABLE_INSPECTOR)
   list(APPEND SOURCE_SET
       src/devtools/adapter/impl/hippy_dom_tree_adapter.cc

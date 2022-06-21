@@ -33,7 +33,7 @@
 #include "devtools/devtools_utils.h"
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "devtools/trace_control.h"
 #endif
 
@@ -59,7 +59,7 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(hippy_dom_);
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
   data_provider->runtime_adapter = runtime_adapter_;
-  TDF_BASE_DLOG(INFO) << "TDF_Backend DevtoolsDataSource data_provider:%p" << &devtools_service_;
+  FOOTSTONE_DLOG(INFO) << "TDF_Backend DevtoolsDataSource data_provider:%p" << &devtools_service_;
 }
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
@@ -135,9 +135,9 @@ void DevtoolsDataSource::SendVmNotification(std::unique_ptr<v8_inspector::String
 }
 
 void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
-  TDF_BASE_DCHECK(!string_view.is8Bit());
+  FOOTSTONE_DCHECK(!string_view.is8Bit());
   auto data_chars = reinterpret_cast<const char16_t*>(string_view.characters16());
-  auto result = base::StringViewUtils::ToU8StdStr(tdf::base::unicode_string_view(data_chars, string_view.length()));
+  auto result = base::StringViewUtils::ToU8StdStr(footstone::stringview::unicode_string_view(data_chars, string_view.length()));
   devtools_service_->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
 }
 #endif

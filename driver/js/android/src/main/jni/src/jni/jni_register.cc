@@ -22,12 +22,12 @@
 
 #include "jni/jni_register.h"
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/uri.h"
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 std::unique_ptr<JNIRegister>& JNIRegister::GetInstance() {
@@ -49,7 +49,7 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
     const char* class_name = jni_module.first.c_str();
     j_class = j_env->FindClass(class_name);
     if (!j_class) {
-      TDF_BASE_DLOG(ERROR)
+      FOOTSTONE_DLOG(ERROR)
           << "NativeAccess class "
           << class_name
           << "not found";
@@ -69,7 +69,7 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
         if (j_env->ExceptionCheck()) {
           j_env->ExceptionDescribe();
         }
-        TDF_BASE_DLOG(ERROR)
+        FOOTSTONE_DLOG(ERROR)
             << "Cannot find method name = "
             << method.name
             << " signature = "
@@ -81,7 +81,7 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
     }
 
     j_env->RegisterNatives(j_class, methods.data(),
-                           hippy::base::checked_numeric_cast<size_t, jint>(methods.size()));
+                           footstone::check::checked_numeric_cast<size_t, jint>(methods.size()));
   }
   return true;
 }

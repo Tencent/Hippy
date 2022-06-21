@@ -44,7 +44,9 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
     return instance;
 }
 
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key {
+- (std::shared_ptr<Engine>)createJSEngineForKey:(std::shared_ptr<footstone::TaskRunner>)js_runner
+      :(std::shared_ptr<footstone::TaskRunner>)worker_runner
+      :(NSString *)key {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
     const auto it = _engineMapper.find([key UTF8String]);
     bool findIT = (_engineMapper.end() != it);
@@ -53,7 +55,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-        std::shared_ptr<Engine> engine = std::make_shared<Engine>();
+        std::shared_ptr<Engine> engine = std::make_shared<Engine>(js_runner, worker_runner);
         [self setEngine:engine forKey:key];
         return engine;
     }

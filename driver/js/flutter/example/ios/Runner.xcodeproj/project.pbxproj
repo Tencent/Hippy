@@ -53,7 +53,7 @@
 			containerPortal = BCE8AED42850452D0034EB82 /* VoltronCore.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 91CF42A8A80342A797926FF9;
-			remoteInfo = tdf_base_common;
+			remoteInfo = FOOTSTONE_common;
 		};
 		BCE8AEE92850452D0034EB82 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -96,7 +96,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A4C247B741516BC4289E341B /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		AD0D662A2775C39900FAD911 /* voltron_core.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = voltron_core.xcframework; path = .symlinks/plugins/tencent_voltron_render/ios/../../../../../../ios/voltron_core.xcframework; sourceTree = "<group>"; };
-		BC870F302775720B007080AE /* libtdf_base_common.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtdf_base_common.a; path = ../../build/ios/arm64/libtdf_base_common.a; sourceTree = "<group>"; };
+		BC870F302775720B007080AE /* libFOOTSTONE_common.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFOOTSTONE_common.a; path = ../../build/ios/arm64/libFOOTSTONE_common.a; sourceTree = "<group>"; };
 		BC870F322775720B007080AE /* voltron_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = voltron_core.framework; path = ../../build/ios/arm64/voltron_core.framework; sourceTree = "<group>"; };
 		BC870F332775720B007080AE /* libdom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdom.a; path = ../../build/ios/arm64/libdom.a; sourceTree = "<group>"; };
 		BC870F342775720B007080AE /* liblayout.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblayout.a; path = ../../build/ios/arm64/liblayout.a; sourceTree = "<group>"; };
@@ -136,7 +136,7 @@
 				AD0D662A2775C39900FAD911 /* voltron_core.xcframework */,
 				BC870F332775720B007080AE /* libdom.a */,
 				BC870F342775720B007080AE /* liblayout.a */,
-				BC870F302775720B007080AE /* libtdf_base_common.a */,
+				BC870F302775720B007080AE /* libFOOTSTONE_common.a */,
 				BC870F352775720B007080AE /* libtdf_base.a */,
 				BC870F322775720B007080AE /* voltron_core.framework */,
 				3EE496F525B92538004154DA /* libc++.1.tbd */,
@@ -207,7 +207,7 @@
 				BCE8AEE22850452D0034EB82 /* liblayout.a */,
 				BCE8AEE42850452D0034EB82 /* librender_core.a */,
 				BCE8AEE62850452D0034EB82 /* libtdf_base.a */,
-				BCE8AEE82850452D0034EB82 /* libtdf_base_common.a */,
+				BCE8AEE82850452D0034EB82 /* libFOOTSTONE_common.a */,
 				BCE8AEEA2850452D0034EB82 /* voltron_core.framework/voltron_core */,
 			);
 			name = Products;
@@ -306,10 +306,10 @@
 			remoteRef = BCE8AEE52850452D0034EB82 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		BCE8AEE82850452D0034EB82 /* libtdf_base_common.a */ = {
+		BCE8AEE82850452D0034EB82 /* libFOOTSTONE_common.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
-			path = libtdf_base_common.a;
+			path = libFOOTSTONE_common.a;
 			remoteRef = BCE8AEE72850452D0034EB82 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};

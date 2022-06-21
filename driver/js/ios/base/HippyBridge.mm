@@ -382,6 +382,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [self.batchedBridge setUpDomManager:domManager];
 }
 
+- (void)setUpWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager {
+    _workerManager = workerManager;
+}
+
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
           frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale {
     __weak HippyBridge *weakBridge = self;
@@ -396,6 +400,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             strongSelf->_rootNode->GetAnimationManager()->SetRootNode(strongSelf->_rootNode);
             strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetRootNode(strongSelf->_rootNode);
             strongSelf->_domManager = std::make_shared<hippy::DomManager>();
+            strongSelf->_domManager->SetTaskRunner(strongSelf->_batchedBridge.workerManager->CreateTaskRunner("hippy_dom"));
             strongSelf->_domManager->Init();
             strongSelf->_rootNode->SetDomManager(strongSelf->_domManager);
             strongSelf->_rootNode->GetLayoutNode()->SetScaleFactor(scale);
