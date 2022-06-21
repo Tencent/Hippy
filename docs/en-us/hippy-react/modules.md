@@ -360,14 +360,14 @@ For common network requests,, please refer to: [Getting Started - Network Reques
 `(url: string) => Promise<string>` Get all cookies for the specified url
 
 >- url: string - The target url that needs to get the cookie.
->- return value:  `Promise<string>`, return string like `name=hippy;network=mobile`.
+>- return value:  `Promise<string>`, return string like `name=hippy;network=mobile`. After version `2.14.0`, expired Cookies would not be returned.
 
 ### NetworkModule.setCookie
 
 `(url: string, keyValue: string, expires?: Date) => <void> Set cookie
 
 >- url: string - The target url that needs to set the cookie.
->- keyValue: string - Key-value pair to set, e.g. `name=hippy;network=mobile`.
+>- keyValue: string - Key-value pair to set, e.g. `name=hippy;network=mobile`. After version `2.14.0`, `empty string` would clear all Cookies under the specific URL.
 >- expires?: Date - Set the timeout for cookies.
 
 ---
