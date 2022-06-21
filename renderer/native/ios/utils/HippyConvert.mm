@@ -297,6 +297,7 @@ HIPPY_ENUM_CONVERTER(HippyBorderStyle, (@{
     @"solid": @(HippyBorderStyleSolid),
     @"dotted": @(HippyBorderStyleDotted),
     @"dashed": @(HippyBorderStyleDashed),
+    @"none": @(HippyBorderStyleNone),
 }),
 HippyBorderStyleSolid, integerValue)
 
