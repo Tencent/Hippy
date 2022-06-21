@@ -132,7 +132,7 @@ class CoreApi implements APIProvider {
         ),
         ViewControllerGenerator(
           RootNodeController.kClassName,
-              (object) => RootNodeController(),
+          (object) => RootNodeController(),
         ),
       ];
 
