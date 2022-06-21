@@ -54,10 +54,11 @@ class RootNodeController extends BaseViewController<RootRenderViewModel> {
       RenderViewModel renderViewModel, EventHolder eventHolder) {
     if (eventHolder.eventName == kDoFrame) {
       final id = renderViewModel.id;
+      final renderManager = renderViewModel.context.renderManager;
       if (eventHolder.isAdd) {
-        renderViewModel.context.renderManager.addAnimationNodeId(id);
+        renderManager.addAnimationNodeId(id);
       } else {
-        renderViewModel.context.renderManager.removeAnimationNodeId(id);
+        renderManager.removeAnimationNodeId(id);
       }
     }
   }
