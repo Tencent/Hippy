@@ -188,6 +188,11 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
         return;
     }
     NSURL *source_url = CFBridgingRelease(urlRef);
+    keyValue = [keyValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (![keyValue length]) {
+        [self deleteCookiesForURL:source_url];
+        return;
+    }
     NSArray<NSString *> *keysvalues = [keyValue componentsSeparatedByString:@";"];
     NSMutableArray<NSHTTPCookie *>* cookies = [NSMutableArray arrayWithCapacity:[keysvalues count]];
     NSString *path = [source_url path];
@@ -202,8 +207,32 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
                 if ([value count] < 2) {
                     continue;
                 }
-                NSDictionary *dictionary = @{NSHTTPCookieName: value[0], NSHTTPCookieValue: value[1], NSHTTPCookieExpires: expireString, NSHTTPCookiePath: path, NSHTTPCookieDomain: domain};
-                NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:dictionary];
+                static dispatch_once_t onceToken;
+                static NSDateFormatter *dateFormatter = nil;
+                dispatch_once(&onceToken, ^{
+                    dateFormatter = [[NSDateFormatter alloc] init];
+                    //Thu, 21-Jan-2023 00:00:00 GMT
+                    dateFormatter.dateFormat = @"EEE, dd-MM-yyyy HH:mm:ss zzz";
+                });
+                NSMutableDictionary *cookiesData = [@{NSHTTPCookieName: value[0], NSHTTPCookiePath: path, NSHTTPCookieDomain: domain} mutableCopy];
+                NSString *cookieValue = [value[1] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                //set cookie value for cookie object
+                //if cookie value is empty, we assume this cookie should be deleted
+                if ([cookieValue length]) {
+                    [cookiesData setObject:cookieValue forKey:NSHTTPCookieValue];
+                }
+                else {
+                    [cookiesData setObject:@"" forKey:NSHTTPCookieValue];
+                    [cookiesData setObject:@(0) forKey:NSHTTPCookieMaximumAge];
+                }
+                //set cookie expire date
+                if ([expireString length]) {
+                    NSDate *expireDate = [dateFormatter dateFromString:expireString];
+                    if (expireDate) {
+                        [cookiesData setObject:expireDate forKey:NSHTTPCookieExpires];
+                    }
+                }
+                NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:cookiesData];
                 if (cookie) {
                     [cookies addObject:cookie];
                     //set WKCookie for system version abover iOS11
@@ -218,5 +247,26 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
     });
 }
 // clang-format on
+
+- (void)deleteCookiesForURL:(NSURL *)url {
+    NSString *path = [[url path] isEqualToString:@""]?@"/":[url path];
+    NSString *domain = [url host];
+    if (@available(iOS 11.0, *)) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            WKWebsiteDataStore *ds = [WKWebsiteDataStore defaultDataStore];
+            [ds.httpCookieStore getAllCookies:^(NSArray<NSHTTPCookie *> * cookies) {
+                for (NSHTTPCookie *cookie in cookies) {
+                    if ([cookie.domain isEqualToString:domain] && [cookie.path isEqualToString:path]) {
+                        [ds.httpCookieStore deleteCookie:cookie completionHandler:NULL];
+                    }
+                }
+            }];
+        });
+    }
+    NSArray<NSHTTPCookie *> *cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:url];
+    for (NSHTTPCookie *cookie in cookies) {
+        [[NSHTTPCookieStorage sharedHTTPCookieStorage] deleteCookie:cookie];
+    }
+}
 
 @end
