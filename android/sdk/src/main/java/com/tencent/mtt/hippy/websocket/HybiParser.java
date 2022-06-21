@@ -114,7 +114,7 @@ public class HybiParser {
           break;
       }
     }
-    mClient.getListener().onDisconnect(0, "EOF");
+    mClient.getListener().onDisconnect(0, WebSocketClient.DISCONNECT_REASON_EOF);
   }
 
   private void parseOpcode(byte data) throws ProtocolError {

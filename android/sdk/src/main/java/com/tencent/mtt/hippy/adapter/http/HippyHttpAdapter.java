@@ -13,23 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.http;
 
-import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.modules.Promise;
+import java.util.Map;
 
 public interface HippyHttpAdapter {
 
-  void sendRequest(HippyHttpRequest request, HttpTaskCallback callback);
+    void destroyIfNeed();
 
-  void destroyIfNeed();
+    void sendRequest(final HippyHttpRequest request, final HttpTaskCallback callback);
 
-  void handleRequestCookie(String url, HippyArray requestCookies, HippyHttpRequest httpRequest);
+    void fetch(final HippyMap initParams, final Promise promise, Map nativeParams);
 
-  interface HttpTaskCallback {
+    void getCookie(String url, Promise promise);
 
-    void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+    void setCookie(String url, String keyValue, String expires);
 
-    @SuppressWarnings("unused")
-    void onTaskFailed(HippyHttpRequest request, Throwable error);
-  }
+    interface HttpTaskCallback {
+
+        void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+
+        @SuppressWarnings("unused")
+        void onTaskFailed(HippyHttpRequest request, Throwable error);
+    }
 }

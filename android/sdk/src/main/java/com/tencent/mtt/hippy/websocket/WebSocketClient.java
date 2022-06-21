@@ -54,6 +54,10 @@ public class WebSocketClient {
   private final List<Header> mExtraHeaders;
   private final HybiParser mParser;
   private boolean mConnected;
+  public static final String DISCONNECT_REASON_EOF = "EOF";
+  public static final String DISCONNECT_REASON_SSL = "SSL";
+  public static final String DISCONNECT_REASON_CONNECT = "CONNECT";
+  public static final String DISCONNECT_REASON_CLOSE = "closed";
 
   public WebSocketClient(URI uri, WebSocketListener listener, List<Header> extraHeaders) {
     mURI = uri;
@@ -155,12 +159,17 @@ public class WebSocketClient {
 
         } catch (EOFException ex) {
           Log.d(TAG, "WebSocket EOF!", ex);
-          mListener.onDisconnect(0, "EOF");
+          mListener.onDisconnect(0, DISCONNECT_REASON_EOF);
           mConnected = false;
         } catch (SSLException ex) {
           // Connection reset by peer
           Log.d(TAG, "Websocket SSL error!", ex);
-          mListener.onDisconnect(0, "SSL");
+          mListener.onDisconnect(0, DISCONNECT_REASON_SSL);
+          mConnected = false;
+        } catch (ConnectException ex) {
+          // WebSocketClient received no reply from server.
+          Log.d(TAG, "Websocket Connect error!", ex);
+          mListener.onDisconnect(0, DISCONNECT_REASON_CONNECT);
           mConnected = false;
         } catch (Throwable ex) {
           mListener.onError(new Exception(ex));
@@ -191,7 +200,7 @@ public class WebSocketClient {
               Log.d(TAG, "Error while disconnecting", ex);
               mListener.onError(new Exception(ex));
             }
-            mListener.onDisconnect(0, "closed");
+            mListener.onDisconnect(0, DISCONNECT_REASON_CLOSE);
             mSocket = null;
           }
           mConnected = false;
