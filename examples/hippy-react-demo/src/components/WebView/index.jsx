@@ -12,6 +12,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',

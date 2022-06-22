@@ -35,7 +35,7 @@ public interface HippyBridge {
     boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
             String codeCacheTag, NativeCallback callback);
 
-    void onDestroy();
+    void onDestroy(boolean isReload);
 
     void destroy(NativeCallback callback);
 
