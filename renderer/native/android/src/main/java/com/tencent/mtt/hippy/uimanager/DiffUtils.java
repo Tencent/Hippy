@@ -273,7 +273,7 @@ public class DiffUtils {
                 continue;
             }
             int pid = patch.node.getParent().getId();
-            controllerManager.deleteChild(pid, patch.node.getId());
+            controllerManager.deleteChild(patch.node.getRootId(), pid, patch.node.getId());
         }
     }
 
@@ -284,7 +284,7 @@ public class DiffUtils {
             return;
         }
         for (Patch patch : patchArray) {
-            controllerManager.replaceID(patch.oldId, patch.node.getId());
+            controllerManager.replaceID(patch.node.getRootId(), patch.oldId, patch.node.getId());
         }
     }
 
@@ -317,10 +317,11 @@ public class DiffUtils {
             if (patch.node.checkNodeFlag(FLAG_HAS_DTEB_ID)) {
                 patch.updateProps.remove(DT_EBLID);
             } else if (props != null && props.get(DT_EBLID) instanceof String) {
-                patch.updateProps.put(DT_EBLID, (String) props.get(DT_EBLID));
+                patch.updateProps.put(DT_EBLID, props.get(DT_EBLID));
             }
             controllerManager
-                    .updateView(patch.node.getId(), patch.node.getClassName(), patch.updateProps,
+                    .updateView(patch.node.getRootId(), patch.node.getId(),
+                            patch.node.getClassName(), patch.updateProps,
                             patch.node.getEvents());
         }
     }
@@ -334,6 +335,7 @@ public class DiffUtils {
         for (Patch patch : patchArray) {
             controllerManager
                     .updateLayout(patch.node.getClassName(),
+                            patch.node.getRootId(),
                             patch.node.getId(),
                             patch.node.getX(),
                             patch.node.getY(),
@@ -349,8 +351,8 @@ public class DiffUtils {
             return;
         }
         for (Patch patch : patchArray) {
-            controllerManager.updateExtra(patch.node.getId(), patch.node.getClassName(),
-                    patch.node.getExtra());
+            controllerManager.updateExtra(patch.node.getRootId(), patch.node.getId(),
+                    patch.node.getClassName(), patch.node.getExtra());
         }
     }
 }

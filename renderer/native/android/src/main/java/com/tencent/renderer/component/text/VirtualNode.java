@@ -101,6 +101,7 @@ public abstract class VirtualNode {
         if (mChildren == null) {
             mChildren = new ArrayList<>(4);
         }
+        index = (index < 0) ? 0 : Math.min(index, mChildren.size());
         mChildren.add(index, child);
         child.mParent = this;
     }

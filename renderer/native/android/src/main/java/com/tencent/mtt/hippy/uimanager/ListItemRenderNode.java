@@ -16,13 +16,10 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.view.View;
-import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
-import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -35,10 +32,9 @@ public class ListItemRenderNode extends RenderNode {
     private boolean mShouldSticky;
     private IRecycleItemTypeChange mRecycleItemTypeChangeListener;
 
-    public ListItemRenderNode(int id, @Nullable Map<String, Object> props, @NonNull String className,
-            @Nullable ViewGroup rootView, @NonNull ControllerManager componentManager,
-            boolean isLazyLoad) {
-        super(id, props, className, rootView, componentManager, isLazyLoad);
+    public ListItemRenderNode(int rootId, int id, @Nullable Map<String, Object> props, @NonNull String className,
+            @NonNull ControllerManager componentManager, boolean isLazyLoad) {
+        super(rootId, id, props, className, componentManager, isLazyLoad);
         if (props.get(ITEM_STICKY) instanceof Boolean) {
             mShouldSticky = (boolean) mProps.get(ITEM_STICKY);
         }
@@ -52,13 +48,13 @@ public class ListItemRenderNode extends RenderNode {
     @Override
     public void updateLayout(int x, int y, int w, int h) {
         super.updateLayout(x, y, w, h);
-        View renderView = mComponentManager.mControllerRegistry.getView(mId);
+        View renderView = mControllerManager.findView(mRootId, mId);
         mY = renderView != null ? renderView.getTop() : 0;
-        if (getParent() != null && mComponentManager != null && mComponentManager.getRenderManager()
+        if (getParent() != null && mControllerManager != null && mControllerManager.getRenderManager()
                 != null) { // 若屏幕内node更新引起了item整体变化，需要通知ListView发起dispatchLayout重排版
-            RenderManager renderManager = mComponentManager.getRenderManager();
+            RenderManager renderManager = mControllerManager.getRenderManager();
             if (renderManager != null) {
-                renderManager.addUpdateNodeIfNeeded(getParent());
+                renderManager.addUpdateNodeIfNeeded(mRootId, getParent());
             }
         }
     }
@@ -131,18 +127,14 @@ public class ListItemRenderNode extends RenderNode {
      * @return 是否需要删除view
      */
     public boolean needDeleteExistRenderView() {
-        if (mComponentManager.hasView(mId)) {
-            return mComponentManager.createView(mRootView, mId, mClassName, mProps).getParent()
+        if (mControllerManager.hasView(mRootId, mId)) {
+            return mControllerManager.createView(mRootId, mId, mClassName, mProps).getParent()
                     == null;
         }
         return false;
     }
 
     public boolean isViewExist() {
-        return mComponentManager.hasView(mId);
-    }
-
-    public boolean hasRootView() {
-        return mRootView != null;
+        return mControllerManager.hasView(mRootId, mId);
     }
 }

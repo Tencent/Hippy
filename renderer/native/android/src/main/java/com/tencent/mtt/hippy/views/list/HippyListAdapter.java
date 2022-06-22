@@ -69,7 +69,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
         NodeHolder contentHolder = new NodeHolder();
         //LogUtils.d("HippyListView", "onCreateContentViewWithPos start position " + position);
         RenderNode contentViewRenderNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
+                .getRenderNode(mParentRecyclerView).getChildAt(position);
         contentViewRenderNode.setLazy(false);
         View view = contentViewRenderNode.createViewRecursive();
         contentHolder.mContentView = view;
@@ -98,7 +98,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
             RenderNode parentNode = nodeHolder.mBindNode.getParent();
             if (parentNode != null) {
                 nativeRenderer.getRenderManager().getControllerManager()
-                        .deleteChild(parentNode.getId(), nodeHolder.mBindNode.getId());
+                        .deleteChild(parentNode.getRootId(), parentNode.getId(), nodeHolder.mBindNode.getId());
             }
             //LogUtils.d("HippyListView", "onViewAbandon end " + nodeHolder.mBindNode.toString());
         }
@@ -123,7 +123,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
             RenderNode toNode = null;
             try {
                 toNode = nativeRenderer.getRenderManager()
-                        .getRenderNode(mParentRecyclerView.getId())
+                        .getRenderNode(mParentRecyclerView)
                         .getChildAt(position);
             } catch (Throwable e) {
                 LogUtils.d("HippyListAdapter", "onBindContentView: " + e.getMessage());
@@ -216,9 +216,9 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
 
     private RecyclerViewBase.ViewHolder getScrapViewForPositionInner(int position, int type,
             RecyclerViewBase.Recycler recycler) {
-        if (nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView.getId()) == null
+        if (nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView) == null
                 ||
-                nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView.getId())
+                nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView)
                         .getChildCount()
                         <= position) {
             return null;
@@ -232,7 +232,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
                         && holder.mContentHolder instanceof NodeHolder) {
                     RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
                     RenderNode toNode = nativeRenderer.getRenderManager()
-                            .getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
+                            .getRenderNode(mParentRecyclerView).getChildAt(position);
                     if (holderNode == toNode) {
                         recycler.mAttachedScrap.remove(i);
                         holder.setScrapContainer(null);
@@ -250,7 +250,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
                     && holder.mContentHolder instanceof NodeHolder) {
                 RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
                 RenderNode toNode = nativeRenderer.getRenderManager()
-                        .getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
+                        .getRenderNode(mParentRecyclerView).getChildAt(position);
                 if (holderNode == toNode) {
                     recycler.mCachedViews.remove(i);
                     return holder;
@@ -272,7 +272,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
                             && holder.mContentHolder instanceof NodeHolder) {
                         RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
                         RenderNode toNode = nativeRenderer.getRenderManager()
-                                .getRenderNode(mParentRecyclerView.getId()).getChildAt(position);
+                                .getRenderNode(mParentRecyclerView).getChildAt(position);
                         if (holderNode == toNode) {
                             scrapHeap.remove(holder);
                             return holder;
@@ -356,7 +356,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getCustomHeaderViewWidth() {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null && listNode.getChildCount() > 0) {
             RenderNode listItemNode = listNode.getChildAt(0);
             if (listItemNode instanceof PullHeaderRenderNode) {
@@ -370,7 +370,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getCustomFooterViewWidth() {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null && listNode.getChildCount() > 0) {
             RenderNode listItemNode = listNode.getChildAt(listNode.getChildCount() - 1);
             if (listItemNode instanceof PullFooterRenderNode) {
@@ -384,7 +384,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getCustomHeaderViewHeight() {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null && listNode.getChildCount() > 0) {
             RenderNode listItemNode = listNode.getChildAt(0);
             if (listItemNode instanceof PullHeaderRenderNode) {
@@ -398,7 +398,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getCustomFooterViewHeight() {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null && listNode.getChildCount() > 0) {
             RenderNode listItemNode = listNode.getChildAt(listNode.getChildCount() - 1);
             if (listItemNode instanceof PullFooterRenderNode) {
@@ -412,7 +412,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getItemHeight(int index) {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null && listNode.getChildCount() > index && index >= 0) {
             RenderNode listItemNode = listNode.getChildAt(index);
             if (listItemNode != null) {
@@ -425,7 +425,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getItemWidth(int index) {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null && listNode.getChildCount() > index && index >= 0) {
             RenderNode listItemNode = listNode.getChildAt(index);
             if (listItemNode != null) {
@@ -467,7 +467,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getItemCount() {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null) {
             return listNode.getChildCount();
         }
@@ -477,10 +477,10 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public int getItemViewType(int index) {
         RenderNode listViewNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listViewNode != null && listViewNode.getChildCount() > index) {
             RenderNode listItemNode = nativeRenderer.getRenderManager()
-                    .getRenderNode(mParentRecyclerView.getId()).getChildAt(index);
+                    .getRenderNode(mParentRecyclerView).getChildAt(index);
             if (listItemNode != null) {
                 if (listItemNode instanceof PullFooterRenderNode) {
                     return RecyclerViewBase.ViewHolder.TYPE_CUSTOM_FOOTER;
@@ -504,7 +504,7 @@ public class HippyListAdapter extends RecyclerAdapter implements IRecycleItemTyp
     @Override
     public boolean isSuspentedItem(int pos) {
         RenderNode listNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView.getId());
+                .getRenderNode(mParentRecyclerView);
         if (listNode != null && listNode.getChildCount() > pos) {
             RenderNode listItemNode = listNode.getChildAt(pos);
             if (listItemNode instanceof ListItemRenderNode) {

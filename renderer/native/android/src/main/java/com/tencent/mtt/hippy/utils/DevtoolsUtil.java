@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.Base64;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnDrawListener;
 import androidx.annotation.NonNull;
@@ -43,7 +42,7 @@ public class DevtoolsUtil {
         if (nativeRenderer == null) {
             return;
         }
-        ViewGroup rootView = nativeRenderer.getRootView();
+        View rootView = nativeRenderer.getRootView(view);
         if (rootView == null) {
             return;
         }
@@ -74,7 +73,7 @@ public class DevtoolsUtil {
         if (nativeRenderer == null) {
             return;
         }
-        ViewGroup rootView = nativeRenderer.getRootView();
+        View rootView = nativeRenderer.getRootView(view);
         if (rootView == null) {
             return;
         }

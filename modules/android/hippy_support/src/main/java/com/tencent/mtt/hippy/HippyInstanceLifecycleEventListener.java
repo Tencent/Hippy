@@ -18,11 +18,11 @@ package com.tencent.mtt.hippy;
 @SuppressWarnings({"unused"})
 public interface HippyInstanceLifecycleEventListener {
 
-  void onInstanceLoad();
+  void onInstanceLoad(int rootId);
 
   void onInstanceResume();
 
   void onInstancePause();
 
-  void onInstanceDestroy();
+  void onInstanceDestroy(int rootId);
 }

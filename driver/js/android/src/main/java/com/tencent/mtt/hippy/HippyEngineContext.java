@@ -43,8 +43,6 @@ public interface HippyEngineContext {
 
   ViewGroup getRootView();
 
-  void updateAnimationNode(byte[] buffer, int offset, int length);
-
   void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
   void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
@@ -53,5 +51,5 @@ public interface HippyEngineContext {
 
   int getEngineId();
 
-  void onJSBridgeInitialized(long runtimeId);
+  void onRuntimeInitialized(long runtimeId);
 }

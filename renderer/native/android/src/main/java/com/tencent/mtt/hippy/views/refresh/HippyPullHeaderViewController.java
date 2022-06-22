@@ -55,11 +55,9 @@ public class HippyPullHeaderViewController extends HippyViewController<HippyPull
     }
 
     @Override
-    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
-            @NonNull String className, @NonNull ViewGroup hippyRootView,
-            @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
-        return new PullHeaderRenderNode(id, props, className, hippyRootView, controllerManager,
-                isLazyLoad);
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
+        return new PullHeaderRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
     }
 
     @Override

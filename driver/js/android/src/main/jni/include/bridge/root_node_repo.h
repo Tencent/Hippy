@@ -1,5 +1,4 @@
-/*!
- * iOS SDK
+/*
  *
  * Tencent is pleased to support the open source community by making
  * Hippy available.
@@ -11,25 +10,31 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-#import <UIKit/UIKit.h>
+#pragma once
 
-NS_ASSUME_NONNULL_BEGIN
+#include "dom/root_node.h"
 
-@protocol HippyRenderContext;
+namespace hippy {
+namespace bridge {
 
-@interface UIView (Render)
+class RootNodeRepo {
+ public:
+  static void Insert(const std::shared_ptr<RootNode>& root_node);
 
-@property(nonatomic, weak)id<HippyRenderContext> renderContext;
+  static std::shared_ptr<RootNode> Find(uint32_t id);
 
-@end
+  static bool Erase(uint32_t id);
+};
 
-NS_ASSUME_NONNULL_END
+}  // namespace bridge
+}  // namespace hippy

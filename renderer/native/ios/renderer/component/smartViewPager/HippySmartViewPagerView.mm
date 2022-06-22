@@ -372,7 +372,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
     HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
     [shadowView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag onRootTag:shadowView.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:adjustIndexPath];
     }

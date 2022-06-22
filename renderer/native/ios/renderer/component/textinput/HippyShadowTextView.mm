@@ -66,7 +66,7 @@ static hippy::LayoutSize x5MeasureFunc(
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {
         int32_t hippyTag = [self.hippyTag intValue];
-        auto node = shared_domNode->GetNode(hippyTag);
+        auto node = shared_domNode->GetNode(self.rootNode, hippyTag);
         if (node) {
             __weak HippyShadowTextView *weakSelf = self;
             hippy::MeasureFunction measureFunc =
