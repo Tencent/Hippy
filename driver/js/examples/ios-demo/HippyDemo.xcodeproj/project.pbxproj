@@ -2271,7 +2271,6 @@
 					USE_TAITANK,
 					"DEBUG=1",
 					"$(inherited)",
-					"ENABLE_INSPECTOR=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
@@ -2312,7 +2311,6 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
-					"ENABLE_INSPECTOR=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
