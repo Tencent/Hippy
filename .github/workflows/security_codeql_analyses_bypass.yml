@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - master
     paths-ignore:
       # https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/#languages-and-compilers
       # cpp
