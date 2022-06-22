@@ -17,37 +17,53 @@
 *.m @ozonelmy
 *.mm @ozonelmy
 
-/.github/ @zoomchan-cxj
+# ci, build & doc related
+/.github/ @zoomchan-cxj @medns
+/.gitattributes @zoomchan-cxj @medns
 /.husky/ @zoomchan-cxj
 /docker/ @medns
+/buildconfig/ @medns
 /docs/ @zoomchan-cxj
-/package.json @zoomchan-cxj
-/package-lock.json @zoomchan-cxj
-/.nycrc @zoomchan-cxj
-/.npmignore @zoomchan-cxj
 /.editorconfig @zoomchan-cxj
-/.eslintignore @zoomchan-cxj
-/.npmignore @zoomchan-cxj
-/lerna.json @zoomchan-cxj
-/tsconfig.json @zoomchan-cxj
+/.gitignore @zoomchan-cxj
+/.markdownlintrc.json @zoomchan-cxj
 
+# core related
 /core/ @churchill-zhang @zoomchan-cxj
 /core/js/ @zoomchan-cxj
 
+# android related
 /android/ @siguangli @churchill-zhang
-/ios/ @ozonelmy @churchill-zhang
+/gradle/ @siguangli @medns
+/gradle.properties @siguangli @medns
+/gradlew @siguangli @medns
+/gradlew.bat @siguangli @medns
+/setting.gradle @siguangli @medns
+/build.gradle @siguangli @medns
 
+# iOS related
+/ios/ @ozonelmy @churchill-zhang
+/hippy.podspec @ozonelmy
+
+# examples related
 /examples/android-demo/ @siguangli
-/examples/android-demo/res/ @zoomchan-cxj
+/examples/android-demo/res/ @zoomchan-cxj @siguangli
 /examples/ios-demo/ @ozonelmy
-/examples/ios-demo/res/ @zoomchan-cxj
+/examples/ios-demo/res/ @zoomchan-cxj @ozonelmy
 /examples/hippy-react-demo/ @zoomchan-cxj
 /examples/hippy-vue-demo/ @zoomchan-cxj
 
-/layout/ @ilikethese
+# layout related
+/layout/ @ilikethese @churchill-zhang
 
+# js sdk related
 /packages/ @zoomchan-cxj
 /scripts/ @zoomchan-cxj
-
+/tsconfig.json @zoomchan-cxj
+/package.json @zoomchan-cxj
+/package-lock.json @zoomchan-cxj
+/.eslintignore @zoomchan-cxj
+/.nycrc @zoomchan-cxj
+/lerna.json @zoomchan-cxj
 
 

@@ -19,11 +19,14 @@ demo:
 js:
   - 'packages/**/*'
   - 'static/**/*'
+  - 'tsconfig.json'
+  - '.eslintignore'
+  - '.nycrc'
+  - 'lerna.json'
   - '**/*.js'
   - '**/*.jsx'
   - '**/*.ts'
   - '**/*.tsx'
-  - 'tsconfig.json'
 documentation:
   - 'docs/**/*'
   - '**/*.md'
