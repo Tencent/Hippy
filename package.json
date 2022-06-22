@@ -59,6 +59,7 @@
     "eslint-plugin-vue": "^7.0.0",
     "esm": "^3.2.25",
     "flow-remove-types": "^1.2.3",
+    "got": "^12.1.0",
     "husky": "^7.0.4",
     "is-ci": "^2.0.0",
     "lerna": "^4.0.0",
