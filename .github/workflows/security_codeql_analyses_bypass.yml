@@ -1,0 +1,40 @@
+name: "[security] codeql analyses"
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      # https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/#languages-and-compilers
+      # cpp
+      - '**/*.cpp'
+      - '**/*.c'
+      - '**/*.cc'
+      - '**/*.h'
+      # java
+      - '**/*.java'
+      # javascript
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.mjs'
+      - '**/*.es'
+      - '**/*.es6'
+      - '**/*.htm'
+      - '**/*.html'
+      - '**/*.vue'
+      - '**/*.ejs'
+      # typescript
+      - '**/*.ts'
+      - '**/*.tsx'
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp', 'java', 'javascript, typescript' ]
+    steps:
+    - name: Analyze Bypass
+      run: |
+        echo "No Analyze required"

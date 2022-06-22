@@ -1,0 +1,68 @@
+name: "[security] codeql analyses"
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    paths:
+      # https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/#languages-and-compilers
+      # cpp
+      - '**/*.cpp'
+      - '**/*.c'
+      - '**/*.cc'
+      - '**/*.h'
+      # java
+      - '**/*.java'
+      # javascript
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.mjs'
+      - '**/*.es'
+      - '**/*.es6'
+      - '**/*.htm'
+      - '**/*.html'
+      - '**/*.vue'
+      - '**/*.ejs'
+      # typescript
+      - '**/*.ts'
+      - '**/*.tsx'
+
+jobs:
+  analyze:
+    runs-on: [self-hosted, linux]
+    container:
+      image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp', 'java', 'javascript, typescript' ]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+    - name: Setup node
+      if: matrix.language == 'javascript, typescript'
+      uses: actions/setup-node@v3
+      with:
+        node-version: latest
+    - name: Build Java
+      if: matrix.language == 'java'
+      run: |
+        export skipCmakeAndNinja=1
+        ./gradlew example::assembleDebug
+    - name: Build C++
+      if: matrix.language == 'cpp'
+      run: |
+        ./gradlew android-sdk::buildCMakeRelease
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
