@@ -67,23 +67,24 @@ public class RenderRootNode extends RenderNode {
         mVirtualNodes.delete(id);
     }
 
-    public void updateEventListener(int rootId, @NonNull Map<String, Object> newEvents) {
+    @Override
+    public void updateEventListener(@NonNull Map<String, Object> newEvents) {
         for (Entry<String, Object> entry : newEvents.entrySet()) {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (key != null && value instanceof Boolean) {
-                handleRootEvent(rootId, key, (Boolean) value);
+                handleRootEvent(key, (Boolean) value);
             }
         }
         mEvents = newEvents;
     }
 
-    private void handleRootEvent(int rootId, @NonNull String event, boolean enable) {
+    private void handleRootEvent(@NonNull String event, boolean enable) {
         if (event.equals(ChoreographerUtils.DO_FRAME.toLowerCase())) {
             if (enable) {
-                ChoreographerUtils.registerDoFrameListener(mRendererId, rootId);
+                ChoreographerUtils.registerDoFrameListener(mRendererId, getId());
             } else {
-                ChoreographerUtils.unregisterDoFrameListener(mRendererId, rootId);
+                ChoreographerUtils.unregisterDoFrameListener(mRendererId, getId());
             }
         }
     }
