@@ -159,7 +159,7 @@ android {
     }
   }
 
-  if (!SKIP_CMAKE_AND_NINJA.toBoolean() || !skipCmakeAndNinja) {
+  if (!SKIP_CMAKE_AND_NINJA.toBoolean() && !skipCmakeAndNinja) {
     externalNativeBuild {
       cmake {
         path CMAKE_PATH
