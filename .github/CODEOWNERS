@@ -15,7 +15,7 @@
 *.cc @churchill-zhang @medns
 *.h @ozonelmy
 *.m @ozonelmy
-*.mm @ozonelm
+*.mm @ozonelmy
 
 # ci, build & doc related
 /.github/ @zoomchan-cxj @medns
