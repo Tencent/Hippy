@@ -360,14 +360,14 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(url: string) => Promise<string>` 获取指定 url 下的所有 cookies
 
 > - url: string - 需要获取 cookie 的目标 url
-> - 返回值：`Prmoise<string>`，获取到诸如 `name=hippy;network=mobile` 的字符串。
+> - 返回值：`Prmoise<string>`，获取到诸如 `name=hippy;network=mobile` 的字符串，`2.14.0` 版本后过期的 Cookies 将不再返回。
 
 ### NetworkModule.setCookie
 
 `(url: string, keyValue: string, expires?: Date) => Promise<void>` 设置 Cookie
 
 > - url: string - 需要设置 cookie 的目标 url
-> - keyValue: string - 需要设置的键值对，如 `name=hippy;network=mobile`
+> - keyValue: string - 需要设置的键值对，如 `name=hippy;network=mobile`，`2.14.0` 版本后设置 `空字符串` 会强制清除（过期）指定域名下的所有 Cookies。
 > - expires?: Date - 设置 Cookie 的过期时间，默认为空，会通过 `toUTCString` 转成 `String` 传给客户端
 
 ---
