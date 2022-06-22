@@ -19,5 +19,7 @@ package com.tencent.link_supplier.proxy.dom;
 import com.tencent.link_supplier.proxy.LinkProxy;
 
 public interface DomProxy extends LinkProxy  {
+    void addRootId(int rootId);
 
+    void removeRootId(int rootId);
 }

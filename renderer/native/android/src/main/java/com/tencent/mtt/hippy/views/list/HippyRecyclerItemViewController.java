@@ -43,8 +43,8 @@ public class HippyRecyclerItemViewController extends HippyViewController<HippyLi
     }
 
     @Override
-    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props, @NonNull String className,
-            @NonNull ViewGroup hippyRootView, ControllerManager controllerManager, boolean isLazyLoad) {
-        return new RecyclerItemRenderNode(id, props, className, hippyRootView, controllerManager, isLazyLoad);
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props, @NonNull String className,
+            ControllerManager controllerManager, boolean isLazyLoad) {
+        return new RecyclerItemRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
     }
 }

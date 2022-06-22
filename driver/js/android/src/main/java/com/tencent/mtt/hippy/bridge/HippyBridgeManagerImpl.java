@@ -233,7 +233,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
                                 long runtimeId = mHippyBridge.getV8RuntimeId();
                                 if (mContext != null) {
-                                    mContext.onJSBridgeInitialized(runtimeId);
+                                    mContext.onRuntimeInitialized(runtimeId);
                                 }
 
                                 if (enableTurbo()) {

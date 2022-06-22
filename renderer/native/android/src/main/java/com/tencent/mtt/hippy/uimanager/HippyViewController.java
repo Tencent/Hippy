@@ -53,32 +53,28 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         View.OnFocusChangeListener {
 
     private static final String TAG = "HippyViewController";
-
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
     private boolean bUserChangeFocus = false;
 
-    @SuppressWarnings("deprecation")
-    public View createView(@Nullable ViewGroup rootView, int id, @NonNull Renderer renderer,
+    public View createView(@NonNull View rootView, int id, @NonNull Renderer renderer,
             @NonNull String className, @Nullable Map<String, Object> props) {
         View view = null;
-        if (rootView != null) {
-            Context context = rootView.getContext();
-            Object object = renderer.getCustomViewCreator();
-            if (object instanceof HippyCustomViewCreator) {
-                view = ((HippyCustomViewCreator) object)
-                        .createCustomView(className, context, props);
-            }
-            if (view == null) {
-                view = createViewImpl(context, props);
-                if (view == null) {
-                    view = createViewImpl(context);
-                }
-            }
-            view.setId(id);
-            Map<String, Object> tagMap = NativeViewTag.createViewTag(className);
-            view.setTag(tagMap);
+        Context context = rootView.getContext();
+        Object object = renderer.getCustomViewCreator();
+        if (object instanceof HippyCustomViewCreator) {
+            view = ((HippyCustomViewCreator) object)
+                    .createCustomView(className, context, props);
         }
+        if (view == null) {
+            view = createViewImpl(context, props);
+            if (view == null) {
+                view = createViewImpl(context);
+            }
+        }
+        view.setId(id);
+        Map<String, Object> tagMap = NativeViewTag.createViewTag(className);
+        view.setTag(tagMap);
         return view;
     }
 
@@ -90,9 +86,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     }
 
-    public void updateLayout(int id, int x, int y, int width, int height,
+    public void updateLayout(int rootId, int id, int x, int y, int width, int height,
             ControllerRegistry componentHolder) {
-        View view = componentHolder.getView(id);
+        View view = componentHolder.getView(rootId, id);
         if (view != null) {
             view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                     View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
@@ -117,7 +113,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     protected View createViewImpl(@NonNull Context context, @Nullable Map<String, Object> props) {
         return null;
     }
-
 
     /**
      * transform
@@ -564,10 +559,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
-            @NonNull String className, @NonNull ViewGroup hippyRootView,
-            @NonNull ControllerManager controllerManager, boolean isLazy) {
-        return new RenderNode(id, props, className, hippyRootView, controllerManager, isLazy);
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazy) {
+        return new RenderNode(rootId, id, props, className, controllerManager, isLazy);
     }
 
     @Nullable

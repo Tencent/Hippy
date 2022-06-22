@@ -39,10 +39,10 @@ void OnDestroyNativeRenderProvider(JNIEnv* j_env,
                                    jobject j_object,
                                    jint j_instance_id);
 
-void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id,
+void UpdateRootSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id, jint j_root_id,
                     jfloat width, jfloat height);
 
-void UpdateNodeSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id, jint j_node_id,
+void UpdateNodeSize(JNIEnv* j_env, jobject j_obj, jint j_instance_id, jint j_root_id, jint j_node_id,
                     jfloat width, jfloat height, jboolean j_is_sync);
 
 void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
@@ -51,5 +51,5 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
                      jboolean j_use_capture, jboolean j_use_bubble);
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
-                jint j_instance_id, jint j_result, jstring j_func_name, jint j_node_id,
+                jint j_instance_id, jint j_result, jstring j_func_name, jint j_root_id, jint j_node_id,
                 jlong j_cb_id, jbyteArray j_buffer, jint j_offset, jint j_length);

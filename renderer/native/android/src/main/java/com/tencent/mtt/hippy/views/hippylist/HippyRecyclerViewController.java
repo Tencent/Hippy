@@ -44,8 +44,10 @@ import java.util.Map;
  * Created  on 2020/12/22.
  */
 
-@HippyController(name = HippyRecyclerViewController.CLASS_NAME, names = {HippyRecyclerViewController.EXTRA_CLASS_NAME})
-public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> extends HippyViewController<HRW> {
+@HippyController(name = HippyRecyclerViewController.CLASS_NAME, names = {
+        HippyRecyclerViewController.EXTRA_CLASS_NAME})
+public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> extends
+        HippyViewController<HRW> {
 
     private static final String TAG = "HippyRecyclerViewController";
     public static final String CLASS_NAME = "ListView";
@@ -73,8 +75,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     /**
      * view 被Hippy的RenderNode 删除了，这样会导致View的child完全是空的，这个view是不能再被recyclerView复用了
      * 否则如果被复用，在adapter的onBindViewHolder的时候，view的实际子view和renderNode的数据不匹配，diff会出现异常
-     * 导致item白条，显示不出来，所以被删除的view，需要把viewHolder.setIsRecyclable(false)，刷新list后，这个view就
-     * 不会进入缓存。
+     * 导致item白条，显示不出来，所以被删除的view，需要把viewHolder.setIsRecyclable(false)，刷新list后，这个view就 不会进入缓存。
      */
     @Override
     protected void deleteChild(ViewGroup parentView, View childView) {
@@ -101,11 +102,13 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @Override
-    protected View createViewImpl(Context context, @Nullable Map<String, Object> props) {
-        return new HippyRecyclerViewWrapper(context, initDefault(context, props, new HippyRecyclerView(context)));
+    protected View createViewImpl(@NonNull Context context, @Nullable Map<String, Object> props) {
+        return new HippyRecyclerViewWrapper(context,
+                initDefault(context, props, new HippyRecyclerView(context)));
     }
 
-    public static HippyRecyclerView initDefault(Context context, @Nullable Map<String, Object> props, HippyRecyclerView recyclerView) {
+    public static HippyRecyclerView initDefault(Context context,
+            @Nullable Map<String, Object> props, HippyRecyclerView recyclerView) {
         LinearLayoutManager layoutManager = new HippyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
         boolean enableScrollEvent = false;
@@ -129,9 +132,9 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @Override
-    public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props, @NonNull String className,
-            @NonNull ViewGroup hippyRootView, ControllerManager controllerManager, boolean isLazyLoad) {
-        return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, isLazyLoad);
+    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
+        return new ListViewRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
     }
 
     @HippyControllerProps(name = "rowShouldSticky")

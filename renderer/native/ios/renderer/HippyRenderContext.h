@@ -24,6 +24,7 @@
 #import "HippyFrameworkProxy.h"
 #import "UIView+Render.h"
 #import "dom/dom_manager.h"
+#import "dom/root_node.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol HippyRenderContext;
 
 typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
-typedef void (^HippyViewUpdateCompletedBlock)(id<HippyRenderContext> renderContext);
 
 @protocol HippyRenderContext <NSObject>
 
@@ -43,25 +43,25 @@ typedef void (^HippyViewUpdateCompletedBlock)(id<HippyRenderContext> renderConte
 
 @property(nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
 
-- (void)registerRootView:(UIView *)rootView;
+- (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 - (__kindof HippyViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
-- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag;
+- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag;
 
 - (__kindof UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
 
-- (void)purgeViewsFromHippyTags:(NSArray<NSNumber *> *)hippyTag;
+- (void)purgeViewsFromHippyTags:(NSArray<NSNumber *> *)hippyTag onRootTag:(NSNumber *)rootTag;
 
 - (void)addUIBlock:(HippyRenderUIBlock)block;
 
 - (void)executeBlockOnRenderQueue:(dispatch_block_t)block;
 
-- (void)updateView:(NSNumber *)hippyTag props:(NSDictionary *)pros;
+- (void)updateView:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
 
-- (void)setFrame:(CGRect)frame forView:(UIView *)view;
+- (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
 
-- (void)setNeedsLayout;
+- (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag;
 
 @end
 

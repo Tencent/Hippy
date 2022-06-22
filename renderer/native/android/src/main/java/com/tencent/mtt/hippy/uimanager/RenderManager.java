@@ -19,16 +19,20 @@ package com.tencent.mtt.hippy.uimanager;
 import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_ALREADY_DELETED;
 import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
 
+import android.content.Context;
+import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.tencent.link_supplier.proxy.renderer.Renderer;
+import com.tencent.renderer.NativeRenderContext;
+import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.RenderRootNode;
 import com.tencent.renderer.component.text.VirtualNode;
-import com.tencent.renderer.utils.ChoreographerUtils;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import android.text.TextUtils;
-import android.util.SparseArray;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
@@ -40,12 +44,10 @@ import java.util.Map;
 public class RenderManager {
 
     private static final String TAG = "RenderManager";
-    private final SparseArray<RenderNode> mNodes = new SparseArray<>();
-    private final SparseArray<RenderNode> mRootNodes = new SparseArray<>();
-    private final List<RenderNode> mUIUpdateNodes = new ArrayList<>();
     @NonNull
     private final ControllerManager mControllerManager;
     private final int mRendererId;
+    private final Map<Integer, List<RenderNode>> mUIUpdateNodes = new HashMap<>();
 
     public RenderManager(Renderer renderer) {
         mRendererId = renderer.getInstanceId();
@@ -60,18 +62,24 @@ public class RenderManager {
         return mControllerManager;
     }
 
-    public void addRootView(ViewGroup rootView) {
+    public void addRootView(View rootView) {
         mControllerManager.addRootView(rootView);
     }
 
+    @Nullable
+    public View getRootView(int rootId) {
+        return mControllerManager.getRootView(rootId);
+    }
+
     public void createRootNode(int id) {
-        RenderNode node = new RenderRootNode(id, mRendererId, NodeProps.ROOT_NODE, mControllerManager);
-        mRootNodes.put(id, node);
+        RenderRootNode node = new RenderRootNode(id, id, mRendererId, NodeProps.ROOT_NODE,
+                mControllerManager);
+        NativeRendererManager.addRootNode(node);
     }
 
     @Nullable
-    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
-            @Nullable Map<String, Object> props) {
+    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
+            @NonNull String className, @Nullable Map<String, Object> props) {
         return mControllerManager.createVirtualNode(rootId, id, pid, index, className, props);
     }
 
@@ -79,66 +87,72 @@ public class RenderManager {
         mControllerManager.destroy();
     }
 
-    public void createNode(@NonNull ViewGroup rootView, int id, int pid, int index,
+    public void createNode(int rootId, int id, int pid, int index,
             @NonNull String className, @NonNull Map<String, Object> props) {
         boolean isLazy = mControllerManager.isControllerLazy(className);
-        RenderNode parentNode = getRenderNode(pid);
-        if (parentNode == null) {
+        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        RenderNode parentNode = getRenderNode(rootId, pid);
+        if (rootNode == null || parentNode == null) {
             LogUtils.w(TAG, "createNode: parentNode == null, pid=" + pid);
             return;
         }
-        RenderNode node = mControllerManager.createRenderNode(id, props, className,
-                rootView, isLazy || parentNode.checkNodeFlag(FLAG_LAZY_LOAD));
+        RenderNode node = mControllerManager.createRenderNode(rootId, id, props, className,
+                isLazy || parentNode.checkNodeFlag(FLAG_LAZY_LOAD));
         if (node == null) {
             LogUtils.w(TAG, "createNode: node == null");
             return;
         }
-        mNodes.put(id, node);
+        rootNode.addRenderNode(node);
         parentNode.addChild(node, index);
-        addUpdateNodeIfNeeded(parentNode);
-        addUpdateNodeIfNeeded(node);
+        addUpdateNodeIfNeeded(rootId, parentNode);
+        addUpdateNodeIfNeeded(rootId, node);
     }
 
-    public void addUpdateNodeIfNeeded(RenderNode node) {
-        if (!mUIUpdateNodes.contains(node)) {
-            mUIUpdateNodes.add(node);
+    public void addUpdateNodeIfNeeded(int rootId, RenderNode node) {
+        List<RenderNode> updateNodes = mUIUpdateNodes.get(rootId);
+        if (updateNodes == null) {
+            updateNodes = new ArrayList<>();
+            updateNodes.add(node);
+            mUIUpdateNodes.put(rootId, updateNodes);
+        } else if (!updateNodes.contains(node)) {
+            updateNodes.add(node);
         }
     }
 
-    public void updateLayout(int id, int left, int top, int width, int height) {
-        RenderNode node = getRenderNode(id);
+    public void updateLayout(int rootId, int nodeId, int left, int top, int width, int height) {
+        RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             node.updateLayout(left, top, width, height);
-            addUpdateNodeIfNeeded(node);
+            addUpdateNodeIfNeeded(rootId, node);
         }
     }
 
-    public void updateEventListener(int id, @NonNull Map<String, Object> props) {
-        RenderNode node = getRenderNode(id);
+    public void updateEventListener(int rootId, int nodeId, @NonNull Map<String, Object> props) {
+        RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             node.updateEventListener(props);
-            addUpdateNodeIfNeeded(node);
+            addUpdateNodeIfNeeded(rootId, node);
         }
     }
 
-    public void updateNode(int id, Map<String, Object> props) {
-        RenderNode node = getRenderNode(id);
+    public void updateNode(int rootId, int nodeId, Map<String, Object> props) {
+        RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             node.updateProps(props);
-            addUpdateNodeIfNeeded(node);
+            addUpdateNodeIfNeeded(rootId, node);
         }
     }
 
-    public void moveNode(int[] ids, int newPid, int oldPid) {
-        RenderNode oldParent = getRenderNode(oldPid);
-        RenderNode newParent = getRenderNode(newPid);
+    public void moveNode(int rootId, int[] ids, int newPid, int oldPid) {
+        RenderNode oldParent = getRenderNode(rootId, oldPid);
+        RenderNode newParent = getRenderNode(rootId, newPid);
         if (oldParent == null || newParent == null) {
             LogUtils.w(TAG, "moveNode: oldParent=" + oldParent + ", newParent=" + newParent);
             return;
         }
         List<RenderNode> moveNodes = new ArrayList<>();
         for (int i = 0; i < ids.length; i++) {
-            RenderNode node = getRenderNode(ids[i]);
+            RenderNode node = getRenderNode(rootId, ids[i]);
             if (node != null) {
                 moveNodes.add(node);
                 oldParent.removeChild(node);
@@ -146,96 +160,124 @@ public class RenderManager {
             }
         }
         newParent.addMoveNodes(moveNodes);
-        addUpdateNodeIfNeeded(newParent);
+        addUpdateNodeIfNeeded(rootId, newParent);
     }
 
-    public void updateExtra(int id, @Nullable Object object) {
-        RenderNode node = getRenderNode(id);
+    public void updateExtra(int rootId, int nodeId, @Nullable Object object) {
+        RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             node.updateExtra(object);
-            addUpdateNodeIfNeeded(node);
+            addUpdateNodeIfNeeded(rootId, node);
         }
     }
 
-    public void deleteNode(int id) {
-        RenderNode node = getRenderNode(id);
+    public void deleteNode(int rootId, int id) {
+        RenderNode node = getRenderNode(rootId, id);
         if (node == null) {
             return;
         }
-        if (node.mParent != null && mControllerManager.hasView(id)) {
+        if (node.mParent != null && mControllerManager.hasView(rootId, id)) {
             node.mParent.addDeleteChild(node);
-            addUpdateNodeIfNeeded(node.mParent);
+            addUpdateNodeIfNeeded(rootId, node.mParent);
         } else if (TextUtils.equals(NodeProps.ROOT_NODE, node.getClassName())) {
-            addUpdateNodeIfNeeded(node);
+            addUpdateNodeIfNeeded(rootId, node);
         }
-        deleteSelfFromParent(node);
+        deleteSelfFromParent(rootId, node);
     }
 
-    public void dispatchUIFunction(int id, @NonNull String functionName,
+    public void dispatchUIFunction(int rootId, int nodeId, @NonNull String functionName,
             @NonNull List<Object> params, @Nullable Promise promise) {
-        RenderNode node = getRenderNode(id);
+        RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             mControllerManager
-                    .dispatchUIFunction(id, node.mClassName, functionName, params, promise);
+                    .dispatchUIFunction(rootId, nodeId, node.mClassName, functionName, params,
+                            promise);
         }
     }
 
-    public void batch() {
+    public void batch(int rootId) {
+        List<RenderNode> updateNodes = mUIUpdateNodes.get(rootId);
+        if (updateNodes == null) {
+            return;
+        }
         // Should create all views at first
-        for (RenderNode node : mUIUpdateNodes) {
+        for (RenderNode node : updateNodes) {
             node.batchStart();
             node.createView();
         }
         // Should do update after all views created
-        for (RenderNode node : mUIUpdateNodes) {
+        for (RenderNode node : updateNodes) {
             node.updateView();
             node.batchComplete();
         }
-        mUIUpdateNodes.clear();
+        updateNodes.clear();
     }
 
-    private void deleteSelfFromParent(@Nullable RenderNode node) {
+    private void deleteSelfFromParent(int rootId, @Nullable RenderNode node) {
         if (node == null) {
             return;
         }
         int childCount = node.getChildCount();
         for (int i = 0; i < childCount; i++) {
-            deleteSelfFromParent(node.getChildAt(0));
+            deleteSelfFromParent(rootId, node.getChildAt(0));
         }
         if (node.mParent != null) {
             node.mParent.removeChild(node);
         }
-        mNodes.remove(node.getId());
+        removeRenderNode(rootId, node.getId());
         node.setNodeFlag(FLAG_ALREADY_DELETED);
     }
 
-    @Nullable
-    public RenderNode getRenderNode(int id) {
-        RenderNode node = mNodes.get(id);
-        if (node == null) {
-            node = mRootNodes.get(id);
+    private void removeRenderNode(int rootId, int nodeId) {
+        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootId == nodeId) {
+            NativeRendererManager.removeRootNode(rootId);
         }
-        return node;
+        if (rootNode != null) {
+            rootNode.removeRenderNode(nodeId);
+        }
+    }
+
+    @Nullable
+    public RenderNode getRenderNode(@NonNull View view) {
+        Context context = view.getContext();
+        if (!(context instanceof NativeRenderContext)) {
+            return null;
+        }
+        int rootId = ((NativeRenderContext) context).getRootId();
+        return getRenderNode(rootId, view.getId());
+    }
+
+    @Nullable
+    public RenderNode getRenderNode(int rootId, int id) {
+        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootId == id) {
+            return rootNode;
+        }
+        if (rootNode != null) {
+            return rootNode.getRenderNode(id);
+        }
+        return null;
     }
 
     public boolean checkRegisteredEvent(int rootId, int nodeId, @NonNull String eventName) {
-        RenderNode node = getRenderNode(nodeId);
+        RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             return node.checkRegisteredEvent(eventName);
         }
         return false;
     }
 
-    public void replaceID(int oldId, int newId) {
-        mControllerManager.replaceID(oldId, newId);
+    public void replaceID(int rootId, int oldId, int newId) {
+        mControllerManager.replaceID(rootId, oldId, newId);
     }
 
-    public void postInvalidateDelayed(int id, long delayMilliseconds) {
-        mControllerManager.postInvalidateDelayed(id, delayMilliseconds);
+    public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {
+        mControllerManager.postInvalidateDelayed(rootId, id, delayMilliseconds);
     }
 
-    public void measureInWindow(int id, Promise promise) {
-        RenderNode node = getRenderNode(id);
+    public void measureInWindow(int rootId, int id, Promise promise) {
+        RenderNode node = getRenderNode(rootId, id);
         if (node == null) {
             promise.reject("Accessing node that do not exist!");
         } else {

@@ -116,14 +116,15 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to create render node
      *
+     * @param rootId the root node id
      * @param buffer The byte array serialize by native (C++)
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void createNode(byte[] buffer) {
+    private void createNode(int rootId, byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.createNode(list);
+            mRenderDelegate.createNode(rootId, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -132,14 +133,15 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to update render node
      *
+     * @param rootId the root node id
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void updateNode(byte[] buffer) {
+    private void updateNode(int rootId, byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.updateNode(list);
+            mRenderDelegate.updateNode(rootId, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -148,13 +150,14 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to delete render node
      *
+     * @param rootId the root node id
      * @param ids the node id array list
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void deleteNode(int[] ids) {
+    private void deleteNode(int rootId, int[] ids) {
         try {
-            mRenderDelegate.deleteNode(ids);
+            mRenderDelegate.deleteNode(rootId, ids);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -163,15 +166,16 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to move render node
      *
+     * @param rootId the root node id
      * @param ids the node id array list
      * @param newPid the new parent node id
      * @param oldPid the old parent node id
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void moveNode(int[] ids, int newPid, int oldPid) {
+    private void moveNode(int rootId, int[] ids, int newPid, int oldPid) {
         try {
-            mRenderDelegate.moveNode(ids, newPid, oldPid);
+            mRenderDelegate.moveNode(rootId, ids, newPid, oldPid);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -180,14 +184,15 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to update layout of render node
      *
+     * @param rootId the root node id
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void updateLayout(byte[] buffer) {
+    private void updateLayout(int rootId, byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.updateLayout(list);
+            mRenderDelegate.updateLayout(rootId, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -196,14 +201,15 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to add or remove event listener
      *
+     * @param rootId the root node id
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void updateEventListener(byte[] buffer) {
+    private void updateEventListener(int rootId, byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.updateEventListener(list);
+            mRenderDelegate.updateEventListener(rootId, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -212,14 +218,15 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to measure view location and size in window
      *
-     * @param id node id
+     * @param rootId the root node id
+     * @param nodeId the target node id
      * @param callbackId the callback id identifies the caller
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void measureInWindow(int id, long callbackId) {
+    private void measureInWindow(int rootId, int nodeId, long callbackId) {
         try {
-            mRenderDelegate.measureInWindow(id, callbackId);
+            mRenderDelegate.measureInWindow(rootId, nodeId, callbackId);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -228,7 +235,8 @@ public class NativeRenderProvider {
     /**
      * Call from native (C++) render manager to measure text width and height
      *
-     * @param id node id
+     * @param rootId the root node id
+     * @param nodeId the target node id
      * @param width pre setting of text width
      * @param widthMode flex measure mode of width
      * @param height pre setting of text height
@@ -237,24 +245,27 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private long measure(int id, float width, int widthMode, float height, int heightMode) {
-        return mRenderDelegate.measure(id, width, widthMode, height, heightMode);
+    private long measure(int rootId, int nodeId, float width, int widthMode, float height,
+            int heightMode) {
+        return mRenderDelegate.measure(rootId, nodeId, width, widthMode, height, heightMode);
     }
 
     /**
      * Call from native (C++) render manager to call ui component function
      *
-     * @param id node id
+     * @param rootId the root node id
+     * @param nodeId the target node id
      * @param callbackId the callback id identifies the caller
      * @param functionName ui component function name
      * @param buffer the byte array serialize by native (C++)
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void callUIFunction(int id, long callbackId, String functionName, byte[] buffer) {
+    private void callUIFunction(int rootId, int nodeId, long callbackId, String functionName,
+            byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.callUIFunction(id, callbackId, functionName, list);
+            mRenderDelegate.callUIFunction(rootId, nodeId, callbackId, functionName, list);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
@@ -262,23 +273,25 @@ public class NativeRenderProvider {
 
     /**
      * Call from native (C++) render manager to mark batch end
+     *
+     * @param rootId the root node id
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void endBatch() {
+    private void endBatch(int rootId) {
         try {
-            mRenderDelegate.endBatch();
+            mRenderDelegate.endBatch(rootId);
         } catch (NativeRenderException e) {
             mRenderDelegate.handleRenderException(e);
         }
     }
 
-    public void onSizeChanged(int width, int height) {
-        updateRootSize(mInstanceId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
+    public void onSizeChanged(int rootId, int width, int height) {
+        updateRootSize(mInstanceId, rootId, PixelUtil.px2dp(width), PixelUtil.px2dp(height));
     }
 
-    public void onSizeChanged(int nodeId, int width, int height, boolean isSync) {
-        updateNodeSize(mInstanceId, nodeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height),
+    public void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync) {
+        updateNodeSize(mInstanceId, rootId, nodeId, PixelUtil.px2dp(width), PixelUtil.px2dp(height),
                 isSync);
     }
 
@@ -286,14 +299,14 @@ public class NativeRenderProvider {
      * After handle call ui function, return the result to js through promise.
      *
      * @param result resolve {@link UIPromise#PROMISE_CODE_RESOLVE} reject {@link
-     *         UIPromise#PROMISE_CODE_REJECT}
+     * UIPromise#PROMISE_CODE_REJECT}
      * @param callbackId call back id of js function
      * @param functionName call back function name
      * @param nodeId the dom node id
      * @param params parameters to be return to js
      */
     public void doPromiseCallBack(int result, long callbackId, @NonNull String functionName,
-            int nodeId, @Nullable Object params) {
+            int rootId, int nodeId, @Nullable Object params) {
         byte[] bytes = null;
         int offset = 0;
         int length = 0;
@@ -309,10 +322,12 @@ public class NativeRenderProvider {
                 return;
             }
         }
-        doCallBack(mInstanceId, result, functionName, nodeId, callbackId, bytes, offset, length);
+        doCallBack(mInstanceId, result, functionName, rootId, nodeId, callbackId, bytes, offset,
+                length);
     }
 
-    public void dispatchEvent(int rootId, int nodeId, @NonNull String eventName, @Nullable Object params,
+    public void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
+            @Nullable Object params,
             boolean useCapture, boolean useBubble) {
         byte[] bytes = null;
         int offset = 0;
@@ -352,32 +367,34 @@ public class NativeRenderProvider {
      * Call back from Android system when size changed, just like horizontal and vertical screen
      * switching, call this jni interface to invoke dom tree relayout.
      *
+     * @param rootId the root node id
      * @param instanceId the unique id of native (C++) render manager
      * @param width new width of root view, use dp unit
      * @param height new height of root view, use dp unit
      */
-    private native void updateRootSize(int instanceId, float width, float height);
+    private native void updateRootSize(int instanceId, int rootId, float width, float height);
 
     /**
      * Updates the size to the specified node, such as modal node, should set new window size before
      * layout.
      *
      * @param instanceId the unique id of native (C++) render manager
+     * @param rootId the root node id
      * @param nodeId the dom node id
      * @param width new width of node, use dp unit
      * @param height new height of node, use dp unit
-     * @param isSync {@code true} call from create node on dom thread
-     *               {@code false} call from onSizeChanged on UI thread
+     * @param isSync {@code true} call from create node on dom thread {@code false} call from
+     * onSizeChanged on UI thread
      */
-    private native void updateNodeSize(int instanceId, int nodeId, float width, float height,
-            boolean isSync);
+    private native void updateNodeSize(int instanceId, int rootId, int nodeId, float width,
+            float height, boolean isSync);
 
     /**
      * Dispatch event generated by native renderer to (C++) dom manager.
      *
      * @param instanceId the unique id of native (C++) render manager
-     * @param rootId root node id
-     * @param nodeId target node id
+     * @param rootId the root node id
+     * @param nodeId the target node id
      * @param eventName target event name
      * @param params params buffer encoded by serializer
      * @param offset start position of params buffer
@@ -392,15 +409,16 @@ public class NativeRenderProvider {
      * Do promise call back to js after handle call ui function by native renderer,
      *
      * @param instanceId the unique id of native (C++) render manager
-     * @param result {@code PROMISE_CODE_RESOLVE} {@link UIPromise} {@code
-     *         PROMISE_CODE_REJECT} {@link UIPromise}
+     * @param result {@code PROMISE_CODE_RESOLVE} {@link UIPromise} {@code PROMISE_CODE_REJECT}
+     * {@link UIPromise}
      * @param functionName ui function name
+     * @param rootId the root node id
      * @param nodeId the dom node id
      * @param callbackId the callback id identifies the caller
      * @param params params buffer encoded by serializer
      * @param offset start position of params buffer
      * @param length available total length of params buffer
      */
-    private native void doCallBack(int instanceId, int result, String functionName, int nodeId,
-            long callbackId, byte[] params, int offset, int length);
+    private native void doCallBack(int instanceId, int result, String functionName, int rootId,
+            int nodeId, long callbackId, byte[] params, int offset, int length);
 }

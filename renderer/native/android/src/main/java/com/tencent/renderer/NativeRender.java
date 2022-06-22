@@ -16,6 +16,7 @@
 
 package com.tencent.renderer;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
@@ -39,7 +40,10 @@ public interface NativeRender extends RenderExceptionHandler {
     RenderManager getRenderManager();
 
     @Nullable
-    ViewGroup getRootView();
+    View getRootView(int rootId);
+
+    @Nullable
+    View getRootView(@NonNull View view);
 
     String getBundlePath();
 
@@ -58,7 +62,7 @@ public interface NativeRender extends RenderExceptionHandler {
      * @see com.tencent.renderer.component.text.TextImageSpan#postInvalidateDelayed(long)
      */
     @MainThread
-    void postInvalidateDelayed(int id, long delayMilliseconds);
+    void postInvalidateDelayed(int rootId, int id, long delayMilliseconds);
 
     /**
      * Get customize virtual node from host. For be able to customize some behavior of virtual node,
@@ -77,9 +81,9 @@ public interface NativeRender extends RenderExceptionHandler {
 
     void onFirstViewAdded();
 
-    void onSizeChanged(int width, int height);
+    void onSizeChanged(int rootId, int width, int height);
 
-    void onSizeChanged(int nodeId, int width, int height, boolean isSync);
+    void onSizeChanged(int rootId, int nodeId, int width, int height, boolean isSync);
 
     void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
             boolean systemUiVisibilityChanged);
@@ -87,7 +91,7 @@ public interface NativeRender extends RenderExceptionHandler {
     void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
             @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType);
 
-    void doPromiseCallBack(int result, long callbackId, String functionName, int nodeId,
+    void doPromiseCallBack(int result, long callbackId, String functionName, int rootId, int nodeId,
             Object params);
 
     void addInstanceLifecycleEventListener(HippyInstanceLifecycleEventListener listener);
