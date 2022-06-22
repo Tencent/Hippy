@@ -61,3 +61,7 @@
 * 日志
   * [版本发布](https://github.com/Tencent/Hippy/releases)
 
+* 语言
+  * [中文](/)
+  * [英文](https://hippyjs.org/en-us)
+

@@ -6,7 +6,7 @@
                 <span>Hippy</span>
             </a>
         </h1>
-        <div class="sub-title"><span>为前端开发人员设计的跨端框架</span></div>
+        <div class="sub-title"><span>Cross-Platform Framework for Front-End Developers</span></div>
         <a href="https://github.com/Tencent/Hippy/stargazers" rel="noopener" target="_blank"><img
                 alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Tencent/Hippy?color=50c52a"></a>
         <a href="https://github.com/Tencent/Hippy/releases"
@@ -23,198 +23,186 @@
     </div>
     <div class="features">
         <div class="feature"><h2>⚡ High Performance</h2>
-            <p>提供极致流畅体验的可复用列表，通过 binding 模式实现高效的前端-终端通讯。</p></div>
+            <p>Reusable ListView with ultimate smoothness experience, efficient data communication via binding mode</p></div>
         <div class="feature"><h2>📱 Cross Platform</h2>
-            <p>不同的平台保持了相同的接口，可平滑迁移到 Web 浏览器。</p></div>
+            <p>Different platforms maintain the same interface, support smooth migration to Web</p></div>
         <div class="feature"><h2>📚 Easy to Learn</h2>
-            <p>支持 React 和 Vue 两套界面框架，完整支持 Flex 布局。</p></div>
+            <p>React / Vue driven framework and full Flex Layout supported.</p></div>
     </div>
 </div>
 <hr>
 
-# Hippy 概述
+# Hippy overview
 
-Hippy 可以理解为一个精简版的浏览器，从底层做了大量工作，抹平了 iOS 和 Android 双端差异，提供了接近 Web 的开发体验，目前上层支持了 React 和 Vue 两套界面框架，前端开发人员可以通过它，将前端代码转换为终端的原生指令，进行原生终端 App 的开发。
+Hippy is like a simplified browser, which has done a lot of work from the bottom layer, smoothed out the differences between iOS and Android, and provided a development experience close to the Web. At present, the upper layer supports two sets of interface frameworks, React and Vue, through which front-end developers can convert front-end codes into native instructions to develop native apps.
 
-同时，Hippy 从底层进行了大量优化，在启动速度、可复用列表组件、渲染效率、动画速度、网络通信等等都提供了业内顶尖的性能表现。
+At the same time, Hippy has made a lot of optimization from the bottom layer, providing top performance in startup speed, reusable list components, rendering efficiency, animation speed, network communication, etc.
 
-## 功能对比
+## Feature Comparison
 
-Hippy 从底层增加了很多和浏览器相同的接口，方便了开发者使用，这里有几个 Hippy 的独有功能。
+Hippy implemented a lot of interfaces according to browser, convenient for developers to use, here are a few Hippy unique features.
 
-| 分类 | 特性                     | 说明                     | 支持情况 |
+| Classifications| Properties                     | Description                     | Support|
 | ---- | ------------------------ | ------------------------ | -------- |
-| 接口 | fetch                    | Http/Https 协议请求      | ✅ 支持   |
-|      | WebSocket                | 基于 Http 协议的即时通讯 | ✅ 支持   |
-| 事件 | onClick                  | 点击事件                 | ✅ 支持   |
-|      | onTouchStart/onTouchDown | 触屏开始事件             | ✅ 支持   |
-|      | onTouchMove              | 触屏移动事件             | ✅ 支持   |
-|      | onTouchEnd               | 触屏结束事件             | ✅ 支持   |
-|      | onTouchCancel            | 触屏取消事件             | ✅ 支持   |
-| 样式 | zIndex                   | 界面层级                 | ✅ 支持   |
-|      | backgroundImage          | 背景图片                 | ✅ 支持   |
+| Interface|  fetch                    | Http/Https protocol request      | ✅    |
+|      | WebSocket                | Instant Messaging Based on Http | ✅   |
+| Events|  onClick                  | Click Event                 | ✅    |
+|      | onTouchStart/onTouchDown | Triggered when start to touch screen             | ✅   |
+|      | onTouchMove              | Triggered when move on screen             | ✅   |
+|      | onTouchEnd               | Triggered when end to touch screen             | ✅   |
+|      | onTouchCancel            | Triggered when touch screen canceled           | ✅   |
+| Style|  zIndex                   | Layer level                 | ✅    |
+|      | backgroundImage          | Background image                | ✅   |
 
-## 包体积
+## Package Volume
 
-Hippy 的包体积在业内也是非常具有竞争力的。
+Hippy's package volume is also very competitive in the industry.
 
-![包体积1](assets/img/baodaxiao.png)
+![Pack Volume 1](assets/img/baodaxiao.png)
 
-上图是一个空的APK，在引入后终端包大小对比。
+The above figure is an empty APK, showing the comparison of package size among different native SDKs.
 
-![包体积2](assets/img/jsbao.png)
+![Pack Volume2](assets/img/jsbao.png)
 
-上图是在前端搭建了一个最简单的 ListView 后，前端打出的 JS 的包大小对比。
+The above figure shows the comparison of package size of JS bundle with the simplest ListView.
 
-## 渲染性能
+## Rendering Performance
 
-ListView 在滑动时的性能对比，Hippy 可以一直保持十分流畅的状态
+Comparison of ListView performance when sliding, Hippy can always maintain a very smooth state.
 
-<img src="assets/img/listxingneng.png" alt="渲染性能" width="50%"/>
+<img src="assets/img/listxingneng.png" alt="Rendering Performance" width="50%"/>
 
-## 内存占用
+## Memory Consumption
 
-而在内存占用上，初始化 List 时 Hippy 就略占优势，在滑动了几屏后内存开销的差距越来越大。
+In terms of memory consumption, Hippy has a slight advantage when initializing the List, and the difference in memory consumption is getting bigger and bigger after sliding a few screens.
 
-![内存占用](assets/img/listmeicun.png)
+![Memory footprint](assets/img/listmeicun.png)
 
-## 跟 Web 接近的开发体验
+## Web-like development experience
 
-Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏览器一样的 onClick、onTouch 系列触屏事件，更加简单的动画方案，hippy-vue 提供了和 Vue 的完全兼容等等。
+Hippy has also made a lot of optimizations in the development experience, including but not limited to onClick, onTouch series touch screen events like browsers, simpler animation schemes, hippy-vue provides full compatibility with Vue, etc.
 
-## 大家都在用
+## Who Using it
 
 <div style="display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-start">
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_11384_1543315194/128" alt="QQ浏览器" width="50"/>
-  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://mb.qq.com/" title="QQ浏览器">QQ浏览器</a></p>
+  <img src="//pp.myapp.com/ma_icon/0/icon_11384_1543315194/128" alt="QQ Brower" width="50"/>
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://mb.qq.com/" title="QQ Brower">QQ Browser</a></p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_6633_1603250105/128" width="50" alt="手机QQ" />
-  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://im.qq.com/mobileqq/" title="手机QQ">手机QQ</a></p>
+  <img src="//pp.myapp.com/ma_icon/0/icon_6633_1603250105/128" width="50" alt="Mobile QQ" />
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://im.qq.com/mobileqq/" title="Mobile QQ">Mobile QQ</a></p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_10966186_1533019715/128" alt="全民K歌" width="50" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_10966186_1533019715/128" alt="WeSing" width="50" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kg.qq.com/html/contest/kg-intro.html" title="全民K歌">全民K歌</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kg.qq.com/html/contest/kg-intro.html" title="WeSing">WeSing</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_6259_1533003792/128" width="50" alt="QQ音乐" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_6259_1533003792/128" width="50" alt="QQ Music" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://y.qq.com/download/download.html" title="QQ音乐">QQ音乐</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://y.qq.com/download/download.html" title="QQ Music">QQ Music</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="assets/img/tv.png" width="50" alt="云视听极光" />
+  <img src="assets/img/tv.png" width="50" alt="Tencent TV" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://tv.qq.com/" title="云视听极光">云视听极光</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://tv.qq.com/" title="Tencent TV">Tencent TV</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_10261931_1551433926/128" width="50" alt="微视" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_10261931_1551433926/128" width="50" alt="Weishi" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://weishi.qq.com/" title="微视">微视</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://weishi.qq.com/" title="Weishi">Weishi</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_5848_1558087382/128" width="50" alt="应用宝" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_5848_1558087382/128" width="50" alt="Tencent App Market" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.myapp.com" title="应用宝">应用宝</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.myapp.com" title="Tencent App Market">Tencent App Market</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_42270933_1551941158/128" width="50" alt="NOW直播" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_42270933_1551941158/128" width="50" alt="NOW Live" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://now.qq.com/" title="NOW直播">NOW直播</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://now.qq.com/" title="NOW Live">NOW Live</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="assets/img/voov.png" width="50" alt="VOOV直播" />
+  <img src="assets/img/voov.png" width="50" alt="VOOV Live" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.voovlive.com/" title="VOOV直播">VOOV直播</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.voovlive.com/" title="VOOV Live">VOOV Live</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_52445834_1548053409/128" width="50" alt="心悦俱乐部" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_52445834_1548053409/128" width="50" alt=">Tencent Joy Club" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://xinyue.qq.com" title="心悦俱乐部">心悦俱乐部</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://xinyue.qq.com" title=">Tencent Joy Club">Tencent Joy Club</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_42287337_1556173463/128" width="50" alt="王者营地" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_42287337_1556173463/128" width="50" alt="Camps of Kings" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.gamehelper.smoba" title="王者营地">王者营地</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.gamehelper.smoba" title="Camps of Kings">Camps of Kings</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_12082013_1545355964/128" width="50" alt="天天快报" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_12082013_1545355964/128" width="50" alt="Daily Express" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kuaibao.qq.com/download.html" title="天天快报">天天快报</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kuaibao.qq.com/download.html" title="Daily Express">Daily Express</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_12259403_1545708417/128" width="50" alt="WiFi管家" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_12259403_1545708417/128" width="50" alt="Wi-Fi Butler" />
    <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://wifi.qq.com/" title="WiFi管家">WiFi管家</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://wifi.qq.com/" title="Wi-Fi Butler">Wi-Fi Butler</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_206354_1558415148/128" width="50" alt="腾讯自选股" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_206354_1558415148/128" width="50" alt="Tencent Zixuangu" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.portfolio" title="腾讯自选股">腾讯自选股</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.portfolio" title="Tencent Stock App">Tencent Stock App</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_52754761_1557837008/128" width="50" alt="大丰满满" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_52797852_1545191305/128" width="50" alt="Tencent OM" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.taifung.broker" title="大丰满满">大丰满满</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_52797852_1545191305/128" width="50" alt="企鹅号" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://android.myapp.com/myapp/detail.htm?apkName=com.tencent.omapp" title="企鹅号">企鹅号</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_52802703_1546489662/128" width="50" alt="马克思主义" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.rmlt.marxism" title="马克思主义">马克思主义</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://android.myapp.com/myapp/detail.htm?apkName=com.tencent.omapp" title="Tencent OM">Tencent OM</a>
   </p>
  </span>
  </div>
 
-## 团队贡献
+## Team Contribution
 
 <div style="display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-start">
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_10966186_1533019715/128" width="50" alt="TME 全民K歌团队" />
-  <p style="font-size:16px">TME 全民K歌团队</p>
+  <img src="//pp.myapp.com/ma_icon/0/icon_10966186_1533019715/128" width="50" alt="TME WeSing Team" />
+  <p style="font-size:16px">TME WeSing Team</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_6259_1533003792/128" width="50" alt="TME QQ音乐团队" />
-  <p style="font-size:16px">TME QQ音乐团队</p>
+  <img src="//pp.myapp.com/ma_icon/0/icon_6259_1533003792/128" width="50" alt="TME QQ Music Team" />
+  <p style="font-size:16px">TME QQ Music Team</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_52754761_1555775310/96" width="50" alt="CDG大丰满满/自选股团队" />
-  <p style="font-size:16px">CDG大丰满满/自选股团队</p>
+  <img src="//pp.myapp.com/ma_icon/0/icon_52754761_1555775310/96" width="50" alt="CDG Finance Team" />
+  <p style="font-size:16px">CDG Finance Team</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="assets/img/qg-team.png" width="50" alt="QGraphics团队" />
-  <p style="font-size:16px">QGraphics团队</p>
+  <img src="assets/img/qg-team.png" width="50" alt="QGraphics Team" />
+  <p style="font-size:16px">QGraphics Team</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="assets/img/IVW_23.png" width="50" alt="IVWEB团队" />
-  <p style="font-size:16px">IVWEB团队</p>
+  <img src="assets/img/IVW_23.png" width="50" alt="IVWEB Team" />
+  <p style="font-size:16px">IVWEB Team</p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;width:130px;margin:5px 10px 5px 10px">
-  <img src="assets/img/wii-team.png" width="50" alt="游云南WII团队" />
-  <p style="font-size:16px">游云南WII团队</p>
+  <img src="assets/img/wii-team.png" width="50" alt="Tour Yunnan WII team" />
+  <p style="font-size:16px">Tour Yunnan WII team</p>
  </span>
  </div>
 
-## 贡献者
+## Contributors
 
 <div style="display:flex;flex-direction:row;flex-wrap:wrap;justify-content:flex-start">
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 10px;">
@@ -261,7 +249,7 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 10px;"><img src="//avatars1.githubusercontent.com/u/526008?s=460&v=4" alt="ElfSundae" width="40" style="border-radius:50%;"/><p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://github.com/ElfSundae" title="ElfSundae">Elf Sundae</a></p>
  </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 10px;"><img src="//avatars1.githubusercontent.com/u/6047274?s=460&v=4" alt="zousandian" width="40" style="border-radius:50%;"/><p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://github.com/zousandian" title="zousandian">三点</a></p>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 10px;"><img src="//avatars1.githubusercontent.com/u/6047274?s=460&v=4" alt="zousandian" width="40" style="border-radius:50%;"/><p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://github.com/zousandian" title="zousandian">Three O 'clock.</a></p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 10px;"><img src="//avatars0.githubusercontent.com/u/5770443?s=460&u=a8bce363477b32f2fd4b3b56807a689ab35422d7&v=4" alt="dequanzhu" width="40" style="border-radius:50%;"/><p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://github.com/dequan1331" title="zousandian">dequanzhu</a></p>
  </span>
@@ -271,14 +259,14 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
  </span>
  </div>
 
-## 交流链接
+## Communication
 
-* [文章专栏](https://cloud.tencent.com/developer/column/84006)
-* QQ 群：[784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a) - 点击链接启动 QQ 加入，或者复制群号码手工加入
-* QQ群二维码，使用手机QQ扫描加入
+* [Article Column](https://cloud.tencent.com/developer/column/84006)
+* QQ Group: [784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a)-click the link to start QQ to join, or copy the group number to join manually.
+* QQ Group QR code, use Mobile QQ scan to join.
 
- ![QQ群二维码](assets/img/qq-group.png)
+ ![QQ group QR code](assets/img/qq-group.png)
 
-## 总结
+## Summary
 
-如果您准备好了，那就 [开始接入 Hippy](guide/integration.md) 吧。
+If you're ready, [Getting start to Hippy](guide/integration.md).
