@@ -48,13 +48,14 @@ DomNodeMetas DevToolsUtil::ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_no
   return metas;
 }
 
-DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& dom_node,
+DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& root_node,
+                                           const std::shared_ptr<DomNode>& dom_node,
                                            uint32_t depth,
                                            const std::shared_ptr<DomManager>& dom_manager) {
   DomainMetas metas(dom_node->GetId());
   metas.SetParentId(dom_node->GetPid());
-  metas.SetRootId(dom_manager->GetRootId());
-  if (dom_node->GetId() == dom_manager->GetRootId()) {
+  metas.SetRootId(root_node->GetId());
+  if (dom_node->GetId() == root_node->GetId()) {
     metas.SetClassName(kDefaultNodeName);
     metas.SetNodeName(kDefaultNodeName);
     metas.SetLocalName(kDefaultNodeName);
@@ -74,7 +75,7 @@ DomainMetas DevToolsUtil::GetDomDomainData(const std::shared_ptr<DomNode>& dom_n
     return metas;
   }
   for (auto& child : children) {
-    metas.AddChild(GetDomDomainData(child, depth, dom_manager));
+    metas.AddChild(GetDomDomainData(root_node, child, depth, dom_manager));
   }
   auto layout_result = dom_node->GetLayoutInfoFromRoot();
   metas.SetLayoutX(layout_result.left);

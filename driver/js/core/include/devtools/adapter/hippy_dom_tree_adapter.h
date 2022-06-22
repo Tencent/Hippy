@@ -23,15 +23,18 @@
 #include <string>
 
 #include "api/adapter/devtools_dom_tree_adapter.h"
+#include "devtools/hippy_dom_data.h"
 
 namespace hippy::devtools {
 class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
  public:
-  explicit HippyDomTreeAdapter(int32_t dom_id) : dom_id_(dom_id) {}
+  explicit HippyDomTreeAdapter(std::shared_ptr<HippyDomData> hippy_dom) : hippy_dom_(hippy_dom) {}
   void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
   void GetDomTree(DumpDomTreeCallback callback) override;
+  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
+  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
 
  private:
-  int32_t dom_id_;
+  std::shared_ptr<HippyDomData> hippy_dom_;
 };
 }  // namespace hippy::devtools
