@@ -1,7 +1,7 @@
 * Get Started
   * [OverView](/README?id=hippy-%e6%a6%82%e8%bf%b0)
   * [Get Started](guide/integration.md)
-  * [Structure](structure/introduction.md)
+  * [Architecture](structure/introduction.md)
   * [Debug](guide/debug.md)
   * [Layout & Unit](guide/layout.md)
   * [Network](guide/network-request.md)
