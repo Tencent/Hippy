@@ -12,48 +12,53 @@ namespace hippy {
 inline namespace dom {
 
 void SceneBuilder::Create(const std::weak_ptr<DomManager>& dom_manager,
+                          const std::weak_ptr<RootNode>& root_node,
                           std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
+  ops_.emplace_back([dom_manager, root_node, move_nodes = std::move(nodes)]() mutable {
     auto manager = dom_manager.lock();
     if (manager) {
-      manager->CreateDomNodes(std::move(move_nodes));
+      manager->CreateDomNodes(root_node, std::move(move_nodes));
     }
   });
 }
 
 void SceneBuilder::Update(const std::weak_ptr<DomManager>& dom_manager,
+                          const std::weak_ptr<RootNode>& root_node,
                           std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
+  ops_.emplace_back([dom_manager, root_node, move_nodes = std::move(nodes)]() mutable {
     auto manager = dom_manager.lock();
     if (manager) {
-      manager->UpdateDomNodes(std::move(move_nodes));
+      manager->UpdateDomNodes(root_node, std::move(move_nodes));
     }
   });
 }
 
-void SceneBuilder::Move(const std::weak_ptr<DomManager>& dom_manager, std::vector<std::shared_ptr<DomInfo>>&& nodes) {
+void SceneBuilder::Move(const std::weak_ptr<DomManager>& dom_manager,
+                        const std::weak_ptr<RootNode>& root_node,
+                        std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
+  ops_.emplace_back([dom_manager, root_node, move_nodes = std::move(nodes)]() mutable {
     auto manager = dom_manager.lock();
     if (manager) {
-      manager->MoveDomNodes(std::move(move_nodes));
+      manager->MoveDomNodes(root_node, std::move(move_nodes));
     }
   });
 }
 
 void SceneBuilder::Delete(const std::weak_ptr<DomManager>& dom_manager,
+                          const std::weak_ptr<RootNode>& root_node,
                           std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  ops_.emplace_back([dom_manager, move_nodes = std::move(nodes)]() mutable {
+  ops_.emplace_back([dom_manager, root_node, move_nodes = std::move(nodes)]() mutable {
     auto manager = dom_manager.lock();
     if (manager) {
-      manager->DeleteDomNodes(std::move(move_nodes));
+      manager->DeleteDomNodes(root_node, std::move(move_nodes));
     }
   });
 }
@@ -78,8 +83,9 @@ void SceneBuilder::AddEventListener(const std::weak_ptr<Scope>& weak_scope,
       uint32_t dom_id = event_listener_info.dom_id;
       std::string event_name = event_listener_info.event_name;
       const auto js_callback = event_listener_info.callback;
+      auto root_node = scope->GetRootNode();
 
-      dom_manager->AddEventListener(
+      dom_manager->AddEventListener(root_node,
           dom_id, event_name, listener_id, true,
           [weak_scope, js_callback](std::shared_ptr<DomEvent>& event) {
             auto scope = weak_scope.lock();
@@ -111,18 +117,20 @@ void SceneBuilder::RemoveEventListener(const std::weak_ptr<Scope>& weak_scope,
     std::string event_name = event_listener_info.event_name;
     auto dom_manager = scope->GetDomManager().lock();
     if (dom_manager) {
-      dom_manager->RemoveEventListener(dom_id, event_name, listener_id);
+      dom_manager->RemoveEventListener(scope->GetRootNode(), dom_id, event_name, listener_id);
     }
   });
 }
 
-Scene SceneBuilder::Build(const std::weak_ptr<DomManager>& dom_manager) {
+Scene SceneBuilder::Build(const std::weak_ptr<Scope>& weak_scope,
+                          const std::weak_ptr<DomManager>& dom_manager) {
   std::lock_guard<std::mutex> lock(mutex_);
 
-  ops_.emplace_back([dom_manager] {
+  ops_.emplace_back([weak_scope, dom_manager] {
+    auto scope = weak_scope.lock();
     auto manager = dom_manager.lock();
-    if (manager) {
-      manager->EndBatch();
+    if (manager && scope) {
+      manager->EndBatch(scope->GetRootNode());
     }
   });
   return Scene(std::move(ops_));

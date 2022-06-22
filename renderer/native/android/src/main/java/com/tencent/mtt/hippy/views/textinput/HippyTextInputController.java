@@ -537,7 +537,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         if (nativeRenderer == null) {
             return;
         }
-        ViewGroup rootView = nativeRenderer.getRootView();
+        ViewGroup rootView = (ViewGroup) nativeRenderer.getRootView(textInput);
         if (rootView == null) {
             return;
         }

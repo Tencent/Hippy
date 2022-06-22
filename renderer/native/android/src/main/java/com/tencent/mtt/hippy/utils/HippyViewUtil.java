@@ -31,22 +31,16 @@ public class HippyViewUtil {
       int instanceId = ((NativeRenderContext)view.getContext()).getInstanceId();
       NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(instanceId);
       //noinspection ConstantConditions
-      if (nativeRenderer != null) {
-        return nativeRenderer.getRenderManager().getRenderNode(getNodeId(view));
+      if (nativeRenderer == null) {
+        return null;
       }
+      if (view instanceof RecyclerViewItem) {
+        View child = ((RecyclerViewItem) view).getChildAt(0);
+        return nativeRenderer.getRenderManager().getRenderNode(child);
+      }
+      return nativeRenderer.getRenderManager().getRenderNode(view);
     }
 
     return null;
   }
-
-  public static int getNodeId(View view) {
-    if (view instanceof RecyclerViewItem) {
-      View child = ((RecyclerViewItem) view).getChildAt(0);
-      if (child != null) {
-        return child.getId();
-      }
-    }
-    return view.getId();
-  }
-
 }

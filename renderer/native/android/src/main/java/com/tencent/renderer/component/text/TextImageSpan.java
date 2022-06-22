@@ -232,7 +232,7 @@ public class TextImageSpan extends ImageSpan {
 
     @MainThread
     private void postInvalidateDelayed(long delayMilliseconds) {
-        mNativeRenderer.postInvalidateDelayed(mAncestorId, delayMilliseconds);
+        mNativeRenderer.postInvalidateDelayed(mRootId, mAncestorId, delayMilliseconds);
     }
 
     @SuppressLint("DiscouragedPrivateApi")

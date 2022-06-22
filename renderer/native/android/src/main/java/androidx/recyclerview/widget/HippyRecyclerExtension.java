@@ -106,7 +106,7 @@ public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
             NativeRender nativeRender = NativeRendererManager.getNativeRenderer(recyclerView.getContext());
             if (nativeRender != null) {
                 RenderNode nodeOfPosition = nativeRender.getRenderManager()
-                        .getRenderNode(recyclerView.getId())
+                        .getRenderNode(recyclerView)
                         .getChildAt(nodePositionHelper.getRenderNodePosition(position));
                 return isNodeEquals(((HippyRecyclerViewHolder) scrapHolder).bindNode,
                         (ListItemRenderNode) nodeOfPosition);

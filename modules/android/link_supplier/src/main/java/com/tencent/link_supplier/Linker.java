@@ -15,6 +15,9 @@
  */
 package com.tencent.link_supplier;
 
+import android.content.Context;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 
 import com.tencent.link_supplier.proxy.LinkProxy;
@@ -30,15 +33,6 @@ public class Linker implements LinkHelper {
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
     private AnimationManagerProxy mAniManagerProxy;
-    private final int mRootId;
-
-    public Linker() {
-        mRootId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
-    }
-
-    public Linker(int rootId) {
-        mRootId = rootId;
-    }
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy frameworkProxy) {
@@ -61,11 +55,27 @@ public class Linker implements LinkHelper {
         }
     }
 
-
     @Override
-    public void createDomHolder(int instanceId) {
+    public void createDomHolder(int rootId) {
         if (mDomProxy == null) {
-            mDomProxy = new DomHolder(instanceId);
+            mDomProxy = new DomHolder(rootId);
+        }
+    }
+
+    @NonNull
+    public View createRootView(@NonNull Context context) {
+        if (mRenderProxy == null || mDomProxy == null) {
+            throw new RuntimeException(
+                    "Should create renderer and dom instance before create root view!");
+        }
+        int rootId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
+        mDomProxy.addRootId(rootId);
+        return mRenderProxy.createRootView(context, rootId);
+    }
+
+    public void destroyRootView(int rootId) {
+        if (mDomProxy != null) {
+            mDomProxy.removeRootId(rootId);
         }
     }
 
@@ -86,7 +96,6 @@ public class Linker implements LinkHelper {
             throw new RuntimeException(
                     "Serious error: Failed to create renderer instance!");
         }
-        mRenderProxy.setRootId(mRootId);
     }
 
     @Override
@@ -100,13 +109,13 @@ public class Linker implements LinkHelper {
     }
 
     @Override
-    public void bind(int frameworkId) {
-        doBind(mDomProxy.getInstanceId(), mRenderProxy.getInstanceId(), frameworkId);
+    public void bind(int runtimeId) {
+        doBind(mDomProxy.getInstanceId(), mRenderProxy.getInstanceId(), runtimeId);
     }
 
     @Override
-    public void updateAnimationNode(byte[] params, int offset, int length) {
-        updateAnimationNode(mAniManagerProxy.getInstanceId(), params, offset, length);
+    public void connect(int runtimeId, int rootId) {
+        doConnect(runtimeId, rootId);
     }
 
     @Override
@@ -130,15 +139,15 @@ public class Linker implements LinkHelper {
         private final int mInstanceId;
 
         public DomHolder() {
-            mInstanceId = createDomInstance(mRootId);
+            mInstanceId = createDomInstance();
         }
 
         /**
-         * Support init dom holder with existing instance id
+         * Support init dom holder with existing root node id
          */
-        @SuppressWarnings("unused")
-        public DomHolder(int instanceId) {
-            mInstanceId = instanceId;
+        public DomHolder(int rootId) {
+            mInstanceId = createDomInstance();
+            addRoot(mInstanceId, rootId);
         }
 
         @Override
@@ -149,6 +158,16 @@ public class Linker implements LinkHelper {
         @Override
         public void destroy() {
             destroyDomInstance(mInstanceId);
+        }
+
+        @Override
+        public void addRootId(int rootId) {
+            addRoot(mInstanceId, rootId);
+        }
+
+        @Override
+        public void removeRootId(int rootId) {
+            removeRoot(mInstanceId, rootId);
         }
     }
 
@@ -185,10 +204,9 @@ public class Linker implements LinkHelper {
     /**
      * Create native (C++) dom manager instance.
      *
-     * @param rootId root view id
      * @return the unique id of native (C++) dom manager
      */
-    private native int createDomInstance(int rootId);
+    private native int createDomInstance();
 
     /**
      * Create native (C++) dom manager instance.
@@ -201,34 +219,47 @@ public class Linker implements LinkHelper {
     /**
      * Release native (C++) dom manager instance.
      *
-     * @param instanceId the unique id of native (C++) dom manager
+     * @param domId the unique id of native (C++) dom manager
      */
-    private native void destroyDomInstance(int instanceId);
+    private native void destroyDomInstance(int domId);
 
     /**
      * Release native (C++) dom manager instance.
      *
-     * @param instanceId the unique id of native (C++) dom manager
+     * @param domId the unique id of native (C++) dom manager
      */
-    private native void destroyAnimationManager(int instanceId);
+    private native void destroyAnimationManager(int domId);
 
     /**
-     * Bind native (C++) dom manager, render manager and framework with instance id.
+     * Bind native (C++) dom manager, render manager and driver run time with instance id.
      *
      * @param domId dom manager instance id
      * @param renderId render manager instance id
-     * @param frameworkId framework instance id
+     * @param runtimeId driver runtime id
      */
-    private native void doBind(int domId, int renderId, int frameworkId);
+    private native void doBind(int domId, int renderId, int runtimeId);
 
     /**
-     * Update node property on animation update, params buffer format: [ { animationId: nodeId:
-     * animationKey: animationValue: } ]
+     * Add the specified root id to native (C++) dom manager.
      *
-     * @param aniId dom manager instance id
-     * @param params params buffer encoded by serializer
-     * @param offset start position of params buffer
-     * @param length available total length of params buffer
+     * @param domId the unique id of native (C++) dom manager
+     * @param rootId the root node id
      */
-    private native void updateAnimationNode(int aniId, byte[] params, int offset, int length);
+    private native void addRoot(int domId, int rootId);
+
+    /**
+     * Remove the specified root id from native (C++) dom manager.
+     *
+     * @param domId the unique id of native (C++) dom manager
+     * @param rootId the root node id
+     */
+    private native void removeRoot(int domId, int rootId);
+
+    /**
+     * Connect runtime instance with root node.
+     *
+     * @param runtimeId driver runtime id
+     * @param rootId the root node id
+     */
+    private native void doConnect(int runtimeId, int rootId);
 }

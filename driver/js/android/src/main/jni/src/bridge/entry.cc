@@ -35,6 +35,7 @@
 #include "bridge/entry.h"
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
+#include "bridge/root_node_repo.h"
 #include "core/base/string_view_utils.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
@@ -87,13 +88,23 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              DoBind)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
-             "updateAnimationNode",
-             "(I[BII)V",
-             UpdateAnimationNode)
+             "addRoot",
+             "(II)V",
+             AddRoot)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "removeRoot",
+             "(II)V",
+             RemoveRoot)
+
+REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
+             "doConnect",
+             "(II)V",
+             DoConnect)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createDomInstance",
-             "(I)I",
+             "()I",
              CreateDomInstance)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
@@ -144,25 +155,18 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  auto scope = runtime->GetScope();
 #ifdef ANDROID_NATIVE_RENDER
   std::shared_ptr<NativeRenderManager>
       render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
-
-  float density = render_manager->GetDensity();
-  uint32_t root_id = dom_manager->GetRootId();
-  auto node = dom_manager->GetNode(root_id);
-  auto layout_node = node->GetLayoutNode();
-  layout_node->SetScaleFactor(density);
 #else
   std::shared_ptr<RenderManager>
       render_manager = nullptr;
 #endif
 
-  auto scope = runtime->GetScope();
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);
-  dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
 #ifdef ANDROID_NATIVE_RENDER
   render_manager->SetDomManager(dom_manager);
 #endif
@@ -172,17 +176,51 @@ void DoBind(JNIEnv* j_env,
 #endif
 }
 
-jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id) {
-  TDF_BASE_DCHECK(j_root_id <= std::numeric_limits<std::int32_t>::max());
+void AddRoot(JNIEnv* j_env,
+            __unused jobject j_obj,
+             jint j_dom_id,
+             jint j_root_id) {
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  auto root_node = std::make_shared<hippy::RootNode>(j_root_id);
+  root_node->SetDomManager(dom_manager);
+  RootNodeRepo::Insert(root_node);
+}
+
+void RemoveRoot(JNIEnv* j_env,
+             __unused jobject j_obj,
+             jint j_dom_id,
+             jint j_root_id) {
+  RootNodeRepo::Erase(static_cast<uint32_t>(j_root_id));
+}
+
+void DoConnect(JNIEnv* j_env,
+                __unused jobject j_obj,
+               jint j_runtime_id,
+               jint j_root_id) {
+  std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_runtime_id));
+  auto root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
+  if (runtime && root_node) {
+    auto scope = runtime->GetScope();
+    root_node->SetDelegateTaskRunner(scope->GetTaskRunner());
+    scope->SetRootNode(root_node);
+
+    std::shared_ptr<NativeRenderManager> render_manager =
+            std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
+    float density = render_manager->GetDensity();
+    auto layout_node = root_node->GetLayoutNode();
+    layout_node->SetScaleFactor(density);
+  }
+}
+
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj) {
   auto dom_manager = std::make_shared<DomManager>();
-  dom_manager->Init(static_cast<uint32_t>(j_root_id));
+  dom_manager->Init();
   std::weak_ptr<DomManager> weak_dom_manager = dom_manager;
   dom_manager->PostTask(hippy::Scene({[weak_dom_manager]{
     auto dom_manager = weak_dom_manager.lock();
     if (!dom_manager) {
       return;
     }
-    dom_manager->GetAnimationManager()->SetDomManager(weak_dom_manager);
   }}));
   DomManager::Insert(dom_manager);
   return dom_manager->GetId();

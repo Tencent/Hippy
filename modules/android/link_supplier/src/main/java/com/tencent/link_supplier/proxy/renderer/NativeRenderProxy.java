@@ -21,10 +21,10 @@ public interface NativeRenderProxy extends RenderProxy {
     /**
      * Notify renderer the root view instance delete by framework.
      */
-    void onRootDestroy();
+    void onRootDestroy(int rootId);
 
     /**
      * Notify renderer the js bridger has been initialized.
      */
-    void onJSBridgeInitialized();
+    void onRuntimeInitialized(int rootId);
 }

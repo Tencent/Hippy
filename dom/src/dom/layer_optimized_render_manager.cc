@@ -11,7 +11,8 @@ LayerOptimizedRenderManager::LayerOptimizedRenderManager(
         std::shared_ptr<RenderManager> render_manager)
         : render_manager_(std::move(render_manager)) {}
 
-void LayerOptimizedRenderManager::CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void LayerOptimizedRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
+                                                   std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   for (const auto& node : nodes) {
     node->SetLayoutOnly(ComputeLayoutOnly(node));
@@ -22,11 +23,12 @@ void LayerOptimizedRenderManager::CreateRenderNode(std::vector<std::shared_ptr<D
   }
 
   if (!nodes_to_create.empty()) {
-    render_manager_->CreateRenderNode(std::move(nodes_to_create));
+    render_manager_->CreateRenderNode(root_node, std::move(nodes_to_create));
   }
 }
 
-void LayerOptimizedRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
+                                                   std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_create;
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
   for (const auto& node : nodes) {
@@ -44,7 +46,7 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<D
 
   if (!nodes_to_create.empty()) {
     // step1: create child
-    render_manager_->CreateRenderNode(std::vector<std::shared_ptr<DomNode>>(nodes_to_create));
+    render_manager_->CreateRenderNode(root_node, std::vector<std::shared_ptr<DomNode>>(nodes_to_create));
     for (const auto& node : nodes_to_create) {
       // step2: move child
       std::vector<std::shared_ptr<DomNode>> moved_children;
@@ -55,7 +57,7 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<D
         for (const auto& moved_node : moved_children) {
           moved_ids.push_back(hippy::base::checked_numeric_cast<uint32_t, int32_t>(moved_node->GetId()));
         }
-        MoveRenderNode(std::move(moved_ids),
+        MoveRenderNode(root_node, std::move(moved_ids),
                        hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().pid),
                        hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().id));
       }
@@ -63,13 +65,15 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::vector<std::shared_ptr<D
   }
 
   if (!nodes_to_update.empty()) {
-    render_manager_->UpdateRenderNode(std::move(nodes_to_update));
+    render_manager_->UpdateRenderNode(root_node, std::move(nodes_to_update));
   }
 }
 
-void LayerOptimizedRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {}
+void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                                 std::vector<std::shared_ptr<DomNode>> &&nodes) {}
 
-void LayerOptimizedRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) {
+void LayerOptimizedRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
+                                                   std::vector<std::shared_ptr<DomNode>>&& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_delete;
   for (const auto& node : nodes) {
     if (!CanBeEliminated(node)) {
@@ -79,53 +83,57 @@ void LayerOptimizedRenderManager::DeleteRenderNode(std::vector<std::shared_ptr<D
     }
   }
   if (!nodes_to_delete.empty()) {
-    render_manager_->DeleteRenderNode(std::move(nodes_to_delete));
+    render_manager_->DeleteRenderNode(root_node, std::move(nodes_to_delete));
   }
 }
 
-void LayerOptimizedRenderManager::UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) {
+void LayerOptimizedRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
+                                               const std::vector<std::shared_ptr<DomNode>>& nodes) {
   std::vector<std::shared_ptr<DomNode>> nodes_to_update;
   for (const auto& node : nodes) {
     if (!CanBeEliminated(node)) {
       nodes_to_update.push_back(node);
     }
   }
-  render_manager_->UpdateLayout(nodes_to_update);
+  render_manager_->UpdateLayout(root_node, nodes_to_update);
 }
 
-void LayerOptimizedRenderManager::MoveRenderNode(std::vector<int32_t>&& moved_ids,
+void LayerOptimizedRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                                 std::vector<int32_t>&& moved_ids,
                                                  int32_t from_pid,
                                                  int32_t to_pid) {
-  render_manager_->MoveRenderNode(std::move(moved_ids), from_pid, to_pid);
+  render_manager_->MoveRenderNode(root_node, std::move(moved_ids), from_pid, to_pid);
 }
 
-void LayerOptimizedRenderManager::EndBatch() {
-  render_manager_->EndBatch();
+void LayerOptimizedRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
+  render_manager_->EndBatch(root_node);
 }
 
-void LayerOptimizedRenderManager::BeforeLayout() {
-  render_manager_->BeforeLayout();
+void LayerOptimizedRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {
+  render_manager_->BeforeLayout(root_node);
 }
 
-void LayerOptimizedRenderManager::AfterLayout() {
-  render_manager_->AfterLayout();
+void LayerOptimizedRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
+  render_manager_->AfterLayout(root_node);
 }
 
-void LayerOptimizedRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
+void LayerOptimizedRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
+                                                   std::weak_ptr<DomNode> dom_node,
                                                    const std::string &name) {
-  render_manager_->AddEventListener(dom_node, name);
+  render_manager_->AddEventListener(root_node, dom_node, name);
 }
 
-void LayerOptimizedRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node,
+void LayerOptimizedRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
+                                                      std::weak_ptr<DomNode> dom_node,
                                                       const std::string &name) {
-  render_manager_->RemoveEventListener(dom_node, name);
+  render_manager_->RemoveEventListener(root_node, dom_node, name);
 }
 
-void LayerOptimizedRenderManager::CallFunction(
+void LayerOptimizedRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
         std::weak_ptr<DomNode> dom_node, const std::string &name,
         const DomArgument &param,
         uint32_t cb_id) {
-  render_manager_->CallFunction(dom_node, name, param, cb_id);
+  render_manager_->CallFunction(root_node, dom_node, name, param, cb_id);
 }
 
 bool LayerOptimizedRenderManager::ComputeLayoutOnly(const std::shared_ptr<DomNode>& node) const {

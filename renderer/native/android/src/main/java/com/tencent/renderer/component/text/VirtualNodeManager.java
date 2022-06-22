@@ -21,15 +21,17 @@ import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_CLASS_NAME;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_MEASURE_STATE_ERR;
 
 import android.text.Layout;
-import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.RenderRootNode;
 import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.PropertyUtils;
@@ -52,12 +54,10 @@ public class VirtualNodeManager {
     private static final String PADDING_TOP = "paddingTop";
     private static final String PADDING_RIGHT = "paddingRight";
     private static final String PADDING_BOTTOM = "paddingBottom";
-    private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
     /**
      * Reserved the node id whose node attribute has been updated.
      */
-    @Nullable
-    private List<Integer> mUpdateNodes;
+    private final Map<Integer, List<VirtualNode>> mUpdateNodes = new HashMap<>();
     @NonNull
     private final NativeRender mNativeRenderer;
 
@@ -70,21 +70,22 @@ public class VirtualNodeManager {
      *
      * @return {@code true} if the node has a virtual parent
      */
-    public boolean hasVirtualParent(int id) {
-        VirtualNode node = mVirtualNodes.get(id);
+    public boolean hasVirtualParent(int rootId, int nodeId) {
+        VirtualNode node = getVirtualNode(rootId, nodeId);
         return (node != null && node.mParent != null);
     }
 
     /**
      * Update event listening status of specified node.
      *
-     * @param id target node id
+     * @param rootId root node id
+     * @param nodeId target node id
      * @param props event listener props of node
-     * @return {@code true} the node event listening status have been changed
-     *         {@code false} the node event listening status no change
+     * @return {@code true} the node event listening status have been changed {@code false} the node
+     * event listening status no change
      */
-    public boolean updateEventListener(int id, @NonNull Map<String, Object> props) {
-        VirtualNode node = mVirtualNodes.get(id);
+    public boolean updateEventListener(int rootId, int nodeId, @NonNull Map<String, Object> props) {
+        VirtualNode node = getVirtualNode(rootId, nodeId);
         if (node == null) {
             return false;
         }
@@ -111,14 +112,16 @@ public class VirtualNodeManager {
     /**
      * Update layout of specified node.
      *
-     * @param id target node id
+     * @param rootId the root node id
+     * @param nodeId the target node id
      * @param width the width of layout
      * @param layoutInfo the layout params of node
      * @return {@link TextRenderSupplier}
      */
     @Nullable
-    public TextRenderSupplier updateLayout(int id, float width, Map<String, Object> layoutInfo) {
-        VirtualNode node = mVirtualNodes.get(id);
+    public TextRenderSupplier updateLayout(int rootId, int nodeId, float width,
+            Map<String, Object> layoutInfo) {
+        VirtualNode node = getVirtualNode(rootId, nodeId);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             return null;
         }
@@ -135,22 +138,25 @@ public class VirtualNodeManager {
                     .floatValue();
             bottomPadding = ((Number) Objects.requireNonNull(layoutInfo.get(PADDING_BOTTOM)))
                     .floatValue();
-        } catch (NullPointerException ignored) {
+        } catch (NullPointerException e) {
             // Padding is not necessary for layout, if get padding property failed,
             // just ignore this exception
+            LogUtils.w(TAG, "VirtualNode updateLayout get padding exception: " + e.getMessage());
         }
         Layout layout = ((TextVirtualNode) node)
                 .createLayout((width - leftPadding - rightPadding), FlexMeasureMode.EXACTLY);
-        if (mUpdateNodes != null) {
-            mUpdateNodes.remove(Integer.valueOf(id));
+        // Layout has update here, not need to rebuild in end batch, so remove node ref from mUpdateNodes.
+        List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
+        if (updateNodes != null) {
+            updateNodes.remove(node);
         }
         return new TextRenderSupplier(layout, leftPadding, topPadding,
                 rightPadding, bottomPadding);
     }
 
-    public long measure(int id, float width, FlexMeasureMode widthMode)
+    public long measure(int rootId, int nodeId, float width, FlexMeasureMode widthMode)
             throws NativeRenderException {
-        VirtualNode node = mVirtualNodes.get(id);
+        VirtualNode node = getVirtualNode(rootId, nodeId);
         if (!(node instanceof TextVirtualNode) || node.mParent != null) {
             throw new NativeRenderException(INVALID_MEASURE_STATE_ERR,
                     TAG + ": measure: encounter wrong state when check node, "
@@ -159,6 +165,15 @@ public class VirtualNodeManager {
         TextVirtualNode textNode = (TextVirtualNode) node;
         Layout layout = textNode.createLayout(width, widthMode);
         return FlexUtils.makeSizeToLong(layout.getWidth(), layout.getHeight());
+    }
+
+
+    private VirtualNode getVirtualNode(int rootId, int nodeId) {
+        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootNode != null) {
+            return rootNode.getVirtualNode(nodeId);
+        }
+        return null;
     }
 
     @SuppressWarnings("rawtypes")
@@ -254,10 +269,12 @@ public class VirtualNodeManager {
     }
 
     @Nullable
-    private VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
+    private VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
+            @NonNull String className,
             @Nullable Map<String, Object> props) {
-        VirtualNode node = mNativeRenderer.createVirtualNode(rootId, id, pid, index, className, props);
-        VirtualNode parent = mVirtualNodes.get(pid);
+        VirtualNode node = mNativeRenderer.createVirtualNode(rootId, id, pid, index, className,
+                props);
+        VirtualNode parent = getVirtualNode(rootId, pid);
         // Only text or text child need to create virtual node.
         if (className.equals(TEXT_CLASS_NAME)) {
             if (!(node instanceof TextVirtualNode)) {
@@ -273,33 +290,41 @@ public class VirtualNodeManager {
 
     public void createNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
+        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootNode == null) {
+            return;
+        }
         VirtualNode node = createVirtualNode(rootId, id, pid, index, className, props);
         if (node == null) {
             return;
         }
-        VirtualNode parent = mVirtualNodes.get(pid);
-        mVirtualNodes.put(id, node);
+        VirtualNode parent = rootNode.getVirtualNode(pid);
+        rootNode.addVirtualNode(node);
         if (parent != null) {
             parent.addChildAt(node, index);
         }
         updateProps(node, props, true);
     }
 
-    public void updateNode(int id, @Nullable Map<String, Object> props) {
-        VirtualNode node = mVirtualNodes.get(id);
+    public void updateNode(int rootId, int id, @Nullable Map<String, Object> props) {
+        VirtualNode node = getVirtualNode(rootId, id);
         if (node != null) {
             updateProps(node, props, true);
             if (node.mParent == null) {
-                if (mUpdateNodes == null) {
-                    mUpdateNodes = new ArrayList<>();
+                List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
+                if (updateNodes == null) {
+                    updateNodes = new ArrayList<>();
+                    updateNodes.add(node);
+                    mUpdateNodes.put(rootId, updateNodes);
+                } else if (!updateNodes.contains(node)) {
+                    updateNodes.add(node);
                 }
-                mUpdateNodes.add(id);
             }
         }
     }
 
-    public void deleteNode(int id) {
-        VirtualNode node = mVirtualNodes.get(id);
+    private void deleteNode(@NonNull RenderRootNode rootNode, int nodeId) {
+        VirtualNode node = rootNode.getVirtualNode(nodeId);
         if (node == null) {
             return;
         }
@@ -309,11 +334,18 @@ public class VirtualNodeManager {
         }
         if (node.mChildren != null) {
             for (VirtualNode child : node.mChildren) {
-                deleteNode(child.mId);
+                deleteNode(rootNode, child.mId);
             }
             node.mChildren.clear();
         }
-        mVirtualNodes.delete(id);
+        rootNode.removeVirtualNode(nodeId);
+    }
+
+    public void deleteNode(int rootId, int nodeId) {
+        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootNode != null) {
+            deleteNode(rootNode, nodeId);
+        }
     }
 
     /**
@@ -322,13 +354,13 @@ public class VirtualNodeManager {
      * @return the layout map need update to render node
      */
     @Nullable
-    public Map<Integer, Layout> endBatch() {
-        if (mUpdateNodes == null || mUpdateNodes.isEmpty()) {
+    public Map<Integer, Layout> endBatch(int rootId) {
+        List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
+        if (updateNodes == null || updateNodes.isEmpty()) {
             return null;
         }
         Map<Integer, Layout> layoutToUpdate = null;
-        for (Integer id : mUpdateNodes) {
-            VirtualNode node = mVirtualNodes.get(id);
+        for (VirtualNode node : updateNodes) {
             if (node instanceof TextVirtualNode) {
                 // If the node has been updated, but there is no updateLayout call from native(C++)
                 // render manager, we should renew the layout on end batch and update to render node.
@@ -336,10 +368,10 @@ public class VirtualNodeManager {
                 if (layoutToUpdate == null) {
                     layoutToUpdate = new HashMap<>();
                 }
-                layoutToUpdate.put(id, layout);
+                layoutToUpdate.put(node.getId(), layout);
             }
         }
-        mUpdateNodes.clear();
+        updateNodes.clear();
         return layoutToUpdate;
     }
 }

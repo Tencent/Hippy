@@ -18,6 +18,7 @@ package com.tencent.link_supplier.proxy.renderer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,17 +41,12 @@ public interface RenderProxy extends LinkProxy {
      * Create root view by renderer
      *
      * @param context {@link Context} the root view container context, such as {@link Activity}
+     * @param rootId the root view id
      * @return the rootView {@link ViewGroup} will attach to host view tree
      */
     @NonNull
-    ViewGroup createRootView(@NonNull Context context);
+    View createRootView(@NonNull Context context, int rootId);
 
-    /**
-     * Set root view id to renderer
-     *
-     * @param rootId root view id generate by {@link Linker}
-     */
-    void setRootId(int rootId);
 
     /**
      * Notify renderer the host life cycle {@link android.app.Activity} onResume call back

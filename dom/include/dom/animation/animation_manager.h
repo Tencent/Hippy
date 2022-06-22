@@ -16,6 +16,7 @@ inline namespace dom {
 
 class DomManager;
 class RenderManager;
+class RootNode;
 
 class AnimationManager
     : public DomActionInterceptor, public std::enable_shared_from_this<AnimationManager> {
@@ -25,16 +26,12 @@ class AnimationManager
  public:
   AnimationManager();
 
-  inline std::weak_ptr<DomManager> GetDomManager() {
-    return dom_manager_;
+  inline std::weak_ptr<RootNode> GetRootNode() {
+    return root_node_;
   }
 
-  inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) {
-    dom_manager_ = dom_manager;
-  }
-
-  inline void SetRenderManager(std::weak_ptr<RenderManager> render_manager) {
-    render_manager_ = render_manager;
+  inline void SetRootNode(std::weak_ptr<RootNode> root_node) {
+    root_node_ = root_node;
   }
 
   void OnDomNodeCreate(const std::vector<std::shared_ptr<DomInfo>>& nodes) override;
@@ -85,8 +82,18 @@ class AnimationManager
   ~AnimationManager() {}
 
  private:
-  std::weak_ptr<DomManager> dom_manager_;
-  std::weak_ptr<RenderManager> render_manager_;
+  void ParseAnimation(const std::shared_ptr<DomNode>& node);
+  void FetchAnimationsFromObject(const std::string& prop,
+                                 const std::shared_ptr<DomValue>& value,
+                                 std::unordered_map<uint32_t, std::string>& result);
+  void FetchAnimationsFromArray(DomValue& value,
+                                std::unordered_map<uint32_t, std::string>& result);
+  void UpdateCubicBezierAnimation(double current,
+                                  uint32_t related_animation_id,
+                                  std::vector<std::shared_ptr<DomNode>>& update_nodes);
+  std::shared_ptr<RenderManager> GetRenderManager();
+
+  std::weak_ptr<RootNode> root_node_;
   std::unordered_map<uint32_t, std::shared_ptr<Animation>> animation_map_;
   std::unordered_map<uint32_t, std::weak_ptr<CommonTask>> delayed_animation_task_map_;
   std::vector<std::shared_ptr<Animation>> active_animations_;
@@ -103,15 +110,6 @@ class AnimationManager
    */
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> node_animation_props_map_;
   uint64_t listener_id_;
-  void ParseAnimation(const std::shared_ptr<DomNode>& node);
-  void FetchAnimationsFromObject(const std::string& prop,
-                                 std::shared_ptr<DomValue> value,
-                                 std::unordered_map<uint32_t, std::string>& result);
-  void FetchAnimationsFromArray(DomValue& value,
-                                std::unordered_map<uint32_t, std::string>& result);
-  void UpdateCubicBezierAnimation(double current,
-                                  uint32_t related_animation_id,
-                                  std::vector<std::shared_ptr<DomNode>>& update_nodes);
 
   TDF_BASE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);
 };

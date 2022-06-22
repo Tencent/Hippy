@@ -9,23 +9,23 @@ class LayerOptimizedRenderManager : public RenderManager {
  public:
   LayerOptimizedRenderManager(std::shared_ptr<RenderManager> render_manager);
 
-  void CreateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void UpdateRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void MoveRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void DeleteRenderNode(std::vector<std::shared_ptr<DomNode>>&& nodes) override;
-  void UpdateLayout(const std::vector<std::shared_ptr<DomNode>>& nodes) override;
-  void MoveRenderNode(std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
-  void EndBatch() override;
+  void CreateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void UpdateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void MoveRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void DeleteRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
+  void UpdateLayout(std::weak_ptr<RootNode> root_node, const std::vector<std::shared_ptr<DomNode>>& nodes) override;
+  void MoveRenderNode(std::weak_ptr<RootNode> root_node, std::vector<int32_t>&& moved_ids, int32_t from_pid, int32_t to_pid) override;
+  void EndBatch(std::weak_ptr<RootNode> root_node) override;
 
-  void BeforeLayout() override;
-  void AfterLayout() override;
-  
-  void AddEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
-  void RemoveEventListener(std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void BeforeLayout(std::weak_ptr<RootNode> root_node) override;
+  void AfterLayout(std::weak_ptr<RootNode> root_node) override;
 
-  void CallFunction(std::weak_ptr<DomNode> dom_node, const std::string& name,
-                        const DomArgument& param,
-                        uint32_t cb_Id) override;
+  void AddEventListener(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+  void RemoveEventListener(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name) override;
+
+  void CallFunction(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name,
+                    const DomArgument &param,
+                    uint32_t cb_Id) override;
 
  protected:
   bool ComputeLayoutOnly(const std::shared_ptr<DomNode>& node) const;

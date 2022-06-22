@@ -65,6 +65,21 @@ void DoBind(JNIEnv* j_env,
             jint j_render_id,
             jint j_framework_id);
 
+void AddRoot(JNIEnv* j_env,
+            __unused jobject j_obj,
+            jint j_dom_id,
+            jint j_root_id);
+
+void RemoveRoot(JNIEnv* j_env,
+             __unused jobject j_obj,
+             jint j_dom_id,
+             jint j_root_id);
+
+void DoConnect(JNIEnv* j_env,
+                __unused jobject j_obj,
+                jint j_runtime_id,
+                jint j_root_id);
+
 void UpdateAnimationNode(JNIEnv* j_env,
                          __unused jobject j_obj,
                          jint j_ani_manager_id,
@@ -72,7 +87,7 @@ void UpdateAnimationNode(JNIEnv* j_env,
                          jint j_offset,
                          jint j_length);
 
-jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_root_id);
+jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj);
 
 jint CreateAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
 

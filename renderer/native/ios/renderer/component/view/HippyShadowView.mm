@@ -48,7 +48,6 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     BOOL _recomputeBorder;
     BOOL _didUpdateSubviews;
     NSInteger _isDecendantOfLazilyShadowView;
-    std::weak_ptr<hippy::DomManager> _domManager;
     std::vector<std::string> _eventNames;
 }
 
@@ -236,14 +235,6 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     return container;
 }
 
-- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
-    _domManager = domManager;
-}
-
-- (std::weak_ptr<hippy::DomManager>)domManager {
-    return _domManager;
-}
-
 - (BOOL)isHidden {
     return _hidden || [_visibility isEqualToString:@"hidden"];
 }
@@ -347,21 +338,24 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
         __weak HippyShadowView *weakSelf = self;
         std::vector<std::function<void()>> ops = {[weakSelf, domManager, frame](){
             @autoreleasepool {
-                if (weakSelf) {
-                    HippyShadowView *strongSelf = weakSelf;
-                    int32_t hippyTag = [[strongSelf hippyTag] intValue];
-                    auto node = domManager->GetNode(hippyTag);
-                    if (node) {
-                        node->SetLayoutOrigin(frame.origin.x, frame.origin.y);
-                        node->SetLayoutSize(frame.size.width, frame.size.height);
-                        std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
-                        node->DoLayout(changed_nodes);
-                        domManager->GetRenderManager()->UpdateLayout(std::move(changed_nodes));
-                        [strongSelf dirtyPropagation];
-                        strongSelf.hasNewLayout = YES;
-                        domManager->EndBatch();
-                    }
+                if (!weakSelf) {
+                    return;
                 }
+                HippyShadowView *strongSelf = weakSelf;
+                int32_t hippyTag = [[strongSelf hippyTag] intValue];
+                auto node = domManager->GetNode(strongSelf.rootNode, hippyTag);
+                auto renderManager = domManager->GetRenderManager().lock();
+                if (!node || !renderManager) {
+                    return;
+                }
+                node->SetLayoutOrigin(frame.origin.x, frame.origin.y);
+                node->SetLayoutSize(frame.size.width, frame.size.height);
+                std::vector<std::shared_ptr<hippy::DomNode>> changed_nodes;
+                node->DoLayout(changed_nodes);
+                renderManager->UpdateLayout(strongSelf.rootNode, std::move(changed_nodes));
+                [strongSelf dirtyPropagation];
+                strongSelf.hasNewLayout = YES;
+                domManager->EndBatch(strongSelf.rootNode);
             }
         }};
         domManager->PostTask(hippy::dom::Scene(std::move(ops)));

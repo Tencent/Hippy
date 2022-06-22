@@ -30,10 +30,9 @@ public class HippyWaterfallViewNode extends RenderNode {
 
   static final String TAG = "HippyWaterfallViewNode";
 
-  public HippyWaterfallViewNode(int id, @Nullable Map<String, Object> props,
-          @NonNull String className, @NonNull ViewGroup hippyRootView,
-          @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
-    super(id, props, className, hippyRootView, controllerManager, isLazyLoad);
+  public HippyWaterfallViewNode(int rootId, int id, @Nullable Map<String, Object> props,
+          @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
+    super(rootId, id, props, className, controllerManager, isLazyLoad);
   }
 
   @Override

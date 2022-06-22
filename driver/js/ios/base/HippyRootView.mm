@@ -431,7 +431,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
 - (void)setFrame:(CGRect)frame {
     super.frame = frame;
     if (self.hippyTag && _bridge.isValid) {
-        [_bridge.renderContext setFrame:frame forView:self];
+        [_bridge.renderContext setFrame:frame forRootView:self];
     }
 }
 
