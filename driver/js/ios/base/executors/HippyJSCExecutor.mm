@@ -163,10 +163,12 @@ HIPPY_EXPORT_MODULE()
         [self initURILoader];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
 #ifdef ENABLE_INSPECTOR
-        NSString *wsURL = [self completeWSURLWithBridge:bridge];
-        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
-        devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
-        self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        if (bridge.debugMode) {
+            NSString *wsURL = [self completeWSURLWithBridge:bridge];
+            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
+            devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
+            self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        }
 #endif
     }
 
@@ -411,8 +413,11 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
         return;
     }
 #ifdef ENABLE_INSPECTOR
-    bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
-    self.pScope->GetDevtoolsDataSource()->Destroy(reload);
+    auto devtools_data_source = self.pScope->GetDevtoolsDataSource();
+    if (devtools_data_source) {
+        bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
+        devtools_data_source->Destroy(reload);
+    }
 #endif
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
