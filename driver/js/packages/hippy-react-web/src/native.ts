@@ -53,8 +53,8 @@ const Device: DeviceInfo = {
   platform: {
     OS: 'web',
     Localization: {
-      language: '',
-      direction: undefined,
+      language: canUseDOM ? navigator.language : '',
+      direction: canUseDOM ? getDirection() : undefined,
     },
   },
   window: {
@@ -71,15 +71,40 @@ const Device: DeviceInfo = {
   },
 };
 
-const setLocalization = () => {
-  if (canUseDOM) {
-    Device.platform.Localization.language = navigator.language;
-    Device.platform.Localization.direction = getDirection();
-  }
+const Dimensions = {
+  get(name: 'window' | 'screen') {
+    return Device[name];
+  },
+  set(dimensions: { window?: typeof Device['window']; screen?: typeof Device['screen'] }) {
+    if (typeof window === 'object') {
+      /* eslint-disable-next-line no-console */
+      console.error('Dimensions cannot be set in the browser');
+      return;
+    }
+    if (dimensions.window) {
+      Device.window = dimensions.window;
+    }
+    if (dimensions.screen) {
+      Device.screen = dimensions.screen;
+    }
+  },
 };
 
-setLocalization();
+const Platform = Device.platform;
+
+const PixelRatio = {
+  get() {
+    return window.devicePixelRatio;
+  },
+};
+
+const ConsoleModule = console;
+
 
 export {
   Device,
+  Dimensions,
+  Platform,
+  PixelRatio,
+  ConsoleModule,
 };
