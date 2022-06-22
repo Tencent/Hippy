@@ -160,9 +160,8 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j
   update_style.insert({"width", width});
   update_style.insert({"height", height});
 
-  std::vector<std::function<void()>> ops = {[dom_manager, node, update_style]{
+  std::vector<std::function<void()>> ops = {[dom_manager, root_node, node, update_style]{
     node->UpdateDomNodeStyleAndParseLayoutInfo(update_style);
-    auto root_node = std::make_shared<hippy::RootNode>();
     dom_manager->EndBatch(root_node);
   }};
   dom_manager->PostTask(Scene(std::move(ops)));
