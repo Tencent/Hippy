@@ -50,11 +50,8 @@ public class RenderNode {
     protected final int mRootId;
     @NonNull
     protected final String mClassName;
-    @NonNull
     protected final List<RenderNode> mChildren = new ArrayList<>();
-    @NonNull
     protected final List<RenderNode> mChildrenUnattached = new ArrayList<>();
-    @NonNull
     protected final ControllerManager mControllerManager;
     @Nullable
     protected Map<String, Object> mProps;
