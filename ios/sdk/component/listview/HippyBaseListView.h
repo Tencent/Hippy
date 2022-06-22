@@ -63,7 +63,4 @@
 - (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath NS_REQUIRES_SUPER;
 - (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath NS_REQUIRES_SUPER;
 
-- (CGFloat)zPositionOfCell:(HippyBaseListViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath;
-- (CGFloat)zPositionOfSectionView:(UIView *)sectionView forSection:(NSInteger)section;
-
 @end
