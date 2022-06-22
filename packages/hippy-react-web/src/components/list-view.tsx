@@ -80,7 +80,17 @@ const styles = StyleSheet.create({
   listDefault: {
     flex: 1,
   },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  pullHeaderContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
 });
+
 let didWarn = !canUseDOM;
 const setIntersectionObserve = (observeCallback: (entries: any[]) => void) => {
   let observe: null | IntersectionObserver = null;
@@ -120,7 +130,7 @@ function ListViewItem(props: ListViewItemProps) {
     }
   }, [listItemRef]);
 
-  const liElementProps = { ...props, style: { ...formatWebStyle(style), ...itemStyle } };
+  const liElementProps = { ...props, style: { ...styles.container, ...formatWebStyle(style), ...itemStyle } };
   delete liElementProps.observer;
   delete liElementProps.height;
   delete liElementProps.getRowKey;
@@ -299,7 +309,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullHeaderRef]);
     return (
-      <div ref={pullHeaderRef} style={{ visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
+      <div ref={pullHeaderRef} style={{  ...styles.pullHeaderContainer, visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
         {renderPullHeader()}
       </div>
     );
@@ -337,7 +347,8 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       refreshing={refreshing}
       onRefresh={refresh}
       indicator={pullIndicator}
-      distanceToRefresh={pullHeaderHeight.current || 100}
+      // rmc-list-view pulling down height = distanceToRefresh + 1
+      distanceToRefresh={pullHeaderHeight.current - 1 || 50}
     />;
   }
 
@@ -347,6 +358,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     >
       <MListView
         {...listViewProps}
+        contentContainerStyle={{ position: 'relative' }}
         ref={listRef}
         className={(!showScrollIndicator && HIDE_SCROLLBAR_CLASS) || ''}
         dataSource={getDataSource()}

@@ -29,3 +29,11 @@ export const UNSUPPORTED_PROPS_MAP = {
   webview: ['userAgent', 'method', 'onLoad', 'onLoadStart'],
   view: ['nativeBackgroundAndroid'],
 };
+
+export const DEFAULT_CONTAINER_STYLE = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
+  flexBasis: 'auto',
+  flexShrink: 0,
+};
