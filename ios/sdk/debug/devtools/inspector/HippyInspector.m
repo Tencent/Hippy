@@ -39,20 +39,18 @@ NSString *const HippyInspectorRspDataKeyParams = @"params";
 
 @implementation HippyInspector
 
-+ (instancetype)sharedInstance {
-    static HippyInspector *instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[HippyInspector alloc] init];
-    });
-    return instance;
-}
-
 - (instancetype)init {
     self = [super init];
     if (self) {
         _domainMap = [NSMutableDictionary dictionary];
         [self initializeDomain];
+    }
+    return self;
+}
+
+- (instancetype)initWithDevManager:(HippyDevManager *)manager {
+    if (self = [self init]) {
+        _devManager = manager;
     }
     return self;
 }
