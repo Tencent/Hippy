@@ -11,6 +11,7 @@
 * @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
 
 *.js @zoomchan-cxj
+*.ts @zoomchan-cxj
 *.java @siguangli
 *.cc @churchill-zhang @ilikethese @medns
 *.h @ozonelmy
@@ -47,7 +48,7 @@ CMakeLists.txt @medns
 /hippy.podspec @ozonelmy
 
 # examples related
-/examples/android-demo/ @siguangli @zoomchan-cxj
+/examples/android-demo/ @siguangli
 /examples/android-demo/res/ @zoomchan-cxj
 /examples/ios-demo/ @ozonelmy
 /examples/ios-demo/res/ @zoomchan-cxj
