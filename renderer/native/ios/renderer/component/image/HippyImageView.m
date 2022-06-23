@@ -718,8 +718,10 @@ HIPPY_ENUM_CONVERTER(HippyShapeMode, (@{
             dispatch_async(dispatch_get_main_queue(), ^{
                 HippyImageView *sIV = wIV;
                 NSString *sURL = wURL;
-                [sIV loadImage:animatedImage.posterImage url:sURL error:nil needBlur:YES];
-                sIV.animatedImage = animatedImage;
+                if (sIV && sURL) {
+                    [sIV loadImage:animatedImage.posterImage url:sURL error:nil needBlur:YES];
+                    sIV.animatedImage = animatedImage;
+                }
             });
         }
     }
