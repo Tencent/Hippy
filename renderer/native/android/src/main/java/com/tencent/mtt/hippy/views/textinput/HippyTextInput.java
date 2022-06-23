@@ -88,11 +88,12 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         mDefaultGravityHorizontal =
                 getGravity() & (Gravity.HORIZONTAL_GRAVITY_MASK
                         | Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
-        mDefaultGravityVertical = getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
+        mDefaultGravityVertical = Gravity.CENTER_VERTICAL;
         // 临时规避一下EditTextView重设hint不生效的问题
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         setPadding(0, 0, 0, 0);
+        setGravityVertical(Gravity.CENTER_VERTICAL);
     }
 
     @Override
