@@ -86,7 +86,7 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
     if (eventNode) {
       const { id, eventList } = eventNode;
       eventList.forEach((eventAttribute) => {
-        const { name, type, listener } = eventAttribute;
+        const { name, type, listener, isCapture } = eventAttribute;
         let nativeEventName;
         if (isNativeGesture(name)) {
           nativeEventName = nativeEventMap[name];
@@ -97,7 +97,7 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
           sceneBuilder.removeEventListener(id, nativeEventName, listener);
         }
         if (type === eventHandlerType.ADD) {
-          sceneBuilder.addEventListener(id, nativeEventName, listener);
+          sceneBuilder.addEventListener(id, nativeEventName, listener, isCapture);
         }
       });
     }

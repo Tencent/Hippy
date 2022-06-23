@@ -17,20 +17,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #pragma once
 
-#include <string>
-#include "api/adapter/devtools_elements_request_adapter.h"
-
 namespace hippy::devtools {
-class HippyElementsRequestAdapter : public hippy::devtools::ElementsRequestAdapter {
+class DomTreeNotification {
  public:
-  explicit HippyElementsRequestAdapter(int32_t dom_id) : dom_id_(dom_id) {}
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
+  virtual void NotifyDocumentUpdate() = 0;
+  virtual ~DomTreeNotification() {}
 
- private:
-  int32_t dom_id_;
+  inline void SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
+    need_notify_batch_event_ = need_notify_batch_event;
+  }
+
+ protected:
+  bool need_notify_batch_event_ = true;
 };
 }  // namespace hippy::devtools

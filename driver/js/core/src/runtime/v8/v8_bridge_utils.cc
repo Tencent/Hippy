@@ -172,26 +172,28 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
 
 #ifdef ENABLE_INSPECTOR
-  DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
-  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
-  devtools_data_source->SetRuntimeDebugMode(is_dev_module);
-  scope->SetDevtoolsDataSource(devtools_data_source);
+  if (is_dev_module) {
+    DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
+    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
+    devtools_data_source->SetRuntimeDebugMode(is_dev_module);
+    scope->SetDevtoolsDataSource(devtools_data_source);
 #ifndef V8_WITHOUT_INSPECTOR
-  scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
-    std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
-    if (!runtime || !runtime->IsDebug()) {
-      TDF_BASE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
-      return;
-    }
-    std::shared_ptr<JavaScriptTaskRunner> runner = runtime->GetEngine()->GetJSRunner();
-    std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-    task->callback = [runtime, data] {
-      // convert to utf-16 for v8, otherwise utf-8 like some protocol Runtime.enable which cause error "message must be a valid JSON"
-      auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
-      global_inspector->SendMessageToV8(u16str);
-    };
-    runner->PostTask(task);
-  });
+    scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
+      std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+      if (!runtime || !runtime->IsDebug()) {
+        TDF_BASE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
+        return;
+      }
+      std::shared_ptr<JavaScriptTaskRunner> runner = runtime->GetEngine()->GetJSRunner();
+      std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
+      task->callback = [runtime, data] {
+        // convert to utf-16 for v8, otherwise utf-8 like some protocol Runtime.enable which cause error "message must be a valid JSON"
+        auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
+        global_inspector->SendMessageToV8(u16str);
+      };
+      runner->PostTask(task);
+    });
+  }
 #endif
 #endif
 
@@ -384,7 +386,10 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     runtime->GetScope()->WillExit();
 #endif
 #ifdef ENABLE_INSPECTOR
-    runtime->GetScope()->GetDevtoolsDataSource()->Destroy(is_reload);
+    auto devtools_data_source = runtime->GetScope()->GetDevtoolsDataSource();
+    if (devtools_data_source) {
+      devtools_data_source->Destroy(is_reload);
+    }
 #endif
     TDF_BASE_LOG(INFO) << "SetScope nullptr";
     runtime->SetScope(nullptr);

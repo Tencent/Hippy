@@ -40,7 +40,8 @@ class DevToolsUtil {
 
   static DomNodeMetas ToDomNodeMetas(const std::shared_ptr<DomNode>& dom_node);
 
-  static DomainMetas GetDomDomainData(const std::shared_ptr<DomNode>& dom_node,
+  static DomainMetas GetDomDomainData(const std::shared_ptr<DomNode>& root_node,
+                                      const std::shared_ptr<DomNode>& dom_node,
                                       uint32_t depth,
                                       const std::shared_ptr<DomManager>& dom_manager);
 

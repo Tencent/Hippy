@@ -22,7 +22,7 @@
 #include <cassert>
 #include <utility>
 #include "api/devtools_backend_service.h"
-#include "api/notification/default/default_elements_response_notification.h"
+#include "api/notification/default/default_dom_tree_notification.h"
 #include "devtools_base/common/macros.h"
 #include "devtools_base/logging.h"
 #include "devtools_base/parse_json_util.h"
@@ -57,8 +57,8 @@ void DomDomain::RegisterMethods() {
 void DomDomain::RegisterCallback() {
   dom_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
-    auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
-    if (elements_request_adapter) {
+    auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
+    if (dom_tree_adapter) {
       auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
         auto model = DomModel::CreateModel(nlohmann::json::parse(data.Serialize(), nullptr, false));
         model.SetDataProvider(provider);
@@ -66,7 +66,7 @@ void DomDomain::RegisterCallback() {
           callback(model);
         }
       };
-      elements_request_adapter->GetDomainData(node_id, is_root, depth, response_callback);
+      dom_tree_adapter->GetDomainData(node_id, is_root, depth, response_callback);
     } else if (callback) {
       callback(DomModel());
     }
@@ -74,8 +74,8 @@ void DomDomain::RegisterCallback() {
 
   location_for_node_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t x, int32_t y, DomDataCallback callback) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
-    auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
-    if (elements_request_adapter) {
+    auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
+    if (dom_tree_adapter) {
       auto node_callback = [callback, provider = self->GetDataProvider()](const DomNodeLocation& metas) {
         DomModel model;
         model.SetDataProvider(provider);
@@ -88,7 +88,7 @@ void DomDomain::RegisterCallback() {
           callback(model);
         }
       };
-      elements_request_adapter->GetNodeIdByLocation(x, y, node_callback);
+      dom_tree_adapter->GetNodeIdByLocation(x, y, node_callback);
     } else if (callback) {
       callback(DomModel());
     }
@@ -97,7 +97,7 @@ void DomDomain::RegisterCallback() {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     self->HandleDocumentUpdate();
   };
-  GetNotificationCenter()->elements_notification = std::make_shared<DefaultElementsResponseAdapter>(update_handler);
+  GetNotificationCenter()->dom_tree_notification = std::make_shared<DefaultDomTreeNotification>(update_handler);
 }
 
 void DomDomain::GetDocument(const BaseRequest& request) {

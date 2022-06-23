@@ -420,6 +420,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             [strongSelf setUpDomManager:strongSelf->_domManager];
 
             strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();
+            
+#ifdef ENABLE_INSPECTOR
+            auto devtools_data_source = strongSelf->_batchedBridge.javaScriptExecutor.pScope->GetDevtoolsDataSource();
+            if (devtools_data_source) {
+                devtools_data_source->SetRootNode(strongSelf->_rootNode);
+            }
+#endif
         }
     };
     if (self.batchedBridge) {

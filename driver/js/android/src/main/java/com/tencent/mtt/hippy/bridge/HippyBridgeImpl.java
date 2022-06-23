@@ -109,28 +109,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         mDebugGlobalConfig = globalConfig;
         mDebugInitJSFrameworkCallback = callback;
 
-        if (this.mIsDevModule) {
-            mDebugWebSocketClient = new DebugWebSocketClient();
-            mDebugWebSocketClient.setOnReceiveDataCallback(this);
-            String debugUrl = mContext.getDevSupportManager().createDebugUrl(mDebugServerHost);
-            mDebugWebSocketClient.connect(debugUrl, new DebugWebSocketClient.JSDebuggerCallback() {
-              @SuppressWarnings("unused")
-              @Override
-              public void onSuccess(String response) {
-                LogUtils.d("hippyCore", "js debug socket connect success");
-                initJSEngine(groupId);
-              }
-
-              @SuppressWarnings("unused")
-              @Override
-              public void onFailure(final Throwable cause) {
-                LogUtils.e("hippyCore", "js debug socket connect failed");
-                initJSEngine(groupId);
-              }
-            });
-        } else {
-            initJSEngine(groupId);
-        }
+        initJSEngine(groupId);
     }
 
     private void initJSEngine(int groupId) {

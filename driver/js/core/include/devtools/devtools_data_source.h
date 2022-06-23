@@ -25,8 +25,10 @@
 
 #include "core/engine.h"
 #include "core/task/worker_task_runner.h"
+#include "dom/root_node.h"
 #include "devtools/adapter/hippy_runtime_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
+#include "devtools/hippy_dom_data.h"
 #include "api/devtools_config.h"
 #include "api/devtools_backend_service.h"
 
@@ -53,9 +55,8 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   void SetRuntimeDebugMode(bool debug_mode);
   void SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler);
   void SetContextName(const std::string& context_name);
-  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() {
-      return devtools_service_->GetNotificationCenter();
-  }
+  void SetRootNode(std::weak_ptr<RootNode> root_node);
+
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
@@ -68,8 +69,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   void SendVmData(v8_inspector::StringView string_view);
 #endif
 
-  int32_t dom_id_;
-  int32_t runtime_id_;
+  std::shared_ptr<HippyDomData> hippy_dom_;
   std::shared_ptr<HippyRuntimeAdapter> runtime_adapter_;
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
 };

@@ -17,19 +17,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #pragma once
 
+#include "dom/root_node.h"
+
 namespace hippy::devtools {
-class ElementsResponseNotification {
- public:
-  virtual void NotifyDocumentUpdate() = 0;
-  virtual ~ElementsResponseNotification() {}
-
-  inline void SetNeedNotifyBatchEvent(bool need_notify_batch_event) {
-    need_notify_batch_event_ = need_notify_batch_event;
-  }
-
- protected:
-  bool need_notify_batch_event_ = true;
+struct HippyDomData {
+  int32_t dom_id;
+  std::weak_ptr<RootNode> root_node;
 };
 }  // namespace hippy::devtools

@@ -183,6 +183,8 @@ class JSCCtx : public Ctx {
     TDF_BASE_UNIMPLEMENTED();
     return false;
   }
+
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
   // Null Helpers
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
 
