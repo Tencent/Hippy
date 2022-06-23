@@ -3,38 +3,52 @@ const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
+const ReactRefreshWebpackPlugin = require('@hippy/hippy-react-refresh-webpack-plugin');
 const pkg = require('../package.json');
 
 const platform = 'web';
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   bail: true,
+  devServer: {
+    port: 3000,
+    hot: true,
+    liveReload: true,
+  },
+  devtool: 'source-map',
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.main)],
+    index: ['regenerator-runtime', path.resolve(pkg.web)],
   },
   output: {
-    filename: `[name].${platform}.js`,
+    // filename: `[name].${platform}.js`,
+    filename: 'index.bundle.js',
     path: path.resolve(`./dist/${platform}/`),
+    strictModuleExceptionHandling: true,
+    globalObject: '(0, eval)("this")',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
+    new HtmlWebpackPlugin({
+      inject: true,
+      scriptLoading: 'blocking',
+      template: path.resolve('./public/index.html'),
+    }),
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify('production'),
+      'process.env.NODE_ENV': JSON.stringify('development'),
       __PLATFORM__: JSON.stringify(platform),
     }),
-    new HtmlWebpackPlugin({
-      title: pkg.name,
-      filename: `${pkg.name}.html`,
-      template: path.resolve(__dirname, './template.html'),
-      favouriteIcon: pkg.favicon || 'https://hippyjs.org/assets/img/hippy-logo.ico',
-    }),
     new CaseSensitivePathsPlugin(),
+    new HippyDynamicImportPlugin(),
+    new ReactRefreshWebpackPlugin({
+      overlay: false,
+    }),
   ],
   module: {
     rules: [
       {
-        test: /\.(jsx?)$/,
+        test: /\.(jsx|ts|tsx|js)$/,
         use: [
           {
             loader: 'babel-loader',
@@ -56,6 +70,7 @@ module.exports = {
                 ['@babel/plugin-proposal-class-properties'],
                 ['@babel/plugin-proposal-decorators', { legacy: true }],
                 ['@babel/plugin-transform-runtime', { regenerator: true }],
+                require.resolve('react-refresh/babel'),
               ],
             },
           },
@@ -91,12 +106,10 @@ module.exports = {
     extensions: ['.js', '.jsx', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
     alias: (() => {
-      const aliases = {
-        '@hippy/react': '@hippy/react-web',
-      };
-      // If hippy-react-web was built exist then make a alias to @hippy/react
+      const aliases = {};
+      // If hippy-react was built exist then make a alias
       // Remove the section if you don't use it
-      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react-web');
+      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react');
       if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
         console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
         aliases['@hippy/react'] = hippyReactPath;

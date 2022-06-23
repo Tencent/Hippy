@@ -1,0 +1,21 @@
+.highlight {
+  outline: 2px solid red !important;
+}
+html * {
+  outline: 0;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+body, ul, ol, li, dl, dt, dd, p, pre, h1, h2, h3, h4, h5, h6, hr, blockquote, fieldset, lengend,
+button,
+textarea,
+th,
+td {
+  margin: 0;
+  padding: 0;
+}
+@font-face {
+  font-family: DINCond-Bold;
+  src: url(./din-condensed-bold.f854e055.ttf);
+  font-weight: 400;
+  font-style: normal
+}
