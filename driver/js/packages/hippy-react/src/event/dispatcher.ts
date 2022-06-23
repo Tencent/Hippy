@@ -20,7 +20,7 @@
 
 import { Fiber } from '@hippy/react-reconciler';
 import { getFiberNodeFromId, getElementFromFiber, eventNamesMap, NATIVE_EVENT_INDEX } from '../utils/node';
-import { trace, isGlobalBubble, isHostComponent } from '../utils';
+import { trace, isGlobalBubble } from '../utils';
 import HippyEventHub from './hub';
 import Event from './event';
 
@@ -28,18 +28,12 @@ type EventParam = string[] | number[];
 
 interface NativeEvent {
   id: number;
+  currentId: number;
   name: string;
 }
 
 const eventHubs = new Map();
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
-
-interface ListenerObj {
-  eventName: string;
-  listener: Function;
-  isCapture: boolean;
-  currentTarget: Element;
-}
 
 /**
  * convertEventName - convert all special event name
@@ -67,147 +61,71 @@ function isNodePropFunction(prop: string, nextNodeItem: Fiber) {
 }
 
 /**
- * doCaptureAndBubbleLoop - process capture phase and bubbling phase
- * @param {string} originalEventName
+ * triggerEvent - process event
+ * @param {string} eventName
  * @param {NativeEvent} nativeEvent
- * @param {Fiber} nodeItem
+ * @param {Fiber} currentItem
+ * @param {Fiber} targetItem
+ * @param {HippyTypes.DOMEvent} domEvent
  */
-function doCaptureAndBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeItem: Fiber) {
-  const eventQueue: ListenerObj[] = [];
-  let nextNodeItem: Fiber | null = nodeItem;
-  let eventName = originalEventName;
-  // capture and bubbling loop
-  while (nextNodeItem) {
-    eventName = convertEventName(eventName, nextNodeItem);
-    const captureName = `${eventName}Capture`;
-    if (isNodePropFunction(captureName, nextNodeItem)) {
-      // capture phase to add listener at queue head
-      eventQueue.unshift({
-        eventName: captureName,
-        listener: nextNodeItem.memoizedProps[captureName],
-        isCapture: true,
-        currentTarget: getElementFromFiber(nextNodeItem),
-      });
-    }
-    if (isNodePropFunction(eventName, nextNodeItem)) {
-      // bubbling phase to add listener at queue tail
-      eventQueue.push({
-        eventName,
-        listener: nextNodeItem.memoizedProps[eventName],
-        isCapture: false,
-        currentTarget: getElementFromFiber(nextNodeItem),
-      });
-    }
-    if (eventQueue.length === 0) {
-      nextNodeItem = null;
-    } else {
-      nextNodeItem = nextNodeItem.return;
-      while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
-        // only handle HostComponent
-        nextNodeItem = nextNodeItem.return;
-      }
-    }
-  }
-  if (eventQueue.length > 0) {
-    let listenerObj: ListenerObj | undefined;
-    let isStopBubble: any = false;
-    const targetNode = getElementFromFiber(nodeItem);
-    while (!isStopBubble && (listenerObj = eventQueue.shift()) !== undefined) {
-      try {
-        const { eventName, currentTarget: currentTargetNode, listener, isCapture } = listenerObj;
-        const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
-        Object.assign(syntheticEvent, nativeEvent);
-        // whether it is capture or bubbling event, returning false or calling stopPropagation would both stop phase
-        if (isCapture) {
-          listener(syntheticEvent);
-          // event bubbles flag has higher priority
-          if (!syntheticEvent.bubbles) {
-            isStopBubble = true;
-          }
-        } else {
-          isStopBubble = listener(syntheticEvent);
-          // If callback have no return, use global bubble config to set isStopBubble.
-          if (typeof isStopBubble !== 'boolean') {
-            isStopBubble = !isGlobalBubble();
-          }
-          // event bubbles flag has higher priority
-          if (!syntheticEvent.bubbles) {
-            isStopBubble = true;
-          }
-        }
-      } catch (err) {
-        (console as any).reportUncaughtException(err);
-      }
-    }
-  }
-}
-
-/**
- * doBubbleLoop - process only bubbling phase
- * @param {string} originalEventName
- * @param {NativeEvent} nativeEvent
- * @param {Fiber} nodeItem
- */
-function doBubbleLoop(originalEventName: string, nativeEvent: NativeEvent, nodeItem: Fiber) {
+function triggerEvent(
+  eventName: string,
+  nativeEvent: NativeEvent,
+  currentItem: Fiber,
+  targetItem: Fiber,
+  domEvent: HippyTypes.DOMEvent,
+) {
   let isStopBubble: any = false;
-  let nextNodeItem: Fiber | null = nodeItem;
-  let eventName = originalEventName;
-  const targetNode = getElementFromFiber(nodeItem);
-  // only bubbling loop
-  do {
-    eventName = convertEventName(eventName, nextNodeItem);
-    if (isNodePropFunction(eventName, nextNodeItem)) {
-      try {
-        const currentTargetNode = getElementFromFiber(nextNodeItem);
-        const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
-        Object.assign(syntheticEvent, nativeEvent);
-        isStopBubble = nextNodeItem.memoizedProps[eventName](syntheticEvent);
-        // If callback have no return, use global bubble config to set isStopBubble.
-        if (typeof isStopBubble !== 'boolean') {
-          isStopBubble = !isGlobalBubble();
-        }
-        // event bubbles flag has higher priority
-        if (!syntheticEvent.bubbles) {
-          isStopBubble = true;
-        }
-      } catch (err) {
-        (console as any).reportUncaughtException(err);
+  const captureEventName = `${eventName}Capture`;
+  const targetNode = getElementFromFiber(targetItem);
+  const currentTargetNode = getElementFromFiber(currentItem);
+  try {
+    // handle capture phase event
+    if (isNodePropFunction(captureEventName, currentItem)) {
+      const syntheticEvent = new Event(captureEventName, currentTargetNode, targetNode);
+      Object.assign(syntheticEvent, nativeEvent);
+      currentItem.memoizedProps[captureEventName](syntheticEvent);
+      if (!syntheticEvent.bubbles && domEvent) {
+        domEvent.stopPropagation();
       }
     }
-    if (isStopBubble === false) {
-      nextNodeItem = nextNodeItem.return;
-      while (nextNodeItem && !isHostComponent(nextNodeItem.tag)) {
-        // only handle HostComponent
-        nextNodeItem = nextNodeItem.return;
+    // handle target phase event
+    if (isNodePropFunction(eventName, currentItem)) {
+      const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
+      Object.assign(syntheticEvent, nativeEvent);
+      isStopBubble = currentItem.memoizedProps[eventName](syntheticEvent);
+      // If callback have no return, use global bubble config to set isStopBubble.
+      if (typeof isStopBubble !== 'boolean') {
+        isStopBubble = !isGlobalBubble();
+      }
+      // event bubbles flag has higher priority
+      if (!syntheticEvent.bubbles) {
+        isStopBubble = true;
+      }
+      if (isStopBubble !== false && domEvent) {
+        domEvent.stopPropagation();
       }
     }
-  } while (!isStopBubble && nextNodeItem);
+  } catch (err) {
+    (console as any).reportUncaughtException(err);
+  }
 }
 
-function receiveNativeGesture(nativeEvent: NativeEvent) {
+function receiveNativeGesture(nativeEvent: NativeEvent, domEvent: HippyTypes.DOMEvent) {
   trace(...componentName, 'receiveNativeGesture', nativeEvent);
   if (!nativeEvent) {
     return;
   }
-  const { id: targetNodeId } = nativeEvent;
-  const targetNode = getFiberNodeFromId(targetNodeId);
-  if (!targetNode) {
+  const { id, currentId, name } = nativeEvent;
+  const currentTargetNode = getFiberNodeFromId(currentId);
+  const targetNode = getFiberNodeFromId(id);
+  if (!currentTargetNode || !targetNode) {
     return;
   }
-  let hasCapturePhase = true;
-  let { name: eventName } = nativeEvent;
-  eventName = convertEventName(eventName, targetNode);
-  const captureName = `${eventName}Capture`;
-  const nextNodeItem: Fiber = targetNode;
-  // if current target has no capture listener, only do bubbling phase loop to improve performance
-  if (targetNode.memoizedProps && typeof targetNode.memoizedProps[captureName] !== 'function') {
-    hasCapturePhase = false;
-  }
-  if (hasCapturePhase) {
-    doCaptureAndBubbleLoop(eventName, nativeEvent, nextNodeItem);
-  } else {
-    doBubbleLoop(eventName, nativeEvent, nextNodeItem);
-  }
+  const eventName = convertEventName(name, currentTargetNode);
+  const currentItem: Fiber = currentTargetNode;
+  const targetItem: Fiber = targetNode;
+  triggerEvent(eventName, nativeEvent, currentItem, targetItem, domEvent);
 }
 
 function getHippyEventHub(eventName: any) {
