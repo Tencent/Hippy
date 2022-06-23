@@ -4,11 +4,15 @@ Includes foreground, background, border, opacity, font and other appearance styl
 
 # borderColor
 
+> Android default value is `transparent`，iOS default value is `black`
+
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
 | [color](style/color.md) |No|  Android,iOS
 
 # borderTopColor
+
+> Android default value is `transparent`，iOS default value is `black`
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
@@ -16,17 +20,23 @@ Includes foreground, background, border, opacity, font and other appearance styl
 
 # borderBottomColor
 
+> Android default value is `transparent`，iOS default value is `black`
+
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
 | [color](style/color.md) |No|  Android,iOS
 
 # borderLeftColor
 
+> Android default value is `transparent`，iOS default value is `black`
+
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
 | [color](style/color.md) |No|   Android,iOS
 
 # borderRightColor
+
+> Android default value is `transparent`，iOS default value is `black`
 
 | Type               | Required| Supported Platforms
 | ------------------ | -------- | --- |
@@ -99,6 +109,8 @@ Includes foreground, background, border, opacity, font and other appearance styl
 | [color](style/color.md) |No   |  Android,iOS
 
 # borderStyle
+
+> Default value is `solid`
 
 | Type                              | Required| Supported Platforms
 | --------------------------------- | -------- | --- |
