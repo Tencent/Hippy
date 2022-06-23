@@ -1,6 +1,6 @@
 import {
   HippyWebEngine,
-} from '@tencent/camp-hippy-web-renderer';
+} from '@hippy/web-renderer';
 import './main';
 
 const engine = HippyWebEngine.create({
@@ -16,7 +16,7 @@ engine.start({
     path: '/home',
     business: 'Demo',
     data: {
-      username: 'test', // 传参 例子
+      username: 'test', // Example of passing parameters
     },
   },
 });
