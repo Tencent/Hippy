@@ -31,17 +31,10 @@ module.exports = {
 
 ## Project progress
 
-| Working    | Not Working    |
-| ---------- | -------------- |
-| View       | RefreshWrapper |
-| Text       | Navigator      |
-| Animation  | Modal          |
-| Image      | NetInfo        |
-| ListView   |                |
-| ScrollView |                |
-| TextInput  |                | 
-| ViewPager  |                |
-| WebView    |                |
-| VideoPlayer|                |
-| Slider     |                |
-| TabHost    |                |
+| Not Working        |
+| --------------     |
+| Navigator          |
+| NetInfo            |
+| RippleViewAndorid  |
+| WaterFallView      |
+| VideoPlayer        |

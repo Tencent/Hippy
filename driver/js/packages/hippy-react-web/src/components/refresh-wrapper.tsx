@@ -24,6 +24,7 @@ import React, { useState } from 'react';
 import MPullToRefresh from 'rmc-pull-to-refresh';
 import { formatWebStyle } from '../adapters/transfer';
 import { isFunc } from '../utils';
+import { DEFAULT_CONTAINER_STYLE, DEFAULT_DISTANCE_TO_REFRESH, REFRESH_DISTANCE_SCREEN_Y_OFFSET } from '../constants';
 
 export interface RefreshWrapperProps {
   ref?: any;
@@ -32,6 +33,17 @@ export interface RefreshWrapperProps {
   onRefresh?: () => void;
   bounceTime?: number;
 }
+
+const styles = {
+  container: {
+    ...DEFAULT_CONTAINER_STYLE,
+  },
+  pullHeaderContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
+};
 
 /**
  * Simply to implement the drag down to refresh feature.
@@ -61,7 +73,7 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       }
     }, [pullHeaderRef]);
     return (
-      <div ref={pullHeaderRef} style={{ visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
+      <div ref={pullHeaderRef} style={{ ...styles.pullHeaderContainer, visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
         {getRefresh()}
       </div>
     );
@@ -109,7 +121,10 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       refreshing={refreshing}
       onRefresh={handleOnRefresh}
       indicator={pullIndicator}
-      distanceToRefresh={pullHeaderHeight.current || 100}
+      distanceToRefresh={
+        pullHeaderHeight.current
+          ?  pullHeaderHeight.current -  REFRESH_DISTANCE_SCREEN_Y_OFFSET : DEFAULT_DISTANCE_TO_REFRESH
+      }
     />,
   });
 
@@ -119,7 +134,7 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
   delete newProps.onRefresh;
 
   return (
-    <div {...newProps} ref={wrapperRef}>
+    <div {...newProps} style={formatWebStyle({ ...styles.container, ...newProps.style })} ref={wrapperRef}>
       { newChildren }
     </div>
   );
