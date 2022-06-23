@@ -21,10 +21,14 @@
 #pragma once
 
 #include <string>
+#include <vector>
+#include <map>
+
 #include "api/adapter/data/dom_node_metas.h"
 #include "api/adapter/data/update_dom_node_metas.h"
 #include "api/adapter/data/dom_node_location.h"
 #include "api/adapter/data/domain_metas.h"
+#include "api/adapter/data/dom_push_node_path_metas.h"
 
 namespace hippy::devtools {
 /**
@@ -37,6 +41,8 @@ class DomTreeAdapter {
   using UpdateDomTreeCallback = std::function<void(const bool is_success)>;
   using DomainDataCallback = std::function<void(const DomainMetas& data)>;
   using NodeLocationCallback = std::function<void(const DomNodeLocation& data)>;
+  using PushNodePath = std::vector<std::map<std::string, int32_t>>;
+  using PushNodeByPathCallback = std::function<void(const DomPushNodePathMetas& data)>;
 
   /**
    * get current page dom node tree
@@ -63,7 +69,14 @@ class DomTreeAdapter {
    */
   virtual void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) = 0;
 
-   /**
+  /**
+   *  Get push node by path
+   *  @see https://chromedevtools.github.io/devtools-protocol/tot/DOM/#method-pushNodeByPathToFrontend
+   *  @param path node path
+   */
+  virtual void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) = 0;
+
+  /**
     * @brief update current page dom node tree
     * @param metas dom node properties metas
     * @param callback  finish callback

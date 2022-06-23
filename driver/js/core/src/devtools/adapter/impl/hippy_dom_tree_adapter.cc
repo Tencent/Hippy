@@ -133,4 +133,21 @@ void HippyDomTreeAdapter::GetNodeIdByLocation(double x, double y, NodeLocationCa
   };
   DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
 }
+
+void HippyDomTreeAdapter::GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) {
+  if (!callback) {
+    return;
+  }
+  std::weak_ptr<HippyDomData> weak_hippy_dom = hippy_dom_;
+  auto func = [weak_hippy_dom, path, callback]() {
+    std::shared_ptr<HippyDomData> hippy_dom = weak_hippy_dom.lock();
+    std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom->dom_id);
+    auto root_node = hippy_dom->root_node.lock();
+    if (!root_node) {
+      return;
+    }
+    callback(DevToolsUtil::GetPushNodeByPath(root_node, path));
+  };
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+}
 }  // namespace hippy::devtools
