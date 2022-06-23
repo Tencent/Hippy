@@ -578,7 +578,7 @@ class ElementNode extends ViewNode {
     // Be careful, here's different than Browser,
     // because Hippy can't callback without element _emitter.
     if (!eventInstance.target) {
-      eventInstance.target = targetNode;
+      eventInstance.target = targetNode || this;
       // IMPORTANT: It's important for vnode diff and directive trigger.
       if (typeof eventInstance.value === 'string') {
         eventInstance.target.value = eventInstance.value;

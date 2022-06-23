@@ -136,6 +136,11 @@ class ViewNode {
     let notToSkipRefNode = referenceNode;
     if (referenceNode.meta.skipAddToDom) {
       notToSkipRefNode = findNotToSkipNode(this.childNodes, index);
+      // if childNodes cannot find non-skipAddToDom node as referenceNode,
+      // use parentNode append it to the end.
+      if (notToSkipRefNode.meta.skipAddToDom) {
+        return this.appendChild(childNode);
+      }
     }
     childNode.parentNode = this;
     childNode.nextSibling = referenceNode;
@@ -172,6 +177,11 @@ class ViewNode {
     let notToSkipRefNode = referenceNode;
     if (referenceNode.meta.skipAddToDom) {
       notToSkipRefNode = findNotToSkipNode(this.childNodes, referenceIndex);
+      // if childNodes cannot find non-skipAddToDom node as referenceNode,
+      // use parentNode append it to the end.
+      if (notToSkipRefNode.meta.skipAddToDom) {
+        return this.appendChild(childNode);
+      }
     }
     // return if the moved index is the same as the previous one
     if (referenceIndex === oldIndex) {
