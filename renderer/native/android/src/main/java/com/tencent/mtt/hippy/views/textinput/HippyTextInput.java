@@ -56,6 +56,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
 import com.tencent.renderer.utils.EventUtils;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -484,7 +485,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
     }
 
     @Override
-    public void setBorderStyle(int borderStyle) {
+    public void setBorderStyle(BorderStyle borderStyle) {
     }
 
     @Override

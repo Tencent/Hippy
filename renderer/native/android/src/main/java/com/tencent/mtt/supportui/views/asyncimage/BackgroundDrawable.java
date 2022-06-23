@@ -39,6 +39,7 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 
+import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
 import java.util.ArrayList;
 
 /**
@@ -50,7 +51,7 @@ public class BackgroundDrawable extends BaseDrawable {
     private float[] mBorderWidthArray;
     private float[] mBorderRadiusArray;
     private int[] mBorderColorArray;
-    private int mBorderStyle = 0;
+    private BorderStyle mBorderStyle = BorderStyle.SOLID;
     private DashPathEffect mDashPathEffect = null;
     private DashPathEffect mDotPathEffect = new DashPathEffect(new float[]{2, 2}, 0);
     private Path mPathWithBorder;
@@ -80,6 +81,8 @@ public class BackgroundDrawable extends BaseDrawable {
 
     public BackgroundDrawable() {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mBorderColorArray = new int[5];
+        mBorderColorArray[0] = Color.BLACK;
     }
 
     @Override
@@ -100,13 +103,13 @@ public class BackgroundDrawable extends BaseDrawable {
         float dotBorderWidth = 2;
 //		if(mBorderRadiusArray !=null && mBorderRadiusArray.length > 1)
 //			dotBorderWidth = mBorderRadiusArray[0];
-        if (mBorderStyle == 1 && dotBorderWidth > 0) {
+        if (mBorderStyle == BorderStyle.DASHED && dotBorderWidth > 0) {
             if (mDashPathEffect == null) {
                 mDashPathEffect = new DashPathEffect(
                         new float[]{4 * dotBorderWidth, 2 * dotBorderWidth}, 0);
             }
             mPaint.setPathEffect(mDashPathEffect);
-        } else if (mBorderStyle == 2 && dotBorderWidth > 0) {
+        } else if (mBorderStyle == BorderStyle.DOTTED && dotBorderWidth > 0) {
             if (mDotPathEffect == null) {
                 mDotPathEffect = new DashPathEffect(
                         new float[]{2 * dotBorderWidth, 2 * dotBorderWidth}, 0);
@@ -412,7 +415,7 @@ public class BackgroundDrawable extends BaseDrawable {
         // draw border
         //话圆角矩形必须四条边的宽度是一样的.
         if (CommonTool.hasPositiveItem(mBorderWidthArray) && mBorderWidthArray[0] > 0
-                && mBorderColorArray != null) {
+                && mBorderColorArray != null && mBorderStyle != BorderStyle.NONE) {
             //qb上一般都是走这个分支
             if (mBorderColorArray[0] != 0 ||  //如果指定了四边的颜色
                     (mBorderColorArray[1] == mBorderColorArray[2] //或者单独指定的四条边的颜色一样
@@ -495,7 +498,7 @@ public class BackgroundDrawable extends BaseDrawable {
             }
             int scaleLength = border / 2;
 
-            if (colorLeft != Color.TRANSPARENT) {
+            if (colorLeft != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorLeft);
                 mPathWithBorder.reset();
 
@@ -528,7 +531,7 @@ public class BackgroundDrawable extends BaseDrawable {
                 canvas.drawPath(mPathWithBorder, mPaint);
             }
 
-            if (colorTop != Color.TRANSPARENT) {
+            if (colorTop != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorTop);
                 mPathWithBorder.reset();
 
@@ -561,7 +564,7 @@ public class BackgroundDrawable extends BaseDrawable {
                 canvas.drawPath(mPathWithBorder, mPaint);
             }
 
-            if (colorRight != Color.TRANSPARENT) {
+            if (colorRight != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorRight);
                 mPathWithBorder.reset();
 
@@ -593,7 +596,7 @@ public class BackgroundDrawable extends BaseDrawable {
                 canvas.drawPath(mPathWithBorder, mPaint);
             }
 
-            if (colorBottom != Color.TRANSPARENT) {
+            if (colorBottom != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorBottom);
                 mPathWithBorder.reset();
 
@@ -688,7 +691,7 @@ public class BackgroundDrawable extends BaseDrawable {
                 mPathWithBorder = new Path();
             }
 
-            if (borderLeft > 0 && colorLeft != Color.TRANSPARENT) {
+            if (borderLeft > 0 && colorLeft != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorLeft);
                 mPathWithBorder.reset();
                 mPathWithBorder.moveTo(left, top);
@@ -699,7 +702,7 @@ public class BackgroundDrawable extends BaseDrawable {
                 canvas.drawPath(mPathWithBorder, mPaint);
             }
 
-            if (borderTop > 0 && colorTop != Color.TRANSPARENT) {
+            if (borderTop > 0 && colorTop != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorTop);
                 mPathWithBorder.reset();
                 mPathWithBorder.moveTo(left, top);
@@ -710,7 +713,7 @@ public class BackgroundDrawable extends BaseDrawable {
                 canvas.drawPath(mPathWithBorder, mPaint);
             }
 
-            if (borderRight > 0 && colorRight != Color.TRANSPARENT) {
+            if (borderRight > 0 && colorRight != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorRight);
                 mPathWithBorder.reset();
                 mPathWithBorder.moveTo(left + width, top);
@@ -721,7 +724,7 @@ public class BackgroundDrawable extends BaseDrawable {
                 canvas.drawPath(mPathWithBorder, mPaint);
             }
 
-            if (borderBottom > 0 && colorBottom != Color.TRANSPARENT) {
+            if (borderBottom > 0 && colorBottom != Color.TRANSPARENT && mBorderStyle != BorderStyle.NONE) {
                 mPaint.setColor(colorBottom);
                 mPathWithBorder.reset();
                 mPathWithBorder.moveTo(left, top + height);
@@ -832,16 +835,10 @@ public class BackgroundDrawable extends BaseDrawable {
     }
 
     // 0 solid,1 dashed,2 dotted
-    public void setBorderStyle(int borderStyle) {
-		if (borderStyle < 0 || borderStyle > 2) {
-			mBorderStyle = 0;
-		} else {
-			mBorderStyle = borderStyle;
-		}
-
+    public void setBorderStyle(BorderStyle style) {
+        mBorderStyle = style;
         invalidateSelf();
     }
-
 
     public void setBackgroundColor(int color) {
         mBackgroundColor = color;
