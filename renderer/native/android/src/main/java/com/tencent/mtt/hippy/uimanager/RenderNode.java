@@ -356,10 +356,6 @@ public class RenderNode {
         setNodeFlag(FLAG_UPDATE_LAYOUT);
     }
 
-    public void measureInWindow(@NonNull Promise promise) {
-        mControllerManager.measureInWindow(mRootId, mId, promise);
-    }
-
     public void addMoveNodes(@NonNull List<RenderNode> moveNodes) {
         if (mMoveNodes == null) {
             mMoveNodes = new ArrayList<>();
