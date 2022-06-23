@@ -190,7 +190,7 @@ public class HippyImageSpan extends ImageSpan {
     long now = System.currentTimeMillis();
 
     if (mGifLastPlayTime != -1) {
-      mGifProgress += now - mGifLastPlayTime;
+      mGifProgress += (int) (now - mGifLastPlayTime);
 
       if (mGifProgress > duration) {
         mGifProgress = 0;
