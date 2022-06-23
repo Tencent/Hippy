@@ -264,7 +264,7 @@ const ScrollView: React.FC<ScrollViewProps> = React.forwardRef((props, ref) => {
       onTouchDown={onTouchStart}
       onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
-      className={!showScrollIndicator && HIDE_SCROLLBAR_CLASS}
+      className={ !showScrollIndicator ? HIDE_SCROLLBAR_CLASS : ''}
       ref={scrollRef}
       style={[
         directionStyle,
