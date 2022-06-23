@@ -24,7 +24,6 @@
 #include <utility>
 
 #include "devtools/adapter/hippy_dom_tree_adapter.h"
-#include "devtools/adapter/hippy_elements_request_adapter.h"
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
@@ -48,16 +47,14 @@ DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url) {
 }
 
 void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
-  dom_id_ = dom_id;
-  runtime_id_ = runtime_id;
+  hippy_dom_ = std::make_shared<HippyDomData>();
+  hippy_dom_->dom_id = dom_id;
   auto data_provider = devtools_service_->GetDataProvider();
-  std::shared_ptr<HippyDomTreeAdapter> dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(dom_id_);
-  data_provider->dom_tree_adapter = dom_tree_adapter;
-  data_provider->elements_request_adapter = std::make_shared<HippyElementsRequestAdapter>(dom_id_);
+  data_provider->dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(hippy_dom_);
+  data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(hippy_dom_);
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
-  data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(dom_id_);
   data_provider->runtime_adapter = runtime_adapter_;
-  TDF_BASE_DLOG(INFO) << "DevtoolsDataSource data_provider:%p" << &devtools_service_;
+  TDF_BASE_DLOG(INFO) << "TDF_Backend DevtoolsDataSource data_provider:%p" << &devtools_service_;
 }
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
@@ -76,6 +73,10 @@ void DevtoolsDataSource::SetContextName(const std::string& context_name) {
 
 void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
   devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
+}
+
+void DevtoolsDataSource::SetRootNode(std::weak_ptr<RootNode> root_node) {
+  hippy_dom_->root_node = root_node;
 }
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)

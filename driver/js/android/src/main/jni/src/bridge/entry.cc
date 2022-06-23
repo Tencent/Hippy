@@ -172,7 +172,10 @@ void DoBind(JNIEnv* j_env,
 #endif
 
 #ifdef ENABLE_INSPECTOR
-  scope->GetDevtoolsDataSource()->Bind(j_framework_id, j_dom_id, j_render_id);
+  auto devtools_data_source = scope->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+    devtools_data_source->Bind(j_framework_id, j_dom_id, j_render_id);
+  }
 #endif
 }
 
@@ -203,6 +206,12 @@ void DoConnect(JNIEnv* j_env,
     auto scope = runtime->GetScope();
     root_node->SetDelegateTaskRunner(scope->GetTaskRunner());
     scope->SetRootNode(root_node);
+#ifdef ENABLE_INSPECTOR
+    auto devtools_data_source = scope->GetDevtoolsDataSource();
+    if (devtools_data_source) {
+      devtools_data_source->SetRootNode(root_node);
+    }
+#endif
 
     std::shared_ptr<NativeRenderManager> render_manager =
             std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());

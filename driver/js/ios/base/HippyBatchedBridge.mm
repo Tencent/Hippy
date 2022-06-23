@@ -491,9 +491,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     if (strongDomManager) {
         self.javaScriptExecutor.pScope->SetDomManager(strongDomManager);
 #ifdef ENABLE_INSPECTOR
-        hippy::DomManager::Insert(strongDomManager);
-        self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, strongDomManager->GetId(), 0); // runtime_id for iOS is useless, set 0
-        self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->SetRuntimeDebugMode(self.debugMode);
+        auto devtools_data_source = self.javaScriptExecutor.pScope->GetDevtoolsDataSource();
+        if (devtools_data_source) {
+            hippy::DomManager::Insert(strongDomManager);
+            self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, strongDomManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+        }
 #endif
     }
 }

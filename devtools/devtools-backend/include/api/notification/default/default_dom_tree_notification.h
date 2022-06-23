@@ -21,13 +21,13 @@
 #pragma once
 
 #include <string>
-#include "api/notification/devtools_elements_response_notification.h"
+#include "api/notification/devtools_dom_tree_notification.h"
 
 namespace hippy::devtools {
-class DefaultElementsResponseAdapter : public ElementsResponseNotification {
+class DefaultDomTreeNotification : public DomTreeNotification {
  public:
   using DocumentUpdateHandler = std::function<void()>;
-  explicit DefaultElementsResponseAdapter(DocumentUpdateHandler document_update_Handler)
+  explicit DefaultDomTreeNotification(DocumentUpdateHandler document_update_Handler)
       : document_update_Handler_(std::move(document_update_Handler)) {}
   inline void NotifyDocumentUpdate() { document_update_Handler_(); }
 
