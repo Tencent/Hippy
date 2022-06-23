@@ -422,14 +422,18 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     }
     __weak __typeof(self) weakSelf = self;
     void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
-        weakSelf.pendingImageSourceUri = nil;
-        weakSelf.imageSourceUri = url;
-        [weakSelf.layer removeAnimationForKey:@"contents"];
-        [weakSelf updateImage:image];
-        if (weakSelf.onLoad)
-            weakSelf.onLoad(@{ @"width": @(image.size.width), @"height": @(image.size.height), @"url": url ?: @"" });
-        if (weakSelf.onLoadEnd)
-            weakSelf.onLoadEnd(nil);
+        HippyImageView *strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        strongSelf.pendingImageSourceUri = nil;
+        strongSelf.imageSourceUri = url;
+        [strongSelf.layer removeAnimationForKey:@"contents"];
+        [strongSelf updateImage:image];
+        if (strongSelf.onLoad)
+            strongSelf.onLoad(@{ @"width": @(image.size.width), @"height": @(image.size.height), @"url": url ?: @"" });
+        if (strongSelf.onLoadEnd)
+            strongSelf.onLoadEnd(nil);
     };
 
     if (_blurRadius > 100 && [NSProcessInfo processInfo].physicalMemory <= 1024 * 1024 * 1000) {
