@@ -27,6 +27,7 @@ import { formatWebStyle } from '../adapters/transfer';
 import { canUseDOM, isFunc, noop } from '../utils';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
 import { LayoutEvent } from '../types';
+import { DEFAULT_DISTANCE_TO_REFRESH, REFRESH_DISTANCE_SCREEN_Y_OFFSET } from '../constants';
 import View from './view';
 
 interface ListViewItemProps {
@@ -80,7 +81,17 @@ const styles = StyleSheet.create({
   listDefault: {
     flex: 1,
   },
+  container: {
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  pullHeaderContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignContent: 'center',
+  },
 });
+
 let didWarn = !canUseDOM;
 const setIntersectionObserve = (observeCallback: (entries: any[]) => void) => {
   let observe: null | IntersectionObserver = null;
@@ -120,7 +131,7 @@ function ListViewItem(props: ListViewItemProps) {
     }
   }, [listItemRef]);
 
-  const liElementProps = { ...props, style: { ...formatWebStyle(style), ...itemStyle } };
+  const liElementProps = { ...props, style: { ...styles.container, ...formatWebStyle(style), ...itemStyle } };
   delete liElementProps.observer;
   delete liElementProps.height;
   delete liElementProps.getRowKey;
@@ -131,6 +142,7 @@ function ListViewItem(props: ListViewItemProps) {
     <li {...liElementProps} ref={listItemRef} rowid={getRowKey()} />
   );
 }
+
 
 const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const {
@@ -299,7 +311,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       }
     }, [pullHeaderRef]);
     return (
-      <div ref={pullHeaderRef} style={{ visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
+      <div ref={pullHeaderRef} style={{  ...styles.pullHeaderContainer, visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
         {renderPullHeader()}
       </div>
     );
@@ -337,7 +349,10 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       refreshing={refreshing}
       onRefresh={refresh}
       indicator={pullIndicator}
-      distanceToRefresh={pullHeaderHeight.current || 100}
+      distanceToRefresh={
+        pullHeaderHeight.current
+          ?  pullHeaderHeight.current -  REFRESH_DISTANCE_SCREEN_Y_OFFSET : DEFAULT_DISTANCE_TO_REFRESH
+      }
     />;
   }
 
@@ -347,6 +362,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     >
       <MListView
         {...listViewProps}
+        contentContainerStyle={{ position: 'relative' }}
         ref={listRef}
         className={(!showScrollIndicator && HIDE_SCROLLBAR_CLASS) || ''}
         dataSource={getDataSource()}
