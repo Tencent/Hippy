@@ -34,7 +34,7 @@ jobs:
           const { pulls } = github.rest;
 
           if (pull_request === undefined) { // Push
-            console.log(`::set-output name=continue::1`);
+            console.log("::set-output name=language::${{ matrix.language }}");
             return;
           }
 
@@ -54,39 +54,47 @@ jobs:
           };
 
           const { extname } = require('path');
-          const exts = languages["${{ matrix.language }}"];
+          const all_exts = Object.values(languages).flat();
+          const cur_exts = languages["${{ matrix.language }}"];
+          let has_hit = false;
           for (const { filename } of files) {
-            if (exts.includes(extname(filename))) {
-              console.log(`::set-output name=continue::1`);
+            const ext = extname(filename);
+            if (cur_exts.includes(ext)) {
+              console.log("::set-output name=language::${{ matrix.language }}");
               return;
+            } else {
+              has_hit |= all_exts.includes(ext);
             }
           }
 
+          if (!has_hit && "${{ matrix.language }}" === "typescript") { // Default Run
+            console.log("::set-output name=language::${{ matrix.language }}");
+          }
     - name: Checkout repository
-      if: steps.detect_languages.outputs.continue
+      if: steps.detect_languages.outputs.language
       uses: actions/checkout@v3
       with:
         lfs: true
     - name: Initialize CodeQL
-      if: steps.detect_languages.outputs.continue
+      if: steps.detect_languages.outputs.language
       uses: github/codeql-action/init@v2
       with:
-        languages: ${{ matrix.language }}
+        languages: ${{ steps.detect_languages.outputs.language }}
     - name: Setup node
-      if: steps.detect_languages.outputs.continue && (matrix.language == 'javascript' || matrix.language == 'typescript')
+      if: steps.detect_languages.outputs.language == 'javascript' || steps.detect_languages.outputs.language == 'typescript'
       uses: actions/setup-node@v3
       with:
         node-version: latest
     - name: Build Java
-      if: steps.detect_languages.outputs.continue && matrix.language == 'java'
+      if: steps.detect_languages.outputs.language == 'java'
       env:
         skipCmakeAndNinja: 1
       run: |
         ./gradlew example::assembleDebug
     - name: Build C++
-      if: steps.detect_languages.outputs.continue && matrix.language == 'cpp'
+      if: steps.detect_languages.outputs.language == 'cpp'
       run: |
         ./gradlew android-sdk::buildCMakeRelease
     - name: Perform CodeQL Analysis
-      if: steps.detect_languages.outputs.continue
+      if: steps.detect_languages.outputs.language
       uses: github/codeql-action/analyze@v2
