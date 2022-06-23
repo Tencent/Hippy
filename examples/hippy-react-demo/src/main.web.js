@@ -2,10 +2,7 @@ import {
   HippyWebEngine,
 } from '@tencent/camp-hippy-web-renderer';
 import './main';
-import { getAllUrlParams } from './main.web.utils';
 
-
-const params = getAllUrlParams();
 const engine = HippyWebEngine.create({
   modules: {},
   components: {},
@@ -18,10 +15,8 @@ engine.start({
   params: {
     path: '/home',
     business: 'Demo',
-    data: { ...params },
+    data: {
+      username: 'test', // 传参 例子
+    },
   },
 });
-setTimeout(() => {
-  engine.context.sendEvent('lifecycle', { type: 'lifecycle_resume' });
-}, 16);
-
