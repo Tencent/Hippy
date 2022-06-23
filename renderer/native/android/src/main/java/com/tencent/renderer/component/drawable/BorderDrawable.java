@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.dom;
+package com.tencent.renderer.component.drawable;
 
-import com.tencent.link_supplier.proxy.LinkProxy;
+public interface BorderDrawable
+{
+	enum BorderStyle {
+		NONE,
+		SOLID,
+		DOTTED,
+		DASHED
+	}
 
-public interface DomProxy extends LinkProxy {
+	void setBorderRadius(float radius, int position);
 
-    void addRootId(int rootId);
+	void setBorderWidth(float width, int position);
 
-    void removeRootId(int rootId);
+	void setBorderColor(int color, int position);
+
+	void setBorderStyle(int style);
 }

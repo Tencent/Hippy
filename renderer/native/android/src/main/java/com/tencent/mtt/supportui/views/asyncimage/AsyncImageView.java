@@ -39,6 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
 import java.util.ArrayList;
 
 /**
@@ -516,7 +517,7 @@ public class AsyncImageView extends ViewGroup implements Animator.AnimatorListen
     }
 
     @Override
-    public void setBorderStyle(int borderStyle) {
+    public void setBorderStyle(BorderStyle borderStyle) {
         getBackGround().setBorderStyle(borderStyle);
         invalidate();
     }
