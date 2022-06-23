@@ -350,7 +350,9 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       refreshing={refreshing}
       onRefresh={refresh}
       indicator={pullIndicator}
-      distanceToRefresh={pullHeaderHeight.current - refreshDistanceScreenYOffset || defaultDistanceToRefresh}
+      distanceToRefresh={
+        pullHeaderHeight.current ?  pullHeaderHeight.current - refreshDistanceScreenYOffset : defaultDistanceToRefresh
+      }
     />;
   }
 

@@ -123,7 +123,9 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       refreshing={refreshing}
       onRefresh={handleOnRefresh}
       indicator={pullIndicator}
-      distanceToRefresh={pullHeaderHeight.current - refreshDistanceScreenYOffset || defaultDistanceToRefresh}
+      distanceToRefresh={
+        pullHeaderHeight.current ?  pullHeaderHeight.current - refreshDistanceScreenYOffset : defaultDistanceToRefresh
+      }
     />,
   });
 
