@@ -33,6 +33,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.DevtoolsUtil;
+import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
@@ -45,6 +46,7 @@ import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.component.text.VirtualNode;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +55,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         View.OnFocusChangeListener {
 
     private static final String TAG = "HippyViewController";
+    private static final String MEASURE_IN_WINDOW = "measureInWindow";
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
     private boolean bUserChangeFocus = false;
@@ -620,6 +623,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             case DevtoolsUtil.REMOVE_FRAME_CALLBACK:
                 DevtoolsUtil.removeFrameCallback(params, view, promise);
                 break;
+            case MEASURE_IN_WINDOW:
+                measureInWindow(view, promise);
+                break;
             default:
                 break;
         }
@@ -690,5 +696,35 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             //file:sdcard/hippy/feeds/index.android.jsbundle
         }
         return path;
+    }
+
+    private void measureInWindow(@NonNull View view, @NonNull Promise promise) {
+        int[] outputBuffer = new int[2];
+        int statusBarHeight;
+        try {
+            view.getLocationOnScreen(outputBuffer);
+            // We need to remove the status bar from the height.  getLocationOnScreen will include the
+            // status bar.
+            statusBarHeight = DimensionsUtil.getStatusBarHeight();
+            if (statusBarHeight > 0) {
+                outputBuffer[1] -= statusBarHeight;
+            }
+        } catch (Exception e) {
+            promise.reject(
+                    "An exception occurred when get view location on screen: " + e.getMessage());
+            return;
+        }
+        LogUtils.d(TAG, "measureInWindow: x=" + outputBuffer[0]
+                + ", y=" + outputBuffer[1]
+                + ", width=" + view.getWidth()
+                + ", height=" + view.getHeight()
+                + ", statusBarHeight=" + statusBarHeight);
+        Map<String, Object> result = new HashMap<>();
+        result.put("x", PixelUtil.px2dp(outputBuffer[0]));
+        result.put("y", PixelUtil.px2dp(outputBuffer[1]));
+        result.put("width", PixelUtil.px2dp(view.getWidth()));
+        result.put("height", PixelUtil.px2dp(view.getHeight()));
+        result.put("statusBarHeight", PixelUtil.px2dp(statusBarHeight));
+        promise.resolve(result);
     }
 }

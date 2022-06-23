@@ -575,23 +575,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     @Override
-    public void measureInWindow(final int rootId, final int nodeId, long callbackId) {
-        if (callbackId == 0) {
-            return;
-        }
-        final UIPromise promise = new UIPromise(callbackId, null, rootId, nodeId,
-                mRenderProvider.getInstanceId());
-        UITaskExecutor task = new UITaskExecutor() {
-            @Override
-            public void exec() {
-                mRenderManager.measureInWindow(rootId, nodeId, promise);
-            }
-        };
-        addUITask(task);
-        executeUITask();
-    }
-
-    @Override
     public long measure(int rootId, int nodeId, float width, int widthMode, float height,
             int heightMode) {
         try {

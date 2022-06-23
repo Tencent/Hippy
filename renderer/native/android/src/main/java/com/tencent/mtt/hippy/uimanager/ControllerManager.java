@@ -392,41 +392,6 @@ public class ControllerManager {
         }
     }
 
-    public void measureInWindow(int rootId, int id, Promise promise) {
-        View view = mControllerRegistry.getView(rootId, id);
-        if (view == null) {
-            promise.reject("Accessing view that do not exist!");
-            return;
-        }
-        int[] outputBuffer = new int[2];
-        int statusBarHeight;
-        try {
-            view.getLocationOnScreen(outputBuffer);
-            // We need to remove the status bar from the height.  getLocationOnScreen will include the
-            // status bar.
-            statusBarHeight = DimensionsUtil.getStatusBarHeight();
-            if (statusBarHeight > 0) {
-                outputBuffer[1] -= statusBarHeight;
-            }
-        } catch (Exception e) {
-            promise.reject(
-                    "An exception occurred when get view location on screen: " + e.getMessage());
-            return;
-        }
-        LogUtils.d(TAG, "measureInWindow: x=" + outputBuffer[0]
-                + ", y=" + outputBuffer[1]
-                + ", width=" + view.getWidth()
-                + ", height=" + view.getHeight()
-                + ", statusBarHeight=" + statusBarHeight);
-        Map<String, Object> result = new HashMap<>();
-        result.put("x", PixelUtil.px2dp(outputBuffer[0]));
-        result.put("y", PixelUtil.px2dp(outputBuffer[1]));
-        result.put("width", PixelUtil.px2dp(view.getWidth()));
-        result.put("height", PixelUtil.px2dp(view.getHeight()));
-        result.put("statusBarHeight", PixelUtil.px2dp(statusBarHeight));
-        promise.resolve(result);
-    }
-
     public void addChild(int rootId, int pid, int id, int index) {
         View child = mControllerRegistry.getView(rootId, id);
         View parent = mControllerRegistry.getView(rootId, pid);
