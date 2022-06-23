@@ -60,15 +60,15 @@
 /layout/ @ilikethese @churchill-zhang
 
 # android related
-/driver/js/android/ @siguangli @churchill-zhang @@medns
-/renderer/native/android/ @siguangli @churchill-zhang @@medns
-/modules/android/ @siguangli @churchill-zhang @@medns
-/gradle/ @siguangli @churchill-zhang @@medns
-/gradle.properties @siguangli @churchill-zhang @@medns
-/gradlew @siguangli @churchill-zhang @@medns
-/gradlew.bat @siguangli @churchill-zhang @@medns
-/build.gradle @siguangli @churchill-zhang @@medns
-/setting.gradle @siguangli @churchill-zhang @@medns
+/driver/js/android/ @siguangli @churchill-zhang @medns
+/renderer/native/android/ @siguangli @churchill-zhang @medns
+/modules/android/ @siguangli @churchill-zhang @medns
+/gradle/ @siguangli @churchill-zhang @medns
+/gradle.properties @siguangli @churchill-zhang @medns
+/gradlew @siguangli @churchill-zhang @medns
+/gradlew.bat @siguangli @churchill-zhang @medns
+/build.gradle @siguangli @churchill-zhang @medns
+/setting.gradle @siguangli @churchill-zhang @medns
 
 # ios related
 /driver/js/ios/ @ozonelmy @churchill-zhang
