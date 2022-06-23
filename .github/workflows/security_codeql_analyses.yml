@@ -47,6 +47,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        lfs: true
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
