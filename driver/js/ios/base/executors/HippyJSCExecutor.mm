@@ -712,7 +712,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    Engine *engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
+    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
         if (engine->GetJSRunner()->IsJsThread() == false) {
             std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
@@ -725,7 +725,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    Engine *engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
+    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
         std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
         task->callback = block;
