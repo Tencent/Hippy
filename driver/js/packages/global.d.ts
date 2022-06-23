@@ -458,6 +458,16 @@ declare namespace HippyTypes {
     CLOSED,
   }
 
+  export interface DOMEvent {
+    id: number;
+    currentId: number;
+    target?: number | object;
+    currentTarget?: number | object;
+    params?: any;
+    type: string;
+    stopPropagation: () => void;
+  }
+
   interface HippyWebSocket {
     /**
      * Read-only property returns the absolute URL of the WebSocket as resolved by the constructor.

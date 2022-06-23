@@ -230,7 +230,7 @@ function getEventName(key: string) {
   return key;
 }
 
-function createEventListener(name): (event) => void {
+function createEventListener(name): (event: HippyTypes.DOMEvent) => void {
   return (event) => {
     const { id,  currentId, params } = event;
     if (isNativeGesture(name)) {
@@ -238,9 +238,9 @@ function createEventListener(name): (event) => void {
         id, name, currentId,
       };
       Object.assign(dispatcherEvent, params);
-      EventDispatcher.receiveNativeGesture(dispatcherEvent);
+      EventDispatcher.receiveNativeGesture(dispatcherEvent, event);
     } else {
-      const dispatcherEvent = [id, name, params];
+      const dispatcherEvent = [currentId, name, params];
       EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
     }
   };
