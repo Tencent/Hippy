@@ -43,6 +43,7 @@
 @interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
+    std::shared_ptr<hippy::RootNode> _rootNode;
     HippyBridge *_bridge;
 }
 
@@ -132,7 +133,21 @@
 std::string mock;
 
 - (void)saveBtnClick {
-    mock = _bridge.domManager->GetSnapShot();
+    std::weak_ptr<hippy::DomManager> weak_dom_manager = _bridge.domManager;
+    std::weak_ptr<hippy::RootNode> weak_root_node = _bridge.rootNode;
+    std::function<void()> func = [weak_dom_manager , weak_root_node](){
+        auto dom_manager = weak_dom_manager.lock();
+        if (!dom_manager) {
+            return;
+        }
+        auto root_node = weak_root_node.lock();
+        if (!root_node) {
+            return;
+        }
+        mock = dom_manager->GetSnapShot(root_node);
+    };
+    _bridge.domManager->PostTask(hippy::Scene({func}));
+   
 }
 
 - (void)loadBtnClick {
@@ -154,35 +169,51 @@ std::string mock;
     [self initRenderContextWithRootView:view];
 
     //4.mock data
-    auto nodesData = mock; // [self mockNodesData];
+    auto nodes_data = mock; // [self mockNodesData];
     
     //5.create dom nodes with datas
 
-    hippy::DomManager::RootInfo info {(uint32_t)rootTag, (float)view.bounds.size.width, (float)view.bounds.size.height};
-    _domManager->SetSnapShot(mock, info);
+    _rootNode->SetRootSize((float)view.bounds.size.width, (float)view.bounds.size.height);
+    std::weak_ptr<hippy::DomManager> weak_dom_manager = _domManager;
+    std::weak_ptr<hippy::RootNode> weak_root_node = _rootNode;
+    std::function<void()> func = [weak_dom_manager, weak_root_node, nodes_data](){
+        auto dom_manager = weak_dom_manager.lock();
+        if (!dom_manager) {
+            return;
+        }
+        auto root_node = weak_root_node.lock();
+        if (!root_node) {
+            return;
+        }
+        dom_manager->SetSnapShot(root_node, nodes_data);
+    };
+    _domManager->PostTask(hippy::Scene({func}));
 }
 
 - (void)initRenderContextWithRootView:(UIView *)rootView {
     int hippyTag = [[rootView hippyTag] intValue];
     HippyAssert(0 != hippyTag && 0 == hippyTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
     if (rootView && hippyTag) {
+        _rootNode = std::make_shared<hippy::RootNode>(hippyTag);
+        _rootNode->GetAnimationManager()->SetRootNode(_rootNode);
         _domManager = std::make_shared<hippy::DomManager>();
-        _domManager->Init(hippyTag);
+        _domManager->Init();
+        _rootNode->SetDomManager(_domManager);
         auto width = CGRectGetWidth(rootView.bounds);
         auto height = CGRectGetHeight(rootView.bounds);
         std::weak_ptr<hippy::DomManager> weakDomManager = _domManager;
-        std::function<void()> func = [weakDomManager, rootView, width, height](){
-            auto domManager = weakDomManager.lock();
-            if (domManager) {
-                domManager->GetAnimationManager()->SetDomManager(weakDomManager);
-                domManager->SetRootSize(width, height);
+        std::weak_ptr<hippy::RootNode> weakRootNode = _rootNode;
+        std::function<void()> func = [weakRootNode, rootView, width, height](){
+            auto rootNode = weakRootNode.lock();
+            if (rootNode) {
+                rootNode->SetRootSize(width, height);
             }
         };
         _domManager->PostTask(hippy::Scene({func}));
 
         _nativeRenderManager = std::make_shared<NativeRenderManager>();
         _nativeRenderManager->SetFrameworkProxy(self);
-        _nativeRenderManager->RegisterRootView(rootView);
+        _nativeRenderManager->RegisterRootView(rootView, _rootNode);
         _nativeRenderManager->SetDomManager(_domManager);
         
         _domManager->SetRenderManager(_nativeRenderManager);
@@ -233,7 +264,9 @@ std::string mock;
                 name.assign([mockNode[key] UTF8String]);
             }
         }
-        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, name, name, std::move(style_map), std::move(ext_map), _domManager);
+        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> style;
+        std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>> dom_ext;
+        std::shared_ptr<hippy::DomNode> dom_node = std::make_shared<hippy::DomNode>(tag, pid, 0, name, name, style, dom_ext, _rootNode);
         dom_node_vector.push_back(dom_node);
     }
     return dom_node_vector;

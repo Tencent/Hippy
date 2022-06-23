@@ -25,10 +25,9 @@ import java.util.Map;
 
 public class PullFooterRenderNode extends ListItemRenderNode {
 
-    public PullFooterRenderNode(int id, @Nullable Map<String, Object> props,
-            @NonNull String className, @Nullable ViewGroup rootView,
-            @NonNull ControllerManager componentManager, boolean isLazyLoad) {
-        super(id, props, className, rootView, componentManager, isLazyLoad);
+    public PullFooterRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager componentManager, boolean isLazyLoad) {
+        super(rootId, id, props, className, componentManager, isLazyLoad);
     }
 
     @Override

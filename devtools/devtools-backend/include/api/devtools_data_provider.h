@@ -23,7 +23,6 @@
 #include <memory>
 #include "api/adapter/devtools_common_protocol_adapter.h"
 #include "api/adapter/devtools_dom_tree_adapter.h"
-#include "api/adapter/devtools_elements_request_adapter.h"
 #include "api/adapter/devtools_memory_adapter.h"
 #include "api/adapter/devtools_performance_adapter.h"
 #include "api/adapter/devtools_render_tree_adapter.h"
@@ -43,7 +42,6 @@ struct DataProvider {
   std::shared_ptr<ScreenAdapter> screen_adapter;
   std::shared_ptr<TracingAdapter> tracing_adapter;
   std::shared_ptr<VmRequestAdapter> vm_request_adapter;
-  std::shared_ptr<ElementsRequestAdapter> elements_request_adapter;
   std::shared_ptr<DomTreeAdapter> dom_tree_adapter;
   std::shared_ptr<RuntimeAdapter> runtime_adapter;
   std::shared_ptr<RenderTreeAdapter> render_tree_adapter;

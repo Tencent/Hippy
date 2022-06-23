@@ -23,6 +23,7 @@ import android.view.View;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
+import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.utils.EventUtils;
 
 import static com.tencent.renderer.utils.EventUtils.EVENT_MODAL_REQUEST_CLOSE;
@@ -58,7 +59,8 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
     @Override
     public void onViewDestroy(HippyModalHostView hippyModalHostView) {
         super.onViewDestroy(hippyModalHostView);
-        hippyModalHostView.onInstanceDestroy();
+        int rootId = NativeRendererManager.getRootId(hippyModalHostView.getContext());
+        hippyModalHostView.onInstanceDestroy(rootId);
     }
 
     @HippyControllerProps(name = "animationType", defaultType = HippyControllerProps.STRING,

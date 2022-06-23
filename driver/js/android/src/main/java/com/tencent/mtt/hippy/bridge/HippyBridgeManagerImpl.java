@@ -233,7 +233,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
                                 long runtimeId = mHippyBridge.getV8RuntimeId();
                                 if (mContext != null) {
-                                    mContext.onJSBridgeInitialized(runtimeId);
+                                    mContext.onRuntimeInitialized(runtimeId);
                                 }
 
                                 if (enableTurbo()) {
@@ -585,6 +585,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         platformParams.pushMap("Localization", Localization);
 
         globalParams.pushMap("Platform", platformParams);
+
+        if (mContext.getDevSupportManager().isSupportDev()) {
+          HippyMap debugParams = new HippyMap();
+          debugParams.pushString("debugClientId", mContext.getDevSupportManager().getDevInstanceUUID());
+          globalParams.pushMap("Debug", debugParams);
+        }
 
         HippyMap tkd = new HippyMap();
         tkd.pushString("url", (pageUrl == null) ? "" : pageUrl);

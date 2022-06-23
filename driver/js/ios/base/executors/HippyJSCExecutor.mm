@@ -163,10 +163,12 @@ HIPPY_EXPORT_MODULE()
         [self initURILoader];
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
 #ifdef ENABLE_INSPECTOR
-        NSString *wsURL = [self completeWSURLWithBridge:bridge];
-        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
-        devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
-        self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        if (bridge.debugMode) {
+            NSString *wsURL = [self completeWSURLWithBridge:bridge];
+            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
+            devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
+            self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        }
 #endif
     }
 
@@ -215,6 +217,13 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     if (customObjects) {
                         [deviceInfo addEntriesFromDictionary:customObjects];
                     }
+                }
+                if ([strongSelf.bridge isKindOfClass:[HippyBatchedBridge class]]) {
+                    HippyBridge *clientBridge = [(HippyBatchedBridge *)strongSelf.bridge parentBridge];
+                    NSString *deviceName = [[UIDevice currentDevice] name];
+                    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, clientBridge]);
+                    NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
+                    [deviceInfo addEntriesFromDictionary:debugInfo];
                 }
                 NSError *JSONSerializationError = nil;
                 NSData *data = [NSJSONSerialization dataWithJSONObject:deviceInfo options:0 error:&JSONSerializationError];
@@ -404,8 +413,11 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
         return;
     }
 #ifdef ENABLE_INSPECTOR
-    bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
-    self.pScope->GetDevtoolsDataSource()->Destroy(reload);
+    auto devtools_data_source = self.pScope->GetDevtoolsDataSource();
+    if (devtools_data_source) {
+        bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
+        devtools_data_source->Destroy(reload);
+    }
 #endif
     HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
@@ -705,7 +717,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    Engine *engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
+    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
         if (engine->GetJSRunner()->IsJsThread() == false) {
             std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
@@ -718,7 +730,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    Engine *engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
+    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
         std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
         task->callback = block;
@@ -863,7 +875,9 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
         devInfo.versionId = bundleURLProvider.versionId;
         devInfo.wsURL = bundleURLProvider.wsURL;
     }
-    return [devInfo assembleFullWSURL];
+    NSString *deviceName = [[UIDevice currentDevice] name];
+    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, [(HippyBatchedBridge *)bridge parentBridge]]);
+    return [devInfo assembleFullWSURLWithClientId:clientId];
 }
 
 @end

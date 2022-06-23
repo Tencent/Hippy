@@ -22,9 +22,9 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyBaseListViewCell.h"
-#import "HippyTouchesView.h"
+#import "HippyView.h"
 
-@interface HippyBaseListItemView : HippyTouchesView <ViewAppearStateProtocol>
+@interface HippyBaseListItemView : HippyView <ViewAppearStateProtocol>
 
 @property (nonatomic, strong) id type;
 @property (nonatomic, assign) BOOL isSticky;

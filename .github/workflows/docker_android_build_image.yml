@@ -16,7 +16,7 @@ on:
 jobs:
   push_to_registry:
     name: Push docker image
-    runs-on: [self-hosted, linux, trusted]
+    runs-on: [self-hosted, linux]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v2

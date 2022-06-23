@@ -23,24 +23,24 @@ import java.util.List;
 
 public interface NativeRenderDelegate extends RenderExceptionHandler {
 
-    void createNode(@NonNull List<Object> nodeList) throws NativeRenderException;
+    void createNode(int rootId, @NonNull List<Object> nodeList) throws NativeRenderException;
 
-    void updateNode(@NonNull List<Object> nodeList) throws NativeRenderException;
+    void updateNode(int rootId, @NonNull List<Object> nodeList) throws NativeRenderException;
 
-    void deleteNode(@NonNull int[] ids) throws NativeRenderException;
+    void deleteNode(int rootId, @NonNull int[] ids) throws NativeRenderException;
 
-    void moveNode(int[] ids, int newPid, int oldPid) throws NativeRenderException;
+    void moveNode(int rootId, int[] ids, int newPid, int oldPid) throws NativeRenderException;
 
-    void updateLayout(@NonNull List<Object> list) throws NativeRenderException;
+    void updateLayout(int rootId, @NonNull List<Object> list) throws NativeRenderException;
 
-    void updateEventListener(@NonNull List<Object> eventList) throws NativeRenderException;
+    void updateEventListener(int rootId, @NonNull List<Object> eventList) throws NativeRenderException;
 
-    void callUIFunction(int id, long callbackId, String functionName,
+    void callUIFunction(int rootId, int id, long callbackId, String functionName,
             @NonNull List<Object> eventList) throws NativeRenderException;
 
-    void measureInWindow(int id, long callbackId);
+    void measureInWindow(int rootId, int id, long callbackId);
 
-    long measure(int id, float width, int widthMode, float height, int heightMode);
+    long measure(int rootId, int id, float width, int widthMode, float height, int heightMode);
 
-    void endBatch() throws NativeRenderException;
+    void endBatch(int rootId) throws NativeRenderException;
 }

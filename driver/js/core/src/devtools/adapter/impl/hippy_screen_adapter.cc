@@ -39,27 +39,32 @@ constexpr char kFrameCallbackId[] = "frameCallbackId";
 
 uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback) {
   frame_callback_id_++;
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom_->dom_id);
   if (dom_manager) {
-    auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
-    auto children = root_node->GetChildren();
-    if (!children.empty()) {
-      hippy::dom::DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
-      children[0]->CallFunction(kAddFrameCallback, argument,
-                                [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
-                                  DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
-                                  self->supportDirtyCallback = true;
-                                  callback();
-                                });
+    auto root_node = hippy_dom_->root_node.lock();
+    if (root_node) {
+      auto children = root_node->GetChildren();
+      if (!children.empty()) {
+        hippy::dom::DomArgument argument = makeFrameCallbackArgument(frame_callback_id_);
+        children[0]->CallFunction(kAddFrameCallback, argument,
+                                  [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
+                                    DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
+                                    self->supportDirtyCallback = true;
+                                    callback();
+                                  });
+      }
     }
   }
   return frame_callback_id_;
 }
 
 void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom_->dom_id);
   if (dom_manager) {
-    auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
+    auto root_node = hippy_dom_->root_node.lock();
+    if (!root_node) {
+      return;
+    }
     auto children = root_node->GetChildren();
     if (!children.empty()) {
       hippy::dom::DomArgument argument = makeFrameCallbackArgument(id);
@@ -79,9 +84,12 @@ hippy::dom::DomArgument HippyScreenAdapter::makeFrameCallbackArgument(uint64_t i
 }
 
 void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& request, CoreScreenshotCallback callback) {
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(dom_id_));
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom_->dom_id);
   if (dom_manager) {
-    auto root_node = dom_manager->GetNode(dom_manager->GetRootId());
+    auto root_node = hippy_dom_->root_node.lock();
+    if (!root_node) {
+      return;
+    }
     auto children = root_node->GetChildren();
     if (!children.empty()) {
       hippy::dom::DomArgument argument = makeScreenRequestArgument(request);

@@ -41,6 +41,7 @@
 #import "HippyDefaultImageProvider.h"
 #import "HippyAssert.h"
 #import "scene.h"
+#import "scope.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptWillStartLoadingNotification = @"HippyJavaScriptWillStartLoadingNotification";
@@ -389,24 +390,29 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _nativeSetUpBlock = ^(){
         HippyBridge *strongSelf = weakBridge;
         if (strongSelf) {
-          strongSelf->_domManager = std::make_shared<hippy::DomManager>();
-          strongSelf->_domManager->Init([tag intValue]);
-          int ids = strongSelf->_domManager->GetRootId();
-          auto rootNode = strongSelf->_domManager->GetNode(ids);
-          rootNode->GetLayoutNode()->SetScaleFactor(scale);
+            uint32_t rootTag = [tag unsignedIntValue];
+            strongSelf->_rootNode = std::make_shared<hippy::RootNode>(rootTag);
+            strongSelf->_rootNode->SetDelegateTaskRunner(strongSelf.batchedBridge.javaScriptExecutor.pScope->GetTaskRunner());
+            strongSelf->_rootNode->GetAnimationManager()->SetRootNode(strongSelf->_rootNode);
+            strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetRootNode(strongSelf->_rootNode);
+            strongSelf->_domManager = std::make_shared<hippy::DomManager>();
+            strongSelf->_domManager->Init();
+            strongSelf->_rootNode->SetDomManager(strongSelf->_domManager);
+            strongSelf->_rootNode->GetLayoutNode()->SetScaleFactor(scale);
             std::weak_ptr<hippy::DomManager> weakDomManager = strongSelf->_domManager;
-            std::function<void()> func = [weakDomManager, size](){
-                auto domManager = weakDomManager.lock();
-                if (domManager) {
-                    domManager->GetAnimationManager()->SetDomManager(weakDomManager);
-                    domManager->SetRootSize(size.width, size.height);
+            std::weak_ptr<hippy::RootNode> weakRootNode = strongSelf->_rootNode;
+            std::function<void()> func = [weakDomManager, weakRootNode, size](){
+                auto rootNode = weakRootNode.lock();
+                if (!rootNode) {
+                    return;
                 }
+                rootNode->SetRootSize(size.width, size.height);
             };
             strongSelf->_domManager->PostTask(hippy::Scene({func}));
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
             strongSelf->_renderManager->SetFrameworkProxy(weakProxy);
-            strongSelf->_renderManager->RegisterRootView(weakView);
+            strongSelf->_renderManager->RegisterRootView(weakView, strongSelf->_rootNode);
             strongSelf->_renderManager->SetDomManager(strongSelf->_domManager);
 
             strongSelf->_domManager->SetRenderManager(strongSelf->_renderManager);
@@ -414,6 +420,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             [strongSelf setUpDomManager:strongSelf->_domManager];
 
             strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();
+            
+#ifdef ENABLE_INSPECTOR
+            auto devtools_data_source = strongSelf->_batchedBridge.javaScriptExecutor.pScope->GetDevtoolsDataSource();
+            if (devtools_data_source) {
+                devtools_data_source->SetRootNode(strongSelf->_rootNode);
+            }
+#endif
         }
     };
     if (self.batchedBridge) {

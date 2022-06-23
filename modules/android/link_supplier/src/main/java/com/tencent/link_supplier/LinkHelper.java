@@ -16,6 +16,11 @@
 
 package com.tencent.link_supplier;
 
+import android.app.Activity;
+import android.content.Context;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.link_supplier.proxy.dom.DomProxy;
@@ -65,7 +70,23 @@ public interface LinkHelper {
     void createRenderer(RenderMode mode);
 
     /**
-     * Create dom holder, will call native jni {@link Linker#createDomInstance()}
+     * Create root view
+     *
+     * @param context @param context {@link Context} the root view container context, such as {@link Activity}
+     * @return the root view {@link ViewGroup} will attach to host view tree
+     */
+    @Nullable
+    View createRootView(@NonNull Context context);
+
+    /**
+     * Destroy root view
+     *
+     * @param rootId existing root node id
+     */
+    void destroyRootView(int rootId);
+
+    /**
+     * Create dom holder, will call native jni {@link Linker#createDomInstance()} ()}
      */
     void createDomHolder();
 
@@ -73,22 +94,21 @@ public interface LinkHelper {
      * Create animation manager, will call native jni {@link Linker#createAnimationManager()}
      */
     void createAnimationManager();
-    /**
-     * Create dom holder with instance id, just set new id, not call native jni {@link
-     * Linker#createDomInstance()}
-     *
-     * @param instanceId existing dom instance id
-     */
-    @SuppressWarnings("unused")
-    void createDomHolder(int instanceId);
 
     /**
-     * Will call native jni {@link Linker#doBind()} to bind framework with dom manager
-     * and renderer, if call by js framework should wait until js bridge initialized.
+     * Create dom holder with existing root node id
      *
-     * @param frameworkId framework instance id
+     * @param rootId existing root node id
      */
-    void bind(int frameworkId);
+    void createDomHolder(int rootId);
+
+    /**
+     * Will call native jni {@link Linker#doBind(int, int, int)} ()} to bind driver runtime with dom manager
+     * and renderer, if call by js driver should wait until js bridge initialized.
+     *
+     * @param runtimeId driver runtime id
+     */
+    void bind(int runtimeId);
 
     /**
      * Will destroy native (C++) dom manager and renderer instance, call by framework.
@@ -96,11 +116,10 @@ public interface LinkHelper {
     void destroy();
 
     /**
-     * Update node property on animation update.
+     * Will call native jni {@link Linker#doConnect(int, int)} ()} to connect driver runtime with root node.
      *
-     * @param params params buffer encoded by serializer
-     * @param offset start position of params buffer
-     * @param length available total length of params buffer
+     * @param runtimeId driver runtime id
+     * @param rootId root node id
      */
-    void updateAnimationNode(byte[] params, int offset, int length);
+    void connect(int runtimeId, int rootId);
 }

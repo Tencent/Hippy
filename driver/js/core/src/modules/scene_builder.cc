@@ -275,15 +275,19 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   // create node
   std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
   std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
-
+  auto style = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+      std::move(std::get<2>(props_tuple)));
+  auto ext = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>(
+      std::move(std::get<3>(props_tuple)));
   TDF_BASE_CHECK(!scope->GetDomManager().expired());
   dom_node = std::make_shared<DomNode>(std::get<2>(id_tuple),
                                        std::get<2>(pid_tuple),
+                                       0,
                                        std::move(u8_tag_name),
                                        std::move(u8_view_name),
-                                       std::move(std::get<2>(props_tuple)),
-                                       std::move(std::get<3>(props_tuple)),
-                                       scope->GetDomManager().lock());
+                                       style,
+                                       ext,
+                                       scope->GetRootNode());
   return std::make_tuple(true, "", dom_node);
 }
 
@@ -391,9 +395,8 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
     if (scope) {
-      auto weak_dom_manager = scope->GetDomManager();
       auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
-      builder->Create(weak_dom_manager, std::move(std::get<2>(ret)));
+      builder->Create(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
     }
     return nullptr;
   };
@@ -407,9 +410,8 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
     if (scope) {
-      auto weak_dom_manager = scope->GetDomManager();
       auto ret = HandleJsValue(scope->GetContext(), arguments[0], scope);
-      builder->Update(weak_dom_manager, std::move(std::get<2>(ret)));
+      builder->Update(scope->GetDomManager(), scope->GetRootNode(), std::move(std::get<2>(ret)));
     }
     return nullptr;
   };
@@ -446,13 +448,15 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
             auto ref_info_tuple = CreateRefInfo(
                 context, context->CopyArrayElement(info, 1), scope);
             dom_infos.push_back(std::make_shared<DomInfo>(
-                std::make_shared<DomNode>(std::get<2>(id_tuple),
-                                          std::get<2>(pid_tuple)),
+                std::make_shared<DomNode>(
+                    std::get<2>(id_tuple),
+                    std::get<2>(pid_tuple),
+                    scope->GetRootNode()),
                 std::get<2>(ref_info_tuple)));
           }
         }
       }
-      builder->Move(weak_dom_manager, std::move(dom_infos));
+      builder->Move(weak_dom_manager, scope->GetRootNode(), std::move(dom_infos));
     }
     return nullptr;
   };
@@ -466,7 +470,6 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
     if (scope) {
-      auto weak_dom_manager = scope->GetDomManager();
       std::shared_ptr<CtxValue> nodes = arguments[0];
       std::shared_ptr<Ctx> context = scope->GetContext();
       TDF_BASE_CHECK(context);
@@ -487,12 +490,14 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
             return nullptr;
           }
           dom_infos.push_back(std::make_shared<DomInfo>(
-              std::make_shared<DomNode>(std::get<2>(id_tuple),
-                                        std::get<2>(pid_tuple)),
+              std::make_shared<DomNode>(
+                  std::get<2>(id_tuple),
+                  std::get<2>(pid_tuple),
+                  scope->GetRootNode()),
               nullptr));
         }
       }
-      builder->Delete(weak_dom_manager, std::move(dom_infos));
+      builder->Delete(scope->GetDomManager(), scope->GetRootNode(), std::move(dom_infos));
     }
     return nullptr;
   };
@@ -540,7 +545,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     auto scope = weak_scope.lock();
     if (scope) {
       auto weak_dom_manager = scope->GetDomManager();
-      auto scene = builder->Build(weak_dom_manager);
+      auto scene = builder->Build(weak_scope, weak_dom_manager);
       auto dom_manager = weak_dom_manager.lock();
       if (dom_manager) {
         dom_manager->PostTask(std::move(scene));

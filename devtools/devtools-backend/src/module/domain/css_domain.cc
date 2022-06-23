@@ -45,8 +45,8 @@ void CssDomain::RegisterMethods() {
 void CssDomain::RegisterCallback() {
   css_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, CssStyleDataCallback callback) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
-    auto elements_request_adapter = self->GetDataProvider()->elements_request_adapter;
-    if (!elements_request_adapter) {
+    auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
+    if (!dom_tree_adapter) {
       if (callback) {
         callback(CssModel());
       }
@@ -59,7 +59,7 @@ void CssDomain::RegisterCallback() {
         callback(model);
       }
     };
-    elements_request_adapter->GetDomainData(node_id, false, kCssStyleNodeDepth, response_callback);
+    dom_tree_adapter->GetDomainData(node_id, false, kCssStyleNodeDepth, response_callback);
   };
 }
 

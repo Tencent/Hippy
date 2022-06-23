@@ -109,7 +109,6 @@ set(SOURCE_SET
 if (ENABLE_INSPECTOR)
   list(APPEND SOURCE_SET
       src/devtools/adapter/impl/hippy_dom_tree_adapter.cc
-      src/devtools/adapter/impl/hippy_elements_request_adapter.cc
       src/devtools/adapter/impl/hippy_screen_adapter.cc
       src/devtools/adapter/impl/hippy_tracing_adapter.cc
       src/devtools/devtools_data_source.cc

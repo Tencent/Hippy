@@ -22,7 +22,7 @@
 | actions*        | 动画方案，其实是一个样式值跟上它的动画方案，详情请参考范例。 | Object                                | `Android、iOS`    |
 
 * actions 详解
-
+  
   和 HippyReact 不同，HippyVue 将单个动画 Animation 和动画序列 AnimationSet 合二为一，如果是一个对象，就使用 Animation 处理，如果是数组动画序列就用 AnimationSet 处理。动画参数具体可参考 [HippyReact Animation 模块](../hippy-react/modules.md?id=animation) 和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。
 
 ```vue
@@ -95,18 +95,18 @@ export default {
 </script>
 ```
 
-> 特别说明，对 actions 替换后会重新创建动画，需手动启动新动画。有两种处理方式：
->
-> * 替换 actions => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，调用 `this.[animation ref].start()`（推荐）
-> * 设置 `playing = false` =>  替换 actions  => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，设置 `playing = true`
+  > 特别说明，对 actions 替换后会重新创建动画，需手动启动新动画。有两种处理方式：
+  > 
+  > * 替换 actions => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，调用 `this.[animation ref].start()`（推荐）
+  > * 设置 `playing = false` =>  替换 actions  => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，设置 `playing = true`
 
-> `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
+  > `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
 
-> `2.6.0` 及以上版本支持 `backgroundColor` 背景色渐变动画，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
->
-> * 设置 `actions` 对 `backgroundColor` 进行修饰
-> * 设置 `valueType` 为 `color`
-> * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
+  > `2.6.0` 及以上版本支持 `backgroundColor` 背景色渐变动画，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  > 
+  > * 设置 `actions` 对 `backgroundColor` 进行修饰
+  > * 设置 `valueType` 为 `color`
+  > * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
 
 ## 事件
 
@@ -231,7 +231,11 @@ export default {
 
 ### collapsePullHeader
 
-`() => void` 收起顶部刷新条 `<pull-header>`。当使用了`pull-header`后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
+`(otions: { time: number }) => void` 收起顶部刷新条 `<pull-header>`。当使用了 `pull-header` 后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
+
+> options 参数，最低支持版本 `2.14.0`
+>
+>* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
 ---
 

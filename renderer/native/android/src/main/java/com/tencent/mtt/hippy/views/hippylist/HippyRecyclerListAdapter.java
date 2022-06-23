@@ -19,6 +19,8 @@ package com.tencent.mtt.hippy.views.hippylist;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
 
+import android.view.MotionEvent;
+import android.view.View.OnTouchListener;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
 import androidx.recyclerview.widget.ItemLayoutParams;
@@ -45,7 +47,7 @@ import com.tencent.renderer.NativeRendererManager;
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
-        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams {
+        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams, OnTouchListener {
 
     private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HRCV hippyRecyclerView;
@@ -100,7 +102,6 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
                         + ",getNodeCount:" + getRenderNodeCount()
                         + ",notifyCount:" + hippyRecyclerView.renderNodeCount
                         + "curPos:" + positionToCreateHolder
-                        + ",rootView:" + renderNode.hasRootView()
                         + ",parentNode:" + (renderNode.getParent() != null)
                         + ",offset:" + hippyRecyclerView.computeVerticalScrollOffset()
                         + ",range:" + hippyRecyclerView.computeVerticalScrollRange()
@@ -152,7 +153,10 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         RenderNode parentNode = getParentNode();
         if (parentNode != null) {
             mNativeRenderer.getRenderManager().getControllerManager()
-                    .deleteChild(parentNode.getId(), renderNode.getId());
+                    .deleteChild(renderNode.getRootId(), parentNode.getId(), renderNode.getId());
+        } else {
+            mNativeRenderer.getRenderManager().getControllerManager()
+                    .removeViewFromRegistry(renderNode.getRootId(), renderNode.getId());
         }
         renderNode.setRecycleItemTypeChangeListener(null);
     }
@@ -201,6 +205,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     public void onFooterDestroy() {
         if (footerRefreshHelper != null) {
             footerRefreshHelper.onDestroy();
+            footerRefreshHelper = null;
         }
     }
 
@@ -213,6 +218,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     public void onHeaderDestroy() {
         if (headerRefreshHelper != null) {
             headerRefreshHelper.onDestroy();
+            headerRefreshHelper = null;
         }
     }
 
@@ -407,11 +413,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     }
 
     protected RenderNode getParentNode() {
-        return mNativeRenderer.getRenderManager().getRenderNode(getHippyListViewId());
-    }
-
-    private int getHippyListViewId() {
-        return ((View) hippyRecyclerView.getParent()).getId();
+        return mNativeRenderer.getRenderManager().getRenderNode((View) hippyRecyclerView.getParent());
     }
 
     @Override
@@ -459,5 +461,16 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             return;
         }
         lp.height = getItemHeight(position);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (headerRefreshHelper != null) {
+            headerRefreshHelper.onTouch(v, event);
+        }
+        if (footerRefreshHelper != null) {
+            footerRefreshHelper.onTouch(v, event);
+        }
+        return false;
     }
 }

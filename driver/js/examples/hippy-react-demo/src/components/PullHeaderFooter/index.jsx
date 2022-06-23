@@ -76,6 +76,7 @@ export default class PullHeaderFooterExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
+    this.onFooterPulling = this.onFooterPulling.bind(this);
   }
 
   async componentDidMount() {
@@ -127,16 +128,18 @@ export default class PullHeaderFooterExample extends React.Component {
     this.fetchingDataFlag = true;
     console.log('onHeaderReleased');
     this.setState({
-      pullingText: '刷新数据中，请稍等，2秒后自动收起',
+      pullingText: '刷新数据中，请稍等',
     });
     let dataSource = [];
     try {
       dataSource = await this.mockFetchData();
     } catch (err) {}
     this.fetchingDataFlag = false;
-    this.setState({ dataSource }, () => {
-      // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致onHeaderReleased事件不能再次触发
-      this.listView.collapsePullHeader();
+    this.setState({
+      dataSource,
+      pullingText: '2秒后收起',
+    }, () => {
+      this.listView.collapsePullHeader({ time: 2000 });
       this.fetchTimes = 0;
     });
   }
@@ -165,10 +168,15 @@ export default class PullHeaderFooterExample extends React.Component {
     }
   }
 
+  onFooterPulling(evt) {
+    console.log('onFooterPulling', evt);
+  }
+
   /**
    * 点击单行后触发
    *
    * @param {number} index - 被点击的索引号
+   * @param {Object} event - 事件对象
    */
   onClickItem(index, event) {
     console.log(`item: ${index} is clicked..`, event.target.nodeId, event.currentTarget.nodeId);
@@ -209,7 +217,7 @@ export default class PullHeaderFooterExample extends React.Component {
           data = mockData;
         }
         return resolve(data);
-      }, 600);
+      }, 800);
     });
   }
 
@@ -279,10 +287,10 @@ export default class PullHeaderFooterExample extends React.Component {
     const { dataSource } = this.state;
     return (
       <ListView
-         onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
-          ref={(ref) => {
-            this.listView = ref;
-          }}
+        onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
+        ref={(ref) => {
+          this.listView = ref;
+        }}
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         getRowType={this.getRowType}
@@ -293,6 +301,7 @@ export default class PullHeaderFooterExample extends React.Component {
         onHeaderReleased={this.onHeaderReleased}
         onHeaderPulling={this.onHeaderPulling}
         onFooterReleased={this.onEndReached}
+        onFooterPulling={this.onFooterPulling}
       />
     );
   }

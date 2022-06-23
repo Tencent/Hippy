@@ -1,6 +1,7 @@
 android:
   - 'driver/js/android/**/*'
   - 'renderer/native/android/**/*'
+  - 'modules/android/**/*'
   - 'layout/android/**'
   - 'gradle/**/*'
   - 'build.gradle'
@@ -12,6 +13,7 @@ android:
 ios:
   - 'driver/js/ios/**/*'
   - 'renderer/native/ios/**/*'
+  - 'modules/ios/**/*'
   - 'layout/ios/**/*'
   - 'renderer/native/ios/**/*'
   - 'hippy.podspec'
@@ -20,12 +22,15 @@ flutter:
   - 'renderer/flutter/**/*'
 js:
   - 'driver/js/packages/**/*'
+  - 'driver/js/tsconfig.json'
+  - 'driver/js/.eslintignore'
+  - 'driver/js/.nycrc'
+  - 'driver/js/lerna.json'
   - 'static/**/*'
   - '**/*.js'
   - '**/*.jsx'
   - '**/*.ts'
   - '**/*.tsx'
-  - 'tsconfig.json'
 driver:
   - 'driver/**/*'
 dom:

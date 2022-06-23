@@ -1,219 +1,220 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# 核心组件
+# Core Components
 
-核心组件的定义是跟浏览器、Vue 中保持一致，如果只使用这些组件的话，可以直接跨浏览器。
+The definition of core components is consistent with the browser and Vue. It can be directly across the browser if only uses these components.
 
 ---
 
 # a
 
-该组件目前映射到终端 Text 组件，目前主要用于在 hippy-vue-router 中进行页面跳转。 一切同 [p](hippy-vue/components.md?id=p)。
+This component is currently mapped to the native Text component and is currently used primarily for page jumps in hippy-vue-router. All the same with [p](hippy-vue/components.md?id=p).
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS`    |
 
 ---
 
 # button
 
-[[范例：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
+[[Example：demo-button.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-button.vue)
 
-该组件映射到 View 组件，容器里面可以放图片、也可以放文本。但是因为 View 不能包裹文本，所以需要在 `<button>` 里包裹其它文本组件才能显示文字，这个跟浏览器不一样，浏览器的 `<button>` 也可以包裹 `<span>` 组件，开发时注意一下。一切同 [div](hippy-vue/components.md?id=div)。
+This component is mapped to the View component, and the container can be used to place pictures and texts. But because the View can't wrap text, so you need to wrap other text components in the `<button>` to display text, this is not the same as the browser, the browser `<button>` can also wrap `<span>` components, so please pay attention to it when developing. All the same with [div](hippy-vue/components.md?id=div).
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| click       | 当按钮被点击以后调用此回调函数。  例如， `@click="clickHandler"` | `Function`                                | `Android、iOS`    |
-| longClick   | 当按钮被长按以后调用此回调函数。  例如， `@longClick="longClickHandler"}` | `Function`                                | `Android、iOS`    |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
+| click       | Called when the button is clicked. For example, `@click="clickHandler"` | `Function`                                | `Android、iOS`    |
+| longClick   | Called when the button is long pressed. For example, `@longClick="longClickHandler"}` | `Function`                                | `Android、iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS`    |
 
 ---
 
 # div
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[Example：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
-> div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
+> div component container. By default, scrolling is not allowed. `overflow-y: scroll` style attribute can be added to make it switch to vertical scroll container, `overflow-x: scroll` style attribute can be added to make it switch to horizontal scroll container. On the native side this will be mapped to [ScrollView](hippy-react/components.md?id=ScrollView), so it has the same capabilities as [ScrollView](hippy-react/components.md?id=ScrollView).
 
-## 参数
+## Attributes
 
-| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `string`                               | `Android、iOS`     |
-| accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `Android、iOS`     |
-| collapsable        | 如果一个 `div` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失`（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`(也可设置为 Style 属性)` | `boolean`                            | `Android` |
+| accessibilityLabel | Set the text read by a "screen reader" (an assistive function for people with visual impairment) when the user interacts with this element. By default, the literal is constructed by iterating through all the child elements and adding up all the text tags. | `string`                               | `Android、iOS`     |
+| accessible         | When this property is `true`, it indicates that the view enables an accessibility element. By default, all touchable elements are accessibility elements.| `boolean`                            | `Android、iOS`     |
+| collapsable        | If a `div` is used only to lay out its children, it may be removed from the native layout tree for optimization, so references to the node's DOM will be lost `(e.g., a call to measureInAppWindow fails to get size and position information)`. Setting this property to `false` disables this optimization to ensure that the corresponding view exists in the native trees. `(can also be set to the Style property)`| `boolean`                            | `Android` |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS`     |
-| opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS`     |
-| overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS`     |
-| focusable          | 允许使用遥控器触发 View 的激活状态，改为 true 后使用遥控器将能触发 div 的 `@focus` 事件，需要通过 `nextFocusDownId`、`nextFocusUpId`、`nextFocusLeftId`、`nextFocusRightId` 参数指明四个方向键将移动到的的节点 ID       | `boolean`         | `Android`     |
-| scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。`（仅在 overflow-y/x: scroll 时适用）` | `number`                                                     | `Android、iOS`    |
-| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` `（仅在 overflow-y/x: scroll 时适用）` | `boolean`                                                    | `Android、iOS`    |
-| bounces | 是否开启回弹效果，默认 `true` `（仅在 overflow-y/x: scroll 时适用）` | `boolean`                                                  | `iOS`    |
-| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true` `（仅在 overflow-y/x: scroll 时适用）` | `boolean`                                                    | `Android、iOS`    |
-| showScrollIndicator            | 是否显示滚动条。 `default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`  | `Android`    |
-| showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`                                                    | `iOS`    |
-| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS`   | 
-| nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
+| opacity            | Configures the transparency of `View`, also affects the transparency of child nodes at the same time      | `number`                             | `Android、iOS`     |
+| overflow           | Specifies whether to clip content when the child overflows its parent `View` container | `enum(visible, hidden)`         | `Android、iOS`     |
+| focusable          | Allows remote control to trigger View activation. The true status will trigger div `@focus` events. You need to specify the node ID to which the four arrow keys will be moved by using parameters `nextFocusDownId`, `nextFocusUpId`, `nextFocusLeftId`, and `nextFocusRightId`      | `boolean`         | `Android`     |
+| scrollEventThrottle            | Specifies the number of milliseconds (ms) at which the component will invoke the `onScroll` callback event. `(only applicable to overflow-y/x: scroll)` | `number`                                                     | `Android、iOS`    |
+| pagingEnabled                  | When `true`, the scrollbar stops at an integer multiple of the scrollview's size.  This can be used for horizontal paging.  `default: false` `(only applicable to overflow-y/x: scroll)`| `boolean`                                                    | `Android、iOS`    |
+| bounces | Whether to enable springback, default `true` `(only for overflow-y/x: scroll)` | `boolean`                                                  | `iOS`    |
+| scrollEnabled                  | When the value is `false`, the content cannot scroll. `default: true` `(only applicable to overflow-y/x: scroll)` | `boolean`                                                    | `Android、iOS`    |
+| showScrollIndicator            | Whether scroll bars are displayed. `default: false` `(only applicable to overflow-y/x: scroll)` | `boolean`  | `Android`    |
+| showsHorizontalScrollIndicator | When set to `false`, `ScrollView` hides the horizontal scroll bar.  `default: true` `(only applies to overflow-y/x: scroll)`| `boolean`                                                    | `iOS`    |
+| showsVerticalScrollIndicator   | When set to `false`, 'ScrollView' hides the vertical scroll bar.  `default: true` `(only applicable to overflow-y/x: scroll)`| `boolean`  | `iOS`   | 
+| nativeBackgroundAndroid        | Configure water ripple effect, `minimum supported version 2.13.1`; The configuration item is  `{borderless: Boolean, color: color, rippleRadius: number}`; `Borderless` indicates whether the ripple has borders. Default is false; `color` ripple color; `rippleRadius` ripple radius, if not set, the container border is the border by default;  ` note:  The water ripple is not displayed by default. You need to call setPressed and setHotspot methods in the corresponding touch event to display the water ripple.  Details refer to the relevant `[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
 
 ---
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| attachedToWindow   | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `Android、iOS`     |
-| click       | 当按钮被点击以后调用此回调函数。  例如， `@click="clickHandler"` | `Function`                                | `Android、iOS`    |
-| focus            | 该事件在 `focusable` 置为 true 时触发，通过遥控方向键可以移动活动组件位置，事件回调带有 `isFocused` 参数用于标记激活和非激活状态 | `Function`  | `Android` |
-| longClick   | 当按钮被长按以后调用此回调函数。  例如， `@longClick="longClickHandler"}` | `Function`                                | `Android、iOS`    |
-| layout           | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                           | `Android、iOS`     |
-| momentumScrollBegin  | 在 ScrollView 滑动开始的时候调起。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS`    |
-| momentumScrollEnd  | 在 ScrollView 滑动结束的时候调起。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS`    |
-| scroll  | 在滚动的过程中，每帧最多调用一次此回调函数。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS`    |
-| scrollBeginDrag  | 当用户开始拖拽 ScrollView 时调用。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS`    |
-| scrollEndDrag  | 当用户停止拖拽 ScrollView 时调用。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS`    |
-| touchstart  | 触屏开始事件，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchmove   | 触屏移动事件，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchend    | 触屏结束事件，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
+| attachedToWindow   | Called when the node has been rendered and added to the container component, and since Hippy's rendering is asynchronous, this is a safe event to perform subsequent operations on. | `Function`                           | `Android、iOS`     |
+| click       | Called when the button is clicked. For example, `@click="clickHandler"` | `Function`                                | `Android、iOS`    |
+| focus            | Called when `focusable` is set to true, and the active component can be moved by remote arrow keys. The event callback takes the `isFocused` parameter to mark the active and inactive states | `Function`  | `Android` |
+| longClick   | Called when the button is long pressed. For example, `@longClick="longClickHandler"}` | `Function`                                | `Android、iOS`    |
+| layout           | Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                           | `Android、iOS`     |
+| momentumScrollBegin  | Called when the ScrollView slider starts. `(only applicable to overflow-y/x: scroll)` | `Function`                                | `Android、iOS`    |
+| momentumScrollEnd  | Called when the ScrollView slider ends. `(only applicable to overflow-y/x: scroll)` | `Function`                                | `Android、iOS`    |
+| scroll  | Called at most once per frame during scrolling. `(only applicable to overflow-y/x: scroll)`| `Function`                                | `Android、iOS`    |
+| scrollBeginDrag  | Called when the user starts dragging the ScrollView. `(only applicable to overflow-y/x: scroll)`| `Function`                                | `Android、iOS`    |
+| scrollEndDrag  | Called when the user stops dragging and dropping ScrollView. `(only applicable to overflow-y/x: scroll)` | `Function`                                | `Android、iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS`    |
 
-## 方法
+## Methods
 
 ### scrollTo
 
-> 仅在 overflow-y/x: scroll 时适用
+> This parameter is applicable only to overflow-y/x: scroll
 
-`(x: number, y: number, duration: boolean) => void` 滚动到指定的 X，Y 偏移值，第三个参数为是否启用平滑滚动动画。
+`(x: number, y: number, duration: boolean) => void` Scroll to the specified X, Y offset, and the third parameter is whether to enable smooth scrolling animation.
 
-> * x: number - X 偏移值
-> * y: number - Y 偏移值
-> * duration: number | boolean - 毫秒为单位的滚动时间, 默认 1000ms，false 等同 0ms
+> * x: number - X offset
+> * y: number - Y offset
+> * duration: number | boolean - The scroll time is in milliseconds. Default: 1000ms. False: 0ms
 
 
 ### setPressed
 
-[[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+[[setPressed Example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
 
-`最低支持版本 2.13.1`
+`minimum supported version 2.13.1`
 
-`(pressed: boolean) => void` 通过传入一个布尔值，通知终端当前是否需要显示水波纹效果
+`(pressed: boolean) => void` Notifies the native whether the water ripple effect is currently required by passing in a Boolean value.
 
-> * pressed: boolean - true 显示水波纹，false 收起水波纹
+> * pressed: boolean - true displays water ripples, flase: disable water ripples
 
 ### setHotspot
 
-[[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
+[[setHotspot Example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-ripple-div.vue)
 
-`最低支持版本 2.13.1`
+`minimum supported version 2.13.1`
 
-`(x: number, y: number) => void` 通过传入一个 `x, y` 坐标值，通知终端设置当前波纹中心位置
+`(x: number, y: number) => void` Notifies the native to set the current ripple center position by passing in an  `x, y` coordinate value.
 
 ---
 
 # form
 
-[[范例：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
+[[Example：demo-div.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue)
 
-容器组件。 一切同 [div](hippy-vue/components.md?id=div)。
+Container components. All the same as [div](hippy-vue/components.md?id=div)。
 
 ---
 
 # iframe
 
-[[范例：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
+[[Example：demo-iframe.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-iframe.vue)
 
-内嵌网页容器。
+Embedded web page container.
 
-## 参数
+## Attributes
 
-| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| src | 内嵌用的网址 | `string`                               | `Android、iOS`     |
-| method | 请求方式，`get`、`post` | `string`   | `Android、iOS`    |
+| src | Embedded url | `string`                               | `Android、iOS`     |
+| method | request methods, `get`、`post` | `string`   | `Android、iOS`    |
 | userAgent | Webview userAgent | `string` | `Android、iOS`|
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| load           | 网页加载成功后会触发 | `(object: { url:string }) => void`    | `Android、iOS`     |
-| loadStart           | 网页开始加载时触发 | `(object: { url:string }) => void`    | `Android、iOS`     |
-| loadEnd           | 网页加载结束时触发 | `(object: { url:string }) => void`    | `Android、iOS`     |
+| load           | Called when the web page is successfully loaded | `(object: { url:string }) => void`    | `Android、iOS`     |
+| loadStart           | Called when the web page starts loading | `(object: { url:string }) => void`    | `Android、iOS`     |
+| loadEnd           | Called when the page ends loading | `(object: { url:string }) => void`    | `Android、iOS`     |
 
 ---
 
 # img
 
-[[范例：demo-img.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
+[[Example: demo-img.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
-图片组件，和浏览器的一样。
+Image component, same as browser.
 
-> * 注意: 必须指定样式中的宽度和高度，否则无法工作。
-> * 注意: Android 端默认会带上灰底色用于图片占位，可以加上 `background-color: transparent` 样式改为透明背景。
+> * Note: Width and height must be specified in the style or it will not work. 
+> * Note: Android uses a grey background as a placeholder by default, so you can add `background-color: transparent` to make the image transparent.
 
-## 参数
+## Attributes
 
-| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| src        | 图片地址。现在支持的图片格式有 png , jpg , jpeg , bmp , gif 。 | string                                | `Android、iOS`    |
-| capInsets | 当调整 img 大小的时候，由 capInsets 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 |  `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS` | 
-> `2.8.1` 版本后支持终端本地图片能力，可通过 Webpack `file-loader` 加载。
+| src        | Picture url. Currently supported image formats are PNG, JPG, JPEG, BMP, GIF. | string                                | `Android、iOS`    |
+| capInsets | When adjusting the img size, the corners specified by the capInsets are fixed without scaling, while the middle and rest of the sides are stretched. This is useful for creating variable-sized rounded buttons, shadows, and other resources. |  `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS` | 
+> Version `2.8.1` supports native local image capability, which can be loaded through webpack `file-loader`.  
 
-## 样式内特殊属性
+## Special props within a style
 
-| 参数               | 描述                                                         | 类型                                 | 支持平台  |
+| Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
-| resize-mode        |  决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。   |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS`    |
+| resize-mode        |  Determines how to resize an image when the component size is out of proportion to the image size.  |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS`    |
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS`    |
-| load        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS`    |
-| loadStart   | 加载开始时调用。 | `Function`                                                   | `Android、iOS`    |
-| loadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS`    |
-| error       | 当加载错误的时候调用此回调函数。| `Function`                                                   | `Android、iOS`    |
-| progress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   | `iOS`    |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
+| layout      | Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS`    |
+| load        | Called when the web page is successfully loaded                | `Function`                                                   | `Android、iOS`    |
+| loadStart   | Called when the web page starts loading | `Function`                                                   | `Android、iOS`    |
+| loadEnd     | After loading, whether it successes or nor, this callback function is called with or without success    | `Function`                                                   | `Android、iOS`    |
+| error       | Called when loading errors occur.| `Function`                                                   | `Android、iOS`    |
+| progress    | In the process of loading calls, parameters `nativeEvent: { loaded: number, total: number }`, `loaded` indicate the size of the loading image, `total` indicates the total size of the image.                                    | `iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS`    |
 
 ---
 
 # input
 
-[[范例：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-input.vue)
+[[Example：demo-input.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-input.vue)
 
-单行文本组件。
+Single line text component.
 
-> 不建议手工双向绑定数据，建议通过 `v-model` 来绑定视图和数据。
+>It is not recommended for manual two-way data binding. It is recommended to bind views and data through `v-model`.
 
-## 差异性
+## Difference
 
-由于系统组件层的差异，如果 input 处于会被键盘遮住的位置，在呼出键盘后：
+Due to differences in system component layer, if the input is in the position of the keyboard will be covered, after exhaled keyboard:
 
-* iOS 则是正常的遮住
-* Android 的表现为页面会被键盘顶起，顶起的幅度取决于 input 的 Y 轴位置决定
+* It can seen in iOS that the input is normally covered.
+* It can seen in Android that the page is jacked up by the keyboard, depending on the Y-axis position of the input.  
 
-关于解决此间的平台差异性，我们仍在讨论。
+We are still discussing how to address the platforms differences here.
 
-若有 iOS 对齐 Android 的键盘顶起的需求，建议参考 [StackOverflow](//stackoverflow.com/questions/32382892/ios-xcode-how-to-move-view-up-when-keyboard-appears)，在业务层解决。
+If there is a need for iOS to align Android keyboard jacking, it is recommended to refer to [StackOverflow](//stackoverflow.com/questions/32382892/ios-xcode-how-to-move-view-up-when-keyboard-appeals) and solve it at the business level.
 
-### Android 弹出后盖住界面的解决办法
 
-在部分 Android 机型上，键盘弹出后也可能会产生盖住界面的情况，一般情况下可以通过修改 `AndroidMainfest.xml` 文件，在 activity 上增加 android:windowSoftInputMode="adjustPan" 解决。
+### Solution to the interface will be covered after popping up in Android
+
+On some Android models, the keyboard may cover the interface after the pop-up, usually can be modified by `AndroidMainfest.xml` file, increase the android on the activity: windowSoftInputMode="adjustPan" to resolve.
 
 ```xml
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -223,7 +224,7 @@
         android:allowBackup="true"
         android:label="@string/app_name"
     >
-        <!-- 注意 android:windowSoftInputMode="adjustPan" 写在 activity 的参数里-->
+        <!-- Attention android:windowSoftInputMode="adjustPan" is written in the parameters of activity-->
         <activity android:name=".MyActivity"
             android:windowSoftInputMode="adjustPan"
             android:label="@string/activity_name"
@@ -234,214 +235,213 @@
 </manifest>
 ```
 
-该参数的意义是：
+The meaning of this parameter is：
 
 * adjustResize: resize the page content
 * adjustPan: move page content without resizing page content
 
-详情请参考 Android 开发文档。
+Please refer to the Android development documentation for details.
 
-## 参数
+## Attributes
 
-| 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
+| Props                  | Description                                      | Type                                                         | Supported Platforms  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
-| caret-color           | 输入光标颜色。(也可设置为 Style 属性) `最低支持版本2.11.5` | [`color`](style/color.md)        | `Android`     |
-| defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `Android、iOS`     |
-| editable              | 如果为 false，文本框是不可编辑的。`default: true`                        | `boolean`                                                    | `Android、iOS`     |
-| type          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum(default, numeric, password, email, phone-pad)` | `Android、iOS`     |
-| maxlength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `numbers`                                                    | `Android、iOS`     |
-| numberOfLines         | 设置 `input` 最大显示行数，如果 `input` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android`     |
-| placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS`     |
-| placeholder-text-color  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）  `最低支持版本2.13.4`                                   | [`color`](style/color.md)                                | `Android、iOS`     |
-| underline-color-android  | `input` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性）  `最低支持版本2.13.4`      | [`color`](style/color.md)                                                      | `Android` |
-| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`              | `Android、iOS`     |
-| value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `Android、iOS`     |
+| caret-color           | Enter the cursor color.(can also be set to the Style property) `Minimum supported version 2.11.5`| [`color`](style/color.md)        | `Android`     |
+| defaultValue          | Provides an initial value in a text box. When the user starts typing, the value can change. In some simple use cases, you can use defaultValue instead if you don't want to keep properties and state synchronized by listening for messages and then updating the value property. | `string`                                                     | `Android、iOS`     |
+| editable              |  If false, the text box is not editable. `default: true`                        | `boolean`                                                    | `Android、iOS`     |
+| type          | Determines what kind of soft keyboard pops up. Note that `password` only in the attribute `multiline=false` single line text box. | `enum(default, numeric, password, email, phone-pad)` | `Android、iOS`     |
+| maxlength             | Limit the maximum number of characters in a text box. Using this property instead of JS logic to implement it, you can avoid flickering. | `numbers`                                                    | `Android、iOS`     |
+| numberOfLines         | Set the `input` maximum display lines, if `input` has no explicit set height, it will be calculated according to `numberOfLines` height. When using, `multiline` must to set to `true`. | `number`                                                     | `Android`     |
+| placeholder           | If no text is entered, this string is displayed.                        | `string`                                                     | `Android、iOS`     |
+| placeholder-text-color  | Text color for placeholder string displayed (can also be set to the Style property) `Minimum supported version 2.13.4`. | [`color`](style/color.md)                                | `Android、iOS`     |
+| underline-color-android  |  The color of the underline under `input`. Can be set to `transparent` to remove the bottom line (can also be set to the Style property) `Minimum supported version 2.13.4`.  | [`color`](style/color.md)                                                      | `Android` |
+| returnKeyType         | Specifies the style of the soft keyboard's Enter key displayed.   | `enum(done, go, next, search, send)`              | `Android、iOS`     |
+| value                 | Specifies the value of the `input` component.                        | `string`                                                     | `Android、iOS`     |
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| blur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS`     |
-| change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS`     |
-| keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS`     |
-| keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
-| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function` | `iOS` |                                 
-| endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS`     |
-| layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS`     |
-| selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `Android、iOS`     |
+| blur                | Called when the text box loses focus.    | `Function`                                                   | `Android、iOS`     |
+| change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS`     |
+| keyboardWillShow    | Called when the input keyboard pops-up, the return value contains the keyboard height `keyboardHeight`, style such as `{keyboardHeight: 260 }`| `Function`                                                   | `Android、iOS`     |
+| keyboardWillHide     | Called when hiding input keyboard.| `Function`                                                   | `Android`     |
+| endEditing          | Called when the text input is complete.    | `Function`                                                   | `Android、iOS`     |
+| layout              |  Called when an element is mounted or the layout changes. The argument is: `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are coordinates relative to the parent element | `Function`                                                   | `Android、iOS`     |
+| selectionChange     | Called when the range of the input box selection text is changed.The style of the return parameters such as `{nativeEvent: { selection: { start, end } } }` | `Function`                                                   | `Android、iOS`     |
 
-## 方法
+## Methods
 
 ### blur
 
-`() => void` 让指定的 input 组件失去光标焦点，与 focus() 的作用相反。
+`() => void` Causes the specified input component to lose cursor focus, the opposite of focus().
 
 ### clear
 
-`() => void` 清空输入框的内容。
+`() => void` Clear the contents of the input box.
 
 ### focus
 
-`() => void` 指派 input 获得焦点。
+`() => void` Assign input to get focus.
 
 ### getValue
 
-`() => Promise<string>` 获得文本框中的内容。
+`() => Promise<string>` Get the contents of the text box.
 
 ### setValue
 
-`(value: string) => void` 设置文本框内容。
+`(value: string) => void` Sets the text box contents.
 
-> * value: string - 文本框内容
+> * value: string - Text Box Contents
 
 ---
 
 # label
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[Example：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
-显示文本。 一切同 [p](hippy-vue/components.md?id=p)。
+Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen.  | `Function`                                | `Android、iOS`    |
 
 ---
 
 # ul
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[Example：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
-Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被映射成 `ListView`，包含 `ListView` 所有能力。里面第一层只能包含 `<li>`。
+Hippy's key features, high performance reusable list components, on the native side will be mapped to `ListView`, contains all abilities of `ListView`. The first layer inside can only contain `<li>`.
 
-## 参数
+## Attributes
 
-| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` | `any`   | `Android`    |
-| initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `Android、iOS` |
-| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android`    |
-| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `Android、iOS`
-| scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS` |
-| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `Android、iOS`    |
-| showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`                                                   | `iOS`    |
-| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `endReached` 回调。 | `number` | `Android、iOS` |
-| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android`
-| endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `Android、iOS`    |
-| editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
-| delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
+| horizontal       | Specifies whether `ul` is laid out horizontally. `default: undefined` | `any`   | `Android`    |
+| initialContentOffset  | The initial offset value. In the list of initialization can specify the scroll distance, avoid flashing caused by series method of scrollT after oinitialization. Android supports after version ` 2.8.0 `  | `number`  | `Android、iOS` |
+| bounces | Whether to open the rebound effect, default `true` | `boolean`                                                  | `iOS`    |
+| overScrollEnabled | Whether to open the rebound effect, default `true` | `boolean`                                                  | `Android`    |
+| rowShouldSticky  | Sets whether `ul` needs to turn on the hover ability, used in conjunction with `li` 's `sticky`. `default: false` | `boolean`  | `Android、iOS`
+| scrollEnabled    | Whether the slide function is on.`default: true` | `boolean` | `Android、iOS` |
+| scrollEventThrottle   | Specify the sliding event callback frequency, the incoming value specifies how many milliseconds (ms) components will call a `onScroll` callback event, the default is 200 ms | `number`                                                    | `Android、iOS`    |
+| showScrollIndicator   | Whether scroll bars are displayed. `default: true` | `boolean`                                                   | `iOS`    |
+| preloadItemNumber     | Specifies the number of rows that will call the `endReached` function when the list scrolls.| `number` | `Android、iOS` |
+| exposureEventEnabled | The switch to enable Android exposure ability, if you want to use the `appear` and `disappear` related events, Android needs to set the switch (iOS need not set), `default: true` | `boolean` | `Android`
+| endReached | When all the data has been rendered and the list is scrolled to the last one, the `endReached` callback is called. | `Function`                                                  | `Android、iOS`    |
+| editable | Whether it is editable or not, set to `true` when sideslip deletion is enabled. ` minimum support version 2.9.0 `| `boolean`                                                  | `iOS`    |
+| delText | Sideslip to delete text. `minimum support version 2.9.0` | `string`                                                  | `iOS`    |
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| endReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS`    |
-| momentumScrollBegin | 在 `ListView` 开始滑动的时候调起                           | `Function`                                                  | `Android、iOS`    |
-| momentumScrollEnd   | 在 `ListView` 结束滑动的时候调起                           | `Function`                                                  | `Android、iOS`    |
-| scroll              | 当触发 `ListView` 的滑动事件时回调。由于在 `ListView` 滑动时回调，调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `Android、iOS`    |
-| scrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `Android、iOS`    |
-| scrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用 | `Function`                                                  | `Android、iOS`    |
-| layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS`    |
-| delete      | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                | `iOS`    |
+| endReached          | When all the data has been rendered and the list is scrolled to the last one, the `endReached` callback is called.  | `Function`                                                  | `Android、iOS`    |
+| momentumScrollBegin | Called when the `ListView` began to slide                          | `Function`                                                  | `Android、iOS`    |
+| momentumScrollEnd   | Called when the `ListView` end to slide                         | `Function`                                                  | `Android、iOS`    |
+| scroll              | Called when the sliding event of `ListView` is triggered. Because this function is called when `ListView` is sliding, the call will be very frequent, please use `scrollEventThrottle` frequency control. Note: ListView will recycle components when scrolling. Do not perform any ref node-level operations (such as all callUIFunctions and measureInAppWindow methods) on the ListItemView generated by renderRow() when scrolling. The recycled nodes will no longer be able to perform operations and report an error. Android supports horizontal ListView after version `2.8.0` | `(obj: { contentOffset: { x: number, y: number } }) => any` | `Android、iOS`    |
+| scrollBeginDrag     | Called when the user starts dragging `ListView`.                         | `Function`                                                  | `Android、iOS`    |
+| scrollEndDrag       | Called when the user stops dragging and dropping `ListView` or let `ListView` started sliding | `Function`                                                  | `Android、iOS`    |
+| layout      | Called when an element is mounted or the layout is changed. The parameters are: `nativeEvent: {layout: {x, y, width, height}}` where `x` and `y` are the coordinate positions relative to the parent element. | `Function`                                | `Android、iOS`    |
+| delete      | Called when a list item is sideslip and deleted. `minimum support version 2.9.0` | `(nativeEvent: { index: number}) => void`                                | `iOS`    |
 
-## 方法
+## Methods
 
 ### scrollTo
 
-`(xOffset: number, yOffset: number, animated: boolean) => void` 通知 ListView 滑动到某个具体坐标偏移值(offset)的位置。
+`(xOffset: number, yOffset: number, animated: boolean) => void` Notify the ListView slide to a specific coordinate offset value (offset).
 
-> * `xOffset`: number - 滑动到 X 方向的 offset
-> * `yOffset`: number - 滑动到 Y 方向的 offset
-> * `animated`: boolean - 滑动过程是否使用动画
+> * `xOffset`: number - Slide to offset in X direction
+> * `yOffset`: number - Slide to offset in Y direction
+> * `animated`: boolean - Whether the sliding process uses animation
 
 ### scrollToIndex
 
-`(xIndex: number, yIndex: number, animated: boolean) => void` 通知 ListView 滑动到第几个 item。
+`(xIndex: number, yIndex: number, animated: boolean) => void` Notify which item the ListView will slide to.
 
-> * `xIndex`: number - 滑动到 X 方向的第 xIndex 个 item
-> * `yIndex`: number - 滑动到 Y 方向的 yIndex 个 item
-> * `animated`: boolean - 滑动过程是否使用动画
+> * `xIndex`: number - Slide to xIndex items in the X direction
+> * `yIndex`: number - Slide to yIndex items in Y direction
+> * `animated`: boolean - Whether the sliding process uses animation
 
 ---
 
 # li
 
-ul 的子节点，终端层节点回收和复用的最小颗粒度。
+ul's child nodes, the minimum granularity of the native layer node recycling and reuse.
 
-[[范例：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
+[[Example：demo-list.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-list.vue)
 
-## 参数
+## Attributes
 
-> 当设置`ul` 的 `:horizontal=true` 启用横向无限列表时，需显式设置 `li` 样式宽度
+> When setting `ul`: `horizontal=true` When enabling horizontal infinite lists, explicitly set the `li` style width.
 
-| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `number`              | `Android、iOS`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
-| sticky       | 对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在 ListView 顶部，不会滚出屏幕），需跟 `ul` 的 `rowShouldSticky` 配合使用 | `boolean`                                | `Android、iOS`
-| appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `Android、iOS` |
-| disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `Android、iOS` |
-| willAppear       | 当有`li`节点至少一个像素滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。`最低支持版本2.3.0` | `(index) => any` | `Android、iOS` |
-| willDisappear       | 当有`li`节点至少一个像素滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。`最低支持版本2.3.0` | `(index) => any` | `Android、iOS` |
+| type            | Specify a function in which the type of the corresponding entry is returned (the natural number of the Number type is returned, and the default value is 0). List will reuse the entries of the same type, so reasonable type splitting can improve the performance of List. `Note: item components of the same type may not go through the complete component creation life cycle due to reuse.` | `number`              | `Android、iOS`    |
+| key             | Specify a function in which the Key value of the corresponding entry is returned. See [Vue Official Document](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
+| sticky       | Whether the corresponding item needs to use the hover effect (scroll to the top, will hover at the top of the ListView, won't roll out of the screen), with `ul` `rowShouldSticky`| `boolean`                                | `Android、iOS`
+| appear       | Called when a `li` node slides into the screen (exposure), the parameter returns the index value corresponding to the `li` node of the exposure. | `(index) => any` | `Android、iOS` |
+| disappear       | Called when a `li` node slides away from the screen, and the parameter returns the index value corresponding to the `li` node that left. | `(index) => any` | `Android、iOS` |
+| willAppear       | Called when at least one pixel of the `li` node slides into the screen (exposure), the input parameter returns the index value corresponding to the `li` node of the exposure. `minimum support version 2.3.0` | `(index) => any` | `Android、iOS` |
+| willDisappear       | Called when a `li` node slides off the screen by at least one pixel. The parameter returns the index of the `li` node that left. `Minimum support version 2.3.0` | `(index) => any` | `Android、iOS` |
 
 ---
 
 # p
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[Example：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
-显示文本，不过因为 Hippy 下没有 `display: inline` 的显示模式，默认全部都是 flex 的。
+Display text, but because there is no `display: Inline` display mode, the default is all flex.
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchend    | Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen. | `Function`                                | `Android、iOS`    |
 
-## 参数
+## Attributes
 
-| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `Android、iOS`    |
-| opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS`    |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum(head, middle, tail, clip)` | `Android 仅支持 tail 属性，iOS 全支持`    |
+| numberOfLines | Used to trim text when it is too long. The total number of lines, including line breaks caused by folding, will not exceed the limit of this property. | `number`                                  | `Android、iOS`    |
+| opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS`    |
+| ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. | `enum(head, middle, tail, clip)` | `Android only supports the tail attribute, iOS fully supports it`    |
 
-* ellipsizeMode 的参数含义：
-  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（仅iOS支持）
-  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（仅iOS支持）
-  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（仅iOS支持）
-  * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
+* The meaning of parameters of ellipsizeMode：
+  * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(iOS only)
+  * `head` - Texts will be truncated from the beginning. To ensure that the string at the end of the text can be displayed at the end of the `Text` components, the texts will be truncated from the beginning. The truncated text will be replaced by "...". For example,"...wxyz ";(iOS only)
+  * `middle` - Text will be truncated from the middle to ensure that the last and first text of the string can be displayed in the response position of the Text component normally. And the text truncated in the middle will be replaced by "..." For example,"ab ab.."yz ";(iOS only)
+  * `tail` - Text will be truncated from the end to ensure that the first text of the string can be displayed normally in the front of the Text component, and the text truncated from the end will be replaced by "..." For example, "abcd ...";
 
 ---
 
 # span
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
+[[Example：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-p.vue)
 
-显示文本。 一切同 [p](hippy-vue/components.md?id=p)。
+Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| touchstart  | 触屏开始事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchmove   | 触屏移动事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchend    | 触屏结束事件，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
-| touchcancel | 触屏取消事件，当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，最低支持版本 2.6.2，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS`    |
+| touchstart  | Called when screen touch starts, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchmove   | Called when screen touch moves, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchend    |  Called when screen touch ends, minimum supported version 2.6.2, the parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY` respectively represent the absolute position of the click within the screen. | `Function`                                | `Android、iOS`    |
+| touchcancel | Called when screen touch cancels. When a system event interrupts the touch screen when the user touches the screen, such as an incoming phone call, a component change (e.g., set to hidden), or a sliding gesture of another component, this function will receive a callback. The minimum supported version is 2.6.2. The parameters are `evt: { touches: [{ clientX: number, clientY: number }] }`,`clientX` and `clientY`  respectively represent the absolute position of the click on the screen.  | `Function`                                | `Android、iOS`    |
 
 ---
 
 # textarea
 
-[[范例：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
+[[Example：demo-p.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-textarea.vue)
 
-多行文本输入框。 一切同 [input](hippy-vue/components.md?id=input)。
+A multi-line text input box. All the same as [input](hippy-vue/components.md?id=input)。

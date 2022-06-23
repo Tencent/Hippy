@@ -4,6 +4,7 @@
 #include "base/logging.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
+#include "dom/root_node.h"
 
 namespace hippy {
 inline namespace animation {
@@ -149,7 +150,11 @@ void Animation::Start() {
   } else {
     std::weak_ptr<Animation> weak_animation = animation;
     std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
-    auto dom_manager = animation_manager->GetDomManager().lock();
+    auto root_node = animation_manager->GetRootNode().lock();
+    if (!root_node) {
+      return;
+    }
+    auto dom_manager = root_node->GetDomManager().lock();
     if (!dom_manager) {
       return;
     }
@@ -162,7 +167,11 @@ void Animation::Start() {
       if (!animation_manager) {
         return;
       }
-      auto dom_manager = animation_manager->GetDomManager().lock();
+      auto root_node = animation_manager->GetRootNode().lock();
+      if (!root_node) {
+        return;
+      }
+      auto dom_manager = root_node->GetDomManager().lock();
       if (!dom_manager) {
         return;
       }
@@ -256,7 +265,11 @@ void Animation::Destroy() {
   if (!animation_manager) {
     return;
   }
-  auto dom_manager = animation_manager->GetDomManager().lock();
+  auto root_node = animation_manager->GetRootNode().lock();
+  if (!root_node) {
+    return;
+  }
+  auto dom_manager = root_node->GetDomManager().lock();
   if (!dom_manager) {
     return;
   }
@@ -280,16 +293,18 @@ void Animation::Destroy() {
   animation_manager->RemoveAnimation(animation);
   if (status == Animation::Status::kRunning) {
     auto on_cancel = animation->GetAnimationCancelCb();
-    if (on_cancel) {
-      auto task_runner = dom_manager->GetDelegateTaskRunner().lock();
-      if (task_runner) {
-        auto task = std::make_shared<CommonTask>();
-        task->func_ = [on_cancel = std::move(on_cancel)]() {
-          on_cancel();
-        };
-        task_runner->PostTask(std::move(task));
-      }
+    if (!on_cancel) {
+      return;
     }
+    auto task_runner = root_node->GetDelegateTaskRunner().lock();
+    if (!task_runner) {
+      return;
+    }
+    auto task = std::make_shared<CommonTask>();
+    task->func_ = [on_cancel = std::move(on_cancel)]() {
+      on_cancel();
+    };
+    task_runner->PostTask(std::move(task));
   }
 }
 
@@ -327,7 +342,11 @@ void Animation::Resume() {
   if (!animation_manager) {
     return;
   }
-  auto dom_manager = animation_manager->GetDomManager().lock();
+  auto root_node = animation_manager->GetRootNode().lock();
+  if (!root_node) {
+    return;
+  }
+  auto dom_manager = root_node->GetDomManager().lock();
   if (!dom_manager) {
     return;
   }
@@ -411,7 +430,11 @@ void Animation::Repeat(uint64_t now) {
     }
     animation_manager->AddActiveAnimation(self);
   } else {
-    auto dom_manager = animation_manager->GetDomManager().lock();
+    auto root_node = animation_manager->GetRootNode().lock();
+    if (!root_node) {
+      return;
+    }
+    auto dom_manager = root_node->GetDomManager().lock();
     if (!dom_manager) {
       return;
     }

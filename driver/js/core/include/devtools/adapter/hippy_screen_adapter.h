@@ -24,13 +24,13 @@
 
 #include "api/adapter/devtools_screen_adapter.h"
 #include "dom/dom_argument.h"
-#include "hippy_elements_request_adapter.h"
+#include "devtools/hippy_dom_data.h"
 
 namespace hippy::devtools {
 class HippyScreenAdapter : public hippy::devtools::ScreenAdapter,
                            public std::enable_shared_from_this<HippyScreenAdapter> {
  public:
-  explicit HippyScreenAdapter(int32_t dom_id) : dom_id_(dom_id) {}
+  explicit HippyScreenAdapter(std::shared_ptr<HippyDomData> hippy_dom) : hippy_dom_(hippy_dom) {}
 
   void GetScreenShot(const hippy::devtools::ScreenRequest& request, CoreScreenshotCallback callback) override;
 
@@ -44,7 +44,7 @@ class HippyScreenAdapter : public hippy::devtools::ScreenAdapter,
  private:
   hippy::dom::DomArgument makeFrameCallbackArgument(uint64_t id) const;
   hippy::dom::DomArgument makeScreenRequestArgument(const ScreenRequest& request) const;
-  int32_t dom_id_;
+  std::shared_ptr<HippyDomData> hippy_dom_;
   uint64_t frame_callback_id_;
   double screen_scale_ = 1.0;
   bool supportDirtyCallback = false;

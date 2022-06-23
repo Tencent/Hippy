@@ -460,7 +460,7 @@ UIImage *HippyGetBorderImage(HippyBorderStyle borderStyle, CGSize viewSize, Hipp
         case HippyBorderStyleDashed:
         case HippyBorderStyleDotted:
             return HippyGetDashedOrDottedBorderImage(borderStyle, cornerRadii, viewSize, borderInsets, borderColors, backgroundColor, drawToEdge, drawBackgrondColor);
-        case HippyBorderStyleUnset:
+        case HippyBorderStyleNone:
             break;
     }
 

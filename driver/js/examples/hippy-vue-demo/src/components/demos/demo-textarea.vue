@@ -45,6 +45,7 @@ export default {
   color: #242424;
   text-align: left;
   border-width: 1px;
+  border-style: solid;
   border-color: #ccc;
   underline-color-android: #40b883;
   placeholder-text-color: #666;

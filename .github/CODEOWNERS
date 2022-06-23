@@ -11,50 +11,75 @@
 * @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
 
 *.js @zoomchan-cxj
-*.java @siguangli
+*.java @siguangli @medns
 *.cc @churchill-zhang @medns @ilikethese
 *.h @ozonelmy
 *.m @ozonelmy
 *.mm @ozonelmy
 
-/.github/ @zoomchan-cxj
-/.husky/ @zoomchan-cxj
+# ci, build & doc related
+/.github/ @zoomchan-cxj @medns
+/.gitattributes @zoomchan-cxj @medns
+/.husky/ @zoomchan-cxj @medns
 /docker/ @medns
-/package.json @zoomchan-cxj
-/package-lock.json @zoomchan-cxj
-/.nycrc @zoomchan-cxj
-/.npmignore @zoomchan-cxj
+/buildconfig/ @medns
+/docker/ @medns
 /.editorconfig @zoomchan-cxj
-/.eslintignore @zoomchan-cxj
-/.npmignore @zoomchan-cxj
-/lerna.json @zoomchan-cxj
-/tsconfig.json @zoomchan-cxj
+/.gitignore @zoomchan-cxj @medns
+/.markdownlintrc.json @zoomchan-cxj @medns
+/docs/ @zoomchan-cxj @medns
 
-/docs/ @zoomchan-cxj
+# dom related
+/dom/ @churchill-zhang @ilikethese @medns
 
-/dom/ @churchill-zhang @ilikethese
+# js core related
+/driver/js/core/ @churchill-zhang @ilikethese @zoomchan-cxj
+/driver/js/core/js/ @zoomchan-cxj @churchill-zhang
 
-/driver/js/core/ @churchill-zhang @zoomchan-cxj
-/driver/js/core/js/ @zoomchan-cxj
-
-/driver/js/android/ @siguangli @churchill-zhang
-/driver/js/ios/ @ozonelmy @churchill-zhang
-/driver/js/flutter/ @lvfen @battleAgain
-
-/driver/js/examples/android-demo/ @siguangli
-/driver/js/examples/android-demo/res/ @zoomchan-cxj
-/driver/js/examples/ios-demo/ @ozonelmy
-/driver/js/examples/ios-demo/res/ @zoomchan-cxj
+# examples related
+/driver/js/examples/android-demo/ @siguangli @zoomchan-cxj
+/driver/js/examples/android-demo/res/ @zoomchan-cxj @siguangli
+/driver/js/examples/ios-demo/ @ozonelmy @zoomchan-cxj
+/driver/js/examples/ios-demo/res/ @zoomchan-cxj @ozonelmy
 /driver/js/examples/hippy-react-demo/ @zoomchan-cxj
 /driver/js/examples/hippy-vue-demo/ @zoomchan-cxj
 
+# js related
 /driver/js/packages/ @zoomchan-cxj
+/driver/js/.eslintignore @zoomchan-cxj
+/driver/js/lerna.json @zoomchan-cxj
+/driver/js/tsconfig.json @zoomchan-cxj
+/driver/js/package.json @zoomchan-cxj
+/driver/js/package-lock.json @zoomchan-cxj
+/driver/js/.nycrc @zoomchan-cxj
+/driver/js/scripts/ @zoomchan-cxj
+/package.json @zoomchan-cxj
+/package-lock.json @zoomchan-cxj
 
-/gradle/ @siguangli @medns
-/layout/ @ilikethese
+# layout related
+/layout/ @ilikethese @churchill-zhang
 
-/renderer/native/android/ @siguangli
-/renderer/native/ios/ @ozonelmy
+# android related
+/driver/js/android/ @siguangli @churchill-zhang @medns
+/renderer/native/android/ @siguangli @churchill-zhang @medns
+/modules/android/ @siguangli @churchill-zhang @medns
+/gradle/ @siguangli @churchill-zhang @medns
+/gradle.properties @siguangli @churchill-zhang @medns
+/gradlew @siguangli @churchill-zhang @medns
+/gradlew.bat @siguangli @churchill-zhang @medns
+/build.gradle @siguangli @churchill-zhang @medns
+/setting.gradle @siguangli @churchill-zhang @medns
+
+# ios related
+/driver/js/ios/ @ozonelmy @churchill-zhang
+/renderer/native/ios/ @ozonelmy @churchill-zhang
+/modules/ios/ @ozonelmy @churchill-zhang
+/hippy.podspec @ozonelmy @churchill-zhang
+
+# flutter related
 /renderer/flutter/ @lvfen @battleAgain
+/driver/js/flutter/ @lvfen @battleAgain
 
-/scripts/ @zoomchan-cxj
+# devtools related
+/devtools/ @churchill-zhang @medns
+

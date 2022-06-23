@@ -1,243 +1,320 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# 终端扩展组件
+# Native Extension Component
 
-扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) 提供，但因为暂时还没有 `@hippy/vue-web-components` 所以暂时无法在浏览器中使用。
+Extensions are some convenient components provided by the native, which are provided by [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) in hippy-vue.
 
 ---
 
 # animation
 
-[[范例：demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
+[[Example: demo-animation.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-animation.vue)
 
-该组件是 hippy-vue 的动画解决方案，直接传入一个样式值和动画方案数组，即可触发动作效果。
+This component is the animation solution of hippy-vue. It can trigger the action effect by directly passing in a style value and animation scheme array.
 
-需要说明的是一个 animation 本身就是个 View，它会带动所有子节点一起动画，所以如果动画需要分开控制的话，需要在界面层级上进行拆分。
+It should note is that an animation itself is a View, it will drive all the child nodes animation together, so if the animation needs to be controlled separately, you need to split them on the interface level.
 
-## 参数
+## Attributes
 
-| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| playing        | 控制动画是否播放 | boolean                                | `Android、iOS`    |
-| actions*        | 动画方案，其实是一个样式值跟上它的动画方案，详情请参考范例。 | Object                                | `Android、iOS`    |
+| playing        | Controls whether the animation plays | boolean                                | `Android、iOS`    |
+| actions*        | Animation scheme, it is actually a style value followed by its animation scheme, please refer to the example for details. | Object                                | `Android、iOS`    |
 
-* actions 详解
+* actions detailed explanation
   
-  和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L5)，只有差异部分才需要填写。循环播放参数 `repeatCount: 'loop'` 在 `2.12.2` 及以上版本支持，低版本请使用 `repeatCount: -1`。
+  Different from React, it combines single animation Animation and animation sequence AnimationSet into one, if it is an object, use Animation to process it; if it is an animation sequence array, use AnimationSet to process it. For specific information of animation parameter, refer to [HippyReact Animation module](../hippy-react/modules.md?id=animation) and [Example](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations).
 
-  特别说明，对 actions 替换后会自动新建动画，需手动启动新动画。有两种处理方式：
-  * 替换 actions => 延迟一定时间后（如setTimeout） 调用 `this.[animation ref].start()`（推荐）
-  * `playing = false` =>  替换 actions =>  延迟一定时间后（如setTimeout） `playing = true`
-  
-  2.6.0 版本新增 `backgroundColor` 背景色渐变动画支持，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
-  * 设置 `actions` 对 `backgroundColor` 进行修饰
-  * 设置 `valueType` 为 `color`
-  * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
+```vue
+<template>
+  <div>
+    <animation
+        ref="animationRef"
+        :actions="actionsConfig"
+        :playing="true"
+        @start="animationStart"
+        @end="animationEnd"
+        @repeat="animationRepeat"
+        @cancel="animationCancel"
+        @actionsDidUpdate="actionsDidUpdate"
+    />
+  </div>
+</template>
+<script>
+export default {
+  data() {
+    return {
+      actionsConfig: {
+        // AnimationSet
+        top: [
+          {
+            startValue: 14,
+            toValue: 8,
+            duration: 125, // Animation duration
+          },
+          {
+            startValue: 8,
+            toValue: 14,
+            duration: 250,
+            timingFunction: 'linear', // Animating interpolator types, optional: linear, ease-in, ease-out, ease-in-out, cubic-Bezier (minimum supported version 2.9.0) 
+            delay: 750, // The time at which the animation delay starts, in milliseconds
+            repeatCount: -1, // The number of repetitions of the animation, 0 for non-repetitions, -1('loop') for repetitions, and if in an array, the number of repetitions of the entire animation array is based on the value of the last animation 
+          },
+        ],
+        transform: {
+          // Single Animation
+          rotate: {
+              startValue: 0,
+              toValue: 90,
+              duration: 250,
+              timingFunction: 'linear',
+              valueType: 'deg',  // The unit type of the start and end values of the animation, which defaults to undefined and can be set to rad, deg, or color
+            },
+        },
+      },
+    };
+  },
+  methods: {
+    animationStart() {
+      console.log('animation-start callback');
+    },
+    animationEnd() {
+      console.log('animation-end callback');
+    },
+    animationRepeat() {
+      console.log('animation-repeat callback');
+    },
+    animationCancel() {
+      console.log('animation-cancel callback');
+    },
+    actionsDidUpdate() {
+      this.animationRef.start();
+    }
+  },
+};
+</script>
+```
 
-## 事件
+  > For special instructions, a new animation will be automatically created after the actions are replaced, you need to manually start the new animation. There are two methods:
+  > 
+  >* Replace the actions => After a certain delay (e.g. SetTimeout) or in `actionsDidUpdate` (supported after 2.14.0), call `this.[animation ref].start()` (recommended).
+  > * Set `playing = false`=> replace actions => delay after a certain time (such as setTimeout) or in `actionsDidUpdate` (supported after 2.14.0), set `playing = true`
+   
+  > Version `2.12.2` and the above support parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
+   
+  > Version `2.6.0` and the above support `backgroundColor` background color gradient animation, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  >
+  > * set `actions` to decorate `backgroundColor`
+  > * set `valueType` to `color`
+  > * set `startValue` and `toValue` to [color value](style/color.md)
 
-> 最低支持版本 2.5.2
+## Events
 
-| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| start              | 动画开始时触发                                                            | `Function`                                                    | `Android、iOS`    |
-| end         | 动画结束时触发                                                            | `Function`| `Android、iOS`    |
-| repeat | 每次循环播放时触发                                                            | `Function` | `Android`   |
+| start              | Called when animation starts                                  | `Function`                                                    | `Android、iOS`    |
+| end         | Called when animation ends                                   | `Function`| `Android、iOS`    |
+| repeat | Called each time the loop is played                                | `Function` | `Android`   |
 
-## 方法
+## Methods
 
-> 最低支持版本 2.5.2
+> minimum supported version 2.5.2
 
 ### start
 
-`() => void` 手动触发动画开始（`playing`属性置为`true`也会自动触发`start`函数调用）
+`() => void` Manually call the animation start (`playing` attribute set to `true` will automatically call the `start` function)
 
 ### pause
 
-`() => void` 手动触发动画暂停（`playing`属性置为`false`也会自动触发`pause`函数调用）
+`() => void` Manually call the animation to pause (`playing` attribute set to `false` will automatically call the `pause` function)
 
 ### resume
 
-`() => void` 手动触发动画继续（`playing`属性置为`false`后再置为`true`会自动触发`resume`函数调用）
+`() => void` Manually call the animation to continue (`playing` property set to `false` and then set to `true` will automatically call the `resume` function)
 
 ### create
 
-`() => void` 手动触发动画创建
+`() => void` Manually call the animation to create
 
 ### reset
 
-`() => void` 重置开始标记
+`() => void` Reset the start marker
 
 ### destroy
 
-`() => void` 销毁动画
+`() => void` Destroy the animation
 
 ---
 
 # dialog
 
-[[范例：demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
+[[Example: demo-dialog.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-dialog.vue)
 
-用于模态弹窗，默认透明背景色，需要加一个带背景色的 `<div>` 填充。
+Used for modal pop-up window, the default background is transparent, needs to add a `<div>` with background color to fill.
 
-## 参数
+## Attributes
 
-| 参数          | 描述                                                         | 类型                                      | 支持平台 |
+| Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS`    |
-| supportedOrientations | 支持屏幕翻转方向                                                       | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
-| immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                         | `boolean`                                                    | `Android`    |
-| darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS`    |
-| transparent | 背景是否是透明的。`default: true` | `boolean`                                                    | `Android、iOS`    |
+| animationType         | Animation effects                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS`    |
+| supportedOrientations | Supports screen orientation reversal                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
+| immersionStatusBar    | Whether it is an immersive status bar. `default: true`                                         | `boolean`                                                    | `Android`    |
+| darkStatusBarText     | Whether main body text is bright color, the default font color is black. The Modal background will be dark after changing it to true, the font color will be changed to white. | `boolean`                                                    | `Android、iOS`    |
+| transparent | Whether the background is transparent. `default: true` | `boolean`                                                    | `Android、iOS`    |
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| show                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS`    |
-| orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `Android、iOS`    |
-| requestClose        | 在 `Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
+| show                | This callback function is called when `Modal` is displayed.                            | `Function`                                                   | `Android、iOS`    |
+| orientationChange   | Screen rotation direction changes                                           | `Function`                                                   | `Android、iOS`    |
+| requestClose        | Called when the `Modal` requires to close, generally called in the Android system hardware when the return button is triggered, generally to close the popup window inside processing. | `Function`                                                   | `Android`    |
 
 ---
 
 # swiper
 
-[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[Example: demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
-支持翻页的容器，它的每一个子容器组件会被视作一个单独的页面，对应终端 `ViewPager`组件， 里面只能包含 `<swiper-slide>` 组件。
+A container that supports paging, its each child container component will be regarded as a separate page, corresponding the native `ViewPager` component, it can only contain `<swiper-slide>` components.
 
-## 参数
+## Attributes
 
-| 参数                     | 描述                                                         | 类型                                         | 支持平台 |
+| Props                     | Description                                                         | Type                                         | Supported Platforms |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
-| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| current              | 实时改变当前所处页码 | `number`                                     | `Android、iOS`    |
-| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `Android、iOS`    |
-| needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `Android、iOS`    |
-| scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `Android、iOS`    |
-| direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `string`                                    | `Android`    |
+| bounces | Whether to open the springback effect, the default is `true` | `boolean`                                                  | `iOS`    |
+| current              | Change the current page number in real time | `number`                                     | `Android、iOS`    |
+| initialPage              | Specify a number, it will be used to determine the default display page index after initialization, the default is 0 when it is not specified | `number`                                     | `Android、iOS`    |
+| needAnimation            | Whether animation is required when switching pages.                    | `boolean`                                    | `Android、iOS`    |
+| scrollEnabled            | Specify whether ViewPager can slide, the default is true                        | `boolean`                                    | `Android、iOS`    |
+| direction            | Set viewPager scroll direction, the default is horizontal scroll, use `vertical` for vertical scroll                       | `string`                                    | `Android`    |
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| dragging                | 拖动时触发。                            | `Function`                                                   | `Android、iOS`    |
-| dropped   | 拖拽松手时触发，就是确定了滚动的页面时触发。                                                            | `Function`                                                   | `Android、iOS`    |
-| stateChanged*   | 手指行为发生改变时触发，包含了 idle、dragging、settling 三种状态，通过 state 参数返回                                                             | `Function`                                                   | `Android、iOS`    |
+| dragging                | Called when dragged.                            | `Function`                                                   | `Android、iOS`    |
+| dropped   | Called when the drag is done. Called when a scrolling page action is detected.                                            | `Function`                                                   | `Android、iOS`    |
+| stateChanged*   | Called when finger behavior changes, including idle, dragging and settling states, returned through state parameter                       | `Function`                                                   | `Android、iOS`    |
 
-* stateChanged 三种值的意思：
-  * idle 空闲状态
-  * dragging 拖拽中
-  * settling 松手后触发，然后马上回到 idle
+* stateChanged The meaning of the three values:
+  * idle idle state
+  * dragging Dragging
+  * settling Called after releasing the hand, and then return to idle immediately
 
 ---
 
 # swiper-slide
 
-[[范例：demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
+[[Example: demo-swiper.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-swiper.vue)
 
-翻页子容器组件容器。
+Subcontainer of the flipping component container.
 
 ---
 
 # pull-header
 
-[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+[[Example: demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
 
-下拉刷新组件，嵌套在 `ul` 中作为第一个子元素使用
+Dropdown refresh component, nested in `ul` as first child element
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS`    |
-| pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `Android、iOS`    |
-| released   | 滑动超出距离，松手后触发一次          | `Function`   | `Android、iOS`    |
+| idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset            | `Function`                                                   | `Android、iOS`    |
+| pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset                                         | `Function`   | `Android、iOS`    |
+| released   | Called once after the sliding beyond the distance.         | `Function`   | `Android、iOS`    |
 
-## 方法
+## Methods
 
 ### collapsePullHeader
 
-`() => void` 收起顶部刷新条 `<pull-header>`。当使用了`pull-header`后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
+`(otions: { time: number }) => void` collapse the top refresh bar `<pull-header>`. When using the `pull-header`, you need to call the method to take back the pull-header after each pull-down refresh ends.
+
+> options parameter，`minimum supported version 2.14.0`
+>
+>* time: number: specify how much delay collapsing the pull-header, the unit is ms.
 
 ---
 
 # pull-footer
 
-[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+[[Example: demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
 
-上拉刷新组件，嵌套在 `ul` 中作为最后一个子元素使用
+Pull-up refresh component, nested in `ul` as last child element
 
-## 事件
+## Events
 
-| 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
+| Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS`    |
-| pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `Android、iOS`    |
-| released   | 滑动超出距离松手后触发一次          | `Function`   | `Android、iOS`    |
+| idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset                           | `Function`                                                   | `Android、iOS`    |
+| pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset     | `Function`   | `Android、iOS`    |
+| refresh   | Called once after the sliding beyond the distance.          | `Function`   | `Android、iOS`    |
 
-## 方法
+
+## Methods
 
 ### collapsePullFooter
 
-`() => void` 收起底部刷新条 `<pull-footer>`。
+`() => void` Collapse the bottom refresh bar `<pull-footer>`.
 
 ---
 
 # waterfall
 
-> 最低支持版本 2.9.0
+> minimum supported version 2.9.0
 
-[[范例：demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
+[[Example: demo-waterfall]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-waterfall.vue)
 
-瀑布流组件，子元素必须是 `waterfall-item` ，瀑布流组件下拉刷新需在最外层用`ul-refresh-wrapper`， 可在`waterfall` 内用 `pull-footer` 展示上拉加载文案。
+Waterfall flow component, the child element must be `waterfall-item`, waterfall flow component drop-down needs to use `ul-refresh-wrapper` in the outermost layer when refresh, you can use `pull-footer` in the `waterfall` to show the pull-up loading text.
 
-## 参数
+## Attributes
 
-| 参数              | 描述                                                  | 类型       | 支持平台 |
+| Props              | Description                                                  | Type       | Supported Platforms |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
-| columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `Android、iOS`    |
-| interItemSpacing  | item 间的垂直间距                                        | `number`   | `Android、iOS`    |
-| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`    |
-| containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS`    |
-| containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS`    |
-| containPullFooter | 是否包含 `pull-footer` | `boolean`  | `Android、iOS` |
-| numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `Android、iOS`    |
-| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `Android、iOS`    |
+| columnSpacing     | Horizontal spacing before each column of waterfall                                      | `number`   | `Android、iOS`    |
+| interItemSpacing  | Vertical space between items                                        | `number`   | `Android、iOS`    |
+| contentInset      | Content indentation, default `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`    |
+| containBannerView | Whether to include `bannerView`, there can be only one bannerView, `Android` is not supported  | `boolean`  | `iOS`    |
+| containPullHeader | Whether to include `pull-header`; `Android` is not supported, can use `ul-refresh` component instead  | `boolean`  | `iOS`    |
+| containPullFooter | Whether to include `pull-footer` | `boolean`  | `Android、iOS` |
+| numberOfColumns   | Number of waterfall columns, Default: 2                                               | `number`   | `Android、iOS`    |
+| preloadItemNumber | Number of items preloaded in advance before sliding to the bottom of waterfall       | `number`   | `Android、iOS`    |
 
-## 事件
+## Events
 
-| 事件名称              | 描述           | `类型`     | 支持平台 |
+| Event name              | Description           | `type`     | Supported Platforms |
 | --------------------- | -------------- | ---------- | -------- |
-| endReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                           | `Function` | `Android、iOS`    |
-| scroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS`    |
+| endReached      | When all the data has been rendered, and the list is scrolled to the last one, `onEndReached` will be called.            | `Function` | `Android、iOS`    |
+| scroll          | Called when the sliding event of `WaterFall` is called. `startEdgePos` is that scroll offset from the top edge of the List; `endEdgePos` is the scroll offset from the bottom edge of the List; `firstVisibleRowIndex` is the index of the first element in the currently visible area; `lastVisibleRowIndex` is the index of the last element in the currently visible area; `visibleRowFrames` is the information (x, y, width, height) of all items in the currently visible area    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS`    |
 
-## 方法
+## Methods
 
 ### scrollToIndex
 
-`(obj: { index: number, animated: boolean }) => void` 通知 Waterfall 滑动到第几个 item。
+`(obj: { index: number, animated: boolean }) => void` Notifies which item the Waterfall will slide to.
 
-> * `index`: number - 滑动到的第 index 个 item
-> * `animated`: boolean - 滑动过程是否使用动画, 默认 `true`
+> * `index`: number - the index of the item slides to
+> * `animated`: boolean - Whether the sliding process uses animation, default is `true`
 
 ### scrollToContentOffset
 
-`(obj: { xOffset: number, yOffset: number, animated: boolean }) => void` 通知 Waterfall 滑动到某个具体坐标偏移值(offset)的位置。
+`(obj: { xOffset: number, yOffset: number, animated: boolean }) => void` Tells the Waterfall to slide to a specific coordinate offset.
 
-> * `xOffset`: number - 滑动到 X 方向的 offset
-> * `yOffset`: number - 滑动到 Y 方向的 offset
-> * `animated`: boolean - 滑动过程是否使用动画，默认 `true`
+> * `xOffset`: number - offset of the slide in X direction
+> * `yOffset`: number - offset of the slide in Y direction
+> * `animated`: boolean - Whether the sliding process uses animation, default is `true`
 
 ---
 
 # waterfall-item
 
-> 最低支持版本 2.9.0
+> minimum supported version 2.9.0
 
-瀑布流组件 Cell 容器，瀑布流子元素
+Cell container of the waterfall component, waterfall child element
 
-| 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
+| Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
+| type            | Specify a function, in which the type of the corresponding entry is returned (returns the natural number of the Number type, the default is 0), the List will reuse the same type of entry, so the reasonable type split can improve the performance of the List. | `number`              | `Android、iOS`    |
+| key             | Specifies a function that returns the Key value of the corresponding entry, as described in [Vue official documentation](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |

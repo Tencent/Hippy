@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
+    borderStyle: 'solid',
     borderColor: '#4c9afa',
   },
   squareRipple: {
@@ -49,6 +50,7 @@ const styles = StyleSheet.create({
     width: 150,
     height: 150,
     borderWidth: 5,
+    borderStyle: 'solid',
     backgroundSize: 'cover',
     borderColor: '#4c9afa',
     backgroundImage: imageUrl,

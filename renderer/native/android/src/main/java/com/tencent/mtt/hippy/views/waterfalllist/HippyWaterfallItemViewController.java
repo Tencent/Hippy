@@ -50,11 +50,9 @@ public class HippyWaterfallItemViewController extends
   }
 
   @Override
-  public RenderNode createRenderNode(int id, @Nullable Map<String, Object> props,
-          @NonNull String className, @NonNull ViewGroup hippyRootView,
-          @NonNull ControllerManager controllerManager, boolean lazy) {
-    return new HippyWaterfallItemRenderNode(id, props, className, hippyRootView,
-      controllerManager, lazy);
+  public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+          @NonNull String className, @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
+    return new HippyWaterfallItemRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
   }
 
   @Override
