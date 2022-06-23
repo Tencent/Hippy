@@ -341,14 +341,16 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     },
   };
 
+  const defaultDistanceToRefresh = 50;
+  const refreshDistanceScreenYOffset = 1;
+
   if (isShowPullHeader.current) {
     listViewProps.pullToRefresh = <MPullToRefresh
       direction='down'
       refreshing={refreshing}
       onRefresh={refresh}
       indicator={pullIndicator}
-      // rmc-list-view pulling down height = distanceToRefresh + 1
-      distanceToRefresh={pullHeaderHeight.current - 1 || 50}
+      distanceToRefresh={pullHeaderHeight.current - refreshDistanceScreenYOffset || defaultDistanceToRefresh}
     />;
   }
 

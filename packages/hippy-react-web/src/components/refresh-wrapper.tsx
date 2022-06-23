@@ -113,6 +113,8 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       setRefreshing(true);
     }
   };
+  const defaultDistanceToRefresh = 50;
+  const refreshDistanceScreenYOffset = 1;
 
   // @ts-ignore
   const newChildren = React.cloneElement(children, {
@@ -121,8 +123,7 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       refreshing={refreshing}
       onRefresh={handleOnRefresh}
       indicator={pullIndicator}
-      // rmc-list-view pulling down height = distanceToRefresh + 1
-      distanceToRefresh={pullHeaderHeight.current - 1 || 50}
+      distanceToRefresh={pullHeaderHeight.current - refreshDistanceScreenYOffset || defaultDistanceToRefresh}
     />,
   });
 
