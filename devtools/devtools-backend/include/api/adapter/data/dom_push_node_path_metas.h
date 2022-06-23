@@ -29,10 +29,12 @@ class DomPushNodePathMetas : public Serializable {
  public:
   inline void SetHitNodeId(uint32_t hit_node_id) { hit_node_id_ = hit_node_id; }
   inline void AddRelationNodeId(uint32_t id) { relation_nodes_.emplace_back(id); }
+  inline uint32_t GetNodeId() const { return hit_node_id_; }
+  inline std::vector<int32_t> GetRelationTreeIds() const { return relation_nodes_; }
   std::string Serialize() const override;
 
  private:
   uint32_t hit_node_id_;
-  std::vector<uint32_t> relation_nodes_;
+  std::vector<int32_t> relation_nodes_;
 };
 }  // namespace hippy::devtools

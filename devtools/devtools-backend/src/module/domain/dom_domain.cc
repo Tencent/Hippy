@@ -32,9 +32,6 @@
 
 namespace hippy::devtools {
 
-constexpr char kHitNodeId[] = "hitNodeId";
-constexpr char kRelationNodes[] = "relationNodes";
-
 // params key
 constexpr char kParamsHitNodeRelationTree[] = "hitNodeRelationTree";
 
@@ -110,17 +107,8 @@ void DomDomain::RegisterCallback() {
     auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
     if (dom_tree_adapter) {
       auto push_node_call_back = [callback](const DomPushNodePathMetas& data) {
-        nlohmann::json result_data = nlohmann::json::parse(data.Serialize(), nullptr, false);
-        auto hit_node_id = result_data[kHitNodeId];
-        std::vector<int32_t> relation_nodes;
-        if (result_data.find(kRelationNodes) != result_data.end()) {
-          auto nodes = result_data[kRelationNodes];
-          for (auto node_id : nodes) {
-            relation_nodes.emplace_back(node_id);
-          }
-        }
         if (callback) {
-          callback(hit_node_id, relation_nodes);
+          callback(static_cast<int32_t>(data.GetNodeId()), data.GetRelationTreeIds());
         }
       };
       dom_tree_adapter->GetPushNodeByPath(path, push_node_call_back);
@@ -223,7 +211,7 @@ void DomDomain::SetInspectedNode(const BaseRequest& request) {
 void DomDomain::PushNodesByBackendIdsToFrontend(DomPushNodesRequest& request) {
   if (request.GetBackendIds().empty()) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams,
-                            "DOMDomain, pushNodesByBackendIdsToFrontend, without backendNodeIds");
+                            "DOMDomain, PushNodesByBackendIdsToFrontend, without backend ids");
     return;
   }
   std::vector<int32_t> node_ids;
@@ -235,15 +223,15 @@ void DomDomain::PushNodesByBackendIdsToFrontend(DomPushNodesRequest& request) {
   }
   if (node_ids.empty()) {
     ResponseErrorToFrontend(request.GetId(), kErrorFailCode,
-                            "DOMDomain, pushNodesByBackendIdsToFrontend, nodeIds is invalid");
+                            "DOMDomain, PushNodesByBackendIdsToFrontend, nodeIds is invalid");
     return;
   }
-  ResponseResultToFrontend(request.GetId(), DomModel::BuildPushNodeIdsJson(node_ids).dump());
+  ResponseResultToFrontend(request.GetId(), DomModel::BuildPushNodeIds(node_ids).dump());
 }
 
 void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
   if (request.GetNodePath().empty()) {
-    ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, pushNodeByPathToFrontend, without node path");
+    ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, PushNodesByBackendIdsToFrontend, without node path");
     return;
   }
   auto path_string = request.GetNodePath();
@@ -261,22 +249,22 @@ void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     auto temp_relation_nodes = relation_nodes;
     std::vector<int32_t> no_need_replenish_nodes;
-    for (int32_t node_id : temp_relation_nodes) {
+    for (auto node_id : temp_relation_nodes) {
       if (self->element_node_children_count_cache_.find(node_id) == self->element_node_children_count_cache_.end()) {
         continue;
       }
       no_need_replenish_nodes.emplace_back(node_id);
     }
     if (no_need_replenish_nodes.size() == temp_relation_nodes.size()) {
-      self->ResponseResultToFrontend(request.GetId(), DomModel::BuildPushNodeByPathJson(hit_node_id).dump());
+      self->ResponseResultToFrontend(request.GetId(),
+                                     DomModel::BuildPushHitNode(hit_node_id).dump());
     } else {
       auto depth = static_cast<unsigned int>(temp_relation_nodes.size() - no_need_replenish_nodes.size() + 1);
       self->dom_data_call_back_(no_need_replenish_nodes[no_need_replenish_nodes.size() - 1], false, depth,
                                 [self, request, hit_node_id](DomModel model) {
                                   self->SetChildNodesEvent(model);
                                   self->CacheEntireDocumentTree(model);
-                                  self->ResponseResultToFrontend(request.GetId(),
-                                                                 DomModel::BuildPushNodeByPathJson(hit_node_id).dump());
+                                  self->ResponseResultToFrontend(request.GetId(), DomModel::BuildPushHitNode(hit_node_id).dump());
                                 });
     }
   });

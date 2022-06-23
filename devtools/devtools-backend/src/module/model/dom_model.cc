@@ -142,7 +142,7 @@ nlohmann::json DomModel::BuildChildNodesJson() {
   return node_json;
 }
 
-nlohmann::json DomModel::BuildPushNodeIdsJson(std::vector<int32_t>& node_ids) {
+nlohmann::json DomModel::BuildPushNodeIds(std::vector<int32_t>& node_ids) {
   if (node_ids.empty()) {
     return nlohmann::json::object();
   }
@@ -151,7 +151,7 @@ nlohmann::json DomModel::BuildPushNodeIdsJson(std::vector<int32_t>& node_ids) {
   return result;
 }
 
-nlohmann::json DomModel::BuildPushNodeByPathJson(int32_t hit_node_id) {
+nlohmann::json DomModel::BuildPushHitNode(int32_t hit_node_id) {
   auto result = nlohmann::json::object();
   result[kNodeId] = hit_node_id;
   return result;
