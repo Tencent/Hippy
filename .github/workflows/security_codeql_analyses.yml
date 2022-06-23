@@ -68,7 +68,7 @@ jobs:
           }
 
           if (!has_hit && "${{ matrix.language }}" === "typescript") { // Default Run
-            console.log("::set-output name=language::${{ matrix.language }}");
+            console.log("::set-output name=default-run::1");
           }
     - name: Checkout repository
       if: steps.detect_languages.outputs.language
@@ -98,3 +98,15 @@ jobs:
     - name: Perform CodeQL Analysis
       if: steps.detect_languages.outputs.language
       uses: github/codeql-action/analyze@v2
+    - name: Generate fake SARIF
+      if: steps.detect_languages.outputs.default-run
+      run:
+        echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"CodeQL"}},"results":[]}]}' > ./fake.sarif
+      # The following step will output a lot of errors(like `The process '/usr/bin/git' failed with exit code 128`),
+      # don't worry it's NORMAL because we don't checkout repository.
+    - name: Upload fake SARIF
+      if: steps.detect_languages.outputs.default-run
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ./fake.sarif
+        category: fake_results_do_not_care
