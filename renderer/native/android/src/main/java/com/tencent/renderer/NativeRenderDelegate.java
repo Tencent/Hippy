@@ -38,8 +38,6 @@ public interface NativeRenderDelegate extends RenderExceptionHandler {
     void callUIFunction(int rootId, int id, long callbackId, String functionName,
             @NonNull List<Object> eventList) throws NativeRenderException;
 
-    void measureInWindow(int rootId, int id, long callbackId);
-
     long measure(int rootId, int id, float width, int widthMode, float height, int heightMode);
 
     void endBatch(int rootId) throws NativeRenderException;

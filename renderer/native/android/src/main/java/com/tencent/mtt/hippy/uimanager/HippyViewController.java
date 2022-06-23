@@ -33,18 +33,22 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.utils.DevtoolsUtil;
+import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
+import com.tencent.mtt.hippy.views.image.HippyImageView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
 import com.tencent.renderer.component.text.VirtualNode;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +57,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         View.OnFocusChangeListener {
 
     private static final String TAG = "HippyViewController";
+    private static final String MEASURE_IN_WINDOW = "measureInWindow";
+    private static final String BORDER_STYLE_NONE = "none";
+    private static final String BORDER_STYLE_SOLID = "solid";
+    private static final String BORDER_STYLE_DOTTED = "dotted";
+    private static final String BORDER_STYLE_DASHED = "dashed";
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
     private boolean bUserChangeFocus = false;
@@ -168,7 +177,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-
     @HippyControllerProps(name = NodeProps.BORDER_TOP_LEFT_RADIUS, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setTopLeftBorderRadius(T view, float topLeftBorderRadius) {
         if (view instanceof CommonBorder) {
@@ -206,6 +214,32 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         if (view instanceof CommonBorder) {
             ((CommonBorder) view)
                     .setBorderWidth(borderWidth, CommonBorder.BorderWidthDirection.ALL.ordinal());
+        }
+    }
+
+    @HippyControllerProps(name = NodeProps.BORDER_STYLES, defaultType = HippyControllerProps.STRING)
+    public void setBorderStyle(T view, String style) {
+        if (TextUtils.isEmpty(style)) {
+            return;
+        }
+        BorderStyle borderStyle;
+        switch (style) {
+            case BORDER_STYLE_NONE:
+                borderStyle = BorderStyle.NONE;
+                break;
+            case BORDER_STYLE_DOTTED:
+                borderStyle = BorderStyle.DOTTED;
+                break;
+            case BORDER_STYLE_DASHED:
+                borderStyle = BorderStyle.DASHED;
+                break;
+            case BORDER_STYLE_SOLID:
+                // fall through
+            default:
+                borderStyle = BorderStyle.SOLID;
+        }
+        if (view instanceof CommonBorder) {
+            ((CommonBorder) view).setBorderStyle(borderStyle);
         }
     }
 
@@ -369,7 +403,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-
     @HippyControllerProps(name = NodeProps.BORDER_TOP_WIDTH, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setTopBorderWidth(T view, float borderTopWidth) {
         if (view instanceof CommonBorder) {
@@ -397,7 +430,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-    @HippyControllerProps(name = NodeProps.BORDER_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
+    @HippyControllerProps(name = NodeProps.BORDER_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
     public void setBorderColor(T view, int borderColor) {
         if (view instanceof CommonBorder) {
             ((CommonBorder) view)
@@ -405,7 +438,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-    @HippyControllerProps(name = NodeProps.BORDER_LEFT_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
+    @HippyControllerProps(name = NodeProps.BORDER_LEFT_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
     public void setBorderLeftColor(T view, int borderLeftColor) {
         if (view instanceof CommonBorder) {
             ((CommonBorder) view)
@@ -415,7 +448,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
 
-    @HippyControllerProps(name = NodeProps.BORDER_TOP_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
+    @HippyControllerProps(name = NodeProps.BORDER_TOP_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
     public void setBorderTopWidth(T view, int borderTopColor) {
         if (view instanceof CommonBorder) {
             ((CommonBorder) view)
@@ -424,7 +457,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-    @HippyControllerProps(name = NodeProps.BORDER_RIGHT_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
+    @HippyControllerProps(name = NodeProps.BORDER_RIGHT_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
     public void setBorderRightWidth(T view, int borderRightColor) {
         if (view instanceof CommonBorder) {
             ((CommonBorder) view)
@@ -434,7 +467,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
 
-    @HippyControllerProps(name = NodeProps.BORDER_BOTTOM_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
+    @HippyControllerProps(name = NodeProps.BORDER_BOTTOM_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.BLACK)
     public void setBorderBottomWidth(T view, int borderBottomColor) {
         if (view instanceof CommonBorder) {
             ((CommonBorder) view)
@@ -620,6 +653,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             case DevtoolsUtil.REMOVE_FRAME_CALLBACK:
                 DevtoolsUtil.removeFrameCallback(params, view, promise);
                 break;
+            case MEASURE_IN_WINDOW:
+                measureInWindow(view, promise);
+                break;
             default:
                 break;
         }
@@ -690,5 +726,35 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             //file:sdcard/hippy/feeds/index.android.jsbundle
         }
         return path;
+    }
+
+    private void measureInWindow(@NonNull View view, @NonNull Promise promise) {
+        int[] outputBuffer = new int[2];
+        int statusBarHeight;
+        try {
+            view.getLocationOnScreen(outputBuffer);
+            // We need to remove the status bar from the height.  getLocationOnScreen will include the
+            // status bar.
+            statusBarHeight = DimensionsUtil.getStatusBarHeight();
+            if (statusBarHeight > 0) {
+                outputBuffer[1] -= statusBarHeight;
+            }
+        } catch (Exception e) {
+            promise.reject(
+                    "An exception occurred when get view location on screen: " + e.getMessage());
+            return;
+        }
+        LogUtils.d(TAG, "measureInWindow: x=" + outputBuffer[0]
+                + ", y=" + outputBuffer[1]
+                + ", width=" + view.getWidth()
+                + ", height=" + view.getHeight()
+                + ", statusBarHeight=" + statusBarHeight);
+        Map<String, Object> result = new HashMap<>();
+        result.put("x", PixelUtil.px2dp(outputBuffer[0]));
+        result.put("y", PixelUtil.px2dp(outputBuffer[1]));
+        result.put("width", PixelUtil.px2dp(view.getWidth()));
+        result.put("height", PixelUtil.px2dp(view.getHeight()));
+        result.put("statusBarHeight", PixelUtil.px2dp(statusBarHeight));
+        promise.resolve(result);
     }
 }

@@ -1,5 +1,7 @@
 package com.tencent.mtt.supportui.views;
 
+import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
+
 public interface IBorder
 {
 	void setBorderRadius(float radius, int position);
@@ -8,5 +10,5 @@ public interface IBorder
 
 	void setBorderColor(int color, int position);
 
-	void setBorderStyle(int style);
+	void setBorderStyle(BorderStyle style);
 }

@@ -216,23 +216,6 @@ public class NativeRenderProvider {
     }
 
     /**
-     * Call from native (C++) render manager to measure view location and size in window
-     *
-     * @param rootId the root node id
-     * @param nodeId the target node id
-     * @param callbackId the callback id identifies the caller
-     */
-    @CalledByNative
-    @SuppressWarnings("unused")
-    private void measureInWindow(int rootId, int nodeId, long callbackId) {
-        try {
-            mRenderDelegate.measureInWindow(rootId, nodeId, callbackId);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
-        }
-    }
-
-    /**
      * Call from native (C++) render manager to measure text width and height
      *
      * @param rootId the root node id

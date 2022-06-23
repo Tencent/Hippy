@@ -199,6 +199,8 @@ class Ctx {
 
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) = 0;
 
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
+
   // Array Helpers
   virtual bool IsArray(const std::shared_ptr<CtxValue>& value) = 0;
   virtual uint32_t GetArrayLength(const std::shared_ptr<CtxValue>& value) = 0;

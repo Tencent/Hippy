@@ -40,6 +40,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
+import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
 import com.tencent.renderer.component.text.TextForegroundColorSpan;
 import com.tencent.renderer.component.text.TextGestureSpan;
 
@@ -158,7 +159,7 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
     }
 
     @Override
-    public void setBorderStyle(int borderStyle) {
+    public void setBorderStyle(BorderStyle borderStyle) {
         getBackGround().setBorderStyle(borderStyle);
     }
 

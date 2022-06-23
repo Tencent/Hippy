@@ -275,13 +275,4 @@ public class RenderManager {
     public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {
         mControllerManager.postInvalidateDelayed(rootId, id, delayMilliseconds);
     }
-
-    public void measureInWindow(int rootId, int id, Promise promise) {
-        RenderNode node = getRenderNode(rootId, id);
-        if (node == null) {
-            promise.reject("Accessing node that do not exist!");
-        } else {
-            node.measureInWindow(promise);
-        }
-    }
 }

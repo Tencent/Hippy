@@ -1,6 +1,7 @@
 package com.tencent.mtt.hippy.example;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
@@ -65,8 +66,12 @@ public class MyActivity extends Activity
 
 				// Native代码执行异常：包括sdk和业务定制代码
 				@Override
-				public void handleNativeException(Exception exception, boolean haveCaught) {
-					LogUtils.e("hippy", exception.getMessage());
+				public void handleNativeException(Exception e, boolean haveCaught) {
+					e.printStackTrace();
+					new AlertDialog.Builder(MyActivity.this).setTitle("Native Exception: ")
+							.setMessage(e.getMessage())
+							.setPositiveButton("Close", null)
+							.show();
 				}
 
 				// JavaScript代码Trace，业务层一般不需要

@@ -86,25 +86,26 @@ const EventDispatcher = {
   /**
    * Receive native interactive events.
    */
-  receiveNativeGesture(nativeEvent) {
+  receiveNativeGesture(nativeEvent, domEvent) {
     trace(...componentName, 'receiveNativeGesture', nativeEvent);
     if (!nativeEvent) {
       return;
     }
-    const { id: targetNodeId, name: eventName } = nativeEvent;
-    const targetNode = getNodeById(targetNodeId);
-    if (!targetNode) {
+    const { id, currentId, name } = nativeEvent;
+    const currentTargetNode = getNodeById(currentId);
+    const targetNode = getNodeById(id);
+    if (!currentTargetNode || !targetNode) {
       return;
     }
-    const targetEventName = getVueEventName(eventName, targetNode);
-    const targetEvent = new Event(targetEventName);
-    const { processEventData } = targetNode._meta.component;
+    const eventName = getVueEventName(name, currentTargetNode);
+    const targetEvent = new Event(eventName);
+    const { processEventData } = currentTargetNode._meta.component;
     if (processEventData) {
-      processEventData(targetEvent, eventName, nativeEvent);
+      processEventData(targetEvent, name, nativeEvent);
     }
-    targetNode.dispatchEvent(targetEvent);
-    if (SpecialTouchHandler.isTouchEvent(eventName)) {
-      targetNode.dispatchEvent(SpecialTouchHandler.convertTouchEvent(eventName, nativeEvent));
+    currentTargetNode.dispatchEvent(targetEvent, targetNode, domEvent);
+    if (SpecialTouchHandler.isTouchEvent(name)) {
+      currentTargetNode.dispatchEvent(SpecialTouchHandler.convertTouchEvent(name, nativeEvent), targetNode, domEvent);
     }
   },
   /**
@@ -140,7 +141,7 @@ const EventDispatcher = {
         processEventData(targetEvent, eventName, params);
       }
     }
-    targetNode.dispatchEvent(targetEvent);
+    targetNode.dispatchEvent(targetEvent, targetNode);
   },
 };
 

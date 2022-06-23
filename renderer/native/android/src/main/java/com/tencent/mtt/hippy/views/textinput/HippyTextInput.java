@@ -56,6 +56,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
 import com.tencent.renderer.utils.EventUtils;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -88,11 +89,12 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         mDefaultGravityHorizontal =
                 getGravity() & (Gravity.HORIZONTAL_GRAVITY_MASK
                         | Gravity.RELATIVE_HORIZONTAL_GRAVITY_MASK);
-        mDefaultGravityVertical = getGravity() & Gravity.VERTICAL_GRAVITY_MASK;
+        mDefaultGravityVertical = Gravity.CENTER_VERTICAL;
         // 临时规避一下EditTextView重设hint不生效的问题
         setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         setPadding(0, 0, 0, 0);
+        setGravityVertical(Gravity.CENTER_VERTICAL);
     }
 
     @Override
@@ -483,7 +485,7 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
     }
 
     @Override
-    public void setBorderStyle(int borderStyle) {
+    public void setBorderStyle(BorderStyle borderStyle) {
     }
 
     @Override

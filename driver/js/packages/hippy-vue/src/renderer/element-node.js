@@ -208,10 +208,10 @@ function createEventListener(name) {
         id, name, currentId,
       };
       Object.assign(dispatcherEvent, params);
-      EventDispatcher.receiveNativeGesture(dispatcherEvent);
+      EventDispatcher.receiveNativeGesture(dispatcherEvent, event);
     } else {
-      const dispatcherEvent = [id, name, params];
-      EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
+      const dispatcherEvent = [currentId, name, params];
+      EventDispatcher.receiveUIComponentEvent(dispatcherEvent, event);
     }
   };
 }
@@ -568,7 +568,7 @@ class ElementNode extends ViewNode {
     return observer;
   }
 
-  dispatchEvent(eventInstance) {
+  dispatchEvent(eventInstance, targetNode, domEvent) {
     if (!(eventInstance instanceof Event)) {
       throw new Error('dispatchEvent method only accept Event instance');
     }
@@ -578,7 +578,7 @@ class ElementNode extends ViewNode {
     // Be careful, here's different than Browser,
     // because Hippy can't callback without element _emitter.
     if (!eventInstance.target) {
-      eventInstance.target = this;
+      eventInstance.target = targetNode;
       // IMPORTANT: It's important for vnode diff and directive trigger.
       if (typeof eventInstance.value === 'string') {
         eventInstance.target.value = eventInstance.value;
@@ -587,8 +587,8 @@ class ElementNode extends ViewNode {
     if (this._emitter) {
       this._emitter.emit(eventInstance);
     }
-    if (this.parentNode && eventInstance.bubbles) {
-      this.parentNode.dispatchEvent.call(this.parentNode, eventInstance);
+    if (!eventInstance.bubbles && domEvent) {
+      domEvent.stopPropagation();
     }
   }
 
