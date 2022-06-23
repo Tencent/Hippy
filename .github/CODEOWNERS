@@ -11,36 +11,38 @@
 * @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
 
 *.js @zoomchan-cxj
+*.ts @zoomchan-cxj
 *.java @siguangli @medns
 *.cc @churchill-zhang @medns @ilikethese
 *.h @ozonelmy
 *.m @ozonelmy
 *.mm @ozonelmy
+CMakeLists.txt @medns
 
 # ci, build & doc related
 /.github/ @zoomchan-cxj @medns
-/.gitattributes @zoomchan-cxj @medns
-/.husky/ @zoomchan-cxj @medns
+/.gitattributes @zoomchan-cxj
+/.husky/ @zoomchan-cxj
 /docker/ @medns
 /buildconfig/ @medns
 /docker/ @medns
 /.editorconfig @zoomchan-cxj
-/.gitignore @zoomchan-cxj @medns
-/.markdownlintrc.json @zoomchan-cxj @medns
-/docs/ @zoomchan-cxj @medns
+/.gitignore @zoomchan-cxj
+/.markdownlintrc.json @zoomchan-cxj
+/docs/ @zoomchan-cxj
 
 # dom related
 /dom/ @churchill-zhang @ilikethese @medns
 
 # js core related
-/driver/js/core/ @churchill-zhang @ilikethese @zoomchan-cxj
-/driver/js/core/js/ @zoomchan-cxj @churchill-zhang
+/driver/js/core/ @churchill-zhang @ilikethese
+/driver/js/core/js/ @zoomchan-cxj
 
 # examples related
-/driver/js/examples/android-demo/ @siguangli @zoomchan-cxj
-/driver/js/examples/android-demo/res/ @zoomchan-cxj @siguangli
-/driver/js/examples/ios-demo/ @ozonelmy @zoomchan-cxj
-/driver/js/examples/ios-demo/res/ @zoomchan-cxj @ozonelmy
+/driver/js/examples/android-demo/ @siguangli
+/driver/js/examples/android-demo/res/ @zoomchan-cxj
+/driver/js/examples/ios-demo/ @ozonelmy
+/driver/js/examples/ios-demo/res/ @zoomchan-cxj
 /driver/js/examples/hippy-react-demo/ @zoomchan-cxj
 /driver/js/examples/hippy-vue-demo/ @zoomchan-cxj
 
@@ -60,25 +62,26 @@
 /layout/ @ilikethese @churchill-zhang
 
 # android related
-/driver/js/android/ @siguangli @churchill-zhang @medns
-/renderer/native/android/ @siguangli @churchill-zhang @medns
-/modules/android/ @siguangli @churchill-zhang @medns
-/gradle/ @siguangli @churchill-zhang @medns
-/gradle.properties @siguangli @churchill-zhang @medns
-/gradlew @siguangli @churchill-zhang @medns
-/gradlew.bat @siguangli @churchill-zhang @medns
-/build.gradle @siguangli @churchill-zhang @medns
-/setting.gradle @siguangli @churchill-zhang @medns
+/driver/js/android/ @siguangli
+/renderer/native/android/ @siguangli
+/modules/android/ @siguangli
+/gradle/ @siguangli
+/gradle.properties @siguangli
+/gradlew @siguangli
+/gradlew.bat @siguangli
+/build.gradle @siguangli
+/setting.gradle @siguangli
 
 # ios related
-/driver/js/ios/ @ozonelmy @churchill-zhang
-/renderer/native/ios/ @ozonelmy @churchill-zhang
-/modules/ios/ @ozonelmy @churchill-zhang
-/hippy.podspec @ozonelmy @churchill-zhang
+/driver/js/ios/ @ozonelmy
+/renderer/native/ios/ @ozonelmy
+/modules/ios/ @ozonelmy
+/hippy.podspec @ozonelmy
 
 # flutter related
 /renderer/flutter/ @lvfen @battleAgain
 /driver/js/flutter/ @lvfen @battleAgain
+/driver/js/flutter/example/jsbundle/
 
 # devtools related
 /devtools/ @churchill-zhang @medns
