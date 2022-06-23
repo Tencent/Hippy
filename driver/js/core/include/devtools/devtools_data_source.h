@@ -64,6 +64,8 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
 #endif
 
  private:
+  void AddRootNodeListener(std::weak_ptr<RootNode> weak_root_node);
+  void RemoveRootNodeListener(std::weak_ptr<RootNode> weak_root_node);
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   void SendVmData(v8_inspector::StringView string_view);
 #endif

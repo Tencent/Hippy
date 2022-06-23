@@ -22,6 +22,7 @@
 #include "devtools/devtools_data_source.h"
 
 #include <utility>
+#include <devtools/devtools_utils.h>
 
 #include "devtools/adapter/hippy_dom_tree_adapter.h"
 #include "devtools/adapter/hippy_screen_adapter.h"
@@ -29,6 +30,7 @@
 #include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "devtools_base/common/macros.h"
 #include "dom/dom_manager.h"
+#include "devtools/devtools_utils.h"
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "core/base/string_view_utils.h"
@@ -62,11 +64,12 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
-  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
-  auto root_node = hippy_dom_->root_node.lock();
-  if (dom_manager && root_node) {
-    dom_manager->RemoveEventListener(hippy_dom_->root_node, root_node->GetId(), kDomTreeUpdated, listener_id_);
-  }
+
+  std::function func = [DEVTOOLS_WEAK_THIS] {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+    self->RemoveRootNodeListener(self->hippy_dom_->root_node);
+  };
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
 }
 
 void DevtoolsDataSource::SetRuntimeDebugMode(bool debug_mode) {
@@ -86,14 +89,32 @@ void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHan
 void DevtoolsDataSource::SetRootNode(std::weak_ptr<RootNode> weak_root_node) {
   hippy_dom_->root_node = weak_root_node;
 
-  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  std::function func = [weak_root_node, DEVTOOLS_WEAK_THIS] {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+    self->AddRootNodeListener(weak_root_node);
+  };
+  DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
+}
+
+void DevtoolsDataSource::AddRootNodeListener(std::weak_ptr<RootNode> weak_root_node) {
   listener_id_ = hippy::dom::FetchListenerId();
+  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
   auto root_node = weak_root_node.lock();
-  dom_manager->AddEventListener(weak_root_node, root_node->GetId(), kDomTreeUpdated,
-                                listener_id_, true, [DEVTOOLS_WEAK_THIS](std::shared_ptr<DomEvent> &event) {
-                                  DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
-                                  self->devtools_service_->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
-                                });
+  if (dom_manager && root_node) {
+    dom_manager->AddEventListener(weak_root_node, root_node->GetId(), kDomTreeUpdated,
+                                  listener_id_, true, [DEVTOOLS_WEAK_THIS](std::shared_ptr<DomEvent> &event) {
+          DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+          self->devtools_service_->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
+        });
+  }
+}
+
+void DevtoolsDataSource::RemoveRootNodeListener(std::weak_ptr<RootNode> weak_root_node) {
+  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  auto root_node = weak_root_node.lock();
+  if (dom_manager && root_node) {
+    dom_manager->RemoveEventListener(root_node, root_node->GetId(), kDomTreeUpdated, listener_id_);
+  }
 }
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
