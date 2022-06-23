@@ -74,26 +74,9 @@ module.exports = {
         }],
       },
       {
-        test: /\.(ttf)$/i,
-        use: [{
-          loader: 'file-loader',
-          options: {
-            name: '[name].[ext]',
-            outputPath: 'font/',
-          },
-        }],
-      },
-      {
         test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        use: ['style-loader', 'css-loader'],
       },
-
-      // {
-      //   test: /\.css$/,
-      //   use: [{
-      //     loader: MiniCssExtractPlugin.loader
-      //   }, 'css-loader'],
-      // },
     ],
   },
   resolve: {
