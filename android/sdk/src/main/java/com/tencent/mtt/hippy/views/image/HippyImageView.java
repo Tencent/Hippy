@@ -479,7 +479,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
     if (!isGifPaused) {
       if (mGifLastPlayTime != -1) {
-        mGifProgress += now - mGifLastPlayTime;
+        mGifProgress += (int) (now - mGifLastPlayTime);
 
         if (mGifProgress > duration) {
           mGifProgress = 0;
