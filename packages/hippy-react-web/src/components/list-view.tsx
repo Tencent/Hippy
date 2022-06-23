@@ -27,6 +27,7 @@ import { formatWebStyle } from '../adapters/transfer';
 import { canUseDOM, isFunc, noop } from '../utils';
 import { HIDE_SCROLLBAR_CLASS, shouldHideScrollBar } from '../adapters/hide-scrollbar';
 import { LayoutEvent } from '../types';
+import { DEFAULT_DISTANCE_TO_REFRESH, REFRESH_DISTANCE_SCREEN_Y_OFFSET } from '../constants';
 import View from './view';
 
 interface ListViewItemProps {
@@ -141,6 +142,7 @@ function ListViewItem(props: ListViewItemProps) {
     <li {...liElementProps} ref={listItemRef} rowid={getRowKey()} />
   );
 }
+
 
 const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const {
@@ -341,9 +343,6 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     },
   };
 
-  const defaultDistanceToRefresh = 50;
-  const refreshDistanceScreenYOffset = 1;
-
   if (isShowPullHeader.current) {
     listViewProps.pullToRefresh = <MPullToRefresh
       direction='down'
@@ -351,7 +350,8 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       onRefresh={refresh}
       indicator={pullIndicator}
       distanceToRefresh={
-        pullHeaderHeight.current ?  pullHeaderHeight.current - refreshDistanceScreenYOffset : defaultDistanceToRefresh
+        pullHeaderHeight.current
+          ?  pullHeaderHeight.current -  REFRESH_DISTANCE_SCREEN_Y_OFFSET : DEFAULT_DISTANCE_TO_REFRESH
       }
     />;
   }

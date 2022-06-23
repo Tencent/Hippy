@@ -24,7 +24,7 @@ import React, { useState } from 'react';
 import MPullToRefresh from 'rmc-pull-to-refresh';
 import { formatWebStyle } from '../adapters/transfer';
 import { isFunc } from '../utils';
-import { DEFAULT_CONTAINER_STYLE } from '../constants';
+import { DEFAULT_CONTAINER_STYLE, DEFAULT_DISTANCE_TO_REFRESH, REFRESH_DISTANCE_SCREEN_Y_OFFSET } from '../constants';
 
 export interface RefreshWrapperProps {
   ref?: any;
@@ -113,8 +113,6 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       setRefreshing(true);
     }
   };
-  const defaultDistanceToRefresh = 50;
-  const refreshDistanceScreenYOffset = 1;
 
   // @ts-ignore
   const newChildren = React.cloneElement(children, {
@@ -124,7 +122,8 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       onRefresh={handleOnRefresh}
       indicator={pullIndicator}
       distanceToRefresh={
-        pullHeaderHeight.current ?  pullHeaderHeight.current - refreshDistanceScreenYOffset : defaultDistanceToRefresh
+        pullHeaderHeight.current
+          ?  pullHeaderHeight.current -  REFRESH_DISTANCE_SCREEN_Y_OFFSET : DEFAULT_DISTANCE_TO_REFRESH
       }
     />,
   });

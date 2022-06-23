@@ -37,3 +37,6 @@ export const DEFAULT_CONTAINER_STYLE = {
   flexBasis: 'auto',
   flexShrink: 0,
 };
+
+export const DEFAULT_DISTANCE_TO_REFRESH = 50;
+export const REFRESH_DISTANCE_SCREEN_Y_OFFSET = 1;
