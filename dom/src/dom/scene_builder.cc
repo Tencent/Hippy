@@ -82,11 +82,13 @@ void SceneBuilder::AddEventListener(const std::weak_ptr<Scope>& weak_scope,
     if (dom_manager) {
       uint32_t dom_id = event_listener_info.dom_id;
       std::string event_name = event_listener_info.event_name;
+      bool use_capture = event_listener_info.use_capture;
       const auto js_callback = event_listener_info.callback;
       auto root_node = scope->GetRootNode();
 
+
       dom_manager->AddEventListener(root_node,
-          dom_id, event_name, listener_id, true,
+          dom_id, event_name, listener_id, use_capture,
           [weak_scope, js_callback](std::shared_ptr<DomEvent>& event) {
             auto scope = weak_scope.lock();
             if (scope == nullptr) return;
