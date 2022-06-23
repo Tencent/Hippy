@@ -53,6 +53,7 @@ constexpr char kBackendId[] = "backendId";
 constexpr char kFrameId[] = "frameId";
 constexpr char kMainFrame[] = "main_frame";
 constexpr char kDomDataStyle[] = "style";
+constexpr char kNodeIds[] = "nodeIds";
 constexpr char kDocumentName[] = "#document";
 constexpr int32_t kDocumentNodeId = -3;
 
@@ -60,6 +61,7 @@ DomModel DomModel::CreateModel(const nlohmann::json& json) {
   assert(json.is_object());
   DomModel model;
   model.SetNodeId(TdfParseJsonUtil::GetJsonValue(json, kNodeId, 0));
+  model.SetBackendNodeId(model.GetNodeId());
   model.SetParentId(TdfParseJsonUtil::GetJsonValue(json, kParentId, 0));
   model.SetRootId(TdfParseJsonUtil::GetJsonValue(json, kRootId, 0));
   model.SetX(TdfParseJsonUtil::GetJsonValue(json, kLayoutX, 0.0));
@@ -138,6 +140,21 @@ nlohmann::json DomModel::BuildChildNodesJson() {
   }
   node_json[kNodes] = node_children_json;
   return node_json;
+}
+
+nlohmann::json DomModel::BuildPushNodeIds(std::vector<int32_t>& node_ids) {
+  if (node_ids.empty()) {
+    return nlohmann::json::object();
+  }
+  auto result = nlohmann::json::object();
+  result[kNodeIds] = node_ids;
+  return result;
+}
+
+nlohmann::json DomModel::BuildPushHitNode(int32_t hit_node_id) {
+  auto result = nlohmann::json::object();
+  result[kNodeId] = hit_node_id;
+  return result;
 }
 
 nlohmann::json DomModel::BuildNodeJson(DomNodeType node_type) {

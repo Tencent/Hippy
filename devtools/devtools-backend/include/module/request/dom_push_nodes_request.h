@@ -20,22 +20,17 @@
 
 #pragma once
 
-#include <string>
-
-#include "api/adapter/devtools_dom_tree_adapter.h"
-#include "devtools/hippy_dom_data.h"
+#include <vector>
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
-class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
+
+class DomPushNodesRequest : public BaseRequest {
  public:
-  explicit HippyDomTreeAdapter(std::shared_ptr<HippyDomData> hippy_dom) : hippy_dom_(hippy_dom) {}
-  void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
-  void GetDomTree(DumpDomTreeCallback callback) override;
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
-  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
+  void Deserialize(const std::string& params) override;
+  inline std::vector<int32_t>& GetBackendIds() { return backend_ids_; }
 
  private:
-  std::shared_ptr<HippyDomData> hippy_dom_;
+  std::vector<int32_t> backend_ids_;
 };
 }  // namespace hippy::devtools

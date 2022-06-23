@@ -18,24 +18,18 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include <string>
-
-#include "api/adapter/devtools_dom_tree_adapter.h"
-#include "devtools/hippy_dom_data.h"
+#include "module/request/dom_push_node_by_path_request.h"
+#include "devtools_base/parse_json_util.h"
 
 namespace hippy::devtools {
-class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
- public:
-  explicit HippyDomTreeAdapter(std::shared_ptr<HippyDomData> hippy_dom) : hippy_dom_(hippy_dom) {}
-  void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
-  void GetDomTree(DumpDomTreeCallback callback) override;
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
-  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
 
- private:
-  std::shared_ptr<HippyDomData> hippy_dom_;
-};
+constexpr char kParamsNodePath[] = "path";
+
+void DomPushNodeByPathRequest::Deserialize(const std::string& params) {
+  auto params_json = nlohmann::json::parse(params, nullptr, false);
+  if (params_json.is_discarded()) {
+    return;
+  }
+  node_path_ = TdfParseJsonUtil::GetJsonValue(params_json, kParamsNodePath, node_path_);
+}
 }  // namespace hippy::devtools

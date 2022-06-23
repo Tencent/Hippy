@@ -54,7 +54,7 @@ void FramePollModel::StartPoll() {
   }
   AddFrameCallback();
   refresh_task_runner_->Clear();
-  refresh_task_runner_->PostDelayedTask(refresh_task_, TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
+  refresh_task_runner_->PostTask(refresh_task_);
 }
 
 void FramePollModel::AddFrameCallback() {

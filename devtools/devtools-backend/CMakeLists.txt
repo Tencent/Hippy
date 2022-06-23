@@ -101,6 +101,7 @@ set(SOURCE_SET
     src/api/adapter/data/render_diagnostic_metas.cc
     src/api/adapter/data/render_node_metas.cc
     src/api/adapter/data/trace_event_metas.cc
+    src/api/adapter/data/dom_push_node_path_metas.cc
     src/api/devtools_backend_service.cc
     src/api/notification/data/devtools_http_loading_finished.cc
     src/api/notification/data/devtools_http_request.cc
@@ -131,6 +132,8 @@ set(SOURCE_SET
     src/module/request/network_response_body_request.cc
     src/module/request/screen_shot_request.cc
     src/module/request/selected_render_object_request.cc
+    src/module/request/dom_push_nodes_request.cc
+    src/module/request/dom_push_node_by_path_request.cc
     src/tunnel/net_channel.cc
     src/tunnel/tcp/frame_codec.cc
     src/tunnel/tcp/tcp_channel.cc

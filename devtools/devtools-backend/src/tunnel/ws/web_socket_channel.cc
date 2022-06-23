@@ -34,6 +34,7 @@ namespace hippy::devtools {
 
 WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
   ws_uri_ = ws_uri;
+  ws_client_.clear_access_channels(websocketpp::log::alevel::all);
   ws_client_.set_access_channels(websocketpp::log::alevel::fail);
   ws_client_.set_error_channels(websocketpp::log::elevel::all);
   // Initialize ASIO

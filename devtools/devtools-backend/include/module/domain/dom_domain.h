@@ -29,6 +29,8 @@
 #include "module/request/base_request.h"
 #include "module/request/dom_node_data_request.h"
 #include "module/request/dom_node_for_location_request.h"
+#include "module/request/dom_push_node_by_path_request.h"
+#include "module/request/dom_push_nodes_request.h"
 
 namespace hippy::devtools {
 /**
@@ -36,10 +38,13 @@ namespace hippy::devtools {
  */
 class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDomain> {
  public:
+  using PushNodePath = std::vector<std::map<std::string, int32_t>>;
   using DomDataCallback = std::function<void(DomModel model)>;
+  using DomPushNodeByPathDataCallback = std::function<void(int32_t hit_node_id, std::vector<int32_t> relation_nodes)>;
   using DomDataRequestCallback =
       std::function<void(int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback)>;
   using LocationForNodeDataCallback = std::function<void(double x, double y, DomDataCallback callback)>;
+  using DomPushNodeByPathCallback = std::function<void(PushNodePath path, DomPushNodeByPathDataCallback callback)>;
 
   explicit DomDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {}
   std::string GetDomainName() override;
@@ -54,6 +59,8 @@ class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDoma
   void GetNodeForLocation(const DomNodeForLocationRequest& request);
   void RemoveNode(const BaseRequest& request);
   void SetInspectedNode(const BaseRequest& request);
+  void PushNodesByBackendIdsToFrontend(DomPushNodesRequest& request);
+  void PushNodeByPathToFrontend(DomPushNodeByPathRequest& request);
   void HandleDocumentUpdate();
   void CacheEntireDocumentTree(DomModel root_model);
   void SetChildNodesEvent(DomModel model);
@@ -61,7 +68,10 @@ class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDoma
 
   // <node_id, children_size>
   std::map<int32_t, uint32_t> element_node_children_count_cache_;
+  // <backend_id, node_id>
+  std::map<int32_t, int32_t> backend_node_id_map_;
   DomDataRequestCallback dom_data_call_back_;
   LocationForNodeDataCallback location_for_node_call_back_;
+  DomPushNodeByPathCallback dom_push_node_by_path_call_back_;
 };
 }  // namespace hippy::devtools

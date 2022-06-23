@@ -27,6 +27,7 @@
 #include "devtools_base/logging.h"
 #include "devtools_base/parse_json_util.h"
 #include "devtools_base/tdf_base_util.h"
+#include "devtools_base/tdf_string_util.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -52,6 +53,8 @@ void DomDomain::RegisterMethods() {
   REGISTER_DOMAIN(DomDomain, GetNodeForLocation, DomNodeForLocationRequest);
   REGISTER_DOMAIN(DomDomain, RemoveNode, BaseRequest);
   REGISTER_DOMAIN(DomDomain, SetInspectedNode, BaseRequest);
+  REGISTER_DOMAIN(DomDomain, PushNodesByBackendIdsToFrontend, DomPushNodesRequest);
+  REGISTER_DOMAIN(DomDomain, PushNodeByPathToFrontend, DomPushNodeByPathRequest);
 }
 
 void DomDomain::RegisterCallback() {
@@ -98,6 +101,21 @@ void DomDomain::RegisterCallback() {
     self->HandleDocumentUpdate();
   };
   GetNotificationCenter()->dom_tree_notification = std::make_shared<DefaultDomTreeNotification>(update_handler);
+
+  dom_push_node_by_path_call_back_ = [DEVTOOLS_WEAK_THIS](PushNodePath path, DomPushNodeByPathDataCallback callback) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
+    if (dom_tree_adapter) {
+      auto push_node_call_back = [callback](const DomPushNodePathMetas& data) {
+        if (callback) {
+          callback(static_cast<int32_t>(data.GetNodeId()), data.GetRelationTreeIds());
+        }
+      };
+      dom_tree_adapter->GetPushNodeByPath(path, push_node_call_back);
+    } else if (callback) {
+      callback(kInvalidNodeId, std::vector<int32_t>());
+    }
+  };
 }
 
 void DomDomain::GetDocument(const BaseRequest& request) {
@@ -110,6 +128,7 @@ void DomDomain::GetDocument(const BaseRequest& request) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     //  need clear first
     self->element_node_children_count_cache_.clear();
+    self->backend_node_id_map_.clear();
     // cache node that has obtain
     self->CacheEntireDocumentTree(model);
     // response to frontend
@@ -189,10 +208,73 @@ void DomDomain::SetInspectedNode(const BaseRequest& request) {
   ResponseResultToFrontend(request.GetId(), nlohmann::json::object().dump());
 }
 
+void DomDomain::PushNodesByBackendIdsToFrontend(DomPushNodesRequest& request) {
+  if (request.GetBackendIds().empty()) {
+    ResponseErrorToFrontend(request.GetId(), kErrorParams,
+                            "DOMDomain, PushNodesByBackendIdsToFrontend, without backend ids");
+    return;
+  }
+  std::vector<int32_t> node_ids;
+  for (auto backend_id : request.GetBackendIds()) {
+    if (backend_node_id_map_.find(backend_id) == backend_node_id_map_.end()) {
+      continue;
+    }
+    node_ids.emplace_back(backend_node_id_map_[backend_id]);
+  }
+  if (node_ids.empty()) {
+    ResponseErrorToFrontend(request.GetId(), kErrorFailCode,
+                            "DOMDomain, PushNodesByBackendIdsToFrontend, nodeIds is invalid");
+    return;
+  }
+  ResponseResultToFrontend(request.GetId(), DomModel::BuildPushNodeIds(node_ids).dump());
+}
+
+void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
+  if (request.GetNodePath().empty()) {
+    ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, PushNodesByBackendIdsToFrontend, without node path");
+    return;
+  }
+  auto path_string = request.GetNodePath();
+  auto path_vector = TdfStringUtil::SplitString(path_string, ",");
+  PushNodePath node_path;
+  for (size_t index = 0; index < path_vector.size() - 1; index += 2) {
+    std::string child_index = path_vector[index];
+    std::string tag_name = path_vector[index + 1];
+    std::map<std::string, int32_t> node_tag_name_id_map;
+    node_tag_name_id_map[tag_name] = std::stoi(child_index);
+    node_path.emplace_back(node_tag_name_id_map);
+  }
+  dom_push_node_by_path_call_back_(node_path, [DEVTOOLS_WEAK_THIS, request](int32_t hit_node_id,
+                                                                            std::vector<int32_t> relation_nodes) {
+    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    auto temp_relation_nodes = relation_nodes;
+    std::vector<int32_t> no_need_replenish_nodes;
+    for (auto node_id : temp_relation_nodes) {
+      if (self->element_node_children_count_cache_.find(node_id) == self->element_node_children_count_cache_.end()) {
+        continue;
+      }
+      no_need_replenish_nodes.emplace_back(node_id);
+    }
+    if (no_need_replenish_nodes.size() == temp_relation_nodes.size()) {
+      self->ResponseResultToFrontend(request.GetId(),
+                                     DomModel::BuildPushHitNode(hit_node_id).dump());
+    } else {
+      auto depth = static_cast<unsigned int>(temp_relation_nodes.size() - no_need_replenish_nodes.size() + 1);
+      self->dom_data_call_back_(no_need_replenish_nodes[no_need_replenish_nodes.size() - 1], false, depth,
+                                [self, request, hit_node_id](DomModel model) {
+                                  self->SetChildNodesEvent(model);
+                                  self->CacheEntireDocumentTree(model);
+                                  self->ResponseResultToFrontend(request.GetId(), DomModel::BuildPushHitNode(hit_node_id).dump());
+                                });
+    }
+  });
+}
+
 void DomDomain::HandleDocumentUpdate() { SendEventToFrontend(InspectEvent(kEventMethodDocumentUpdated, "{}")); }
 
 void DomDomain::CacheEntireDocumentTree(DomModel root_model) {
   element_node_children_count_cache_[root_model.GetNodeId()] = static_cast<uint32_t>(root_model.GetChildren().size());
+  backend_node_id_map_[root_model.GetBackendNodeId()] = root_model.GetNodeId();
   for (auto& child : root_model.GetChildren()) {
     CacheEntireDocumentTree(child);
   }
@@ -205,8 +287,10 @@ void DomDomain::SetChildNodesEvent(DomModel model) {
   SendEventToFrontend(InspectEvent(kEventMethodSetChildNodes, model.BuildChildNodesJson().dump()));
   // SendEvent only replenishes one layer of child node data, so only one layer is cached here
   element_node_children_count_cache_[model.GetNodeId()] = static_cast<uint32_t>(model.GetChildren().size());
+  backend_node_id_map_[model.GetBackendNodeId()] = model.GetNodeId();
   for (auto& child : model.GetChildren()) {
     element_node_children_count_cache_[child.GetNodeId()] = static_cast<uint32_t>(child.GetChildren().size());
+    backend_node_id_map_[child.GetBackendNodeId()] = child.GetNodeId();
   }
 }
 
