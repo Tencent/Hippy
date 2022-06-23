@@ -1,5 +1,6 @@
 import { Hippy } from '@hippy/react';
 import App from './app';
+import '../public/index.css';
 
 new Hippy({
   appName: 'Demo',

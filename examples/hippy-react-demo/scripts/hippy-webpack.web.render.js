@@ -1,7 +1,7 @@
-const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const pkg = require('../package.json');
 
@@ -11,10 +11,10 @@ module.exports = {
   mode: 'production',
   bail: true,
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.main)],
+    index: ['regenerator-runtime', path.resolve(pkg.web)],
   },
   output: {
-    filename: `[name].${platform}.js`,
+    filename: '[name].[contenthash:8].js',
     path: path.resolve(`./dist/${platform}/`),
   },
   plugins: [
@@ -24,17 +24,19 @@ module.exports = {
       __PLATFORM__: JSON.stringify(platform),
     }),
     new HtmlWebpackPlugin({
-      title: pkg.name,
-      filename: `${pkg.name}.html`,
-      template: path.resolve(__dirname, './template.html'),
-      favouriteIcon: pkg.favicon || 'https://hippyjs.org/assets/img/hippy-logo.ico',
+      inject: true,
+      scriptLoading: 'blocking',
+      template: path.resolve('./public/index.html'),
+    }),
+    new MiniCssExtractPlugin({
+      filename: '[name].[hash].css',
     }),
     new CaseSensitivePathsPlugin(),
   ],
   module: {
     rules: [
       {
-        test: /\.(jsx?)$/,
+        test: /\.(jsx|ts|tsx|js)$/,
         use: [
           {
             loader: 'babel-loader',
@@ -83,28 +85,19 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
+
+      // {
+      //   test: /\.css$/,
+      //   use: [{
+      //     loader: MiniCssExtractPlugin.loader
+      //   }, 'css-loader'],
+      // },
     ],
   },
   resolve: {
     extensions: ['.js', '.jsx', '.json'],
     modules: [path.resolve(__dirname, '../node_modules')],
-    alias: (() => {
-      const aliases = {
-        '@hippy/react': '@hippy/react-web',
-      };
-      // If hippy-react-web was built exist then make a alias to @hippy/react
-      // Remove the section if you don't use it
-      const hippyReactPath = path.resolve(__dirname, '../../../packages/hippy-react-web');
-      if (fs.existsSync(path.resolve(hippyReactPath, 'dist/index.js'))) {
-        console.warn(`* Using the @hippy/react in ${hippyReactPath}`);
-        aliases['@hippy/react'] = hippyReactPath;
-      } else {
-        console.warn('* Using the @hippy/react defined in package.json');
-      }
-
-      return aliases;
-    })(),
   },
 };
