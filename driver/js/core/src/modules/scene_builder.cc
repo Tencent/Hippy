@@ -386,7 +386,7 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
     // capture support pass object { capture: bool }
     if (context->IsObject(arguments[3])) {
       capture_parameter = context->GetProperty(arguments[3], kEventCapture);
-      TDF_BASE_DCHECK(capture_parameter == nullptr);
+      TDF_BASE_DCHECK(capture_parameter != nullptr);
     }
     ret = context->GetValueBoolean(capture_parameter, &use_capture);
     TDF_BASE_DCHECK(ret) << "get use capture failed";
