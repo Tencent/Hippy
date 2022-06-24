@@ -261,22 +261,6 @@ public class HippyPager extends ViewPager implements HippyViewBase {
         }
     }
 
-    public void setOverflow(String overflow) {
-        //robinsli Android 支持 overflow: visible，超出容器之外的属性节点也可以正常显示
-        if (!TextUtils.isEmpty(overflow)) {
-            switch (overflow) {
-                case "visible":
-                    setClipChildren(false); //可以超出父亲区域
-                    break;
-                case "hidden": {
-                    setClipChildren(true); //默认值是false
-                    break;
-                }
-            }
-        }
-        invalidate();
-    }
-
     public void onOverScrollSuccess() {
         invokeSetIsUnableToDrag(false);
         ignoreCheck = true;
