@@ -1,0 +1,36 @@
+name: '[gh] mark and close stale issues and PRs'
+
+on:
+  schedule:
+    - cron: 0/1 * * * *
+
+env:
+  CLOSE_MESSAGE: >
+    🤖: Closing this because it has stalled for over 3 months.
+    Feel free to reopen if this issue/PR is still relevant,
+    or to ping the collaborator who labelled it stalled if you have any questions.
+  STALE_MESSAGE: >
+    🤖: Pay attention 🛎️ !
+    There has been no activity on this issue/PR for 2 months, I will label it stalled.
+    It will be closed 30 days after no more activity.
+    Feel free to ping the collaborator if you have any questions.
+jobs:
+  stale:
+    permissions:
+        issues: write
+        pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-close: 30
+          stale-pr-label: stale
+          stale-issue-label: stale
+          stale-issue-message: ${{ env.STALE_MESSAGE }}
+          stale-pr-message: ${{ env.STALE_MESSAGE }}
+          close-issue-message: ${{ env.CLOSE_MESSAGE }}
+          close-pr-message: ${{ env.CLOSE_MESSAGE }}
+          # max requests it will send per run to the GitHub API before it deliberately exits to avoid hitting API rate limits
+          operations-per-run: 50
+          days-before-stale: 0
