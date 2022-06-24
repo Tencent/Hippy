@@ -1120,7 +1120,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 	// purely linear fashion. Instead, we use this method to moderate the effect
 	// that the distance
 	// of travel has on the overall snap duration.
-	float distanceInfluenceForSnapDuration(float f)
+	float distanceInfluenceForSnapDuration(double f)
 	{
 		f -= 0.5f; // center the values about 0.
 		f *= 0.3f * Math.PI / 2.0f;
@@ -2324,9 +2324,9 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		mFirstLayout = false;
 	}
 
-	public int getTotalLength()
+	public float getTotalLength()
 	{
-		int total = 0;
+		float total = 0;
 		for (int i = 0; i < mAdapter.getCount(); i++)
 		{
 			total += mIsVertical ? getHeight() * mAdapter.getPageSize(i) : getWidth() * mAdapter.getPageSize(i);
