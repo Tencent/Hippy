@@ -140,7 +140,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
-        NSError *error = HippyErrorWithMessageAndModuleName(message, NSStringFromClass([self class]));
+        NSError *error = HippyErrorWithMessageAndModuleName(message, self.bridge.moduleName);
         HippyFatal(error);
         return nil;
     }
@@ -205,7 +205,7 @@ static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::
     JSObjectRef jsObj = JSObjectMake(jscCtx->context_, cls_ref, (__bridge void *)dict);
     JSClassRelease(cls_ref);
     for (NSString *propertyName in dict) {
-        id propValue = [dict valueForKey:propertyName];
+        id propValue = [dict objectForKey:propertyName];
         std::shared_ptr<napi::CtxValue> propRef = convertObjcObjectToCtxValue(jscCtx, propValue, module);
         std::shared_ptr<JSCCtxValue> ctx_value =
             std::static_pointer_cast<JSCCtxValue>(propRef);
