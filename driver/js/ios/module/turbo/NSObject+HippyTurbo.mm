@@ -66,48 +66,4 @@
     return hippyTurboModules;
 }
 
-- (void)setHippyTurboBridge:(HippyBridge *)hippyTurboBridge {
-    objc_setAssociatedObject(self,
-                             @selector(hippyTurboBridge),
-                             hippyTurboBridge,
-                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (HippyBridge *)hippyTurboBridge {
-    return objc_getAssociatedObject(self, @selector(hippyTurboBridge));
-}
-
-- (id)hippyTurboInvokeObjCMethodWithName:(NSString *)methodName
-                           argumentCount:(NSInteger)argumentCount
-                           argumentArray:(NSArray *)argumentArray {
-    NSArray<id<HippyBridgeMethod>> *moduleMethods = [self hippyTurboModuleMethods];
-    id<HippyBridgeMethod> method;
-    for (id<HippyBridgeMethod> m in moduleMethods) {
-        if ([m.JSMethodName isEqualToString:methodName]) {
-            method = m;
-        }
-    }
-
-    if (HIPPY_DEBUG && !method) {
-        HippyLogError(@"Unknown methodID: %@ for module:%@", methodName, self);
-        return nil;
-    }
-
-    @try {
-        id value = [method invokeWithBridge:self.hippyTurboBridge module:self arguments:argumentArray];
-        return value;
-    } @catch (NSException *exception) {
-        // Pass on JS exceptions
-        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
-            @throw exception;
-        }
-
-        NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
-                                      method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
-        NSError *error = HippyErrorWithMessageAndModuleName(message, NSStringFromClass([self class]));
-        HippyFatal(error);
-        return nil;
-    }
-}
-
 @end
