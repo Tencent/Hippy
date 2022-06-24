@@ -37,7 +37,6 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
   private childViewItem: ViewPagerItem[] = [];
   private swipeRecognize: any = null;
   private touchListenerRelease;
-  private hammer ;
 
   public constructor(context, id, pId) {
     super(context, id, pId);

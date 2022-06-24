@@ -21,7 +21,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 
 import ResizeObserver from 'resize-observer-polyfill';
+import * as Hammer from 'hammerjs';
 import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps, HippyTransferData } from '../types';
+
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
@@ -34,6 +36,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public context!: ComponentContext;
   public resizeObserver: ResizeObserver|undefined;
   public layoutCache: {x: number, y: number, height: number, width: number}|null = null;
+  public hammer;
   public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;
@@ -43,21 +46,48 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     this.handleOnTouchCancel = this.handleOnTouchCancel.bind(this);
     this.handleOnTouchEnd = this.handleOnTouchEnd.bind(this);
     this.handleOnTouchMove = this.handleOnTouchMove.bind(this);
+    this.handleOnLongClick = this.handleOnLongClick.bind(this);
   }
 
   public updateProperty(key: string, value: any) {
     this[key] = value;
   }
+  public initHammer() {
+    if (!this.hammer) {
+      this.hammer =  new Hammer.Manager(this.dom!, { inputClass: Hammer.TouchInput });
+    }
+  }
 
   public set onClick(value: boolean) {
     this.props[NodeProps.ON_CLICK] = value;
+    this.initHammer();
+    this.hammer.remove('tap');
+    this.hammer.off('tap', this.handleOnClick);
     if (value) {
-      this.dom?.addEventListener('click', this.handleOnClick);
+      const tap = new Hammer.Tap({ time: 200 });
+      this.hammer.add(tap);
+      this.hammer.on('tap', this.handleOnClick);
     }
   }
 
   public get onClick() {
     return !!this.props[NodeProps.ON_CLICK];
+  }
+
+  public set onLongClick(value: boolean) {
+    this.props[NodeProps.ON_LONG_CLICK] = value;
+    this.initHammer();
+    this.hammer.remove('press');
+    this.hammer.off('press', this.handleOnLongClick);
+    if (value) {
+      const press = new Hammer.Press({ time: 200 });
+      this.hammer.add(press);
+      this.hammer.on('press', this.handleOnLongClick);
+    }
+  }
+
+  public get onLongClick() {
+    return !!this.props[NodeProps.ON_LONG_CLICK];
   }
 
   public set onTouchDown(value: boolean) {
@@ -193,12 +223,20 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
       target: this.id });
   }
 
+  private handleOnLongClick(event) {
+    if (!this.onLongClick) {
+      return;
+    }
+    this.context.sendUiEvent(this.id, NodeProps.ON_LONG_CLICK, event);
+    event.srcEvent.stopPropagation();
+  }
+
   private handleOnClick(event) {
     if (!this.onClick) {
       return;
     }
     this.context.sendUiEvent(this.id, NodeProps.ON_CLICK, event);
-    event.stopPropagation();
+    event.srcEvent.stopPropagation();
   }
 
   private handleOnTouchStart(event) {
@@ -214,6 +252,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     }
     this.context.sendGestureEvent(buildHippyTouchEvent(event, 'onTouchMove', this.id));
     event.stopPropagation();
+    event.preventDefault();
   }
 
   private handleOnTouchCancel(event) {

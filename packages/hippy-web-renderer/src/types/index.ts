@@ -135,6 +135,7 @@ export enum NodeProps {
   SET_PAGE = 'setPage',
   SET_PAGE_WITHOUT_ANIMATION = 'setPageWithoutAnimation',
   ON_CLICK = 'onClick',
+  ON_LONG_CLICK = 'onLongClick',
 }
 export enum KeyboardType {
   default = 'default',
