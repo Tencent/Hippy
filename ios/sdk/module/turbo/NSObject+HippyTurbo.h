@@ -25,8 +25,6 @@
 
 @interface NSObject (HippyTurbo)
 
-@property(nonatomic, weak) HippyBridge *hippyTurboBridge;
-
 - (NSArray<id<HippyBridgeMethod>> *)hippyTurboModuleMethods;
 
 @end
