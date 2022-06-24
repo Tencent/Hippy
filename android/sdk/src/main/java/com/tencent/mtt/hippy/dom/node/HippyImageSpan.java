@@ -66,7 +66,7 @@ public class HippyImageSpan extends ImageSpan {
   private final HippyImageLoader mImageAdapter;
   private final HippyEngineContext engineContext;
   private Movie mGifMovie = null;
-  private int mGifProgress = 0;
+  private long mGifProgress = 0;
   private long mGifLastPlayTime = -1;
 
   private IAlignConfig alignConfig;
@@ -190,7 +190,7 @@ public class HippyImageSpan extends ImageSpan {
     long now = System.currentTimeMillis();
 
     if (mGifLastPlayTime != -1) {
-      mGifProgress += (int) (now - mGifLastPlayTime);
+      mGifProgress += (now - mGifLastPlayTime);
 
       if (mGifProgress > duration) {
         mGifProgress = 0;
@@ -202,8 +202,8 @@ public class HippyImageSpan extends ImageSpan {
     float mGifScaleY = height / (float) mGifMovie.height();
     float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
     float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
-
-    mGifMovie.setTime(mGifProgress);
+    int progress = mGifProgress > Integer.MAX_VALUE ? 0 : (int) mGifProgress;
+    mGifMovie.setTime(progress);
     canvas.save();
     canvas.scale(mGifScaleX, mGifScaleY);
     mGifMovie.draw(canvas, x, y);

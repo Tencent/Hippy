@@ -671,11 +671,13 @@ static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSU
     __unused BOOL &isRAMBundle, __unused RandomAccessBundleData &randomAccessBundle, __unused NSError **error) {
     // JSStringCreateWithUTF8CString expects a null terminated C string.
     // RAM Bundling already provides a null terminated one.
-    NSMutableData *nullTerminatedScript = [NSMutableData dataWithCapacity:script.length + 1];
-    [nullTerminatedScript appendData:script];
-    [nullTerminatedScript appendBytes:"" length:1];
-    script = nullTerminatedScript;
-    return script;
+    @autoreleasepool {
+        NSMutableData *nullTerminatedScript = [NSMutableData dataWithCapacity:script.length + 1];
+        [nullTerminatedScript appendData:script];
+        [nullTerminatedScript appendBytes:"" length:1];
+        script = nullTerminatedScript;
+        return script;
+    }
 }
 
 static void registerNativeRequire(JSContext *context, HippyJSCExecutor *executor) {
@@ -695,24 +697,26 @@ static NSLock *jslock() {
 }
 
 static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, JSGlobalContextRef ctx) {
-    [performanceLogger markStartForTag:HippyPLScriptExecution];
-    JSValueRef jsError = NULL;
-    JSStringRef execJSString = JSStringCreateWithUTF8CString((const char *)script.bytes);
-    JSStringRef bundleURL = JSStringCreateWithUTF8CString(sourceURL.absoluteString.UTF8String);
+    @autoreleasepool {
+        [performanceLogger markStartForTag:HippyPLScriptExecution];
+        JSValueRef jsError = NULL;
+        JSStringRef execJSString = JSStringCreateWithUTF8CString((const char *)script.bytes);
+        JSStringRef bundleURL = JSStringCreateWithUTF8CString(sourceURL.absoluteString.UTF8String);
 
-    NSLock *lock = jslock();
-    BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
-    JSEvaluateScript(ctx, execJSString, NULL, bundleURL, 0, &jsError);
-    JSStringRelease(bundleURL);
-    JSStringRelease(execJSString);
-    if (lockSuccess) {
-        [lock unlock];
+        NSLock *lock = jslock();
+        BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+        JSEvaluateScript(ctx, execJSString, NULL, bundleURL, 0, &jsError);
+        JSStringRelease(bundleURL);
+        JSStringRelease(execJSString);
+        if (lockSuccess) {
+            [lock unlock];
+        }
+        [performanceLogger markStopForTag:HippyPLScriptExecution];
+
+        NSError *error = jsError ? HippyNSErrorFromJSErrorRef(jsError, ctx) : nil;
+        // HIPPY_PROFILE_END_EVENT(0, @"js_call");
+        return error;
     }
-    [performanceLogger markStopForTag:HippyPLScriptExecution];
-
-    NSError *error = jsError ? HippyNSErrorFromJSErrorRef(jsError, ctx) : nil;
-    // HIPPY_PROFILE_END_EVENT(0, @"js_call");
-    return error;
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
