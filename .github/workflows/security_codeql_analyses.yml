@@ -1,0 +1,114 @@
+name: "[security] codeql analyses"
+
+on:
+  push:
+    branches:
+      - v3.0-dev
+      - v3.0
+  pull_request:
+    branches:
+      - v3.0-dev
+      - v3.0
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: [self-hosted, linux]
+    container:
+      image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'cpp', 'java', 'javascript', 'typescript' ]
+    steps:
+    - name: Detect languages
+      id: detect_languages
+      uses: actions/github-script@v6.1.0
+      with:
+        script: |
+          const { pull_request } = context.payload;
+          const { pulls } = github.rest;
+
+          if (pull_request === undefined) { // Push
+            console.log("::set-output name=language::${{ matrix.language }}");
+            return;
+          }
+
+          const { owner, repo } = context.repo;
+          const { data: files } = await pulls.listFiles({
+            owner,
+            repo,
+            pull_number: pull_request.number,
+          });
+
+          // Ref: https://codeql.github.com/docs/codeql-overview/supported-languages-and-frameworks/#languages-and-compilers
+          const languages  = {
+            "cpp": [".cpp", ".c++", ".cxx", ".hpp", ".hh", ".h++", ".hxx", ".c", ".cc", ".h"],
+            "java": [".java"],
+            "javascript": [".js", ".jsx", ".mjs", ".es", ".es6", ".htm", ".html", ".xhtm", ".xhtml", ".vue", ".hbs", ".ejs", ".njk", ".json", ".yaml", ".yml", ".raml", ".xml"],
+            "typescript": [".ts", ".tsx"]
+          };
+
+          const { extname } = require('path');
+          const all_exts = Object.values(languages).flat();
+          const cur_exts = languages["${{ matrix.language }}"];
+          let has_hit = false;
+          for (const { filename } of files) {
+            const ext = extname(filename);
+            if (cur_exts.includes(ext)) {
+              console.log("::set-output name=language::${{ matrix.language }}");
+              return;
+            } else {
+              has_hit |= all_exts.includes(ext);
+            }
+          }
+
+          if (!has_hit && "${{ matrix.language }}" === "typescript") { // Default Run
+            console.log("::set-output name=default-run::1");
+          }
+    - name: Checkout repository
+      if: steps.detect_languages.outputs.language
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+    - name: Initialize CodeQL
+      if: steps.detect_languages.outputs.language
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ steps.detect_languages.outputs.language }}
+    - name: Setup node
+      if: steps.detect_languages.outputs.language == 'javascript' || steps.detect_languages.outputs.language == 'typescript'
+      uses: actions/setup-node@v3
+      with:
+        node-version: latest
+    - name: Build Java
+      if: steps.detect_languages.outputs.language == 'java'
+      env:
+        skipCmakeAndNinja: 1
+      run: |
+        ./gradlew example::assembleDebug
+    - name: Build C++
+      if: steps.detect_languages.outputs.language == 'cpp'
+      env:
+        CMAKE_INFA_PACKAGES_URL: https://hippy-packages-1258344701.cos.na-siliconvalley.myqcloud.com
+      run: |
+        ./gradlew hippy-driver::buildCMakeRelease
+    - name: Perform CodeQL Analysis
+      if: steps.detect_languages.outputs.language
+      uses: github/codeql-action/analyze@v2
+    - name: Generate fake SARIF
+      if: steps.detect_languages.outputs.default-run
+      run:
+        echo '{"version":"2.1.0","runs":[{"tool":{"driver":{"name":"CodeQL"}},"results":[]}]}' > ./fake.sarif
+      # The following step will output a lot of errors(like `The process '/usr/bin/git' failed with exit code 128`),
+      # don't worry it's NORMAL because we don't checkout repository.
+    - name: Upload fake SARIF
+      if: steps.detect_languages.outputs.default-run
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: ./fake.sarif
+        category: fake_results_do_not_care

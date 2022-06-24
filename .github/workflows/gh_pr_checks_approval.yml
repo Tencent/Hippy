@@ -35,13 +35,28 @@ jobs:
             return;
           }
 
-          const { data: files } = await pulls.listFiles({
-            owner,
-            repo,
-            pull_number: pull_request.number,
-          });
+          let includeRiskFiles = false;
+          let page = 1;
+          const kMaxPage = 100;
+          const kMaxPerPage = 100;
+          for (; page < kMaxPage; page += 1) {
+            const { data: files } = await pulls.listFiles({
+              owner,
+              repo,
+              pull_number: pull_request.number,
+              per_page: kMaxPerPage,
+              page,
+            });
 
-          const includeRiskFiles = files.some(f => f.filename.startsWith('.github/workflows'));
+            includeRiskFiles = files.some(f => f.filename.startsWith('.github/workflows'));
+
+            if (includeRiskFiles || files.length < kMaxPerPage) {
+              break;
+            }
+          }
+          if (page === kMaxPage) {
+            includeRiskFiles = true;
+          }
 
           if (!includeRiskFiles) {
             await Promise.all(workflow_runs.map(workflow_run => actions.approveWorkflowRun({
