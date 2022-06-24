@@ -131,7 +131,6 @@ Hippy
 │   ├── ios-demo                      # iOS native demo code.
 │   └── android-demo                  # Android native demo code.
 ├── packages                          # npm packages.
-│   ├── hippy-debug-server            # Debug the Hippy with native.
 │   ├── hippy-react                   # React binding for Hippy.
 │   ├── hippy-react-web               # Web adapter for hippy-react.
 │   ├── hippy-vue                     # Vue binding for Hippy.
