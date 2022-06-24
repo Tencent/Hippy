@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItem;
 
 import java.util.HashMap;
@@ -121,7 +122,7 @@ public class HippyPagerController extends HippyViewController<HippyPager> {
 
     @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
     public void setOverflow(HippyPager pager, String overflow) {
-        pager.setOverflow(overflow);
+        HippyViewGroup.setOverflow(overflow, pager);
     }
 
     private void resolveInvalidParams(@Nullable Promise promise) {
