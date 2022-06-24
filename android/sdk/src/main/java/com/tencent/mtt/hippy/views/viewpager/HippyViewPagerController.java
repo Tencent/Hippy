@@ -15,7 +15,6 @@
  */
 package com.tencent.mtt.hippy.views.viewpager;
 
-import android.util.Log;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
@@ -29,6 +28,7 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -123,7 +123,7 @@ public class HippyViewPagerController extends HippyViewController<HippyViewPager
 
   @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
   public void setOverflow(HippyViewPager pager, String overflow) {
-    pager.setOverflow(overflow);
+    HippyViewGroup.setOverflow(overflow, pager);
   }
 
   @Override
