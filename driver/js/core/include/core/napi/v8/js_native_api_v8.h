@@ -372,7 +372,7 @@ v8::Local<v8::FunctionTemplate> V8Ctx::RegisterPrototype(v8::Local<v8::FunctionT
           }
         },
         v8::External::New(isolate_, const_cast<FunctionDefine<T>*>(&func)));
-    func_template->PrototypeTemplate()->Set(name, fn, v8::PropertyAttribute::DontDelete);
+    instance_template->Set(name, fn);
   }
   return func_template;
 }

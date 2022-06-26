@@ -159,6 +159,25 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   current_target.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
   def.properties.emplace_back(std::move(current_target));
 
+  PropertyDefine<DomEvent> event_phase;
+  event_phase.name = "eventPhase";
+  event_phase.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {
+    auto scope = weak_scope.lock();
+    if (scope) {
+      if (event == nullptr) {
+        scope->GetContext()->ThrowException(tdf::base::unicode_string_view("nullptr event pointer"));
+        return scope->GetContext()->CreateUndefined();
+      }
+      auto event_phase = event->GetEventPhase();
+      uint8_t event_phase_number = static_cast<uint8_t>(event_phase);
+      std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(event_phase_number);
+      return ctx_value;
+    }
+    return nullptr;
+  };
+  event_phase.setter = [](DomEvent* event, const std::shared_ptr<CtxValue>& value) {};
+  def.properties.emplace_back(std::move(event_phase));
+
   PropertyDefine<DomEvent> params;
   params.name = "params";
   params.getter = [weak_scope](DomEvent* event) -> std::shared_ptr<CtxValue> {

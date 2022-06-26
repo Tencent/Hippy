@@ -253,6 +253,7 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
           dom_event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
           auto listeners = capture_node->GetEventListener(event_name, true);
           for (const auto& listener : listeners) {
+            dom_event->SetEventPhase(EventPhase::kCapturePhase);
             listener->cb(dom_event);  // StopPropagation并不会影响同级的回调调用
           }
           if (dom_event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
@@ -263,12 +264,14 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
         // 执行本身节点回调
         dom_event->SetCurrentTarget(dom_event->GetTarget());
         for (const auto& listener : capture_target_listeners) {
+          dom_event->SetEventPhase(EventPhase::kAtTarget);
           listener->cb(dom_event);
         }
         if (dom_event->IsPreventCapture()) {
           return;
         }
         for (const auto& listener : bubble_target_listeners) {
+          dom_event->SetEventPhase(EventPhase::kAtTarget);
           listener->cb(dom_event);
         }
         if (dom_event->IsPreventBubble()) {
@@ -281,6 +284,7 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
           dom_event->SetCurrentTarget(bubble_node);
           auto listeners = bubble_node->GetEventListener(event_name, false);
           for (const auto& listener : listeners) {
+            dom_event->SetEventPhase(EventPhase::kBubblePhase);
             listener->cb(dom_event);
           }
           if (dom_event->IsPreventBubble()) {
