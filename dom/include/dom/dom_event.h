@@ -11,6 +11,13 @@ inline namespace dom {
 
 class DomNode;
 
+enum class EventPhase: uint8_t {
+  kNone = 0,
+  kCapturePhase = 1,
+  kAtTarget = 2,
+  kBubblePhase =3
+};
+
 class DomEvent {
  public:
   using DomValue = tdf::base::DomValue;
@@ -55,6 +62,12 @@ class DomEvent {
   inline std::string GetType() {
     return type_;
   }
+  inline EventPhase GetEventPhase() {
+    return event_phase_;
+  }
+  inline void SetEventPhase(EventPhase event_phase) {
+    event_phase_ = event_phase;
+  }
 
  private:
   std::string type_;
@@ -64,6 +77,7 @@ class DomEvent {
   bool prevent_bubble_;
   bool can_capture_;
   bool can_bubble_;
+  EventPhase event_phase_ = EventPhase::kNone;
   std::shared_ptr<DomValue> value_;
 };
 
