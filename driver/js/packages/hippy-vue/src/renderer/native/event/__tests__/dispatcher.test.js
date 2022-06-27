@@ -9,7 +9,14 @@ let childNode;
 let textareaNode;
 let listview;
 let iframe;
-
+const dispatcherEvent = {
+  id: 0,
+  nativeName: '',
+  originalName: '',
+  currentId: 0,
+  params: {},
+  eventPhase: 2,
+};
 before(() => {
   registerBuiltinElements();
   const rootNode = new ElementNode('div');
@@ -26,7 +33,6 @@ before(() => {
   childNode.appendChild(textareaNode);
   childNode.appendChild(listview);
   textareaNode.addEventListener('test', () => {});
-
   const app = {
     executed: null,
     $el: rootNode,
@@ -53,167 +59,169 @@ test('receiveNativeEvent test', (t) => {
   });
 });
 
-test('receiveNativeGesture with wrong node id test', (t) => {
-  t.is(EventDispatcher.receiveNativeGesture(), undefined);
-  EventDispatcher.receiveNativeGesture({
-    id: 100,
-    name: 'onTest',
+test('receiveComponentEvent with wrong node id test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: 100,
+    nativeName: 'onTest',
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
+  t.pass();
+});
+
+test('receiveComponentEvent with wrong event name test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: 3,
+    nativeName: 'test',
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
+  t.pass();
+});
+
+test('receiveComponentEvent test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: 3,
+    nativeName: 'onTouchDown',
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
+  t.pass();
+});
+
+test('receiveComponentEvent with wrong node id type test', (t) => {
+  EventDispatcher.receiveComponentEvent({
+    currentId: 'str',
   });
   t.pass();
 });
 
-test('receiveNativeGesture with wrong event name test', (t) => {
-  t.is(EventDispatcher.receiveNativeGesture(), undefined);
-  EventDispatcher.receiveNativeGesture({
-    id: 3,
-    name: 'test',
+test('receiveComponentEvent with wrong event name type test', (t) => {
+  EventDispatcher.receiveComponentEvent({
+    currentId: 'str',
   });
   t.pass();
 });
 
-test('receiveNativeGesture test', (t) => {
-  t.is(EventDispatcher.receiveNativeGesture(), undefined);
-  EventDispatcher.receiveNativeGesture({
-    id: 3,
-    name: 'onTouchDown',
-  });
-  t.pass();
-});
-
-test('receiveUIComponentEvent with wrong node id type test', (t) => {
-  EventDispatcher.receiveUIComponentEvent([
-    'str',
-  ]);
-  t.pass();
-});
-
-test('receiveUIComponentEvent with wrong event name type test', (t) => {
-  EventDispatcher.receiveUIComponentEvent([
-    10,
-    200,
-  ]);
-  t.pass();
-});
-
-test('receiveUIComponentEvent with wrong event name test', (t) => {
-  EventDispatcher.receiveUIComponentEvent([
-    10,
-    'onTest',
-  ]);
-  t.pass();
-});
-
-test('receiveUIComponentEvent onChangeText test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    textareaNode.nodeId,
-    'onChangeText',
-    {
+test('receiveComponentEvent onChangeText test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: textareaNode.nodeId,
+    nativeName: 'onChangeText',
+    params: {
       text: 'Hello world',
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });
 
-test('receiveUIComponentEvent onSelectionChange test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    textareaNode.nodeId,
-    'onSelectionChange',
-    {
+test('receiveComponentEvent onSelectionChange test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: textareaNode.nodeId,
+    nativeName: 'onSelectionChange',
+    params: {
       selection: {
         start: 1,
         end: 2,
       },
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });
 
-test('receiveUIComponentEvent onKeyboardWillShow test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    textareaNode.nodeId,
-    'onKeyboardWillShow',
-    {
+test('receiveComponentEvent onKeyboardWillShow test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: textareaNode.nodeId,
+    nativeName: 'onKeyboardWillShow',
+    params: {
       keyboardHeight: 123,
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });
 
-test('receiveUIComponentEvent onContentSizeChange test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    textareaNode.nodeId,
-    'onContentSizeChange',
-    {
+test('receiveComponentEvent onContentSizeChange test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: textareaNode.nodeId,
+    nativeName: 'onContentSizeChange',
+    params: {
       contentSize: {
         width: 1,
         height: 2,
       },
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });
 
-test('receiveUIComponentEvent div.onScroll test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    childNode.nodeId,
-    'onScroll',
-    {
+test('receiveComponentEvent div.onScroll test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: childNode.nodeId,
+    nativeName: 'onScroll',
+    params: {
       contentOffset: {
         x: 1,
         y: 2,
       },
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });
 
-test('receiveUIComponentEvent ul.onScroll test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    listview.nodeId,
-    'onScroll',
-    {
+test('receiveComponentEvent ul.onScroll test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: listview.nodeId,
+    nativeName: 'onScroll',
+    params: {
       contentOffset: {
         x: 1,
         y: 2,
       },
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });
 
-test('receiveUIComponentEvent onTouch test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    childNode.nodeId,
-    'onTouchDown',
-    {
+test('receiveComponentEvent onTouch test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent1 = Object.assign({}, dispatcherEvent, {
+    currentId: childNode.nodeId,
+    nativeName: 'onTouchDown',
+    params: {
       page_x: 1,
       page_y: 2,
     },
-  ]);
-  EventDispatcher.receiveUIComponentEvent([
-    childNode.nodeId,
-    'onTouchMove',
-    {
+  });
+  const nativeEvent2 = Object.assign({}, dispatcherEvent, {
+    currentId: childNode.nodeId,
+    nativeName: 'onTouchMove',
+    params: {
       page_x: 1,
       page_y: 2,
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent1);
+  EventDispatcher.receiveComponentEvent(nativeEvent2);
   t.pass();
 });
 
-test('receiveUIComponentEvent onLayout test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    childNode.nodeId,
-    'onLayout',
-    {
+test('receiveComponentEvent onLayout test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: childNode.nodeId,
+    nativeName: 'onLayout',
+    params: {
       layout: {
         x: 1,
         y: 2,
@@ -221,18 +229,20 @@ test('receiveUIComponentEvent onLayout test', (t) => {
         height: 200,
       },
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });
 
-test('receiveUIComponentEvent onLoad test', (t) => {
-  t.is(EventDispatcher.receiveUIComponentEvent(), undefined);
-  EventDispatcher.receiveUIComponentEvent([
-    iframe.nodeId,
-    'onLoad',
-    {
+test('receiveComponentEvent onLoad test', (t) => {
+  t.is(EventDispatcher.receiveComponentEvent(), undefined);
+  const nativeEvent = Object.assign({}, dispatcherEvent, {
+    currentId: iframe.nodeId,
+    nativeName: 'onLoad',
+    params: {
       url: 'http://hippyjs.org',
     },
-  ]);
+  });
+  EventDispatcher.receiveComponentEvent(nativeEvent);
   t.pass();
 });

@@ -122,6 +122,14 @@ const nativeEventMap = {
   onTouchCancel: 'touchcancel',
 };
 
+const DOMEventPhase = {
+  NONE: 0,
+  CAPTURING_PHASE: 1,
+  AT_TARGET: 2,
+  BUBBLING_PHASE: 3,
+};
+
+
 function isNativeGesture(name) {
   return !!nativeEventMap[name];
 }
@@ -141,6 +149,7 @@ export {
   relativeToRefType,
   eventHandlerType,
   nativeEventMap,
+  DOMEventPhase,
   recursivelyUnCacheNode,
   requestIdleCallback,
   cancelIdleCallback,
