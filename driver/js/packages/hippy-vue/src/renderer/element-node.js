@@ -34,7 +34,7 @@ import {
   warn,
 } from '../util';
 import Native from '../runtime/native';
-import { eventHandlerType, isNativeGesture } from '../util/node';
+import { eventHandlerType } from '../util/node';
 import { updateChild, updateWithChildren } from './native';
 import { Event, EventDispatcher, EventEmitter } from './native/event';
 import { Text } from './native/components';
@@ -200,19 +200,18 @@ function transverseEventNames(eventNames, callback) {
   }
 }
 
-function createEventListener(name) {
+function createEventListener(nativeName, originalName) {
   return (event) => {
-    const { id,  currentId, params } = event;
-    if (isNativeGesture(name)) {
-      const dispatcherEvent = {
-        id, name, currentId,
-      };
-      Object.assign(dispatcherEvent, params);
-      EventDispatcher.receiveNativeGesture(dispatcherEvent, event);
-    } else {
-      const dispatcherEvent = [currentId, name, params];
-      EventDispatcher.receiveUIComponentEvent(dispatcherEvent, event);
-    }
+    const { id, currentId, params, eventPhase } = event;
+    const dispatcherEvent = {
+      id,
+      nativeName,
+      originalName,
+      currentId,
+      params,
+      eventPhase,
+    };
+    EventDispatcher.receiveComponentEvent(dispatcherEvent, event);
   };
 }
 
@@ -540,7 +539,7 @@ class ElementNode extends ViewNode {
         this.events[nativeEventName] = {
           name: nativeEventName,
           type: eventHandlerType.ADD,
-          listener: createEventListener(nativeEventName),
+          listener: createEventListener(nativeEventName, eventName),
           isCapture: false,
         };
       } else if (this.events[nativeEventName] && this.events[nativeEventName].type !== eventHandlerType.ADD) {

@@ -19,8 +19,13 @@
  */
 
 import { Fiber } from '@hippy/react-reconciler';
-import { getFiberNodeFromId, getElementFromFiber, eventNamesMap, NATIVE_EVENT_INDEX } from '../utils/node';
-import { trace, isGlobalBubble } from '../utils';
+import {
+  getFiberNodeFromId,
+  getElementFromFiber,
+  isNativeGesture,
+  DOMEventPhase,
+} from '../utils/node';
+import { trace, warn, isGlobalBubble, isCaptureEvent } from '../utils';
 import HippyEventHub from './hub';
 import Event from './event';
 
@@ -29,70 +34,58 @@ type EventParam = string[] | number[];
 interface NativeEvent {
   id: number;
   currentId: number;
-  name: string;
+  nativeName: string;
+  originalName: string;
+  eventPhase: HippyTypes.EventPhase,
+  params?: any
 }
 
 const eventHubs = new Map();
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
-
-/**
- * convertEventName - convert all special event name
- * @param eventName
- * @param nodeItem
- */
-function convertEventName(eventName: string, nodeItem: Fiber) {
-  let processedEvenName = eventName;
-  if (nodeItem.memoizedProps && !nodeItem.memoizedProps[eventName]) {
-    const eventNameList = Object.keys(eventNamesMap);
-    for (let i = 0; i < eventNameList.length; i += 1) {
-      const uiEvent = eventNameList[i];
-      const eventList = eventNamesMap[uiEvent];
-      if (nodeItem.memoizedProps[uiEvent] && eventName === eventList[NATIVE_EVENT_INDEX]) {
-        processedEvenName = uiEvent;
-        break;
-      }
-    }
-  }
-  return processedEvenName;
-}
 
 function isNodePropFunction(prop: string, nextNodeItem: Fiber) {
   return !!(nextNodeItem.memoizedProps && typeof nextNodeItem.memoizedProps[prop] === 'function');
 }
 
 /**
- * triggerEvent - process event
+ * dispatchGestureEvent - dispatch event
  * @param {string} eventName
  * @param {NativeEvent} nativeEvent
  * @param {Fiber} currentItem
  * @param {Fiber} targetItem
+ * @param {any} params
  * @param {HippyTypes.DOMEvent} domEvent
  */
-function triggerEvent(
+function dispatchGestureEvent(
   eventName: string,
   nativeEvent: NativeEvent,
   currentItem: Fiber,
   targetItem: Fiber,
+  params: any,
   domEvent: HippyTypes.DOMEvent,
 ) {
-  let isStopBubble: any = false;
-  const captureEventName = `${eventName}Capture`;
-  const targetNode = getElementFromFiber(targetItem);
-  const currentTargetNode = getElementFromFiber(currentItem);
   try {
-    // handle capture phase event
-    if (isNodePropFunction(captureEventName, currentItem)) {
-      const syntheticEvent = new Event(captureEventName, currentTargetNode, targetNode);
-      Object.assign(syntheticEvent, nativeEvent);
-      currentItem.memoizedProps[captureEventName](syntheticEvent);
+    let isStopBubble: any = false;
+    const targetNode = getElementFromFiber(targetItem);
+    const currentTargetNode = getElementFromFiber(currentItem);
+    const { eventPhase } = domEvent;
+    // handle target & capture phase event
+    if (isNodePropFunction(eventName, currentItem)
+      && isCaptureEvent(eventName)
+      && [DOMEventPhase.AT_TARGET, DOMEventPhase.CAPTURING_PHASE].indexOf(eventPhase) > -1) {
+      const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
+      Object.assign(syntheticEvent, { eventPhase }, params);
+      currentItem.memoizedProps[eventName](syntheticEvent);
       if (!syntheticEvent.bubbles && domEvent) {
         domEvent.stopPropagation();
       }
     }
-    // handle target phase event
-    if (isNodePropFunction(eventName, currentItem)) {
+    if (isNodePropFunction(eventName, currentItem)
+      && !isCaptureEvent(eventName)
+      && [DOMEventPhase.AT_TARGET, DOMEventPhase.BUBBLING_PHASE].indexOf(eventPhase) > -1) {
+      // handle target & bubbling phase event
       const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
-      Object.assign(syntheticEvent, nativeEvent);
+      Object.assign(syntheticEvent, { eventPhase }, params);
       isStopBubble = currentItem.memoizedProps[eventName](syntheticEvent);
       // If callback have no return, use global bubble config to set isStopBubble.
       if (typeof isStopBubble !== 'boolean') {
@@ -102,7 +95,7 @@ function triggerEvent(
       if (!syntheticEvent.bubbles) {
         isStopBubble = true;
       }
-      if (isStopBubble !== false && domEvent) {
+      if (isStopBubble && domEvent) {
         domEvent.stopPropagation();
       }
     }
@@ -111,21 +104,67 @@ function triggerEvent(
   }
 }
 
-function receiveNativeGesture(nativeEvent: NativeEvent, domEvent: HippyTypes.DOMEvent) {
-  trace(...componentName, 'receiveNativeGesture', nativeEvent);
-  if (!nativeEvent) {
+/**
+ * dispatchUIEvent - dispatch ui event
+ * @param {string} eventName
+ * @param {NativeEvent} nativeEvent
+ * @param {Fiber} currentItem
+ * @param {Fiber} targetItem
+ * @param {any} params
+ * @param {HippyTypes.DOMEvent} domEvent
+ */
+function dispatchUIEvent(
+  eventName: string,
+  nativeEvent: NativeEvent,
+  currentItem: Fiber,
+  targetItem: Fiber,
+  params: any,
+  domEvent: HippyTypes.DOMEvent,
+) {
+  let isStopBubble: any = false;
+  const targetNode = getElementFromFiber(targetItem);
+  const currentTargetNode = getElementFromFiber(currentItem);
+  try {
+    const { eventPhase } = domEvent;
+    // handle target & bubbling phase event
+    if (isNodePropFunction(eventName, currentItem)
+      && !isCaptureEvent(eventName)
+      && [DOMEventPhase.AT_TARGET, DOMEventPhase.BUBBLING_PHASE].indexOf(eventPhase) > -1) {
+      const syntheticEvent = new Event(eventName, currentTargetNode, targetNode);
+      Object.assign(syntheticEvent, { eventPhase }, params);
+      currentItem.memoizedProps[eventName](syntheticEvent);
+      isStopBubble = !isGlobalBubble();
+      // event bubbles flag has higher priority
+      if (!syntheticEvent.bubbles) {
+        isStopBubble = true;
+      }
+      if (isStopBubble && domEvent) {
+        domEvent.stopPropagation();
+      }
+    }
+  } catch (err) {
+    (console as any).reportUncaughtException(err);
+  }
+}
+
+function receiveComponentEvent(nativeEvent: NativeEvent, domEvent: HippyTypes.DOMEvent) {
+  trace(...componentName, 'receiveComponentEvent', nativeEvent);
+  if (!nativeEvent || !domEvent) {
+    warn(...componentName, 'receiveComponentEvent', 'nativeEvent or domEvent not exist');
     return;
   }
-  const { id, currentId, name } = nativeEvent;
+  const { id, currentId, nativeName, originalName, params } = nativeEvent;
   const currentTargetNode = getFiberNodeFromId(currentId);
   const targetNode = getFiberNodeFromId(id);
   if (!currentTargetNode || !targetNode) {
+    warn(...componentName, 'receiveComponentEvent', 'currentTargetNode or targetNode not exist');
     return;
   }
-  const eventName = convertEventName(name, currentTargetNode);
-  const currentItem: Fiber = currentTargetNode;
-  const targetItem: Fiber = targetNode;
-  triggerEvent(eventName, nativeEvent, currentItem, targetItem, domEvent);
+  if (isNativeGesture(nativeName)) {
+    dispatchGestureEvent(originalName, nativeEvent, currentTargetNode, targetNode, params, domEvent);
+  } else {
+    dispatchUIEvent(originalName, nativeEvent, currentTargetNode, targetNode, params, domEvent);
+  }
 }
 
 function getHippyEventHub(eventName: any) {
@@ -157,24 +196,6 @@ function unregisterNativeEventHub(eventName: any) {
   }
 }
 
-function receiveUIComponentEvent(nativeEvent: any[]) {
-  trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
-  if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
-    return;
-  }
-  const [targetNodeId, eventName, eventParam] = nativeEvent;
-  if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
-    return;
-  }
-  const targetNode = getFiberNodeFromId(targetNodeId);
-  if (!targetNode) {
-    return;
-  }
-  if (isNodePropFunction(eventName, targetNode)) {
-    targetNode.memoizedProps[eventName](eventParam);
-  }
-}
-
 function receiveNativeEvent(nativeEvent: EventParam) {
   trace(...componentName, 'receiveNativeEvent', nativeEvent);
   if (!nativeEvent || !Array.isArray(nativeEvent) || nativeEvent.length < 2) {
@@ -196,8 +217,7 @@ const EventDispatcher = {
   getHippyEventHub,
   unregisterNativeEventHub,
   receiveNativeEvent,
-  receiveNativeGesture,
-  receiveUIComponentEvent,
+  receiveComponentEvent,
 };
 
 if (global.__GLOBAL__) {
