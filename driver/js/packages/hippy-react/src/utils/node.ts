@@ -190,6 +190,13 @@ const eventNamesMap: EventNamesMap = {
   onPress: ['onPress', 'onClick'],
 };
 
+const DOMEventPhase = {
+  NONE: 0,
+  CAPTURING_PHASE: 1,
+  AT_TARGET: 2,
+  BUBBLING_PHASE: 3,
+};
+
 const nativeEventMap = {
   onClick: 'click',
   onLongClick: 'longclick',
@@ -215,6 +222,7 @@ function translateToNativeEventName(name) {
 export {
   relativeToRefType,
   NATIVE_EVENT_INDEX,
+  DOMEventPhase,
   eventHandlerType,
   eventNamesMap,
   nativeEventMap,

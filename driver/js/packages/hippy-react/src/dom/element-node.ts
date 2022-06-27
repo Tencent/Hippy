@@ -33,7 +33,7 @@ import {
   isCaptureEvent,
   hasTargetEvent,
 } from '../utils';
-import { eventNamesMap, eventHandlerType, NATIVE_EVENT_INDEX, isNativeGesture } from '../utils/node';
+import { eventNamesMap, eventHandlerType, NATIVE_EVENT_INDEX } from '../utils/node';
 import { EventDispatcher } from '../event';
 import ViewNode from './view-node';
 
@@ -230,19 +230,18 @@ function getEventName(key: string) {
   return key;
 }
 
-function createEventListener(name): (event: HippyTypes.DOMEvent) => void {
+function createEventListener(nativeName, originalName): (event: HippyTypes.DOMEvent) => void {
   return (event) => {
-    const { id,  currentId, params } = event;
-    if (isNativeGesture(name)) {
-      const dispatcherEvent = {
-        id, name, currentId,
-      };
-      Object.assign(dispatcherEvent, params);
-      EventDispatcher.receiveNativeGesture(dispatcherEvent, event);
-    } else {
-      const dispatcherEvent = [currentId, name, params];
-      EventDispatcher.receiveUIComponentEvent(dispatcherEvent);
-    }
+    const { id,  currentId, params, eventPhase } = event;
+    const dispatcherEvent = {
+      id,
+      nativeName,
+      originalName,
+      params,
+      currentId,
+      eventPhase,
+    };
+    EventDispatcher.receiveComponentEvent(dispatcherEvent, event);
   };
 }
 
@@ -496,22 +495,25 @@ class ElementNode extends ViewNode {
           if (typeof value === 'function') {
             const eventName = getEventName(key);
             this.attributes[eventName] = value;
-            if (!this.events[eventName]) {
-              this.events[eventName] = {
+            if (!this.events[key]) {
+              // add event initially
+              this.events[key] = {
                 name: eventName,
                 type: eventHandlerType.ADD,
                 isCapture: isCaptureEvent(key),
-                listener: createEventListener(eventName),
+                listener: createEventListener(eventName, key),
               };
-            } else if (this.events[eventName] && this.events[eventName].type !== eventHandlerType.ADD) {
-              this.events[eventName].type = eventHandlerType.ADD;
+            } else if (this.events[key] && this.events[key].type !== eventHandlerType.ADD) {
+              // add event again when it is removed before
+              this.events[key].type = eventHandlerType.ADD;
             }
           } else {
             const eventName = getEventName(key);
-            if (hasTargetEvent(eventName, this.events)
+            if (hasTargetEvent(key, this.events)
               && typeof value !== 'function') {
+              // remove event
               delete this.attributes[eventName];
-              this.events[eventName].type = eventHandlerType.REMOVE;
+              this.events[key].type = eventHandlerType.REMOVE;
               return false;
             }
             this.attributes[key] = value;
