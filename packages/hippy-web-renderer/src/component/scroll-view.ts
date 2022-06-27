@@ -145,11 +145,11 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
   }
 
   public get scrollEnabled() {
-    return this.props[NodeProps.CONTENT_CONTAINER_STYLE];
+    return this.props[NodeProps.SCROLL_ENABLED];
   }
 
   public set scrollEnabled(value) {
-    this.props[NodeProps.CONTENT_CONTAINER_STYLE] = value;
+    this.props[NodeProps.SCROLL_ENABLED] = value;
     setElementStyle(this.dom!, this.scrollStyle());
   }
 
