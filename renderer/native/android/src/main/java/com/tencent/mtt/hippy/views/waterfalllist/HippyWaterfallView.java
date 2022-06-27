@@ -583,7 +583,11 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     }
 
     RenderNode getItemNode(int index) {
-      return getRenderNode().getChildAt(index);
+      RenderNode node = getRenderNode();
+      if (node != null) {
+        node.getChildAt(index);
+      }
+      return null;
     }
 
     @Override
