@@ -37,6 +37,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public resizeObserver: ResizeObserver|undefined;
   public layoutCache: {x: number, y: number, height: number, width: number}|null = null;
   public hammer;
+  private mountedLayoutDispatch = false;
   public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;
@@ -179,15 +180,28 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public mounted(): void {
     this.onAttachedToWindow();
     if (this.onLayout) {
-      const rect = this.dom!.getBoundingClientRect();
-      this.context.sendUiEvent(this.id, 'onLayout', { layout: {
-        x: rect.x,
-        y: rect.y,
-        width: rect.width,
-        height: rect.height,
-      },
-      target: this.id });
+      this.context.getModuleByName('UIManagerModule').addAfterCreateAction(() => {
+        this.mountedLayoutDispatch = true;
+        const rect = this.dom!.getBoundingClientRect();
+        let eventParam = {
+          x: rect.x,
+          y: rect.y,
+          width: rect.width,
+          height: rect.height,
+        };
+        if (rect.width !== this.dom!.clientWidth || rect.height !== this.dom!.clientHeight) {
+          eventParam = {
+            x: this.dom!.offsetLeft,
+            y: this.dom!.offsetTop,
+            width: this.dom!.clientWidth,
+            height: this.dom!.clientHeight,
+          };
+        }
+        this.context.sendUiEvent(this.id, 'onLayout', { layout: eventParam, target: this.id });
+      });
+      return;
     }
+    this.mountedLayoutDispatch = true;
   }
 
   public beforeChildRemove(child: HippyBaseView): void {
@@ -203,7 +217,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
 
   public handleReLayout(entries: ResizeObserverEntry[]) {
     const [entry] = entries;
-    if (!entry) {
+    if (!entry || !this.mountedLayoutDispatch) {
       return;
     }
     const { left, top, width, height } = entry.contentRect;

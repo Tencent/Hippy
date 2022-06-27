@@ -29,6 +29,7 @@ export class UIManagerModule extends HippyWebModule {
   private viewDictionary: { [key in string | number]: HippyBaseView } = {};
   private rootDom: HTMLElement | undefined;
   private contentDom: HTMLElement | undefined;
+  private afterCreateAction: Array<() => void> = [];
   constructor(context) {
     super(context);
     this.mode = 'sequential';
@@ -103,6 +104,8 @@ export class UIManagerModule extends HippyWebModule {
         (component as any)?.endBatch();
       }
     }
+    this.afterCreateAction.forEach(item => item());
+    this.afterCreateAction = [];
   }
 
   public async deleteNode(rootViewId: string, data: Array<{ id: number }>) {
@@ -226,6 +229,9 @@ export class UIManagerModule extends HippyWebModule {
       if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position) {
         setElementStyle(this.findViewById(component.pId)!.dom!, { position: 'relative' });
       }
+      if (props.style.position === 'absolute' && !props.style.width && !props.style.height && !props.style.overflow) {
+        setElementStyle(component.dom!, { overflow: 'visible' });
+      }
     }
     for (const key of keys) {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
@@ -236,6 +242,10 @@ export class UIManagerModule extends HippyWebModule {
       }
       component.updateProperty?.(key, props[key]);
     }
+  }
+
+  public addAfterCreateAction(callBack: () => void) {
+    this.afterCreateAction.push(callBack);
   }
 
   private updateComponentProps(component: HippyBaseView, props: any) {
