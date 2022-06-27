@@ -378,12 +378,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
 
     @HippyControllerProps(name = "underlineColorAndroid", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
-    public void setUnderlineColor(HippyTextInput view, Integer underlineColor) {
-        if (underlineColor == null) {
-            view.getBackground().clearColorFilter();
-        } else {
-            view.getBackground().setColorFilter(underlineColor, PorterDuff.Mode.SRC_IN);
-        }
+    public void setUnderlineColor(HippyTextInput hippyTextInput, int underlineColor) {
+        hippyTextInput.setUnderlineColor(underlineColor);
     }
 
     @HippyControllerProps(name = "changetext", defaultType = HippyControllerProps.BOOLEAN)
