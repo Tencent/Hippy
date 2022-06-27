@@ -51,7 +51,7 @@ constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
 #ifdef ENABLE_INSPECTOR
 constexpr char kHippyModuleName[] = "name";
 #endif
-constexpr uint64_t kInvalidListenerId = 0;
+constexpr uint64_t kInvalidListenerId = hippy::dom::EventListenerInfo::kInvalidListenerId;
 
 Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
     : engine_(engine),
@@ -183,12 +183,17 @@ void Scope::SaveFunctionData(std::unique_ptr<hippy::napi::FunctionData> data) {
   function_data_.push_back(std::move(data));
 }
 
-void Scope::AddListener(const EventListenerInfo& event_listener_info,
-                        const uint64_t listener_id) {
+hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
-  std::string event_name = event_listener_info.event_name;
+  const std::string& event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
   TDF_BASE_DCHECK(js_function != nullptr);
+  const bool added = HasListener(event_listener_info);
+  if (added)  {
+    return hippy::dom::EventListenerInfo{dom_id, event_name, event_listener_info.use_capture,
+                                         kInvalidListenerId, nullptr};
+  }
+  uint64_t listener_id = hippy::dom::FetchListenerId();
 
   // bind dom event id and js function
   auto event_node_it = bind_listener_map_.find(dom_id);
@@ -203,30 +208,52 @@ void Scope::AddListener(const EventListenerInfo& event_listener_info,
   }
 
   bind_listener_map_[dom_id][event_name][listener_id] = js_function;
+  return hippy::dom::EventListenerInfo{dom_id, event_name, event_listener_info.use_capture, listener_id,
+                                       [weak_scope = weak_from_this(), event_listener_info](
+                                               const std::shared_ptr<hippy::dom::DomEvent>& event) {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return;
+    }
+    std::weak_ptr<Ctx> weak_context = scope->GetContext();
+    auto context = weak_context.lock();
+    if (context) {
+      std::shared_ptr<hippy::dom::DomEvent> copied_event = event;
+      context->RegisterDomEvent(weak_scope, event_listener_info.callback, copied_event);
+    }
+  }};
 }
 
-void Scope::RemoveListener(const EventListenerInfo& event_listener_info,
-                           const uint64_t listener_id) {
+hippy::dom::EventListenerInfo Scope::RemoveListener(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
-  std::string event_name = event_listener_info.event_name;
+  const std::string& event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
   TDF_BASE_DCHECK(js_function != nullptr);
+
+  hippy::dom::EventListenerInfo result{dom_id, event_name, event_listener_info.use_capture,
+                                       kInvalidListenerId, nullptr};
+  const uint64_t listener_id = GetListenerId(event_listener_info);
+  if (listener_id == kInvalidListenerId) {
+    return result;
+  }
 
   // unbind dom event id and js function
   auto event_node_it = bind_listener_map_.find(dom_id);
   if (event_node_it == bind_listener_map_.end()) {
-    return;
+    return result;
   }
   auto event_name_it = bind_listener_map_[dom_id].find(event_name);
   if (event_name_it == bind_listener_map_[dom_id].end()) {
-    return;
+    return result;
   }
   bind_listener_map_[dom_id][event_name].erase(listener_id);
+  result.listener_id = listener_id;
+  return result;
 }
 
 bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
-  std::string event_name = event_listener_info.event_name;
+  const std::string& event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
   TDF_BASE_DCHECK(js_function != nullptr);
 
@@ -253,7 +280,7 @@ bool Scope::HasListener(const EventListenerInfo& event_listener_info) {
 
 uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
   uint32_t dom_id = event_listener_info.dom_id;
-  std::string event_name = event_listener_info.event_name;
+  const std::string& event_name = event_listener_info.event_name;
   const auto& js_function = event_listener_info.callback;
   TDF_BASE_DCHECK(js_function != nullptr);
 

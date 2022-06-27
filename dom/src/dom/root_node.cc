@@ -26,6 +26,7 @@ RootNode::RootNode(uint32_t id)
         : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}) {
   animation_manager_ = std::make_shared<AnimationManager>();
   interceptors_.push_back(animation_manager_);
+  event_callback_ = DoHandleEvent;
 }
 
 RootNode::RootNode(): RootNode(0) {}
@@ -220,6 +221,12 @@ void RootNode::RemoveEvent(uint32_t id, const std::string& event_name) {
 }
 
 void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
+  if (event_callback_) {
+    event_callback_(event);
+  }
+}
+
+void RootNode::DoHandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto weak_target = event->GetTarget();
   auto event_name = event->GetType();
   auto target = weak_target.lock();
@@ -237,58 +244,47 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
     auto capture_target_listeners = target->GetEventListener(event_name, true);
     auto bubble_target_listeners = target->GetEventListener(event_name, false);
     // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
-    auto runner = delegate_task_runner_.lock();
-    if (runner) {
-      std::shared_ptr<CommonTask> task = std::make_shared<CommonTask>();
-      task->func_ = [capture_list = std::move(capture_list),
-                   capture_target_listeners = std::move(capture_target_listeners),
-                   bubble_target_listeners = std::move(bubble_target_listeners),
-                   dom_event = std::move(event),
-                   event_name]() mutable {
-        // 执行捕获流程
-        std::queue<std::shared_ptr<DomNode>> bubble_list = {};
-        while (!capture_list.empty()) {
-          auto capture_node = capture_list.top();
-          capture_list.pop();
-          dom_event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
-          auto listeners = capture_node->GetEventListener(event_name, true);
-          for (const auto& listener : listeners) {
-            listener->cb(dom_event);  // StopPropagation并不会影响同级的回调调用
-          }
-          if (dom_event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
-            return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
-          }
-          bubble_list.push(std::move(capture_node));
-        }
-        // 执行本身节点回调
-        dom_event->SetCurrentTarget(dom_event->GetTarget());
-        for (const auto& listener : capture_target_listeners) {
-          listener->cb(dom_event);
-        }
-        if (dom_event->IsPreventCapture()) {
-          return;
-        }
-        for (const auto& listener : bubble_target_listeners) {
-          listener->cb(dom_event);
-        }
-        if (dom_event->IsPreventBubble()) {
-          return;
-        }
-        // 执行冒泡流程
-        while (!bubble_list.empty()) {
-          auto bubble_node = bubble_list.front();
-          bubble_list.pop();
-          dom_event->SetCurrentTarget(bubble_node);
-          auto listeners = bubble_node->GetEventListener(event_name, false);
-          for (const auto& listener : listeners) {
-            listener->cb(dom_event);
-          }
-          if (dom_event->IsPreventBubble()) {
-            break;
-          }
-        }
-      };
-      runner->PostTask(std::move(task));
+    // 执行捕获流程
+    std::queue<std::shared_ptr<DomNode>> bubble_list = {};
+    while (!capture_list.empty()) {
+      auto capture_node = capture_list.top();
+      capture_list.pop();
+      event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
+      auto listeners = capture_node->GetEventListener(event_name, true);
+      for (const auto& listener : listeners) {
+        listener->cb(event);  // StopPropagation并不会影响同级的回调调用
+      }
+      if (event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
+        return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
+      }
+      bubble_list.push(std::move(capture_node));
+    }
+    // 执行本身节点回调
+    event->SetCurrentTarget(event->GetTarget());
+    for (const auto& listener : capture_target_listeners) {
+      listener->cb(event);
+    }
+    if (event->IsPreventCapture()) {
+      return;
+    }
+    for (const auto& listener : bubble_target_listeners) {
+      listener->cb(event);
+    }
+    if (event->IsPreventBubble()) {
+      return;
+    }
+    // 执行冒泡流程
+    while (!bubble_list.empty()) {
+      auto bubble_node = bubble_list.front();
+      bubble_list.pop();
+      event->SetCurrentTarget(bubble_node);
+      auto listeners = bubble_node->GetEventListener(event_name, false);
+      for (const auto& listener : listeners) {
+        listener->cb(event);
+      }
+      if (event->IsPreventBubble()) {
+        break;
+      }
     }
   }
 }

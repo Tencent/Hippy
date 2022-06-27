@@ -9,16 +9,19 @@
 #include "dom/scene.h"
 #include "core/napi/js_native_api_types.h"
 
-class Scope;
-
 namespace hippy {
 inline namespace dom {
 
 struct EventListenerInfo {
+  static constexpr uint64_t kInvalidListenerId = 0;
+
   uint32_t dom_id;
   std::string event_name;
-  std::shared_ptr<hippy::napi::CtxValue> callback;
   bool use_capture;
+  uint64_t listener_id;
+  EventCallback callback;
+
+  bool IsValid() const { return listener_id != kInvalidListenerId; }
 };
 class SceneBuilder {
  public:
@@ -37,9 +40,14 @@ class SceneBuilder {
   void Delete(const std::weak_ptr<DomManager>& dom_manager,
               const std::weak_ptr<RootNode>& root_node,
               std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void AddEventListener(const std::weak_ptr<Scope>& weak_scope, const EventListenerInfo& event_listener_info);
-  void RemoveEventListener(const std::weak_ptr<Scope>& weak_scope, const EventListenerInfo& event_listener_info);
-  Scene Build(const std::weak_ptr<Scope>& weak_scope, const std::weak_ptr<DomManager>& dom_manager);
+  void AddEventListener(const std::weak_ptr<DomManager>& dom_manager,
+                        const std::weak_ptr<RootNode>& root_node,
+                        const EventListenerInfo& event_listener_info);
+  void RemoveEventListener(const std::weak_ptr<DomManager>& dom_manager,
+                           const std::weak_ptr<RootNode>& root_node,
+                           const EventListenerInfo& event_listener_info);
+  Scene Build(const std::weak_ptr<DomManager>& dom_manager,
+              const std::weak_ptr<RootNode>& root_node);
  private:
   std::vector<std::function<void()>> ops_;
   std::mutex mutex_;

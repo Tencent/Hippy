@@ -392,7 +392,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         if (strongSelf) {
             uint32_t rootTag = [tag unsignedIntValue];
             strongSelf->_rootNode = std::make_shared<hippy::RootNode>(rootTag);
-            strongSelf->_rootNode->SetDelegateTaskRunner(strongSelf.batchedBridge.javaScriptExecutor.pScope->GetTaskRunner());
             strongSelf->_rootNode->GetAnimationManager()->SetRootNode(strongSelf->_rootNode);
             strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetRootNode(strongSelf->_rootNode);
             strongSelf->_domManager = std::make_shared<hippy::DomManager>();

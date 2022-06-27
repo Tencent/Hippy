@@ -293,18 +293,9 @@ void Animation::Destroy() {
   animation_manager->RemoveAnimation(animation);
   if (status == Animation::Status::kRunning) {
     auto on_cancel = animation->GetAnimationCancelCb();
-    if (!on_cancel) {
-      return;
-    }
-    auto task_runner = root_node->GetDelegateTaskRunner().lock();
-    if (!task_runner) {
-      return;
-    }
-    auto task = std::make_shared<CommonTask>();
-    task->func_ = [on_cancel = std::move(on_cancel)]() {
+    if (on_cancel) {
       on_cancel();
-    };
-    task_runner->PostTask(std::move(task));
+    }
   }
 }
 

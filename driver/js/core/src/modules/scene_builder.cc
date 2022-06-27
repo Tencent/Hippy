@@ -362,7 +362,7 @@ std::tuple<bool, std::string, std::vector<std::shared_ptr<DomInfo>>> HandleJsVal
 void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
                              const size_t argument_count,
                              const std::shared_ptr<CtxValue> arguments[],
-                             hippy::dom::EventListenerInfo& listener_info){
+                             Scope::EventListenerInfo& listener_info) {
   TDF_BASE_DCHECK(argument_count == 4 || argument_count == 3);
 
   int32_t dom_id;
@@ -527,9 +527,10 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
     if (scope) {
-      hippy::dom::EventListenerInfo listener_info;
+      Scope::EventListenerInfo listener_info;
       HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
-      builder->AddEventListener(scope, listener_info);
+      auto dom_listener_info = scope->AddListener(listener_info);
+      builder->AddEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
     }
     return nullptr;
   };
@@ -543,9 +544,10 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
     if (scope) {
-      hippy::dom::EventListenerInfo listener_info;
+      Scope::EventListenerInfo listener_info;
       HandleEventListenerInfo(scope->GetContext(), argument_count, arguments, listener_info);
-      builder->RemoveEventListener(scope, listener_info);
+      auto dom_listener_info = scope->RemoveListener(listener_info);
+      builder->RemoveEventListener(scope->GetDomManager(), scope->GetRootNode(), dom_listener_info);
     }
     return nullptr;
   };
@@ -561,7 +563,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
     auto scope = weak_scope.lock();
     if (scope) {
       auto weak_dom_manager = scope->GetDomManager();
-      auto scene = builder->Build(weak_scope, weak_dom_manager);
+      auto scene = builder->Build(weak_dom_manager, scope->GetRootNode());
       auto dom_manager = weak_dom_manager.lock();
       if (dom_manager) {
         dom_manager->PostTask(std::move(scene));
