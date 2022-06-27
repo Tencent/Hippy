@@ -493,6 +493,14 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         getOrCreateReactViewBackground().setBorderWidth(width, position);
     }
 
+    public void setUnderlineColor(int underlineColor) {
+        if (underlineColor == 0) {
+            getOrCreateReactViewBackground().clearColorFilter();
+        } else {
+            getOrCreateReactViewBackground().setColorFilter(underlineColor, PorterDuff.Mode.SRC_IN);
+        }
+    }
+
     private CommonBackgroundDrawable getOrCreateReactViewBackground() {
         if (mReactBackgroundDrawable == null) {
             mReactBackgroundDrawable = new CommonBackgroundDrawable();

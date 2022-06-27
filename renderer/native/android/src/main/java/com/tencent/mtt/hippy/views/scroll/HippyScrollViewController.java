@@ -11,10 +11,12 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.hippypager.HippyPager;
+import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.List;
@@ -90,6 +92,13 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
     @HippyControllerProps(name = "initialContentOffset", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
     public void setInitialContentOffset(HippyScrollView view, int offset) {
         view.setInitialContentOffset((int) PixelUtil.dp2px(offset));
+    }
+
+    @HippyControllerProps(name = NodeProps.OVERFLOW, defaultType = HippyControllerProps.STRING, defaultString = "visible")
+    public void setOverflow(HippyScrollView scrollView, String overflow) {
+        if (scrollView instanceof ViewGroup) {
+            HippyViewGroup.setOverflow(overflow, (ViewGroup) scrollView);
+        }
     }
 
     @Override

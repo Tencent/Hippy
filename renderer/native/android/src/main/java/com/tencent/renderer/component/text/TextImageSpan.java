@@ -70,7 +70,7 @@ public class TextImageSpan extends ImageSpan {
     private final int mLeft;
     private final int mTop;
     private int mImageLoadState = STATE_UNLOAD;
-    private int mGifProgress;
+    private long mGifProgress;
     private long mGifLastPlayTime = -1;
     @NonNull
     private final NativeRender mNativeRenderer;
@@ -222,7 +222,8 @@ public class TextImageSpan extends ImageSpan {
         final float mGifScaleY = height / (float) mGifMovie.height();
         final float x = (mGifScaleX != 0) ? left / mGifScaleX : left;
         final float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
-        mGifMovie.setTime(mGifProgress);
+        int progress = mGifProgress > Integer.MAX_VALUE ? 0 : (int) mGifProgress;
+        mGifMovie.setTime(progress);
         canvas.save();
         canvas.scale(mGifScaleX, mGifScaleY);
         mGifMovie.draw(canvas, x, y);
