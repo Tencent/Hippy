@@ -55,7 +55,7 @@ class ScopeWrapper {
   std::weak_ptr<Scope> scope_;
 };
 
-class Scope {
+class Scope : public std::enable_shared_from_this<Scope> {
  public:
   using unicode_string_view = footstone::stringview::unicode_string_view;
   using AnimationManager = hippy::dom::AnimationManager;
@@ -70,11 +70,17 @@ class Scope {
   using FunctionData = hippy::napi::FunctionData;
   using BindingData = hippy::napi::BindingData;
   using Encoding = hippy::napi::Encoding;
-  using EventListenerInfo = hippy::dom::EventListenerInfo;
   using TaskRunner = footstone::runner::TaskRunner;
   using Task = footstone::Task;
   template <typename T>
   using InstanceDefine = hippy::napi::InstanceDefine<T>;
+
+  struct EventListenerInfo {
+    uint32_t dom_id;
+    std::string event_name;
+    std::shared_ptr<hippy::napi::CtxValue> callback;
+    bool use_capture;
+  };
 
   Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map);
   ~Scope();
@@ -116,8 +122,8 @@ class Scope {
     return binding_data_;
   }
 
-  void AddListener(const EventListenerInfo& event_listener_info, const uint64_t listener_id);
-  void RemoveListener(const EventListenerInfo& event_listener_info, const uint64_t listener_id);
+  hippy::dom::EventListenerInfo AddListener(const EventListenerInfo& event_listener_info);
+  hippy::dom::EventListenerInfo RemoveListener(const EventListenerInfo& event_listener_info);
   bool HasListener(const EventListenerInfo& event_listener_info);
   uint64_t GetListenerId(const EventListenerInfo& event_listener_info);
 

@@ -229,7 +229,17 @@ void DoConnect(JNIEnv* j_env,
   auto root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
   if (runtime && root_node) {
     auto scope = runtime->GetScope();
-    root_node->SetDelegateTaskRunner(scope->GetTaskRunner());
+    root_node->SetEventCallback(
+            [weak_scope = std::weak_ptr<Scope>(scope)](const std::shared_ptr<DomEvent>& event) {
+      auto scope = weak_scope.lock();
+      if (!scope) {
+        return;
+      }
+      auto callback = [event]() mutable {
+        RootNode::DoHandleEvent(event);
+      };
+      scope->GetTaskRunner()->PostTask(std::move(callback));
+    });
     scope->SetRootNode(root_node);
 #ifdef ENABLE_INSPECTOR
     auto devtools_data_source = scope->GetDevtoolsDataSource();
