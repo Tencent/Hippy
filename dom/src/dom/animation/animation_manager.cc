@@ -192,7 +192,7 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
                                   listener_id_,
                                   false,
                                   [weak_dom_manager, weak_animation_manager]
-                                      (std::shared_ptr<DomEvent>&) {
+                                      (const std::shared_ptr<DomEvent>&) {
                                     auto dom_manager = weak_dom_manager.lock();
                                     if (!dom_manager) {
                                       return;

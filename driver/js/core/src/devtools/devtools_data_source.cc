@@ -102,7 +102,7 @@ void DevtoolsDataSource::AddRootNodeListener(std::weak_ptr<RootNode> weak_root_n
   auto root_node = weak_root_node.lock();
   if (dom_manager && root_node) {
     dom_manager->AddEventListener(weak_root_node, root_node->GetId(), kDomTreeUpdated,
-                                  listener_id_, true, [DEVTOOLS_WEAK_THIS](std::shared_ptr<DomEvent> &event) {
+                                  listener_id_, true, [DEVTOOLS_WEAK_THIS](const std::shared_ptr<DomEvent> &event) {
           DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
           self->devtools_service_->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
         });

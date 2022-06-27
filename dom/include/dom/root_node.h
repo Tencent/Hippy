@@ -41,12 +41,6 @@ class RootNode : public DomNode {
     dom_manager_ = dom_manager;
   }
   inline std::shared_ptr<AnimationManager> GetAnimationManager() { return animation_manager_; }
-  inline void SetDelegateTaskRunner(std::shared_ptr<TaskRunner> runner) {
-    delegate_task_runner_ = runner;
-  }
-  inline std::weak_ptr<TaskRunner> GetDelegateTaskRunner() {
-    return delegate_task_runner_;
-  }
 
   virtual void AddEventListener(const std::string& name,
                                 uint64_t listener_id,
@@ -73,6 +67,9 @@ class RootNode : public DomNode {
   void SetRootSize(float width, float height);
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
+  inline void SetEventCallback(EventCallback event_callback) { event_callback_ = event_callback; }
+
+  static void DoHandleEvent(const std::shared_ptr<DomEvent>& event);
 
  private:
   struct DomOperation {
@@ -104,10 +101,10 @@ class RootNode : public DomNode {
   std::weak_ptr<RootNode> GetWeakSelf();
 
   std::unordered_map<uint32_t, std::weak_ptr<DomNode>> nodes_;
-  std::weak_ptr<TaskRunner> delegate_task_runner_;
   std::weak_ptr<DomManager> dom_manager_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
+  EventCallback event_callback_;
 };
 
 }  // namespace dom
