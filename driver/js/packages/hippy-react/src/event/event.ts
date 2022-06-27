@@ -21,8 +21,6 @@
 interface Event {
   type: string;
   bubbles: boolean;
-  cancelable: boolean;
-  timeStamp: Date | number;
   currentTarget: Element | null;
   target: Element | null;
 }
@@ -37,7 +35,6 @@ class Event implements Event {
   public constructor(eventName: string, currentTarget: Element | null, target: Element | null) {
     this.type = eventName;
     this.bubbles = true;
-    this.timeStamp = Date.now();
     // currentTarget is the node which the handler bind to
     this.currentTarget = currentTarget;
     // target is the node which triggered the real event

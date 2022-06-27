@@ -26,12 +26,9 @@ class Event {
     this.bubbles = true;
     this.cancelable = true;
     this.eventPhase = false;
-    this.timeStamp = Date.now();
-    // TODO: Should point to VDOM element.
     this.originalTarget = null;
     this.currentTarget = null;
     this.target = null;
-    // Private properties
     this._canceled = false;
   }
 

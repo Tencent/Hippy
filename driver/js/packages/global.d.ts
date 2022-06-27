@@ -458,6 +458,13 @@ declare namespace HippyTypes {
     CLOSED,
   }
 
+  export enum EventPhase {
+    NONE,
+    CAPTURING_PHASE,
+    AT_TARGET,
+    BUBBLING_PHASE,
+  }
+
   export interface DOMEvent {
     id: number;
     currentId: number;
@@ -465,6 +472,7 @@ declare namespace HippyTypes {
     currentTarget?: number | object;
     params?: any;
     type: string;
+    eventPhase: EventPhase;
     stopPropagation: () => void;
   }
 

@@ -20,8 +20,8 @@
 
 /* eslint-disable no-underscore-dangle */
 
-import { trace, getApp } from '../../../util';
-import { getNodeById } from '../../../util/node';
+import { trace, getApp, warn } from '../../../util';
+import { getNodeById, DOMEventPhase } from '../../../util/node';
 import { Event } from './event';
 
 const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
@@ -40,33 +40,27 @@ function getVueEventName(eventName, targetNode) {
   return str.charAt(0).toLowerCase() + str.slice(1);
 }
 
-/**
- * Special Touch Event handler compatible for previous camelCase touch event,
- * such as touchStart, touchMove etc.
- * @type {{isTouchEvent(), mapTouchEvent()}}
- */
-const SpecialTouchHandler = {
-  isTouchEvent(eventName) {
-    return ['onTouchDown', 'onTouchMove', 'onTouchEnd', 'onTouchCancel'].indexOf(eventName) >= 0;
-  },
-  convertTouchEvent(eventName, nativeEvent) {
-    let touchEvent;
-    if (eventName === 'onTouchDown') {
-      touchEvent = new Event('touchStart');
-    } else {
-      touchEvent = new Event(`t${eventName.slice(3, eventName.length)}`);
-    }
-    touchEvent.touches = {
-      0: {
-        clientX: nativeEvent.page_x,
-        clientY: nativeEvent.page_y,
-      },
-      length: 1,
-    };
-    return touchEvent;
-  },
-};
+function isTouchEvent(eventName) {
+  return ['onTouchDown', 'onTouchMove', 'onTouchEnd', 'onTouchCancel'].indexOf(eventName) >= 0;
+}
 
+/**
+ * convert events
+ */
+function convertEvent(eventName, targetEvent, params) {
+  if (isTouchEvent(eventName)) {
+    Object.assign(targetEvent, {
+      touches: {
+        0: {
+          clientX: params.page_x,
+          clientY: params.page_y,
+        },
+        length: 1,
+      },
+    });
+  }
+  return targetEvent;
+}
 const EventDispatcher = {
   /**
    * Redirect native events to Vue directly.
@@ -86,62 +80,46 @@ const EventDispatcher = {
   /**
    * Receive native interactive events.
    */
-  receiveNativeGesture(nativeEvent, domEvent) {
-    trace(...componentName, 'receiveNativeGesture', nativeEvent);
-    if (!nativeEvent) {
+  receiveComponentEvent(nativeEvent, domEvent) {
+    trace(...componentName, 'receiveComponentEvent', nativeEvent);
+    if (!nativeEvent || !domEvent) {
+      warn(...componentName, 'receiveComponentEvent', 'nativeEvent or domEvent not exist');
       return;
     }
-    const { id, currentId, name } = nativeEvent;
+    const { id, currentId, nativeName, originalName, params, eventPhase } = nativeEvent;
     const currentTargetNode = getNodeById(currentId);
     const targetNode = getNodeById(id);
     if (!currentTargetNode || !targetNode) {
+      warn(...componentName, 'receiveComponentEvent', 'currentTargetNode or targetNode not exist');
       return;
     }
-    const eventName = getVueEventName(name, currentTargetNode);
-    const targetEvent = new Event(eventName);
-    const { processEventData } = currentTargetNode._meta.component;
-    if (processEventData) {
-      processEventData(targetEvent, name, nativeEvent);
-    }
-    currentTargetNode.dispatchEvent(targetEvent, targetNode, domEvent);
-    if (SpecialTouchHandler.isTouchEvent(name)) {
-      currentTargetNode.dispatchEvent(SpecialTouchHandler.convertTouchEvent(name, nativeEvent), targetNode, domEvent);
-    }
-  },
-  /**
-   * Receive the events like keyboard typing
-   */
-  receiveUIComponentEvent(nativeEvent) {
-    trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
-    if (!nativeEvent || !(nativeEvent instanceof Array) || nativeEvent.length < 2) {
-      return;
-    }
-    const [targetNodeId, eventName, params] = nativeEvent;
-    if (typeof targetNodeId !== 'number' || typeof eventName !== 'string') {
-      return;
-    }
-    const targetNode = getNodeById(targetNodeId);
-    if (!targetNode) {
-      return;
-    }
-    const targetEventName = getVueEventName(eventName, targetNode);
-    const targetEvent = new Event(targetEventName);
-    // Post event parameters process.
-    if (eventName === 'onLayout') {
-      const { layout } = params;
-      targetEvent.top = layout.y;
-      targetEvent.left = layout.x;
-      targetEvent.bottom = layout.y + layout.height;
-      targetEvent.right = layout.x + layout.width;
-      targetEvent.width = layout.width;
-      targetEvent.height = layout.height;
-    } else {
-      const { processEventData } = targetNode._meta.component;
-      if (processEventData) {
-        processEventData(targetEvent, eventName, params);
+    try {
+      if ([DOMEventPhase.AT_TARGET, DOMEventPhase.BUBBLING_PHASE].indexOf(eventPhase) > -1) {
+        const targetEvent = new Event(originalName);
+        Object.assign(targetEvent, { eventPhase });
+        if (nativeName === 'onLayout') {
+          const { layout } = params;
+          targetEvent.top = layout.y;
+          targetEvent.left = layout.x;
+          targetEvent.bottom = layout.y + layout.height;
+          targetEvent.right = layout.x + layout.width;
+          targetEvent.width = layout.width;
+          targetEvent.height = layout.height;
+        } else {
+          const { processEventData } = currentTargetNode._meta.component;
+          if (processEventData) {
+            processEventData(targetEvent, nativeName, params);
+          }
+        }
+        currentTargetNode.dispatchEvent(
+          convertEvent(nativeName, targetEvent, params),
+          targetNode,
+          domEvent,
+        );
       }
+    } catch (err) {
+      console.error('receiveComponentEvent error', err);
     }
-    targetNode.dispatchEvent(targetEvent, targetNode);
   },
 };
 
