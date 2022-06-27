@@ -4,11 +4,15 @@
 
 # borderColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
 | [color](style/color.md) | 否  | Android、iOS
 
 # borderTopColor
+
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
@@ -16,17 +20,23 @@
 
 # borderBottomColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
 | [color](style/color.md) | 否 | Android、iOS
 
 # borderLeftColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
 | [color](style/color.md) | 否  |  Android、iOS
 
 # borderRightColor
+
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
@@ -99,6 +109,8 @@
 | [color](style/color.md) | 否   | Android、iOS
 
 # borderStyle
+
+> 默认值为 `solid`
 
 | 类型                              | 必需 | 支持平台
 | --------------------------------- | -------- | --- |

@@ -1,8 +1,8 @@
 <!-- docs/_sidebar.md -->
 
-* [Getting Started](guide/integration.md)
+* [Get Started](guide/integration.md)
 * [Debug](guide/debug.md)
-* [Structure](structure/introduction.md)
+* [Architecture](structure/introduction.md)
 * [Layout & Unit](guide/layout.md)
 * [Network](guide/network-request.md)
 * [Timer](guide/timer.md)

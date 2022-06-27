@@ -122,6 +122,10 @@ public class HippyPagerController extends HippyViewController<HippyPager> {
         pager.setOverflow(overflow);
     }
 
+    @HippyControllerProps(name = "offscreenPageLimit", defaultNumber = 0, defaultType = HippyControllerProps.NUMBER)
+    public void setOffscreenPageLimit(HippyPager pager, int limit) {
+        pager.setOffscreenPageLimit(limit);
+    }
     @Override
     public void dispatchFunction(HippyPager view, String functionName, HippyArray var) {
         if (view == null) {
