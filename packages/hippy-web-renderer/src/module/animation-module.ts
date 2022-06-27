@@ -115,12 +115,15 @@ export class AnimationModule extends HippyWebModule {
       this.linkAnimationSet2Element(animationId, component, animationProperty);
       return;
     }
+    if (this.animationPool[animationId]!.refNodeId) {
+      return;
+    }
     this.animationPool[animationId]!.refNodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
   }
 
   public linkAnimationSet2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
-    if (!this.animationSetPool[animationId]) {
+    if (!this.animationSetPool[animationId] || this.animationSetPool[animationId]!.refNodeId) {
       return;
     }
     this.animationSetPool[animationId]!.refNodeId = component.id;
@@ -540,6 +543,10 @@ class SimpleAnimationSet {
     const animationModule = this.context.getModuleByName('AnimationModule') as AnimationModule;
     for (let i = 0;i < this.setOption.children.length;i++) {
       const child = this.setOption.children[i];
+      if (i === 0) {
+        animationEndTime[i] = animationModule.findAnimation(child.animationId)!.animationUseTime;
+        continue;
+      }
       animationEndTime[i] = animationEndTime[i - 1]
           + (animationModule.findAnimation(child.animationId)?.animationUseTime ?? 0);
     }
