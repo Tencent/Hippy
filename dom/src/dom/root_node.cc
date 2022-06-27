@@ -246,7 +246,7 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
                    dom_event = std::move(event),
                    event_name]() mutable {
         // 执行捕获流程
-        std::queue<std::shared_ptr<DomNode>> bubble_list = {};
+        std::stack<std::shared_ptr<DomNode>> bubble_list = {};
         while (!capture_list.empty()) {
           auto capture_node = capture_list.top();
           capture_list.pop();
@@ -276,7 +276,7 @@ void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
         }
         // 执行冒泡流程
         while (!bubble_list.empty()) {
-          auto bubble_node = bubble_list.front();
+          auto bubble_node = bubble_list.top();
           bubble_list.pop();
           dom_event->SetCurrentTarget(bubble_node);
           auto listeners = bubble_node->GetEventListener(event_name, false);
