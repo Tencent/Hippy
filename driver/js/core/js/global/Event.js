@@ -49,3 +49,12 @@ global.__loadInstance__ = ((obj) => {
     throw new Error(`load instance error: [${name}] is not registered in js`);
   }
 });
+
+/**
+ *  unload instance callback
+ */
+global.__unloadInstance__ = ((obj) => {
+  const { id } = obj || {};
+  global.Hippy.emit('destroyInstance', id);
+  Hippy.bridge.callNative('UIManagerModule', 'removeRootView', id);
+});
