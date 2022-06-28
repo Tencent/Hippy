@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.uimanager;
 
+import android.text.TextUtils;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyMethod;

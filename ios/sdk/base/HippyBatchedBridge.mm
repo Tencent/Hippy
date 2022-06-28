@@ -1040,8 +1040,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     }
 
     @autoreleasepool {
-        NSMapTable *buckets = [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory valueOptions:NSPointerFunctionsStrongMemory
-                                                            capacity:_moduleDataByName.count];
+        NSMapTable *buckets =
+            [[NSMapTable alloc] initWithKeyOptions:NSPointerFunctionsStrongMemory
+                                      valueOptions:NSPointerFunctionsStrongMemory
+                                          capacity:_moduleDataByName.count];
 
         [moduleIDs enumerateObjectsUsingBlock:^(NSNumber *moduleID, NSUInteger i, __unused BOOL *stop) {
             HippyModuleData *moduleData = self->_moduleDataByID[moduleID.integerValue];
@@ -1057,18 +1059,23 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         for (dispatch_queue_t queue in buckets) {
             // HippyProfileBeginFlowEvent();
 
+            __weak id weakSelf = self;
             dispatch_block_t block = ^{
                 // HippyProfileEndFlowEvent();
-
+                id strongSelf = weakSelf;
+                if (!strongSelf) {
+                    return;
+                }
                 NSOrderedSet *calls = [buckets objectForKey:queue];
                 // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"-[HippyBatchedBridge handleBuffer:]", (@{
                 //        @"calls": @(calls.count),
                 //      }));
-
                 @autoreleasepool {
                     for (NSNumber *indexObj in calls) {
                         NSUInteger index = indexObj.unsignedIntegerValue;
-                        [self callNativeModule:[moduleIDs[index] integerValue] method:[methodIDs[index] integerValue] params:paramsArrays[index]];
+                        [strongSelf callNativeModule:[moduleIDs[index] integerValue]
+                                              method:[methodIDs[index] integerValue]
+                                              params:paramsArrays[index]];
                     }
                 }
 

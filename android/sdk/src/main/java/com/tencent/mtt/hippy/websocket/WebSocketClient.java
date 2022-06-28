@@ -37,6 +37,7 @@ import java.security.KeyManagementException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class WebSocketClient {
@@ -53,7 +54,7 @@ public class WebSocketClient {
   private final Handler mHandler;
   private final List<Header> mExtraHeaders;
   private final HybiParser mParser;
-  private boolean mConnected;
+  private AtomicBoolean mConnected;
   public static final String DISCONNECT_REASON_EOF = "EOF";
   public static final String DISCONNECT_REASON_SSL = "SSL";
   public static final String DISCONNECT_REASON_CONNECT = "CONNECT";
@@ -63,7 +64,7 @@ public class WebSocketClient {
     mURI = uri;
     mListener = listener;
     mExtraHeaders = extraHeaders;
-    mConnected = false;
+    mConnected = new AtomicBoolean(false);
     mParser = new HybiParser(this);
 
     mHandlerThread = new HandlerThread("websocket-thread");
@@ -86,8 +87,8 @@ public class WebSocketClient {
       public void run() {
         try {
           int port = (mURI.getPort() != -1) ? mURI.getPort()
-              : ((mURI.getScheme().equals("wss") || mURI.getScheme().equals("https")) ? 443
-                  : 80);
+                  : ((mURI.getScheme().equals("wss") || mURI.getScheme().equals("https")) ? 443
+                          : 80);
 
           String path = TextUtils.isEmpty(mURI.getPath()) ? "/" : mURI.getPath();
           if (!TextUtils.isEmpty(mURI.getQuery())) {
@@ -98,9 +99,9 @@ public class WebSocketClient {
           URI origin = new URI(originScheme, "//" + mURI.getHost(), null);
 
           SocketFactory factory =
-              (mURI.getScheme().equals("wss") || mURI.getScheme().equals("https"))
-                  ? getSSLSocketFactory()
-                  : SocketFactory.getDefault();
+                  (mURI.getScheme().equals("wss") || mURI.getScheme().equals("https"))
+                          ? getSSLSocketFactory()
+                          : SocketFactory.getDefault();
           mSocket = factory.createSocket(mURI.getHost(), port);
 
           PrintWriter out = new PrintWriter(mSocket.getOutputStream());
@@ -121,7 +122,7 @@ public class WebSocketClient {
           out.flush();
 
           HybiParser.HappyDataInputStream stream = new HybiParser.HappyDataInputStream(
-              mSocket.getInputStream());
+                  mSocket.getInputStream());
 
           // Read HTTP response status line.
           StatusLine statusLine = parseStatusLine(readLine(stream));
@@ -129,8 +130,8 @@ public class WebSocketClient {
             throw new ConnectException("WebSocketClient received no reply from server.");
           } else if (statusLine.code != SC_SWITCHING_PROTOCOLS) {
             throw new ConnectException(
-                "WebSocketClient connect error: code=" + statusLine.code + ",message="
-                    + statusLine.message);
+                    "WebSocketClient connect error: code=" + statusLine.code + ",message="
+                            + statusLine.message);
           }
 
           // Read HTTP response headers.
@@ -144,15 +145,14 @@ public class WebSocketClient {
                 throw new ConnectException("SHA-1 algorithm not found");
               } else if (!expected.equals(header.getValue().trim())) {
                 throw new ConnectException(
-                    "Invalid Sec-WebSocket-Accept, expected: " + expected + ", got: " + header
-                        .getValue());
+                        "Invalid Sec-WebSocket-Accept, expected: " + expected + ", got: " + header
+                                .getValue());
               }
             }
           }
 
           mListener.onConnect();
-
-          mConnected = true;
+          mConnected.set(true);
 
           // Now decode websocket frames.
           mParser.start(stream);
@@ -160,21 +160,21 @@ public class WebSocketClient {
         } catch (EOFException ex) {
           Log.d(TAG, "WebSocket EOF!", ex);
           mListener.onDisconnect(0, DISCONNECT_REASON_EOF);
-          mConnected = false;
+          mConnected.set(false);
         } catch (SSLException ex) {
           // Connection reset by peer
           Log.d(TAG, "Websocket SSL error!", ex);
           mListener.onDisconnect(0, DISCONNECT_REASON_SSL);
-          mConnected = false;
+          mConnected.set(false);
         } catch (ConnectException ex) {
           // WebSocketClient received no reply from server.
           Log.d(TAG, "Websocket Connect error!", ex);
           mListener.onDisconnect(0, DISCONNECT_REASON_CONNECT);
-          mConnected = false;
+          mConnected.set(false);
         } catch (Throwable ex) {
           mListener.onError(new Exception(ex));
         } finally {
-          if (!mConnected && mSocket != null) {
+          if (!mConnected.get() && mSocket != null) {
             try {
               mSocket.close();
             } catch (Throwable ex) {
@@ -203,7 +203,7 @@ public class WebSocketClient {
             mListener.onDisconnect(0, DISCONNECT_REASON_CLOSE);
             mSocket = null;
           }
-          mConnected = false;
+          mConnected.set(false);
         }
       });
     }
@@ -223,7 +223,7 @@ public class WebSocketClient {
   }
 
   public boolean isConnected() {
-    return mConnected;
+    return mConnected.get();
   }
 
   private StatusLine parseStatusLine(String line) throws IOException {
@@ -300,7 +300,7 @@ public class WebSocketClient {
   }
 
   private SSLSocketFactory getSSLSocketFactory()
-      throws NoSuchAlgorithmException, KeyManagementException {
+          throws NoSuchAlgorithmException, KeyManagementException {
     SSLContext context = SSLContext.getInstance("TLS");
     context.init(null, sTrustManagers, null);
     return context.getSocketFactory();

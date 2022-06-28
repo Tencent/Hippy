@@ -15,6 +15,8 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
+import android.graphics.Rect;
+import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
@@ -97,12 +99,20 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   private OnScrollFlingEndedEvent mOnScrollFlingEndedEvent;
   private OnScrollEvent mOnScrollEvent;
 
+  private boolean isTvPlatform;
+  private HippyListViewFocusHelper mFocusHelper = null;
+
   private void init(Context context, int orientation) {
     mHippyContext = ((HippyInstanceContext) context).getEngineContext();
     this.setLayoutManager(new LinearLayoutManager(context, orientation, false));
     setRepeatableSuspensionMode(false);
     mListAdapter = createAdapter(this, mHippyContext);
     setAdapter(mListAdapter);
+    isTvPlatform = mHippyContext.isRunningOnTVPlatform();
+    if (isTvPlatform) {
+      mFocusHelper = new HippyListViewFocusHelper(this);
+      setFocusableInTouchMode(true);
+    }
 
     final ViewConfiguration configuration = ViewConfiguration.get(context);
     touchSlop = configuration.getScaledTouchSlop();
@@ -173,6 +183,9 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   public void setListData() {
     LogUtils.d("hippylistview", "setListData");
     mListAdapter.notifyDataSetChanged();
+    if (isTvPlatform) {
+      mFocusHelper.setListData();
+    }
     dispatchLayout();
     if (mExposureEventEnable) {
       dispatchExposureEvent();
@@ -814,5 +827,48 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     if (footerView instanceof HippyPullFooterView) {
       event.send(footerView, param);
     }
+  }
+
+  @Override
+  public boolean dispatchKeyEvent(KeyEvent event) {
+    if (event.getAction() == KeyEvent.ACTION_DOWN) {
+      if (isTvPlatform) {
+        mFocusHelper.setKeyCode(event.getKeyCode());
+      }
+    }
+    return super.dispatchKeyEvent(event);
+  }
+
+  @Override
+  public void requestChildFocus(View child, View focused) {
+    super.requestChildFocus(child, focused);
+    if (!isTvPlatform) {
+      return;
+    }
+    mFocusHelper.requestChildFocus(child, focused);
+  }
+
+  @Override
+  public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {
+    if (!isTvPlatform) {
+      return super.requestChildRectangleOnScreen(child, rect, immediate);
+    }
+    return mFocusHelper.requestChildRectangleOnScreen(child, rect, immediate);
+  }
+
+  @Override
+  protected int getChildDrawingOrder(int childCount, int i) {
+    if (!isTvPlatform) {
+      return super.getChildDrawingOrder(childCount, i);
+    }
+    return mFocusHelper.getChildDrawingOrder(childCount, i);
+  }
+
+  @Override
+  public View focusSearch(View focused, int direction) {
+    if (!isTvPlatform) {
+      return super.focusSearch(focused, direction);
+    }
+    return mFocusHelper.focusSearch(focused, direction);
   }
 }
