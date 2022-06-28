@@ -2,7 +2,6 @@ const path = require('path');
 const { rollup } = require('rollup');
 const reactBuilds = require('./react-configs').getAllBuilds();
 const vueBuilds = require('./vue-configs').getAllBuilds();
-const buildDebugServer = require('./build-debug-server');
 
 let builds = [...reactBuilds, ...vueBuilds];
 
@@ -51,5 +50,3 @@ function build(buildSets) {
 }
 
 build(builds);
-
-buildDebugServer();

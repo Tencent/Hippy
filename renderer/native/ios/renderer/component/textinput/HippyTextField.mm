@@ -414,7 +414,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         }
         _onKeyPress(@{ @"key": resultKey });
     }
-    NSString *toBeString = [textField.text stringByReplacingCharactersInRange:range withString:string];
+    //https://stackoverflow.com/questions/55379602/ios-out-of-range-crash-when-using-shake-to-undo-a-paste-into-uitextview-with-ove?answertab=trending#tab-top
+    //Follows the above steps, [NSString stringByReplacingCharactersInRange:withString:] crashes
+    NSString *text = textField.text;
+    BOOL rangeSafeForText = (range.location != NSNotFound && range.location + range.length <= text.length);
+    if (!rangeSafeForText) {
+        return NO;
+    }
+    NSString *toBeString = [text stringByReplacingCharactersInRange:range withString:string];
     if (textField.isSecureTextEntry) {
         textField.text = toBeString;
         return NO;

@@ -46,7 +46,6 @@ driver/js/examples/ios-demo/Podfile.lock
 driver/js/examples/ios-demo/devtools_backend/*
 
 driver/js/packages/hippy-vue-loader/remote-debug-profile/*
-driver/js/packages/hippy-debug-server/webpack-dev-server/client
 
 docs/assets/*.png
 docs/assets/*.jpg
