@@ -155,15 +155,20 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+
   auto scope = runtime->GetScope();
 #ifdef ANDROID_NATIVE_RENDER
-  std::shared_ptr<NativeRenderManager>
-      render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_render_id));
+  auto& map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager = nullptr;
+  bool ret = map.Find(hippy::base::checked_numeric_cast<jint, int32_t>(j_render_id), render_manager);
+  if (!ret) {
+    TDF_BASE_DLOG(WARNING) << "DoBind render_manager invalid";
+    return;
+  }
 #else
   std::shared_ptr<RenderManager>
       render_manager = nullptr;
 #endif
-
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);

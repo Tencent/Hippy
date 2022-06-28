@@ -82,19 +82,29 @@ jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_dens
   auto native_render_manager = std::static_pointer_cast<NativeRenderManager>(render_manager);
   auto density = static_cast<float>(j_density);
   native_render_manager->SetDensity(density);
-  NativeRenderManager::Insert(native_render_manager);
+  auto& map = NativeRenderManager::PersistentMap();
+  bool ret = map.Insert(native_render_manager->GetId(), native_render_manager);
+  if (!ret) {
+    TDF_BASE_DLOG(WARNING) << "OnCreateNativeRenderProvider insert render manager invalid";
+  }
   return native_render_manager->GetId();
 }
 
 void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_instance_id) {
-  NativeRenderManager::Erase(static_cast<int32_t>(j_instance_id));
+  auto& map = NativeRenderManager::PersistentMap();
+  bool ret = map.Erase(static_cast<int32_t>(j_instance_id));
+  if (!ret) {
+    TDF_BASE_DLOG(WARNING) << "OnDestroyNativeRenderProvider delete render manager invalid";
+  }
 }
 
 void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_root_id,
                     jfloat j_width, jfloat j_height) {
-  std::shared_ptr<NativeRenderManager> render_manager = NativeRenderManager::Find(
-          static_cast<int32_t>(j_instance_id));
-  if (!render_manager) {
+  auto& map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager;
+  bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
+
+  if (!ret) {
     TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_instance_id invalid";
     return;
   }
@@ -126,9 +136,11 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
 
 void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j_root_id, jint j_node_id,
                     jfloat j_width, jfloat j_height, jboolean j_is_sync) {
-  std::shared_ptr<NativeRenderManager> render_manager = NativeRenderManager::Find(
-          static_cast<int32_t>(j_instance_id));
-  if (!render_manager) {
+  auto& map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager;
+  bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
+
+  if (!ret) {
     TDF_BASE_DLOG(WARNING) << "UpdateNodeSize j_instance_id invalid";
     return;
   }
@@ -170,9 +182,11 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j
 void DoCallBack(JNIEnv *j_env, jobject j_object,
                 jint j_instance_id, jint j_result, jstring j_func_name, jint j_root_id, jint j_node_id,
                 jlong j_cb_id, jbyteArray j_buffer, jint j_offset, jint j_length) {
-  std::shared_ptr<NativeRenderManager> render_manager = NativeRenderManager::Find(
-          static_cast<int32_t>(j_instance_id));
-  if (!render_manager) {
+  auto& map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager;
+  bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
+
+  if (!ret) {
     TDF_BASE_DLOG(WARNING) << "DoCallBack j_instance_id invalid";
     return;
   }
@@ -219,8 +233,11 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
 
 void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j_root_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length, jboolean j_use_capture, jboolean j_use_bubble) {
-  std::shared_ptr<NativeRenderManager> render_manager = NativeRenderManager::Find(static_cast<int32_t>(j_instance_id));
-  if (!render_manager) {
+  auto& map = NativeRenderManager::PersistentMap();
+  std::shared_ptr<NativeRenderManager> render_manager;
+  bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
+
+  if (!ret) {
     TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
     return;
   }
