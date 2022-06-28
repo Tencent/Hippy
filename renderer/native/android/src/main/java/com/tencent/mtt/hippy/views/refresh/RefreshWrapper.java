@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewWrapper;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
@@ -31,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
-public class RefreshWrapper extends HippyViewGroup {
+public class RefreshWrapper extends HippyViewGroup implements ClipChildrenView {
 
     RefreshWrapperItemView mRefreshWrapperItemView;
     View mContentView;
@@ -65,8 +66,8 @@ public class RefreshWrapper extends HippyViewGroup {
 
     public RefreshWrapper(Context context) {
         super(context);
+        setClipChildren(true);
     }
-
 
     void setSTranslationY(float y) {
         if (mRefreshWrapperItemView != null) {

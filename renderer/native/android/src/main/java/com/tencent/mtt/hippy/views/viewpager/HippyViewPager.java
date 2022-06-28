@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
 
 import android.content.Context;
@@ -33,7 +34,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 
 @SuppressWarnings({"unused"})
-public class HippyViewPager extends ViewPager implements HippyViewBase {
+public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChildrenView {
 
     private static final String TAG = "HippyViewPager";
 

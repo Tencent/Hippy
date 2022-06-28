@@ -36,8 +36,11 @@ import com.tencent.mtt.hippy.utils.DevtoolsUtil;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
+import com.tencent.mtt.hippy.views.refresh.RefreshWrapper;
+import com.tencent.mtt.hippy.views.scroll.HippyScrollView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.mtt.supportui.views.IGradient;
 import com.tencent.mtt.supportui.views.IShadow;
@@ -688,6 +691,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
         try {
             parentView.addView(view, realIndex);
+            if (view instanceof ClipChildrenView) {
+                parentView.setClipChildren(true);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

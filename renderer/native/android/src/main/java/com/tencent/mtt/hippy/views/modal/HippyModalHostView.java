@@ -430,6 +430,7 @@ public class HippyModalHostView extends HippyViewGroup implements
         public DialogRootView(Context context) {
             super(context);
             setFitsSystemWindows(false);
+            setClipChildren(true);
         }
 
         @Override
