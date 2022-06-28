@@ -26,9 +26,6 @@
 
 namespace hippy::inspector {
 
-V8ChannelImpl::V8ChannelImpl(std::shared_ptr<Bridge> bridge)
-    : bridge_(std::move(bridge)) {}
-
 void V8ChannelImpl::sendResponse(
     int callId,
     std::unique_ptr<v8_inspector::StringBuffer> message) {

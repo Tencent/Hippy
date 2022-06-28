@@ -50,20 +50,17 @@ void PageDomain::RegisterCallback() {
 }
 
 void PageDomain::StartScreencast(const ScreenShotRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "PageDomain::StartScreencast");
   screen_shot_model_->SetScreenShotRequest(request);
   frame_poll_model_->StartPoll();
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
 void PageDomain::StopScreencast(const BaseRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "PageDomain::StopScreencast");
   frame_poll_model_->StopPoll();
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 
 void PageDomain::ScreencastFrameAck(const BaseRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "PageDomain::ScreencastFrameAck");
   ResponseResultToFrontend(request.GetId(), "{}");
 }
 

@@ -44,6 +44,10 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   }
 }
 
+DevtoolsBackendService::~DevtoolsBackendService() {
+  BACKEND_LOGI(TDF_BACKEND, "~DevtoolsBackendService");
+}
+
 void DevtoolsBackendService::Create() {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   data_channel_->GetNotificationCenter()->vm_response_notification =
@@ -55,7 +59,7 @@ void DevtoolsBackendService::Create() {
 }
 
 void DevtoolsBackendService::Destroy(bool is_reload) {
-  BACKEND_LOGI(TDF_BACKEND, "Destroy is_reload: %b", is_reload);
+  BACKEND_LOGI(TDF_BACKEND, "Destroy is_reload: %d", is_reload);
   tunnel_service_->Close(is_reload);
   domain_dispatch_->ClearDomainHandler();
 }

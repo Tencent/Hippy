@@ -80,6 +80,14 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
   engine_cb_map->insert(std::make_pair(hippy::base::kVMCreateCBKey, vm_cb));
 
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  if (is_dev_module) {
+    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
+    devtools_data_source->SetRuntimeDebugMode(is_dev_module);
+    runtime->SetDevtoolsDataSource(devtools_data_source);
+  }
+#endif
+
   TDF_BASE_LOG(INFO) << "global_config = " << global_config;
   std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
 
@@ -98,9 +106,9 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     if (runtime->IsDebug()) {
       if (!global_inspector) {
         global_inspector = std::make_shared<V8InspectorClientImpl>(scope);
-        global_inspector->Connect(runtime->GetBridge());
+        global_inspector->Connect(runtime->GetDevtoolsDataSource());
       } else {
-        global_inspector->Reset(scope, runtime->GetBridge());
+        global_inspector->Reset(scope, runtime->GetDevtoolsDataSource());
       }
       global_inspector->CreateContext();
     }
@@ -174,13 +182,11 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 #ifdef ENABLE_INSPECTOR
   if (is_dev_module) {
     DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
-    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
-    devtools_data_source->SetRuntimeDebugMode(is_dev_module);
-    scope->SetDevtoolsDataSource(devtools_data_source);
+    scope->SetDevtoolsDataSource(runtime->GetDevtoolsDataSource());
 #ifndef V8_WITHOUT_INSPECTOR
     scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
       std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
-      if (!runtime || !runtime->IsDebug()) {
+      if (!runtime) {
         TDF_BASE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
         return;
       }
@@ -378,7 +384,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
-      global_inspector->Reset(nullptr, runtime->GetBridge());
+      global_inspector->Reset(nullptr, nullptr);
     } else {
       runtime->GetScope()->WillExit();
     }

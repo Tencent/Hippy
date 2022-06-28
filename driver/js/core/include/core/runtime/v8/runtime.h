@@ -71,6 +71,14 @@ class Runtime {
   inline void SetBridge(std::shared_ptr<Bridge> bridge) {
     bridge_ = bridge;
   }
+#ifdef ENABLE_INSPECTOR
+  inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+    devtools_data_source_ = devtools_data_source;
+  }
+  inline std::shared_ptr<hippy::devtools::DevtoolsDataSource> GetDevtoolsDataSource() {
+    return devtools_data_source_;
+  }
+#endif
 #ifdef ANDROID_NATIVE_RENDER
   inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
     return turbo_module_runtime_;
@@ -98,6 +106,9 @@ class Runtime {
   int32_t id_;
 #ifdef ANDROID_NATIVE_RENDER
   std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
+#endif
+#ifdef ENABLE_INSPECTOR
+  std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
 #endif
 
   std::shared_ptr<Bridge> bridge_;

@@ -38,8 +38,10 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope);
   ~V8InspectorClientImpl() = default;
 
-  void Reset(std::shared_ptr<Scope> scope, std::shared_ptr<Bridge> bridge);
-  void Connect(const std::shared_ptr<Bridge>& bridge);
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  void Reset(std::shared_ptr<Scope> scope, const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
+  void Connect(const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
+#endif
 
   void SendMessageToV8(const unicode_string_view& params);
   void CreateContext();
