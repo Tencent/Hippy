@@ -21,9 +21,9 @@
  */
 
 #import "HippyModalHostView.h"
-
 #import "HippyModalHostViewController.h"
 #import "UIView+Hippy.h"
+#import "UIView+MountEvent.h"
 #import "HippyModalHostViewInteractor.h"
 
 @implementation HippyModalHostView {

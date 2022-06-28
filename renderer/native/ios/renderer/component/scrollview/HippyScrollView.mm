@@ -24,6 +24,7 @@
 #import "HippyScrollView.h"
 #import "UIView+Private.h"
 #import "UIView+Hippy.h"
+#import "UIView+MountEvent.h"
 #import "UIView+DirectionalLayout.h"
 
 @interface HippyCustomScrollView : UIScrollView <UIGestureRecognizerDelegate>
@@ -322,34 +323,6 @@
         }
 
         _scrollView.contentOffset = originalOffset;
-    }
-
-    [self updateClippedSubviews];
-}
-
-- (void)updateClippedSubviews {
-    // Find a suitable view to use for clipping
-    UIView *clipView = [self hippy_findClipView];
-    if (!clipView) {
-        return;
-    }
-
-    static const CGFloat leeway = 1.0;
-
-    const CGSize contentSize = _scrollView.contentSize;
-    const CGRect bounds = _scrollView.bounds;
-    const BOOL scrollsHorizontally = contentSize.width > bounds.size.width;
-    const BOOL scrollsVertically = contentSize.height > bounds.size.height;
-
-    const BOOL shouldClipAgain
-        = CGRectIsNull(_lastClippedToRect) || !CGRectEqualToRect(_lastClippedToRect, bounds)
-          || (scrollsHorizontally && (bounds.size.width < leeway || fabs(_lastClippedToRect.origin.x - bounds.origin.x) >= leeway))
-          || (scrollsVertically && (bounds.size.height < leeway || fabs(_lastClippedToRect.origin.y - bounds.origin.y) >= leeway));
-
-    if (shouldClipAgain) {
-        const CGRect clipRect = CGRectInset(clipView.bounds, -leeway, -leeway);
-        [self hippy_updateClippedSubviewsWithClipRect:clipRect relativeToView:clipView];
-        _lastClippedToRect = bounds;
     }
 }
 

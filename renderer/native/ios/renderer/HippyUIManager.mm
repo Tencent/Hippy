@@ -37,7 +37,7 @@
 #import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "OCTypeToDomArgument.h"
-#import "UIView+HippyEvent.h"
+#import "UIView+DomEvent.h"
 #import "objc/runtime.h"
 #import "UIView+Render.h"
 #import "RenderErrorHandler.h"
@@ -906,8 +906,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 #pragma mark -
 #pragma mark Event Handler
 
-- (void)addEventName:(const std::string &)name
-        forDomNodeId:(int32_t)node_id
+- (void)addEventName:(const std::string &)name forDomNodeId:(int32_t)node_id
           onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode {
     auto strongRootNode = rootNode.lock();
     if (!strongRootNode) {
@@ -968,7 +967,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         std::string name_ = name;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             HippyUIManager *uiManager = (HippyUIManager *)renderContext;
-            [uiManager addRenderEvent:name_ forDomNode:node_id onRootNode:rootNode];
+            [uiManager addPropertyEvent:name_ forDomNode:node_id onRootNode:rootNode];
         }];
     }
 }
@@ -989,7 +988,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     } else if (name == hippy::kPressIn || name == hippy::kPressOut) {
         [self addPressEventListenerForType:name forView:node_id onRootNode:rootNode];
     } else {
-        [self addRenderEvent:name forDomNode:node_id onRootNode:rootNode];
+        [self addPropertyEvent:name forDomNode:node_id onRootNode:rootNode];
     }
 }
 
@@ -1202,14 +1201,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         std::string name_ = eventName;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             UIView *view = [viewRegistry objectForKey:@(hippyTag)];
-            [view removeStatusChangeEvent:name_];
+            [view removePropertyEvent:name_];
         }];
     }
 }
 
-- (void)addRenderEvent:(const std::string &)name
-            forDomNode:(int32_t)node_id
-            onRootNode:(std::weak_ptr<RootNode>)rootNode {
+- (void)addPropertyEvent:(const std::string &)name forDomNode:(int32_t)node_id
+              onRootNode:(std::weak_ptr<RootNode>)rootNode {
     AssertMainQueue();
     auto strongRootNode = rootNode.lock();
     if (!strongRootNode) {
@@ -1228,7 +1226,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             BOOL canBePreventedInCapturing = [view canBePreventedByInCapturing:name_];
             BOOL canBePreventedInBubbling = [view canBePreventInBubbling:name_];
             __weak id weakSelf = self;
-            [view addStatusChangeEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
+            [view addPropertyEvent:[mapToEventName UTF8String] eventCallback:^(NSDictionary *body) {
                 id strongSelf = weakSelf;
                 if (strongSelf) {
                     [strongSelf domNodeForHippyTag:node_id onRootNode:rootNode resultNode:^(std::shared_ptr<DomNode> domNode) {
@@ -1260,7 +1258,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyUIManager *uiManager = (HippyUIManager *)renderContext;
         UIView *view = [uiManager viewForHippyTag:@(node_id) onRootTag:@(root_id)];
-        [view removeStatusChangeEvent:name_];
+        [view removePropertyEvent:name_];
     }];
 }
 

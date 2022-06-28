@@ -22,7 +22,7 @@
 
 #import "HippyImageView+HippyTouchesImplementation.h"
 #import "UIView+Hippy.h"
-#import "UIView+HippyEvent.h"
+#import "UIView+DomEvent.h"
 #import "objc/runtime.h"
 
 @implementation HippyImageView (HippyTouchesImplementation)

@@ -26,7 +26,7 @@
 #import "UIView+Hippy.h"
 #import "HippyNavigatorItemViewController.h"
 #import "HippyNavigatorRootViewController.h"
-#import "UIView+AppearEvent.h"
+#import "UIView+MountEvent.h"
 
 @interface HippyNavigatorHostView () {
     NSDictionary *_initProps;

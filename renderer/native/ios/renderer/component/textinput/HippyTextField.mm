@@ -27,9 +27,7 @@
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
 
-@implementation HippyUITextField {
-    BOOL _jsRequestingFirstResponder;
-}
+@implementation HippyUITextField
 
 - (void)setKeyboardType:(UIKeyboardType)keyboardType {
     NSString *tempPwdStr = self.text;
@@ -51,10 +49,6 @@
 - (void)paste:(id)sender {
     _textWasPasted = YES;
     [super paste:sender];
-}
-
-- (void)hippyWillMakeFirstResponder {
-    _jsRequestingFirstResponder = YES;
 }
 
 - (BOOL)canBecomeFirstResponder {
@@ -85,17 +79,6 @@
 - (void)textview_resignFirstResponder {
     if (_onBlur) {
         _onBlur(@{});
-    }
-}
-
-- (void)hippyDidMakeFirstResponder {
-    _jsRequestingFirstResponder = YES;
-}
-
-- (void)didMoveToWindow {
-    if (_jsRequestingFirstResponder) {
-        [self becomeFirstResponder];
-        [self hippyDidMakeFirstResponder];
     }
 }
 

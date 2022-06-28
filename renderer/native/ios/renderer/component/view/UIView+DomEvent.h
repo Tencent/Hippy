@@ -34,37 +34,37 @@ NS_ASSUME_NONNULL_BEGIN
  * Return NULL for [HippyTouchesProtocol eventListenerForEventType:]
  */
 
-@interface UIView(HippyEvent)<HippyTouchesProtocol>
+@interface UIView(DomEvent)<HippyTouchesProtocol>
 
 /**
- * add status change event for view
+ * Add custom property event for view
  * @param name event name
  * @param callback event call back for event
  */
-- (void)addStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+- (void)addPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
 
 /**
- * remove status change event for view
+ * Remove status change event for view
  * @param name event name
  */
-- (void)removeStatusChangeEvent:(const std::string &)name;
+- (void)removePropertyEvent:(const std::string &)name;
 
 /**
- * notify view event has been added
+ * Notify view event has been added
  * @param name event name
  * @param callback event block
  *
  * @discussion The default implementation of this method is to trigger onDidMount event if it is onDidMount event
  */
-- (void)didAddStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
 
 /**
- * notify view event has been removed from view
+ * Notify view event has been removed from view
  * @param name event name
  *
  * @discussion The default implementation of this method is to trigger onDidUnmount event if it is onDidUnmount event
  */
-- (void)didRemoveStatusChangeEvent:(const std::string &)name;
+- (void)didRemovePropertyEvent:(const std::string &)name;
 
 @end
 

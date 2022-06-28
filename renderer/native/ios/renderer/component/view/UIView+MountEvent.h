@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
 
-@interface UIView (AppearEvent)
+@interface UIView (MountEvent)
 
 @property (nonatomic, copy) HippyDirectEventBlock onAppear;
 @property (nonatomic, copy) HippyDirectEventBlock onDisappear;
@@ -31,6 +31,8 @@
 @property (nonatomic, copy) HippyDirectEventBlock onWillDisappear;
 @property (nonatomic, copy) HippyDirectEventBlock onDidMount;
 @property (nonatomic, copy) HippyDirectEventBlock onDidUnmount;
+@property (nonatomic, copy) HippyDirectEventBlock onAttachedToWindow;
+@property (nonatomic, copy) HippyDirectEventBlock onDetachedFromWindow;
 
 - (void)viewAppearEvent;
 - (void)viewDisappearEvent;
@@ -38,5 +40,8 @@
 - (void)viewWillDisappearEvent;
 - (void)viewDidMountEvent;
 - (void)viewDidUnmoundEvent;
+
+- (void)sendAttachedToWindowEvent;
+- (void)sendDetachedFromWindowEvent;
 
 @end

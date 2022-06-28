@@ -161,10 +161,6 @@ HIPPY_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
 HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(onInterceptTouchEvent, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(onInterceptPullUpEvent, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
 
 HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
@@ -432,16 +428,10 @@ HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(overflow, OverflowType)
 
 HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(onLayout, HippyDirectEventBlock)
 
-HIPPY_EXPORT_VIEW_PROPERTY(onClick, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onLongClick, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onPressIn, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onPressOut, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onTouchDown, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onTouchMove, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onTouchEnd, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDidMount, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDidUnmount, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)
+HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
 
 HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
 

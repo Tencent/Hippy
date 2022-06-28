@@ -22,12 +22,11 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyComponent.h"
-#import "HippyViewEventProtocol.h"
 #include "dom/dom_node.h"
 
 @class NativeRenderObjectView;
 
-@interface UIView (Hippy) <HippyComponent, HippyViewEventProtocol, HippyViewTouchHandlerProtocol>
+@interface UIView (Hippy) <HippyComponent>
 
 /**
  * HippyComponent interface.
@@ -39,11 +38,6 @@
 - (void)resetHippySubviews;
 
 - (UIView *)hippyRootView;
-
-/**
- * HippyViewTouchHandlerProtocol interface.
- */
-- (BOOL)interceptTouchEvent;
 
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews.
@@ -99,16 +93,6 @@
  * attached to the view hierarchy).
  */
 - (void)hippyAddControllerToClosestParent:(UIViewController *)controller;
-
-/**
- * Responder overrides - to be deprecated.
- */
-- (void)hippyWillMakeFirstResponder;
-- (void)hippyDidMakeFirstResponder;
-- (BOOL)hippyRespondsToTouch:(UITouch *)touch;
-
-- (void)sendAttachedToWindowEvent;
-- (void)sendDetachedFromWindowEvent;
 
 @property (nonatomic, weak) __kindof NativeRenderObjectView *nativeRenderObjectView;
 

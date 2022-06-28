@@ -25,7 +25,7 @@
 #import "HippyViewPagerItem.h"
 #import "UIView+Hippy.h"
 #import "UIView+DirectionalLayout.h"
-#import "UIView+AppearEvent.h"
+#import "UIView+MountEvent.h"
 
 @interface HippyViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;

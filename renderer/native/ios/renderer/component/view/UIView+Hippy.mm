@@ -23,14 +23,7 @@
 #import "UIView+Hippy.h"
 #import <objc/runtime.h>
 #import "NativeRenderObjectView.h"
-
-#define HIPPYEVENTMETHOD(name, value, type)                                                       \
-    -(void)set##name : (type)value {                                                              \
-        objc_setAssociatedObject(self, @selector(value), value, OBJC_ASSOCIATION_COPY_NONATOMIC); \
-    }                                                                                             \
-    -(type)value {                                                                                \
-        return objc_getAssociatedObject(self, _cmd);                                              \
-    }
+#import "UIView+MountEvent.h"
 
 @implementation UIView (Hippy)
 
@@ -48,22 +41,6 @@
 
 - (void)setRootTag:(NSNumber *)rootTag {
     objc_setAssociatedObject(self, @selector(rootTag), rootTag, OBJC_ASSOCIATION_COPY_NONATOMIC);
-}
-
-- (BOOL)onInterceptTouchEvent {
-    return [objc_getAssociatedObject(self, _cmd) boolValue];
-}
-
-- (void)setOnInterceptTouchEvent:(BOOL)onInterceptTouchEvent {
-    objc_setAssociatedObject(self, @selector(onInterceptTouchEvent), @(onInterceptTouchEvent), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (BOOL)onInterceptPullUpEvent {
-    return [objc_getAssociatedObject(self, _cmd) boolValue];
-}
-
-- (void)setOnInterceptPullUpEvent:(BOOL)onInterceptPullUpEvent {
-    objc_setAssociatedObject(self, @selector(onInterceptPullUpEvent), @(onInterceptPullUpEvent), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (NSDictionary *)props {
@@ -98,19 +75,6 @@
     return self.superview;
 }
 
-// clang-format off
-HIPPYEVENTMETHOD(OnClick, onClick, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnPressIn, onPressIn, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnPressOut, onPressOut, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnLongClick, onLongClick, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnTouchDown, onTouchDown, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnTouchMove, onTouchMove, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnTouchCancel, onTouchCancel, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnTouchEnd, onTouchEnd, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
-HIPPYEVENTMETHOD(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
-// clang-format on
-
 - (__kindof NativeRenderObjectView *)nativeRenderObjectView {
     NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
     return [hashTable anyObject];
@@ -122,18 +86,6 @@ HIPPYEVENTMETHOD(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
         [hashTable addObject:renderObject];
     }
     objc_setAssociatedObject(self, @selector(nativeRenderObjectView), hashTable, OBJC_ASSOCIATION_RETAIN);
-}
-
-- (void)sendAttachedToWindowEvent {
-    if (self.onAttachedToWindow) {
-        self.onAttachedToWindow(nil);
-    }
-}
-
-- (void)sendDetachedFromWindowEvent {
-    if (self.onDetachedFromWindow) {
-        self.onDetachedFromWindow(nil);
-    }
 }
 
 - (BOOL)isHippyRootView {
@@ -322,18 +274,6 @@ HIPPYEVENTMETHOD(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlo
 
 - (BOOL)interceptTouchEvent {
     return NO;
-}
-
-/**
- * Responder overrides - to be deprecated.
- */
-- (void)hippyWillMakeFirstResponder {
-}
-- (void)hippyDidMakeFirstResponder {
-}
-
-- (BOOL)hippyRespondsToTouch:(__unused UITouch *)touch {
-    return YES;
 }
 
 @end

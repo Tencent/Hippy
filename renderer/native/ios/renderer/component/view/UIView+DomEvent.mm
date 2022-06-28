@@ -20,15 +20,15 @@
  * limitations under the License.
  */
 
-#import "UIView+HippyEvent.h"
+#import "UIView+DomEvent.h"
 #import <objc/runtime.h>
 #import "dom/dom_listener.h"
-#import "UIView+AppearEvent.h"
+#import "UIView+MountEvent.h"
 #import "UIView+Hippy.h"
 
-@implementation UIView(HippyEvent)
+@implementation UIView(DomEvent)
 
-- (void)addStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+- (void)addPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
     //try to contrustor origin setter
     char n = std::toupper(name.at(0));
     NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
@@ -42,14 +42,14 @@
             [invocation setSelector:selector];
             [invocation setArgument:&cb atIndex:2];
             [invocation invoke];
-            [self didAddStatusChangeEvent:name eventCallback:callback];
+            [self didAddPropertyEvent:name eventCallback:callback];
         }
     } @catch (NSException *exception) {
         
     }
 }
 
-- (void)didAddStatusChangeEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
     if (name == "onDidMount" ) {
         [self viewDidMountEvent];
     }
@@ -58,7 +58,7 @@
     }
 }
 
-- (void)removeStatusChangeEvent:(const std::string &)name {
+- (void)removePropertyEvent:(const std::string &)name {
     //try to contrustor origin setter
     char n = std::toupper(name.at(0));
     NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
@@ -72,14 +72,14 @@
             [invocation setSelector:selector];
             [invocation setArgument:&cb atIndex:2];
             [invocation invoke];
-            [self didRemoveStatusChangeEvent:name];
+            [self didRemovePropertyEvent:name];
         }
     } @catch (NSException *exception) {
         
     }
 }
 
-- (void)didRemoveStatusChangeEvent:(const std::string &)name {
+- (void)didRemovePropertyEvent:(const std::string &)name {
 }
 
 #pragma mark HippyTouchesProtocol Methods

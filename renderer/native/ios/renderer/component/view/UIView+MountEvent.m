@@ -20,12 +20,12 @@
  * limitations under the License.
  */
 
-#import "UIView+AppearEvent.h"
+#import "UIView+MountEvent.h"
 #import "objc/runtime.h"
 
-@implementation UIView (AppearEvent)
+@implementation UIView (MountEvent)
 
-#define LifeCycleEvent(setter, getter)                                                      \
+#define MountEvent(setter, getter)                                                      \
     - (void)setter:(HippyDirectEventBlock)getter {                                          \
         objc_setAssociatedObject(self, @selector(getter), getter, OBJC_ASSOCIATION_COPY);   \
     }                                                                                       \
@@ -34,12 +34,14 @@
         return objc_getAssociatedObject(self, @selector(getter));                           \
     }
 
-LifeCycleEvent(setOnAppear, onAppear)
-LifeCycleEvent(setOnDisappear, onDisappear)
-LifeCycleEvent(setOnWillAppear, onWillAppear)
-LifeCycleEvent(setOnWillDisappear, onWillDisappear)
-LifeCycleEvent(setOnDidMount, onDidMount)
-LifeCycleEvent(setOnDidUnmount, onDidUnmount)
+MountEvent(setOnAppear, onAppear)
+MountEvent(setOnDisappear, onDisappear)
+MountEvent(setOnWillAppear, onWillAppear)
+MountEvent(setOnWillDisappear, onWillDisappear)
+MountEvent(setOnDidMount, onDidMount)
+MountEvent(setOnDidUnmount, onDidUnmount)
+MountEvent(setOnAttachedToWindow, onAttachedToWindow)
+MountEvent(setOnDetachedFromWindow, onDetachedFromWindow)
 
 - (void)viewAppearEvent {
     if (self.onAppear) {
@@ -75,4 +77,17 @@ LifeCycleEvent(setOnDidUnmount, onDidUnmount)
         self.onDidUnmount(@{});
     }
 }
+
+- (void)sendAttachedToWindowEvent {
+    if (self.onAttachedToWindow) {
+        self.onAttachedToWindow(nil);
+    }
+}
+
+- (void)sendDetachedFromWindowEvent {
+    if (self.onDetachedFromWindow) {
+        self.onDetachedFromWindow(nil);
+    }
+}
+
 @end

@@ -53,15 +53,6 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
     return originSize;
 }
 
-dispatch_queue_t global_hpview_queue(void) {
-    static dispatch_queue_t g_background_queue = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        g_background_queue = dispatch_queue_create("com.tencent.mtt.hippy.hpview", DISPATCH_QUEUE_SERIAL);
-    });
-    return g_background_queue;
-}
-
 @implementation UIView (HippyViewUnmounting)
 
 - (void)hippy_remountAllSubviews {

@@ -24,7 +24,7 @@
 #import "HippyUtils.h"
 #import "HippyAnimatedImage.h"
 #import <Accelerate/Accelerate.h>
-#import "UIView+AppearEvent.h"
+#import "UIView+MountEvent.h"
 #import "RenderErrorHandler.h"
 
 NSString *const HippyImageErrorDomain = @"HippyImageErrorDomain";

@@ -29,21 +29,14 @@
 #import "HippyTextSelection.h"
 #import "UIView+Hippy.h"
 
-@implementation HippyUITextView {
-    BOOL _jsRequestingFirstResponder;
-}
+@implementation HippyUITextView
 
 - (void)paste:(id)sender {
     _textWasPasted = YES;
     [super paste:sender];
 }
 
-- (void)hippyWillMakeFirstResponder {
-    _jsRequestingFirstResponder = YES;
-}
-
 - (BOOL)canBecomeFirstResponder {
-    // return _jsRequestingFirstResponder;
     return YES;
 }
 
@@ -60,17 +53,6 @@
         [_responderDelegate textview_resignFirstResponder];
     }
     return [super resignFirstResponder];
-}
-
-- (void)hippyDidMakeFirstResponder {
-    _jsRequestingFirstResponder = YES;
-}
-
-- (void)didMoveToWindow {
-    if (_jsRequestingFirstResponder) {
-        [self becomeFirstResponder];
-        [self hippyDidMakeFirstResponder];
-    }
 }
 
 - (void)dealloc {
@@ -654,14 +636,6 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
 
 - (BOOL)canBecomeFirstResponder {
     return [_textView canBecomeFirstResponder];
-}
-
-- (void)hippyWillMakeFirstResponder {
-    [_textView hippyWillMakeFirstResponder];
-}
-
-- (void)hippyDidMakeFirstResponder {
-    [_textView hippyDidMakeFirstResponder];
 }
 
 - (void)layoutSubviews {
