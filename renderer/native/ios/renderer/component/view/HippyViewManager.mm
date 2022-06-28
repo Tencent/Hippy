@@ -24,7 +24,7 @@
 #import "HippyBorderStyle.h"
 #import "HippyConvert.h"
 #import "HippyEventDispatcher.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyUtils.h"
 #import "HippyView.h"
 #import "UIView+Hippy.h"
@@ -57,15 +57,15 @@
     return [[HippyView alloc] init];
 }
 
-- (HippyShadowView *)shadowView {
-    return [[HippyShadowView alloc] init];
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [[NativeRenderObjectView alloc] init];
 }
 
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(__unused HippyShadowView *)shadowView {
+- (HippyRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(__unused NativeRenderObjectView *)renderObject {
     return nil;
 }
 
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(__unused NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
+- (HippyRenderUIBlock)uiBlockToAmendWithRenderObjectRegistry:(__unused NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry {
     return nil;
 }
 
@@ -144,8 +144,8 @@ RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
     }];
 }
 
-#pragma mark - ShadowView properties
-HIPPY_EXPORT_SHADOW_PROPERTY(visibility, NSString)
+#pragma mark - RenderObject properties
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(visibility, NSString)
 
 #pragma mark - View properties
 
@@ -376,61 +376,61 @@ HIPPY_REMAP_VIEW_PROPERTY(zIndex, hippyZIndex, NSInteger)
 
 #pragma mark - ShadowView properties
 
-HIPPY_EXPORT_SHADOW_PROPERTY(backgroundColor, UIColor)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(backgroundColor, UIColor)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(top, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(right, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(bottom, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(left, CGFloat);
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(top, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(right, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(bottom, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(left, CGFloat);
 
-HIPPY_EXPORT_SHADOW_PROPERTY(width, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(height, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(width, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(height, CGFloat)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(minWidth, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(maxWidth, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(minHeight, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(maxHeight, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(minWidth, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(maxWidth, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(minHeight, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(maxHeight, CGFloat)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(borderTopWidth, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(borderRightWidth, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(borderBottomWidth, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(borderLeftWidth, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(borderWidth, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderTopWidth, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderRightWidth, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderBottomWidth, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderLeftWidth, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderWidth, CGFloat)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(marginTop, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(marginRight, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(marginBottom, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(marginLeft, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(marginVertical, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(marginHorizontal, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(margin, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginTop, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginRight, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginBottom, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginLeft, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginVertical, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginHorizontal, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(margin, CGFloat)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(paddingTop, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(paddingRight, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(paddingBottom, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(paddingLeft, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(paddingVertical, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(paddingHorizontal, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(padding, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingTop, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingRight, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingBottom, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingLeft, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingVertical, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingHorizontal, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(padding, CGFloat)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(flex, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(flexGrow, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(flexShrink, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(flexBasis, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flex, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexGrow, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexShrink, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexBasis, CGFloat)
 
 // hplayout
-HIPPY_EXPORT_SHADOW_PROPERTY(flexDirection, FlexDirection)
-HIPPY_EXPORT_SHADOW_PROPERTY(flexWrap, FlexWrapMode)
-HIPPY_EXPORT_SHADOW_PROPERTY(justifyContent, FlexAlign)
-HIPPY_EXPORT_SHADOW_PROPERTY(alignItems, FlexAlign)
-HIPPY_EXPORT_SHADOW_PROPERTY(alignSelf, FlexAlign)
-HIPPY_EXPORT_SHADOW_PROPERTY(position, PositionType)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexDirection, FlexDirection)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexWrap, FlexWrapMode)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(justifyContent, FlexAlign)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(alignItems, FlexAlign)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(alignSelf, FlexAlign)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(position, PositionType)
 
-HIPPY_REMAP_SHADOW_PROPERTY(display, displayType, DisplayType)
+HIPPY_REMAP_RENDER_OBJECT_PROPERTY(display, displayType, DisplayType)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(overflow, OverflowType)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(overflow, OverflowType)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(onLayout, HippyDirectEventBlock)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(onLayout, HippyDirectEventBlock)
 
 HIPPY_EXPORT_VIEW_PROPERTY(onClick, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onLongClick, HippyDirectEventBlock)
@@ -443,7 +443,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDidMount, HippyDirectEventBlock)
 HIPPY_EXPORT_VIEW_PROPERTY(onDidUnmount, HippyDirectEventBlock)
 
-HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
 
 - (HPDirection)convertDirection:(NSString *)direction {
     if ([direction isEqualToString:@"rtl"]) {
@@ -463,7 +463,7 @@ HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 //    }
 //}
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(direction, id, HippyShadowView) {
+HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(direction, id, NativeRenderObjectView) {
     if (json) {
         view.layoutDirection = [self convertDirection:json];
     }

@@ -21,11 +21,11 @@
  */
 
 #import "HippyTextViewManager.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyTextView.h"
 #import "HippyTextField.h"
 #import "HippyBaseTextInput.h"
-#import "HippyShadowTextView.h"
+#import "NativeRenderObjectTextView.h"
 #import "HippyFont.h"
 #import "HippyRenderContext.h"
 
@@ -57,8 +57,8 @@
     return theView;
 }
 
-- (HippyShadowView *)shadowView {
-    return [HippyShadowTextView new];
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [NativeRenderObjectTextView new];
 }
 
 HIPPY_EXPORT_VIEW_PROPERTY(value, NSString)
@@ -137,8 +137,8 @@ RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
 }
 // clang-format on
 
-HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
-HIPPY_EXPORT_SHADOW_PROPERTY(placeholder, NSString)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(text, NSString)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(placeholder, NSString)
 
 HIPPY_REMAP_VIEW_PROPERTY(autoCapitalize, textView.autocapitalizationType, UITextAutocapitalizationType)
 HIPPY_EXPORT_VIEW_PROPERTY(autoCorrect, BOOL)
@@ -164,19 +164,19 @@ HIPPY_EXPORT_VIEW_PROPERTY(selectTextOnFocus, BOOL)
 HIPPY_EXPORT_VIEW_PROPERTY(selection, HippyTextSelection)
 HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(fontSize, NSNumber, HippyShadowTextView) {
+HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(fontSize, NSNumber, NativeRenderObjectTextView) {
     view.font = [HippyFont updateFont:view.font withSize:json];
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(fontWeight, NSString, HippyShadowTextView) {
+HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(fontWeight, NSString, NativeRenderObjectTextView) {
     view.font = [HippyFont updateFont:view.font withWeight:json];
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(fontStyle, NSString, HippyShadowTextView) {
+HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(fontStyle, NSString, NativeRenderObjectTextView) {
     view.font = [HippyFont updateFont:view.font withStyle:json];  // defaults to normal
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(fontFamily, NSString, HippyShadowTextView) {
+HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(fontFamily, NSString, NativeRenderObjectTextView) {
     view.font = [HippyFont updateFont:view.font withFamily:json];
 }
 
@@ -196,9 +196,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, HippyBaseTextInput) {
     view.font = [HippyFont updateFont:view.font withFamily:json ?: defaultView.font.familyName];
 }
 
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView {
-    NSNumber *hippyTag = shadowView.hippyTag;
-    UIEdgeInsets padding = shadowView.paddingAsInsets;
+- (HippyRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {
+    NSNumber *hippyTag = nativeRenderObjectView.hippyTag;
+    UIEdgeInsets padding = nativeRenderObjectView.paddingAsInsets;
     return ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, HippyBaseTextInput *> *viewRegistry) {
         viewRegistry[hippyTag].contentInset = padding;
     };

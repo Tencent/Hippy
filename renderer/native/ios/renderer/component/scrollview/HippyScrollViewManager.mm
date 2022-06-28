@@ -22,7 +22,7 @@
 
 #import "HippyScrollViewManager.h"
 #import "HippyScrollView.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 
 @implementation HippyConvert (UIScrollView)
 
@@ -89,7 +89,7 @@ HIPPY_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
 // is set to from js we want to clip drawing or not. This piece of code ensures
 // that css-layout is always treating the contents of a scroll container as
 // overflow: 'scroll'.
-HIPPY_CUSTOM_SHADOW_PROPERTY(overflow, OverflowType, HippyShadowView) {
+HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
     (void)json;
     view.overflow = OverflowScroll;
 }

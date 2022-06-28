@@ -34,7 +34,7 @@
 #import "HippyDomNodeUtils.h"
 #import "HippyRenderContext.h"
 
-@class HippyAnimationViewParams, HippyShadowView;
+@class HippyAnimationViewParams, NativeRenderObjectView;
 
 /**
  * UIManager queue
@@ -82,8 +82,8 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 /**
  * Get the shadow view associated with a hippyTag
  */
-- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag
-                                 onRootTag:(NSNumber *)rootTag;
+- (NativeRenderObjectView *)renderObjectForHippyTag:(NSNumber *)hippyTag
+                                          onRootTag:(NSNumber *)rootTag;
 
 /**
  * Update the frame of a view. This might be in response to a screen rotation
@@ -118,12 +118,12 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
                                     onRootTag:(NSNumber *)rootTag;
 
 /**
- * Manully create views recursively from shadowView
+ * Manully create views recursively from renderObject
  *
- * @param shadowView HippyShadowView corresponding to UIView
- * @return view created by HippyShadowView
+ * @param renderObject NativeRenderObjectView corresponding to UIView
+ * @return view created by NativeRenderObjectView
  */
-- (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
+- (UIView *)createViewRecursivelyFromRenderObject:(NativeRenderObjectView *)renderObject;
 
 /**
  * set dom manager for HippyUIManager which holds a weak reference to domManager

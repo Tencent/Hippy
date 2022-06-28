@@ -22,7 +22,7 @@
 
 #import "HippyWaterfallItemViewManager.h"
 #import "HippyWaterfallItemView.h"
-#import "HippyWatefallItemShadowView.h"
+#import "NativeRenderObjectWatefallItem.h"
 
 @implementation HippyWaterfallItemViewManager
 
@@ -30,8 +30,8 @@
     return [HippyWaterfallItemView new];
 }
 
-- (HippyShadowView *)shadowView {
-    return [[HippyWatefallItemShadowView alloc] init];
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [[NativeRenderObjectWatefallItem alloc] init];
 }
 
 @end

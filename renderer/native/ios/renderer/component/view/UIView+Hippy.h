@@ -25,7 +25,7 @@
 #import "HippyViewEventProtocol.h"
 #include "dom/dom_node.h"
 
-@class HippyShadowView;
+@class NativeRenderObjectView;
 
 @interface UIView (Hippy) <HippyComponent, HippyViewEventProtocol, HippyViewTouchHandlerProtocol>
 
@@ -110,6 +110,6 @@
 - (void)sendAttachedToWindowEvent;
 - (void)sendDetachedFromWindowEvent;
 
-@property (nonatomic, weak) __kindof HippyShadowView *hippyShadowView;
+@property (nonatomic, weak) __kindof NativeRenderObjectView *nativeRenderObjectView;
 
 @end

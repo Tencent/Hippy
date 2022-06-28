@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderManager.h"
-#import "HippyShadowText.h"
+#import "NativeRenderObjectText.h"
 #import "HippyUIManager.h"
 #import "dom/layout_node.h"
 #import "dom/dom_manager.h"

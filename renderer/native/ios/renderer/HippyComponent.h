@@ -30,7 +30,7 @@
 typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 
 /**
- * Logical node in a tree of application components. Both `ShadowView` and
+ * Logical node in a tree of application components. Both `NativeRenderObject` and
  * `UIView` conforms to this. Allows us to write utilities that reason about
  * trees generally.
  */
@@ -52,7 +52,7 @@ typedef void (^HippyDirectEventBlock)(NSDictionary *body);
 - (id<HippyComponent>)hippySuperview;
 - (NSNumber *)hippyTagAtPoint:(CGPoint)point;
 
-// View/ShadowView is a root view
+// View/NativeRenderObjectView is a root view
 - (BOOL)isHippyRootView;
 
 @optional

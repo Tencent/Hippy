@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

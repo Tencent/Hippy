@@ -26,7 +26,7 @@
 
 #import "HippyBridge.h"
 #import "HippyConvert.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyUtils.h"
 #import "UIView+Hippy.h"
 #import "HippyModuleMethod.h"
@@ -55,9 +55,9 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
 @interface HippyComponentData () {
     id<HippyComponent> _defaultView;  // Only needed for HIPPY_CUSTOM_VIEW_PROPERTY
     NSMutableDictionary<NSString *, HippyPropBlock> *_viewPropBlocks;
-    NSMutableDictionary<NSString *, HippyPropBlock> *_shadowPropBlocks;
+    NSMutableDictionary<NSString *, HippyPropBlock> *_renderObjectPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;
-    BOOL _implementsUIBlockToAmendWithShadowViewRegistry;
+    BOOL _implementsUIBlockToAmendWithRenderObjectRegistry;
     __weak HippyViewManager *_manager;
     NSDictionary<NSString *, NSValue *> *_methodsByName;
 }
@@ -76,7 +76,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         _managerClass = [viewManager class];
         _manager = viewManager;
         _viewPropBlocks = [NSMutableDictionary new];
-        _shadowPropBlocks = [NSMutableDictionary new];
+        _renderObjectPropBlocks = [NSMutableDictionary new];
         // Hackety hack, this partially re-implements HippyBridgeModuleNameForClass
         // We want to get rid of Hippy and RK prefixes, but a lot of JS code still references
         // view names by prefix. So, while HippyBridgeModuleNameForClass now drops these
@@ -95,12 +95,12 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         NSAssert(name.length, @"Invalid moduleName '%@'", name);
         _name = name;
 
-        _implementsUIBlockToAmendWithShadowViewRegistry = NO;
+        _implementsUIBlockToAmendWithRenderObjectRegistry = NO;
         Class cls = _managerClass;
         while (cls != [HippyViewManager class]) {
-            _implementsUIBlockToAmendWithShadowViewRegistry
-                = _implementsUIBlockToAmendWithShadowViewRegistry
-                  || HippyClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithShadowViewRegistry:));
+            _implementsUIBlockToAmendWithRenderObjectRegistry
+                = _implementsUIBlockToAmendWithRenderObjectRegistry
+                  || HippyClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistryuiBlockToAmendWithRenderObjectRegistry:));
             cls = [cls superclass];
         }
     }
@@ -131,15 +131,15 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return view;
 }
 
-- (HippyShadowView *)createShadowViewWithTag:(NSNumber *)tag {
-    HippyShadowView *shadowView = [self.manager shadowView];
-    shadowView.hippyTag = tag;
-    shadowView.viewName = _name;
-    return shadowView;
+- (NativeRenderObjectView *)createRenderObjectViewWithTag:(NSNumber *)tag {
+    NativeRenderObjectView *renderObject = [self.manager nativeRenderObjectView];
+    renderObject.hippyTag = tag;
+    renderObject.viewName = _name;
+    return renderObject;
 }
 
 - (HippyPropBlock)propBlockForKey:(NSString *)name inDictionary:(NSMutableDictionary<NSString *, HippyPropBlock> *)propBlocks {
-    BOOL shadowView = (propBlocks == _shadowPropBlocks);
+    BOOL renderObject = (propBlocks == _renderObjectPropBlocks);
     HippyPropBlock propBlock = propBlocks[name];
     if (!propBlock) {
         __weak HippyComponentData *weakSelf = self;
@@ -147,7 +147,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         // Get type
         SEL type = NULL;
         NSString *keyPath = nil;
-        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"propConfig%@_%@", shadowView ? @"Shadow" : @"", name]);
+        SEL selector = NSSelectorFromString([NSString stringWithFormat:@"propConfig%@_%@", renderObject ? @"RenderObject" : @"", name]);
+        NSAssert(selector, @"no propConfig setter selector found for property %@", name);
         if ([_managerClass respondsToSelector:selector]) {
             NSArray<NSString *> *typeAndKeyPath = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector);
             type = HippyConvertSelectorForType(typeAndKeyPath[0]);
@@ -163,20 +164,20 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         if ([keyPath isEqualToString:@"__custom__"]) {
             // Get custom setter. There is no default view in the shadow case, so the selector is different.
             NSString *selectorString;
-            if (!shadowView) {
-                selectorString = [NSString stringWithFormat:@"set_%@:for%@View:withDefaultView:", name, shadowView ? @"Shadow" : @""];
+            if (!renderObject) {
+                selectorString = [NSString stringWithFormat:@"set_%@:for%@View:withDefaultView:", name, renderObject ? @"Render" : @""];
             } else {
-                selectorString = [NSString stringWithFormat:@"set_%@:forShadowView:", name];
+                selectorString = [NSString stringWithFormat:@"set_%@:forRenderObject:", name];
             }
             SEL customSetter = NSSelectorFromString(selectorString);
-
+            NSAssert(customSetter, @"no __custom__ setter selector found for property %@", name);
             propBlock = ^(id<HippyComponent> view, id json) {
                 HippyComponentData *strongSelf = weakSelf;
                 if (!strongSelf) {
                     return;
                 }
                 json = HippyNilIfNull(json);
-                if (!shadowView) {
+                if (!renderObject) {
                     if (!json && !strongSelf->_defaultView) {
                         // Only create default view if json is null
                         strongSelf->_defaultView = [strongSelf createViewWithTag:nil];
@@ -374,17 +375,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 }
 
-- (void)setProps:(NSDictionary<NSString *, id> *)props forShadowView:(HippyShadowView *)shadowView {
-    if (!shadowView) {
+- (void)setProps:(NSDictionary<NSString *, id> *)props forRenderObjectView:(NativeRenderObjectView *)renderObject {
+    if (!renderObject) {
         return;
     }
 
     [props enumerateKeysAndObjectsUsingBlock:^(NSString *key, id json, __unused BOOL *stop) {
-        [self propBlockForKey:key inDictionary:self->_shadowPropBlocks](shadowView, json);
+        [self propBlockForKey:key inDictionary:self->_renderObjectPropBlocks](renderObject, json);
     }];
 
-    if ([shadowView respondsToSelector:@selector(didSetProps:)]) {
-        [shadowView didSetProps:[props allKeys]];
+    if ([renderObject respondsToSelector:@selector(didSetProps:)]) {
+        [renderObject didSetProps:[props allKeys]];
     }
 }
 
@@ -521,9 +522,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [selString copy];
 }
 
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)registry {
-    if (_implementsUIBlockToAmendWithShadowViewRegistry) {
-        return [[self manager] uiBlockToAmendWithShadowViewRegistry:registry];
+- (HippyRenderUIBlock)uiBlockToAmendWithRenderObjectViewRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)registry {
+    if (_implementsUIBlockToAmendWithRenderObjectRegistry) {
+        return [[self manager] uiBlockToAmendWithRenderObjectRegistry:registry];
     }
     return nil;
 }

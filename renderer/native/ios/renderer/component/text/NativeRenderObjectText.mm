@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyShadowText.h"
+#import "NativeRenderObjectText.h"
 #import "HippyConvert.h"
 #import "HippyFont.h"
 #import "HippyText.h"
@@ -30,7 +30,7 @@
 #import "dom/layout_node.h"
 #include "dom/taitank_layout_node.h"
 
-NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
+NSString *const HippyRenderObjectAttributeName = @"HippyRenderObjectAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
 NSString *const HippyHippyTagAttributeName = @"HippyTagAttributeName";
 
@@ -41,14 +41,14 @@ CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
 static const CGFloat gDefaultFontSize = 14.f;
 
-@implementation HippyShadowText
+@implementation NativeRenderObjectText
 
 hippy::LayoutSize textMeasureFunc(
-    HippyShadowText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
+    NativeRenderObjectText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
                                  float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
     hippy::LayoutSize retSize;
     if (weakShadowText) {
-        HippyShadowText *strongShadowText = weakShadowText;
+        NativeRenderObjectText *strongShadowText = weakShadowText;
         NSTextStorage *textStorage = [strongShadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
         [strongShadowText calculateTextFrame:textStorage];
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
@@ -138,7 +138,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<HippyApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if ([[self hippySuperview] isKindOfClass:[HippyShadowText class]]) {
+    if ([[self hippySuperview] isKindOfClass:[NativeRenderObjectText class]]) {
         return parentProperties;
     }
 
@@ -180,8 +180,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
         NSRange characterRange = [layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-        [layoutManager.textStorage enumerateAttribute:HippyShadowViewAttributeName inRange:characterRange options:0 usingBlock:^(
-            HippyShadowView *child, NSRange range, __unused BOOL *_) {
+        [layoutManager.textStorage enumerateAttribute:HippyRenderObjectAttributeName inRange:characterRange options:0 usingBlock:^(
+            NativeRenderObjectView *child, NSRange range, __unused BOOL *_) {
             if (child) {
                 float width = child.frame.size.width, height = child.frame.size.height;
                 if (isnan(width) || isnan(height)) {
@@ -268,11 +268,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     _cachedTextStorage = nil;
     auto domManager = self.domManager.lock();
     if (domManager) {
-        __weak HippyShadowView *weakSelf = self;
+        __weak NativeRenderObjectView *weakSelf = self;
         std::vector<std::function<void()>> ops_ = {[weakSelf, domManager](){
             @autoreleasepool {
                 if (weakSelf) {
-                    HippyShadowView *strongSelf = weakSelf;
+                    NativeRenderObjectView *strongSelf = weakSelf;
                     int32_t hippyTag = [[strongSelf hippyTag] intValue];
                     auto domNode = domManager->GetNode(strongSelf.rootNode, hippyTag);
                     if (domNode) {
@@ -355,9 +355,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
-    for (HippyShadowView *child in [self hippySubviews]) {
-        if ([child isKindOfClass:[HippyShadowText class]]) {
-            HippyShadowText *shadowText = (HippyShadowText *)child;
+    for (NativeRenderObjectView *child in [self hippySubviews]) {
+        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
+            NativeRenderObjectText *shadowText = (NativeRenderObjectText *)child;
             [attributedString appendAttributedString:[shadowText _attributedStringWithFontFamily:fontFamily fontSize:fontSize fontWeight:fontWeight
                                                                                        fontStyle:fontStyle
                                                                                    letterSpacing:letterSpacing
@@ -394,7 +394,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             attachment.image = placehoderImage;
             NSMutableAttributedString *attachmentString = [NSMutableAttributedString new];
             [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
-            [attachmentString addAttribute:HippyShadowViewAttributeName value:child range:(NSRange) { 0, attachmentString.length }];
+            [attachmentString addAttribute:HippyRenderObjectAttributeName value:child range:(NSRange) { 0, attachmentString.length }];
             [attributedString appendAttributedString:attachmentString];
             if (height > heightOfTallestSubview) {
                 heightOfTallestSubview = height;
@@ -718,7 +718,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         int32_t hippyTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(self.rootNode, hippyTag);
         if (node) {
-            __weak HippyShadowText *weakSelf = self;
+            __weak NativeRenderObjectText *weakSelf = self;
             hippy::MeasureFunction measureFunc =
                 [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                      float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
@@ -764,9 +764,9 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling {
     _allowFontScaling = allowFontScaling;
-    for (HippyShadowView *child in [self hippySubviews]) {
-        if ([child isKindOfClass:[HippyShadowText class]]) {
-            ((HippyShadowText *)child).allowFontScaling = allowFontScaling;
+    for (NativeRenderObjectView *child in [self hippySubviews]) {
+        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
+            ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
         }
     }
     [self dirtyText];
@@ -778,9 +778,9 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         //HippyLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
-    for (HippyShadowView *child in [self hippySubviews]) {
-        if ([child isKindOfClass:[HippyShadowText class]]) {
-            ((HippyShadowText *)child).fontSizeMultiplier = fontSizeMultiplier;
+    for (NativeRenderObjectView *child in [self hippySubviews]) {
+        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
+            ((NativeRenderObjectText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }
     }
     [self dirtyText];
@@ -793,7 +793,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [self dirtyText];
 }
 
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
     [super insertHippySubview:subview atIndex:atIndex];
     auto domManager = [self domManager].lock();
     if (domManager) {
@@ -807,7 +807,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
             HPNodeRemoveChild(nodeRef, child);
         }
 
-        __weak HippyShadowText *weakSelf = self;
+        __weak NativeRenderObjectText *weakSelf = self;
         hippy::MeasureFunction measureFunc =
             [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                  float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){

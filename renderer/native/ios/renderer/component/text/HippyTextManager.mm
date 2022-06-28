@@ -22,25 +22,22 @@
 
 #import "HippyTextManager.h"
 #import "HippyConvert.h"
-#import "HippyShadowText.h"
+#import "NativeRenderObjectText.h"
 #import "HippyText.h"
 #import "HippyTextView.h"
 #import "UIView+Hippy.h"
 
-//遍历该shadowView（shadowText）的dirty且非shadowText的子view，将之加入到queue
-//子view如果是dirty，说明其子节点可能有dirtyView
-//但现在似乎不存在这种情况，view能嵌套text，text能嵌套text，但text不能嵌套view
-static void collectDirtyNonTextDescendants(HippyShadowText *shadowView, NSMutableArray *nonTextDescendants) {
-    for (HippyShadowView *child in shadowView.hippySubviews) {
-        if ([child isKindOfClass:[HippyShadowText class]]) {
-            collectDirtyNonTextDescendants((HippyShadowText *)child, nonTextDescendants);
+static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject, NSMutableArray *nonTextDescendants) {
+    for (NativeRenderObjectView *child in renderObject.hippySubviews) {
+        if ([child isKindOfClass:[NativeRenderObjectText class]]) {
+            collectDirtyNonTextDescendants((NativeRenderObjectText *)child, nonTextDescendants);
         } else if ([child isTextDirty]) {
             [nonTextDescendants addObject:child];
         }
     }
 }
 
-@interface HippyShadowText (Private)
+@interface NativeRenderObjectText (Private)
 // hplayout
 - (NSTextStorage *)buildTextStorageForWidth:(CGFloat)width widthMode:(MeasureMode)widthMode;
 @end
@@ -51,41 +48,41 @@ static void collectDirtyNonTextDescendants(HippyShadowText *shadowView, NSMutabl
     return [HippyText new];
 }
 
-- (HippyShadowView *)shadowView {
-    return [HippyShadowText new];
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [NativeRenderObjectText new];
 }
 
 #pragma mark - Shadow properties
 
-HIPPY_EXPORT_SHADOW_PROPERTY(color, UIColor)
-HIPPY_EXPORT_SHADOW_PROPERTY(fontFamily, NSString)
-HIPPY_EXPORT_SHADOW_PROPERTY(fontSize, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(fontWeight, NSString)
-HIPPY_EXPORT_SHADOW_PROPERTY(fontStyle, NSString)
-HIPPY_EXPORT_SHADOW_PROPERTY(fontVariant, NSArray)
-HIPPY_EXPORT_SHADOW_PROPERTY(isHighlighted, BOOL)
-HIPPY_EXPORT_SHADOW_PROPERTY(letterSpacing, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(lineHeightMultiple, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(lineSpacingMultiplier, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(lineHeight, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(numberOfLines, NSUInteger)
-HIPPY_EXPORT_SHADOW_PROPERTY(ellipsizeMode, NSLineBreakMode)
-HIPPY_EXPORT_SHADOW_PROPERTY(textAlign, NSTextAlignment)
-HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationStyle, NSUnderlineStyle)
-HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationColor, UIColor)
-HIPPY_EXPORT_SHADOW_PROPERTY(textDecorationLine, HippyTextDecorationLineType)
-HIPPY_EXPORT_SHADOW_PROPERTY(allowFontScaling, BOOL)
-HIPPY_EXPORT_SHADOW_PROPERTY(opacity, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(textShadowOffset, CGSize)
-HIPPY_EXPORT_SHADOW_PROPERTY(textShadowRadius, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(textShadowColor, UIColor)
-HIPPY_EXPORT_SHADOW_PROPERTY(adjustsFontSizeToFit, BOOL)
-HIPPY_EXPORT_SHADOW_PROPERTY(minimumFontScale, CGFloat)
-HIPPY_EXPORT_SHADOW_PROPERTY(text, NSString)
-HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(color, UIColor)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(fontFamily, NSString)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(fontSize, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(fontWeight, NSString)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(fontStyle, NSString)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(fontVariant, NSArray)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(isHighlighted, BOOL)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(letterSpacing, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(lineHeightMultiple, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(lineSpacingMultiplier, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(lineHeight, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(numberOfLines, NSUInteger)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(ellipsizeMode, NSLineBreakMode)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(textAlign, NSTextAlignment)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(textDecorationStyle, NSUnderlineStyle)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(textDecorationColor, UIColor)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(textDecorationLine, HippyTextDecorationLineType)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(allowFontScaling, BOOL)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(opacity, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(textShadowOffset, CGSize)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(textShadowRadius, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(textShadowColor, UIColor)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(adjustsFontSizeToFit, BOOL)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(minimumFontScale, CGFloat)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(text, NSString)
+HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
 
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry {
-    for (HippyShadowView *rootView in shadowViewRegistry.allValues) {
+- (HippyRenderUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry {
+    for (NativeRenderObjectView *rootView in renderObjectRegistry.allValues) {
         if (![rootView isHippyRootView]) {
             // This isn't a root view
             continue;
@@ -96,37 +93,37 @@ HIPPY_EXPORT_SHADOW_PROPERTY(autoLetterSpacing, BOOL)
             continue;
         }
 
-        NSMutableArray<HippyShadowView *> *queue = [NSMutableArray arrayWithObject:rootView];
+        NSMutableArray<NativeRenderObjectView *> *queue = [NSMutableArray arrayWithObject:rootView];
         for (NSInteger i = 0; i < queue.count; i++) {
-            HippyShadowView *shadowView = queue[i];
-            if (!shadowView) {
-                //HippyLogWarn(@"shadowView is nil, please remain xcode state and call rainywan");
+            NativeRenderObjectView *renderObject = queue[i];
+            if (!renderObject) {
+                //HippyLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
                 continue;
             }
-            NSAssert([shadowView isTextDirty], @"Don't process any nodes that don't have dirty text");
+            NSAssert([renderObject isTextDirty], @"Don't process any nodes that don't have dirty text");
 
-            if ([shadowView isKindOfClass:[HippyShadowText class]]) {
-                ((HippyShadowText *)shadowView).fontSizeMultiplier = 1.0;
-                [(HippyShadowText *)shadowView recomputeText];
-                collectDirtyNonTextDescendants((HippyShadowText *)shadowView, queue);
+            if ([renderObject isKindOfClass:[NativeRenderObjectText class]]) {
+                ((NativeRenderObjectText *)renderObject).fontSizeMultiplier = 1.0;
+                [(NativeRenderObjectText *)renderObject recomputeText];
+                collectDirtyNonTextDescendants((NativeRenderObjectText *)renderObject, queue);
             } else {
-                for (HippyShadowView *child in [shadowView hippySubviews]) {
+                for (NativeRenderObjectView *child in [renderObject hippySubviews]) {
                     if ([child isTextDirty]) {
                         [queue addObject:child];
                     }
                 }
             }
 
-            [shadowView setTextComputed];
+            [renderObject setTextComputed];
         }
     }
 
     return nil;
 }
 
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(HippyShadowText *)shadowView {
-    NSNumber *hippyTag = shadowView.hippyTag;
-    UIEdgeInsets padding = shadowView.paddingAsInsets;
+- (HippyRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectText *)renderObjectText {
+    NSNumber *hippyTag = renderObjectText.hippyTag;
+    UIEdgeInsets padding = renderObjectText.paddingAsInsets;
 
     return ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, HippyText *> *viewRegistry) {
         HippyText *text = viewRegistry[hippyTag];

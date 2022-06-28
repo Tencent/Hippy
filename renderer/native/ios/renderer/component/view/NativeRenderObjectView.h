@@ -43,27 +43,28 @@ typedef NS_ENUM(NSUInteger, HippyCreationType) {
     HippyCreationTypeLazily,
 };
 
-@class HippyShadowView;
+@class NativeRenderObjectView;
 
 typedef void (^HippyApplierBlock)(NSDictionary<NSNumber *, UIView *> *viewRegistry);
 
-typedef UIView *(^HippyViewCreationBlock)(HippyShadowView *shadowView);
+typedef UIView *(^HippyViewCreationBlock)(NativeRenderObjectView *renderObject);
 typedef void (^HippyViewInsertionBlock)(UIView *container, NSArray<UIView *> *children);
 
+//TODO remove unused string
 extern NSString *const HippyShadowViewDiffInsertion;
 extern NSString *const HippyShadowViewDiffRemove;
 extern NSString *const HippyShadowViewDiffUpdate;
 extern NSString *const HippyShadowViewDiffTag;
 
 /**
- * ShadowView tree mirrors Hippy view tree. Every node is highly stateful.
+ * RenderObject tree mirrors Hippy view tree. Every node is highly stateful.
  * 1. A node is in one of three lifecycles: uninitialized, computed, dirtied.
  * 2. At the end of each Bridge transaction, we call collectUpdatedFrames:widthConstraint:heightConstraint
  *    at the root node to recursively layout the entire hierarchy.
  * 3. If a node is "computed" and the constraint passed from above is identical to the constraint used to
  *    perform the last computation, we skip laying out the subtree entirely.
  */
-@interface HippyShadowView : NSObject <HippyComponent>
+@interface NativeRenderObjectView : NSObject <HippyComponent>
 
 /**
  * HippyComponent interface.
@@ -72,12 +73,12 @@ extern NSString *const HippyShadowViewDiffTag;
 /**
  * Get all hippy shadow views
  */
-- (NSArray<HippyShadowView *> *)hippySubviews NS_REQUIRES_SUPER;
+- (NSArray<NativeRenderObjectView *> *)hippySubviews NS_REQUIRES_SUPER;
 
 /**
  * Get super shadow view
  */
-- (HippyShadowView *)hippySuperview NS_REQUIRES_SUPER;
+- (NativeRenderObjectView *)hippySuperview NS_REQUIRES_SUPER;
 
 /**
  * Insert hippy shadow view at index.
@@ -86,16 +87,16 @@ extern NSString *const HippyShadowViewDiffTag;
  * @param atIndex position for hippy subview to insert
  * @discussion atIndex must not exceed range of current index
  */
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex;
+- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex;
 
 /**
  * Remove hippy shadow view
  *
  * @param subview A hippy shadow subview to delete
  */
-- (void)removeHippySubview:(HippyShadowView *)subview;
+- (void)removeHippySubview:(NativeRenderObjectView *)subview;
 
-@property(nonatomic, weak, readonly) HippyShadowView *superview;
+@property(nonatomic, weak, readonly) NativeRenderObjectView *superview;
 @property(nonatomic, copy) NSString *viewName;
 @property(nonatomic, strong) UIColor *backgroundColor;  // Used to propagate to children
 @property(nonatomic, copy) HippyDirectEventBlock onLayout;
@@ -106,16 +107,8 @@ extern NSString *const HippyShadowViewDiffTag;
 @property(nonatomic, readonly) BOOL confirmedLayoutDirectionDidUpdated;
 
 /**
- * isNewView - Used to track the first time the view is introduced into the hierarchy.  It is initialized YES, then is
- * set to NO in HippyUIManager after the layout pass is done and all frames have been extracted to be applied to the
- * corresponding UIViews.
- */
-//TODO delete this variable
-@property (nonatomic, assign, getter=isNewView) BOOL newView;
-
-/**
  * isHidden - HippyUIManager uses this to determine whether or not the UIView should be hidden. Useful if the
- * ShadowView determines that its UIView will be clipped and wants to hide it.
+ * RenderObject determines that its UIView will be clipped and wants to hide it.
  */
 @property (nonatomic, assign, getter=isHidden) BOOL hidden;
 
@@ -141,7 +134,7 @@ extern NSString *const HippyShadowViewDiffTag;
 
 /**
  * Indicate how we create coresponding UIView
- * HippyCreationTypeInstantly : create views instantly when HippyShadowView is created
+ * HippyCreationTypeInstantly : create views instantly when NativeRenderObject is created
  * HippyCreationTypeLazily: create views when UIView is needed
  */
 @property (nonatomic, assign) HippyCreationType creationType;
@@ -204,11 +197,11 @@ extern NSString *const HippyShadowViewDiffTag;
 - (NSDictionary *)mergeProps:(NSDictionary *)props;
 
 /**
- * Add event to HippyShadowView
+ * Add event to NativeRenderObject
  * @param name event name
  * @discussion In general, events are mounted directly on UIViews.
  * But for the lazy loading UIViews, UIViews may not be created when events requires to mount on UIViews.
- * So we have to mount on ShadowView temparily, and mount on UIViews when UIViews are created by HippyShadowViews
+ * So we have to mount on RenderObject temparily, and mount on UIViews when UIViews are created by NativeRenderObject
  */
 - (void)addEventName:(const std::string &)name;
 

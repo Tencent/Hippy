@@ -20,13 +20,12 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 
-@interface HippyRootShadowView : HippyShadowView
+NS_ASSUME_NONNULL_BEGIN
 
-/**
- * Calculate all views whose frame needs updating after layout has been calculated.
- */
-- (void)recursivelyAmendSubviewsLayout;
+@interface NativeRenderObjectWatefallItem : NativeRenderObjectView
 
 @end
+
+NS_ASSUME_NONNULL_END

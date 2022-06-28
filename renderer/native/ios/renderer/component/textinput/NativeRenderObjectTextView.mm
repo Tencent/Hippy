@@ -20,24 +20,24 @@
  * limitations under the License.
  */
 
-#import "HippyShadowTextView.h"
+#import "NativeRenderObjectTextView.h"
 #import "Hippy.h"
 #import "HippyUtils.h"
 #import "dom/layout_node.h"
 
-@interface HippyShadowTextView ()
+@interface NativeRenderObjectTextView ()
 
 @property (nonatomic, strong) NSDictionary *dicAttributes;
 
 @end
 
 static hippy::LayoutSize x5MeasureFunc(
-                            HippyShadowTextView *weakShadowText,
+                            NativeRenderObjectTextView *weakShadowText,
                             float width, hippy::LayoutMeasureMode widthMeasureMode, float height,
                             hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
     hippy::LayoutSize result;
     if (weakShadowText) {
-        HippyShadowTextView *strongShadowText = weakShadowText;
+        NativeRenderObjectTextView *strongShadowText = weakShadowText;
         NSString *text = strongShadowText.text ?: strongShadowText.placeholder;
         if (nil == strongShadowText.dicAttributes) {
             if (strongShadowText.font == nil) {
@@ -52,7 +52,7 @@ static hippy::LayoutSize x5MeasureFunc(
     return result;
 }
 
-@implementation HippyShadowTextView
+@implementation NativeRenderObjectTextView
 
 - (instancetype)init {
     self = [super init];
@@ -68,7 +68,7 @@ static hippy::LayoutSize x5MeasureFunc(
         int32_t hippyTag = [self.hippyTag intValue];
         auto node = shared_domNode->GetNode(self.rootNode, hippyTag);
         if (node) {
-            __weak HippyShadowTextView *weakSelf = self;
+            __weak NativeRenderObjectTextView *weakSelf = self;
             hippy::MeasureFunction measureFunc =
                 [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                      float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){

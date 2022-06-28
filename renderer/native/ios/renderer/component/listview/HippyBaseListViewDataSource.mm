@@ -22,70 +22,70 @@
 
 #import <UIKit/UIKit.h>
 #import "HippyBaseListViewDataSource.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 
 @interface HippyBaseListViewDataSource () {
-    NSMutableArray *_headerShadowViews;
-    NSMutableArray<NSMutableArray<HippyShadowView *> *> *_cellShadowViews;
+    NSMutableArray *_headerRenderObjects;
+    NSMutableArray<NSMutableArray<NativeRenderObjectView *> *> *_cellRenderObjects;
 }
 
 @end
 
 @implementation HippyBaseListViewDataSource
 
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView {
-    NSMutableArray *headerShadowViews = [NSMutableArray array];
-    NSMutableArray<NSMutableArray<HippyShadowView *> *> *cellShadowViews = [NSMutableArray array];
-    NSMutableArray<HippyShadowView *> *sectionCellShadowViews = nil;
+- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView {
+    NSMutableArray *headerRenderObjects = [NSMutableArray array];
+    NSMutableArray<NSMutableArray<NativeRenderObjectView *> *> *cellRenderObjects = [NSMutableArray array];
+    NSMutableArray<NativeRenderObjectView *> *sectionCellRenderObject = nil;
     BOOL isFirstIndex = YES;
-    for (HippyShadowView *shadowView in dataSource) {
-        NSString *viewName = [shadowView viewName];
+    for (NativeRenderObjectView *renderObject in dataSource) {
+        NSString *viewName = [renderObject viewName];
         if ([self.itemViewName isEqualToString:viewName]) {
-            NSNumber *sticky = shadowView.props[@"sticky"];
+            NSNumber *sticky = renderObject.props[@"sticky"];
             if ([sticky boolValue]) {
-                [headerShadowViews addObject:shadowView];
-                if (sectionCellShadowViews) {
-                    [cellShadowViews addObject:sectionCellShadowViews];
-                    sectionCellShadowViews = nil;
+                [headerRenderObjects addObject:renderObject];
+                if (sectionCellRenderObject) {
+                    [cellRenderObjects addObject:sectionCellRenderObject];
+                    sectionCellRenderObject = nil;
                 }
             }
             else {
-                if (nil == sectionCellShadowViews) {
-                    sectionCellShadowViews = [NSMutableArray array];
+                if (nil == sectionCellRenderObject) {
+                    sectionCellRenderObject = [NSMutableArray array];
                 }
-                [sectionCellShadowViews addObject:shadowView];
+                [sectionCellRenderObject addObject:renderObject];
             }
-            if (isFirstIndex && 0 == [headerShadowViews count]) {
-                [headerShadowViews addObject:[NSNull null]];
+            if (isFirstIndex && 0 == [headerRenderObjects count]) {
+                [headerRenderObjects addObject:[NSNull null]];
                 isFirstIndex = NO;
             }
         }
     }
-    if (sectionCellShadowViews) {
-        [cellShadowViews addObject:sectionCellShadowViews];
+    if (sectionCellRenderObject) {
+        [cellRenderObjects addObject:sectionCellRenderObject];
     }
-    _headerShadowViews = headerShadowViews;
-    _cellShadowViews = cellShadowViews;
+    _headerRenderObjects = headerRenderObjects;
+    _cellRenderObjects = cellRenderObjects;
 }
 
-- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath {
-    if (_cellShadowViews.count > indexPath.section) {
-        NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:indexPath.section];
-        if (sectionCellShadowViews.count > indexPath.row) {
-            return [sectionCellShadowViews objectAtIndex:indexPath.row];
+- (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath {
+    if (_cellRenderObjects.count > indexPath.section) {
+        NSArray<NativeRenderObjectView *> *sectionCellRenderObject = [_cellRenderObjects objectAtIndex:indexPath.section];
+        if (sectionCellRenderObject.count > indexPath.row) {
+            return [sectionCellRenderObject objectAtIndex:indexPath.row];
         }
     }
     return nil;
 }
 
-- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell {
+- (NSIndexPath *)indexPathOfCell:(NativeRenderObjectView *)cell {
     NSInteger section = 0;
     NSInteger row = 0;
-    for (NSInteger sec = 0; sec < [_cellShadowViews count]; sec++) {
-        NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:sec];
-        for (NSUInteger r = 0; r < [sectionCellShadowViews count]; r++) {
-            HippyShadowView *cellShadowView = [sectionCellShadowViews objectAtIndex:r];
-            if (cellShadowView == cell) {
+    for (NSInteger sec = 0; sec < [_cellRenderObjects count]; sec++) {
+        NSArray<NativeRenderObjectView *> *sectionCellRenderObjects = [_cellRenderObjects objectAtIndex:sec];
+        for (NSUInteger r = 0; r < [sectionCellRenderObjects count]; r++) {
+            NativeRenderObjectView *cellRenderObject = [sectionCellRenderObjects objectAtIndex:r];
+            if (cellRenderObject == cell) {
                 section = sec;
                 row = r;
             }
@@ -94,20 +94,20 @@
     return [NSIndexPath indexPathForRow:row inSection:section];
 }
 
-- (HippyShadowView *)headerForSection:(NSInteger)section {
-    if (_headerShadowViews.count > section) {
-        return [_headerShadowViews objectAtIndex:section];
+- (NativeRenderObjectView *)headerForSection:(NSInteger)section {
+    if (_headerRenderObjects.count > section) {
+        return [_headerRenderObjects objectAtIndex:section];
     }
     return nil;
 }
 
 - (NSInteger)numberOfSection {
-    return _cellShadowViews.count;
+    return _cellRenderObjects.count;
 }
 
 - (NSInteger)numberOfCellForSection:(NSInteger)section {
-    if (_cellShadowViews.count > section) {
-        return [[_cellShadowViews objectAtIndex:section] count];
+    if (_cellRenderObjects.count > section) {
+        return [[_cellRenderObjects objectAtIndex:section] count];
     }
     return 0;
 }
@@ -116,9 +116,9 @@
     NSInteger sectionIndex = 0;
     NSInteger rowIndex = 0;
     NSInteger selfIncreaseIndex = 0;
-    for (NSInteger sec = 0; sec < [_cellShadowViews count]; sec++) {
-        NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:sec];
-        for (NSUInteger r = 0; r < [sectionCellShadowViews count]; r++) {
+    for (NSInteger sec = 0; sec < [_cellRenderObjects count]; sec++) {
+        NSArray<NativeRenderObjectView *> *sectionCellRenderObjects = [_cellRenderObjects objectAtIndex:sec];
+        for (NSUInteger r = 0; r < [sectionCellRenderObjects count]; r++) {
             if (index == selfIncreaseIndex) {
                 sectionIndex = sec;
                 rowIndex = r;
@@ -139,8 +139,8 @@
             flatIndex += row;
         }
         else {
-            NSArray<HippyShadowView *> *sectionCellShadowViews = [_cellShadowViews objectAtIndex:sec];
-            flatIndex += [sectionCellShadowViews count];
+            NSArray<NativeRenderObjectView *> *sectionCellRenderObjects = [_cellRenderObjects objectAtIndex:sec];
+            flatIndex += [sectionCellRenderObjects count];
         }
     }
     return flatIndex;

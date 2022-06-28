@@ -20,24 +20,16 @@
  * limitations under the License.
  */
 
-#import "HippyRootShadowView.h"
-#import "HippyUtils.h"
-#import "HippyI18nUtils.h"
+#import "NativeRenderObjectBaseListItem.h"
 
-@implementation HippyRootShadowView
+@implementation NativeRenderObjectBaseListItem
 
-- (void)applySizeConstraints {
-}
-
-- (void)amendLayoutBeforeMount {
-    for (HippyShadowView *shadowView in self.hippySubviews) {
-        [shadowView amendLayoutBeforeMount];
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.creationType = HippyCreationTypeLazily;
     }
-}
-
-- (void)recursivelyAmendSubviewsLayout {
-    [self applySizeConstraints];
-    [self amendLayoutBeforeMount];
+    return self;
 }
 
 @end

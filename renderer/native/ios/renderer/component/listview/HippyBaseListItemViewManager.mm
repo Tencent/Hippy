@@ -22,7 +22,7 @@
 
 #import "HippyBaseListItemViewManager.h"
 #import "HippyBaseListItemView.h"
-#import "HippyBaseListItemShadowView.h"
+#import "NativeRenderObjectBaseListItem.h"
 
 @implementation HippyBaseListItemViewManager
 
@@ -37,8 +37,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
     return [HippyBaseListItemView new];
 }
 
-- (HippyShadowView *)shadowView {
-    return [HippyBaseListItemShadowView new];
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [NativeRenderObjectBaseListItem new];
 }
 
 @end

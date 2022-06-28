@@ -27,7 +27,7 @@
 #import "UIView+Hippy.h"
 #import "HippyRefresh.h"
 #import "HippyWaterfallViewDataSource.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyUIManager.h"
 #import "UIView+Render.h"
 #import "HippyListTableView.h"
@@ -169,7 +169,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (void)refreshItemNodes {
-    [_dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:_containBannerView];
+    [_dataSource setDataSource:self.nativeRenderObjectView.hippySubviews containBannerView:_containBannerView];
 }
 
 #pragma mark Setter & Getter
@@ -284,7 +284,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _headerRefreshView = (HippyHeaderRefresh *)subview;
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
-        _headerRefreshView.frame = subview.hippyShadowView.frame;
+        _headerRefreshView.frame = subview.nativeRenderObjectView.frame;
         [_weakItemMap setObject:subview forKey:[subview hippyTag]];
     } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
         if (_footerRefreshView) {
@@ -293,7 +293,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _footerRefreshView = (HippyFooterRefresh *)subview;
         [_footerRefreshView setScrollView:self.collectionView];
         _footerRefreshView.delegate = self;
-        _footerRefreshView.frame = subview.hippyShadowView.frame;
+        _footerRefreshView.frame = subview.nativeRenderObjectView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
         [_weakItemMap setObject:subview forKey:[subview hippyTag]];
@@ -357,14 +357,14 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
-    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
-    [shadowView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag onRootTag:shadowView.rootTag];
+    NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
+    [renderObjectView recusivelySetCreationTypeToInstant];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObjectView.hippyTag onRootTag:renderObjectView.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
     else {
-        cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
+        cellView = [self.renderContext createViewRecursivelyFromRenderObject:renderObjectView];
     }
     hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
@@ -374,8 +374,8 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (CGSize)collectionView:(UICollectionView *)collectionView
                   layout:(UICollectionViewLayout *)collectionViewLayout
     sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    HippyShadowView *shadowView = [_dataSource cellForIndexPath:indexPath];
-    return shadowView.frame.size;
+    NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
+    return renderObjectView.frame.size;
 }
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView

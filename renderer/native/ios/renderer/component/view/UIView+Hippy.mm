@@ -22,9 +22,9 @@
 
 #import "UIView+Hippy.h"
 #import <objc/runtime.h>
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 
-#define HippyEventMethod(name, value, type)                                                       \
+#define HIPPYEVENTMETHOD(name, value, type)                                                       \
     -(void)set##name : (type)value {                                                              \
         objc_setAssociatedObject(self, @selector(value), value, OBJC_ASSOCIATION_COPY_NONATOMIC); \
     }                                                                                             \
@@ -99,29 +99,29 @@
 }
 
 // clang-format off
-HippyEventMethod(OnClick, onClick, HippyDirectEventBlock)
-HippyEventMethod(OnPressIn, onPressIn, HippyDirectEventBlock)
-HippyEventMethod(OnPressOut, onPressOut, HippyDirectEventBlock)
-HippyEventMethod(OnLongClick, onLongClick, HippyDirectEventBlock)
-HippyEventMethod(OnTouchDown, onTouchDown, HippyDirectEventBlock)
-HippyEventMethod(OnTouchMove, onTouchMove, HippyDirectEventBlock)
-HippyEventMethod(OnTouchCancel, onTouchCancel, HippyDirectEventBlock)
-HippyEventMethod(OnTouchEnd, onTouchEnd, HippyDirectEventBlock)
-HippyEventMethod(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
-HippyEventMethod(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnClick, onClick, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnPressIn, onPressIn, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnPressOut, onPressOut, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnLongClick, onLongClick, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnTouchDown, onTouchDown, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnTouchMove, onTouchMove, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnTouchCancel, onTouchCancel, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnTouchEnd, onTouchEnd, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnAttachedToWindow, onAttachedToWindow, HippyDirectEventBlock)
+HIPPYEVENTMETHOD(OnDetachedFromWindow, onDetachedFromWindow, HippyDirectEventBlock)
 // clang-format on
 
-- (__kindof HippyShadowView *)hippyShadowView {
+- (__kindof NativeRenderObjectView *)nativeRenderObjectView {
     NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
     return [hashTable anyObject];
 }
 
-- (void)setHippyShadowView:(__kindof HippyShadowView *)shadowView {
+- (void)setNativeRenderObjectView:(__kindof NativeRenderObjectView *)renderObject {
     NSHashTable *hashTable = [NSHashTable weakObjectsHashTable];
-    if (shadowView) {
-        [hashTable addObject:shadowView];
+    if (renderObject) {
+        [hashTable addObject:renderObject];
     }
-    objc_setAssociatedObject(self, @selector(hippyShadowView), hashTable, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(self, @selector(nativeRenderObjectView), hashTable, OBJC_ASSOCIATION_RETAIN);
 }
 
 - (void)sendAttachedToWindowEvent {

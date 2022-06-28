@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyConvert.h"
 #import "UIView+Hippy.h"
 #import "UIView+Private.h"
@@ -38,22 +38,23 @@ NSString *const HippyShadowViewDiffUpdate = @"HippyShadowViewDiffUpdate";
 NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 
 
-@interface HippyShadowView () {
+@interface NativeRenderObjectView () {
     HippyUpdateLifecycle _propagationLifecycle;
     HippyUpdateLifecycle _textLifecycle;
     NSDictionary *_lastParentProperties;
-    NSMutableArray<HippyShadowView *> *_hippySubviews;
+    NSMutableArray<NativeRenderObjectView *> *_hippySubviews;
     BOOL _recomputePadding;
     BOOL _recomputeMargin;
     BOOL _recomputeBorder;
     BOOL _didUpdateSubviews;
-    NSInteger _isDecendantOfLazilyShadowView;
+    //TODO remove it
+    NSInteger _isDecendantOfLazilyRenderObject;
     std::vector<std::string> _eventNames;
 }
 
 @end
 
-@implementation HippyShadowView
+@implementation NativeRenderObjectView
 
 @synthesize hippyTag = _hippyTag;
 @synthesize props = _props;
@@ -64,8 +65,8 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 - (void)amendLayoutBeforeMount {
     if (HippyUpdateLifecycleDirtied == _propagationLifecycle || _visibilityChanged) {
         _visibilityChanged = NO;
-        for (HippyShadowView *shadowView in self.hippySubviews) {
-            [shadowView amendLayoutBeforeMount];
+        for (NativeRenderObjectView *renderObjectView in self.hippySubviews) {
+            [renderObjectView amendLayoutBeforeMount];
         }
     }
 }
@@ -119,7 +120,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     _propagationLifecycle = HippyUpdateLifecycleComputed;
     _lastParentProperties = parentProperties;
     NSDictionary<NSString *, id> *nextProps = [self processUpdatedProperties:applierBlocks parentProperties:parentProperties];
-    for (HippyShadowView *child in _hippySubviews) {
+    for (NativeRenderObjectView *child in _hippySubviews) {
         [child collectUpdatedProperties:applierBlocks parentProperties:nextProps];
     }
 }
@@ -127,8 +128,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 - (instancetype)init {
     if ((self = [super init])) {
         _frame = CGRectMake(0, 0, NAN, NAN);
-        _newView = YES;
-        _isDecendantOfLazilyShadowView = -1;
+        _isDecendantOfLazilyRenderObject = -1;
         _propagationLifecycle = HippyUpdateLifecycleUninitialized;
         _textLifecycle = HippyUpdateLifecycleUninitialized;
         _hasNewLayout = YES;
@@ -160,8 +160,8 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 
 - (void)dirtyDescendantPropagation {
     [self dirtySelfPropagation];
-    for (HippyShadowView *shadowView in self.hippySubviews) {
-        [shadowView dirtyDescendantPropagation];
+    for (NativeRenderObjectView *renderObjectView in self.hippySubviews) {
+        [renderObjectView dirtyDescendantPropagation];
     }
 }
 
@@ -182,9 +182,9 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 
 - (HippyCreationType)creationType {
     if (HippyCreationTypeUndetermined == _creationType) {
-        HippyShadowView *superShadowView = [self hippySuperview];
-        if (superShadowView && ![superShadowView isHippyRootView]) {
-            _creationType = [superShadowView creationType];
+        NativeRenderObjectView *superRenderObject = [self hippySuperview];
+        if (superRenderObject && ![superRenderObject isHippyRootView]) {
+            _creationType = [superRenderObject creationType];
         }
         else {
             _creationType = HippyCreationTypeInstantly;
@@ -200,14 +200,14 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 - (void)recusivelySetCreationTypeToInstant {
     auto domManager = self.domManager.lock();
     if (domManager) {
-        __weak HippyShadowView *weakSelf = self;
+        __weak NativeRenderObjectView *weakSelf = self;
         
         std::vector<std::function<void()>> ops = {[weakSelf](){
             if (weakSelf) {
-                HippyShadowView *strongSelf = weakSelf;
+                NativeRenderObjectView *strongSelf = weakSelf;
                 strongSelf.creationType = HippyCreationTypeInstantly;
-                for (HippyShadowView *subShadowView in strongSelf.hippySubviews) {
-                    [subShadowView synchronousRecusivelySetCreationTypeToInstant];
+                for (NativeRenderObjectView *subRenderObject in strongSelf.hippySubviews) {
+                    [subRenderObject synchronousRecusivelySetCreationTypeToInstant];
                 }
             }
         }};
@@ -217,7 +217,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 
 - (void)synchronousRecusivelySetCreationTypeToInstant {
     self.creationType = HippyCreationTypeInstantly;
-    for (HippyShadowView *subShadowView in self.hippySubviews) {
+    for (NativeRenderObjectView *subShadowView in self.hippySubviews) {
         [subShadowView synchronousRecusivelySetCreationTypeToInstant];
     }
 }
@@ -225,7 +225,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 - (UIView *)createView:(HippyViewCreationBlock)creationBlock insertChildren:(HippyViewInsertionBlock)insertionBlock {
     UIView *container = creationBlock(self);
     NSMutableArray *children = [NSMutableArray arrayWithCapacity:[self.hippySubviews count]];
-    for (HippyShadowView *subviews in self.hippySubviews) {
+    for (NativeRenderObjectView *subviews in self.hippySubviews) {
         UIView *subview = [subviews createView:creationBlock insertChildren:insertionBlock];
         if (subview) {
             [children addObject:subview];
@@ -246,7 +246,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     }
 }
 
-- (void)insertHippySubview:(HippyShadowView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
     if (atIndex <= [_hippySubviews count]) {
         [_hippySubviews insertObject:subview atIndex:atIndex];
     }
@@ -259,7 +259,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     [self dirtyPropagation];
 }
 
-- (void)removeHippySubview:(HippyShadowView *)subview {
+- (void)removeHippySubview:(NativeRenderObjectView *)subview {
     [subview dirtyText];
     [subview dirtyPropagation];
     _didUpdateSubviews = YES;
@@ -272,22 +272,22 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     [superview removeHippySubview:self];
 }
 
-- (NSArray<HippyShadowView *> *)hippySubviews {
+- (NSArray<NativeRenderObjectView *> *)hippySubviews {
     return _hippySubviews;
 }
 
-- (HippyShadowView *)hippySuperview {
+- (NativeRenderObjectView *)hippySuperview {
     return _superview;
 }
 
 - (NSNumber *)hippyTagAtPoint:(CGPoint)point {
-    for (HippyShadowView *shadowView in _hippySubviews) {
-        if (CGRectContainsPoint(shadowView.frame, point)) {
+    for (NativeRenderObjectView *renderObject in _hippySubviews) {
+        if (CGRectContainsPoint(renderObject.frame, point)) {
             CGPoint relativePoint = point;
-            CGPoint origin = shadowView.frame.origin;
+            CGPoint origin = renderObject.frame.origin;
             relativePoint.x -= origin.x;
             relativePoint.y -= origin.y;
-            return [shadowView hippyTagAtPoint:relativePoint];
+            return [renderObject hippyTagAtPoint:relativePoint];
         }
     }
     return self.hippyTag;
@@ -308,7 +308,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     [string appendString:self.description];
     [string appendString:@"\n"];
 
-    for (HippyShadowView *subview in _hippySubviews) {
+    for (NativeRenderObjectView *subview in _hippySubviews) {
         [subview addRecursiveDescriptionToString:string atLevel:level + 1];
     }
 }
@@ -335,13 +335,13 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 - (void)setLayoutFrame:(CGRect)frame {
     auto domManager = self.domManager.lock();
     if (domManager) {
-        __weak HippyShadowView *weakSelf = self;
+        __weak NativeRenderObjectView *weakSelf = self;
         std::vector<std::function<void()>> ops = {[weakSelf, domManager, frame](){
             @autoreleasepool {
                 if (!weakSelf) {
                     return;
                 }
-                HippyShadowView *strongSelf = weakSelf;
+                NativeRenderObjectView *strongSelf = weakSelf;
                 int32_t hippyTag = [[strongSelf hippyTag] intValue];
                 auto node = domManager->GetNode(strongSelf.rootNode, hippyTag);
                 auto renderManager = domManager->GetRenderManager().lock();
@@ -455,7 +455,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 
 - (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection {
     _confirmedLayoutDirection = confirmedLayoutDirection;
-    for (HippyShadowView *subviews in self.hippySubviews) {
+    for (NativeRenderObjectView *subviews in self.hippySubviews) {
         [subviews applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
     }
 }
@@ -465,10 +465,10 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
     return layoutRTL;
 }
 
-- (void)checkLayoutDirection:(NSMutableSet<HippyShadowView *> *)viewsSet direction:(HPDirection *)direction{
+- (void)checkLayoutDirection:(NSMutableSet<NativeRenderObjectView *> *)viewsSet direction:(HPDirection *)direction{
     if (DirectionInherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        HippyShadowView *shadowSuperview = [self hippySuperview];
+        NativeRenderObjectView *shadowSuperview = [self hippySuperview];
         if (!shadowSuperview) {
             if (direction) {
                 NSWritingDirection writingDirection =
@@ -488,7 +488,7 @@ NSString *const HippyShadowViewDiffTag = @"HippyShadowViewDiffTag";
 - (void)superviewLayoutDirectionChangedTo:(HPDirection)direction {
     if (DirectionInherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
-        for (HippyShadowView *subview in self.hippySubviews) {
+        for (NativeRenderObjectView *subview in self.hippySubviews) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }

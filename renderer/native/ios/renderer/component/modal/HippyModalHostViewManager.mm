@@ -22,15 +22,15 @@
 
 #import "HippyModalHostViewManager.h"
 #import "HippyModalHostViewController.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyUtils.h"
 #import "HippyModalTransitioningDelegate.h"
 
-@interface HippyModalHostShadowView : HippyShadowView
+@interface NativeRenderObjectModalHost : NativeRenderObjectView
 
 @end
 
-@implementation HippyModalHostShadowView
+@implementation NativeRenderObjectModalHost
 
 - (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
@@ -69,8 +69,8 @@ HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
     return _transitioningDelegate;
 }
 
-- (HippyShadowView *)shadowView {
-    return [HippyModalHostShadowView new];
+- (NativeRenderObjectView *)nativeRenderObjectView {
+    return [NativeRenderObjectModalHost new];
 }
 
 @end

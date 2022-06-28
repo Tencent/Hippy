@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyDefines.h"
 #include "dom/dom_node.h"
 #include "dom/dom_listener.h"

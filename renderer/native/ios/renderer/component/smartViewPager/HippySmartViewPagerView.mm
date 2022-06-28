@@ -31,7 +31,7 @@
 #import "UIView+Render.h"
 #import "objc/runtime.h"
 #import "HippyRenderContext.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 
 static NSInteger kInfiniteLoopBegin = 2;
 static NSString *const kCellIdentifier = @"cellIdentifier";
@@ -78,7 +78,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 {
     _circular = NO;
     _autoplay = NO;
-    _itemWidth = self.hippyShadowView.frame.size.width;
+    _itemWidth = self.nativeRenderObjectView.frame.size.width;
     _previousMargin = 0.0f;
     _nextMargin = 0.0f;
     _pageGap = 0;
@@ -208,8 +208,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     _previousMargin = previousMargin;
     _nextMargin = nextMargin;
     _pageGap = pageGap;
-    _itemWidth = self.hippyShadowView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
-    _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.hippyShadowView.frame.size.height);
+    _itemWidth = self.nativeRenderObjectView.frame.size.width - (previousMargin + nextMargin + pageGap * 2);
+    _viewPagerLayout.itemSize = CGSizeMake(_itemWidth, self.nativeRenderObjectView.frame.size.height);
     _viewPagerLayout.minimumLineSpacing = pageGap;
     _viewPagerLayout.minimumInteritemSpacing = pageGap;
     _currentPage = [self adjustInitialPage:_initialPage];
@@ -243,7 +243,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 - (__kindof UICollectionViewLayout *)collectionViewLayout {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.minimumLineSpacing = .0f;
-    layout.itemSize = CGSizeMake(self.hippyShadowView.frame.size.width, self.hippyShadowView.frame.size.height);
+    layout.itemSize = CGSizeMake(self.nativeRenderObjectView.frame.size.width, self.nativeRenderObjectView.frame.size.height);
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     _viewPagerLayout = layout;
     return layout;
@@ -315,8 +315,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.hippyShadowView.hippySubviews containBannerView:NO];
-    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.hippyShadowView.hippySubviews.count];
+    [self.dataSource setDataSource:self.nativeRenderObjectView.hippySubviews containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.nativeRenderObjectView.hippySubviews.count];
     [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 
@@ -348,8 +348,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-    HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
-    return shadowView.frame.size;
+    NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
+    return renderObject.frame.size;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
@@ -370,14 +370,14 @@ static NSString *const kListViewItem = @"ListViewItem";
     NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
     NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
     HippyWaterfallViewCell *hpCell = (HippyWaterfallViewCell *)cell;
-    HippyShadowView *shadowView = [_dataSource cellForIndexPath:adjustIndexPath];
-    [shadowView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:shadowView.hippyTag onRootTag:shadowView.rootTag];
+    NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
+    [renderObject recusivelySetCreationTypeToInstant];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObject.hippyTag onRootTag:renderObject.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:adjustIndexPath];
     }
     else {
-        cellView = [self.renderContext createViewRecursivelyFromShadowView:shadowView];
+        cellView = [self.renderContext createViewRecursivelyFromRenderObject:renderObject];
     }
     hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];

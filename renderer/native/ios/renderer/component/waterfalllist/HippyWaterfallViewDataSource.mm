@@ -21,13 +21,13 @@
  */
 
 #import "HippyWaterfallViewDataSource.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import <UIKit/NSIndexPath+UIKitAdditions.h>
 
 @interface HippyWaterfallViewDataSource () {
     BOOL _containBannerView;
-    NSArray<HippyShadowView *> *_cellShadowViews;
-    HippyShadowView *_bannerView;
+    NSArray<NativeRenderObjectView *> *_cellRenderObjectViews;
+    NativeRenderObjectView *_bannerView;
 }
 
 @end
@@ -41,47 +41,47 @@
     return self;
 }
 
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource {
+- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource {
     [self setDataSource:dataSource containBannerView:NO];
 }
 
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView {
+- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView {
     _containBannerView = containBannerView;
     if ([dataSource count] > 0) {
         if (containBannerView) {
             _bannerView = [dataSource firstObject];
         }
-        NSArray<HippyShadowView *> *candidateCellShadowViews = [dataSource subarrayWithRange:NSMakeRange(1, [dataSource count] - 1)];
+        NSArray<NativeRenderObjectView *> *candidateRenderObjectViews = [dataSource subarrayWithRange:NSMakeRange(1, [dataSource count] - 1)];
         NSString *viewName = self.itemViewName;
         static dispatch_once_t onceToken;
         static NSPredicate *prediate = nil;
         dispatch_once(&onceToken, ^{
             prediate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-                HippyShadowView *shadowView = (HippyShadowView *)evaluatedObject;
-                if ([shadowView.viewName isEqualToString:viewName]) {
+                NativeRenderObjectView *renderObjectView = (NativeRenderObjectView *)evaluatedObject;
+                if ([renderObjectView.viewName isEqualToString:viewName]) {
                     return YES;
                 }
                 return NO;
             }];
         });
-        _cellShadowViews = [candidateCellShadowViews filteredArrayUsingPredicate:prediate];
+        _cellRenderObjectViews = [candidateRenderObjectViews filteredArrayUsingPredicate:prediate];
     }
 }
 
--(HippyShadowView *)bannerView {
+-(NativeRenderObjectView *)bannerView {
     return _bannerView;
 }
 
-- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath {
+- (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath {
     if (_containBannerView && 0 == [indexPath section]) {
         return _bannerView;
     }
     else {
-        return [_cellShadowViews objectAtIndex:[indexPath row]];
+        return [_cellRenderObjectViews objectAtIndex:[indexPath row]];
     }
 }
 
-- (HippyShadowView *)headerForSection:(NSInteger)section {
+- (NativeRenderObjectView *)headerForSection:(NSInteger)section {
     return nil;
 }
 
@@ -91,24 +91,24 @@
 
 - (NSInteger)numberOfCellForSection:(NSInteger)section {
     if (_containBannerView) {
-        return 0 == section ? 1 : [_cellShadowViews count];
+        return 0 == section ? 1 : [_cellRenderObjectViews count];
     }
     else {
-        return [_cellShadowViews count];
+        return [_cellRenderObjectViews count];
     }
 }
 
-- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell {
+- (NSIndexPath *)indexPathOfCell:(NativeRenderObjectView *)cell {
     NSInteger row = 0;
     NSInteger section = 0;
     if (_containBannerView) {
         if (_bannerView != cell) {
             section = 1;
-            row =  [_cellShadowViews indexOfObject:cell];
+            row =  [_cellRenderObjectViews indexOfObject:cell];
         }
     }
     else {
-        row =  [_cellShadowViews indexOfObject:cell];
+        row =  [_cellRenderObjectViews indexOfObject:cell];
     }
     return [NSIndexPath indexPathForRow:row inSection:section];
 }

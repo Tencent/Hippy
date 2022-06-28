@@ -24,20 +24,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyShadowView;
+@class NativeRenderObjectView;
 
 @interface HippyWaterfallViewDataSource : NSObject
 
 @property(nonatomic, readonly) BOOL containBannerView;
-@property(nonatomic, readonly) HippyShadowView *bannerView;
+@property(nonatomic, readonly) NativeRenderObjectView *bannerView;
 @property(nonatomic, copy) NSString *itemViewName;
 
-- (void)setDataSource:(NSArray<HippyShadowView *> *)dataSource containBannerView:(BOOL)containBannerView;
-- (HippyShadowView *)cellForIndexPath:(NSIndexPath *)indexPath;
-- (HippyShadowView *)headerForSection:(NSInteger)section;
+- (void)setDataSource:(NSArray<NativeRenderObjectView *> *)dataSource containBannerView:(BOOL)containBannerView;
+- (NativeRenderObjectView *)cellForIndexPath:(NSIndexPath *)indexPath;
+- (NativeRenderObjectView *)headerForSection:(NSInteger)section;
 - (NSInteger)numberOfSection;
 - (NSInteger)numberOfCellForSection:(NSInteger)section;
-- (NSIndexPath *)indexPathOfCell:(HippyShadowView *)cell;
+- (NSIndexPath *)indexPathOfCell:(NativeRenderObjectView *)cell;
 - (NSIndexPath *)indexPathForFlatIndex:(NSInteger)index;
 - (NSInteger)flatIndexForIndexPath:(NSIndexPath *)indexPath;
 

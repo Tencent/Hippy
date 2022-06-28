@@ -29,7 +29,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class HippyViewManager;
-@class HippyShadowView;
+@class NativeRenderObjectView;
 
 @protocol HippyRenderContext;
 
@@ -49,7 +49,7 @@ typedef void (^HippyRenderUIBlock)(id<HippyRenderContext> renderContext, NSDicti
 
 - (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag;
 
-- (__kindof UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView;
+- (__kindof UIView *)createViewRecursivelyFromRenderObject:(NativeRenderObjectView *)renderObject;
 
 - (void)purgeViewsFromHippyTags:(NSArray<NSNumber *> *)hippyTag onRootTag:(NSNumber *)rootTag;
 

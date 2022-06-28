@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyTextDecorationLineType.h"
 #import "dom/layout_node.h"
 
@@ -32,11 +32,11 @@ typedef NS_ENUM(NSInteger, HippySizeComparison) {
 
 extern NSString *const HippyIsHighlightedAttributeName;
 extern NSString *const HippyHippyTagAttributeName;
-extern NSString *const HippyShadowViewAttributeName;
+extern NSString *const HippyRenderObjectAttributeName;
 
 HIPPY_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
 
-@interface HippyShadowText : HippyShadowView {
+@interface NativeRenderObjectText : NativeRenderObjectView {
 @protected
     NSTextStorage *_cachedTextStorage;
     CGFloat _cachedTextStorageWidth;

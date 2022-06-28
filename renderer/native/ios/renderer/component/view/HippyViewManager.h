@@ -24,7 +24,7 @@
 #import "HippyConvert.h"
 #import "HippyRenderContext.h"
 
-@class HippyShadowView;
+@class NativeRenderObjectView;
 
 @interface HippyViewManager : NSObject
 
@@ -41,17 +41,17 @@
 
 /**
  * This method instantiates a shadow view to be managed by the module. If omitted,
- * an ordinary HippyShadowView instance will be created, which is typically fine for
- * most view types. As with the -view method, the -shadowView method should return
+ * an ordinary NativeRenderObjectView instance will be created, which is typically fine for
+ * most view types. As with the -view method, the -renderObject method should return
  * a fresh instance each time it is called.
  */
-- (HippyShadowView *)shadowView;
+- (NativeRenderObjectView *)nativeRenderObjectView;
 
 /**
  * Called to notify manager that layout has finished, in case any calculated
  * properties need to be copied over from shadow view to view.
  */
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowView:(HippyShadowView *)shadowView;
+- (HippyRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)renderObject;
 
 /**
  * Called after view hierarchy manipulation has finished, and all shadow props
@@ -59,7 +59,7 @@
  * custom layout logic or tasks that involve walking the view hierarchy.
  * To be deprecated, hopefully.
  */
-- (HippyRenderUIBlock)uiBlockToAmendWithShadowViewRegistry:(NSDictionary<NSNumber *, HippyShadowView *> *)shadowViewRegistry;
+- (HippyRenderUIBlock)uiBlockToAmendWithRenderObjectRegistry:(NSDictionary<NSNumber *, NativeRenderObjectView *> *)renderObjectRegistry;
 
 /**
  * This handles the simple case, where JS and native property names match.
@@ -89,16 +89,16 @@
 /**
  * This macro is used to map properties to the shadow view, instead of the view.
  */
-#define HIPPY_EXPORT_SHADOW_PROPERTY(name, type)      \
-    +(NSArray<NSString *> *)propConfigShadow_##name { \
+#define HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(name, type)      \
+    +(NSArray<NSString *> *)propConfigRenderObject_##name { \
         return @[@ #type];                            \
     }
 
 /**
  * This macro maps a named property to an arbitrary key path in the shadow view.
  */
-#define HIPPY_REMAP_SHADOW_PROPERTY(name, keyPath, type) \
-    +(NSArray<NSString *> *)propConfigShadow_##name {    \
+#define HIPPY_REMAP_RENDER_OBJECT_PROPERTY(name, keyPath, type) \
+    +(NSArray<NSString *> *)propConfigRenderObject_##name {    \
         return @[@ #type, @ #keyPath];                   \
     }
 
@@ -107,9 +107,9 @@
  * shadow view properties. The macro should be followed by a method body, which can
  * refer to "json" and "view".
  */
-#define HIPPY_CUSTOM_SHADOW_PROPERTY(name, type, viewClass) \
-    HIPPY_REMAP_SHADOW_PROPERTY(name, __custom__, type)     \
-    -(void)set_##name : (id)json forShadowView : (viewClass *)view
+#define HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(name, type, viewClass) \
+    HIPPY_REMAP_RENDER_OBJECT_PROPERTY(name, __custom__, type)     \
+    -(void)set_##name : (id)json forRenderObject : (viewClass *)view
 
 
 #define RENDER_CONCAT2(A, B) A##B

@@ -27,8 +27,8 @@
 #import "HippyComponent.h"
 #import "HippyComponentData.h"
 #import "HippyConvert.h"
-#import "HippyRootShadowView.h"
-#import "HippyShadowView.h"
+#import "NativeRenderObjectRootView.h"
+#import "NativeRenderObjectView.h"
 #import "HippyUtils.h"
 #import "HippyView.h"
 #import "HippyViewManager.h"
@@ -143,7 +143,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 @interface HippyUIManager() {
     NSMutableArray<HippyRenderUIBlock> *_pendingUIBlocks;
 
-    HippyComponentMap *_shadowViewRegistry;
+    HippyComponentMap *_renderObjectRegistry;
     HippyComponentMap *_viewRegistry;
 
     // Keyed by viewName
@@ -152,7 +152,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     NSMutableSet<id<HippyComponent>> *_componentTransactionListeners;
 
     std::weak_ptr<DomManager> _domManager;
-    std::mutex _shadowQueueLock;
+    std::mutex _renderQueueLock;
     NSMutableDictionary<NSString *, id> *_viewManagers;
     NSDictionary<NSString *, Class> *_extraComponent;
 }
@@ -182,7 +182,7 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 }
 
 - (void)initContext {
-    _shadowViewRegistry = [[HippyComponentMap alloc] init];
+    _renderObjectRegistry = [[HippyComponentMap alloc] init];
     _viewRegistry = [[HippyComponentMap alloc] init];
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSMutableSet new];
@@ -237,11 +237,11 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     }
 }
 
-- (HippyComponentMap *)shadowViewRegistry {
-     if (!_shadowViewRegistry) {
-        _shadowViewRegistry = [[HippyComponentMap alloc] init];
+- (HippyComponentMap *)renderObjectRegistry {
+     if (!_renderObjectRegistry) {
+        _renderObjectRegistry = [[HippyComponentMap alloc] init];
      }
-     return _shadowViewRegistry;
+     return _renderObjectRegistry;
  }
 
 - (HippyComponentMap *)viewRegistry {
@@ -262,13 +262,13 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     return [_viewRegistry componentForTag:hippyTag onRootTag:rootTag];
 }
 
-- (HippyShadowView *)shadowViewForHippyTag:(NSNumber *)hippyTag
-                                 onRootTag:(NSNumber *)rootTag {
-    return [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
+- (NativeRenderObjectView *)renderObjectForHippyTag:(NSNumber *)hippyTag
+                                          onRootTag:(NSNumber *)rootTag {
+    return [_renderObjectRegistry componentForTag:hippyTag onRootTag:rootTag];
 }
 
-- (std::mutex &)shadowQueueLock {
-    return _shadowQueueLock;
+- (std::mutex &)renderQueueLock {
+    return _renderQueueLock;
 }
 
 dispatch_queue_t HippyGetUIManagerQueue(void) {
@@ -330,13 +330,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             return;
         }
         __strong HippyUIManager *strongSelf = weakSelf;
-        std::lock_guard<std::mutex> lock([self shadowQueueLock]);
-        HippyRootShadowView *shadowView = [HippyRootShadowView new];
-        shadowView.hippyTag = hippyTag;
-        shadowView.frame = frame;
-        shadowView.backgroundColor = backgroundColor;
-        shadowView.viewName = NSStringFromClass([rootView class]);
-        [strongSelf->_shadowViewRegistry addRootComponent:shadowView rootNode:rootNode forTag:hippyTag];
+        std::lock_guard<std::mutex> lock([self renderQueueLock]);
+        NativeRenderObjectRootView *renderObject = [[NativeRenderObjectRootView alloc] init];
+        renderObject.hippyTag = hippyTag;
+        renderObject.frame = frame;
+        renderObject.backgroundColor = backgroundColor;
+        renderObject.viewName = NSStringFromClass([rootView class]);
+        [strongSelf->_renderObjectRegistry addRootComponent:renderObject rootNode:rootNode forTag:hippyTag];
     });
 
     [[NSNotificationCenter defaultCenter] postNotificationName:HippyUIManagerDidRegisterRootViewNotification object:self
@@ -357,13 +357,13 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
             return;
         }
         HippyUIManager *strongSelf = weakSelf;
-        HippyShadowView *shadowView = [strongSelf->_shadowViewRegistry rootComponentForTag:hippyTag];
-        if (shadowView == nil) {
+        NativeRenderObjectView *renderObject = [strongSelf->_renderObjectRegistry rootComponentForTag:hippyTag];
+        if (renderObject == nil) {
             return;
         }
-        if (!CGRectEqualToRect(frame, shadowView.frame)) {
-            shadowView.frame = frame;
-            std::weak_ptr<RootNode> rootNode = [strongSelf->_shadowViewRegistry rootNodeForTag:hippyTag];
+        if (!CGRectEqualToRect(frame, renderObject.frame)) {
+            renderObject.frame = frame;
+            std::weak_ptr<RootNode> rootNode = [strongSelf->_renderObjectRegistry rootNodeForTag:hippyTag];
             [strongSelf batchOnRootNode:rootNode];
         }
     }};
@@ -426,47 +426,53 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 
 - (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag
                                     onRootTag:(NSNumber *)rootTag {
-    HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
-    return [self createViewRecursivelyFromShadowView:shadowView];
+    NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:hippyTag onRootTag:rootTag];
+    return [self createViewRecursivelyFromRenderObject:renderObject];
 }
 
-- (UIView *)createViewFromShadowView:(HippyShadowView *)shadowView {
+- (UIView *)createViewFromRenderObject:(NativeRenderObjectView *)renderObject {
     AssertMainQueue();
-    HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName];
-    UIView *view = [self createViewByComponentData:componentData hippyTag:shadowView.hippyTag rootTag:shadowView.rootTag properties:shadowView.props viewName:shadowView.viewName];
+    HippyComponentData *componentData = [self componentDataForViewName:renderObject.viewName];
+    UIView *view = [self createViewByComponentData:componentData
+                                          hippyTag:renderObject.hippyTag
+                                           rootTag:renderObject.rootTag
+                                        properties:renderObject.props
+                                          viewName:renderObject.viewName];
     view.renderContext = self;
-    [view hippySetFrame:shadowView.frame];
-    const std::vector<std::string> &eventNames = [shadowView allEventNames];
+    [view hippySetFrame:renderObject.frame];
+    const std::vector<std::string> &eventNames = [renderObject allEventNames];
     for (auto &event : eventNames) {
-        [self addEventNameInMainThread:event forDomNodeId:[shadowView.hippyTag intValue] onRootNode:shadowView.rootNode];
+        [self addEventNameInMainThread:event
+                          forDomNodeId:[renderObject.hippyTag intValue]
+                            onRootNode:renderObject.rootNode];
     }
     return view;
 }
 
-- (UIView *)createViewRecursivelyFromShadowView:(HippyShadowView *)shadowView {
+- (UIView *)createViewRecursivelyFromRenderObject:(NativeRenderObjectView *)renderObject {
     AssertMainQueue();
-    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
-    [shadowView dirtyDescendantPropagation];
-    return [self createViewRecursiveFromShadowViewWithNOLock:shadowView];
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
+    [renderObject dirtyDescendantPropagation];
+    return [self createViewRecursiveFromRenderObjectWithNOLock:renderObject];
 }
 
-- (UIView *)createViewRecursiveFromShadowViewWithNOLock:(HippyShadowView *)shadowView {
-    UIView *view = [self createViewFromShadowView:shadowView];
+- (UIView *)createViewRecursiveFromRenderObjectWithNOLock:(NativeRenderObjectView *)renderObject {
+    UIView *view = [self createViewFromRenderObject:renderObject];
     NSUInteger index = 0;
-    for (HippyShadowView *subShadowView in shadowView.hippySubviews) {
-        UIView *subview = [self createViewRecursiveFromShadowViewWithNOLock:subShadowView];
+    for (NativeRenderObjectView *subRenderObject in renderObject.hippySubviews) {
+        UIView *subview = [self createViewRecursiveFromRenderObjectWithNOLock:subRenderObject];
         [view insertHippySubview:subview atIndex:index];
         index++;
     }
-    view.hippyShadowView = shadowView;
+    view.nativeRenderObjectView = renderObject;
     view.renderContext = self;
     [view clearSortedSubviews];
     [view didUpdateHippySubviews];
     NSMutableSet<HippyApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
-    [shadowView collectUpdatedProperties:applierBlocks parentProperties:@{}];
+    [renderObject collectUpdatedProperties:applierBlocks parentProperties:@{}];
     if (applierBlocks.count) {
         NSDictionary<NSNumber *, UIView *> *viewRegistry =
-            [_viewRegistry componentsForRootTag:shadowView.rootTag];
+            [_viewRegistry componentsForRootTag:renderObject.rootTag];
         for (HippyApplierBlock block in applierBlocks) {
             block(viewRegistry);
         }
@@ -474,8 +480,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     return view;
 }
 
-- (NSDictionary *)createShadowViewFromNode:(const std::shared_ptr<hippy::DomNode> &)domNode
-                                onRootNode:(std::weak_ptr<RootNode>)rootNode {
+- (NSDictionary *)createRenderObjectFromNode:(const std::shared_ptr<hippy::DomNode> &)domNode
+                                  onRootNode:(std::weak_ptr<RootNode>)rootNode {
     auto strongRootNode = rootNode.lock();
     if (!strongRootNode || !domNode) {
         return @{};
@@ -487,22 +493,22 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     NSString *tagName = [NSString stringWithUTF8String:domNode->GetTagName().c_str()];
     NSMutableDictionary *props = [stylesFromDomNode(domNode) mutableCopy];
     HippyComponentData *componentData = [self componentDataForViewName:viewName];
-    HippyShadowView *shadowView = [componentData createShadowViewWithTag:hippyTag];
-    shadowView.rootNode = rootNode;
-    NSAssert(componentData && shadowView, @"componentData and shadowView must not be nil");
+    NativeRenderObjectView *renderObject = [componentData createRenderObjectViewWithTag:hippyTag];
+    renderObject.rootNode = rootNode;
+    NSAssert(componentData && renderObject, @"componentData and renderObject must not be nil");
     [props setValue: rootTag forKey: @"rootTag"];
     // Register shadow view
-    if (shadowView) {
-        shadowView.hippyTag = hippyTag;
-        shadowView.rootTag = rootTag;
-        shadowView.viewName = viewName;
-        shadowView.tagName = tagName;
-        shadowView.props = props;
-        shadowView.domManager = _domManager;
-        shadowView.nodeLayoutResult = domNode->GetLayoutResult();
-        shadowView.frame = CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
-        [componentData setProps:props forShadowView:shadowView];
-        [_shadowViewRegistry addComponent:shadowView forRootTag:rootTag];
+    if (renderObject) {
+        renderObject.hippyTag = hippyTag;
+        renderObject.rootTag = rootTag;
+        renderObject.viewName = viewName;
+        renderObject.tagName = tagName;
+        renderObject.props = props;
+        renderObject.domManager = _domManager;
+        renderObject.nodeLayoutResult = domNode->GetLayoutResult();
+        renderObject.frame = CGRectMakeFromLayoutResult(domNode->GetLayoutResult());
+        [componentData setProps:props forRenderObjectView:renderObject];
+        [_renderObjectRegistry addComponent:renderObject forRootTag:rootTag];
     }
     return props;
 }
@@ -545,18 +551,18 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)updateView:(nonnull NSNumber *)hippyTag
          onRootTag:(NSNumber *)rootTag
              props:(NSDictionary *)props {
-    HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
-    if (!shadowView) {
+    NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:hippyTag onRootTag:rootTag];
+    if (!renderObject) {
         return;
     }
-    HippyComponentData *componentData = [self componentDataForViewName:shadowView.viewName];
+    HippyComponentData *componentData = [self componentDataForViewName:renderObject.viewName];
     NSDictionary *newProps = props;
     NSDictionary *virtualProps = props;
-    if (shadowView) {
-        newProps = [shadowView mergeProps: props];
-        virtualProps = shadowView.props;
-        [componentData setProps:newProps forShadowView:shadowView];
-        [shadowView dirtyPropagation];
+    if (renderObject) {
+        newProps = [renderObject mergeProps: props];
+        virtualProps = renderObject.props;
+        [componentData setProps:newProps forRenderObjectView:renderObject];
+        [renderObject dirtyPropagation];
     }
     [self addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
@@ -626,7 +632,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     });
 }
 
-- (void)amendPendingUIBlocksWithStylePropagationUpdateForShadowView:(HippyShadowView *)topView {
+- (void)amendPendingUIBlocksWithStylePropagationUpdateForRenderObject:(NativeRenderObjectView *)topView {
     NSMutableSet<HippyApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
 
     [topView collectUpdatedProperties:applierBlocks parentProperties:@{}];
@@ -688,34 +694,34 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         return;
     }
     NSNumber *rootNodeTag = @(strongRootNode->GetId());
-    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
     HippyViewsRelation *manager = [[HippyViewsRelation alloc] init];
     NSMutableDictionary *dicProps = [NSMutableDictionary dictionaryWithCapacity:nodes.size()];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         const auto& render_info = node->GetRenderInfo();
         [manager addViewTag:render_info.id forSuperViewTag:render_info.pid atIndex:render_info.index];
-        NSDictionary *nodeProps = [self createShadowViewFromNode:node onRootNode:rootNode];
+        NSDictionary *nodeProps = [self createRenderObjectFromNode:node onRootNode:rootNode];
         [dicProps setObject:nodeProps forKey:@(node->GetId())];
     }
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
         NSAssert(subviewTags.size() == subviewIndices.size(), @"subviewTags count must be equal to subviewIndices count");
-        HippyShadowView *superShadowView = [self->_shadowViewRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
+        NativeRenderObjectView *superRenderObject = [self->_renderObjectRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
         for (NSUInteger index = 0; index < subviewTags.size(); index++) {
-            HippyShadowView *subShadowView = [self->_shadowViewRegistry componentForTag:@(subviewTags[index]) onRootTag:rootNodeTag];
-            [superShadowView insertHippySubview:subShadowView atIndex:subviewIndices[index]];
+            NativeRenderObjectView *subRenderObject = [self->_renderObjectRegistry componentForTag:@(subviewTags[index]) onRootTag:rootNodeTag];
+            [superRenderObject insertHippySubview:subRenderObject atIndex:subviewIndices[index]];
         }
     }];
     for (const std::shared_ptr<DomNode> &node : nodes) {
         NSNumber *hippyTag = @(node->GetId());
-        HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootNodeTag];
-        if (HippyCreationTypeInstantly == [shadowView creationType] && !_uiCreationLazilyEnabled) {
+        NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:hippyTag onRootTag:rootNodeTag];
+        if (HippyCreationTypeInstantly == [renderObject creationType] && !_uiCreationLazilyEnabled) {
             NSString *viewName = [NSString stringWithUTF8String:node->GetViewName().c_str()];
             NSDictionary *props = [dicProps objectForKey:@(node->GetId())];
             HippyComponentData *componentData = [self componentDataForViewName:viewName];
             [self addUIBlock:^(id<HippyRenderContext> renderContext, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
                 HippyUIManager *uiManager = (HippyUIManager *)renderContext;
                 UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootNodeTag properties:props viewName:viewName];
-                view.hippyShadowView = shadowView;
+                view.nativeRenderObjectView = renderObject;
                 view.renderContext = renderContext;
             }];
         }
@@ -723,8 +729,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     [manager enumerateViewsHierarchy:^(int32_t tag, const std::vector<int32_t> &subviewTags, const std::vector<int32_t> &subviewIndices) {
         auto subViewTags_ = subviewTags;
         auto subViewIndices_ = subviewIndices;
-        HippyShadowView *shadowView = [self->_shadowViewRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
-        if (HippyCreationTypeInstantly == [shadowView creationType] && !self->_uiCreationLazilyEnabled) {
+        NativeRenderObjectView *renderObject = [self->_renderObjectRegistry componentForTag:@(tag) onRootTag:rootNodeTag];
+        if (HippyCreationTypeInstantly == [renderObject creationType] && !self->_uiCreationLazilyEnabled) {
             [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *superView = viewRegistry[@(tag)];
                 for (NSUInteger index = 0; index < subViewTags_.size(); index++) {
@@ -743,7 +749,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (const auto &node : nodes) {
         NSNumber *hippyTag = @(node->GetRenderInfo().id);
@@ -761,14 +767,14 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (auto dom_node : nodes) {
         int32_t tag = dom_node->GetRenderInfo().id;
-        HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:@(tag) onRootTag:rootTag];
-        if (shadowView) {
-            [shadowView removeFromHippySuperview];
-            [self purgeChildren:@[shadowView] onRootTag:rootTag fromRegistry:_shadowViewRegistry];
+        NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:@(tag) onRootTag:rootTag];
+        if (renderObject) {
+            [renderObject removeFromHippySuperview];
+            [self purgeChildren:@[renderObject] onRootTag:rootTag fromRegistry:_renderObjectRegistry];
         }
         __weak auto weakSelf = self;
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
@@ -797,24 +803,24 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     if (!strongRootNode) {
         return;
     }
-    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
     NSNumber *rootTag = @(strongRootNode->GetId());
     for (auto &layoutInfoTuple : layoutInfos) {
         int32_t tag = std::get<0>(layoutInfoTuple);
         NSNumber *hippyTag = @(tag);
         hippy::LayoutResult layoutResult = std::get<1>(layoutInfoTuple);
         CGRect frame = CGRectMakeFromLayoutResult(layoutResult);
-        HippyShadowView *shadowView = [_shadowViewRegistry componentForTag:hippyTag onRootTag:rootTag];
-        if (shadowView) {
-            shadowView.frame = frame;
+        NativeRenderObjectView *renderObject = [_renderObjectRegistry componentForTag:hippyTag onRootTag:rootTag];
+        if (renderObject) {
+            renderObject.frame = frame;
             [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
                 UIView *view = viewRegistry[hippyTag];
                 /* do not use frame directly, because shadow view's frame possibly changed manually in
-                 * [HippyShadowView collectShadowViewsHaveNewLayoutResults]
+                 * [NativeRenderObjectView collectRenderObjectHaveNewLayoutResults]
                  * This is a Wrong example:
                  * [view hippySetFrame:frame]
                  */
-                [view hippySetFrame:shadowView.frame];
+                [view hippySetFrame:renderObject.frame];
             }];
         }
     }
@@ -908,8 +914,8 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    HippyShadowView *shadowView = [self shadowViewForHippyTag:@(node_id) onRootTag:@(root_id)];
-    [shadowView addEventName:name];
+    NativeRenderObjectView *renderObject = [self renderObjectForHippyTag:@(node_id) onRootTag:@(root_id)];
+    [renderObject addEventName:name];
     if (name == hippy::kClickEvent) {
         [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
             HippyUIManager *uiManager = (HippyUIManager *)renderContext;
@@ -1266,22 +1272,22 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
  * runs these blocks and all other already existing blocks.
  */
 - (void)layoutAndMountOnRootNode:(std::weak_ptr<RootNode>)rootNode {
-    std::lock_guard<std::mutex> lock([self shadowQueueLock]);
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
     auto strongRootNode = rootNode.lock();
     if (!strongRootNode) {
         return;
     }
     int32_t root_id = strongRootNode->GetId();
-    HippyShadowView *rootView = [_shadowViewRegistry rootComponentForTag:@(root_id)];
+    NativeRenderObjectView *rootView = [_renderObjectRegistry rootComponentForTag:@(root_id)];
     // Gather blocks to be executed now that all view hierarchy manipulations have
     // been completed (note that these may still take place before layout has finished)
-    NSDictionary *shadowViewMap = [_shadowViewRegistry componentsForRootTag:@(root_id)];
+    NSDictionary *renderObjectsMap = [_renderObjectRegistry componentsForRootTag:@(root_id)];
     for (HippyComponentData *componentData in _componentDataByName.allValues) {
-        HippyRenderUIBlock uiBlock = [componentData uiBlockToAmendWithShadowViewRegistry:shadowViewMap];
+        HippyRenderUIBlock uiBlock = [componentData uiBlockToAmendWithRenderObjectViewRegistry:renderObjectsMap];
         [self addUIBlock:uiBlock];
     }
     [rootView amendLayoutBeforeMount];
-    [self amendPendingUIBlocksWithStylePropagationUpdateForShadowView:rootView];
+    [self amendPendingUIBlocksWithStylePropagationUpdateForRenderObject:rootView];
 
     [self addUIBlock:^(id<HippyRenderContext> renderContext, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         HippyUIManager *uiManager = (HippyUIManager *)renderContext;
@@ -1295,7 +1301,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
 - (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag {
     // If there is an active batch layout will happen when batch finished, so we will wait for that.
     // Otherwise we immidiately trigger layout.
-    auto rootNode = [_shadowViewRegistry rootNodeForTag:tag];
+    auto rootNode = [_renderObjectRegistry rootNodeForTag:tag];
     [self layoutAndMountOnRootNode:rootNode];
 }
 

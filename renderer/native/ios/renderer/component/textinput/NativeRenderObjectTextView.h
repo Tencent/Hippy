@@ -20,9 +20,9 @@
  * limitations under the License.
  */
 
-#import "HippyShadowView.h"
+#import "NativeRenderObjectView.h"
 
-@interface HippyShadowTextView : HippyShadowView
+@interface NativeRenderObjectTextView : NativeRenderObjectView
 
 @property (nonatomic, copy) NSString *text;
 @property (nonatomic, copy) NSString *placeholder;

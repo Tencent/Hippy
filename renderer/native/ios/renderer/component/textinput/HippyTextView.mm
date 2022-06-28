@@ -23,7 +23,7 @@
 #import "HippyTextView.h"
 
 #import "HippyConvert.h"
-#import "HippyShadowText.h"
+#import "NativeRenderObjectText.h"
 #import "HippyText.h"
 #import "HippyUtils.h"
 #import "HippyTextSelection.h"
@@ -176,7 +176,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 - (void)setMostRecentEventCount:(NSInteger)mostRecentEventCount {
     _mostRecentEventCount = mostRecentEventCount;
 
-    // Props are set after uiBlockToAmendWithShadowViewRegistry, which means that
+    // Props are set after uiBlockToAmendWithRenderObjectRegistry, which means that
     // at the time performTextUpdate is called, _mostRecentEventCount will be
     // behind _eventCount, with the result that performPendingTextUpdate will do
     // nothing. For that reason we call it again here after mostRecentEventCount

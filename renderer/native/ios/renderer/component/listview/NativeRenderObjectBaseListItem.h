@@ -20,16 +20,12 @@
  * limitations under the License.
  */
 
-#import "HippyWatefallItemShadowView.h"
+#import "NativeRenderObjectView.h"
 
-@implementation HippyWatefallItemShadowView
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        self.creationType = HippyCreationTypeLazily;
-    }
-    return self;
-}
+@interface NativeRenderObjectBaseListItem : NativeRenderObjectView
 
 @end
+
+NS_ASSUME_NONNULL_END
