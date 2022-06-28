@@ -71,13 +71,15 @@ class ScrollViewRenderViewModel extends ScrollableModel {
   }
 
   @override
-  bool interceptChildPosition() {
-    return true;
-  }
+  bool get useStackLayout => false;
 
-  ScrollViewRenderViewModel(int id, int instanceId, String className, RenderContext context,
-      [this.isHorizontal = false])
-      : super(id, instanceId, className, context);
+  ScrollViewRenderViewModel(
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context, [
+    this.isHorizontal = false,
+  ]) : super(id, instanceId, className, context);
 
   ScrollViewRenderViewModel.copy(
     int id,
@@ -106,6 +108,9 @@ class ScrollViewRenderViewModel extends ScrollableModel {
       viewModel.bounces,
     );
   }
+
+  @override
+  bool get withBoxPadding => false;
 
   @override
   bool operator ==(Object other) {

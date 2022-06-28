@@ -181,12 +181,12 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   }
 
   @ControllerProps(NodeProps.kOverflow)
-  void setOverflow(DivRenderViewModel viewModel, String overflow) {
+  void setOverflow(T viewModel, String overflow) {
     viewModel.overflow = overflow;
   }
 
   @ControllerProps(NodeProps.kBackgroundImage)
-  void setBackgroundImage(DivRenderViewModel viewModel, Object data) {
+  void setBackgroundImage(T viewModel, Object data) {
     if (data is String) {
       viewModel.backgroundImage = viewModel.context.convertRelativePath(viewModel.rootId, data);
     } else {
@@ -195,22 +195,22 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   }
 
   @ControllerProps(NodeProps.kBackgroundSize)
-  void setBackgroundImageSize(DivRenderViewModel viewModel, String resizeModeValue) {
+  void setBackgroundImageSize(T viewModel, String resizeModeValue) {
     viewModel.backgroundImgSize = resizeModeValue;
   }
 
   @ControllerProps(NodeProps.kBackgroundPositionX)
-  void setBackgroundImagePositionX(DivRenderViewModel viewModel, String positionX) {
+  void setBackgroundImagePositionX(T viewModel, String positionX) {
     viewModel.backgroundPositionX = positionX;
   }
 
   @ControllerProps(NodeProps.kBackgroundPositionY)
-  void setBackgroundImagePositionY(DivRenderViewModel viewModel, String positionY) {
+  void setBackgroundImagePositionY(T viewModel, String positionY) {
     viewModel.backgroundPositionY = positionY;
   }
 
   @ControllerProps(NodeProps.kBackgroundRepeat)
-  void setBackgroundImageRepeat(DivRenderViewModel viewModel, String value) {
+  void setBackgroundImageRepeat(T viewModel, String value) {
     viewModel.backgroundImgRepeat = value;
   }
 
@@ -423,9 +423,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   // @param functionName 函数名
   // @param array 函数参数
   // @param promise 回调
-  void dispatchFunction(T viewModel, String functionName, VoltronArray array,
-      {Promise? promise}) {
-    switch(functionName) {
+  void dispatchFunction(T viewModel, String functionName, VoltronArray array, {Promise? promise}) {
+    switch (functionName) {
       case DevtoolsUtil.kGetScreenShot:
         DevtoolsUtil.getScreenShot(viewModel, array, promise);
         break;

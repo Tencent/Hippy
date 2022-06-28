@@ -182,6 +182,7 @@ class NodeProps {
   static const String kOnMomentumScrollBegin = "onMomentumScrollBegin";
   static const String kOnMomentumScrollEnd = "onMomentumScrollEnd";
   static const String kOnScrollEnable = "onScroll";
+  static const String kOnEndReached = "onEndReached";
   static const String kScrollEnable = "scrollEnabled";
   static const String kScrollEventThrottle = "scrollEventThrottle";
 

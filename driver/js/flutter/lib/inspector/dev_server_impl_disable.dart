@@ -6,31 +6,39 @@ import '../inspector.dart';
 
 class DevServerImplDisable implements DevServerInterface {
   late DevServerHelper _devServerHelper;
+  late DevServerConfig _devServerConfig;
 
   DevServerImplDisable(
     GlobalConfigs configs,
     String serverHost,
   ) {
     _devServerHelper = DevServerHelper(configs, serverHost);
+    _devServerConfig = DevServerConfig(serverHost);
   }
 
   @override
   String createResourceUrl(String resName) {
-    return '';
+    return _devServerHelper.createBundleURL(
+      _devServerConfig.getServerHost(),
+      resName,
+      false,
+      false,
+      false,
+    );
   }
 
   @override
-  void handleException(JsError error) {
-    // TODO: implement handleException
-  }
+  void handleException(JsError error) {}
 
   @override
-  void attachToHost(RootWidgetViewModel viewModel) {
-    // TODO: implement attachToHost
-  }
+  void attachToHost(RootWidgetViewModel viewModel) {}
 
   @override
-  void detachFromHost(RootWidgetViewModel viewModel) {
-    // TODO: implement detachFromHost
-  }
+  void detachFromHost(RootWidgetViewModel viewModel) {}
+
+  @override
+  void setDevServerCallback(DevServerCallback devServerCallback) {}
+
+  @override
+  void reload() {}
 }

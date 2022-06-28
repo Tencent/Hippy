@@ -87,6 +87,9 @@ class WaterfallViewModel extends ScrollableModel {
   }
 
   @override
+  bool get useStackLayout => false;
+
+  @override
   bool operator ==(Object other) {
     return other is WaterfallViewModel &&
         const DeepCollectionEquality().equals(children, other.children) &&

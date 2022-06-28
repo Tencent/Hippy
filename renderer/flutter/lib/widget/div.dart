@@ -100,9 +100,10 @@ class DivContainerWidget extends FRBaseStatelessWidget {
 }
 
 Widget generateByViewModel(
-    BuildContext context, RenderViewModel renderViewModel) {
-  ControllerManager? controllerManager =
-      renderViewModel.context.renderManager.controllerManager;
+  BuildContext context,
+  RenderViewModel renderViewModel,
+) {
+  ControllerManager? controllerManager = renderViewModel.context.renderManager.controllerManager;
   var controller = controllerManager.findController(renderViewModel.name);
   if (controller != null) {
     var widget = controller.createWidget(context, renderViewModel);
@@ -145,8 +146,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
       });
     }
     if (!kReleaseMode && debugProfileBuildsEnabled) {
-      Timeline.startSync('[b]_BoxWidgetState',
-          arguments: timelineArgumentsIndicatingLandmarkEvent);
+      Timeline.startSync('[b]_BoxWidgetState', arguments: timelineArgumentsIndicatingLandmarkEvent);
     }
 
     final width = widget._viewModel.width;
@@ -208,15 +208,20 @@ class _BoxWidgetState extends FRState<BoxWidget> {
       );
     }
 
-    /// 4. use UnconstrainedBox make child is able to bugger than parent
-    current = UnconstrainedBox(
-      alignment: Alignment.topLeft,
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: current,
-      ),
+    current = SizedBox(
+      width: width,
+      height: height,
+      child: current,
     );
+
+    /// 4. use UnconstrainedBox make child is able to bugger than parent
+    /// exclude waterfallItem (waterfallItem has tight constraints)
+    if (widget._viewModel is! WaterfallItemViewModel) {
+      current = UnconstrainedBox(
+        alignment: Alignment.topLeft,
+        child: current,
+      );
+    }
 
     /// 5. add opacity
     final opacity = widget._viewModel.opacity;
@@ -233,18 +238,13 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     if (widget._viewModel.gestureDispatcher.needListener()) {
       current = Listener(
         behavior: HitTestBehavior.opaque,
-        onPointerDown: (event) =>
-            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
-        onPointerCancel: (event) =>
-            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
-        onPointerMove: (event) =>
-            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
-        onPointerUp: (event) =>
-            widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerDown: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerCancel: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerMove: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
+        onPointerUp: (event) => widget._viewModel.gestureDispatcher.handleOnTouchEvent(event),
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
-          onLongPress: () =>
-              widget._viewModel.gestureDispatcher.handleLongClick(),
+          onLongPress: () => widget._viewModel.gestureDispatcher.handleLongClick(),
           onTap: () => widget._viewModel.gestureDispatcher.handleClick(),
           child: current,
         ),
@@ -353,7 +353,7 @@ class PositionWidget extends FRBaseStatelessWidget {
     var node = child;
     var parent = _viewModel.parent;
 
-    if (parent != null && !parent.interceptChildPosition()) {
+    if (parent?.useStackLayout ?? false) {
       if (_viewModel.noSize || _viewModel.noPosition) {
         if (_viewModel.isShow) {
           LogUtils.d(
