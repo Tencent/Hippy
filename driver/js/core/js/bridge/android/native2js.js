@@ -54,11 +54,6 @@ global.hippyBridge = (_action, _callObj) => {
       }
       break;
     }
-    case 'destroyInstance': {
-      const rootViewId = callObj;
-      global.Hippy.emit('destroyInstance', rootViewId);
-      break;
-    }
     default: {
       resp = 'error: action not define';
       break;

@@ -33,12 +33,7 @@ __fbBatchedBridge.__invokeCallback = (cbID, args) => {
 };
 
 __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
-  if (module === 'IOSBridgeModule' || module === 'AppRegistry') {
-    if (method === 'unmountApplicationComponentAtRootTag') {
-      const rootViewId = args[0];
-      global.Hippy.emit('destroyInstance', rootViewId);
-    }
-  } else if (module === 'EventDispatcher' || module === 'Dimensions') {
+  if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];
     if (!targetModule || !targetModule[method] || typeof targetModule[method] !== 'function') {
     } else {
