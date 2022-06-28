@@ -33,6 +33,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   bool momentumScrollBeginEventEnable = false;
   bool momentumScrollEndEventEnable = false;
   bool scrollEventEnable = false;
+  bool endReachedEventEnable = false;
   bool scrollEnable = true;
   int scrollEventThrottle = 400;
   int preloadItemNumber = 0;
@@ -54,6 +55,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
       momentumScrollBeginEventEnable ||
       momentumScrollEndEventEnable ||
       scrollEventEnable ||
+      endReachedEventEnable ||
       exposureEventEnabled;
 
   void handleScrollBegin(RenderViewModel view, double scrollX, double scrollY) {

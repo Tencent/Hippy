@@ -480,9 +480,7 @@ class RenderViewModel extends ChangeNotifier {
     }
   }
 
-  bool interceptChildPosition() {
-    return false;
-  }
+  bool get useStackLayout => true;
 
   void setGestureType(GestureType type, bool flag) {
     if (flag) {

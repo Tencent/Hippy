@@ -25,12 +25,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:voltron_renderer/bridge/render_bridge_define.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:web_socket_channel/io.dart';
 
 import '../adapter.dart';
 import '../channel.dart';
@@ -54,14 +51,12 @@ class VoltronBridgeManager implements Destroyable {
   static const int kBridgeTypeRemoteDebug = 0;
 
   static String? sCodeCacheRootDir;
-  static int sBridgeNum = 0;
   static HashMap<int, VoltronBridgeManager> bridgeMap = HashMap();
 
   final EngineContext _context;
   final VoltronBundleLoader? _coreBundleLoader;
   final VoltronThirdPartyAdapter? _thirdPartyAdapter;
   bool _isFrameWorkInit = false;
-  bool _isBridgeInit = false;
   final bool _isDevModule;
   final String _debugServerHost;
 
@@ -70,13 +65,10 @@ class VoltronBridgeManager implements Destroyable {
   final int _groupId;
   final List<String> _loadBundleInfo = [];
 
-  late int _v8RuntimeId;
+  int _v8RuntimeId = 0;
   final int _engineId;
-  IOWebSocketChannel? _webSocketChannel;
 
   ModuleListener? _loadModuleListener;
-
-  final VoltronBuffer _voltronBuffer = VoltronBuffer();
 
   VoltronBundleLoader? get coreBundleLoader => _coreBundleLoader;
 
@@ -97,7 +89,6 @@ class VoltronBridgeManager implements Destroyable {
         _debugServerHost = debugServerHost,
         _thirdPartyAdapter = thirdPartyAdapter,
         _isSingleThread = bridgeType == kBridgeTypeSingleThread {
-    sBridgeNum++;
     initCodeCacheDir();
     _context.renderContext.bridgeManager.init();
   }
@@ -123,28 +114,33 @@ class VoltronBridgeManager implements Destroyable {
         _isDevModule,
         _groupId,
         _engineId,
-        (value) {
-          var thirdPartyAdapter = _thirdPartyAdapter;
-          if (thirdPartyAdapter != null) {
-            thirdPartyAdapter.setVoltronBridgeId(value);
-          }
+        (value) async {
+          _isFrameWorkInit = true;
+          _thirdPartyAdapter?.setVoltronBridgeId(value);
           _context.startTimeMonitor.startEvent(
             EngineMonitorEventKey.engineLoadEventLoadCommonJs,
           );
           var coreBundleLoader = _coreBundleLoader;
           if (coreBundleLoader != null) {
-            coreBundleLoader.load(this, (ret, e) {
-              _isFrameWorkInit = ret == 1;
-              Error? error;
-              if (!_isFrameWorkInit) {
-                error = StateError(
-                  "load coreJsBundle failed,check your core jsBundle",
-                );
-              } else {
-                bridgeMap[_engineId] = this;
+            try {
+              await coreBundleLoader.load(this, (ret, e) {
+                _isFrameWorkInit = ret == 1;
+                Error? error;
+                if (!_isFrameWorkInit) {
+                  error = StateError(
+                    "load coreJsBundle failed,check your core jsBundle",
+                  );
+                } else {
+                  bridgeMap[_engineId] = this;
+                }
+                callback(_isFrameWorkInit, error);
+              });
+            } catch (e) {
+              if (e is Error) {
+                LogUtils.e(_kTag, '${e.stackTrace}');
               }
-              callback(_isFrameWorkInit, error);
-            });
+              callback(_isFrameWorkInit, StateError(e.toString()));
+            }
           } else {
             _isFrameWorkInit = true;
             callback(_isFrameWorkInit, null);
@@ -154,11 +150,8 @@ class VoltronBridgeManager implements Destroyable {
         tracingDataDir,
         _getDebugWsUrl(),
       );
-      _sendDebugInfo({'v8RuntimeId': _v8RuntimeId});
-      _isBridgeInit = true;
     } catch (e) {
       _isFrameWorkInit = false;
-      _isBridgeInit = false;
       if (e is Error) {
         LogUtils.e(_kTag, '${e.stackTrace}');
       }
@@ -222,7 +215,6 @@ class VoltronBridgeManager implements Destroyable {
       );
       return true;
     }
-    _sendDebugInfo({'rawPath': loader.rawPath});
     await loader.load(this, (param, e) {
       var success = param == 1;
       if (success) {
@@ -297,6 +289,18 @@ class VoltronBridgeManager implements Destroyable {
     await VoltronApi.destroyInstance(_engineId, id, (value) {});
   }
 
+  Future<dynamic> destroyBridge(DestoryBridgeCallback<bool> callback, bool isReload) async {
+    _thirdPartyAdapter?.onRuntimeDestroy();
+    await VoltronApi.destroy(
+      _engineId,
+      (value) {
+        onDestroy();
+        callback(value == 0);
+      },
+      true,
+    );
+  }
+
   Future<dynamic> callJsFunction(Object params, String action) async {
     LogUtils.dBridge("call function ($action), params($params)");
 
@@ -312,32 +316,12 @@ class VoltronBridgeManager implements Destroyable {
     await callJsFunction(params, action);
   }
 
-  void sendWebSocketMessage(dynamic msg) {
-    if (kDebugMode) {
-      print('utf8: $msg');
-    }
-    _webSocketChannel?.sink.add(msg);
-  }
+  void sendWebSocketMessage(dynamic msg) {}
 
   @override
   void destroy() {
-    _destroyInner();
-  }
-
-  Future<dynamic> _destroyInner() async {
-    _webSocketChannel?.sink.close();
-    _webSocketChannel = null;
-    if (!_isFrameWorkInit) {
-      return;
-    }
-
     _isFrameWorkInit = false;
-    _isBridgeInit = false;
-    sBridgeNum--;
-    _voltronBuffer.release();
     bridgeMap.remove(_engineId);
-    await VoltronApi.destroy(_engineId, (value) {}, false);
-    _context.renderContext.destroy();
   }
 
   Future<dynamic> callJavaScriptModule(String moduleName, String methodName, Object params) async {
@@ -417,8 +401,12 @@ class VoltronBridgeManager implements Destroyable {
   }
 
   Future<bool> runScriptFromAssets(
-      String fileName, bool canUseCodeCache, String codeCacheTag, CommonCallback callback) async {
-    if (!_isBridgeInit) {
+    String fileName,
+    bool canUseCodeCache,
+    String codeCacheTag,
+    CommonCallback callback,
+  ) async {
+    if (!_isFrameWorkInit) {
       return false;
     }
 
@@ -442,7 +430,7 @@ class VoltronBridgeManager implements Destroyable {
 
   Future<bool> runScriptFromAssetsWithData(String fileName, bool canUseCodeCache,
       String codeCacheTag, ByteData assetsData, CommonCallback callback) async {
-    if (!_isBridgeInit) {
+    if (!_isFrameWorkInit) {
       return false;
     }
 
@@ -467,7 +455,7 @@ class VoltronBridgeManager implements Destroyable {
 
   Future<bool> runScriptFromFile(String filePath, String scriptName, bool canUseCodeCache,
       String codeCacheTag, CommonCallback callback) async {
-    if (!_isBridgeInit) {
+    if (!_isFrameWorkInit) {
       return false;
     }
     if (!isEmpty(codeCacheTag) && !isEmpty(sCodeCacheRootDir)) {
@@ -492,11 +480,16 @@ class VoltronBridgeManager implements Destroyable {
     return true;
   }
 
-  void callNatives(String moduleName, String moduleFunc, String callId, Uint8List paramsList,
-      bool bridgeParseJson) {
+  void callNatives(
+    String moduleName,
+    String moduleFunc,
+    String callId,
+    Uint8List paramsList,
+    bool bridgeParseJson,
+  ) {
     LogUtils.dBridge('call native ($moduleName.$moduleFunc)');
 
-    if (_isBridgeInit) {
+    if (_isFrameWorkInit) {
       var paramsArray = VoltronArray();
 
       if (bridgeParseJson) {
@@ -508,9 +501,12 @@ class VoltronBridgeManager implements Destroyable {
         paramsArray = paramsList.decodeType<VoltronArray>() ?? VoltronArray();
       }
 
-      LogUtils.dBridge("call native ($moduleName.$moduleFunc), params($paramsArray)");
-      _context.moduleManager
-          .callNatives(CallNativeParams.obtain(moduleName, moduleFunc, callId, paramsArray));
+      LogUtils.dBridge(
+        "call native ($moduleName.$moduleFunc), params($paramsArray)",
+      );
+      _context.moduleManager.callNatives(
+        CallNativeParams.obtain(moduleName, moduleFunc, callId, paramsArray),
+      );
     }
   }
 
@@ -526,7 +522,11 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
-  void _sendDebugInfo(Map info) {
-    _webSocketChannel?.sink.add(json.encode({'debugInfo': info}));
+  onDestroy() {
+    if (!_isFrameWorkInit) {
+      return;
+    }
+    _isFrameWorkInit = false;
+    _v8RuntimeId = 0;
   }
 }
