@@ -23,10 +23,12 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.renderer.utils.EventUtils;
 
 @SuppressWarnings("deprecation")
-public class HippyVerticalScrollView extends ScrollView implements HippyViewBase, HippyScrollView {
+public class HippyVerticalScrollView extends ScrollView implements HippyViewBase, HippyScrollView,
+        ClipChildrenView {
 
     private NativeGestureDispatcher mGestureDispatcher;
 
