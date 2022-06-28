@@ -37,22 +37,19 @@ V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
   inspector_ = v8_inspector::V8Inspector::create(isolate, this);
 }
 
-void V8InspectorClientImpl::Reset(std::shared_ptr<Scope> scope,
-                                  std::shared_ptr<Bridge> bridge) {
-  scope_ = std::move(scope);
-  channel_->SetBridge(std::move(bridge));
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  channel_->SetDevtoolsDataSource(scope_ ? scope_->GetDevtoolsDataSource() : nullptr);
-#endif
+void V8InspectorClientImpl::Reset(std::shared_ptr<Scope> scope,
+                                  const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+  scope_ = std::move(scope);
+  channel_->SetDevtoolsDataSource(devtools_data_source);
 }
 
-void V8InspectorClientImpl::Connect(const std::shared_ptr<Bridge>& bridge) {
-  channel_ = std::make_unique<V8ChannelImpl>(bridge);
+void V8InspectorClientImpl::Connect(const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+  channel_ = std::make_unique<V8ChannelImpl>();
   session_ = inspector_->connect(1, channel_.get(), v8_inspector::StringView());
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  channel_->SetDevtoolsDataSource(scope_->GetDevtoolsDataSource());
-#endif
+  channel_->SetDevtoolsDataSource(devtools_data_source);
 }
+#endif
 
 void V8InspectorClientImpl::CreateContext() {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =

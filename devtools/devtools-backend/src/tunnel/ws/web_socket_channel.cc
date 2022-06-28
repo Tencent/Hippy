@@ -148,7 +148,6 @@ void WebSocketChannel::HandleSocketConnectMessage(const websocketpp::connection_
     std::string data(message.c_str(), message.length());
     data_handler_(data, hippy::devtools::kTaskFlag);
   }
-  BACKEND_LOGD(TDF_BACKEND, "websocket receive message");
 }
 
 void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hdl& handle) {

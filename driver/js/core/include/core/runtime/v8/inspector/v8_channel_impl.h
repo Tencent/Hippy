@@ -40,7 +40,7 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  public:
   using Bridge = hippy::Bridge;
 
-  explicit V8ChannelImpl(std::shared_ptr<Bridge> bridge);
+  V8ChannelImpl() = default;
   ~V8ChannelImpl() override = default;
 
   inline std::shared_ptr<Bridge> GetBridge() { return bridge_; }
