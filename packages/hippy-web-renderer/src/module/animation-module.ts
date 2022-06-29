@@ -310,7 +310,6 @@ class SimpleAnimation {
     this.animationState = 'play';
     setTimeout(() => {
       this.handleAnimationStart({ animationName: this.animationName, elapsedTime: 0, pseudoElement: '' } as AnimationEvent);
-      this.animationState = 'end';
     }, this.animationInfo.delay ?? 0);
     setTimeout(() => {
       this.handleAnimationEnd({ animationName: this.animationName, elapsedTime: 0, pseudoElement: '' } as AnimationEvent);
