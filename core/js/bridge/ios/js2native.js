@@ -1,12 +1,12 @@
+/* eslint-disable no-undef */
+
 const getModuleName = (originModuleName) => {
   if (originModuleName === 'UIManagerModule') {
     return 'UIManager';
   }
-
   if (originModuleName === 'StorageModule') {
     return 'AsyncStorage';
   }
-
   return originModuleName;
 };
 
@@ -32,38 +32,28 @@ const getComponentName = (originComponentName) => {
 const getParam = (moduleName, methodName, originParam) => {
   if (moduleName === 'UIManagerModule' && methodName === 'updateNode') {
     const newParam = [];
-
     newParam.push(originParam[1][0].id);
-
     newParam.push(getComponentName(originParam[1][0].name));
-
     const nativeProps = Object.assign(originParam[1][0].props, originParam[1][0].props.style);
     delete nativeProps.style;
     newParam.push(nativeProps);
-
     return newParam;
   }
 
   if (moduleName === 'UIManagerModule' && methodName === 'deleteNode') {
     const newParam = [];
-
     newParam.push(originParam[1][0].pId);
-
     newParam.push(undefined);
     newParam.push(undefined);
     newParam.push(undefined);
     newParam.push(undefined);
-
     const { pId, id } = originParam[1][0];
     const pNode = __GLOBAL__.IosNodeTree[pId];
-
     if (pNode) {
       const deleteIndex = pNode.indexOf(id);
-
       if (deleteIndex > -1) {
         newParam.push([deleteIndex]);
         __GLOBAL__.IosNodeTree[originParam[1][0].pId].splice(deleteIndex, 1);
-
         return newParam;
       }
       return 0;
@@ -73,27 +63,22 @@ const getParam = (moduleName, methodName, originParam) => {
   return originParam;
 };
 
-const needReject = (moduleName, methodName) => {
-  if (moduleName === 'StorageModule' || methodName === 'multiGet') {
-    return false;
-  }
-  return true;
-};
-
-const needResolve = () => true;
+const needReject = (moduleName, methodName) => !(moduleName === 'StorageModule' || methodName === 'multiGet');
 
 Hippy.bridge.callNative = (...callArguments) => {
   if (callArguments.length < 2) {
-    throw new TypeError('Arguments length must be larger than 2');
+    throw new TypeError('callNative arguments length must be larger than 2');
   }
 
+  const [nativeModuleName, nativeMethodName] = callArguments;
+
   if (callArguments.length === 2) {
-    const NativeModule = __GLOBAL__.NativeModules[getModuleName(callArguments[0])];
-    if (NativeModule && NativeModule[getMethodName(callArguments[1])]) {
-      NativeModule[getMethodName(callArguments[1])]();
+    const NativeModule = __GLOBAL__.NativeModules[getModuleName(nativeModuleName)];
+    if (NativeModule && NativeModule[getMethodName(nativeMethodName)]) {
+      NativeModule[getMethodName(nativeMethodName)]();
       return;
     }
-  } else if (callArguments[0] === 'UIManagerModule' && callArguments[1] === 'callUIFunction') {
+  } else if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'callUIFunction') {
     let moduleName = getComponentName(callArguments[2][0]);
 
     if (!__GLOBAL__.NativeModules[moduleName]) {
@@ -119,24 +104,24 @@ Hippy.bridge.callNative = (...callArguments) => {
     }
   } else {
     let setName = '';
-    if (callArguments[0] === 'UIManagerModule' && callArguments[1] === 'createNode') {
+    if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'createNode') {
       setName = 'createView';
-    } else if (callArguments[0] === 'UIManagerModule' && callArguments[1] === 'updateNode') {
+    } else if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'updateNode') {
       setName = 'updateView';
-    } else if (callArguments[0] === 'UIManagerModule' && callArguments[1] === 'deleteNode') {
+    } else if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'deleteNode') {
       setName = 'manageChildren';
     }
 
-    const NativeModule = __GLOBAL__.NativeModules[getModuleName(callArguments[0])];
+    const NativeModule = __GLOBAL__.NativeModules[getModuleName(nativeModuleName)];
 
-    if (NativeModule && NativeModule[getMethodName(callArguments[1], setName)]) {
-      const callModuleMethod = NativeModule[getMethodName(callArguments[1], setName)];
+    if (NativeModule && NativeModule[getMethodName(nativeMethodName, setName)]) {
+      const callModuleMethod = NativeModule[getMethodName(nativeMethodName, setName)];
       const param = [];
       for (let i = 2; i < callArguments.length; i += 1) {
         param.push(callArguments[i]);
       }
 
-      if (callArguments[0] === 'UIManagerModule' && callArguments[1] === 'createNode') {
+      if (nativeModuleName === 'UIManagerModule' && nativeMethodName === 'createNode') {
         const { setChildren } = __GLOBAL__.NativeModules.UIManager;
         const uiList = [];
 
@@ -144,11 +129,8 @@ Hippy.bridge.callNative = (...callArguments) => {
           const nativeProps = Object.assign(uiItem.props, uiItem.props.style);
           delete nativeProps.style;
           const tagName = uiItem.tagName === undefined ? '' : uiItem.tagName;
-
           const uiParam = [uiItem.id, getComponentName(uiItem.name), param[0], tagName, nativeProps];
-
           callModuleMethod.apply(callModuleMethod, uiParam);
-
           uiList.push(uiItem);
         });
 
@@ -156,21 +138,15 @@ Hippy.bridge.callNative = (...callArguments) => {
           const siblingList = [];
           const siblingPid = uiList[0].pId;
           const deleteIndexList = [];
-
           uiList.every((uiItem, index) => {
             if (uiItem.pId === siblingPid) {
               siblingList.push(uiItem);
               deleteIndexList.push(index);
             }
-
-            if (uiItem.pId > siblingPid) {
-              return false;
-            }
-            return true;
+            return uiItem.pId <= siblingPid;
           });
 
           siblingList.sort((a, b) => a.index - b.index);
-
           const insertChildIds = [];
           siblingList.forEach((item) => {
             insertChildIds.push(item.id);
@@ -189,7 +165,6 @@ Hippy.bridge.callNative = (...callArguments) => {
             siblingList.forEach((item) => {
               addChildTags.push(item.id);
               addChildIndexs.push((item.index - offsetIndex));
-
               __GLOBAL__.IosNodeTree[siblingPid].splice(item.index, 0, item.id);
             });
 
@@ -199,7 +174,6 @@ Hippy.bridge.callNative = (...callArguments) => {
             );
           } else {
             setChildren(siblingPid, insertChildIds);
-
             let cacheIds;
             try {
               cacheIds = JSON.parse(JSON.stringify(insertChildIds));
@@ -224,81 +198,72 @@ Hippy.bridge.callNative = (...callArguments) => {
           });
         }
       } else {
-        const nativeParam = getParam(callArguments[0], callArguments[1], param);
-
-        if (callArguments[0] !== 'UIManagerModule' || callArguments[1] !== 'deleteNode' || nativeParam) {
+        const nativeParam = getParam(nativeModuleName, nativeMethodName, param);
+        if (nativeModuleName !== 'UIManagerModule' || nativeMethodName !== 'deleteNode' || nativeParam) {
           callModuleMethod.apply(NativeModule, nativeParam);
         }
       }
-
       return;
     }
   }
-
-  throw new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`);
+  throw new ReferenceError(`callNative Native ${nativeModuleName}.${nativeMethodName}() not found`);
 };
 
 Hippy.bridge.callNativeWithPromise = (...callArguments) => {
   if (callArguments.length < 2) {
-    throw new TypeError('Arguments length must be 2');
+    return Promise.reject(new TypeError('callNativeWithPromise arguments length must be larger than 2'));
   }
 
-  const NativeModule = __GLOBAL__.NativeModules[getModuleName(callArguments[0])];
+  const [nativeModuleName, nativeMethodName] = callArguments;
+  const NativeModule = __GLOBAL__.NativeModules[getModuleName(nativeModuleName)];
 
-  if (NativeModule && NativeModule[getMethodName(callArguments[1])]) {
-    const callModuleMethod = NativeModule[getMethodName(callArguments[1])];
-    const param = [];
+  if (NativeModule && NativeModule[getMethodName(nativeMethodName)]) {
+    const callModuleMethod = NativeModule[getMethodName(nativeMethodName)];
+    const paramList = [];
     for (let i = 2; i < callArguments.length; i += 1) {
-      param.push(callArguments[i]);
+      paramList.push(callArguments[i]);
     }
-
     if (callModuleMethod.type === 'promise') {
-      return callModuleMethod.apply(NativeModule, getParam(callArguments[0], callArguments[1], param));
+      return callModuleMethod.apply(NativeModule, getParam(nativeModuleName, nativeMethodName, paramList));
     }
-
     return new Promise((resolve, reject) => {
-      if (needReject(callArguments[0], callArguments[1])) {
-        param.push(reject);
+      if (needReject(nativeModuleName, nativeMethodName)) {
+        paramList.push(reject);
       }
-      if (needResolve(callArguments[0], callArguments[1])) {
-        param.push(resolve);
-      }
-
-      callModuleMethod.apply(NativeModule, getParam(callArguments[0], callArguments[1], param));
+      paramList.push(resolve);
+      callModuleMethod.apply(NativeModule, getParam(nativeModuleName, nativeMethodName, paramList));
     });
   }
-
-  return Promise.reject(new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`));
+  return Promise.reject(new ReferenceError(`callNativeWithPromise Native ${nativeModuleName}.${nativeMethodName}() not found`));
 };
 
 Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
   if (callArguments.length < 3) {
-    throw new TypeError('Arguments length must be larger than 3');
+    throw new TypeError('callNativeWithCallbackId arguments length must be larger than 3');
   }
-
+  const [moduleName, methodName, autoDelete] = callArguments;
   if (callArguments.length === 3) {
-    const NativeModule = __GLOBAL__.NativeModules[getModuleName(callArguments[0])];
-    if (NativeModule && NativeModule[getMethodName(callArguments[1])]) {
-      if (callArguments[2] === false) {
-        return NativeModule[getMethodName(callArguments[1])]({
+    const NativeModule = __GLOBAL__.NativeModules[getModuleName(moduleName)];
+    if (NativeModule && NativeModule[getMethodName(methodName)]) {
+      if (autoDelete === false) {
+        return NativeModule[getMethodName(methodName)]({
           notDelete: true,
         });
       }
-      return NativeModule[getMethodName(callArguments[1])]();
+      return NativeModule[getMethodName(methodName)]();
     }
   } else {
-    const NativeModule = __GLOBAL__.NativeModules[getModuleName(callArguments[0])];
-    if (NativeModule && NativeModule[getMethodName(callArguments[1])]) {
-      const callModuleMethod = NativeModule[getMethodName(callArguments[1])];
+    const NativeModule = __GLOBAL__.NativeModules[getModuleName(moduleName)];
+    if (NativeModule && NativeModule[getMethodName(methodName)]) {
+      const callModuleMethod = NativeModule[getMethodName(methodName)];
       const param = [];
       for (let i = 3; i < callArguments.length; i += 1) {
         param.push(callArguments[i]);
       }
-
       const currentCallId = __GLOBAL__.moduleCallId;
       __GLOBAL__.moduleCallId += 1;
       let nativeParam = [];
-      if (callArguments[2] === false) {
+      if (autoDelete === false) {
         nativeParam.push({
           notDelete: true,
         });
@@ -308,14 +273,12 @@ Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
 
       callModuleMethod.apply(
         NativeModule,
-        getParam(callArguments[0], callArguments[1], nativeParam),
+        getParam(moduleName, methodName, nativeParam),
       );
-
       return currentCallId;
     }
   }
-
-  throw new ReferenceError(`Native ${callArguments[0]}.${callArguments[1]}() not found`);
+  throw new ReferenceError(`callNativeWithCallbackId Native ${moduleName}.${methodName}() not found`);
 };
 
 Hippy.bridge.removeNativeCallback = () => {};
