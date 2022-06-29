@@ -2,16 +2,11 @@
 /* eslint-disable no-underscore-dangle */
 
 __GLOBAL__.appRegister = {};
-__GLOBAL__.nodeIdCache = {};
-__GLOBAL__.nodeTreeCache = {};
-__GLOBAL__.IosNodeTree = {};
-__GLOBAL__.nodeParamCache = {};
 __GLOBAL__.moduleCallId = 0;
 __GLOBAL__.moduleCallList = {};
 __GLOBAL__.canRequestAnimationFrame = true;
 __GLOBAL__.requestAnimationFrameId = 0;
 __GLOBAL__.requestAnimationFrameQueue = {};
-__GLOBAL__.destroyInstanceList = {};
 __GLOBAL__._callID = 0;
 __GLOBAL__._callbackID = 0;
 __GLOBAL__._callbacks = {};
