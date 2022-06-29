@@ -1,6 +1,6 @@
 # Hippy Web Renderer 自定义模块
 
-Hippy开发过程中可能有很多场景使用当前的能力是无法满足的，可能就会需要使用三方库来提供一下额外的能力或者需要对齐终端的自定义模块。这就涉及到如何提供一个自定义模块
+Hippy开发过程中可能有很多场景使用当前的能力是无法满足的，可能就需要使用三方库来提供一下额外的能力或者需要提供模块对齐终端的能力。这就涉及到如何提供一个自定义模块
 
 # 模块的扩展
 
@@ -16,7 +16,7 @@ Hippy开发过程中可能有很多场景使用当前的能力是无法满足的
 
 # 扩展HippyWebModule
 
-`HippyWebModule`类，标准化了HippyWebRenderer可使用的模块的标准。提供了一些HippyWebRenderer的上下文。在一个自定义组件中有几个比较重要的属性：
+`HippyWebModule`类，标准化了HippyWebRenderer可使用的模块。提供了一些HippyWebRenderer的上下文。在一个自定义组件中有几个比较重要的属性：
 
 * name：定义了模块的名字，也是跟前端侧使用`callNative(moduleName，methodName)`中的moduleName相映射的
 * context：提供了一系列的方法
@@ -38,7 +38,7 @@ getModuleByName(moduleName: string);//使用模块名获取模块
 设置Module的name属性。
 
 第三步：
-实现API，`getBrowserInfo`和`setBrowserTitle`分别提供了获取当前浏览器的信息和设置浏览器title的功能。在扩展业务模块的提供api时，api的参数为`function name(arg1,arg2...argn,callBack)`，前面的n个参数对应业务侧调用时的传递参数，最后一个`callback`是当业务侧以待回调的形式进行调用时提供的回放结果的接口。
+实现API，`getBrowserInfo`和`setBrowserTitle`分别提供了获取当前浏览器的信息和设置浏览器title的功能。在提供自定义模块的api时，api的参数为`function name(arg1,arg2...argn,callBack)`，前面的n个参数对应业务侧调用时的传递参数，最后一个`callback`是当业务侧以需要返回值的形式进行调用时，提供的返回结果的回调。
 
 ```javascript
 import { HippyWebModule } from '@hippy/web-renderer';
@@ -57,6 +57,7 @@ export class CustomModule extends HippyWebModule {
    }
    ...
    callBack.resolve(true);
+   //callBack.reject(null);执行失败时
   }
 }
 ```

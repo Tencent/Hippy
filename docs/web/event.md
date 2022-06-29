@@ -18,7 +18,7 @@ context.sendEvent(eventName, param);
 
 ## 在component中
 
- >发送事件,`HippyWebView`基类提供的`context`提供了向业务层发送事件的能力
+ 发送事件,`HippyWebView`基类提供的`context`提供了向业务层发送事件的能力
 
 ```javascript
 const eventName = '自定义名字';
@@ -28,7 +28,7 @@ context.sendEvent(eventName, param);
 
 ## 在全局中
 
- >发送事件,`Hippy.web.engine`提供的`context`提供了向业务层发送事件的能力
+ 发送事件,`Hippy.web.engine`提供的`context`提供了向业务层发送事件的能力
 
 ```javascript
 const engine = Hippy.web.engine;
