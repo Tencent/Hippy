@@ -24,7 +24,7 @@ Hippy.bridge.callNative = (...callArguments) => {
     && (nativeMethodName === 'measure' || nativeMethodName === 'measureInWindow' || nativeMethodName === 'measureInAppWindow')) {
     const nodeId = callArguments[2];
     const callbackFunc = callArguments[3];
-    return UIManagerModule.callUIFunction(nodeId, nativeMethodName, [], callbackFunc);
+    return global.Hippy.document.callUIFunction(nodeId, nativeMethodName, [], callbackFunc);
   }
 
   const currentCallId = __GLOBAL__.moduleCallId;
