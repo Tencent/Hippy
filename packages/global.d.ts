@@ -232,22 +232,6 @@ declare namespace HippyTypes {
   export interface __GLOBAL__ {
     nodeId: number;
     reactRoots?: Map<number, any>;
-    nodeTreeCache?: {
-      [key: string]: any;
-    };
-    nodeIdCache?: {
-      [key: number]: any;
-    };
-    nodeDeleteIdCache?: {
-      [key: number]: {
-        [key: number]: string;
-      }
-    };
-    nodeParamCache?: {
-      [key: number]: {
-        [key: number]: any;
-      };
-    };
     moduleCallId?: number;
     moduleCallList?: Object
     jsModuleList?: any;

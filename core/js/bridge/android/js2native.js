@@ -9,138 +9,142 @@
  */
 
 Hippy.bridge.callNative = (...callArguments) => {
-  if (typeof hippyCallNatives === 'undefined') {
+  if (typeof global.hippyCallNatives === 'undefined') {
     throw new ReferenceError('hippyCallNatives not defined');
   }
 
   if (callArguments.length < 2) {
-    throw new TypeError('Arguments length must be larger than 2');
+    throw new TypeError('callNative arguments length must be larger than 2');
   }
+
+  const [nativeModuleName, nativeMethodName] = callArguments;
 
   const currentCallId = __GLOBAL__.moduleCallId;
   __GLOBAL__.moduleCallId += 1;
 
-  const param = [];
-  let cbCount = 0;
+  const paramList = [];
+  let hasCallback = false;
+  let moduleCallbackId = -1;
 
   for (let i = 2; i < callArguments.length; i += 1) {
-    if (typeof callArguments[i] === 'function' && cbCount === 0) {
-      cbCount += 1;
+    const args = callArguments[i];
+    if (typeof args === 'function' && !hasCallback) {
+      hasCallback = true;
       __GLOBAL__.moduleCallList[currentCallId] = {
-        cb: callArguments[i],
+        cb: args,
         type: 0,
       };
     } else {
-      param.push(callArguments[i]);
+      paramList.push(args);
     }
   }
-
-  let moduleCallbackId = -1;
-  if (cbCount > 0) {
+  if (hasCallback) {
     moduleCallbackId = currentCallId;
   }
 
-  hippyCallNatives(callArguments[0], callArguments[1], (moduleCallbackId.toString()), param);
+  global.hippyCallNatives(nativeModuleName, nativeMethodName, (moduleCallbackId.toString()), paramList);
 };
 
 Hippy.bridge.callNativeWithPromise = (...callArguments) => {
-  if (typeof hippyCallNatives === 'undefined') {
+  if (typeof global.hippyCallNatives === 'undefined') {
     return Promise.reject(new ReferenceError('hippyCallNatives not defined'));
   }
 
   if (callArguments.length < 2) {
-    return Promise.reject(new TypeError('Arguments length must be larger than 2'));
+    return Promise.reject(new TypeError('callNativeWithPromise arguments length must be larger than 2'));
   }
 
-  return new Promise((resolve, rj) => {
+  return new Promise((resolve, reject) => {
+    const [nativeModuleName, nativeMethodName] = callArguments;
+
     const currentCallId = __GLOBAL__.moduleCallId;
     __GLOBAL__.moduleCallId += 1;
 
-    const param = [];
-    let cbCount = 0;
+    const paramList = [];
+    let hasCallback = false;
 
     for (let i = 2; i < callArguments.length; i += 1) {
-      if (typeof callArguments[i] === 'function' && cbCount === 0) {
-        cbCount += 1;
+      const args = callArguments[i];
+      if (typeof args === 'function' && !hasCallback) {
+        hasCallback = true;
         __GLOBAL__.moduleCallList[currentCallId] = {
-          cb: callArguments[i],
-          reject: rj,
+          reject,
+          cb: args,
           type: 0,
         };
       } else {
-        param.push(callArguments[i]);
+        paramList.push(args);
       }
     }
 
-    if (cbCount === 0) {
+    if (!hasCallback) {
       __GLOBAL__.moduleCallList[currentCallId] = {
+        reject,
         cb: resolve,
-        reject: rj,
         type: 0,
       };
     }
 
-    hippyCallNatives(callArguments[0], callArguments[1], (currentCallId.toString()), param);
+    global.hippyCallNatives(nativeModuleName, nativeMethodName, (currentCallId.toString()), paramList);
   });
 };
 
 Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
-  if (typeof hippyCallNatives === 'undefined') {
+  if (typeof global.hippyCallNatives === 'undefined') {
     throw new ReferenceError('hippyCallNatives not defined');
   }
 
   if (callArguments.length < 3) {
-    throw new TypeError('Arguments length must be larger than 3');
+    throw new TypeError('callNativeWithCallbackId arguments length must be larger than 3');
   }
 
-  const callModuleName = callArguments[0];
-  const callFuncName = callArguments[1];
-  const autoDelete = callArguments[2];
+  const [nativeModuleName, nativeMethodName, autoDelete] = callArguments;
 
-  if (typeof callModuleName !== 'string' || typeof callFuncName !== 'string' || typeof autoDelete !== 'boolean') {
-    throw new TypeError('Invalid arguments');
+  if (typeof nativeModuleName !== 'string' || typeof nativeMethodName !== 'string' || typeof autoDelete !== 'boolean') {
+    throw new TypeError('callNativeWithCallbackId invalid arguments');
   }
 
   const currentCallId = __GLOBAL__.moduleCallId;
   __GLOBAL__.moduleCallId += 1;
-  const param = [];
+  const paramList = [];
+  let hasCallback = false;
 
-  if (callModuleName === 'AnimationModule' && (callFuncName === 'createAnimation' || callFuncName === 'createAnimationSet')) {
-    param.push(currentCallId);
+  if (nativeModuleName === 'AnimationModule' && (nativeMethodName === 'createAnimation' || nativeMethodName === 'createAnimationSet')) {
+    paramList.push(currentCallId);
   }
 
-  let cbCount = 0;
   for (let i = 3; i < callArguments.length; i += 1) {
-    if (typeof callArguments[i] === 'function' && cbCount === 0) {
-      cbCount += 1;
+    const args = callArguments[i];
+    if (typeof args === 'function' && !hasCallback) {
+      hasCallback = true;
       __GLOBAL__.moduleCallList[currentCallId] = {
-        cb: callArguments[i],
+        cb: args,
         type: autoDelete ? 1 : 2,
       };
     } else {
-      param.push(callArguments[i]);
+      paramList.push(args);
     }
   }
 
-  if (callModuleName === 'TimerModule' || callModuleName === 'AnimationFrameModule') {
-    param.push((currentCallId.toString()));
+  if (nativeModuleName === 'TimerModule' || nativeModuleName === 'AnimationFrameModule') {
+    paramList.push((currentCallId.toString()));
   }
 
-  hippyCallNatives(callModuleName, callFuncName, (currentCallId.toString()), param);
-
+  global.hippyCallNatives(nativeModuleName, nativeMethodName, (currentCallId.toString()), paramList);
   return currentCallId;
 };
 
 Hippy.bridge.removeNativeCallback = (callId) => {
   if (typeof callId !== 'number' || callId < 0) {
-    throw new TypeError('Invalid arguments');
+    throw new TypeError('removeNativeCallback invalid arguments');
   }
 
   if (typeof __GLOBAL__ !== 'object' || typeof __GLOBAL__.moduleCallList !== 'object') {
-    throw new ReferenceError('moduleCallList not defined');
+    throw new ReferenceError('removeNativeCallback moduleCallList not defined');
   }
 
   const callbackObject = __GLOBAL__.moduleCallList[callId];
+  // force delete
   if (callbackObject && (callbackObject.type === 1 || callbackObject.type === 2)) {
     delete __GLOBAL__.moduleCallList[callId];
   }
