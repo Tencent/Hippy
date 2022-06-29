@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-const UIManagerModule = internalBinding('UIManagerModule');
 
 const getModuleName = (originModuleName) => {
   if (originModuleName === 'UIManagerModule') {
@@ -25,7 +24,7 @@ Hippy.bridge.callNative = (...callArguments) => {
     && (nativeMethodName === 'measure' || nativeMethodName === 'measureInWindow' || nativeMethodName === 'measureInAppWindow')) {
     const nodeId = callArguments[2];
     const callbackFunc = callArguments[3];
-    return UIManagerModule.callUIFunction(nodeId, nativeMethodName, [], callbackFunc);
+    return global.Hippy.document.callUIFunction(nodeId, nativeMethodName, [], callbackFunc);
   }
 
   const NativeModule = __GLOBAL__.NativeModules[getModuleName(nativeModuleName)];
