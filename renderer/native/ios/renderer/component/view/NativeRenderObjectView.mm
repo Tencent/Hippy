@@ -23,8 +23,6 @@
 #import "NativeRenderObjectView.h"
 #import "HippyConvert.h"
 #import "UIView+Hippy.h"
-#import "UIView+Private.h"
-#import "HPNode.h"
 #import "HippyI18nUtils.h"
 #import "UIView+DirectionalLayout.h"
 #include "dom/layout_node.h"

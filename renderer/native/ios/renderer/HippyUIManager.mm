@@ -33,8 +33,6 @@
 #import "HippyView.h"
 #import "HippyViewManager.h"
 #import "UIView+Hippy.h"
-#import "UIView+Private.h"
-#import "HippyMemoryOpt.h"
 #import "HippyDeviceBaseInfo.h"
 #import "OCTypeToDomArgument.h"
 #import "UIView+DomEvent.h"
@@ -169,10 +167,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
 - (instancetype)init {
     self = [super init];
     if (self) {
-        NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
-        [center addObserver:self selector:@selector(appDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
-        [center addObserver:self selector:@selector(appWillEnterForeground) name:UIApplicationWillEnterForegroundNotification object:nil];
         [self initContext];
     }
     return self;
@@ -187,14 +181,6 @@ NSString *const HippyUIManagerDidEndBatchNotification = @"HippyUIManagerDidEndBa
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSMutableSet new];
     _componentDataByName = [NSMutableDictionary dictionaryWithCapacity:64];
-}
-
-- (void)didReceiveMemoryWarning {
-}
-
-- (void)appDidEnterBackground {
-}
-- (void)appWillEnterForeground {
 }
 
 - (void)invalidate {
@@ -1244,22 +1230,6 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     }
     else {
     }
-}
-
-- (void)removeRenderEvent:(const std::string &)name
-             forDomNodeId:(int32_t)node_id
-               onRootNode:(std::weak_ptr<RootNode>)rootNode {
-    auto strongRootNode = rootNode.lock();
-    if (!strongRootNode) {
-        return;
-    }
-    int32_t root_id = strongRootNode->GetId();
-    std::string name_ = name;
-    [self addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        HippyUIManager *uiManager = (HippyUIManager *)renderContext;
-        UIView *view = [uiManager viewForHippyTag:@(node_id) onRootTag:@(root_id)];
-        [view removePropertyEvent:name_];
-    }];
 }
 
 #pragma mark -

@@ -24,7 +24,6 @@
 #import "HippyComponent.h"
 #import "HippyConvert.h"
 #import "HippyAnimatedImageView.h"
-#import "HippyMemoryOpt.h"
 #import "HippyImageProviderProtocol.h"
 
 @class HippyImageView;
@@ -54,7 +53,7 @@ typedef NS_ENUM(NSInteger, HippyShapeMode) {
     HippyResizeModeCircle,
 };
 
-@interface HippyImageView : HippyAnimatedImageView <NSURLSessionDelegate, HippyMemoryOpt>
+@interface HippyImageView : HippyAnimatedImageView
 
 @property (nonatomic, assign) CGFloat blurRadius;
 @property (nonatomic, assign) UIEdgeInsets capInsets;

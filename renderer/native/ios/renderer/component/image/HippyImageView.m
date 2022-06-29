@@ -220,6 +220,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         _borderTopRightRadius = CGFLOAT_MAX;
         _borderBottomLeftRadius = CGFLOAT_MAX;
         _borderBottomRightRadius = CGFLOAT_MAX;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveMemoryWarning) name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
     }
     return self;
 }

@@ -217,23 +217,6 @@ HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
- * unregister event for specific view.
- *
- * @param name event name
- * @param node_id id of node for the event
- * @discussion this function will handle any event but gesture event, like touch, press, click, longclick, etc...
- */
-- (void)addRenderEvent:(const std::string &)name forDomNode:(int32_t)node_id;
-
-/**
- * unregister event for specific view
- *
- * @param name event name
- * @param node_id node id for the event
- */
-- (void)removeRenderEvent:(const std::string &)name forDomNodeId:(int32_t)node_id;
-
-/**
  * clear all memories
  */
 - (void)invalidate;

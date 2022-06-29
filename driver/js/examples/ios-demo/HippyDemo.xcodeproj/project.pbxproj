@@ -499,7 +499,6 @@
 		F45D262228067B6900CAB185 /* HippyTouchesView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyTouchesView.mm; sourceTree = "<group>"; };
 		F45D262328067B6900CAB185 /* HippyViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyViewManager.h; sourceTree = "<group>"; };
 		F45D262428067B6900CAB185 /* UIView+Hippy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Hippy.h"; sourceTree = "<group>"; };
-		F45D262528067B6900CAB185 /* UIView+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Private.h"; sourceTree = "<group>"; };
 		F45D262628067B6900CAB185 /* HippyBorderDrawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBorderDrawing.h; sourceTree = "<group>"; };
 		F45D262728067B6900CAB185 /* HippyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyView.h; sourceTree = "<group>"; };
 		F45D262928067B6900CAB185 /* HippySmartViewPagerViewManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippySmartViewPagerViewManager.mm; sourceTree = "<group>"; };
@@ -645,7 +644,6 @@
 		F468DE972812ACEA00319196 /* NativeRenderObjectRootView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderObjectRootView.mm; sourceTree = "<group>"; };
 		F468DE982812ACEA00319196 /* HippyScrollProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyScrollProtocol.h; sourceTree = "<group>"; };
 		F468DE992812ACEA00319196 /* HippyFont.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyFont.mm; sourceTree = "<group>"; };
-		F468DE9A2812ACEA00319196 /* HippyMemoryOpt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMemoryOpt.h; sourceTree = "<group>"; };
 		F468DE9B2812ACEA00319196 /* HippyFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyFont.h; sourceTree = "<group>"; };
 		F468DE9C2812ACEA00319196 /* NativeRenderObjectRootView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderObjectRootView.h; sourceTree = "<group>"; };
 		F473F13F2859C37100422C1A /* HippyComponentMap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyComponentMap.mm; sourceTree = "<group>"; };
@@ -1393,7 +1391,6 @@
 				F45D262228067B6900CAB185 /* HippyTouchesView.mm */,
 				F45D262328067B6900CAB185 /* HippyViewManager.h */,
 				F45D262428067B6900CAB185 /* UIView+Hippy.h */,
-				F45D262528067B6900CAB185 /* UIView+Private.h */,
 				F45D262628067B6900CAB185 /* HippyBorderDrawing.h */,
 				F45D262728067B6900CAB185 /* HippyView.h */,
 			);
@@ -1761,7 +1758,6 @@
 				F468DE962812ACEA00319196 /* HippyComponentData.mm */,
 				F468DE9B2812ACEA00319196 /* HippyFont.h */,
 				F468DE992812ACEA00319196 /* HippyFont.mm */,
-				F468DE9A2812ACEA00319196 /* HippyMemoryOpt.h */,
 				F468DE9C2812ACEA00319196 /* NativeRenderObjectRootView.h */,
 				F468DE972812ACEA00319196 /* NativeRenderObjectRootView.mm */,
 				F468DE982812ACEA00319196 /* HippyScrollProtocol.h */,

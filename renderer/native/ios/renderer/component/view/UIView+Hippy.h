@@ -38,7 +38,8 @@
 - (void)resetHippySubviews;
 
 - (UIView *)hippyRootView;
-
+- (UIView *)nextResponseViewAtPoint:(CGPoint)point;
+- (void)clearSortedSubviews;
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews.
  */
