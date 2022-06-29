@@ -11,7 +11,7 @@
  发送事件,`HippyWebModule`基类提供的`context`提供了向业务层发送事件的能力
 
 ```javascript
-const eventName = '字定义名字';
+const eventName = '自定义名字';
 const param = {};
 context.sendEvent(eventName, param);
 ```
@@ -21,7 +21,7 @@ context.sendEvent(eventName, param);
  >发送事件,`HippyWebView`基类提供的`context`提供了向业务层发送事件的能力
 
 ```javascript
-const eventName = '字定义名字';
+const eventName = '自定义名字';
 const param = {};
 context.sendEvent(eventName, param);
 ```
@@ -32,7 +32,7 @@ context.sendEvent(eventName, param);
 
 ```javascript
 const engine = Hippy.web.engine;
-const eventName = '字定义名字';
+const eventName = '自定义名字';
 const param = {};
 engine.context.sendEvent(eventName, param);
 ```
