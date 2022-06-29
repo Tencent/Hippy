@@ -199,9 +199,9 @@ import icon from './qb_icon_new.png';
 
 | 参数       | 描述                                                 | 类型       | 支持平台 |
 | ---------- | ---------------------------------------------------- | ---------- | -------- |
-| onRefresh  | 当`RefreshWrapper`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web` |
-| getRefresh | 定义刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web` |
-| bounceTime | 指定刷新条收回动画的时长，单位为ms                   | `number`   | `Android、iOS`    |
+| onRefresh  | 当`RefreshWrapper`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| getRefresh | 定义刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| bounceTime | 指定刷新条收回动画的时长，单位为ms                   | `number`   | `Android、iOS、Web-Renderer`    |
 
 ## 方法
 

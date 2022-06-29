@@ -122,8 +122,7 @@ export interface ComponentContext {
 
 # 复杂组件
 
-有的时候我们可能需要提供一个容器，用来装载一些已有的组件。而这个容器有一些特殊的形态或者行为，比如需要自己管理子节点插入和移除，或者修改样式和拦截属性等。那么
-这个时候就需要使用一些复杂的组件实现方式
+有的时候我们可能需要提供一个容器，用来装载一些已有的组件。而这个容器有一些特殊的形态或者行为，比如需要自己管理子节点插入和移除，或者修改样式和拦截属性等。那么这个时候就需要使用一些复杂的组件实现方式。
 
 关于组件自己实现子节点的dom插入和删除，`HippyWebRender`默认的组件`dom`插入和删除，是使用Web的方法：
 
@@ -132,7 +131,7 @@ Node.insertBefore<T extends Node>(node: T, child: Node | null): T;
 Node.removeChild<T extends Node>(child: T): T;
 ```
 
-如果组件不希望以这种默认的形式来实现就需要自己实现，`insertChild`和`removeChild`方法自己管理节点的插入和移除逻辑
+如果组件不希望以这种默认的形式来实现就需要自己实现，`insertChild`和`removeChild`方法自己管理节点的插入和移除逻辑。
 
 ```javascript
 class CustomView extends HippyView{
