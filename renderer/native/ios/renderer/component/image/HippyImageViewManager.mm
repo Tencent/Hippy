@@ -37,23 +37,23 @@
 
 @implementation HippyImageViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
-HIPPY_EXPORT_VIEW_PROPERTY(resizeMode, HippyResizeMode)
-HIPPY_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onProgress, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(downSample, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(shape, HippyShapeMode)
-HIPPY_CUSTOM_VIEW_PROPERTY(src, NSString, HippyImageView) {
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(blurRadius, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(capInsets, UIEdgeInsets)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(resizeMode, HippyResizeMode)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadStart, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onProgress, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onError, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPartialLoad, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoad, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(downSample, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(shape, HippyShapeMode)
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(src, NSString, HippyImageView) {
     NSString *path = [HippyConvert NSString:json];
     [self loadImageSource:path forView:view];
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
     NSArray *pathSources = [HippyConvert NSArray:json];
     if ([pathSources isKindOfClass:[NSArray class]]) {
         NSDictionary *dicSource = [pathSources firstObject];
@@ -99,12 +99,12 @@ HIPPY_CUSTOM_VIEW_PROPERTY(source, NSArray, HippyImageView) {
 
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, HippyImageView) {
     view.tintColor = [HippyConvert UIColor:json] ?: defaultView.tintColor;
     view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
     NSString *source = [HippyConvert NSString:json];
     if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
         source = [self.renderContext.frameworkProxy standardizeAssetUrlString:source forRenderContext:self.renderContext];
@@ -136,7 +136,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
 }
 
 #define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                \
-    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyImageView) {                                \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyImageView) {                                \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                   \
             view.border##SIDE##Radius = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Radius; \
         }                                                                                                      \

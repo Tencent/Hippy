@@ -53,7 +53,7 @@ typedef void (^HippyPropBlock)(id<HippyComponent> view, id json);
 @end
 
 @interface HippyComponentData () {
-    id<HippyComponent> _defaultView;  // Only needed for HIPPY_CUSTOM_VIEW_PROPERTY
+    id<HippyComponent> _defaultView;  // Only needed for NATIVE_RENDER_CUSTOM_VIEW_PROPERTY
     NSMutableDictionary<NSString *, HippyPropBlock> *_viewPropBlocks;
     NSMutableDictionary<NSString *, HippyPropBlock> *_renderObjectPropBlocks;
     NSMutableDictionary<NSString *, NSString *> *_eventNameMap;

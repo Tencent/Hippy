@@ -50,52 +50,52 @@ HIPPY_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
     return [[HippyScrollView alloc] init];
 }
 
-HIPPY_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(alwaysBounceVertical, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(bouncesZoom, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(canCancelContentTouches, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(centerContent, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(automaticallyAdjustContentInsets, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(decelerationRate, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(directionalLockEnabled, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(indicatorStyle, UIScrollViewIndicatorStyle)
-HIPPY_EXPORT_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
-HIPPY_EXPORT_VIEW_PROPERTY(maximumZoomScale, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(minimumZoomScale, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(pagingEnabled, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(scrollsToTop, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(showsHorizontalScrollIndicator, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(showsVerticalScrollIndicator, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(stickyHeaderIndices, NSIndexSet)
-HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
-HIPPY_EXPORT_VIEW_PROPERTY(zoomScale, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets)
-HIPPY_EXPORT_VIEW_PROPERTY(scrollIndicatorInsets, UIEdgeInsets)
-HIPPY_EXPORT_VIEW_PROPERTY(snapToInterval, int)
-HIPPY_EXPORT_VIEW_PROPERTY(snapToAlignment, NSString)
-HIPPY_REMAP_VIEW_PROPERTY(contentOffset, scrollView.contentOffset, CGPoint)
-HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onScrollEndDrag, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(alwaysBounceHorizontal, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(alwaysBounceVertical, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bouncesZoom, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(canCancelContentTouches, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(centerContent, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(automaticallyAdjustContentInsets, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(decelerationRate, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(directionalLockEnabled, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(indicatorStyle, UIScrollViewIndicatorStyle)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(keyboardDismissMode, UIScrollViewKeyboardDismissMode)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(maximumZoomScale, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(minimumZoomScale, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(pagingEnabled, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollsToTop, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(showsHorizontalScrollIndicator, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(showsVerticalScrollIndicator, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(stickyHeaderIndices, NSIndexSet)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(zoomScale, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(contentInset, UIEdgeInsets)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollIndicatorInsets, UIEdgeInsets)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(snapToInterval, int)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(snapToAlignment, NSString)
+NATIVE_RENDER_REMAP_VIEW_PROPERTY(contentOffset, scrollView.contentOffset, CGPoint)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollEndDrag, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollAnimationEnd, HippyDirectEventBlock)
 
 // overflow is used both in css-layout as well as by reac-native. In css-layout
 // we always want to treat overflow as scroll but depending on what the overflow
 // is set to from js we want to clip drawing or not. This piece of code ensures
 // that css-layout is always treating the contents of a scroll container as
 // overflow: 'scroll'.
-HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
+NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRenderObjectView) {
     (void)json;
     view.overflow = OverflowScroll;
 }
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyScrollView *view = viewRegistry[hippyTag];
@@ -106,7 +106,7 @@ RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
                     offsetX:(NSNumber *)x
                     offsetY:(NSNumber *)y
                     animated:(NSNumber *)animated) {
@@ -125,7 +125,7 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                     options:(NSDictionary *)options) {
     [self.renderContext addUIBlock:
      ^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){

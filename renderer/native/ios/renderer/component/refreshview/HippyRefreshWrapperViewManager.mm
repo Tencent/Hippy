@@ -25,15 +25,15 @@
 
 @implementation HippyRefreshWrapperViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(onRefresh, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onRefresh, HippyDirectEventBlock)
 
-HIPPY_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 - (UIView *)view {
     return [HippyRefreshWrapper new];
 }
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView refreshCompleted];
@@ -42,7 +42,7 @@ RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag) 
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippyRefreshWrapper *wrapperView = viewRegistry[hippyTag];
         [wrapperView startRefresh];

@@ -25,11 +25,11 @@
 
 @implementation HippyHeaderRefreshManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(onHeaderReleased, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onHeaderPulling, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderReleased, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderPulling, HippyDirectEventBlock)
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(expandPullHeader:(nonnull NSNumber *)reactTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullHeader:(nonnull NSNumber *)reactTag) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
@@ -38,7 +38,7 @@ RENDER_COMPONENT_EXPORT_METHOD(expandPullHeader:(nonnull NSNumber *)reactTag) {
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeader:(nonnull NSNumber *)reactTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeader:(nonnull NSNumber *)reactTag) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
@@ -47,7 +47,7 @@ RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeader:(nonnull NSNumber *)reactTag) 
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeaderWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeaderWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
     [self.renderContext addUIBlock:^(id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         HippyRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];

@@ -29,17 +29,17 @@
     return [HippyViewPager new];
 }
 
-HIPPY_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
-HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(loop, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(loop, BOOL)
 
-HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScroll, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
@@ -55,7 +55,7 @@ RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
         pageNumber:(__unused NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];

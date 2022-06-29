@@ -64,17 +64,17 @@
 /**
  * This handles the simple case, where JS and native property names match.
  */
-#define HIPPY_EXPORT_VIEW_PROPERTY(name, type)  \
-    +(NSArray<NSString *> *)propConfig_##name { \
-        return @[@ #type];                      \
+#define NATIVE_RENDER_EXPORT_VIEW_PROPERTY(name, type)  \
+    +(NSArray<NSString *> *)propConfig_##name {         \
+        return @[@ #type];                              \
     }
 
 /**
  * This macro maps a named property to an arbitrary key path in the view.
  */
-#define HIPPY_REMAP_VIEW_PROPERTY(name, keyPath, type) \
-    +(NSArray<NSString *> *)propConfig_##name {        \
-        return @[@ #type, @ #keyPath];                 \
+#define NATIVE_RENDER_REMAP_VIEW_PROPERTY(name, keyPath, type)  \
+    +(NSArray<NSString *> *)propConfig_##name {                 \
+        return @[@ #type, @ #keyPath];                          \
     }
 
 /**
@@ -82,24 +82,24 @@
  * view properties. The macro should be followed by a method body, which can
  * refer to "json", "view" and "defaultView" to implement the required logic.
  */
-#define HIPPY_CUSTOM_VIEW_PROPERTY(name, type, viewClass) \
-    HIPPY_REMAP_VIEW_PROPERTY(name, __custom__, type)     \
+#define NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(name, type, viewClass) \
+    NATIVE_RENDER_REMAP_VIEW_PROPERTY(name, __custom__, type)     \
     -(void)set_##name : (id)json forView : (viewClass *)view withDefaultView : (viewClass *)defaultView
 
 /**
  * This macro is used to map properties to the shadow view, instead of the view.
  */
-#define HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(name, type)      \
-    +(NSArray<NSString *> *)propConfigRenderObject_##name { \
-        return @[@ #type];                            \
+#define NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(name, type) \
+    +(NSArray<NSString *> *)propConfigRenderObject_##name {     \
+        return @[@ #type];                                      \
     }
 
 /**
  * This macro maps a named property to an arbitrary key path in the shadow view.
  */
-#define HIPPY_REMAP_RENDER_OBJECT_PROPERTY(name, keyPath, type) \
-    +(NSArray<NSString *> *)propConfigRenderObject_##name {    \
-        return @[@ #type, @ #keyPath];                   \
+#define NATIVE_RENDER_REMAP_RENDER_OBJECT_PROPERTY(name, keyPath, type) \
+    +(NSArray<NSString *> *)propConfigRenderObject_##name {             \
+        return @[@ #type, @ #keyPath];                                  \
     }
 
 /**
@@ -107,20 +107,21 @@
  * shadow view properties. The macro should be followed by a method body, which can
  * refer to "json" and "view".
  */
-#define HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(name, type, viewClass) \
-    HIPPY_REMAP_RENDER_OBJECT_PROPERTY(name, __custom__, type)     \
+#define NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(name, type, viewClass) \
+    NATIVE_RENDER_REMAP_RENDER_OBJECT_PROPERTY(name, __custom__, type)     \
     -(void)set_##name : (id)json forRenderObject : (viewClass *)view
 
 
-#define RENDER_CONCAT2(A, B) A##B
-#define RENDER_CONCAT(A, B) RENDER_CONCAT2(A, B)
+#define NATIVE_RENDER_CONCAT2(A, B) A##B
+#define NATIVE_RENDER_CONCAT(A, B) NATIVE_RENDER_CONCAT2(A, B)
 
-#define RENDER_COMPONENT_EXPORT_METHOD(method_name) RENDER_COMPONENT_REMAP_METHOD(, method_name)
+#define NATIVE_RENDER_COMPONENT_EXPORT_METHOD(method_name) NATIVE_RENDER_COMPONENT_REMAP_METHOD(, method_name)
 
-#define RENDER_COMPONENT_REMAP_METHOD(js_name, method_name)                                                                     \
-    +(NSArray<NSString *> *)RENDER_CONCAT(__render_export__, RENDER_CONCAT(js_name, RENDER_CONCAT(__LINE__, __COUNTER__))) {    \
-        return @[@#js_name, @#method_name];                                                                                     \
-    }                                                                                                                           \
+#define NATIVE_RENDER_COMPONENT_REMAP_METHOD(js_name, method_name)                      \
+    +(NSArray<NSString *> *)NATIVE_RENDER_CONCAT(__render_export__,                     \
+        NATIVE_RENDER_CONCAT(js_name, NATIVE_RENDER_CONCAT(__LINE__, __COUNTER__))) {   \
+        return @[@#js_name, @#method_name];                                             \
+    }                                                                                   \
     -(void)method_name
 
 @end

@@ -26,12 +26,12 @@
 
 @implementation HippyBaseListItemViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(type, id)
-HIPPY_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onWillAppear, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(type, id)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isSticky, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onAppear, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDisappear, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillAppear, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onWillDisappear, HippyDirectEventBlock)
 
 - (UIView *)view {
     return [HippyBaseListItemView new];

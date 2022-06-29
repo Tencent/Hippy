@@ -27,9 +27,9 @@
 
 @implementation MyViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(text, NSString)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(text, NSString)
 
-RENDER_COMPONENT_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
                                color:(NSString *)color) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[reactTag];

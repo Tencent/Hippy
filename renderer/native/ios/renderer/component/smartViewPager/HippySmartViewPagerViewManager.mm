@@ -25,27 +25,27 @@
 
 @implementation HippySmartViewPagerViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
-HIPPY_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
-HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEventThrottle, NSTimeInterval)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageSelected, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onPageScrollStateChanged, HippyDirectEventBlock)
 
-HIPPY_EXPORT_VIEW_PROPERTY(pageGap, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(previousMargin, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(nextMargin, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(autoplayTimeInterval, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
-HIPPY_EXPORT_VIEW_PROPERTY(circular, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(pageGap, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(previousMargin, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(nextMargin, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoplayTimeInterval, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialPage, NSInteger)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(circular, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
 
 - (UIView *)view {
     return [[HippySmartViewPagerView alloc] init];
 }
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
         pageNumber:(NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
@@ -61,7 +61,7 @@ RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
         pageNumber:(NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[hippyTag];
@@ -76,7 +76,7 @@ RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippy
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)hippyTag
                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         HippySmartViewPagerView *view = viewRegistry[hippyTag];

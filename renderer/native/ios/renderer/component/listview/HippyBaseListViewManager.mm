@@ -25,30 +25,30 @@
 
 @implementation HippyBaseListViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
-HIPPY_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
-HIPPY_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onScrollEndDrag, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onRowWillDisplay, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onEndReached, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onDelete, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(preloadItemNumber, NSUInteger)
-HIPPY_EXPORT_VIEW_PROPERTY(bounces, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(initialContentOffset, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(editable, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(showScrollIndicator, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEventThrottle, double)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialListReady, HippyDirectEventBlock);
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollBeginDrag, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScroll, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onScrollEndDrag, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollBegin, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onMomentumScrollEnd, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onRowWillDisplay, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onEndReached, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDelete, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(preloadItemNumber, NSUInteger)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(initialContentOffset, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(editable, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(showScrollIndicator, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(scrollEnabled, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 
 - (UIView *)view {
     return [[HippyBaseListView alloc] init];
 }
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(NSNumber *)yIndex
 									animation:(nonnull NSNumber *)animation) {
@@ -65,7 +65,7 @@ RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
                                x:(nonnull NSNumber *)x
                                y:(nonnull NSNumber *)y
                                animation:(nonnull NSNumber *)animation) {

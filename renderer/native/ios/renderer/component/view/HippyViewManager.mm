@@ -69,7 +69,7 @@
     return nil;
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
@@ -89,7 +89,7 @@ RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)hippyTag callback:(Re
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
@@ -104,7 +104,7 @@ RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)hippyTag callback:
     }];
 }
 
-RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
                                       params:(NSDictionary *__nonnull)params
                                     callback:(HippyResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
@@ -145,24 +145,24 @@ RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
 }
 
 #pragma mark - RenderObject properties
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(visibility, NSString)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(visibility, NSString)
 
 #pragma mark - View properties
 
-HIPPY_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
-HIPPY_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
-HIPPY_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(accessibilityLabel, NSString)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundColor, UIColor)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(shadowSpread, CGFloat)
 
-HIPPY_REMAP_VIEW_PROPERTY(accessible, isAccessibilityElement, BOOL)
-HIPPY_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
+NATIVE_RENDER_REMAP_VIEW_PROPERTY(accessible, isAccessibilityElement, BOOL)
+NATIVE_RENDER_REMAP_VIEW_PROPERTY(opacity, alpha, CGFloat)
 
-HIPPY_REMAP_VIEW_PROPERTY(shadowOpacity, layer.shadowOpacity, float)
-HIPPY_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
+NATIVE_RENDER_REMAP_VIEW_PROPERTY(shadowOpacity, layer.shadowOpacity, float)
+NATIVE_RENDER_REMAP_VIEW_PROPERTY(shadowRadius, layer.shadowRadius, CGFloat)
 
-HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
-HIPPY_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionX, CGFloat)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
 
-HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     if (json) {
         NSString *imagePath = [HippyConvert NSString:json];
         if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
@@ -210,7 +210,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, HippyView) {
     return _imageDataLoader;
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
     if (json) {
         NSDictionary *linearGradientObject = [HippyConvert NSDictionary:json];
         view.gradientObject = [[HippyGradientObject alloc] initWithGradientObject:linearGradientObject];
@@ -218,7 +218,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, HippyView) {
     }
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
     NSString *bgSize = @"auto";
     if (json) {
         bgSize = [HippyConvert NSString:json];
@@ -227,7 +227,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, HippyView) {
     [view.layer setNeedsDisplay];
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     if (json) {
         view.layer.shadowColor = [HippyConvert UIColor:json].CGColor;
     } else {
@@ -235,7 +235,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, HippyView) {
     }
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, HippyView) {
     if (json) {
         CGSize shadowOffset = view.layer.shadowOffset;
         shadowOffset.width = [HippyConvert CGFloat:json];
@@ -243,7 +243,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, HippyView) {
     }
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, HippyView) {
     if (json) {
         CGSize shadowOffset = view.layer.shadowOffset;
         shadowOffset.height = [HippyConvert CGFloat:json];
@@ -251,7 +251,7 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, HippyView) {
     }
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, HippyView) {
     if (json) {
         NSDictionary *offset = [HippyConvert NSDictionary:json];
         NSNumber *width = offset[@"width"];
@@ -266,23 +266,23 @@ HIPPY_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, HippyView) {
     }
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(overflow, OverflowType, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, OverflowType, HippyView) {
     if (json) {
         view.clipsToBounds = [HippyConvert OverflowType:json] != OverflowVisible;
     } else {
         view.clipsToBounds = defaultView.clipsToBounds;
     }
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, HippyView) {
     view.layer.shouldRasterize = json ? [HippyConvert BOOL:json] : defaultView.layer.shouldRasterize;
     view.layer.rasterizationScale = view.layer.shouldRasterize ? [UIScreen mainScreen].scale : defaultView.layer.rasterizationScale;
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, HippyView) {
     view.layer.transform = json ? [HippyConvert CATransform3D:json] : defaultView.layer.transform;
     view.layer.allowsEdgeAntialiasing = !CATransform3DIsIdentity(view.layer.transform);
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView) {
     if ([view respondsToSelector:@selector(setPointerEvents:)]) {
         view.pointerEvents = json ? [HippyConvert HippyPointerEvents:json] : defaultView.pointerEvents;
         return;
@@ -311,14 +311,14 @@ HIPPY_CUSTOM_VIEW_PROPERTY(pointerEvents, HippyPointerEvents, HippyView) {
     }
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(borderRadius, CGFloat, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderRadius, CGFloat, HippyView) {
     if ([view respondsToSelector:@selector(setBorderRadius:)]) {
         view.borderRadius = json ? [HippyConvert CGFloat:json] : defaultView.borderRadius;
     } else {
         view.layer.cornerRadius = json ? [HippyConvert CGFloat:json] : defaultView.layer.cornerRadius;
     }
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, HippyView) {
     if ([view respondsToSelector:@selector(setBorderColor:)]) {
         view.borderColor = json ? [HippyConvert CGColor:json] : defaultView.borderColor;
     } else {
@@ -326,26 +326,26 @@ HIPPY_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, HippyView) {
     }
 }
 
-HIPPY_CUSTOM_VIEW_PROPERTY(borderWidth, CGFloat, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderWidth, CGFloat, HippyView) {
     if ([view respondsToSelector:@selector(setBorderWidth:)]) {
         view.borderWidth = json ? [HippyConvert CGFloat:json] : defaultView.borderWidth;
     } else {
         view.layer.borderWidth = json ? [HippyConvert CGFloat:json] : defaultView.layer.borderWidth;
     }
 }
-HIPPY_CUSTOM_VIEW_PROPERTY(borderStyle, HippyBorderStyle, HippyView) {
+NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderStyle, HippyBorderStyle, HippyView) {
     if ([view respondsToSelector:@selector(setBorderStyle:)]) {
         view.borderStyle = json ? [HippyConvert HippyBorderStyle:json] : defaultView.borderStyle;
     }
 }
 
 #define HIPPY_VIEW_BORDER_PROPERTY(SIDE)                                                                     \
-    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, HippyView) {                                    \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, HippyView) {                                    \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Width:)]) {                                  \
             view.border##SIDE##Width = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Width; \
         }                                                                                                    \
     }                                                                                                        \
-    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, HippyView) {                                    \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, HippyView) {                                    \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Color:)]) {                                  \
             view.border##SIDE##Color = json ? [HippyConvert CGColor:json] : defaultView.border##SIDE##Color; \
         }                                                                                                    \
@@ -357,7 +357,7 @@ HIPPY_VIEW_BORDER_PROPERTY(Bottom)
 HIPPY_VIEW_BORDER_PROPERTY(Left)
 
 #define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                \
-    HIPPY_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyView) {                                     \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, HippyView) {                                     \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                   \
             view.border##SIDE##Radius = json ? [HippyConvert CGFloat:json] : defaultView.border##SIDE##Radius; \
         }                                                                                                      \
@@ -368,72 +368,72 @@ HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
 HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
 HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
-HIPPY_REMAP_VIEW_PROPERTY(zIndex, hippyZIndex, NSInteger)
+NATIVE_RENDER_REMAP_VIEW_PROPERTY(zIndex, hippyZIndex, NSInteger)
 
 #pragma mark - ShadowView properties
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(backgroundColor, UIColor)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(backgroundColor, UIColor)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(top, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(right, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(bottom, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(left, CGFloat);
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(top, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(right, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(bottom, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(left, CGFloat);
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(width, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(height, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(width, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(height, CGFloat)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(minWidth, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(maxWidth, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(minHeight, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(maxHeight, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(minWidth, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(maxWidth, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(minHeight, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(maxHeight, CGFloat)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderTopWidth, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderRightWidth, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderBottomWidth, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderLeftWidth, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(borderWidth, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(borderTopWidth, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(borderRightWidth, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(borderBottomWidth, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(borderLeftWidth, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(borderWidth, CGFloat)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginTop, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginRight, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginBottom, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginLeft, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginVertical, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(marginHorizontal, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(margin, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(marginTop, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(marginRight, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(marginBottom, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(marginLeft, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(marginVertical, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(marginHorizontal, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(margin, CGFloat)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingTop, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingRight, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingBottom, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingLeft, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingVertical, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(paddingHorizontal, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(padding, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(paddingTop, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(paddingRight, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(paddingBottom, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(paddingLeft, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(paddingVertical, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(paddingHorizontal, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(padding, CGFloat)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flex, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexGrow, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexShrink, CGFloat)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexBasis, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flex, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexGrow, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexShrink, CGFloat)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexBasis, CGFloat)
 
 // hplayout
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexDirection, FlexDirection)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(flexWrap, FlexWrapMode)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(justifyContent, FlexAlign)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(alignItems, FlexAlign)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(alignSelf, FlexAlign)
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(position, PositionType)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexDirection, FlexDirection)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexWrap, FlexWrapMode)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(justifyContent, FlexAlign)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(alignItems, FlexAlign)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(alignSelf, FlexAlign)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(position, PositionType)
 
-HIPPY_REMAP_RENDER_OBJECT_PROPERTY(display, displayType, DisplayType)
+NATIVE_RENDER_REMAP_RENDER_OBJECT_PROPERTY(display, displayType, DisplayType)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(overflow, OverflowType)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(overflow, OverflowType)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(onLayout, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(onLayout, HippyDirectEventBlock)
 
-HIPPY_EXPORT_VIEW_PROPERTY(onDidMount, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onDidUnmount, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDidMount, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDidUnmount, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onAttachedToWindow, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, HippyDirectEventBlock)
 
-HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
+NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
 
 - (HPDirection)convertDirection:(NSString *)direction {
     if ([direction isEqualToString:@"rtl"]) {
@@ -447,13 +447,13 @@ HIPPY_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
     }
 }
 
-//HIPPY_CUSTOM_VIEW_PROPERTY(direction, id, UIView) {
+//NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(direction, id, UIView) {
 //    if (json) {
 //        view.layoutDirection = [self convertDirection:json];
 //    }
 //}
 
-HIPPY_CUSTOM_RENDER_OBJECT_PROPERTY(direction, id, NativeRenderObjectView) {
+NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(direction, id, NativeRenderObjectView) {
     if (json) {
         view.layoutDirection = [self convertDirection:json];
     }

@@ -42,15 +42,15 @@
 
 @implementation HippyModalHostViewManager
 
-HIPPY_EXPORT_VIEW_PROPERTY(animationType, NSString)
-HIPPY_EXPORT_VIEW_PROPERTY(transparent, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(darkStatusBarText, BOOL)
-HIPPY_EXPORT_VIEW_PROPERTY(onShow, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(onRequestClose, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(supportedOrientations, NSArray)
-HIPPY_EXPORT_VIEW_PROPERTY(onOrientationChange, HippyDirectEventBlock)
-HIPPY_EXPORT_VIEW_PROPERTY(primaryKey, NSString)
-HIPPY_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(animationType, NSString)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(transparent, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(darkStatusBarText, BOOL)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onShow, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onRequestClose, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(supportedOrientations, NSArray)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onOrientationChange, HippyDirectEventBlock)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(primaryKey, NSString)
+NATIVE_RENDER_EXPORT_VIEW_PROPERTY(hideStatusBar, NSNumber)
 
 - (UIView *)view {
     HippyModalHostView *view = [[HippyModalHostView alloc] init];
