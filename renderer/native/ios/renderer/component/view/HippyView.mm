@@ -53,30 +53,6 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
     return originSize;
 }
 
-@implementation UIView (HippyViewUnmounting)
-
-- (UIView *)nextResponseViewAtPoint:(CGPoint)point {
-    UIView *superView = [self superview];
-    if (superView && self.hippyTag) {
-        NSArray<UIView *> *subviews = [superView subviews];
-        NSUInteger index = [subviews indexOfObject:self];
-        if (0 != index) {
-            for (NSInteger i = index - 1; i >= 0; i--) {
-                UIView *siblingView = subviews[i];
-                CGPoint pointInsiblingView = [self convertPoint:point toView:siblingView];
-                BOOL pointInside = [siblingView pointInside:pointInsiblingView withEvent:nil];
-                if (pointInside) {
-                    UIView *hitTestView = [siblingView hitTest:pointInsiblingView withEvent:nil];
-                    return hitTestView ? hitTestView : siblingView;
-                }
-            }
-        }
-    }
-    return superView;
-}
-
-@end
-
 static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
     NSMutableString *str = [NSMutableString stringWithString:@""];
     for (UIView *subview in view.subviews) {
