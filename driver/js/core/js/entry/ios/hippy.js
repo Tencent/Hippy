@@ -4,11 +4,11 @@ require('../../global/Others.js');
 // add global functions, do not change this order
 require('../../global/DynamicLoad.js');
 require('../../global/Platform.js'); // Hippy.device.platform
+require('../../global/UIManagerModule.js'); // Hippy.document
 require('../../bridge/ios/js2native.js'); // Hippy.bridge
 require('../../global/TimerModule.js'); // setTimeout clearTimeout setInterval clearInterval
 require('../../global/ios/promise.js'); // add Promise when iosVersion < 9, to_do
 require('../../global/ConsoleModule.js'); // console
-require('../../global/UIManagerModule.js'); // document
 require('../../global/Network.js'); // Headers fetch Response
 require('../../global/Storage.js'); // localStorageAsync
 require('../../global/Dimensions.js'); // Hippy.device.window Hippy.device.screen Hippy.device.pixelRatio

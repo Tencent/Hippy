@@ -25,13 +25,14 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.supportui.views.ScrollChecker;
 import com.tencent.renderer.utils.EventUtils;
 import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
 public class HippyHorizontalScrollView extends HorizontalScrollView implements HippyViewBase,
-        HippyScrollView, ScrollChecker.IScrollCheck {
+        HippyScrollView, ScrollChecker.IScrollCheck, ClipChildrenView {
 
     private NativeGestureDispatcher mGestureDispatcher;
 

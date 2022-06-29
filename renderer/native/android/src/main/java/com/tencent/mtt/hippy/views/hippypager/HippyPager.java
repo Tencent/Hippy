@@ -28,6 +28,7 @@ import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.hippy.views.hippypager.transform.VerticalPageTransformer;
 import com.tencent.mtt.hippy.views.viewpager.HippyViewPagerItem;
 import com.tencent.mtt.supportui.views.ScrollChecker;
@@ -35,7 +36,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 
-public class HippyPager extends ViewPager implements HippyViewBase {
+public class HippyPager extends ViewPager implements HippyViewBase, ClipChildrenView {
 
     private static final String TAG = "HippyViewPager";
     private final Handler handler = new Handler(Looper.getMainLooper());

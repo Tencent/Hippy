@@ -4,8 +4,9 @@
 
 #include "jni/scoped_java_ref.h"
 
-#include "dom/dom_node.h"
 #include "base/macros.h"
+#include "base/persistent_object_map.h"
+#include "dom/dom_node.h"
 #include "dom/render_manager.h"
 #include "dom/serializer.h"
 
@@ -50,10 +51,9 @@ class NativeRenderManager : public RenderManager {
   void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
   std::shared_ptr<DomManager> GetDomManager() const { return dom_manager_.lock(); }
 
-  static void Insert(const std::shared_ptr<NativeRenderManager>& render_manager);
-  static std::shared_ptr<NativeRenderManager> Find(int32_t id);
-  static bool Erase(int32_t id);
-  static bool Erase(const std::shared_ptr<NativeRenderManager>& render_manager);
+  static tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<NativeRenderManager>>& PersistentMap() {
+    return presistent_map_;
+  }
 
  private:
   inline void MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id);
@@ -91,6 +91,7 @@ class NativeRenderManager : public RenderManager {
   std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 
   std::weak_ptr<DomManager> dom_manager_;
+  static tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<NativeRenderManager>> presistent_map_;
 };
 }  // namespace dom
 }  // namespace hippy

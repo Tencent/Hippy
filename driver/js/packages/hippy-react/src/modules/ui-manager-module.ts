@@ -44,7 +44,7 @@ function getElementFromFiberRef(ref: Fiber | Element) {
   if (ref instanceof Element) {
     return ref;
   }
-  // FIXME: should not use the private _reactInternalFiber
+  if (!ref) return null;
   const internalFiber = (ref as any)._reactInternalFiber || (ref as any)._reactInternals;
   if (internalFiber?.child) {
     let targetNode = internalFiber.child;

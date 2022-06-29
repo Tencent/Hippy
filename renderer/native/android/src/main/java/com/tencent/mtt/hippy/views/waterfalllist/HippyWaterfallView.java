@@ -32,6 +32,7 @@ import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
+import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostView;
 import com.tencent.mtt.hippy.views.refresh.FooterUtil;
@@ -53,7 +54,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class HippyWaterfallView extends HippyListView implements HippyViewBase, IFooterContainer {
+public class HippyWaterfallView extends HippyListView implements HippyViewBase, IFooterContainer,
+        ClipChildrenView {
 
   static final String TAG = "HippyWaterfallView";
 
@@ -583,7 +585,11 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     }
 
     RenderNode getItemNode(int index) {
-      return getRenderNode().getChildAt(index);
+      RenderNode node = getRenderNode();
+      if (node != null) {
+        node.getChildAt(index);
+      }
+      return null;
     }
 
     @Override

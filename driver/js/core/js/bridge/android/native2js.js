@@ -26,18 +26,6 @@ global.hippyBridge = (_action, _callObj) => {
     case 'callBack': {
       if (callObj.result === 1) {
         resp = 'error: native no modules';
-      } else if (callObj.callId && callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
-        __GLOBAL__.canRequestAnimationFrame = true;
-
-        if (__GLOBAL__.requestAnimationFrameQueue[callObj.callId]) {
-          __GLOBAL__.requestAnimationFrameQueue[callObj.callId].forEach((cb) => {
-            if (typeof cb === 'function') {
-              cb(callObj.params);
-            }
-          });
-
-          delete __GLOBAL__.requestAnimationFrameQueue[callObj.callId];
-        }
       } else if (callObj.callId && __GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];
         if (callObj.result !== 0 && typeof callbackObj.reject === 'function') {
@@ -67,13 +55,8 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     case 'destroyInstance': {
-      global.Hippy.emit('destroyInstance', callObj);
-      const renderId = Date.now().toString();
-      Hippy.bridge.callNative('UIManagerModule', 'deleteNode', callObj, [{ id: callObj }]);
-      Hippy.bridge.callNative('UIManagerModule', 'endBatch', renderId);
-      delete __GLOBAL__.nodeIdCache[callObj];
-      delete __GLOBAL__.nodeTreeCache[callObj];
-      __GLOBAL__.destroyInstanceList[callObj] = true;
+      const rootViewId = callObj;
+      global.Hippy.emit('destroyInstance', rootViewId);
       break;
     }
     default: {

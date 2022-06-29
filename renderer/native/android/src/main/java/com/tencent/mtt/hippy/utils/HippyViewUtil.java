@@ -36,6 +36,9 @@ public class HippyViewUtil {
       }
       if (view instanceof RecyclerViewItem) {
         View child = ((RecyclerViewItem) view).getChildAt(0);
+        if (child == null) {
+          return null;
+        }
         return nativeRenderer.getRenderManager().getRenderNode(child);
       }
       return nativeRenderer.getRenderManager().getRenderNode(view);
