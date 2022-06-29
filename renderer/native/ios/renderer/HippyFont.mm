@@ -192,7 +192,7 @@ typedef NSDictionary HippyFontVariantDescriptor;
     return value;
 }
 
-Hippy_ARRAY_CONVERTER(HippyFontVariantDescriptor)
+HIPPY_ARRAY_CONVERTER(HippyFontVariantDescriptor)
 
     @end
 

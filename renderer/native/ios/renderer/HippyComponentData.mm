@@ -381,7 +381,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 
     [props enumerateKeysAndObjectsUsingBlock:^(NSString *key, id json, __unused BOOL *stop) {
-        [self propBlockForKey:key inDictionary:self->_renderObjectPropBlocks](renderObject, json);
+        HippyPropBlock propBlock = [self propBlockForKey:key inDictionary:_renderObjectPropBlocks];
+        propBlock(renderObject, json);
     }];
 
     if ([renderObject respondsToSelector:@selector(didSetProps:)]) {

@@ -31,21 +31,21 @@
 
 // clang-format off
 
-Hippy_CONVERTER(id, id, self)
-Hippy_CONVERTER(BOOL, BOOL, boolValue)
-Hippy_NUMBER_CONVERTER(double, doubleValue)
-Hippy_NUMBER_CONVERTER(float, floatValue)
-Hippy_NUMBER_CONVERTER(int, intValue)
-Hippy_NUMBER_CONVERTER(int64_t, longLongValue)
-Hippy_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue)
-Hippy_NUMBER_CONVERTER(NSInteger, integerValue)
-Hippy_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
+HIPPY_CONVERTER(id, id, self)
+HIPPY_CONVERTER(BOOL, BOOL, boolValue)
+HIPPY_NUMBER_CONVERTER(double, doubleValue)
+HIPPY_NUMBER_CONVERTER(float, floatValue)
+HIPPY_NUMBER_CONVERTER(int, intValue)
+HIPPY_NUMBER_CONVERTER(int64_t, longLongValue)
+HIPPY_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue)
+HIPPY_NUMBER_CONVERTER(NSInteger, integerValue)
+HIPPY_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
 /**
  * This macro is used for creating converter functions for directly
  * representable json values that require no conversion.
  */
 #if HIPPY_DEBUG
-#define Hippy_JSON_CONVERTER(type)               \
+#define HIPPY_JSON_CONVERTER(type)               \
     +(type *)type : (id)json {                   \
         if ([json isKindOfClass:[type class]]) { \
             return json;                         \
@@ -55,19 +55,19 @@ Hippy_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
         return nil;                              \
     }
 #else
-#define Hippy_JSON_CONVERTER(type) \
+#define HIPPY_JSON_CONVERTER(type) \
     +(type *)type : (id)json {     \
         return json;               \
     }
 #endif
 
-Hippy_JSON_CONVERTER(NSArray)
-Hippy_JSON_CONVERTER(NSDictionary)
-Hippy_JSON_CONVERTER(NSString)
-Hippy_JSON_CONVERTER(NSNumber)
+HIPPY_JSON_CONVERTER(NSArray)
+HIPPY_JSON_CONVERTER(NSDictionary)
+HIPPY_JSON_CONVERTER(NSString)
+HIPPY_JSON_CONVERTER(NSNumber)
             
-Hippy_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
-Hippy_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncoding])
+HIPPY_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
+HIPPY_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncoding])
 
 + (NSIndexSet *)NSIndexSet : (id)json {
     json = [self NSNumberArray:json];
@@ -224,10 +224,10 @@ Hippy_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEnc
 }
 
 // JS Standard for time is milliseconds
-Hippy_CUSTOM_CONVERTER(NSTimeInterval, NSTimeInterval, [self double:json] / 1000.0)
+HIPPY_CUSTOM_CONVERTER(NSTimeInterval, NSTimeInterval, [self double:json] / 1000.0)
 
 // JS standard for time zones is minutes.
-Hippy_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
+HIPPY_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
 
 NSNumber *HippyConvertEnumValue(__unused const char *typeName, NSDictionary *mapping, NSNumber *defaultValue, id json) {
     if (!json) {
@@ -352,7 +352,7 @@ HIPPY_ENUM_CONVERTER(UIKeyboardType, (@{
 }),
 UIKeyboardTypeDefault, integerValue)
 
-Hippy_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
+HIPPY_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
     @"phoneNumber": @(UIDataDetectorTypePhoneNumber),
     @"link": @(UIDataDetectorTypeLink),
     @"address": @(UIDataDetectorTypeAddress),
@@ -411,7 +411,6 @@ HIPPY_ENUM_CONVERTER(UIBarStyle, (@{
 }),
 UIBarStyleDefault, integerValue)
 
-// TODO: normalise the use of w/width so we can do away with the alias values (#6566645)
 static void HippyConvertCGStructValue(__unused const char *type, NSArray *fields, NSDictionary *aliases, CGFloat *result, id json) {
     NSUInteger count = fields.count;
     if ([json isKindOfClass:[NSArray class]]) {
@@ -446,7 +445,7 @@ static void HippyConvertCGStructValue(__unused const char *type, NSArray *fields
  * This macro is used for creating converter functions for structs that consist
  * of a number of CGFloat properties, such as CGPoint, CGRect, etc.
  */
-#define Hippy_CGSTRUCT_CONVERTER(type, values, aliases)                              \
+#define HIPPY_CGSTRUCT_CONVERTER(type, values, aliases)                              \
     +(type)type : (id)json {                                                         \
         static NSArray *fields;                                                      \
         static dispatch_once_t onceToken;                                            \
@@ -458,11 +457,11 @@ static void HippyConvertCGStructValue(__unused const char *type, NSArray *fields
         return result;                                                               \
     }
 
-Hippy_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json])
-Hippy_CGSTRUCT_CONVERTER(CGPoint, (@[@"x", @"y"]), (@{ @"l": @"x", @"t": @"y" }))
-Hippy_CGSTRUCT_CONVERTER(CGSize, (@[@"width", @"height"]), (@{ @"w": @"width", @"h": @"height" }))
-Hippy_CGSTRUCT_CONVERTER(CGRect, (@[@"x", @"y", @"width", @"height"]), (@{ @"l": @"x", @"t": @"y", @"w": @"width", @"h": @"height" }))
-Hippy_CGSTRUCT_CONVERTER(UIEdgeInsets, (@[@"top", @"left", @"bottom", @"right"]), nil)
+HIPPY_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json])
+HIPPY_CGSTRUCT_CONVERTER(CGPoint, (@[@"x", @"y"]), (@{ @"l": @"x", @"t": @"y" }))
+HIPPY_CGSTRUCT_CONVERTER(CGSize, (@[@"width", @"height"]), (@{ @"w": @"width", @"h": @"height" }))
+HIPPY_CGSTRUCT_CONVERTER(CGRect, (@[@"x", @"y", @"width", @"height"]), (@{ @"l": @"x", @"t": @"y", @"w": @"width", @"h": @"height" }))
+HIPPY_CGSTRUCT_CONVERTER(UIEdgeInsets, (@[@"top", @"left", @"bottom", @"right"]), nil)
 HIPPY_ENUM_CONVERTER(CGLineJoin, (@{
     @"miter": @(kCGLineJoinMiter),
     @"round": @(kCGLineJoinRound),
@@ -477,14 +476,14 @@ HIPPY_ENUM_CONVERTER(CGLineCap, (@{
     }),
 kCGLineCapButt, intValue)
 
-    // Hippy_CGSTRUCT_CONVERTER(CATransform3D, (@[
+    // HIPPY_CGSTRUCT_CONVERTER(CATransform3D, (@[
     //  @"m11", @"m12", @"m13", @"m14",
     //  @"m21", @"m22", @"m23", @"m24",
     //  @"m31", @"m32", @"m33", @"m34",
     //  @"m41", @"m42", @"m43", @"m44"
     //]), nil)
 
-Hippy_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"]), nil)
+HIPPY_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"]), nil)
 
 + (UIColor *)UIColor : (id)json {
     if (!json) {
@@ -544,30 +543,29 @@ SEL HippyConvertSelectorForType(NSString *type) {
     return NSSelectorFromString([HippyParseType(&input) stringByAppendingString:@":"]);
 }
 
-Hippy_ARRAY_CONVERTER(NSURL) Hippy_ARRAY_CONVERTER(HippyFileURL) Hippy_ARRAY_CONVERTER(UIColor)
+HIPPY_ARRAY_CONVERTER(NSURL) HIPPY_ARRAY_CONVERTER(HippyFileURL) HIPPY_ARRAY_CONVERTER(UIColor)
 /**
  * This macro is used for creating converter functions for directly
  * representable json array values that require no conversion.
  */
 #if HIPPY_DEBUG
-#define Hippy_JSON_ARRAY_CONVERTER(type) Hippy_ARRAY_CONVERTER(type)
+#define HIPPY_JSON_ARRAY_CONVERTER(type) HIPPY_ARRAY_CONVERTER(type)
 #else
-#define Hippy_JSON_ARRAY_CONVERTER(type) \
+#define HIPPY_JSON_ARRAY_CONVERTER(type) \
     +(NSArray *)type##Array : (id)json { \
         return json;                     \
     }
 #endif
 
-Hippy_JSON_ARRAY_CONVERTER(NSArray)
-Hippy_JSON_ARRAY_CONVERTER(NSString)
-// Hippy_JSON_ARRAY_CONVERTER(NSStringArray)
+HIPPY_JSON_ARRAY_CONVERTER(NSArray)
+HIPPY_JSON_ARRAY_CONVERTER(NSString)
 + (NSArray<NSArray<NSString *> *> *)NSStringArrayArray : (id)json {
     return HippyConvertArrayValue(@selector(NSStringArray:), json);
 }
-Hippy_JSON_ARRAY_CONVERTER(NSDictionary)
-Hippy_JSON_ARRAY_CONVERTER(NSNumber)
+HIPPY_JSON_ARRAY_CONVERTER(NSDictionary)
+HIPPY_JSON_ARRAY_CONVERTER(NSNumber)
 
-// Can't use Hippy_ARRAY_CONVERTER due to bridged cast
+// Can't use HIPPY_ARRAY_CONVERTER due to bridged cast
 + (NSArray *)CGColorArray : (id)json {
     NSMutableArray *colors = [NSMutableArray new];
     for (id value in [self NSArray:json]) {
