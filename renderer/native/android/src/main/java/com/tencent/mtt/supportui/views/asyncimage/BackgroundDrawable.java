@@ -82,7 +82,7 @@ public class BackgroundDrawable extends BaseDrawable {
     public BackgroundDrawable() {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mBorderColorArray = new int[5];
-        mBorderColorArray[0] = Color.BLACK;
+        mBorderColorArray[0] = Color.TRANSPARENT;
     }
 
     @Override
