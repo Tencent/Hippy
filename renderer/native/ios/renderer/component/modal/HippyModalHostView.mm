@@ -33,8 +33,6 @@
     UIInterfaceOrientation _lastKnownOrientation;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : coder)
-
 - (instancetype)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
         _modalViewController = [HippyModalHostViewController new];

@@ -91,7 +91,7 @@ NSString *HippyParseType(const char **input) {
             if ([type isEqualToString:@"NSDictionary"]) {
                 // Dictionaries have both a key *and* value type, but the key type has
                 // to be a string for JSON, so we only care about the value type
-                if (HIPPY_DEBUG && ![subtype isEqualToString:@"NSString"]) {
+                if (NATIVE_RENDER_DEBUG && ![subtype isEqualToString:@"NSString"]) {
                     HippyLogError(@"%@ is not a valid key type for a JSON dictionary", subtype);
                 }
                 HippySkipWhitespace(input);

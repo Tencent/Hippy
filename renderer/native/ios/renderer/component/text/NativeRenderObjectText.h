@@ -34,7 +34,7 @@ extern NSString *const HippyIsHighlightedAttributeName;
 extern NSString *const HippyHippyTagAttributeName;
 extern NSString *const HippyRenderObjectAttributeName;
 
-HIPPY_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
+NATIVE_RENDER_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
 
 @interface NativeRenderObjectText : NativeRenderObjectView {
 @protected

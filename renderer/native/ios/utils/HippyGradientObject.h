@@ -23,7 +23,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIColor.h>
 #import <CoreGraphics/CGContext.h>
-#import "HippyDefines.h"
 #import "HippyBorderDrawing.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -87,7 +86,7 @@ typedef struct _CanvasInfo {
 
 @end
 
-HIPPY_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CanvasInfo canvasInfo);
-HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
+NATIVE_RENDER_EXTERN void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef context, CanvasInfo canvasInfo);
+NATIVE_RENDER_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize);
 
 NS_ASSUME_NONNULL_END

@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyDefines.h"
+#import "NativeRenderDefines.h"
 
 #ifndef HIPPYLOG_ENABLED
 #ifdef DEBUG
@@ -78,7 +78,7 @@ typedef void (^HippyLogShowFunction)(NSString *message, NSArray<NSDictionary *> 
  * A method to generate a string from a collection of log data. To omit any
  * particular data from the log, just pass nil or zero for the argument.
  */
-HIPPY_EXTERN NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message);
+NATIVE_RENDER_EXTERN NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message);
 
 /**
  * The default logging function used by HippyLogXX.
@@ -90,39 +90,39 @@ extern HippyLogFunction HippyDefaultLogFunction;
  * below which logs will be ignored. Default is HippyLogLevelInfo for debug and
  * HippyLogLevelError for production.
  */
-HIPPY_EXTERN void HippySetLogThreshold(HippyLogLevel threshold);
-HIPPY_EXTERN HippyLogLevel HippyGetLogThreshold(void);
+NATIVE_RENDER_EXTERN void HippySetLogThreshold(HippyLogLevel threshold);
+NATIVE_RENDER_EXTERN HippyLogLevel HippyGetLogThreshold(void);
 
 /**
  * These methods get and set the global logging function called by the HippyLogXX
  * macros. You can use these to replace the standard behavior with custom log
  * functionality.
  */
-HIPPY_EXTERN void HippySetLogFunction(HippyLogFunction logFunction);
-HIPPY_EXTERN HippyLogFunction HippyGetLogFunction(void);
+NATIVE_RENDER_EXTERN void HippySetLogFunction(HippyLogFunction logFunction);
+NATIVE_RENDER_EXTERN HippyLogFunction HippyGetLogFunction(void);
 
 /**
  * This appends additional code to the existing log function, without replacing
  * the existing functionality. Useful if you just want to forward logs to an
  * extra service without changing the default behavior.
  */
-HIPPY_EXTERN void HippyAddLogFunction(HippyLogFunction logFunction);
+NATIVE_RENDER_EXTERN void HippyAddLogFunction(HippyLogFunction logFunction);
 
-HIPPY_EXTERN void HippySetErrorLogShowAction(HippyLogShowFunction func);
+NATIVE_RENDER_EXTERN void HippySetErrorLogShowAction(HippyLogShowFunction func);
 
 /**
  * This method temporarily overrides the log function while performing the
  * specified block. This is useful for testing purposes (to detect if a given
  * function logs something) or to suppress or override logging temporarily.
  */
-HIPPY_EXTERN void HippyPerformBlockWithLogFunction(void (^block)(void), HippyLogFunction logFunction);
+NATIVE_RENDER_EXTERN void HippyPerformBlockWithLogFunction(void (^block)(void), HippyLogFunction logFunction);
 
 /**
  * This method adds a conditional prefix to any messages logged within the scope
  * of the passed block. This is useful for adding additional context to log
  * messages. The block will be performed synchronously on the current thread.
  */
-HIPPY_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix);
+NATIVE_RENDER_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix);
 
 /**
  * Private logging function - ignore this.
@@ -135,5 +135,5 @@ HIPPY_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *
     } while (0)
 #endif
 
-HIPPY_EXTERN void _HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);
-HIPPY_EXTERN void _HippyLogJavaScriptInternal(HippyLogLevel, NSString *);
+NATIVE_RENDER_EXTERN void _HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);
+NATIVE_RENDER_EXTERN void _HippyLogJavaScriptInternal(HippyLogLevel, NSString *);

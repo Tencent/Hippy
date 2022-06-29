@@ -299,7 +299,7 @@ dispatch_queue_t HippyGetUIManagerQueue(void) {
     NSNumber *hippyTag = rootView.hippyTag;
     NSAssert(HippyIsHippyRootView(hippyTag), @"View %@ with tag #%@ is not a root view", rootView, hippyTag);
 
-#if HIPPY_DEBUG
+#if NATIVE_RENDER_DEBUG
     NSAssert(![_viewRegistry containRootComponentWithTag:hippyTag], @"RootView Tag already exists. Added %@ twice", hippyTag);
 #endif
     // Register view

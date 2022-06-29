@@ -29,7 +29,6 @@
 #include "dom/root_node.h"
 #include "Hippy.h"
 #include "Flex.h"
-#import "HippyDefines.h"
 
 typedef NS_ENUM(NSUInteger, HippyUpdateLifecycle) {
     HippyUpdateLifecycleUninitialized = 0,

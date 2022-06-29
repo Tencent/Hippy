@@ -92,8 +92,6 @@ static NSString *HippyRecursiveAccessibilityLabel(UIView *view) {
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
-
 - (NSString *)accessibilityLabel {
     if (super.accessibilityLabel) {
         return super.accessibilityLabel;

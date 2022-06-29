@@ -21,10 +21,9 @@
  */
 
 #import <QuartzCore/CADisplayLink.h>
-
 #import "HippyFrameUpdate.h"
-
 #import "HippyUtils.h"
+#import "HippyDefines.h"
 
 @implementation HippyFrameUpdate
 

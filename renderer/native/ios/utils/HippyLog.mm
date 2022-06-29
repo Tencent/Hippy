@@ -24,7 +24,6 @@
 #include <asl.h>
 #include <string>
 #include <mutex>
-#import "HippyDefines.h"
 
 static NSString *const HippyLogFunctionStack = @"HippyLogFunctionStack";
 
@@ -36,7 +35,7 @@ const char *HippyLogLevels[] = {
     "fatal",
 };
 
-#if HIPPY_DEBUG
+#if NATIVE_RENDER_DEBUG
 HippyLogLevel HippyDefaultLogThreshold = HippyLogLevelTrace;
 #else
 HippyLogLevel HippyDefaultLogThreshold = HippyLogLevelError;
@@ -104,7 +103,7 @@ void HippyAddLogFunction(HippyLogFunction logFunction) {
     }
 }
 
-HIPPY_EXTERN void HippySetErrorLogShowAction(HippyLogShowFunction func) {
+NATIVE_RENDER_EXTERN void HippySetErrorLogShowAction(HippyLogShowFunction func) {
     HippyLogShowFunc = func;
 }
 
@@ -192,7 +191,7 @@ NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileN
 
 void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineNumber, NSString *format, ...) {
     HippyLogFunction logFunction = HippyGetLocalLogFunction();
-    BOOL log = HIPPY_DEBUG || (logFunction != nil);
+    BOOL log = NATIVE_RENDER_DEBUG || (logFunction != nil);
     if (log && level >= HippyGetLogThreshold()) {
         // Get message
         va_list args;
@@ -205,7 +204,7 @@ void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int line
             logFunction(level, HippyLogSourceNative, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message);
         }
 
-#if HIPPY_DEBUG
+#if NATIVE_RENDER_DEBUG
 
         // Log to red box in debug mode.
         if (level >= HIPPYLOG_REDBOX_LEVEL) {
@@ -234,7 +233,7 @@ void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int line
 
 void _HippyLogJavaScriptInternal(HippyLogLevel level, NSString *message) {
     HippyLogFunction logFunction = HippyGetLocalLogFunction();
-    BOOL log = HIPPY_DEBUG || (logFunction != nil);
+    BOOL log = NATIVE_RENDER_DEBUG || (logFunction != nil);
     if (log && level >= HippyGetLogThreshold()) {
         if (logFunction) {
             logFunction(level, HippyLogSourceJavaScript, nil, nil, message);

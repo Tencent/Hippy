@@ -22,7 +22,6 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyComponent.h"
-#import "HippyDefines.h"
 #import "HippyViewManager.h"
 
 @class NativeRenderObjectView;

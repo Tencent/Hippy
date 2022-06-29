@@ -26,7 +26,6 @@
 #import "HippyAnimationType.h"
 #import "HippyBorderStyle.h"
 #import "HippyTextDecorationLineType.h"
-#import "HippyDefines.h"
 #import "HippyLog.h"
 #import "HippyPointerEvents.h"
 
@@ -156,14 +155,14 @@ typedef NSArray UIColorArray __deprecated_msg("Use NSArray<UIColor *>");
 /**
  * Underlying implementations of Hippy_XXX_CONVERTER macros. Ignore these.
  */
-HIPPY_EXTERN NSNumber *HippyConvertEnumValue(const char *, NSDictionary *, NSNumber *, id);
-HIPPY_EXTERN NSNumber *HippyConvertMultiEnumValue(const char *, NSDictionary *, NSNumber *, id);
-HIPPY_EXTERN NSArray *HippyConvertArrayValue(SEL, id);
+NATIVE_RENDER_EXTERN NSNumber *HippyConvertEnumValue(const char *, NSDictionary *, NSNumber *, id);
+NATIVE_RENDER_EXTERN NSNumber *HippyConvertMultiEnumValue(const char *, NSDictionary *, NSNumber *, id);
+NATIVE_RENDER_EXTERN NSArray *HippyConvertArrayValue(SEL, id);
 
 /**
  * Get the converter function for the specified type
  */
-HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
+NATIVE_RENDER_EXTERN SEL HippyConvertSelectorForType(NSString *type);
 
 /**
  * This macro is used for logging conversion errors. This is just used to
@@ -183,7 +182,7 @@ HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
  */
 #define HIPPY_CUSTOM_CONVERTER(type, name, code)     \
     +(type)name : (id)json {                         \
-        if (!HIPPY_DEBUG) {                          \
+        if (!NATIVE_RENDER_DEBUG) {                          \
             return code;                             \
         } else {                                     \
             @try {                                   \
@@ -201,7 +200,7 @@ HIPPY_EXTERN SEL HippyConvertSelectorForType(NSString *type);
  * numeric types. It will handle string input correctly, and provides more
  * detailed error reporting if an invalid value is passed in.
  */
-#define HIPPY_NUMBER_CONVERTER(type, getter) HIPPY_CUSTOM_CONVERTER(type, type, [HIPPY_DEBUG ? [self NSNumber:json] : json getter])
+#define HIPPY_NUMBER_CONVERTER(type, getter) HIPPY_CUSTOM_CONVERTER(type, type, [NATIVE_RENDER_DEBUG ? [self NSNumber:json] : json getter])
 
 /**
  * This macro is used for creating converters for enum types.

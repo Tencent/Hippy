@@ -23,7 +23,6 @@
 #import <CoreText/CoreText.h>
 #import "HippyConvert.h"
 #import <objc/message.h>
-#import "HippyDefines.h"
 #import "HippyParserUtils.h"
 #import "HippyUtils.h"
 
@@ -44,7 +43,7 @@ HIPPY_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
  * This macro is used for creating converter functions for directly
  * representable json values that require no conversion.
  */
-#if HIPPY_DEBUG
+#if NATIVE_RENDER_DEBUG
 #define HIPPY_JSON_CONVERTER(type)               \
     +(type *)type : (id)json {                   \
         if ([json isKindOfClass:[type class]]) { \
@@ -74,7 +73,7 @@ HIPPY_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEnc
     NSMutableIndexSet *indexSet = [NSMutableIndexSet new];
     for (NSNumber *number in json) {
         NSInteger index = number.integerValue;
-        if (HIPPY_DEBUG && index < 0) {
+        if (NATIVE_RENDER_DEBUG && index < 0) {
             HippyLogError(@"Invalid index value %ld. Indices must be positive.", (long)index);
         }
         [indexSet addIndex:index];
@@ -241,11 +240,11 @@ NSNumber *HippyConvertEnumValue(__unused const char *typeName, NSDictionary *map
         HippyLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json, allValues);
         return defaultValue;
     }
-    if (HIPPY_DEBUG && ![json isKindOfClass:[NSString class]]) {
+    if (NATIVE_RENDER_DEBUG && ![json isKindOfClass:[NSString class]]) {
         HippyLogError(@"Expected NSNumber or NSString for %s, received %@: %@", typeName, [json classForCoder], json);
     }
     id value = mapping[json];
-    if (HIPPY_DEBUG && !value && [json description].length > 0) {
+    if (NATIVE_RENDER_DEBUG && !value && [json description].length > 0) {
         HippyLogError(@"Invalid %s '%@'. should be one of: %@", typeName, json,
             [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }
@@ -414,7 +413,7 @@ UIBarStyleDefault, integerValue)
 static void HippyConvertCGStructValue(__unused const char *type, NSArray *fields, NSDictionary *aliases, CGFloat *result, id json) {
     NSUInteger count = fields.count;
     if ([json isKindOfClass:[NSArray class]]) {
-        if (HIPPY_DEBUG && [json count] != count) {
+        if (NATIVE_RENDER_DEBUG && [json count] != count) {
             HippyLogError(@"Expected array with count %lu, but count is %lu: %@", (unsigned long)count, (unsigned long)[json count], json);
         } else {
             for (NSUInteger i = 0; i < count; i++) {
@@ -548,7 +547,7 @@ HIPPY_ARRAY_CONVERTER(NSURL) HIPPY_ARRAY_CONVERTER(HippyFileURL) HIPPY_ARRAY_CON
  * This macro is used for creating converter functions for directly
  * representable json array values that require no conversion.
  */
-#if HIPPY_DEBUG
+#if NATIVE_RENDER_DEBUG
 #define HIPPY_JSON_ARRAY_CONVERTER(type) HIPPY_ARRAY_CONVERTER(type)
 #else
 #define HIPPY_JSON_ARRAY_CONVERTER(type) \

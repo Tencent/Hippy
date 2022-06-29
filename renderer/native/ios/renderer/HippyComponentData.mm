@@ -107,8 +107,6 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
-
 - (UIView *)createViewWithTag:(NSNumber *)tag {
     NSAssert(HippyIsMainQueue(), @"This function must be called on the main thread");
     UIView *view = [self.manager view];
@@ -341,7 +339,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             };
         }
 
-        if (HIPPY_DEBUG) {
+        if (NATIVE_RENDER_DEBUG) {
             // Provide more useful log feedback if there's an error
             HippyPropBlock unwrappedBlock = propBlock;
             propBlock = ^(id<HippyComponent> view, id json) {

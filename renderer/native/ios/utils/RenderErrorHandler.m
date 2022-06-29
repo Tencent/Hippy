@@ -28,11 +28,11 @@ NSString *const RenderErrorDomain = @"RenderErrorDomain";
 
 static RenderFatalHandler _fatalHandler;
 
-HIPPY_EXTERN void RenderSetFatalHandler(RenderFatalHandler fatalHandler) {
+NATIVE_RENDER_EXTERN void RenderSetFatalHandler(RenderFatalHandler fatalHandler) {
     _fatalHandler = fatalHandler;
 }
 
-HIPPY_EXTERN RenderFatalHandler RenderGetFatalHandler(void) {
+NATIVE_RENDER_EXTERN RenderFatalHandler RenderGetFatalHandler(void) {
     return _fatalHandler;
 }
 

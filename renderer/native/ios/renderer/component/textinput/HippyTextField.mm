@@ -129,8 +129,6 @@
     [_textView removeObserver:self forKeyPath:@"selectedTextRange"];
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
-
 // This method is overridden for `onKeyPress`. The manager
 // will not send a keyPress for text that was pasted.
 - (void)paste:(id)sender {

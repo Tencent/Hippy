@@ -185,7 +185,7 @@ typedef NSDictionary HippyFontVariantDescriptor;
         };
     });
     HippyFontVariantDescriptor *value = mapping[json];
-    if (HIPPY_DEBUG && !value && [json description].length > 0) {
+    if (NATIVE_RENDER_DEBUG && !value && [json description].length > 0) {
         HippyLogError(@"Invalid HippyFontVariantDescriptor '%@'. should be one of: %@", json,
             [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }

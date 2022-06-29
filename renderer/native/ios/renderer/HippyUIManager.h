@@ -39,31 +39,31 @@
 /**
  * UIManager queue
  */
-HIPPY_EXTERN dispatch_queue_t HippyGetUIManagerQueue(void);
+NATIVE_RENDER_EXTERN dispatch_queue_t HippyGetUIManagerQueue(void);
 
 /**
  * Default name for the UIManager queue
  */
-HIPPY_EXTERN const char *HippyUIManagerQueueName;
+NATIVE_RENDER_EXTERN const char *HippyUIManagerQueueName;
 
 /**
  * Posted whenever a new root view is registered with HippyUIManager. The userInfo property
  * will contain a HippyUIManagerRootViewKey with the registered root view.
  */
-HIPPY_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
+NATIVE_RENDER_EXTERN NSString *const HippyUIManagerDidRegisterRootViewNotification;
 
 /**
  * Key for the root view property in the above notifications
  */
-HIPPY_EXTERN NSString *const HippyUIManagerRootViewKey;
+NATIVE_RENDER_EXTERN NSString *const HippyUIManagerRootViewKey;
 
 //TODO delete it
-HIPPY_EXTERN NSString *const HippyUIManagerKey;
+NATIVE_RENDER_EXTERN NSString *const HippyUIManagerKey;
 
 /**
  * Posted whenever endBatch is called
  */
-HIPPY_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
+NATIVE_RENDER_EXTERN NSString *const HippyUIManagerDidEndBatchNotification;
 
 /**
  * The HippyUIManager is the module responsible for updating the view hierarchy.

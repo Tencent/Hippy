@@ -123,8 +123,6 @@
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
-
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index {
     [super insertHippySubview:subview atIndex:index];
     if ([subview isKindOfClass:[HippyText class]]) {

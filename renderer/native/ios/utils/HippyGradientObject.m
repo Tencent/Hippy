@@ -355,7 +355,7 @@ void HippyDrawLinearGradientInContext(HippyGradientObject *object, CGContextRef 
     CGContextRestoreGState(context);
 }
 
-HIPPY_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize size) {
+NATIVE_RENDER_EXTERN void HippyDrawRadialGradientInContext(HippyGradientObject *object, CGContextRef context, CGSize size) {
     NSCAssert(context, @"context cannot be null for drawing radial gradient");
     NSCAssert(NO, @"HippyDrawRadialGradientInContext not implemented");
 }

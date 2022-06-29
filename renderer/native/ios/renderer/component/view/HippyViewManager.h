@@ -111,10 +111,6 @@
     NATIVE_RENDER_REMAP_RENDER_OBJECT_PROPERTY(name, __custom__, type)     \
     -(void)set_##name : (id)json forRenderObject : (viewClass *)view
 
-
-#define NATIVE_RENDER_CONCAT2(A, B) A##B
-#define NATIVE_RENDER_CONCAT(A, B) NATIVE_RENDER_CONCAT2(A, B)
-
 #define NATIVE_RENDER_COMPONENT_EXPORT_METHOD(method_name) NATIVE_RENDER_COMPONENT_REMAP_METHOD(, method_name)
 
 #define NATIVE_RENDER_COMPONENT_REMAP_METHOD(js_name, method_name)                      \
@@ -123,6 +119,8 @@
         return @[@#js_name, @#method_name];                                             \
     }                                                                                   \
     -(void)method_name
+
+typedef void (^RenderUIResponseSenderBlock)(id response);
 
 @end
 

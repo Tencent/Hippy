@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyDefines.h"
+#import "NativeRenderDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,9 +30,9 @@ extern NSString *const RenderErrorDomain;
 
 typedef void (^RenderFatalHandler)(NSError *error);
 
-HIPPY_EXTERN void RenderSetFatalHandler(RenderFatalHandler fatalHandler);
-HIPPY_EXTERN RenderFatalHandler RenderGetFatalHandler(void);
+NATIVE_RENDER_EXTERN void RenderSetFatalHandler(RenderFatalHandler fatalHandler);
+NATIVE_RENDER_EXTERN RenderFatalHandler RenderGetFatalHandler(void);
 
-HIPPY_EXTERN void RenderFatal(NSError *error);
+NATIVE_RENDER_EXTERN void RenderFatal(NSError *error);
 
 NS_ASSUME_NONNULL_END

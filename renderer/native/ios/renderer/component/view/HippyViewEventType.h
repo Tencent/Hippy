@@ -21,7 +21,7 @@
  */
 
 #include <string>
-#import "HippyDefines.h"
+#import "NativeRenderDefines.h"
 
 typedef NS_ENUM(NSInteger, HippyViewEventType) {
     //touche event
@@ -46,4 +46,4 @@ typedef NS_ENUM(NSInteger, HippyViewEventType) {
     HippyViewEventTypeUnknown = -1,
 };
 
-HIPPY_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
+NATIVE_RENDER_EXTERN HippyViewEventType viewEventTypeFromName(const std::string &name);
