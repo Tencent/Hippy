@@ -35,14 +35,8 @@ __fbBatchedBridge.__invokeCallback = (cbID, args) => {
 __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
   if (module === 'IOSBridgeModule' || module === 'AppRegistry') {
     if (method === 'unmountApplicationComponentAtRootTag') {
-      global.Hippy.emit('destroyInstance', args[0]);
-      const renderId = Date.now().toString();
-      Hippy.bridge.callNative('UIManagerModule', 'removeRootView', args[0]);
-      Hippy.bridge.callNative('UIManagerModule', 'endBatch', renderId);
-      delete __GLOBAL__.nodeIdCache[args[0]];
-      delete __GLOBAL__.nodeTreeCache[args[0]];
-      delete __GLOBAL__.nodeParamCache[args[0]];
-      __GLOBAL__.destroyInstanceList[args[0]] = true;
+      const rootViewId = args[0];
+      global.Hippy.emit('destroyInstance', rootViewId);
     }
   } else if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];
