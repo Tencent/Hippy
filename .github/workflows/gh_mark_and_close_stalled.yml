@@ -3,7 +3,7 @@ name: '[gh] mark and close stale issues and PRs'
 on:
   workflow_dispatch:
   schedule:
-    # Run every day at 0:30 AM UTC.
+    # Run every day at 23:00 UTC.
     - cron: '0 23 * * *'
 
 env:
