@@ -72,8 +72,12 @@ export class NetworkModule extends HippyWebModule {
       });
   }
 
-  public setCookie(callBack: HippyCallBack, url: string, keyValue: string, expires: string): void {
-    const cookieList = keyValue.split(';');
+  public setCookie(url: string, value: string, expires: string): void {
+    if (value.trim() === '' || !value) {
+      document.cookie = `;expires=${-1};domain=${url}`;
+      return;
+    }
+    const cookieList = value.split(';');
     cookieList.forEach((cookie) => {
       document.cookie = `${cookie}; expires=${expires};domain=${url}`;
     });

@@ -105,7 +105,7 @@ enum HippyAnimationEvent {
   START = 'onHippyAnimationStart',
   END = 'onHippyAnimationEnd',
   CANCEL = 'onHippyAnimationCancel',
-  REPAET = 'onHippyAnimationRepeat',
+  REPEAT = 'onHippyAnimationRepeat',
 }
 
 const TransformList = {
@@ -213,7 +213,7 @@ class SimpleAnimation {
       return 'infinite';
     }
     if (!this.animationInfo || !this.animationInfo.repeatCount) {
-      return String(1);
+      return '1';
     }
     return String(this.animationInfo.repeatCount);
   }

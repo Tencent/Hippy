@@ -129,7 +129,7 @@ export class HippyWebEngine {
   stop() {
     this.eventBus.publish('beforeDestroy');
     if (this.instance) {
-      hippyBridge('destoryInstance', this.instance.id);
+      hippyBridge('destroyInstance', this.instance.id);
     }
   }
 

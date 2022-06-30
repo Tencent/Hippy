@@ -198,15 +198,15 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     if (!this.pagingEnabled) {
       this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: animated ? 'smooth' : 'auto' });
     } else {
-      this.pagingModeScroll(x, animated ? ANIMATION_TIME : 1);
+      await this.pagingModeScroll(x, animated ? ANIMATION_TIME : 1);
     }
   }
 
-  public scrollToWithOptions({ x, y, duration }) {
+  public async scrollToWithOptions({ x, y, duration }) {
     if (!this.pagingEnabled) {
-      this.scrollTo(x, y, true);
+      await this.scrollTo(x, y, true);
     } else {
-      this.pagingModeScroll(x, duration);
+      await this.pagingModeScroll(x, duration);
     }
   }
 

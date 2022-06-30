@@ -38,6 +38,10 @@ export class ListView extends HippyWebView<HTMLDivElement> {
       threshold: 0,
     });
   }
+  static needCaptureTouch(lastTouchEvent: TouchEvent, newTouchEvent: TouchEvent) {
+    const moveDistance = touchMoveCalculate(newTouchEvent, lastTouchEvent);
+    return (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD);
+  }
   private destroying = false;
   private initialListReadyFlag = false;
   private dirtyListItems: ListViewItem[] = [];
@@ -436,14 +440,10 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     if (this.scrollCaptureState && newTouchEvent) {
       return this.scrollCaptureState;
     }
-    this.scrollCaptureState = this.needCaptureTouch(lastTouchEvent, newTouchEvent);
+    this.scrollCaptureState = ListView.needCaptureTouch(lastTouchEvent, newTouchEvent);
     return this.scrollCaptureState;
   }
 
-  private needCaptureTouch(lastTouchEvent: TouchEvent, newTouchEvent: TouchEvent) {
-    const moveDistance = touchMoveCalculate(newTouchEvent, lastTouchEvent);
-    return (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD);
-  }
 
   private handleBeginDrag() {
     this.dom && this.onScrollBeginDrag(this.buildScrollEvent());
