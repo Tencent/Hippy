@@ -75,7 +75,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   private float mGifScaleX = 1;
   private float mGifScaleY = 1;
   private boolean mGifMatrixComputed = false;
-  private int mGifProgress = 0;
+  private long mGifProgress = 0;
   private long mGifLastPlayTime = -1;
 
   @Override
@@ -479,7 +479,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
     if (!isGifPaused) {
       if (mGifLastPlayTime != -1) {
-        mGifProgress += now - mGifLastPlayTime;
+        mGifProgress += (now - mGifLastPlayTime);
 
         if (mGifProgress > duration) {
           mGifProgress = 0;
@@ -489,7 +489,8 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     }
 
     computeMatrixParams();
-    mGifMovie.setTime(mGifProgress);
+    int progress = mGifProgress > Integer.MAX_VALUE ? 0 : (int) mGifProgress;
+    mGifMovie.setTime(progress);
     canvas.save(); // 保存变换矩阵
     canvas.scale(mGifScaleX, mGifScaleY);
     mGifMovie.draw(canvas, mGifStartX, mGifStartY);

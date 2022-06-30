@@ -120,9 +120,12 @@ import icon from './qb_icon_new.png';
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 事件 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`  | `iOS、hippy-react-web` |
-| renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeader/index.jsx)。 | `() => View`                                                   | `Android、iOS、hippy-react-web` |
+| renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeaderFooter/index.jsx)。 | `() => View`                                                   | `Android、iOS、hippy-react-web` |
 | onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `Android、iOS、hippy-react-web` |
 | onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `Android、iOS、hippy-react-web` |
+| renderPullFooter   | 最低支持版本`2.14.0`， 设置列表底部上拉刷新条，配合 `onFooterReleased`、`onFooterPulling` 和 `collapsePullFooter` 使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeaderFooter/index.jsx)。 | `() => View`                                                   | `Android、iOS` |
+| onFooterPulling   | 最低支持版本`2.14.0`，上拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据上拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `Android、iOS` |
+| onFooterReleased   |  最低支持版本`2.14.0`，上拉超出一定距离，松手后触发。 | `() => any`                                                   | `Android、iOS` |
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                                   | `iOS`    |
@@ -147,7 +150,17 @@ import icon from './qb_icon_new.png';
 
 ### collapsePullHeader
 
-`() => void` 收起刷新条 PullHeader。当设置了`renderPullHeader`后，每当下拉刷新结束需要主动调用该方法收回 PullHeader。
+`(otions: { time: number }) => void` 收起刷新条 PullHeader。当设置了`renderPullHeader`后，每当下拉刷新结束需要主动调用该方法收回 PullHeader。
+
+> options 参数，最低支持版本 `2.14.0`
+>
+>* time: number: 可指定延迟多久后收起 PullHeader，单位ms
+
+### collapsePullFooter
+
+> 最低支持版本 `2.14.0`
+
+`() => void` 收起底部上拉刷新条 PullFooter。当设置了`renderPullFooter`后，每当上拉刷新结束需要主动调用该方法收回 PullFooter。
 
 ---
 
@@ -186,9 +199,9 @@ import icon from './qb_icon_new.png';
 
 | 参数       | 描述                                                 | 类型       | 支持平台 |
 | ---------- | ---------------------------------------------------- | ---------- | -------- |
-| onRefresh  | 当`RefreshWrapper`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web` |
-| getRefresh | 定义刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web` |
-| bounceTime | 指定刷新条收回动画的时长，单位为ms                   | `number`   | `Android、iOS`    |
+| onRefresh  | 当`RefreshWrapper`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| getRefresh | 定义刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| bounceTime | 指定刷新条收回动画的时长，单位为ms                   | `number`   | `Android、iOS、Web-Renderer`    |
 
 ## 方法
 

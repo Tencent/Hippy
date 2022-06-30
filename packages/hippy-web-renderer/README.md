@@ -11,18 +11,3 @@ To make hippy app running on browser.
 
 The project is still working in progress, contributions are welcome.
 
-## Project progress
-
-| Working       | Not Working    |
-| ----------    | -------------- |
-| View          | VideoPlayer    | 
-| Text          | Navigator      |
-| RefreshWrapper| Slider         |
-| Image         | NetInfo        |
-| ListView      |                |
-| ScrollView    |                |
-| TextInput     |                | 
-| ViewPager     |                |
-| WebView       |                |
-| TabHost       |                |
-| Modal         |                |

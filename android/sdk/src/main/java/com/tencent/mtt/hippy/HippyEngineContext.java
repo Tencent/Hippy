@@ -32,6 +32,8 @@ public interface HippyEngineContext {
 
   String getComponentName();
 
+  boolean isRunningOnTVPlatform();
+
   @Nullable
   Map<String, Object> getNativeParams();
 

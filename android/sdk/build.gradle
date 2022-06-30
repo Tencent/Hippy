@@ -35,7 +35,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.2.0'
+    classpath "com.android.tools.build:gradle:$VERSION_AGP"
     // NOTE: Do not place your application dependencies here; they belong
     // in the individual module build.gradle files
   }
@@ -159,7 +159,7 @@ android {
     }
   }
 
-  if (!SKIP_CMAKE_AND_NINJA.toBoolean() || !skipCmakeAndNinja) {
+  if (!SKIP_CMAKE_AND_NINJA.toBoolean() && !skipCmakeAndNinja) {
     externalNativeBuild {
       cmake {
         path CMAKE_PATH

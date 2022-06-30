@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,8 +37,8 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
   const shadowTextData: any = {};
   const background: any = {};
   for (const key of Object.keys(object)) {
-    if (! hasOwnProperty(object, key)) {
-      return;
+    if (!hasOwnProperty(object, key)) {
+      continue;
     }
     if (key.indexOf('shadow') !== -1) {
       shadowData[key] = object[key];

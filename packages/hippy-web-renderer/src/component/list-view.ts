@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,10 @@ export class ListView extends HippyWebView<HTMLDivElement> {
       root: parentElement,
       threshold: 0,
     });
+  }
+  static needCaptureTouch(lastTouchEvent: TouchEvent, newTouchEvent: TouchEvent) {
+    const moveDistance = touchMoveCalculate(newTouchEvent, lastTouchEvent);
+    return (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD);
   }
   private destroying = false;
   private initialListReadyFlag = false;
@@ -436,14 +440,10 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     if (this.scrollCaptureState && newTouchEvent) {
       return this.scrollCaptureState;
     }
-    this.scrollCaptureState = this.needCaptureTouch(lastTouchEvent, newTouchEvent);
+    this.scrollCaptureState = ListView.needCaptureTouch(lastTouchEvent, newTouchEvent);
     return this.scrollCaptureState;
   }
 
-  private needCaptureTouch(lastTouchEvent: TouchEvent, newTouchEvent: TouchEvent) {
-    const moveDistance = touchMoveCalculate(newTouchEvent, lastTouchEvent);
-    return (Math.abs(moveDistance[1]) > GESTURE_CAPTURE_THRESHOLD);
-  }
 
   private handleBeginDrag() {
     this.dom && this.onScrollBeginDrag(this.buildScrollEvent());

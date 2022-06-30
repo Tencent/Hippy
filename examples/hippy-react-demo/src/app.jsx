@@ -21,6 +21,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#fff',
     borderTopWidth: 1,
+    borderStyle: 'solid',
     borderTopColor: '#eee',
   },
   buttonText: {

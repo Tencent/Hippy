@@ -38,7 +38,7 @@ on:
 jobs:
   android_prebuilt:
     if: github.event.inputs.is_build_for_android == 'true'
-    runs-on: [self-hosted, linux, trusted]
+    runs-on: [self-hosted, linux]
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
       credentials:
@@ -57,12 +57,6 @@ jobs:
         - cpu: x64
           arch: x86_64
     steps:
-    - name: Clean up before
-      shell: bash
-      run: |
-        shopt -s dotglob
-        rm -rf *
-        shopt -u dotglob
     - name: Fetch v8
       run: |
         fetch v8
@@ -211,13 +205,6 @@ jobs:
             Metadata={"x-cos-tagging": urlencode(metadata)}
         )
         print("ETag: " + response["ETag"])
-    - name: Clean up after
-      if: ${{ always() }}
-      shell: bash
-      run: |
-        shopt -s dotglob
-        rm -rf *
-        shopt -u dotglob
 
   windows_prebuilt:
     if: github.event.inputs.is_build_for_windows == 'true'

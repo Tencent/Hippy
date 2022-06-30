@@ -83,6 +83,7 @@ export default {
     height: 48px;
     border-color: #ccc;
     border-width: 1px;
+    border-style: solid;
   }
 
   #iframe-demo #iframe {

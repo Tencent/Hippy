@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -59,26 +59,26 @@ export class WebSocketModule extends HippyWebModule {
 
   public send(data: {id: string, data: any}) {
     if (!data || !data.id) {
-      console.log('hippy', 'send: ERROR: request is null or no socket id specified');
+      console.error('hippy', 'send: ERROR: request is null or no socket id specified');
       return;
     }
     if (!this.webSocketConnections[data.id] || !this.webSocketConnections[data.id].disconnected) {
-      console.log('hippy', 'send: ERROR: no socket id specified or disconnected');
+      console.error('hippy', 'send: ERROR: no socket id specified or disconnected');
       return;
     }
     if (!data.data || typeof  data.data !== 'string') {
-      console.log('hippy', 'send: ERROR: no data specified to be sent or data type error');
+      console.error('hippy', 'send: ERROR: no data specified to be sent or data type error');
     }
     this.webSocketConnections[data.id]!.send(data.data);
   }
 
   public close(data: { id: string, code: number, reason: string}) {
     if (!data || !data.id) {
-      console.log('hippy', 'close: ERROR: request is null');
+      console.error('hippy', 'close: ERROR: request is null');
       return;
     }
     if (!this.webSocketConnections[data.id] || this.webSocketConnections[data.id].disconnected) {
-      console.log('hippy', 'close: ERROR: no socket id specified, or not found, or not connected yet');
+      console.error('hippy', 'close: ERROR: no socket id specified, or not found, or not connected yet');
       return;
     }
     this.webSocketConnections[data.id].close(data.code, data.reason);

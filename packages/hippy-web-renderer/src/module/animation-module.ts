@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -105,7 +105,7 @@ enum HippyAnimationEvent {
   START = 'onHippyAnimationStart',
   END = 'onHippyAnimationEnd',
   CANCEL = 'onHippyAnimationCancel',
-  REPAET = 'onHippyAnimationRepeat',
+  REPEAT = 'onHippyAnimationRepeat',
 }
 
 const TransformList = {
@@ -213,7 +213,7 @@ class SimpleAnimation {
       return 'infinite';
     }
     if (!this.animationInfo || !this.animationInfo.repeatCount) {
-      return String(1);
+      return '1';
     }
     return String(this.animationInfo.repeatCount);
   }

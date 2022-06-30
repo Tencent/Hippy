@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -129,7 +129,7 @@ export class HippyWebEngine {
   stop() {
     this.eventBus.publish('beforeDestroy');
     if (this.instance) {
-      hippyBridge('destoryInstance', this.instance.id);
+      hippyBridge('destroyInstance', this.instance.id);
     }
   }
 

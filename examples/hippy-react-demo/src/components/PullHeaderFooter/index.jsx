@@ -76,6 +76,7 @@ export default class PullHeaderFooterExample extends React.Component {
     this.onEndReached = this.onEndReached.bind(this);
     this.onHeaderReleased = this.onHeaderReleased.bind(this);
     this.onHeaderPulling = this.onHeaderPulling.bind(this);
+    this.onFooterPulling = this.onFooterPulling.bind(this);
   }
 
   async componentDidMount() {
@@ -167,6 +168,10 @@ export default class PullHeaderFooterExample extends React.Component {
     }
   }
 
+  onFooterPulling(evt) {
+    console.log('onFooterPulling', evt);
+  }
+
   /**
    * 点击单行后触发
    *
@@ -212,7 +217,7 @@ export default class PullHeaderFooterExample extends React.Component {
           data = mockData;
         }
         return resolve(data);
-      }, 600);
+      }, 800);
     });
   }
 
@@ -296,6 +301,7 @@ export default class PullHeaderFooterExample extends React.Component {
         onHeaderReleased={this.onHeaderReleased}
         onHeaderPulling={this.onHeaderPulling}
         onFooterReleased={this.onEndReached}
+        onFooterPulling={this.onFooterPulling}
       />
     );
   }

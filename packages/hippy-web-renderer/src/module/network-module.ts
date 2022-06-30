@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -72,8 +72,12 @@ export class NetworkModule extends HippyWebModule {
       });
   }
 
-  public setCookie(callBack: HippyCallBack, url: string, keyValue: string, expires: string): void {
-    const cookieList = keyValue.split(';');
+  public setCookie(url: string, value: string, expires: string): void {
+    if (value.trim() === '' || !value) {
+      document.cookie = `;expires=${-1};domain=${url}`;
+      return;
+    }
+    const cookieList = value.split(';');
     cookieList.forEach((cookie) => {
       document.cookie = `${cookie}; expires=${expires};domain=${url}`;
     });

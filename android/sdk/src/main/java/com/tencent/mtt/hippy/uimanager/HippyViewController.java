@@ -227,6 +227,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
   }
 
+  @HippyControllerProps(name = "setVisible", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+  public void setVisible(T view, boolean flag) {
+    view.setVisibility(flag ? View.VISIBLE : View.INVISIBLE);
+  }
+
   /**
    * color/border/alpha
    **/
@@ -317,6 +322,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
   @HippyControllerProps(name = NodeProps.FOCUSABLE, defaultType = HippyControllerProps.BOOLEAN)
   public void setFocusable(T view, boolean focusable) {
     view.setFocusable(focusable);
+    view.setFocusableInTouchMode(focusable);
     if (focusable) {
       view.setOnFocusChangeListener(this);
     } else {

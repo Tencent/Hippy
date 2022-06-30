@@ -16,12 +16,15 @@ on:
       - 'gradlew.bat'
 jobs:
   android_build_tests:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
       credentials:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    timeout-minutes: 10
+    env:
+      CMAKE_INFA_PACKAGES_URL: https://hippy-packages-1258344701.cos.na-siliconvalley.myqcloud.com
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3

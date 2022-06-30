@@ -30,10 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, weak) HippyDevManager *devManager;
 
-+ (instancetype)sharedInstance;
-
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)new NS_UNAVAILABLE;
+- (instancetype)initWithDevManager:(HippyDevManager *)manager;
 
 - (HippyInspectorDomain *)inspectorDomainFromMessage:(NSString *)message command:(out HippyDevCommand *_Nullable*_Nullable)command;
 

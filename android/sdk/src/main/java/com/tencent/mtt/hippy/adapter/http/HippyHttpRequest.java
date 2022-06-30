@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.http;
 
 import android.os.Build;
 
 import androidx.annotation.Nullable;
+
+import com.tencent.mtt.hippy.common.HippyArray;
+import com.tencent.mtt.hippy.common.HippyMap;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -26,130 +31,151 @@ import java.util.Map;
 @SuppressWarnings({"unused"})
 public class HippyHttpRequest {
 
-  public static final int DEFAULT_TIMEOUT_MS = 3000;
+    public static final int DEFAULT_TIMEOUT_MS = 3000;
 
-  private static String USER_AGENT = null;
-  private int mConnectTimeout = DEFAULT_TIMEOUT_MS;
-  private int mReadTimeout = DEFAULT_TIMEOUT_MS;
-  private final Map<String, Object> mHeaderMap;
-  private String mUrl;
-  private boolean mUseCaches = true;
-  private String mMethod = "GET";
-  private boolean mInstanceFollowRedirects = false;
-  private String mBody;
-  @Nullable
-  private Map<String, Object> mNativeParams;
+    private static String USER_AGENT = null;
+    private int mConnectTimeout = DEFAULT_TIMEOUT_MS;
+    private int mReadTimeout = DEFAULT_TIMEOUT_MS;
+    private final Map<String, Object> mHeaderMap;
+    private String mUrl;
+    private boolean mUseCaches = true;
+    private String mMethod = "GET";
+    private boolean mInstanceFollowRedirects = false;
+    private String mBody;
+    @Nullable
+    private HippyMap mInitParams;
+    @Nullable
+    private HippyArray mRequestCookies;
+    @Nullable
+    private Map<String, Object> mNativeParams;
 
-  public HippyHttpRequest() {
-    //noinspection unchecked,rawtypes
-    mHeaderMap = new HashMap();
-    initUserAgent();
+    public HippyHttpRequest() {
+        //noinspection unchecked,rawtypes
+        mHeaderMap = new HashMap();
+        initUserAgent();
 
-    if (USER_AGENT != null) {
-      addHeader(HttpHeader.REQ.USER_AGENT, USER_AGENT);
-    } else {
-      System.err.println("user_agent is null!");
+        if (USER_AGENT != null) {
+            addHeader(HttpHeader.REQ.USER_AGENT, USER_AGENT);
+        } else {
+            System.err.println("user_agent is null!");
+        }
     }
-  }
 
-  @Nullable
-  public Map<String, Object> getNativeParams() {
-    return mNativeParams;
-  }
-
-  public void setNativeParams(@Nullable Map<String, Object> nativeParams) {
-    mNativeParams = nativeParams;
-  }
-
-  public String getUrl() {
-    return mUrl;
-  }
-
-  public void setUrl(String url) {
-    this.mUrl = url;
-  }
-
-  public void addHeader(String name, String value) {
-    mHeaderMap.put(name, value);
-  }
-
-  public void addHeader(String name, List<String> value) {
-    mHeaderMap.put(name, value);
-  }
-
-  public Map<String, Object> getHeaders() {
-    return mHeaderMap;
-  }
-
-  public int getConnectTimeout() {
-    return mConnectTimeout;
-  }
-
-  public void setConnectTimeout(int time) {
-    mConnectTimeout = time;
-  }
-
-  public int getReadTimeout() {
-    return mReadTimeout;
-  }
-
-  public void setReadTimeout(int time) {
-    mReadTimeout = time;
-  }
-
-  public boolean isUseCaches() {
-    return mUseCaches;
-  }
-
-  public void setUseCaches(boolean useCaches) {
-    this.mUseCaches = useCaches;
-  }
-
-  public String getMethod() {
-    return mMethod;
-  }
-
-  public void setMethod(String method) {
-    this.mMethod = method;
-  }
-
-  public boolean isInstanceFollowRedirects() {
-    return mInstanceFollowRedirects;
-  }
-
-  public void setInstanceFollowRedirects(boolean instanceFollowRedirects) {
-    this.mInstanceFollowRedirects = instanceFollowRedirects;
-  }
-
-  public String getBody() {
-    return mBody;
-  }
-
-  public void setBody(String body) {
-    this.mBody = body;
-  }
-
-  private void initUserAgent() {
-    if (USER_AGENT == null) {
-      Locale locale = Locale.getDefault();
-      StringBuffer buffer = new StringBuffer();
-      // Add version
-      final String version = Build.VERSION.RELEASE;
-      if (version.length() > 0) {
-        buffer.append(version);
-      } else {
-        // default to "1.0"
-        buffer.append("1.0");
-      }
-      buffer.append("; ");
-      final String language = locale.getLanguage();
-      buffer.append(language.toLowerCase());
-      final String country = locale.getCountry();
-      buffer.append("-");
-      buffer.append(country.toLowerCase());
-      final String base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
-      USER_AGENT = String.format(base, buffer);
+    @Nullable
+    public HippyMap getInitParams() {
+        return mInitParams;
     }
-  }
 
+    public void setInitParams(@Nullable HippyMap initParams) {
+        mInitParams = initParams;
+    }
+
+    @Nullable
+    public HippyArray getRequestCookies() {
+        return mRequestCookies;
+    }
+
+    public void setRequestCookies(@Nullable HippyArray requestCookies) {
+        mRequestCookies = requestCookies;
+    }
+
+    @Nullable
+    public Map<String, Object> getNativeParams() {
+        return mNativeParams;
+    }
+
+    public void setNativeParams(@Nullable Map<String, Object> nativeParams) {
+        mNativeParams = nativeParams;
+    }
+
+    public String getUrl() {
+        return mUrl;
+    }
+
+    public void setUrl(String url) {
+        this.mUrl = url;
+    }
+
+    public void addHeader(String name, String value) {
+        mHeaderMap.put(name, value);
+    }
+
+    public void addHeader(String name, List<String> value) {
+        mHeaderMap.put(name, value);
+    }
+
+    public Map<String, Object> getHeaders() {
+        return mHeaderMap;
+    }
+
+    public int getConnectTimeout() {
+        return mConnectTimeout;
+    }
+
+    public void setConnectTimeout(int time) {
+        mConnectTimeout = time;
+    }
+
+    public int getReadTimeout() {
+        return mReadTimeout;
+    }
+
+    public void setReadTimeout(int time) {
+        mReadTimeout = time;
+    }
+
+    public boolean isUseCaches() {
+        return mUseCaches;
+    }
+
+    public void setUseCaches(boolean useCaches) {
+        this.mUseCaches = useCaches;
+    }
+
+    public String getMethod() {
+        return mMethod;
+    }
+
+    public void setMethod(String method) {
+        this.mMethod = method;
+    }
+
+    public boolean isInstanceFollowRedirects() {
+        return mInstanceFollowRedirects;
+    }
+
+    public void setInstanceFollowRedirects(boolean instanceFollowRedirects) {
+        this.mInstanceFollowRedirects = instanceFollowRedirects;
+    }
+
+    public String getBody() {
+        return mBody;
+    }
+
+    public void setBody(String body) {
+        this.mBody = body;
+    }
+
+    private void initUserAgent() {
+        if (USER_AGENT == null) {
+            Locale locale = Locale.getDefault();
+            StringBuffer buffer = new StringBuffer();
+            // Add version
+            final String version = Build.VERSION.RELEASE;
+            if (version.length() > 0) {
+                buffer.append(version);
+            } else {
+                // default to "1.0"
+                buffer.append("1.0");
+            }
+            buffer.append("; ");
+            final String language = locale.getLanguage();
+            buffer.append(language.toLowerCase());
+            final String country = locale.getCountry();
+            buffer.append("-");
+            buffer.append(country.toLowerCase());
+            final String base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
+            USER_AGENT = String.format(base, buffer);
+        }
+    }
 }

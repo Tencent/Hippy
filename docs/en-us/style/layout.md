@@ -1,6 +1,6 @@
 # Layout
 
-Hippy's style layout uses Flex. It is worth noting that the `PercentFrameLayout` of web pages is not yet compatible.
+Hippy's style layout uses Flex. It is worth noting that the `PercentFrame Layout` of web pages is not yet compatible.
 
 ---
 
@@ -10,7 +10,7 @@ Hippy's style layout uses Flex. It is worth noting that the `PercentFrameLayout`
 
 [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/align-items)
 
-`alignItems` determines how the child elements are arranged in the direction of the secondary axis (this style is set on the parent element). For example, if the child elements are originally arranged in a vertical direction (i.e., The primary axis is vertical and the secondary axis is horizontal), the `alignItems` determines how they are arranged in the horizontal direction. Its behavior is consistent with that on CSS `align-items`(default is`stretch`).
+`alignItems` determines how the child elements are arranged in the direction of the secondary axis (this style is set on the parent element). For example, if the child elements are originally arranged in a vertical direction (i.e., The primary axis is vertical and the secondary axis is horizontal), the `alignItems` determines how they are arranged in the horizontal direction. Its behavior is consistent with that on CSS `align-items`(default is `stretch`).
 
 | Type                                                            | Required|
 | --------------------------------------------------------------- | -------- |
@@ -79,7 +79,7 @@ Hippy's style layout uses Flex. It is worth noting that the `PercentFrameLayout`
 
 # collapsable
 
-In Android, if a `View` subcomponent is used only to layout it, it may be removed from the native layout tree for optimization, so the reference to the DOM of that node is lost`(for example, the size and location information cannot be obtained by calling measureInAppWindow)`. Set this property to `false` disable this optimization to ensure that the corresponding view exists in the native structure.(It can also be set as the `Attribute` attribute of `View`)
+In Android, if a `View` subcomponent is used only to layout it, it may be removed from the native layout tree for optimization, so the reference to the DOM of that node is lost`(for example, the size and location information cannot be obtained by calling measureInAppWindow)`. Set this property to `false` disable this optimization to ensure that the corresponding view exists in the native structure.(It can also be set as the `Attribute` attribute of `View`), default is `true`.
 
 | Type            | Required| Supported Platforms|
 | --------------- | -------- | ---- |
@@ -118,7 +118,7 @@ There's a difference between flex and CSS in Hippy. Flex can only be an integer 
 [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-direction)
 
 `flexDirection` determines the direction in which the child elements of the container are arranged:`row` for horizontal arrangement and`column` for vertical arrangement. The other two parameters are reversed.
-It's much like css's `flex-direction` definition, but css defaults to`row`, and Hippy defaults to`column`.
+It's much like css's `flex-direction` definition, but CSS defaults to `row`, and Hippy defaults to `column`.
 
 | Type                                                   | Required|
 | ------------------------------------------------------ | -------- |
@@ -130,7 +130,7 @@ It's much like css's `flex-direction` definition, but css defaults to`row`, and 
 
 `flexGrow` defines the extensibility of the flex project. It accepts a value without units as a scale. It is mainly used to determine how much space the remaining space of the telescopic container should be expanded proportionally.
 
-If `flex-grow` of all flex items is set to `1` then each flex item will be set to an equal amount of remaining space. If one of the flex items `flex-grow` set to `2`, the remaining space for that flex item is twice as large as the remaining space for the other flex items.
+If `flex-grow` of all flex items is set to `1` then each flex item will be set to an equal amount of remaining space. If one of the flex items `flex-grow` set to `2`, the remaining space for that flex item is twice as large as the remaining space for the other flex items. Default is `0`.
 
 | Type   | Required|
 | ------ | -------- |
@@ -140,9 +140,7 @@ If `flex-grow` of all flex items is set to `1` then each flex item will be set t
 
 [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink )
 
-`Note: the default value of flexsShrink in Hippy is 0, which is different from the web standard`
-
-`flexBasis` property specifies the shrink rule for the flex element. Flex elements shrink only if the sum of the default widths is greater than the container, and the size of the shrink is based on the flex width shrink value.
+`flexShrink` property specifies the shrink rule for the flex element. Flex elements shrink only if the sum of the default widths is greater than the container, and the size of the shrink is based on the flex width shrink value. The default value of flexShrink in Hippy is `0`, which is different from the web standard `1`.
 
 | Type   | Required|
 | ------ | -------- |
@@ -152,7 +150,7 @@ If `flex-grow` of all flex items is set to `1` then each flex item will be set t
 
 [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap)
 
-`flexWrap` defines how a child element performs line wrapping behavior when it touches the bottom of the parent container.
+`flexWrap` defines how a child element performs line wrapping behavior when it touches the bottom of the parent container. Default value is `nowrap`.
 
 | Type                   | Required|
 | ---------------------- | -------- |
@@ -172,7 +170,7 @@ If `flex-grow` of all flex items is set to `1` then each flex item will be set t
 
 [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/justify-content)
 
-`justifyContent` defines how the browser allocates space between and around elastic elements that follow the main axis of the parent container.
+`justifyContent` defines how the browser allocates space between and around elastic elements that follow the main axis of the parent container. Default value is `flex-start`.
 
 | Type                                                                                      | Required|
 | ----------------------------------------------------------------------------------------- | -------- |
