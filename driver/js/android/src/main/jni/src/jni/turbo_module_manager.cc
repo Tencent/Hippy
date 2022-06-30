@@ -187,7 +187,7 @@ int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
   runtime->SetTurboModuleRuntime(std::make_shared<TurboModuleRuntime>(j_obj));
 
   // v8的操作放到js线程
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   if (!runner) {
     FOOTSTONE_LOG(WARNING) << "TurboModuleManager install, runner invalid";
     return -1;

@@ -301,6 +301,9 @@ auto MakeCopyable(F&& f) {
 }
 
 std::unique_ptr<Task> Worker::GetNextTask() {
+  if (is_terminated_) {
+    return nullptr;
+  }
   {
     std::lock_guard<std::mutex> lock(running_mutex_);
     if (!immediate_task_queue_.empty()) {
@@ -341,9 +344,6 @@ std::unique_ptr<Task> Worker::GetNextTask() {
         next_task_time_ = now + min_wait_time_;
       }
     }
-  }
-  if (!is_terminated_) {
-    return nullptr;
   }
   if (idle_task) {
     auto wrapper_idle_task = std::make_unique<Task>(

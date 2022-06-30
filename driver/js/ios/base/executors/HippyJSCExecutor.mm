@@ -727,11 +727,11 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
-        auto runner = engine->GetJSRunner();
+        auto runner = engine->GetJsTaskRunner();
         if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
             block();
         } else {
-            engine->GetJSRunner()->PostTask(block);
+            engine->GetJsTaskRunner()->PostTask(block);
         }
 
     }
@@ -740,7 +740,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
-        engine->GetJSRunner()->PostTask(block);
+        engine->GetJsTaskRunner()->PostTask(block);
     }
 }
 

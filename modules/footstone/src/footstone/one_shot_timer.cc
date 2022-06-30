@@ -29,7 +29,7 @@ void OneShotTimer::RunUserTask() {
   std::unique_ptr<Task> task = std::move(user_task_);
   Stop();
   FOOTSTONE_DCHECK(task);
-  std::move(task)->Run();
+  task->Run();
 }
 
 } // namespace timer
