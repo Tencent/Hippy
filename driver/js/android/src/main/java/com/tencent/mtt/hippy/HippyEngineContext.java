@@ -51,5 +51,7 @@ public interface HippyEngineContext {
 
   int getEngineId();
 
+  int getWorkerManagerId();
+
   void onRuntimeInitialized(long runtimeId);
 }

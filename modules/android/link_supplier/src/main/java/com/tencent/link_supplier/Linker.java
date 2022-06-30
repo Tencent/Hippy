@@ -30,13 +30,18 @@ public class Linker implements LinkHelper {
 
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
+    private final int mWorkerManagerId;
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
     private AnimationManagerProxy mAniManagerProxy;
-    private int mWorkerManagerId;
 
     public Linker() {
-      mWorkerManagerId = createWorkerManager();
+        mWorkerManagerId = createWorkerManager();
+    }
+
+    @Override
+    public int getWorkerManagerId() {
+        return mWorkerManagerId;
     }
 
     @Override
@@ -137,6 +142,7 @@ public class Linker implements LinkHelper {
             mRenderProxy.destroy();
             mRenderProxy = null;
         }
+        destroyWorkerManager(mWorkerManagerId);
     }
 
     private class DomHolder implements DomProxy {
@@ -206,7 +212,18 @@ public class Linker implements LinkHelper {
         }
     }
 
+    /**
+     * Create native (C++) worker manager instance.
+     *
+     * @return the unique id of native (C++) worker manager
+     */
     private native int createWorkerManager();
+
+    /**
+     * Destroy native (C++) worker manager instance.
+     *
+     * @param workerManagerId the unique id of native (C++) worker manager
+     */
     private native void destroyWorkerManager(int workerManagerId);
 
     /**
