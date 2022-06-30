@@ -100,6 +100,7 @@ const builds = {
         'react-dom',
         'swiper',
         '@hippy/rmc-list-view',
+        '@hippy/rmc-pull-to-refresh',
         'rmc-pull-to-refresh',
       ].find(ext => id.startsWith(ext));
     },
