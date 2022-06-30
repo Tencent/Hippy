@@ -169,7 +169,6 @@
 		F468DE672812A95200319196 /* HippyImageCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DDE92812A95100319196 /* HippyImageCacheManager.m */; };
 		F468DE682812A95200319196 /* HippyClipboardModule.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DDEC2812A95100319196 /* HippyClipboardModule.m */; };
 		F468DE692812A95200319196 /* HippyAssert.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DDF22812A95100319196 /* HippyAssert.m */; };
-		F468DE6A2812A95200319196 /* HippyLogging.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDF32812A95100319196 /* HippyLogging.mm */; };
 		F468DE6B2812A95200319196 /* HippyErrorInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DDF52812A95100319196 /* HippyErrorInfo.m */; };
 		F468DE6C2812A95200319196 /* HippyEventDispatcher.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDF92812A95100319196 /* HippyEventDispatcher.mm */; };
 		F468DE6E2812A95200319196 /* HippyPerformanceLogger.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDFE2812A95100319196 /* HippyPerformanceLogger.mm */; };
@@ -578,9 +577,7 @@
 		F468DDEC2812A95100319196 /* HippyClipboardModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyClipboardModule.m; sourceTree = "<group>"; };
 		F468DDEF2812A95100319196 /* HippyErrorCustomizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorCustomizer.h; sourceTree = "<group>"; };
 		F468DDF02812A95100319196 /* HippyErrorInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyErrorInfo.h; sourceTree = "<group>"; };
-		F468DDF12812A95100319196 /* HippyLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyLogging.h; sourceTree = "<group>"; };
 		F468DDF22812A95100319196 /* HippyAssert.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyAssert.m; sourceTree = "<group>"; };
-		F468DDF32812A95100319196 /* HippyLogging.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyLogging.mm; sourceTree = "<group>"; };
 		F468DDF42812A95100319196 /* HippyNullability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyNullability.h; sourceTree = "<group>"; };
 		F468DDF52812A95100319196 /* HippyErrorInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyErrorInfo.m; sourceTree = "<group>"; };
 		F468DDF62812A95100319196 /* HippyAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyAssert.h; sourceTree = "<group>"; };
@@ -701,8 +698,6 @@
 		F4E7B438276C61DC00F17139 /* dom_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_event.h; sourceTree = "<group>"; };
 		F4E7B439276C61EA00F17139 /* dom_argument.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_argument.cc; sourceTree = "<group>"; };
 		F4E7B43A276C61EB00F17139 /* dom_event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_event.cc; sourceTree = "<group>"; };
-		F4E7B43B276C61EB00F17139 /* deserializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = deserializer.cc; sourceTree = "<group>"; };
-		F4E7B43C276C61EB00F17139 /* serializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer.cc; sourceTree = "<group>"; };
 		F4F1FCB0286C44BE005B39D4 /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
 		F4F1FCB1286C4A0C005B39D4 /* NativeRenderDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderDefines.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -872,7 +867,6 @@
 			isa = PBXGroup;
 			children = (
 				D84AB921273A618B00987D03 /* include */,
-				D84AB949273A618B00987D03 /* third_party */,
 				D84AB966273A618B00987D03 /* src */,
 			);
 			name = core;
@@ -950,13 +944,6 @@
 				D84AB948273A618B00987D03 /* js_native_api_jsc.h */,
 			);
 			path = jsc;
-			sourceTree = "<group>";
-		};
-		D84AB949273A618B00987D03 /* third_party */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = third_party;
 			sourceTree = "<group>";
 		};
 		D84AB966273A618B00987D03 /* src */ = {
@@ -1624,9 +1611,7 @@
 				F4F1FCB0286C44BE005B39D4 /* HippyDefines.h */,
 				F468DDEF2812A95100319196 /* HippyErrorCustomizer.h */,
 				F468DDF02812A95100319196 /* HippyErrorInfo.h */,
-				F468DDF12812A95100319196 /* HippyLogging.h */,
 				F468DDF22812A95100319196 /* HippyAssert.m */,
-				F468DDF32812A95100319196 /* HippyLogging.mm */,
 				F468DDF42812A95100319196 /* HippyNullability.h */,
 				F468DDF52812A95100319196 /* HippyErrorInfo.m */,
 				F468DDF62812A95100319196 /* HippyAssert.h */,
@@ -1939,7 +1924,6 @@
 				F45D265628067B6900CAB185 /* HippyRefreshWrapper.mm in Sources */,
 				F468DE672812A95200319196 /* HippyImageCacheManager.m in Sources */,
 				D88F2A91286AA6AD008D1439 /* worker_manager.cc in Sources */,
-				9B45068928632D1E0086DD43 /* hippy_tracing_adapter.cc in Sources */,
 				F45D268428067B6900CAB185 /* NativeRenderObjectView.mm in Sources */,
 				0612F02923A8BE320079E622 /* ViewController.mm in Sources */,
 				0612F02323A8BE320079E622 /* AppDelegate.m in Sources */,
@@ -2081,7 +2065,6 @@
 				F45D267F28067B6900CAB185 /* UIView+Hippy.mm in Sources */,
 				F45D267528067B6900CAB185 /* HippyBaseListView.mm in Sources */,
 				F45D268628067B6900CAB185 /* UIView+DomEvent.mm in Sources */,
-				F468DE6A2812A95200319196 /* HippyLogging.mm in Sources */,
 				F468DE9F2812ACEA00319196 /* HippyFont.mm in Sources */,
 				D88F440B28470C3E00989F01 /* animation_module.cc in Sources */,
 				F45D268228067B6900CAB185 /* HippyView.mm in Sources */,

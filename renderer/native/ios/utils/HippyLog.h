@@ -32,14 +32,6 @@
 #endif
 
 /**
- * Thresholds for logs to display a redbox. You can override these values when debugging
- * in order to tweak the default logging behavior.
- */
-#ifndef HIPPYLOG_REDBOX_LEVEL
-#define HIPPYLOG_REDBOX_LEVEL HippyLogLevelError
-#endif
-
-/**
  * Logging macros. Use these to log information, warnings and errors in your
  * own code.
  */
@@ -48,6 +40,7 @@
 #define HippyLogInfo(...) _HippyLog(HippyLogLevelInfo, __VA_ARGS__)
 #define HippyLogWarn(...) _HippyLog(HippyLogLevelWarning, __VA_ARGS__)
 #define HippyLogError(...) _HippyLog(HippyLogLevelError, __VA_ARGS__)
+#define HippyLogFatal(...) _HippyLog(HippyLogLevelFatal, __VA_ARGS__)
 
 /**
  * An enum representing the severity of the log message.
@@ -61,16 +54,12 @@ typedef NS_ENUM(NSInteger, HippyLogLevel) {
 };
 
 /**
- * An enum representing the source of a log message.
- */
-typedef NS_ENUM(NSInteger, HippyLogSource) { HippyLogSourceNative = 1, HippyLogSourceJavaScript = 2 };
-
-/**
  * A block signature to be used for custom logging functions. In most cases you
  * will want to pass these arguments to the HippyFormatLog function in order to
  * generate a string.
  */
-typedef void (^HippyLogFunction)(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message);
+typedef void (^HippyLogFunction)(HippyLogLevel level, NSString *fileName,
+                                 NSNumber *lineNumber, NSString *message, NSArray<NSDictionary *> *);
 
 typedef void (^HippyLogShowFunction)(NSString *message, NSArray<NSDictionary *> *stacks);
 
@@ -108,8 +97,6 @@ NATIVE_RENDER_EXTERN HippyLogFunction HippyGetLogFunction(void);
  */
 NATIVE_RENDER_EXTERN void HippyAddLogFunction(HippyLogFunction logFunction);
 
-NATIVE_RENDER_EXTERN void HippySetErrorLogShowAction(HippyLogShowFunction func);
-
 /**
  * This method temporarily overrides the log function while performing the
  * specified block. This is useful for testing purposes (to detect if a given
@@ -128,12 +115,11 @@ NATIVE_RENDER_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NS
  * Private logging function - ignore this.
  */
 #if HIPPYLOG_ENABLED
-#define _HippyLog(lvl, ...) _HippyLogNativeInternal(lvl, __FILE__, __LINE__, __VA_ARGS__);
+#define _HippyLog(lvl, ...) HippyLogNativeInternal(lvl, __FILE__, __LINE__, __VA_ARGS__);
 #else
 #define _HippyLog(lvl, ...) \
     do {                    \
     } while (0)
 #endif
 
-NATIVE_RENDER_EXTERN void _HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);
-NATIVE_RENDER_EXTERN void _HippyLogJavaScriptInternal(HippyLogLevel, NSString *);
+NATIVE_RENDER_EXTERN void HippyLogNativeInternal(HippyLogLevel, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(4, 5);

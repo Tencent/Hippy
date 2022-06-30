@@ -128,7 +128,7 @@ void HippyFatal(NSError *error) {
     } else {
         fatalMessage = [NSString stringWithFormat:@"%@,%@", moduleDescription, error.localizedDescription];
     }
-    _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
+    HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
 
     HippyFatalHandler fatalHandler = HippyGetFatalHandler();
     if (fatalHandler) {
@@ -149,7 +149,7 @@ void HippyFatal(NSError *error) {
 }
 
 void MttHippyException(NSException *exception) {
-    _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", exception.description);
+    HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", exception.description);
     MttHippyExceptionHandler exceptionHandler = MttHippyGetExceptionHandler();
     if (exceptionHandler) {
         exceptionHandler(exception);

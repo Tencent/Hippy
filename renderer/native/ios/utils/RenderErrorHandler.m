@@ -48,7 +48,7 @@ void RenderFatal(NSError *error) {
     } else {
         fatalMessage = [NSString stringWithFormat:@"%@,%@", moduleDescription, error.localizedDescription];
     }
-    _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
+    HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
 
     RenderFatalHandler fatalHandler = RenderGetFatalHandler();
     if (fatalHandler) {

@@ -247,7 +247,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 else {
                     context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8(@""));
                 }
-                installBasicSynchronousHooksOnContext(jsContext);
                 jsContext[@"nativeRequireModuleConfig"] = ^NSArray *(NSString *moduleName) {
                     HippyJSCExecutor *strongSelf = weakSelf;
                     if (!strongSelf.valid) {
@@ -395,21 +394,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
 }
 
 - (void)setUp {
-}
-
-/** Installs synchronous hooks that don't require a weak reference back to the HippyJSCExecutor. */
-static void installBasicSynchronousHooksOnContext(JSContext *context) {
-    context[@"nativeLoggingHook"] = ^(NSString *message, NSNumber *logLevel) {
-        HippyLogLevel level = HippyLogLevelInfo;
-        if (logLevel) {
-            level = MAX(level, (HippyLogLevel)logLevel.integerValue);
-        }
-
-        _HippyLogJavaScriptInternal(level, message);
-    };
-    context[@"nativePerformanceNow"] = ^{
-        return @(CACurrentMediaTime() * 1000);
-    };
 }
 
 - (void)invalidate {

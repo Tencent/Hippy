@@ -23,7 +23,6 @@
 #import "ViewController.h"
 #import "HippyRootView.h"
 #import "HippyBridge+LocalFileSource.h"
-#import "HippyLogging.h"
 #import "HippyBundleURLProvider.h"
 #import "UIView+Hippy.h"
 #include "dom/dom_manager.h"
@@ -54,7 +53,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    HippySetLogMessageFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+    HippySetLogFunction(^(HippyLogLevel level, NSString *fileName, NSNumber *lineNumber,
+                          NSString *message, NSArray<NSDictionary *> *stack) {
+        if (HippyLogLevelError <= level) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stack];
+            });
+        }
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
     });
     [self runCommonDemo];
@@ -92,11 +97,6 @@
                                                          moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)}
                                                       launchOptions:nil delegate:nil];
 #endif
-    HippySetErrorLogShowAction(^(NSString *message, NSArray<NSDictionary *> *stacks) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stacks];
-        });
-    });
     bridge.methodInterceptor = self;
 
     rootView.frame = self.view.bounds;

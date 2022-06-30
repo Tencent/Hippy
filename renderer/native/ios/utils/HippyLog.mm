@@ -24,6 +24,73 @@
 #include <asl.h>
 #include <string>
 #include <mutex>
+#include "logging.h"
+
+#pragma mark TDFLog Binding
+using LogSeverity = footstone::LogSeverity;
+static HippyLogLevel logSeverityToLogLevel(LogSeverity severity) {
+    HippyLogLevel level = HippyLogLevelInfo;
+    switch (severity) {
+        case LogSeverity::TDF_LOG_WARNING:
+            level = HippyLogLevelWarning;
+            break;
+        case LogSeverity::TDF_LOG_ERROR:
+            level = HippyLogLevelError;
+            break;
+        case LogSeverity::TDF_LOG_FATAL:
+            level = HippyLogLevelFatal;
+            break;
+        default:
+            break;
+    }
+    return level;
+}
+
+static BOOL GetFileNameAndLineNumberFromLogMessage(NSString *message, NSString **fileName, int *lineNumber) {
+    //[INFO:cubic_bezier_animation.cc(146)] animation exec_time_ = 514, delay = 500, duration = 1000
+    NSUInteger locationOfColon = [message rangeOfString:@":"].location;
+    if (NSNotFound == locationOfColon) {
+        return NO;
+    }
+    NSUInteger locationOfLeftBracket = [message rangeOfString:@"("].location;
+    if (NSNotFound == locationOfLeftBracket) {
+        return NO;
+    }
+    if (locationOfLeftBracket <= locationOfColon) {
+        return NO;
+    }
+    NSString *name = [message substringWithRange:NSMakeRange(locationOfColon + 1, locationOfLeftBracket - locationOfColon - 1)];
+    *fileName = [name copy];
+    NSUInteger locationOfRightBracket = [message rangeOfString:@")"].location;
+    if (NSNotFound == locationOfRightBracket || locationOfRightBracket <= locationOfLeftBracket) {
+        return YES;
+    }
+    NSString *number = [message substringWithRange:NSMakeRange(locationOfLeftBracket + 1, locationOfRightBracket - locationOfLeftBracket - 1)];
+    *lineNumber = [number intValue];
+    return YES;
+}
+
+static void registerTDFLogHandler() {
+    static std::once_flag flag;
+    std::call_once(flag, [](){
+        std::function<void (const std::ostringstream &, LogSeverity)> logFunction = [](const std::ostringstream &stream, LogSeverity serverity) {
+            @autoreleasepool {
+                std::string string = stream.str();
+                if (string.length()) {
+                    NSString *message = [NSString stringWithUTF8String:string.c_str()];
+                    NSString *fileName = nil;
+                    int lineNumber = 0;
+                    if (GetFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
+                        HippyLogNativeInternal(logSeverityToLogLevel(serverity), [fileName UTF8String], lineNumber, @"%@", message);
+                    }
+                }
+            }
+        };
+        footstone::LogMessage::InitializeDelegate(logFunction);
+    });
+}
+
+#pragma mark NativeLog Methods
 
 static NSString *const HippyLogFunctionStack = @"HippyLogFunctionStack";
 
@@ -54,33 +121,15 @@ void HippySetLogThreshold(HippyLogLevel threshold) {
 }
 
 HippyLogFunction HippyDefaultLogFunction
-    = ^(HippyLogLevel level, __unused HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
+    = ^(HippyLogLevel level, NSString *fileName, NSNumber *lineNumber,
+        NSString *message, NSArray<NSDictionary *> *stack) {
           NSString *log = HippyFormatLog([NSDate date], level, fileName, lineNumber, message);
           fprintf(stderr, "%s\n", log.UTF8String);
           fflush(stderr);
-
-          int aslLevel;
-          switch (level) {
-              case HippyLogLevelTrace:
-                  aslLevel = ASL_LEVEL_DEBUG;
-                  break;
-              case HippyLogLevelInfo:
-                  aslLevel = ASL_LEVEL_NOTICE;
-                  break;
-              case HippyLogLevelWarning:
-                  aslLevel = ASL_LEVEL_WARNING;
-                  break;
-              case HippyLogLevelError:
-                  aslLevel = ASL_LEVEL_ERR;
-                  break;
-              case HippyLogLevelFatal:
-                  aslLevel = ASL_LEVEL_CRIT;
-                  break;
-          }
-          asl_log(NULL, NULL, aslLevel, "%s", message.UTF8String);
       };
 
 void HippySetLogFunction(HippyLogFunction logFunction) {
+    registerTDFLogHandler();
     HippyCurrentLogFunction = logFunction;
 }
 
@@ -94,31 +143,13 @@ HippyLogFunction HippyGetLogFunction() {
 void HippyAddLogFunction(HippyLogFunction logFunction) {
     HippyLogFunction existing = HippyGetLogFunction();
     if (existing) {
-        HippySetLogFunction(^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-            existing(level, source, fileName, lineNumber, message);
-            logFunction(level, source, fileName, lineNumber, message);
+        HippySetLogFunction(^(HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message, NSArray<NSDictionary *> *stack) {
+            existing(level, fileName, lineNumber, message, stack);
+            logFunction(level, fileName, lineNumber, message, stack);
         });
     } else {
         HippySetLogFunction(logFunction);
     }
-}
-
-NATIVE_RENDER_EXTERN void HippySetErrorLogShowAction(HippyLogShowFunction func) {
-    HippyLogShowFunc = func;
-}
-
-/**
- * returns the topmost stacked log function for the current thread, which
- * may not be the same as the current value of HippyCurrentLogFunction.
- */
-static HippyLogFunction HippyGetLocalLogFunction() {
-    NSMutableDictionary *threadDictionary = [NSThread currentThread].threadDictionary;
-    NSArray<HippyLogFunction> *functionStack = threadDictionary[HippyLogFunctionStack];
-    HippyLogFunction logFunction = functionStack.lastObject;
-    if (logFunction) {
-        return logFunction;
-    }
-    return HippyGetLogFunction();
 }
 
 void HippyPerformBlockWithLogFunction(void (^block)(void), HippyLogFunction logFunction) {
@@ -134,11 +165,11 @@ void HippyPerformBlockWithLogFunction(void (^block)(void), HippyLogFunction logF
 }
 
 void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *prefix) {
-    HippyLogFunction logFunction = HippyGetLocalLogFunction();
+    HippyLogFunction logFunction = HippyGetLogFunction();
     if (logFunction) {
         HippyPerformBlockWithLogFunction(
-            block, ^(HippyLogLevel level, HippyLogSource source, NSString *fileName, NSNumber *lineNumber, NSString *message) {
-                logFunction(level, source, fileName, lineNumber, [prefix stringByAppendingString:message]);
+            block, ^(HippyLogLevel level, NSString *fileName, NSNumber *lineNumber, NSString *message, NSArray<NSDictionary *> *stack) {
+                logFunction(level, fileName, lineNumber, [prefix stringByAppendingString:message], stack);
             });
     }
 }
@@ -189,8 +220,8 @@ NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileN
     return log;
 }
 
-void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineNumber, NSString *format, ...) {
-    HippyLogFunction logFunction = HippyGetLocalLogFunction();
+void HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineNumber, NSString *format, ...) {
+    HippyLogFunction logFunction = HippyGetLogFunction();
     BOOL log = NATIVE_RENDER_DEBUG || (logFunction != nil);
     if (log && level >= HippyGetLogThreshold()) {
         // Get message
@@ -198,16 +229,9 @@ void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int line
         va_start(args, format);
         NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
         va_end(args);
-
-        // Call log function
-        if (logFunction) {
-            logFunction(level, HippyLogSourceNative, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message);
-        }
-
+        NSArray<NSDictionary *> *callStacks = nil;
 #if NATIVE_RENDER_DEBUG
-
-        // Log to red box in debug mode.
-        if (level >= HIPPYLOG_REDBOX_LEVEL) {
+        if (level >= HippyLogLevelError) {
             NSArray<NSString *> *stackSymbols = [NSThread callStackSymbols];
             NSMutableArray<NSDictionary *> *stack = [NSMutableArray arrayWithCapacity:(stackSymbols.count - 1)];
             [stackSymbols enumerateObjectsUsingBlock:^(NSString *frameSymbols, NSUInteger idx, __unused BOOL *stop) {
@@ -223,20 +247,12 @@ void _HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int line
                     }
                 }
             }];
-            if (HippyLogShowFunc) {
-                HippyLogShowFunc(message, stack);
-            }
+            callStacks = [stack copy];
         }
 #endif
-    }
-}
-
-void _HippyLogJavaScriptInternal(HippyLogLevel level, NSString *message) {
-    HippyLogFunction logFunction = HippyGetLocalLogFunction();
-    BOOL log = NATIVE_RENDER_DEBUG || (logFunction != nil);
-    if (log && level >= HippyGetLogThreshold()) {
+        // Call log function
         if (logFunction) {
-            logFunction(level, HippyLogSourceJavaScript, nil, nil, message);
+            logFunction(level, fileName ? @(fileName) : nil, lineNumber > 0 ? @(lineNumber) : nil, message, callStacks);
         }
     }
 }
