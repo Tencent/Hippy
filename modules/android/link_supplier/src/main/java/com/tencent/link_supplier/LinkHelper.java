@@ -56,6 +56,13 @@ public interface LinkHelper {
     DomProxy getDomHolder();
 
     /**
+     * Get worker manager instance id
+     *
+     * @return the unique id of native (C++) worker manager
+     */
+    int getWorkerManagerId();
+
+    /**
      * Set framework proxy to renderer
      *
      * @param frameworkProxy {@link FrameworkProxy} interface

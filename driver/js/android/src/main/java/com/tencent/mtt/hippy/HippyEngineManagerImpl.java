@@ -880,18 +880,20 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
+        public int getWorkerManagerId() {
+            return mLinkHelper.getWorkerManagerId();
+        }
+
+        @Override
         public ViewGroup getRootView() {
             return mRootView;
         }
 
         @Nullable
         public View createRootView(@NonNull Context context) {
-            if (mLinkHelper != null) {
-                View rootView = mLinkHelper.createRootView(context);
-                mLinkHelper.connect((int) mRuntimeId, rootView.getId());
-                return rootView;
-            }
-            return null;
+            View rootView = mLinkHelper.createRootView(context);
+            mLinkHelper.connect((int) mRuntimeId, rootView.getId());
+            return rootView;
         }
 
         public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
@@ -899,9 +901,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         public void destroy() {
-            if (mLinkHelper != null) {
-                mLinkHelper.destroy();
-            }
             if (mBridgeManager != null) {
                 mBridgeManager.destroy();
             }
@@ -914,7 +913,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mNativeParams != null) {
                 mNativeParams.clear();
             }
+            mLinkHelper.destroy();
         }
     }
-
 }
