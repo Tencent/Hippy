@@ -83,7 +83,7 @@ void Scope::WillExit() {
         }
         p.set_value(rst);
       });
-  auto runner = engine_->GetJSRunner();
+  auto runner = engine_->GetJsTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
@@ -293,7 +293,7 @@ void Scope::RunJS(const unicode_string_view& data,
 #endif
   };
 
-  auto runner = engine_->GetJSRunner();
+  auto runner = engine_->GetJsTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     callback();
   } else {
@@ -325,7 +325,7 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
         p.set_value(rst);
       });
 
-  auto runner = engine_->GetJSRunner();
+  auto runner = engine_->GetJsTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {
@@ -371,7 +371,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
       }
     }
   };
-  auto runner = engine_->GetJSRunner();
+  auto runner = engine_->GetJsTaskRunner();
   if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
     cb();
   } else {

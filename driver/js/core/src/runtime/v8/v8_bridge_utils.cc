@@ -132,8 +132,6 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
   scope_cb_map->insert(std::make_pair(hippy::base::kContextCreatedCBKey, context_cb));
   scope_cb_map->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
-  auto js_runner = worker_manager->CreateTaskRunner(kJsRunnerName);
-  auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
   std::shared_ptr<Engine> engine;
   if (is_dev_module) {
     std::lock_guard<std::mutex> lock(engine_mutex);
@@ -143,11 +141,14 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     if (it != reuse_engine_map.end()) {
       engine = std::get<std::shared_ptr<Engine>>(it->second);
       runtime->SetEngine(engine);
-
+      worker_manager->AddTaskRunner(engine->GetJsTaskRunner());
+      worker_manager->AddTaskRunner(engine->GetWorkerTaskRunner());
       std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
       v8::Isolate* isolate = v8_vm->isolate_;
       isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
     } else {
+      auto js_runner = worker_manager->CreateTaskRunner(kJsRunnerName);
+      auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
       engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
       runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
@@ -168,12 +169,16 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                           << ", use_count = " << engine.use_count();
     } else {
       FOOTSTONE_DLOG(INFO) << "engine create";
+      auto js_runner = worker_manager->CreateTaskRunner(kJsRunnerName);
+      auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
       engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
       runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
   } else {  // kDefaultEngineId
     FOOTSTONE_DLOG(INFO) << "default create engine";
+    auto js_runner = worker_manager->CreateTaskRunner(kJsRunnerName);
+    auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
     engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
     runtime->SetEngine(engine);
   }
@@ -194,7 +199,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
         FOOTSTONE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
         return;
       }
-      auto runner = runtime->GetEngine()->GetJSRunner();
+      auto runner = runtime->GetEngine()->GetJsTaskRunner();
       auto callback = [runtime, data] {
         // convert to utf-16 for v8, otherwise utf-8 like some protocol Runtime.enable which cause error "message must be a valid JSON"
         auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
@@ -407,7 +412,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
   if (group == kDebuggerEngineId) {
     runtime->GetScope()->WillExit();
   }
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   runner->PostTask(std::move(cb));
   FOOTSTONE_DLOG(INFO) << "destroy, group = " << group;
   if (group == kDebuggerEngineId) {
@@ -449,7 +454,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
     FOOTSTONE_DLOG(WARNING) << "CallJs runtime_id invalid";
     return;
   }
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   auto callback = [runtime, cb = std::move(cb), action,
       buffer_data_ = std::move(buffer_data),
       on_js_runner = std::move(on_js_runner)] {
@@ -651,7 +656,7 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
     return;
   }
 
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   std::weak_ptr<Scope> weak_scope = runtime->GetScope();
   auto callback = [weak_scope, buffer_data_ = std::move(buffer_data)] {
     std::shared_ptr<Scope> scope = weak_scope.lock();
@@ -682,7 +687,7 @@ void V8BridgeUtils::UnloadInstance(
     FOOTSTONE_DLOG(WARNING) << "Destroy instance failed runtime_id invalid";
     return;
   }
-  std::shared_ptr<TaskRunner> runner = runtime->GetEngine()->GetJSRunner();
+  std::shared_ptr<TaskRunner> runner = runtime->GetEngine()->GetJsTaskRunner();
   auto callback = [runtime, cb = std::move(cb)] {
     std::shared_ptr<Scope> scope = runtime->GetScope();
     if (!scope) {

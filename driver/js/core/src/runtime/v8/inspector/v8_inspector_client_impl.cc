@@ -117,7 +117,6 @@ void V8InspectorClientImpl::SendMessageToV8(unicode_string_view&& params) {
       default:
         FOOTSTONE_DLOG(INFO) << "encoding = " << static_cast<int>(encoding);
         FOOTSTONE_UNREACHABLE();
-        break;
     }
     const auto& session = self->GetSession();
     if (!session) {
@@ -162,10 +161,7 @@ void V8InspectorClientImpl::runMessageLoopOnPause(int contextGroupId) {
   FOOTSTONE_DLOG(INFO) << "runMessageLoopOnPause, contextGroupId = " << contextGroupId;
   std::shared_ptr<TaskRunner> runner = js_runner_.lock();
   if (runner) {
-    {
-      std::unique_lock<std::mutex> lock(mutex_);
-      inspector_runner_ = std::make_shared<TaskRunner>();
-    }
+    inspector_runner_ = std::make_shared<TaskRunner>();
     runner->AddSubTaskRunner(inspector_runner_, true);
   }
 }
@@ -175,10 +171,7 @@ void V8InspectorClientImpl::quitMessageLoopOnPause() {
   std::shared_ptr<TaskRunner> runner = js_runner_.lock();
   if (runner) {
     runner->RemoveSubTaskRunner(inspector_runner_);
-    {
-        std::unique_lock<std::mutex> lock(mutex_);
-        inspector_runner_ = nullptr;
-    }
+    inspector_runner_ = nullptr;
   }
 
 }

@@ -132,7 +132,7 @@ class Scope {
   void LoadInstance(const std::shared_ptr<HippyValue>& value);
 
   inline std::shared_ptr<TaskRunner> GetTaskRunner() {
-    return engine_->GetJSRunner();
+    return engine_->GetJsTaskRunner();
   }
 
   inline std::shared_ptr<TaskRunner> GetWorkerTaskRunner() {
@@ -140,7 +140,7 @@ class Scope {
   }
 
   inline void AddTask(std::unique_ptr<Task> task) {
-    std::shared_ptr<TaskRunner> runner = engine_->GetJSRunner();
+    std::shared_ptr<TaskRunner> runner = engine_->GetJsTaskRunner();
     if (runner) {
       runner->PostTask(std::move(task));
     }

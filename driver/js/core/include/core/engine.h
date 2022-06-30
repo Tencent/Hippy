@@ -56,8 +56,7 @@ class Engine {
   inline std::shared_ptr<VM> GetVM() { return vm_; }
 
   void TerminateRunner();
-  inline std::shared_ptr<TaskRunner> GetJSRunner() {
-    std::lock_guard<std::mutex> lock(js_runner_mutex_);
+  inline std::shared_ptr<TaskRunner> GetJsTaskRunner() {
     return js_runner_;
   }
   inline std::shared_ptr<TaskRunner> GetWorkerTaskRunner() {
@@ -68,13 +67,10 @@ class Engine {
   void CreateVM(const std::shared_ptr<VMInitParam>& param);
 
  private:
-  static const uint32_t kDefaultWorkerPoolSize;
-
   std::shared_ptr<TaskRunner> js_runner_;
   std::shared_ptr<TaskRunner> worker_task_runner_;
   std::shared_ptr<VM> vm_;
   std::unique_ptr<RegisterMap> map_;
   std::mutex cnt_mutex_;
-  std::mutex js_runner_mutex_;
   uint32_t scope_cnt_;
 };

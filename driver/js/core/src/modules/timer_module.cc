@@ -101,7 +101,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
 
   double number = 0;
   context->GetValueNumber(info[1], &number);
-  TimeDelta delay = TimeDelta::FromSecondsF(std::max(.0, number));
+  TimeDelta delay = TimeDelta::FromMilliseconds(static_cast<int64_t>(std::max(.0, number)));
 
   std::weak_ptr<Scope> weak_scope = scope;
   std::unique_ptr<Task> task = std::make_unique<Task>();

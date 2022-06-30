@@ -17,6 +17,7 @@ class WorkerManager {
   std::shared_ptr<TaskRunner> CreateTaskRunner(const std::string &name = "");
   std::shared_ptr<TaskRunner> CreateTaskRunner(uint32_t group_id = 0, uint32_t priority = 1,
                                                bool is_schedulable = true, const std::string &name = "");
+  void AddTaskRunner(std::shared_ptr<TaskRunner> runner);
   void RemoveTaskRunner(const std::shared_ptr<TaskRunner>& runner);
 
  private:
@@ -29,7 +30,6 @@ class WorkerManager {
   static void UpdateWorkerSpecific(const std::shared_ptr<Worker>& worker,
                             const std::vector<std::shared_ptr<TaskRunner>>& group);
   void Balance(int32_t increase_worker_count);
-  void AddTaskRunner(std::shared_ptr<TaskRunner> runner);
 
   std::vector<std::shared_ptr<Worker>> workers_;
   std::vector<std::shared_ptr<TaskRunner>> runners_;

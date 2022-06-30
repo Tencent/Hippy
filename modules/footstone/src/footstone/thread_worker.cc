@@ -47,10 +47,8 @@ void ThreadWorker::Notify() {
 
 void ThreadWorker::WaitFor(const TimeDelta& delta) {
   std::unique_lock<std::mutex> lock(mutex_);
-  if (is_terminated_) {
-    return;
-  }
-  if (delta != TimeDelta::Max() && delta != TimeDelta::Zero()) {
+
+  if (delta != TimeDelta::Max() && delta >= TimeDelta::Zero()) {
     cv_.wait_for(lock, std::chrono::nanoseconds(delta.ToNanoseconds()));
   } else {
     cv_.wait(lock);

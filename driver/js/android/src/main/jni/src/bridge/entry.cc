@@ -366,7 +366,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                       << ", base_path = " << base_path
                       << ", code_cache_dir = " << code_cache_dir;
 
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
   runner->PostTask([ctx, base_path] {
     ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
