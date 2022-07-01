@@ -28,7 +28,6 @@
 #import "NativeRenderUtils.h"
 #import "NativeRenderI18nUtils.h"
 #import "dom/layout_node.h"
-#include "Hippy.h"
 #include "dom/taitank_layout_node.h"
 
 NSString *const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
@@ -48,8 +47,8 @@ hippy::LayoutSize textMeasureFunc(
     NativeRenderObjectText *weakShadowText, float width,hippy::LayoutMeasureMode widthMeasureMode,
                                  float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext) {
     hippy::LayoutSize retSize;
-    if (weakShadowText) {
-        NativeRenderObjectText *strongShadowText = weakShadowText;
+    NativeRenderObjectText *strongShadowText = weakShadowText;
+    if (strongShadowText) {
         NSTextStorage *textStorage = [strongShadowText buildTextStorageForWidth:width widthMode:widthMeasureMode];
         [strongShadowText calculateTextFrame:textStorage];
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
@@ -800,22 +799,16 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     if (domManager) {
         int32_t hippyTag = [self.hippyTag intValue];
         auto node = domManager->GetNode(self.rootNode, hippyTag);
-        auto layoutNode = std::static_pointer_cast<hippy::TaitankLayoutNode>(node->GetLayoutNode());
-        HPNodeRef nodeRef = layoutNode->GetLayoutEngineNodeRef();
-        uint32_t childrenCount = HPNodeChildCount(nodeRef);
-        for (int i = childrenCount - 1; i >= 0; i--) {
-            HPNodeRef child = HPNodeGetChild(nodeRef, i);
-            HPNodeRemoveChild(nodeRef, child);
-        }
-
         __weak NativeRenderObjectText *weakSelf = self;
         hippy::MeasureFunction measureFunc =
             [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,
                                  float height, hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext){
-            return textMeasureFunc(weakSelf, width, widthMeasureMode,
-                                   height, heightMeasureMode, layoutContext);
+                @autoreleasepool {
+                    return textMeasureFunc(weakSelf, width, widthMeasureMode,
+                                           height, heightMeasureMode, layoutContext);
+                }
         };
-        layoutNode->SetMeasureFunction(measureFunc);
+        node->GetLayoutNode()->SetMeasureFunction(measureFunc);
     }
 }
 
