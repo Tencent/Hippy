@@ -22,9 +22,9 @@
 
 #import "HippyDefines.h"
 #import "HippyWebSocketManager.h"
-#import "HippyConvert.h"
-#import "HippyLog.h"
-#import "HippyUtils.h"
+#import "NativeRenderConvert.h"
+#import "NativeRenderLog.h"
+#import "NativeRenderUtils.h"
 #import "HippySRWebSocket.h"
 
 static NSUInteger socketIndex = 0;

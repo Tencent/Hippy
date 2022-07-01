@@ -23,8 +23,8 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 
 #import "HippyEventObserverModule.h"
-#import "HippyInvalidating.h"
+#import "NativeRenderInvalidating.h"
 
-@interface HippyNetInfo : HippyEventObserverModule <HippyInvalidating>
+@interface HippyNetInfo : HippyEventObserverModule <NativeRenderInvalidating>
 
 @end

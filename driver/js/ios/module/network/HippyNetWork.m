@@ -22,13 +22,13 @@
 
 #import "HippyNetWork.h"
 #import "HippyAssert.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import <WebKit/WKHTTPCookieStore.h>
 #import <WebKit/WKWebsiteDataStore.h>
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 #import "HippyFetchInfo.h"
 #import "objc/runtime.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 
 static char fetchInfoKey;
 
@@ -59,7 +59,7 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
 		header = @{};
 	}
 	
-    NSURL *requestURL = HippyURLWithString(url, NULL);
+    NSURL *requestURL = NativeRenderURLWithString(url, NULL);
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
     [request setHTTPMethod: method];
 	
@@ -133,7 +133,7 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     } else {
         HippyPromiseResolveBlock resolver = fetchInfo.resolveBlock;
         NSData *data = fetchInfo.fetchData;
-        NSStringEncoding dataEncoding = HippyGetStringEncodingFromURLResponse(task.response);
+        NSStringEncoding dataEncoding = NativeRenderGetStringEncodingFromURLResponse(task.response);
         NSString *dataStr = [[NSString alloc] initWithData:data encoding:dataEncoding];
         NSHTTPURLResponse *resp = (NSHTTPURLResponse *)task.response;
         NSDictionary *result =

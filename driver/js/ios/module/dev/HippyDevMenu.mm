@@ -29,9 +29,9 @@
 #import "HippyDefines.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import "HippyRootView.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 #import "HippyWebSocketProxy.h"
 
 #if HIPPY_DEV
@@ -113,7 +113,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 @end
 
-@interface HippyDevMenu () <HippyBridgeModule, HippyInvalidating>
+@interface HippyDevMenu () <HippyBridgeModule, NativeRenderInvalidating>
 
 @property (nonatomic, strong) Class executorClass;
 
@@ -132,7 +132,7 @@ HIPPY_EXPORT_MODULE()
     // We're swizzling here because it's poor form to override methods in a category,
     // however UIWindow doesn't actually implement motionEnded:withEvent:, so there's
     // no need to call the original implementation.
-    HippySwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
+    NativeRenderSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
 }
 
 - (instancetype)init {
@@ -241,7 +241,7 @@ HIPPY_EXPORT_METHOD(reload) {
 
 // clang-format off
 HIPPY_EXPORT_METHOD(show) {
-    if (_actionSheet || !_bridge || HippyRunningInAppExtension()) {
+    if (_actionSheet || !_bridge || NativeRenderRunningInAppExtension()) {
         return;
     }
     
@@ -275,7 +275,7 @@ HIPPY_EXPORT_METHOD(show) {
                                                    handler:^(__unused UIAlertAction *action) {
     }]];
     
-    [HippyPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
+    [NativeRenderPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
 }
 // clang-format on
 

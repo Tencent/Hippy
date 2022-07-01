@@ -21,8 +21,8 @@
  */
 
 #import "HippyJSStackFrame.h"
-#import "HippyLog.h"
-#import "HippyUtils.h"
+#import "NativeRenderLog.h"
+#import "NativeRenderUtils.h"
 
 static NSRegularExpression *HippyJSStackFrameRegex() {
     static dispatch_once_t onceToken;
@@ -31,7 +31,7 @@ static NSRegularExpression *HippyJSStackFrameRegex() {
         NSError *regexError;
         _regex = [NSRegularExpression regularExpressionWithPattern:@"^([^@]+)@(.*):(\\d+):(\\d+)$" options:0 error:&regexError];
         if (regexError) {
-            HippyLogError(@"Failed to build regex: %@", [regexError localizedDescription]);
+            NativeRenderLogError(@"Failed to build regex: %@", [regexError localizedDescription]);
         }
     });
     return _regex;
@@ -51,8 +51,8 @@ static NSRegularExpression *HippyJSStackFrameRegex() {
 
 - (NSDictionary *)toDictionary {
     return @{
-        @"methodName": HippyNullIfNil(self.methodName),
-        @"file": HippyNullIfNil(self.file),
+        @"methodName": NativeRenderNullIfNil(self.methodName),
+        @"file": NativeRenderNullIfNil(self.file),
         @"lineNumber": @(self.lineNumber),
         @"column": @(self.column)
     };

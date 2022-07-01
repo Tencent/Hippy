@@ -27,7 +27,7 @@
 /*
  * Defined in HippyUtils.m
  */
-HIPPY_EXTERN BOOL HippyIsMainQueue(void);
+HIPPY_EXTERN BOOL NativeRenderIsMainQueue(void);
 
 /**
  * This is the main assert macro that you should use. Asserts should be compiled out
@@ -103,17 +103,17 @@ typedef void (^MttHippyExceptionHandler)(NSException *e);
 /**
  * Convenience macro for asserting that we're running on main queue.
  */
-#define HippyAssertMainQueue() HippyAssert(HippyIsMainQueue(), @"This function must be called on the main thread")
+#define NativeRenderAssertMainQueue() HippyAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread")
 
 /**
  * Convenience macro for asserting that we're running off the main queue.
  */
-#define HippyAssertNotMainQueue() HippyAssert(!HippyIsMainQueue(), @"This function must not be called on the main thread")
+#define HippyAssertNotMainQueue() HippyAssert(!NativeRenderIsMainQueue(), @"This function must not be called on the main thread")
 
 /**
  * Deprecated, do not use
  */
-#define HippyAssertMainThread() HippyAssertMainQueue()
+#define HippyAssertMainThread() NativeRenderAssertMainQueue()
 #define HippyAssertNotMainThread() HippyAssertNotMainQueue()
 
 /**

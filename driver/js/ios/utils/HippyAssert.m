@@ -21,7 +21,7 @@
  */
 
 #import "HippyAssert.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import "HippyJSStackFrame.h"
 
 NSString *const HippyErrorDomain = @"HippyErrorDomain";
@@ -92,7 +92,7 @@ void HippyPerformBlockWithAssertFunction(void (^block)(void), HippyAssertFunctio
 
 NSString *HippyCurrentThreadName(void) {
     NSThread *thread = [NSThread currentThread];
-    NSString *threadName = HippyIsMainQueue() || thread.isMainThread ? @"main" : thread.name;
+    NSString *threadName = NativeRenderIsMainQueue() || thread.isMainThread ? @"main" : thread.name;
     if (threadName.length == 0) {
         const char *label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
         if (label && strlen(label) > 0) {
@@ -128,7 +128,7 @@ void HippyFatal(NSError *error) {
     } else {
         fatalMessage = [NSString stringWithFormat:@"%@,%@", moduleDescription, error.localizedDescription];
     }
-    _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", fatalMessage);
+    NativeRenderLogNativeInternal(NativeRenderLogLevelFatal, NULL, 0, @"%@", fatalMessage);
 
     HippyFatalHandler fatalHandler = HippyGetFatalHandler();
     if (fatalHandler) {
@@ -149,7 +149,7 @@ void HippyFatal(NSError *error) {
 }
 
 void MttHippyException(NSException *exception) {
-    _HippyLogNativeInternal(HippyLogLevelFatal, NULL, 0, @"%@", exception.description);
+    NativeRenderLogNativeInternal(NativeRenderLogLevelFatal, NULL, 0, @"%@", exception.description);
     MttHippyExceptionHandler exceptionHandler = MttHippyGetExceptionHandler();
     if (exceptionHandler) {
         exceptionHandler(exception);

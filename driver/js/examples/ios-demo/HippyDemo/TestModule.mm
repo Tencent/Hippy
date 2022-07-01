@@ -25,7 +25,7 @@
 #import "AppDelegate.h"
 #import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
-#import "UIView+Hippy.h"
+#import "UIView+NativeRender.h"
 
 @interface TestModule ()<HippyBridgeDelegate>
 

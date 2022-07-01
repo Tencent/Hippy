@@ -24,7 +24,7 @@
 #import <UIKit/UIApplication.h>
 #import "HippyEventDispatcher.h"
 #import "HippyAssert.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 
 static BOOL isiPhoneX() {
     if (@available(iOS 11.0, *)) {
@@ -38,7 +38,7 @@ static BOOL isiPhoneX() {
 NSDictionary *hippyExportedDimensions() {
     NSCAssert([NSThread mainThread], @"this function can only be called in main thread");
     CGSize screenSize = [UIScreen mainScreen].bounds.size;
-    CGSize windowSize = HippyKeyWindow() ? HippyKeyWindow().bounds.size : screenSize;
+    CGSize windowSize = NativeRenderKeyWindow() ? NativeRenderKeyWindow().bounds.size : screenSize;
     CGFloat statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
     if (statusBarHeight == 0) {
         statusBarHeight = isiPhoneX() ? 44 : 20;

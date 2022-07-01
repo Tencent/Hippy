@@ -39,6 +39,10 @@ public class Linker implements LinkHelper {
         mWorkerManagerId = createWorkerManager();
     }
 
+    public Linker(int workerManagerId) {
+        mWorkerManagerId = workerManagerId;
+    }
+
     @Override
     public int getWorkerManagerId() {
         return mWorkerManagerId;
@@ -129,7 +133,7 @@ public class Linker implements LinkHelper {
     }
 
     @Override
-    public void destroy() {
+    public void destroy(boolean onReLoad) {
         if (mDomProxy != null) {
             mDomProxy.destroy();
             mDomProxy = null;
@@ -142,7 +146,9 @@ public class Linker implements LinkHelper {
             mRenderProxy.destroy();
             mRenderProxy = null;
         }
-        destroyWorkerManager(mWorkerManagerId);
+        if (!onReLoad) {
+            destroyWorkerManager(mWorkerManagerId);
+        }
     }
 
     private class DomHolder implements DomProxy {

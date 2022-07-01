@@ -24,8 +24,8 @@
 
 #import "HippyBridgeModule.h"
 #import "HippyFrameUpdate.h"
-#import "HippyInvalidating.h"
+#import "NativeRenderInvalidating.h"
 
-@interface HippyTiming : NSObject <HippyBridgeModule, HippyInvalidating, HippyFrameUpdateObserver>
+@interface HippyTiming : NSObject <HippyBridgeModule, NativeRenderInvalidating, HippyFrameUpdateObserver>
 
 @end
