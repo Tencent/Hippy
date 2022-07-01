@@ -162,6 +162,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const pullHeaderOffset = useRef(0);
   const pullHeaderHeight = useRef(0);
   const pullFooterHeight = useRef(0);
+  const collapseHeadingInProgress = useRef(false);
   const listRef = useRef<null | { ListViewRef: any }>(null);
   const isPullHeaderInit = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -261,9 +262,21 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     listRef.current?.ListViewRef?.scrollTo(xOffset, yOffset);
   };
 
-  const collapsePullHeader = () => {
-    console.log('collapsePullHeader called');
-    setRefreshing(false);
+  const collapsePullHeader = (options: { time?: number } = { time: 0 }) => {
+    const { time } = options;
+    if (collapseHeadingInProgress.current) {
+      return;
+    }
+    collapseHeadingInProgress.current = true;
+    if (time === 0) {
+      setRefreshing(false);
+      collapseHeadingInProgress.current = false;
+    } else {
+      setTimeout(() => {
+        setRefreshing(false);
+        collapseHeadingInProgress.current = false;
+      }, time);
+    }
   };
 
   const collapsePullFooter = () => {

@@ -32,6 +32,17 @@ function getCookies(): Promise<string> {
   return Promise.resolve('');
 }
 
+const resetCookies = () => {
+  const expiresDate = 'Thu, 01 Jan 1970 00:00:00 UTC';
+  const cookies = document.cookie.split(';');
+  cookies.forEach((cookie) => {
+    const [key] = cookie.split('=');
+    if (key) {
+      document.cookie = `${key}=; expires=${expiresDate};`;
+    }
+  });
+};
+
 /**
  * Set cookie to url
  *
@@ -41,6 +52,9 @@ function getCookies(): Promise<string> {
  */
 function setCookie(url: string, keyValue: string, expires: string | Date): void {
   const cookieList = keyValue.split(';');
+  if (keyValue === '') {
+    return resetCookies();
+  }
   cookieList.forEach((cookie) => {
     let expireStr = '';
     if (typeof expires === 'string') {
