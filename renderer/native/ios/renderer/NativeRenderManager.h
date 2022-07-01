@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -27,10 +27,10 @@
 #include <memory>
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
-#import "HippyFrameworkProxy.h"
-#import "HippyRenderContext.h"
+#import "NativeRenderFrameworkProxy.h"
+#import "NativeRenderContext.h"
 
-@class UIView, HippyUIManager;
+@class UIView, NativeRenderUIManager;
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
@@ -39,7 +39,7 @@ class NativeRenderManager : public hippy::RenderManager {
     
 public:
     NativeRenderManager();
-    NativeRenderManager(HippyUIManager *uiManager):uiManager_(uiManager){}
+    NativeRenderManager(NativeRenderUIManager *uiManager):uiManager_(uiManager){}
     
     ~NativeRenderManager();
 
@@ -137,16 +137,16 @@ public:
     
     void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
     
-    void SetFrameworkProxy(id<HippyFrameworkProxy> proxy);
+    void SetFrameworkProxy(id<NativeRenderFrameworkProxy> proxy);
     
-    id<HippyFrameworkProxy> GetFrameworkProxy();
+    id<NativeRenderFrameworkProxy> GetFrameworkProxy();
     
     void SetUICreationLazilyEnabled(bool enabled);
         
-    id<HippyRenderContext> GetRenderContext();
+    id<NativeRenderContext> GetRenderContext();
         
 private:
-    HippyUIManager *uiManager_;
+    NativeRenderUIManager *uiManager_;
 };
 
 #endif /* NativeRenderManager_h */

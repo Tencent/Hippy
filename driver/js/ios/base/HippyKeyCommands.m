@@ -24,7 +24,7 @@
 #import <UIKit/UIKit.h>
 #import "HippyAssert.h"
 #import "HippyDefines.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 
 #if HIPPY_DEV
 
@@ -200,12 +200,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 + (void)initialize {
     if (HippyIsIOS8OrEarlier()) {
         // swizzle UIApplication
-        HippySwapInstanceMethods([UIApplication class], @selector(keyCommands), @selector(hippy_keyCommands));
+        NativeRenderSwapInstanceMethods([UIApplication class], @selector(keyCommands), @selector(hippy_keyCommands));
 
-        HippySwapInstanceMethods([UIApplication class], @selector(sendAction:to:from:forEvent:), @selector(hippy_sendAction:to:from:forEvent:));
+        NativeRenderSwapInstanceMethods([UIApplication class], @selector(sendAction:to:from:forEvent:), @selector(hippy_sendAction:to:from:forEvent:));
     } else {
         // swizzle UIResponder
-        HippySwapInstanceMethods([UIResponder class], @selector(keyCommands), @selector(hippy_keyCommands));
+        NativeRenderSwapInstanceMethods([UIResponder class], @selector(keyCommands), @selector(hippy_keyCommands));
     }
 }
 
@@ -227,7 +227,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)registerKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -245,7 +245,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)unregisterKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -256,7 +256,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (BOOL)isKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {
@@ -267,7 +267,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)registerDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -285,7 +285,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)unregisterDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -296,7 +296,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (BOOL)isDoublePressKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {

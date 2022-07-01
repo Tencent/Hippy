@@ -26,26 +26,26 @@
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
 #import "HippyBridgeMethod.h"
-#import "HippyConvert.h"
+#import "NativeRenderConvert.h"
 #import "HippyDisplayLink.h"
 #import "HippyJSCExecutor.h"
 #import "HippyJavaScriptLoader.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import "HippyModuleData.h"
 #import "HippyPerformanceLogger.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 #import "HippyRedBox.h"
 #import "HippyDevLoadingView.h"
 #import "HippyDeviceBaseInfo.h"
-#import "HippyI18nUtils.h"
+#import "NativeRenderI18nUtils.h"
 #import "HippyBundleURLProvider.h"
 #include "core/scope.h"
 #import "HippyTurboModuleManager.h"
 #import <core/napi/jsc/js_native_api_jsc.h>
 #include "NativeRenderManager.h"
 #include "dom/dom_manager.h"
-#import "UIView+Hippy.h"
-#import "HippyUIManager.h"
+#import "UIView+NativeRender.h"
+#import "NativeRenderUIManager.h"
 
 #define HippyAssertJSThread()
 //
@@ -97,7 +97,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     if (self = [super initWithDelegate:bridge.delegate bundleURL:bridge.bundleURL moduleProvider:bridge.moduleProvider
                          launchOptions:bridge.launchOptions
                            executorKey:bridge.executorKey]) {
-        HippyExecuteOnMainThread(
+        NativeRenderExecuteOnMainThread(
             ^{
                 self->_dimDic = hippyExportedDimensions();
             }, YES);
@@ -112,9 +112,9 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
         _displayLink = [HippyDisplayLink new];
 
         [HippyBridge setCurrentBridge:self];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCreationOfRootView:) name:HippyUIManagerDidRegisterRootViewNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didReceiveCreationOfRootView:) name:NativeRenderUIManagerDidRegisterRootViewNotification object:nil];
 
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge Init %p", self);
+        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge Init %p", self);
     }
     return self;
 }
@@ -126,7 +126,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                       : (NSDictionary *)launchOptions)
 
 - (void)start {
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge start %p", self);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyBatchedBridge start %p", self);
 
     self.semaphore = dispatch_semaphore_create(0);
     self.moduleSemaphore = dispatch_semaphore_create(1);
@@ -146,7 +146,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     if (self.bundleURL) {
         [self loadSource:^(NSError *error, NSData *source, __unused int64_t sourceLength) {
             if (error) {
-                HippyLogWarn(@"Failed to load source: %@", error);
+                NativeRenderLogWarn(@"Failed to load source: %@", error);
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [weakSelf stopLoadingWithError:error];
                 });
@@ -197,7 +197,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
             [weakSelf injectJSONConfiguration:config onComplete:^(NSError *error) {
                 [performanceLogger markStopForTag:HippyPLNativeModuleInjectConfig];
                 if (error) {
-                    HippyLogWarn(@"Failed to inject config: %@", error);
+                    NativeRenderLogWarn(@"Failed to inject config: %@", error);
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [weakSelf stopLoadingWithError:error];
                     });
@@ -241,7 +241,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                      if (error && [self.delegate respondsToSelector:@selector(fallbackSourceURLForBridge:)]) {
                          NSURL *fallbackURL = [self.delegate fallbackSourceURLForBridge:self->_parentBridge];
                          if (fallbackURL && ![fallbackURL isEqual:self.bundleURL]) {
-                             HippyLogError(@"Failed to load bundle(%@) with error:(%@)", self.bundleURL, error.localizedDescription);
+                             NativeRenderLogError(@"Failed to load bundle(%@) with error:(%@)", self.bundleURL, error.localizedDescription);
                              self.bundleURL = fallbackURL;
                              [HippyJavaScriptLoader loadBundleAtURL:self.bundleURL onProgress:onProgress onComplete:onSourceLoad];
                              return;
@@ -254,14 +254,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 
 - (NSArray<Class> *)moduleClasses {
     if (HIPPY_DEBUG && _valid && _moduleClassesByID == nil) {
-        HippyLogError(@"Bridge modules have not yet been initialized. You may be "
+        NativeRenderLogError(@"Bridge modules have not yet been initialized. You may be "
                        "trying to access a module too early in the startup procedure.");
     }
     return _moduleClassesByID;
 }
 
 /**
- * Used by HippyUIManager
+ * Used by NativeRenderUIManager
  */
 - (HippyModuleData *)moduleDataForName:(NSString *)moduleName {
     return _moduleDataByName[moduleName];
@@ -323,7 +323,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
             // Check for name collisions between preregistered modules
             HippyModuleData *moduleData = moduleDataByName[moduleName];
             if (moduleData) {
-                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                NativeRenderLogError(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
                 continue;
@@ -376,7 +376,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 continue;
             } else if ([moduleData.moduleClass new] != nil) {
                 // Both modules were non-nil, so it's unclear which should take precedence
-                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                NativeRenderLogError(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
             }
@@ -399,7 +399,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     // Synchronously set up the pre-initialized modules
     // HIPPY_PROFILE_BEGIN_EVENT(0, @"extraModules", nil);
     for (HippyModuleData *moduleData in _moduleDataByID) {
-        if (moduleData.hasInstance && (!moduleData.requiresMainQueueSetup || HippyIsMainQueue())) {
+        if (moduleData.hasInstance && (!moduleData.requiresMainQueueSetup || NativeRenderIsMainQueue())) {
             // Modules that were pre-initialized should ideally be set up before
             // bridge init has finished, otherwise the caller may try to access the
             // module directly rather than via `[bridge moduleForClass:]`, which won't
@@ -433,7 +433,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     if (dispatchGroup == NULL) {
         // If no dispatchGroup is passed in, we must prepare everything immediately.
         // We better be on the right thread too.
-        HippyAssertMainQueue();
+        NativeRenderAssertMainQueue();
         initializeImmediately = YES;
     } else if ([self.delegate respondsToSelector:@selector(shouldBridgeInitializeNativeModulesSynchronously:)]) {
         initializeImmediately = [self.delegate shouldBridgeInitializeNativeModulesSynchronously:self];
@@ -460,7 +460,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
                 }
             };
 
-            if (initializeImmediately && HippyIsMainQueue()) {
+            if (initializeImmediately && NativeRenderIsMainQueue()) {
                 block();
             } else {
                 // We've already checked that dispatchGroup is non-null, but this satisifies the
@@ -478,7 +478,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 }
 
 - (void)whitelistedModulesDidChange {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
     [self prepareModulesWithDispatchGroup:NULL];
 }
 
@@ -515,11 +515,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
         if (self.executorClass == [HippyJSCExecutor class]) {
             [config addObject:@[moduleData.name]];
         } else {
-            [config addObject:HippyNullIfNil(moduleData.config)];
+            [config addObject:NativeRenderNullIfNil(moduleData.config)];
         }
     }
     dispatch_semaphore_signal(self.moduleSemaphore);
-    return HippyJSONStringify(@{
+    return NativeRenderJSONStringify(@{
         @"remoteModuleConfig": config,
     },
         NULL);
@@ -545,7 +545,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
         }
 
         if (loadError) {
-            HippyLogWarn(@"Failed to execute source code: %@", [loadError localizedDescription]);
+            NativeRenderLogWarn(@"Failed to execute source code: %@", [loadError localizedDescription]);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self stopLoadingWithError:loadError];
             });
@@ -594,11 +594,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     }];
 
 #if HIPPY_DEV
-    if ([HippyGetURLQueryParam(self.bundleURL, @"hot") boolValue]) {
+    if ([NativeRenderGetURLQueryParam(self.bundleURL, @"hot") boolValue]) {
         NSString *path = [self.bundleURL.path substringFromIndex:1];  // strip initial slash
         NSString *host = self.bundleURL.host;
         NSNumber *port = self.bundleURL.port;
-        [self enqueueJSCall:@"HMRClient" method:@"enable" args:@[@"ios", path, host, HippyNullIfNil(port)] completion:NULL];
+        [self enqueueJSCall:@"HMRClient" method:@"enable" args:@[@"ios", path, host, NativeRenderNullIfNil(port)] completion:NULL];
     }
 #endif
 }
@@ -618,9 +618,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     if (_dimDic) {
         [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
     }
-    NSString *countryCode = [[HippyI18nUtils sharedInstance] currentCountryCode];
-    NSString *lanCode = [[HippyI18nUtils sharedInstance] currentAppLanguageCode];
-    NSWritingDirection direction = [[HippyI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+    NSString *countryCode = [[NativeRenderI18nUtils sharedInstance] currentCountryCode];
+    NSString *lanCode = [[NativeRenderI18nUtils sharedInstance] currentAppLanguageCode];
+    NSWritingDirection direction = [[NativeRenderI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
     NSDictionary *local = @{@"country": countryCode?:@"unknown", @"language": lanCode?:@"unknown", @"direction": @(direction)};
     [deviceInfo setValue:local forKey:@"Localization"];
     return [NSDictionary dictionaryWithDictionary:deviceInfo];
@@ -640,7 +640,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 }
 
 - (void)stopLoadingWithError:(NSError *)error {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     if (!_valid || !_loading) {
         return;
@@ -657,7 +657,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     if ([error userInfo][HippyJSStackTraceKey]) {
         [self.redBox showErrorMessage:[error localizedDescription] withStack:[error userInfo][HippyJSStackTraceKey]];
     }
-    NSError *retError = HippyErrorFromErrorAndModuleName(error, self.moduleName);
+    NSError *retError = NativeRenderErrorFromErrorAndModuleName(error, self.moduleName);
     HippyFatal(retError);
 }
 
@@ -695,7 +695,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)setExecutorClass:(Class)executorClass {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
     _parentBridge.executorClass = executorClass;
 }
 
@@ -723,7 +723,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     return _valid;
 }
 
-- (id<HippyRenderContext>)renderContext {
+- (id<NativeRenderContext>)renderContext {
     return self.parentBridge.renderContext;
 }
 
@@ -759,10 +759,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 
 - (void)didReceiveCreationOfRootView:(NSNotification *)notification {
     //TODO delete codes
-//    id manager = [[notification userInfo] objectForKey:HippyUIManagerKey];
-//    HippyUIManager *uiManager = (HippyUIManager *)self.renderContext;
+//    id manager = [[notification userInfo] objectForKey:NativeRenderUIManagerKey];
+//    NativeRenderUIManager *uiManager = (NativeRenderUIManager *)self.renderContext;
 //    if (self.isValid && manager == uiManager) {
-//        UIView *rootView = [[notification userInfo] objectForKey:HippyUIManagerRootViewKey];
+//        UIView *rootView = [[notification userInfo] objectForKey:NativeRenderUIManagerRootViewKey];
 //        int32_t rootTag = [[rootView hippyTag] intValue];
 //        _domManager = std::make_shared<hippy::DomManager>(rootTag);
 //        _domManager->StartTaskRunner();
@@ -775,7 +775,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 //    }
 }
 
-#pragma mark - HippyInvalidating
+#pragma mark - NativeRenderInvalidating
 
 - (void)invalidate {
     if (!_valid) {
@@ -784,7 +784,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 //    if (_domManager) {
 //        _domManager->TerminateTaskRunner();
 //    }
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
     HippyAssert(_javaScriptExecutor != nil, @"Can't complete invalidation without a JS executor");
 
     _loading = NO;
@@ -810,7 +810,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         if ([instance respondsToSelector:@selector(invalidate)]) {
             dispatch_group_enter(group);
             [self dispatchBlock:^{
-                [(id<HippyInvalidating>)instance invalidate];
+                [(id<NativeRenderInvalidating>)instance invalidate];
                 dispatch_group_leave(group);
             } queue:moduleData.methodQueue];
         }
@@ -887,7 +887,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
                             error:(NSError *__autoreleasing *)error {
     HippyJSCExecutor *jsExecutor = (HippyJSCExecutor *)_javaScriptExecutor;
     if (![jsExecutor isKindOfClass:[HippyJSCExecutor class]]) {
-        HippyLogWarn(@"FBHippyBridgeJSExecutor is only supported when running in JSC");
+        NativeRenderLogWarn(@"FBHippyBridgeJSExecutor is only supported when running in JSC");
         return nil;
     }
 
@@ -999,7 +999,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
                                     withStack:[error userInfo][HippyJSStackTraceKey]];
             }
         }
-        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.moduleName);
+        NSError *retError = NativeRenderErrorFromErrorAndModuleName(error, self.moduleName);
         HippyFatal(retError);
     }
 
@@ -1030,16 +1030,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (void)handleBuffer:(NSArray *)buffer {
-    NSArray *requestsArray = [HippyConvert NSArray:buffer];
+    NSArray *requestsArray = [NativeRenderConvert NSArray:buffer];
 
     if (HIPPY_DEBUG && requestsArray.count <= HippyBridgeFieldParams) {
-        HippyLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
+        NativeRenderLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
         return;
     }
 
-    NSArray<NSNumber *> *moduleIDs = [HippyConvert NSNumberArray:requestsArray[HippyBridgeFieldRequestModuleIDs]];
-    NSArray<NSNumber *> *methodIDs = [HippyConvert NSNumberArray:requestsArray[HippyBridgeFieldMethodIDs]];
-    NSArray<NSArray *> *paramsArrays = [HippyConvert NSArrayArray:requestsArray[HippyBridgeFieldParams]];
+    NSArray<NSNumber *> *moduleIDs = [NativeRenderConvert NSNumberArray:requestsArray[HippyBridgeFieldRequestModuleIDs]];
+    NSArray<NSNumber *> *methodIDs = [NativeRenderConvert NSNumberArray:requestsArray[HippyBridgeFieldMethodIDs]];
+    NSArray<NSArray *> *paramsArrays = [NativeRenderConvert NSArrayArray:requestsArray[HippyBridgeFieldParams]];
 
     int64_t callID = -1;
 
@@ -1048,7 +1048,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     }
 
     if (HIPPY_DEBUG && (moduleIDs.count != methodIDs.count || moduleIDs.count != paramsArrays.count)) {
-        HippyLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
+        NativeRenderLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
         return;
     }
 
@@ -1134,14 +1134,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     NSArray<HippyModuleData *> *moduleDataByID = [_moduleDataByID copy];
     if (moduleID >= [moduleDataByID count]) {
         if (_valid) {
-            HippyLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
+            NativeRenderLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)_valid);
         }
         return nil;
     }
     HippyModuleData *moduleData = moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
         if (_valid) {
-            HippyLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
+            NativeRenderLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
         }
         return nil;
     }
@@ -1154,14 +1154,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
     if (methodID >= [methods count]) {
         if (_valid) {
-            HippyLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)_valid);
+            NativeRenderLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)_valid);
         }
         return nil;
     }
     id<HippyBridgeMethod> method = methods[methodID];
     if (HIPPY_DEBUG && !method) {
         if (_valid) {
-            HippyLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+            NativeRenderLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
         }
         return nil;
     }
@@ -1191,7 +1191,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         }
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, moduleData.name, params];
-        NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
+        NSError *error = NativeRenderErrorWithMessageAndModuleName(message, self.moduleName);
         if (self.parentBridge.useCommonBridge) {
             NSDictionary *errorInfo = @{ NSLocalizedDescriptionKey: message, @"module": self.parentBridge.moduleName ?: @"" };
             error = [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];
@@ -1219,7 +1219,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
         }
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception, method.JSMethodName, module.name, params];
-        NSError *error = HippyErrorWithMessageAndModuleName(message, self.moduleName);
+        NSError *error = NativeRenderErrorWithMessageAndModuleName(message, self.moduleName);
         if (self.parentBridge.useCommonBridge) {
             NSDictionary *errorInfo = @{ NSLocalizedDescriptionKey: message, @"module": self.parentBridge.moduleName ?: @"" };
             error = [[NSError alloc] initWithDomain:HippyErrorDomain code:0 userInfo:errorInfo];

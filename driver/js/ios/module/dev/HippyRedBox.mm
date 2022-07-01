@@ -23,10 +23,10 @@
 #import "HippyRedBox.h"
 
 #import "HippyBridge.h"
-#import "HippyConvert.h"
+#import "NativeRenderConvert.h"
 #import "HippyDefines.h"
 #import "HippyErrorInfo.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 #import "HippyJSStackFrame.h"
 #import "HippyAssert.h"
 
@@ -150,7 +150,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
             [_stackTraceTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop
                                                 animated:NO];
         }
-        _previousKeyWindow = HippyKeyWindow();
+        _previousKeyWindow = NativeRenderKeyWindow();
         [self makeKeyAndVisible];
         [self becomeFirstResponder];
     }
@@ -310,7 +310,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 @end
 
-@interface HippyRedBox () <HippyInvalidating, HippyRedBoxWindowActionDelegate>
+@interface HippyRedBox () <NativeRenderInvalidating, HippyRedBoxWindowActionDelegate>
 @end
 
 @implementation HippyRedBox {
@@ -343,7 +343,7 @@ HIPPY_EXPORT_MODULE()
 
 // WARNING: Should only be called from the main thread/dispatch queue.
 - (HippyErrorInfo *)_customizeError:(HippyErrorInfo *)error {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     if (!self->_errorCustomizers) {
         return error;
@@ -419,11 +419,11 @@ HIPPY_EXPORT_METHOD(dismiss) {
 
 - (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HippyJSStackFrame *)stackFrame {
     if (![_bridge.bundleURL.scheme hasPrefix:@"http"]) {
-        HippyLogWarn(@"Cannot open stack frame in editor because you're not connected to the packager.");
+        NativeRenderLogWarn(@"Cannot open stack frame in editor because you're not connected to the packager.");
         return;
     }
 
-    NSData *stackFrameJSON = [HippyJSONStringify([stackFrame toDictionary], NULL) dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *stackFrameJSON = [NativeRenderJSONStringify([stackFrame toDictionary], NULL) dataUsingEncoding:NSUTF8StringEncoding];
     NSString *postLength = [NSString stringWithFormat:@"%tu", stackFrameJSON.length];
     NSMutableURLRequest *request = [NSMutableURLRequest new];
     request.URL = [NSURL URLWithString:@"/open-stack-frame" relativeToURL:_bridge.bundleURL];

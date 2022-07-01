@@ -25,20 +25,20 @@
 
 #import <objc/runtime.h>
 
-#import "HippyConvert.h"
+#import "NativeRenderConvert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import "HippyModuleData.h"
 #import "HippyPerformanceLogger.h"
-#import "HippyUtils.h"
-#import "HippyUIManager.h"
+#import "NativeRenderUtils.h"
+#import "NativeRenderUIManager.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyBridge+LocalFileSource.h"
 #import "HippyBridge+Private.h"
-#import "HippyImageDataLoader.h"
-#import "HippyDefaultImageProvider.h"
+#import "NativeRenderImageDataLoader.h"
+#import "NativeRenderDefaultImageProvider.h"
 #import "HippyAssert.h"
 #import "scene.h"
 #import "scope.h"
@@ -134,7 +134,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                     break;
                 }
 
-                HippyLogWarn(@"Class %@ was not exported. Did you forget to use HIPPY_EXPORT_MODULE()?", cls);
+                NativeRenderLogWarn(@"Class %@ was not exported. Did you forget to use HIPPY_EXPORT_MODULE()?", cls);
                 break;
             }
             superclass = class_getSuperclass(superclass);
@@ -147,7 +147,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 
 @interface HippyBridge() {
     NSURL *_delegateBundleURL;
-    NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
+    NSSet<Class<NativeRenderImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
     dispatch_block_t _nativeSetUpBlock;
     id<HippyMethodInterceptorProtocol> _methodInterceptor;
@@ -205,12 +205,12 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
         _appVerson = @"";
         _executorKey = executorKey;
-        _invalidateReason = HippyInvalidateReasonDealloc;
+        _invalidateReason = NativeRenderInvalidateReasonDealloc;
         [self setUp];
-        HippyExecuteOnMainQueue(^{
+        NativeRenderExecuteOnMainQueue(^{
             [self bindKeys];
         });
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
+        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
 }
@@ -221,7 +221,7 @@ static HippyBridge *HippyCurrentBridgeInstance = nil;
         _moduleProvider = block;
         [self setUp];
     }
-    HippyExecuteOnMainQueue(^{
+    NativeRenderExecuteOnMainQueue(^{
         [self bindKeys];
     });
     return self;
@@ -232,17 +232,17 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 - (void)dealloc {
     /**
      * This runs only on the main thread, but crashes the subclass
-     * HippyAssertMainQueue();
+     * NativeRenderAssertMainQueue();
      */
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    self.invalidateReason = HippyInvalidateReasonDealloc;
-    self.batchedBridge.invalidateReason = HippyInvalidateReasonDealloc;
+    self.invalidateReason = NativeRenderInvalidateReasonDealloc;
+    self.batchedBridge.invalidateReason = NativeRenderInvalidateReasonDealloc;
     [self invalidate];
 }
 
 - (void)bindKeys {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
 #if TARGET_IPHONE_SIMULATOR
     HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
@@ -271,11 +271,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return [self moduleForName:HippyBridgeModuleNameForClass(moduleClass)];
 }
 
-- (NSSet<Class<HippyImageProviderProtocol>> *)imageProviders {
+- (NSSet<Class<NativeRenderImageProviderProtocol>> *)imageProviders {
     if (!_imageProviders) {
         NSMutableSet *set = [NSMutableSet setWithCapacity:8];
         for (Class moduleClass in self.moduleClasses) {
-            if ([moduleClass conformsToProtocol:@protocol(HippyImageProviderProtocol)]) {
+            if ([moduleClass conformsToProtocol:@protocol(NativeRenderImageProviderProtocol)]) {
                 [set addObject:moduleClass];
             }
         }
@@ -284,7 +284,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     return _imageProviders;
 }
 
-- (id<HippyFrameworkProxy>)frameworkProxy {
+- (id<NativeRenderFrameworkProxy>)frameworkProxy {
     return _frameworkProxy ?: self;
 }
 
@@ -314,8 +314,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
      * Any thread
      */
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.invalidateReason = HippyInvalidateReasonReload;
-        self.batchedBridge.invalidateReason = HippyInvalidateReasonReload;
+        self.invalidateReason = NativeRenderInvalidateReasonReload;
+        self.batchedBridge.invalidateReason = NativeRenderInvalidateReasonReload;
         [self invalidate];
         [self setUp];
     });
@@ -329,7 +329,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)setUp {
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ setUp %p", NSStringFromClass([self class]), self);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ setUp %p", NSStringFromClass([self class]), self);
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
     //  [_performanceLogger markStartForTag:HippyPLTTI];
@@ -344,7 +344,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 
     // Sanitize the bundle URL
-    _bundleURL = [HippyConvert NSURL:_bundleURL.absoluteString];
+    _bundleURL = [NativeRenderConvert NSURL:_bundleURL.absoluteString];
     @try {
         [self createBatchedBridge];
         [self.batchedBridge start];
@@ -387,9 +387,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
-          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale {
+          frameworkProxy:(id<NativeRenderFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale {
     __weak HippyBridge *weakBridge = self;
-    __weak id<HippyFrameworkProxy> weakProxy = proxy;
+    __weak id<NativeRenderFrameworkProxy> weakProxy = proxy;
     __weak UIView *weakView = view;
     _nativeSetUpBlock = ^(){
         HippyBridge *strongSelf = weakBridge;
@@ -460,13 +460,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)invalidate {
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     HippyBridge *batchedBridge = self.batchedBridge;
     self.batchedBridge = nil;
     _domManager = nullptr;
     _renderManager = nullptr;
     if (batchedBridge) {
-        HippyExecuteOnMainQueue(^{
+        NativeRenderExecuteOnMainQueue(^{
             [batchedBridge invalidate];
         });
     }
@@ -498,26 +498,26 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #endif  // HIPPY_DEBUG
 }
 
-#pragma mark HippyFrameworkProxy Delegate Implementation
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<HippyRenderContext>)renderContext {
+#pragma mark NativeRenderFrameworkProxy Delegate Implementation
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<NativeRenderContext>)renderContext {
     if ([HippyBridge isHippyLocalFileURLString:UrlString]) {
         return [self absoluteStringFromHippyLocalFileURLString:UrlString];
     }
     return UrlString;
 }
 
-- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<HippyRenderContext>)renderContext {
+- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<NativeRenderContext>)renderContext {
     if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
         return [self.frameworkProxy imageDataLoaderForRenderContext:renderContext];
     }
-    return [HippyImageDataLoader new];
+    return [NativeRenderImageDataLoader new];
 }
 
-- (Class<HippyImageProviderProtocol>)imageProviderClassForRenderContext:(id<HippyRenderContext>)renderContext {
+- (Class<NativeRenderImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext {
     if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
         return [self.frameworkProxy imageProviderClassForRenderContext:renderContext];
     }
-    return [HippyDefaultImageProvider class];
+    return [NativeRenderDefaultImageProvider class];
 }
 
 @end

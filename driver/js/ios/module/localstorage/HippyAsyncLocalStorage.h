@@ -21,7 +21,7 @@
  */
 
 #import "HippyBridgeModule.h"
-#import "HippyInvalidating.h"
+#import "NativeRenderInvalidating.h"
 
 /**
  * A simple, asynchronous, persistent, key-value storage system designed as a
@@ -40,7 +40,7 @@ extern NSUInteger HPLOCALSTORAGEIOTYPEREAD;
 
 extern NSUInteger HPLOCALSTORAGEIOTYPEWRITE;
 
-@interface HippyAsyncLocalStorage : NSObject <HippyBridgeModule, HippyInvalidating>
+@interface HippyAsyncLocalStorage : NSObject <HippyBridgeModule, NativeRenderInvalidating>
 
 @property (nonatomic, assign) BOOL clearOnInvalidate;
 
