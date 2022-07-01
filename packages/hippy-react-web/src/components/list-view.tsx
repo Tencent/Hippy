@@ -159,6 +159,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
   const pullFooterRef = useRef<null | HTMLDivElement>(null);
   const pullHeaderOffset = useRef(0);
+  const pullFooterOffset = useRef(0);
   const pullHeaderHeight = useRef(0);
   const pullFooterHeight = useRef(0);
   const collapseHeadingInProgress = useRef(false);
@@ -385,7 +386,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
         && currentOffset !== pullHeaderOffset.current
       ) {
         pullHeaderOffset.current = currentOffset;
-        onHeaderPulling({ contentOffset: pullHeaderHeight.current + 1 });
+        onHeaderPulling({ contentOffset: pullHeaderHeight.current + REFRESH_DISTANCE_SCREEN_Y_OFFSET });
       }
       return <PullHeader />;
     },
@@ -403,16 +404,16 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const pullFooterIndicator = {
     get activate() {
       let currentOffset = 0;
-      if (pullHeaderRef.current) {
-        currentOffset = pullHeaderRef.current.getClientRects()[0].y;
+      if (pullFooterRef.current) {
+        currentOffset = pullFooterRef.current.getClientRects()[0].y;
       }
       if (
-        isFunc(onHeaderPulling)
-        && pullHeaderHeight.current > 0
-        && currentOffset !== pullHeaderOffset.current
+        isFunc(onFooterPulling)
+        && pullFooterOffset.current > 0
+        && currentOffset !== pullFooterOffset.current
       ) {
-        pullHeaderOffset.current = currentOffset;
-        onFooterPulling({ contentOffset: pullHeaderHeight.current + 1 });
+        pullFooterOffset.current = currentOffset;
+        onFooterPulling({ contentOffset: pullFooterOffset.current + REFRESH_DISTANCE_SCREEN_Y_OFFSET });
       }
       return <PullFooter />;
     },
