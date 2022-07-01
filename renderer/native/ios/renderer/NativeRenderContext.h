@@ -55,8 +55,6 @@ typedef void (^NativeRenderRenderUIBlock)(id<NativeRenderContext> renderContext,
 
 - (void)addUIBlock:(NativeRenderRenderUIBlock)block;
 
-- (void)executeBlockOnRenderQueue:(dispatch_block_t)block;
-
 - (void)updateView:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
 
 - (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
