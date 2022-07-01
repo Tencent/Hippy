@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,27 +21,27 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyComponent.h"
-#import "HippyTouchesView.h"
+#import "NativeRenderComponentProtocol.h"
+#import "NativeRenderTouchesView.h"
 #include <string>
 
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A catagory to handle HippyTouchesProtocol
- * Empty implementation for [HippyTouchesProtocol addViewEvent:eventListener:], [HippyTouchesProtocol removeViewEvent]
- * Return NO for [HippyTouchesProtocol canBePreventedByInCapturing:], [HippyTouchesProtocol canBePreventedByInCapturing:]
- * Return NULL for [HippyTouchesProtocol eventListenerForEventType:]
+ * A catagory to handle NativeRenderTouchesProtocol
+ * Empty implementation for [NativeRenderTouchesProtocol addViewEvent:eventListener:], [NativeRenderTouchesProtocol removeViewEvent]
+ * Return NO for [NativeRenderTouchesProtocol canBePreventedByInCapturing:], [NativeRenderTouchesProtocol canBePreventedByInCapturing:]
+ * Return NULL for [NativeRenderTouchesProtocol eventListenerForEventType:]
  */
 
-@interface UIView(DomEvent)<HippyTouchesProtocol>
+@interface UIView(DomEvent)<NativeRenderTouchesProtocol>
 
 /**
  * Add custom property event for view
  * @param name event name
  * @param callback event call back for event
  */
-- (void)addPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+- (void)addPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback;
 
 /**
  * Remove status change event for view
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion The default implementation of this method is to trigger onDidMount event if it is onDidMount event
  */
-- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback;
+- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback;
 
 /**
  * Notify view event has been removed from view

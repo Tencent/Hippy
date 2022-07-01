@@ -25,8 +25,8 @@
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 #import "HippyBridge+Private.h"
-#import "HippyLog.h"
-#import "HippyUtils.h"
+#import "NativeRenderLog.h"
+#import "NativeRenderUtils.h"
 
 static const NSTimeInterval kMinimumSleepInterval = 1;
 

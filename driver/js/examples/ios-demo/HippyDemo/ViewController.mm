@@ -24,22 +24,22 @@
 #import "HippyRootView.h"
 #import "HippyBridge+LocalFileSource.h"
 #import "HippyBundleURLProvider.h"
-#import "UIView+Hippy.h"
+#import "UIView+NativeRender.h"
 #include "dom/dom_manager.h"
 #include "NativeRenderManager.h"
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
 #import "DemoConfigs.h"
 #import "HippyBridge+Private.h"
-#import "HippyFrameworkProxy.h"
-#import "HippyDomNodeUtils.h"
-#import "HippyImageDataLoader.h"
-#import "HippyDefaultImageProvider.h"
+#import "NativeRenderFrameworkProxy.h"
+#import "NativeRenderDomNodeUtils.h"
+#import "NativeRenderImageDataLoader.h"
+#import "NativeRenderDefaultImageProvider.h"
 #import "HippyRedBox.h"
 #import "HippyAssert.h"
 #import "MyViewManager.h"
 
-@interface ViewController ()<HippyBridgeDelegate, HippyFrameworkProxy, HippyMethodInterceptorProtocol> {
+@interface ViewController ()<HippyBridgeDelegate, NativeRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     std::shared_ptr<hippy::RootNode> _rootNode;
@@ -53,9 +53,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    HippySetLogFunction(^(HippyLogLevel level, NSString *fileName, NSNumber *lineNumber,
-                          NSString *message, NSArray<NSDictionary *> *stack) {
-        if (HippyLogLevelError <= level) {
+    NativeRenderSetLogFunction(^(NativeRenderLogLevel level, NSString *fileName, NSNumber *lineNumber,
+                                 NSString *message, NSArray<NSDictionary *> *stack) {
+        if (NativeRenderLogLevelError <= level) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stack];
             });
@@ -314,23 +314,23 @@ std::string mock;
     return bridge.bundleURL;
 }
 
-#pragma mark HippyFrameworkProxy Delegate Implementation
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<HippyRenderContext>)renderContext {
+#pragma mark NativeRenderFrameworkProxy Delegate Implementation
+- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<NativeRenderContext>)renderContext {
     //这里将对应的URL转换为标准URL
     //比如将相对地址根据沙盒路径为转换绝对地址
     return UrlString;
 }
 
-- (id<HippyImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<HippyRenderContext>)renderContext {
-    //设置自定义的图片加载实例，负责图片加载。默认使用HippyImageDataLoader
-    return [HippyImageDataLoader new];
+- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<NativeRenderContext>)renderContext {
+    //设置自定义的图片加载实例，负责图片加载。默认使用NativeRenderImageDataLoader
+    return [NativeRenderImageDataLoader new];
 }
 
-- (Class<HippyImageProviderProtocol>)imageProviderClassForRenderContext:(id<HippyRenderContext>)renderContext {
-    //设置HippyImageProviderProtocol类。
-    //HippyImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
-    //默认使用HippyDefaultImageProvider
-    return [HippyDefaultImageProvider class];
+- (Class<NativeRenderImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext {
+    //设置NativeRenderImageProviderProtocol类。
+    //NativeRenderImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
+    //默认使用NativeRenderDefaultImageProvider
+    return [NativeRenderDefaultImageProvider class];
 }
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {

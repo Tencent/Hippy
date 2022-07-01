@@ -22,8 +22,8 @@
 
 #import "MyViewManager.h"
 #import "MyView.h"
-#import "UIView+Hippy.h"
-#import "HippyUIManager.h"
+#import "UIView+NativeRender.h"
+#import "NativeRenderUIManager.h"
 
 @implementation MyViewManager
 
@@ -31,10 +31,10 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(text, NSString)
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
                                color:(NSString *)color) {
-    [self.renderContext addUIBlock:^(__unused id<HippyRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[reactTag];
         if (view == nil || ![view isKindOfClass:[MyView class]]) {
-            HippyLogError(@"tried to setPage: on an error viewPager %@ "
+            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
                         "with tag #%@", view, reactTag);
         }
         [(MyView *)view setBackgroundColor:[self colorWithHexString:color alpha:1] ];

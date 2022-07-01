@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -24,11 +24,11 @@
 #import <objc/runtime.h>
 #import "dom/dom_listener.h"
 #import "UIView+MountEvent.h"
-#import "UIView+Hippy.h"
+#import "UIView+NativeRender.h"
 
 @implementation UIView(DomEvent)
 
-- (void)addPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+- (void)addPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback {
     //try to contrustor origin setter
     char n = std::toupper(name.at(0));
     NSString *setterName = [NSString stringWithFormat:@"set%c%s:", n, name.substr(1, name.length() - 1).c_str()];
@@ -49,7 +49,7 @@
     }
 }
 
-- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(HippyDirectEventBlock)callback {
+- (void)didAddPropertyEvent:(const std::string &)name eventCallback:(NativeRenderDirectEventBlock)callback {
     if (name == "onDidMount" ) {
         [self viewDidMountEvent];
     }
@@ -65,7 +65,7 @@
     SEL selector = NSSelectorFromString(setterName);
     @try {
         if ([self respondsToSelector:selector]) {
-            HippyDirectEventBlock cb = NULL;
+            NativeRenderDirectEventBlock cb = NULL;
             NSMethodSignature *methodSign = [self methodSignatureForSelector:selector];
             NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSign];
             [invocation setTarget:self];
@@ -82,14 +82,14 @@
 - (void)didRemovePropertyEvent:(const std::string &)name {
 }
 
-#pragma mark HippyTouchesProtocol Methods
-- (void)addViewEvent:(HippyViewEventType)touchEvent eventListener:(OnTouchEventHandler)listener {}
+#pragma mark NativeRenderTouchesProtocol Methods
+- (void)addViewEvent:(NativeRenderViewEventType)touchEvent eventListener:(OnTouchEventHandler)listener {}
 
-- (OnTouchEventHandler)eventListenerForEventType:(HippyViewEventType)eventType {
+- (OnTouchEventHandler)eventListenerForEventType:(NativeRenderViewEventType)eventType {
     return NULL;
 }
 
-- (void)removeViewEvent:(HippyViewEventType)touchEvent {
+- (void)removeViewEvent:(NativeRenderViewEventType)touchEvent {
 }
 
 - (BOOL)canBePreventedByInCapturing:(const std::string &)name {

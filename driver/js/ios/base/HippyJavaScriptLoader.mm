@@ -23,8 +23,8 @@
 #import "HippyJavaScriptLoader.h"
 
 #import "HippyBridge.h"
-#import "HippyConvert.h"
-#import "HippyUtils.h"
+#import "NativeRenderConvert.h"
+#import "NativeRenderUtils.h"
 #import "HippyPerformanceLogger.h"
 
 #include <sys/stat.h>
@@ -108,11 +108,11 @@ static void attemptAsynchronousLoadOfBundleAtURL(
 
 static NSURL *sanitizeURL(NSURL *url) {
     // Why we do this is lost to time. We probably shouldn't; passing a valid URL is the caller's responsibility not ours.
-    return [HippyConvert NSURL:url.absoluteString];
+    return [NativeRenderConvert NSURL:url.absoluteString];
 }
 
 static NSDictionary *userInfoForRawResponse(NSString *rawText) {
-    NSDictionary *parsedResponse = HippyJSONParse(rawText, nil);
+    NSDictionary *parsedResponse = NativeRenderJSONParse(rawText, nil);
     if (![parsedResponse isKindOfClass:[NSDictionary class]]) {
         return @ { NSLocalizedDescriptionKey: rawText ?: @"" };
     }

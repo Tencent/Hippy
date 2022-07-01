@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,8 +21,7 @@
  */
 
 #import "NativeRenderObjectTextView.h"
-#import "Hippy.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 #import "dom/layout_node.h"
 
 @interface NativeRenderObjectTextView ()

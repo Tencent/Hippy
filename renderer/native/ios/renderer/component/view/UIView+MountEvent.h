@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,18 +21,18 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "HippyComponent.h"
+#import "NativeRenderComponentProtocol.h"
 
 @interface UIView (MountEvent)
 
-@property (nonatomic, copy) HippyDirectEventBlock onAppear;
-@property (nonatomic, copy) HippyDirectEventBlock onDisappear;
-@property (nonatomic, copy) HippyDirectEventBlock onWillAppear;
-@property (nonatomic, copy) HippyDirectEventBlock onWillDisappear;
-@property (nonatomic, copy) HippyDirectEventBlock onDidMount;
-@property (nonatomic, copy) HippyDirectEventBlock onDidUnmount;
-@property (nonatomic, copy) HippyDirectEventBlock onAttachedToWindow;
-@property (nonatomic, copy) HippyDirectEventBlock onDetachedFromWindow;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onAppear;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onDisappear;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onWillAppear;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onWillDisappear;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onDidMount;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onDidUnmount;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onAttachedToWindow;
+@property (nonatomic, copy) NativeRenderDirectEventBlock onDetachedFromWindow;
 
 - (void)viewAppearEvent;
 - (void)viewDisappearEvent;

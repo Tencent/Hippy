@@ -21,7 +21,7 @@
  */
 
 #import "HippyJavaScriptLoader.h"
-#import "HippyComponent.h"
+#import "NativeRenderComponentProtocol.h"
 
 @class HippyBridge;
 @protocol HippyBridgeModule;
@@ -38,7 +38,7 @@
  */
 - (NSURL *)sourceURLForBridge:(HippyBridge *)bridge;
 
-- (void)componentWillBePurged:(id<HippyComponent>)component;
+- (void)componentWillBePurged:(id<NativeRenderComponentProtocol>)component;
 
 /**
  * Called and inject Object before Hippy execute JS source code

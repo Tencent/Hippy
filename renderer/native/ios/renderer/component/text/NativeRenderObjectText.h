@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,18 +21,18 @@
  */
 
 #import "NativeRenderObjectView.h"
-#import "HippyTextDecorationLineType.h"
+#import "NativeRenderTextDecorationLineType.h"
 #import "dom/layout_node.h"
 
-typedef NS_ENUM(NSInteger, HippySizeComparison) {
-    HippySizeTooLarge,
-    HippySizeTooSmall,
-    HippySizeWithinRange,
+typedef NS_ENUM(NSInteger, NativeRenderSizeComparison) {
+    NativeRenderSizeTooLarge,
+    NativeRenderSizeTooSmall,
+    NativeRenderSizeWithinRange,
 };
 
-extern NSString *const HippyIsHighlightedAttributeName;
-extern NSString *const HippyHippyTagAttributeName;
-extern NSString *const HippyRenderObjectAttributeName;
+extern NSString *const NativeRenderIsHighlightedAttributeName;
+extern NSString *const NativeRenderHippyTagAttributeName;
+extern NSString *const NativeRenderRenderObjectAttributeName;
 
 NATIVE_RENDER_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
 
@@ -63,7 +63,7 @@ NATIVE_RENDER_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::Layou
 @property (nonatomic, assign) NSTextAlignment textAlign;
 @property (nonatomic, strong) UIColor *textDecorationColor;
 @property (nonatomic, assign) NSUnderlineStyle textDecorationStyle;
-@property (nonatomic, assign) HippyTextDecorationLineType textDecorationLine;
+@property (nonatomic, assign) NativeRenderTextDecorationLineType textDecorationLine;
 @property (nonatomic, assign) CGFloat fontSizeMultiplier;
 @property (nonatomic, assign) BOOL allowFontScaling;
 @property (nonatomic, assign) CGFloat opacity;

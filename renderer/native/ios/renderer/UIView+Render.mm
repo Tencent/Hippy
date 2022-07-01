@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,11 +22,11 @@
 
 #import "UIView+Render.h"
 #import "objc/runtime.h"
-#import "HippyRenderContext.h"
+#import "NativeRenderContext.h"
 
 @implementation UIView (Render)
 
-- (void)setRenderContext:(id<HippyRenderContext>)renderContext {
+- (void)setRenderContext:(id<NativeRenderContext>)renderContext {
     if (renderContext) {
         NSHashTable *weakContainer = [NSHashTable weakObjectsHashTable];
         [weakContainer addObject:renderContext];
@@ -37,7 +37,7 @@
     }
 }
 
-- (id<HippyRenderContext>)renderContext {
+- (id<NativeRenderContext>)renderContext {
     NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
     return [hashTable anyObject];
 }

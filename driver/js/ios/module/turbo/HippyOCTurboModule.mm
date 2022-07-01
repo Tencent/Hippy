@@ -24,8 +24,8 @@
 #import <objc/message.h>
 #import "HippyBridgeMethod.h"
 #import "HippyAssert.h"
-#import "HippyUtils.h"
-#import "HippyLog.h"
+#import "NativeRenderUtils.h"
+#import "NativeRenderLog.h"
 #import "HippyModuleMethod.h"
 #include <core/napi/jsc/js_native_turbo_jsc.h>
 #include "core/napi/jsc/js_native_jsc_helper.h"
@@ -33,7 +33,7 @@
 #include <JavaScriptCore/JavaScriptCore.h>
 #include <JavaScriptCore/JSObjectRef.h>
 #import "NSObject+HippyTurbo.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #include "footstone/string_view_utils.h"
 #import "HippyBridge+Private.h"
 #import "HippyJSCExecutor.h"
@@ -125,7 +125,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
     }
 
     if (HIPPY_DEBUG && !method) {
-        HippyLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
+        NativeRenderLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
         return nil;
     }
 
@@ -140,7 +140,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
-        NSError *error = HippyErrorWithMessageAndModuleName(message, self.bridge.moduleName);
+        NSError *error = NativeRenderErrorWithMessageAndModuleName(message, self.bridge.moduleName);
         HippyFatal(error);
         return nil;
     }
@@ -183,7 +183,7 @@ static std::shared_ptr<napi::CtxValue> convertNSDictionaryToCtxValue(const std::
                                                         options:NSJSONWritingFragmentsAllowed
                                                           error:&error];
          if (error) {
-             HippyLogError(@"convert dict to data failed:%@", error);
+             NativeRenderLogError(@"convert dict to data failed:%@", error);
          }
 
          // 直接使用下面这个类型转换，有时候后面会补\xa3\xa3\xa3....，怀疑是字节对齐问题
@@ -332,7 +332,7 @@ static id convertJSIObjectToNSObject(const std::shared_ptr<napi::JSCCtx> &contex
     NSError *error;
     id objcObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     if (error) {
-        HippyLogError(@"JSONObjectWithData error:%@", error);
+        NativeRenderLogError(@"JSONObjectWithData error:%@", error);
     }
     return objcObject;
 }
@@ -371,12 +371,12 @@ static NSDictionary *convertJSIObjectToNSDictionary(const std::shared_ptr<napi::
     JSValueRef exception = nullptr;
     JSObjectRef object = JSValueToObject(context->context_, value->value_, &exception);
     if (exception) {
-        HippyLogInfo(@"JSValueToObject throw exception:%@", exception);
+        NativeRenderLogInfo(@"JSValueToObject throw exception:%@", exception);
         id jsonObj = convertJSIObjectToNSObject(context, value);
         if (jsonObj && [jsonObj isKindOfClass:[NSDictionary class]]) {
             return (NSDictionary *)jsonObj;
         }
-        HippyLogError(@"convertJSIJsonToDict failed:%@", jsonObj);
+        NativeRenderLogError(@"convertJSIJsonToDict failed:%@", jsonObj);
         return nil;
     }
 

@@ -21,7 +21,7 @@
 */
 
 #import "HippyImageCacheManager.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import <pthread.h>
 @interface HippyImageCacheManager() {
     NSCache *_cache;

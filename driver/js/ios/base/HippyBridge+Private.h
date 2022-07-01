@@ -147,7 +147,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 
 @end
 
-@interface HippyBatchedBridge : HippyBridge <HippyInvalidating>
+@interface HippyBatchedBridge : HippyBridge <NativeRenderInvalidating>
 
 @property (nonatomic, weak, readonly) HippyBridge *parentBridge;
 @property (nonatomic, weak, readonly) HippyJSCExecutor *javaScriptExecutor;
