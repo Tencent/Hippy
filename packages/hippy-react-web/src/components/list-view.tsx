@@ -21,7 +21,6 @@
 import React, { useCallback, useEffect, useRef, useState, useImperativeHandle } from 'react';
 import animateScrollTo from 'animated-scroll-to';
 import MListView from '@hippy/rmc-list-view';
-// import MPullToRefresh from 'rmc-pull-to-refresh';
 import MPullToRefresh from '@hippy/rmc-pull-to-refresh';
 import StyleSheet from '../modules/stylesheet';
 import { formatWebStyle } from '../adapters/transfer';
@@ -179,7 +178,6 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   } else if (isShowPullFooter.current) {
     refreshType.current = refreshTypes.up;
   }
-  console.log('refreshType', refreshType.current);
 
   shouldHideScrollBar(!showScrollIndicator);
 
@@ -348,7 +346,6 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     React.useEffect(() => {
       if (pullHeaderRef.current) {
         const headerRect = pullHeaderRef.current.getBoundingClientRect();
-        console.log('set pullHeaderHeight', pullHeaderHeight.current);
         pullHeaderHeight.current = headerRect.height;
       }
     }, [pullHeaderRef]);

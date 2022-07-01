@@ -17,7 +17,7 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 | animated-scroll-to | scroll 的时候添加动画            |
 | swiper          | ViewPager 需要                    |
 | @hippy/rmc-list-view   | ListView 需要                     |
-| rmc-pull-to-refresh | ListView PullHeader 需要      |
+| @hippy/rmc-pull-to-refresh | ListView PullHeader 需要      |
 
 
 # 编译时依赖
