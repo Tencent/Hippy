@@ -60,7 +60,7 @@ void LoopWorkerImpl::RunLoop() {
 
 void LoopWorkerImpl::TerminateWorker() {
   is_terminated_ = true;
-};
+}
 
 itimerspec SetItimerspec(uint64_t nano_secs) {
   struct itimerspec spec{};
@@ -81,11 +81,11 @@ LoopWorkerImpl::~LoopWorkerImpl() {
 }
 
 void LoopWorkerImpl::WaitFor(const TimeDelta &delta) {
-  uint64_t nano_secs = delta.ToNanoseconds();
+  auto nano_secs = delta.ToNanoseconds();
   if (nano_secs < 1) {
     nano_secs = 1;
   }
-  itimerspec spec = SetItimerspec(nano_secs);
+  itimerspec spec = SetItimerspec(static_cast<uint64_t>(nano_secs));
   timerfd_settime(fd_, TFD_TIMER_ABSTIME, &spec, nullptr);
 }
 

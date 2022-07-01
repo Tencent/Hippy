@@ -1,55 +1,72 @@
-cmake_minimum_required(VERSION 3.11.1)
+#
+# Tencent is pleased to support the open source community by making
+# Hippy available.
+#
+# Copyright (C) 2022 THL A29 Limited, a Tencent company.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
-project(hippy_unit_test)
+cmake_minimum_required(VERSION 3.14)
 
+project("dom_test")
 
-include("../../buildconfig/cmake/InfraPackagesModule.cmake")
-include("../../buildconfig/cmake/compiler_toolchain.cmake")
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." REALPATH)
+
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_compile_options(
-	-fno-rtti
-	-Werror
-	-fno-exceptions
-)
+# region executable
+add_executable(${PROJECT_NAME})
+add_compile_definitions(${PROJECT_NAME} PRIVATE HIPPY_TEST)
+# endregion
 
-# dependency google test
-InfraPackage_Add(asio
+# region gtest
+InfraPackage_Add(gtest
   REMOTE "test/third_party/googletest/release-1.11.0/googletest.release-1.11.0.tgz"
   LOCAL "third_party/googletest"
 )
+target_link_libraries(${PROJECT_NAME} PRIVATE gtest_main)
+# endregion
 
-# InfaPackage nlohmann_json
+# region nlohmann_json
 InfraPackage_Add(json
   REMOTE "devtools/backend/third_party/json/3.10.5/json.tar.xz"
   LOCAL "third_party/json"
 )
-include_directories(${json_SOURCE_DIR}/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+# endregion
 
-# open hippy unit test
-add_definitions(-DHIPPY_TEST)
+# region footstone
+GlobalPackages_Add(footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
+# endregion
 
-message("CMAKE_CURRENT_SOURCE_DIR:${CMAKE_CURRENT_SOURCE_DIR}")
-set(PROJECT_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
-set(DOM_DIR ${PROJECT_ROOT_DIR}/dom)
-set(CORE_DIR ${PROJECT_ROOT_DIR}/driver/js/core)
-set(LAYOUT_DIR ${PROJECT_ROOT_DIR}/layout)
+# region dom
+GlobalPackages_Add(dom)
+target_link_libraries(${PROJECT_NAME} PRIVATE dom)
+# endregion
 
-add_subdirectory(${DOM_DIR} dom_out)
-add_subdirectory(${CORE_DIR}/third_party/base base_out)
-
-include_directories(${DOM_DIR}/include)
-include_directories(${CORE_DIR}/third_party/base/include)
-include_directories(${CORE_DIR}/include)
-include_directories(${LAYOUT_DIR})
-
-set(COMMON_SRC_FILES ${CORE_DIR}/src/task/common_task.cc)
-file(GLOB_RECURSE CORE_SRC_FILES ${CORE_DIR}/src/base/*.cc)
-file(GLOB_RECURSE DOM_UT_FILES ${DOM_DIR}/src/dom/*_unittests.cc)
-message("COMMON_SRC_FILES:${COMMON_SRC_FILES}")
-message("CORE_SRC_FILES:${CORE_SRC_FILES}")
-message("DOM_UT_FILES:${DOM_UT_FILES}")
-
-add_executable(unit_test main.cc ${DOM_UT_FILES} ${CORE_SRC_FILES} ${COMMON_SRC_FILES})
-target_link_libraries(unit_test gtest_main nlohmann_json::nlohmann_json footstone dom)
+# region source set
+get_filename_component(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/.." REALPATH)
+set(SOURCE_SET
+		${ROOT_DIR}/tests/main.cc
+		src/dom/deserializer_unittests.cc
+		src/dom/dom_manager_unittests.cc
+		src/dom/dom_value_unittests.cc
+		src/dom/serializer_unittests.cc)
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+# endregion

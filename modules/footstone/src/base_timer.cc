@@ -4,7 +4,7 @@ namespace footstone {
 inline namespace timer {
 
 BaseTimer::BaseTimer(const std::shared_ptr<TaskRunner>& task_runner)
-    : user_task_(nullptr), task_runner_(task_runner), scheduled_run_time_(TimePoint::Now()), is_running_(false) {}
+    : task_runner_(task_runner), user_task_(nullptr), is_running_(false), scheduled_run_time_(TimePoint::Now()) {}
 
 BaseTimer::~BaseTimer() = default;
 

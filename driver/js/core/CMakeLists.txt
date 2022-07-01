@@ -56,10 +56,13 @@ elseif ("${JS_ENGINE}" STREQUAL "JSC")
 endif ()
 # endregion
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/modules/footstone/include)
+# region footstone
+GlobalPackages_Add(footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
+# endregion
 
 # region jni common
-# TODO: will be removed when the base library is complete
+# TODO: will be removed when the JNI library is complete
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/include)
 # endregion
 

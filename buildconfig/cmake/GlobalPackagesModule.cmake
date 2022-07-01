@@ -20,6 +20,8 @@
 
 cmake_minimum_required(VERSION 3.14)
 
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/../.." REALPATH)
+
 include("${CMAKE_CURRENT_LIST_DIR}/InfraPackagesModule.cmake")
 
 function(GlobalPackages_Add_v8)
@@ -56,8 +58,15 @@ endfunction()
 function(GlobalPackages_Add_dom)
   if (NOT TARGET dom)
     InfraPackage_Add(DOM
-        LOCAL "${CMAKE_CURRENT_LIST_DIR}/../../dom")
+        LOCAL "${PROJECT_ROOT_DIR}/dom")
   endif ()
+endfunction()
+
+function(GlobalPackages_Add_footstone)
+  if (NOT TARGET footstone)
+    InfraPackage_Add(DOM
+        LOCAL "${PROJECT_ROOT_DIR}/modules/footstone")
+  endif()
 endfunction()
 
 function(GlobalPackages_Add)

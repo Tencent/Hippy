@@ -28,9 +28,9 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS off)
+set(VISIBILITY_INLINES_HIDDEN on)
 
 # region library
 add_library(${PROJECT_NAME} SHARED)
@@ -47,9 +47,10 @@ if (${ANDROID_STL} STREQUAL "c++_static")
 endif ()
 # endregion
 
-add_subdirectory(${PROJECT_ROOT_DIR}/modules/footstone/ ${CMAKE_CURRENT_BINARY_DIR}/footstone)
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/modules/footstone/include)
-target_link_libraries(${PROJECT_NAME} PUBLIC footstone)
+# region footstone
+GlobalPackages_Add(footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
+# endregion
 
 # region core
 add_subdirectory(${PROJECT_ROOT_DIR}/driver/js/core ${CMAKE_CURRENT_BINARY_DIR}/core)

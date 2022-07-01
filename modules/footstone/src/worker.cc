@@ -6,6 +6,7 @@
 #include <map>
 #include <utility>
 
+#include "footstone/check.h"
 #include "footstone/logging.h"
 #include "footstone/worker_manager.h"
 
@@ -25,9 +26,9 @@ thread_local std::shared_ptr<TaskRunner> local_runner;
 thread_local std::vector<std::shared_ptr<TaskRunner>> curr_group;
 
 Worker::Worker(bool is_schedulable, std::string name)
-    : is_schedulable_(is_schedulable), name_(std::move(name)), is_terminated_(false),
-      need_balance_(false), is_stacking_mode_(false), min_wait_time_(TimeDelta::Max()),
-      next_task_time_(TimePoint::Max()), has_migration_data_(false), is_exit_immediately_(true) {}
+    : name_(std::move(name)), is_terminated_(false), is_exit_immediately_(true),
+      min_wait_time_(TimeDelta::Max()), next_task_time_(TimePoint::Max()), need_balance_(false),
+      is_stacking_mode_(false), has_migration_data_(false), is_schedulable_(is_schedulable) {}
 
 Worker::~Worker() {
   FOOTSTONE_CHECK(is_terminated_) << "Terminate function must be called before destruction";
@@ -116,7 +117,7 @@ void Worker::Terminate() {
   TerminateWorker();
 }
 
-void Worker::BindGroup(int father_id, const std::shared_ptr<TaskRunner> &child) {
+void Worker::BindGroup(uint32_t father_id, const std::shared_ptr<TaskRunner> &child) {
   std::lock_guard<std::mutex> running_lock(running_mutex_);
   std::list<std::vector<std::shared_ptr<TaskRunner>>>::iterator group_it;
   bool has_found = false;
@@ -212,7 +213,7 @@ void Worker::UnBind(const std::shared_ptr<TaskRunner> &runner) {
 
 int32_t Worker::GetRunningGroupSize() {
   std::lock_guard<std::mutex> lock(running_mutex_);
-  return running_groups_.size();
+  return checked_numeric_cast<size_t, int32_t>(running_groups_.size());
 }
 
 std::list<std::vector<std::shared_ptr<TaskRunner>>> Worker::UnBind() {
@@ -370,11 +371,12 @@ int32_t Worker::WorkerKeyCreate(uint32_t task_runner_id,
     return -1;
   }
   auto array = map_it->second;
-  for (auto i = 0; i < array.size(); ++i) {
+  for (size_t i = 0; i < array.size(); ++i) {
     if (!array[i].is_used) {
       array[i].is_used = true;
       array[i].destruct = destruct;
-      return i;
+
+      return checked_numeric_cast<size_t, int32_t>(i);
     }
   }
   return -1;
@@ -386,11 +388,11 @@ bool Worker::WorkerKeyDelete(uint32_t task_runner_id, int32_t key) {
     return false;
   }
   auto array = map_it->second;
-  if (key >= array.size() || !array[key].is_used) {
+  if (key < 0 || static_cast<size_t>(key) >= array.size() || !array[static_cast<size_t>(key)].is_used) {
     return false;
   }
-  array[key].is_used = false;
-  array[key].destruct = nullptr;
+  array[static_cast<size_t>(key)].is_used = false;
+  array[static_cast<size_t>(key)].destruct = nullptr;
   return true;
 }
 
@@ -400,10 +402,10 @@ bool Worker::WorkerSetSpecific(uint32_t task_runner_id, int32_t key, void *p) {
     return false;
   }
   auto array = map_it->second;
-  if (key >= array.size()) {
+  if (key < 0 || static_cast<size_t>(key) >= array.size()) {
     return false;
   }
-  array[key] = p;
+  array[static_cast<size_t>(key)] = p;
   return true;
 }
 
@@ -413,10 +415,10 @@ void *Worker::WorkerGetSpecific(uint32_t task_runner_id, int32_t key) {
     return nullptr;
   }
   auto array = map_it->second;
-  if (key >= array.size()) {
+  if (key < 0 || static_cast<size_t>(key) >= array.size()) {
     return nullptr;
   }
-  return array[key];
+  return array[static_cast<size_t>(key)];
 }
 
 void Worker::WorkerDestroySpecific(uint32_t task_runner_id) {
@@ -431,7 +433,7 @@ void Worker::WorkerDestroySpecificNoLock(uint32_t task_runner_id) {
   }
   auto key_array = key_array_it->second;
   auto specific_array = specific_it->second;
-  for (auto i = 0; i < specific_array.size(); ++i) {
+  for (size_t i = 0; i < specific_array.size(); ++i) {
     auto destruct = key_array[i].destruct;
     void *data = specific_array[i];
     if (destruct != nullptr && data != nullptr) {
