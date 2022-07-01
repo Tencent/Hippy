@@ -88,7 +88,6 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         if (0 == ref.second) {
             NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
             std::shared_ptr<Engine> engine = ref.first;
-            engine->TerminateRunner();
             _engineMapper.erase(it);
         }
     }

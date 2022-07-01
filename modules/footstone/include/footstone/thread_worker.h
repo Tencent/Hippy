@@ -10,8 +10,8 @@ class ThreadWorker: public Worker {
   ThreadWorker(bool is_schedulable, std::string name = "");
   virtual ~ThreadWorker();
 
- protected:
   virtual void Start() override;
+ protected:
   virtual void RunLoop() override;
   virtual void TerminateWorker() override;
   virtual void Notify() override;

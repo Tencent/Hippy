@@ -20,15 +20,21 @@ void BaseTimer::ScheduleNewTask(TimeDelta delay) {
   }
 
   is_running_ = true;
-  //todo Solve the life cycle problem of this object
+  std::weak_ptr<BaseTimer> weak_self = GetWeakSelf();
   if (delay > TimeDelta::Zero()) {
-    task_runner->PostDelayedTask(std::make_unique<Task>([this]{
-      OnScheduledTaskInvoked();
+    task_runner->PostDelayedTask(std::make_unique<Task>([weak_self]{
+      auto self = weak_self.lock();
+      if (self) {
+        self->OnScheduledTaskInvoked();
+      }
     }), delay);
     scheduled_run_time_ = desired_run_time_ = TimePoint::Now() + delay;
   } else {
-    task_runner->PostTask(std::make_unique<Task>([this]{
-      OnScheduledTaskInvoked();
+    task_runner->PostTask(std::make_unique<Task>([weak_self]{
+      auto self = weak_self.lock();
+      if (self) {
+        self->OnScheduledTaskInvoked();
+      }
     }));
     scheduled_run_time_ = desired_run_time_ = TimePoint::Now();
   }

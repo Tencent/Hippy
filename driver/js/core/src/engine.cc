@@ -51,8 +51,6 @@ Engine::~Engine() {
   FOOTSTONE_DCHECK(scope_cnt_ == 0) << "this engine is in use";
 }
 
-void Engine::TerminateRunner() {}
-
 std::shared_ptr<Scope> Engine::CreateScope(const std::string& name,
                                            std::unique_ptr<RegisterMap> map) {
   FOOTSTONE_DLOG(INFO) << "Engine CreateScope";
@@ -86,13 +84,13 @@ void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
 }
 
 void Engine::Enter() {
-  FOOTSTONE_DLOG(INFO) << "Engine Enter";
+  FOOTSTONE_DLOG(INFO) << "Engine Enter, scope_cnt_ = " << scope_cnt_;
   std::lock_guard<std::mutex> lock(cnt_mutex_);
   ++scope_cnt_;
 }
 
 void Engine::Exit() {
-  FOOTSTONE_DLOG(INFO) << "Engine Exit";
+  FOOTSTONE_DLOG(INFO) << "Engine Exit, scope_cnt_ = " << scope_cnt_;
   std::lock_guard<std::mutex> lock(cnt_mutex_);
   --scope_cnt_;
 }

@@ -61,6 +61,9 @@ class TaskRunner {
   void *RunnerGetSpecific(int32_t key);
   void RunnerDestroySpecifics();
 
+  inline void SetWorker(std::weak_ptr<Worker> worker) {
+    worker_ = worker;
+  }
   inline uint32_t GetPriority() { return priority_; }
   inline uint32_t GetId() { return id_; }
   inline std::string GetName() {

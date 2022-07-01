@@ -63,7 +63,7 @@ class TimerModule : public ModuleBase {
       std::shared_ptr<BaseTimer> timer;
     };
 
-  std::shared_ptr<std::unordered_map<uint32_t , std::unique_ptr<BaseTimer>>> timer_map_;
+  std::shared_ptr<std::unordered_map<uint32_t , std::shared_ptr<BaseTimer>>> timer_map_;
 
   static const int kTimerInvalidId = 0;
 };

@@ -217,6 +217,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
 }
 
+- (void)dealloc {
+  self.workerManager->Terminate();
+}
+
 - (void)loadSource:(HippySourceLoadBlock)_onSourceLoad onProgress:(HippySourceLoadProgressBlock)onProgress {
     [_performanceLogger markStartForTag:HippyPLScriptDownload];
 

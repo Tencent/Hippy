@@ -44,7 +44,7 @@ std::shared_ptr<TaskRunner> Worker::GetCurrentTaskRunner() {
 
 bool Worker::HasUnschedulableRunner() {
   std::lock_guard<std::mutex> lock(running_mutex_);
-  for (const auto &group: running_groups_) {
+  for (const auto &group: running_group_list_) {
     for (const auto &runner: group) {
       if (!runner->IsSchedulable()) {
         return true;
@@ -55,23 +55,23 @@ bool Worker::HasUnschedulableRunner() {
 }
 
 void Worker::BalanceNoLock() {
-  if (pending_groups_.empty()) {
+  if (pending_group_list_.empty()) {
     return;
   }
 
   TimeDelta time;  // default 0
-  auto running_it = running_groups_.begin();
-  if (running_it != running_groups_.end()) {
+  auto running_it = running_group_list_.begin();
+  if (running_it != running_group_list_.end()) {
     time = running_it->front()->GetTime();
   }
   // 等待队列初始化为当前优先级最高taskRunner运行时间
-  for (auto &group : pending_groups_) {
+  for (auto &group : pending_group_list_) {
     for (auto &runner : group) {
       runner->SetTime(time);
     }
   }
   // 新的taskRunner插入到最高优先级之后，既可以保证原有队列执行顺序不变，又可以使得未执行的TaskRunner优先级高
-  running_groups_.splice(running_it, pending_groups_);
+  running_group_list_.splice(running_it, pending_group_list_);
 }
 
 bool Worker::RunTask() {
@@ -99,8 +99,8 @@ void Worker::Run() {
 }
 
 void Worker::SortNoLock() { // sort后优先级越高的TaskRunner分组距离队列头部越近
-  if (!running_groups_.empty()) {
-    running_groups_.sort([](const auto &lhs, const auto &rhs) {
+  if (!running_group_list_.empty()) {
+    running_group_list_.sort([](const auto &lhs, const auto &rhs) {
       FOOTSTONE_CHECK(!lhs.empty() && !rhs.empty());
       // 运行时间越短优先级越高，priority越小优先级越高
       int64_t left = lhs[0]->GetPriority() * lhs[0]->GetTime().ToNanoseconds();
@@ -121,7 +121,7 @@ void Worker::BindGroup(uint32_t father_id, const std::shared_ptr<TaskRunner> &ch
   std::lock_guard<std::mutex> running_lock(running_mutex_);
   std::list<std::vector<std::shared_ptr<TaskRunner>>>::iterator group_it;
   bool has_found = false;
-  for (group_it = running_groups_.begin(); group_it != running_groups_.end(); ++group_it) {
+  for (group_it = running_group_list_.begin(); group_it != running_group_list_.end(); ++group_it) {
     for (auto &runner_it : *group_it) {
       if (runner_it->GetId() == father_id) {
         has_found = true;
@@ -134,7 +134,7 @@ void Worker::BindGroup(uint32_t father_id, const std::shared_ptr<TaskRunner> &ch
   }
   if (!has_found) {
     std::lock_guard<std::mutex> balance_lock(pending_mutex_);
-    for (group_it = pending_groups_.begin(); group_it != pending_groups_.end(); ++group_it) {
+    for (group_it = pending_group_list_.begin(); group_it != pending_group_list_.end(); ++group_it) {
       for (auto &runner_it : *group_it) {
         if (runner_it->GetId() == father_id) {
           has_found = true;
@@ -157,7 +157,7 @@ void Worker::Bind(std::vector<std::shared_ptr<TaskRunner>> group) {
     if (group_id != kDefaultGroupId) {
       group_id_ = group_id;
     }
-    pending_groups_.insert(pending_groups_.end(), std::move(group));
+    pending_group_list_.insert(pending_group_list_.end(), std::move(group));
   }
   need_balance_ = true;
   Notify();
@@ -166,65 +166,58 @@ void Worker::Bind(std::vector<std::shared_ptr<TaskRunner>> group) {
 void Worker::Bind(std::list<std::vector<std::shared_ptr<TaskRunner>>> list) {
   {
     std::lock_guard<std::mutex> lock(pending_mutex_);
-    pending_groups_.splice(pending_groups_.end(), list);
+    pending_group_list_.splice(pending_group_list_.end(), list);
   }
   need_balance_ = true;
   Notify();
 }
 
-void Worker::UnBind(const std::shared_ptr<TaskRunner> &runner) {
-  std::vector<std::shared_ptr<TaskRunner>> group;
-  bool has_found = false;
-  {
-    std::lock_guard<std::mutex> running_lock(running_mutex_);
-    for (auto &running_group : running_groups_) {
-      for (auto runner_it = running_group.begin(); runner_it != running_group.end(); ++runner_it) {
-        if ((*runner_it)->GetId() == runner->GetId()) {
-          running_group.erase(runner_it);
-          has_found = true;
-          break;
+bool EraseRunnerNoLock(std::list<std::vector<std::shared_ptr<TaskRunner>>>& list,
+                       const std::shared_ptr<TaskRunner> &runner) {
+  for (auto group_it = list.begin(); group_it != list.end(); ++group_it) {
+    for (auto runner_it = group_it->begin(); runner_it != group_it->end(); ++runner_it) {
+      if ((*runner_it)->GetId() == runner->GetId()) {
+        group_it->erase(runner_it);
+        if (group_it->empty()) {
+          list.erase(group_it);
         }
-      }
-      if (has_found) {
-        break;
+        return true;
       }
     }
+  }
+  return false;
+}
+
+void Worker::UnBind(const std::shared_ptr<TaskRunner> &runner) {
+  std::vector<std::shared_ptr<TaskRunner>> group;
+  bool has_found;
+  {
+    std::lock_guard<std::mutex> running_lock(running_mutex_);
+    has_found = EraseRunnerNoLock(running_group_list_, runner);
   }
 
   if (!has_found) {
     {
       std::lock_guard<std::mutex> balance_lock(pending_mutex_);
-      for (auto &pending_group : pending_groups_) {
-        for (auto runner_it = pending_group.begin(); runner_it != pending_group.end();
-             ++runner_it) {
-          if ((*runner_it)->GetId() == runner->GetId()) {
-            pending_group.erase(runner_it);
-            has_found = true;
-            break;
-          }
-        }
-        if (has_found) {
-          break;
-        }
-      }
+      EraseRunnerNoLock(pending_group_list_, runner);
     }
   }
 }
 
-int32_t Worker::GetRunningGroupSize() {
+uint32_t Worker::GetRunningGroupSize() {
   std::lock_guard<std::mutex> lock(running_mutex_);
-  return checked_numeric_cast<size_t, int32_t>(running_groups_.size());
+  return checked_numeric_cast<size_t, uint32_t>(running_group_list_.size());
 }
 
 std::list<std::vector<std::shared_ptr<TaskRunner>>> Worker::UnBind() {
   std::list<std::vector<std::shared_ptr<TaskRunner>>> ret;
   {
     std::lock_guard<std::mutex> lock(running_mutex_);
-    ret.splice(ret.end(), running_groups_);
+    ret.splice(ret.end(), running_group_list_);
   }
   {
     std::lock_guard<std::mutex> lock(pending_mutex_);
-    ret.splice(ret.end(), pending_groups_);
+    ret.splice(ret.end(), pending_group_list_);
   }
 
   return ret;
@@ -233,8 +226,8 @@ std::list<std::vector<std::shared_ptr<TaskRunner>>> Worker::UnBind() {
 std::list<std::vector<std::shared_ptr<TaskRunner>>> Worker::ReleasePending() {
   std::lock_guard<std::mutex> lock(pending_mutex_);
 
-  std::list<std::vector<std::shared_ptr<TaskRunner>>> ret(std::move(pending_groups_));
-  pending_groups_ = {};
+  std::list<std::vector<std::shared_ptr<TaskRunner>>> ret(std::move(pending_group_list_));
+  pending_group_list_ = {};
   return ret;
 }
 
@@ -242,8 +235,8 @@ std::list<std::vector<std::shared_ptr<TaskRunner>>> Worker::RetainActiveAndUnsch
   std::list<std::vector<std::shared_ptr<TaskRunner>>> ret;
   {
     std::lock_guard<std::mutex> lock(running_mutex_);
-    for (auto group_it = running_groups_.begin(); group_it != running_groups_.end(); ++group_it) {
-      if (group_it == running_groups_.begin()) {
+    for (auto group_it = running_group_list_.begin(); group_it != running_group_list_.end(); ++group_it) {
+      if (group_it == running_group_list_.begin()) {
         continue;
       }
       bool has_unschedulable = false;
@@ -256,12 +249,12 @@ std::list<std::vector<std::shared_ptr<TaskRunner>>> Worker::RetainActiveAndUnsch
       if (has_unschedulable) {
         continue;
       }
-      ret.splice(ret.end(), running_groups_, group_it);
+      ret.splice(ret.end(), running_group_list_, group_it);
     }
   }
   {
     std::lock_guard<std::mutex> lock(pending_mutex_);
-    ret.splice(ret.end(), pending_groups_);
+    ret.splice(ret.end(), pending_group_list_);
   }
 
   return ret;
@@ -272,18 +265,18 @@ std::list<std::vector<std::shared_ptr<TaskRunner>>> Worker::Retain(
   std::lock_guard<std::mutex> lock(running_mutex_);
 
   std::vector<std::shared_ptr<TaskRunner>> group;
-  for (auto group_it = running_groups_.begin(); group_it != running_groups_.end(); ++group_it) {
+  for (auto group_it = running_group_list_.begin(); group_it != running_group_list_.end(); ++group_it) {
     for (auto runner_it = group_it->begin(); runner_it != group_it->end(); ++runner_it) {
       if ((*runner_it)->GetId() == runner->GetId()) {
         group = *group_it;
-        running_groups_.erase(group_it);
+        running_group_list_.erase(group_it);
         break;
       }
     }
   }
 
-  std::list<std::vector<std::shared_ptr<TaskRunner>>> ret(std::move(running_groups_));
-  running_groups_ = {group};
+  std::list<std::vector<std::shared_ptr<TaskRunner>>> ret(std::move(running_group_list_));
+  running_group_list_ = {group};
   return ret;
 }
 
@@ -312,7 +305,7 @@ std::unique_ptr<Task> Worker::GetNextTask() {
       immediate_task_queue_.pop();
       return task;
     }
-    if (running_groups_.size() > 1) {
+    if (running_group_list_.size() > 1) {
       SortNoLock();
     }
   }
@@ -328,7 +321,7 @@ std::unique_ptr<Task> Worker::GetNextTask() {
   TimeDelta last_wait_time;
   TimePoint now = TimePoint::Now();
   std::unique_ptr<IdleTask> idle_task;
-  for (auto &running_group : running_groups_) {
+  for (auto &running_group : running_group_list_) {
     auto runner = running_group.back(); // group栈顶会阻塞下面的taskRunner执行
     auto task = runner->GetNext();
     if (task) {

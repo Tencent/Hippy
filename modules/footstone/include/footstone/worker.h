@@ -38,7 +38,7 @@ class Worker {
   void Bind(std::vector<std::shared_ptr<TaskRunner>> runner);
   void Bind(std::list<std::vector<std::shared_ptr<TaskRunner>>> list);
   void UnBind(const std::shared_ptr<TaskRunner>& runner);
-  int32_t GetRunningGroupSize();
+  uint32_t GetRunningGroupSize();
   std::list<std::vector<std::shared_ptr<TaskRunner>>> UnBind();
   std::list<std::vector<std::shared_ptr<TaskRunner>>> ReleasePending();
   std::list<std::vector<std::shared_ptr<TaskRunner>>> RetainActiveAndUnschedulable();
@@ -97,8 +97,8 @@ class Worker {
   std::array<void *, Worker::kWorkerKeysMax> GetMovedSpecific(uint32_t task_runner_id);
   void UpdateSpecific(uint32_t task_runner_id, std::array<void *, kWorkerKeysMax> array);
 
-  std::list<std::vector<std::shared_ptr<TaskRunner>>> running_groups_;
-  std::list<std::vector<std::shared_ptr<TaskRunner>>> pending_groups_;
+  std::list<std::vector<std::shared_ptr<TaskRunner>>> running_group_list_;
+  std::list<std::vector<std::shared_ptr<TaskRunner>>> pending_group_list_;
   std::mutex running_mutex_; // 容器不是线程安全，锁住running_group_
   std::mutex pending_mutex_; // 锁住pending_group_
   std::map<uint32_t, std::array<Worker::WorkerKey, Worker::kWorkerKeysMax>> worker_key_map_;

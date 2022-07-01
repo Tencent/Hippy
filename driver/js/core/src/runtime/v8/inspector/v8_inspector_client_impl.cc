@@ -22,6 +22,8 @@
 
 #include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
 
+#include <utility>
+
 #include "core/runtime/v8/bridge.h"
 
 namespace hippy::inspector {
@@ -29,7 +31,7 @@ namespace hippy::inspector {
 constexpr uint8_t kProjectName[] = "Hippy";
 
 V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope, std::weak_ptr<TaskRunner> runner)
-    : scope_(std::move(scope)), js_runner_(runner) {
+    : scope_(std::move(scope)), js_runner_(std::move(runner)) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
   v8::Isolate* isolate = ctx->isolate_;
