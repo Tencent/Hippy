@@ -37,16 +37,6 @@
 @class NativeRenderAnimationViewParams, NativeRenderObjectView;
 
 /**
- * UIManager queue
- */
-NATIVE_RENDER_EXTERN dispatch_queue_t NativeRenderGetUIManagerQueue(void);
-
-/**
- * Default name for the UIManager queue
- */
-NATIVE_RENDER_EXTERN const char *NativeRenderUIManagerQueueName;
-
-/**
  * Posted whenever a new root view is registered with NativeRenderUIManager. The userInfo property
  * will contain a NativeRenderUIManagerRootViewKey with the registered root view.
  */
@@ -55,9 +45,11 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidRegisterRootViewNot
 /**
  * Key for the root view property in the above notifications
  */
-NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerRootViewKey;
+NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerRootViewTagKey;
 
-//TODO delete it
+/**
+ * Key for Render UIManager
+ */
 NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerKey;
 
 /**
@@ -96,11 +88,6 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotificatio
  * view logic after all currently queued view updates have completed.
  */
 - (void)addUIBlock:(NativeRenderRenderUIBlock)block;
-
-/**
- * Schedule a block to be executed on the UIManager queue.
- */
-- (void)executeBlockOnUIManagerQueue:(dispatch_block_t)block;
 
 /**
  * In some cases we might want to trigger layout from native side.

@@ -132,9 +132,8 @@ static void NativeRenderTraverseViewNodes(id<NativeRenderComponentProtocol> view
 
 #define AssertMainQueue() NSAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread")
 
-const char *NativeRenderUIManagerQueueName = "com.tencent.hippy.ShadowQueue";
 NSString *const NativeRenderUIManagerDidRegisterRootViewNotification = @"NativeRenderUIManagerDidRegisterRootViewNotification";
-NSString *const NativeRenderUIManagerRootViewKey = @"NativeRenderUIManagerRootViewKey";
+NSString *const NativeRenderUIManagerRootViewTagKey = @"NativeRenderUIManagerRootViewKey";
 NSString *const NativeRenderUIManagerKey = @"NativeRenderUIManagerKey";
 NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIManagerDidEndBatchNotification";
 
@@ -257,24 +256,6 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     return _renderQueueLock;
 }
 
-dispatch_queue_t NativeRenderGetUIManagerQueue(void) {
-    static dispatch_queue_t shadowQueue;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        if ([NSOperation instancesRespondToSelector:@selector(qualityOfService)]) {
-            dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INTERACTIVE, 0);
-            shadowQueue = dispatch_queue_create(NativeRenderUIManagerQueueName, attr);
-        } else {
-            shadowQueue = dispatch_queue_create(NativeRenderUIManagerQueueName, DISPATCH_QUEUE_SERIAL);
-            dispatch_set_target_queue(shadowQueue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
-        }
-    });
-    return shadowQueue;
-}
-
-- (dispatch_queue_t)methodQueue {
-    return NativeRenderGetUIManagerQueue();
-}
 #pragma mark -
 #pragma mark View Manager
 - (NativeRenderComponentData *)componentDataForViewName:(NSString *)viewName {
@@ -308,25 +289,36 @@ dispatch_queue_t NativeRenderGetUIManagerQueue(void) {
     CGRect frame = rootView.frame;
 
     UIColor *backgroundColor = [rootView backgroundColor];
+    NSString *rootViewClassName = NSStringFromClass([rootView class]);
     // Register shadow view
     __weak NativeRenderUIManager *weakSelf = self;
-    __weak id vr = _viewRegistry;
-    dispatch_async(NativeRenderGetUIManagerQueue(), ^{
-        if (!vr && !weakSelf) {
-            return;
+    std::function<void()> registerRootViewFunction = [weakSelf, hippyTag, frame, backgroundColor, rootViewClassName, rootNode](){
+        @autoreleasepool {
+            NativeRenderUIManager *strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
+            std::lock_guard<std::mutex> lock([strongSelf renderQueueLock]);
+            NativeRenderObjectRootView *renderObject = [[NativeRenderObjectRootView alloc] init];
+            renderObject.hippyTag = hippyTag;
+            renderObject.frame = frame;
+            renderObject.backgroundColor = backgroundColor;
+            renderObject.viewName = rootViewClassName;
+            [strongSelf->_renderObjectRegistry addRootComponent:renderObject rootNode:rootNode forTag:hippyTag];
+            NSDictionary *userInfo = @{ NativeRenderUIManagerRootViewTagKey: hippyTag,
+                                        NativeRenderUIManagerKey: strongSelf};
+            [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderUIManagerDidRegisterRootViewNotification
+                                                                object:nil
+                                                              userInfo:userInfo];
         }
-        __strong NativeRenderUIManager *strongSelf = weakSelf;
-        std::lock_guard<std::mutex> lock([self renderQueueLock]);
-        NativeRenderObjectRootView *renderObject = [[NativeRenderObjectRootView alloc] init];
-        renderObject.hippyTag = hippyTag;
-        renderObject.frame = frame;
-        renderObject.backgroundColor = backgroundColor;
-        renderObject.viewName = NSStringFromClass([rootView class]);
-        [strongSelf->_renderObjectRegistry addRootComponent:renderObject rootNode:rootNode forTag:hippyTag];
-    });
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderUIManagerDidRegisterRootViewNotification object:self
-                                                      userInfo:@{ NativeRenderUIManagerRootViewKey: rootView, NativeRenderUIManagerKey: self}];
+    };
+    auto domManager = self.domManager.lock();
+    if (domManager) {
+        domManager->PostTask(hippy::Scene({registerRootViewFunction}));
+    }
+    else {
+        registerRootViewFunction();
+    }
 }
 
 
@@ -606,18 +598,6 @@ dispatch_queue_t NativeRenderGetUIManagerQueue(void) {
     [_pendingUIBlocks addObject:block];
 }
 
-- (void)executeBlockOnRenderQueue:(dispatch_block_t)block {
-    [self executeBlockOnUIManagerQueue:block];
-}
-
-- (void)executeBlockOnUIManagerQueue:(dispatch_block_t)block {
-    dispatch_async(NativeRenderGetUIManagerQueue(), ^{
-        if (block) {
-            block();
-        }
-    });
-}
-
 - (void)amendPendingUIBlocksWithStylePropagationUpdateForRenderObject:(NativeRenderObjectView *)topView {
     NSMutableSet<NativeRenderApplierBlock> *applierBlocks = [NSMutableSet setWithCapacity:1];
 
@@ -814,8 +794,14 @@ dispatch_queue_t NativeRenderGetUIManagerQueue(void) {
 
 - (void)batchOnRootNode:(std::weak_ptr<RootNode>)rootNode {
     [self layoutAndMountOnRootNode:rootNode];
-    [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderUIManagerDidEndBatchNotification
-                                                        object:self];
+    auto strongRootNode = rootNode.lock();
+    if (strongRootNode) {
+        uint32_t rootNodeId = strongRootNode->GetId();
+        NSDictionary *userInfo = @{NativeRenderUIManagerRootViewTagKey: @(rootNodeId)};
+        [[NSNotificationCenter defaultCenter] postNotificationName:NativeRenderUIManagerDidEndBatchNotification
+                                                            object:nil
+                                                          userInfo:userInfo];
+    }
 }
 
 - (id)dispatchFunction:(const std::string &)functionName

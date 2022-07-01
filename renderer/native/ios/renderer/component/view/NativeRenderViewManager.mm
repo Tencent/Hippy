@@ -46,13 +46,6 @@
 
 @implementation NativeRenderViewManager
 
-- (dispatch_queue_t)methodQueue {
-//    return NativeRenderGetUIManagerQueue();
-    //TODO
-    NSAssert(NO, @"return queue");
-    return nil;
-}
-
 - (UIView *)view {
     return [[NativeRenderView alloc] init];
 }
