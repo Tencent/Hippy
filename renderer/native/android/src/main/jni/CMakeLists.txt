@@ -40,14 +40,13 @@ GlobalPackages_Add(dom)
 target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:dom,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
-# region core base
-# TODO: will be removed when the base library is complete
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/third_party/base/include)
+# region footstone
+GlobalPackages_Add(footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
 # region jni common
-# TODO: will be removed when the base library is complete
+# TODO: will be removed when the JNI library is complete
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/include)
 # endregion
 

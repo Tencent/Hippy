@@ -5,7 +5,7 @@
 #ifdef ANDROID
 #include "footstone/platform/adr/loop_worker_impl.h"
 #elif defined IOS
-#include "footstone/platform/ios/looper_worker_impl.h"
+#include "footstone/platform/ios/loop_worker_impl.h"
 #endif
 
 #include <map>
@@ -15,16 +15,10 @@
 
 #include "footstone/logging.h"
 
-#ifndef WORKER_MANAGER_DEFAULT_SIZE
-const static int32_t kDefaultSize = 3;
-#else
-const static int32_t kDefaultSize = WORKER_MANAGER_DEFAULT_SIZE;
-#endif
-
 namespace footstone {
 inline namespace runner {
 
-WorkerManager::WorkerManager(int size) : size_(size), index_(0) { CreateWorkers(size); }
+WorkerManager::WorkerManager(int32_t size) : index_(0), size_(size) { CreateWorkers(size); }
 
 WorkerManager::~WorkerManager() = default;
 
@@ -34,9 +28,9 @@ void WorkerManager::Terminate() {
   }
 }
 
-void WorkerManager::CreateWorkers(int size) {
+void WorkerManager::CreateWorkers(int32_t size) {
   std::shared_ptr<Worker> worker;
-  for (int i = 0; i < size; ++i) {
+  for (auto i = 0; i < size; ++i) {
     worker = std::make_shared<ThreadWorkerImpl>();
     worker->Start();
     workers_.push_back(worker);
@@ -72,8 +66,10 @@ void WorkerManager::MoveTaskRunnerSpecificNoLock(uint32_t runner_id,
   }));
 }
 
-void WorkerManager::Resize(int size) {
+void WorkerManager::Resize(int32_t size) {
   std::lock_guard<std::mutex> lock(mutex_);
+
+  FOOTSTONE_CHECK(size > 0);
 
   if (size == size_) {
     return;
@@ -91,18 +87,18 @@ void WorkerManager::AddWorker(std::unique_ptr<Worker> worker) {
 
 void WorkerManager::Balance(int32_t increase_worker_count) {
   if (increase_worker_count > 0) {
-    int32_t size = size_ + increase_worker_count;
+    auto size = size_ + increase_worker_count;
     // save all runners that need to be reallocated
     std::list<std::vector<std::shared_ptr<TaskRunner>>> groups;
-    std::vector<int32_t> cur_worker_group(size); // 记录每个worker包含groups数量
+    std::vector<int32_t> cur_worker_group(static_cast<size_t>(size)); // 记录每个worker包含groups数量
     int32_t groups_size = 0; // 所有worker含有的groups总大小
-    for (int i = 0; i < size_; ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(size_); ++i) {
       groups_size += workers_[i]->GetRunningGroupSize();
       groups.splice(groups.end(), workers_[i]->RetainActiveAndUnschedulable());
       cur_worker_group[i] = workers_[i]->GetRunningGroupSize();
     }
 
-    int32_t resize_group_size = std::ceil(groups_size / size); // 调整后每个worker拥有的groups数量
+    auto resize_group_size = static_cast<int32_t>(std::ceil(groups_size / size)); // 调整后每个worker拥有的groups数量
     index_ = size_;
     std::map<int32_t, std::array<Worker::WorkerKey, Worker::kWorkerKeysMax>> migration_key_map;
     std::map<int32_t, std::array<void *, Worker::kWorkerKeysMax>> migration_specific_map;
@@ -113,10 +109,10 @@ void WorkerManager::Balance(int32_t increase_worker_count) {
       if (i >= size) {
         index = i % size;
       }
-      auto worker = workers_[index];
-      int32_t cnt = resize_group_size - cur_worker_group[index]; // 该worker还能增加的groups数量
+      auto worker = workers_[static_cast<size_t>(index)];
+      auto cnt = resize_group_size - cur_worker_group[static_cast<size_t>(index)]; // 该worker还能增加的groups数量
       std::list<std::vector<std::shared_ptr<TaskRunner>>> list;
-      if (cnt < groups.size()) {
+      if (cnt >= 0 && static_cast<size_t>(cnt) < groups.size()) {
         auto end_it = groups.begin();
         std::advance(end_it, cnt);
         list.splice(list.begin(), groups, groups_it, end_it);
@@ -141,37 +137,37 @@ void WorkerManager::Balance(int32_t increase_worker_count) {
     FOOTSTONE_CHECK(size > 0);
     std::list<std::vector<std::shared_ptr<TaskRunner>>> groups;
     int32_t reduce_size = 0 - increase_worker_count; // 需要删减的线程数
-    for (int i = size_ - 1; i > 0 || reduce_size > 0; --i) {
+    for (auto i = size_ - 1; i > 0 || reduce_size > 0; --i) {
       // 如果线程有不可调度TaskRunner则该线程不能终止
-      if (workers_[i]->HasUnschedulableRunner()) {
+      if (workers_[static_cast<size_t>(i)]->HasUnschedulableRunner()) {
         continue;
       }
-      groups.splice(groups.end(), workers_[i]->UnBind());
+      groups.splice(groups.end(), workers_[static_cast<size_t>(i)]->UnBind());
       --reduce_size;
     }
     FOOTSTONE_DCHECK(!reduce_size) << "resize failed, The thread has too many unschedulable runners";
     if (reduce_size > 0) {
       return;
     }
-    for (int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < static_cast<size_t>(size); ++i) {
       groups.splice(groups.end(), workers_[i]->RetainActiveAndUnschedulable());
     }
 
-    if (index_ >= size) {
+    if (index_ >= size || index_ < 0) {
       index_ = 0;
     }
 
     auto it = groups.begin();
     while (it != groups.end()) {
       auto group = *it;
-      auto new_worker = workers_[index_];
+      auto new_worker = workers_[static_cast<size_t>(index_)];
       new_worker->Bind(*it);
       for (auto &vec_it : group) {
         const auto &runner = vec_it;
         auto id = runner->GetId();
         auto orig_worker = runner->worker_.lock();
         if (orig_worker) {
-          new_worker->UpdateSpecificKeys(id, std::move(orig_worker->GetMovedSpecificKeys(id)));
+          new_worker->UpdateSpecificKeys(id, orig_worker->GetMovedSpecificKeys(id));
           new_worker->UpdateSpecific(id, orig_worker->GetMovedSpecific(id));
         }
         runner->worker_ = new_worker;
@@ -179,13 +175,14 @@ void WorkerManager::Balance(int32_t increase_worker_count) {
       index_ = size - 1 ? 0 : ++index_;
       ++it;
     }
-    size_ = size;
 
     for (int i = size_ - 1; i > size - 1; --i) {
       // handle running runner on thread
-      workers_[i]->Terminate();
+      workers_[static_cast<size_t>(i)]->Terminate();
       workers_.pop_back();
     }
+
+    size_ = size;
   }
 }
 
@@ -210,7 +207,7 @@ std::shared_ptr<TaskRunner> WorkerManager::CreateTaskRunner(uint32_t group_id,
       std::shared_ptr<Worker> worker;
       {
         std::lock_guard<std::mutex> lock(mutex_);
-        worker = workers_[index_];
+        worker = workers_[static_cast<size_t>(index_)];
         index_ = size_ - 1 ? 0 : ++index_;
       }
       task_runner->worker_ = worker;
@@ -233,7 +230,7 @@ void WorkerManager::AddTaskRunner(std::shared_ptr<TaskRunner> runner) {
   std::vector<std::shared_ptr<TaskRunner>> group{std::move(runner)};
 
   std::lock_guard<std::mutex> lock(mutex_);
-  auto worker = workers_[index_];
+  auto worker = workers_[static_cast<size_t>(index_)];
   for (auto &r : group) {
     r->worker_ = worker;
   }

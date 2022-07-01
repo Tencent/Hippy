@@ -25,8 +25,8 @@
 #include <mutex>
 #include <unordered_map>
 
-namespace tdf {
-namespace base {
+namespace footstone {
+inline namespace utils {
 
 template <typename Key, typename Tp>
 class PersistentObjectMap {

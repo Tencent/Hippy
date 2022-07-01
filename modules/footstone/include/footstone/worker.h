@@ -34,7 +34,7 @@ class Worker {
 
   void Run();
   void Terminate();
-  void BindGroup(int father_id, const std::shared_ptr<TaskRunner>& child);
+  void BindGroup(uint32_t father_id, const std::shared_ptr<TaskRunner>& child);
   void Bind(std::vector<std::shared_ptr<TaskRunner>> runner);
   void Bind(std::list<std::vector<std::shared_ptr<TaskRunner>>> list);
   void UnBind(const std::shared_ptr<TaskRunner>& runner);

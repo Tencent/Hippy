@@ -15,12 +15,12 @@ using IdleCbParam = IdleTask::IdleCbParam;
 std::atomic<uint32_t> global_task_runner_id{1};
 
 TaskRunner::TaskRunner(uint32_t group_id, uint32_t priority, bool is_schedulable, std::string name):
-      group_id_(group_id),
       name_(std::move(name)),
       has_sub_runner_(false),
-      is_schedulable_(is_schedulable),
       priority_(priority),
-      time_(TimeDelta::Zero()) {
+      group_id_(group_id),
+      time_(TimeDelta::Zero()),
+      is_schedulable_(is_schedulable) {
   id_ = global_task_runner_id.fetch_add(1);
 }
 

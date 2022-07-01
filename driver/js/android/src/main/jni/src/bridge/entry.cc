@@ -35,13 +35,13 @@
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/root_node_repo.h"
-#include "core/base/persistent_object_map.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "dom/node_props.h"
 #include "dom/dom_manager.h"
+#include "footstone/persistent_object_map.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
 #include "footstone/string_view_utils.h"
@@ -166,7 +166,7 @@ constexpr char kDomRunnerName[] = "hippy_dom";
 
 static std::atomic<uint32_t> global_worker_manager_key{1};
 
-tdf::base::PersistentObjectMap<uint32_t, std::shared_ptr<footstone::WorkerManager>> worker_manager_map;
+footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<footstone::WorkerManager>> worker_manager_map;
 
 void DoBind(JNIEnv* j_env,
             __unused jobject j_obj,

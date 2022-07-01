@@ -27,7 +27,6 @@
 #include <utility>
 
 #include "footstone/logging.h"
-#include "core/base/common.h"
 #include "dom/root_node.h"
 #include "jni/jni_env.h"
 
@@ -71,7 +70,7 @@ namespace hippy {
 inline namespace dom {
 
 static std::atomic<int32_t> global_hippy_render_manager_key{0};
-tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
+footstone::utils::PersistentObjectMap<int32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
     : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<footstone::value::Serializer>()) {
