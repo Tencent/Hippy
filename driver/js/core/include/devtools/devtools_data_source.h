@@ -47,7 +47,7 @@ namespace hippy::devtools {
  */
 class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolsDataSource> {
  public:
-  explicit DevtoolsDataSource(const std::string& ws_url);
+  DevtoolsDataSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
   ~DevtoolsDataSource() = default;
   void Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id);
   void Destroy(bool is_reload);

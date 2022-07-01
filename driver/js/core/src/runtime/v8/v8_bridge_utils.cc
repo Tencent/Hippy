@@ -87,7 +87,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   if (is_dev_module) {
-    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url));
+    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url), worker_manager);
     devtools_data_source->SetRuntimeDebugMode(is_dev_module);
     runtime->SetDevtoolsDataSource(devtools_data_source);
   }

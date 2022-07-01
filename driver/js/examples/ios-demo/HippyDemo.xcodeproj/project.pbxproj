@@ -16,6 +16,13 @@
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
+		D3C1E2E9286EED5300239CB3 /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3C1E2E8286EED4300239CB3 /* libdevtools_backend.a */; };
+		D3C1E2FF286EEF1600239CB3 /* trace_control.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3C1E2F7286EEF1600239CB3 /* trace_control.cc */; };
+		D3C1E300286EEF1600239CB3 /* devtools_data_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3C1E2F8286EEF1600239CB3 /* devtools_data_source.cc */; };
+		D3C1E301286EEF1600239CB3 /* hippy_screen_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3C1E2FB286EEF1600239CB3 /* hippy_screen_adapter.cc */; };
+		D3C1E302286EEF1600239CB3 /* hippy_dom_tree_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3C1E2FC286EEF1600239CB3 /* hippy_dom_tree_adapter.cc */; };
+		D3C1E303286EEF1600239CB3 /* hippy_tracing_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3C1E2FD286EEF1600239CB3 /* hippy_tracing_adapter.cc */; };
+		D3C1E304286EEF1600239CB3 /* devtools_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3C1E2FE286EEF1600239CB3 /* devtools_utils.cc */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B09E392750D2C000643CDF /* Flex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4B09E362750D21600643CDF /* Flex.cpp */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -224,6 +231,16 @@
 		F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B43A276C61EB00F17139 /* dom_event.cc */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		D3C1E2E7286EED4300239CB3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D3C1E2E0286EED4300239CB3 /* devtools_backend.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 0D3C33C997604E72986B5AC8;
+			remoteInfo = devtools_backend;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0612F01E23A8BE320079E622 /* HippyDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HippyDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0612F02123A8BE320079E622 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -246,6 +263,23 @@
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		C98B5A3CF5267599CFCFF48A /* libPods-HippyDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HippyDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3C1E2E0286EED4300239CB3 /* devtools_backend.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = devtools_backend.xcodeproj; path = devtools_backend/devtools_backend.xcodeproj; sourceTree = "<group>"; };
+		D3C1E2EB286EEEEC00239CB3 /* trace_control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace_control.h; sourceTree = "<group>"; };
+		D3C1E2EC286EEEEC00239CB3 /* devtools_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_data_source.h; sourceTree = "<group>"; };
+		D3C1E2EE286EEEEC00239CB3 /* hippy_dom_tree_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_tree_adapter.h; sourceTree = "<group>"; };
+		D3C1E2EF286EEEEC00239CB3 /* hippy_vm_request_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_vm_request_adapter.h; sourceTree = "<group>"; };
+		D3C1E2F0286EEEEC00239CB3 /* hippy_tracing_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_tracing_adapter.h; sourceTree = "<group>"; };
+		D3C1E2F1286EEEEC00239CB3 /* hippy_screen_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_screen_adapter.h; sourceTree = "<group>"; };
+		D3C1E2F2286EEEEC00239CB3 /* hippy_runtime_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_runtime_adapter.h; sourceTree = "<group>"; };
+		D3C1E2F3286EEEEC00239CB3 /* devtools_macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_macro.h; sourceTree = "<group>"; };
+		D3C1E2F4286EEEEC00239CB3 /* hippy_dom_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_data.h; sourceTree = "<group>"; };
+		D3C1E2F5286EEEEC00239CB3 /* devtools_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_utils.h; sourceTree = "<group>"; };
+		D3C1E2F7286EEF1600239CB3 /* trace_control.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trace_control.cc; sourceTree = "<group>"; };
+		D3C1E2F8286EEF1600239CB3 /* devtools_data_source.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_data_source.cc; sourceTree = "<group>"; };
+		D3C1E2FB286EEF1600239CB3 /* hippy_screen_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_screen_adapter.cc; sourceTree = "<group>"; };
+		D3C1E2FC286EEF1600239CB3 /* hippy_dom_tree_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_dom_tree_adapter.cc; sourceTree = "<group>"; };
+		D3C1E2FD286EEF1600239CB3 /* hippy_tracing_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_tracing_adapter.cc; sourceTree = "<group>"; };
+		D3C1E2FE286EEF1600239CB3 /* devtools_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_utils.cc; sourceTree = "<group>"; };
 		D42D2C7A2833C84D0079B47B /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
 		D4B09E362750D21600643CDF /* Flex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flex.cpp; sourceTree = "<group>"; };
 		D4B5A07E281663F400ABBD9C /* scene_builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene_builder.cc; sourceTree = "<group>"; };
@@ -712,6 +746,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3C1E2E9286EED5300239CB3 /* libdevtools_backend.a in Frameworks */,
 				F0889ED581FF7516357B3726 /* libPods-HippyDemo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -722,6 +757,7 @@
 		0612F01523A8BE320079E622 = {
 			isa = PBXGroup;
 			children = (
+				D3C1E2E0286EED4300239CB3 /* devtools_backend.xcodeproj */,
 				D88F2A2C286AA6AD008D1439 /* footstone */,
 				F468DDB72812A95100319196 /* ios */,
 				F482918A274E420C00D91128 /* engine */,
@@ -796,6 +832,68 @@
 				AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */,
 			);
 			path = fonts;
+			sourceTree = "<group>";
+		};
+		D3C1E2E1286EED4300239CB3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D3C1E2E8286EED4300239CB3 /* libdevtools_backend.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D3C1E2EA286EEEEC00239CB3 /* devtools */ = {
+			isa = PBXGroup;
+			children = (
+				D3C1E2EB286EEEEC00239CB3 /* trace_control.h */,
+				D3C1E2EC286EEEEC00239CB3 /* devtools_data_source.h */,
+				D3C1E2ED286EEEEC00239CB3 /* adapter */,
+				D3C1E2F3286EEEEC00239CB3 /* devtools_macro.h */,
+				D3C1E2F4286EEEEC00239CB3 /* hippy_dom_data.h */,
+				D3C1E2F5286EEEEC00239CB3 /* devtools_utils.h */,
+			);
+			path = devtools;
+			sourceTree = "<group>";
+		};
+		D3C1E2ED286EEEEC00239CB3 /* adapter */ = {
+			isa = PBXGroup;
+			children = (
+				D3C1E2EE286EEEEC00239CB3 /* hippy_dom_tree_adapter.h */,
+				D3C1E2EF286EEEEC00239CB3 /* hippy_vm_request_adapter.h */,
+				D3C1E2F0286EEEEC00239CB3 /* hippy_tracing_adapter.h */,
+				D3C1E2F1286EEEEC00239CB3 /* hippy_screen_adapter.h */,
+				D3C1E2F2286EEEEC00239CB3 /* hippy_runtime_adapter.h */,
+			);
+			path = adapter;
+			sourceTree = "<group>";
+		};
+		D3C1E2F6286EEF1600239CB3 /* devtools */ = {
+			isa = PBXGroup;
+			children = (
+				D3C1E2F7286EEF1600239CB3 /* trace_control.cc */,
+				D3C1E2F8286EEF1600239CB3 /* devtools_data_source.cc */,
+				D3C1E2F9286EEF1600239CB3 /* adapter */,
+				D3C1E2FE286EEF1600239CB3 /* devtools_utils.cc */,
+			);
+			path = devtools;
+			sourceTree = "<group>";
+		};
+		D3C1E2F9286EEF1600239CB3 /* adapter */ = {
+			isa = PBXGroup;
+			children = (
+				D3C1E2FA286EEF1600239CB3 /* impl */,
+			);
+			path = adapter;
+			sourceTree = "<group>";
+		};
+		D3C1E2FA286EEF1600239CB3 /* impl */ = {
+			isa = PBXGroup;
+			children = (
+				D3C1E2FB286EEF1600239CB3 /* hippy_screen_adapter.cc */,
+				D3C1E2FC286EEF1600239CB3 /* hippy_dom_tree_adapter.cc */,
+				D3C1E2FD286EEF1600239CB3 /* hippy_tracing_adapter.cc */,
+			);
+			path = impl;
 			sourceTree = "<group>";
 		};
 		D84AB8D6273A5AAD00987D03 /* dom */ = {
@@ -882,6 +980,7 @@
 		D84AB921273A618B00987D03 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				D3C1E2EA286EEEEC00239CB3 /* devtools */,
 				D84AB922273A618B00987D03 /* core */,
 			);
 			path = include;
@@ -962,6 +1061,7 @@
 		D84AB966273A618B00987D03 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D3C1E2F6286EEF1600239CB3 /* devtools */,
 				D84AB967273A618B00987D03 /* scope.cc */,
 				D84AB968273A618B00987D03 /* engine.cc */,
 				D84AB96F273A618B00987D03 /* modules */,
@@ -1874,12 +1974,28 @@
 			mainGroup = 0612F01523A8BE320079E622;
 			productRefGroup = 0612F01F23A8BE320079E622 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D3C1E2E1286EED4300239CB3 /* Products */;
+					ProjectRef = D3C1E2E0286EED4300239CB3 /* devtools_backend.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				0612F01D23A8BE320079E622 /* HippyDemo */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		D3C1E2E8286EED4300239CB3 /* libdevtools_backend.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdevtools_backend.a;
+			remoteRef = D3C1E2E7286EED4300239CB3 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0612F01C23A8BE320079E622 /* Resources */ = {
@@ -1964,9 +2080,12 @@
 				D84AB9BD273A618B00987D03 /* ui_manager_module.cc in Sources */,
 				F438B745281248010078435B /* OCTypeToDomArgument.mm in Sources */,
 				F468DE612812A95200319196 /* HippyAsyncLocalStorage.mm in Sources */,
+				D3C1E2FF286EEF1600239CB3 /* trace_control.cc in Sources */,
 				D88F2A86286AA6AD008D1439 /* loop_worker_impl.cc in Sources */,
 				F482919E274E420C00D91128 /* FlexLine.cpp in Sources */,
 				D8A8889E286D416300D60489 /* hippy_value.cc in Sources */,
+				D3C1E304286EEF1600239CB3 /* devtools_utils.cc in Sources */,
+				D3C1E302286EEF1600239CB3 /* hippy_dom_tree_adapter.cc in Sources */,
 				F482919A274E420C00D91128 /* HPStyle.cpp in Sources */,
 				D84AB8ED273A5AAD00987D03 /* dom_node.cc in Sources */,
 				067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */,
@@ -2033,6 +2152,7 @@
 				F42EA79B277C354C007874A2 /* TurboBaseModule.mm in Sources */,
 				F45D266728067B6900CAB185 /* HippyHeaderRefresh.mm in Sources */,
 				F45D269128067B6900CAB185 /* HippyFooterRefresh.mm in Sources */,
+				D3C1E301286EEF1600239CB3 /* hippy_screen_adapter.cc in Sources */,
 				F468DE6C2812A95200319196 /* HippyEventDispatcher.mm in Sources */,
 				F468DE682812A95200319196 /* HippyClipboardModule.m in Sources */,
 				F45D268D28067B6900CAB185 /* HippyNavigatorHostView.mm in Sources */,
@@ -2069,6 +2189,7 @@
 				F45D267D28067B6900CAB185 /* UIView+AppearEvent.m in Sources */,
 				D4B5A081281663F400ABBD9C /* scene.cc in Sources */,
 				F4A8424327D38CF900AEFC88 /* HippyUIManager.mm in Sources */,
+				D3C1E303286EEF1600239CB3 /* hippy_tracing_adapter.cc in Sources */,
 				F45D266B28067B6900CAB185 /* HippyWaterfallItemView.mm in Sources */,
 				F45D266028067B6900CAB185 /* HippyTextViewManager.mm in Sources */,
 				F45D269328067B6900CAB185 /* HippyText.mm in Sources */,
@@ -2126,6 +2247,7 @@
 				F45D267828067B6900CAB185 /* HippyBaseListViewManager.mm in Sources */,
 				F4C1DAAD28117C1900CED4C4 /* NSArray+HippyArrayDeepCopy.m in Sources */,
 				F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */,
+				D3C1E300286EEF1600239CB3 /* devtools_data_source.cc in Sources */,
 				F468DE7F2812A95200319196 /* HippyFrameUpdate.m in Sources */,
 				D88F2A95286AA6AD008D1439 /* idle_task.cc in Sources */,
 				F45D267628067B6900CAB185 /* HippyBaseListViewCell.mm in Sources */,
@@ -2257,15 +2379,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = T77FF8PWWU;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					USE_TAITANK,
 					"DEBUG=1",
 					"$(inherited)",
+					"ENABLE_INSPECTOR=true",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
@@ -2287,7 +2410,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = Wildcard;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -2298,9 +2421,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = T77FF8PWWU;
 				GCC_ENABLE_CPP_EXCEPTIONS = YES;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2327,7 +2450,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.tencent.HippyDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = Wildcard;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;

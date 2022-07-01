@@ -27,6 +27,7 @@
 #include "api/devtools_notification_center.h"
 #include "devtools_base/domain_propos.h"
 #include "devtools_base/error.h"
+#include "footstone/worker_manager.h"
 #include "module/inspect_event.h"
 #include "module/inspect_props.h"
 
@@ -92,6 +93,8 @@ class BaseDomain {
   std::shared_ptr<DataProvider> GetDataProvider();
 
   std::shared_ptr<NotificationCenter> GetNotificationCenter();
+
+  std::shared_ptr<footstone::WorkerManager> GetWorkerManager();
 
  private:
   std::string name_;

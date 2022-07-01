@@ -23,8 +23,8 @@
 #include <memory>
 #include <string>
 #include "footstone/task_runner.h"
-#include "module/model/base_model.h"
 #include "footstone/worker_manager.h"
+#include "module/model/base_model.h"
 
 namespace hippy::devtools {
 
@@ -35,6 +35,7 @@ class FramePollModel : public BaseModel, public std::enable_shared_from_this<Fra
   inline void SetResponseHandler(ResponseHandler handler) { response_handler_ = handler; }
   void StartPoll();
   void StopPoll();
+  explicit FramePollModel(std::shared_ptr<footstone::WorkerManager> worker_manager) : worker_manager_(worker_manager) {}
   ~FramePollModel();
 
  private:
