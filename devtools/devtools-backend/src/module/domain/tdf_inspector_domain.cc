@@ -32,7 +32,7 @@ constexpr char kRenderTreeUpdated[] = "TDFInspector.renderTreeUpdated";
 
 TdfInspectorDomain::TdfInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   tdf_inspector_model_ = std::make_shared<TDFInspectorModel>();
-  frame_poll_model_ = std::make_shared<FramePollModel>();
+  frame_poll_model_ = std::make_shared<FramePollModel>(GetWorkerManager());
   screen_shot_model_ = std::make_shared<ScreenShotModel>();
   frame_poll_model_->InitTask();
   screen_shot_model_->SetDataProvider(GetDataProvider());

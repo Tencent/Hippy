@@ -30,7 +30,7 @@ constexpr char kPageEventScreencastFrame[] = "Page.screencastFrame";
 
 PageDomain::PageDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   screen_shot_model_ = std::make_shared<ScreenShotModel>();
-  frame_poll_model_ = std::make_shared<FramePollModel>();
+  frame_poll_model_ = std::make_shared<FramePollModel>(GetWorkerManager());
   frame_poll_model_->InitTask();
   screen_shot_model_->SetDataProvider(GetDataProvider());
   frame_poll_model_->SetDataProvider(GetDataProvider());

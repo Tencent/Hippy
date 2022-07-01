@@ -29,7 +29,6 @@ constexpr int32_t kRefreshIntervalMilliSeconds = 2000;
 constexpr char kTaskRunnerNameFramePoll[] = "frame_poll";
 
 void FramePollModel::InitTask() {
-  worker_manager_ = std::make_shared<footstone::WorkerManager>(1);
   refresh_task_runner_ = worker_manager_->CreateTaskRunner(kTaskRunnerNameFramePoll);
   refresh_task_ = [DEVTOOLS_WEAK_THIS]() {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
