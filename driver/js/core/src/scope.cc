@@ -51,7 +51,7 @@ using DomNode = hippy::dom::DomNode;
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
-constexpr char kUnLoadInstanceFuncName[] = "__unloadInstance__";
+constexpr char kUnloadInstanceFuncName[] = "__unloadInstance__";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
 #ifdef ENABLE_INSPECTOR
 constexpr char kHippyModuleName[] = "name";
@@ -411,27 +411,47 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
   }
 }
 
+
 void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
-  std::weak_ptr<Ctx> weak_context = context_;
-  auto cb = [weak_context, value]() mutable {
-    std::shared_ptr<Ctx> context = weak_context.lock();
-    if (context) {
-      std::shared_ptr<CtxValue> fn = context->GetJsFn(kUnLoadInstanceFuncName);
-      bool is_fn = context->IsFunction(fn);
-      FOOTSTONE_DCHECK(is_fn);
-      if (is_fn) {
-        auto param = context->CreateCtxValue(value);
-        std::shared_ptr<CtxValue> argv[] = {param};
-        context->CallFunction(fn, 1, argv);
-      } else {
-        context->ThrowException("Application entry not found");
-      }
+    std::weak_ptr<Ctx> weak_context = context_;
+#ifdef ENABLE_INSPECTOR
+    std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
+    auto cb = [weak_context, value, weak_data_source]() mutable {
+#else
+        auto cb = [weak_context, value]() mutable {
+#endif
+        std::shared_ptr<Ctx> context = weak_context.lock();
+        if (context) {
+            std::shared_ptr<CtxValue> fn = context->GetJsFn(kUnloadInstanceFuncName);
+            bool is_fn = context->IsFunction(fn);
+            FOOTSTONE_DCHECK(is_fn);
+            if (is_fn) {
+                auto param = context->CreateCtxValue(value);
+#ifdef ENABLE_INSPECTOR
+                std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
+                auto devtools_data_source = weak_data_source.lock();
+                if (module_name_value && devtools_data_source != nullptr) {
+                    unicode_string_view module_name;
+                    bool flag = context->GetValueString(module_name_value, &module_name);
+                    if (flag) {
+                        std::string u8_module_name = hippy::base::StringViewUtils::ToU8StdStr(module_name);
+                        devtools_data_source->SetContextName(u8_module_name);
+                    } else {
+                        FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
+                    }
+                }
+#endif
+                std::shared_ptr<CtxValue> argv[] = {param};
+                context->CallFunction(fn, 1, argv);
+            } else {
+                context->ThrowException("Application entry not found");
+            }
+        }
+    };
+    auto runner = engine_->GetJsTaskRunner();
+    if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
+        cb();
+    } else {
+        runner->PostTask(std::move(cb));
     }
-  };
-  auto runner = engine_->GetJsTaskRunner();
-  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
-    cb();
-  } else {
-    runner->PostTask(std::move(cb));
-  }
 }

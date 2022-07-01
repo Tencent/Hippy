@@ -137,6 +137,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
                                       bool is_copy = true);
 
   void LoadInstance(const std::shared_ptr<HippyValue>& value);
+  void UnloadInstance(const std::shared_ptr<HippyValue>& value);
 
   void UnloadInstance(const std::shared_ptr<HippyValue>& value);
 

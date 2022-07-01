@@ -293,6 +293,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     public native void destroyInstance(long V8RuntimeId, byte[] buffer, int offset, int length);
 
     public native void loadInstance(long V8RuntimeId, byte[] buffer, int offset, int length);
+    public native void unloadInstance(long V8RuntimeId, byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
