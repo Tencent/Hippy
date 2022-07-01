@@ -35,21 +35,21 @@
 #import "HippyDefines.h"
 #import "HippyDevMenu.h"
 #import "HippyJavaScriptLoader.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import "HippyPerformanceLogger.h"
-#import "HippyUtils.h"
+#import "NativeRenderUtils.h"
 #import "HippyRedBox.h"
 #import "HippyJSCErrorHandling.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyBridge+LocalFileSource.h"
 #include "ios_loader.h"
 #import "HippyBridge+Private.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
+#include "footstone/task_runner.h"
 #include "core/napi/jsc/js_native_api_jsc.h"
-#include "core/task/javascript_task.h"
+#include "footstone/task.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
-#include "core/task/javascript_task_runner.h"
 #include "core/engine.h"
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
@@ -67,7 +67,7 @@ struct __attribute__((packed)) ModuleData {
 
 using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
 using memory_ptr = std::unique_ptr<void, decltype(&free)>;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 
@@ -82,19 +82,19 @@ struct RandomAccessBundleData {
 
 static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::function<void(u8string)> cb) {
     std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
-    HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], to default dynamic load action:%S", (const unichar*)u16Uri.c_str());
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], to default dynamic load action:%S", (const unichar*)u16Uri.c_str());
     NSString *URIString = [NSString stringWithCharacters:(const unichar*)u16Uri.c_str() length:(u16Uri.length())];
-    NSURL *url = HippyURLWithString(URIString, NULL);
+    NSURL *url = NativeRenderURLWithString(URIString, NULL);
     if ([url isFileURL]) {
         NSString *result = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
-        u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]?:""));
+        u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>([result UTF8String]?[result UTF8String]:""));
         cb(std::move(content));;
     }
     else {
         NSURLRequest *req = [NSURLRequest requestWithURL:url];
         [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if (error) {
-                HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], error:%@", [error description]);
+                NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], error:%@", [error description]);
             }
             else {
                 NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -108,7 +108,7 @@ static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::functi
 
 static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string)> cb, CFTypeRef userData) {
     std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
-    HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], start load function:%S", (const unichar*)u16Uri.c_str());
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], start load function:%S", (const unichar*)u16Uri.c_str());
     HippyBridge *strongBridge = (__bridge HippyBridge *)userData;
     if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
         NSString *URIString = [NSString stringWithCharacters:(const unichar *)u16Uri.c_str() length:u16Uri.length()];
@@ -155,13 +155,17 @@ HIPPY_EXPORT_MODULE()
         // unless JSContextGroupRef is deallocated
         self.executorkey = execurotkey;
         self.bridge = bridge;
-        std::shared_ptr<Engine> engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
+        auto workerManager = std::make_shared<footstone::WorkerManager>(2);
+        [self.bridge setUpWorkerManager: workerManager];
+        auto js_runner = self.bridge.workerManager->CreateTaskRunner("hippy_js");
+        std::shared_ptr<Engine> engine =
+            [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey JSTaskRunner:js_runner];
         std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String] ?: "";
         std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
         self.pScope = scope;
         [self initURILoader];
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
+        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
 #ifdef ENABLE_INSPECTOR
         if (bridge.debugMode) {
             NSString *wsURL = [self completeWSURLWithBridge:bridge];
@@ -221,7 +225,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 if ([strongSelf.bridge isKindOfClass:[HippyBatchedBridge class]]) {
                     HippyBridge *clientBridge = [(HippyBatchedBridge *)strongSelf.bridge parentBridge];
                     NSString *deviceName = [[UIDevice currentDevice] name];
-                    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, clientBridge]);
+                    NSString *clientId = NativeRenderMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, clientBridge]);
                     NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
                     [deviceInfo addEntriesFromDictionary:debugInfo];
                 }
@@ -230,7 +234,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 if (JSONSerializationError) {
                     NSString *errorString =
                         [NSString stringWithFormat:@"device parse error:%@, deviceInfo:%@", [JSONSerializationError localizedFailureReason], deviceInfo];
-                    NSError *error = HippyErrorWithMessageAndModuleName(errorString, strongSelf.bridge.moduleName);
+                    NSError *error = NativeRenderErrorWithMessageAndModuleName(errorString, strongSelf.bridge.moduleName);
                     HippyFatal(error);
                 }
                 NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -243,7 +247,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 else {
                     context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8(@""));
                 }
-                installBasicSynchronousHooksOnContext(jsContext);
                 jsContext[@"nativeRequireModuleConfig"] = ^NSArray *(NSString *moduleName) {
                     HippyJSCExecutor *strongSelf = weakSelf;
                     if (!strongSelf.valid) {
@@ -251,7 +254,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     }
 
                     NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
-                    return HippyNullIfNil(result);
+                    return NativeRenderNullIfNil(result);
                 };
 
                 jsContext[@"nativeFlushQueueImmediate"] = ^(NSArray<NSArray *> *calls) {
@@ -393,21 +396,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
 - (void)setUp {
 }
 
-/** Installs synchronous hooks that don't require a weak reference back to the HippyJSCExecutor. */
-static void installBasicSynchronousHooksOnContext(JSContext *context) {
-    context[@"nativeLoggingHook"] = ^(NSString *message, NSNumber *logLevel) {
-        HippyLogLevel level = HippyLogLevelInfo;
-        if (logLevel) {
-            level = MAX(level, (HippyLogLevel)logLevel.integerValue);
-        }
-
-        _HippyLogJavaScriptInternal(level, message);
-    };
-    context[@"nativePerformanceNow"] = ^{
-        return @(CACurrentMediaTime() * 1000);
-    };
-}
-
 - (void)invalidate {
     if (!self.isValid) {
         return;
@@ -415,11 +403,11 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 #ifdef ENABLE_INSPECTOR
     auto devtools_data_source = self.pScope->GetDevtoolsDataSource();
     if (devtools_data_source) {
-        bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
+        bool reload = self.bridge.invalidateReason == NativeRenderInvalidateReasonReload ? true : false;
         devtools_data_source->Destroy(reload);
     }
 #endif
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
     self.pScope->WillExit();
     self.pScope = nullptr;
@@ -427,7 +415,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     _JSContext = nil;
     _JSGlobalContextRef = NULL;
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", [self executorkey]);
+        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", [self executorkey]);
         [[HippyJSEnginesMapper defaultInstance] removeEngineForKey:[self executorkey]];
     });
 }
@@ -449,7 +437,7 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 // clang-format on
 
 - (void)dealloc {
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
     [self invalidate];
     _randomAccessBundle.bundle.reset();
     _randomAccessBundle.table.reset();
@@ -582,19 +570,19 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
                             jsc_resultValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(resultValue);
                         } else {
                             executeError
-                                = HippyErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
+                                = NativeRenderErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
                         }
                     } else {
-                        executeError = HippyErrorWithMessageAndModuleName(
+                        executeError = NativeRenderErrorWithMessageAndModuleName(
                             [NSString stringWithFormat:@"property/function %@ not found in __fbBatchedBridge", method], moduleName);
                     }
                 } else {
-                    executeError = HippyErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
+                    executeError = NativeRenderErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
                 }
                 if (!exception.empty() || executeError) {
                     if (!exception.empty()) {
                         NSString *string = [NSString stringWithCharacters: reinterpret_cast<const unichar*>(exception.c_str()) length:exception.length()];
-                        executeError = HippyErrorWithMessageAndModuleName(string, moduleName);
+                        executeError = NativeRenderErrorWithMessageAndModuleName(string, moduleName);
                     }
                 } else if (jsc_resultValue) {
                     JSValueRef resutlRef = jsc_resultValue->value_;
@@ -660,7 +648,7 @@ static void handleJsExcepiton(std::shared_ptr<Scope> scope) {
     }
     std::u16string exceptionStr = StringViewUtils::Convert(context->GetExceptionMsg(exception), unicode_string_view::Encoding::Utf16).utf16_value();
     NSString *err = [NSString stringWithCharacters:(const unichar *)exceptionStr.c_str() length:(exceptionStr.length())];
-    NSError *error = HippyErrorWithMessage(err);
+    NSError *error = NativeRenderErrorWithMessage(err);
     // NSError *error = RCTErrorWithMessageAndModule(err, strongSelf.bridge.moduleName);
     HippyFatal(error);
     context->SetException(nullptr);
@@ -723,22 +711,20 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
-        if (engine->GetJSRunner()->IsJsThread() == false) {
-            std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-            task->callback = block;
-            engine->GetJSRunner()->PostTask(task);
-        } else {
+        auto runner = engine->GetJsTaskRunner();
+        if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
             block();
+        } else {
+            engine->GetJsTaskRunner()->PostTask(block);
         }
+
     }
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
-        std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-        task->callback = block;
-        engine->GetJSRunner()->PostTask(task);
+        engine->GetJsTaskRunner()->PostTask(block);
     }
 }
 
@@ -753,7 +739,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
         return;
     }
     if (HIPPY_DEBUG) {
-        HippyAssert(HippyJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
+        HippyAssert(NativeRenderJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
     }
 
     __weak HippyJSCExecutor *weakSelf = self;
@@ -776,7 +762,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
         if (!valueToInject) {
             NSString *errorMessage = [NSString stringWithFormat:@"Can't make JSON value from script '%@'", script];
             error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@ { NSLocalizedDescriptionKey: errorMessage }];
-            HippyLogError(@"%@", errorMessage);
+            NativeRenderLogError(@"%@", errorMessage);
         } else {
             JSObjectRef globalObject = JSContextGetGlobalObject(ctx);
             JSStringRef JSName = JSStringCreateWithCFString((__bridge CFStringRef)objectName);
@@ -803,7 +789,7 @@ static bool readRandomAccessModule(const RandomAccessBundleData &bundleData, siz
 static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t moduleID, size_t offset, size_t size) {
     auto data = std::make_unique<char[]>(size);
     if (!readRandomAccessModule(executor->_randomAccessBundle, offset, size, data.get())) {
-        HippyFatal(HippyErrorWithMessage(@"Error loading RAM module"));
+        HippyFatal(NativeRenderErrorWithMessage(@"Error loading RAM module"));
         return;
     }
 
@@ -880,7 +866,7 @@ static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t modul
         devInfo.wsURL = bundleURLProvider.wsURL;
     }
     NSString *deviceName = [[UIDevice currentDevice] name];
-    NSString *clientId = HippyMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, [(HippyBatchedBridge *)bridge parentBridge]]);
+    NSString *clientId = NativeRenderMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, [(HippyBatchedBridge *)bridge parentBridge]]);
     return [devInfo assembleFullWSURLWithClientId:clientId];
 }
 

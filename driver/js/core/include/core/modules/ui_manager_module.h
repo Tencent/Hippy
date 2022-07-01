@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include "core/base/task.h"
+#include "footstone/task.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"

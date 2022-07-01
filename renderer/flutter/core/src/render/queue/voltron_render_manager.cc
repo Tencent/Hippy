@@ -55,10 +55,10 @@ void VoltronRenderManager::UpdateRenderNode(
 
 void VoltronRenderManager::MarkTextDirty(uint32_t node_id) {
   auto dom_manager = GetDomManager();
-  TDF_BASE_DCHECK(dom_manager);
+  FOOTSTONE_DCHECK(dom_manager);
   if (dom_manager) {
     auto node = dom_manager->GetNode(node_id);
-    TDF_BASE_DCHECK(node);
+    FOOTSTONE_DCHECK(node);
     if (node) {
       auto diff_style = node->GetDiffStyle();
       if (diff_style) {
@@ -82,10 +82,10 @@ void VoltronRenderManager::MarkTextDirty(uint32_t node_id) {
   }
 }
 
-void VoltronRenderManager::MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff_style,
+void VoltronRenderManager::MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> diff_style,
                                              const char *prop_name,
                                              std::shared_ptr<LayoutNode> layout_node) {
-  TDF_BASE_DCHECK(layout_node != nullptr);
+  FOOTSTONE_DCHECK(layout_node != nullptr);
   if (diff_style->find(prop_name) != diff_style->end()) {
     layout_node->MarkDirty();
     return;
@@ -111,27 +111,27 @@ void VoltronRenderManager::UpdateLayout(
 }
 
 void VoltronRenderManager::EndBatch() {
-  TDF_BASE_DLOG(INFO) << "RunEndBatch";
+  FOOTSTONE_DLOG(INFO) << "RunEndBatch";
   RunBatch();
 }
 
 void VoltronRenderManager::BeforeLayout() {
   RunLayoutBefore();
-  TDF_BASE_DLOG(INFO) << "RunLayoutBefore";
+  FOOTSTONE_DLOG(INFO) << "RunLayoutBefore";
 
   // 在dom的css layout开始前，要保证dom
   // op全部执行完成，否则自定义测量的节点测量数据会不准确
   notified_ = false;
   std::unique_lock<std::mutex> lock(mutex_);
   while (!notified_) {
-    TDF_BASE_DLOG(INFO) << "RunLayoutWait";
+    FOOTSTONE_DLOG(INFO) << "RunLayoutWait";
     cv_.wait(lock);
   }
 }
 
 void VoltronRenderManager::AfterLayout() {
   RunLayoutFinish();
-  TDF_BASE_DLOG(INFO) << "RunLayoutFinish";
+  FOOTSTONE_DLOG(INFO) << "RunLayoutFinish";
 }
 
 void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node,
@@ -167,13 +167,13 @@ void VoltronRenderManager::Notify() {
   if (!notified_) {
     notified_ = true;
     cv_.notify_one();
-    TDF_BASE_DLOG(INFO) << "RunLayoutNotify";
+    FOOTSTONE_DLOG(INFO) << "RunLayoutNotify";
   }
 }
 
 void VoltronRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
   // todo 待实现move node
-  TDF_BASE_UNREACHABLE();
+  FOOTSTONE_UNREACHABLE();
 }
 
 } // namespace voltron

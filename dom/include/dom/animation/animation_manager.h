@@ -3,13 +3,14 @@
 #include <set>
 #include <unordered_map>
 
-#include "base/macros.h"
+#include "footstone/macros.h"
+#include "footstone/task.h"
 #include "dom/animation/animation.h"
 #include "dom/animation/cubic_bezier_animation.h"
 #include "dom/animation/animation_set.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_manager.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 
 namespace hippy {
 inline namespace dom {
@@ -20,8 +21,9 @@ class RootNode;
 
 class AnimationManager
     : public DomActionInterceptor, public std::enable_shared_from_this<AnimationManager> {
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
   using Animation = hippy::Animation;
+  using Task = footstone::Task;
 
  public:
   AnimationManager();
@@ -56,7 +58,7 @@ class AnimationManager
     }
   }
 
-  inline void AddDelayedAnimationRecord(uint32_t id, std::weak_ptr<CommonTask> task) {
+  inline void AddDelayedAnimationRecord(uint32_t id, std::weak_ptr<Task> task) {
     delayed_animation_task_map_[id] = task;
   }
 
@@ -84,9 +86,9 @@ class AnimationManager
  private:
   void ParseAnimation(const std::shared_ptr<DomNode>& node);
   void FetchAnimationsFromObject(const std::string& prop,
-                                 const std::shared_ptr<DomValue>& value,
+                                 const std::shared_ptr<HippyValue>& value,
                                  std::unordered_map<uint32_t, std::string>& result);
-  void FetchAnimationsFromArray(DomValue& value,
+  void FetchAnimationsFromArray(HippyValue& value,
                                 std::unordered_map<uint32_t, std::string>& result);
   void UpdateCubicBezierAnimation(double current,
                                   uint32_t related_animation_id,
@@ -95,7 +97,7 @@ class AnimationManager
 
   std::weak_ptr<RootNode> root_node_;
   std::unordered_map<uint32_t, std::shared_ptr<Animation>> animation_map_;
-  std::unordered_map<uint32_t, std::weak_ptr<CommonTask>> delayed_animation_task_map_;
+  std::unordered_map<uint32_t, std::weak_ptr<Task>> delayed_animation_task_map_;
   std::vector<std::shared_ptr<Animation>> active_animations_;
   /**
    * One animation can be used for multiple nodes,
@@ -111,7 +113,7 @@ class AnimationManager
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> node_animation_props_map_;
   uint64_t listener_id_;
 
-  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);
+  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);
 };
 }  // namespace dom
 }  // namespace hippy

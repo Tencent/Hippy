@@ -2,13 +2,12 @@
 
 #include <memory>
 
-#include "jni/scoped_java_ref.h"
-
-#include "base/macros.h"
-#include "base/persistent_object_map.h"
+#include "core/base/persistent_object_map.h"
 #include "dom/dom_node.h"
 #include "dom/render_manager.h"
-#include "dom/serializer.h"
+#include "footstone/serializer.h"
+#include "footstone/macros.h"
+#include "jni/scoped_java_ref.h"
 
 namespace hippy {
 inline namespace dom {
@@ -36,7 +35,7 @@ class NativeRenderManager : public RenderManager {
   void BeforeLayout(std::weak_ptr<RootNode> root_node) override;
   void AfterLayout(std::weak_ptr<RootNode> root_node) override;
 
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
 
   void AddEventListener(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name) override;
 
@@ -52,7 +51,7 @@ class NativeRenderManager : public RenderManager {
   std::shared_ptr<DomManager> GetDomManager() const { return dom_manager_.lock(); }
 
   static tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<NativeRenderManager>>& PersistentMap() {
-    return presistent_map_;
+    return persistent_map_;
   }
 
  private:
@@ -86,12 +85,12 @@ class NativeRenderManager : public RenderManager {
  private:
   int32_t id_;
   std::shared_ptr<JavaRef> render_delegate_;
-  std::shared_ptr<tdf::base::Serializer> serializer_;
+  std::shared_ptr<footstone::value::Serializer> serializer_;
   float density_ = 1.0f;
   std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 
   std::weak_ptr<DomManager> dom_manager_;
-  static tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<NativeRenderManager>> presistent_map_;
+  static tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<NativeRenderManager>> persistent_map_;
 };
 }  // namespace dom
 }  // namespace hippy

@@ -30,9 +30,23 @@ public class Linker implements LinkHelper {
 
     private static final int ROOT_VIEW_ID_INCREMENT = 10;
     private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
+    private final int mWorkerManagerId;
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
     private AnimationManagerProxy mAniManagerProxy;
+
+    public Linker() {
+        mWorkerManagerId = createWorkerManager();
+    }
+
+    public Linker(int workerManagerId) {
+        mWorkerManagerId = workerManagerId;
+    }
+
+    @Override
+    public int getWorkerManagerId() {
+        return mWorkerManagerId;
+    }
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy frameworkProxy) {
@@ -119,7 +133,7 @@ public class Linker implements LinkHelper {
     }
 
     @Override
-    public void destroy() {
+    public void destroy(boolean onReLoad) {
         if (mDomProxy != null) {
             mDomProxy.destroy();
             mDomProxy = null;
@@ -132,6 +146,9 @@ public class Linker implements LinkHelper {
             mRenderProxy.destroy();
             mRenderProxy = null;
         }
+        if (!onReLoad) {
+            destroyWorkerManager(mWorkerManagerId);
+        }
     }
 
     private class DomHolder implements DomProxy {
@@ -139,14 +156,14 @@ public class Linker implements LinkHelper {
         private final int mInstanceId;
 
         public DomHolder() {
-            mInstanceId = createDomInstance();
+            mInstanceId = createDomInstance(mWorkerManagerId);
         }
 
         /**
          * Support init dom holder with existing root node id
          */
         public DomHolder(int rootId) {
-            mInstanceId = createDomInstance();
+            mInstanceId = createDomInstance(mWorkerManagerId);
             addRoot(mInstanceId, rootId);
         }
 
@@ -202,11 +219,25 @@ public class Linker implements LinkHelper {
     }
 
     /**
+     * Create native (C++) worker manager instance.
+     *
+     * @return the unique id of native (C++) worker manager
+     */
+    private native int createWorkerManager();
+
+    /**
+     * Destroy native (C++) worker manager instance.
+     *
+     * @param workerManagerId the unique id of native (C++) worker manager
+     */
+    private native void destroyWorkerManager(int workerManagerId);
+
+    /**
      * Create native (C++) dom manager instance.
      *
      * @return the unique id of native (C++) dom manager
      */
-    private native int createDomInstance();
+    private native int createDomInstance(int workerManagerId);
 
     /**
      * Create native (C++) dom manager instance.

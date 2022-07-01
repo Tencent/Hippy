@@ -31,7 +31,7 @@ class JNIEnvironment;
 
 class ExceptionHandler {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   ExceptionHandler() = default;
   ~ExceptionHandler() = default;

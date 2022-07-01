@@ -56,6 +56,13 @@ public interface LinkHelper {
     DomProxy getDomHolder();
 
     /**
+     * Get worker manager instance id
+     *
+     * @return the unique id of native (C++) worker manager
+     */
+    int getWorkerManagerId();
+
+    /**
      * Set framework proxy to renderer
      *
      * @param frameworkProxy {@link FrameworkProxy} interface
@@ -112,8 +119,10 @@ public interface LinkHelper {
 
     /**
      * Will destroy native (C++) dom manager and renderer instance, call by framework.
+     *
+     * @param onReLoad is on debug reload
      */
-    void destroy();
+    void destroy(boolean onReLoad);
 
     /**
      * Will call native jni {@link Linker#doConnect(int, int)} ()} to connect driver runtime with root node.

@@ -23,8 +23,8 @@
 #include "render/native_render_jni.h"
 
 #include "bridge/root_node_repo.h"
-#include "dom/deserializer.h"
-#include "dom/dom_value.h"
+#include "footstone/deserializer.h"
+#include "footstone/hippy_value.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
 #include "dom/scene.h"
@@ -34,7 +34,7 @@
 using DomArgument = hippy::dom::DomArgument;
 using DomEvent = hippy::dom::DomEvent;
 using DomManager = hippy::dom::DomManager;
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using NativeRenderManager = hippy::dom::NativeRenderManager;
 using RenderManager = hippy::dom::RenderManager;
 using RootNode = hippy::dom::RootNode;
@@ -85,7 +85,7 @@ jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_dens
   auto& map = NativeRenderManager::PersistentMap();
   bool ret = map.Insert(native_render_manager->GetId(), native_render_manager);
   if (!ret) {
-    TDF_BASE_DLOG(WARNING) << "OnCreateNativeRenderProvider insert render manager invalid";
+    FOOTSTONE_DLOG(WARNING) << "OnCreateNativeRenderProvider insert render manager invalid";
   }
   return native_render_manager->GetId();
 }
@@ -94,7 +94,7 @@ void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_insta
   auto& map = NativeRenderManager::PersistentMap();
   bool ret = map.Erase(static_cast<int32_t>(j_instance_id));
   if (!ret) {
-    TDF_BASE_DLOG(WARNING) << "OnDestroyNativeRenderProvider delete render manager invalid";
+    FOOTSTONE_DLOG(WARNING) << "OnDestroyNativeRenderProvider delete render manager invalid";
   }
 }
 
@@ -105,19 +105,19 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
   bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
 
   if (!ret) {
-    TDF_BASE_DLOG(WARNING) << "UpdateRootSize j_instance_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "UpdateRootSize j_instance_id invalid";
     return;
   }
 
   std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
   if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "UpdateRootSize dom_manager is nullptr";
     return;
   }
 
   std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
   if (root_node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "UpdateRootSize root_node is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "UpdateRootSize root_node is nullptr";
     return;
   }
 
@@ -126,7 +126,7 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
 
   std::vector<std::function<void()>> ops;
   ops.emplace_back([dom_manager, root_node, width, height]{
-    TDF_BASE_LOG(INFO) << "update root size width = " << width << ", height = " << height << std::endl;
+    FOOTSTONE_LOG(INFO) << "update root size width = " << width << ", height = " << height << std::endl;
     dom_manager->SetRootSize(root_node, width, height);
     dom_manager->DoLayout(root_node);
     dom_manager->EndBatch(root_node);
@@ -141,34 +141,34 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j
   bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
 
   if (!ret) {
-    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize j_instance_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize j_instance_id invalid";
     return;
   }
 
   std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
   if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize dom_manager is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize dom_manager is nullptr";
     return;
   }
 
   std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
   if (root_node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize root_node is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize root_node is nullptr";
     return;
   }
 
   auto node = dom_manager->GetNode(root_node,
-                                   hippy::base::checked_numeric_cast<jlong, uint32_t>(j_node_id));
+                                   footstone::check::checked_numeric_cast<jlong, uint32_t>(j_node_id));
   if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "UpdateNodeSize DomNode not found for id: " << j_node_id;
+    FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize DomNode not found for id: " << j_node_id;
     return;
   }
 
-  std::unordered_map<std::string, std::shared_ptr<DomValue>> update_style;
-  std::shared_ptr<DomValue> width =
-    std::make_shared<DomValue>(hippy::base::checked_numeric_cast<jfloat, double>(j_width));
-  std::shared_ptr<DomValue> height =
-    std::make_shared<DomValue>(hippy::base::checked_numeric_cast<jfloat, double>(j_height));
+  std::unordered_map<std::string, std::shared_ptr<HippyValue>> update_style;
+  std::shared_ptr<HippyValue> width =
+    std::make_shared<HippyValue>(footstone::check::checked_numeric_cast<jfloat, double>(j_width));
+  std::shared_ptr<HippyValue> height =
+    std::make_shared<HippyValue>(footstone::check::checked_numeric_cast<jfloat, double>(j_height));
   update_style.insert({"width", width});
   update_style.insert({"height", height});
 
@@ -187,44 +187,44 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
   bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
 
   if (!ret) {
-    TDF_BASE_DLOG(WARNING) << "DoCallBack j_instance_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "DoCallBack j_instance_id invalid";
     return;
   }
 
   std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
   if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "DoCallBack dom_manager is nullptr";
     return;
   }
 
   std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
   if (root_node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "DoCallBack root_node is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "DoCallBack root_node is nullptr";
     return;
   }
 
   auto node = dom_manager->GetNode(root_node,
-                                   hippy::base::checked_numeric_cast<jlong, uint32_t>(j_node_id));
+                                   footstone::check::checked_numeric_cast<jlong, uint32_t>(j_node_id));
   if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << j_node_id;
+    FOOTSTONE_DLOG(WARNING) << "DoCallBack DomNode not found for id: " << j_node_id;
     return;
   }
 
   jboolean is_copy = JNI_TRUE;
   const char* func_name = j_env->GetStringUTFChars(j_func_name, &is_copy);
   auto callback = node->GetCallback(func_name,
-                                    hippy::base::checked_numeric_cast<jlong, uint32_t>(j_cb_id));
+                                    footstone::check::checked_numeric_cast<jlong, uint32_t>(j_cb_id));
   if (callback == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
+    FOOTSTONE_DLOG(WARNING) << "DoCallBack Callback not found for func_name: " << func_name;
     return;
   }
 
-  std::shared_ptr<DomValue> params = std::make_shared<DomValue>();
+  std::shared_ptr<HippyValue> params = std::make_shared<HippyValue>();
   if (j_buffer != nullptr && j_length > 0) {
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
-    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer,
-                                         hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
+    footstone::value::Deserializer deserializer((const uint8_t*) params_buffer,
+                                         footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
     deserializer.ReadValue(*params);
   }
@@ -238,36 +238,36 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j
   bool ret = map.Find(static_cast<int32_t>(j_instance_id), render_manager);
 
   if (!ret) {
-    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
     return;
   }
 
   std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
   if (dom_manager == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
     return;
   }
 
   std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
   if (root_node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent root_node is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent root_node is nullptr";
     return;
   }
 
   auto node = dom_manager->GetNode(root_node,
-                                   hippy::base::checked_numeric_cast<jlong, uint32_t>(j_dom_id));
+                                   footstone::check::checked_numeric_cast<jlong, uint32_t>(j_dom_id));
   if (node == nullptr) {
-    TDF_BASE_DLOG(WARNING) << "OnReceivedEvent DomNode not found for id: " << j_dom_id;
+    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent DomNode not found for id: " << j_dom_id;
     return;
   }
 
-  std::shared_ptr<DomValue> params = nullptr;
+  std::shared_ptr<HippyValue> params = nullptr;
   if (j_buffer != nullptr && j_length > 0) {
     jbyte params_buffer[j_length];
     j_env->GetByteArrayRegion(j_buffer, j_offset, j_length, params_buffer);
-    params = std::make_shared<DomValue>();
-    tdf::base::Deserializer deserializer((const uint8_t*) params_buffer,
-                                         hippy::base::checked_numeric_cast<jlong, size_t>(j_length));
+    params = std::make_shared<HippyValue>();
+    footstone::value::Deserializer deserializer((const uint8_t*) params_buffer,
+                                         footstone::check::checked_numeric_cast<jlong, size_t>(j_length));
     deserializer.ReadHeader();
     deserializer.ReadValue(*params);
   }

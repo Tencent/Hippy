@@ -25,8 +25,8 @@
 #include "core/core.h"
 
 namespace  {
-using unicode_string_view = tdf::base::unicode_string_view;
-using u8string = unicode_string_view::u8string;
+using unicode_string_view = footstone::stringview::unicode_string_view;
+using u8string = footstone::unicode_string_view::u8string;
 }
 
 typedef bool (*RequestUntrustedContentPtr)(const unicode_string_view& uri, std::function<void(u8string)> cb, CFTypeRef userData);
@@ -40,7 +40,7 @@ class IOSLoader : public hippy::base::UriLoader {
   virtual bool RequestUntrustedContent(const unicode_string_view& uri, std::function<void(u8string)> cb);
 
   virtual bool RequestUntrustedContent(const unicode_string_view& uri, u8string& content) {
-    TDF_BASE_UNIMPLEMENTED();
+    FOOTSTONE_UNIMPLEMENTED();
     return "";
   };
 

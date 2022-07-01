@@ -29,7 +29,7 @@ namespace voltron {
 namespace bridge {
 
 using bytes = std::string;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using CALLFUNCTION_CB_STATE = hippy::runtime::CALL_FUNCTION_CB_STATE;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 

@@ -30,16 +30,16 @@
 #import "HippyBridge+Private.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 #import "HippyPerformanceLogger.h"
-#import "HippyUIManager.h"
-#import "HippyUtils.h"
-#import "HippyView.h"
-#import "UIView+Hippy.h"
+#import "NativeRenderUIManager.h"
+#import "NativeRenderUtils.h"
+#import "NativeRenderView.h"
+#import "UIView+NativeRender.h"
 #import "HippyBundleURLProvider.h"
 #include "scope.h"
-#include "dom/dom_value.h"
-#include "HippyDomNodeUtils.h"
+#include "footstone/hippy_value.h"
+#include "NativeRenderDomNodeUtils.h"
 
 NSString *const HippyContentDidAppearNotification = @"HippyContentDidAppearNotification";
 
@@ -51,7 +51,7 @@ NSNumber *AllocRootViewTag() {
     }
 }
 
-@interface HippyRootContentView : HippyView <HippyInvalidating>
+@interface HippyRootContentView : NativeRenderView <NativeRenderInvalidating>
 
 @property (nonatomic, readonly) BOOL contentHasAppeared;
 @property (nonatomic, assign) int64_t startTimpStamp;
@@ -80,7 +80,7 @@ NSNumber *AllocRootViewTag() {
                     moduleName:(NSString *)moduleName
              initialProperties:(NSDictionary *)initialProperties
                       delegate:(id<HippyRootViewDelegate>)delegate {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
     HippyAssert(bridge, @"A bridge instance is required to create an HippyRootView");
     HippyAssert(moduleName, @"A moduleName is required to create an HippyRootView");
 
@@ -123,7 +123,7 @@ NSNumber *AllocRootViewTag() {
 
         [self showLoadingView];
         [_bridge.performanceLogger markStartForTag:HippyPLTTI];
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView Init %p", self);
+        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView Init %p", self);
     }
 
     return self;
@@ -164,7 +164,7 @@ NSNumber *AllocRootViewTag() {
                     if (success) {
                         [weakSelf bundleFinishedLoading:bridge.batchedBridge];
                     }
-                    
+
                     if ([delegate respondsToSelector:@selector(rootView:didLoadFinish:)]) {
                         [delegate rootView:weakSelf didLoadFinish:success];
                     }
@@ -240,7 +240,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (NSNumber *)hippyTag {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
     if (!super.hippyTag) {
         self.hippyTag = AllocRootViewTag();
     }
@@ -248,13 +248,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)bridgeDidReload {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
     // Clear the hippyTag so it can be re-assigned
     self.hippyTag = nil;
 }
 
 - (void)javaScriptDidLoad:(NSNotification *)notification {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     // Use the (batched) bridge that's sent in the notification payload, so the
     // HippyRootContentView is scoped to the right bridge
@@ -268,7 +268,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     HippyBridge *bridge = notification.userInfo[@"bridge"];
     NSError *error = notification.userInfo[@"error"];
     if (bridge == self.bridge && error) {
-        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+        NSError *retError = NativeRenderErrorFromErrorAndModuleName(error, self.bridge.moduleName);
         HippyFatal(retError);
     }
 }
@@ -297,14 +297,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (void)secondaryBundleDidLoadSourceCode:(NSError *)error {
     if (error) {
-        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+        NSError *retError = NativeRenderErrorFromErrorAndModuleName(error, self.bridge.moduleName);
         HippyFatal(retError);
     }
 }
 
 - (void)secondayBundleDidFinishLoad:(NSError *)error {
     if (error) {
-        NSError *retError = HippyErrorFromErrorAndModuleName(error, self.bridge.moduleName);
+        NSError *retError = NativeRenderErrorFromErrorAndModuleName(error, self.bridge.moduleName);
         HippyFatal(retError);
     }
 }
@@ -315,7 +315,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
 
     [_contentView removeAllSubviews];
-        
+
     [self runApplication:bridge];
 
     _contentView.backgroundColor = self.backgroundColor;
@@ -328,13 +328,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         return;
     }
     NSString *moduleName = _moduleName ?: @"";
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, _appProperties);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, _appProperties);
     NSDictionary *param = @{@"name": moduleName,
                             @"id": _contentView.hippyTag,
                             @"params": _appProperties ?: @{},
                             @"version": HippySDKVersion};
-    tdf::base::DomValue value = OCTypeToDomValue(param);
-    std::shared_ptr<tdf::base::DomValue> domValue = std::make_shared<tdf::base::DomValue>(value);
+    footstone::value::HippyValue value = OCTypeToDomValue(param);
+    std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     bridge.javaScriptExecutor.pScope->LoadInstance(domValue);
 }
 
@@ -345,7 +345,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)setAppProperties:(NSDictionary *)appProperties {
-    HippyAssertMainQueue();
+    NativeRenderAssertMainQueue();
 
     if ([_appProperties isEqualToDictionary:appProperties]) {
         return;
@@ -388,7 +388,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     if ([_delegate respondsToSelector:@selector(rootViewWillBePurged:)]) {
         [_delegate rootViewWillBePurged:self];
     }
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
+    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
 }
 
 @end

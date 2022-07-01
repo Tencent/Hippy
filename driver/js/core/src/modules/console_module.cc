@@ -24,13 +24,13 @@
 
 #include <string>
 
-#include "base/logging.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
 #include "core/modules/module_register.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
 using StringViewUtils = hippy::base::StringViewUtils;
 
@@ -58,7 +58,7 @@ unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
 void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
-  TDF_BASE_CHECK(context);
+  FOOTSTONE_CHECK(context);
 
   unicode_string_view message;
   if (!context->GetValueString(info[0], &message)) {
@@ -69,7 +69,7 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(reada
 
   unicode_string_view view_msg = EscapeMessage(message);
   if (info.Length() == 1) {
-    TDF_BASE_LOG(INFO) << view_msg;
+    FOOTSTONE_LOG(INFO) << view_msg;
   } else {
     unicode_string_view view_type;
     if (!context->GetValueString(info[1], &view_type) ||
@@ -81,15 +81,15 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(reada
 
     std::string u8_type = StringViewUtils::ToU8StdStr(view_type);
     if (u8_type == "info") {
-      TDF_BASE_LOG(INFO) << view_msg;
+      FOOTSTONE_LOG(INFO) << view_msg;
     } else if (u8_type == "warn") {
-      TDF_BASE_LOG(WARNING) << view_msg;
+      FOOTSTONE_LOG(WARNING) << view_msg;
     } else if (u8_type == "error") {
-      TDF_BASE_LOG(ERROR) << view_msg;
+      FOOTSTONE_LOG(ERROR) << view_msg;
     } else if (u8_type == "fatal") {
-      TDF_BASE_LOG(FATAL) << view_msg;
+      FOOTSTONE_LOG(FATAL) << view_msg;
     } else {
-      TDF_BASE_LOG(INFO) << view_msg;
+      FOOTSTONE_LOG(INFO) << view_msg;
     }
   }
 

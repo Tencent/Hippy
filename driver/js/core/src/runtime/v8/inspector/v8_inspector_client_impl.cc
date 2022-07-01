@@ -10,7 +10,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,8 +28,8 @@ namespace hippy::inspector {
 
 constexpr uint8_t kProjectName[] = "Hippy";
 
-V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
-    : scope_(std::move(scope)) {
+V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope, std::weak_ptr<TaskRunner> runner)
+    : scope_(std::move(scope)), js_runner_(runner) {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
   v8::Isolate* isolate = ctx->isolate_;
@@ -37,22 +37,19 @@ V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope)
   inspector_ = v8_inspector::V8Inspector::create(isolate, this);
 }
 
-void V8InspectorClientImpl::Reset(std::shared_ptr<Scope> scope,
-                                  std::shared_ptr<Bridge> bridge) {
-  scope_ = std::move(scope);
-  channel_->SetBridge(std::move(bridge));
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  channel_->SetDevtoolsDataSource(scope_ ? scope_->GetDevtoolsDataSource() : nullptr);
-#endif
+void V8InspectorClientImpl::Reset(std::shared_ptr<Scope> scope,
+                                  const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+  scope_ = std::move(scope);
+  channel_->SetDevtoolsDataSource(devtools_data_source);
 }
 
-void V8InspectorClientImpl::Connect(const std::shared_ptr<Bridge>& bridge) {
-  channel_ = std::make_unique<V8ChannelImpl>(bridge);
+void V8InspectorClientImpl::Connect(const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+  channel_ = std::make_unique<V8ChannelImpl>();
   session_ = inspector_->connect(1, channel_.get(), v8_inspector::StringView());
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  channel_->SetDevtoolsDataSource(scope_->GetDevtoolsDataSource());
-#endif
+  channel_->SetDevtoolsDataSource(devtools_data_source);
 }
+#endif
 
 void V8InspectorClientImpl::CreateContext() {
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
@@ -66,16 +63,40 @@ void V8InspectorClientImpl::CreateContext() {
       context, 1, v8_inspector::StringView(kProjectName, arraysize(kProjectName))));
 }
 
-void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
-  if (channel_) {
+void V8InspectorClientImpl::SendMessageToV8(unicode_string_view&& params) {
+  std::shared_ptr<TaskRunner> msg_runner;
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
+    if (inspector_runner_) {
+      msg_runner = inspector_runner_;
+    } else {
+      msg_runner = js_runner_.lock();
+    }
+    if (!msg_runner) {
+      FOOTSTONE_LOG(ERROR) << "msg runner error";
+      return;
+    }
+  }
+
+  auto weak_self = weak_from_this();
+  auto msg_unit = [params, weak_self] {
+    auto self = weak_self.lock();
+    if (!self) {
+      return;
+    }
+    const auto& channel = self->GetChannel();
+    if (!channel) {
+      return;
+    }
+    const auto& inspector = self->GetInspector();
     unicode_string_view::Encoding encoding = params.encoding();
     v8_inspector::StringView message_view;
     switch (encoding) {
       case unicode_string_view::Encoding::Latin1: {
-        const std::string& str = params.latin1_value();
-        if (str == "chrome_socket_closed") {
-          session_ = inspector_->connect(1, channel_.get(),
-                                         v8_inspector::StringView());
+        std::string str = params.latin1_value();
+        if (!str.compare("chrome_socket_closed")) {
+          auto session = inspector->connect(1, channel.get(), v8_inspector::StringView());
+          self->SetSession(std::move(session));
           return;
         }
         message_view = v8_inspector::StringView(
@@ -83,10 +104,10 @@ void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
         break;
       }
       case unicode_string_view::Encoding::Utf16: {
-        const std::u16string& str = params.utf16_value();
-        if (str == u"chrome_socket_closed") {
-          session_ = inspector_->connect(1, channel_.get(),
-                                         v8_inspector::StringView());
+        std::u16string str = params.utf16_value();
+        if (!str.compare(u"chrome_socket_closed")) {
+          auto session = inspector->connect(1, channel.get(), v8_inspector::StringView());
+          self->SetSession(std::move(session));
           return;
         }
         message_view = v8_inspector::StringView(
@@ -94,19 +115,24 @@ void V8InspectorClientImpl::SendMessageToV8(const unicode_string_view& params) {
         break;
       }
       default:
-        TDF_BASE_DLOG(INFO) << "encoding = " << static_cast<int>(encoding);
-        TDF_BASE_UNREACHABLE();
+        FOOTSTONE_DLOG(INFO) << "encoding = " << static_cast<int>(encoding);
+        FOOTSTONE_UNREACHABLE();
     }
-    session_->dispatchProtocolMessage(message_view);
-  }
+    const auto& session = self->GetSession();
+    if (!session) {
+      return;
+    }
+    session->dispatchProtocolMessage(message_view);
+  };
+  msg_runner->PostTask(std::move(msg_unit));
 }
 
 void V8InspectorClientImpl::DestroyContext() {
-  TDF_BASE_DLOG(INFO) << "V8InspectorClientImpl DestroyContext";
+  FOOTSTONE_DLOG(INFO) << "V8InspectorClientImpl DestroyContext";
   std::shared_ptr<hippy::napi::V8Ctx> ctx =
       std::static_pointer_cast<hippy::napi::V8Ctx>(scope_->GetContext());
   if (!ctx) {
-    TDF_BASE_DLOG(ERROR) << "V8InspectorClientImpl ctx error";
+    FOOTSTONE_DLOG(ERROR) << "V8InspectorClientImpl ctx error";
     return;
   }
   v8::Isolate* isolate = ctx->isolate_;
@@ -114,9 +140,9 @@ void V8InspectorClientImpl::DestroyContext() {
   v8::Local<v8::Context> context =
       v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
   v8::Context::Scope context_scope(context);
-  TDF_BASE_DLOG(INFO) << "inspector contextDestroyed begin";
+  FOOTSTONE_DLOG(INFO) << "inspector contextDestroyed begin";
   inspector_->contextDestroyed(context);
-  TDF_BASE_DLOG(INFO) << "inspector contextDestroyed end";
+  FOOTSTONE_DLOG(INFO) << "inspector contextDestroyed end";
 }
 
 v8::Local<v8::Context> V8InspectorClientImpl::ensureDefaultContextInGroup(
@@ -132,15 +158,27 @@ v8::Local<v8::Context> V8InspectorClientImpl::ensureDefaultContextInGroup(
 }
 
 void V8InspectorClientImpl::runMessageLoopOnPause(int contextGroupId) {
-  scope_->GetTaskRunner()->PauseThreadForInspector();
+  FOOTSTONE_DLOG(INFO) << "runMessageLoopOnPause, contextGroupId = " << contextGroupId;
+  std::shared_ptr<TaskRunner> runner = js_runner_.lock();
+  if (runner) {
+    inspector_runner_ = std::make_shared<TaskRunner>();
+    runner->AddSubTaskRunner(inspector_runner_, true);
+  }
 }
 
 void V8InspectorClientImpl::quitMessageLoopOnPause() {
-  scope_->GetTaskRunner()->ResumeThreadForInspector();
+  FOOTSTONE_DLOG(INFO) << "quitMessageLoopOnPause";
+  std::shared_ptr<TaskRunner> runner = js_runner_.lock();
+  if (runner) {
+    runner->RemoveSubTaskRunner(inspector_runner_);
+    inspector_runner_ = nullptr;
+  }
+
 }
 
 void V8InspectorClientImpl::runIfWaitingForDebugger(int contextGroupId) {
-  scope_->GetTaskRunner()->ResumeThreadForInspector();
+  FOOTSTONE_DLOG(INFO) << "runIfWaitingForDebugger, contextGroupId = " << contextGroupId;
+  quitMessageLoopOnPause();
 }
 
 }  // namespace hippy

@@ -3,7 +3,7 @@
 #include <map>
 
 #include "Yoga.h"
-#include "base/logging.h"
+#include "footstone/logging.h"
 #include "dom/node_props.h"
 
 namespace hippy {
@@ -65,89 +65,89 @@ const std::map<std::string, YGDirection> kDirectionMap = {
     {"inherit", YGDirectionInherit}, {"ltr", YGDirectionLTR}, {"rtl", YGDirectionRTL}};
 
 #define YG_SET_NUMBER_PERCENT_AUTO_DECL(NAME)                                                      \
-  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<tdf::base::DomValue> dom_value) {               \
-    tdf::base::DomValue::Type type = dom_value->GetType();                                         \
-    if (type == tdf::base::DomValue::Type::kNumber) {                                              \
+  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<footstone::value::HippyValue> dom_value) {               \
+    footstone::value::HippyValue::Type type = dom_value->GetType();                                         \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                              \
       auto value = static_cast<float>(dom_value->ToDoubleChecked());                               \
       YGNodeStyleSet##NAME(yoga_node_, value);                                                     \
-    } else if (type == tdf::base::DomValue::Type::kString) {                                       \
+    } else if (type == footstone::value::HippyValue::Type::kString) {                                       \
       std::string value = dom_value->ToStringChecked();                                            \
       if (value == "auto") {                                                                       \
         YGNodeStyleSet##NAME##Auto(yoga_node_);                                                    \
       } else if (value.at(value.length() - 1) == '%') {                                            \
         YGNodeStyleSet##NAME##Percent(yoga_node_, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                     \
-        TDF_BASE_DCHECK(false);                                                                    \
+        FOOTSTONE_DCHECK(false);                                                                    \
       }                                                                                            \
     } else {                                                                                       \
-      TDF_BASE_DCHECK(false);                                                                      \
+      FOOTSTONE_DCHECK(false);                                                                      \
     }                                                                                              \
   }
 
 #define YG_SET_NUMBER_PERCENT_DECL(NAME)                                                           \
-  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<tdf::base::DomValue> dom_value) {               \
-    tdf::base::DomValue::Type type = dom_value->GetType();                                         \
-    if (type == tdf::base::DomValue::Type::kNumber) {                                              \
+  void YogaLayoutNode::SetYG##NAME(std::shared_ptr<footstone::value::HippyValue> dom_value) {               \
+    footstone::value::HippyValue::Type type = dom_value->GetType();                                         \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                              \
       auto value = static_cast<float>(dom_value->ToDoubleChecked());                               \
       YGNodeStyleSet##NAME(yoga_node_, value);                                                     \
-    } else if (type == tdf::base::DomValue::Type::kString) {                                       \
+    } else if (type == footstone::value::HippyValue::Type::kString) {                                       \
       std::string value = dom_value->ToStringChecked();                                            \
       if (value.at(value.length() - 1) == '%') {                                                   \
         YGNodeStyleSet##NAME##Percent(yoga_node_, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                     \
-        TDF_BASE_DCHECK(false);                                                                    \
+        FOOTSTONE_DCHECK(false);                                                                    \
       }                                                                                            \
     } else {                                                                                       \
-      TDF_BASE_DCHECK(false);                                                                      \
+      FOOTSTONE_DCHECK(false);                                                                      \
     }                                                                                              \
   }
 
 #define YG_SET_EDGE_NUMBER_PRECENT_DECL(NAME)                                                            \
-  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) {        \
-    tdf::base::DomValue::Type type = dom_value->GetType();                                               \
-    if (type == tdf::base::DomValue::Type::kNumber) {                                                    \
+  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value) {        \
+    footstone::value::HippyValue::Type type = dom_value->GetType();                                               \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                                    \
       auto value = static_cast<float>(dom_value->ToDoubleChecked());                                     \
       YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                     \
-    } else if (type == tdf::base::DomValue::Type::kString) {                                             \
+    } else if (type == footstone::value::HippyValue::Type::kString) {                                             \
       std::string value = dom_value->ToStringChecked();                                                  \
       if (value.at(value.length() - 1) == '%') {                                                         \
         YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                           \
-        TDF_BASE_DCHECK(false);                                                                          \
+        FOOTSTONE_DCHECK(false);                                                                          \
       }                                                                                                  \
     } else {                                                                                             \
-      TDF_BASE_DCHECK(false);                                                                            \
+      FOOTSTONE_DCHECK(false);                                                                            \
     }                                                                                                    \
   }
 
 #define YG_SET_EDGE_NUMBER_PERCENT_AUTO_DECL(NAME)                                                       \
-  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) {        \
-    tdf::base::DomValue::Type type = dom_value->GetType();                                               \
-    if (type == tdf::base::DomValue::Type::kNumber) {                                                    \
+  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value) {        \
+    footstone::value::HippyValue::Type type = dom_value->GetType();                                               \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                                    \
       float value = static_cast<float>(dom_value->ToDoubleChecked());                                    \
       YGNodeStyleSet##NAME(yoga_node_, edge, value);                                                     \
-    } else if (type == tdf::base::DomValue::Type::kString) {                                             \
+    } else if (type == footstone::value::HippyValue::Type::kString) {                                             \
       std::string value = dom_value->ToStringChecked();                                                  \
       if (value == "auto") {                                                                             \
         YGNodeStyleSet##NAME##Auto(yoga_node_, edge);                                                    \
       } else if (value.at(value.length() - 1) == '%') {                                                  \
         YGNodeStyleSet##NAME##Percent(yoga_node_, edge, std::stof(value.substr(0, value.length() - 1))); \
       } else {                                                                                           \
-        TDF_BASE_DCHECK(false);                                                                          \
+        FOOTSTONE_DCHECK(false);                                                                          \
       }                                                                                                  \
     } else {                                                                                             \
-      TDF_BASE_DCHECK(false);                                                                            \
+      FOOTSTONE_DCHECK(false);                                                                            \
     }                                                                                                    \
   }
 
 #define YG_SET_EDGE_NUMBER_DECL(NAME)                                                             \
-  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<tdf::base::DomValue> dom_value) { \
-    tdf::base::DomValue::Type type = dom_value->GetType();                                        \
-    if (type == tdf::base::DomValue::Type::kNumber) {                                             \
+  void YogaLayoutNode::SetYG##NAME(YGEdge edge, std::shared_ptr<footstone::value::HippyValue> dom_value) { \
+    footstone::value::HippyValue::Type type = dom_value->GetType();                                        \
+    if (type == footstone::value::HippyValue::Type::kNumber) {                                             \
       float value = static_cast<float>(dom_value->ToDoubleChecked());                             \
       YGNodeStyleSet##NAME(yoga_node_, edge, value);                                              \
     } else {                                                                                      \
-      TDF_BASE_DCHECK(false);                                                                     \
+      FOOTSTONE_DCHECK(false);                                                                     \
     }                                                                                             \
   }
 
@@ -184,7 +184,7 @@ static YGAlign GetFlexAlign(const std::string& align) {
 #define YG_EDGE_DECL(NAME)                                 \
   static YGEdge Get##NAME##Edge(const std::string& edge) { \
     auto iter = k##NAME##Map.find(edge);                   \
-    TDF_BASE_CHECK(iter != k##NAME##Map.end());            \
+    FOOTSTONE_CHECK(iter != k##NAME##Map.end());            \
     return iter->second;                                   \
   }
 
@@ -224,7 +224,7 @@ static YGEdge GetYGEdgeFromEdge(hippy::dom::Edge edge) {
   } else if (hippy::dom::Edge::EdgeBottom == edge) {
     return YGEdge::YGEdgeBottom;
   } else {
-    TDF_BASE_UNREACHABLE();
+    FOOTSTONE_UNREACHABLE();
   }
 }
 
@@ -248,13 +248,13 @@ void YogaLayoutNode::CalculateLayout(float parent_width, float parent_height, Di
   } else if (direction == hippy::dom::Direction::RTL) {
     yoga_direction = YGDirectionRTL;
   } else {
-    TDF_BASE_UNREACHABLE();
+    FOOTSTONE_UNREACHABLE();
   }
 
   YGNodeCalculateLayout(yoga_node_, parent_width, parent_height, yoga_direction);
 }
 
-void YogaLayoutNode::SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
+void YogaLayoutNode::SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) {
   Parser(style_map);
 }
 
@@ -274,7 +274,7 @@ static LayoutMeasureMode ToLayoutMeasureMode(YGMeasureMode measure_mode) {
   if (measure_mode == YGMeasureMode::YGMeasureModeAtMost) {
     return LayoutMeasureMode::AtMost;
   }
-  TDF_BASE_UNREACHABLE();
+  FOOTSTONE_UNREACHABLE();
 }
 
 static YGSize YGMeasureFunction(YGNodeRef node, float width, YGMeasureMode width_mode, float height,
@@ -373,7 +373,7 @@ bool YogaLayoutNode::IsDirty() { return YGNodeIsDirty(yoga_node_); }
 
 void YogaLayoutNode::Reset() { YGNodeReset(yoga_node_); }
 
-void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) {
+void YogaLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) {
   if (style_map.find(kWidth) != style_map.end()) {
     auto dom_value = style_map.find(kWidth)->second;
     SetYGWidth(dom_value);

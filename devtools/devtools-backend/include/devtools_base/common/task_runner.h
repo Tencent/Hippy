@@ -121,7 +121,7 @@ class TaskRunner {
   int32_t id_;
   TimeDelta time_;
 
-  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(TaskRunner);
+  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(TaskRunner);
 };
 }  // namespace runner
 }  // namespace hippy::devtools

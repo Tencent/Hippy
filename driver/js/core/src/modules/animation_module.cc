@@ -26,12 +26,12 @@
 #include <regex>
 #include <cmath>
 
-#include "base/unicode_string_view.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/unicode_string_view.h"
+#include "footstone/string_view_utils.h"
 #include "core/modules/ui_manager_module.h"
 #include "core/napi/js_native_api_types.h"
 #include "core/scope.h"
-#include "core/task/javascript_task.h"
+#include "footstone/task.h"
 #include "dom/node_props.h"
 
 template<typename T>
@@ -40,9 +40,9 @@ using InstanceDefine = hippy::napi::InstanceDefine<T>;
 template<typename T>
 using FunctionDefine = hippy::napi::FunctionDefine<T>;
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 
 using AnimationSetChild = hippy::AnimationSet::AnimationSetChild;
 using Ctx = hippy::napi::Ctx;
@@ -203,7 +203,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
       context->ThrowException("animation start_value error");
       return nullptr;
     }
-    animation_id = hippy::base::checked_numeric_cast<int32_t, uint32_t>(id);
+    animation_id = footstone::check::checked_numeric_cast<int32_t, uint32_t>(id);
     // todo 避免 release checked_numeric_cast crash
   }
 
@@ -610,15 +610,14 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
         return;
       }
       std::weak_ptr<Ctx> weak_context = scope->GetContext();
-      auto task = std::make_shared<JavaScriptTask>();
-      task->callback = [weak_context, func]() {
+      auto callback = [weak_context, func]() {
         auto context = weak_context.lock();
         if (!context) {
           return;
         }
         context->CallFunction(func, 0, nullptr);
       };
-      scope->GetTaskRunner()->PostTask(task);
+      scope->GetTaskRunner()->PostTask(std::move(callback));
     };
     std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
     std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name, cb] {
@@ -969,15 +968,14 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
         return;
       }
       std::weak_ptr<Ctx> weak_context = scope->GetContext();
-      auto task = std::make_shared<JavaScriptTask>();
-      task->callback = [weak_context, func]() {
+      auto callback = [weak_context, func]() {
         auto context = weak_context.lock();
         if (!context) {
           return;
         }
         context->CallFunction(func, 0, nullptr);
       };
-      scope->GetTaskRunner()->PostTask(task);
+      scope->GetTaskRunner()->PostTask(std::move(callback));
     };
     std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
     std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name, cb] {

@@ -925,7 +925,7 @@ void HPNode::layoutImpl(float parentWidth,
   HPSizeMode measureMode = {widthMeasureMode, heightMeasureMode};
   MeasureResult* cacheResult = layoutCache.getCachedMeasureResult(availableSize, measureMode,
                                                                   layoutAction, measure != nullptr);
-  if (cacheResult != nullptr) {
+  if (cacheResult != nullptr && layoutAction != LayoutActionLayout) {
     // set Result....
     switch (layoutAction) {
       case LayoutActionMeasureWidth:

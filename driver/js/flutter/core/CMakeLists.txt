@@ -164,7 +164,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
     list(APPEND LINKED_LIBS -lz)
     target_link_libraries( # Specifies the target library.
             ${CMAKE_LIBRARY_NAME}
-            tdf_base_common
+            FOOTSTONE_common
             ${LINKED_LIBS}
             ${JSCORE_LIBRARY}
             )

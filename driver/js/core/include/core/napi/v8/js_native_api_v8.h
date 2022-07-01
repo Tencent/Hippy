@@ -28,8 +28,8 @@
 #include <string>
 #include <vector>
 
-#include "base/logging.h"
-#include "base/unicode_string_view.h"
+#include "footstone/logging.h"
+#include "footstone/unicode_string_view.h"
 #include "core/base/common.h"
 #include "core/base/js_value_wrapper.h"
 #include "core/base/macros.h"
@@ -83,7 +83,7 @@ class V8VM : public VM {
 
 class V8TryCatch : public TryCatch {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   explicit V8TryCatch(bool enable = false, const std::shared_ptr<Ctx>& ctx = nullptr);
   virtual ~V8TryCatch();
@@ -120,7 +120,7 @@ class CBDataTuple {
 
 class V8Ctx : public Ctx {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using JSValueWrapper = hippy::base::JSValueWrapper;
 
   explicit V8Ctx(v8::Isolate* isolate) : isolate_(isolate) {
@@ -248,12 +248,12 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
       const std::shared_ptr<JSValueWrapper>& wrapper) override;
 
-  virtual std::shared_ptr<DomValue> ToDomValue(
+  virtual std::shared_ptr<HippyValue> ToDomValue(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<DomArgument> ToDomArgument(
       const std::shared_ptr<CtxValue>& value) override;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(
-      const std::shared_ptr<DomValue>& value) override;
+      const std::shared_ptr<HippyValue>& value) override;
 
   virtual bool Equals(const std::shared_ptr<CtxValue>& lhs, const std::shared_ptr<CtxValue>& rhs) override;
 
@@ -402,7 +402,7 @@ v8::Local<v8::FunctionTemplate> V8Ctx::NewConstructor(const std::shared_ptr<Inst
         auto* instance_define = reinterpret_cast<InstanceDefine<T>*>(
             data->Get(context, 0).ToLocalChecked().As<v8::External>()->Value());
         if (!instance_define) {
-          TDF_BASE_UNREACHABLE();
+          FOOTSTONE_UNREACHABLE();
         }
         auto constructor = instance_define->constructor;
         auto len = info.Length();
@@ -443,7 +443,7 @@ void V8Ctx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_d
 
   auto global = context->Global();
   auto handle_value = global->Get(context,CreateV8String(kHippyKey)).ToLocalChecked();
-  TDF_BASE_DCHECK(!handle_value.IsEmpty());
+  FOOTSTONE_DCHECK(!handle_value.IsEmpty());
   v8::Local<v8::FunctionTemplate> func_template = NewConstructor(instance_define);
   if (!func_template.IsEmpty()) {
     auto func = func_template->GetFunction(context);

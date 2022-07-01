@@ -7,10 +7,11 @@
 #include <string>
 #include <vector>
 
+#include "footstone/check.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_manager.h"
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 #include "dom/layout_node.h"
 
 namespace hippy {
@@ -45,15 +46,15 @@ struct DomInfo {
 
 class DomNode : public std::enable_shared_from_this<DomNode> {
  public:
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
 
   DomNode(uint32_t id,
           uint32_t pid,
           int32_t index,
           std::string tag_name,
           std::string view_name,
-          std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map,
-          std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> dom_ext_map,
+          std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style_map,
+          std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> dom_ext_map,
           std::weak_ptr<RootNode> weak_root_node);
 
   DomNode(uint32_t id, uint32_t pid, std::weak_ptr<RootNode> weak_root_node);
@@ -77,7 +78,7 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   inline std::shared_ptr<DomNode> GetParent() { return parent_.lock(); }
   inline void SetParent(std::shared_ptr<DomNode> parent) { parent_ = parent; }
   inline uint32_t GetChildCount() const {
-    return hippy::base::checked_numeric_cast<size_t, uint32_t>(children_.size());
+    return footstone::check::checked_numeric_cast<size_t, uint32_t>(children_.size());
   }
   inline void SetTagName(const std::string& tag_name) { tag_name_ = tag_name; }
   inline const std::string& GetTagName() { return tag_name_; }
@@ -131,30 +132,30 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   std::vector<std::shared_ptr<DomNode::EventListenerInfo>> GetEventListener(const std::string& name,
                                                                             bool is_capture);
   const std::shared_ptr<std::unordered_map<std::string,
-                                           std::shared_ptr<DomValue>>>& GetStyleMap() const {
+                                           std::shared_ptr<HippyValue>>>& GetStyleMap() const {
     return style_map_;
   }
-  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>& GetStyleMap() {
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>& GetStyleMap() {
     return style_map_;
   }
   void SetStyleMap(std::shared_ptr<std::unordered_map<std::string,
-                                                      std::shared_ptr<DomValue>>> style) {
+                                                      std::shared_ptr<HippyValue>>> style) {
     style_map_ = style;
   }
   void CallFunction(const std::string& name,
                     const DomArgument& param,
                     const CallFunctionCallback& cb);
-  const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> GetExtStyle() {
+  const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> GetExtStyle() {
     return dom_ext_map_;
   }
   void SetExtStyleMap(std::shared_ptr<std::unordered_map<std::string,
-                                                         std::shared_ptr<DomValue>>> style) {
+                                                         std::shared_ptr<HippyValue>>> style) {
     dom_ext_map_ = style;
   }
   const std::shared_ptr<std::unordered_map<std::string,
-                                           std::shared_ptr<DomValue>>> GetDiffStyle() { return diff_; }
+                                           std::shared_ptr<HippyValue>>> GetDiffStyle() { return diff_; }
   void SetDiffStyle(std::shared_ptr<std::unordered_map<std::string,
-                                                       std::shared_ptr<DomValue>>> diff) {
+                                                       std::shared_ptr<HippyValue>>> diff) {
     diff_ = std::move(diff);
   }
   const std::shared_ptr<std::vector<std::string>> GetDeleteProps() { return delete_props_; }
@@ -171,29 +172,29 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
    * @param value 插入的 value
    * @example {a: 1, b: {b1: 2}} -> emplace(b1, 3) -> {a: 1, b: {b1: 3}} -> emplcace(c, 3) -> {a: 1, b: {b1: 3}, c: 3}
    */
-  void EmplaceStyleMap(const std::string& key, const DomValue& value);
+  void EmplaceStyleMap(const std::string& key, const HippyValue& value);
 
   void UpdateProperties(const std::unordered_map<std::string,
-                                                 std::shared_ptr<DomValue>>& update_style,
+                                                 std::shared_ptr<HippyValue>>& update_style,
                         const std::unordered_map<std::string,
-                                                 std::shared_ptr<DomValue>>& update_dom_ext);
+                                                 std::shared_ptr<HippyValue>>& update_dom_ext);
 
   void UpdateDomNodeStyleAndParseLayoutInfo(
-      const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
+      const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style);
 
-  DomValue Serialize() const;
-  bool Deserialize(DomValue value);
+  HippyValue Serialize() const;
+  bool Deserialize(HippyValue value);
 
   virtual void HandleEvent(const std::shared_ptr<DomEvent>& event);
 
  private:
-  void UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style,
-                  const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_dom_ext);
+  void UpdateDiff(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style,
+                  const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_dom_ext);
   void UpdateDomExt(const std::unordered_map<std::string,
-                                             std::shared_ptr<DomValue>>& update_dom_ext);
-  void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style);
-  void UpdateObjectStyle(DomValue& style_map, const DomValue& update_style);
-  bool ReplaceStyle(DomValue& object, const std::string& key, const DomValue& value);
+                                             std::shared_ptr<HippyValue>>& update_dom_ext);
+  void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style);
+  void UpdateObjectStyle(HippyValue& style_map, const HippyValue& update_style);
+  bool ReplaceStyle(HippyValue& object, const std::string& key, const HippyValue& value);
 
  private:
   uint32_t id_{};            // 节点唯一id
@@ -201,11 +202,11 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   int32_t index_{};          // 当前节点在父节点孩子数组中的索引位置
   std::string tag_name_;   // DSL 中定义的组件名称
   std::string view_name_;  // 底层映射的组件
-  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> style_map_;
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style_map_;
   // 样式预处理后结果
-  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> dom_ext_map_;
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> dom_ext_map_;
   //  用户自定义数据
-  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>> diff_;
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> diff_;
   std::shared_ptr<std::vector<std::string>> delete_props_;
   // Update 时用户自定义数据差异，UpdateRenderNode 完成后会清空 map，以节省内存
 

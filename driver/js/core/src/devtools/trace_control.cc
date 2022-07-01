@@ -26,7 +26,7 @@
 #include <sstream>
 #include <utility>
 
-#include "base/logging.h"
+#include "footstone/logging.h"
 
 namespace hippy::devtools {
 constexpr char kCacheFileName[] = "/v8_trace.json";
@@ -35,7 +35,7 @@ constexpr char kTraceEndTag[] = "]}";
 
 bool TraceControl::OpenCacheFile() {
   if (cache_file_dir_.empty() || std::string::npos != cache_file_dir_.find("..")) {
-    TDF_BASE_LOG(ERROR) << "TraceControl cache_file_dir_ is invalid";
+    FOOTSTONE_LOG(ERROR) << "TraceControl cache_file_dir_ is invalid";
     return false;
   }
   if (!cache_file_path_.empty()) {  // delete old file
@@ -77,7 +77,7 @@ std::string TraceControl::GetTracingContent() {
     buffer << ifs.rdbuf();
     std::string tracing_content = buffer.str();
     ifs.close();
-    TDF_BASE_LOG(INFO) << "TraceControl content:" << tracing_content;
+    FOOTSTONE_LOG(INFO) << "TraceControl content:" << tracing_content;
     if (!tracing_content.empty() && tracing_content[0] == ',') {
       tracing_content = tracing_content.substr(1);
     }

@@ -24,29 +24,52 @@
 #include <memory>
 #include <string>
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
+#include "footstone/task_runner.h"
 #include "core/core.h"
 #include "v8_channel_impl.h"
 
 namespace hippy {
 namespace inspector {
 
-class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
+class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
+ public std::enable_shared_from_this<V8InspectorClientImpl> {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using TaskRunner = footstone::TaskRunner;
 
-  explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope);
+  explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope, std::weak_ptr<TaskRunner> runner);
   ~V8InspectorClientImpl() = default;
 
-  void Reset(std::shared_ptr<Scope> scope, std::shared_ptr<Bridge> bridge);
-  void Connect(const std::shared_ptr<Bridge>& bridge);
+  inline std::shared_ptr<TaskRunner> GetInspectorRunner() {
+    return inspector_runner_;
+  }
 
-  void SendMessageToV8(const unicode_string_view& params);
+  inline std::unique_ptr<V8ChannelImpl>& GetChannel() {
+    return channel_;
+  }
+
+  inline std::unique_ptr<v8_inspector::V8InspectorSession>& GetSession() {
+    return session_;
+  }
+
+  inline void SetSession(std::unique_ptr<v8_inspector::V8InspectorSession> session) {
+    session_ = std::move(session);
+  }
+
+  inline std::unique_ptr<v8_inspector::V8Inspector>& GetInspector() {
+    return inspector_;
+  }
+
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  void Reset(std::shared_ptr<Scope> scope, const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
+  void Connect(const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
+#endif
+
+  void SendMessageToV8(unicode_string_view&& params);
   void CreateContext();
   void DestroyContext();
-  v8::Local<v8::Context> ensureDefaultContextInGroup(
-      int contextGroupId) override;
-
+  v8::Local<v8::Context> ensureDefaultContextInGroup(int contextGroupId) override;
   void runMessageLoopOnPause(int contextGroupId) override;
   void quitMessageLoopOnPause() override;
   void runIfWaitingForDebugger(int contextGroupId) override;
@@ -101,6 +124,9 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   std::unique_ptr<v8_inspector::V8Inspector> inspector_;
   std::unique_ptr<V8ChannelImpl> channel_;
   std::unique_ptr<v8_inspector::V8InspectorSession> session_;
+  std::weak_ptr<TaskRunner> js_runner_;
+  std::shared_ptr<TaskRunner> inspector_runner_;
+  std::mutex mutex_;
 };
 
 }  // namespace inspector

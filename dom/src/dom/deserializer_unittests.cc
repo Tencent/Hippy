@@ -5,90 +5,90 @@
 
 #include <iostream>
 
-#include "dom/deserializer.h"
-#include "dom/dom_value.h"
-#include "dom/serializer.h"
+#include "footstone/deserializer.h"
+#include "footstone/hippy_value.h"
+#include "footstone/serializer.h"
 
 namespace hippy {
 namespace dom {
 namespace testing {
 
 void CheckUint32(uint32_t value) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteUint32(value);
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
 
-  tdf::base::Deserializer deserializer(buffer.first, buffer.second);
+  footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
 
-  tdf::base::DomValue dom_value;
+  footstone::value::HippyValue dom_value;
   deserializer.ReadObject(dom_value);
-  EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kNumber);
-  EXPECT_TRUE(dom_value.GetNumberType() == tdf::base::DomValue::NumberType::kUInt32);
+  EXPECT_TRUE(dom_value.GetType() == footstone::value::HippyValue::Type::kNumber);
+  EXPECT_TRUE(dom_value.GetNumberType() == footstone::value::HippyValue::NumberType::kUInt32);
   EXPECT_TRUE(dom_value.ToUint32Checked() == value);
 }
 
 void CheckInt32(int32_t value) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteInt32(value);
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
 
-  tdf::base::Deserializer deserializer(buffer.first, buffer.second);
+  footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
 
-  tdf::base::DomValue dom_value;
+  footstone::value::HippyValue dom_value;
   deserializer.ReadObject(dom_value);
-  EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kNumber);
-  EXPECT_TRUE(dom_value.GetNumberType() == tdf::base::DomValue::NumberType::kInt32);
+  EXPECT_TRUE(dom_value.GetType() == footstone::value::HippyValue::Type::kNumber);
+  EXPECT_TRUE(dom_value.GetNumberType() == footstone::value::HippyValue::NumberType::kInt32);
   EXPECT_TRUE(dom_value.ToInt32Checked() == value);
 }
 
 void CheckDouble(double value) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteDouble(value);
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
 
-  tdf::base::Deserializer deserializer(buffer.first, buffer.second);
+  footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
 
-  tdf::base::DomValue dom_value;
+  footstone::value::HippyValue dom_value;
   deserializer.ReadObject(dom_value);
-  EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kNumber);
-  EXPECT_TRUE(dom_value.GetNumberType() == tdf::base::DomValue::NumberType::kDouble);
+  EXPECT_TRUE(dom_value.GetType() == footstone::value::HippyValue::Type::kNumber);
+  EXPECT_TRUE(dom_value.GetNumberType() == footstone::value::HippyValue::NumberType::kDouble);
   EXPECT_TRUE(dom_value.ToDoubleChecked() == value);
 }
 
 void CheckString(std::string value) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteString(value);
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
 
-  tdf::base::Deserializer deserializer(buffer.first, buffer.second);
+  footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
 
-  tdf::base::DomValue dom_value;
+  footstone::value::HippyValue dom_value;
   deserializer.ReadObject(dom_value);
-  EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kString);
+  EXPECT_TRUE(dom_value.GetType() == footstone::value::HippyValue::Type::kString);
   EXPECT_TRUE(dom_value.ToStringChecked() == value);
   EXPECT_TRUE(dom_value.ToStringChecked().length() == value.length());
 }
 
-void CheckMap(tdf::base::DomValue::DomValueObjectType value) {
-  tdf::base::Serializer serializer;
+void CheckMap(footstone::value::HippyValue::HippyValueObjectType value) {
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteJSObject(value);
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
 
-  tdf::base::Deserializer deserializer(buffer.first, buffer.second);
+  footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
 
-  tdf::base::DomValue dom_value;
+  footstone::value::HippyValue dom_value;
   deserializer.ReadObject(dom_value);
-  EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kObject);
+  EXPECT_TRUE(dom_value.GetType() == footstone::value::HippyValue::Type::kObject);
   EXPECT_TRUE(dom_value.IsObject());
   EXPECT_TRUE(dom_value.ToObjectChecked().size() == value.size());
 
@@ -103,18 +103,18 @@ void CheckMap(tdf::base::DomValue::DomValueObjectType value) {
   }
 }
 
-void CheckArray(tdf::base::DomValue::DomValueArrayType value) {
-  tdf::base::Serializer serializer;
+void CheckArray(footstone::value::HippyValue::DomValueArrayType value) {
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteDenseJSArray(value);
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
 
-  tdf::base::Deserializer deserializer(buffer.first, buffer.second);
+  footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
 
-  tdf::base::DomValue dom_value;
+  footstone::value::HippyValue dom_value;
   deserializer.ReadObject(dom_value);
-  EXPECT_TRUE(dom_value.GetType() == tdf::base::DomValue::Type::kArray);
+  EXPECT_TRUE(dom_value.GetType() == footstone::value::HippyValue::Type::kArray);
   EXPECT_TRUE(dom_value.IsArray());
   EXPECT_TRUE(dom_value.ToArrayChecked().size() == value.size());
 
@@ -130,11 +130,11 @@ void CheckArray(tdf::base::DomValue::DomValueArrayType value) {
 }
 
 TEST(DeserializerTest, ReadHeader) {
-  tdf::base::Serializer serializer;
+  footstone::value::Serializer serializer;
   serializer.WriteHeader();
   std::pair<uint8_t*, size_t> buffer = serializer.Release();
 
-  tdf::base::Deserializer deserializer(buffer.first, buffer.second);
+  footstone::value::Deserializer deserializer(buffer.first, buffer.second);
   deserializer.ReadHeader();
   EXPECT_EQ(deserializer.version_, tdf::base::kLatestVersion);
 }
@@ -180,18 +180,18 @@ TEST(DeserializerTest, String) {
 }
 
 TEST(DeserializerTest, Map) {
-  tdf::base::DomValue i32(1);
-  tdf::base::DomValue u32(1);
-  tdf::base::DomValue d(1.0);
-  tdf::base::DomValue str("腾讯");
-  tdf::base::DomValue::DomValueObjectType object1;
+  footstone::value::HippyValue i32(1);
+  footstone::value::HippyValue u32(1);
+  footstone::value::HippyValue d(1.0);
+  footstone::value::HippyValue str("腾讯");
+  footstone::value::HippyValue::HippyValueObjectType object1;
   object1["int32"] = i32;
   object1["uint32"] = u32;
   object1["double"] = d;
   object1["string"] = str;
   CheckMap(object1);
 
-  tdf::base::DomValue::DomValueObjectType object2;
+  footstone::value::HippyValue::HippyValueObjectType object2;
   object2["int32"] = i32;
   object2["uint32"] = u32;
   object2["double"] = d;
@@ -201,23 +201,23 @@ TEST(DeserializerTest, Map) {
 }
 
 TEST(DeserializerTest, Object) {
-  tdf::base::DomValue i32(1);
-  tdf::base::DomValue u32(1);
-  tdf::base::DomValue d(1.0);
-  tdf::base::DomValue str("腾讯");
-  tdf::base::DomValue::DomValueArrayType array1;
+  footstone::value::HippyValue i32(1);
+  footstone::value::HippyValue u32(1);
+  footstone::value::HippyValue d(1.0);
+  footstone::value::HippyValue str("腾讯");
+  footstone::value::HippyValue::DomValueArrayType array1;
   array1.push_back(i32);
   array1.push_back(u32);
   array1.push_back(d);
   array1.push_back(str);
   CheckArray(array1);
 
-  tdf::base::DomValue::DomValueArrayType array2;
+  footstone::value::HippyValue::DomValueArrayType array2;
   array2.push_back(i32);
   array2.push_back(u32);
   array2.push_back(d);
   array2.push_back(str);
-  array2.push_back(tdf::base::DomValue(array1));
+  array2.push_back(footstone::value::HippyValue(array1));
   CheckArray(array2);
 }
 

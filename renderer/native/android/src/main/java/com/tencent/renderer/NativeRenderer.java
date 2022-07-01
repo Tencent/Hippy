@@ -45,6 +45,7 @@ import com.tencent.renderer.component.text.VirtualNodeManager;
 import com.tencent.renderer.utils.DisplayUtils;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -75,7 +76,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String LAYOUT_WIDTH = "width";
     private static final String LAYOUT_HEIGHT = "height";
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
-    private static final int MAX_UI_TASK_QUEUE_EXEC_TIME = 400;
     @Nullable
     private FrameworkProxy mFrameworkProxy;
     @Nullable
@@ -336,10 +336,22 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
     }
 
+    private UITaskExecutor getMassTaskExecutor(@NonNull final List<UITaskExecutor> taskList) {
+        return new UITaskExecutor() {
+            @Override
+            public void exec() {
+                for (UITaskExecutor task : taskList) {
+                    task.exec();
+                }
+            }
+        };
+    }
+
     @SuppressWarnings("rawtypes")
     @Override
     public void createNode(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
+        final List<UITaskExecutor> taskList = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -385,15 +397,18 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     mRenderManager.createNode(rootId, id, pid, index, name, props);
                 }
             };
-            addUITask(task);
+            taskList.add(task);
         }
-        executeUITask();
+        if (!taskList.isEmpty()) {
+            addUITask(getMassTaskExecutor(taskList));
+        }
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public void updateNode(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
+        final List<UITaskExecutor> taskList = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -428,13 +443,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     mRenderManager.updateNode(rootId, id, props);
                 }
             };
-            addUITask(task);
+            taskList.add(task);
         }
-        executeUITask();
+        if (!taskList.isEmpty()) {
+            addUITask(getMassTaskExecutor(taskList));
+        }
     }
 
     @Override
     public void deleteNode(final int rootId, @NonNull int[] ids) throws NativeRenderException {
+        final List<UITaskExecutor> taskList = new ArrayList<>();
         for (final int nodeId : ids) {
             // The node id should not be negative number.
             if (nodeId < 0) {
@@ -454,9 +472,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     mRenderManager.deleteNode(rootId, nodeId);
                 }
             };
-            addUITask(task);
+            taskList.add(task);
         }
-        executeUITask();
+        if (!taskList.isEmpty()) {
+            addUITask(getMassTaskExecutor(taskList));
+        }
     }
 
     @Override
@@ -469,12 +489,13 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             }
         };
         addUITask(task);
-        executeUITask();
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void updateLayout(final int rootId, @NonNull List<Object> nodeList) throws NativeRenderException {
+    public void updateLayout(final int rootId, @NonNull List<Object> nodeList)
+            throws NativeRenderException {
+        final List<UITaskExecutor> taskList = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -526,15 +547,18 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     mRenderManager.updateLayout(rootId, id, left, top, width, height);
                 }
             };
-            addUITask(task);
+            taskList.add(task);
         }
-        executeUITask();
+        if (!taskList.isEmpty()) {
+            addUITask(getMassTaskExecutor(taskList));
+        }
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public void updateEventListener(final int rootId, @NonNull List<Object> eventList)
             throws NativeRenderException {
+        final List<UITaskExecutor> taskList = new ArrayList<>();
         for (int i = 0; i < eventList.size(); i++) {
             Object element = eventList.get(i);
             if (!(element instanceof Map)) {
@@ -569,9 +593,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                     mRenderManager.updateEventListener(rootId, id, props);
                 }
             };
-            addUITask(task);
+            taskList.add(task);
         }
-        executeUITask();
+        if (!taskList.isEmpty()) {
+            addUITask(getMassTaskExecutor(taskList));
+        }
     }
 
     @Override
@@ -599,14 +625,14 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         final UIPromise promise =
                 (callbackId == 0) ? null : new UIPromise(callbackId, functionName, rootId, nodeId,
                         mRenderProvider.getInstanceId());
-        UITaskExecutor task = new UITaskExecutor() {
+        // Because call ui function will not follow with end batch,
+        // can be directly post to the UI thread do execution.
+        UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
-            public void exec() {
+            public void run() {
                 mRenderManager.dispatchUIFunction(rootId, nodeId, functionName, params, promise);
             }
-        };
-        addUITask(task);
-        executeUITask();
+        });
     }
 
     @Override
@@ -656,7 +682,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             DisplayMetrics metrics = DisplayUtils.getMetrics(false);
             if (metrics != null) {
                 mRenderProvider
-                        .onSizeChanged(rootId, nodeId, metrics.widthPixels, metrics.heightPixels, true);
+                        .onSizeChanged(rootId, nodeId, metrics.widthPixels, metrics.heightPixels,
+                                true);
             }
         }
     }
@@ -677,26 +704,22 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     }
 
     private void executeUITask() {
+        final int size = mUITaskQueue.size();
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                LogUtils.d(TAG, "UI task queue size=" + mUITaskQueue.size());
                 long start = System.currentTimeMillis();
-                UITaskExecutor task = mUITaskQueue.poll();
-                while (task != null) {
-                    task.exec();
-                    // If there has large number node operation task in queue,
-                    // it is possible cause ANR because of takes a lot of time to handle the task,
-                    // so we should interrupt it and re-run in next event cycle again.
-                    if (System.currentTimeMillis() - start > MAX_UI_TASK_QUEUE_EXEC_TIME) {
-                        LogUtils.e(TAG, "execute ui task exceed 400ms!!!");
-                        break;
+                int count = size;
+                while (count > 0) {
+                    UITaskExecutor task = mUITaskQueue.poll();
+                    if (task != null) {
+                        task.exec();
                     }
-                    task = mUITaskQueue.poll();
+                    count--;
                 }
-                if (!mUITaskQueue.isEmpty()) {
-                    executeUITask();
-                }
+                LogUtils.d(TAG,
+                        "executeUITask: size " + size + ", time " + (System.currentTimeMillis()
+                                - start));
             }
         });
     }

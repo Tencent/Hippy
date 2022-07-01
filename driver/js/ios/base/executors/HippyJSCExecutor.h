@@ -23,7 +23,7 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyDefines.h"
 #import "HippyBridgeModule.h"
-#import "HippyInvalidating.h"
+#import "NativeRenderInvalidating.h"
 #import <memory>
 
 typedef void (^HippyJavaScriptValueCallback)(JSValue *result, NSError *error);
@@ -55,7 +55,7 @@ HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey;
 /**
  * Uses a JavaScriptCore context as the execution engine.
  */
-@interface HippyJSCExecutor : NSObject<HippyBridgeModule, HippyInvalidating>
+@interface HippyJSCExecutor : NSObject<HippyBridgeModule, NativeRenderInvalidating>
 
 @property (nonatomic, strong) HippyBridge *bridge;
 /**

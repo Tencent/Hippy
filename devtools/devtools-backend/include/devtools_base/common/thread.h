@@ -47,7 +47,7 @@ class Thread {
   std::string name_;
   std::unique_ptr<std::thread> thread_;
 
-  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(Thread);
+  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(Thread);
 };
 }  // namespace runner
 }  // namespace hippy::devtools

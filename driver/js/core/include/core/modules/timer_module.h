@@ -26,14 +26,12 @@
 #include <unordered_map>
 #include <utility>
 
-#include "core/base/task.h"
+#include "footstone/task.h"
+#include "footstone/base_timer.h"
 #include "core/modules/module_base.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"
-
-class JavaScriptTask;
-class JavaScriptTaskRunner;
 
 class TimerModule : public ModuleBase {
  public:
@@ -46,24 +44,26 @@ class TimerModule : public ModuleBase {
   void ClearInterval(const hippy::napi::CallbackInfo& info);
 
  private:
-  using TaskId = hippy::base::Task::TaskId;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
+  using BaseTimer = footstone::BaseTimer;
 
   std::shared_ptr<CtxValue> Start(const hippy::napi::CallbackInfo& info,
                                   bool repeat);
-  void RemoveTask(const std::shared_ptr<JavaScriptTask>& task);
-  void Cancel(TaskId task_id, const std::shared_ptr<Scope>& scope);
+  void Cancel(uint32_t task_id);
 
   struct TaskEntry {
-    TaskEntry(std::shared_ptr<CtxValue> func,
-              std::weak_ptr<JavaScriptTask> task): func(func), task(task) {}
+    TaskEntry(
+        std::shared_ptr<Ctx> ctx,
+        std::shared_ptr<CtxValue> func,
+        std::shared_ptr<BaseTimer> timer): ctx(ctx), func(func), timer(timer) {}
 
-    std::shared_ptr<CtxValue> func;
-    std::weak_ptr<JavaScriptTask> task;
-  };
+      std::shared_ptr<Ctx> ctx;
+      std::shared_ptr<CtxValue> func;
+      std::shared_ptr<BaseTimer> timer;
+    };
 
-  std::unordered_map<TaskId, std::shared_ptr<TaskEntry>> task_map_;
+  std::shared_ptr<std::unordered_map<uint32_t , std::unique_ptr<BaseTimer>>> timer_map_;
 
   static const int kTimerInvalidId = 0;
 };

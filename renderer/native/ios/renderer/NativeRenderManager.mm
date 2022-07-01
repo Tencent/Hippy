@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -21,13 +21,13 @@
  */
 
 #import "NativeRenderManager.h"
-#import "HippyShadowText.h"
-#import "HippyUIManager.h"
+#import "NativeRenderObjectText.h"
+#import "NativeRenderUIManager.h"
 #import "dom/layout_node.h"
 #import "dom/dom_manager.h"
 #import "RenderVsyncManager.h"
 
-using DomValue = tdf::base::DomValue;
+using HippyValue = footstone::value::HippyValue;
 using RenderManager = hippy::RenderManager;
 using DomNode = hippy::DomNode;
 using DomManager = hippy::DomManager;
@@ -37,7 +37,7 @@ using CallFunctionCallback = hippy::CallFunctionCallback;
 using RootNode = hippy::RootNode;
 
 NativeRenderManager::NativeRenderManager() {
-    uiManager_ = [[HippyUIManager alloc] init];
+    uiManager_ = [[NativeRenderUIManager alloc] init];
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
@@ -136,7 +136,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
     @autoreleasepool {
         std::shared_ptr<DomNode> node = dom_node.lock();
         if (node) {
-            DomValue dom_value;
+            HippyValue dom_value;
             param.ToObject(dom_value);
             [uiManager_ dispatchFunction:name viewName:node->GetViewName()
                                  viewTag:node->GetId() onRootNode:root_node params:dom_value
@@ -164,11 +164,11 @@ void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     }
 }
 
-void NativeRenderManager::SetFrameworkProxy(id<HippyFrameworkProxy> proxy) {
+void NativeRenderManager::SetFrameworkProxy(id<NativeRenderFrameworkProxy> proxy) {
     uiManager_.frameworkProxy = proxy;
 }
 
-id<HippyFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
+id<NativeRenderFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
     return uiManager_.frameworkProxy;
 }
 
@@ -176,7 +176,7 @@ void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
     uiManager_.uiCreationLazilyEnabled = enabled;
 }
 
-id<HippyRenderContext> NativeRenderManager::GetRenderContext() {
+id<NativeRenderContext> NativeRenderManager::GetRenderContext() {
     return uiManager_;
 }
 

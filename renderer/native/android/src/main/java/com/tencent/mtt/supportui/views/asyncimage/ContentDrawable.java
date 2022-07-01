@@ -389,7 +389,10 @@ public class ContentDrawable extends BaseDrawable
 				mPaint.setColorFilter(new PorterDuffColorFilter(mTintColor, mTintColorBlendMode));
 			}
 
+			canvas.save();
+			canvas.clipRect(getBounds());
 			drawBitmap(canvas, matrix);
+			canvas.restore();
 		}
 	}
 

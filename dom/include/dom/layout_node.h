@@ -1,7 +1,7 @@
 #pragma once
 
 #include <unordered_map>
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 
 namespace hippy {
 inline namespace dom {
@@ -95,7 +95,7 @@ class LayoutNode {
    * @brief 设置属性
    * @param style_map 属性的map
    */
-  virtual void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<tdf::base::DomValue>>& style_map) = 0;
+  virtual void SetLayoutStyles(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) = 0;
 };
 
 std::shared_ptr<LayoutNode> CreateLayoutNode();

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/base/task_runner.h"
+#include "footstone/task_runner.h"
 #include "dom/dom_node.h"
 
 namespace hippy {
@@ -8,7 +8,7 @@ inline namespace dom {
 
 class RootNode : public DomNode {
  public:
-  using TaskRunner = hippy::base::TaskRunner;
+  using TaskRunner = footstone::runner::TaskRunner;
 
   RootNode(uint32_t id);
   RootNode();

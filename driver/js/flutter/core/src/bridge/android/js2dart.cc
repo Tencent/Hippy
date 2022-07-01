@@ -25,14 +25,14 @@
 #include "js2dart.h"
 #include "voltron_bridge.h"
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using bytes = std::string;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 namespace voltron::bridge {
 void CallDart(hippy::napi::CBDataTuple *data) {
-  TDF_BASE_DLOG(INFO) << "CallDartMethod";
+  FOOTSTONE_DLOG(INFO) << "CallDartMethod";
   auto cb = [](const std::shared_ptr<Runtime> &runtime,
                const unicode_string_view &module,
                const unicode_string_view &func,

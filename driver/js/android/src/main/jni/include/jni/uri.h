@@ -26,11 +26,11 @@
 
 #include <string>
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
 
 class Uri {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
 
   static std::shared_ptr<Uri> Create(const unicode_string_view& uri);
   explicit Uri(const unicode_string_view& uri);

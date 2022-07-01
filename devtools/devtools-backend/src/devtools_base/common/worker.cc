@@ -96,7 +96,7 @@ void Worker::Run() {
 void Worker::Sort() {
   if (!running_groups_.empty()) {
     running_groups_.sort([](const auto& lhs, const auto& rhs) {
-      //      TDF_BASE_DCHECK(!lhs.empty() && !rhs.empty());
+      //      FOOTSTONE_DCHECK(!lhs.empty() && !rhs.empty());
       int64_t left = lhs[0]->GetPriority() * lhs[0]->GetTime().ToNanoseconds();
       int64_t right = rhs[0]->GetPriority() * rhs[0]->GetTime().ToNanoseconds();
       if (left < right) {

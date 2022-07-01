@@ -92,7 +92,7 @@ class LogMessage {
   const char* file_;
   const int line_;
 
-  TDF_BASE_DISALLOW_COPY_AND_ASSIGN(LogMessage);
+  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
 int GetVlogVerbosity();

@@ -26,7 +26,7 @@ namespace voltron {
 
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime, const unicode_string_view& desc,
                                          const unicode_string_view& stack) {
-  TDF_BASE_DLOG(INFO) << "ReportJsException begin";
+  FOOTSTONE_DLOG(INFO) << "ReportJsException begin";
 
   auto bridge = std::static_pointer_cast<VoltronBridge>(runtime->GetBridge());
 
@@ -39,6 +39,6 @@ void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime
       platform_runtime->ReportJSException(exception, stack_trace);
     }
   }
-  TDF_BASE_DLOG(INFO) << "ReportJsException end";
+  FOOTSTONE_DLOG(INFO) << "ReportJsException end";
 }
 }

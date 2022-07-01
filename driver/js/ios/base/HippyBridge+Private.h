@@ -23,6 +23,7 @@
 #import "HippyBridge.h"
 #import "HippyJSCExecutor.h"
 #include "dom/dom_manager.h"
+#include "footstone/worker_manager.h"
 
 @class HippyModuleData;
 
@@ -146,7 +147,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 
 @end
 
-@interface HippyBatchedBridge : HippyBridge <HippyInvalidating>
+@interface HippyBatchedBridge : HippyBridge <NativeRenderInvalidating>
 
 @property (nonatomic, weak, readonly) HippyBridge *parentBridge;
 @property (nonatomic, weak, readonly) HippyJSCExecutor *javaScriptExecutor;

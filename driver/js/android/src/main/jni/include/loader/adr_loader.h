@@ -27,27 +27,28 @@
 #include <map>
 
 #include "core/core.h"
+#include "footstone/check.h"
 #include "jni/scoped_java_ref.h"
 
 template <typename CharType>
-bool ReadAsset(const tdf::base::unicode_string_view& path,
+bool ReadAsset(const footstone::stringview::unicode_string_view& path,
                AAssetManager* aasset_manager,
                std::basic_string<CharType>& bytes,
                bool is_auto_fill) {
-  tdf::base::unicode_string_view owner(""_u8s);
+  footstone::stringview::unicode_string_view owner(""_u8s);
   const char* asset_path = hippy::base::StringViewUtils::ToConstCharPointer(path, owner);
   std::string file_path = std::string(asset_path);
   if (file_path.length() > 0 && file_path[0] == '/') {
     file_path = file_path.substr(1);
     asset_path = file_path.c_str();
   }
-  TDF_BASE_DLOG(INFO) << "asset_path = " << asset_path;
+  FOOTSTONE_DLOG(INFO) << "asset_path = " << asset_path;
 
   auto asset =
       AAssetManager_open(aasset_manager, asset_path, AASSET_MODE_STREAMING);
   if (asset) {
     size_t size;
-    if (!hippy::base::numeric_cast<off_t, size_t>(AAsset_getLength(asset) + (is_auto_fill ? 1:0),
+    if (!footstone::check::numeric_cast<off_t, size_t>(AAsset_getLength(asset) + (is_auto_fill ? 1:0),
                                                   size)) {
       AAsset_close(asset);
       return false;
@@ -63,19 +64,20 @@ bool ReadAsset(const tdf::base::unicode_string_view& path,
       bytes.back() = '\0';
     }
     AAsset_close(asset);
-    TDF_BASE_DLOG(INFO) << "path = " << path << ", len = " << bytes.length()
+    FOOTSTONE_DLOG(INFO) << "path = " << path << ", len = " << bytes.length()
                         << ", file_data = "
                         << reinterpret_cast<const char*>(bytes.c_str());
     return true;
   }
-  TDF_BASE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
+  FOOTSTONE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
   return false;
 }
 
 class ADRLoader : public hippy::base::UriLoader {
  public:
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using u8string = unicode_string_view::u8string;
+  using TaskRunner = footstone::TaskRunner;
 
   ADRLoader();
   virtual ~ADRLoader() {}
@@ -89,7 +91,7 @@ class ADRLoader : public hippy::base::UriLoader {
   inline void SetAAssetManager(AAssetManager* aasset_manager) {
     aasset_manager_ = aasset_manager;
   }
-  inline void SetWorkerTaskRunner(std::weak_ptr<WorkerTaskRunner> runner) {
+  inline void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
     runner_ = runner;
   }
   std::function<void(u8string)> GetRequestCB(int64_t request_id);
@@ -106,6 +108,6 @@ class ADRLoader : public hippy::base::UriLoader {
 
   std::shared_ptr<JavaRef> bridge_;
   AAssetManager* aasset_manager_;
-  std::weak_ptr<WorkerTaskRunner> runner_;
+  std::weak_ptr<TaskRunner> runner_;
   std::unordered_map<int64_t, std::function<void(u8string)>> request_map_;
 };

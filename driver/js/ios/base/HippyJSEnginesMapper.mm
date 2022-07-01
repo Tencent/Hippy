@@ -21,7 +21,7 @@
  */
 
 #import "HippyJSEnginesMapper.h"
-#import "HippyLog.h"
+#import "NativeRenderLog.h"
 
 using EngineRef = std::pair<std::shared_ptr<Engine>, NSUInteger>;
 using EngineMapper = std::unordered_map<std::string, EngineRef>;
@@ -44,7 +44,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
     return instance;
 }
 
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key {
+- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key JSTaskRunner:(std::shared_ptr<footstone::TaskRunner>)JSRunner {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
     const auto it = _engineMapper.find([key UTF8String]);
     bool findIT = (_engineMapper.end() != it);
@@ -53,7 +53,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-        std::shared_ptr<Engine> engine = std::make_shared<Engine>();
+        std::shared_ptr<Engine> engine = std::make_shared<Engine>(JSRunner, nullptr);
         [self setEngine:engine forKey:key];
         return engine;
     }
@@ -86,7 +86,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         EngineRef &ref = it->second;
         ref.second--;
         if (0 == ref.second) {
-            HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
+            NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
             std::shared_ptr<Engine> engine = ref.first;
             engine->TerminateRunner();
             _engineMapper.erase(it);

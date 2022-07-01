@@ -26,7 +26,7 @@
 #include <iostream>
 #include <utility>
 
-#include "base/logging.h"
+#include "footstone/logging.h"
 #include "core/base/common.h"
 #include "dom/root_node.h"
 #include "jni/jni_env.h"
@@ -60,7 +60,7 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 
 #define MARK_DIRTY_PROPERTY(STYLES, FIND_STYLE, NODE) \
   do {                                                \
-    TDF_BASE_DCHECK(NODE != nullptr);                 \
+    FOOTSTONE_DCHECK(NODE != nullptr);                 \
     if (STYLES->find(FIND_STYLE) != STYLES->end()) {  \
       NODE->MarkDirty();                              \
       return;                                         \
@@ -71,10 +71,10 @@ namespace hippy {
 inline namespace dom {
 
 static std::atomic<int32_t> global_hippy_render_manager_key{0};
-tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::presistent_map_;
+tdf::base::PersistentObjectMap<int32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
-    : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<tdf::base::Serializer>()) {
+    : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<footstone::value::Serializer>()) {
   id_ = global_hippy_render_manager_key.fetch_add(1);
 }
 
@@ -90,18 +90,18 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
   serializer_->WriteHeader();
 
   auto len = nodes.size();
-  tdf::base::DomValue::DomValueArrayType dom_node_array;
+  footstone::value::HippyValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
     const auto& render_info = nodes[i]->GetRenderInfo();
-    tdf::base::DomValue::DomValueObjectType dom_node;
-    dom_node[kId] = tdf::base::DomValue(render_info.id);
-    dom_node[kPid] = tdf::base::DomValue(render_info.pid);
-    dom_node[kIndex] = tdf::base::DomValue(render_info.index);
-    dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
+    footstone::value::HippyValue::HippyValueObjectType dom_node;
+    dom_node[kId] = footstone::value::HippyValue(render_info.id);
+    dom_node[kPid] = footstone::value::HippyValue(render_info.pid);
+    dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
+    dom_node[kName] = footstone::value::HippyValue(nodes[i]->GetViewName());
 
     if (nodes[i]->GetViewName() == kMeasureNode) {
-      int32_t id =  hippy::base::checked_numeric_cast<uint32_t, int32_t>(nodes[i]->GetId());
+      int32_t id =  footstone::check::checked_numeric_cast<uint32_t, int32_t>(nodes[i]->GetId());
       MeasureFunction measure_function = [this, root_id, id](float width,
           LayoutMeasureMode width_measure_mode, float height,
           LayoutMeasureMode height_measure_mode,
@@ -113,14 +113,14 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
         LayoutSize layout_result;
         layout_result.width = PxToDp(static_cast<float>((int32_t) (0xFFFFFFFF & (result >> 32))));
         layout_result.height = PxToDp(static_cast<float>((int32_t) (0xFFFFFFFF & result)));
-        TDF_BASE_DLOG(INFO) << "measure width: " << (int32_t)(0xFFFFFFFF & (result >> 32))
+        FOOTSTONE_DLOG(INFO) << "measure width: " << (int32_t)(0xFFFFFFFF & (result >> 32))
                             << ", height: " << (int32_t)(0xFFFFFFFF & result) << ", result: " << result;
         return layout_result;
       };
       nodes[i]->GetLayoutNode()->SetMeasureFunction(measure_function);
     }
 
-    tdf::base::DomValue::DomValueObjectType props;
+    footstone::value::HippyValue::HippyValueObjectType props;
     // 样式属性
     auto style = nodes[i]->GetStyleMap();
     auto iter = style->begin();
@@ -140,7 +140,7 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
     dom_node[kProps] = props;
     dom_node_array[i] = dom_node;
   }
-  serializer_->WriteValue(DomValue(dom_node_array));
+  serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod("createNode", root->GetId(), buffer_pair);
@@ -163,17 +163,17 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
   serializer_->WriteHeader();
 
   auto len = nodes.size();
-  tdf::base::DomValue::DomValueArrayType dom_node_array;
+  footstone::value::HippyValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
     const auto& render_info = nodes[i]->GetRenderInfo();
-    tdf::base::DomValue::DomValueObjectType dom_node;
-    dom_node[kId] = tdf::base::DomValue(render_info.id);
-    dom_node[kPid] = tdf::base::DomValue(render_info.pid);
-    dom_node[kIndex] = tdf::base::DomValue(render_info.index);
-    dom_node[kName] = tdf::base::DomValue(nodes[i]->GetViewName());
+    footstone::value::HippyValue::HippyValueObjectType dom_node;
+    dom_node[kId] = footstone::value::HippyValue(render_info.id);
+    dom_node[kPid] = footstone::value::HippyValue(render_info.pid);
+    dom_node[kIndex] = footstone::value::HippyValue(render_info.index);
+    dom_node[kName] = footstone::value::HippyValue(nodes[i]->GetViewName());
 
-    tdf::base::DomValue::DomValueObjectType props;
+    footstone::value::HippyValue::HippyValueObjectType props;
     // 样式属性
     auto style = nodes[i]->GetStyleMap();
     auto iter = style->begin();
@@ -193,7 +193,7 @@ void NativeRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
     dom_node[kProps] = props;
     dom_node_array[i] = dom_node;
   }
-  serializer_->WriteValue(DomValue(dom_node_array));
+  serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod("updateNode", root->GetId(), buffer_pair);
@@ -212,25 +212,25 @@ void NativeRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
   JNIEnv* j_env = instance->AttachCurrentThread();
 
   jintArray j_int_array;
-  auto size = hippy::base::checked_numeric_cast<size_t, jint>(nodes.size());
+  auto size = footstone::check::checked_numeric_cast<size_t, jint>(nodes.size());
   j_int_array = j_env->NewIntArray(size);
   std::vector<jint> id;
   id.resize(nodes.size());
   for (size_t i = 0; i < nodes.size(); i++) {
-    id[i] = hippy::base::checked_numeric_cast<uint32_t, jint>(nodes[i]->GetRenderInfo().id);
+    id[i] = footstone::check::checked_numeric_cast<uint32_t, jint>(nodes[i]->GetRenderInfo().id);
   }
   j_env->SetIntArrayRegion(j_int_array, 0, size, &id[0]);
 
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, "deleteNode", "(I[I)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "deleteNode j_cb_id error";
+    FOOTSTONE_LOG(ERROR) << "deleteNode j_cb_id error";
     return;
   }
 
@@ -252,25 +252,25 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
   serializer_->WriteHeader();
 
   auto len = nodes.size();
-  tdf::base::DomValue::DomValueArrayType dom_node_array;
+  footstone::value::HippyValue::DomValueArrayType dom_node_array;
   dom_node_array.resize(len);
   for (uint32_t i = 0; i < len; i++) {
-    tdf::base::DomValue::DomValueObjectType dom_node;
-    dom_node[kId] = tdf::base::DomValue(nodes[i]->GetId());
+    footstone::value::HippyValue::HippyValueObjectType dom_node;
+    dom_node[kId] = footstone::value::HippyValue(nodes[i]->GetId());
     const auto& result = nodes[i]->GetRenderLayoutResult();
-    dom_node[kWidth] = tdf::base::DomValue(DpToPx(result.width));
-    dom_node[kHeight] = tdf::base::DomValue(DpToPx(result.height));
-    dom_node[kLeft] = tdf::base::DomValue(DpToPx(result.left));
-    dom_node[kTop] = tdf::base::DomValue(DpToPx(result.top));
+    dom_node[kWidth] = footstone::value::HippyValue(DpToPx(result.width));
+    dom_node[kHeight] = footstone::value::HippyValue(DpToPx(result.height));
+    dom_node[kLeft] = footstone::value::HippyValue(DpToPx(result.left));
+    dom_node[kTop] = footstone::value::HippyValue(DpToPx(result.top));
     if (nodes[i]->GetViewName() == kMeasureNode) {
-      dom_node["paddingLeft"] = tdf::base::DomValue(DpToPx(result.paddingLeft));
-      dom_node["paddingTop"] = tdf::base::DomValue(DpToPx(result.paddingTop));
-      dom_node["paddingRight"] = tdf::base::DomValue(DpToPx(result.paddingRight));
-      dom_node["paddingBottom"] = tdf::base::DomValue(DpToPx(result.paddingBottom));
+      dom_node["paddingLeft"] = footstone::value::HippyValue(DpToPx(result.paddingLeft));
+      dom_node["paddingTop"] = footstone::value::HippyValue(DpToPx(result.paddingTop));
+      dom_node["paddingRight"] = footstone::value::HippyValue(DpToPx(result.paddingRight));
+      dom_node["paddingBottom"] = footstone::value::HippyValue(DpToPx(result.paddingBottom));
     }
     dom_node_array[i] = dom_node;
   }
-  serializer_->WriteValue(DomValue(dom_node_array));
+  serializer_->WriteValue(HippyValue(dom_node_array));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
 
   CallNativeMethod("updateLayout", root->GetId(), buffer_pair);
@@ -287,20 +287,20 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
   JNIEnv* j_env = instance->AttachCurrentThread();
 
   jintArray j_int_array;
-  auto j_size = hippy::base::checked_numeric_cast<size_t, jint>(moved_ids.size());
+  auto j_size = footstone::check::checked_numeric_cast<size_t, jint>(moved_ids.size());
   j_int_array = j_env->NewIntArray(j_size);
   j_env->SetIntArrayRegion(j_int_array, 0, j_size, &moved_ids[0]);
 
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, "moveNode", "(I[III)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "moveNode j_cb_id error";
+    FOOTSTONE_LOG(ERROR) << "moveNode j_cb_id error";
     return;
   }
 
@@ -350,7 +350,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
 
   std::shared_ptr<DomNode> node = domNode.lock();
   if (node == nullptr) {
-    TDF_BASE_LOG(ERROR) << "CallJs bad node";
+    FOOTSTONE_LOG(ERROR) << "CallJs bad node";
     return;
   }
 
@@ -360,13 +360,13 @@ void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallJs j_class error";
+    FOOTSTONE_LOG(ERROR) << "CallJs j_class error";
     return;
   }
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, "callUIFunction", "(IIJLjava/lang/String;[B)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "CallJs j_method_id error";
+    FOOTSTONE_LOG(ERROR) << "CallJs j_method_id error";
     return;
   }
 
@@ -374,7 +374,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
   param.ToBson(param_bson);
 
   jbyteArray j_buffer;
-  auto j_size = hippy::base::checked_numeric_cast<size_t, jint>(param_bson.size());
+  auto j_size = footstone::check::checked_numeric_cast<size_t, jint>(param_bson.size());
   j_buffer = j_env->NewByteArray(j_size);
   j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, j_size,
                             reinterpret_cast<const jbyte*>(param_bson.data()));
@@ -397,7 +397,7 @@ void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t r
   JNIEnv* j_env = instance->AttachCurrentThread();
 
   jobject j_buffer;
-  auto j_size = hippy::base::checked_numeric_cast<size_t, jint>(buffer.second);
+  auto j_size = footstone::check::checked_numeric_cast<size_t, jint>(buffer.second);
   j_buffer = j_env->NewByteArray(j_size);
   j_env->SetByteArrayRegion(reinterpret_cast<jbyteArray>(j_buffer), 0, j_size,
                             reinterpret_cast<const jbyte*>(buffer.first));
@@ -405,13 +405,13 @@ void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t r
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "(I[B)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << method << " j_method_id error";
+    FOOTSTONE_LOG(ERROR) << method << " j_method_id error";
     return;
   }
 
@@ -428,13 +428,13 @@ void NativeRenderManager::CallNativeMethod(const std::string& method, uint32_t r
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, method.c_str(), "(I)V");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << method << " j_method_id error";
+    FOOTSTONE_LOG(ERROR) << method << " j_method_id error";
     return;
   }
 
@@ -452,13 +452,13 @@ void NativeRenderManager::CallNativeMeasureMethod(const uint32_t root_id, const 
   jobject j_object = render_delegate_->GetObj();
   jclass j_class = j_env->GetObjectClass(j_object);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallNativeMethod j_class error";
+    FOOTSTONE_LOG(ERROR) << "CallNativeMethod j_class error";
     return;
   }
 
   jmethodID j_method_id = j_env->GetMethodID(j_class, "measure", "(IIFIFI)J");
   if (!j_method_id) {
-    TDF_BASE_LOG(ERROR) << "measure j_method_id error";
+    FOOTSTONE_LOG(ERROR) << "measure j_method_id error";
     return;
   }
 
@@ -482,10 +482,10 @@ void NativeRenderManager::HandleListenerOps(std::weak_ptr<RootNode> root_node,
     return;
   }
 
-  tdf::base::DomValue::DomValueArrayType event_listener_ops;
+  footstone::value::HippyValue::DomValueArrayType event_listener_ops;
   for (auto iter = ops.begin(); iter != ops.end(); ++iter) {
-    tdf::base::DomValue::DomValueObjectType op;
-    tdf::base::DomValue::DomValueObjectType events;
+    footstone::value::HippyValue::HippyValueObjectType op;
+    footstone::value::HippyValue::HippyValueObjectType events;
 
     const std::vector<ListenerOp> &listener_ops = iter->second;
     const auto len = listener_ops.size();
@@ -496,10 +496,10 @@ void NativeRenderManager::HandleListenerOps(std::weak_ptr<RootNode> root_node,
       if (dom_node == nullptr) {
         break;
       }
-      events[listener_op.name] = tdf::base::DomValue(listener_op.add);
+      events[listener_op.name] = footstone::value::HippyValue(listener_op.add);
     }
     if (index == len) {
-      op[kId] = tdf::base::DomValue(iter->first);
+      op[kId] = footstone::value::HippyValue(iter->first);
       op[kProps] = events;
       event_listener_ops.emplace_back(op);
     }
@@ -512,17 +512,17 @@ void NativeRenderManager::HandleListenerOps(std::weak_ptr<RootNode> root_node,
 
   serializer_->Release();
   serializer_->WriteHeader();
-  serializer_->WriteValue(DomValue(event_listener_ops));
+  serializer_->WriteValue(HippyValue(event_listener_ops));
   std::pair<uint8_t*, size_t> buffer_pair = serializer_->Release();
   CallNativeMethod(method_name, root->GetId(), buffer_pair);
 }
 
 void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, uint32_t node_id) {
   auto root_node = weak_root_node.lock();
-  TDF_BASE_DCHECK(root_node);
+  FOOTSTONE_DCHECK(root_node);
   if (root_node) {
     auto node = root_node->GetNode(node_id);
-    TDF_BASE_DCHECK(node);
+    FOOTSTONE_DCHECK(node);
     if (node) {
       auto diff_style = node->GetDiffStyle();
       if (diff_style) {

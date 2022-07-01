@@ -25,8 +25,8 @@
 #import "HippyBridge.h"
 #import "HippyDevLoadingView.h"
 #import "HippyDefines.h"
-#import "HippyUtils.h"
-#import "HippyModalHostViewController.h"
+#import "NativeRenderUtils.h"
+#import "NativeRenderModalHostViewController.h"
 
 #if HIPPY_DEV
 
@@ -76,11 +76,11 @@ HIPPY_EXPORT_METHOD(showMessage:(NSString *)message color:(UIColor *)color backg
     
     dispatch_async(dispatch_get_main_queue(), ^{
         self->_showDate = [NSDate date];
-        if (!self->_window && !HippyRunningInTestEnvironment()) {
+        if (!self->_window && !NativeRenderRunningInTestEnvironment()) {
             CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
             CGFloat viewHeight = HippyDevMsgViewHeight;
             if (@available(iOS 11.0, *)) {
-                UIEdgeInsets safeAreaInsets = HippyKeyWindow().safeAreaInsets;
+                UIEdgeInsets safeAreaInsets = NativeRenderKeyWindow().safeAreaInsets;
                 if (safeAreaInsets.bottom > 0) {
                     //is iPhoneX
                     viewHeight += safeAreaInsets.top;

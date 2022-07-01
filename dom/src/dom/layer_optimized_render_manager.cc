@@ -55,11 +55,11 @@ void LayerOptimizedRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_
         std::vector<int32_t> moved_ids;
         moved_ids.reserve(moved_children.size());
         for (const auto& moved_node : moved_children) {
-          moved_ids.push_back(hippy::base::checked_numeric_cast<uint32_t, int32_t>(moved_node->GetId()));
+          moved_ids.push_back(footstone::check::checked_numeric_cast<uint32_t, int32_t>(moved_node->GetId()));
         }
         MoveRenderNode(root_node, std::move(moved_ids),
-                       hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().pid),
-                       hippy::base::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().id));
+                       footstone::check::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().pid),
+                       footstone::check::checked_numeric_cast<uint32_t, int32_t>(node->GetRenderInfo().id));
       }
     }
   }

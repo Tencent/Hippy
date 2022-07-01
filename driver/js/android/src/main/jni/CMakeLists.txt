@@ -47,6 +47,10 @@ if (${ANDROID_STL} STREQUAL "c++_static")
 endif ()
 # endregion
 
+add_subdirectory(${PROJECT_ROOT_DIR}/modules/footstone/ ${CMAKE_CURRENT_BINARY_DIR}/footstone)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/modules/footstone/include)
+target_link_libraries(${PROJECT_NAME} PUBLIC footstone)
+
 # region core
 add_subdirectory(${PROJECT_ROOT_DIR}/driver/js/core ${CMAKE_CURRENT_BINARY_DIR}/core)
 target_link_libraries(${PROJECT_NAME} PRIVATE core)

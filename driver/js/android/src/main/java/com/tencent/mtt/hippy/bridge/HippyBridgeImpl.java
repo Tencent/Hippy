@@ -118,11 +118,16 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                 String localCachePath = mContext.getGlobalConfigs().getContext().getFilesDir().getAbsolutePath();
                 byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
                 mV8RuntimeId = initJSFramework(
-                    globalConfig, mSingleThreadMode, enableV8Serialization,
-                    mIsDevModule, mDebugInitJSFrameworkCallback, groupId,
-                    v8InitParams,
-                    localCachePath,
-                    mContext.getDevSupportManager().createDebugUrl(mDebugServerHost)
+                        globalConfig,
+                        mSingleThreadMode,
+                        enableV8Serialization,
+                        mIsDevModule,
+                        mDebugInitJSFrameworkCallback,
+                        groupId,
+                        mContext.getWorkerManagerId(),
+                        v8InitParams,
+                        localCachePath,
+                        mContext.getDevSupportManager().createDebugUrl(mDebugServerHost)
                 );
                 mInit = true;
             } catch (Throwable e) {
@@ -283,7 +288,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
-            long groupId, V8InitParams v8InitParams, String dataDir, String wsUrl);
+            long groupId, int workerManagerId, V8InitParams v8InitParams, String dataDir, String wsUrl);
 
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
             boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId,

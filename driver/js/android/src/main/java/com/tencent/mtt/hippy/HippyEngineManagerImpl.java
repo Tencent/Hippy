@@ -115,6 +115,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     boolean mHasReportEngineLoadResult = false;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
+    private int mWorkerManagerId = -1;
 
     final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -190,7 +191,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
 
             LogUtils.d(TAG, "start restartEngineInBackground...");
-            restartEngineInBackground();
+            restartEngineInBackground(false);
         } catch (Throwable e) {
             mCurrentState = EngineState.INITERRORED;
             notifyEngineInitialized(EngineInitStatus.STATUS_INIT_EXCEPTION, e);
@@ -220,7 +221,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         mCurrentState = EngineState.DESTROYED;
         destroyInstance(mRootView);
         if (mEngineContext != null) {
-            mEngineContext.destroy();
+            mEngineContext.destroy(false);
         }
 
         if (moduleLoadParams != null && moduleLoadParams.nativeParams != null) {
@@ -553,7 +554,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
     }
 
-    private synchronized void restartEngineInBackground() {
+    private synchronized void restartEngineInBackground(boolean onReLoad) {
         if (mCurrentState == EngineState.DESTROYED) {
             String errorMsg =
                     "restartEngineInBackground... error STATUS_WRONG_STATE, state=" + mCurrentState;
@@ -567,7 +568,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         if (mEngineContext != null) {
-            mEngineContext.destroy();
+            mEngineContext.destroy(onReLoad);
         }
 
         try {
@@ -653,7 +654,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 UIThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        restartEngineInBackground();
+                        restartEngineInBackground(true);
                     }
                 });
             }
@@ -716,6 +717,17 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
+            if (mDebugMode && mWorkerManagerId != -1) {
+                mLinkHelper = new Linker(mWorkerManagerId);
+            } else {
+                mLinkHelper = new Linker();
+                mWorkerManagerId = mLinkHelper.getWorkerManagerId();
+            }
+            if (mDebugMode && mRootView != null) {
+                mLinkHelper.createDomHolder(mRootView.getId());
+            } else {
+                mLinkHelper.createDomHolder();
+            }
             mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders,
                     enableV8Serialization);
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
@@ -723,12 +735,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
             // If in debug mode, root view will be reused after reload,
             // so not need to generate root id again.
-            mLinkHelper = new Linker();
-            if (mDebugMode && mRootView != null) {
-                mLinkHelper.createDomHolder(mRootView.getId());
-            } else {
-                mLinkHelper.createDomHolder();
-            }
             mLinkHelper.createAnimationManager();
             mLinkHelper.createRenderer(NATIVE_RENDER);
             mLinkHelper.setFrameworkProxy(HippyEngineManagerImpl.this);
@@ -879,28 +885,27 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
+        public int getWorkerManagerId() {
+            return mLinkHelper.getWorkerManagerId();
+        }
+
+        @Override
         public ViewGroup getRootView() {
             return mRootView;
         }
 
         @Nullable
         public View createRootView(@NonNull Context context) {
-            if (mLinkHelper != null) {
-                View rootView = mLinkHelper.createRootView(context);
-                mLinkHelper.connect((int) mRuntimeId, rootView.getId());
-                return rootView;
-            }
-            return null;
+            View rootView = mLinkHelper.createRootView(context);
+            mLinkHelper.connect((int) mRuntimeId, rootView.getId());
+            return rootView;
         }
 
         public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
             mBridgeManager.destroyBridge(callback, isReload);
         }
 
-        public void destroy() {
-            if (mLinkHelper != null) {
-                mLinkHelper.destroy();
-            }
+        public void destroy(boolean onReLoad) {
             if (mBridgeManager != null) {
                 mBridgeManager.destroy();
             }
@@ -913,7 +918,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mNativeParams != null) {
                 mNativeParams.clear();
             }
+            mLinkHelper.destroy(onReLoad);
         }
     }
-
 }

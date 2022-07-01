@@ -2,8 +2,8 @@
 
 #include "dom/dom_listener.h"
 
-#include "base/logging.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
 #include "core/scope.h"
 
 const uint64_t kInvalidListenerId = 0;

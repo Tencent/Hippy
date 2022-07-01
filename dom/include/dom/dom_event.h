@@ -4,7 +4,7 @@
 #include <memory>
 #include <string>
 
-#include "dom/dom_value.h"
+#include "footstone/hippy_value.h"
 
 namespace hippy {
 inline namespace dom {
@@ -20,22 +20,22 @@ enum class EventPhase: uint8_t {
 
 class DomEvent {
  public:
-  using DomValue = tdf::base::DomValue;
+  using HippyValue = footstone::value::HippyValue;
   DomEvent(std::string type, std::weak_ptr<DomNode> target,
-           bool can_capture, bool can_bubble, std::shared_ptr<DomValue> value)
+           bool can_capture, bool can_bubble, std::shared_ptr<HippyValue> value)
       : type_(std::move(type)), target_(target), current_target_(target),
         prevent_capture_(false), prevent_bubble_(false), can_capture_(can_capture),
         can_bubble_(can_bubble), value_(value) {}
   DomEvent(std::string type, std::weak_ptr<DomNode> target,
            bool can_capture = false, bool can_bubble = false)
       : DomEvent(std::move(type), target, can_capture, can_bubble, nullptr) {}
-  DomEvent(std::string type, std::weak_ptr<DomNode> target, std::shared_ptr<DomValue> value)
+  DomEvent(std::string type, std::weak_ptr<DomNode> target, std::shared_ptr<HippyValue> value)
       : DomEvent(std::move(type), target, false, false, value) {}
   void StopPropagation();
-  inline void SetValue(std::shared_ptr<DomValue> value) {
+  inline void SetValue(std::shared_ptr<HippyValue> value) {
     value_ = value;
   }
-  inline std::shared_ptr<DomValue> GetValue() {
+  inline std::shared_ptr<HippyValue> GetValue() {
     return value_;
   }
   inline bool IsPreventCapture() {
@@ -78,7 +78,7 @@ class DomEvent {
   bool can_capture_;
   bool can_bubble_;
   EventPhase event_phase_ = EventPhase::kNone;
-  std::shared_ptr<DomValue> value_;
+  std::shared_ptr<HippyValue> value_;
 };
 
 }

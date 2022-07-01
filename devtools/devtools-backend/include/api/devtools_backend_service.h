@@ -41,6 +41,8 @@ class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBacke
  public:
   explicit DevtoolsBackendService(const DevtoolsConfig& devtools_config);
 
+  ~DevtoolsBackendService();
+
   /**
    * @brief backend service create, to init necessary environment
    */

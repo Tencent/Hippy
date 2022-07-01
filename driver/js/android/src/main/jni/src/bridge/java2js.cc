@@ -27,7 +27,7 @@
 #include "bridge/js2java.h"
 #include "core/runtime/v8/runtime.h"
 #include "core/runtime/v8/v8_bridge_utils.h"
-#include "core/base/string_view_utils.h"
+#include "footstone/string_view_utils.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/jni_env.h"
@@ -57,7 +57,7 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
     "NativeCallback;Ljava/nio/ByteBuffer;II)V",
     CallFunctionByDirectBuffer)
 
-using unicode_string_view = tdf::base::unicode_string_view;
+using unicode_string_view = footstone::stringview::unicode_string_view;
 using bytes = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -74,7 +74,7 @@ void CallFunction(JNIEnv* j_env,
                   std::shared_ptr<JavaRef> buffer_owner) {
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
-  V8BridgeUtils::CallJs(action_name, hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
+  V8BridgeUtils::CallJs(action_name, footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
                         [cb](CALLFUNCTION_CB_STATE state, const unicode_string_view& msg) {
                   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
                   jstring j_msg = JniUtils::StrViewToJString(j_env, msg);
@@ -106,29 +106,29 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
                                 jint j_offset,
                                 jint j_length) {
   char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
-  TDF_BASE_CHECK(buffer_address != nullptr);
+  FOOTSTONE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                bytes(buffer_address + j_offset,
-                     hippy::base::checked_numeric_cast<jint, unsigned long>(j_length)),
+                     footstone::check::checked_numeric_cast<jint, unsigned long>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 
 void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg) {
   if (!j_obj) {
-    TDF_BASE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
+    FOOTSTONE_DLOG(INFO) << "CallJavaMethod j_obj is nullptr";
     return;
   }
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass j_class = j_env->GetObjectClass(j_obj);
   if (!j_class) {
-    TDF_BASE_LOG(ERROR) << "CallJavaMethod j_class error";
+    FOOTSTONE_LOG(ERROR) << "CallJavaMethod j_class error";
     return;
   }
 
   jmethodID j_cb_id = j_env->GetMethodID(j_class, "Callback", "(JLjava/lang/String;)V");
   if (!j_cb_id) {
-    TDF_BASE_LOG(ERROR) << "CallJavaMethod j_cb_id error";
+    FOOTSTONE_LOG(ERROR) << "CallJavaMethod j_cb_id error";
     return;
   }
 

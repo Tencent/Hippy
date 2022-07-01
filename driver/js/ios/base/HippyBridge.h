@@ -26,12 +26,13 @@
 #import "HippyBridgeModule.h"
 #import "HippyDefines.h"
 #import "HippyFrameUpdate.h"
-#import "HippyInvalidating.h"
-#import "HippyImageProviderProtocol.h"
-#import "HippyFrameworkProxy.h"
-#import "HippyRenderContext.h"
+#import "NativeRenderInvalidating.h"
+#import "NativeRenderImageProviderProtocol.h"
+#import "NativeRenderFrameworkProxy.h"
+#import "NativeRenderContext.h"
 #import <memory>
 #import "dom/dom_manager.h"
+#import "footstone/worker_manager.h"
 #import "NativeRenderManager.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "dom/animation/animation_manager.h"
@@ -40,7 +41,7 @@
 @class HippyBridge;
 @class HippyEventDispatcher;
 @class HippyPerformanceLogger;
-@class HippyUIManager;
+@class NativeRenderUIManager;
 
 //class DomManager;
 
@@ -98,7 +99,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /**
  * Async batched bridge used to communicate with the JavaScript application.
  */
-@interface HippyBridge : NSObject <HippyInvalidating, HippyFrameworkProxy>
+@interface HippyBridge : NSObject <NativeRenderInvalidating, NativeRenderFrameworkProxy>
 
 - (instancetype)initWithmoduleProviderWithoutRuntime:(HippyBridgeModuleProviderBlock)block;
 
@@ -132,10 +133,11 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)enqueueJSCall:(NSString *)module method:(NSString *)method args:(NSArray *)args completion:(dispatch_block_t)completion;
 
 - (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
+- (void)setUpWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager;
 
 //TODO 可能有更好的方法设置。最好能将HippyRootView与bridge加载bundle的行为剥离。HippyRootView就是view，和bridge没关系
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
-          frameworkProxy:(id<HippyFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale;
+          frameworkProxy:(id<NativeRenderFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale;
 
 /**
  * This method is used to call functions in the JavaScript application context
@@ -210,14 +212,15 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
-@property (nonatomic, weak) id<HippyFrameworkProxy> frameworkProxy;
+@property (nonatomic, weak) id<NativeRenderFrameworkProxy> frameworkProxy;
 
-@property (nonatomic, weak) id<HippyRenderContext> renderContext;
+@property (nonatomic, weak) id<NativeRenderContext> renderContext;
 
 @property (nonatomic, readonly) std::shared_ptr<hippy::DomManager> domManager;
 @property (nonatomic, readonly) std::shared_ptr<NativeRenderManager> renderManager;
 @property (nonatomic, readonly) std::shared_ptr<hippy::AnimationManager> animationManager;
 @property (nonatomic, readonly) std::shared_ptr<hippy::RootNode> rootNode;
+@property (nonatomic, readonly) std::shared_ptr<footstone::WorkerManager> workerManager;
 
 /**
  * The launch options that were used to initialize the bridge.
@@ -265,7 +268,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, strong) NSString *appVerson;  //
 
-@property (nonatomic, assign) HippyInvalidateReason invalidateReason;
+@property (nonatomic, assign) NativeRenderInvalidateReason invalidateReason;
 
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 

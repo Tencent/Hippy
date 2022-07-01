@@ -2,13 +2,13 @@
 
 #include <algorithm>
 #include <utility>
-#include "base/logging.h"
+#include "footstone/logging.h"
 #include "dom/diff_utils.h"
 #include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
-#include "dom/serializer.h"
+#include "footstone/serializer.h"
 
 namespace hippy {
 inline namespace dom {
@@ -29,7 +29,7 @@ constexpr char kNodePropertyViewName[] = "name";
 constexpr char kNodePropertyStyle[] = "style";
 constexpr char kNodePropertyExt[] = "ext";
 
-using DomValueObjectType = tdf::base::DomValue::DomValueObjectType;
+using HippyValueObjectType = footstone::value::HippyValue::HippyValueObjectType;
 
 DomNode::DomNode(uint32_t id,
                  uint32_t pid,
@@ -37,9 +37,9 @@ DomNode::DomNode(uint32_t id,
                  std::string tag_name,
                  std::string view_name,
                  std::shared_ptr<std::unordered_map<std::string,
-                                                    std::shared_ptr<DomValue>>> style_map,
+                                                    std::shared_ptr<HippyValue>>> style_map,
                  std::shared_ptr<std::unordered_map<std::string,
-                                                    std::shared_ptr<DomValue>>> dom_ext_map,
+                                                    std::shared_ptr<HippyValue>>> dom_ext_map,
                  std::weak_ptr<RootNode> weak_root_node)
     : id_(id),
       pid_(pid),
@@ -73,7 +73,7 @@ DomNode::~DomNode() = default;
 int32_t DomNode::IndexOf(const std::shared_ptr<DomNode>& child) {
   for (size_t i = 0; i < children_.size(); i++) {
     if (children_[i] == child) {
-      return hippy::base::checked_numeric_cast<size_t, int32_t>(i);
+      return footstone::check::checked_numeric_cast<size_t, int32_t>(i);
     }
   }
   return kInvalidIndex;
@@ -94,11 +94,11 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
       if (ref_info->ref_id == child->GetId()) {
         if (ref_info->relative_to_ref == RelativeType::kFront) {
           children_.insert(
-              children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i),
+              children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i),
               dom_info->dom_node);
         } else {
           children_.insert(
-              children_.begin() + hippy::base::checked_numeric_cast<uint32_t, int32_t>(i + 1),
+              children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i + 1),
               dom_info->dom_node);
         }
         break;
@@ -118,7 +118,7 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
     return index;
   }
   layout_node_->InsertChild(dom_info->dom_node->GetLayoutNode(),
-                            hippy::base::checked_numeric_cast<int32_t, uint32_t>(index));
+                            footstone::check::checked_numeric_cast<int32_t, uint32_t>(index));
   return index;
 }
 
@@ -143,7 +143,7 @@ int32_t DomNode::GetSelfIndex() {
 }
 
 std::shared_ptr<DomNode> DomNode::RemoveChildAt(int32_t index) {
-  auto child = children_[hippy::base::checked_numeric_cast<int32_t, unsigned long>(index)];
+  auto child = children_[footstone::check::checked_numeric_cast<int32_t, unsigned long>(index)];
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
   layout_node_->RemoveChild(child->GetLayoutNode());
@@ -177,7 +177,7 @@ void DomNode::DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
 
 void DomNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
   auto root_node = root_node_.lock();
-  TDF_BASE_DCHECK(root_node);
+  FOOTSTONE_DCHECK(root_node);
   if (root_node) {
     root_node->HandleEvent(std::move(event));
   }
@@ -202,7 +202,7 @@ void DomNode::AddEventListener(const std::string& name,
                                bool use_capture,
                                const EventCallback& cb) {
   current_callback_id_ += 1;
-  TDF_BASE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
+  FOOTSTONE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
   if (!event_listener_map_) {
     event_listener_map_ = std::make_shared<
         std::unordered_map<std::string,
@@ -333,17 +333,17 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
   layout_node_->SetHasNewLayout(false);
   if (changed) {
     changed_nodes.push_back(shared_from_this());
-    DomValueObjectType layout_param;
-    layout_param[kLayoutXKey] = DomValue(layout_.left);
-    layout_param[kLayoutYKey] = DomValue(layout_.top);
-    layout_param[kLayoutWidthKey] = DomValue(layout_.width);
-    layout_param[kLayoutHeightKey] = DomValue(layout_.height);
-    DomValueObjectType layout_obj;
+    HippyValueObjectType layout_param;
+    layout_param[kLayoutXKey] = HippyValue(layout_.left);
+    layout_param[kLayoutYKey] = HippyValue(layout_.top);
+    layout_param[kLayoutWidthKey] = HippyValue(layout_.width);
+    layout_param[kLayoutHeightKey] = HippyValue(layout_.height);
+    HippyValueObjectType layout_obj;
     layout_obj[kLayoutLayoutKey] = layout_param;
     auto event =
         std::make_shared<DomEvent>(kLayoutEvent,
                                    weak_from_this(),
-                                   std::make_shared<DomValue>(std::move(layout_obj)));
+                                   std::make_shared<HippyValue>(std::move(layout_obj)));
     HandleEvent(event);
   }
   for (auto& it: children_) {
@@ -402,26 +402,26 @@ bool DomNode::HasEventListeners() {
   return event_listener_map_ != nullptr && !event_listener_map_->empty();
 }
 
-void DomNode::EmplaceStyleMap(const std::string& key, const DomValue& value) {
+void DomNode::EmplaceStyleMap(const std::string& key, const HippyValue& value) {
   auto iter = style_map_->find(key);
   if (iter != style_map_->end()) {
-    iter->second = std::make_shared<DomValue>(value);
+    iter->second = std::make_shared<HippyValue>(value);
   } else {
     bool replaced = false;
     for (auto& style: *style_map_) {
       replaced = ReplaceStyle(*style.second, key, value);
       if (replaced) return;
     }
-    style_map_->insert({key, std::make_shared<DomValue>(value)});
+    style_map_->insert({key, std::make_shared<HippyValue>(value)});
   }
 }
 
 void DomNode::UpdateProperties(const std::unordered_map<std::string,
-                                                        std::shared_ptr<DomValue>>& update_style,
+                                                        std::shared_ptr<HippyValue>>& update_style,
                                const std::unordered_map<std::string,
-                                                        std::shared_ptr<DomValue>>& update_dom_ext) {
+                                                        std::shared_ptr<HippyValue>>& update_dom_ext) {
   auto root_node = root_node_.lock();
-  TDF_BASE_DCHECK(root_node);
+  FOOTSTONE_DCHECK(root_node);
   if (root_node) {
     this->UpdateDiff(update_style, update_dom_ext);
     this->UpdateStyle(update_style);
@@ -431,15 +431,15 @@ void DomNode::UpdateProperties(const std::unordered_map<std::string,
 }
 
 void DomNode::UpdateDomNodeStyleAndParseLayoutInfo(
-    const std::unordered_map<std::string, std::shared_ptr<DomValue>>& update_style) {
+    const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style) {
   UpdateStyle(update_style);
   ParseLayoutStyleInfo();
 }
 
 void DomNode::UpdateDiff(const std::unordered_map<std::string,
-                                                  std::shared_ptr<DomValue>>& update_style,
+                                                  std::shared_ptr<HippyValue>>& update_style,
                          const std::unordered_map<std::string,
-                                                  std::shared_ptr<DomValue>>& update_dom_ext) {
+                                                  std::shared_ptr<HippyValue>>& update_dom_ext) {
   auto style_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_style);
   auto ext_diff_value = DiffUtils::DiffProps(*this->GetStyleMap(), update_dom_ext);
   auto style_update = std::get<0>(style_diff_value);
@@ -455,19 +455,19 @@ void DomNode::UpdateDiff(const std::unordered_map<std::string,
 }
 
 void DomNode::UpdateDomExt(const std::unordered_map<std::string,
-                                                    std::shared_ptr<DomValue>>& update_dom_ext) {
+                                                    std::shared_ptr<HippyValue>>& update_dom_ext) {
   if (update_dom_ext.empty()) return;
 
   for (const auto& v: update_dom_ext) {
     if (this->dom_ext_map_ == nullptr) {
       this->dom_ext_map_ =
-          std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+          std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     }
 
     auto iter = this->dom_ext_map_->find(v.first);
     if (iter == this->dom_ext_map_->end()) {
-      std::pair<std::string, std::shared_ptr<DomValue>>
-          pair = {v.first, std::make_shared<DomValue>(*v.second)};
+      std::pair<std::string, std::shared_ptr<HippyValue>>
+          pair = {v.first, std::make_shared<HippyValue>(*v.second)};
       this->dom_ext_map_->insert(pair);
       continue;
     }
@@ -475,25 +475,25 @@ void DomNode::UpdateDomExt(const std::unordered_map<std::string,
     if (v.second->IsObject() && iter->second->IsObject()) {
       this->UpdateObjectStyle(*iter->second, *v.second);
     } else {
-      iter->second = std::make_shared<DomValue>(*v.second);
+      iter->second = std::make_shared<HippyValue>(*v.second);
     }
   }
 }
 
 void DomNode::UpdateStyle(const std::unordered_map<std::string,
-                                                   std::shared_ptr<DomValue>>& update_style) {
+                                                   std::shared_ptr<HippyValue>>& update_style) {
   if (update_style.empty()) return;
 
   for (const auto& v: update_style) {
     if (this->style_map_ == nullptr) {
       this->style_map_ =
-          std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+          std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     }
 
     auto iter = this->style_map_->find(v.first);
     if (iter == this->style_map_->end()) {
-      std::pair<std::string, std::shared_ptr<DomValue>>
-          pair = {v.first, std::make_shared<DomValue>(*v.second)};
+      std::pair<std::string, std::shared_ptr<HippyValue>>
+          pair = {v.first, std::make_shared<HippyValue>(*v.second)};
       this->style_map_->insert(pair);
       continue;
     }
@@ -501,14 +501,14 @@ void DomNode::UpdateStyle(const std::unordered_map<std::string,
     if (v.second->IsObject() && iter->second->IsObject()) {
       this->UpdateObjectStyle(*iter->second, *v.second);
     } else {
-      iter->second = std::make_shared<DomValue>(*v.second);
+      iter->second = std::make_shared<HippyValue>(*v.second);
     }
   }
 }
 
-void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_style) {
-  TDF_BASE_DCHECK(style_map.IsObject());
-  TDF_BASE_DCHECK(update_style.IsObject());
+void DomNode::UpdateObjectStyle(HippyValue& style_map, const HippyValue& update_style) {
+  FOOTSTONE_DCHECK(style_map.IsObject());
+  FOOTSTONE_DCHECK(update_style.IsObject());
 
   auto style_object = style_map.ToObjectChecked();
   for (auto& v: update_style.ToObjectChecked()) {
@@ -525,7 +525,7 @@ void DomNode::UpdateObjectStyle(DomValue& style_map, const DomValue& update_styl
   }
 }
 
-bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomValue& value) {
+bool DomNode::ReplaceStyle(HippyValue& style, const std::string& key, const HippyValue& value) {
   if (style.IsObject()) {
     auto& object = style.ToObjectChecked();
     if (object.find(key) != object.end()) {
@@ -554,59 +554,59 @@ bool DomNode::ReplaceStyle(DomValue& style, const std::string& key, const DomVal
   return false;
 }
 
-DomValue DomNode::Serialize() const {
-  DomValueObjectType result;
+HippyValue DomNode::Serialize() const {
+  HippyValueObjectType result;
 
-  auto id = DomValue(id_);
+  auto id = HippyValue(id_);
   result[kNodePropertyId] = id;
 
-  auto pid = DomValue(pid_);
+  auto pid = HippyValue(pid_);
   result[kNodePropertyPid] = pid;
 
-  auto index = DomValue(index_);
+  auto index = HippyValue(index_);
   result[kNodePropertyIndex] = index;
 
-  auto tag_name = DomValue(tag_name_);
+  auto tag_name = HippyValue(tag_name_);
   result[kNodePropertyTagName] = tag_name;
 
-  auto view_name = DomValue(view_name_);
+  auto view_name = HippyValue(view_name_);
   result[kNodePropertyViewName] = view_name;
 
-  DomValueObjectType style_map_value;
+  HippyValueObjectType style_map_value;
   if (style_map_) {
     for (const auto& value: *style_map_) {
       style_map_value[value.first] = *value.second;
     }
-    auto style_map = DomValue(std::move(style_map_value));
+    auto style_map = HippyValue(std::move(style_map_value));
     result[kNodePropertyStyle] = style_map;
   }
 
   if (dom_ext_map_) {
-    DomValueObjectType dom_ext_map_value;
+    HippyValueObjectType dom_ext_map_value;
     for (const auto& value: *dom_ext_map_) {
       dom_ext_map_value[value.first] = *value.second;
     }
-    auto dom_ext_map = DomValue(std::move(dom_ext_map_value));
+    auto dom_ext_map = HippyValue(std::move(dom_ext_map_value));
     result[kNodePropertyExt] = dom_ext_map;
   }
 
-  return DomValue(std::move(result));
+  return HippyValue(std::move(result));
 }
 
-bool DomNode::Deserialize(DomValue value) {
-  TDF_BASE_DCHECK(value.IsObject());
+bool DomNode::Deserialize(HippyValue value) {
+  FOOTSTONE_DCHECK(value.IsObject());
   if (!value.IsObject()) {
-    TDF_BASE_LOG(ERROR) << "Deserialize value is not object";
+    FOOTSTONE_LOG(ERROR) << "Deserialize value is not object";
     return false;
   }
-  DomValueObjectType dom_node_obj = value.ToObjectChecked();
+  HippyValueObjectType dom_node_obj = value.ToObjectChecked();
 
   uint32_t id;
   auto flag = dom_node_obj[kNodePropertyId].ToUint32(id);
   if (flag) {
     SetId(static_cast<uint32_t>(id));
   } else {
-    TDF_BASE_LOG(ERROR) << "Deserialize id error";
+    FOOTSTONE_LOG(ERROR) << "Deserialize id error";
     return false;
   }
 
@@ -615,7 +615,7 @@ bool DomNode::Deserialize(DomValue value) {
   if (flag) {
     SetPid(static_cast<uint32_t>(pid));
   } else {
-    TDF_BASE_LOG(ERROR) << "Deserialize pid error";
+    FOOTSTONE_LOG(ERROR) << "Deserialize pid error";
     return false;
   }
 
@@ -624,7 +624,7 @@ bool DomNode::Deserialize(DomValue value) {
   if (flag) {
     SetIndex(index);
   } else {
-    TDF_BASE_LOG(ERROR) << "Deserialize index error";
+    FOOTSTONE_LOG(ERROR) << "Deserialize index error";
     return false;
   }
 
@@ -639,17 +639,17 @@ bool DomNode::Deserialize(DomValue value) {
   if (flag) {
     SetViewName(view_name);
   } else {
-    TDF_BASE_LOG(ERROR) << "Deserialize view_name error";
+    FOOTSTONE_LOG(ERROR) << "Deserialize view_name error";
     return false;
   }
 
   auto style_obj = dom_node_obj[kNodePropertyStyle];
   if (style_obj.IsObject()) {
     auto style = style_obj.ToObjectChecked();
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>
-        style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>
+        style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     for (const auto& p: style) {
-      (*style_map)[p.first] = std::make_shared<DomValue>(p.second);
+      (*style_map)[p.first] = std::make_shared<HippyValue>(p.second);
     }
     SetStyleMap(std::move(style_map));
   }
@@ -657,10 +657,10 @@ bool DomNode::Deserialize(DomValue value) {
   auto ext_obj = dom_node_obj[kNodePropertyExt];
   if (ext_obj.IsObject()) {
     auto ext = ext_obj.ToObjectChecked();
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<DomValue>>>
-        ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<DomValue>>>();
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>
+        ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     for (const auto& p: ext) {
-      (*ext_map)[p.first] = std::make_shared<DomValue>(p.second);
+      (*ext_map)[p.first] = std::make_shared<HippyValue>(p.second);
     }
     SetExtStyleMap(std::move(ext_map));
   }

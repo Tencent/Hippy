@@ -25,7 +25,7 @@
 #include <functional>
 #include <memory>
 
-#include "base/unicode_string_view.h"
+#include "footstone/unicode_string_view.h"
 #include "runtime.h"
 #include "core/base/common.h"
 #include "core/runtime/v8/bridge.h"
@@ -42,7 +42,7 @@ enum class CALL_FUNCTION_CB_STATE {
 class V8BridgeUtils {
  public:
   using bytes = std::string;
-  using unicode_string_view = tdf::base::unicode_string_view;
+  using unicode_string_view = footstone::stringview::unicode_string_view;
   using u8string = unicode_string_view::u8string;
   using V8VMInitParam = hippy::napi::V8VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
@@ -56,6 +56,7 @@ class V8BridgeUtils {
                               bool is_dev_module,
                               const unicode_string_view& global_config,
                               int64_t group,
+                              const std::shared_ptr<footstone::WorkerManager>& worker_manager,
                               const std::shared_ptr<V8VMInitParam>& param,
                               std::shared_ptr<Bridge> bridge,
                               const RegisterFunction& scope_cb,
