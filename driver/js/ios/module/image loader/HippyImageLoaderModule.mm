@@ -24,19 +24,19 @@
 #import "HippyBridge.h"
 #import "HippyImageLoaderModule.h"
 #import "HippyImageCacheManager.h"
-#import "HippyFrameworkProxy.h"
-#import "HippyImageDataLoaderProtocol.h"
-#import "HippyImageDataLoader.h"
-#import "HippyUtils.h"
-#import "HippyDefaultImageProvider.h"
+#import "NativeRenderFrameworkProxy.h"
+#import "NativeRenderImageDataLoaderProtocol.h"
+#import "NativeRenderImageDataLoader.h"
+#import "NativeRenderUtils.h"
+#import "NativeRenderDefaultImageProvider.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
 static NSUInteger const ImageLoaderErrorParseError = 2;
 static NSUInteger const ImageLoaderErrorRequestError = 3;
 
 @interface HippyImageLoaderModule () {
-    id<HippyImageDataLoaderProtocol> _imageDataLoader;
-    Class<HippyImageProviderProtocol> _imageProviderClass;
+    id<NativeRenderImageDataLoaderProtocol> _imageDataLoader;
+    Class<NativeRenderImageProviderProtocol> _imageProviderClass;
     NSUInteger _sequence;
 }
 
@@ -50,8 +50,8 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-    id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
-    NSURL *url = HippyURLWithString(urlString, nil);
+    id<NativeRenderImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
+    NSURL *url = NativeRenderURLWithString(urlString, nil);
     NSUInteger sequence = _sequence++;
     [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
         
@@ -62,9 +62,9 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
                 retImage = result;
             }
             else if ([result isKindOfClass:[NSData class]]) {
-                Class<HippyImageProviderProtocol> imageProviderClass = [self imageProviderClass];
+                Class<NativeRenderImageProviderProtocol> imageProviderClass = [self imageProviderClass];
                 if ([imageProviderClass canHandleData:(NSData *)result]) {
-                    id<HippyImageProviderProtocol> imageProvider = [[(Class)imageProviderClass alloc] init];
+                    id<NativeRenderImageProviderProtocol> imageProvider = [[(Class)imageProviderClass alloc] init];
                     imageProvider.scale = [[UIScreen mainScreen] scale];
                     imageProvider.imageDataPath = [retURL absoluteString];
                     [imageProvider setImageData:(NSData *)result];
@@ -92,8 +92,8 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
 
 // clang-format off
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
-    id<HippyImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
-    NSURL *url = HippyURLWithString(urlString, nil);
+    id<NativeRenderImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
+    NSURL *url = NativeRenderURLWithString(urlString, nil);
     NSUInteger sequence = _sequence++;
     [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
         
@@ -103,25 +103,25 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
 }
 // clang-format on
 
-- (id<HippyImageDataLoaderProtocol>)imageDataLoader {
+- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoader {
     if (!_imageDataLoader) {
         if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
             _imageDataLoader = [self.bridge.frameworkProxy imageDataLoaderForRenderContext:self.bridge.renderContext];
         }
         if (!_imageDataLoader) {
-            _imageDataLoader = [[HippyImageDataLoader alloc] init];
+            _imageDataLoader = [[NativeRenderImageDataLoader alloc] init];
         }
     }
     return _imageDataLoader;
 }
 
-- (Class<HippyImageProviderProtocol>)imageProviderClass {
+- (Class<NativeRenderImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {
         if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
             _imageProviderClass = [self.bridge.frameworkProxy imageProviderClassForRenderContext:self.bridge.renderContext];
         }
         if (!_imageProviderClass) {
-            _imageProviderClass = [HippyDefaultImageProvider class];
+            _imageProviderClass = [NativeRenderDefaultImageProvider class];
         }
     }
     return _imageProviderClass;

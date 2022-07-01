@@ -24,8 +24,8 @@
 #import <objc/message.h>
 #import "HippyBridgeMethod.h"
 #import "HippyAssert.h"
-#import "HippyUtils.h"
-#import "HippyLog.h"
+#import "NativeRenderUtils.h"
+#import "NativeRenderLog.h"
 #import "HippyModuleMethod.h"
 
 @implementation NSObject (HippyTurbo)

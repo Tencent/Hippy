@@ -22,13 +22,13 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HippyInvalidating.h"
+#import "NativeRenderInvalidating.h"
 
 @protocol HippyBridgeMethod;
 @protocol HippyBridgeModule;
 @class HippyBridge;
 
-@interface HippyModuleData : NSObject <HippyInvalidating>
+@interface HippyModuleData : NSObject <NativeRenderInvalidating>
 
 - (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
 
