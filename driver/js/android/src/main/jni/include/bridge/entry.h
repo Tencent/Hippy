@@ -94,7 +94,7 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_mana
 
 jint CreateAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
 
-void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
+void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id, jint j_dom_id);
 
 void DestroyAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_ani_id);
 

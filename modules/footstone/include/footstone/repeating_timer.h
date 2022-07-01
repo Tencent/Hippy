@@ -5,7 +5,7 @@
 namespace footstone {
 inline namespace timer {
 
-class RepeatingTimer : public BaseTimer {
+ class RepeatingTimer : public BaseTimer, public std::enable_shared_from_this<RepeatingTimer> {
  public:
   using TaskRunner = runner::TaskRunner;
 
@@ -13,8 +13,9 @@ class RepeatingTimer : public BaseTimer {
   explicit RepeatingTimer(const std::shared_ptr<TaskRunner>& task_runner);
   virtual ~RepeatingTimer();
 
-  virtual void Start(std::unique_ptr<Task> user_task, TimeDelta delay);
+  void Start(std::unique_ptr<Task> user_task, TimeDelta delay);
 
+  virtual std::shared_ptr<BaseTimer> GetWeakSelf() override;
  private:
   void OnStop() final;
   void RunUserTask() override;

@@ -174,7 +174,7 @@ public class Linker implements LinkHelper {
 
         @Override
         public void destroy() {
-            destroyDomInstance(mInstanceId);
+            destroyDomInstance(mWorkerManagerId, mInstanceId);
         }
 
         @Override
@@ -249,10 +249,10 @@ public class Linker implements LinkHelper {
 
     /**
      * Release native (C++) dom manager instance.
-     *
+     * @param workerManagerId the unique id of native (C++) worker manager
      * @param domId the unique id of native (C++) dom manager
      */
-    private native void destroyDomInstance(int domId);
+    private native void destroyDomInstance(int workerManagerId, int domId);
 
     /**
      * Release native (C++) dom manager instance.

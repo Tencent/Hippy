@@ -120,7 +120,7 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "destroyDomInstance",
-             "(I)V",
+             "(II)V",
              DestroyDomInstance)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
@@ -161,7 +161,7 @@ enum INIT_CB_STATE {
 };
 
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
-constexpr uint32_t kDefaultNumberOfThreads = 3;
+constexpr uint32_t kDefaultNumberOfThreads = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
 
 static std::atomic<uint32_t> global_worker_manager_key{1};
@@ -280,10 +280,17 @@ jint CreateAnimationManager(JNIEnv* j_env,
   return 0;
 }
 
-void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
+void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id, jint j_dom_id) {
   auto dom_manager = DomManager::Find(j_dom_id);
   if (dom_manager) {
     DomManager::Erase(static_cast<int32_t>(j_dom_id));
+    std::shared_ptr<WorkerManager> worker_manager;
+    auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
+    FOOTSTONE_DCHECK(flag);
+    if (flag && worker_manager) {
+      auto task_runner = dom_manager->GetTaskRunner();
+      worker_manager->RemoveTaskRunner(task_runner);
+    }
   }
 }
 

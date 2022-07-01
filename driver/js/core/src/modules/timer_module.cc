@@ -51,7 +51,7 @@ using OneShotTimer = footstone::timer::OneShotTimer;
 using TimeDelta = footstone::time::TimeDelta;
 
 TimerModule::TimerModule() : timer_map_(
-    std::make_shared<std::unordered_map<uint32_t, std::unique_ptr<BaseTimer>>>()) {}
+    std::make_shared<std::unordered_map<uint32_t, std::shared_ptr<BaseTimer>>>()) {}
 
 TimerModule::~TimerModule() = default;
 
@@ -106,7 +106,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   std::weak_ptr<Scope> weak_scope = scope;
   std::unique_ptr<Task> task = std::make_unique<Task>();
   uint32_t task_id = task->GetId();
-  std::weak_ptr<std::unordered_map<uint32_t , std::unique_ptr<BaseTimer>>> weak_timer_map = timer_map_;
+  std::weak_ptr<std::unordered_map<uint32_t , std::shared_ptr<BaseTimer>>> weak_timer_map = timer_map_;
   task->SetExecUnit([weak_scope, function, task_id, repeat, weak_timer_map] {
     auto scope = weak_scope.lock();
     if (!scope) {
@@ -137,13 +137,13 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
   });
 
   if (repeat) {
-    std::unique_ptr<RepeatingTimer> timer = std::make_unique<RepeatingTimer>(runner);
+    std::shared_ptr<RepeatingTimer> timer = std::make_unique<RepeatingTimer>(runner);
     timer->Start(std::move(task), delay);
-    timer_map_->insert({task_id, std::move(timer)});
+    timer_map_->insert({task_id, timer});
   } else {
-    std::unique_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(runner);
+    std::shared_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(runner);
     timer->Start(std::move(task), delay);
-    timer_map_->insert({task_id, std::move(timer)});
+    timer_map_->insert({task_id, timer});
   }
 
   return context->CreateNumber(task_id);

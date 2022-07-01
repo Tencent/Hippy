@@ -7,8 +7,8 @@
 namespace footstone {
 inline namespace timer {
 
-OneShotTimer::OneShotTimer(std::shared_ptr<TaskRunner> task_runner)
-    :BaseTimer(std::move(task_runner)) {}
+OneShotTimer::OneShotTimer(const std::shared_ptr<TaskRunner>& task_runner)
+    :BaseTimer(task_runner) {}
 
 OneShotTimer::~OneShotTimer() = default;
 
@@ -24,6 +24,10 @@ void OneShotTimer::FireNow() {
 }
 
 void OneShotTimer::OnStop() { user_task_.reset(); }
+
+std::shared_ptr<BaseTimer> OneShotTimer::GetWeakSelf() {
+  return std::static_pointer_cast<BaseTimer>(shared_from_this());
+}
 
 void OneShotTimer::RunUserTask() {
   std::unique_ptr<Task> task = std::move(user_task_);

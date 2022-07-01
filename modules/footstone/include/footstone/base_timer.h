@@ -30,6 +30,8 @@ class BaseTimer {
  protected:
   virtual void RunUserTask() = 0;
   virtual void OnStop() = 0;
+  virtual std::shared_ptr<BaseTimer> GetWeakSelf() = 0;
+
   void ScheduleNewTask(TimeDelta delay);
   void StartInternal(TimeDelta delay);
 

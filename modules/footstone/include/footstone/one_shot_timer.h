@@ -5,19 +5,20 @@
 namespace footstone {
 inline namespace timer {
 
-class OneShotTimer : public BaseTimer {
+ class OneShotTimer : public BaseTimer, public std::enable_shared_from_this<OneShotTimer> {
  public:
   using Task = runner::Task;
   using TaskRunner = runner::TaskRunner;
   using TimeDelta = time::TimeDelta;
 
   OneShotTimer() = default;
-  explicit OneShotTimer(std::shared_ptr<TaskRunner> task_runner);
+  explicit OneShotTimer(const std::shared_ptr<TaskRunner>& task_runner);
   virtual ~OneShotTimer();
 
-  virtual void Start(std::unique_ptr<Task> user_task, TimeDelta delay = TimeDelta::Zero());
-
+  void Start(std::unique_ptr<Task> user_task, TimeDelta delay);
   void FireNow();
+
+  virtual std::shared_ptr<BaseTimer> GetWeakSelf() override;
 
  private:
   void OnStop() final;

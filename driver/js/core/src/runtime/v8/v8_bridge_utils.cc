@@ -7,6 +7,7 @@
 
 #include "footstone/logging.h"
 #include "footstone/task_runner.h"
+#include "footstone/thread_worker_impl.h"
 #include "core/base/file.h"
 #include "footstone/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
@@ -21,6 +22,7 @@ namespace hippy::runtime {
 using bytes = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
+using ThreadWorkerImpl = footstone::runner::ThreadWorkerImpl;
 using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -32,10 +34,13 @@ using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using V8VM = hippy::napi::V8VM;
 
-static const int64_t kDefaultEngineId = -1;
-static const int64_t kDebuggerEngineId = -9999;
-static const uint32_t kRuntimeSlotIndex = 0;
+constexpr int64_t kDefaultGroupId = -1;
+constexpr int64_t kDebuggerGroupId = -9999;
+constexpr uint32_t kRuntimeSlotIndex = 0;
+constexpr uint32_t kJsWorkerId = 1;
+constexpr uint32_t kJsTaskRunnerPriority = 1;
 
+constexpr char kJsWorkerName[] = "hippy_js";
 constexpr char kHippyBridgeName[] = "hippyBridge";
 constexpr char kHippyNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kHippyCallNativeKey[] = "hippyCallNatives";
@@ -47,8 +52,7 @@ using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
 
-static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
-    reuse_engine_map;
+static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>> reuse_engine_map;
 static std::mutex engine_mutex;
 
 std::function<void(std::shared_ptr<Runtime>,
@@ -132,57 +136,45 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   std::unique_ptr<RegisterMap> scope_cb_map = std::make_unique<RegisterMap>();
   scope_cb_map->insert(std::make_pair(hippy::base::kContextCreatedCBKey, context_cb));
   scope_cb_map->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
-  std::shared_ptr<Engine> engine;
+  std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>::iterator it;
+  std::shared_ptr<Engine> engine = nullptr;
   if (is_dev_module) {
+    group = kDebuggerGroupId;
+  }
+  {
     std::lock_guard<std::mutex> lock(engine_mutex);
-    FOOTSTONE_DLOG(INFO) << "debug mode";
-    group = kDebuggerEngineId;
-    auto it = reuse_engine_map.find(group);
+    it = reuse_engine_map.find(group);
     if (it != reuse_engine_map.end()) {
       engine = std::get<std::shared_ptr<Engine>>(it->second);
-      runtime->SetEngine(engine);
-      worker_manager->AddTaskRunner(engine->GetJsTaskRunner());
-      worker_manager->AddTaskRunner(engine->GetWorkerTaskRunner());
-      std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
-      v8::Isolate* isolate = v8_vm->isolate_;
-      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
-    } else {
-      auto js_runner = worker_manager->CreateTaskRunner(kJsRunnerName);
-      auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
-      engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
-      runtime->SetEngine(engine);
-      reuse_engine_map[group] = std::make_pair(engine, 1);
-    }
-  } else if (group != kDefaultEngineId) {
-    std::lock_guard<std::mutex> lock(engine_mutex);
-    auto it = reuse_engine_map.find(group);
-    if (it != reuse_engine_map.end()) {
-      FOOTSTONE_DLOG(INFO) << "engine reuse";
-      engine = std::get<std::shared_ptr<Engine>>(it->second);
-      runtime->SetEngine(engine);
       std::get<uint32_t>(it->second) += 1;
       std::shared_ptr<V8VM> v8_vm = std::static_pointer_cast<V8VM>(engine->GetVM());
       v8::Isolate* isolate = v8_vm->isolate_;
-      isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(-1));
+      if (is_dev_module) {
+        isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
+      } else {
+        isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(-1));
+      }
       // -1 means single isolate multi-context mode
       FOOTSTONE_DLOG(INFO) << "engine cnt = " << std::get<uint32_t>(it->second)
-                          << ", use_count = " << engine.use_count();
-    } else {
-      FOOTSTONE_DLOG(INFO) << "engine create";
-      auto js_runner = worker_manager->CreateTaskRunner(kJsRunnerName);
-      auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
-      engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
-      runtime->SetEngine(engine);
+                           << ", use_count = " << engine.use_count();
+    }
+  }
+  if (!engine) {
+    auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
+    auto js_worker = std::make_shared<ThreadWorkerImpl>(true, kJsWorkerName);
+    js_worker->Start();
+    auto js_runner = worker_manager->CreateTaskRunner(kJsWorkerId, kJsTaskRunnerPriority, false, kJsRunnerName);
+    js_runner->SetWorker(js_worker);
+    js_worker->Bind({js_runner});
+    worker_manager->AddWorker(js_worker);
+    engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
+    if (group != kDefaultGroupId) {
+      std::lock_guard<std::mutex> lock(engine_mutex);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
-  } else {  // kDefaultEngineId
-    FOOTSTONE_DLOG(INFO) << "default create engine";
-    auto js_runner = worker_manager->CreateTaskRunner(kJsRunnerName);
-    auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
-    engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
-    runtime->SetEngine(engine);
   }
-  auto scope = runtime->GetEngine()->CreateScope("", std::move(scope_cb_map));
+  runtime->SetEngine(engine);
+  auto scope = engine->CreateScope("", std::move(scope_cb_map));
   runtime->SetScope(scope);
   FOOTSTONE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
@@ -255,7 +247,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
   unicode_string_view code_cache_content;
   uint64_t modify_time = 0;
 
-  std::shared_ptr<TaskRunner> task_runner;
+  std::shared_ptr<TaskRunner> worker_runner;
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
     if (is_local_file) {
@@ -284,8 +276,8 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
         });
 
     auto engine = runtime->GetEngine();
-    task_runner = engine->GetWorkerTaskRunner();
-    task_runner->PostTask(std::move(func));
+    worker_runner = engine->GetWorkerTaskRunner();
+    worker_runner->PostTask(std::move(func));
     script_content = content_cb();
     if (!StringViewUtils::IsEmpty(script_content)) {
       read_script_flag = true;
@@ -338,7 +330,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
         FOOTSTONE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         HIPPY_USE(save_file_ret);
       };
-      task_runner->PostTask(std::move(func));
+      worker_runner->PostTask(std::move(func));
     }
   }
 
@@ -385,7 +377,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
   }
 
   auto cb = [runtime, runtime_id, is_reload] {
-    FOOTSTONE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id << "is_reload" << is_reload;
+    FOOTSTONE_LOG(INFO) << "js destroy begin, runtime_id = " << runtime_id << ", is_reload = " << is_reload;
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
       global_inspector->DestroyContext();
@@ -409,16 +401,13 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     FOOTSTONE_LOG(INFO) << "js destroy end";
   };
   int64_t group = runtime->GetGroupId();
-  if (group == kDebuggerEngineId) {
+  if (group == kDebuggerGroupId) {
     runtime->GetScope()->WillExit();
   }
   auto runner = runtime->GetEngine()->GetJsTaskRunner();
   runner->PostTask(std::move(cb));
   FOOTSTONE_DLOG(INFO) << "destroy, group = " << group;
-  if (group == kDebuggerEngineId) {
-  } else if (group == kDefaultEngineId) {
-    runtime->GetEngine()->TerminateRunner();
-  } else {
+  if (group != kDebuggerGroupId && group != kDefaultGroupId) {
     std::lock_guard<std::mutex> lock(engine_mutex);
     auto it = reuse_engine_map.find(group);
     if (it != reuse_engine_map.end()) {
@@ -431,7 +420,6 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
           callback();
         };
         runner->PostTask(std::move(new_cb));
-        engine->TerminateRunner();
       } else {
         std::get<uint32_t>(it->second) = cnt - 1;
       }

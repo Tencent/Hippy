@@ -57,6 +57,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
 
   inline int32_t GetId() { return id_; }
   inline std::weak_ptr<RenderManager> GetRenderManager() { return render_manager_; }
+  inline std::shared_ptr<TaskRunner> GetTaskRunner() { return dom_task_runner_; }
   inline void SetTaskRunner(std::shared_ptr<TaskRunner> runner) {
     dom_task_runner_ =  runner;
   }

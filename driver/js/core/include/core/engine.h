@@ -54,8 +54,6 @@ class Engine {
       const std::string& name = "",
       std::unique_ptr<RegisterMap> map = std::unique_ptr<RegisterMap>());
   inline std::shared_ptr<VM> GetVM() { return vm_; }
-
-  void TerminateRunner();
   inline std::shared_ptr<TaskRunner> GetJsTaskRunner() {
     return js_runner_;
   }
