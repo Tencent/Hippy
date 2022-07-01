@@ -74,7 +74,7 @@ global.hippyBridge = (_action, _callObj) => {
           delete __GLOBAL__.moduleCallList[callObj.callId];
         }
       } else {
-        resp = 'error: calljs id is not regist in js';
+        resp = 'error: calljs id is not registered in js';
       }
       break;
     }
@@ -84,7 +84,7 @@ global.hippyBridge = (_action, _callObj) => {
       } else {
         const targetModule = __GLOBAL__.jsModuleList[callObj.moduleName];
         if (!targetModule || typeof targetModule[callObj.methodName] !== 'function') {
-          resp = 'error: callJsModule targetting an undefined module or method';
+          resp = 'error: callJsModule targeting an undefined module or method';
         } else {
           targetModule[callObj.methodName](callObj.params);
         }
@@ -92,13 +92,11 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     case 'destroyInstance': {
-      global.Hippy.emit('destroyInstance', callObj);
+      const rootViewId = callObj;
+      global.Hippy.emit('destroyInstance', rootViewId);
       Hippy.bridge.callNative('UIManagerModule', 'startBatch');
-      Hippy.bridge.callNative('UIManagerModule', 'deleteNode', callObj, [{ id: callObj }]);
+      Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, [{ id: rootViewId }]);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch');
-      delete __GLOBAL__.nodeIdCache[callObj];
-      delete __GLOBAL__.nodeTreeCache[callObj];
-      __GLOBAL__.destroyInstanceList[callObj] = true;
       break;
     }
     default: {
@@ -106,6 +104,5 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
   }
-
   return resp;
 };
