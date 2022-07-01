@@ -115,7 +115,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     boolean mHasReportEngineLoadResult = false;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
-    private int mWorkerManagerId;
+    private int mWorkerManagerId = -1;
 
     final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -717,7 +717,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
-            if (mDebugMode) {
+            if (mDebugMode && mWorkerManagerId != -1) {
                 mLinkHelper = new Linker(mWorkerManagerId);
             } else {
                 mLinkHelper = new Linker();
