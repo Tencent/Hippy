@@ -24,18 +24,18 @@
 
 namespace hippy::devtools {
 
-constexpr const char *kLogSeverityNames[hippy::devtools::TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR",
+constexpr const char *kLogSeverityNames[footstone::TDF_LOG_NUM_SEVERITIES] = {"INFO", "WARNING", "ERROR",
                                                                                     "FATAL"};
 constexpr char kSeverityUnknown[] = "UNKNOWN";
-const char *GetNameForLogSeverity(hippy::devtools::LogSeverity severity) {
-  if (severity >= hippy::devtools::TDF_LOG_INFO && severity < hippy::devtools::TDF_LOG_NUM_SEVERITIES) {
+const char *GetNameForLogSeverity(footstone::LogSeverity severity) {
+  if (severity >= footstone::TDF_LOG_INFO && severity < footstone::TDF_LOG_NUM_SEVERITIES) {
     return kLogSeverityNames[severity];
   }
   return kSeverityUnknown;
 }
 
 void DefaultLogAdapter::PrintLog(const std::string &log_module, const std::string &log_message,
-                                 hippy::devtools::LogSeverity severity, const std::string &file_name,
+                                 footstone::LogSeverity severity, const std::string &file_name,
                                  int32_t line_number) {
   if (log_handler_) {
     auto nano_time_point = std::chrono::time_point_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now());

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "devtools_base/common/base64.h"
+#include "devtools_base/base64.h"
 namespace hippy::devtools {
 std::string Base64::Encode(const uint8_t *bin, const size_t len) {
   static constexpr char kEncodingTable[] = {

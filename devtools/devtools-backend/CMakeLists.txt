@@ -23,6 +23,7 @@ cmake_minimum_required(VERSION 3.14)
 project("devtools_backend")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." REALPATH)
+get_filename_component(FOOTSTONE_DIR "${PROJECT_ROOT_DIR}/modules/footstone" REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
@@ -33,6 +34,7 @@ set(CMAKE_CXX_STANDARD 17)
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${FOOTSTONE_DIR}/include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_INSPECTOR")
 if (IOS)
@@ -140,29 +142,7 @@ set(SOURCE_SET
     src/tunnel/tunnel_service.cc
     src/tunnel/ws/web_socket_channel.cc
     # TODO: remove `devtools_base` from src when `base` library readly
-    src/devtools_base/common/base64.cc
-    src/devtools_base/common/log_settings.cc
-    src/devtools_base/common/log_settings_state.cc
-    src/devtools_base/common/platform/adr/CMakeLists.txt
-    src/devtools_base/common/platform/adr/logging.cc
-    src/devtools_base/common/platform/adr/thread.cc
-    src/devtools_base/common/platform/ios/CMakeLists.txt
-    src/devtools_base/common/platform/ios/logging.cc
-    src/devtools_base/common/platform/ios/thread.cc
-    src/devtools_base/common/platform/linux/CMakeLists.txt
-    src/devtools_base/common/platform/linux/logging.cc
-    src/devtools_base/common/platform/linux/thread.cc
-    src/devtools_base/common/platform/mac/CMakeLists.txt
-    src/devtools_base/common/platform/mac/logging.cc
-    src/devtools_base/common/platform/mac/thread.cc
-    src/devtools_base/common/platform/win/CMakeLists.txt
-    src/devtools_base/common/platform/win/logging.cc
-    src/devtools_base/common/platform/win/thread.cc
-    src/devtools_base/common/task.cc
-    src/devtools_base/common/task_runner.cc
-    src/devtools_base/common/unicode_string_view.cc
-    src/devtools_base/common/worker.cc
-    src/devtools_base/common/worker_pool.cc
+    src/devtools_base/base64.cc
     src/devtools_base/logging.cc
     src/devtools_base/socket.cc
     src/devtools_base/tdf_base_util.cc

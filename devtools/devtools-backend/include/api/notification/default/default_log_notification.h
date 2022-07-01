@@ -22,7 +22,7 @@
 
 #include <string>
 #include "api/notification/devtools_log_notification.h"
-#include "devtools_base/common/logging.h"
+#include "footstone/logging.h"
 #include "module/record_logger.h"
 
 namespace hippy::devtools {
@@ -30,7 +30,7 @@ class DefaultLogAdapter : public LogNotification {
  public:
   using BackendLogHandler = std::function<void(LoggerModel logger_model)>;
   explicit DefaultLogAdapter(BackendLogHandler log_handler) : log_handler_(std::move(log_handler)) {}
-  void PrintLog(const std::string& log_module, const std::string& log_message, LogSeverity severity,
+  void PrintLog(const std::string& log_module, const std::string& log_message, footstone::LogSeverity severity,
                 const std::string& file_name, int32_t line_number) override;
 
  private:
