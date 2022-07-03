@@ -219,6 +219,7 @@
 		F4E7B43D276C61EB00F17139 /* dom_argument.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B439276C61EA00F17139 /* dom_argument.cc */; };
 		F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B43A276C61EB00F17139 /* dom_event.cc */; };
 		F78C95CB2871BD4600169F8F /* delay_task_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F78C95CA2871BD4600169F8F /* delay_task_manager.cc */; };
+		F78C95CD2871BE3500169F8F /* scripted_animation_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = F78C95CC2871BE3500169F8F /* scripted_animation_module.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -694,6 +695,8 @@
 		F4F1FCB1286C4A0C005B39D4 /* NativeRenderDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderDefines.h; sourceTree = "<group>"; };
 		F78C95C92871BD3600169F8F /* delay_task_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = delay_task_manager.h; sourceTree = "<group>"; };
 		F78C95CA2871BD4600169F8F /* delay_task_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = delay_task_manager.cc; sourceTree = "<group>"; };
+		F78C95CC2871BE3500169F8F /* scripted_animation_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scripted_animation_module.cc; sourceTree = "<group>"; };
+		F78C95CE2871BE3E00169F8F /* scripted_animation_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scripted_animation_module.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -891,6 +894,7 @@
 		D84AB92A273A618B00987D03 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				F78C95CE2871BE3E00169F8F /* scripted_animation_module.h */,
 				F78C95C92871BD3600169F8F /* delay_task_manager.h */,
 				D88F440528470C2000989F01 /* animation_module.h */,
 				D4B5A0882816642300ABBD9C /* event_module.h */,
@@ -956,6 +960,7 @@
 		D84AB96F273A618B00987D03 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				F78C95CC2871BE3500169F8F /* scripted_animation_module.cc */,
 				F78C95CA2871BD4600169F8F /* delay_task_manager.cc */,
 				D88F440A28470C3E00989F01 /* animation_module.cc */,
 				D4B5A0842816641600ABBD9C /* event_module.cc */,
@@ -1986,6 +1991,7 @@
 				F45D265C28067B6900CAB185 /* NativeRenderViewPagerItem.mm in Sources */,
 				F45D265528067B6900CAB185 /* NativeRenderRefreshWrapperItemView.mm in Sources */,
 				D88F2A96286AA6AD008D1439 /* repeating_timer.cc in Sources */,
+				F78C95CD2871BE3500169F8F /* scripted_animation_module.cc in Sources */,
 				D84AB9B7273A618B00987D03 /* engine.cc in Sources */,
 				F400C2E7274F66ED008BD74B /* js_native_turbo.cc in Sources */,
 				F468DE662812A95200319196 /* HippyImageLoaderModule.mm in Sources */,
