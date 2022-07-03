@@ -22,32 +22,27 @@
 
 #pragma once
 
-#include "core/base/common.h"
-#include "core/base/file.h"
-#include "core/base/macros.h"
-#include "core/base/uri_loader.h"
-#include "core/engine.h"
-#include "core/modules/console_module.h"
-#include "core/modules/contextify_module.h"
+#include <memory>
+#include <unordered_map>
+#include <utility>
+
+#include "footstone/task.h"
+#include "footstone/base_timer.h"
 #include "core/modules/module_base.h"
-#include "core/modules/module_register.h"
-#include "core/modules/timer_module.h"
-#include "core/modules/scripted_animation_module.h"
+#include "core/modules/delay_task_manager.h"
 #include "core/napi/callback_info.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/js_native_api_types.h"
-#include "core/napi/native_source_code.h"
-#include "core/scope.h"
 
-#ifdef JS_V8
-#include "core/napi/v8/js_native_api_v8.h"
-#include "core/napi/v8/js_native_turbo_v8.h"
-#include "core/runtime/v8/bridge.h"
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-#include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
-#endif
-#else
-#include "core/napi/jsc/js_native_api_jsc.h"
-#include "core/napi/jsc/js_native_jsc_helper.h"
-#include "core/napi/jsc/js_native_turbo_jsc.h"
-#endif
+class ScriptedAnimationModule : public ModuleBase {
+public:
+  ScriptedAnimationModule();
+  ~ScriptedAnimationModule();
+
+  void RequestAnimationFrame(const hippy::napi::CallbackInfo& info);
+  void CancelAnimationFrame(const hippy::napi::CallbackInfo& info);
+
+private:
+  std::shared_ptr<DelayTaskManager> delayTaskManager;
+  static constexpr int preferredIntervalInNanoseconds = 16000000;
+};

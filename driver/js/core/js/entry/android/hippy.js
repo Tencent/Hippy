@@ -15,7 +15,7 @@ require('../../global/UtilsModule.js'); // Hippy.device.vibrate Hippy.device.can
 require('../../global/android/global.js'); // set __GLOBAL__ object
 require('../../bridge/android/native2js.js');
 require('../../global/Event.js'); // register global events callback
-require('../../global/android/requestAnimationFrame.js'); // requestAnimationFrame cancelAnimationFrame
+require('../../global/ScriptedAnimationModule.js'); // requestAnimationFrame cancelAnimationFrame
 require('../../global/android/Turbo.js'); // turbo
 
 // alias

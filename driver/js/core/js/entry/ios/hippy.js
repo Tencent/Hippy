@@ -17,7 +17,7 @@ require('../../global/ios/global.js'); // set __GLOBAL__ object
 require('../../modules/ios/jsTimersExecution.js'); // ios module for .h build
 require('../../bridge/ios/native2js.js');
 require('../../global/Event.js'); // register global events callback
-require('../../global/ios/requestAnimationFrame.js'); // requestAnimationFrame cancelAnimationFrame
+require('../../global/ScriptedAnimationModule.js'); // requestAnimationFrame cancelAnimationFrame
 require('../../global/ios/Turbo.js'); // turbo
 // alias
 global.localStorage = Hippy.asyncStorage;

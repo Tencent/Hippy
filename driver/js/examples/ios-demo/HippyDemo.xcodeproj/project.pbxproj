@@ -218,6 +218,7 @@
 		F4CEDF9D27D858C700583C9E /* NativeRenderDefaultImageProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = F4CEDF9927D858C700583C9E /* NativeRenderDefaultImageProvider.m */; };
 		F4E7B43D276C61EB00F17139 /* dom_argument.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B439276C61EA00F17139 /* dom_argument.cc */; };
 		F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B43A276C61EB00F17139 /* dom_event.cc */; };
+		F78C95CB2871BD4600169F8F /* delay_task_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F78C95CA2871BD4600169F8F /* delay_task_manager.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -691,6 +692,8 @@
 		F4E7B43A276C61EB00F17139 /* dom_event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_event.cc; sourceTree = "<group>"; };
 		F4F1FCB0286C44BE005B39D4 /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
 		F4F1FCB1286C4A0C005B39D4 /* NativeRenderDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderDefines.h; sourceTree = "<group>"; };
+		F78C95C92871BD3600169F8F /* delay_task_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = delay_task_manager.h; sourceTree = "<group>"; };
+		F78C95CA2871BD4600169F8F /* delay_task_manager.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = delay_task_manager.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -888,6 +891,7 @@
 		D84AB92A273A618B00987D03 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				F78C95C92871BD3600169F8F /* delay_task_manager.h */,
 				D88F440528470C2000989F01 /* animation_module.h */,
 				D4B5A0882816642300ABBD9C /* event_module.h */,
 				D4B5A0892816642300ABBD9C /* scene_builder.h */,
@@ -952,6 +956,7 @@
 		D84AB96F273A618B00987D03 /* modules */ = {
 			isa = PBXGroup;
 			children = (
+				F78C95CA2871BD4600169F8F /* delay_task_manager.cc */,
 				D88F440A28470C3E00989F01 /* animation_module.cc */,
 				D4B5A0842816641600ABBD9C /* event_module.cc */,
 				D4B5A0852816641600ABBD9C /* scene_builder.cc */,
@@ -2092,6 +2097,7 @@
 				F419C383274634E9003E242A /* taitank_layout_node.cc in Sources */,
 				F468DE7F2812A95200319196 /* HippyFrameUpdate.m in Sources */,
 				D88F2A95286AA6AD008D1439 /* idle_task.cc in Sources */,
+				F78C95CB2871BD4600169F8F /* delay_task_manager.cc in Sources */,
 				F45D267628067B6900CAB185 /* NativeRenderBaseListViewCell.mm in Sources */,
 				067AB96F23B5EEF4009D5EE2 /* TestModule.mm in Sources */,
 				F468DE7E2812A95200319196 /* HippyModuleData.mm in Sources */,

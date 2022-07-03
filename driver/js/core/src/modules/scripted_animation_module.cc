@@ -20,7 +20,7 @@
  *
  */
 
-#include "core/modules/timer_module.h"
+#include "core/modules/scripted_animation_module.h"
 
 #include "footstone/logging.h"
 #include "footstone/task.h"
@@ -32,10 +32,8 @@
 #include "core/base/common.h"
 #include "core/modules/module_register.h"
 
-REGISTER_MODULE(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(ScriptedAnimationModule, RequestAnimationFrame) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(ScriptedAnimationModule, CancelAnimationFrame) // NOLINT(cert-err58-cpp)
 
 namespace napi = ::hippy::napi;
 
@@ -50,25 +48,16 @@ using RepeatingTimer = footstone::timer::RepeatingTimer;
 using OneShotTimer = footstone::timer::OneShotTimer;
 using TimeDelta = footstone::time::TimeDelta;
 
-TimerModule::TimerModule() : delayTaskManager(std::make_shared<DelayTaskManager>()) {}
+ScriptedAnimationModule::ScriptedAnimationModule() : delayTaskManager(std::make_shared<DelayTaskManager>()) {}
 
-TimerModule::~TimerModule() = default;
+ScriptedAnimationModule::~ScriptedAnimationModule() = default;
 
-void TimerModule::SetTimeout(const napi::CallbackInfo& info) {
-  TimeDelta delay = GetTimeDeltaFromCallbackInfo(info);
+void ScriptedAnimationModule::RequestAnimationFrame(const napi::CallbackInfo& info) {
+  TimeDelta delay = TimeDelta::FromNanoseconds(preferredIntervalInNanoseconds);
   info.GetReturnValue()->Set(delayTaskManager->Start(info, false, delay));
 }
 
-void TimerModule::ClearTimeout(const napi::CallbackInfo& info) {
-  ClearInterval(info);
-}
-
-void TimerModule::SetInterval(const napi::CallbackInfo& info) {
-  TimeDelta delay = GetTimeDeltaFromCallbackInfo(info);
-  info.GetReturnValue()->Set(delayTaskManager->Start(info, true, delay));
-}
-
-void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
+void ScriptedAnimationModule::CancelAnimationFrame(const napi::CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   FOOTSTONE_CHECK(context);
@@ -82,14 +71,4 @@ void TimerModule::ClearInterval(const napi::CallbackInfo& info) {
   uint32_t task_id = footstone::checked_numeric_cast<int32_t, uint32_t>(argument);
   delayTaskManager->Cancel(task_id);
   info.GetReturnValue()->Set(context->CreateNumber(task_id));
-}
-
-TimeDelta TimerModule::GetTimeDeltaFromCallbackInfo(const napi::CallbackInfo &info) {
-  std::shared_ptr<Scope> scope = info.GetScope();
-  std::shared_ptr<Ctx> context = scope->GetContext();
-  FOOTSTONE_CHECK(context);
-
-  double number = 0;
-  context->GetValueNumber(info[1], &number);
-  return TimeDelta::FromMilliseconds(static_cast<int64_t>(std::max(.0, number)));
 }

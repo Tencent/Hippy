@@ -127,7 +127,9 @@ set(SOURCE_SET_STANDALONE
     src/modules/console_module.cc
     src/modules/contextify_module.cc
     src/modules/timer_module.cc
-    src/modules/ui_manager_module.cc)
+    src/modules/ui_manager_module.cc
+    src/modules/scripted_animation_module.cc
+    src/modules/delay_task_manager.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.
