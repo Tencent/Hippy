@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NativeRenderComponentMap : NSObject
 
+@property(nonatomic, assign) BOOL requireInMainThread;
+
 - (void)addRootComponent:(id<NativeRenderComponentProtocol>)component
                 rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
                   forTag:(NSNumber *)tag;
