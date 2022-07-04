@@ -321,6 +321,12 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     }
 }
 
+- (void)unregisterRootViewFromTag:(NSNumber *)rootTag {
+    AssertMainQueue();
+    std::lock_guard<std::mutex> lock([self renderQueueLock]);
+    [_viewRegistry removeRootComponentWithTag:rootTag];
+    [_renderObjectRegistry removeRootComponentWithTag:rootTag];
+}
 
 - (void)setFrame:(CGRect)frame forRootView:(UIView *)view {
     AssertMainQueue();

@@ -455,7 +455,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
     if (self.userInteractionEnabled) {
         self.userInteractionEnabled = NO;
         [(HippyRootView *)self.superview contentViewInvalidated];
+<<<<<<< HEAD
         [_bridge enqueueJSCall:@"AppRegistry" method:@"unmountApplicationComponentAtRootTag" args:@[self.componentTag] completion:NULL];
+=======
+        NSDictionary *param = @{@"id": self.hippyTag};
+        footstone::value::HippyValue value = OCTypeToDomValue(param);
+        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
+        _bridge.batchedBridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
+>>>>>>> 2c87cbc2 (feat(ios): add unloadinstance method for ios)
     }
 }
 
