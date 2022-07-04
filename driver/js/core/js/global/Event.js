@@ -56,5 +56,5 @@ global.__loadInstance__ = ((obj) => {
 global.__unloadInstance__ = ((obj) => {
   const { id } = obj || {};
   global.Hippy.emit('destroyInstance', id);
-  Hippy.bridge.callNative('UIManagerModule', 'removeRootView', id);
+  Hippy.bridge.callNative('RootViewManager', 'removeRootView', id);
 });
