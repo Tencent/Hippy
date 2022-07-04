@@ -3416,7 +3416,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			final int screenDelta = Math.max(1, Math.abs(whichScreen - mCurrentScreen));
 			final int newX = whichScreen * getWidth();
 			final int delta = newX - getScrollX();
-			int duration = (screenDelta + 1) * 100;
+			float duration = (screenDelta + 1) * 100;
 			if (DEBUG)
 			{
 				Log.d("galleryTMY", "snap" + " " + whichScreen + ",newX=" + newX);
