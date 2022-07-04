@@ -132,6 +132,10 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     JSValueRef _batchedBridgeRef;
     
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
+    //Engine is not thread-safe and contains 2 runner:js runner and worker runner,
+    //and it could be invoked in any thead.
+    //So HippyJSCExecutor is responsible to make sure that js runner or worker runner not terminal if Engine is being used
+    std::mutex _enginMutex;
 }
 
 @synthesize valid = _valid;
@@ -422,9 +426,18 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     _JSContext.name = @"HippyJSContext(delete)";
     _JSContext = nil;
     _JSGlobalContextRef = NULL;
+    /** When Engine is deallocated,Engine::TerminateRunner() invokes,
+     *  which cannot be invoked in JS thread.
+     *  So wo dispatch it into another thread
+     */
+    __weak HippyJSCExecutor *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
         HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", [self executorkey]);
-        [[HippyJSEnginesMapper defaultInstance] removeEngineForKey:[self executorkey]];
+        HippyJSCExecutor *strongSelf = weakSelf;
+        if (strongSelf) {
+            std::lock_guard<std::mutex> engineLock(strongSelf->_enginMutex);
+            [[HippyJSEnginesMapper defaultInstance] removeEngineForKey:[strongSelf executorkey]];
+        }
     });
 }
 
@@ -720,6 +733,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
+    std::lock_guard<std::mutex> engineLock(_enginMutex);
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
         if (engine->GetJSRunner()->IsJsThread() == false) {
@@ -733,6 +747,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
+    std::lock_guard<std::mutex> engineLock(_enginMutex);
     auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
     if (engine) {
         std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
