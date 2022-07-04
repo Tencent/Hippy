@@ -177,6 +177,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 - (void)initContext {
     _renderObjectRegistry = [[NativeRenderComponentMap alloc] init];
     _viewRegistry = [[NativeRenderComponentMap alloc] init];
+    _viewRegistry.requireInMainThread = YES;
     _pendingUIBlocks = [NSMutableArray new];
     _componentTransactionListeners = [NSMutableSet new];
     _componentDataByName = [NSMutableDictionary dictionaryWithCapacity:64];
