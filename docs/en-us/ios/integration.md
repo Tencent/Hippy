@@ -38,6 +38,10 @@ This tutorial shows how to integrate Hippy into an iOS project.
 
     * fork Hippy source code, change `hippy.podspec`, add the config below to `user_target`, and include this source code.
 
+    ```text
+    s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
+    ```
+
 4. Execute in the command line
 
     ```text
