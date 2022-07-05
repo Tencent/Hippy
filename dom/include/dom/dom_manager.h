@@ -48,8 +48,12 @@ class DomNode;
 class RenderManager;
 class RootNode;
 class LayerOptimizedRenderManager;
-
+class DomEvent;
+class EventNode;
 struct DomInfo;
+
+using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
+using CallFunctionCallback = std::function<void(std::shared_ptr<DomArgument>)>;
 
 // This class is used to mainpulate dom. Please note that the member
 // function of this class must be run in dom thread. If you want to call

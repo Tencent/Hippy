@@ -20,8 +20,11 @@
 
 #pragma once
 
+#include <stack>
+
 #include "footstone/task_runner.h"
 #include "dom/dom_node.h"
+#include "dom/event_node.h"
 
 namespace hippy {
 inline namespace dom {
@@ -29,22 +32,21 @@ inline namespace dom {
 class RootNode : public DomNode {
  public:
   using TaskRunner = footstone::runner::TaskRunner;
+  using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
+  using EventChainCallbacks = std::function<void(const std::shared_ptr<DomEvent>&, const std::shared_ptr<EventNode>&,
+                                                std::stack<std::shared_ptr<EventNode>>&)>;
 
   RootNode(uint32_t id);
   RootNode();
 
-  inline std::weak_ptr<DomManager> GetDomManager() {
-    return dom_manager_;
-  }
+  inline std::weak_ptr<DomManager> GetDomManager() { return dom_manager_; }
   inline void SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     animation_manager_->SetRootNode(GetWeakSelf());
     dom_manager_ = dom_manager;
   }
   inline std::shared_ptr<AnimationManager> GetAnimationManager() { return animation_manager_; }
 
-  virtual void AddEventListener(const std::string& name,
-                                uint64_t listener_id,
-                                bool use_capture,
+  virtual void AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture,
                                 const EventCallback& cb) override;
   virtual void RemoveEventListener(const std::string& name, uint64_t listener_id) override;
 
@@ -53,23 +55,23 @@ class RootNode : public DomNode {
   void MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes);
   void UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes);
-  void CallFunction(uint32_t id, const std::string &name,
-                    const DomArgument &param, const CallFunctionCallback &cb);
+  void CallFunction(uint32_t id, const std::string& name, const DomArgument& param, const CallFunctionCallback& cb);
   void SyncWithRenderManager(const std::shared_ptr<RenderManager>& render_manager);
   void DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_manager);
   void AddEvent(uint32_t id, const std::string& event_name);
   void RemoveEvent(uint32_t id, const std::string& event_name);
-  void HandleEvent(const std::shared_ptr<DomEvent> &event) override;
-  void UpdateRenderNode(const std::shared_ptr<DomNode> &node);
+  void HandleEvent(const std::shared_ptr<DomEvent>& event) override;
+  void UpdateRenderNode(const std::shared_ptr<DomNode>& node);
 
   std::shared_ptr<DomNode> GetNode(uint32_t id);
   std::tuple<float, float> GetRootSize();
   void SetRootSize(float width, float height);
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
-  inline void SetEventCallback(EventCallback event_callback) { event_callback_ = event_callback; }
+  inline void SetEventChainCallBacks(EventChainCallbacks event_callbacks) { event_chain_callbacks_ = event_callbacks; }
 
-  static void DoHandleEvent(const std::shared_ptr<DomEvent>& event);
+  static void HandleEventChainCallbacks(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
+                                        std::stack<std::shared_ptr<EventNode>>& capture_nodes);
 
  private:
   struct DomOperation {
@@ -104,7 +106,7 @@ class RootNode : public DomNode {
   std::weak_ptr<DomManager> dom_manager_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
-  EventCallback event_callback_;
+  EventChainCallbacks event_chain_callbacks_;
 };
 
 }  // namespace dom

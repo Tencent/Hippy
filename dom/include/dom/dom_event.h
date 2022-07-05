@@ -24,12 +24,15 @@
 #include <memory>
 #include <string>
 
+#include "dom/dom_event.h"
+#include "dom/event_node.h"
 #include "footstone/hippy_value.h"
 
 namespace hippy {
 inline namespace dom {
 
 class DomNode;
+class EventNode;
 
 enum class EventPhase: uint8_t {
   kNone = 0,
@@ -41,13 +44,16 @@ enum class EventPhase: uint8_t {
 class DomEvent {
  public:
   using HippyValue = footstone::value::HippyValue;
-  DomEvent(std::string type, std::weak_ptr<DomNode> target,
-           bool can_capture, bool can_bubble, std::shared_ptr<HippyValue> value)
-      : type_(std::move(type)), target_(target), current_target_(target),
-        prevent_capture_(false), prevent_bubble_(false), can_capture_(can_capture),
-        can_bubble_(can_bubble), value_(value) {}
-  DomEvent(std::string type, std::weak_ptr<DomNode> target,
-           bool can_capture = false, bool can_bubble = false)
+  DomEvent(std::string type, std::weak_ptr<DomNode> target, bool can_capture, bool can_bubble,
+           std::shared_ptr<DomValue> value)
+      : type_(std::move(type)),
+        target_(target),
+        prevent_capture_(false),
+        prevent_bubble_(false),
+        can_capture_(can_capture),
+        can_bubble_(can_bubble),
+        value_(value) {}
+  DomEvent(std::string type, std::weak_ptr<DomNode> target, bool can_capture = false, bool can_bubble = false)
       : DomEvent(std::move(type), target, can_capture, can_bubble, nullptr) {}
   DomEvent(std::string type, std::weak_ptr<DomNode> target, std::shared_ptr<HippyValue> value)
       : DomEvent(std::move(type), target, false, false, value) {}
@@ -70,14 +76,20 @@ class DomEvent {
   inline bool CanBubble() {
     return can_bubble_;
   }
-  inline void SetCurrentTarget(std::weak_ptr<DomNode> current) {
-    current_target_ = current;
-  }
-  inline std::weak_ptr<DomNode> GetCurrentTarget() {
-    return current_target_;
-  }
   inline std::weak_ptr<DomNode> GetTarget() {
     return target_;
+  }
+  inline void SetTargetEventNode(std::shared_ptr<EventNode> target) {
+    target_event_node_ = target;
+  }
+  inline std::shared_ptr<EventNode> GetTargetEventNode() {
+    return target_event_node_;
+  }
+  inline void SetCurrentEventNode(std::shared_ptr<EventNode> current) {
+    current_event_node_ = current;
+  }
+  inline std::shared_ptr<EventNode> GetCurrentEventNode() {
+    return current_event_node_;
   }
   inline std::string GetType() {
     return type_;
@@ -92,7 +104,8 @@ class DomEvent {
  private:
   std::string type_;
   std::weak_ptr<DomNode> target_;
-  std::weak_ptr<DomNode> current_target_;
+  std::shared_ptr<EventNode> target_event_node_;
+  std::shared_ptr<EventNode> current_event_node_;
   bool prevent_capture_;
   bool prevent_bubble_;
   bool can_capture_;
@@ -101,5 +114,5 @@ class DomEvent {
   std::shared_ptr<HippyValue> value_;
 };
 
-}
-}
+}  // namespace dom
+}  // namespace hippy
