@@ -191,13 +191,11 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
         FOOTSTONE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
         return;
       }
-      auto runner = runtime->GetEngine()->GetJsTaskRunner();
-      auto callback = [runtime, data] {
+      if (global_inspector) {
         // convert to utf-16 for v8, otherwise utf-8 like some protocol Runtime.enable which cause error "message must be a valid JSON"
         auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
         global_inspector->SendMessageToV8(std::move(u16str));
-      };
-      runner->PostTask(std::move(callback));
+      }
     });
   }
 #endif

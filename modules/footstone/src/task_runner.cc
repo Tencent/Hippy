@@ -58,6 +58,7 @@ bool TaskRunner::AddSubTaskRunner(const std::shared_ptr<TaskRunner>& sub_runner,
   if (!worker) {
     return false;
   }
+  sub_runner->SetWorker(worker_);
   worker->BindGroup(id_, sub_runner);
   has_sub_runner_ = true;
   if (is_task_running) {
