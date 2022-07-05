@@ -23,14 +23,14 @@
     "@hippy/react": "latest",
     "@hippy/react-reconciler": "react17",
     "@hippy/react-web": "latest",
-    "@hippy/rmc-list-view": "^1.0.0",
+    "@hippy/rmc-list-view": "latest",
+    "@hippy/rmc-pull-to-refresh": "latest",
     "animated-scroll-to": "^2.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router": "~5.1.2",
     "react-router-dom": "~5.1.2",
     "regenerator-runtime": "^0.13.5",
-    "rmc-pull-to-refresh": "^1.0.13",
     "swiper": "^6.7.0"
   },
   "devDependencies": {
