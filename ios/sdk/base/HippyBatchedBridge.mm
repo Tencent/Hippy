@@ -555,12 +555,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
             return;
         }
 
-        // Register the display link to start sending js calls after everything is setup
-        //        NSRunLoop *targetRunLoop = [self->_javaScriptExecutor isKindOfClass:[HippyJSCExecutor class]] ? [NSRunLoop currentRunLoop] :
-        //        [NSRunLoop mainRunLoop];
-        // hipp core功能中线程全部由c++创建，因此将所有displayLink放在mainRunLoop
-        [self->_displayLink addToRunLoop:[NSRunLoop mainRunLoop]];
-
         // Log metrics about native requires during the bridge startup.
         uint64_t nativeRequiresCount = [self->_performanceLogger valueForTag:HippyPLRAMNativeRequiresCount];
         [self->_performanceLogger setValue:nativeRequiresCount forTag:HippyPLRAMStartupNativeRequiresCount];
@@ -587,6 +581,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 #endif
 
         dispatch_async(dispatch_get_main_queue(), ^{
+        // Register the display link to start sending js calls after everything is setup
+        //        NSRunLoop *targetRunLoop = [self->_javaScriptExecutor isKindOfClass:[HippyJSCExecutor class]] ? [NSRunLoop currentRunLoop] :
+        //        [NSRunLoop mainRunLoop];
+        // hipp core功能中线程全部由c++创建，因此将所有displayLink放在mainRunLoop
+        //fixIssue: https://github.com/Tencent/Hippy/issues/1788, 放到主线程运行
+            [self->_displayLink addToRunLoop:[NSRunLoop mainRunLoop]];
             [[NSNotificationCenter defaultCenter] postNotificationName:HippyJavaScriptDidLoadNotification object:self->_parentBridge
                                                               userInfo:@ { @"bridge": self }];
         });
@@ -804,11 +804,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     }
 
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        [self->_displayLink invalidate];
         [self->_javaScriptExecutor executeBlockOnJavaScriptQueue:^{
             std::lock_guard<std::mutex> lock(self->_moduleDataMutex);
-            [self->_displayLink invalidate];
             self->_displayLink = nil;
-
             [self->_javaScriptExecutor invalidate];
             self->_javaScriptExecutor = nil;
 
