@@ -68,6 +68,9 @@ HIPPY_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, HippyImageView) {
         UIImage *image = [view imageFromData:imageData];
         view.defaultImage = image;
     }
+    else {
+        view.defaultImage = nil;
+    }
 }
 
 #define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                \
