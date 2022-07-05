@@ -7,7 +7,6 @@ import {
 } from '@hippy/react';
 
 const STYLE_LOADING = 100;
-const MAX_FETCH_TIMES = 100;
 const mockDataArray = [
   { style: 1 },
   { style: 2 },
@@ -108,7 +107,6 @@ export default class ListExample extends React.Component {
       dataSource: mockDataArray,
       fetchingDataFlag: false,
     };
-    this.fetchTimes = 0;
     this.delText = 'Delete';
     this.mockFetchData = this.mockFetchData.bind(this);
     this.getRenderRow = this.getRenderRow.bind(this);
@@ -146,7 +144,7 @@ export default class ListExample extends React.Component {
       dataSource.pop();
     }
     const newDataSource = dataSource.concat(newData);
-    this.setState({ dataSource: newDataSource });
+    this.setState({ dataSource: newDataSource, fetchingDataFlag: false });
   }
   // item完全曝光
   onAppear(index) {
@@ -231,13 +229,6 @@ export default class ListExample extends React.Component {
   mockFetchData() {
     return new Promise((resolve) => {
       setTimeout(() => {
-        this.setState({
-          fetchingDataFlag: false,
-        });
-        this.fetchTimes += 1;
-        if (this.fetchTimes >= MAX_FETCH_TIMES) {
-          return resolve([]);
-        }
         return resolve(mockDataArray);
       }, 600);
     });
