@@ -21,7 +21,7 @@
 import React, { useCallback, useEffect, useRef, useState, useImperativeHandle } from 'react';
 import animateScrollTo from 'animated-scroll-to';
 import MListView from '@hippy/rmc-list-view';
-import MPullToRefresh from 'rmc-pull-to-refresh';
+import MPullToRefresh from '@hippy/rmc-pull-to-refresh';
 import StyleSheet from '../modules/stylesheet';
 import { formatWebStyle } from '../adapters/transfer';
 import { canUseDOM, isFunc, noop } from '../utils';
@@ -58,7 +58,10 @@ interface ListViewProps extends ListViewItemProps {
   onDisappear?: Function;
   onHeaderReleased?: () => void;
   onHeaderPulling?: (evt: { contentOffset: number }) => void;
+  onFooterReleased?: () => void;
+  onFooterPulling?: (evt: { contentOffset: number }) => void;
   renderPullHeader?: () => JSX.Element | JSX.Element | null;
+  renderPullFooter?: () => JSX.Element | JSX.Element | null;
   pullToRefresh?: JSX.Element;
   onWillAppear?: Function; // unsupported yet
   onWillDisappear?: Function; // unsupported yet
@@ -147,18 +150,35 @@ function ListViewItem(props: ListViewItemProps) {
 const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
   const {
     getRowStyle = noop, rowShouldSticky, scrollEnabled = true, showScrollIndicator = true,
-    onHeaderReleased = noop, onHeaderPulling = noop, renderPullHeader = () => null,
-    onDisappear = noop, onAppear = noop, numberOfRows = 0,
+    onHeaderReleased = noop, onHeaderPulling = noop, renderPullHeader = () => null, renderPullFooter = () => null,
+    onDisappear = noop, onAppear = noop, numberOfRows = 0, onFooterPulling = noop, onFooterReleased = noop,
   } = props;
 
   const isShowPullHeader = useRef(isFunc(renderPullHeader) && renderPullHeader());
+  const isShowPullFooter = useRef(isFunc(renderPullFooter) && renderPullFooter());
   const pullHeaderRef = useRef<null | HTMLDivElement>(null);
+  const pullFooterRef = useRef<null | HTMLDivElement>(null);
   const pullHeaderOffset = useRef(0);
+  const pullFooterOffset = useRef(0);
   const pullHeaderHeight = useRef(0);
+  const pullFooterHeight = useRef(0);
+  const collapseHeadingInProgress = useRef(false);
   const listRef = useRef<null | { ListViewRef: any }>(null);
   const isPullHeaderInit = useRef(false);
   const [refreshing, setRefreshing] = useState(false);
   const itemShowMap = useRef(new Map<any, boolean>());
+
+  const refreshTypes = {
+    down: 'down',
+    up: 'up',
+    both: 'both',
+  };
+  const refreshType = useRef(refreshTypes.down);
+  if (isShowPullHeader.current && isShowPullFooter.current) {
+    refreshType.current = refreshTypes.both;
+  } else if (isShowPullFooter.current) {
+    refreshType.current = refreshTypes.up;
+  }
 
   shouldHideScrollBar(!showScrollIndicator);
 
@@ -241,7 +261,24 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     listRef.current?.ListViewRef?.scrollTo(xOffset, yOffset);
   };
 
-  const collapsePullHeader = () => {
+  const collapsePullHeader = (options: { time?: number } = { time: 0 }) => {
+    const { time } = options;
+    if (collapseHeadingInProgress.current) {
+      return;
+    }
+    collapseHeadingInProgress.current = true;
+    if (time === 0) {
+      setRefreshing(false);
+      collapseHeadingInProgress.current = false;
+    } else {
+      setTimeout(() => {
+        setRefreshing(false);
+        collapseHeadingInProgress.current = false;
+      }, time);
+    }
+  };
+
+  const collapsePullFooter = () => {
     setRefreshing(false);
   };
 
@@ -249,6 +286,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     scrollToIndex,
     scrollToContentOffset,
     collapsePullHeader,
+    collapsePullFooter,
   }));
 
   const listViewProps = { ...props };
@@ -295,9 +333,14 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       onHeaderReleased();
     }
   };
+  const onFooterRefresh = () => {
+    if (isFunc(onFooterReleased)) {
+      setRefreshing(true);
+      onFooterReleased();
+    }
+  };
 
   const PullHeader = useCallback(() => {
-    const headerVisibility = React.useRef<'hidden' | 'visible'>('hidden');
     if (!isShowPullHeader.current) {
       return null;
     }
@@ -305,17 +348,32 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
       if (pullHeaderRef.current) {
         const headerRect = pullHeaderRef.current.getBoundingClientRect();
         pullHeaderHeight.current = headerRect.height;
-        if (pullHeaderHeight.current > 0) {
-          headerVisibility.current = 'visible';
-        }
       }
     }, [pullHeaderRef]);
     return (
-      <div ref={pullHeaderRef} style={{  ...styles.pullHeaderContainer, visibility: headerVisibility.current, marginTop: `-${pullHeaderHeight.current}px` }}>
+      <div ref={pullHeaderRef} style={{  ...styles.pullHeaderContainer }}>
         {renderPullHeader()}
       </div>
     );
   }, [props.renderPullHeader]);
+
+  const PullFooter = useCallback(() => {
+    if (!isShowPullFooter) {
+      return null;
+    }
+    React.useEffect(() => {
+      if (pullFooterRef.current) {
+        const footerRect = pullFooterRef.current.getBoundingClientRect();
+        pullFooterHeight.current = footerRect.height;
+      }
+    }, [pullFooterRef]);
+    return (
+      <div ref={pullFooterRef} style={styles.pullHeaderContainer}>
+        { renderPullFooter() }
+      </div>
+    );
+  }, [props.renderPullFooter]);
+
   const pullIndicator = {
     get activate() {
       let currentOffset = 0;
@@ -328,7 +386,7 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
         && currentOffset !== pullHeaderOffset.current
       ) {
         pullHeaderOffset.current = currentOffset;
-        onHeaderPulling({ contentOffset: pullHeaderHeight.current + 1 });
+        onHeaderPulling({ contentOffset: pullHeaderHeight.current + REFRESH_DISTANCE_SCREEN_Y_OFFSET });
       }
       return <PullHeader />;
     },
@@ -343,12 +401,43 @@ const ListView: React.FC<ListViewProps> = React.forwardRef((props, ref) => {
     },
   };
 
-  if (isShowPullHeader.current) {
+  const pullFooterIndicator = {
+    get activate() {
+      let currentOffset = 0;
+      if (pullFooterRef.current) {
+        currentOffset = pullFooterRef.current.getClientRects()[0].y;
+      }
+      if (
+        isFunc(onFooterPulling)
+        && pullFooterOffset.current > 0
+        && currentOffset !== pullFooterOffset.current
+      ) {
+        pullFooterOffset.current = currentOffset;
+        onFooterPulling({ contentOffset: pullFooterOffset.current + REFRESH_DISTANCE_SCREEN_Y_OFFSET });
+      }
+      return <PullFooter />;
+    },
+    get deactivate() {
+      return <PullFooter />;
+    },
+    get release() {
+      return <PullFooter />;
+    },
+    get finish() {
+      return <PullFooter />;
+    },
+  };
+
+  if (isShowPullHeader.current || isShowPullFooter.current) {
     listViewProps.pullToRefresh = <MPullToRefresh
-      direction='down'
+      direction={refreshType.current}
       refreshing={refreshing}
-      onRefresh={refresh}
-      indicator={pullIndicator}
+      onRefresh={refreshType.current === refreshTypes.up ? onFooterRefresh : refresh}
+      onFooterRefresh={onFooterRefresh}
+      indicator={refreshType.current === refreshTypes.up ? pullFooterIndicator : pullIndicator}
+      footerIndicator={pullFooterIndicator}
+      indicatorHeight={pullHeaderHeight.current}
+      footerIndicatorHeight={pullFooterHeight.current}
       distanceToRefresh={
         pullHeaderHeight.current
           ?  pullHeaderHeight.current -  REFRESH_DISTANCE_SCREEN_Y_OFFSET : DEFAULT_DISTANCE_TO_REFRESH
