@@ -123,9 +123,9 @@ import icon from './qb_icon_new.png';
 | renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeaderFooter/index.jsx)。 | `() => View`                                                   | `Android、iOS、hippy-react-web` |
 | onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `Android、iOS、hippy-react-web` |
 | onHeaderReleased   | 下拉超过内容高度，松手后触发。 | `() => any`                                                   | `Android、iOS、hippy-react-web` |
-| renderPullFooter   | 最低支持版本`2.14.0`， 设置列表底部上拉刷新条，配合 `onFooterReleased`、`onFooterPulling` 和 `collapsePullFooter` 使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeaderFooter/index.jsx)。 | `() => View`                                                   | `Android、iOS` |
-| onFooterPulling   | 最低支持版本`2.14.0`，上拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据上拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `Android、iOS` |
-| onFooterReleased   |  最低支持版本`2.14.0`，上拉超出一定距离，松手后触发。 | `() => any`                                                   | `Android、iOS` |
+| renderPullFooter   | 最低支持版本`2.14.0`， 设置列表底部上拉刷新条，配合 `onFooterReleased`、`onFooterPulling` 和 `collapsePullFooter` 使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeaderFooter/index.jsx)。 | `() => View`                                                   | `Android、iOS、hippy-react-web` |
+| onFooterPulling   | 最低支持版本`2.14.0`，上拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据上拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `Android、iOS、hippy-react-web` |
+| onFooterReleased   |  最低支持版本`2.14.0`，上拉超出一定距离，松手后触发。 | `() => any`                                                   | `Android、iOS、hippy-react-web` |
 | editable   | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                   | `iOS`    |
 | delText   | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                   | `iOS`    |
 | onDelete   | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                                   | `iOS`    |

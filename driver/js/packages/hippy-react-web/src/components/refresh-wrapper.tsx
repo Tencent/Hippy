@@ -19,9 +19,8 @@
  */
 
 /* eslint-disable react/prefer-stateless-function */
-
 import React, { useState } from 'react';
-import MPullToRefresh from 'rmc-pull-to-refresh';
+import MPullToRefresh from '@hippy/rmc-pull-to-refresh';
 import { formatWebStyle } from '../adapters/transfer';
 import { isFunc } from '../utils';
 import { DEFAULT_CONTAINER_STYLE, DEFAULT_DISTANCE_TO_REFRESH, REFRESH_DISTANCE_SCREEN_Y_OFFSET } from '../constants';
@@ -121,6 +120,7 @@ const RefreshWrapper: React.FC<RefreshWrapperProps> = React.forwardRef((props, r
       refreshing={refreshing}
       onRefresh={handleOnRefresh}
       indicator={pullIndicator}
+      indicatorHeight={pullHeaderHeight.current}
       distanceToRefresh={
         pullHeaderHeight.current
           ?  pullHeaderHeight.current -  REFRESH_DISTANCE_SCREEN_Y_OFFSET : DEFAULT_DISTANCE_TO_REFRESH
