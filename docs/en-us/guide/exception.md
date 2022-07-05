@@ -17,6 +17,8 @@ The `unhandledRejection` event is sent to the global scope of a script when a Ja
 
 !> Currently only support iOS(JSCore) to capture `unhandledRejection` error by js polyfill ，Android(V8) not supported yet.
 
+### iOS
+
 > Minimum supported version `2.14.1`
 
 + `npm install -D @hippy/rejection-tracking-polyfill`
