@@ -2,7 +2,6 @@ const path = require('path');
 const { rollup } = require('rollup');
 const reactBuilds = require('./react-configs').getAllBuilds();
 const vueBuilds = require('./vue-configs').getAllBuilds();
-const buildDebugServer = require('./build-debug-server');
 
 let builds = [...reactBuilds, ...vueBuilds];
 
@@ -27,11 +26,11 @@ function logError(e) {
 
 async function buildEntry(config) {
   const { output } = config;
-  const { file } = output;
+  const { file = '', dir = '' } = output;
   const bundle = await rollup(config);
   await bundle.generate(output);
   const { output: [{ code }] } = await bundle.write(output);
-  console.log(`${blue(path.relative(process.cwd(), file))} ${getSize(code)}`);
+  console.log(`${blue(path.relative(process.cwd(), file ? file : `${dir}/index.js`))} ${getSize(code)}`);
 }
 
 function build(buildSets) {
@@ -51,5 +50,3 @@ function build(buildSets) {
 }
 
 build(builds);
-
-buildDebugServer();

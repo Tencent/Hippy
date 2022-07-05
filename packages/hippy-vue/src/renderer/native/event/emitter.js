@@ -114,7 +114,6 @@ class EventEmitter {
       list = [];
       this._observers[eventName] = list;
     }
-
     return list;
   }
 

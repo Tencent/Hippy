@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.adapter.font;
 
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"unused"})
@@ -31,9 +32,16 @@ public class DefaultFontScaleAdapter implements HippyFontScaleAdapter {
   }
 
   @Override
+  @Nullable
   public String getCustomFontFilePath(String fontFamilyName, int style) {
     LogUtils.d("DefaultFontScaleAdapter",
         "getCustomFontFilePath fontFamilyName=" + fontFamilyName + ", style=" + style);
+    return null;
+  }
+
+  @Override
+  @Nullable
+  public String getCustomDefaultFontFamily() {
     return null;
   }
 }

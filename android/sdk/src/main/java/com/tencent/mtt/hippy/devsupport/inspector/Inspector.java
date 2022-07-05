@@ -14,6 +14,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Inspector implements BatchListener {
@@ -21,6 +22,9 @@ public class Inspector implements BatchListener {
   private static final String TAG = "Inspector";
 
   private static final String CHROME_SOCKET_CLOSED = "chrome_socket_closed";
+
+  public static int CLOSE_DESTROY = 4003;
+  public static int CLOSE_RELOAD = 4004;
 
   private Map<String, InspectorDomain> mDomainMap = new HashMap<>();
   private DebugWebSocketClient mDebugWebSocketClient;
@@ -134,6 +138,17 @@ public class Inspector implements BatchListener {
   public void setNeedBatchUpdateDom(boolean needBatchUpdate) {
     needBatchUpdateDom = needBatchUpdate;
   }
+
+  public void updateContextName(String name) {
+    try {
+      JSONObject contextObj = new JSONObject();
+      contextObj.put("contextName", name);
+      sendEventToFrontend(new InspectEvent("TDFRuntime.updateContextInfo", contextObj));
+    } catch (JSONException e) {
+      LogUtils.e(TAG, "updateContextName, exception:", e);
+    }
+  }
+
 
   @Override
   public void onBatch(boolean isAnimation) {

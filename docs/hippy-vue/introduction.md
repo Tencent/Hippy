@@ -33,13 +33,14 @@ const app = new Vue({
 app.$start((instance, initialProps) => {
   console.log('instance', instance, 'initialProps', initialProps);
 });
+
+// 如果需要在首个 View 渲染时就获取到 initialProps，可以通过直接读取 app.$options.$superProps 
+
 ```   
 
 # 样式
 
-标准 Hippy 中长度单位是不允许带有单位的，不过为了和浏览器保持兼容，hippy-vue 采取了 1px = 1pt 的方案进行换算，把 CSS 单位中的 px 直接去掉变成了 Hippy 中不带单位的数字。
-
-不过依然存在一些问题，类似 rem、vh 这样的相对单位如果写进 Hippy 业务里了，及时发现避免更重要大的风险可能更重要一些，所以现在只转换 px 单位，别的单位任由终端层报错。
+标准 Hippy 中长度单位是不允许带有单位，不过为了和浏览器保持兼容，hippy-vue 采取了 1px = 1pt 的方案进行换算，把 CSS 单位中的 px 直接去掉变成了 Hippy 中不带单位的数字。
 
 HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者做定制化修改 CSS 样式，如
 

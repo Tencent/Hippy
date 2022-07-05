@@ -1,0 +1,36 @@
+android:
+  - 'android/**/*'
+  - 'gradle/**/*'
+  - 'build.gradle'
+  - 'gradlew'
+  - 'gradlew.bat'
+  - 'build.gradle'
+  - 'gradle.properties'
+  - 'settings.gradle'
+ios:
+  - 'ios/**/*'
+  - 'hippy.podspec'
+core:
+  - 'core/**/*'
+layout:
+  - 'layout/**/*'
+demo:
+  - 'examples/**/*'
+js:
+  - 'packages/**/*'
+  - 'static/**/*'
+  - 'tsconfig.json'
+  - '.eslintignore'
+  - '.nycrc'
+  - 'lerna.json'
+  - '**/*.js'
+  - '**/*.jsx'
+  - '**/*.ts'
+  - '**/*.tsx'
+documentation:
+  - 'docs/**/*'
+  - '**/*.md'
+dependencies:
+  - '**/third_party/**'
+ci:
+  - '.github/**/*'

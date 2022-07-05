@@ -24,17 +24,14 @@ import useElementLayout from '../modules/use-element-layout';
 import { TouchEvent } from '../modules/use-responder-events/types';
 import { LayoutEvent } from '../types';
 import { warn } from '../utils';
+import { DEFAULT_CONTAINER_STYLE } from '../constants';
 
 const styles = {
   root: {
-    alignItems: 'stretch',
+    ...DEFAULT_CONTAINER_STYLE,
     borderWidth: 0,
     borderStyle: 'solid',
     boxSizing: 'border-box',
-    display: 'flex',
-    flexBasis: 'auto',
-    flexDirection: 'column',
-    flexShrink: 0,
     margin: 0,
     padding: 0,
     position: 'relative',

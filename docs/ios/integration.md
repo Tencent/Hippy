@@ -36,7 +36,11 @@
 
     * 在App工程的 Podfile 配置文件中添加 `post_install hook`，自行给 xcconfig 添加 `force load`。
 
-    * fork一份hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
+    * fork一份Hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
+
+    ```text
+    s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
+    ```
 
 4. 在命令行中执行
 
@@ -64,7 +68,7 @@
 
 # 编写代码开始调试或者加载业务代码
 
-Hippy 提供分包加载接口以及不分包加载接口, 所有的业务包都是通过 HippyRootView 进行承载，创建业务也就是创建 RootView。
+Hippy 提供分包加载接口以及不分包加载接口, 所有的业务包都是通过 `HippyRootView` 进行承载，创建业务也就是创建 `RootView`。
 
 ## 使用分包加载接口
 

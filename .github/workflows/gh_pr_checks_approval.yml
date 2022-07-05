@@ -1,0 +1,79 @@
+name: '[gh] pull request checks approval'
+
+on:
+  pull_request_target:
+    branches:
+      - master
+      - main
+
+jobs:
+  pull_request_checks_approval:
+    permissions:
+      actions: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checks approval
+      uses: actions/github-script@v6.1.0
+      with:
+        script: |
+          const { owner, repo } = context.repo;
+          const { pull_request } = context.payload;
+          const { actions, pulls, issues } = github.rest;
+
+          let { data: { workflow_runs } } = await actions.listWorkflowRunsForRepo({
+            owner,
+            repo,
+            event: 'pull_request',
+            status: 'action_required'
+          });
+          workflow_runs = workflow_runs.filter(workflow_run => workflow_run.head_sha === pull_request.head.sha)
+
+          if (workflow_runs.length === 0) {
+            return;
+          }
+
+          let includeRiskFiles = false;
+          let page = 1;
+          const kMaxPage = 100;
+          const kMaxPerPage = 100;
+          for (; page < kMaxPage; page += 1) {
+            const { data: files } = await pulls.listFiles({
+              owner,
+              repo,
+              pull_number: pull_request.number,
+              per_page: kMaxPerPage,
+              page,
+            });
+
+            includeRiskFiles = files.some(f => f.filename.startsWith('.github/workflows'));
+
+            if (includeRiskFiles || files.length < kMaxPerPage) {
+              break;
+            }
+          }
+          if (page === kMaxPage) {
+            includeRiskFiles = true;
+          }
+
+          if (!includeRiskFiles) {
+            await Promise.all(workflow_runs.map(workflow_run => actions.approveWorkflowRun({
+              owner,
+              repo,
+              run_id: workflow_run.id,
+            })));
+          }
+
+          let body = '👋 Thanks for your contributing!\n\n';
+          if (includeRiskFiles) {
+            body += `🤖: "Sorry, due to risky changes, I can\'t approve${workflow_runs.length === 1 ? " the " : " "}workflow${workflow_runs.length > 1 ? "s" : ""} to run."\n`;
+            body += '🤖: "Don\'t worry about it, our collaborators will handle it asap."';
+          } else {
+            body += `🤖: "After a quick scan, I have approved${workflow_runs.length === 1 ? " the " : " "}workflow${workflow_runs.length > 1 ? "s" : ""} to run."`;
+          }
+          await issues.createComment({
+            owner,
+            repo,
+            issue_number: pull_request.number,
+            body,
+          });

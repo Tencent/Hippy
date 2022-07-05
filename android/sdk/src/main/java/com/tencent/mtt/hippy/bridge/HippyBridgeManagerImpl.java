@@ -63,6 +63,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     static final int MSG_CODE_RUN_BUNDLE = 11;
     static final int MSG_CODE_CALL_FUNCTION = 12;
     static final int MSG_CODE_DESTROY_BRIDGE = 13;
+    static final int MSG_CODE_RUN_SCRIPT = 14;
 
     static final int FUNCTION_ACTION_LOAD_INSTANCE = 1;
     static final int FUNCTION_ACTION_RESUME_INSTANCE = 2;
@@ -73,6 +74,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     public static final int BRIDGE_TYPE_SINGLE_THREAD = 2;
     public static final int BRIDGE_TYPE_NORMAL = 1;
+
+    public static final int DESTROY_CLOSE = 0;
+    public static final int DESTROY_RELOAD = 1;
 
     final HippyEngineContext mContext;
     final HippyBundleLoader mCoreBundleLoader;
@@ -223,13 +227,14 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
     }
 
+    private void handleRunScript(Message msg) {
+        final String script = (String) msg.obj;
+        mHippyBridge.runScript(script);
+    }
+
     private void handleDestroyBridge(Message msg) {
         if (mThirdPartyAdapter != null) {
             mThirdPartyAdapter.onRuntimeDestroy();
-        }
-
-        if (enableTurbo() && mTurboModuleManager != null) {
-            mTurboModuleManager.uninstall(mHippyBridge.getV8RuntimeId());
         }
 
         @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
@@ -237,7 +242,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             @Override
             public void Call(long result, Message message, String action, String reason) {
                 boolean success = result == 0;
-                mHippyBridge.onDestroy();
+                mHippyBridge.onDestroy(msg.arg1 == DESTROY_RELOAD);
                 if (destroyCallback != null) {
                     RuntimeException exception = null;
                     if (!success) {
@@ -312,6 +317,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     } catch (Throwable e) {
                         mIsInit = false;
                         callback.callback(false, e);
+                    }
+                    return true;
+                }
+                case MSG_CODE_RUN_SCRIPT: {
+                    if (mIsInit) {
+                        handleRunScript(msg);
                     }
                     return true;
                 }
@@ -404,6 +415,15 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     @Override
+    public void runScript(String script) {
+        if (!mIsInit || mHandler == null) {
+            return;
+        }
+        Message message = mHandler.obtainMessage(MSG_CODE_RUN_SCRIPT, script);
+        mHandler.sendMessage(message);
+    }
+
+    @Override
     public void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
             HippyRootView hippyRootView) {
         if (!mIsInit) {
@@ -469,6 +489,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         Message message = mHandler
                 .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_LOAD_INSTANCE, map);
         mHandler.sendMessage(message);
+        mContext.getDevSupportManager().getInspector().updateContextName(name);
     }
 
     @Override
@@ -514,7 +535,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     @Override
-    public void destroyBridge(Callback<Boolean> callback) {
+    public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
         assert (mHandler != null);
         //noinspection ConstantConditions
         if (mHandler == null) {
@@ -522,6 +543,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
 
         Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
+        message.arg1 = isReload ? DESTROY_RELOAD : DESTROY_CLOSE;
         mHandler.sendMessage(message);
     }
 
@@ -533,6 +555,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             mHandler.removeMessages(MSG_CODE_INIT_BRIDGE);
             mHandler.removeMessages(MSG_CODE_RUN_BUNDLE);
             mHandler.removeMessages(MSG_CODE_CALL_FUNCTION);
+            mHandler.removeMessages(MSG_CODE_RUN_SCRIPT);
         }
     }
 

@@ -82,7 +82,7 @@ typedef NS_ENUM(NSInteger, HippyResizeMode) {
 
 - (void)clearImageIfDetached;
 
-- (BOOL)needsUpdateCornerRadius;
+- (BOOL)needsUpdateCornerRadiusManully;
 @end
 
 @interface HippyConvert (HippyResizeMode)

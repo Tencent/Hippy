@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
     margin: 16,
     borderColor: '#4c9afa',
     borderWidth: 1,
+    borderStyle: 'solid',
     borderRadius: 4,
   },
   info_style: {

@@ -18,188 +18,75 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
+
+get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../../../../.." REALPATH)
+
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_EXTENSIONS off)
 
+# region library
+add_library(${PROJECT_NAME} SHARED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+if (HIDDEN_LIBRARY_SYMBOL)
+  set_target_properties(${PROJECT_NAME}
+      PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
+endif ()
 if (${ANDROID_STL} STREQUAL "c++_static")
-  string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++_static.a")
-  string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,libc++abi.a")
-endif()
-
-# region ABI_COMPILE_OPTIONS
-set(ABI_COMPILE_OPTIONS
-        -fomit-frame-pointer
-        -fno-threadsafe-statics
-        -fno-strict-aliasing
-        -fno-short-enums
-        -fno-unique-section-names
-        -fno-trigraphs
-        -Werror
-        -Wall
-        -Wextra
-        -Wextra-semi
-        -Wconversion
-        -Wimplicit-fallthrough
-        -Wloop-analysis
-        -Wmissing-field-initializers
-        -Wunused-local-typedefs
-        -Wstring-conversion
-        -Wthread-safety
-        -Wtautological-overlap-compare
-        -Wunreachable-code
-        -Wenum-compare-conditional
-        -Wheader-hygiene
-        -Wshadow
-        -Wno-unused-parameter
-        -Wno-trigraphs
-        --param=ssp-buffer-size=4
-        -pipe
-        -Os)
-
-message("ANDROID_ABI: ${ANDROID_ABI}")
-if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
-  set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -mfloat-abi=softfp)
-elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
-  # (Empty)
-elseif (${ANDROID_ABI} STREQUAL "x86")
-  set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -m32
-          -mssse3
-          -mfpmath=sse)
-elseif (${ANDROID_ABI} STREQUAL "x86_64")
-  set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
-          -m64
-          -mpopcnt
-          -msse4.2)
-else()
-  message(FATAL_ERROR "${ANDROID_ABI} is not supported")
-endif()
-
-if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set(CMAKE_CXX_VISIBILITY_PRESET hidden)
-endif()
-
-message("ABI_COMPILE_OPTIONS: ${ABI_COMPILE_OPTIONS}")
-add_compile_options(${ABI_COMPILE_OPTIONS})
+  target_link_options(${PROJECT_NAME} PRIVATE
+      "-Wl,--exclude-libs,libc++_static.a"
+      "-Wl,--exclude-libs,libc++abi.a")
+endif ()
 # endregion
 
-# region subdirectory
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core/third_party/base out)
-set(ENABLE_INSPECTOR true)
-if (${JS_ENGINE} STREQUAL "V8")
-  get_filename_component(V8_COMPONENT_PATH ${V8_COMPONENT} ABSOLUTE)
-  add_subdirectory(${V8_COMPONENT_PATH} ${CMAKE_CURRENT_BINARY_DIR}/third_party/v8)
-endif()
+# region core
+add_subdirectory(${PROJECT_ROOT_DIR}/core ${CMAKE_CURRENT_BINARY_DIR}/core)
+target_link_libraries(${PROJECT_NAME} PRIVATE core)
 # endregion
 
-# region global definitions
-if (${ENABLE_INSPECTOR} STREQUAL "true")
-  add_definitions("-DENABLE_INSPECTOR")
-endif()
-add_definitions("-DOS_ANDROID")
+# region v8
+GlobalPackages_Add(v8)
+target_link_libraries(${PROJECT_NAME} PRIVATE v8)
+get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
+if (V8_WITHOUT_INSPECTOR)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
+endif ()
 # endregion
 
-# region source
-get_filename_component(CORE_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../core" REALPATH)
-file(GLOB_RECURSE CORE_SRC ${CORE_SRC_DIR}/src/*.cc)
-file(GLOB_RECURSE JNI_SRC ${PROJECT_SOURCE_DIR}/src/*.cc)
-if (${ENABLE_INSPECTOR} STREQUAL "false")
-  file(GLOB_RECURSE INSPECTOR_SRC ${PROJECT_SOURCE_DIR}/src/inspector/*)
-  list(REMOVE_ITEM JNI_SRC ${INSPECTOR_SRC})
-endif()
-
-message("CORE_SRC_DIR: ${CORE_SRC_DIR}")
-message("CORE_SRC: ${CORE_SRC}")
-message("JNI_SRC: ${JNI_SRC}")
+# region source set
+set(SOURCE_SET
+    src/bridge/entry.cc
+    src/bridge/java2js.cc
+    src/bridge/js2java.cc
+    src/bridge/runtime.cc
+    src/bridge/serializer.cc
+    src/jni/convert_utils.cc
+    src/jni/exception_handler.cc
+    src/jni/java_turbo_module.cc
+    src/jni/jni_env.cc
+    src/jni/jni_register.cc
+    src/jni/jni_utils.cc
+    src/jni/scoped_java_ref.cc
+    src/jni/turbo_module_manager.cc
+    src/jni/uri.cc
+    src/loader/adr_loader.cc)
+get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
+if (NOT V8_WITHOUT_INSPECTOR)
+  list(APPEND SOURCE_SET
+      src/inspector/v8_channel_impl.cc
+      src/inspector/v8_inspector_client_impl.cc)
+endif ()
+# This is a top-level shared library,
+# so the source code visibility is always PRIVATE.
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion
 
-set(HIPPY_DEPS android log tdf_base)
-
-message("JS_ENGINE:" ${JS_ENGINE})
-if (${JS_ENGINE} STREQUAL "V8")
-  add_definitions("-DJS_V8")
-  # region remove jsc code
-  file(GLOB_RECURSE JSC_SRC ${CORE_SRC_DIR}/src/napi/jsc/*)
-  message("JSC_SRC: ${JSC_SRC}")
-  list(REMOVE_ITEM CORE_SRC ${JSC_SRC})
-  # endregion
-  # region library
-  set(ANDROID_READELF
-          "${ANDROID_TOOLCHAIN_ROOT}/bin/llvm-readelf${ANDROID_TOOLCHAIN_SUFFIX}")
-  execute_process(
-          COMMAND ${ANDROID_READELF} ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME}
-          RESULT_VARIABLE CHECKER_RESULT
-          ERROR_VARIABLE CHECKER_ERROR
-          OUTPUT_QUIET
-  )
-  if (NOT ${CHECKER_RESULT} STREQUAL "0")
-    set(ERROR_MESSAGE "The V8 library file(${V8_LIBRARY_NAME}) format was not recognized.\n")
-    if (${V8_COMPONENT_PATH} MATCHES ${PROJECT_SOURCE_DIR})
-      string(APPEND ERROR_MESSAGE
-              "Did you forget to fetch files from the Git Large File Storage (LFS)? "
-              "Try running the following command in the project root to fetch files.\n"
-              "$ git lfs fetch\n")
-    endif()
-    string(APPEND ERROR_MESSAGE
-            "The checker(llvm-readelf) output as follows: "
-            ${CHECKER_ERROR})
-    message(FATAL_ERROR ${ERROR_MESSAGE})
-  endif()
-  if (${V8_LINKING_MODE} STREQUAL "shared")
-    add_library(v8 SHARED IMPORTED)
-  elseif (${V8_LINKING_MODE} STREQUAL "static")
-    if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-      string(APPEND CMAKE_SHARED_LINKER_FLAGS " -Wl,--exclude-libs,${V8_LIBRARY_NAME}")
-    endif()
-    add_library(v8 STATIC IMPORTED)
-  else()
-    message(FATAL_ERROR
-            "V8_LINKING_MODE expected to be `shared` or `static`, but received ${V8_LINKING_MODE}")
-  endif()
-  set_property(TARGET v8 PROPERTY IMPORTED_LOCATION ${V8_LIBRARY_PATH}/${V8_LIBRARY_NAME})
-  list(APPEND HIPPY_DEPS v8)
-  # endregion
-  foreach(INCLUDE_DIRECTORY ${V8_INCLUDE_DIRECTORIES})
-    include_directories(${INCLUDE_DIRECTORY})
-  endforeach()
-  foreach(DEFINITION ${V8_DEFINITIONS})
-    add_definitions(${DEFINITION})
-  endforeach()
-elseif (${JS_ENGINE} STREQUAL "JSC")
-  add_definitions("-DJS_JSC")
-  # region remove v8 code
-  file(GLOB_RECURSE V8_SRC ${CORE_SRC_DIR}/src/napi/v8/*)
-  message("V8_SRC: ${V8_SRC}")
-  list(REMOVE_ITEM CORE_SRC ${V8_SRC})
-  # endregion
-else()
-  message(FATAL_ERROR "${JS_ENGINE} is not supported")
-endif()
-
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${CORE_SRC_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR})
-include_directories(${CORE_SRC_DIR}/third_party/base/include)
-
-add_library(${CMAKE_PROJECT_NAME} SHARED ${CORE_SRC} ${URL_PARSER_SRC} ${JNI_SRC})
-if (${HIDDEN_LIBRARY_SYMBOL} STREQUAL "true")
-  set_target_properties(${CMAKE_PROJECT_NAME}
-          PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
-endif()
-target_link_libraries(${CMAKE_PROJECT_NAME} ${HIPPY_DEPS})
-
-if ((${JS_ENGINE} STREQUAL "V8") AND (${V8_LINKING_MODE} STREQUAL "shared"))
-  foreach(LIBRARY_DEP ${V8_LIBRARY_DEPS})
-    add_custom_command(
-            TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E
-              copy ${V8_LIBRARY_PATH}/${LIBRARY_DEP} $<TARGET_FILE_DIR:${CMAKE_PROJECT_NAME}>)
-  endforeach()
-endif()
+add_subdirectory(${PROJECT_ROOT_DIR}/layout/android ${CMAKE_CURRENT_BINARY_DIR}/layout/android)

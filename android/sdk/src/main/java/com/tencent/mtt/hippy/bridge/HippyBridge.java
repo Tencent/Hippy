@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.common.HippyArray;
 
 import java.nio.ByteBuffer;
@@ -29,10 +30,12 @@ public interface HippyBridge {
 
     void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
 
+    void runScript(@NonNull String script);
+
     boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
             String codeCacheTag, NativeCallback callback);
 
-    void onDestroy();
+    void onDestroy(boolean isReload);
 
     void destroy(NativeCallback callback);
 

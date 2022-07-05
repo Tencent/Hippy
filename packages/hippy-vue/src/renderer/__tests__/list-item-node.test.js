@@ -13,7 +13,7 @@ before(() => {
   };
 });
 
-test('ListItemNode.polyFillNativeEvents test', (t) => {
+test('ListItemNode.polyfillNativeEvents test', (t) => {
   const listItemNode = new ListItemNode('li');
   // ios
   Native.Platform = 'ios';
@@ -38,7 +38,7 @@ test('ListItemNode.polyFillNativeEvents test', (t) => {
   t.is(called, false);
   t.is(listItemNode._emitter.getEventListeners().disappear, undefined);
   listItemNode.addEventListener('disappear', callback);
-  const event2 = DocumentNode.createEvent('disappear');
+  const event2 = DocumentNode.createEvent('disAppear');
   listItemNode.dispatchEvent(event2);
   t.is(called, true);
   t.true(!!listItemNode._emitter);

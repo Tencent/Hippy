@@ -250,7 +250,7 @@ class ElementNode extends ViewNode {
         value = true;
       }
       if (key === undefined) {
-        updateChild(this);
+        !options.notToNative && updateChild(this);
         return;
       }
       switch (key) {
@@ -261,7 +261,7 @@ class ElementNode extends ViewNode {
           }
           this.classList = newClassList;
           // update current node and child nodes
-          updateWithChildren(this);
+          !options.notToNative && updateWithChildren(this);
           return;
         }
         case 'id':
@@ -270,7 +270,7 @@ class ElementNode extends ViewNode {
           }
           this.id = value;
           // update current node and child nodes
-          updateWithChildren(this);
+          !options.notToNative && updateWithChildren(this);
           return;
         // Convert text related to character for interface.
         case 'text':
@@ -319,7 +319,10 @@ class ElementNode extends ViewNode {
         default:
           this.attributes[key] = value;
       }
-      updateChild(this);
+      if (typeof this.filterAttribute === 'function') {
+        this.filterAttribute(this.attributes);
+      }
+      !options.notToNative && updateChild(this);
     } catch (err) {
       // Throw error in development mode
       if (process.env.NODE_ENV !== 'production') {
@@ -332,7 +335,7 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
-  setStyle(property, value, isBatchUpdate = false) {
+  setStyle(property, value, notToNative = false) {
     if (value === undefined) {
       delete this.style[property];
       return;
@@ -390,7 +393,7 @@ class ElementNode extends ViewNode {
       return;
     }
     this.style[p] = v;
-    if (!isBatchUpdate) {
+    if (!notToNative) {
       updateChild(this);
     }
   }
@@ -425,46 +428,45 @@ class ElementNode extends ViewNode {
   }
 
   appendChild(childNode) {
-    super.appendChild(childNode);
-    if (childNode.meta.symbol === Text) {
-      this.setText(childNode.text);
+    if (childNode && childNode.meta.symbol === Text) {
+      this.setText(childNode.text, { notToNative: true });
     }
+    super.appendChild(childNode);
   }
 
   insertBefore(childNode, referenceNode) {
-    super.insertBefore(childNode, referenceNode);
-    if (childNode.meta.symbol === Text) {
-      this.setText(childNode.text);
+    if (childNode && childNode.meta.symbol === Text) {
+      this.setText(childNode.text, { notToNative: true });
     }
+    super.insertBefore(childNode, referenceNode);
   }
 
   moveChild(childNode, referenceNode) {
-    super.moveChild(childNode, referenceNode);
-    if (childNode.meta.symbol === Text) {
-      this.setText(childNode.text);
+    if (childNode && childNode.meta.symbol === Text) {
+      this.setText(childNode.text, { notToNative: true });
     }
+    super.moveChild(childNode, referenceNode);
   }
 
   removeChild(childNode) {
-    super.removeChild(childNode);
-    if (childNode.meta.symbol === Text) {
-      this.setText('');
+    if (childNode && childNode.meta.symbol === Text) {
+      this.setText('', { notToNative: true });
     }
+    super.removeChild(childNode);
   }
 
-  setText(text) {
+  setText(text, options = {}) {
     // Hacking for textarea, use value props to instance text props
     if (this.tagName === 'textarea') {
-      return this.setAttribute('value', text);
+      return this.setAttribute('value', text,  { notToNative: !!options.notToNative });
     }
-    return this.setAttribute('text', text);
+    return this.setAttribute('text', text, { notToNative: !!options.notToNative });
   }
 
   addEventListener(eventNames, callback, options) {
     if (!this._emitter) {
       this._emitter = new EventEmitter(this);
     }
-    this._emitter.addEventListener(eventNames, callback, options);
     // Added default scrollEventThrottle when scroll event is added.
     if (eventNames === 'scroll' && !(this.getAttribute('scrollEventThrottle') > 0)) {
       const scrollEventThrottle = 200;
@@ -472,9 +474,10 @@ class ElementNode extends ViewNode {
         this.attributes.scrollEventThrottle = scrollEventThrottle;
       }
     }
-    if (this.polyFillNativeEvents) {
-      this.polyFillNativeEvents('addEvent', eventNames, callback, options);
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents('addEventListener', eventNames, callback, options));
     }
+    this._emitter.addEventListener(eventNames, callback, options);
     updateChild(this);
   }
 
@@ -482,10 +485,12 @@ class ElementNode extends ViewNode {
     if (!this._emitter) {
       return null;
     }
-    if (this.polyFillNativeEvents) {
-      this.polyFillNativeEvents('removeEvent', eventNames, callback, options);
+    if (typeof this.polyfillNativeEvents === 'function') {
+      ({ eventNames, callback, options } = this.polyfillNativeEvents('removeEventListener', eventNames, callback, options));
     }
-    return this._emitter.removeEventListener(eventNames, callback, options);
+    const observer = this._emitter.removeEventListener(eventNames, callback, options);
+    updateChild(this);
+    return observer;
   }
 
   dispatchEvent(eventInstance) {

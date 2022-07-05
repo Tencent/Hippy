@@ -15,6 +15,7 @@
  */
 package com.tencent.mtt.hippy.bridge;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -28,6 +29,8 @@ import com.tencent.mtt.hippy.common.HippyMap;
 public interface HippyBridgeManager {
 
   void initBridge(Callback<Boolean> callback);
+
+  void runScript(@NonNull String script);
 
   void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
       HippyRootView hippyRootView);
@@ -44,7 +47,7 @@ public interface HippyBridgeManager {
 
   void execCallback(Object params, BridgeTransferType transferType);
 
-  void destroyBridge(Callback<Boolean> callback);
+  void destroyBridge(Callback<Boolean> callback, boolean isReload);
 
   void destroy();
 

@@ -24,6 +24,7 @@ public enum FlexAlign {
   BASELINE,
   SPACE_BETWEEN,
   SPACE_AROUND,
+  SPACE_EVENLY,
   ;
 
   @SuppressWarnings("unused")
@@ -45,9 +46,10 @@ public enum FlexAlign {
         return SPACE_BETWEEN;
       case 7:
         return SPACE_AROUND;
+      case 8:
+        return SPACE_EVENLY;
       default:
         throw new IllegalArgumentException("Unknown enum value: " + value);
     }
   }
-
 }

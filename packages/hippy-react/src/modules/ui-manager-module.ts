@@ -21,7 +21,7 @@
 import { Fiber } from '@hippy/react-reconciler';
 import { Bridge, Device, UIManager } from '../global';
 import { getRootViewId, findNodeById, findNodeByCondition } from '../utils/node';
-import { isFunction, warn } from '../utils';
+import { isFunction, warn, trace } from '../utils';
 import Element from '../dom/element-node';
 
 const {
@@ -45,7 +45,7 @@ function getElementFromFiberRef(ref: Fiber | Element) {
   if (ref instanceof Element) {
     return ref;
   }
-  // FIXME: should not use the private _reactInternalFiber
+  if (!ref) return null;
   const internalFiber = (ref as any)._reactInternalFiber || (ref as any)._reactInternals;
   if (internalFiber?.child) {
     let targetNode = internalFiber.child;
@@ -133,7 +133,7 @@ function callUIFunction(ref: Element | Fiber, funcName: string, ...options: any[
   if (rootViewId === null) {
     return;
   }
-
+  trace('callUIFunction', { nodeId, funcName, paramList });
   if (Device.platform.OS === 'ios') {
     if (isFunction(callback) && Array.isArray(paramList)) {
       paramList.push(callback);
@@ -170,6 +170,7 @@ function measureInWindowByMethod(
       }
       return reject(new Error(`${method} cannot get nodeId`));
     }
+    trace('callUIFunction', { nodeId, funcName: method, paramList: [] });
     return Bridge.callNative('UIManagerModule', method, nodeId, (layout: HippyTypes.LayoutEvent | string) => {
       if (callback && isFunction(callback)) {
         callback(layout);

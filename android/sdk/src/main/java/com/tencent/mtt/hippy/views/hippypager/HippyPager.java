@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Scroller;
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
@@ -42,37 +43,71 @@ public class HippyPager extends ViewPager implements HippyViewBase {
     private NativeGestureDispatcher gestureDispatcher;
     private boolean scrollEnabled = true;
     private boolean firstUpdateChild = true;
-    private HippyPagerPageChangeListener pageListener;
     private Promise callBackPromise;
     private boolean isVertical = false;
     private Scroller scroller;
     private boolean ignoreCheck;
-    private Runnable measureAndLayout = new Runnable() {
-        @Override
-        public void run() {
+    private boolean dataUpdated = false;
+    private boolean isFirstLayoutSucceed = false;
+    private PageSelectNotifier pageSelectNotifier = new PageSelectNotifier();
+    private Runnable measureAndLayout = () -> {
+        if (readyToLayout()) {
             measure(MeasureSpec.makeMeasureSpec(getWidth(), MeasureSpec.EXACTLY),
                     MeasureSpec.makeMeasureSpec(getHeight(), MeasureSpec.EXACTLY));
             layout(getLeft(), getTop(), getRight(), getBottom());
         }
     };
 
+
     public HippyPager(Context context, boolean isVertical) {
         super(context);
         this.isVertical = isVertical;
-        init(context);
+        init();
     }
 
     public HippyPager(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
-    private void init(Context context) {
-        pageListener = new HippyPagerPageChangeListener(this);
-        addOnPageChangeListener(pageListener);
+    private void init() {
+        addOnPageChangeListener(new HippyPagerPageChangeListener(this));
         setAdapter(createAdapter());
         initViewPager();
         initScroller();
+    }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        super.onLayout(changed, l, t, r, b);
+        isFirstLayoutSucceed = readyToLayout();
+    }
+
+    /**
+     * onLayout有效排版需要两个条件，两个条件都满足才算首次有效排版
+     * 1、是dataUpdated 数据已经上屏
+     * 2、有windowToken，表示viewPager排版上屏，已经有宽高
+     */
+    private boolean readyToLayout() {
+        return dataUpdated && getWindowToken() != null;
+    }
+
+    @Override
+    public void addOnPageChangeListener(@NonNull OnPageChangeListener listener) {
+        super.addOnPageChangeListener(listener);
+        pageSelectNotifier.addOnPageChangeListener(listener);
+    }
+
+    @Override
+    public void removeOnPageChangeListener(@NonNull OnPageChangeListener listener) {
+        super.removeOnPageChangeListener(listener);
+        pageSelectNotifier.removeOnPageChangeListener(listener);
+    }
+
+    @Override
+    public void clearOnPageChangeListeners() {
+        super.clearOnPageChangeListeners();
+        pageSelectNotifier.clearOnPageChangeListeners();
     }
 
     public int getCurrentPage() {
@@ -113,17 +148,19 @@ public class HippyPager extends ViewPager implements HippyViewBase {
 
     public void setInitialPageIndex(final int index) {
         LogUtils.d(TAG, HippyPager.this.getClass().getName() + " " + "setInitialPageIndex=" + index);
-        setCurrentItem(index);
+        setCurrentItem(index);//可能不会生效，因为当前viewPager可能没有初始化数据
         setDefaultItem(index);
     }
 
     public void setChildCountAndUpdate(final int childCount) {
         LogUtils.d(TAG, "doUpdateInternal: " + hashCode() + ", childCount=" + childCount);
+        dataUpdated = true;
         getAdapter().setChildSize(childCount);
         getAdapter().notifyDataSetChanged();
         triggerRequestLayout();
         if (firstUpdateChild) {
-            pageListener.onPageSelected(getCurrentItem());
+            //首次更新，ViewPager不会触发onPageSelected的分发通知，这里需要手动补一个首次事件
+            pageSelectNotifier.notifyPageSelected(getCurrentItem());
             firstUpdateChild = false;
         }
     }
@@ -135,6 +172,12 @@ public class HippyPager extends ViewPager implements HippyViewBase {
         //这样滑动viewPager，放手后，不会触发自动滚动，原因是mFirstLayout为true，setCurrentItemInternal,
         //走了requestLayout,这样会没有动画
         setFirstLayout(false);
+        //onAttach可能在dataUpdated后面执行，onAttach的时候，需要check一下，是否需要再次触发triggerRequestLayout
+        //如果这里不check一次triggerRequestLayout，那么前面setChildCountAndUpdate的那一次triggerRequestLayout
+        //会因为viewPager没有上屏，宽高为0，而变得没有任何的作用，这样会出现白屏的的问题。
+        if (!isFirstLayoutSucceed) {
+            triggerRequestLayout();
+        }
     }
 
     public void addViewToAdapter(HippyViewPagerItem view, int position) {
@@ -206,17 +249,37 @@ public class HippyPager extends ViewPager implements HippyViewBase {
     }
 
     public void switchToPage(int item, boolean animated) {
-        // viewpager的children没有初始化好的时候，直接设置mInitialPageIndex
         if (getAdapter() == null || getAdapter().getCount() == 0) {
-            setInitialPageIndex(item);
+            //1、setChildCountAndUpdate 还没有调用前，ViewPager的Adapter还没有初始化，通过反射，修改viewPager的默认Item
+            //当调用了setChildCountAndUpdate后，会不发一次onPageSelected给到前端
+            setDefaultItem(item);
         } else {
             if (getCurrentItem() != item) {
+                //2、执行正常的切换Item的操作，会正常回调onPageSelected事件给到前端
                 stopAnimationAndScrollToFinal();
                 setCurrentItem(item, animated);
             } else if (!firstUpdateChild) {
-                pageListener.onPageSelected(item);
+                //3、本身当前已经在item的这个位置，就不需要调用setCurrentItem，但是前端还是要求通知一次事件onPageSelected
+                pageSelectNotifier.notifyPageSelected(item);
             }
         }
+    }
+
+
+    @Override
+    public boolean canScrollHorizontally(int direction) {
+        if (!scrollEnabled) {
+            return false;
+        }
+        return super.canScrollHorizontally(direction);
+    }
+
+    @Override
+    public boolean canScrollVertically(int direction) {
+        if (!scrollEnabled) {
+            return false;
+        }
+        return super.canScrollVertically(direction);
     }
 
     /**

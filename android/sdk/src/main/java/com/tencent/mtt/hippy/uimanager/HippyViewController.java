@@ -51,8 +51,8 @@ import java.util.Map;
 public abstract class HippyViewController<T extends View & HippyViewBase> implements
     View.OnFocusChangeListener {
 
+  public static final String FAKE_NODE_TAG = "fake";
   private static final String TAG = "HippyViewController";
-
   private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
   private static final double[] sTransformDecompositionArray = new double[16];
   private boolean bUserChageFocus = false;
@@ -62,7 +62,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
       String className,
       HippyMap initialProps) {
     View view = null;
-
+    if (id < 0) {
+      initialProps.pushBoolean(FAKE_NODE_TAG, true);
+    }
     if (rootView != null) {
       Context rootViewContext = rootView.getContext();
       if (rootViewContext instanceof HippyInstanceContext) {
@@ -225,6 +227,11 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
   }
 
+  @HippyControllerProps(name = "setVisible", defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
+  public void setVisible(T view, boolean flag) {
+    view.setVisibility(flag ? View.VISIBLE : View.INVISIBLE);
+  }
+
   /**
    * color/border/alpha
    **/
@@ -315,6 +322,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
   @HippyControllerProps(name = NodeProps.FOCUSABLE, defaultType = HippyControllerProps.BOOLEAN)
   public void setFocusable(T view, boolean focusable) {
     view.setFocusable(focusable);
+    view.setFocusableInTouchMode(focusable);
     if (focusable) {
       view.setOnFocusChangeListener(this);
     } else {

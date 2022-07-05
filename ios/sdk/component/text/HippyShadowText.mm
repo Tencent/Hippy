@@ -533,8 +533,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         if (heightOfTallestSubview > lineHeight) {
             maxHeight = ceilf(heightOfTallestSubview);
         }
+        maxHeight = MAX(maxHeight, maximumFontLineHeight);
         paragraphStyle.minimumLineHeight = lineHeight;
-//        paragraphStyle.maximumLineHeight = maxHeight;
+        paragraphStyle.maximumLineHeight = maxHeight;
         [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
 
         /**
@@ -745,8 +746,6 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     if (version >= 10.0 && version < 12.0) {
         text = [text stringByReplacingOccurrencesOfString:@"జ్ఞ‌ా" withString:@" "];
     }
-
-    text = [text stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
     if (_text != text && ![_text isEqualToString:text]) {
         _text = [text copy];
         [self dirtyText];

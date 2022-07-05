@@ -36,6 +36,7 @@ import com.tencent.mtt.hippy.utils.UrlUtils;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -254,9 +255,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy(boolean isReload) {
         if (mDebugWebSocketClient != null) {
-            mDebugWebSocketClient.closeQuietly();
+            mDebugWebSocketClient.close(isReload ? Inspector.CLOSE_RELOAD : Inspector.CLOSE_DESTROY, "");
             mDebugWebSocketClient = null;
         }
         if (mInspector != null) {
@@ -284,19 +285,26 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         destroy(mV8RuntimeId, mSingleThreadMode, callback);
     }
 
+    @Override
+    public void runScript(@NonNull String script) {
+        runScript(mV8RuntimeId, script);
+    }
+
     public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, V8InitParams v8InitParams);
 
+    public native void runScript(long runtimeId, String script);
+
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
-            boolean canUseCodeCache, String codeCacheDir, long V8RuntimId, NativeCallback callback);
+            boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId, NativeCallback callback);
 
     public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
 
-    public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
+    public native void callFunction(String action, long runtimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
 
-    public native void callFunction(String action, long V8RuntimId, NativeCallback callback,
+    public native void callFunction(String action, long runtimeId, NativeCallback callback,
             byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
@@ -325,9 +333,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     @SuppressWarnings("unused")
     public void fetchResourceWithUri(final String uri, final long resId) {
+        final WeakReference<BridgeCallback> callbackWeakReference = new WeakReference<>(mBridgeCallback);
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (mContext == null) {
+                    return;
+                }
                 DevSupportManager devManager = mContext.getDevSupportManager();
                 if (TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
                     LogUtils.e("HippyBridgeImpl",
@@ -356,8 +368,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                             buffer.put(resBytes);
                             onResourceReady(buffer, mV8RuntimeId, resId);
                         } catch (Throwable e) {
-                            if (mBridgeCallback != null) {
-                                mBridgeCallback.reportException(e);
+                            BridgeCallback callback = callbackWeakReference.get();
+                            if (callback != null) {
+                                callback.reportException(e);
                             }
                             onResourceReady(null, mV8RuntimeId, resId);
                         }

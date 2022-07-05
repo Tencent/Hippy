@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.FrameLayout.LayoutParams;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorEvent;
@@ -43,6 +44,7 @@ import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.DomNodeRecord;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManagerImpl;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
@@ -55,6 +57,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -102,12 +105,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   private final String mRemoteServerUrl;
 
   final boolean enableV8Serialization;
+  final boolean mRunningOnTVPlatform;
 
   boolean mDevManagerInited = false;
   final TimeMonitor mStartTimeMonitor;
   boolean mHasReportEngineLoadResult = false;
   private final HippyThirdPartyAdapter mThirdPartyAdapter;
   private final V8InitParams v8InitParams;
+  private Object mRestoreSyncObject = new Object();
+  private boolean mRestoreSucceed = false;
 
   final Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override
@@ -149,6 +155,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     this.mGroupId = params.groupId;
     this.mThirdPartyAdapter = params.thirdPartyAdapter;
     this.v8InitParams = params.v8InitParams;
+    this.mRunningOnTVPlatform = params.runningOnTVPlatform;
   }
 
   /**
@@ -207,7 +214,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           }
         });
       }
-    });
+    }, false);
   }
 
   protected void onDestroy() {
@@ -254,8 +261,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       throw new RuntimeException(
           "Hippy: loadModule debugMode=true, loadParams.jsAssetsPath and jsFilePath both null!");
     }
-
-    mEngineContext.setComponentName(loadParams.componentName);
+    if (mEngineContext != null) {
+      mEngineContext.setComponentName(loadParams.componentName);
+      mEngineContext.setNativeParams(loadParams.nativeParams);
+    }
     if (loadParams.jsParams == null) {
       loadParams.jsParams = new HippyMap();
     }
@@ -420,6 +429,17 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   @Override
+  public void onFontChanged(final int rootId) {
+    final DomManager domManager = mEngineContext.getDomManager();
+    getThreadExecutor().postOnDomThread(new Runnable() {
+      @Override
+      public void run() {
+        domManager.onFontChanged(rootId);
+      }
+    });
+  }
+
+  @Override
   public void sendEvent(String event, Object params, BridgeTransferType transferType) {
     if (mEngineContext != null && mEngineContext.getModuleManager() != null) {
       mEngineContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
@@ -506,8 +526,15 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           LogUtils.e(TAG, "saveInstanceState root node is null!");
           return;
         }
-
         ArrayList<DomNodeRecord> recordList = new ArrayList<>();
+        DomNodeRecord rootRecord = new DomNodeRecord();
+        rootRecord.rootId = rootNode.getId();
+        rootRecord.id = rootNode.getId();
+        rootRecord.className = rootNode.getViewClass();
+        rootRecord.props = new HippyMap();
+        rootRecord.props.pushInt(NodeProps.WIDTH, Math.round(rootNode.getStyleWidth()));
+        rootRecord.props.pushInt(NodeProps.HEIGHT, Math.round(rootNode.getStyleHeight()));
+        recordList.add(rootRecord);
         int count = rootNode.getChildCount();
         for (int i = 0; i < count; i++) {
           DomNode child = rootNode.getChildAt(i);
@@ -529,12 +556,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     });
   }
 
+  @Nullable
   public HippyRootView restoreInstanceState(final ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams, final Callback<Boolean> callback) {
+          HippyEngine.ModuleLoadParams loadParams, final boolean isSync) {
     if (domNodeRecordList == null || domNodeRecordList.isEmpty() || mEngineContext == null) {
       return null;
     }
-
+    mRestoreSucceed = false;
+    final long start = System.currentTimeMillis();
     final DomManager domManager = mEngineContext.getDomManager();
     final RenderManager renderManager = mEngineContext.getRenderManager();
     final HippyInstanceContext context = new HippyInstanceContext(loadParams.context, loadParams);
@@ -542,43 +571,77 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     final HippyRootView tempRootView = new HippyRootView(context, loadParams);
     tempRootView.setOnSizeChangedListener(this);
     final int tempRootId = tempRootView.getId();
-    mInstances.add(tempRootView);
-    renderManager.getControllerManager().onInstanceLoad(tempRootId);
+    renderManager.getControllerManager().addFakeRootView(tempRootView);
 
     getThreadExecutor().postOnDomThread(new Runnable() {
       @Override
       public void run() {
-        domManager.createRootNode(tempRootId);
-
-        domManager.renderBatchStart();
-        for(int i = 0;i < domNodeRecordList.size(); i ++){
-          DomNodeRecord domNodeRecord = domNodeRecordList.get(i);
-          if (domNodeRecord == null || domNodeRecord.id < 0) {
-            continue;
-          }
-
-          int pid = domNodeRecord.pid;
-          if (pid % 10 == 0) {
-            pid = tempRootId;
-          } else {
-            pid = 0 - pid;
-          }
-          int id = 0 - domNodeRecord.id;
-          try {
+        try {
+          domManager.renderBatchStart();
+          for (int i = 0; i < domNodeRecordList.size(); i++) {
+            DomNodeRecord domNodeRecord = domNodeRecordList.get(i);
+            if (domNodeRecord == null || domNodeRecord.id < 0) {
+              continue;
+            }
+            if (i == 0) {
+              int width = 0;
+              int height = 0;
+              if (domNodeRecord.className.equals(NodeProps.ROOT_NODE) && domNodeRecord.props != null) {
+                width = domNodeRecord.props.getInt(NodeProps.WIDTH);
+                height = domNodeRecord.props.getInt(NodeProps.HEIGHT);
+              }
+              domManager.createFakeRootNode(tempRootId, width, height);
+              if (domNodeRecord.className.equals(NodeProps.ROOT_NODE)) {
+                continue;
+              }
+            }
+            int pid = domNodeRecord.pid;
+            if (pid % 10 == 0) {
+              pid = tempRootId;
+            } else {
+              pid = 0 - pid;
+            }
+            int id = 0 - domNodeRecord.id;
             domManager.createNode(tempRootView, tempRootId, id, pid, domNodeRecord.index,
                     domNodeRecord.className, domNodeRecord.tagName, domNodeRecord.props);
-          } catch (Exception exception) {
-            domManager.renderBatchStop();
-            if (callback != null) {
-              callback.callback(false, exception);
+          }
+          domManager.screenshotBatchEnd(isSync);
+          if (isSync) {
+            synchronized (mRestoreSyncObject) {
+              mRestoreSucceed = true;
+              mRestoreSyncObject.notify();
             }
-            return;
+          }
+        } catch (Exception e) {
+          LogUtils.w("restoreInstanceState", "dom restore exception: " + e.getMessage());
+          domManager.screenshotBatchStop(isSync);
+          if (isSync) {
+            synchronized (mRestoreSyncObject) {
+              mRestoreSyncObject.notify();
+            }
           }
         }
-        domManager.renderBatchEnd();
       }
     });
-
+    if (isSync) {
+      try {
+        synchronized (mRestoreSyncObject) {
+          mRestoreSyncObject.wait();
+          LogUtils.d("restoreInstanceState", "dom batch end: " + (System.currentTimeMillis() - start));
+          if (!mRestoreSucceed) {
+            LogUtils.w("restoreInstanceState", "restore dom node failed!!");
+            destroyInstanceState(tempRootView);
+            return null;
+          }
+        }
+        domManager.flushPendingBatches();
+        LogUtils.d("restoreInstanceState", "render batch end: " + (System.currentTimeMillis() - start));
+      } catch (Exception e) {
+        LogUtils.w("restoreInstanceState", "render restore exception: " + e.getMessage());
+        destroyInstanceState(tempRootView);
+        return null;
+      }
+    }
     return tempRootView;
   }
 
@@ -599,6 +662,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     if (mInstances.contains(rootView)) {
       mInstances.remove(rootView);
+    }
+  }
+
+  public void runScript(@NonNull String script) {
+    if (mEngineContext != null) {
+      mEngineContext.runScript(script);
     }
   }
 
@@ -741,8 +810,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     if (!mDebugMode) {
       if (loader != null) {
-        instance.getTimeMonitor()
-            .startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_LOAD_BUNDLE);
+        if (instance.getTimeMonitor() != null) {
+          instance.getTimeMonitor()
+                  .startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_WAIT_LOAD_BUNDLE);
+        }
         mEngineContext.getBridgeManager()
             .runBundle(instance.getId(), loader, mModuleListener, instance);
       } else {
@@ -808,7 +879,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
           }
         });
       }
-    });
+    }, true);
   }
 
   @Override
@@ -872,7 +943,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
      */
     private final DomManager mDomManager;
 
-    private String componentName;
+    private String mComponentName;
+    private Map<String, Object> mNativeParams;
 
     public HippyEngineContextImpl(boolean isDevModule, String debugServerHost) {
       mModuleManager = new HippyModuleManagerImpl(this, mAPIProviders);
@@ -884,12 +956,27 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     public void setComponentName(String componentName) {
-      this.componentName = componentName;
+      mComponentName = componentName;
+    }
+
+    public void setNativeParams(Map<String, Object> nativeParams) {
+      mNativeParams = nativeParams;
+    }
+
+    @Override
+    public boolean isRunningOnTVPlatform() {
+      return mRunningOnTVPlatform;
+    }
+
+    @Override
+    @Nullable
+    public Map<String, Object> getNativeParams() {
+      return mNativeParams;
     }
 
     @Override
     public String getComponentName() {
-      return componentName;
+      return mComponentName;
     }
 
     @Override
@@ -1007,8 +1094,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       mRenderManager.getControllerManager().addControllers(apiProviders);
     }
 
-    public void destroyBridge(Callback<Boolean> callback) {
-      mBridgeManager.destroyBridge(callback);
+    public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
+      mBridgeManager.destroyBridge(callback, isReload);
+    }
+
+    void runScript(@NonNull String script) {
+      mBridgeManager.runScript(script);
     }
 
     public void destroy() {
@@ -1030,7 +1121,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
       if (mEngineLifecycleEventListeners != null) {
         mEngineLifecycleEventListeners.clear();
       }
+      if (mNativeParams != null) {
+        mNativeParams.clear();
+      }
     }
   }
-
 }

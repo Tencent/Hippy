@@ -39,8 +39,6 @@
 #include "core/napi/js_native_api_types.h"
 #include "core/napi/native_source_code.h"
 #include "core/scope.h"
-#include "jni/jni_env.h"
-#include "jni/jni_utils.h"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8.h"
@@ -127,8 +125,8 @@ class V8Ctx : public Ctx {
   }
 
   ~V8Ctx() {
-    context_persistent_.Empty();
-    global_persistent_.Empty();
+    context_persistent_.Reset();
+    global_persistent_.Reset();
   }
 
   virtual bool RegisterGlobalInJs() override;

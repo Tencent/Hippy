@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',
@@ -26,6 +27,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 100,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderRadius: 2,
     borderColor: '#e0e0e0',
     backgroundColor: '#ffffff',
@@ -41,6 +43,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderColor: 'blue',
     borderWidth: 1,
+    borderStyle: 'solid',
   },
   buttonText: {
     width: 100,

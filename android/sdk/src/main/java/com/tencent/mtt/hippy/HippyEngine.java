@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy;
 import android.content.Context;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -187,6 +188,8 @@ public abstract class HippyEngine {
    */
   public abstract void onEnginePause();
 
+  public abstract void onFontChanged(int rootId);
+
   public abstract void sendEvent(String event, Object params);
 
   public abstract void sendEvent(String event, Object params, BridgeTransferType transferType);
@@ -202,9 +205,11 @@ public abstract class HippyEngine {
   public abstract void saveInstanceState(Object params);
 
   public abstract HippyRootView restoreInstanceState(ArrayList<DomNodeRecord> domNodeRecordList,
-      HippyEngine.ModuleLoadParams loadParams, Callback<Boolean> callback);
+      HippyEngine.ModuleLoadParams loadParams, boolean isSync);
 
   public abstract void destroyInstanceState(HippyRootView rootView);
+
+  public abstract void runScript(@NonNull String script);
 
   public interface BackPressHandler {
 
@@ -288,6 +293,7 @@ public abstract class HippyEngine {
     public HippyLogAdapter logAdapter;
     public V8InitParams v8InitParams;
     public boolean enableTurbo;
+    public boolean runningOnTVPlatform;
 
     protected void check() {
       if (context == null) {
@@ -362,7 +368,7 @@ public abstract class HippyEngine {
     // 可选参数 传递给前端的rootview：比如：Hippy.entryPage: class App extends Component
     public HippyMap jsParams;
     // 可选参数 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
-    public Map nativeParams;
+    public Map<String, Object> nativeParams;
     // 可选参数 方便对将本View和hippyContext进行绑定。对于这种场景时有用：某些View组件的创建先于业务模块初始化的时机（也就是View组件的预先创建、预加载）。
     public HippyInstanceContext hippyContext;
     // 可选参数 Bundle加载器，老式用法，不建议使用（若一定要使用，则会覆盖jsAssetsPath，jsFilePath的值）。参见jsAssetsPath，jsFilePath

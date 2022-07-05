@@ -45,6 +45,14 @@
     }
 }
 
+- (void)refresh {
+    [UIView animateWithDuration:.2f animations:^{
+        self.scrollView.contentOffset = CGPointMake(0, -self.bounds.size.height);
+    } completion:^(BOOL finished) {
+        self.status = HippyRefreshStatusStartLoading;
+    }];
+}
+
 - (void)scrollViewDidEndDragging {
     if (_scrollView && -_scrollView.contentOffset.y > CGRectGetHeight(self.bounds)) {
         self.status = HippyRefreshStatusStartLoading;

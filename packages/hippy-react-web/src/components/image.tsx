@@ -128,14 +128,25 @@ const resolveAssetUri = (source: string | { uri: string }) => {
 const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) => {
   const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd = noop, resizeMode = 'none', children, style = {} } = props;
 
-  const imgRef = useRef(null);
+  const imgRef = useRef<null | HTMLImageElement>(null);
   const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onLayout } = props;
   useResponderEvents(imgRef, { onTouchCancel, onTouchDown, onTouchEnd, onTouchMove });
   useElementLayout(imgRef, onLayout);
 
-  const [loading, setLoading] = useState(true);
-  const [isLoadFailed, setIsLoadFailed] = useState(false);
-  const imgStyle = formatWebStyle(style);
+  const [imgSource, setImgSource] = useState(defaultSource ? { uri: defaultSource } : source);
+
+  const onImageLoad = () => {
+    if (onLoad && isFunc(onLoad)) {
+      const imgInfo = { width: 0, height: 0, url: source.uri };
+      if (imgRef.current) {
+        const { width, height } = imgRef.current;
+        imgInfo.width = width;
+        imgInfo.height = height;
+      }
+      onLoad(imgInfo);
+    }
+    onLoadEnd();
+  };
 
   const onImageLoadError = () => {
     if (onError && isFunc(onError)) {
@@ -146,48 +157,18 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
       });
     }
     onLoadEnd();
-    setIsLoadFailed(true);
   };
 
-  const onImageLoad = (e: any) => {
-    if (onLoad && isFunc(onLoad)) {
-      const { path = [] } = e.nativeEvent;
-      const [imageInfo] = path;
-      onLoad({
-        width: imageInfo.naturalWidth,
-        height: imageInfo.naturalHeight,
-        url: imageInfo.src,
-      });
-    }
-    onLoadEnd();
-    setLoading(false);
-  };
+  // load source url when provide defaultSource
+  if (imgSource.uri !== source.uri) {
+    ImageLoader.load(source.uri, () => {
+      setImgSource(source);
+      onImageLoad();
+    }, onImageLoadError);
+  }
 
-
-  const renderImg = () => {
-    const baseStyle = formatWebStyle([styles.image, resizeModeStyles[resizeMode]]);
-    const style = formatWebStyle([baseStyle, imgStyle]);
-    return (
-      !isLoadFailed && <img
-        src={source.uri}
-        style={style}
-        ref={imgRef} onError={onImageLoadError}
-        onLoad={onImageLoad}>
-        {children}
-      </img>
-    );
-  };
-
-  const renderPlaceholder = () => {
-    const style = formatWebStyle([styles.placeholder, resizeModeStyles[resizeMode], imgStyle, styles.absolute]);
-    if (isLoadFailed) {
-      style.position = 'relative';
-    }
-    return (
-      defaultSource && <img style={style} src={defaultSource} />
-    );
-  };
-
+  const imgStyle = formatWebStyle(style);
+  const baseStyle = formatWebStyle([styles.image, resizeModeStyles[resizeMode]]);
 
   useEffect(() => {
     if (onLoadStart) {
@@ -201,15 +182,22 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
   }));
 
   return (
-    <div style={formatWebStyle(styles.root)}>
-     {renderImg()}
-     {loading && renderPlaceholder()}
-    </div>
+    <img
+      src={imgSource.uri}
+      style={formatWebStyle([baseStyle, imgStyle]) }
+      ref={imgRef} onError={onImageLoadError}
+      onLoad={onImageLoad}>
+      {children}
+    </img>
   );
 });
 
 Image.displayName = 'Image';
 // @ts-ignore
 Image.resizeMode = ImageResizeMode;
+// @ts-ignore
+Image.getSize = ImageLoader.getSize;
+// @ts-ignore
+Image.prefetch = ImageLoader.prefetch;
 
 export default Image;

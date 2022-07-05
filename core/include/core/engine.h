@@ -73,6 +73,5 @@ class Engine {
   std::shared_ptr<VM> vm_;
   std::unique_ptr<RegisterMap> map_;
   std::mutex cnt_mutex_;
-  std::mutex runner_mutex_;
   uint32_t scope_cnt_;
 };

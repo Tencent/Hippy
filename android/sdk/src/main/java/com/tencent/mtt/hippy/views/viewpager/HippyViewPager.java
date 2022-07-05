@@ -243,19 +243,4 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   public void triggerRequestLayout() {
     mHandler.post(mMeasureAndLayout);
   }
-
-  public void setOverflow(String overflow) {
-    if (!TextUtils.isEmpty(overflow)) {
-      switch (overflow) {
-        case "visible":
-          setClipChildren(false); //可以超出父亲区域
-          break;
-        case "hidden": {
-          setClipChildren(true); //默认值是false
-          break;
-        }
-      }
-    }
-    invalidate();
-  }
 }

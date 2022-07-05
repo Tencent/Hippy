@@ -37,12 +37,12 @@ HIPPY_EXPORT_MODULE()
     NSError *error = NULL;
     // 业务方自行获取图片数据，返回数据或者错误
     NSData *imageData = getImageData(url, &error);
-    // 将结果通过block通知给
+    // 将结果通过block通知
     completedBlock(imageData, url, error);
 }
 @end
 ```
 
-业务方需要务必添加 `HIPPY_EXPORT_MODULE()` 代码以便在 hipp y框架中注册此 ImageLoader 模块，系统将自动寻找实现了`HippyImageViewCustomLoader` 协议的模块当做 ImageLoader。
+业务方需要务必添加 `HIPPY_EXPORT_MODULE()` 代码以便在 Hippy 框架中注册此 ImageLoader 模块，系统将自动寻找实现了`HippyImageViewCustomLoader` 协议的模块当做 ImageLoader。
 
 PS: 若有多个模块实现 `HippyImageViewCustomLoader` 协议，系统只会使用其中一个作为默认 ImageLoader
