@@ -40,6 +40,9 @@ class BaseTimer {
   explicit BaseTimer(const std::shared_ptr<TaskRunner>& task_runner);
   virtual ~BaseTimer();
 
+  BaseTimer(BaseTimer&) = delete;
+  BaseTimer& operator=(BaseTimer&) = delete;
+
   void Stop();
   void Reset();
   inline void BindTaskRunner(std::shared_ptr<TaskRunner> task_runner) {
@@ -65,8 +68,6 @@ class BaseTimer {
   bool is_running_;
   TimePoint desired_run_time_;
   TimePoint scheduled_run_time_;
-
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(BaseTimer);
 };
 
 }  // namespace timer

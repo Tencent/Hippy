@@ -11,7 +11,6 @@
 
 #include "footstone/base_time.h"
 #include "dom/dom_node.h"
-#include "dom/macro.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"

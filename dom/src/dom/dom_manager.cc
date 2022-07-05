@@ -12,7 +12,6 @@
 #include "dom/dom_event.h"
 #include "dom/dom_node.h"
 #include "dom/layer_optimized_render_manager.h"
-#include "dom/macro.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
 #include "footstone/serializer.h"

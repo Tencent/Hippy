@@ -32,6 +32,10 @@ class WorkerManager {
  public:
   explicit WorkerManager(uint32_t size);
   ~WorkerManager();
+
+  WorkerManager(WorkerManager&) = delete;
+  WorkerManager& operator=(WorkerManager&) = delete;
+
   void Terminate();
   void Resize(uint32_t size);
   void AddWorker(const std::shared_ptr<Worker>& worker);
@@ -58,8 +62,6 @@ class WorkerManager {
   int32_t index_;
   uint32_t size_;
   std::mutex mutex_;
-
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(WorkerManager);
 };
 
 }  // namespace runner
