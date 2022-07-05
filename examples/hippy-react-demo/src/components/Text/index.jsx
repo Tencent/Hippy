@@ -71,7 +71,7 @@ export default class TextExpo extends React.Component {
     this.incrementFontSize = this.incrementFontSize.bind(this);
     this.decrementFontSize = this.decrementFontSize.bind(this);
     // if Android text nested is used，height and lineHeight attributes should be set in Text wrapper
-    this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 100 };
+    this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 50 };
   }
 
   incrementFontSize() {
