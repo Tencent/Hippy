@@ -16,6 +16,15 @@ Vue.use(VueRouter);
 
 const router = new VueRouter(routes);
 
+global.Hippy.on('uncaughtException', (err) => {
+  console.error('uncaughtException error', err.stack, err.message);
+});
+
+// only supported in iOS temporarily
+global.Hippy.on('unhandledRejection', (err) => {
+  console.error('unhandledRejection error', err.stack, err.message);
+});
+
 /**
  * 声明一个 app
  */
