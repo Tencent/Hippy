@@ -49,6 +49,7 @@ constexpr char kWorkerRunnerName[] = "hippy_worker";
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+std::mutex inspector_mutex;
 std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
 
@@ -110,6 +111,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     }
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
+      std::lock_guard<std::mutex> lock(inspector_mutex);
       if (!global_inspector) {
         global_inspector = std::make_shared<V8InspectorClientImpl>(scope, scope->GetTaskRunner());
         global_inspector->Connect(runtime->GetDevtoolsDataSource());
@@ -191,10 +193,12 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
         FOOTSTONE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
         return;
       }
-      if (global_inspector) {
-        // convert to utf-16 for v8, otherwise utf-8 like some protocol Runtime.enable which cause error "message must be a valid JSON"
-        auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
-        global_inspector->SendMessageToV8(std::move(u16str));
+      {
+        std::lock_guard<std::mutex> lock(inspector_mutex);
+        if (global_inspector) {
+          auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
+          global_inspector->SendMessageToV8(std::move(u16str));
+        }
       }
     });
   }
@@ -378,6 +382,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     FOOTSTONE_LOG(INFO) << "js destroy begin, runtime_id = " << runtime_id << ", is_reload = " << is_reload;
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
+      std::lock_guard<std::mutex> lock(inspector_mutex);
       global_inspector->DestroyContext();
       global_inspector->Reset(nullptr, nullptr);
     } else {
@@ -465,19 +470,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
         runtime->SetBridgeFunc(fn);
       }
     }
-    FOOTSTONE_DCHECK(action.encoding() ==
-        unicode_string_view::Encoding::Utf16);
-    if (runtime->IsDebug() && action.utf16_value() == u"onWebsocketMsg") {
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-      std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
-                         buffer_data_.length() / sizeof(char16_t));
-      runtime::global_inspector->SendMessageToV8(
-          unicode_string_view(std::move(str)));
-#endif
-      cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
-      return;
-    }
-
+    FOOTSTONE_DCHECK(action.encoding() == unicode_string_view::Encoding::Utf16);
     std::shared_ptr<CtxValue> action_value = context->CreateString(action);
     std::shared_ptr<CtxValue> params;
     if (runtime->IsEnableV8Serialization()) {
