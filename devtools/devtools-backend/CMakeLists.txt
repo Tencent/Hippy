@@ -23,9 +23,9 @@ cmake_minimum_required(VERSION 3.14)
 project("devtools_backend")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." REALPATH)
-get_filename_component(FOOTSTONE_DIR "${PROJECT_ROOT_DIR}/modules/footstone" REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
@@ -34,7 +34,6 @@ set(CMAKE_CXX_STANDARD 17)
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${FOOTSTONE_DIR}/include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_INSPECTOR")
 if (IOS)
@@ -48,6 +47,11 @@ if ("${JS_ENGINE}" STREQUAL "V8")
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSC")
 endif ()
+# endregion
+
+# region footstone
+GlobalPackages_Add(footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
 # region asio
