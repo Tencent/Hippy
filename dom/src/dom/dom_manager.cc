@@ -72,9 +72,7 @@ bool DomManager::Erase(int32_t id) {
   return true;
 }
 
-bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) {
-  return DomManager::Erase(dom_manager->id_);
-}
+bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
 void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_manager) {
 #ifdef ENABLE_LAYER_OPTIMIZATION
@@ -85,8 +83,7 @@ void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_man
 #endif
 }
 
-std::shared_ptr<DomNode> DomManager::GetNode(const std::weak_ptr<RootNode>& weak_root_node,
-                                             uint32_t id) {
+std::shared_ptr<DomNode> DomManager::GetNode(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id) {
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return nullptr;
@@ -158,11 +155,8 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   root_node->SyncWithRenderManager(render_manager);
 }
 
-void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
-                                  uint32_t dom_id,
-                                  const std::string& name,
-                                  uint64_t listener_id,
-                                  bool use_capture,
+void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t dom_id,
+                                  const std::string& name, uint64_t listener_id, bool use_capture,
                                   const EventCallback& cb) {
   DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
@@ -176,8 +170,8 @@ void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
   node->AddEventListener(name, listener_id, use_capture, cb);
 }
 
-void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node,
-                                     uint32_t id, const std::string& name, uint64_t listener_id) {
+void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id,
+                                     const std::string& name, uint64_t listener_id) {
   DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
@@ -190,9 +184,8 @@ void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_no
   node->RemoveEventListener(name, listener_id);
 }
 
-void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
-                              uint32_t id, const std::string& name, const DomArgument& param,
-                              const CallFunctionCallback& cb) {
+void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id, const std::string& name,
+                              const DomArgument& param, const CallFunctionCallback& cb) {
   DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
@@ -201,9 +194,7 @@ void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
   root_node->CallFunction(id, name, param, cb);
 }
 
-void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node,
-                             float width,
-                             float height) {
+void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height) {
   DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
@@ -252,9 +243,7 @@ DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_
     return {};
   }
   DomValueArrayType array;
-  root_node->Traverse([&array](const std::shared_ptr<DomNode>& node) {
-    array.emplace_back(node->Serialize());
-  });
+  root_node->Traverse([&array](const std::shared_ptr<DomNode>& node) { array.emplace_back(node->Serialize()); });
   Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteValue(HippyValue(array));

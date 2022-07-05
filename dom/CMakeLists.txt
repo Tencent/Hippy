@@ -80,6 +80,7 @@ set(SOURCE_SET
     src/dom/dom_listener.cc
     src/dom/dom_manager.cc
     src/dom/dom_node.cc
+    src/dom/event_node.cc
     src/dom/layer_optimized_render_manager.cc
     src/dom/layout_node.cc
     src/dom/root_node.cc

@@ -27,7 +27,6 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 #include "dom/scene.h"
-#include "core/napi/js_native_api_types.h"
 
 namespace hippy {
 inline namespace dom {
