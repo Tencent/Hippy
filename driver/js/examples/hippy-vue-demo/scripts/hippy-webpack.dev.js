@@ -56,7 +56,7 @@ module.exports = {
     },
   },
   entry: {
-    index: [path.resolve(pkg.nativeMain)],
+    index: ['@hippy/rejection-tracking-polyfill', path.resolve(pkg.nativeMain)],
   },
   output: {
     filename: 'index.bundle',

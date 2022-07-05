@@ -32,7 +32,7 @@ module.exports = {
   mode: 'production',
   bail: true,
   entry: {
-    index: [path.resolve(pkg.nativeMain)],
+    index: ['@hippy/rejection-tracking-polyfill', path.resolve(pkg.nativeMain)],
   },
   output: {
     filename: `[name].${platform}.js`,
