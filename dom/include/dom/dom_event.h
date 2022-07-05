@@ -45,7 +45,7 @@ class DomEvent {
  public:
   using HippyValue = footstone::value::HippyValue;
   DomEvent(std::string type, std::weak_ptr<DomNode> target, bool can_capture, bool can_bubble,
-           std::shared_ptr<DomValue> value)
+           std::shared_ptr<HippyValue> value)
       : type_(std::move(type)),
         target_(target),
         prevent_capture_(false),
