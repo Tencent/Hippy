@@ -90,6 +90,9 @@ class LogMessage {
   LogMessage(LogSeverity severity, const char* file, int line, const char* condition);
   ~LogMessage();
 
+  LogMessage(LogMessage&) = delete;
+  LogMessage& operator=(LogMessage&) = delete;
+
   inline static void InitializeDelegate(
       std::function<void(const std::ostringstream&, LogSeverity)> delegate) {
     if (!delegate) {
@@ -114,8 +117,6 @@ class LogMessage {
   const LogSeverity severity_;
   const char* file_;
   const int line_;
-
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(LogMessage);
 };
 
 int GetVlogVerbosity();

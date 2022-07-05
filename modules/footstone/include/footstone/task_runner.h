@@ -49,6 +49,9 @@ class TaskRunner {
              bool is_schedulable = true, std::string name = "");
   ~TaskRunner();
 
+  TaskRunner(TaskRunner&) = delete;
+  TaskRunner& operator=(TaskRunner&) = delete;
+
   void Clear();
   bool AddSubTaskRunner(const std::shared_ptr<TaskRunner> &sub_runner,
                         bool is_task_running = false);
@@ -145,7 +148,6 @@ class TaskRunner {
    *  不可调度的TaskRunner不会被迁移，但其所在的Worker还是可以加入其他TaskRunner
    */
   bool is_schedulable_;
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(TaskRunner);
 };
 
 }  // namespace runner

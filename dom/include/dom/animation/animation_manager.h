@@ -48,6 +48,9 @@ class AnimationManager
  public:
   AnimationManager();
 
+  AnimationManager(AnimationManager&) = delete;
+  AnimationManager& operator=(AnimationManager&) = delete;
+
   inline std::weak_ptr<RootNode> GetRootNode() {
     return root_node_;
   }
@@ -132,8 +135,6 @@ class AnimationManager
    */
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::string>> node_animation_props_map_;
   uint64_t listener_id_;
-
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(AnimationManager);
 };
 }  // namespace dom
 }  // namespace hippy

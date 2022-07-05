@@ -35,6 +35,9 @@ class IdleTimer : public BaseTimer {
   explicit IdleTimer(std::shared_ptr<TaskRunner> task_runner);
   virtual ~IdleTimer();
 
+  IdleTimer(IdleTimer&) = delete;
+  IdleTimer& operator=(IdleTimer&) = delete;
+
   virtual void Start(std::unique_ptr<IdleTask> idle_task, TimeDelta timeout);
   virtual void Start(std::unique_ptr<IdleTask> idle_task);
 
@@ -43,8 +46,6 @@ class IdleTimer : public BaseTimer {
   void RunUserTask() final;
 
   std::shared_ptr<IdleTask> idle_task_ ;
-
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(IdleTimer);
 };
 
 }

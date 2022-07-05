@@ -35,6 +35,9 @@ inline namespace timer {
   explicit OneShotTimer(const std::shared_ptr<TaskRunner>& task_runner);
   virtual ~OneShotTimer();
 
+  OneShotTimer(OneShotTimer&) = delete;
+  OneShotTimer& operator=(OneShotTimer&) = delete;
+
   void Start(std::unique_ptr<Task> user_task, TimeDelta delay);
   void FireNow();
 
@@ -45,8 +48,6 @@ inline namespace timer {
   void RunUserTask() final;
 
   std::unique_ptr<Task> user_task_;
-
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(OneShotTimer);
 };
 
 }  // namespace base

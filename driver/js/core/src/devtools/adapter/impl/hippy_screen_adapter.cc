@@ -22,7 +22,6 @@
 
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
-#include "dom/macro.h"
 
 namespace hippy::devtools {
 constexpr char kScreenShot[] = "screenShot";

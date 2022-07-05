@@ -75,6 +75,9 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   DomManager();
   ~DomManager();
 
+  DomManager(DomManager&) = delete;
+  DomManager& operator=(DomManager&) = delete;
+
   inline int32_t GetId() { return id_; }
   inline std::weak_ptr<RenderManager> GetRenderManager() { return render_manager_; }
   inline std::shared_ptr<TaskRunner> GetTaskRunner() { return dom_task_runner_; }
@@ -133,8 +136,6 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::shared_ptr<LayerOptimizedRenderManager> optimized_render_manager_;
   std::weak_ptr<RenderManager> render_manager_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
-
-  FOOTSTONE_DISALLOW_COPY_AND_ASSIGN(DomManager);
 
   friend DomNode;
 };
