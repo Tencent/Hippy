@@ -44,16 +44,22 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
     return instance;
 }
 
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key JSTaskRunner:(std::shared_ptr<footstone::TaskRunner>)JSRunner {
+- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key
+                             engineCreatedBlock:(std::shared_ptr<Engine>(^)(void))creationBlock
+                              engineReusedBlock:(void(^)(std::shared_ptr<Engine>))reusedBlock {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
     const auto it = _engineMapper.find([key UTF8String]);
     bool findIT = (_engineMapper.end() != it);
     if (findIT) {
         EngineRef &ref = it->second;
         ref.second++;
+        if (reusedBlock) {
+            reusedBlock(ref.first);
+        }
         return ref.first;
     } else {
-        std::shared_ptr<Engine> engine = std::make_shared<Engine>(JSRunner, nullptr);
+        NSAssert(creationBlock, @"createdBlock must not be null for engine creation");
+        std::shared_ptr<Engine> engine = creationBlock();
         [self setEngine:engine forKey:key];
         return engine;
     }

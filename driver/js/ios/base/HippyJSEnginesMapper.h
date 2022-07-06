@@ -25,12 +25,36 @@
 
 @interface HippyJSEnginesMapper : NSObject
 
+/**
+ * Get Default instance
+ * @return Default instance
+ */
 + (instancetype)defaultInstance;
 
+/**
+ * Get Engine instance from key
+ * @param key Key for Engine instance
+ * @return Engine instance for key
+ */
 - (std::shared_ptr<Engine>)JSEngineForKey:(NSString *)key;
 
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key JSTaskRunner:(std::shared_ptr<footstone::TaskRunner>)JSRunner;
+/**
+ * Create Engine instance or get a reused Engine instance
+ * @param key Key for Engine instance
+ * @param creationBlock A block for Engine Creation implementation
+ * @param reusedBlock A block for Engine reuse implementation
+ * @return Engine instance for key
+ *
+ * @discussion If a Engine instance reused, reference count will increase 1
+ */
+- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key
+                             engineCreatedBlock:(std::shared_ptr<Engine>(^)(void))creationBlock
+                              engineReusedBlock:(void(^)(std::shared_ptr<Engine>))reusedBlock;
 
+/**
+ * Decrease reference of Engine instance for key
+ * @param key Key for Engine instance
+ */
 - (void)removeEngineForKey:(NSString *)key;
 
 @end

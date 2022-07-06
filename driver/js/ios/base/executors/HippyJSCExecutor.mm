@@ -157,9 +157,14 @@ HIPPY_EXPORT_MODULE()
         self.bridge = bridge;
         auto workerManager = std::make_shared<footstone::WorkerManager>(2);
         [self.bridge setUpWorkerManager: workerManager];
-        auto js_runner = self.bridge.workerManager->CreateTaskRunner("hippy_js");
-        std::shared_ptr<Engine> engine =
-            [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey JSTaskRunner:js_runner];
+        auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey
+                                                                engineCreatedBlock:^std::shared_ptr<Engine>{
+            std::shared_ptr<Engine> engine =
+                std::make_shared<Engine>(self.bridge.workerManager->CreateTaskRunner("hippy_js"), nullptr);
+            return engine;
+        } engineReusedBlock:^(std::shared_ptr<Engine> engine) {
+            self.bridge.workerManager->AddTaskRunner(engine->GetJsTaskRunner());
+        }];
         std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String] ?: "";
         std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
