@@ -155,14 +155,14 @@ HIPPY_EXPORT_MODULE()
         // unless JSContextGroupRef is deallocated
         self.executorkey = execurotkey;
         self.bridge = bridge;
-        auto workerManager = std::make_shared<footstone::WorkerManager>(2);
-        [self.bridge setUpWorkerManager: workerManager];
-        auto js_runner = self.bridge.workerManager->CreateTaskRunner("hippy_js");
-        std::shared_ptr<Engine> engine =
-            [[HippyJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey JSTaskRunner:js_runner];
+        
+        auto workerManager = std::make_shared<footstone::WorkerManager>(1);
+        [self.bridge setUpDomWorkerManager: workerManager];
+        
+        auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.executorkey];
         std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String] ?: "";
-        std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
+        std::shared_ptr<Scope> scope = engine->GetEngine()->CreateScope(pName, std::move(map));
         self.pScope = scope;
         [self initURILoader];
         NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
@@ -416,7 +416,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
     _JSGlobalContextRef = NULL;
     dispatch_async(dispatch_get_main_queue(), ^{
         NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", [self executorkey]);
-        [[HippyJSEnginesMapper defaultInstance] removeEngineForKey:[self executorkey]];
+        [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:[self executorkey]];
     });
 }
 
@@ -709,7 +709,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
+    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.executorkey]->GetEngine();
     if (engine) {
         auto runner = engine->GetJsTaskRunner();
         if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
@@ -722,7 +722,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey];
+    auto engine = [[HippyJSEnginesMapper defaultInstance] JSEngineResourceForKey:self.executorkey]->GetEngine();
     if (engine) {
         engine->GetJsTaskRunner()->PostTask(block);
     }
