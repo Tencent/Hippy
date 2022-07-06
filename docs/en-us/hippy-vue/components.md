@@ -167,6 +167,8 @@ Image component, same as browser.
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | src        | Picture url. Currently supported image formats are PNG, JPG, JPEG, BMP, GIF. | string                                | `Android、iOS`    |
 | capInsets | When adjusting the img size, the corners specified by the capInsets are fixed without scaling, while the middle and rest of the sides are stretched. This is useful for creating variable-sized rounded buttons, shadows, and other resources. |  `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS` | 
+| placeholder | Specifies the placeholder image for img component when the `src` image has not been loaded or error loaded. | `string`: image base64 string    | `Android、iOS、hippy-react-web` |
+
 > Version `2.8.1` supports native local image capability, which can be loaded through webpack `file-loader`.  
 
 ## Special props within a style
