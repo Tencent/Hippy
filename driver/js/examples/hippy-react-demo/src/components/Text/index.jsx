@@ -172,6 +172,15 @@ export default class TextExpo extends React.Component {
             line-through
           </Text>
         </View>
+        {renderTitle('LetterSpacing')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={[styles.normalText, { letterSpacing: -1 }]}>
+            Text width letter-spacing -1
+          </Text>
+          <Text numberOfLines={1} style={[styles.normalText, { letterSpacing: 5 }]}>
+            Text width letter-spacing 5
+          </Text>
+        </View>
         {renderTitle('Nest Text')}
         <View style={styles.itemContent}>
           <Text numberOfLines={3}>

@@ -151,7 +151,8 @@ static NSCache *HippyGetCache() {
     BOOL _HippyHasCreatedStorageDirectory;
 }
 @synthesize bridge = _bridge;
-HIPPY_EXPORT_MODULE(AsyncStorage)
+
+HIPPY_EXPORT_MODULE(StorageModule)
 
 - (dispatch_queue_t)methodQueue {
     return HippyGetMethodQueue();
