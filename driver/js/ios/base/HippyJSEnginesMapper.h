@@ -22,17 +22,18 @@
 
 #import <Foundation/Foundation.h>
 #import "core/engine.h"
-#import "footstone/worker_manager.h"
+#import "footstone/thread_worker_impl.h"
+#import "footstone/task_runner.h"
 
 class EngineResource {
 public:
     EngineResource();
     ~EngineResource();
     std::shared_ptr<Engine> GetEngine() {return engine_;};
-    std::shared_ptr<footstone::WorkerManager> GetJSWorkerManager() {return js_worker_manager_;}
 private:
     std::shared_ptr<Engine> engine_;
-    std::shared_ptr<footstone::WorkerManager> js_worker_manager_;
+    std::shared_ptr<footstone::ThreadWorker> js_thread_worker_;
+    std::shared_ptr<footstone::TaskRunner> task_runner_;
 };
 
 @interface HippyJSEnginesMapper : NSObject

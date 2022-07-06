@@ -24,12 +24,16 @@
 #import "NativeRenderLog.h"
 
 EngineResource::EngineResource() {
-    js_worker_manager_ = std::make_shared<footstone::WorkerManager>(1);
-    engine_ = std::make_shared<Engine>(js_worker_manager_->CreateTaskRunner("hippy_js"), nullptr);
+    js_thread_worker_ = std::make_shared<footstone::ThreadWorkerImpl>(false, "hippy_js");
+    js_thread_worker_->Start();
+    task_runner_ = std::make_shared<footstone::TaskRunner>();
+    js_thread_worker_->Bind({task_runner_});
+    task_runner_->SetWorker(js_thread_worker_);
+    engine_ = std::make_shared<Engine>(task_runner_, nullptr);
 }
 
 EngineResource::~EngineResource() {
-    js_worker_manager_->Terminate();
+    js_thread_worker_->Terminate();
 }
 
 using EngineRef = std::pair<std::shared_ptr<EngineResource>, NSUInteger>;
