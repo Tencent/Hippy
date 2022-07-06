@@ -142,20 +142,19 @@ void AnimationManager::FetchAnimationsFromArray(HippyValue& value,
 
 void AnimationManager::CancelDelayedAnimation(uint32_t id) {
   auto it = delayed_animation_task_map_.find(id);
-  if (it != delayed_animation_task_map_.end()) {
-    delayed_animation_task_map_.erase(it);
-    auto root_node = root_node_.lock();
-    if (!root_node) {
-      return;
-    }
-    auto dom_manager = root_node->GetDomManager().lock();
-    if (dom_manager) {
-      auto task = it->second.lock();
-      if (task) {
-        dom_manager->CancelTask(task);
-      }
-    }
+  if (it == delayed_animation_task_map_.end()) {
+    return;
   }
+  delayed_animation_task_map_.erase(it);
+  auto root_node = root_node_.lock();
+  if (!root_node) {
+    return;
+  }
+  auto dom_manager = root_node->GetDomManager().lock();
+  if (dom_manager) {
+    return;
+  }
+  dom_manager->CancelTask(it->second);
 }
 
 bool AnimationManager::IsActive(uint32_t id) {

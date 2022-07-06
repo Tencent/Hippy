@@ -26,18 +26,19 @@
 #include <memory>
 #include <vector>
 
-#include "footstone/logging.h"
-#include "footstone/macros.h"
-#include "footstone/task_runner.h"
-#include "footstone/worker_manager.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_action_interceptor.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_event.h"
 #include "dom/dom_listener.h"
-#include "footstone/hippy_value.h"
 #include "dom/layout_node.h"
 #include "dom/scene.h"
+#include "footstone/hippy_value.h"
+#include "footstone/logging.h"
+#include "footstone/macros.h"
+#include "footstone/task_runner.h"
+#include "footstone/base_timer.h"
+#include "footstone/worker_manager.h"
 
 namespace hippy {
 inline namespace dom {
@@ -65,12 +66,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   using HippyValue = footstone::value::HippyValue;
   using TaskRunner = footstone::runner::TaskRunner;
   using Task = footstone::Task;
-
-  struct RootInfo {
-    uint32_t root_id;
-    float width;
-    float height;
-  };
+  using BaseTimer = footstone::timer::BaseTimer;
 
   DomManager();
   ~DomManager();
@@ -85,7 +81,6 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
     dom_task_runner_ =  runner;
   }
 
-  void Init();
   void SetRenderManager(const std::weak_ptr<RenderManager>& render_manager);
   static std::shared_ptr<DomNode> GetNode(const std::weak_ptr<RootNode>& weak_root_node,
                                    uint32_t id) ;
@@ -120,8 +115,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   void SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height);
   void DoLayout(const std::weak_ptr<RootNode>& weak_root_node);
   void PostTask(const Scene&& scene);
-  std::shared_ptr<Task> PostDelayedTask(const Scene&& scene, uint64_t delay);
-  void CancelTask(std::shared_ptr<Task> task);
+  uint32_t PostDelayedTask(const Scene&& scene, uint64_t delay);
+  void CancelTask(uint32_t id);
 
   bytes GetSnapShot(const std::shared_ptr<RootNode>& root_node);
   bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer);
@@ -132,12 +127,13 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static bool Erase(const std::shared_ptr<DomManager>& dom_manager);
 
  private:
+  friend class DomNode;
+
   int32_t id_;
   std::shared_ptr<LayerOptimizedRenderManager> optimized_render_manager_;
   std::weak_ptr<RenderManager> render_manager_;
+  std::unordered_map<uint32_t, std::shared_ptr<BaseTimer>> timer_map_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
-
-  friend DomNode;
 };
 
 }  // namespace dom

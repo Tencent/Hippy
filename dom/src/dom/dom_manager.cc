@@ -14,9 +14,10 @@
 #include "dom/layer_optimized_render_manager.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
+#include "dom/scene_builder.h"
 #include "footstone/serializer.h"
 #include "footstone/deserializer.h"
-#include "dom/scene_builder.h"
+#include "footstone/one_shot_timer.h"
 
 #ifdef HIPPY_TEST
 #define DCHECK_RUN_THREAD() {}
@@ -31,6 +32,7 @@ inline namespace dom {
 using DomNode = hippy::DomNode;
 using Task = footstone::Task;
 using TaskRunner = footstone::TaskRunner;
+using OneShotTimer = footstone::timer::OneShotTimer;
 using Serializer = footstone::value::Serializer;
 using Deserializer = footstone::value::Deserializer;
 
@@ -44,9 +46,7 @@ DomManager::DomManager() {
   id_ = global_dom_manager_key.fetch_add(1);
 }
 
-DomManager::~DomManager() {}
-
-void DomManager::Init() {}
+DomManager::~DomManager() = default;
 
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
   std::lock_guard<std::mutex> lock(mutex);
@@ -232,16 +232,18 @@ void DomManager::PostTask(const Scene&& scene) {
   dom_task_runner_->PostTask(std::move(func));
 }
 
-// todo
-std::shared_ptr<Task> DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
-  auto func = [scene = std::move(scene)] { scene.Build(); };
-  dom_task_runner_->PostDelayedTask(std::move(func), footstone::TimeDelta::FromNanoseconds(
-      static_cast<int64_t>(delay)));
-  return nullptr;
+uint32_t DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
+  auto func = [scene] { scene.Build(); };
+  auto task = std::make_unique<Task>(std::move(func));
+  auto id = task->GetId();
+  std::shared_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(dom_task_runner_);
+  timer->Start(std::move(task), footstone::TimeDelta::FromNanoseconds(static_cast<int64_t>(delay)));
+  timer_map_.insert({id, timer});
+  return id;
 }
 
-void DomManager::CancelTask(std::shared_ptr<Task> task) {
-  // dom_task_runner_->CancelTask(std::move(task));
+void DomManager::CancelTask(uint32_t id) {
+  timer_map_.erase(id);
 }
 
 DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_node) {
@@ -273,7 +275,7 @@ bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const b
   value.ToArray(array);
   if (array.empty()) {
     return false;
-  };
+  }
   auto orig_root_node = std::make_shared<DomNode>();
   flag = orig_root_node->Deserialize(array[0]);
   if (!flag) {

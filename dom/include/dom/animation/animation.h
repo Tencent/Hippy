@@ -183,7 +183,7 @@ class Animation {
   void AddEventListener(const std::string& event, AnimationCb cb);
   void RemoveEventListener(const std::string& event);
   void Start();
-  void Run(uint64_t now, AnimationOnRun on_run);
+  void Run(uint64_t now, const AnimationOnRun& on_run);
   void Destroy();
   void Pause();
   void Resume();

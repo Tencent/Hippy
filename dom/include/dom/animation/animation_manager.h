@@ -81,8 +81,8 @@ class AnimationManager
     }
   }
 
-  inline void AddDelayedAnimationRecord(uint32_t id, std::weak_ptr<Task> task) {
-    delayed_animation_task_map_[id] = task;
+  inline void AddDelayedAnimationRecord(uint32_t animation_id, uint32_t task_id) {
+    delayed_animation_task_map_[animation_id] = task_id;
   }
 
   inline void RemoveDelayedAnimationRecord(uint32_t id) {
@@ -120,7 +120,10 @@ class AnimationManager
 
   std::weak_ptr<RootNode> root_node_;
   std::unordered_map<uint32_t, std::shared_ptr<Animation>> animation_map_;
-  std::unordered_map<uint32_t, std::weak_ptr<Task>> delayed_animation_task_map_;
+  /**
+   * the key of delayed_animation_task_map_ is the animation id and the value is the task_id.
+   */
+  std::unordered_map<uint32_t, uint32_t> delayed_animation_task_map_;
   std::vector<std::shared_ptr<Animation>> active_animations_;
   /**
    * One animation can be used for multiple nodes,

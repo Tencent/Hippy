@@ -197,7 +197,6 @@ std::string mock;
         _rootNode = std::make_shared<hippy::RootNode>(hippyTag);
         _rootNode->GetAnimationManager()->SetRootNode(_rootNode);
         _domManager = std::make_shared<hippy::DomManager>();
-        _domManager->Init();
         _rootNode->SetDomManager(_domManager);
         auto width = CGRectGetWidth(rootView.bounds);
         auto height = CGRectGetHeight(rootView.bounds);
