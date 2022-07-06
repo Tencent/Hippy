@@ -160,6 +160,18 @@ Font weight
 | ------ | -------- | --- |
 | number \| string |No|  Android,iOS
 
+# letterSpacing
+
+The horizontal spacing behavior between text characters
+
+[[MDN 文档]](//developer.mozilla.org/en-US/docs/Web/CSS/letter-spacing)
+
+!> hippy-vue should use @hippy/vue-css-loader `2.14.1` or above version
+
+| Type   | Required | Supported Platforms
+| ------ | -------- | --- |
+| number | No | Android、iOS
+
 # opacity
 
 | Type   | Required| Supported Platforms
