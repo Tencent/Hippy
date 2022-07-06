@@ -21,8 +21,8 @@
 #include "module/model/screen_shot_model.h"
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
 #include "devtools_base/transform_string_util.h"
+#include "footstone/logging.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
@@ -38,7 +38,7 @@ void ScreenShotModel::ReqScreenShotToResponse() {
     if (response_callback) {
       response_callback(ScreenShotResponse(image, width, height));
     }
-    BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToResponse end");
+    FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShotToResponse end";
   });
 }
 
@@ -49,7 +49,7 @@ void ScreenShotModel::ReqScreenShotToSendEvent() {
     if (event_callback) {
       event_callback(ScreenShotResponse(image_base64, width, height));
     }
-    BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToSendEvent end");
+    FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShotToSendEvent end";
   });
 }
 
@@ -59,10 +59,10 @@ void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen
     return;
   }
   if (!provider_) {
-    BACKEND_LOGE(TDF_BACKEND, "ScreenShotModel provider is null");
+    FOOTSTONE_DLOG(ERROR) << "ScreenShotModel provider is null";
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShot start");
+  FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShot start";
   auto screen_adapter = provider_->screen_adapter;
   if (!screen_adapter) {
     return;

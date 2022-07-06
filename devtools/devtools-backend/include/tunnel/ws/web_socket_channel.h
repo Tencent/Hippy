@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 #include "tunnel/net_channel.h"
-#include "devtools_base/logging.h"
+#include "footstone/logging.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated"
@@ -74,7 +74,7 @@ namespace detail {
  */
 template<typename Exception>
 inline void throw_exception(const Exception &e) {
-  BACKEND_LOGE(TDF_BACKEND, " asio exception:%s", e.what());
+  FOOTSTONE_DLOG(ERROR) << " asio exception:%s" << e.what();
 }
 } // namespace detail
 } // namespace asio

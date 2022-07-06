@@ -26,7 +26,7 @@
 #include <utility>
 
 #include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
+#include "footstone/logging.h"
 
 typedef WSClient::connection_ptr WSConnectionPtr;
 
@@ -45,10 +45,10 @@ WebSocketChannel::WebSocketChannel(const std::string& ws_uri) {
 
 void WebSocketChannel::Connect(ReceiveDataHandler handler) {
   if (ws_uri_.empty()) {
-    BACKEND_LOGE(TDF_BACKEND, "websocket uri is empty, connect error");
+    FOOTSTONE_DLOG(ERROR) << "websocket uri is empty, connect error";
     return;
   }
-  BACKEND_LOGI(TDF_BACKEND, "websocket connect url:%s", ws_uri_.c_str());
+  FOOTSTONE_DLOG(INFO) << "websocket connect url:%s" << ws_uri_.c_str();
   data_handler_ = handler;
   ws_client_.set_socket_init_handler(
       [DEVTOOLS_WEAK_THIS](const websocketpp::connection_hdl& handle, websocketpp::lib::asio::ip::tcp::socket& socket) {
@@ -88,10 +88,10 @@ void WebSocketChannel::Send(const std::string& rsp_data) {
 
 void WebSocketChannel::Close(int32_t code, const std::string& reason) {
   if (!connection_hdl_.lock()) {
-    BACKEND_LOGE(TDF_BACKEND, "send message error, handler is null");
+    FOOTSTONE_DLOG(ERROR) << "send message error, handler is null";
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "close websocket, code: %d, reason: %s", code, reason.c_str());
+  FOOTSTONE_DLOG(INFO) << "close websocket, code: %d, reason: %s" << code << reason.c_str();
   websocketpp::lib::error_code error_code;
   ws_client_.close(connection_hdl_, static_cast<websocketpp::close::status::value>(code), reason, error_code);
   ws_client_.stop_perpetual();
@@ -106,12 +106,12 @@ void WebSocketChannel::StartConnect(const std::string& ws_uri) {
     return;
   }
 
-  BACKEND_LOGI(TDF_BACKEND, "websocket start connect");
+  FOOTSTONE_DLOG(INFO) << "websocket start connect";
   ws_client_.connect(con);
 }
 
 void WebSocketChannel::HandleSocketInit(const websocketpp::connection_hdl& handle) {
-  BACKEND_LOGI(TDF_BACKEND, "websocket init");
+  FOOTSTONE_DLOG(INFO) << "websocket init";
 }
 
 void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl& handle) {
@@ -120,17 +120,17 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  BACKEND_LOGE(TDF_BACKEND,
+  FOOTSTONE_DLOG(ERROR) <<
                "websocket connect fail, state: %d, error message: %s, local close code: %d, local close reason: %s, "
                "remote close code: %d, remote close reason: %s",
                con->get_state(), con->get_ec().message().c_str(), con->get_local_close_code(),
                con->get_local_close_reason().c_str(), con->get_remote_close_code(),
-               con->get_remote_close_reason().c_str());
+               con->get_remote_close_reason().c_str();
 }
 
 void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle) {
   connection_hdl_ = handle.lock();
-  BACKEND_LOGI(TDF_BACKEND, "websocket connect open");
+  FOOTSTONE_DLOG(INFO) << "websocket connect open";
   if (!connection_hdl_.lock() || unset_messages_.empty()) {
     return;
   }
@@ -156,11 +156,11 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  BACKEND_LOGI(TDF_BACKEND,
+  FOOTSTONE_DLOG(INFO) <<
                "websocket connect close, state: %d, error message: %s, local close code: %d, local close reason: %s, "
                "remote close code: %d, remote close reason: %s",
                con->get_state(), con->get_ec().message().c_str(), con->get_local_close_code(),
                con->get_local_close_reason().c_str(), con->get_remote_close_code(),
-               con->get_remote_close_reason().c_str());
+               con->get_remote_close_reason().c_str();
 }
 }  // namespace hippy::devtools

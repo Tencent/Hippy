@@ -23,7 +23,7 @@
 #include <utility>
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
+#include "footstone/logging.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/tcp/tcp_channel.h"
 #include "tunnel/ws/web_socket_channel.h"
@@ -39,7 +39,7 @@ TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const Dev
 }
 
 void TunnelService::Connect() {
-  BACKEND_LOGI(TDF_BACKEND, "TunnelService, start connect.");
+  FOOTSTONE_DLOG(INFO) << "TunnelService, start connect.";
   channel_->Connect([DEVTOOLS_WEAK_THIS](const std::string& msg, int flag) {
     if (flag == kTaskFlag) {
       DEVTOOLS_DEFINE_AND_CHECK_SELF(TunnelService)

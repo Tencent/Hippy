@@ -21,8 +21,7 @@
 #include "module/domain/tdf_performance_domain.h"
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
-#include "devtools_base/time.h"
+#include "footstone/logging.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -40,30 +39,30 @@ void TdfPerformanceDomain::RegisterMethods() {
 void TdfPerformanceDomain::RegisterCallback() {}
 
 void TdfPerformanceDomain::Start(const BaseRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "TdfPerformanceDomain::Start");
+  FOOTSTONE_DLOG(INFO) << "TdfPerformanceDomain::Start";
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
     performance_adapter->ResetFrameTimings();
     performance_adapter->ResetTimeline();
   } else {
-    BACKEND_LOGE(TDF_BACKEND, "TdfPerformanceDomain::Start performance_adapter is null");
+    FOOTSTONE_DLOG(ERROR) << "TdfPerformanceDomain::Start performance_adapter is null";
   }
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
     tracing_adapter->StartTracing();
   } else {
-    BACKEND_LOGE(TDF_BACKEND, "TdfPerformanceDomain::Start tracing_adapter is null");
+    FOOTSTONE_DLOG(ERROR) << "TdfPerformanceDomain::Start tracing_adapter is null";
   }
   nlohmann::json start_time_json = nlohmann::json::object();
-  start_time_json["startTime"] = SteadyClockTime::NowTimeSinceEpochStr();
+  start_time_json["startTime"] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
   ResponseResultToFrontend(request.GetId(), start_time_json.dump());
 }
 
 void TdfPerformanceDomain::End(const BaseRequest& request) {
   // just end record end, and then get tracing and timeline respectively
-  BACKEND_LOGD(TDF_BACKEND, "TdfPerformanceDomain::End");
+  FOOTSTONE_DLOG(INFO) << "TdfPerformanceDomain::End";
   nlohmann::json end_time_json = nlohmann::json::object();
-  end_time_json["endTime"] = SteadyClockTime::NowTimeSinceEpochStr();
+  end_time_json["endTime"] = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
   ResponseResultToFrontend(request.GetId(), end_time_json.dump());
 }
 

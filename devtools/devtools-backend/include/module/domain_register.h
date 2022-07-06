@@ -25,7 +25,6 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
-#include "devtools_base/logging.h"
 #include "module/domain/base_domain.h"
 #include "module/request/base_request.h"
 

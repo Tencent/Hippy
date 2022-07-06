@@ -24,9 +24,7 @@
 #include "api/devtools_backend_service.h"
 #include "api/notification/default/default_dom_tree_notification.h"
 #include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
 #include "devtools_base/parse_json_util.h"
-#include "devtools_base/tdf_base_util.h"
 #include "devtools_base/tdf_string_util.h"
 #include "module/domain_register.h"
 
@@ -187,9 +185,9 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
     return;
   }
   int32_t x =
-      static_cast<int32_t>(TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX()));
+      static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX()));
   int32_t y =
-      static_cast<int32_t>(TdfBaseUtil::RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY()));
+      static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY()));
   location_for_node_call_back_(x, y, [DEVTOOLS_WEAK_THIS, request](const DomModel& model) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
     auto node_id = self->SearchNearlyCacheNode(model.GetRelationTree());
@@ -310,4 +308,10 @@ int32_t DomDomain::SearchNearlyCacheNode(nlohmann::json relation_tree) {
   return node_id;
 }
 
+double DomDomain::RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
+  if (!screen_adapter || screen_adapter->GetScreenScale() == 0) {
+    return 1.f;
+  }
+  return origin_value / screen_adapter->GetScreenScale();
+}
 }  // namespace hippy::devtools

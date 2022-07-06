@@ -235,6 +235,13 @@
 			remoteGlobalIDString = D6D87F076D7C4DE396D14BC1;
 			remoteInfo = devtools_backend;
 		};
+		D3D52EAD287567BD00740B66 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D3D52E822873D47900740B66 /* devtools_backend.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = BB7EBFD012CA4A8E827F8AE8;
+			remoteInfo = footstone;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -824,6 +831,7 @@
 			isa = PBXGroup;
 			children = (
 				D3D52E8A2873D47900740B66 /* libdevtools_backend.a */,
+				D3D52EAE287567BD00740B66 /* libfootstone.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1953,6 +1961,13 @@
 			fileType = archive.ar;
 			path = libdevtools_backend.a;
 			remoteRef = D3D52E892873D47900740B66 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D3D52EAE287567BD00740B66 /* libfootstone.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libfootstone.a;
+			remoteRef = D3D52EAD287567BD00740B66 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */

@@ -19,7 +19,7 @@
  */
 
 #include "module/domain/network_domain.h"
-#include "devtools_base/logging.h"
+#include "footstone/logging.h"
 #include "module/domain_register.h"
 #include "nlohmann/json.hpp"
 
@@ -40,7 +40,7 @@ void NetworkDomain::OnResponseReceived(const std::string& request_id, std::strin
 void NetworkDomain::RegisterCallback() {}
 
 void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "NetworkDomain::GetResponseBody");
+  FOOTSTONE_DLOG(INFO) << "NetworkDomain::GetResponseBody";
   std::string request_id = request.GetRequestId();
   auto find_response = response_map_.find(request_id);
   if (find_response != response_map_.end()) {
@@ -53,7 +53,7 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
     }
   } else {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "not support get network body");
-    BACKEND_LOGE(TDF_BACKEND, "NetworkDomain::GetResponseBody not support get network body");
+    FOOTSTONE_DLOG(ERROR) << "NetworkDomain::GetResponseBody not support get network body";
   }
 }
 }  // namespace hippy::devtools

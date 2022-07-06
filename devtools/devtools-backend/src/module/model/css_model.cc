@@ -23,9 +23,9 @@
 #include <regex>
 #include <sstream>
 #include "api/devtools_backend_service.h"
-#include "devtools_base/logging.h"
 #include "devtools_base/parse_json_util.h"
 #include "devtools_base/tdf_string_util.h"
+#include "footstone/logging.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
@@ -111,7 +111,7 @@ nlohmann::json CssModel::UpdateDomTreeAndGetStyleTextJson(const nlohmann::json& 
   if (dom_tree_adapter) {
     auto update_node_id = node_id_;
     dom_tree_adapter->UpdateDomTree(result_metas, [update_node_id](const bool is_success) {
-      BACKEND_LOGI(TDF_BACKEND, "CSS, update dom tree, id: %ld, success: %d", update_node_id, is_success);
+      FOOTSTONE_DLOG(INFO) << "CSS, update dom tree, id: %ld, success: %d" << update_node_id << is_success;
     });
   }
   return BuildCssStyle();

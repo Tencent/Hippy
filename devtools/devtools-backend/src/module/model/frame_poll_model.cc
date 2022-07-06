@@ -21,7 +21,7 @@
 #include "module/model/frame_poll_model.h"
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
+#include "footstone/logging.h"
 #include "footstone/time_delta.h"
 
 namespace hippy::devtools {
@@ -50,7 +50,7 @@ void FramePollModel::InitTask() {
 
 void FramePollModel::StartPoll() {
   if (!provider_) {
-    BACKEND_LOGE(TDF_BACKEND, "StartPoll provider is null");
+    FOOTSTONE_DLOG(ERROR) << "StartPoll provider is null";
     return;
   }
   AddFrameCallback();
@@ -67,7 +67,7 @@ void FramePollModel::AddFrameCallback() {
         DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
         std::lock_guard<std::recursive_mutex> lock(self->mutex_);
         self->frame_is_dirty_ = true;
-        BACKEND_LOGD(TDF_BACKEND, "AddFrameCallback frame dirty callback");
+        FOOTSTONE_DLOG(INFO) << "AddFrameCallback frame dirty callback";
       });
     }
     had_add_frame_callback_ = true;
@@ -76,7 +76,7 @@ void FramePollModel::AddFrameCallback() {
 
 void FramePollModel::StopPoll() {
   if (!provider_) {
-    BACKEND_LOGE(TDF_BACKEND, "StopPoll provider is null");
+    FOOTSTONE_DLOG(ERROR) << "StopPoll provider is null";
     return;
   }
   RemoveFrameCallback();

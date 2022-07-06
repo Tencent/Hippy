@@ -65,6 +65,7 @@ class DomDomain : public BaseDomain, public std::enable_shared_from_this<DomDoma
   void CacheEntireDocumentTree(DomModel root_model);
   void SetChildNodesEvent(DomModel model);
   int32_t SearchNearlyCacheNode(nlohmann::json relation_tree);
+  double RemoveScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value);
 
   // <node_id, children_size>
   std::map<int32_t, uint32_t> element_node_children_count_cache_;

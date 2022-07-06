@@ -22,7 +22,7 @@
 #include <utility>
 #include "api/devtools_backend_service.h"
 #include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
+#include "footstone/logging.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -61,10 +61,10 @@ void TdfInspectorDomain::GetDomTree(const BaseRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get dom tree failed, dom_tree_adapter null.");
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetDomTree start");
+  FOOTSTONE_DLOG(INFO) << "TdfInspectorDomain::GetDomTree start";
   dom_tree_adapter->GetDomTree([DEVTOOLS_WEAK_THIS, request](bool is_success, const DomNodeMetas& metas) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
-    BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetDomTree end");
+    FOOTSTONE_DLOG(INFO) << "TdfInspectorDomain::GetDomTree end";
     if (is_success) {
       nlohmann::json result_json = nlohmann::json::object();
       result_json[kFrontendKeyItree] = nlohmann::json::parse(metas.Serialize(), nullptr, false);
@@ -81,10 +81,10 @@ void TdfInspectorDomain::GetRenderTree(const BaseRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get render tree failed, render_tree_adapter is null.");
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom start");
+  FOOTSTONE_DLOG(INFO) << "GetRenderTree dumpDom start";
   render_tree_adapter->GetRenderTree([DEVTOOLS_WEAK_THIS, request](bool is_success, const RenderNodeMetas& metas) {
     DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
-    BACKEND_LOGD(TDF_BACKEND, "GetRenderTree dumpDom end %d", is_success ? 1 : 0);
+    FOOTSTONE_DLOG(INFO) << "GetRenderTree dumpDom end %d" << (is_success ? 1 : 0);
     if (is_success) {
       nlohmann::json result_json = nlohmann::json::object();
       result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize(), nullptr, false);
@@ -96,7 +96,7 @@ void TdfInspectorDomain::GetRenderTree(const BaseRequest& request) {
 }
 
 void TdfInspectorDomain::GetScreenshot(const ScreenShotRequest& request) {
-  BACKEND_LOGD(TDF_BACKEND, "TdfInspectorDomain::GetScreenshot start");
+  FOOTSTONE_DLOG(INFO) << "TdfInspectorDomain::GetScreenshot start";
   // use the latest GetScreenShot request params as the screenshot params
   screen_shot_model_->SetScreenShotRequest(request);
   screen_shot_model_->SetResponseScreenShotCallback([DEVTOOLS_WEAK_THIS, request](const ScreenShotResponse& response) {
@@ -113,11 +113,11 @@ void TdfInspectorDomain::GetSelectedRenderObject(const SelectedRenderObjectReque
                             "get selected render object failed, render_tree_adapter.");
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "GetSelectedRenderObject start");
+  FOOTSTONE_DLOG(INFO) << "GetSelectedRenderObject start";
   render_tree_adapter->GetSelectedRenderObject(
       request.GetRenderId(), [DEVTOOLS_WEAK_THIS, request](bool is_success, const RenderDiagnosticMetas& metas) {
         DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfInspectorDomain)
-        BACKEND_LOGD(TDF_BACKEND, "GetSelectedRenderObject response");
+        FOOTSTONE_DLOG(INFO) << "GetSelectedRenderObject response";
         if (is_success) {
           nlohmann::json result_json = nlohmann::json::object();
           result_json[kFrontendKeyRtree] = nlohmann::json::parse(metas.Serialize(), nullptr, false);
