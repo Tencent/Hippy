@@ -218,7 +218,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 }
 
 - (void)dealloc {
-  self.workerManager->Terminate();
+  self.domWorkerManager->Terminate();
 }
 
 - (void)loadSource:(HippySourceLoadBlock)_onSourceLoad onProgress:(HippySourceLoadProgressBlock)onProgress {

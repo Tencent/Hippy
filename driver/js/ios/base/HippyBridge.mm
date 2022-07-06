@@ -382,8 +382,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [self.batchedBridge setUpDomManager:domManager];
 }
 
-- (void)setUpWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager {
-    _workerManager = workerManager;
+- (void)setUpDomWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager {
+    _domWorkerManager = workerManager;
 }
 
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size

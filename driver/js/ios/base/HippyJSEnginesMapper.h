@@ -22,39 +22,52 @@
 
 #import <Foundation/Foundation.h>
 #import "core/engine.h"
+#import "footstone/worker_manager.h"
+
+class EngineResource {
+public:
+    EngineResource();
+    ~EngineResource();
+    std::shared_ptr<Engine> GetEngine() {return engine_;};
+    std::shared_ptr<footstone::WorkerManager> GetJSWorkerManager() {return js_worker_manager_;}
+private:
+    std::shared_ptr<Engine> engine_;
+    std::shared_ptr<footstone::WorkerManager> js_worker_manager_;
+};
 
 @interface HippyJSEnginesMapper : NSObject
 
 /**
  * Get Default instance
+ *
  * @return Default instance
  */
 + (instancetype)defaultInstance;
 
 /**
- * Get Engine instance from key
- * @param key Key for Engine instance
- * @return Engine instance for key
- */
-- (std::shared_ptr<Engine>)JSEngineForKey:(NSString *)key;
-
-/**
- * Create Engine instance or get a reused Engine instance
- * @param key Key for Engine instance
- * @param creationBlock A block for Engine Creation implementation
- * @param reusedBlock A block for Engine reuse implementation
- * @return Engine instance for key
+ * Get EngineResource instance from key
  *
- * @discussion If a Engine instance reused, reference count will increase 1
+ * @param key Key to Engine instance
+ *
+ * @return EngineResource instance for key
  */
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key
-                             engineCreatedBlock:(std::shared_ptr<Engine>(^)(void))creationBlock
-                              engineReusedBlock:(void(^)(std::shared_ptr<Engine>))reusedBlock;
+- (std::shared_ptr<EngineResource>)JSEngineResourceForKey:(NSString *)key;
 
 /**
- * Decrease reference of Engine instance for key
- * @param key Key for Engine instance
+ * Create EngineResource instance or increase reference count if the instance corresponding to the key exists,
+ * and return EngineResource instance.
+ *
+ * @param key Key to EngineResource instance
+ *
+ * @return EngineResource instance for key
  */
-- (void)removeEngineForKey:(NSString *)key;
+- (std::shared_ptr<EngineResource>)createJSEngineResourceForKey:(NSString *)key;
+
+/**
+ * Decrease reference of EngineResource instance for key
+ *
+ * @param key Key for EngineResource instance
+ */
+- (void)removeEngineResourceForKey:(NSString *)key;
 
 @end
