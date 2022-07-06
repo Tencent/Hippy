@@ -635,8 +635,20 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
     return;
   }
 
-  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   std::weak_ptr<Scope> weak_scope = runtime->GetScope();
+  // run event in js thread
+  RootNode::SetEventCallbackRunner([weak_scope](
+                                       const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
+                                       std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return;
+    }
+    auto callback = [event, node, capture_nodes]() mutable { RootNode::EventTraverse(event, node, capture_nodes); };
+    scope->GetTaskRunner()->PostTask(std::move(callback));
+  });
+
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   auto callback = [weak_scope, buffer_data_ = std::move(buffer_data)] {
     std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
