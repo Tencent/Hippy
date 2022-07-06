@@ -50,7 +50,7 @@
     "esm": "^3.2.25",
     "flow-remove-types": "^1.2.3",
     "got": "^12.1.0",
-    "lerna": "^4.0.0",
+    "lerna": "^5.1.6",
     "minimist": "^1.2.6",
     "module-alias": "^2.2.2",
     "nyc": "^15.1.0",
