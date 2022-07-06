@@ -23,7 +23,7 @@
 #include "api/notification/default/default_network_notification.h"
 #include "devtools_base/domain_propos.h"
 #include "footstone/logging.h"
-#include "devtools_base/tdf_string_util.h"
+#include "footstone/tdf_string_util.h"
 #include "module/domain/css_domain.h"
 #include "module/domain/dom_domain.h"
 #include "module/domain/network_domain.h"
@@ -119,7 +119,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
     }
-    domain = TdfStringUtil::AdaptProtocolName(domain);
+    domain = footstone::TdfStringUtil::AdaptProtocolName(domain);
     auto handler = DomainRegister::Instance()->GetMethod(domain + kDomainClassSuffix, method);
     if (handler) {
       handler(base_domain->second, id, params);

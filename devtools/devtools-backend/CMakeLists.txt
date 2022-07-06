@@ -145,7 +145,6 @@ set(SOURCE_SET
     src/tunnel/tcp/tcp_channel.cc
     src/tunnel/tunnel_service.cc
     src/tunnel/ws/web_socket_channel.cc
-    src/devtools_base/socket.cc
-    src/devtools_base/tdf_string_util.cc)
+    src/tunnel/tcp/socket.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

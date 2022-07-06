@@ -23,6 +23,7 @@
 		D3D52E982873E8D100740B66 /* hippy_dom_tree_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52E922873E8D100740B66 /* hippy_dom_tree_adapter.cc */; };
 		D3D52E992873E8D100740B66 /* hippy_tracing_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52E932873E8D100740B66 /* hippy_tracing_adapter.cc */; };
 		D3D52E9A2873E8D100740B66 /* devtools_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52E942873E8D100740B66 /* devtools_utils.cc */; };
+		D3D52EBD28757D7200740B66 /* tdf_string_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52EB728757D7200740B66 /* tdf_string_util.cc */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B09E392750D2C000643CDF /* Flex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4B09E362750D21600643CDF /* Flex.cpp */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -283,6 +284,8 @@
 		D3D52EA42873E8DD00740B66 /* devtools_macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_macro.h; sourceTree = "<group>"; };
 		D3D52EA52873E8DE00740B66 /* hippy_dom_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_data.h; sourceTree = "<group>"; };
 		D3D52EA62873E8DE00740B66 /* devtools_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_utils.h; sourceTree = "<group>"; };
+		D3D52EB728757D7200740B66 /* tdf_string_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tdf_string_util.cc; sourceTree = "<group>"; };
+		D3D52EBE28757D8100740B66 /* tdf_string_util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tdf_string_util.h; sourceTree = "<group>"; };
 		D42D2C7A2833C84D0079B47B /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
 		D4B09E362750D21600643CDF /* Flex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flex.cpp; sourceTree = "<group>"; };
 		D4B5A07E281663F400ABBD9C /* scene_builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene_builder.cc; sourceTree = "<group>"; };
@@ -1147,6 +1150,7 @@
 		D88F2A2F286AA6AD008D1439 /* footstone */ = {
 			isa = PBXGroup;
 			children = (
+				D3D52EBE28757D8100740B66 /* tdf_string_util.h */,
 				D8A8889A286D415600D60489 /* serializer.h */,
 				D8A88898286D414C00D60489 /* hash.h */,
 				D8A88899286D414C00D60489 /* hippy_value.h */,
@@ -1196,6 +1200,7 @@
 		D88F2A54286AA6AD008D1439 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D3D52EB728757D7200740B66 /* tdf_string_util.cc */,
 				D806C5052872BC3C00E62992 /* base_timer.cc */,
 				D806C4FC2872BC3B00E62992 /* deserializer.cc */,
 				D806C5002872BC3B00E62992 /* hippy_value.cc */,
@@ -2076,6 +2081,7 @@
 				D84AB9BE273A618B00987D03 /* console_module.cc in Sources */,
 				F45D267C28067B6900CAB185 /* NativeRenderBaseListViewDataSource.mm in Sources */,
 				F45D269528067B6900CAB185 /* NativeRenderModalCustomPresentationController.m in Sources */,
+				D3D52EBD28757D7200740B66 /* tdf_string_util.cc in Sources */,
 				D84AB9C1273A618B00987D03 /* js_value_wrapper.cc in Sources */,
 				D86B3E61284E31EB007E729B /* animation_math.cc in Sources */,
 				F468DE832812A95200319196 /* HippySRSIMDHelpers.m in Sources */,

@@ -21,9 +21,9 @@
 #include "module/model/dom_model.h"
 #include <sstream>
 #include "api/devtools_backend_service.h"
-#include "footstone/logging.h"
 #include "devtools_base/parse_json_util.h"
-#include "devtools_base/tdf_string_util.h"
+#include "footstone/logging.h"
+#include "footstone/tdf_string_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
@@ -372,7 +372,7 @@ nlohmann::json DomModel::BuildAttributesObjectToArray() {
     }
     if (!value.is_string()) {
       // non string type need change to string type
-      value = TdfStringUtil::ToString(value);
+      value = footstone::TdfStringUtil::ToString(value);
     }
     attributes_array.emplace_back(attribute.key());
     attributes_array.emplace_back(value);

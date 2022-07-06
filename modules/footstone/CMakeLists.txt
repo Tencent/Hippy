@@ -54,6 +54,7 @@ set(SOURCE_SET
     src/thread_worker.cc
     src/unicode_string_view.cc
     src/worker.cc
+    src/tdf_string_util.cc
     src/worker_manager.cc)
 if (ANDROID)
   list(APPEND SOURCE_SET

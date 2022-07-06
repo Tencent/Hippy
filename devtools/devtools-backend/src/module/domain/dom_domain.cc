@@ -25,7 +25,7 @@
 #include "api/notification/default/default_dom_tree_notification.h"
 #include "devtools_base/common/macros.h"
 #include "devtools_base/parse_json_util.h"
-#include "devtools_base/tdf_string_util.h"
+#include "footstone/tdf_string_util.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -233,7 +233,7 @@ void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
     return;
   }
   auto path_string = request.GetNodePath();
-  auto path_vector = TdfStringUtil::SplitString(path_string, ",");
+  auto path_vector = footstone::TdfStringUtil::SplitString(path_string, ",");
   PushNodePath node_path;
   for (size_t index = 0; index < path_vector.size() - 1; index += 2) {
     std::string child_index = path_vector[index];

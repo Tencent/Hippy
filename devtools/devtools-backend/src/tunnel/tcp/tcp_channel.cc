@@ -24,8 +24,8 @@
 #include <unistd.h>
 #include <thread>
 #include "devtools_base/common/macros.h"
-#include "devtools_base/socket.h"
 #include "footstone/logging.h"
+#include "tunnel/tcp/socket.h"
 
 namespace hippy::devtools {
 constexpr char kListenHost[] = "127.0.0.1";
