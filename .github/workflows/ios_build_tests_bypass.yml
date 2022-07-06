@@ -13,6 +13,7 @@ on:
       - 'dom/**'
       - 'layout/engine/**'
       - 'modules/ios/**'
+      - 'modules/footstone/**'
       - 'renderer/native/ios/**'
       - 'devtools/devtools-backend/**'
       - 'hippy.podspec'

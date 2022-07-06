@@ -40,17 +40,16 @@ function Promise(fn) {
   if (typeof fn !== 'function') {
     throw new TypeError('Promise constructor\'s argument is not a function');
   }
-  this._40 = 0;
-  this._65 = 0;
-  this._55 = null;
-  this._72 = null;
+  this._deferredState = 0;
+  this._state = 0;
+  this._value = null;
+  this._deferreds = null;
   if (fn === noop) return;
   doResolve(fn, this);
 }
-
-Promise._37 = null;
-Promise._87 = null;
-Promise._61 = noop;
+Promise._onHandle = null;
+Promise._onReject = null;
+Promise._noop = noop;
 
 Promise.prototype.then = function(onFulfilled, onRejected) {
   if (this.constructor !== Promise) {
@@ -70,41 +69,42 @@ function safeThen(self, onFulfilled, onRejected) {
 }
 
 function handle(self, deferred) {
-  while (self._65 === 3) {
-    self = self._55;
+  while (self._state === 3) {
+    self = self._value;
   }
-  if (Promise._37) {
-    Promise._37(self);
+  if (Promise._onHandle) {
+    Promise._onHandle(self);
   }
-  if (self._65 === 0) {
-    if (self._40 === 0) {
-      self._40 = 1;
-      self._72 = deferred;
+  if (self._state === 0) {
+    if (self._deferredState === 0) {
+      self._deferredState = 1;
+      self._deferreds = deferred;
       return;
     }
-    if (self._40 === 1) {
-      self._40 = 2;
-      self._72 = [self._72, deferred];
+    if (self._deferredState === 1) {
+      self._deferredState = 2;
+      self._deferreds = [self._deferreds, deferred];
       return;
     }
-    self._72.push(deferred);
+    self._deferreds.push(deferred);
     return;
   }
   handleResolved(self, deferred);
 }
 
 function handleResolved(self, deferred) {
+  // use setTimeout to replace setImmediate
   setTimeout(function() {
-    var cb = self._65 === 1 ? deferred.onFulfilled : deferred.onRejected;
+    var cb = self._state === 1 ? deferred.onFulfilled : deferred.onRejected;
     if (cb === null) {
-      if (self._65 === 1) {
-        resolve(deferred.promise, self._55);
+      if (self._state === 1) {
+        resolve(deferred.promise, self._value);
       } else {
-        reject(deferred.promise, self._55);
+        reject(deferred.promise, self._value);
       }
       return;
     }
-    var ret = tryCallOne(cb, self._55);
+    var ret = tryCallOne(cb, self._value);
     if (ret === IS_ERROR) {
       reject(deferred.promise, LAST_ERROR);
     } else {
@@ -132,8 +132,8 @@ function resolve(self, newValue) {
       then === self.then &&
       newValue instanceof Promise
     ) {
-      self._65 = 3;
-      self._55 = newValue;
+      self._state = 3;
+      self._value = newValue;
       finale(self);
       return;
     } else if (typeof then === 'function') {
@@ -141,30 +141,29 @@ function resolve(self, newValue) {
       return;
     }
   }
-  self._65 = 1;
-  self._55 = newValue;
+  self._state = 1;
+  self._value = newValue;
   finale(self);
 }
 
 function reject(self, newValue) {
-  self._65 = 2;
-  self._55 = newValue;
-  if (Promise._87) {
-    Promise._87(self, newValue);
+  self._state = 2;
+  self._value = newValue;
+  if (Promise._onReject) {
+    Promise._onReject(self, newValue);
   }
   finale(self);
 }
-
 function finale(self) {
-  if (self._40 === 1) {
-    handle(self, self._72);
-    self._72 = null;
+  if (self._deferredState === 1) {
+    handle(self, self._deferreds);
+    self._deferreds = null;
   }
-  if (self._40 === 2) {
-    for (var i = 0; i < self._72.length; i++) {
-      handle(self, self._72[i]);
+  if (self._deferredState === 2) {
+    for (var i = 0; i < self._deferreds.length; i++) {
+      handle(self, self._deferreds[i]);
     }
-    self._72 = null;
+    self._deferreds = null;
   }
 }
 
@@ -223,12 +222,11 @@ var ZERO = valuePromise(0);
 var EMPTYSTRING = valuePromise('');
 
 function valuePromise(value) {
-  var p = new Promise(Promise._61);
-  p._65 = 1;
-  p._55 = value;
+  var p = new Promise(Promise._noop);
+  p._state = 1;
+  p._value = value;
   return p;
 }
-
 Promise.resolve = function (value) {
   if (value instanceof Promise) return value;
 
@@ -254,8 +252,20 @@ Promise.resolve = function (value) {
   return valuePromise(value);
 };
 
+var iterableToArray = function (iterable) {
+  if (typeof Array.from === 'function') {
+    // ES2015+, iterables exist
+    iterableToArray = Array.from;
+    return Array.from(iterable);
+  }
+
+  // ES5, only arrays and array-likes exist
+  iterableToArray = function (x) { return Array.prototype.slice.call(x); };
+  return Array.prototype.slice.call(iterable);
+}
+
 Promise.all = function (arr) {
-  var args = Array.prototype.slice.call(arr);
+  var args = iterableToArray(arr);
 
   return new Promise(function (resolve, reject) {
     if (args.length === 0) return resolve([]);
@@ -263,11 +273,11 @@ Promise.all = function (arr) {
     function res(i, val) {
       if (val && (typeof val === 'object' || typeof val === 'function')) {
         if (val instanceof Promise && val.then === Promise.prototype.then) {
-          while (val._65 === 3) {
-            val = val._55;
+          while (val._state === 3) {
+            val = val._value;
           }
-          if (val._65 === 1) return res(i, val._55);
-          if (val._65 === 2) reject(val._55);
+          if (val._state === 1) return res(i, val._value);
+          if (val._state === 2) reject(val._value);
           val.then(function (val) {
             res(i, val);
           }, reject);
@@ -302,7 +312,7 @@ Promise.reject = function (value) {
 
 Promise.race = function (values) {
   return new Promise(function (resolve, reject) {
-    values.forEach(function(value){
+    iterableToArray(values).forEach(function(value){
       Promise.resolve(value).then(resolve, reject);
     });
   });

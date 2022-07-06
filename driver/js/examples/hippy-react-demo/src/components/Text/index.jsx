@@ -71,7 +71,7 @@ export default class TextExpo extends React.Component {
     this.incrementFontSize = this.incrementFontSize.bind(this);
     this.decrementFontSize = this.decrementFontSize.bind(this);
     // if Android text nested is used，height and lineHeight attributes should be set in Text wrapper
-    this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 100 };
+    this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 50 };
   }
 
   incrementFontSize() {
@@ -170,6 +170,15 @@ export default class TextExpo extends React.Component {
           </Text>
           <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'line-through', textDecorationColor: 'red' }]}>
             line-through
+          </Text>
+        </View>
+        {renderTitle('LetterSpacing')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={[styles.normalText, { letterSpacing: -1 }]}>
+            Text width letter-spacing -1
+          </Text>
+          <Text numberOfLines={1} style={[styles.normalText, { letterSpacing: 5 }]}>
+            Text width letter-spacing 5
           </Text>
         </View>
         {renderTitle('Nest Text')}
