@@ -22,9 +22,9 @@
 
 #include <stack>
 
-#include "footstone/task_runner.h"
 #include "dom/dom_node.h"
 #include "dom/event_node.h"
+#include "footstone/task_runner.h"
 
 namespace hippy {
 inline namespace dom {
@@ -33,8 +33,8 @@ class RootNode : public DomNode {
  public:
   using TaskRunner = footstone::runner::TaskRunner;
   using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
-  using EventChainCallbacks = std::function<void(const std::shared_ptr<DomEvent>&, const std::shared_ptr<EventNode>&,
-                                                std::stack<std::shared_ptr<EventNode>>&)>;
+  using EventCallBackRunner = std::function<void(const std::shared_ptr<DomEvent>&, const std::shared_ptr<EventNode>&,
+                                                 std::stack<std::shared_ptr<EventNode>>&)>;
 
   RootNode(uint32_t id);
   RootNode();
@@ -68,10 +68,16 @@ class RootNode : public DomNode {
   void SetRootSize(float width, float height);
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
-  inline void SetEventChainCallBacks(EventChainCallbacks event_callbacks) { event_chain_callbacks_ = event_callbacks; }
 
-  static void HandleEventChainCallbacks(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
-                                        std::stack<std::shared_ptr<EventNode>>& capture_nodes);
+  static void EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
+                            std::stack<std::shared_ptr<EventNode>>& capture_nodes);
+  static void SetEventCallbackRunner(EventCallBackRunner callback_runner) {
+    RootNode::event_callback_runner_ = callback_runner;
+  }
+  static void RunEventCallbackRunner(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
+                                     std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
+    RootNode::event_callback_runner_(event, node, capture_nodes);
+  }
 
  private:
   struct DomOperation {
@@ -106,7 +112,7 @@ class RootNode : public DomNode {
   std::weak_ptr<DomManager> dom_manager_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
-  EventChainCallbacks event_chain_callbacks_;
+  static EventCallBackRunner event_callback_runner_;
 };
 
 }  // namespace dom

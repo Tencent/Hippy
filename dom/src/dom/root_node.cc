@@ -24,10 +24,13 @@ using Serializer = footstone::value::Serializer;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
 using Task = footstone::Task;
 
+RootNode::EventCallBackRunner RootNode::event_callback_runner_ =
+    [](const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
+       std::stack<std::shared_ptr<EventNode>>& capture_nodes) { RootNode::EventTraverse(event, node, capture_nodes); };
+
 RootNode::RootNode(uint32_t id) : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}) {
   animation_manager_ = std::make_shared<AnimationManager>();
   interceptors_.push_back(animation_manager_);
-  event_chain_callbacks_ = HandleEventChainCallbacks;
 }
 
 RootNode::RootNode() : RootNode(0) {}
@@ -220,43 +223,42 @@ void RootNode::RemoveEvent(uint32_t id, const std::string& event_name) {
 }
 
 void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
-  if (event_chain_callbacks_) {
-    auto weak_target = event->GetTarget();
-    auto target = weak_target.lock();
-    FOOTSTONE_DCHECK(target != nullptr);
-    if (!target) {
-      return;
-    }
-
-    std::stack<std::shared_ptr<EventNode>> capture_nodes = {};
-    std::shared_ptr<EventNode> node = {};
-    auto event_name = event->GetType();
-
-    // 获取捕获节点
-    if (event->CanCapture()) {
-      auto parent = target->GetParent();
-      while (parent) {
-        auto capture_node = std::make_shared<EventNode>(parent->GetId(), parent->GetPid());
-        auto capture_listeners = parent->GetEventListener(event_name, true);
-        auto bubble_listeners = parent->GetEventListener(event_name, false);
-        capture_node->SetCaptureListeners(capture_listeners);
-        capture_node->SetBubbleListeners(bubble_listeners);
-        capture_nodes.push(capture_node);
-        parent = parent->GetParent();
-      }
-    }
-    // 当前节点
-    node = std::make_shared<EventNode>(target->GetId(), target->GetPid());
-    auto capture_listeners = target->GetEventListener(event_name, true);
-    auto bubble_listeners = target->GetEventListener(event_name, false);
-    node->SetCaptureListeners(capture_listeners);
-    node->SetBubbleListeners(bubble_listeners);
-    event_chain_callbacks_(event, node, capture_nodes);
+  auto weak_target = event->GetTarget();
+  auto target = weak_target.lock();
+  FOOTSTONE_DCHECK(target != nullptr);
+  if (!target) {
+    return;
   }
+
+  std::stack<std::shared_ptr<EventNode>> capture_nodes = {};
+  std::shared_ptr<EventNode> node = {};
+  auto event_name = event->GetType();
+
+  // 获取捕获节点
+  if (event->CanCapture()) {
+    auto parent = target->GetParent();
+    while (parent) {
+      auto capture_node = std::make_shared<EventNode>(parent->GetId(), parent->GetPid());
+      auto capture_listeners = parent->GetEventListener(event_name, true);
+      auto bubble_listeners = parent->GetEventListener(event_name, false);
+      capture_node->SetCaptureListeners(capture_listeners);
+      capture_node->SetBubbleListeners(bubble_listeners);
+      capture_nodes.push(capture_node);
+      parent = parent->GetParent();
+    }
+  }
+  // 当前节点
+  node = std::make_shared<EventNode>(target->GetId(), target->GetPid());
+  auto capture_listeners = target->GetEventListener(event_name, true);
+  auto bubble_listeners = target->GetEventListener(event_name, false);
+  node->SetCaptureListeners(capture_listeners);
+  node->SetBubbleListeners(bubble_listeners);
+
+  RootNode::RunEventCallbackRunner(event, node, capture_nodes);
 }
 
-void RootNode::HandleEventChainCallbacks(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
-                                         std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
+void RootNode::EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
+                             std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
   FOOTSTONE_DCHECK(node != nullptr);
   FOOTSTONE_DCHECK(event != nullptr);
   if (node == nullptr || event == nullptr) return;
