@@ -59,8 +59,7 @@ class TaskRunner {
   void PostTask(std::unique_ptr<Task> task);
   template<typename F, typename... Args>
   void PostTask(F &&f, Args... args) {
-    using T = typename std::result_of<F(Args...)>::type;
-    auto packaged_task = std::make_shared<std::packaged_task<T()>>(
+    auto packaged_task = std::make_shared<std::packaged_task<std::invoke_result_t<F, Args...>()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     auto task = std::make_unique<Task>([packaged_task]() { (*packaged_task)(); });
     PostTask(std::move(task));
@@ -70,8 +69,7 @@ class TaskRunner {
 
   template<typename F, typename... Args>
   void PostDelayedTask(F &&f, TimeDelta delay, Args... args) {
-    using T = typename std::result_of<F(Args...)>::type;
-    auto packaged_task = std::make_shared<std::packaged_task<T()>>(
+    auto packaged_task = std::make_shared<std::packaged_task<std::invoke_result_t<F, Args...>()>>(
         std::bind(std::forward<F>(f), std::forward<Args>(args)...));
     auto task = std::make_unique<Task>([packaged_task]() { (*packaged_task)(); });
     PostDelayedTask(std::move(task), delay);
