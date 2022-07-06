@@ -374,7 +374,10 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            __typeof(weakSelf) strongSelf = weakSelf;
+            __strong __typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
             CALayer *strongLayer = strongSelf.layer;
             CGRect contentsCenter = ({
                 CGSize size = contentImage.size;
