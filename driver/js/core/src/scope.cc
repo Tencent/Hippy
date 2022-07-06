@@ -44,6 +44,9 @@ using RegisterFunction = hippy::base::RegisterFunction;
 using ModuleClassMap = hippy::napi::ModuleClassMap;
 using CtxValue = hippy::napi::CtxValue;
 using TryCatch = hippy::napi::TryCatch;
+using DomEvent = hippy::dom::DomEvent;
+using EventNode = hippy::dom::EventNode;
+
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
@@ -363,6 +366,19 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
 }
 
 void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
+
+  //  run event in js thread
+  RootNode::SetEventCallbackRunner([weak_scope = weak_from_this()](
+                                       const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
+                                       std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
+    auto scope = weak_scope.lock();
+    if (!scope) {
+      return;
+    }
+    auto callback = [event, node, capture_nodes]() mutable { RootNode::EventTraverse(event, node, capture_nodes); };
+    scope->GetTaskRunner()->PostTask(std::move(callback));
+  });
+
   std::weak_ptr<Ctx> weak_context = context_;
 #ifdef ENABLE_INSPECTOR
   std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
