@@ -214,7 +214,7 @@ public class WebSocketClient {
   }
 
   public void send(byte[] data) {
-    sendFrame(mParser.frame(data));
+    sendFrame(data);
   }
 
   public void requestClose(int code, String reason) {
