@@ -47,6 +47,19 @@
       >
         这里是文字灰色阴影，点击可改变颜色
       </p>
+      <label>文本字符间距</label>
+      <p
+        class="p-demo-8 p-demo-content"
+        style="margin-bottom: 5px"
+      >
+        Text width letter-spacing -1
+      </p>
+      <p
+        class="p-demo-9 p-demo-content"
+        style="margin-top: 5px"
+      >
+        Text width letter-spacing 5
+      </p>
     </div>
   </div>
 </template>
@@ -154,5 +167,13 @@ export default {
   /*text-shadow-offset: 1px 1px; !* not support declared separately *!*/
   /*text-shadow-radius: 3;*/
   /*text-shadow-color: grey;*/
+}
+
+.p-demo .p-demo-8 {
+  letter-spacing: -1px;
+}
+
+.p-demo .p-demo-9 {
+  letter-spacing: 5px;
 }
 </style>
