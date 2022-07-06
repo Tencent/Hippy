@@ -160,6 +160,18 @@
 | ------ | -------- | --- |
 | number \| string | 否 | Android、iOS
 
+# letterSpacing
+
+文本字符间距
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/letter-spacing)
+
+!> hippy-vue 需采用 @hippy/vue-css-loader `2.14.1` 以上版本
+
+| 类型   | 必需 | 支持平台
+| ------ | -------- | --- |
+| number | 否 | Android、iOS
+
 # opacity
 
 | 类型   | 必需 | 支持平台
