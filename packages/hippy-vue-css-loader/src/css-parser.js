@@ -102,7 +102,7 @@ function convertPxUnitToPt(value) {
     return value;
   }
   // If value unit is px, change to use pt as 1:1.
-  if (value.endsWith('px')) {
+  if (typeof value === 'string' && value.endsWith('px')) {
     const num = parseFloat(value.slice(0, value.indexOf('px')), 10);
     if (!Number.isNaN(num)) {
       value = num;
@@ -513,10 +513,7 @@ function parseCSS(css, options) {
       default: {
         value = tryConvertNumber(value);
         // Convert the px to pt for specific properties
-        const sizeProperties = ['top', 'left', 'right', 'bottom', 'height', 'width', 'size', 'padding', 'margin', 'ratio', 'radius', 'offset', 'spread'];
-        if (sizeProperties.find(size => property.toLowerCase().indexOf(size) > -1)) {
-          value = convertPxUnitToPt(value);
-        }
+        value = convertPxUnitToPt(value);
       }
     }
 
