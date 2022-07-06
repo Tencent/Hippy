@@ -203,8 +203,11 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
       context->ThrowException("animation start_value error");
       return nullptr;
     }
-    animation_id = footstone::check::checked_numeric_cast<int32_t, uint32_t>(id);
-    // todo 避免 release checked_numeric_cast crash
+    flag = footstone::check::numeric_cast(id, animation_id);
+    if (!flag) {
+      context->ThrowException("animation id error");
+      return nullptr;
+    }
   }
 
   double to_value;
