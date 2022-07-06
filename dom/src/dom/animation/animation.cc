@@ -79,7 +79,7 @@ Animation::Animation(int32_t cnt) : Animation(cnt,
 
 Animation::Animation() : Animation(0, 0, 0, 0) {}
 
-Animation::~Animation() {}
+Animation::~Animation() = default;
 
 double Animation::Calculate(uint64_t time) {
   return start_value_;
@@ -192,12 +192,12 @@ void Animation::Start() {
         on_start();
       }
     }};
-    auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
-    animation_manager->AddDelayedAnimationRecord(id_, task);
+    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
+    animation_manager->AddDelayedAnimationRecord(id_, task_id);
   }
 }
 
-void Animation::Run(uint64_t now, AnimationOnRun on_run) {
+void Animation::Run(uint64_t now, const AnimationOnRun& on_run) {
   switch (status_) {
     case Animation::Status::kResume: {
       status_ = Animation::Status::kRunning;
@@ -296,14 +296,7 @@ void Animation::Destroy() {
     if (!on_cancel) {
       return;
     }
-    auto task_runner = root_node->GetDelegateTaskRunner().lock();
-    if (!task_runner) {
-      return;
-    }
-    auto func = [on_cancel = std::move(on_cancel)]() {
-      on_cancel();
-    };
-    task_runner->PostTask(std::move(func));
+    on_cancel();
   }
 }
 
@@ -388,8 +381,8 @@ void Animation::Resume() {
       animation->SetLastBeginTime(now);
       animation_manager->AddActiveAnimation(animation);
     }};
-    auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
-    animation_manager->AddDelayedAnimationRecord(id_, task);
+    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)), interval);
+    animation_manager->AddDelayedAnimationRecord(id_, task_id);
   } else if (exec_time >= delay && exec_time < delay + duration) {
     auto now = footstone::time::MonotonicallyIncreasingTime();
     last_begin_time_ = now;
@@ -438,7 +431,6 @@ void Animation::Repeat(uint64_t now) {
       return;
     }
     std::weak_ptr<Animation> weak_animation = self;
-    auto weak_dom_manager = dom_manager;
     std::weak_ptr<AnimationManager> weak_animation_manager = animation_manager;
     std::vector<std::function<void()>> ops = {[weak_animation, weak_animation_manager] {
       auto animation = weak_animation.lock();
@@ -461,8 +453,8 @@ void Animation::Repeat(uint64_t now) {
       }
       animation_manager->AddActiveAnimation(animation);
     }};
-    auto task = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
-    animation_manager->AddDelayedAnimationRecord(id_, task);
+    auto task_id = dom_manager->PostDelayedTask(Scene(std::move(ops)), delay_);
+    animation_manager->AddDelayedAnimationRecord(id_, task_id);
     status_ = Animation::Status::kStart;
   }
 }

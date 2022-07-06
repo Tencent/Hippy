@@ -401,7 +401,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetRootNode(strongSelf->_rootNode);
             strongSelf->_domManager = std::make_shared<hippy::DomManager>();
             strongSelf->_domManager->SetTaskRunner(strongSelf->_batchedBridge.workerManager->CreateTaskRunner("hippy_dom"));
-            strongSelf->_domManager->Init();
             strongSelf->_rootNode->SetDomManager(strongSelf->_domManager);
             strongSelf->_rootNode->GetLayoutNode()->SetScaleFactor(scale);
             std::weak_ptr<hippy::DomManager> weakDomManager = strongSelf->_domManager;
