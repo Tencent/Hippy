@@ -25,14 +25,12 @@
 #include <string>
 
 #include "dom/dom_event.h"
-#include "dom/event_node.h"
 #include "footstone/hippy_value.h"
 
 namespace hippy {
 inline namespace dom {
 
 class DomNode;
-class EventNode;
 
 enum class EventPhase: uint8_t {
   kNone = 0,
@@ -83,20 +81,11 @@ class DomEvent {
   inline std::weak_ptr<DomNode> GetCurrentTarget() {
     return current_target_;
   }
+  inline void SetTarget(std::weak_ptr<DomNode> target) {
+    target_ = target;
+  }
   inline std::weak_ptr<DomNode> GetTarget() {
     return target_;
-  }
-  inline void SetTargetEventNode(std::shared_ptr<EventNode> target) {
-    target_event_node_ = target;
-  }
-  inline std::shared_ptr<EventNode> GetTargetEventNode() {
-    return target_event_node_;
-  }
-  inline void SetCurrentEventNode(std::shared_ptr<EventNode> current) {
-    current_event_node_ = current;
-  }
-  inline std::shared_ptr<EventNode> GetCurrentEventNode() {
-    return current_event_node_;
   }
   inline std::string GetType() {
     return type_;
@@ -112,8 +101,6 @@ class DomEvent {
   std::string type_;
   std::weak_ptr<DomNode> target_;
   std::weak_ptr<DomNode> current_target_;
-  std::shared_ptr<EventNode> target_event_node_;
-  std::shared_ptr<EventNode> current_event_node_;
   bool prevent_capture_;
   bool prevent_bubble_;
   bool can_capture_;

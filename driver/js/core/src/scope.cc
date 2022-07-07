@@ -33,6 +33,7 @@
 #include "footstone/task_runner.h"
 #include "core/modules/module_register.h"
 #include "core/napi/native_source_code.h"
+#include "dom/dom_node.h"
 #ifdef JS_V8
 #include "core/napi/v8/js_native_api_v8.h"
 #endif
@@ -45,7 +46,7 @@ using ModuleClassMap = hippy::napi::ModuleClassMap;
 using CtxValue = hippy::napi::CtxValue;
 using TryCatch = hippy::napi::TryCatch;
 using DomEvent = hippy::dom::DomEvent;
-using EventNode = hippy::dom::EventNode;
+using DomNode = hippy::dom::DomNode;
 
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
@@ -381,31 +382,41 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
       return;
     }
 
-    std::stack<std::shared_ptr<EventNode>> capture_nodes = {};
-    std::shared_ptr<EventNode> node = {};
     auto event_name = event->GetType();
+    std::stack<std::shared_ptr<DomNode>> capture_nodes = {};
+    std::shared_ptr<DomNode> node = {};
 
     // 获取捕获节点
     if (event->CanCapture()) {
       auto parent = target->GetParent();
       while (parent) {
-        auto capture_node =
-            std::make_shared<EventNode>(parent->GetId(), parent->GetPid());
+        auto capture_node = std::make_shared<DomNode>();
+        capture_node->SetId(parent->GetId());
+        capture_node->SetPid(parent->GetPid());
         auto capture_listeners = parent->GetEventListener(event_name, true);
+        for(const auto& listener: capture_listeners) {
+          capture_node->AddEventListener(event_name, listener->id, true, listener->cb);
+        }
         auto bubble_listeners = parent->GetEventListener(event_name, false);
-        capture_node->SetCaptureListeners(capture_listeners);
-        capture_node->SetBubbleListeners(bubble_listeners);
+        for(const auto& listener: capture_listeners) {
+          capture_node->AddEventListener(event_name, listener->id, true, listener->cb);
+        }
         capture_nodes.push(capture_node);
         parent = parent->GetParent();
       }
     }
     // 当前节点
-    node = std::make_shared<EventNode>(target->GetId(), target->GetPid());
+    node = std::make_shared<DomNode>();
+    node->SetId(target->GetId());
+    node->SetPid(target->GetPid());
     auto capture_listeners = target->GetEventListener(event_name, true);
+    for(const auto& listener: capture_listeners) {
+      node->AddEventListener(event_name, listener->id, true, listener->cb);
+    }
     auto bubble_listeners = target->GetEventListener(event_name, false);
-    node->SetCaptureListeners(capture_listeners);
-    node->SetBubbleListeners(bubble_listeners);
-
+    for(const auto& listener: bubble_listeners) {
+      node->AddEventListener(event_name, listener->id, false, listener->cb);
+    }
     auto callback = [event, node, capture_nodes]() mutable { RootNode::EventTraverse(event, node, capture_nodes); };
     scope->GetTaskRunner()->PostTask(std::move(callback));
   });

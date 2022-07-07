@@ -4,7 +4,6 @@
 
 #include "dom/animation/animation_manager.h"
 #include "dom/diff_utils.h"
-#include "dom/event_node.h"
 #include "dom/render_manager.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
@@ -224,43 +223,43 @@ void RootNode::RemoveEvent(uint32_t id, const std::string& event_name) {
 
 void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) { RootNode::RunEventCallbackRunner(event); }
 
-void RootNode::EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
-                             std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
+void RootNode::EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<DomNode>& node,
+                             std::stack<std::shared_ptr<DomNode>>& capture_nodes) {
   FOOTSTONE_DCHECK(node != nullptr);
   FOOTSTONE_DCHECK(event != nullptr);
   if (node == nullptr || event == nullptr) return;
+  auto event_name = event->GetType();
 
-  event->SetTargetEventNode(node);
+  event->SetTarget(node);
   // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
   // 执行捕获流程
-  std::stack<std::shared_ptr<EventNode>> bubble_nodes = {};
+  std::stack<std::shared_ptr<DomNode>> bubble_nodes = {};
   while (!capture_nodes.empty()) {
     auto capture_node = capture_nodes.top();
     capture_nodes.pop();
-    event->SetCurrentEventNode(capture_node);  // 设置当前节点，cb里会用到
-    auto capture_listeners = capture_node->GetCaptureListeners();
+    event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
+    auto capture_listeners = capture_node->GetEventListener(event_name, true);
     for (const auto& listener : capture_listeners) {
       event->SetEventPhase(EventPhase::kCapturePhase);
-      listener.cb(event);  // StopPropagation并不会影响同级的回调调用
+      listener->cb(event);  // StopPropagation并不会影响同级的回调调用
     }
     if (event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
       return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
     }
-    bubble_nodes.push(capture_node);
+    bubble_nodes.push(std::move(capture_node));
   }
   // 执行本身节点回调
-  if (node == nullptr) return;
-  event->SetCurrentEventNode(node);
-  for (const auto& listener : node->GetCaptureListeners()) {
+  event->SetCurrentTarget(node);
+  for (const auto& listener : node->GetEventListener(event_name, false)) {
     event->SetEventPhase(EventPhase::kAtTarget);
-    listener.cb(event);
+    listener->cb(event);
   }
   if (event->IsPreventCapture()) {
     return;
   }
-  for (const auto& listener : node->GetBubbleListeners()) {
+  for (const auto& listener : node->GetEventListener(event_name, false)) {
     event->SetEventPhase(EventPhase::kAtTarget);
-    listener.cb(event);
+    listener->cb(event);
   }
   if (event->IsPreventBubble()) {
     return;
@@ -270,11 +269,11 @@ void RootNode::EventTraverse(const std::shared_ptr<DomEvent>& event, const std::
   while (!bubble_nodes.empty()) {
     auto bubble_node = bubble_nodes.top();
     bubble_nodes.pop();
-    event->SetCurrentEventNode(bubble_node);
-    auto listeners = bubble_node->GetBubbleListeners();
+    event->SetCurrentTarget(bubble_node);
+    auto listeners = bubble_node->GetEventListener(event_name, false);
     for (const auto& listener : listeners) {
       event->SetEventPhase(EventPhase::kBubblePhase);
-      listener.cb(event);
+      listener->cb(event);
     }
     if (event->IsPreventBubble()) {
       break;

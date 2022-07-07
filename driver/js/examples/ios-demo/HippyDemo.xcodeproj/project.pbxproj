@@ -22,7 +22,6 @@
 		D4B5A081281663F400ABBD9C /* scene.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07F281663F400ABBD9C /* scene.cc */; };
 		D4B5A0862816641600ABBD9C /* event_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A0842816641600ABBD9C /* event_module.cc */; };
 		D4B5A0872816641600ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A0852816641600ABBD9C /* scene_builder.cc */; };
-		D4EBECD22874232600170AE1 /* event_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4EBECD12874232600170AE1 /* event_node.cc */; };
 		D806C5082872BC3C00E62992 /* repeating_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4EF2872BC3B00E62992 /* repeating_timer.cc */; };
 		D806C5092872BC3C00E62992 /* task.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4F02872BC3B00E62992 /* task.cc */; };
 		D806C50A2872BC3C00E62992 /* thread_worker.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4F12872BC3B00E62992 /* thread_worker.cc */; };
@@ -253,8 +252,6 @@
 		D4B5A0852816641600ABBD9C /* scene_builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene_builder.cc; sourceTree = "<group>"; };
 		D4B5A0882816642300ABBD9C /* event_module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event_module.h; sourceTree = "<group>"; };
 		D4B5A0892816642300ABBD9C /* scene_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene_builder.h; sourceTree = "<group>"; };
-		D4EBECD12874232600170AE1 /* event_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = event_node.cc; sourceTree = "<group>"; };
-		D4EBECD32874233400170AE1 /* event_node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event_node.h; sourceTree = "<group>"; };
 		D806C4EF2872BC3B00E62992 /* repeating_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = repeating_timer.cc; sourceTree = "<group>"; };
 		D806C4F02872BC3B00E62992 /* task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task.cc; sourceTree = "<group>"; };
 		D806C4F12872BC3B00E62992 /* thread_worker.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_worker.cc; sourceTree = "<group>"; };
@@ -808,7 +805,6 @@
 		D84AB8D9273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
-				D4EBECD32874233400170AE1 /* event_node.h */,
 				D86B3E54284E31D2007E729B /* animation */,
 				D4B5A0832816640500ABBD9C /* scene_builder.h */,
 				D4B5A0822816640500ABBD9C /* scene.h */,
@@ -841,7 +837,6 @@
 		D84AB8E4273A5AAD00987D03 /* dom */ = {
 			isa = PBXGroup;
 			children = (
-				D4EBECD12874232600170AE1 /* event_node.cc */,
 				D86B3E5A284E31EB007E729B /* animation */,
 				D42D2C7A2833C84D0079B47B /* dom_listener.cc */,
 				D4B5A07E281663F400ABBD9C /* scene_builder.cc */,
@@ -2069,7 +2064,6 @@
 				F468DE6F2812A95200319196 /* HippyJSStackFrame.m in Sources */,
 				F45D268128067B6900CAB185 /* UIView+DirectionalLayout.mm in Sources */,
 				D806C5192872BC3C00E62992 /* worker.cc in Sources */,
-				D4EBECD22874232600170AE1 /* event_node.cc in Sources */,
 				F468DE692812A95200319196 /* HippyAssert.m in Sources */,
 				F45D265928067B6900CAB185 /* NativeRenderRefresh.mm in Sources */,
 				F4C1CE262811439A00CED4C4 /* UIView+Sequence.m in Sources */,

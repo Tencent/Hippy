@@ -23,7 +23,6 @@
 #include <stack>
 
 #include "dom/dom_node.h"
-#include "dom/event_node.h"
 #include "footstone/task_runner.h"
 
 namespace hippy {
@@ -69,8 +68,8 @@ class RootNode : public DomNode {
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
   // event traverse for js
-  static void EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
-                            std::stack<std::shared_ptr<EventNode>>& capture_nodes);
+  static void EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<DomNode>& node,
+                            std::stack<std::shared_ptr<DomNode>>& capture_nodes);
   // event traverse for vl
   static void EventTraverse(const std::shared_ptr<DomEvent>& event);
 

@@ -183,8 +183,6 @@ void DomNode::SetLayoutOrigin(float x, float y) {
 
 void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture,
                                const EventCallback& cb) {
-  current_callback_id_ += 1;
-  FOOTSTONE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
   if (!event_listener_map_) {
     event_listener_map_ = std::make_shared<
         std::unordered_map<std::string, std::array<std::vector<std::shared_ptr<DomEventListenerInfo>>, 2>>>();
