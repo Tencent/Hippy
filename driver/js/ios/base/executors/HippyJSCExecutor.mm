@@ -169,7 +169,7 @@ HIPPY_EXPORT_MODULE()
 #ifdef ENABLE_INSPECTOR
         if (bridge.debugMode) {
             NSString *wsURL = [self completeWSURLWithBridge:bridge];
-            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], self.bridge.workerManager);
+            auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], self.bridge.domWorkerManager);
             devtools_data_source->SetRuntimeDebugMode(bridge.debugMode);
             self.pScope->SetDevtoolsDataSource(devtools_data_source);
         }
