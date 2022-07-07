@@ -380,7 +380,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
-            onCreateNode(rootId, nodeId, className);
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
             if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
                 // If the node has a virtual parent, no need to create corresponding render node,
@@ -673,19 +672,6 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             @NonNull String className,
             @Nullable Map<String, Object> props) {
         return mRenderManager.createVirtualNode(rootId, id, pid, index, className, props);
-    }
-
-    private void onCreateNode(int rootId, int nodeId, @NonNull String className) {
-        // If this node is a modal type, should update node size with window width and height
-        // before layout.
-        if (className.equals(HippyModalHostManager.CLASS_NAME)) {
-            DisplayMetrics metrics = DisplayUtils.getMetrics(false);
-            if (metrics != null) {
-                mRenderProvider
-                        .onSizeChanged(rootId, nodeId, metrics.widthPixels, metrics.heightPixels,
-                                true);
-            }
-        }
     }
 
     private void addUITask(@NonNull UITaskExecutor task) throws NativeRenderException {
