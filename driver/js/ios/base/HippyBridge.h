@@ -41,7 +41,7 @@
 @class HippyBridge;
 @class HippyEventDispatcher;
 @class HippyPerformanceLogger;
-@class NativeRenderUIManager;
+@class NativeRenderImpl;
 
 //class DomManager;
 

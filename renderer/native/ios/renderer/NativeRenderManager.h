@@ -30,7 +30,7 @@
 #import "NativeRenderFrameworkProxy.h"
 #import "NativeRenderContext.h"
 
-@class UIView, NativeRenderUIManager;
+@class UIView, NativeRenderImpl;
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
@@ -39,7 +39,7 @@ class NativeRenderManager : public hippy::RenderManager {
     
 public:
     NativeRenderManager();
-    NativeRenderManager(NativeRenderUIManager *uiManager):uiManager_(uiManager){}
+    NativeRenderManager(NativeRenderImpl *uiManager):renderImpl_(uiManager){}
     
     ~NativeRenderManager();
 
@@ -146,7 +146,7 @@ public:
     id<NativeRenderContext> GetRenderContext();
         
 private:
-    NativeRenderUIManager *uiManager_;
+    NativeRenderImpl *renderImpl_;
 };
 
 #endif /* NativeRenderManager_h */

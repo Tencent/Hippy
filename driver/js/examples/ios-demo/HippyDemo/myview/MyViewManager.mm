@@ -23,7 +23,7 @@
 #import "MyViewManager.h"
 #import "MyView.h"
 #import "UIView+NativeRender.h"
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 
 @implementation MyViewManager
 

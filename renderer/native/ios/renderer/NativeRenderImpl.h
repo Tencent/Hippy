@@ -60,7 +60,7 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotificatio
 /**
  * The NativeRenderUIManager is the module responsible for updating the view hierarchy.
  */
-@interface NativeRenderUIManager : NSObject <NativeRenderInvalidating, NativeRenderContext>
+@interface NativeRenderImpl : NSObject <NativeRenderInvalidating, NativeRenderContext>
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 

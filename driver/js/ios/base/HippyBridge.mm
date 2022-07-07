@@ -32,7 +32,7 @@
 #import "HippyModuleData.h"
 #import "HippyPerformanceLogger.h"
 #import "NativeRenderUtils.h"
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyBridge+LocalFileSource.h"

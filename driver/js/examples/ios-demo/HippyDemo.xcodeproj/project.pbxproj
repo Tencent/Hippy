@@ -206,7 +206,7 @@
 		F482919F274E420D00D91128 /* Hippy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4829195274E420C00D91128 /* Hippy.cpp */; };
 		F48291A0274E420D00D91128 /* HPLayoutCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F4829197274E420C00D91128 /* HPLayoutCache.cpp */; };
 		F4A8424227D38CF900AEFC88 /* NativeRenderManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */; };
-		F4A8424327D38CF900AEFC88 /* NativeRenderUIManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8424127D38CF900AEFC88 /* NativeRenderUIManager.mm */; };
+		F4A8424327D38CF900AEFC88 /* NativeRenderImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8424127D38CF900AEFC88 /* NativeRenderImpl.mm */; };
 		F4B938F82840B58C00187AFA /* NativeRenderWaterfallViewCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4B938F72840B58C00187AFA /* NativeRenderWaterfallViewCell.mm */; };
 		F4B938FB2840C93C00187AFA /* NativeRenderObjectWatefallItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4B938FA2840C93C00187AFA /* NativeRenderObjectWatefallItem.mm */; };
 		F4BD045827D5AE2500339A2C /* UIView+Render.mm in Sources */ = {isa = PBXBuildFile; fileRef = F459C45927D4F355009A7441 /* UIView+Render.mm */; };
@@ -659,10 +659,10 @@
 		F4829198274E420C00D91128 /* HPUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPUtil.h; sourceTree = "<group>"; };
 		F4829199274E420C00D91128 /* HPStyle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HPStyle.h; sourceTree = "<group>"; };
 		F487A001284E28AA0068A9F6 /* NativeRenderInvalidating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderInvalidating.h; sourceTree = "<group>"; };
-		F4A8423E27D38CF900AEFC88 /* NativeRenderUIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderUIManager.h; sourceTree = "<group>"; };
+		F4A8423E27D38CF900AEFC88 /* NativeRenderImpl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderImpl.h; sourceTree = "<group>"; };
 		F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderManager.mm; sourceTree = "<group>"; };
 		F4A8424027D38CF900AEFC88 /* NativeRenderManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderManager.h; sourceTree = "<group>"; };
-		F4A8424127D38CF900AEFC88 /* NativeRenderUIManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderUIManager.mm; sourceTree = "<group>"; };
+		F4A8424127D38CF900AEFC88 /* NativeRenderImpl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderImpl.mm; sourceTree = "<group>"; };
 		F4A8424427D38D7900AEFC88 /* NativeRenderContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderContext.h; sourceTree = "<group>"; };
 		F4B938F62840B58C00187AFA /* NativeRenderWaterfallViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderWaterfallViewCell.h; sourceTree = "<group>"; };
 		F4B938F72840B58C00187AFA /* NativeRenderWaterfallViewCell.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderWaterfallViewCell.mm; sourceTree = "<group>"; };
@@ -1733,10 +1733,10 @@
 				F468DE9C2812ACEA00319196 /* NativeRenderObjectRootView.h */,
 				F468DE972812ACEA00319196 /* NativeRenderObjectRootView.mm */,
 				F468DE982812ACEA00319196 /* NativeRenderScrollProtocol.h */,
-				F4A8423E27D38CF900AEFC88 /* NativeRenderUIManager.h */,
+				F4A8423E27D38CF900AEFC88 /* NativeRenderImpl.h */,
 				F4A8423F27D38CF900AEFC88 /* NativeRenderManager.mm */,
 				F4A8424027D38CF900AEFC88 /* NativeRenderManager.h */,
-				F4A8424127D38CF900AEFC88 /* NativeRenderUIManager.mm */,
+				F4A8424127D38CF900AEFC88 /* NativeRenderImpl.mm */,
 				F4A8424427D38D7900AEFC88 /* NativeRenderContext.h */,
 				F459C45827D4F355009A7441 /* UIView+Render.h */,
 				F459C45927D4F355009A7441 /* UIView+Render.mm */,
@@ -2022,7 +2022,7 @@
 				D4B5A0872816641600ABBD9C /* scene_builder.cc in Sources */,
 				F45D267D28067B6900CAB185 /* UIView+MountEvent.m in Sources */,
 				D4B5A081281663F400ABBD9C /* scene.cc in Sources */,
-				F4A8424327D38CF900AEFC88 /* NativeRenderUIManager.mm in Sources */,
+				F4A8424327D38CF900AEFC88 /* NativeRenderImpl.mm in Sources */,
 				F45D266B28067B6900CAB185 /* NativeRenderWaterfallItemView.mm in Sources */,
 				F45D266028067B6900CAB185 /* NativeRenderTextViewManager.mm in Sources */,
 				F45D269328067B6900CAB185 /* NativeRenderText.mm in Sources */,

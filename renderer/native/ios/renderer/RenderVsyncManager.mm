@@ -44,7 +44,7 @@
 }
 
 - (void)applyRefreshRate:(float)rate {
-    NSAssert(1 <= rate && 120 >=rate, @"vsync refresh rate must between 1 and 60");
+    NSAssert(1 <= rate && 120 >=rate, @"vsync refresh rate must between 1 and 120");
     if (@available(iOS 15.0, *)) {
         CAFrameRateRange rateRange = {rate, rate, rate};
         self.preferredFrameRateRange = rateRange;
@@ -53,7 +53,9 @@
         self.preferredFramesPerSecond = rate;
     }
     else {
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
         self.frameInterval = 60.f / rate;
+#endif //__IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_10_0
     }
 }
 
