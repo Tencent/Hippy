@@ -54,6 +54,14 @@ module.exports = {
     devMiddleware: {
       writeToDisk: true,
     },
+    /**
+     * support inspect Network, Storage, Cookie, and Log for non-XCode compiled App
+     * the domain field indicate supported inspect Cookie domain
+     * set false to disable those ability
+     */
+    injectJSDevtools: {
+      domains: ['http://localhost:38989', 'https://hippyjs.org'],
+    },
   },
   entry: {
     index: [path.resolve(pkg.nativeMain)],
@@ -171,6 +179,7 @@ module.exports = {
       if (fs.existsSync(path.resolve(hippyVuePath, 'dist/index.js'))) {
         console.warn(`* Using the @hippy/vue in ${hippyVuePath} as vue alias`);
         aliases.vue = hippyVuePath;
+        aliases['@hippy/vue'] = hippyVuePath;
       } else {
         console.warn('* Using the @hippy/vue defined in package.json');
       }

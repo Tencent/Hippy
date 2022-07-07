@@ -34,6 +34,14 @@ module.exports = {
     devMiddleware: {
       writeToDisk: true,
     },
+    /**
+     * support inspect Network, Storage, Cookie, and Log for non-XCode compiled App
+     * the domain field indicate supported inspect Cookie domain
+     * set false to disable those ability
+     */
+    injectJSDevtools: {
+      domains: ['http://localhost:38989', 'https://hippyjs.org'],
+    },
   },
   entry: {
     index: ['regenerator-runtime', path.resolve(pkg.main)],
