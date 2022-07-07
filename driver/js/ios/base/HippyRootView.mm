@@ -32,7 +32,7 @@
 #import "HippyKeyCommands.h"
 #import "NativeRenderLog.h"
 #import "HippyPerformanceLogger.h"
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 #import "NativeRenderUtils.h"
 #import "NativeRenderView.h"
 #import "UIView+NativeRender.h"

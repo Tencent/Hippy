@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import "NativeRenderAnimationType.h"
@@ -137,7 +137,7 @@ NSString *const NativeRenderUIManagerRootViewTagKey = @"NativeRenderUIManagerRoo
 NSString *const NativeRenderUIManagerKey = @"NativeRenderUIManagerKey";
 NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIManagerDidEndBatchNotification";
 
-@interface NativeRenderUIManager() {
+@interface NativeRenderImpl() {
     NSMutableArray<NativeRenderRenderUIBlock> *_pendingUIBlocks;
 
     NativeRenderComponentMap *_renderObjectRegistry;
@@ -156,7 +156,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 
 @end
 
-@implementation NativeRenderUIManager
+@implementation NativeRenderImpl
 
 @synthesize frameworkProxy = _frameworkProxy;
 @synthesize domManager = _domManager;
@@ -187,7 +187,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     _pendingUIBlocks = nil;
     __weak __typeof(self) weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NativeRenderUIManager *strongSelf = weakSelf;
+        NativeRenderImpl *strongSelf = weakSelf;
         if (strongSelf) {
             strongSelf->_viewRegistry = nil;
             strongSelf->_componentTransactionListeners = nil;
@@ -292,10 +292,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     UIColor *backgroundColor = [rootView backgroundColor];
     NSString *rootViewClassName = NSStringFromClass([rootView class]);
     // Register shadow view
-    __weak NativeRenderUIManager *weakSelf = self;
+    __weak NativeRenderImpl *weakSelf = self;
     std::function<void()> registerRootViewFunction = [weakSelf, hippyTag, frame, backgroundColor, rootViewClassName, rootNode](){
         @autoreleasepool {
-            NativeRenderUIManager *strongSelf = weakSelf;
+            NativeRenderImpl *strongSelf = weakSelf;
             if (!strongSelf) {
                 return;
             }
@@ -335,7 +335,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         if (!weakSelf) {
             return;
         }
-        NativeRenderUIManager *strongSelf = weakSelf;
+        NativeRenderImpl *strongSelf = weakSelf;
         NativeRenderObjectView *renderObject = [strongSelf->_renderObjectRegistry rootComponentForTag:hippyTag];
         if (renderObject == nil) {
             return;
@@ -623,12 +623,12 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     int32_t rootTag = strongRootNode->GetId();
     NSArray<NativeRenderRenderUIBlock> *previousPendingUIBlocks = _pendingUIBlocks;
     _pendingUIBlocks = [NSMutableArray new];
-    __weak NativeRenderUIManager *weakManager = self;
+    __weak NativeRenderImpl *weakManager = self;
     if (previousPendingUIBlocks.count) {
         // Execute the previously queued UI blocks
         dispatch_async(dispatch_get_main_queue(), ^{
             if (weakManager) {
-                NativeRenderUIManager *strongSelf = weakManager;
+                NativeRenderImpl *strongSelf = weakManager;
                 NSDictionary<NSNumber *, UIView *> *viewReg =
                     [strongSelf->_viewRegistry componentsForRootTag:@(rootTag)];
                 @try {
@@ -686,7 +686,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
             NSDictionary *props = [dicProps objectForKey:@(node->GetId())];
             NativeRenderComponentData *componentData = [self componentDataForViewName:viewName];
             [self addUIBlock:^(id<NativeRenderContext> renderContext, __unused NSDictionary<NSNumber *,UIView *> *viewRegistry) {
-                NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+                NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
                 UIView *view = [uiManager createViewByComponentData:componentData hippyTag:hippyTag rootTag:rootNodeTag properties:props viewName:viewName];
                 view.nativeRenderObjectView = renderObject;
                 view.renderContext = renderContext;
@@ -890,31 +890,31 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     [renderObject addEventName:name];
     if (name == hippy::kClickEvent) {
         [self addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+            NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
             [uiManager addClickEventListenerForView:node_id onRootNode:rootNode];
         }];
     } else if (name == hippy::kLongClickEvent) {
         [self addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+            NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
             [uiManager addLongClickEventListenerForView:node_id onRootNode:rootNode];
         }];
     } else if (name == hippy::kTouchStartEvent || name == hippy::kTouchMoveEvent
                || name == hippy::kTouchEndEvent || name == hippy::kTouchCancelEvent) {
         std::string name_ = name;
         [self addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+            NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
             [uiManager addTouchEventListenerForType:name_ forView:node_id onRootNode:rootNode];
         }];
     } else if (name == hippy::kShowEvent || name == hippy::kDismissEvent) {
         std::string name_ = name;
         [self addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+            NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
             [uiManager addShowEventListenerForType:name_ forView:node_id onRootNode:rootNode];
         }];
     } else if (name == hippy::kPressIn || name == hippy::kPressOut) {
         std::string name_ = name;
         [self addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+            NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
             [uiManager addPressEventListenerForType:name_ forView:node_id onRootNode:rootNode];
         }];
     } else if (name == kVSyncKey) {
@@ -939,7 +939,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     else {
         std::string name_ = name;
         [self addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+            NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
             [uiManager addPropertyEvent:name_ forDomNode:node_id onRootNode:rootNode];
         }];
     }
@@ -1158,7 +1158,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         eventName == hippy::kPressIn || eventName == hippy::kPressOut) {
         std::string name_ = eventName;
         [self addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-            NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+            NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
             UIView *view = [uiManager viewForHippyTag:@(hippyTag) onRootTag:@(root_id)];
             [view removeViewEvent:viewEventTypeFromName(name_)];
         }];
@@ -1245,7 +1245,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     [self amendPendingUIBlocksWithStylePropagationUpdateForRenderObject:rootView];
 
     [self addUIBlock:^(id<NativeRenderContext> renderContext, __unused NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        NativeRenderUIManager *uiManager = (NativeRenderUIManager *)renderContext;
+        NativeRenderImpl *uiManager = (NativeRenderImpl *)renderContext;
         for (id<NativeRenderComponentProtocol> node in uiManager->_componentTransactionListeners) {
             [node hippyComponentDidFinishTransaction];
         }

@@ -45,7 +45,7 @@
 #include "NativeRenderManager.h"
 #include "dom/dom_manager.h"
 #import "UIView+NativeRender.h"
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 
 #define HippyAssertJSThread()
 //
