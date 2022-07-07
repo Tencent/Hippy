@@ -48,6 +48,7 @@ class DomEvent {
            std::shared_ptr<HippyValue> value)
       : type_(std::move(type)),
         target_(target),
+        current_target_(target),
         prevent_capture_(false),
         prevent_bubble_(false),
         can_capture_(can_capture),
@@ -75,6 +76,12 @@ class DomEvent {
   }
   inline bool CanBubble() {
     return can_bubble_;
+  }
+  inline void SetCurrentTarget(std::weak_ptr<DomNode> current) {
+    current_target_ = current;
+  }
+  inline std::weak_ptr<DomNode> GetCurrentTarget() {
+    return current_target_;
   }
   inline std::weak_ptr<DomNode> GetTarget() {
     return target_;
@@ -104,6 +111,7 @@ class DomEvent {
  private:
   std::string type_;
   std::weak_ptr<DomNode> target_;
+  std::weak_ptr<DomNode> current_target_;
   std::shared_ptr<EventNode> target_event_node_;
   std::shared_ptr<EventNode> current_event_node_;
   bool prevent_capture_;

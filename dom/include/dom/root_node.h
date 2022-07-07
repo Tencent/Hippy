@@ -33,8 +33,7 @@ class RootNode : public DomNode {
  public:
   using TaskRunner = footstone::runner::TaskRunner;
   using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
-  using EventCallBackRunner = std::function<void(const std::shared_ptr<DomEvent>&, const std::shared_ptr<EventNode>&,
-                                                 std::stack<std::shared_ptr<EventNode>>&)>;
+  using EventCallBackRunner = std::function<void(const std::shared_ptr<DomEvent>&)>;
 
   RootNode(uint32_t id);
   RootNode();
@@ -69,14 +68,17 @@ class RootNode : public DomNode {
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
+  // event traverse for js
   static void EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
                             std::stack<std::shared_ptr<EventNode>>& capture_nodes);
+  // event traverse for vl
+  static void EventTraverse(const std::shared_ptr<DomEvent>& event);
+
   static void SetEventCallbackRunner(EventCallBackRunner callback_runner) {
     RootNode::event_callback_runner_ = callback_runner;
   }
-  static void RunEventCallbackRunner(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
-                                     std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
-    RootNode::event_callback_runner_(event, node, capture_nodes);
+  static void RunEventCallbackRunner(const std::shared_ptr<DomEvent>& event) {
+    RootNode::event_callback_runner_(event);
   }
 
  private:

@@ -24,9 +24,9 @@ using Serializer = footstone::value::Serializer;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
 using Task = footstone::Task;
 
-RootNode::EventCallBackRunner RootNode::event_callback_runner_ =
-    [](const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
-       std::stack<std::shared_ptr<EventNode>>& capture_nodes) { RootNode::EventTraverse(event, node, capture_nodes); };
+RootNode::EventCallBackRunner RootNode::event_callback_runner_ = [](const std::shared_ptr<DomEvent>& event) {
+  RootNode::EventTraverse(event);
+};
 
 RootNode::RootNode(uint32_t id) : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}) {
   animation_manager_ = std::make_shared<AnimationManager>();
@@ -222,40 +222,7 @@ void RootNode::RemoveEvent(uint32_t id, const std::string& event_name) {
   event_operations_.push_back({EventOperation::kOpRemove, id, event_name});
 }
 
-void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
-  auto weak_target = event->GetTarget();
-  auto target = weak_target.lock();
-  FOOTSTONE_DCHECK(target != nullptr);
-  if (!target) {
-    return;
-  }
-
-  std::stack<std::shared_ptr<EventNode>> capture_nodes = {};
-  std::shared_ptr<EventNode> node = {};
-  auto event_name = event->GetType();
-
-  // 获取捕获节点
-  if (event->CanCapture()) {
-    auto parent = target->GetParent();
-    while (parent) {
-      auto capture_node = std::make_shared<EventNode>(parent->GetId(), parent->GetPid());
-      auto capture_listeners = parent->GetEventListener(event_name, true);
-      auto bubble_listeners = parent->GetEventListener(event_name, false);
-      capture_node->SetCaptureListeners(capture_listeners);
-      capture_node->SetBubbleListeners(bubble_listeners);
-      capture_nodes.push(capture_node);
-      parent = parent->GetParent();
-    }
-  }
-  // 当前节点
-  node = std::make_shared<EventNode>(target->GetId(), target->GetPid());
-  auto capture_listeners = target->GetEventListener(event_name, true);
-  auto bubble_listeners = target->GetEventListener(event_name, false);
-  node->SetCaptureListeners(capture_listeners);
-  node->SetBubbleListeners(bubble_listeners);
-
-  RootNode::RunEventCallbackRunner(event, node, capture_nodes);
-}
+void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) { RootNode::RunEventCallbackRunner(event); }
 
 void RootNode::EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
                              std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
@@ -308,6 +275,73 @@ void RootNode::EventTraverse(const std::shared_ptr<DomEvent>& event, const std::
     for (const auto& listener : listeners) {
       event->SetEventPhase(EventPhase::kBubblePhase);
       listener.cb(event);
+    }
+    if (event->IsPreventBubble()) {
+      break;
+    }
+  }
+}
+
+void RootNode::EventTraverse(const std::shared_ptr<DomEvent>& event) {
+  auto weak_target = event->GetTarget();
+  auto event_name = event->GetType();
+  auto target = weak_target.lock();
+  if (target) return;
+
+  std::stack<std::shared_ptr<DomNode>> capture_list = {};
+  // 执行捕获流程，注：target节点event.StopPropagation并不会阻止捕获流程
+  if (event->CanCapture()) {
+    // 获取捕获列表
+    auto parent = target->GetParent();
+    while (parent) {
+      capture_list.push(parent);
+      parent = parent->GetParent();
+    }
+  }
+  auto capture_target_listeners = target->GetEventListener(event_name, true);
+  auto bubble_target_listeners = target->GetEventListener(event_name, false);
+  // 捕获列表反过来就是冒泡列表，不需要额外遍历生成
+  // 执行捕获流程
+  std::stack<std::shared_ptr<DomNode>> bubble_list = {};
+  while (!capture_list.empty()) {
+    auto capture_node = capture_list.top();
+    capture_list.pop();
+    event->SetCurrentTarget(capture_node);  // 设置当前节点，cb里会用到
+    auto listeners = capture_node->GetEventListener(event_name, true);
+    for (const auto& listener : listeners) {
+      event->SetEventPhase(EventPhase::kCapturePhase);
+      listener->cb(event);  // StopPropagation并不会影响同级的回调调用
+    }
+    if (event->IsPreventCapture()) {  // cb 内部调用了 event.StopPropagation 会阻止捕获
+      return;  // 捕获流中StopPropagation不仅会导致捕获流程结束，后面的目标事件和冒泡都会终止
+    }
+    bubble_list.push(std::move(capture_node));
+  }
+  // 执行本身节点回调
+  event->SetCurrentTarget(event->GetTarget());
+  for (const auto& listener : capture_target_listeners) {
+    event->SetEventPhase(EventPhase::kAtTarget);
+    listener->cb(event);
+  }
+  if (event->IsPreventCapture()) {
+    return;
+  }
+  for (const auto& listener : bubble_target_listeners) {
+    event->SetEventPhase(EventPhase::kAtTarget);
+    listener->cb(event);
+  }
+  if (event->IsPreventBubble()) {
+    return;
+  }
+  // 执行冒泡流程
+  while (!bubble_list.empty()) {
+    auto bubble_node = bubble_list.top();
+    bubble_list.pop();
+    event->SetCurrentTarget(bubble_node);
+    auto listeners = bubble_node->GetEventListener(event_name, false);
+    for (const auto& listener : listeners) {
+      event->SetEventPhase(EventPhase::kBubblePhase);
+      listener->cb(event);
     }
     if (event->IsPreventBubble()) {
       break;
