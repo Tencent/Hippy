@@ -25,7 +25,7 @@
 #include <thread>
 #include <utility>
 
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "footstone/logging.h"
 
 typedef WSClient::connection_ptr WSConnectionPtr;

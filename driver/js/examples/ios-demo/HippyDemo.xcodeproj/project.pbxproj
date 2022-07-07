@@ -15,6 +15,7 @@
 		067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97123B5F309009D5EE2 /* MyViewManager.mm */; };
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
+		9B4E720E2876D0B9006566E1 /* string_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B4E720D2876D0B9006566E1 /* string_utils.cc */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		D3D52E8B2873D48600740B66 /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3D52E8A2873D47900740B66 /* libdevtools_backend.a */; };
 		D3D52E952873E8D100740B66 /* trace_control.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52E8D2873E8D100740B66 /* trace_control.cc */; };
@@ -23,7 +24,6 @@
 		D3D52E982873E8D100740B66 /* hippy_dom_tree_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52E922873E8D100740B66 /* hippy_dom_tree_adapter.cc */; };
 		D3D52E992873E8D100740B66 /* hippy_tracing_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52E932873E8D100740B66 /* hippy_tracing_adapter.cc */; };
 		D3D52E9A2873E8D100740B66 /* devtools_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52E942873E8D100740B66 /* devtools_utils.cc */; };
-		D3D52EBD28757D7200740B66 /* tdf_string_util.cc in Sources */ = {isa = PBXBuildFile; fileRef = D3D52EB728757D7200740B66 /* tdf_string_util.cc */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B09E392750D2C000643CDF /* Flex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D4B09E362750D21600643CDF /* Flex.cpp */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -263,6 +263,8 @@
 		5EFC12FC2074771164E4766F /* Pods-HippyDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.debug.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		9252AE8A2809532F00B27E50 /* root_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = root_node.cc; sourceTree = "<group>"; };
 		9252AE8C2809534100B27E50 /* root_node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = root_node.h; sourceTree = "<group>"; };
+		9B4E720C2876D0A8006566E1 /* string_utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = string_utils.h; sourceTree = "<group>"; };
+		9B4E720D2876D0B9006566E1 /* string_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_utils.cc; sourceTree = "<group>"; };
 		A04A0CACCEE3C91B722BD4AC /* Pods-HippyDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.release.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.release.xcconfig"; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
@@ -284,8 +286,6 @@
 		D3D52EA42873E8DD00740B66 /* devtools_macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_macro.h; sourceTree = "<group>"; };
 		D3D52EA52873E8DE00740B66 /* hippy_dom_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_data.h; sourceTree = "<group>"; };
 		D3D52EA62873E8DE00740B66 /* devtools_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_utils.h; sourceTree = "<group>"; };
-		D3D52EB728757D7200740B66 /* tdf_string_util.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tdf_string_util.cc; sourceTree = "<group>"; };
-		D3D52EBE28757D8100740B66 /* tdf_string_util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tdf_string_util.h; sourceTree = "<group>"; };
 		D42D2C7A2833C84D0079B47B /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
 		D4B09E362750D21600643CDF /* Flex.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flex.cpp; sourceTree = "<group>"; };
 		D4B5A07E281663F400ABBD9C /* scene_builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene_builder.cc; sourceTree = "<group>"; };
@@ -1150,7 +1150,6 @@
 		D88F2A2F286AA6AD008D1439 /* footstone */ = {
 			isa = PBXGroup;
 			children = (
-				D3D52EBE28757D8100740B66 /* tdf_string_util.h */,
 				D8A8889A286D415600D60489 /* serializer.h */,
 				D8A88898286D414C00D60489 /* hash.h */,
 				D8A88899286D414C00D60489 /* hippy_value.h */,
@@ -1158,6 +1157,7 @@
 				D88F2A31286AA6AD008D1439 /* task.h */,
 				D88F2A32286AA6AD008D1439 /* idle_task.h */,
 				D88F2A35286AA6AD008D1439 /* string_view_utils.h */,
+				9B4E720C2876D0A8006566E1 /* string_utils.h */,
 				D88F2A36286AA6AD008D1439 /* thread_worker_impl.h */,
 				D88F2A37286AA6AD008D1439 /* platform */,
 				D88F2A3D286AA6AD008D1439 /* logging.h */,
@@ -1200,7 +1200,7 @@
 		D88F2A54286AA6AD008D1439 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				D3D52EB728757D7200740B66 /* tdf_string_util.cc */,
+				9B4E720D2876D0B9006566E1 /* string_utils.cc */,
 				D806C5052872BC3C00E62992 /* base_timer.cc */,
 				D806C4FC2872BC3B00E62992 /* deserializer.cc */,
 				D806C5002872BC3B00E62992 /* hippy_value.cc */,
@@ -2072,6 +2072,7 @@
 				F4810954277062AD005C221B /* layer_optimized_render_manager.cc in Sources */,
 				F4B938F82840B58C00187AFA /* NativeRenderWaterfallViewCell.mm in Sources */,
 				F48291A0274E420D00D91128 /* HPLayoutCache.cpp in Sources */,
+				9B4E720E2876D0B9006566E1 /* string_utils.cc in Sources */,
 				F45D268C28067B6900CAB185 /* NativeRenderNavigatorItemViewController.m in Sources */,
 				F45D268A28067B6900CAB185 /* NativeRenderSmartViewPagerView.mm in Sources */,
 				F4C1CE23281131EC00CED4C4 /* NSData+DataType.m in Sources */,
@@ -2081,7 +2082,6 @@
 				D84AB9BE273A618B00987D03 /* console_module.cc in Sources */,
 				F45D267C28067B6900CAB185 /* NativeRenderBaseListViewDataSource.mm in Sources */,
 				F45D269528067B6900CAB185 /* NativeRenderModalCustomPresentationController.m in Sources */,
-				D3D52EBD28757D7200740B66 /* tdf_string_util.cc in Sources */,
 				D84AB9C1273A618B00987D03 /* js_value_wrapper.cc in Sources */,
 				D86B3E61284E31EB007E729B /* animation_math.cc in Sources */,
 				F468DE832812A95200319196 /* HippySRSIMDHelpers.m in Sources */,

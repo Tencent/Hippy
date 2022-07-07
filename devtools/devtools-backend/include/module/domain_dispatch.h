@@ -87,6 +87,8 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
   void RegisterDefaultDomainListener();
 
  private:
+  static std::string AdaptProtocolName(std::string domain_name);
+
   std::map<std::string, std::shared_ptr<BaseDomain>> domain_register_map_;
   std::function<void(const std::string)> rsp_handler_;
   std::shared_ptr<DataChannel> data_channel_;

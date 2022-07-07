@@ -27,9 +27,9 @@ namespace footstone {
 inline namespace utils {
 
 /**
- * @brief Tdf devtools string tool class
+ * @brief string utils class, for split, trim and camelize
  */
-class TdfStringUtil {
+class StringUtils {
  public:
   /**
    * @brief split string method
@@ -75,8 +75,6 @@ class TdfStringUtil {
     temp_stream << value;
     return temp_stream.str();
   }
-
-  static std::string AdaptProtocolName(std::string domain_name);
 };
 
 }

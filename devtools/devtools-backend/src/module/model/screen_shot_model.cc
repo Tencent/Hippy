@@ -20,8 +20,8 @@
 
 #include "module/model/screen_shot_model.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
-#include "devtools_base/transform_string_util.h"
+#include "devtools_base/macros.h"
+#include "module/util/transform_string_util.h"
 #include "footstone/logging.h"
 #include "module/inspect_props.h"
 

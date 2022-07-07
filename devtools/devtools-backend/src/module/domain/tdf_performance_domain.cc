@@ -20,7 +20,7 @@
 
 #include "module/domain/tdf_performance_domain.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "footstone/logging.h"
 #include "module/domain_register.h"
 

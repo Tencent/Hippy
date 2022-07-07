@@ -21,7 +21,7 @@
 #include "module/domain/tdf_inspector_domain.h"
 #include <utility>
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "footstone/logging.h"
 #include "module/domain_register.h"
 

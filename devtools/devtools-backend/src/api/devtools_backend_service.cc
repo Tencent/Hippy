@@ -22,7 +22,7 @@
 #include "api/notification/default/default_network_notification.h"
 #include "api/notification/default/default_runtime_notification.h"
 #include "api/notification/default/default_vm_response_notification.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "footstone/logging.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/tunnel_service.h"

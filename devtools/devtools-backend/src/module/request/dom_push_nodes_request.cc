@@ -19,7 +19,7 @@
  */
 
 #include "module/request/dom_push_nodes_request.h"
-#include "devtools_base/parse_json_util.h"
+#include "module/util/parse_json_util.h"
 
 namespace hippy::devtools {
 

@@ -18,16 +18,14 @@
  * limitations under the License.
  */
 
-#include "footstone/tdf_string_util.h"
+#include "footstone/string_utils.h"
 #include <regex>
 
 namespace footstone {
 inline namespace utils {
-constexpr char kDomainNameTdfPrefix[] = "Tdf";
-constexpr char kDomainNameTDFProtocol[] = "TDF";
 
-std::vector <std::string> TdfStringUtil::SplitString(const std::string &origin,
-                                                     const std::string &split_tag) {
+std::vector <std::string> StringUtils::SplitString(const std::string &origin,
+                                                   const std::string &split_tag) {
   if (origin.empty()) {
     return {};
   }
@@ -38,7 +36,7 @@ std::vector <std::string> TdfStringUtil::SplitString(const std::string &origin,
   return {first, last};
 }
 
-std::string TdfStringUtil::TrimmingString(const std::string &origin) {
+std::string StringUtils::TrimmingString(const std::string &origin) {
   std::string result{origin};
   result.erase(std::remove_if(result.begin(),
                               result.end(),
@@ -47,7 +45,7 @@ std::string TdfStringUtil::TrimmingString(const std::string &origin) {
   return result;
 }
 
-std::string TdfStringUtil::Camelize(const std::string &origin) {
+std::string StringUtils::Camelize(const std::string &origin) {
   if (origin.empty()) {
     return "";
   }
@@ -63,7 +61,7 @@ std::string TdfStringUtil::Camelize(const std::string &origin) {
   return result_stream.str();
 }
 
-std::string TdfStringUtil::UnCamelize(const std::string &origin) {
+std::string StringUtils::UnCamelize(const std::string &origin) {
   if (origin.empty()) {
     return "";
   }
@@ -76,18 +74,5 @@ std::string TdfStringUtil::UnCamelize(const std::string &origin) {
                  ::tolower);
   return result_string;
 }
-
-std::string TdfStringUtil::AdaptProtocolName(std::string domain) {
-  auto found = domain.find(kDomainNameTDFProtocol);
-  if (std::string::npos != found) {
-    domain = domain.replace(found,
-                            strlen(kDomainNameTDFProtocol),
-                            kDomainNameTdfPrefix);
-  } else {  // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
-    std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
-    domain[0] = static_cast<char>(toupper(domain[0]));
-  }
-  return domain;
-}
-}
-}
+}  // namespace util
+}  // namespace footstone

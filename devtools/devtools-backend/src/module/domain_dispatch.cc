@@ -21,9 +21,9 @@
 #include "module/domain_dispatch.h"
 #include "api/devtools_backend_service.h"
 #include "api/notification/default/default_network_notification.h"
-#include "devtools_base/domain_propos.h"
+#include "module/domain_propos.h"
 #include "footstone/logging.h"
-#include "footstone/tdf_string_util.h"
+#include "footstone/string_utils.h"
 #include "module/domain/css_domain.h"
 #include "module/domain/dom_domain.h"
 #include "module/domain/network_domain.h"
@@ -42,6 +42,8 @@ namespace hippy::devtools {
 constexpr char kDomainDispatchResult[] = "result";
 constexpr char kDomainDispatchError[] = "error";
 constexpr char kDomainClassSuffix[] = "Domain";
+constexpr char kDomainNameTdfPrefix[] = "Tdf";
+constexpr char kDomainNameTDFProtocol[] = "TDF";
 
 void DomainDispatch::RegisterJSDebuggerDomainListener() {
   auto dom_domain = std::make_shared<DomDomain>(shared_from_this());
@@ -119,7 +121,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
     }
-    domain = footstone::TdfStringUtil::AdaptProtocolName(domain);
+    domain = AdaptProtocolName(domain);
     auto handler = DomainRegister::Instance()->GetMethod(domain + kDomainClassSuffix, method);
     if (handler) {
       handler(base_domain->second, id, params);
@@ -170,5 +172,18 @@ void DomainDispatch::SendEventToFrontend(InspectEvent&& event) {
   if (rsp_handler_) {
     rsp_handler_(event.ToJsonString());
   }
+}
+
+std::string DomainDispatch::AdaptProtocolName(std::string domain) {
+  auto found = domain.find(kDomainNameTDFProtocol);
+  if (std::string::npos != found) {
+    domain = domain.replace(found,
+                            strlen(kDomainNameTDFProtocol),
+                            kDomainNameTdfPrefix);
+  } else {  // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
+    std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
+    domain[0] = static_cast<char>(toupper(domain[0]));
+  }
+  return domain;
 }
 }  // namespace hippy::devtools

@@ -20,7 +20,7 @@
 
 #include "module/domain/css_domain.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {

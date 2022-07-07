@@ -25,8 +25,8 @@
 #include <string>
 #include "api/devtools_data_provider.h"
 #include "api/devtools_notification_center.h"
-#include "devtools_base/domain_propos.h"
-#include "devtools_base/error.h"
+#include "module/domain_propos.h"
+#include "module/util/error.h"
 #include "footstone/worker_manager.h"
 #include "module/inspect_event.h"
 #include "module/inspect_props.h"

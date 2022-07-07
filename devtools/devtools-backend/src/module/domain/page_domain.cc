@@ -19,7 +19,7 @@
  */
 
 #include "module/domain/page_domain.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "module/domain_register.h"
 #include "module/model/frame_poll_model.h"
 

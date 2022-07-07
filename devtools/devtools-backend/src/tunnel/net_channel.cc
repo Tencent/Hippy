@@ -21,7 +21,7 @@
 #include "tunnel/net_channel.h"
 #include "tunnel/tcp/tcp_channel.h"
 #include "tunnel/ws/web_socket_channel.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 
 namespace hippy::devtools {
 std::shared_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {

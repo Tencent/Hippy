@@ -28,7 +28,7 @@
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "dom/dom_manager.h"
 #include "devtools/devtools_utils.h"
 

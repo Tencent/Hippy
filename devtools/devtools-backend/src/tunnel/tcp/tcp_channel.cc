@@ -23,7 +23,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <thread>
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "footstone/logging.h"
 #include "tunnel/tcp/socket.h"
 

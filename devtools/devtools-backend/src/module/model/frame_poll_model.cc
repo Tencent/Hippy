@@ -20,7 +20,7 @@
 
 #include "module/model/frame_poll_model.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "footstone/logging.h"
 #include "footstone/time_delta.h"
 

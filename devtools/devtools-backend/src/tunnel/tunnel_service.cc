@@ -22,7 +22,7 @@
 #include <sstream>
 #include <utility>
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
+#include "devtools_base/macros.h"
 #include "footstone/logging.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/tcp/tcp_channel.h"

@@ -20,8 +20,8 @@
 
 #include "module/domain/tdf_common_protocol_domain.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
-#include "devtools_base/error.h"
+#include "devtools_base/macros.h"
+#include "module/util/error.h"
 
 namespace hippy::devtools {
 
