@@ -24,6 +24,7 @@ import { warn } from './utils';
 global.Hippy = {
   // @ts-ignore
   Device,
+  on: () => {},
 };
 global.getTurboModule = () => {
   warn('getTurboModule is unsupported');

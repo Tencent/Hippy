@@ -27,8 +27,8 @@ export const shouldHideScrollBar = (isShowScrollBar: boolean) => {
   if (canUseDOM) {
     if (!isShowScrollBar && !window[hideScrollbarKey]) {
       window[hideScrollbarKey] = true;
-      document.styleSheets[0].addRule(`.${HIDE_SCROLLBAR_CLASS}::-webkit-scrollbar`, 'display: none');
-      document.styleSheets[0].addRule(`.${HIDE_SCROLLBAR_CLASS}`, '-ms-overflow-style: none; scrollbar-width: none;');
+      document.styleSheets[0].insertRule(`.${HIDE_SCROLLBAR_CLASS}::-webkit-scrollbar { display: none }`, 0);
+      document.styleSheets[0].insertRule(`.${HIDE_SCROLLBAR_CLASS} { -ms-overflow-style: none; scrollbar-width: none; }`, 1);
     }
   }
 };
