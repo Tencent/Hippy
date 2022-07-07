@@ -378,7 +378,7 @@ void DomNode::EmplaceStyleMap(const std::string& key, const HippyValue& value) {
     iter->second = std::make_shared<HippyValue>(value);
   } else {
     bool replaced = false;
-    for (auto& style : *style_map_) {
+    for (auto& style: *style_map_) {
       replaced = ReplaceStyle(*style.second, key, value);
       if (replaced) return;
     }

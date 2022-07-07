@@ -368,13 +368,44 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
 void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
 
   //  run event in js thread
-  RootNode::SetEventCallbackRunner([weak_scope = weak_from_this()](
-                                       const std::shared_ptr<DomEvent>& event, const std::shared_ptr<EventNode>& node,
-                                       std::stack<std::shared_ptr<EventNode>>& capture_nodes) {
+  RootNode::SetEventCallbackRunner([weak_scope = weak_from_this()](const std::shared_ptr<DomEvent>& event) {
     auto scope = weak_scope.lock();
     if (!scope) {
       return;
     }
+
+    auto weak_target = event->GetTarget();
+    auto target = weak_target.lock();
+    FOOTSTONE_DCHECK(target != nullptr);
+    if (!target) {
+      return;
+    }
+
+    std::stack<std::shared_ptr<EventNode>> capture_nodes = {};
+    std::shared_ptr<EventNode> node = {};
+    auto event_name = event->GetType();
+
+    // 获取捕获节点
+    if (event->CanCapture()) {
+      auto parent = target->GetParent();
+      while (parent) {
+        auto capture_node =
+            std::make_shared<EventNode>(parent->GetId(), parent->GetPid());
+        auto capture_listeners = parent->GetEventListener(event_name, true);
+        auto bubble_listeners = parent->GetEventListener(event_name, false);
+        capture_node->SetCaptureListeners(capture_listeners);
+        capture_node->SetBubbleListeners(bubble_listeners);
+        capture_nodes.push(capture_node);
+        parent = parent->GetParent();
+      }
+    }
+    // 当前节点
+    node = std::make_shared<EventNode>(target->GetId(), target->GetPid());
+    auto capture_listeners = target->GetEventListener(event_name, true);
+    auto bubble_listeners = target->GetEventListener(event_name, false);
+    node->SetCaptureListeners(capture_listeners);
+    node->SetBubbleListeners(bubble_listeners);
+
     auto callback = [event, node, capture_nodes]() mutable { RootNode::EventTraverse(event, node, capture_nodes); };
     scope->GetTaskRunner()->PostTask(std::move(callback));
   });
