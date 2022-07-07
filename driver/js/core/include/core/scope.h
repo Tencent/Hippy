@@ -41,7 +41,6 @@
 #include "footstone/hippy_value.h"
 #include "dom/root_node.h"
 #include "dom/dom_node.h"
-#include "dom/event_node.h"
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif

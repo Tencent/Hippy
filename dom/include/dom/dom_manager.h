@@ -49,7 +49,6 @@ class RenderManager;
 class RootNode;
 class LayerOptimizedRenderManager;
 class DomEvent;
-class EventNode;
 struct DomInfo;
 
 using EventCallback = std::function<void(const std::shared_ptr<DomEvent>&)>;
