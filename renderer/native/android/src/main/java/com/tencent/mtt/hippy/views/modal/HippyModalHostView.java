@@ -342,6 +342,7 @@ public class HippyModalHostView extends HippyViewGroup implements
         }
         mNewDialogRequired = false;
         mDialog = createDialog(getContext());
+        mDialogRootView.setId(getId());
         mContentView = createContentView(mDialogRootView);
         mDialog.setContentView(mContentView);
         updateProperties();
@@ -436,12 +437,11 @@ public class HippyModalHostView extends HippyViewGroup implements
         @Override
         protected void onSizeChanged(final int w, final int h, int oldw, int oldh) {
             super.onSizeChanged(w, h, oldw, oldh);
-            if (getChildCount() > 0 && getContext() instanceof NativeRenderContext) {
+            if (getContext() instanceof NativeRenderContext) {
                 NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
                 if (nativeRenderer != null) {
-                    final int nodeId = getChildAt(0).getId();
                     final int rootId = ((NativeRenderContext) getContext()).getRootId();
-                    nativeRenderer.onSizeChanged(rootId, nodeId, w, h, false);
+                    nativeRenderer.onSizeChanged(rootId, getId(), w, h, false);
                 }
             }
         }
