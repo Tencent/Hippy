@@ -23,7 +23,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <thread>
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "footstone/logging.h"
 #include "tunnel/tcp/socket.h"
 
@@ -40,16 +40,16 @@ TcpChannel::TcpChannel() {
 }
 
 void TcpChannel::Connect(ReceiveDataHandler handler) {
-  frame_codec_.SetEncodeCallback([DEVTOOLS_WEAK_THIS](void *data, int32_t len) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(TcpChannel)
+  frame_codec_.SetEncodeCallback([WEAK_THIS](void *data, int32_t len) {
+    DEFINE_AND_CHECK_SELF(TcpChannel)
     if (self->client_fd_ < 0) {
       FOOTSTONE_DLOG(ERROR) << "TcpChannel, client_fd_ < 0.";
       return;
     }
     send(self->client_fd_, data, static_cast<size_t>(len), 0);
   });
-  frame_codec_.SetDecodeCallback([DEVTOOLS_WEAK_THIS](void *buffer, int32_t len, int32_t task_flag) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(TcpChannel)
+  frame_codec_.SetDecodeCallback([WEAK_THIS](void *buffer, int32_t len, int32_t task_flag) {
+    DEFINE_AND_CHECK_SELF(TcpChannel)
     if (self->data_handler_) {
       std::string data(reinterpret_cast<char *>(buffer), reinterpret_cast<char *>(buffer) + len);
       self->data_handler_(data, static_cast<unsigned char>(task_flag));

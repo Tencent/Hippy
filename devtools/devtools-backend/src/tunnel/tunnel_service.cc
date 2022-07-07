@@ -22,7 +22,7 @@
 #include <sstream>
 #include <utility>
 #include "api/devtools_backend_service.h"
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "footstone/logging.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/tcp/tcp_channel.h"
@@ -40,14 +40,14 @@ TunnelService::TunnelService(std::shared_ptr<DomainDispatch> dispatch, const Dev
 
 void TunnelService::Connect() {
   FOOTSTONE_DLOG(INFO) << "TunnelService, start connect.";
-  channel_->Connect([DEVTOOLS_WEAK_THIS](const std::string& msg, int flag) {
+  channel_->Connect([WEAK_THIS](const std::string& msg, int flag) {
     if (flag == kTaskFlag) {
-      DEVTOOLS_DEFINE_AND_CHECK_SELF(TunnelService)
+      DEFINE_AND_CHECK_SELF(TunnelService)
       self->HandleReceiveData(msg);
     }
   });
-  dispatch_->SetResponseHandler([DEVTOOLS_WEAK_THIS](const std::string &rsp_data) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(TunnelService)
+  dispatch_->SetResponseHandler([WEAK_THIS](const std::string &rsp_data) {
+    DEFINE_AND_CHECK_SELF(TunnelService)
     self->channel_->Send(rsp_data);
   });
 }

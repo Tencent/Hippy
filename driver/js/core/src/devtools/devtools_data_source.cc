@@ -28,7 +28,7 @@
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "dom/dom_manager.h"
 #include "devtools/devtools_utils.h"
 
@@ -65,8 +65,8 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, uint32_t dom_id, int32_t rende
 void DevtoolsDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
 
-  std::function func = [DEVTOOLS_WEAK_THIS] {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+  std::function func = [WEAK_THIS] {
+    DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
     self->RemoveRootNodeListener(self->hippy_dom_->root_node);
   };
   DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
@@ -89,8 +89,8 @@ void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHan
 void DevtoolsDataSource::SetRootNode(std::weak_ptr<RootNode> weak_root_node) {
   hippy_dom_->root_node = weak_root_node;
 
-  std::function func = [weak_root_node, DEVTOOLS_WEAK_THIS] {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+  std::function func = [weak_root_node, WEAK_THIS] {
+    DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
     self->AddRootNodeListener(weak_root_node);
   };
   DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
@@ -101,9 +101,9 @@ void DevtoolsDataSource::AddRootNodeListener(std::weak_ptr<RootNode> weak_root_n
   auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
   auto root_node = weak_root_node.lock();
   if (dom_manager && root_node) {
-    dom_manager->AddEventListener(weak_root_node, root_node->GetId(), kDomTreeUpdated,
-                                  listener_id_, true, [DEVTOOLS_WEAK_THIS](const std::shared_ptr<DomEvent> &event) {
-          DEVTOOLS_DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+    dom_manager->AddEventListener(weak_root_node, hippy_dom_->dom_id, kDomTreeUpdated,
+                                  listener_id_, true, [WEAK_THIS](const std::shared_ptr<DomEvent> &event) {
+          DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
           self->devtools_service_->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
         });
   }

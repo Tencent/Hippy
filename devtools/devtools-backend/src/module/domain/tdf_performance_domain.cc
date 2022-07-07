@@ -20,7 +20,7 @@
 
 #include "module/domain/tdf_performance_domain.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "footstone/logging.h"
 #include "module/domain_register.h"
 
@@ -69,8 +69,8 @@ void TdfPerformanceDomain::End(const BaseRequest& request) {
 void TdfPerformanceDomain::V8Tracing(const BaseRequest& request) {
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
-    tracing_adapter->StopTracing([request, DEVTOOLS_WEAK_THIS](const std::string& result) {
-      DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfPerformanceDomain)
+    tracing_adapter->StopTracing([request, WEAK_THIS](const std::string& result) {
+      DEFINE_AND_CHECK_SELF(TdfPerformanceDomain)
       self->ResponseResultToFrontend(request.GetId(), result);
     });
   } else {
@@ -81,8 +81,8 @@ void TdfPerformanceDomain::V8Tracing(const BaseRequest& request) {
 void TdfPerformanceDomain::FrameTimings(const BaseRequest& request) {
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
-    performance_adapter->CollectFrameTimings([DEVTOOLS_WEAK_THIS, request](const FrameTimingMetas& frame_metas) {
-      DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfPerformanceDomain)
+    performance_adapter->CollectFrameTimings([WEAK_THIS, request](const FrameTimingMetas& frame_metas) {
+      DEFINE_AND_CHECK_SELF(TdfPerformanceDomain)
       self->ResponseResultToFrontend(request.GetId(), frame_metas.Serialize());
     });
   } else {
@@ -93,8 +93,8 @@ void TdfPerformanceDomain::FrameTimings(const BaseRequest& request) {
 void TdfPerformanceDomain::Timeline(const BaseRequest& request) {
   auto performance_adapter = GetDataProvider()->performance_adapter;
   if (performance_adapter) {
-    performance_adapter->CollectTimeline([DEVTOOLS_WEAK_THIS, request](const TraceEventMetas& time_line) {
-      DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfPerformanceDomain)
+    performance_adapter->CollectTimeline([WEAK_THIS, request](const TraceEventMetas& time_line) {
+      DEFINE_AND_CHECK_SELF(TdfPerformanceDomain)
       self->ResponseResultToFrontend(request.GetId(), time_line.Serialize());
     });
   } else {

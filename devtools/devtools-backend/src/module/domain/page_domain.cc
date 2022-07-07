@@ -19,7 +19,7 @@
  */
 
 #include "module/domain/page_domain.h"
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "module/domain_register.h"
 #include "module/model/frame_poll_model.h"
 
@@ -64,15 +64,15 @@ void PageDomain::ScreencastFrameAck(const BaseRequest& request) {
 }
 
 void PageDomain::RegisterFramePollCallback() {
-  frame_poll_model_->SetResponseHandler([DEVTOOLS_WEAK_THIS]() {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(PageDomain)
+  frame_poll_model_->SetResponseHandler([WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(PageDomain)
     self->screen_shot_model_->ReqScreenShotToSendEvent();
   });
 }
 
 void PageDomain::RegisterScreenShotCallback() {
-  screen_shot_model_->SetSendEventScreenShotCallback([DEVTOOLS_WEAK_THIS](const ScreenShotResponse response) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(PageDomain)
+  screen_shot_model_->SetSendEventScreenShotCallback([WEAK_THIS](const ScreenShotResponse response) {
+    DEFINE_AND_CHECK_SELF(PageDomain)
     self->SendEventToFrontend(InspectEvent(kPageEventScreencastFrame, response.ToJsonString()));
   });
 }

@@ -20,7 +20,7 @@
 
 #include "module/model/frame_poll_model.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "footstone/logging.h"
 #include "footstone/time_delta.h"
 
@@ -30,8 +30,8 @@ constexpr char kTaskRunnerNameFramePoll[] = "frame_poll";
 
 void FramePollModel::InitTask() {
   refresh_task_runner_ = worker_manager_->CreateTaskRunner(kTaskRunnerNameFramePoll);
-  refresh_task_ = [DEVTOOLS_WEAK_THIS]() {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
+  refresh_task_ = [WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(FramePollModel)
     std::lock_guard<std::recursive_mutex> lock(self->mutex_);
     if (!self->frame_is_dirty_ && self->provider_ && self->provider_->screen_adapter) {
       self->frame_is_dirty_ = !self->provider_->screen_adapter->SupportDirtyCallback();
@@ -63,8 +63,8 @@ void FramePollModel::AddFrameCallback() {
   frame_is_dirty_ = true;
   if (!had_add_frame_callback_) {
     if (provider_->screen_adapter) {
-      frame_callback_handler_ = provider_->screen_adapter->AddPostFrameCallback([DEVTOOLS_WEAK_THIS]() {
-        DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
+      frame_callback_handler_ = provider_->screen_adapter->AddPostFrameCallback([WEAK_THIS]() {
+        DEFINE_AND_CHECK_SELF(FramePollModel)
         std::lock_guard<std::recursive_mutex> lock(self->mutex_);
         self->frame_is_dirty_ = true;
         FOOTSTONE_DLOG(INFO) << "AddFrameCallback frame dirty callback";

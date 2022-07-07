@@ -23,7 +23,7 @@
 #include <utility>
 #include "api/devtools_backend_service.h"
 #include "api/notification/default/default_dom_tree_notification.h"
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "module/util/parse_json_util.h"
 #include "footstone/string_utils.h"
 #include "module/domain_register.h"
@@ -56,8 +56,8 @@ void DomDomain::RegisterMethods() {
 }
 
 void DomDomain::RegisterCallback() {
-  dom_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  dom_data_call_back_ = [WEAK_THIS](int32_t node_id, bool is_root, uint32_t depth, DomDataCallback callback) {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
     if (dom_tree_adapter) {
       auto response_callback = [callback, provider = self->GetDataProvider()](const DomainMetas& data) {
@@ -73,8 +73,8 @@ void DomDomain::RegisterCallback() {
     }
   };
 
-  location_for_node_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t x, int32_t y, DomDataCallback callback) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  location_for_node_call_back_ = [WEAK_THIS](int32_t x, int32_t y, DomDataCallback callback) {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
     if (dom_tree_adapter) {
       auto node_callback = [callback, provider = self->GetDataProvider()](const DomNodeLocation& metas) {
@@ -94,14 +94,14 @@ void DomDomain::RegisterCallback() {
       callback(DomModel());
     }
   };
-  auto update_handler = [DEVTOOLS_WEAK_THIS]() {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  auto update_handler = [WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     self->HandleDocumentUpdate();
   };
   GetNotificationCenter()->dom_tree_notification = std::make_shared<DefaultDomTreeNotification>(update_handler);
 
-  dom_push_node_by_path_call_back_ = [DEVTOOLS_WEAK_THIS](PushNodePath path, DomPushNodeByPathDataCallback callback) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  dom_push_node_by_path_call_back_ = [WEAK_THIS](PushNodePath path, DomPushNodeByPathDataCallback callback) {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
     if (dom_tree_adapter) {
       auto push_node_call_back = [callback](const DomPushNodePathMetas& data) {
@@ -122,8 +122,8 @@ void DomDomain::GetDocument(const BaseRequest& request) {
     return;
   }
   // getDocument gets the data from the root node without the nodeId
-  dom_data_call_back_(kInvalidNodeId, true, kDocumentNodeDepth, [DEVTOOLS_WEAK_THIS, request](DomModel model) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  dom_data_call_back_(kInvalidNodeId, true, kDocumentNodeDepth, [WEAK_THIS, request](DomModel model) {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     //  need clear first
     self->element_node_children_count_cache_.clear();
     self->backend_node_id_map_.clear();
@@ -143,8 +143,8 @@ void DomDomain::RequestChildNodes(const DomNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, RequestChildNodes, without nodeId");
     return;
   }
-  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [DEVTOOLS_WEAK_THIS, request](DomModel model) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [WEAK_THIS, request](DomModel model) {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     self->SetChildNodesEvent(model);
     self->ResponseResultToFrontend(request.GetId(), nlohmann::json::object().dump());
   });
@@ -159,8 +159,8 @@ void DomDomain::GetBoxModel(const DomNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, GetBoxModel, without nodeId");
     return;
   }
-  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [DEVTOOLS_WEAK_THIS, request](DomModel model) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  dom_data_call_back_(request.GetNodeId(), false, kNormalNodeDepth, [WEAK_THIS, request](DomModel model) {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     auto cache_it = self->element_node_children_count_cache_.find(model.GetNodeId());
     bool in_cache = cache_it != self->element_node_children_count_cache_.end();
     if ((in_cache && cache_it->second == 0) || !in_cache) {
@@ -188,8 +188,8 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
       static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX()));
   int32_t y =
       static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY()));
-  location_for_node_call_back_(x, y, [DEVTOOLS_WEAK_THIS, request](const DomModel& model) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+  location_for_node_call_back_(x, y, [WEAK_THIS, request](const DomModel& model) {
+    DEFINE_AND_CHECK_SELF(DomDomain)
     auto node_id = self->SearchNearlyCacheNode(model.GetRelationTree());
     if (node_id != kInvalidNodeId) {
       self->ResponseResultToFrontend(request.GetId(), DomModel::BuildNodeForLocation(node_id).dump());
@@ -242,9 +242,9 @@ void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
     node_tag_name_id_map[tag_name] = std::stoi(child_index);
     node_path.emplace_back(node_tag_name_id_map);
   }
-  dom_push_node_by_path_call_back_(node_path, [DEVTOOLS_WEAK_THIS, request](int32_t hit_node_id,
+  dom_push_node_by_path_call_back_(node_path, [WEAK_THIS, request](int32_t hit_node_id,
                                                                             std::vector<int32_t> relation_nodes) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(DomDomain)
+    DEFINE_AND_CHECK_SELF(DomDomain)
     auto temp_relation_nodes = relation_nodes;
     std::vector<int32_t> no_need_replenish_nodes;
     for (auto node_id : temp_relation_nodes) {

@@ -25,7 +25,7 @@
 #include <thread>
 #include <utility>
 
-#include "devtools_base/macros.h"
+#include "footstone/macros.h"
 #include "footstone/logging.h"
 
 typedef WSClient::connection_ptr WSConnectionPtr;
@@ -51,25 +51,25 @@ void WebSocketChannel::Connect(ReceiveDataHandler handler) {
   FOOTSTONE_DLOG(INFO) << "websocket connect url:%s" << ws_uri_.c_str();
   data_handler_ = handler;
   ws_client_.set_socket_init_handler(
-      [DEVTOOLS_WEAK_THIS](const websocketpp::connection_hdl& handle, websocketpp::lib::asio::ip::tcp::socket& socket) {
-        DEVTOOLS_DEFINE_AND_CHECK_SELF(WebSocketChannel)
+      [WEAK_THIS](const websocketpp::connection_hdl& handle, websocketpp::lib::asio::ip::tcp::socket& socket) {
+        DEFINE_AND_CHECK_SELF(WebSocketChannel)
         self->HandleSocketInit(handle);
       });
-  ws_client_.set_open_handler([DEVTOOLS_WEAK_THIS](const websocketpp::connection_hdl& handle) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(WebSocketChannel)
+  ws_client_.set_open_handler([WEAK_THIS](const websocketpp::connection_hdl& handle) {
+    DEFINE_AND_CHECK_SELF(WebSocketChannel)
     self->HandleSocketConnectOpen(handle);
   });
-  ws_client_.set_close_handler([DEVTOOLS_WEAK_THIS](const websocketpp::connection_hdl& handle) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(WebSocketChannel)
+  ws_client_.set_close_handler([WEAK_THIS](const websocketpp::connection_hdl& handle) {
+    DEFINE_AND_CHECK_SELF(WebSocketChannel)
     self->HandleSocketConnectClose(handle);
   });
-  ws_client_.set_fail_handler([DEVTOOLS_WEAK_THIS](const websocketpp::connection_hdl& handle) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(WebSocketChannel)
+  ws_client_.set_fail_handler([WEAK_THIS](const websocketpp::connection_hdl& handle) {
+    DEFINE_AND_CHECK_SELF(WebSocketChannel)
     self->HandleSocketConnectFail(handle);
   });
   ws_client_.set_message_handler(
-      [DEVTOOLS_WEAK_THIS](const websocketpp::connection_hdl& handle, const WSMessagePtr& message_ptr) {
-        DEVTOOLS_DEFINE_AND_CHECK_SELF(WebSocketChannel)
+      [WEAK_THIS](const websocketpp::connection_hdl& handle, const WSMessagePtr& message_ptr) {
+        DEFINE_AND_CHECK_SELF(WebSocketChannel)
         self->HandleSocketConnectMessage(handle, message_ptr);
       });
 
