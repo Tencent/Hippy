@@ -578,7 +578,10 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            typeof(weakSelf) strongSelf = weakSelf;
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
             CALayer *strongLayer = strongSelf.layer;
             CGRect contentsCenter = ({
                 CGSize size = contentImage.size;
