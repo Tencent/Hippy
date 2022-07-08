@@ -114,6 +114,10 @@
     });
 
     _subNodes = [self.node.subNodes filteredArrayUsingPredicate:predicate];
+    
+    // do subview deletion (such as headerRefreshView or footerRefreshView or any others)
+    [self syncRemovalsOfSubviewsWithVirtualNode:_subNodes];
+    
     NSUInteger numberOfRows = [_subNodes count];
     if (numberOfRows == 0 && _preNumberOfRows == numberOfRows) {
         return NO;
@@ -146,6 +150,11 @@
 }
 
 - (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    // Note that the index is not sync with index in virtualNodes(or shadowView) tree,
+    // since listviewItems's views are lazily loaded, and self.hippySubviews does not contain them,
+    // so we always use 0 as hippySubview's index.
+    // It's not very well structured here, we will optimize it later.
+    [super insertHippySubview:subview atIndex:0];
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView unsetFromScrollView];
@@ -164,6 +173,64 @@
         _footerRefreshView.frame = [self.node.subNodes[atIndex] frame];
     }
 }
+
+#pragma mark - Subviews Special Logic
+
+/// remove subviews (non cells) that is not exist in virtualNodes tree.
+/// @param cellNodes virtual nodes of cells
+- (void)syncRemovalsOfSubviewsWithVirtualNode:(NSArray<id<HippyComponent>> *)cellNodes {
+    if (self.hippySubviews.count > 0) {
+        NSMutableArray<id<HippyComponent>> *nonCellNodes = self.node.subNodes.mutableCopy;
+        [nonCellNodes removeObjectsInArray:cellNodes]; // get all non cell nodes
+        NSMutableArray *tags = [NSMutableArray arrayWithCapacity:nonCellNodes.count];
+        NSMutableArray *viewsToRemove = [NSMutableArray arrayWithCapacity:nonCellNodes.count];
+        for (id<HippyComponent> virtualNode in nonCellNodes) {
+            [tags addObject:virtualNode.hippyTag];
+        }
+        for (id<HippyComponent> subview in self.hippySubviews) {
+            if (![tags containsObject:subview.hippyTag]) {
+                [viewsToRemove addObject:subview];
+            }
+        }
+        for (UIView *view in viewsToRemove) {
+            [self removeHippySubview:view];
+            [_bridge.uiManager removeNativeNodeView:view];
+        }
+    }
+}
+
+- (void)removeHippySubview:(UIView *)subview {
+    [super removeHippySubview:subview];
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
+        [_headerRefreshView unsetFromScrollView];
+        _headerRefreshView = nil;
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
+        [_footerRefreshView unsetFromScrollView];
+        _footerRefreshView = nil;
+    }
+}
+
+- (void)didUpdateHippySubviews {
+    for (UIView *subview in self.sortedHippySubviews) {
+        if ([subview isKindOfClass:HippyRefresh.class]) {
+            if (subview.superview != self.realScrollView) {
+                [subview sendAttachedToWindowEvent];
+            }
+        } else if (subview.superview != self) {
+            [subview sendAttachedToWindowEvent];
+        }
+        [self addSubview:subview];
+    }
+}
+
+- (void)addSubview:(UIView *)view {
+    if ([view isKindOfClass:HippyRefresh.class]) {
+        [self.realScrollView addSubview:view];
+    } else {
+        [super addSubview:view];
+    }
+}
+
 
 #pragma mark -Scrollable
 
