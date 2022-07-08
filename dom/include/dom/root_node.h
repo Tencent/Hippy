@@ -67,19 +67,6 @@ class RootNode : public DomNode {
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
-  // event traverse for js
-  static void EventTraverse(const std::shared_ptr<DomEvent>& event, const std::shared_ptr<DomNode>& node,
-                            std::stack<std::shared_ptr<DomNode>>& capture_nodes);
-  // event traverse for vl
-  static void EventTraverse(const std::shared_ptr<DomEvent>& event);
-
-  static void SetEventCallbackRunner(EventCallBackRunner callback_runner) {
-    RootNode::event_callback_runner_ = callback_runner;
-  }
-  static void RunEventCallbackRunner(const std::shared_ptr<DomEvent>& event) {
-    RootNode::event_callback_runner_(event);
-  }
-
  private:
   struct DomOperation {
     static constexpr int kOpCreate = 1;
@@ -113,7 +100,6 @@ class RootNode : public DomNode {
   std::weak_ptr<DomManager> dom_manager_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
-  static EventCallBackRunner event_callback_runner_;
 };
 
 }  // namespace dom

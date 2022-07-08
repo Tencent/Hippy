@@ -33,7 +33,6 @@ public class Linker implements LinkHelper {
     private final int mWorkerManagerId;
     private RenderProxy mRenderProxy;
     private DomProxy mDomProxy;
-    private AnimationManagerProxy mAniManagerProxy;
 
     public Linker() {
         mWorkerManagerId = createWorkerManager();
@@ -63,16 +62,9 @@ public class Linker implements LinkHelper {
     }
 
     @Override
-    public void createAnimationManager() {
-        if (mAniManagerProxy == null && mDomProxy != null) {
-            mAniManagerProxy = new AnimationManagerProxy(mDomProxy.getInstanceId());
-        }
-    }
-
-    @Override
-    public void createDomHolder(int rootId) {
+    public void createDomHolder(int rootId, int instanceId) {
         if (mDomProxy == null) {
-            mDomProxy = new DomHolder(rootId);
+            mDomProxy = new DomHolder(rootId, instanceId);
         }
     }
 
@@ -134,19 +126,15 @@ public class Linker implements LinkHelper {
 
     @Override
     public void destroy(boolean onReLoad) {
-        if (mDomProxy != null) {
-            mDomProxy.destroy();
-            mDomProxy = null;
-        }
-        if (mAniManagerProxy != null) {
-            mAniManagerProxy.destroy();
-            mAniManagerProxy = null;
-        }
         if (mRenderProxy != null) {
             mRenderProxy.destroy();
             mRenderProxy = null;
         }
         if (!onReLoad) {
+            if (mDomProxy != null) {
+              mDomProxy.destroy();
+              mDomProxy = null;
+            }
             destroyWorkerManager(mWorkerManagerId);
         }
     }
@@ -162,8 +150,8 @@ public class Linker implements LinkHelper {
         /**
          * Support init dom holder with existing root node id
          */
-        public DomHolder(int rootId) {
-            mInstanceId = createDomInstance(mWorkerManagerId);
+        public DomHolder(int rootId, int instanceId) {
+            mInstanceId = instanceId;
             addRoot(mInstanceId, rootId);
         }
 
@@ -185,25 +173,6 @@ public class Linker implements LinkHelper {
         @Override
         public void removeRootId(int rootId) {
             removeRoot(mInstanceId, rootId);
-        }
-    }
-
-    private class AnimationManagerProxy implements LinkProxy {
-
-        private final int mInstanceId;
-
-        public AnimationManagerProxy(int domId) {
-            mInstanceId = createAnimationManager(domId);
-        }
-
-        @Override
-        public int getInstanceId() {
-            return mInstanceId;
-        }
-
-        @Override
-        public void destroy() {
-            destroyAnimationManager(mInstanceId);
         }
     }
 
@@ -240,26 +209,11 @@ public class Linker implements LinkHelper {
     private native int createDomInstance(int workerManagerId);
 
     /**
-     * Create native (C++) dom manager instance.
-     *
-     * @param domId dom instance id
-     * @return the unique id of native (C++) animation manager
-     */
-    private native int createAnimationManager(int domId);
-
-    /**
      * Release native (C++) dom manager instance.
      * @param workerManagerId the unique id of native (C++) worker manager
      * @param domId the unique id of native (C++) dom manager
      */
     private native void destroyDomInstance(int workerManagerId, int domId);
-
-    /**
-     * Release native (C++) dom manager instance.
-     *
-     * @param domId the unique id of native (C++) dom manager
-     */
-    private native void destroyAnimationManager(int domId);
 
     /**
      * Bind native (C++) dom manager, render manager and driver run time with instance id.

@@ -19,13 +19,6 @@
 #include "footstone/deserializer.h"
 #include "footstone/one_shot_timer.h"
 
-#ifdef HIPPY_TEST
-#define DCHECK_RUN_THREAD() {}
-#else
-#define DCHECK_RUN_THREAD() \
-  { FOOTSTONE_DCHECK(footstone::Worker::IsTaskRunning() && dom_task_runner_ == footstone::runner::TaskRunner::GetCurrentTaskRunner()); }
-#endif
-
 namespace hippy {
 inline namespace dom {
 
@@ -93,7 +86,6 @@ std::shared_ptr<DomNode> DomManager::GetNode(const std::weak_ptr<RootNode>& weak
 
 void DomManager::CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -103,7 +95,6 @@ void DomManager::CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -113,7 +104,6 @@ void DomManager::UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                               std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -123,7 +113,6 @@ void DomManager::MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
                                  std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -133,7 +122,6 @@ void DomManager::UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -142,7 +130,6 @@ void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 }
 
 void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
-  DCHECK_RUN_THREAD()
   auto render_manager = render_manager_.lock();
   FOOTSTONE_DCHECK(render_manager);
   if (!render_manager) {
@@ -158,7 +145,6 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
 void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t dom_id,
                                   const std::string& name, uint64_t listener_id, bool use_capture,
                                   const EventCallback& cb) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -172,7 +158,6 @@ void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id,
                                      const std::string& name, uint64_t listener_id) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -186,7 +171,6 @@ void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_no
 
 void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id, const std::string& name,
                               const DomArgument& param, const CallFunctionCallback& cb) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -195,7 +179,6 @@ void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node, uin
 }
 
 void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -204,7 +187,6 @@ void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, floa
 }
 
 void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -238,7 +220,6 @@ void DomManager::CancelTask(uint32_t id) {
 }
 
 DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_node) {
-  DCHECK_RUN_THREAD()
   if (!root_node) {
     return {};
   }
@@ -252,7 +233,6 @@ DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_
 }
 
 bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer) {
-  DCHECK_RUN_THREAD()
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
   HippyValue value;
   deserializer.ReadHeader();

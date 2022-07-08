@@ -367,60 +367,6 @@ std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
 }
 
 void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
-
-  //  run event in js thread
-  RootNode::SetEventCallbackRunner([weak_scope = weak_from_this()](const std::shared_ptr<DomEvent>& event) {
-    auto scope = weak_scope.lock();
-    if (!scope) {
-      return;
-    }
-
-    auto weak_target = event->GetTarget();
-    auto target = weak_target.lock();
-    FOOTSTONE_DCHECK(target != nullptr);
-    if (!target) {
-      return;
-    }
-
-    auto event_name = event->GetType();
-    std::stack<std::shared_ptr<DomNode>> capture_nodes = {};
-    std::shared_ptr<DomNode> node = {};
-
-    // 获取捕获节点
-    if (event->CanCapture()) {
-      auto parent = target->GetParent();
-      while (parent) {
-        auto capture_node = std::make_shared<DomNode>();
-        capture_node->SetId(parent->GetId());
-        capture_node->SetPid(parent->GetPid());
-        auto capture_listeners = parent->GetEventListener(event_name, true);
-        for(const auto& listener: capture_listeners) {
-          capture_node->AddEventListener(event_name, listener->id, true, listener->cb);
-        }
-        auto bubble_listeners = parent->GetEventListener(event_name, false);
-        for(const auto& listener: capture_listeners) {
-          capture_node->AddEventListener(event_name, listener->id, true, listener->cb);
-        }
-        capture_nodes.push(capture_node);
-        parent = parent->GetParent();
-      }
-    }
-    // 当前节点
-    node = std::make_shared<DomNode>();
-    node->SetId(target->GetId());
-    node->SetPid(target->GetPid());
-    auto capture_listeners = target->GetEventListener(event_name, true);
-    for(const auto& listener: capture_listeners) {
-      node->AddEventListener(event_name, listener->id, true, listener->cb);
-    }
-    auto bubble_listeners = target->GetEventListener(event_name, false);
-    for(const auto& listener: bubble_listeners) {
-      node->AddEventListener(event_name, listener->id, false, listener->cb);
-    }
-    auto callback = [event, node, capture_nodes]() mutable { RootNode::EventTraverse(event, node, capture_nodes); };
-    scope->GetTaskRunner()->PostTask(std::move(callback));
-  });
-
   std::weak_ptr<Ctx> weak_context = context_;
 #ifdef ENABLE_INSPECTOR
   std::weak_ptr<hippy::devtools::DevtoolsDataSource> weak_data_source = devtools_data_source_;
