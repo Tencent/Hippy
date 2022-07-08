@@ -124,9 +124,6 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     _scrollEventThrottle = scrollEventThrottle;
 }
 
-- (void)removeHippySubview:(UIView *)subview {
-}
-
 - (void)hippySetFrame:(CGRect)frame {
     [super hippySetFrame:frame];
     _collectionView.frame = self.bounds;
@@ -217,6 +214,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (BOOL)flush {
+    // sync subviews's removals
+    [self syncRemovalsOfSubviewsWithVirtualNode];
+    
+    // do reload
     [self.collectionView reloadData];
     if (!_isInitialListReady) {
         _isInitialListReady = YES;
@@ -227,8 +228,13 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     return YES;
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex
-{
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    // Same like HippyBaseListView:
+    // Note that the index is not sync with index in virtualNodes(or shadowView) tree,
+    // since listviewItems's views are lazily loaded, and self.hippySubviews does not contain them,
+    // so we always use 0 as hippySubview's index.
+    // It's not very well structured here, we will optimize it later.
+    [super insertHippySubview:subview atIndex:0];
     if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView removeFromSuperview];
@@ -281,6 +287,67 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
         return kCellIdentifier;
     }
 }
+
+#pragma mark - Subviews Special Logic
+
+- (void)addSubview:(UIView *)view {
+    if ([view isKindOfClass:HippyRefresh.class] ||
+        ([[self nodesWithBannerView].hippyTag isEqualToNumber:view.hippyTag])) {
+        // bannerView, headerRefresh, footerRefresh should add to scrollView
+        [self.realScrollView addSubview:view];
+    } else {
+        [super addSubview:view];
+    }
+}
+
+/// remove subviews (non cells) that is not exist in virtualNodes tree.
+- (void)syncRemovalsOfSubviewsWithVirtualNode {
+    if (self.hippySubviews.count > 0) {
+        NSMutableArray<id<HippyComponent>> *nonCellNodes = self.node.subNodes.mutableCopy;
+        [nonCellNodes removeObjectsInArray:[self nodesWithOnlyCell]]; // get all non cell nodes
+        NSMutableArray *tags = [NSMutableArray arrayWithCapacity:nonCellNodes.count];
+        NSMutableArray *viewsToRemove = [NSMutableArray arrayWithCapacity:nonCellNodes.count];
+        for (id<HippyComponent> virtualNode in nonCellNodes) {
+            [tags addObject:virtualNode.hippyTag];
+        }
+        for (id<HippyComponent> subview in self.hippySubviews) {
+            if (![tags containsObject:subview.hippyTag]) {
+                [viewsToRemove addObject:subview];
+            }
+        }
+        for (UIView *view in viewsToRemove) {
+            [self removeHippySubview:view];
+            [self.bridge.uiManager removeNativeNodeView:view];
+        }
+    }
+}
+
+- (void)removeHippySubview:(UIView *)subview {
+    [super removeHippySubview:subview];
+    if ([subview isKindOfClass:[HippyHeaderRefresh class]]) {
+        [_headerRefreshView unsetFromScrollView];
+        _headerRefreshView = nil;
+    } else if ([subview isKindOfClass:[HippyFooterRefresh class]]) {
+        [_footerRefreshView unsetFromScrollView];
+        _footerRefreshView = nil;
+    }
+}
+
+- (void)didUpdateHippySubviews {
+    for (UIView *subview in self.sortedHippySubviews) {
+        if ([subview isKindOfClass:HippyRefresh.class] ||
+            [[self nodesWithBannerView].hippyTag isEqualToNumber:subview.hippyTag]) {
+            // bannerView, headerRefresh, footerRefresh is added to scrollView
+            if (subview.superview != self.realScrollView) {
+                [subview sendAttachedToWindowEvent];
+            }
+        } else if (subview.superview != self) {
+            [subview sendAttachedToWindowEvent];
+        }
+        [self addSubview:subview];
+    }
+}
+
 
 #pragma mark - UICollectionViewDataSource
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
