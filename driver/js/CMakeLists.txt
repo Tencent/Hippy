@@ -72,6 +72,13 @@ GlobalPackages_Add(dom)
 target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # endregion
 
+# region tdf render
+if ("${ENABLE_TDF_RENDER}" STREQUAL "true")
+add_subdirectory(${PROJECT_ROOT_DIR}/renderer/tdf/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/renderer/tdf)
+target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer)
+endif()
+# region end
+
 # region source set
 set(SOURCE_SET
     src/base/file.cc

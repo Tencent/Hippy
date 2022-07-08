@@ -58,6 +58,10 @@
 #include "render/native_render_manager.h"
 #include "render/native_render_jni.h"
 #endif
+#ifdef ENABLE_TDF_RENDER
+#include "render/tdf_render_bridge.h"
+#include "render/tdf/tdf_render_manager.h"
+#endif
 
 namespace hippy {
 inline namespace framework {
@@ -176,23 +180,36 @@ void DoBind(JNIEnv* j_env,
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
 
   auto scope = runtime->GetScope();
+  // Temp Solution: DoBind should pass render type
+  std::shared_ptr<RenderManager> render_manager = nullptr;
+
 #ifdef ANDROID_NATIVE_RENDER
   auto& map = NativeRenderManager::PersistentMap();
-  std::shared_ptr<NativeRenderManager> render_manager = nullptr;
-  bool ret = map.Find(footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id), render_manager);
-  if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "DoBind render_manager invalid";
-    return;
+  std::shared_ptr<NativeRenderManager> native_render_manager = nullptr;
+  bool ret = map.Find(footstone::check::checked_numeric_cast<jint, int32_t>(j_render_id), native_render_manager);
+  if (ret) {
+    render_manager = native_render_manager;
+    native_render_manager->SetDomManager(dom_manager);
   }
-#else
-  std::shared_ptr<RenderManager>
-      render_manager = nullptr;
+#endif
+
+#ifdef ENABLE_TDF_RENDER
+  if (render_manager == nullptr) {
+    auto& tdf_map = TDFRenderManager::PersistentMap();
+    std::shared_ptr<TDFRenderManager> tdf_render_manager = nullptr;
+    bool tdf_ret = tdf_map.Find(footstone::check::checked_numeric_cast<jint, int32_t>(j_render_id), tdf_render_manager);
+    if (tdf_ret) {
+      render_manager = tdf_render_manager;
+      tdf_render_manager->SetDomManager(dom_manager);
+    }
+  }
 #endif
   scope->SetDomManager(dom_manager);
   scope->SetRenderManager(render_manager);
   dom_manager->SetRenderManager(render_manager);
-#ifdef ANDROID_NATIVE_RENDER
-  render_manager->SetDomManager(dom_manager);
+
+#ifdef ENABLE_TDF_RENDER
+  TDFRenderBridge::RegisterScopeForUriLoader(static_cast<int32_t>(j_render_id), scope);
 #endif
 
 #ifdef ENABLE_INSPECTOR
@@ -253,11 +270,13 @@ void DoConnect(__unused JNIEnv* j_env,
   }
 #endif
 
+#ifdef ANDROID_NATIVE_RENDER
   std::shared_ptr<NativeRenderManager> render_manager =
           std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
   float density = render_manager->GetDensity();
   auto layout_node = root_node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
+#endif
 }
 
 jint CreateWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
@@ -562,6 +581,11 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   hippy::NativeRenderJni::Init();
 #endif
 
+#ifdef ENABLE_TDF_RENDER
+  TDFRenderBridge::Init(j_vm, reserved);
+#endif
+
+
   return JNI_VERSION_1_4;
 }
 
@@ -576,5 +600,10 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
 #ifdef ANDROID_NATIVE_RENDER
   hippy::NativeRenderJni::Destroy();
 #endif
+
+#ifdef ENABLE_TDF_RENDER
+  TDFRenderBridge::Destroy();
+#endif
+
   hippy::JNIEnvironment::DestroyInstance();
 }

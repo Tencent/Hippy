@@ -1,0 +1,93 @@
+#
+# Tencent is pleased to support the open source community by making
+# Hippy available.
+#
+# Copyright (C) 2022 THL A29 Limited, a Tencent company.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+project("tdf_renderer")
+
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." REALPATH)
+
+get_filename_component(TDF_RENDER_DIR "${PROJECT_ROOT_DIR}/renderer/tdf" REALPATH)
+get_filename_component(TDF_CORE_DIR "${TDF_RENDER_DIR}/core" REALPATH)
+
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
+
+set(CMAKE_CXX_STANDARD 17)
+
+# region library
+add_library(${PROJECT_NAME} STATIC)
+target_include_directories(${PROJECT_NAME} PUBLIC include)
+# TODO: can be delete after entry.cc don't need RenderManager's type info
+target_include_directories(${PROJECT_NAME} PUBLIC ${TDF_RENDER_DIR}/common/include)
+# TODO: remove dependency of scope.h
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/include)
+# region end
+
+# TODO 为什么放在 tdf render 里面不生效
+target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_TDF_RENDER")
+
+# regine tdfcore
+target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/include)
+# entry.cc need use tdf_render_manager.h
+# TODO: remove after tdfcore's include directory is cleaned.
+target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/skia)
+target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/angle/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/json/single_include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/refl-cpp/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/tracy)
+target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/libpag/tgfx/include)
+
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_TDF_RENDER")
+# endregion
+
+# region jni common
+# TODO: will be removed when the JNI library is complete
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/include)
+# endregion
+
+# region dom
+GlobalPackages_Add(dom)
+# Just reference the `dom` header files, no library needed
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:dom,INTERFACE_INCLUDE_DIRECTORIES>)
+# endregion
+
+# region footstone
+GlobalPackages_Add(footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
+# endregion
+
+# TODO: replace with a static tdfcore library
+add_subdirectory(${TDF_CORE_DIR} tdfcore/build)
+target_link_libraries(${PROJECT_NAME} PUBLIC tdfcore)
+# region source set
+file(GLOB_RECURSE SRC_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/**
+        ${TDF_RENDER_DIR}/common/src/**
+        )
+message("vimer->6 ${SRC_FILES}")
+target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
+# The linker treats `.a` and `.o` files are different:
+#   * `.o` files from `.a` file only referenced `.o` object files are linked.
+#   * `.o` files in the linker always go inside, referenced or not.
+#
+# The `SOURCE_SET_STANDALONE` including static initializers,
+# so its visibility must be PUBLIC.
+#target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
+# endregion

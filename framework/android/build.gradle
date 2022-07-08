@@ -116,6 +116,7 @@ android {
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
                   "-DANDROID_STL=$ANDROID_STL",
+                  "-DENABLE_TDF_RENDER=${ENABLE_TDF_RENDER}",
                   "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 

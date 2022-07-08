@@ -1,0 +1,70 @@
+apply plugin: 'com.android.library'
+println("tdf-render config build.gradle")
+buildscript {
+  repositories {
+    google()
+    mavenCentral()
+  }
+  dependencies {
+    classpath "com.android.tools.build:gradle:$VERSION_AGP"
+    // NOTE: Do not place your application dependencies here; they belong
+    // in the individual module build.gradle files
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    mavenCentral()
+  }
+}
+
+android {
+  compileSdkVersion COMPILE_SDK_VERSION as int
+
+  defaultConfig {
+    minSdkVersion MIN_SDK_VERSION as int
+    targetSdkVersion TARGET_SDK_VERSION as int
+    versionCode 1
+    versionName "1.0"
+
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    consumerProguardFiles "consumer-rules.pro"
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  buildFeatures {
+    buildConfig = false
+  }
+  sourceSets {
+    main {
+      // TODO import TDF Core's Java Code as an aar
+      java.srcDirs = [
+          'src/main/java',
+          '../core/src/platform/android/java'
+      ]
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+}
+
+dependencies {
+  compileOnly project(path: ':hippy-support')
+  compileOnly project(path: ':serialization')
+  compileOnly project(path: ':link_supplier')
+  // TODO(steve): tdf render need ControllerManager from native manager
+  compileOnly project(path: ':renderer-native')
+  // for tdf core
+  implementation 'androidx.appcompat:appcompat:1.2.0'
+}

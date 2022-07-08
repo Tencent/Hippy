@@ -106,6 +106,9 @@ dependencies {
         api project(path: ':hippy-framework')
         api project(path: ':hippy-support')
         api project(path: ':renderer-native')
+        if (ENABLE_TDF_RENDER == "true") {
+            api project(path: ':renderer-tdf')
+        }
         api project(path: ':serialization')
     }
     // noinspection GradleDependency
