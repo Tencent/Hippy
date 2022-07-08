@@ -198,7 +198,7 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
     int read_len = socket_receive_timeout(client_fd, buffer, kBufferSize, 0, 100);
     FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse read_len=%d." << read_len;
     if (read_len <= 0) {
-      FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse read fail error=%s." << strerror(errno);
+      FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse read fail error=" << strerror(errno);
 #ifdef WIN32
       if (read_len == -WSAEINTR || read_len == -WSAEWOULDBLOCK) {
 #else

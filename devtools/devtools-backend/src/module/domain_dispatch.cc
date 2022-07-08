@@ -80,7 +80,7 @@ void DomainDispatch::RegisterDomainHandler(const std::shared_ptr<BaseDomain>& ba
 void DomainDispatch::ClearDomainHandler() { domain_register_map_.clear(); }
 
 bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
-  FOOTSTONE_DLOG(INFO) << "DomainDispatch, receive data from frontend :%s" << data_string.c_str();
+  FOOTSTONE_DLOG(INFO) << "DomainDispatch, receive data from frontend: " << data_string.c_str();
   nlohmann::json data_json = nlohmann::json::parse(data_string, nullptr, false);
   if (data_json.is_discarded()) {
     FOOTSTONE_DLOG(ERROR) << "DomainDispatch, parse input json is invalid";
@@ -141,7 +141,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 
 void DomainDispatch::DispatchToVm(const std::string& data) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  FOOTSTONE_DLOG(INFO) << "JSDebugger, params=%s." << data.c_str();
+  FOOTSTONE_DLOG(INFO) << "JSDebugger, params=" << data.c_str();
   // if not in debug mode, then not send msg to v8
   if (!data_channel_->GetProvider()->runtime_adapter->IsDebug()) {
     FOOTSTONE_DLOG(ERROR) << "not in debug mode, return.";

@@ -48,7 +48,7 @@ void WebSocketChannel::Connect(ReceiveDataHandler handler) {
     FOOTSTONE_DLOG(ERROR) << "websocket uri is empty, connect error";
     return;
   }
-  FOOTSTONE_DLOG(INFO) << "websocket connect url:%s" << ws_uri_.c_str();
+  FOOTSTONE_DLOG(INFO) << "websocket connect url:" << ws_uri_.c_str();
   data_handler_ = handler;
   ws_client_.set_socket_init_handler(
       [WEAK_THIS](const websocketpp::connection_hdl& handle, websocketpp::lib::asio::ip::tcp::socket& socket) {
@@ -91,7 +91,7 @@ void WebSocketChannel::Close(int32_t code, const std::string& reason) {
     FOOTSTONE_DLOG(ERROR) << "send message error, handler is null";
     return;
   }
-  FOOTSTONE_DLOG(INFO) << "close websocket, code: %d, reason: %s" << code << reason.c_str();
+  FOOTSTONE_DLOG(INFO) << "close websocket, code: %d, reason: " << code << reason.c_str();
   websocketpp::lib::error_code error_code;
   ws_client_.close(connection_hdl_, static_cast<websocketpp::close::status::value>(code), reason, error_code);
   ws_client_.stop_perpetual();
@@ -120,12 +120,9 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  FOOTSTONE_DLOG(ERROR) <<
-               "websocket connect fail, state: %d, error message: %s, local close code: %d, local close reason: %s, "
-               "remote close code: %d, remote close reason: %s",
-               con->get_state(), con->get_ec().message().c_str(), con->get_local_close_code(),
-               con->get_local_close_reason().c_str(), con->get_remote_close_code(),
-               con->get_remote_close_reason().c_str();
+  FOOTSTONE_DLOG(ERROR) << "websocket connect fail, state: " << con->get_state() << ", error message:" << con->get_ec().message().c_str()
+  << ", local close code:" << con->get_local_close_code() << ", local close reason: " << con->get_local_close_reason().c_str()
+  << ", remote close code:" << con->get_remote_close_code() << ", remote close reason:" << con->get_remote_close_reason().c_str();
 }
 
 void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle) {
@@ -156,11 +153,8 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  FOOTSTONE_DLOG(INFO) <<
-               "websocket connect close, state: %d, error message: %s, local close code: %d, local close reason: %s, "
-               "remote close code: %d, remote close reason: %s",
-               con->get_state(), con->get_ec().message().c_str(), con->get_local_close_code(),
-               con->get_local_close_reason().c_str(), con->get_remote_close_code(),
-               con->get_remote_close_reason().c_str();
+  FOOTSTONE_DLOG(ERROR) << "websocket connect close, state: " << con->get_state() << ", error message:" << con->get_ec().message().c_str()
+                        << ", local close code:" << con->get_local_close_code() << ", local close reason: " << con->get_local_close_reason().c_str()
+                        << ", remote close code:" << con->get_remote_close_code() << ", remote close reason:" << con->get_remote_close_reason().c_str();
 }
 }  // namespace hippy::devtools

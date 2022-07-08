@@ -74,7 +74,7 @@ namespace detail {
  */
 template<typename Exception>
 inline void throw_exception(const Exception &e) {
-  FOOTSTONE_DLOG(ERROR) << " asio exception:%s" << e.what();
+  FOOTSTONE_DLOG(ERROR) << " asio exception:" << e.what();
 }
 } // namespace detail
 } // namespace asio
