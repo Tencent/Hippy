@@ -79,7 +79,7 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-             "JILcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;Ljava/lang/String;)J",
+             "JIILcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;Ljava/lang/String;)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -122,16 +122,6 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "destroyDomInstance",
              "(II)V",
              DestroyDomInstance)
-
-REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
-             "createAnimationManager",
-             "(I)I",
-             CreateAnimationManager)
-
-REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
-             "destroyAnimationManager",
-             "(I)V",
-             DestroyAnimationManager)
 
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
     "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
@@ -273,29 +263,11 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_mana
   return dom_manager->GetId();
 }
 
-jint CreateAnimationManager(JNIEnv* j_env,
-                            __unused jobject j_obj,
-                            jint j_dom_id) {
-  return 0;
-}
-
 void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id, jint j_dom_id) {
   auto dom_manager = DomManager::Find(j_dom_id);
   if (dom_manager) {
     DomManager::Erase(static_cast<int32_t>(j_dom_id));
-    std::shared_ptr<WorkerManager> worker_manager;
-    auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
-    FOOTSTONE_DCHECK(flag);
-    if (flag && worker_manager) {
-      auto task_runner = dom_manager->GetTaskRunner();
-      worker_manager->RemoveTaskRunner(task_runner);
-    }
   }
-}
-
-void DestroyAnimationManager(JNIEnv* j_env,
-                             __unused jobject j_obj,
-                             jint j_ani_id) {
 }
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
@@ -435,6 +407,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jobject j_callback,
                    jlong j_group_id,
                    jint j_worker_manager_id,
+                   jint j_dom_manager_id,
                    jobject j_vm_init_param,
                    jstring j_data_dir,
                    jstring j_ws_url) {
@@ -480,12 +453,16 @@ jlong InitInstance(JNIEnv* j_env,
   std::shared_ptr<WorkerManager> worker_manager;
   auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
   FOOTSTONE_DCHECK(flag);
+  auto dom_manager = DomManager::Find(j_dom_manager_id);
+  FOOTSTONE_DCHECK(dom_manager);
+  auto dom_task_runner = dom_manager->GetTaskRunner();
   auto runtime_id = V8BridgeUtils::InitInstance(
       static_cast<bool>(j_enable_v8_serialization),
       static_cast<bool>(j_is_dev_module),
       global_config,
       static_cast<int64_t>(j_group_id),
       worker_manager,
+      dom_task_runner,
       param,
       bridge,
       scope_cb,

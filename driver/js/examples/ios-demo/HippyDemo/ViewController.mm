@@ -133,20 +133,20 @@
 std::string mock;
 
 - (void)saveBtnClick {
-    std::weak_ptr<hippy::DomManager> weak_dom_manager = _bridge.domManager;
-    std::weak_ptr<hippy::RootNode> weak_root_node = _bridge.rootNode;
-    std::function<void()> func = [weak_dom_manager , weak_root_node](){
-        auto dom_manager = weak_dom_manager.lock();
-        if (!dom_manager) {
-            return;
-        }
-        auto root_node = weak_root_node.lock();
-        if (!root_node) {
-            return;
-        }
-        mock = dom_manager->GetSnapShot(root_node);
-    };
-    _bridge.domManager->PostTask(hippy::Scene({func}));
+//    std::weak_ptr<hippy::DomManager> weak_dom_manager = _bridge.domManager;
+//    std::weak_ptr<hippy::RootNode> weak_root_node = _bridge.rootNode;
+//    std::function<void()> func = [weak_dom_manager , weak_root_node](){
+//        auto dom_manager = weak_dom_manager.lock();
+//        if (!dom_manager) {
+//            return;
+//        }
+//        auto root_node = weak_root_node.lock();
+//        if (!root_node) {
+//            return;
+//        }
+//        mock = dom_manager->GetSnapShot(root_node);
+//    };
+//    _bridge.domManager->PostTask(hippy::Scene({func}));
 
 }
 

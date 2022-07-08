@@ -381,7 +381,7 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
   bool use_capture = false;
   if (argument_count == 3) {
     use_capture = false;
-  } else if (argument_count == 4 ) {
+  } else if (argument_count == 4) {
     auto capture_parameter = arguments[3];
     // capture support pass object { capture: bool }
     if (context->IsObject(arguments[3])) {
@@ -562,12 +562,7 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<CtxValue> {
     auto scope = weak_scope.lock();
     if (scope) {
-      auto weak_dom_manager = scope->GetDomManager();
-      auto scene = builder->Build(weak_dom_manager, scope->GetRootNode());
-      auto dom_manager = weak_dom_manager.lock();
-      if (dom_manager) {
-        dom_manager->PostTask(std::move(scene));
-      }
+      builder->Build(scope->GetDomManager(), scope->GetRootNode());
     }
     return nullptr;
   };

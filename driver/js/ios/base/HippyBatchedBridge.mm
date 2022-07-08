@@ -46,6 +46,7 @@
 #include "dom/dom_manager.h"
 #import "UIView+NativeRender.h"
 #import "NativeRenderImpl.h"
+#import "HippyJSEnginesMapper.h"
 
 #define HippyAssertJSThread()
 //
@@ -79,7 +80,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSUInteger _modulesInitializedOnMainQueue;
     HippyDisplayLink *_displayLink;
     NSDictionary *_dimDic;
-    std::shared_ptr<hippy::DomManager> _domManager;
+    // std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
 }
 
@@ -488,20 +489,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 
 - (void)setUpExecutor {
     [_javaScriptExecutor setUp];
-}
-
-- (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
-    auto strongDomManager = domManager.lock();
-    if (strongDomManager) {
-        self.javaScriptExecutor.pScope->SetDomManager(strongDomManager);
-#ifdef ENABLE_INSPECTOR
-        auto devtools_data_source = self.javaScriptExecutor.pScope->GetDevtoolsDataSource();
-        if (devtools_data_source) {
-            hippy::DomManager::Insert(strongDomManager);
-            self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, strongDomManager->GetId(), 0); // runtime_id for iOS is useless, set 0
-        }
-#endif
-    }
 }
 
 - (std::shared_ptr<hippy::AnimationManager>)animationManager {

@@ -98,16 +98,12 @@ public interface LinkHelper {
     void createDomHolder();
 
     /**
-     * Create animation manager, will call native jni {@link Linker#createAnimationManager()}
-     */
-    void createAnimationManager();
-
-    /**
      * Create dom holder with existing root node id
      *
      * @param rootId existing root node id
+     * @param instanceId existing dom id
      */
-    void createDomHolder(int rootId);
+    void createDomHolder(int rootId, int instanceId);
 
     /**
      * Will call native jni {@link Linker#doBind(int, int, int)} ()} to bind driver runtime with dom manager

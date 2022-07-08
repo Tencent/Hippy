@@ -64,6 +64,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -116,6 +117,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
     private int mWorkerManagerId = -1;
+    private int mDomInstanceId = -1;
 
     final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -724,9 +726,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mWorkerManagerId = mLinkHelper.getWorkerManagerId();
             }
             if (mDebugMode && mRootView != null) {
-                mLinkHelper.createDomHolder(mRootView.getId());
+                mLinkHelper.createDomHolder(mRootView.getId(), mDomInstanceId);
             } else {
                 mLinkHelper.createDomHolder();
+                mDomInstanceId =  Objects.requireNonNull(mLinkHelper.getDomHolder()).getInstanceId();
             }
             mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders,
                     enableV8Serialization);
@@ -735,7 +738,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
             // If in debug mode, root view will be reused after reload,
             // so not need to generate root id again.
-            mLinkHelper.createAnimationManager();
             mLinkHelper.createRenderer(NATIVE_RENDER);
             mLinkHelper.setFrameworkProxy(HippyEngineManagerImpl.this);
             List<Class<?>> controllers = null;
@@ -887,6 +889,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public int getWorkerManagerId() {
             return mLinkHelper.getWorkerManagerId();
+        }
+
+        @Override
+        public int getDomManagerId() {
+            return Objects.requireNonNull(mLinkHelper.getDomHolder()).getInstanceId();
         }
 
         @Override

@@ -22,6 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import "core/engine.h"
+#import "dom/dom_manager.h"
 #import "footstone/thread_worker_impl.h"
 #import "footstone/task_runner.h"
 
@@ -30,10 +31,12 @@ public:
     EngineResource();
     ~EngineResource();
     std::shared_ptr<Engine> GetEngine() {return engine_;};
+    std::shared_ptr<hippy::DomManager> GetDomManager() {return dom_manager_;};
+  
 private:
     std::shared_ptr<Engine> engine_;
-    std::shared_ptr<footstone::ThreadWorker> js_thread_worker_;
-    std::shared_ptr<footstone::TaskRunner> task_runner_;
+    std::shared_ptr<footstone::ThreadWorker> dom_worker_;
+    std::shared_ptr<hippy::DomManager> dom_manager_;
 };
 
 @interface HippyJSEnginesMapper : NSObject

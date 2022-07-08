@@ -22,6 +22,7 @@ namespace hippy::runtime {
 using bytes = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
+using WorkerManager = footstone::runner::WorkerManager;
 using ThreadWorkerImpl = footstone::runner::ThreadWorkerImpl;
 using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
@@ -37,14 +38,10 @@ using V8VM = hippy::napi::V8VM;
 constexpr int64_t kDefaultGroupId = -1;
 constexpr int64_t kDebuggerGroupId = -9999;
 constexpr uint32_t kRuntimeSlotIndex = 0;
-constexpr uint32_t kJsWorkerId = 1;
-constexpr uint32_t kJsTaskRunnerPriority = 1;
 
-constexpr char kJsWorkerName[] = "hippy_js";
 constexpr char kHippyBridgeName[] = "hippyBridge";
 constexpr char kHippyNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
 constexpr char kHippyCallNativeKey[] = "hippyCallNatives";
-constexpr char kJsRunnerName[] = "hippy_js";
 constexpr char kWorkerRunnerName[] = "hippy_worker";
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
@@ -67,7 +64,8 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     bool is_dev_module,
                                     const unicode_string_view& global_config,
                                     int64_t group,
-                                    const std::shared_ptr<footstone::WorkerManager>& worker_manager,
+                                    const std::shared_ptr<WorkerManager>& worker_manager,
+                                    const std::shared_ptr<TaskRunner>& task_runner,
                                     const std::shared_ptr<V8VMInitParam>& param,
                                     std::shared_ptr<Bridge> bridge,
                                     const RegisterFunction& scope_cb,
@@ -163,13 +161,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   }
   if (!engine) {
     auto worker_runner = worker_manager->CreateTaskRunner(kWorkerRunnerName);
-    auto js_worker = std::make_shared<ThreadWorkerImpl>(true, kJsWorkerName);
-    js_worker->Start();
-    auto js_runner = worker_manager->CreateTaskRunner(kJsWorkerId, kJsTaskRunnerPriority, false, kJsRunnerName);
-    js_runner->SetWorker(js_worker);
-    js_worker->Bind({js_runner});
-    worker_manager->AddWorker(js_worker);
-    engine = std::make_shared<Engine>(js_runner, worker_runner, std::move(engine_cb_map), param);
+    engine = std::make_shared<Engine>(task_runner, worker_runner, std::move(engine_cb_map), param);
     if (group != kDefaultGroupId) {
       std::lock_guard<std::mutex> lock(engine_mutex);
       reuse_engine_map[group] = std::make_pair(engine, 1);
