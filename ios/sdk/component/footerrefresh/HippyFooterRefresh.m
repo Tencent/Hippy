@@ -31,6 +31,7 @@
 
 - (void)unsetFromScrollView {
     [_scrollView removeObserver:self forKeyPath:@"contentSize"];
+    self.status = HippyRefreshStatusIdle;
     [super unsetFromScrollView];
 }
 

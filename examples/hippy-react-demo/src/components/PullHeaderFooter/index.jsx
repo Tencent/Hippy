@@ -297,7 +297,7 @@ export default class PullHeaderFooterExample extends React.Component {
         getRowKey={this.getRowKey}
         renderRow={this.renderRow}
         renderPullHeader={this.renderPullHeader}
-        renderPullFooter={this.renderPullFooter}
+        renderPullFooter={dataSource.length > 10 ? null : this.renderPullFooter}
         onHeaderReleased={this.onHeaderReleased}
         onHeaderPulling={this.onHeaderPulling}
         onFooterReleased={this.onEndReached}

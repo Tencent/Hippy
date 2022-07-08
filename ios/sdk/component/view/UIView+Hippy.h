@@ -33,11 +33,11 @@
 /**
  * HippyComponent interface.
  */
-- (NSArray<UIView *> *)hippySubviews;
-- (UIView *)hippySuperview;
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex;
-- (void)removeHippySubview:(UIView *)subview;
-- (void)resetHippySubviews;
+- (NSArray<UIView *> *)hippySubviews NS_REQUIRES_SUPER;
+- (UIView *)hippySuperview NS_REQUIRES_SUPER;
+- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex NS_REQUIRES_SUPER;
+- (void)removeHippySubview:(UIView *)subview NS_REQUIRES_SUPER;
+- (void)resetHippySubviews NS_REQUIRES_SUPER;
 
 /**
  * HippyViewTouchHandlerProtocol interface.

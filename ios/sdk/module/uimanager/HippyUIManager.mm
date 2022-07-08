@@ -628,12 +628,22 @@ HIPPY_EXPORT_METHOD(removeSubviewsFromContainerWithID:(nonnull NSNumber *)contai
  *
  * @returns Array of removed items.
  */
-- (NSArray<id<HippyComponent>> *)_childrenToRemoveFromContainer:(id<HippyComponent>)container atIndices:(NSArray<NSNumber *> *)atIndices {
+- (NSArray<id<HippyComponent>> *)_childrenToRemoveFromContainer:(id<HippyComponent>)container
+                                                      atIndices:(NSArray<NSNumber *> *)atIndices
+                                               isUIViewRegistry:(BOOL)isUIViewRegistry {
     // If there are no indices to move or the container has no subviews don't bother
     // We support parents with nil subviews so long as they're all nil so this allows for this behavior
     if (atIndices.count == 0 || [container hippySubviews].count == 0) {
         return nil;
     }
+    
+    // HippySubviews of lazy list are not synchronized with shadowView
+    // So we can't get the views to be deleted here
+    // Removals of such views are synchronized on lazy list's flush event
+    if (isUIViewRegistry && [container conformsToProtocol:@protocol(HippyBaseListViewProtocol)]) {
+        return nil;
+    }
+    
     // Construction of removed children must be done "up front", before indices are disturbed by removals.
     NSMutableArray<id<HippyComponent>> *removedChildren = [NSMutableArray arrayWithCapacity:atIndices.count];
     HippyAssert(container != nil, @"container view (for ID %@) not found", container);
@@ -823,13 +833,18 @@ HIPPY_EXPORT_METHOD(manageChildren:(nonnull NSNumber *)containerTag
     HippyAssert(moveFromIndices.count == moveToIndices.count, @"moveFromIndices had size %tu, moveToIndices had size %tu", moveFromIndices.count,
         moveToIndices.count);
     HippyAssert(addChildHippyTags.count == addAtIndices.count, @"there should be at least one Hippy child to add");
-
-    // Removes (both permanent and temporary moves) are using "before" indices
-    NSArray<id<HippyComponent>> *permanentlyRemovedChildren = [self _childrenToRemoveFromContainer:container atIndices:removeAtIndices];
-    NSArray<id<HippyComponent>> *temporarilyRemovedChildren = [self _childrenToRemoveFromContainer:container atIndices:moveFromIndices];
+    
     BOOL isUIViewRegistry = registry == (NSMutableDictionary<NSNumber *, id<HippyComponent>> *)_viewRegistry;
+    
+    
+    // Removes (both permanent and temporary moves) are using "before" indices
+    NSArray<id<HippyComponent>> *permanentlyRemovedChildren = [self _childrenToRemoveFromContainer:container
+                                                                                         atIndices:removeAtIndices
+                                                                                  isUIViewRegistry:isUIViewRegistry];
+    NSArray<id<HippyComponent>> *temporarilyRemovedChildren = [self _childrenToRemoveFromContainer:container
+                                                                                         atIndices:moveFromIndices
+                                                                                  isUIViewRegistry:isUIViewRegistry];
     [self _removeChildren:permanentlyRemovedChildren fromContainer:container];
-
     [self _removeChildren:temporarilyRemovedChildren fromContainer:container];
     [self _purgeChildren:permanentlyRemovedChildren fromRegistry:registry];
 

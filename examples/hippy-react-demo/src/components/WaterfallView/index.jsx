@@ -260,7 +260,7 @@ export default class ListExample extends React.Component {
               contentInset={contentInset}
               getItemStyle={this.getItemStyle}
               containPullFooter={true}
-              renderPullFooter={this.renderPullFooter}
+              renderPullFooter={dataSource.length > 20 ? null : this.renderPullFooter}
           />
         </RefreshWrapper>
     );
