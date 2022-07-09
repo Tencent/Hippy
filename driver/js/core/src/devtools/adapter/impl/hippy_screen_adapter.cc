@@ -92,7 +92,7 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
     auto children = root_node->GetChildren();
     if (!children.empty()) {
       hippy::dom::DomArgument argument = makeScreenRequestArgument(request);
-      std::function screen_shot_callback = [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
+      auto screen_shot_callback = [WEAK_THIS, callback](std::shared_ptr<hippy::dom::DomArgument> arg) {
         DEFINE_AND_CHECK_SELF(HippyScreenAdapter)
         footstone::value::HippyValue result_dom_value;
         arg->ToObject(result_dom_value);

@@ -59,13 +59,13 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, uint32_t dom_id, int32_t rende
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(hippy_dom_);
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
   data_provider->runtime_adapter = runtime_adapter_;
-  FOOTSTONE_DLOG(INFO) << "TDF_Backend DevtoolsDataSource data_provider:%p" << &devtools_service_;
+  FOOTSTONE_DLOG(INFO) << "TDF_Backend DevtoolsDataSource data_provider:" << &devtools_service_;
 }
 
 void DevtoolsDataSource::Destroy(bool is_reload) {
   devtools_service_->Destroy(is_reload);
 
-  std::function func = [WEAK_THIS] {
+  auto func = [WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
     self->RemoveRootNodeListener(self->hippy_dom_->root_node);
   };
@@ -89,7 +89,7 @@ void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHan
 void DevtoolsDataSource::SetRootNode(std::weak_ptr<RootNode> weak_root_node) {
   hippy_dom_->root_node = weak_root_node;
 
-  std::function func = [weak_root_node, WEAK_THIS] {
+  auto func = [weak_root_node, WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
     self->AddRootNodeListener(weak_root_node);
   };
