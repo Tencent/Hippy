@@ -67,9 +67,14 @@ export default class TextExpo extends React.Component {
         x: 1,
         y: 1,
       },
+      numberOfLines: 2,
+      ellipsizeMode: undefined,
     };
     this.incrementFontSize = this.incrementFontSize.bind(this);
     this.decrementFontSize = this.decrementFontSize.bind(this);
+    this.incrementLine = this.incrementLine.bind(this);
+    this.decrementLine = this.decrementLine.bind(this);
+    this.changeMode = this.changeMode.bind(this);
     // if Android text nested is used，height and lineHeight attributes should be set in Text wrapper
     this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 50 };
   }
@@ -94,8 +99,42 @@ export default class TextExpo extends React.Component {
     });
   }
 
+  incrementLine() {
+    const { numberOfLines } = this.state;
+    if (numberOfLines < 6) {
+      this.setState({
+        numberOfLines: numberOfLines + 1,
+      });
+    }
+  }
+
+  decrementLine() {
+    const { numberOfLines } = this.state;
+    if (numberOfLines > 0) {
+      this.setState({
+        numberOfLines: numberOfLines - 1,
+      });
+    }
+  }
+
+  changeMode() {
+    let { ellipsizeMode } = this.state;
+    if (!ellipsizeMode) {
+      ellipsizeMode = 'clip';
+    } else if (ellipsizeMode === 'clip') {
+      ellipsizeMode = 'head';
+    } else if (ellipsizeMode === 'head') {
+      ellipsizeMode = 'middle';
+    } else if (ellipsizeMode === 'middle') {
+      ellipsizeMode = 'tail';
+    } else {
+      ellipsizeMode = undefined;
+    }
+    this.setState({ ellipsizeMode });
+  }
+
   render() {
-    const { fontSize, textShadowColor, textShadowOffset } = this.state;
+    const { fontSize, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text style>{title}</Text>
@@ -151,17 +190,26 @@ export default class TextExpo extends React.Component {
           <Text style={[styles.normalText, { fontStyle: 'italic' }]}>Text fontStyle is italic</Text>
         </View>
         {renderTitle('numberOfLines')}
-        <View style={styles.itemContent}>
-          <Text numberOfLines={1} style={styles.normalText}>
-            just one line just one line just one line just
-            one line just one line just one line just one line just one line
+        <View style={[styles.itemContent, { justifyContent: 'flex-start', alignItems: 'stretch', height: 500 }]}>
+          <Text style={styles.normalText}>
+            {`numberOfLines=${numberOfLines} ellipsizeMode=${ellipsizeMode}`}
           </Text>
-          <Text numberOfLines={2} style={styles.normalText}>
-            just two lines just two lines just two lines just
-            two lines just two lines
-            just two lines just two lines just two lines just two lines just two lines just two
-            lines just two lines just two lines just two lines just two lines just two lines
+          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[styles.normalText, { lineHeight: undefined, backgroundColor: 'gray' }]}>
+            <Text style={{ fontSize: 24, color: 'red' }}>先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</Text>
+            <Text>然侍卫之臣不懈于内，忠志之士忘身于外者，盖追先帝之殊遇，欲报之于陛下也。</Text>
           </Text>
+          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[styles.normalText, { backgroundColor: 'cyan' }]}>
+            {'line 1\n\nline 3\n\nline 5'}
+          </Text>
+          <View style={styles.button} onClick={this.incrementLine}>
+            <Text style={styles.buttonText}>加一行</Text>
+          </View>
+          <View style={styles.button} onClick={this.decrementLine}>
+            <Text style={styles.buttonText}>减一行</Text>
+          </View>
+          <View style={styles.button} onClick={this.changeMode}>
+            <Text style={styles.buttonText}>ellipsizeMode</Text>
+          </View>
         </View>
         {renderTitle('textDecoration')}
         <View style={styles.itemContent}>

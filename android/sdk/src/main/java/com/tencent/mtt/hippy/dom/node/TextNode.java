@@ -23,7 +23,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.*;
-import android.text.Layout.Alignment;
 import android.text.style.*;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -48,8 +47,13 @@ public class TextNode extends StyleNode {
   SpannableStringBuilder mSpanned;
 
   public final static int UNSET = -1;
+  public final static String MODE_HEAD = "head";
+  public final static String MODE_MIDDLE = "middle";
+  public final static String MODE_TAIL = "tail";
+  public final static String MODE_CLIP = "clip";
   CharSequence mText;
   protected int mNumberOfLines = UNSET;
+  private String mEllipsizeMode = MODE_TAIL;
 
   protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
   private float mLineHeight = UNSET;
@@ -89,7 +93,7 @@ public class TextNode extends StyleNode {
 
   public static final String IMAGE_SPAN_TEXT = "[img]";
 
-  final TextPaint sTextPaintInstance = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+  final TextPaint mTextPaintInstance;
 
   private final boolean mIsVirtual;
 
@@ -107,6 +111,9 @@ public class TextNode extends StyleNode {
     if (I18nUtil.isRTL()) {
       mTextAlign = Layout.Alignment.ALIGN_OPPOSITE;
     }
+
+    mTextPaintInstance = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+    mTextPaintInstance.setTextSize(mFontSize);
   }
 
   public void setTextView(HippyTextView view) {
@@ -166,6 +173,7 @@ public class TextNode extends StyleNode {
   @HippyControllerProps(name = NodeProps.FONT_SIZE, defaultType = HippyControllerProps.NUMBER, defaultNumber = NodeProps.FONT_SIZE_SP)
   public void fontSize(float fontSize) {
     this.mFontSize = (int) Math.ceil(PixelUtil.dp2px(fontSize));
+    mTextPaintInstance.setTextSize(mFontSize);
     markUpdated();
   }
 
@@ -411,6 +419,21 @@ public class TextNode extends StyleNode {
   public void setNumberOfLines(int numberOfLines) {
     mNumberOfLines = numberOfLines == 0 ? -1 : numberOfLines;
     markUpdated();
+  }
+
+  @HippyControllerProps(name = NodeProps.ELLIPSIZE_MODE, defaultType = HippyControllerProps.STRING, defaultString = "tail")
+  public void setEllipsizeMode(String mode) {
+    if (mode == null) {
+      mode = MODE_TAIL;
+    }
+    if (!mEllipsizeMode.equals(mode)) {
+      if (MODE_TAIL.equals(mode) || MODE_CLIP.equals(mode) || MODE_MIDDLE.equals(mode) || MODE_HEAD.equals(mode)) {
+        mEllipsizeMode = mode;
+        markUpdated();
+      } else {
+        throw new RuntimeException("Invalid ellipsizeMode: " + mode);
+      }
+    }
   }
 
   protected HippyFontScaleAdapter mFontScaleAdapter;
@@ -667,7 +690,7 @@ public class TextNode extends StyleNode {
   }
 
   protected Layout createLayout(float width, FlexMeasureMode widthMode) {
-    TextPaint textPaint = sTextPaintInstance;
+    TextPaint textPaint = mTextPaintInstance;
     Layout layout;
     Spanned text = mSpanned == null ? new SpannedString("") : mSpanned;
     BoringLayout.Metrics boring = null;
@@ -693,66 +716,106 @@ public class TextNode extends StyleNode {
         int lastLineStart = layout.getLineStart(mNumberOfLines - 1);
         int lastLineEnd = layout.getLineEnd(mNumberOfLines - 1);
         if (lastLineStart < lastLineEnd) {
-          layout = createLayoutWithNumberOfLine(lastLineStart, layout.getWidth());
+          int measureWidth = (int)Math.ceil(unconstrainedWidth ? desiredWidth : width);
+          layout = truncateLayoutWithNumberOfLine(layout, measureWidth, mNumberOfLines);
         }
       }
     }
 
     assert layout != null;
-    layout.getPaint().setTextSize(mFontSize);
     return layout;
   }
 
-  private StaticLayout createLayoutWithNumberOfLine(int lastLineStart, int width) {
-    if (mSpanned == null) {
-      return null;
-    }
-    String text = mSpanned.toString();
-    SpannableStringBuilder temp = (SpannableStringBuilder) mSpanned.subSequence(0, text.length());
-    String ellipsizeStr = (String) TextUtils
-        .ellipsize(text.substring(lastLineStart), sTextPaintInstance, width,
-            TextUtils.TruncateAt.END);
-    String newString = text.subSequence(0, lastLineStart).toString()
-        + truncate(ellipsizeStr, sTextPaintInstance, width, mTruncateAt);
+  private StaticLayout truncateLayoutWithNumberOfLine(Layout preLayout, int width, int numberOfLines) {
+    int lineCount = preLayout.getLineCount();
+    assert lineCount >= 2;
+    CharSequence origin = preLayout.getText();
+    TextPaint paint = preLayout.getPaint();
 
-    int start = Math.max(newString.length() - 1, 0);
-    CharacterStyle[] hippyStyleSpans = temp.getSpans(start, text.length(), CharacterStyle.class);
-    if (hippyStyleSpans != null && hippyStyleSpans.length > 0) {
-      for (CharacterStyle hippyStyleSpan : hippyStyleSpans) {
-        if (temp.getSpanStart(hippyStyleSpan) >= start) {
-          temp.removeSpan(hippyStyleSpan);
+    CharSequence truncated;
+    if (MODE_CLIP.equals(mEllipsizeMode)) {
+      int end = preLayout.getLineEnd(numberOfLines - 1);
+      if (origin.charAt(end - 1) == '\n') {
+        // there will be an unexpected blank line, if ends with a new line char, trim it
+        --end;
+      }
+      truncated = origin.subSequence(0, end);
+    } else {
+      TextPaint measurePaint = new TextPaint();
+      measurePaint.set(paint);
+      int start = preLayout.getLineStart(numberOfLines - 1);
+      CharSequence formerLines = start > 0 ? origin.subSequence(0, start) : null;
+      boolean newLine = formerLines != null && formerLines.charAt(formerLines.length() - 1) != '\n';
+      CharSequence lastLine;
+      if (MODE_HEAD.equals(mEllipsizeMode)) {
+        measurePaint.setTextSize(Math.max(getLineHeight(preLayout, lineCount - 2), getLineHeight(preLayout, lineCount - 1)));
+        lastLine = ellipsizeHead(origin, measurePaint, width, start);
+      } else if (MODE_MIDDLE.equals(mEllipsizeMode)) {
+        measurePaint.setTextSize(Math.max(getLineHeight(preLayout, numberOfLines - 1), getLineHeight(preLayout, lineCount - 1)));
+        lastLine = ellipsizeMiddle(origin, measurePaint, width, start);
+      } else /*if (MODE_TAIL.equals(mEllipsizeMode))*/ {
+        measurePaint.setTextSize(getLineHeight(preLayout, numberOfLines - 1));
+        int end = preLayout.getLineEnd(numberOfLines - 1);
+        lastLine = ellipsizeTail(origin, measurePaint, width, start, end);
+      }
+      // concat everything
+      truncated = formerLines == null ? lastLine : TextUtils.concat(formerLines, newLine ? "\n" : "", lastLine);
+    }
+
+    return buildStaticLayout(truncated, paint, width);
+  }
+
+  private float getLineHeight(Layout layout, int line) {
+    return layout.getLineTop(line + 1) - layout.getLineTop(line);
+  }
+
+  private CharSequence ellipsizeHead(CharSequence origin, TextPaint paint, int width, int start) {
+    start = Math.max(start, TextUtils.lastIndexOf(origin, '\n') + 1);
+    // "…${last line of the rest part}"
+    CharSequence tmp = TextUtils.concat(ELLIPSIS, origin.subSequence(start, origin.length()));
+    return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.START);
+  }
+
+  private CharSequence ellipsizeMiddle(CharSequence origin, TextPaint paint, int width, int start) {
+    int leftEnd, rightStart;
+    if ((leftEnd = TextUtils.indexOf(origin, '\n', start)) != -1) {
+      rightStart = TextUtils.lastIndexOf(origin, '\n') + 1;
+      assert leftEnd < rightStart;
+      // "${first line of the rest part}…${last line of the rest part}"
+      CharSequence tmp = TextUtils.concat(origin.subSequence(start, leftEnd), ELLIPSIS, origin.subSequence(rightStart, origin.length()));
+      final int[] outRange = new int[2];
+      CharSequence line = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE, false, (l, r) -> {
+        outRange[0] = l;
+        outRange[1] = r;
+      });
+      if (line != tmp) {
+        int pos0 = leftEnd - start;
+        int pos1 = pos0 + ELLIPSIS.length();
+        if (outRange[0] > pos0) {
+          line = new SpannableStringBuilder(tmp).replace(pos0, outRange[1], ELLIPSIS);
+        } else if (outRange[1] < pos1) {
+          line = new SpannableStringBuilder(tmp).replace(outRange[0], pos1, ELLIPSIS);
         }
       }
+      return line;
+    } else {
+      // "${only one line of the rest part}"
+      CharSequence tmp = origin.subSequence(start, origin.length());
+      return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE);
     }
+  }
 
-    return buildStaticLayout(temp.replace(start, text.length(), ELLIPSIS), sTextPaintInstance, width);
+  private CharSequence ellipsizeTail(CharSequence origin, TextPaint paint, int width, int start, int end) {
+    if (origin.charAt(end - 1) == '\n') {
+      // there will be an unexpected blank line, if ends with a new line char, trim it
+      --end;
+    }
+    // "${first line of the rest part}…"
+    CharSequence tmp = TextUtils.concat(origin.subSequence(start, end), ELLIPSIS);
+    return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.END);
   }
 
   private static final String ELLIPSIS = "\u2026";
-
-  public String truncate(String source, TextPaint paint, int desired,
-      TextUtils.TruncateAt truncateAt) {
-    if (!TextUtils.isEmpty(source)) {
-      StringBuilder builder;
-      Spanned spanned;
-      StaticLayout layout;
-      for (int i = source.length(); i > 0; i--) {
-        builder = new StringBuilder(i + 1);
-        if (truncateAt != null) {
-          builder.append(source, 0, i > 1 ? i - 1 : i);
-          builder.append(ELLIPSIS);
-        } else {
-          builder.append(source, 0, i);
-        }
-        spanned = createSpan(builder.toString(), false);
-        layout = buildStaticLayout(spanned, paint, desired);
-        if (layout.getLineCount() <= 1) {
-          return spanned.toString();
-        }
-      }
-    }
-    return "";
-  }
 
   private static class SpanOperation {
 
