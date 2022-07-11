@@ -22,7 +22,7 @@
 
 #import "NativeRenderManager.h"
 #import "NativeRenderObjectText.h"
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 #import "dom/layout_node.h"
 #import "dom/dom_manager.h"
 #import "RenderVsyncManager.h"
@@ -37,27 +37,27 @@ using CallFunctionCallback = hippy::CallFunctionCallback;
 using RootNode = hippy::RootNode;
 
 NativeRenderManager::NativeRenderManager() {
-    uiManager_ = [[NativeRenderUIManager alloc] init];
+    renderImpl_ = [[NativeRenderImpl alloc] init];
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>> &&nodes) {
     @autoreleasepool {
-        [uiManager_ createRenderNodes:std::move(nodes) onRootNode:root_node];
+        [renderImpl_ createRenderNodes:std::move(nodes) onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::UpdateRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
-        [uiManager_ updateRenderNodes:std::move(nodes) onRootNode:root_node];
+        [renderImpl_ updateRenderNodes:std::move(nodes) onRootNode:root_node];
     }
 }
 
 void NativeRenderManager::DeleteRenderNode(std::weak_ptr<hippy::RootNode> root_node,
                                            std::vector<std::shared_ptr<DomNode>>&& nodes) {
     @autoreleasepool {
-        [uiManager_ deleteRenderNodesIds:std::move(nodes) onRootNode:root_node];
+        [renderImpl_ deleteRenderNodesIds:std::move(nodes) onRootNode:root_node];
     }
 }
 
@@ -73,7 +73,7 @@ void NativeRenderManager::UpdateLayout(std::weak_ptr<hippy::RootNode> root_node,
               DomNodeUpdateInfoTuple nodeUpdateInfo = std::make_tuple(tag, layoutResult);
               nodes_infos.push_back(nodeUpdateInfo);
         }
-        [uiManager_ updateNodesLayout:nodes_infos onRootNode:root_node];
+        [renderImpl_ updateNodesLayout:nodes_infos onRootNode:root_node];
     }
 }
 
@@ -82,7 +82,7 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
                                          int32_t from_pid,
                                          int32_t to_pid) {
     @autoreleasepool {
-        [uiManager_ renderMoveViews:std::move(moved_ids) fromContainer:from_pid toContainer:to_pid onRootNode:root_node];
+        [renderImpl_ renderMoveViews:std::move(moved_ids) fromContainer:from_pid toContainer:to_pid onRootNode:root_node];
     }
 }
 
@@ -96,7 +96,7 @@ void NativeRenderManager::MoveRenderNode(std::weak_ptr<hippy::RootNode> root_nod
 
 void NativeRenderManager::EndBatch(std::weak_ptr<hippy::RootNode> root_node) {
     @autoreleasepool {
-        [uiManager_ batchOnRootNode:root_node];
+        [renderImpl_ batchOnRootNode:root_node];
     }
 }
 
@@ -111,7 +111,7 @@ void NativeRenderManager::AddEventListener(std::weak_ptr<hippy::RootNode> root_n
         auto node = dom_node.lock();
         if (node) {
             int32_t tag = node->GetId();
-            [uiManager_ addEventName:name forDomNodeId:tag onRootNode:root_node];
+            [renderImpl_ addEventName:name forDomNodeId:tag onRootNode:root_node];
         }
     }
 };
@@ -123,7 +123,7 @@ void NativeRenderManager::RemoveEventListener(std::weak_ptr<hippy::RootNode> roo
         auto node = dom_node.lock();
         if (node) {
             int32_t node_id = node->GetId();
-            [uiManager_ removeEventName:name forDomNodeId:node_id onRootNode:root_node];
+            [renderImpl_ removeEventName:name forDomNodeId:node_id onRootNode:root_node];
         }
     }
 }
@@ -138,7 +138,7 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
         if (node) {
             HippyValue dom_value;
             param.ToObject(dom_value);
-            [uiManager_ dispatchFunction:name viewName:node->GetViewName()
+            [renderImpl_ dispatchFunction:name viewName:node->GetViewName()
                                  viewTag:node->GetId() onRootNode:root_node params:dom_value
                                 callback:node->GetCallback(name, cb)];
         }
@@ -148,39 +148,39 @@ void NativeRenderManager::CallFunction(std::weak_ptr<hippy::RootNode> root_node,
 
 void NativeRenderManager::RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent) {
     @autoreleasepool {
-        [uiManager_ registerExtraComponent:extraComponent];
+        [renderImpl_ registerExtraComponent:extraComponent];
     }
 }
 
 void NativeRenderManager::RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node) {
     @autoreleasepool {
-        [uiManager_ registerRootView:view asRootNode:root_node];
+        [renderImpl_ registerRootView:view asRootNode:root_node];
     }
 }
 
 void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     @autoreleasepool {
-        [uiManager_ setDomManager:dom_manager];
+        [renderImpl_ setDomManager:dom_manager];
     }
 }
 
 void NativeRenderManager::SetFrameworkProxy(id<NativeRenderFrameworkProxy> proxy) {
-    uiManager_.frameworkProxy = proxy;
+    renderImpl_.frameworkProxy = proxy;
 }
 
 id<NativeRenderFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
-    return uiManager_.frameworkProxy;
+    return renderImpl_.frameworkProxy;
 }
 
 void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
-    uiManager_.uiCreationLazilyEnabled = enabled;
+    renderImpl_.uiCreationLazilyEnabled = enabled;
 }
 
 id<NativeRenderContext> NativeRenderManager::GetRenderContext() {
-    return uiManager_;
+    return renderImpl_;
 }
 
 NativeRenderManager::~NativeRenderManager() {
-    [uiManager_ invalidate];
-    uiManager_ = nil;
+    [renderImpl_ invalidate];
+    renderImpl_ = nil;
 }

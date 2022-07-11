@@ -94,9 +94,11 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
       scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
       return nullptr;
     }
-    auto weak_dom_node = event->GetTarget();
-    auto dom_node = weak_dom_node.lock();
+    auto weak_node = event->GetTarget();
+    auto dom_node = weak_node.lock();
+    FOOTSTONE_DCHECK(dom_node != nullptr);
     if (!dom_node) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event node pointer"));
       return nullptr;
     }
     uint32_t id = dom_node->GetId();
@@ -117,9 +119,11 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
       scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
       return nullptr;
     }
-    auto weak_dom_node = event->GetCurrentTarget();
-    auto dom_node = weak_dom_node.lock();
+    auto weak_node = event->GetCurrentTarget();
+    auto dom_node = weak_node.lock();
+    FOOTSTONE_DCHECK(dom_node != nullptr);
     if (!dom_node) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event node pointer"));
       return nullptr;
     }
     uint32_t current_id = dom_node->GetId();
@@ -140,9 +144,11 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
       scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
       return nullptr;
     }
-    auto weak_dom_node = event->GetTarget();
-    auto dom_node = weak_dom_node.lock();
+    auto weak_node = event->GetTarget();
+    auto dom_node = weak_node.lock();
+    FOOTSTONE_DCHECK(dom_node != nullptr);
     if (!dom_node) {
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event node pointer"));
       return nullptr;
     }
     uint32_t target_id = dom_node->GetId();
@@ -163,10 +169,12 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
       scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event pointer"));
       return nullptr;
     }
-    auto weak_dom_node = event->GetCurrentTarget();
-    auto dom_node = weak_dom_node.lock();
+    auto weak_node = event->GetCurrentTarget();
+    auto dom_node = weak_node.lock();
+    FOOTSTONE_DCHECK(dom_node != nullptr);
     if (!dom_node) {
-      return nullptr;
+      scope->GetContext()->ThrowException(footstone::stringview::unicode_string_view("nullptr event node pointer"));
+      return scope->GetContext()->CreateUndefined();
     }
     uint32_t current_target_id = dom_node->GetId();
     std::shared_ptr<CtxValue> ctx_value = scope->GetContext()->CreateNumber(current_target_id);

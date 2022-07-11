@@ -203,8 +203,11 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
       context->ThrowException("animation start_value error");
       return nullptr;
     }
-    animation_id = footstone::check::checked_numeric_cast<int32_t, uint32_t>(id);
-    // todo 避免 release checked_numeric_cast crash
+    flag = footstone::check::numeric_cast(id, animation_id);
+    if (!flag) {
+      context->ThrowException("animation id error");
+      return nullptr;
+    }
   }
 
   double to_value;
@@ -288,14 +291,6 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!scope) {
       return nullptr;
     }
-    auto result = ParseAnimation(scope->GetContext(), argument_count, arguments);
-    if (!result) {
-      return nullptr;
-    }
-    auto animation =
-        std::make_shared<CubicBezierAnimation>(result->mode, result->delay, result->start_value,
-                                               result->to_value, result->type, result->duration,
-                                               result->func, result->cnt, result->animation_id);
     auto weak_dom_manager = scope->GetDomManager();
     auto dom_manager = weak_dom_manager.lock();
     if (!dom_manager) {
@@ -306,20 +301,17 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    // To avoid multi-threading problems, copy from js thread to dom thread here
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, animation_copy = *animation,
-                                                  related_id = result->animation_id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto copy = std::make_shared<CubicBezierAnimation>(std::move(animation_copy));
-      copy->SetAnimationManager(weak_animation_manager);
-      copy->Init();
-      animation_manager->AddAnimation(copy);
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    auto result = ParseAnimation(scope->GetContext(), argument_count, arguments);
+    if (!result) {
+      return nullptr;
+    }
+    auto animation =
+        std::make_shared<CubicBezierAnimation>(result->mode, result->delay, result->start_value,
+                                               result->to_value, result->type, result->duration,
+                                               result->func, result->cnt, result->animation_id);
+    auto animation_manager = root_node->GetAnimationManager();
+    animation->SetAnimationManager(animation_manager);
+    animation_manager->AddAnimation(animation);
     return animation;
   };
 
@@ -364,19 +356,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation = animation_manager->GetAnimation(id);
-      if (animation) {
-        animation->Start();
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation->Start();
     return nullptr;
   };
   def.functions.emplace_back(std::move(start_func_def));
@@ -404,19 +384,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation = animation_manager->GetAnimation(id);
-      if (animation) {
-        animation->Destroy();
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation->Destroy();
     return nullptr;
   };
   def.functions.emplace_back(std::move(destroy_func_def));
@@ -444,19 +412,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation = animation_manager->GetAnimation(id);
-      if (animation) {
-        animation->Pause();
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation->Pause();
     return nullptr;
   };
   def.functions.emplace_back(std::move(pause_func_def));
@@ -484,19 +440,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation = animation_manager->GetAnimation(id);
-      if (animation) {
-        animation->Resume();
-      }
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation->Resume();
     return nullptr;
   };
   def.functions.emplace_back(std::move(resume_func_def));
@@ -531,35 +475,6 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[id, weak_animation_manager, copy = *result] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation = animation_manager->GetAnimation(id);
-      if (!animation) {
-        return;
-      }
-      if (animation_manager->IsActive(id)) {
-        return;
-      }
-      if (animation->HasChildren()) {
-        return;
-      }
-      auto cubic_bezier_animation = std::static_pointer_cast<CubicBezierAnimation>(animation);
-      cubic_bezier_animation->Update(copy.mode,
-                                     copy.delay,
-                                     copy.start_value,
-                                     copy.to_value,
-                                     copy.type,
-                                     copy.duration,
-                                     copy.func,
-                                     copy.cnt,
-                                     copy.animation_id);
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
     return nullptr;
   };
   def.functions.emplace_back(std::move(update_func_def));
@@ -587,7 +502,6 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation->GetId();
     auto context = scope->GetContext();
     if (argument_count != kAddEventListenerArgc) {
       context->ThrowException("argc error");
@@ -609,30 +523,10 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       if (!scope) {
         return;
       }
-      std::weak_ptr<Ctx> weak_context = scope->GetContext();
-      auto callback = [weak_context, func]() {
-        auto context = weak_context.lock();
-        if (!context) {
-          return;
-        }
-        context->CallFunction(func, 0, nullptr);
-      };
-      scope->GetTaskRunner()->PostTask(std::move(callback));
+      auto context = scope->GetContext();
+      context->CallFunction(func, 0, nullptr);
     };
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name, cb] {
-      // run in dom thread
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation = animation_manager->GetAnimation(id);
-      if (!animation) {
-        return;
-      }
-      animation->AddEventListener(StringViewUtils::ToU8StdStr(event_name), std::move(cb));
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation->AddEventListener(StringViewUtils::ToU8StdStr(event_name), std::move(cb));
     return nullptr;
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
@@ -660,7 +554,6 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation->GetId();
     auto context = scope->GetContext();
     if (argument_count != kRemoveEventListenerArgc) {
       context->ThrowException("argc error");
@@ -672,19 +565,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("event_name error");
       return nullptr;
     }
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation = animation_manager->GetAnimation(id);
-      if (!animation) {
-        return;
-      }
-      animation->RemoveEventListener(StringViewUtils::ToU8StdStr(event_name));
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation->RemoveEventListener(StringViewUtils::ToU8StdStr(event_name));
     return nullptr;
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));
@@ -720,23 +601,18 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto result = ParseAnimationSet(scope->GetContext(), argument_count, arguments);
-    if (!result) {
+    auto animation_manager = root_node->GetAnimationManager();
+    if (!animation_manager) {
       return nullptr;
     }
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, copy = *result]() mutable {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto set = std::make_shared<AnimationSet>(std::move(copy));
-      set->SetAnimationManager(weak_animation_manager);
-      set->Init();
-      animation_manager->AddAnimation(set);
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
-    return result;
+    auto set = ParseAnimationSet(scope->GetContext(), argument_count, arguments);
+    if (!set) {
+      return nullptr;
+    }
+    set->SetAnimationManager(root_node->GetAnimationManager());
+    set->Init();
+    animation_manager->AddAnimation(set);
+    return set;
   };
 
   FunctionDefine<AnimationSet> id_func_def;
@@ -780,20 +656,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation_set->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation_set = animation_manager->GetAnimation(id);
-      if (!animation_set) {
-        return;
-      }
-      animation_set->Start();
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation_set->Start();
     return nullptr;
   };
   def.functions.emplace_back(std::move(start_func_def));
@@ -821,21 +684,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation_set->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation_set = animation_manager->GetAnimation(id);
-      if (!animation_set) {
-        return;
-      }
-
-      animation_set->Destroy();
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation_set->Destroy();
     return nullptr;
   };
   def.functions.emplace_back(std::move(destroy_func_def));
@@ -863,20 +712,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation_set->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation_set = animation_manager->GetAnimation(id);
-      if (!animation_set) {
-        return;
-      }
-      animation_set->Pause();
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation_set->Pause();
     return nullptr;
   };
   def.functions.emplace_back(std::move(pause_func_def));
@@ -904,20 +740,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation_set->GetId();
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation_set = animation_manager->GetAnimation(id);
-      if (!animation_set) {
-        return;
-      }
-      animation_set->Resume();
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation_set->Resume();
     return nullptr;
   };
   def.functions.emplace_back(std::move(resume_func_def));
@@ -945,7 +768,6 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation_set->GetId();
     auto context = scope->GetContext();
     if (argument_count != kAddEventListenerArgc) {
       context->ThrowException("argc error");
@@ -967,29 +789,10 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       if (!scope) {
         return;
       }
-      std::weak_ptr<Ctx> weak_context = scope->GetContext();
-      auto callback = [weak_context, func]() {
-        auto context = weak_context.lock();
-        if (!context) {
-          return;
-        }
-        context->CallFunction(func, 0, nullptr);
-      };
-      scope->GetTaskRunner()->PostTask(std::move(callback));
+      auto context = scope->GetContext();
+      context->CallFunction(func, 0, nullptr);
     };
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name, cb] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation_set = animation_manager->GetAnimation(id);
-      if (!animation_set) {
-        return;
-      }
-      animation_set->AddEventListener(StringViewUtils::ToU8StdStr(event_name), std::move(cb));
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation_set->AddEventListener(StringViewUtils::ToU8StdStr(event_name), std::move(cb));
     return nullptr;
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
@@ -1017,7 +820,6 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
     if (!root_node) {
       return nullptr;
     }
-    auto id = animation_set->GetId();
     auto context = scope->GetContext();
     if (argument_count != kRemoveEventListenerArgc) {
       context->ThrowException("argc error");
@@ -1030,20 +832,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("event_name error");
       return nullptr;
     }
-    std::weak_ptr<Ctx> weak_context = context;
-    std::weak_ptr<AnimationManager> weak_animation_manager = root_node->GetAnimationManager();
-    std::vector<std::function<void()>> ops = {[weak_animation_manager, id, event_name] {
-      auto animation_manager = weak_animation_manager.lock();
-      if (!animation_manager) {
-        return;
-      }
-      auto animation_set = animation_manager->GetAnimation(id);
-      if (!animation_set) {
-        return;
-      }
-      animation_set->RemoveEventListener(StringViewUtils::ToU8StdStr(event_name));
-    }};
-    dom_manager->PostTask(Scene(std::move(ops)));
+    animation_set->RemoveEventListener(StringViewUtils::ToU8StdStr(event_name));
     return nullptr;
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));

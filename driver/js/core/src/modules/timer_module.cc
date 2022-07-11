@@ -150,8 +150,5 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
 }
 
 void TimerModule::Cancel(uint32_t task_id) {
-  auto item = timer_map_->find(task_id);
-  if (item != timer_map_->end()) {
-    timer_map_->erase(item->first);
-  }
+  timer_map_->erase(task_id);
 }

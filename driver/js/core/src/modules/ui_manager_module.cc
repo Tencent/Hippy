@@ -107,12 +107,9 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
       }
     };
   }
-  auto dom_manager_weak = scope->GetDomManager();
-  std::vector<std::function<void()>> ops = {[scope, dom_manager_weak, id, name, param_value, cb]() {
-    if (!dom_manager_weak.expired()) {
-      dom_manager_weak.lock()->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
-    }
-  }};
-  FOOTSTONE_CHECK(!dom_manager_weak.expired());
-  dom_manager_weak.lock()->PostTask(hippy::dom::Scene(std::move(ops)));
+  auto dom_manager = scope->GetDomManager().lock();
+  if (dom_manager) {
+    dom_manager->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
+  }
+
 }

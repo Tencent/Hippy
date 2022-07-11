@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 
+#include "dom/dom_event.h"
 #include "footstone/hippy_value.h"
 
 namespace hippy {
@@ -41,13 +42,17 @@ enum class EventPhase: uint8_t {
 class DomEvent {
  public:
   using HippyValue = footstone::value::HippyValue;
-  DomEvent(std::string type, std::weak_ptr<DomNode> target,
-           bool can_capture, bool can_bubble, std::shared_ptr<HippyValue> value)
-      : type_(std::move(type)), target_(target), current_target_(target),
-        prevent_capture_(false), prevent_bubble_(false), can_capture_(can_capture),
-        can_bubble_(can_bubble), value_(value) {}
-  DomEvent(std::string type, std::weak_ptr<DomNode> target,
-           bool can_capture = false, bool can_bubble = false)
+  DomEvent(std::string type, std::weak_ptr<DomNode> target, bool can_capture, bool can_bubble,
+           std::shared_ptr<HippyValue> value)
+      : type_(std::move(type)),
+        target_(target),
+        current_target_(target),
+        prevent_capture_(false),
+        prevent_bubble_(false),
+        can_capture_(can_capture),
+        can_bubble_(can_bubble),
+        value_(value) {}
+  DomEvent(std::string type, std::weak_ptr<DomNode> target, bool can_capture = false, bool can_bubble = false)
       : DomEvent(std::move(type), target, can_capture, can_bubble, nullptr) {}
   DomEvent(std::string type, std::weak_ptr<DomNode> target, std::shared_ptr<HippyValue> value)
       : DomEvent(std::move(type), target, false, false, value) {}
@@ -76,6 +81,9 @@ class DomEvent {
   inline std::weak_ptr<DomNode> GetCurrentTarget() {
     return current_target_;
   }
+  inline void SetTarget(std::weak_ptr<DomNode> target) {
+    target_ = target;
+  }
   inline std::weak_ptr<DomNode> GetTarget() {
     return target_;
   }
@@ -101,5 +109,5 @@ class DomEvent {
   std::shared_ptr<HippyValue> value_;
 };
 
-}
-}
+}  // namespace dom
+}  // namespace hippy

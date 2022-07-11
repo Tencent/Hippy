@@ -41,7 +41,7 @@
 @class HippyBridge;
 @class HippyEventDispatcher;
 @class HippyPerformanceLogger;
-@class NativeRenderUIManager;
+@class NativeRenderImpl;
 
 //class DomManager;
 
@@ -132,8 +132,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args;
 - (void)enqueueJSCall:(NSString *)module method:(NSString *)method args:(NSArray *)args completion:(dispatch_block_t)completion;
 
-- (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager;
-- (void)setUpWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager;
+- (void)setUpDomWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager;
 
 //TODO 可能有更好的方法设置。最好能将HippyRootView与bridge加载bundle的行为剥离。HippyRootView就是view，和bridge没关系
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
@@ -216,11 +215,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, weak) id<NativeRenderContext> renderContext;
 
-@property (nonatomic, readonly) std::shared_ptr<hippy::DomManager> domManager;
 @property (nonatomic, readonly) std::shared_ptr<NativeRenderManager> renderManager;
 @property (nonatomic, readonly) std::shared_ptr<hippy::AnimationManager> animationManager;
 @property (nonatomic, readonly) std::shared_ptr<hippy::RootNode> rootNode;
-@property (nonatomic, readonly) std::shared_ptr<footstone::WorkerManager> workerManager;
+@property (nonatomic, readonly) std::shared_ptr<footstone::WorkerManager> domWorkerManager;
 
 /**
  * The launch options that were used to initialize the bridge.

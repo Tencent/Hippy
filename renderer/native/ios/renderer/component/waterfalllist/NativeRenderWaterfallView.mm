@@ -28,7 +28,7 @@
 #import "NativeRenderRefresh.h"
 #import "NativeRenderWaterfallViewDataSource.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 #import "UIView+Render.h"
 #import "NativeRenderListTableView.h"
 #import "NativeRenderWaterfallViewCell.h"

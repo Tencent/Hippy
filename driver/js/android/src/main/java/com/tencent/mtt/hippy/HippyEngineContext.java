@@ -53,5 +53,7 @@ public interface HippyEngineContext {
 
   int getWorkerManagerId();
 
+  int getDomManagerId();
+
   void onRuntimeInitialized(long runtimeId);
 }

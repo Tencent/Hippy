@@ -1,15 +1,5 @@
 /* eslint-disable no-undef */
 
-const getModuleName = (originModuleName) => {
-  if (originModuleName === 'UIManagerModule') {
-    return 'UIManager';
-  }
-  if (originModuleName === 'StorageModule') {
-    return 'AsyncStorage';
-  }
-  return originModuleName;
-};
-
 const needReject = (moduleName, methodName) => !(moduleName === 'StorageModule' || methodName === 'multiGet');
 
 Hippy.bridge.callNative = (...callArguments) => {
@@ -27,7 +17,7 @@ Hippy.bridge.callNative = (...callArguments) => {
     return global.Hippy.document.callUIFunction(nodeId, nativeMethodName, [], callbackFunc);
   }
 
-  const NativeModule = __GLOBAL__.NativeModules[getModuleName(nativeModuleName)];
+  const NativeModule = __GLOBAL__.NativeModules[nativeModuleName];
   const callModuleMethod = NativeModule[nativeMethodName];
   if (NativeModule && typeof NativeModule[nativeMethodName] === 'function') {
     const paramList = [];
@@ -46,7 +36,7 @@ Hippy.bridge.callNativeWithPromise = (...callArguments) => {
   }
 
   const [nativeModuleName, nativeMethodName] = callArguments;
-  const NativeModule = __GLOBAL__.NativeModules[getModuleName(nativeModuleName)];
+  const NativeModule = __GLOBAL__.NativeModules[nativeModuleName];
 
   if (NativeModule && NativeModule[nativeMethodName]) {
     const callModuleMethod = NativeModule[nativeMethodName];
@@ -74,7 +64,7 @@ Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
   }
   const [moduleName, methodName, autoDelete] = callArguments;
   if (callArguments.length === 3) {
-    const NativeModule = __GLOBAL__.NativeModules[getModuleName(moduleName)];
+    const NativeModule = __GLOBAL__.NativeModules[moduleName];
     if (NativeModule && NativeModule[methodName]) {
       if (autoDelete === false) {
         return NativeModule[methodName]({
@@ -84,7 +74,7 @@ Hippy.bridge.callNativeWithCallbackId = (...callArguments) => {
       return NativeModule[methodName]();
     }
   } else {
-    const NativeModule = __GLOBAL__.NativeModules[getModuleName(moduleName)];
+    const NativeModule = __GLOBAL__.NativeModules[moduleName];
     if (NativeModule && NativeModule[methodName]) {
       const callModuleMethod = NativeModule[methodName];
       const param = [];

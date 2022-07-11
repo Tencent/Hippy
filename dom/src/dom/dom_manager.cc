@@ -14,16 +14,10 @@
 #include "dom/layer_optimized_render_manager.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
+#include "dom/scene_builder.h"
 #include "footstone/serializer.h"
 #include "footstone/deserializer.h"
-#include "dom/scene_builder.h"
-
-#ifdef HIPPY_TEST
-#define DCHECK_RUN_THREAD() {}
-#else
-#define DCHECK_RUN_THREAD() \
-  { FOOTSTONE_DCHECK(footstone::Worker::IsTaskRunning() && dom_task_runner_ == footstone::runner::TaskRunner::GetCurrentTaskRunner()); }
-#endif
+#include "footstone/one_shot_timer.h"
 
 namespace hippy {
 inline namespace dom {
@@ -31,6 +25,7 @@ inline namespace dom {
 using DomNode = hippy::DomNode;
 using Task = footstone::Task;
 using TaskRunner = footstone::TaskRunner;
+using OneShotTimer = footstone::timer::OneShotTimer;
 using Serializer = footstone::value::Serializer;
 using Deserializer = footstone::value::Deserializer;
 
@@ -44,9 +39,7 @@ DomManager::DomManager() {
   id_ = global_dom_manager_key.fetch_add(1);
 }
 
-DomManager::~DomManager() {}
-
-void DomManager::Init() {}
+DomManager::~DomManager() = default;
 
 void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
   std::lock_guard<std::mutex> lock(mutex);
@@ -72,9 +65,7 @@ bool DomManager::Erase(int32_t id) {
   return true;
 }
 
-bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) {
-  return DomManager::Erase(dom_manager->id_);
-}
+bool DomManager::Erase(const std::shared_ptr<DomManager>& dom_manager) { return DomManager::Erase(dom_manager->id_); }
 
 void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_manager) {
 #ifdef ENABLE_LAYER_OPTIMIZATION
@@ -85,8 +76,7 @@ void DomManager::SetRenderManager(const std::weak_ptr<RenderManager>& render_man
 #endif
 }
 
-std::shared_ptr<DomNode> DomManager::GetNode(const std::weak_ptr<RootNode>& weak_root_node,
-                                             uint32_t id) {
+std::shared_ptr<DomNode> DomManager::GetNode(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id) {
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return nullptr;
@@ -96,7 +86,6 @@ std::shared_ptr<DomNode> DomManager::GetNode(const std::weak_ptr<RootNode>& weak
 
 void DomManager::CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -106,7 +95,6 @@ void DomManager::CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -116,7 +104,6 @@ void DomManager::UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                               std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -126,7 +113,6 @@ void DomManager::MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
                                  std::vector<std::shared_ptr<DomNode>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -136,7 +122,6 @@ void DomManager::UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
 
 void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                                 std::vector<std::shared_ptr<DomInfo>>&& nodes) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -145,7 +130,6 @@ void DomManager::DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
 }
 
 void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
-  DCHECK_RUN_THREAD()
   auto render_manager = render_manager_.lock();
   FOOTSTONE_DCHECK(render_manager);
   if (!render_manager) {
@@ -158,13 +142,9 @@ void DomManager::EndBatch(const std::weak_ptr<RootNode>& weak_root_node) {
   root_node->SyncWithRenderManager(render_manager);
 }
 
-void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
-                                  uint32_t dom_id,
-                                  const std::string& name,
-                                  uint64_t listener_id,
-                                  bool use_capture,
+void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t dom_id,
+                                  const std::string& name, uint64_t listener_id, bool use_capture,
                                   const EventCallback& cb) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -176,9 +156,8 @@ void DomManager::AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
   node->AddEventListener(name, listener_id, use_capture, cb);
 }
 
-void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node,
-                                     uint32_t id, const std::string& name, uint64_t listener_id) {
-  DCHECK_RUN_THREAD()
+void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id,
+                                     const std::string& name, uint64_t listener_id) {
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -190,10 +169,8 @@ void DomManager::RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_no
   node->RemoveEventListener(name, listener_id);
 }
 
-void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
-                              uint32_t id, const std::string& name, const DomArgument& param,
-                              const CallFunctionCallback& cb) {
-  DCHECK_RUN_THREAD()
+void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node, uint32_t id, const std::string& name,
+                              const DomArgument& param, const CallFunctionCallback& cb) {
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -201,10 +178,7 @@ void DomManager::CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
   root_node->CallFunction(id, name, param, cb);
 }
 
-void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node,
-                             float width,
-                             float height) {
-  DCHECK_RUN_THREAD()
+void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height) {
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -213,7 +187,6 @@ void DomManager::SetRootSize(const std::weak_ptr<RootNode>& weak_root_node,
 }
 
 void DomManager::DoLayout(const std::weak_ptr<RootNode>& weak_root_node) {
-  DCHECK_RUN_THREAD()
   auto root_node = weak_root_node.lock();
   if (!root_node) {
     return;
@@ -232,27 +205,26 @@ void DomManager::PostTask(const Scene&& scene) {
   dom_task_runner_->PostTask(std::move(func));
 }
 
-// todo
-std::shared_ptr<Task> DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
-  auto func = [scene = std::move(scene)] { scene.Build(); };
-  dom_task_runner_->PostDelayedTask(std::move(func), footstone::TimeDelta::FromNanoseconds(
-      static_cast<int64_t>(delay)));
-  return nullptr;
+uint32_t DomManager::PostDelayedTask(const Scene&& scene, uint64_t delay) {
+  auto func = [scene] { scene.Build(); };
+  auto task = std::make_unique<Task>(std::move(func));
+  auto id = task->GetId();
+  std::shared_ptr<OneShotTimer> timer = std::make_unique<OneShotTimer>(dom_task_runner_);
+  timer->Start(std::move(task), footstone::TimeDelta::FromNanoseconds(static_cast<int64_t>(delay)));
+  timer_map_.insert({id, timer});
+  return id;
 }
 
-void DomManager::CancelTask(std::shared_ptr<Task> task) {
-  // dom_task_runner_->CancelTask(std::move(task));
+void DomManager::CancelTask(uint32_t id) {
+  timer_map_.erase(id);
 }
 
 DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_node) {
-  DCHECK_RUN_THREAD()
   if (!root_node) {
     return {};
   }
   DomValueArrayType array;
-  root_node->Traverse([&array](const std::shared_ptr<DomNode>& node) {
-    array.emplace_back(node->Serialize());
-  });
+  root_node->Traverse([&array](const std::shared_ptr<DomNode>& node) { array.emplace_back(node->Serialize()); });
   Serializer serializer;
   serializer.WriteHeader();
   serializer.WriteValue(HippyValue(array));
@@ -261,7 +233,6 @@ DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_
 }
 
 bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer) {
-  DCHECK_RUN_THREAD()
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
   HippyValue value;
   deserializer.ReadHeader();
@@ -273,7 +244,7 @@ bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const b
   value.ToArray(array);
   if (array.empty()) {
     return false;
-  };
+  }
   auto orig_root_node = std::make_shared<DomNode>();
   flag = orig_root_node->Deserialize(array[0]);
   if (!flag) {

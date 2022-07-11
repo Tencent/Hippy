@@ -32,13 +32,14 @@
 #import "HippyModuleData.h"
 #import "HippyPerformanceLogger.h"
 #import "NativeRenderUtils.h"
-#import "NativeRenderUIManager.h"
+#import "NativeRenderImpl.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
 #import "HippyBridge+LocalFileSource.h"
 #import "HippyBridge+Private.h"
 #import "NativeRenderImageDataLoader.h"
 #import "NativeRenderDefaultImageProvider.h"
+#import "HippyJSEnginesMapper.h"
 #import "HippyAssert.h"
 #import "scene.h"
 #import "scope.h"
@@ -377,13 +378,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 }
 
-//TODO这个方法是否需要
-- (void)setUpDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
-    [self.batchedBridge setUpDomManager:domManager];
-}
-
-- (void)setUpWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager {
-    _workerManager = workerManager;
+- (void)setUpDomWorkerManager:(std::shared_ptr<footstone::WorkerManager>)workerManager {
+    _domWorkerManager = workerManager;
 }
 
 - (void)setUpWithRootTag:(NSNumber *)tag rootSize:(CGSize)size
@@ -396,15 +392,23 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         if (strongSelf) {
             uint32_t rootTag = [tag unsignedIntValue];
             strongSelf->_rootNode = std::make_shared<hippy::RootNode>(rootTag);
-            strongSelf->_rootNode->SetDelegateTaskRunner(strongSelf.batchedBridge.javaScriptExecutor.pScope->GetTaskRunner());
             strongSelf->_rootNode->GetAnimationManager()->SetRootNode(strongSelf->_rootNode);
+          
+            auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:strongSelf.executorKey];
+            auto domManager = engineResource->GetDomManager();
+            strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetDomManager(domManager);
+          #ifdef ENABLE_INSPECTOR
+            auto devtools_data_source = strongSelf->_batchedBridge.javaScriptExecutor.pScope->GetDevtoolsDataSource();
+            if (devtools_data_source) {
+                hippy::DomManager::Insert(strongDomManager);
+                self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, strongDomManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+            }
+          #endif
+          
             strongSelf->_batchedBridge.javaScriptExecutor.pScope->SetRootNode(strongSelf->_rootNode);
-            strongSelf->_domManager = std::make_shared<hippy::DomManager>();
-            strongSelf->_domManager->SetTaskRunner(strongSelf->_batchedBridge.workerManager->CreateTaskRunner("hippy_dom"));
-            strongSelf->_domManager->Init();
-            strongSelf->_rootNode->SetDomManager(strongSelf->_domManager);
+            strongSelf->_rootNode->SetDomManager(domManager);
             strongSelf->_rootNode->GetLayoutNode()->SetScaleFactor(scale);
-            std::weak_ptr<hippy::DomManager> weakDomManager = strongSelf->_domManager;
+            std::weak_ptr<hippy::DomManager> weakDomManager = domManager;
             std::weak_ptr<hippy::RootNode> weakRootNode = strongSelf->_rootNode;
             std::function<void()> func = [weakDomManager, weakRootNode, size](){
                 auto rootNode = weakRootNode.lock();
@@ -413,17 +417,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 }
                 rootNode->SetRootSize(size.width, size.height);
             };
-            strongSelf->_domManager->PostTask(hippy::Scene({func}));
+            domManager->PostTask(hippy::Scene({func}));
 
             strongSelf->_renderManager = std::make_shared<NativeRenderManager>();
             strongSelf->_renderManager->SetFrameworkProxy(weakProxy);
             strongSelf->_renderManager->RegisterRootView(weakView, strongSelf->_rootNode);
-            strongSelf->_renderManager->SetDomManager(strongSelf->_domManager);
-
-            strongSelf->_domManager->SetRenderManager(strongSelf->_renderManager);
-
-            [strongSelf setUpDomManager:strongSelf->_domManager];
-
+            strongSelf->_renderManager->SetDomManager(domManager);
+            domManager->SetRenderManager(strongSelf->_renderManager);
             strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();
             
 #ifdef ENABLE_INSPECTOR
@@ -463,7 +463,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     HippyBridge *batchedBridge = self.batchedBridge;
     self.batchedBridge = nil;
-    _domManager = nullptr;
     _renderManager = nullptr;
     if (batchedBridge) {
         NativeRenderExecuteOnMainQueue(^{

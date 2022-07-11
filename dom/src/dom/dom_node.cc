@@ -30,15 +30,9 @@ constexpr char kNodePropertyExt[] = "ext";
 
 using HippyValueObjectType = footstone::value::HippyValue::HippyValueObjectType;
 
-DomNode::DomNode(uint32_t id,
-                 uint32_t pid,
-                 int32_t index,
-                 std::string tag_name,
-                 std::string view_name,
-                 std::shared_ptr<std::unordered_map<std::string,
-                                                    std::shared_ptr<HippyValue>>> style_map,
-                 std::shared_ptr<std::unordered_map<std::string,
-                                                    std::shared_ptr<HippyValue>>> dom_ext_map,
+DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name, std::string view_name,
+                 std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style_map,
+                 std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> dom_ext_map,
                  std::weak_ptr<RootNode> weak_root_node)
     : id_(id),
       pid_(pid),
@@ -56,14 +50,7 @@ DomNode::DomNode(uint32_t id,
 }
 
 DomNode::DomNode(uint32_t id, uint32_t pid, std::weak_ptr<RootNode> weak_root_node)
-    : DomNode(id,
-              pid,
-              0,
-              "",
-              "",
-              nullptr,
-              nullptr,
-              std::move(weak_root_node)) {}
+    : DomNode(id, pid, 0, "", "", nullptr, nullptr, std::move(weak_root_node)) {}
 
 DomNode::DomNode() : DomNode(0, 0, {}) {}
 
@@ -92,13 +79,11 @@ int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
       auto child = children_[i];
       if (ref_info->ref_id == child->GetId()) {
         if (ref_info->relative_to_ref == RelativeType::kFront) {
-          children_.insert(
-              children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i),
-              dom_info->dom_node);
+          children_.insert(children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i),
+                           dom_info->dom_node);
         } else {
-          children_.insert(
-              children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i + 1),
-              dom_info->dom_node);
+          children_.insert(children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i + 1),
+                           dom_info->dom_node);
         }
         break;
       }
@@ -196,16 +181,11 @@ void DomNode::SetLayoutOrigin(float x, float y) {
   layout_node_->SetPosition(hippy::Edge::EdgeTop, y);
 }
 
-void DomNode::AddEventListener(const std::string& name,
-                               uint64_t listener_id,
-                               bool use_capture,
+void DomNode::AddEventListener(const std::string& name, uint64_t listener_id, bool use_capture,
                                const EventCallback& cb) {
-  current_callback_id_ += 1;
-  FOOTSTONE_DCHECK(current_callback_id_ <= std::numeric_limits<uint32_t>::max());
   if (!event_listener_map_) {
     event_listener_map_ = std::make_shared<
-        std::unordered_map<std::string,
-                           std::array<std::vector<std::shared_ptr<EventListenerInfo>>, 2>>>();
+        std::unordered_map<std::string, std::array<std::vector<std::shared_ptr<DomEventListenerInfo>>, 2>>>();
   }
   auto it = event_listener_map_->find(name);
   if (it == event_listener_map_->end()) {
@@ -216,13 +196,9 @@ void DomNode::AddEventListener(const std::string& name,
     }
   }
   if (use_capture) {
-    (*event_listener_map_)[name][kCapture].push_back(std::make_shared<EventListenerInfo>(
-        listener_id,
-        cb));
+    (*event_listener_map_)[name][kCapture].push_back(std::make_shared<DomEventListenerInfo>(listener_id, cb));
   } else {
-    (*event_listener_map_)[name][kBubble].push_back(std::make_shared<EventListenerInfo>(
-        listener_id,
-        cb));
+    (*event_listener_map_)[name][kBubble].push_back(std::make_shared<DomEventListenerInfo>(listener_id, cb));
   }
 }
 
@@ -238,7 +214,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id)
   }
   auto capture_listeners = it->second[kCapture];
   auto capture_it = std::find_if(capture_listeners.begin(), capture_listeners.end(),
-                                 [listener_id](const std::shared_ptr<EventListenerInfo>& item) {
+                                 [listener_id](const std::shared_ptr<DomEventListenerInfo>& item) {
                                    if (item->id == listener_id) {
                                      return true;
                                    }
@@ -251,7 +227,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id)
   // remove dom node bubble function
   auto bubble_listeners = it->second[kBubble];
   auto bubble_it = std::find_if(bubble_listeners.begin(), bubble_listeners.end(),
-                                [listener_id](const std::shared_ptr<EventListenerInfo>& item) {
+                                [listener_id](const std::shared_ptr<DomEventListenerInfo>& item) {
                                   if (item->id == listener_id) {
                                     return true;
                                   }
@@ -269,8 +245,7 @@ void DomNode::RemoveEventListener(const std::string& name, uint64_t listener_id)
   }
 }
 
-std::vector<std::shared_ptr<DomNode::EventListenerInfo>> DomNode::GetEventListener(const std::string& name,
-                                                                                   bool is_capture) {
+std::vector<std::shared_ptr<DomEventListenerInfo>> DomNode::GetEventListener(const std::string& name, bool is_capture) {
   if (!event_listener_map_) {
     return {};
   }
@@ -299,10 +274,9 @@ LayoutResult DomNode::GetLayoutInfoFromRoot() {
 
 void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode>>& changed_nodes) {
   auto not_equal = std::not_equal_to<>();
-  bool changed = not_equal(layout_.left, layout_node_->GetLeft())
-      || not_equal(layout_.top, layout_node_->GetTop()) ||
-      not_equal(layout_.width, layout_node_->GetWidth()) ||
-      not_equal(layout_.height, layout_node_->GetHeight());
+  bool changed = not_equal(layout_.left, layout_node_->GetLeft()) || not_equal(layout_.top, layout_node_->GetTop()) ||
+                 not_equal(layout_.width, layout_node_->GetWidth()) ||
+                 not_equal(layout_.height, layout_node_->GetHeight());
   layout_.left = layout_node_->GetLeft();
   layout_.top = layout_node_->GetTop();
   layout_.width = layout_node_->GetWidth();
@@ -345,18 +319,15 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
                                    std::make_shared<HippyValue>(std::move(layout_obj)));
     HandleEvent(event);
   }
-  for (auto& it: children_) {
+  for (auto& it : children_) {
     it->TransferLayoutOutputsRecursive(changed_nodes);
   }
 }
 
-void DomNode::CallFunction(const std::string& name,
-                           const DomArgument& param,
-                           const CallFunctionCallback& cb) {
+void DomNode::CallFunction(const std::string& name, const DomArgument& param, const CallFunctionCallback& cb) {
   if (!func_cb_map_) {
     func_cb_map_ =
-        std::make_shared<std::unordered_map<std::string,
-                                            std::unordered_map<uint32_t, CallFunctionCallback>>>();
+        std::make_shared<std::unordered_map<std::string, std::unordered_map<uint32_t, CallFunctionCallback>>>();
   }
   auto cb_id = kInvalidId;
   if (cb) {
@@ -397,9 +368,7 @@ CallFunctionCallback DomNode::GetCallback(const std::string& name, uint32_t id) 
   return nullptr;
 }
 
-bool DomNode::HasEventListeners() {
-  return event_listener_map_ != nullptr && !event_listener_map_->empty();
-}
+bool DomNode::HasEventListeners() { return event_listener_map_ != nullptr && !event_listener_map_->empty(); }
 
 void DomNode::EmplaceStyleMap(const std::string& key, const HippyValue& value) {
   auto iter = style_map_->find(key);
@@ -415,10 +384,8 @@ void DomNode::EmplaceStyleMap(const std::string& key, const HippyValue& value) {
   }
 }
 
-void DomNode::UpdateProperties(const std::unordered_map<std::string,
-                                                        std::shared_ptr<HippyValue>>& update_style,
-                               const std::unordered_map<std::string,
-                                                        std::shared_ptr<HippyValue>>& update_dom_ext) {
+void DomNode::UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style,
+                               const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_dom_ext) {
   auto root_node = root_node_.lock();
   FOOTSTONE_DCHECK(root_node);
   if (root_node) {
@@ -453,20 +420,17 @@ void DomNode::UpdateDiff(const std::unordered_map<std::string,
   this->SetDiffStyle(diff_value);
 }
 
-void DomNode::UpdateDomExt(const std::unordered_map<std::string,
-                                                    std::shared_ptr<HippyValue>>& update_dom_ext) {
+void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_dom_ext) {
   if (update_dom_ext.empty()) return;
 
-  for (const auto& v: update_dom_ext) {
+  for (const auto& v : update_dom_ext) {
     if (this->dom_ext_map_ == nullptr) {
-      this->dom_ext_map_ =
-          std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
+      this->dom_ext_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     }
 
     auto iter = this->dom_ext_map_->find(v.first);
     if (iter == this->dom_ext_map_->end()) {
-      std::pair<std::string, std::shared_ptr<HippyValue>>
-          pair = {v.first, std::make_shared<HippyValue>(*v.second)};
+      std::pair<std::string, std::shared_ptr<HippyValue>> pair = {v.first, std::make_shared<HippyValue>(*v.second)};
       this->dom_ext_map_->insert(pair);
       continue;
     }
@@ -479,20 +443,17 @@ void DomNode::UpdateDomExt(const std::unordered_map<std::string,
   }
 }
 
-void DomNode::UpdateStyle(const std::unordered_map<std::string,
-                                                   std::shared_ptr<HippyValue>>& update_style) {
+void DomNode::UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style) {
   if (update_style.empty()) return;
 
-  for (const auto& v: update_style) {
+  for (const auto& v : update_style) {
     if (this->style_map_ == nullptr) {
-      this->style_map_ =
-          std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
+      this->style_map_ = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     }
 
     auto iter = this->style_map_->find(v.first);
     if (iter == this->style_map_->end()) {
-      std::pair<std::string, std::shared_ptr<HippyValue>>
-          pair = {v.first, std::make_shared<HippyValue>(*v.second)};
+      std::pair<std::string, std::shared_ptr<HippyValue>> pair = {v.first, std::make_shared<HippyValue>(*v.second)};
       this->style_map_->insert(pair);
       continue;
     }
@@ -510,7 +471,7 @@ void DomNode::UpdateObjectStyle(HippyValue& style_map, const HippyValue& update_
   FOOTSTONE_DCHECK(update_style.IsObject());
 
   auto style_object = style_map.ToObjectChecked();
-  for (auto& v: update_style.ToObjectChecked()) {
+  for (auto& v : update_style.ToObjectChecked()) {
     auto iter = style_object.find(v.first);
     if (iter == style_object.end()) {
       style_object[v.first] = v.second;
@@ -533,7 +494,7 @@ bool DomNode::ReplaceStyle(HippyValue& style, const std::string& key, const Hipp
     }
 
     bool replaced = false;
-    for (auto& o: object) {
+    for (auto& o : object) {
       replaced = ReplaceStyle(o.second, key, value);
       if (replaced) break;
     }
@@ -543,7 +504,7 @@ bool DomNode::ReplaceStyle(HippyValue& style, const std::string& key, const Hipp
   if (style.IsArray()) {
     auto& array = style.ToArrayChecked();
     bool replaced = false;
-    for (auto& a: array) {
+    for (auto& a : array) {
       replaced = ReplaceStyle(a, key, value);
       if (replaced) break;
     }
@@ -645,8 +606,8 @@ bool DomNode::Deserialize(HippyValue value) {
   auto style_obj = dom_node_obj[kNodePropertyStyle];
   if (style_obj.IsObject()) {
     auto style = style_obj.ToObjectChecked();
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>
-        style_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style_map =
+        std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     for (const auto& p: style) {
       (*style_map)[p.first] = std::make_shared<HippyValue>(p.second);
     }
@@ -656,8 +617,8 @@ bool DomNode::Deserialize(HippyValue value) {
   auto ext_obj = dom_node_obj[kNodePropertyExt];
   if (ext_obj.IsObject()) {
     auto ext = ext_obj.ToObjectChecked();
-    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>
-        ext_map = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
+    std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> ext_map =
+        std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>();
     for (const auto& p: ext) {
       (*ext_map)[p.first] = std::make_shared<HippyValue>(p.second);
     }

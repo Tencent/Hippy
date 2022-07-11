@@ -42,6 +42,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jobject j_callback,
                    jlong j_group_id,
                    jint j_worker_manager_id,
+                   jint j_dom_manager_id,
                    jobject j_vm_init_param,
                    jstring j_data_dir,
                    jstring j_ws_url);
