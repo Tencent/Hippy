@@ -51,7 +51,7 @@ DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url) {
   runtime_adapter_ = std::make_shared<HippyRuntimeAdapter>();
 }
 
-void DevtoolsDataSource::Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id) {
+void DevtoolsDataSource::Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) {
   hippy_dom_ = std::make_shared<HippyDomData>();
   hippy_dom_->dom_id = dom_id;
   auto data_provider = devtools_service_->GetDataProvider();

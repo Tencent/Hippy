@@ -67,7 +67,7 @@ void RootNode::CreateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   HandleEvent(event);
 
   if (!nodes_to_create.empty()) {
-    dom_operations_.push_back({DomOperation::kOpCreate, nodes_to_create});
+    dom_operations_.push_back({DomOperation::Op::kOpCreate, nodes_to_create});
   }
 }
 
@@ -118,7 +118,7 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   HandleEvent(event);
 
   if (!nodes_to_update.empty()) {
-    dom_operations_.push_back({DomOperation::kOpUpdate, nodes_to_update});
+    dom_operations_.push_back({DomOperation::Op::kOpUpdate, nodes_to_update});
   }
 }
 
@@ -143,7 +143,7 @@ void RootNode::MoveDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     node->SetRenderInfo({node->GetId(), node->GetPid(), node->GetSelfIndex()});
   }
   if (!nodes_to_move.empty()) {
-    dom_operations_.push_back({DomOperation::kOpMove, nodes_to_move});
+    dom_operations_.push_back({DomOperation::Op::kOpMove, nodes_to_move});
   }
 }
 
@@ -171,7 +171,7 @@ void RootNode::DeleteDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
   HandleEvent(event);
 
   if (!nodes_to_delete.empty()) {
-    dom_operations_.push_back({DomOperation::kOpDelete, nodes_to_delete});
+    dom_operations_.push_back({DomOperation::Op::kOpDelete, nodes_to_delete});
   }
 }
 
@@ -190,7 +190,7 @@ void RootNode::UpdateAnimation(std::vector<std::shared_ptr<DomNode>>&& nodes) {
   auto event = std::make_shared<DomEvent>(kDomTreeUpdated, weak_from_this(), nullptr);
   HandleEvent(event);
   if (!nodes_to_update.empty()) {
-    dom_operations_.push_back({DomOperation::kOpUpdate, nodes_to_update});
+    dom_operations_.push_back({DomOperation::Op::kOpUpdate, nodes_to_update});
   }
 }
 
@@ -210,11 +210,11 @@ void RootNode::SyncWithRenderManager(const std::shared_ptr<RenderManager>& rende
 }
 
 void RootNode::AddEvent(uint32_t id, const std::string& event_name) {
-  event_operations_.push_back({EventOperation::kOpAdd, id, event_name});
+  event_operations_.push_back({EventOperation::Op::kOpAdd, id, event_name});
 }
 
 void RootNode::RemoveEvent(uint32_t id, const std::string& event_name) {
-  event_operations_.push_back({EventOperation::kOpRemove, id, event_name});
+  event_operations_.push_back({EventOperation::Op::kOpRemove, id, event_name});
 }
 
 void RootNode::HandleEvent(const std::shared_ptr<DomEvent>& event) {
@@ -342,16 +342,16 @@ void RootNode::DoAndFlushLayout(const std::shared_ptr<RenderManager>& render_man
 void RootNode::FlushDomOperations(const std::shared_ptr<RenderManager>& render_manager) {
   for (auto& dom_operation : dom_operations_) {
     switch (dom_operation.op) {
-      case DomOperation::kOpCreate:
+      case DomOperation::Op::kOpCreate:
         render_manager->CreateRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
-      case DomOperation::kOpUpdate:
+      case DomOperation::Op::kOpUpdate:
         render_manager->UpdateRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
-      case DomOperation::kOpDelete:
+      case DomOperation::Op::kOpDelete:
         render_manager->DeleteRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
-      case DomOperation::kOpMove:
+      case DomOperation::Op::kOpMove:
         render_manager->MoveRenderNode(GetWeakSelf(), std::move(dom_operation.nodes));
         break;
       default:
@@ -369,10 +369,10 @@ void RootNode::FlushEventOperations(const std::shared_ptr<RenderManager>& render
     }
 
     switch (event_operation.op) {
-      case EventOperation::kOpAdd:
+      case EventOperation::Op::kOpAdd:
         render_manager->AddEventListener(GetWeakSelf(), node, event_operation.name);
         break;
-      case EventOperation::kOpRemove:
+      case EventOperation::Op::kOpRemove:
         render_manager->RemoveEventListener(GetWeakSelf(), node, event_operation.name);
         break;
       default:

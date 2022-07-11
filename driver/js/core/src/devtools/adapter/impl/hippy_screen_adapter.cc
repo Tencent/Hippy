@@ -38,7 +38,7 @@ constexpr char kFrameCallbackId[] = "frameCallbackId";
 
 uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback) {
   frame_callback_id_++;
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
   if (dom_manager) {
     auto root_node = hippy_dom_->root_node.lock();
     if (root_node) {
@@ -58,7 +58,7 @@ uint64_t HippyScreenAdapter::AddPostFrameCallback(std::function<void()> callback
 }
 
 void HippyScreenAdapter::RemovePostFrameCallback(uint64_t id) {
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
   if (dom_manager) {
     auto root_node = hippy_dom_->root_node.lock();
     if (!root_node) {
@@ -83,7 +83,7 @@ hippy::dom::DomArgument HippyScreenAdapter::makeFrameCallbackArgument(uint64_t i
 }
 
 void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& request, CoreScreenshotCallback callback) {
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(hippy_dom_->dom_id);
+  auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
   if (dom_manager) {
     auto root_node = hippy_dom_->root_node.lock();
     if (!root_node) {

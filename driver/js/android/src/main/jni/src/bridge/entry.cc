@@ -160,11 +160,12 @@ footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<footstone::Worke
 
 void DoBind(JNIEnv* j_env,
             __unused jobject j_obj,
-            jint j_dom_id,
+            jint j_dom_manager_id,
             jint j_render_id,
             jint j_framework_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_framework_id));
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_manager_id);
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
 
   auto scope = runtime->GetScope();
 #ifdef ANDROID_NATIVE_RENDER
@@ -189,30 +190,31 @@ void DoBind(JNIEnv* j_env,
 #ifdef ENABLE_INSPECTOR
   auto devtools_data_source = scope->GetDevtoolsDataSource();
   if (devtools_data_source) {
-    devtools_data_source->Bind(j_framework_id, j_dom_id, j_render_id);
+    devtools_data_source->Bind(j_framework_id, dom_manager_id, j_render_id);
   }
 #endif
 }
 
 void AddRoot(JNIEnv* j_env,
             __unused jobject j_obj,
-             jint j_dom_id,
+             jint j_dom_manager_id,
              jint j_root_id) {
-  std::shared_ptr<DomManager> dom_manager = DomManager::Find(static_cast<int32_t>(j_dom_id));
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_manager_id);
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
   auto root_node = std::make_shared<hippy::RootNode>(j_root_id);
   root_node->SetDomManager(dom_manager);
   RootNodeRepo::Insert(root_node);
 }
 
-void RemoveRoot(JNIEnv* j_env,
-             __unused jobject j_obj,
-             jint j_dom_id,
-             jint j_root_id) {
+void RemoveRoot(__unused JNIEnv* j_env,
+                __unused jobject j_obj,
+                __unused jint j_dom_id,
+                jint j_root_id) {
   RootNodeRepo::Erase(static_cast<uint32_t>(j_root_id));
 }
 
-void DoConnect(JNIEnv* j_env,
-                __unused jobject j_obj,
+void DoConnect(__unused JNIEnv* j_env,
+               __unused jobject j_obj,
                jint j_runtime_id,
                jint j_root_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_runtime_id));
@@ -235,14 +237,14 @@ void DoConnect(JNIEnv* j_env,
   }
 }
 
-jint CreateWorkerManager(JNIEnv* j_env, __unused jobject j_obj) {
+jint CreateWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
   auto worker_manager = std::make_shared<footstone::WorkerManager>(kDefaultNumberOfThreads);
   auto id = global_worker_manager_key.fetch_add(1);
   worker_manager_map.Insert(id, worker_manager);
   return footstone::check::checked_numeric_cast<uint32_t, jint>(id);
 }
 
-void DestroyWorkerManager(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id) {
+void DestroyWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id) {
   std::shared_ptr<WorkerManager> worker_manager;
   auto id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_worker_manager_id);
   auto flag = worker_manager_map.Find(id, worker_manager);
@@ -252,7 +254,7 @@ void DestroyWorkerManager(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_m
   }
 }
 
-jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id) {
+jint CreateDomInstance(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id) {
   auto dom_manager = std::make_shared<DomManager>();
   DomManager::Insert(dom_manager);
   std::shared_ptr<WorkerManager> worker_manager;
@@ -260,13 +262,14 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_mana
   FOOTSTONE_DCHECK(flag);
   auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
   dom_manager->SetTaskRunner(runner);
-  return dom_manager->GetId();
+  return footstone::checked_numeric_cast<uint32_t, jint>(dom_manager->GetId());
 }
 
-void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id, jint j_dom_id) {
-  auto dom_manager = DomManager::Find(j_dom_id);
+void DestroyDomInstance(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id, jint j_dom_id) {
+  auto id = footstone::checked_numeric_cast<jint, uint32_t>(j_dom_id);
+  auto dom_manager = DomManager::Find(id);
   if (dom_manager) {
-    DomManager::Erase(static_cast<int32_t>(j_dom_id));
+    DomManager::Erase(id);
   }
 }
 
@@ -390,14 +393,6 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   return true;
 }
 
-void UpdateAnimationNode(JNIEnv* j_env,
-                         __unused jobject j_obj,
-                         jint j_ani_manager_id,
-                         jbyteArray j_params,
-                         jint j_offset,
-                         jint j_length) {
-}
-
 jlong InitInstance(JNIEnv* j_env,
                    jobject j_object,
                    jbyteArray j_global_config,
@@ -453,7 +448,8 @@ jlong InitInstance(JNIEnv* j_env,
   std::shared_ptr<WorkerManager> worker_manager;
   auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
   FOOTSTONE_DCHECK(flag);
-  auto dom_manager = DomManager::Find(j_dom_manager_id);
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_manager_id);
+  auto dom_manager = DomManager::Find(dom_manager_id);
   FOOTSTONE_DCHECK(dom_manager);
   auto dom_task_runner = dom_manager->GetTaskRunner();
   auto runtime_id = V8BridgeUtils::InitInstance(
@@ -488,7 +484,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
 }
 
 void LoadInstance(JNIEnv* j_env,
-                  jobject j_obj,
+                  __unused jobject j_obj,
                   jlong j_runtime_id,
                   jbyteArray j_byte_array,
                   jint j_offset,

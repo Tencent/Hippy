@@ -77,7 +77,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   DomManager(DomManager&) = delete;
   DomManager& operator=(DomManager&) = delete;
 
-  inline int32_t GetId() { return id_; }
+  inline uint32_t GetId() { return id_; }
   inline std::weak_ptr<RenderManager> GetRenderManager() { return render_manager_; }
   inline std::shared_ptr<TaskRunner> GetTaskRunner() { return dom_task_runner_; }
   inline void SetTaskRunner(std::shared_ptr<TaskRunner> runner) {
@@ -88,51 +88,51 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   static std::shared_ptr<DomNode> GetNode(const std::weak_ptr<RootNode>& weak_root_node,
                                    uint32_t id) ;
 
-  void CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
+  static void CreateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                       std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
+  static void UpdateDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                       std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
+  static void MoveDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                     std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
+  static void DeleteDomNodes(const std::weak_ptr<RootNode>& weak_root_node,
                       std::vector<std::shared_ptr<DomInfo>>&& nodes);
-  void UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
+  static void UpdateAnimation(const std::weak_ptr<RootNode>& weak_root_node,
                        std::vector<std::shared_ptr<DomNode>>&& nodes);
   void EndBatch(const std::weak_ptr<RootNode>& root_node);
   // 返回0代表失败，正常id从1开始
-  void AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
+  static void AddEventListener(const std::weak_ptr<RootNode>& weak_root_node,
                         uint32_t dom_id,
                         const std::string& event_name,
                         uint64_t listener_id,
                         bool use_capture,
                         const EventCallback& cb);
-  void RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node,
+  static void RemoveEventListener(const std::weak_ptr<RootNode>& weak_root_node,
                            uint32_t id,
                            const std::string& name,
                            uint64_t listener_id);
-  void CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
+  static void CallFunction(const std::weak_ptr<RootNode>& weak_root_node,
                     uint32_t id,
                     const std::string& name,
                     const DomArgument& param,
                     const CallFunctionCallback& cb);
-  void SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height);
+  static void SetRootSize(const std::weak_ptr<RootNode>& weak_root_node, float width, float height);
   void DoLayout(const std::weak_ptr<RootNode>& weak_root_node);
   void PostTask(const Scene&& scene);
   uint32_t PostDelayedTask(const Scene&& scene, uint64_t delay);
   void CancelTask(uint32_t id);
 
-  bytes GetSnapShot(const std::shared_ptr<RootNode>& root_node);
+  static bytes GetSnapShot(const std::shared_ptr<RootNode>& root_node);
   bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer);
 
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
-  static std::shared_ptr<DomManager> Find(int32_t id);
-  static bool Erase(int32_t id);
+  static std::shared_ptr<DomManager> Find(uint32_t id);
+  static bool Erase(uint32_t id);
   static bool Erase(const std::shared_ptr<DomManager>& dom_manager);
 
  private:
   friend class DomNode;
 
-  int32_t id_;
+  uint32_t id_;
   std::shared_ptr<LayerOptimizedRenderManager> optimized_render_manager_;
   std::weak_ptr<RenderManager> render_manager_;
   std::unordered_map<uint32_t, std::shared_ptr<BaseTimer>> timer_map_;

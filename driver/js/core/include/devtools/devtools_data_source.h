@@ -49,7 +49,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
  public:
   explicit DevtoolsDataSource(const std::string& ws_url);
   ~DevtoolsDataSource() = default;
-  void Bind(int32_t runtime_id, int32_t dom_id, int32_t render_id);
+  void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id);
   void Destroy(bool is_reload);
   void SetRuntimeDebugMode(bool debug_mode);
   void SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler);

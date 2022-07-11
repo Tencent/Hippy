@@ -69,20 +69,16 @@ class RootNode : public DomNode {
 
  private:
   struct DomOperation {
-    static constexpr int kOpCreate = 1;
-    static constexpr int kOpUpdate = 2;
-    static constexpr int kOpDelete = 3;
-    static constexpr int kOpMove = 4;
-
-    int32_t op;
+    enum class Op {
+      kOpCreate, kOpUpdate, kOpDelete, kOpMove
+    } op;
     std::vector<std::shared_ptr<DomNode>> nodes;
   };
 
   struct EventOperation {
-    static constexpr int kOpAdd = 1;
-    static constexpr int kOpRemove = 2;
-
-    int32_t op;
+    enum class Op {
+      kOpAdd, kOpRemove
+    } op;
     uint32_t id;
     std::string name;
   };
