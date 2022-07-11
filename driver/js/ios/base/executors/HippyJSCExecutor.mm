@@ -249,25 +249,28 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8(@""));
                 }
                 hippy::napi::Ctx::NativeFunction func = [weakSelf](void *data) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid || !data) {
+                    @autoreleasepool {
+                        HippyJSCExecutor *strongSelf = weakSelf;
+                        if (!strongSelf.valid || !data) {
+                            return strongSelf.pScope->GetContext()->CreateNull();
+                        }
+                        auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
+                        NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
+                        auto ctxValue = pTuple->arguments_[0];
+                        const auto &context = strongSelf.pScope->GetContext();
+                        if (context->IsString(ctxValue)) {
+                            unicode_string_view string;
+                            if (context->GetValueString(ctxValue, &string)) {
+                                unicode_string_view::u16string &u16String =string.utf16_value();
+                                NSString *moduleName =
+                                    [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                                NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
+                                auto ret = [NativeRenderNullIfNil(result) convertToCtxValue:context];
+                                return ret;
+                            }
+                        }
                         return strongSelf.pScope->GetContext()->CreateNull();
                     }
-                    auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
-                    NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
-                    auto ctxValue = pTuple->arguments_[0];
-                    const auto &context = strongSelf.pScope->GetContext();
-                    if (context->IsString(ctxValue)) {
-                        unicode_string_view string;
-                        if (context->GetValueString(ctxValue, &string)) {
-                            unicode_string_view::u16string &u16String =string.utf16_value();
-                            NSString *moduleName = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-                            NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
-                            auto ret = [NativeRenderNullIfNil(result) convertToCtxValue:context];
-                            return ret;
-                        }
-                    }
-                    return strongSelf.pScope->GetContext()->CreateNull();
                 };
                 context->RegisterNativeBinding("nativeRequireModuleConfig", func, nullptr);
 
@@ -278,32 +281,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
                     }
                     [strongSelf->_bridge handleBuffer:calls batchEnded:YES];
                 };
-
-                jsContext[@"nativeCallSyncHook"] = ^id(NSUInteger module, NSUInteger method, NSArray *args) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return nil;
-                    }
-
-                    id result = [strongSelf->_bridge callNativeModule:module method:method params:args];
-                    return result;
-                };
-
-    #if HIPPY_DEV
-                // Inject handler used by HMR
-                jsContext[@"nativeInjectHMRUpdate"] = ^(NSString *sourceCode, NSString *sourceCodeURL) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return;
-                    }
-
-                    JSStringRef execJSString = JSStringCreateWithUTF8CString(sourceCode.UTF8String);
-                    JSStringRef jsURL = JSStringCreateWithUTF8CString(sourceCodeURL.UTF8String);
-                    JSEvaluateScript([strongSelf JSGlobalContextRef], execJSString, NULL, jsURL, 0, NULL);
-                    JSStringRelease(jsURL);
-                    JSStringRelease(execJSString);
-                };
-    #endif
 
                 strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
                 jsContext[@"getTurboModule"] = ^id (NSString *name, NSString *args) {
