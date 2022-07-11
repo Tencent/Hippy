@@ -248,7 +248,7 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 else {
                     context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8(@""));
                 }
-                hippy::napi::Ctx::NativeFunction func = [weakSelf](void *data) {
+                hippy::napi::Ctx::NativeFunction nativeRequireModuleConfigFunc = [weakSelf](void *data) {
                     @autoreleasepool {
                         HippyJSCExecutor *strongSelf = weakSelf;
                         if (!strongSelf.valid || !data) {
@@ -272,15 +272,27 @@ static unicode_string_view NSStringToU8(NSString* str) {
                         return strongSelf.pScope->GetContext()->CreateNull();
                     }
                 };
-                context->RegisterNativeBinding("nativeRequireModuleConfig", func, nullptr);
+                context->RegisterNativeBinding("nativeRequireModuleConfig", nativeRequireModuleConfigFunc, nullptr);
 
-                jsContext[@"nativeFlushQueueImmediate"] = ^(NSArray<NSArray *> *calls) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid || !calls) {
-                        return;
+                hippy::napi::Ctx::NativeFunction nativeFlushQueueImmediateFunc = [weakSelf](void *data) {
+                    @autoreleasepool {
+                        HippyJSCExecutor *strongSelf = weakSelf;
+                        if (!strongSelf.valid || !data) {
+                            return strongSelf.pScope->GetContext()->CreateNull();
+                        }
+                        auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
+                        NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
+                        auto ctxValue = pTuple->arguments_[0];
+                        const auto &context = strongSelf.pScope->GetContext();
+                        if (context->IsArray(ctxValue)) {
+                            id object = ObjectFromJSValue(context, ctxValue);
+                            [strongSelf->_bridge handleBuffer:object batchEnded:YES];
+                        }
+                        
+                        return strongSelf.pScope->GetContext()->CreateNull();
                     }
-                    [strongSelf->_bridge handleBuffer:calls batchEnded:YES];
                 };
+                context->RegisterNativeBinding("nativeFlushQueueImmediate", nativeFlushQueueImmediateFunc, nullptr);
 
                 strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
                 jsContext[@"getTurboModule"] = ^id (NSString *name, NSString *args) {

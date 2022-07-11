@@ -206,9 +206,10 @@ class JSCCtx : public Ctx {
     return false;
   }
 
-  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
-  
   virtual bool IsString(const std::shared_ptr<CtxValue>& value) override;
+  
+  virtual bool IsNumber(const std::shared_ptr<CtxValue>& value) override;
+
   // Null Helpers
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
 
@@ -219,7 +220,9 @@ class JSCCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CopyArrayElement(const std::shared_ptr<CtxValue>& value, uint32_t index) override;
 
   // Object Helpers
-
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::map<unicode_string_view, std::shared_ptr<CtxValue>> &map) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> CopyNamedProperty(
@@ -268,7 +271,7 @@ class JSCCtx : public Ctx {
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
-  std::vector<CBTuple> function_private_data_container_;
+  std::vector<std::unique_ptr<CBTuple>> function_private_data_container_;
 };
 
 inline footstone::stringview::unicode_string_view ToStrView(JSStringRef str) {

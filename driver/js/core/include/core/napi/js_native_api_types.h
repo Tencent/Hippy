@@ -203,9 +203,9 @@ class Ctx {
 
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) = 0;
 
-  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
-  
   virtual bool IsString(const std::shared_ptr<CtxValue>& value) = 0;
+
+  virtual bool IsNumber(const std::shared_ptr<CtxValue>& value) = 0;
 
   // Array Helpers
   virtual bool IsArray(const std::shared_ptr<CtxValue>& value) = 0;
@@ -214,6 +214,9 @@ class Ctx {
                                                      uint32_t index) = 0;
 
   // Object Helpers
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::map<unicode_string_view, std::shared_ptr<CtxValue>> &map) = 0;
 
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& name) = 0;

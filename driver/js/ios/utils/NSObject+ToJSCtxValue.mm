@@ -92,3 +92,50 @@
 }
 
 @end
+
+id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
+    @autoreleasepool {
+        if (context->IsString(value)) {
+            footstone::unicode_string_view string_view;
+            if (context->GetValueString(value, &string_view)) {
+                footstone::unicode_string_view::u16string &u16String =string_view.utf16_value();
+                NSString *string =
+                    [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                return string;
+            }
+        }
+        if (context->IsNumber(value)) {
+            double number = 0;
+            if (context->GetValueNumber(value, &number)) {
+                return @(number);
+            }
+        }
+        if (context->IsArray(value)) {
+            uint32_t length = context->GetArrayLength(value);
+            NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
+            for (uint32_t index = 0; index < length; index++) {
+                auto element = context->CopyArrayElement(value, index);
+                id obj = ObjectFromJSValue(context, element);
+                [array addObject:obj];
+            }
+            return [array copy];
+        }
+        if (context->IsObject(value)) {
+            std::map<footstone::unicode_string_view, CtxValuePtr> map;
+            if (context->GetEntriesFromObject(value, map)) {
+                NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
+                for (auto &it : map) {
+                    auto &string_view = it.first;
+                    const auto &u16String = string_view.utf16_value();
+                    NSString *string =
+                        [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                    auto &value = it.second;
+                    id obj = ObjectFromJSValue(context, value);
+                    [dictionary setObject:obj forKey:string];
+                }
+                return [dictionary copy];
+            }
+        }
+        return [NSNull null];
+    }
+}
