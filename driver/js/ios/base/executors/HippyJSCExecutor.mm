@@ -295,15 +295,26 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 context->RegisterNativeBinding("nativeFlushQueueImmediate", nativeFlushQueueImmediateFunc, nullptr);
 
                 strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
-                jsContext[@"getTurboModule"] = ^id (NSString *name, NSString *args) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return nil;
+                hippy::napi::Ctx::NativeFunction getTurboModuleFunc = [weakSelf](void *data) {
+                    @autoreleasepool {
+                        HippyJSCExecutor *strongSelf = weakSelf;
+                        if (!strongSelf.valid || !data) {
+                            return strongSelf.pScope->GetContext()->CreateNull();
+                        }
+                        auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
+                        NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
+                        auto nameValue = pTuple->arguments_[0];
+                        const auto &context = strongSelf.pScope->GetContext();
+                        if (context->IsString(nameValue)) {
+                            NSString *name = ObjectFromJSValue(context, nameValue);
+                            auto value = [strongSelf JSTurboObjectWithName:name];
+                            return value;
+                        }
+                        return strongSelf.pScope->GetContext()->CreateNull();
                     }
-                    JSValueRef value_ = [strongSelf JSTurboObjectWithName:name];
-                    JSValue *objc_value = [JSValue valueWithJSValueRef:value_ inContext:[strongSelf JSContext]];
-                    return objc_value;
                 };
+                context->RegisterNativeBinding("getTurboModule", getTurboModuleFunc, nullptr);
+
             }
 
         }
@@ -327,20 +338,18 @@ static unicode_string_view NSStringToU8(NSString* str) {
     return ptr;
 }
 
-- (JSValueRef)JSTurboObjectWithName:(NSString *)name {
+- (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name {
     //create HostObject by name
     HippyOCTurboModule *turboModule = [self->_bridge turboModuleWithName:name];
     if (!turboModule) {
-        JSGlobalContextRef ctx = [self JSGlobalContextRef];
-        return JSValueMakeNull(ctx);
+        return self.pScope->GetContext()->CreateNull();
     }
 
     // create jsProxy
     std::shared_ptr<hippy::napi::HippyTurboModule> ho = [turboModule getTurboModule];
     //should be function!!!!!
     std::shared_ptr<hippy::napi::CtxValue> obj = self->_turboRuntime->CreateObject(ho);
-    std::shared_ptr<hippy::napi::JSCCtxValue> jscObj = std::static_pointer_cast<hippy::napi::JSCCtxValue>(obj);
-    return jscObj->value_;
+    return obj;
 }
 
 - (JSContext *)JSContext {

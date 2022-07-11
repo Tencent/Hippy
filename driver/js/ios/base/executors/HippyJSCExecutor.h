@@ -24,6 +24,7 @@
 #import "HippyDefines.h"
 #import "HippyBridgeModule.h"
 #import "NativeRenderInvalidating.h"
+#import "js_native_api_types.h"
 #import <memory>
 
 typedef void (^HippyJavaScriptValueCallback)(JSValue *result, NSError *error);
@@ -95,7 +96,7 @@ HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey;
                    arguments:(NSArray *)args
              jsValueCallback:(HippyJavaScriptValueCallback)onComplete;
 
-- (JSValueRef)JSTurboObjectWithName:(NSString *)name;
+- (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback
