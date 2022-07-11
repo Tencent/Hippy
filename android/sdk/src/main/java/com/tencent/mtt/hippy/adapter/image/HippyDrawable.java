@@ -48,7 +48,7 @@ public class HippyDrawable implements IDrawableTarget {
    *
    * @param rawData byte array raw data
    */
-  public void setData(byte[] rawData) {
+  public boolean setData(byte[] rawData) {
     try {
       mGifMovie = Movie.decodeByteArray(rawData, 0, rawData.length);
       if (mGifMovie == null) {
@@ -56,8 +56,10 @@ public class HippyDrawable implements IDrawableTarget {
       } else {
         mBitmap = null;
       }
+      return true;
     } catch (OutOfMemoryError | Exception e) {
       e.printStackTrace();
+      return false;
     }
   }
 
@@ -66,16 +68,17 @@ public class HippyDrawable implements IDrawableTarget {
    *
    * @param path file path of the image
    */
-  public void setData(File path) {
+  public boolean setData(File path) {
     FileInputStream is = null;
     try {
       is = new FileInputStream(path);
       byte[] rawData = new byte[is.available()];
       int total = is.read(rawData);
       LogUtils.d("HippyDrawable", "setData path: read total=" + total);
-      setData(rawData);
+      return setData(rawData);
     } catch (Exception e) {
       e.printStackTrace();
+      return false;
     } finally {
       if (is != null) {
         try {
@@ -111,17 +114,20 @@ public class HippyDrawable implements IDrawableTarget {
     }
   }
 
-  public void setDataForTarge28Assets(String assetsFile) {
+  public boolean setDataForTarge28Assets(String assetsFile) {
     ImageDecoder.Source source;
     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
       try {
         source = ImageDecoder.createSource(ContextHolder.getAppContext().getAssets(),
             assetsFile.substring("assets://".length()));
         mBitmap = ImageDecoder.decodeBitmap(source);
+        return true;
       } catch (IOException e) {
         e.printStackTrace();
+        return false;
       }
     }
+    return false;
   }
 
   /**
@@ -139,7 +145,7 @@ public class HippyDrawable implements IDrawableTarget {
    *
    * @param source 不是原始数据，而是原始数据的来源：base64 / assets / file
    */
-  public void setData(String source) {
+  public boolean setData(String source) {
     mSource = source;
     if (mSource.startsWith("data:")) {
       try {
@@ -150,31 +156,34 @@ public class HippyDrawable implements IDrawableTarget {
           String base64String = mSource.substring(base64Index);
           byte[] decode = Base64.decode(base64String, Base64.DEFAULT);
           if (decode != null) {
-            setData(decode);
+            return setData(decode);
           }
         }
+        return false;
       } catch (Exception e) {
         e.printStackTrace();
+        return false;
       }
     } else if (mSource.startsWith("file://")) {
       // local file image
       String filePath = mSource.substring("file://".length());
-      setData(new File(filePath));
+      return setData(new File(filePath));
     } else if (mSource.startsWith("assets://")) {
       InputStream is = null;
       try {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
-          setDataForTarge28Assets(mSource);
+          return setDataForTarge28Assets(mSource);
         } else {
           is = ContextHolder.getAppContext().getAssets()
               .open(mSource.substring("assets://".length()));
           byte[] rawData = new byte[is.available()];
           int total = is.read(rawData);
           LogUtils.d("HippyDrawable", "setData source: read total=" + total);
-          setData(rawData);
+          return setData(rawData);
         }
       } catch (Exception e) {
         e.printStackTrace();
+        return false;
       } finally {
         if (is != null) {
           try {
@@ -185,6 +194,7 @@ public class HippyDrawable implements IDrawableTarget {
         }
       }
     }
+    return false;
   }
 
   /**
