@@ -75,21 +75,27 @@ std::shared_ptr<DomNode> DomNode::GetChildAt(size_t index) {
 int32_t DomNode::AddChildByRefInfo(const std::shared_ptr<DomInfo>& dom_info) {
   std::shared_ptr<RefInfo> ref_info = dom_info->ref_info;
   if (ref_info) {
-    for (uint32_t i = 0; i < children_.size(); ++i) {
-      auto child = children_[i];
-      if (ref_info->ref_id == child->GetId()) {
-        if (ref_info->relative_to_ref == RelativeType::kFront) {
-          children_.insert(children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i),
-                           dom_info->dom_node);
-        } else {
-          children_.insert(children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i + 1),
-                           dom_info->dom_node);
+    if (children_.size() == 0) {
+       children_.push_back(dom_info->dom_node);
+    } else {
+      for (uint32_t i = 0; i < children_.size(); ++i) {
+        auto child = children_[i];
+        if (ref_info->ref_id == child->GetId()) {
+          if (ref_info->relative_to_ref == RelativeType::kFront) {
+            children_.insert(
+                children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i),
+                dom_info->dom_node);
+          } else {
+            children_.insert(
+                children_.begin() + footstone::check::checked_numeric_cast<uint32_t, int32_t>(i + 1),
+                dom_info->dom_node);
+          }
+          break;
         }
-        break;
-      }
-      if (i == children_.size() - 1) {
-        children_.push_back(dom_info->dom_node);
-        break;
+        if (i == children_.size() - 1) {
+          children_.push_back(dom_info->dom_node);
+          break;
+        }
       }
     }
   } else {
