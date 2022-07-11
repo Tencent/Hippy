@@ -4,6 +4,7 @@
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
+#pragma clang diagnostic ignored "-Wshadow"
 #include "v8/v8-inspector.h"
 #pragma clang diagnostic pop
 #endif

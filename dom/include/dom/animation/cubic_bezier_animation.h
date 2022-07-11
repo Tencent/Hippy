@@ -59,7 +59,7 @@ class CubicBezierAnimation : public Animation {
                        int32_t cnt,
                        uint32_t related_id = kInvalidAnimationId);
   CubicBezierAnimation();
-  ~CubicBezierAnimation();
+  ~CubicBezierAnimation() = default;
 
   inline double GetCurrentValue() {
     return current_value_;

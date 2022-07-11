@@ -79,8 +79,6 @@ Animation::Animation(int32_t cnt) : Animation(cnt,
 
 Animation::Animation() : Animation(0, 0, 0, 0) {}
 
-Animation::~Animation() = default;
-
 double Animation::Calculate(uint64_t time) {
   return start_value_;
 }

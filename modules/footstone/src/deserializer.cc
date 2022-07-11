@@ -342,8 +342,6 @@ uint32_t Deserializer::ReadObjectProperties(HippyValueObjectType& property, Seri
       property = object;
     }
   }
-
-  return num_properties;
 }
 
 uint32_t Deserializer::ReadObjectProperties(SerializationTag end_tag) {
@@ -358,8 +356,6 @@ uint32_t Deserializer::ReadObjectProperties(SerializationTag end_tag) {
       return num_properties;
     }
   }
-
-  return num_properties;
 }
 
 }  // namespace base

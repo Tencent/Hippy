@@ -77,7 +77,7 @@ class Animation {
       double start_value);
   Animation(int32_t cnt);
   Animation();
-  virtual ~Animation();
+  virtual ~Animation() = default;
 
   inline uint32_t GetId() {
     return id_;
