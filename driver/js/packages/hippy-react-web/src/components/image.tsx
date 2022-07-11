@@ -186,7 +186,7 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
 
   // delete unsupported props
   delete restProps.tintColor;
-  delete restProps.ononProgress;
+  delete restProps.onProgress;
   delete restProps.capInsets;
 
   return (
