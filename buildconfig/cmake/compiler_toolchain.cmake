@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") # based on LLVM 12
   set(COMPILE_OPTIONS
       -fomit-frame-pointer
       -fno-threadsafe-statics
@@ -26,22 +26,20 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
       -fno-short-enums
       -fno-unique-section-names
       -fno-trigraphs
+      # warning group flags
       -Werror
       -Wall
       -Wextra
       -Wextra-semi
+      -Wdeprecated
       -Wconversion
+      -Wshadow
+      -Wunreachable-code-aggressive
       -Wimplicit-fallthrough
       -Wloop-analysis
-      -Wmissing-field-initializers
-      -Wunused-local-typedefs
-      -Wstring-conversion
       -Wthread-safety
-      -Wtautological-overlap-compare
-      -Wunreachable-code
-      -Wenum-compare-conditional
+      # warning flags
       -Wheader-hygiene
-      -Wshadow
       -Wno-unused-parameter
       -Wno-trigraphs
       --param=ssp-buffer-size=4
