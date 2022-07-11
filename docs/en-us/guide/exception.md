@@ -48,7 +48,7 @@ new Hippy({
 + Listening `unhandledRejection`
 
 ```javascript
-global.Hippy.on('unhandledRejection', (error) => {
-  console.error('unhandledRejection', error.stack, error.message);
+global.Hippy.on('unhandledRejection', (reason) => {
+  console.error('unhandledRejection', reason);
 });
 ```
