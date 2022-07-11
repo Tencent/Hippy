@@ -127,6 +127,7 @@ class Ctx {
   using JSValueWrapper = hippy::base::JSValueWrapper;
   using unicode_string_view = footstone::stringview::unicode_string_view;
   using HippyValue = footstone::value::HippyValue;
+  using NativeFunction = std::function<std::shared_ptr<hippy::napi::CtxValue>(void *)>;
 
   Ctx() {}
   virtual ~Ctx() { FOOTSTONE_DLOG(INFO) << "~Ctx"; }
@@ -155,6 +156,9 @@ class Ctx {
                                     const ModuleClassMap& modules) = 0;
   virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
+                                     void* data) = 0;
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
+                                     NativeFunction fn,
                                      void* data) = 0;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) = 0;
@@ -200,6 +204,8 @@ class Ctx {
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) = 0;
 
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
+  
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) = 0;
 
   // Array Helpers
   virtual bool IsArray(const std::shared_ptr<CtxValue>& value) = 0;

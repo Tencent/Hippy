@@ -55,6 +55,7 @@
 #import "HippyTurboModuleManager.h"
 #import "HippyDevInfo.h"
 #import "HippyBundleURLProvider.h"
+#import "NSObject+ToJSCtxValue.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
@@ -247,15 +248,28 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 else {
                     context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8(@""));
                 }
-                jsContext[@"nativeRequireModuleConfig"] = ^NSArray *(NSString *moduleName) {
+                hippy::napi::Ctx::NativeFunction func = [weakSelf](void *data) {
                     HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return nil;
+                    if (!strongSelf.valid || !data) {
+                        return strongSelf.pScope->GetContext()->CreateNull();
                     }
-
-                    NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
-                    return NativeRenderNullIfNil(result);
+                    auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
+                    NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
+                    auto ctxValue = pTuple->arguments_[0];
+                    const auto &context = strongSelf.pScope->GetContext();
+                    if (context->IsString(ctxValue)) {
+                        unicode_string_view string;
+                        if (context->GetValueString(ctxValue, &string)) {
+                            unicode_string_view::u16string &u16String =string.utf16_value();
+                            NSString *moduleName = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                            NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
+                            auto ret = [NativeRenderNullIfNil(result) convertToCtxValue:context];
+                            return ret;
+                        }
+                    }
+                    return strongSelf.pScope->GetContext()->CreateNull();
                 };
+                context->RegisterNativeBinding("nativeRequireModuleConfig", func, nullptr);
 
                 jsContext[@"nativeFlushQueueImmediate"] = ^(NSArray<NSArray *> *calls) {
                     HippyJSCExecutor *strongSelf = weakSelf;
@@ -494,7 +508,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete {
-    // TODO: Make this function handle first class instead of dynamically dispatching it. #9317773
     [self _executeJSCall:@"flushedQueue" arguments:@[] unwrapResult:YES callback:onComplete];
 }
 
@@ -521,7 +534,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 - (void)invokeCallbackID:(NSNumber *)cbID arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete {
-    // TODO: Make this function handle first class instead of dynamically dispatching it. #9317773
     [self _executeJSCall:@"invokeCallbackAndReturnFlushedQueue" arguments:@[cbID, args] unwrapResult:YES callback:onComplete];
 }
 

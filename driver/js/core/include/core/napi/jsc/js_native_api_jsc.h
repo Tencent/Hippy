@@ -62,6 +62,25 @@ constexpr char16_t kHippyKey[] = u"Hippy";
 constexpr char kGetterStr[] = "getter";
 constexpr char kSetterStr[] = "setter";
 
+class CBTuple {
+ public:
+  CBTuple(Ctx::NativeFunction fn, void* data)
+      : fn_(fn), data_(data) {}
+  Ctx::NativeFunction fn_;
+  void* data_;
+};
+
+class JSCCtxValue;
+class CBDataTuple {
+ public:
+  CBDataTuple(const void *data,
+              const std::shared_ptr<JSCCtxValue> arguments[],
+              size_t count)
+      : data_(data), arguments_(arguments), count_(count) {}
+  const void *data_;
+  const std::shared_ptr<JSCCtxValue> *arguments_;
+  size_t count_;
+};
 
 class JSCVM : public VM {
  public:
@@ -140,6 +159,9 @@ class JSCCtx : public Ctx {
   virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
                                      void* data) override;
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
+                                     NativeFunction fn,
+                                     void* data) override;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) override;
@@ -185,6 +207,8 @@ class JSCCtx : public Ctx {
   }
 
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
+  
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) override;
   // Null Helpers
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
 
@@ -244,6 +268,7 @@ class JSCCtx : public Ctx {
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
+  std::vector<CBTuple> function_private_data_container_;
 };
 
 inline footstone::stringview::unicode_string_view ToStrView(JSStringRef str) {
