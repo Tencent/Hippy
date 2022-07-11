@@ -46,6 +46,12 @@ class FrameCodec {
  public:
   FrameCodec() { stream_buffer_.reserve(kTunnelBufferSize); }
   ~FrameCodec() { stream_buffer_.clear(); }
+  FrameCodec& operator=(const FrameCodec& rhs) {
+    encode_callback_ = rhs.encode_callback_;
+    decode_callback_ = rhs.decode_callback_;
+    stream_buffer_ = rhs.stream_buffer_;
+    return *this;
+  }
   void Encode(void *data, int32_t len, uint8_t flag);
   void Decode(void *data, int32_t len);
   inline void SetEncodeCallback(std::function<void(void *, int32_t)> callback) { encode_callback_ = callback; }

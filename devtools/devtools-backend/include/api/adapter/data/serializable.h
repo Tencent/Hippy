@@ -33,6 +33,6 @@ class Serializable {
    * @return string data organized in a regular way
    */
   virtual std::string Serialize() const = 0;
-  virtual ~Serializable() {}
+  virtual ~Serializable() = default;
 };
 }  // namespace hippy::devtools

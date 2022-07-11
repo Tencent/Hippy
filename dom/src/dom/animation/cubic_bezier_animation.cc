@@ -110,8 +110,6 @@ CubicBezierAnimation::CubicBezierAnimation() : CubicBezierAnimation(Mode::kTimin
                                                                     kAnimationTimingFunctionLinear,
                                                                     0) {}
 
-CubicBezierAnimation::~CubicBezierAnimation() = default;
-
 void CubicBezierAnimation::Init() {
   /**
   * startValue : The value at the start of the animation, which can be of type Number or

@@ -91,10 +91,6 @@ HPStyle::HPStyle() {
   lineSpace = 0;
 }
 
-HPStyle::~HPStyle() {
-  // TODO(ianwang): Auto-generated destructor stub
-}
-
 std::string edge2String(int type, CSSValue &edges, CSSFrom &edgesFrom) {
   std::string prefix = "";
   if (type == 0) {  // margin
