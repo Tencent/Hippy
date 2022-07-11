@@ -15,17 +15,14 @@
  */
 package com.tencent.mtt.hippy.adapter.http;
 
-import android.os.Build;
 import android.text.TextUtils;
 
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -47,7 +44,6 @@ import java.util.zip.GZIPInputStream;
 public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     private static final String TAG = "DefaultHttpAdapter";
-    private static CookieSyncManager mCookieSyncManager;
     private ExecutorService mExecutorService;
 
     protected void execute(Runnable runnable) {
@@ -365,19 +361,12 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     protected void syncCookie() {
         if (getCookieManager() != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                getCookieManager().flush();
-            } else if (mCookieSyncManager != null) {
-                mCookieSyncManager.sync();
-            }
+            getCookieManager().flush();
         }
     }
 
     @Nullable
     protected CookieManager getCookieManager() {
-        if (mCookieSyncManager == null) {
-            mCookieSyncManager = CookieSyncManager.createInstance(ContextHolder.getAppContext());
-        }
         CookieManager cookieManager;
         try {
             cookieManager = CookieManager.getInstance();
