@@ -31,6 +31,7 @@ export enum ImageResizeMode {
   CENTER = 'center',
 }
 export enum NodeProps {
+  TYPE = 'type',
   ELLIPSIZE_MODE = 'ellipsizeMode',
   TINY_COLOR = 'tinyColor',
   ON_LOAD = 'onLoad',
@@ -47,6 +48,7 @@ export enum NodeProps {
   METHOD = 'method',
   USER_AGENT = 'userAgent',
   INITIAL_LIST_SIZE = 'initialListSize',
+  NUMBER_OF_ROWS='numberOfRows',
   INITIAL_CONTENT_OFFSET = 'initialContentOffset',
   BOUNCES = 'bounces',
   CONTENT_CONTAINER_STYLE = 'contentContainerStyle',

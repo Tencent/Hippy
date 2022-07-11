@@ -72,26 +72,25 @@ export class NetworkModule extends HippyWebModule {
       });
   }
 
-  public setCookie(url: string, value: string, expires: string): void {
-    if (value.trim() === '' || !value) {
-      document.cookie = `;expires=${-1};domain=${url}`;
-      return;
-    }
+  public setCookie(url: string, value: string, expires: string | Date): void {
     const cookieList = value.split(';');
     cookieList.forEach((cookie) => {
-      document.cookie = `${cookie}; expires=${expires};domain=${url}`;
+      if (cookie.trim() === '') {
+        document.cookie = `;Max-Age=${-1};domain=${url}`;
+        return;
+      }
+      let expireStr = '';
+      if (typeof expires === 'string') {
+        expireStr = expires;
+      }
+      if (expires instanceof Date) {
+        expireStr = expires.toUTCString();
+      }
+      document.cookie = `${cookie}; expires=${expireStr};domain=${url}`;
     });
   }
 
   public getCookies(callBack: HippyCallBack) {
     callBack.resolve(document.cookie);
-  }
-
-  public initialize() {
-
-  }
-
-  public destroy() {
-
   }
 }

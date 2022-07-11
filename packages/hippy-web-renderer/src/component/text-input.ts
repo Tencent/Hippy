@@ -65,7 +65,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
     this.props[NodeProps.DEFAULT_VALUE] = value;
     // TODO to implement js logic
     if (!this.value || this.value.length === 0) {
-      this.dom?.setAttribute('value', value);
+      this.dom!.setAttribute('value', value);
     }
   }
 
@@ -76,9 +76,9 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
   public set editable(value: boolean) {
     this.props[NodeProps.EDITABLE] = value;
     if (value) {
-      this.dom?.removeAttribute('disabled');
+      this.dom!.removeAttribute('disabled');
     } else {
-      this.dom?.setAttribute('disabled', 'disabled');
+      this.dom!.setAttribute('disabled', 'disabled');
     }
   }
 
@@ -105,7 +105,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
       default:
         type = 'text';
     }
-    this.dom?.setAttribute('type', type);
+    this.dom!.setAttribute('type', type);
   }
 
   public get keyboardType() {
@@ -114,7 +114,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
 
   public set maxLength(value: number) {
     this.props[NodeProps.MAX_LENGTH] = value;
-    this.dom?.setAttribute('maxlength', String(value));
+    this.dom!.setAttribute('maxlength', String(value));
   }
 
   public get maxLength() {
@@ -122,7 +122,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
   }
 
   public set multiline(value: boolean) {
-    if ((value && this.dom?.tagName === 'TEXTAREA') || (!value && this.dom?.tagName === 'INPUT')) {
+    if ((value && this.dom!.tagName === 'TEXTAREA') || (!value && this.dom?.tagName === 'INPUT')) {
       return;
     }
     this.props[NodeProps.MULTILINE] = value;
@@ -135,7 +135,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
 
   public set numberOfLines(value: number) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
-    this.dom?.setAttribute('rows', String(value));
+    this.dom!.setAttribute('rows', String(value));
   }
 
   public get numberOfLines() {
@@ -144,7 +144,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
 
   public set placeholder(value: string) {
     this.props[NodeProps.PLACEHOLDER] = value;
-    this.dom?.setAttribute('placeholder', value);
+    this.dom!.setAttribute('placeholder', value);
   }
 
   public get placeholder() {
@@ -154,7 +154,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
   public set placeholderTextColor(value: string) {
     if (!this.placeholderTextColorStyle) {
       this.placeholderTextColorStyle = buildStyleSheet();
-      this.dom?.setAttribute('class', `k${this.id}`);
+      this.dom!.setAttribute('class', `k${this.id}`);
     }
     this.props[NodeProps.PLACEHOLDER_TEXT_COLOR] = value;
 
@@ -168,7 +168,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
 
   public set returnKeyType(value: ReturnKeyType) {
     this.props[NodeProps.RETURN_KEY_TYPE] = value;
-    this.dom?.setAttribute('enterkeyhint', value);
+    this.dom!.setAttribute('enterkeyhint', value);
   }
 
   public get returnKeyType() {
@@ -177,7 +177,7 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
 
   public set value(value: string) {
     this.props[NodeProps.VALUE] = value;
-    this.dom?.setAttribute('value', value);
+    this.dom!.setAttribute('value', value);
   }
 
   public get value() {
@@ -186,8 +186,8 @@ export class TextInput extends HippyWebView<HTMLInputElement | HTMLTextAreaEleme
 
   public set autoFocus(value: boolean) {
     this.props[NodeProps.AUTO_FOCUS] = value;
-    if (this.props[NodeProps.AUTO_FOCUS]) this.dom?.setAttribute('autofocus', 'true');
-    if (!!this.props[NodeProps.AUTO_FOCUS]) this.dom?.removeAttribute('autofocus');
+    this.props[NodeProps.AUTO_FOCUS] && this.dom!.setAttribute('autofocus', 'true');
+    !this.props[NodeProps.AUTO_FOCUS] && this.dom!.removeAttribute('autofocus');
   }
 
   public get autoFocus() {

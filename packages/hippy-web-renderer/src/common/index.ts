@@ -227,4 +227,16 @@ function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
     styleUpdateWithCheck(el, 'paddingRight', transformForSize(style[STYLE_PADDING_H]));
   }
 }
+export function warn(...context: any[]) {
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+  console.warn(...context);
+}
 
+export const error = (...context: any[]) => {
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+  console.error(...context);
+};

@@ -42,22 +42,6 @@ export class WebView extends HippyWebView<HTMLIFrameElement> {
     return this.props[NodeProps.SOURCE];
   }
 
-  public set userAgent(value: string) {
-    this.props[NodeProps.USER_AGENT] = value;
-  }
-
-  public get userAgent() {
-    return this.props[NodeProps.USER_AGENT];
-  }
-
-  public set method(value: string) {
-    this.props[NodeProps.METHOD] = value;
-  }
-
-  public get method() {
-    return this.props[NodeProps.METHOD];
-  }
-
   public  onLoadStart(value: { uri: string }) {
     this.props[NodeProps.ON_LOAD_START] && this.context.sendUiEvent(this.id, NodeProps.ON_LOAD_START, value);
   }

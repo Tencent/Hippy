@@ -20,6 +20,7 @@
 
 import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
+import { warn } from '../common';
 
 export class ClipboardModule extends HippyWebModule {
   public name = 'ClipboardModule';
@@ -30,7 +31,7 @@ export class ClipboardModule extends HippyWebModule {
       window.navigator.clipboard.readText().then((text) => {
         data = text;
       }, () => {
-        console.warn('get clipboard failed');
+        warn('get clipboard failed');
       })
         .finally(() => {
           callBack.resolve(data);
@@ -41,7 +42,7 @@ export class ClipboardModule extends HippyWebModule {
   public setString(value: string) {
     if (!!(window?.navigator?.clipboard)) {
       window.navigator.clipboard.writeText(value).then(null, () => {
-        console.warn('set clipboard failed');
+        warn('set clipboard failed');
       });
       return;
     }
@@ -54,7 +55,7 @@ export class ClipboardModule extends HippyWebModule {
       try {
         document.execCommand('copy');
       } catch {
-        console.warn('set clipboard failed');
+        warn('set clipboard failed');
       } finally {
         document.body.removeChild(textarea);
       }

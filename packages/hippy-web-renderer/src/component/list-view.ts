@@ -65,7 +65,6 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     this.init();
   }
 
-
   public get root() {
     if (!this.rootElement) {
       this.rootElement = getRootElement();
@@ -77,14 +76,6 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     return  { display: 'flex', flexDirection: 'column', flexShrink: 0, boxSizing: 'border-box', overflow: 'scroll' };
   }
 
-  public get overScrollEnabled() {
-    return this.props[NodeProps.OVER_SCROLL_ENABLED];
-  }
-
-  public set overScrollEnabled(value) {
-    this.props[NodeProps.OVER_SCROLL_ENABLED] = value;
-  }
-
   public get initialListSize() {
     return this.props[NodeProps.INITIAL_LIST_SIZE] ?? 10;
   }
@@ -92,6 +83,15 @@ export class ListView extends HippyWebView<HTMLDivElement> {
   public set initialListSize(value: number) {
     this.props[NodeProps.INITIAL_LIST_SIZE] = value;
   }
+
+  public get numberOfRows() {
+    return this.props[NodeProps.NUMBER_OF_ROWS] ?? 10;
+  }
+
+  public set numberOfRows(value: number) {
+    this.props[NodeProps.NUMBER_OF_ROWS] = value;
+  }
+
   public get initialContentOffset() {
     return this.props[NodeProps.INITIAL_CONTENT_OFFSET];
   }
@@ -133,20 +133,20 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     setElementStyle(this.dom!, { overflow: !this.scrollEnabled ? 'hidden' : 'scroll' });
   }
 
-  public get showScrollIndicator() {
-    return this.props[NodeProps.SHOW_SCROLL_INDICATOR];
-  }
-
-  public set showScrollIndicator(value: boolean) {
-    this.props[NodeProps.SHOW_SCROLL_INDICATOR] = value;
-  }
-
   public get initialListReady() {
     return this.props[NodeProps.INITIAL_LIST_READY];
   }
 
   public set initialListReady(value: boolean) {
     this.props[NodeProps.INITIAL_LIST_READY] = value;
+  }
+
+  public get onEndReached() {
+    return this.props[NodeProps.ON_END_REACHED];
+  }
+
+  public set onEndReached(value: boolean) {
+    this.props[NodeProps.ON_END_REACHED] = value;
   }
 
   public onMomentumScrollBegin(event: { contentOffset: { x: number, y: number } }) {
@@ -545,6 +545,13 @@ export class ListViewItem extends HippyWebView<HTMLDivElement> {
 
   public addDirtyListener(callBack: ((component: ListViewItem) => void) | null) {
     this.dirtyListener = callBack;
+  }
+  public get type() {
+    return this.props[NodeProps.TYPE] ?? 10;
+  }
+
+  public set type(value: any) {
+    this.props[NodeProps.TYPE] = value;
   }
 
   mounted(): void {

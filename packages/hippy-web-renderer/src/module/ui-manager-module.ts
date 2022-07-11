@@ -20,12 +20,11 @@
 
 import { HippyWebEngineContext, HippyWebModule } from '../base';
 import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
-import { setElementStyle } from '../common';
-import { mergeDeep } from '../third-lib/loadsh.js';
+import { setElementStyle, warn } from '../common';
+
 
 export class UIManagerModule extends HippyWebModule {
   public name = 'UIManagerModule';
-
   private viewDictionary: { [key in string | number]: HippyBaseView } = {};
   private rootDom: HTMLElement | undefined;
   private contentDom: HTMLElement | undefined;
@@ -38,13 +37,7 @@ export class UIManagerModule extends HippyWebModule {
     stylePolyfill();
   }
 
-  public destroy() {
-
-  }
-
-  public startBatch() {
-
-  }
+  public startBatch() {}
 
   public async createNode(rootViewId: any, data: Array<NodeData>) {
     this.createNodePreCheck(rootViewId);
@@ -54,7 +47,8 @@ export class UIManagerModule extends HippyWebModule {
       const { id, pId, index, props, name: tagName } = nodeItemData;
       const component = mapComponent(this.context, tagName, id, pId);
       if (!component) {
-        throw `create component failed, can't find ${tagName}' constructor`;
+        warn(`create component failed, can't find ${tagName}' constructor`);
+        continue;
       }
       if (updateComponentIdSet.has(id)) {
         continue;
@@ -65,7 +59,11 @@ export class UIManagerModule extends HippyWebModule {
       if (this.findViewById(pId)?.tagName === InnerNodeTag.LIST) {
         updateComponentIdSet.add(pId);
       }
-      await this.componentInitProcess(component, props, index);
+      try {
+        await this.componentInitProcess(component, props, index);
+      } catch (e) {
+        console.error(e);
+      }
     }
     for (const id of updateComponentIdSet) {
       const component = this.findViewById(id as number);
@@ -155,7 +153,7 @@ export class UIManagerModule extends HippyWebModule {
     }
 
     for (const id of nodeList.reverse()) {
-      if (isNaN(Number(id)) || parseInt(id, 10) === childId) {
+      if (id === String(childId)) {
         continue;
       }
       const willRemoveComponent = this.findViewById(parseInt(id, 10));
@@ -182,10 +180,6 @@ export class UIManagerModule extends HippyWebModule {
     if (!props) {
       return;
     }
-    mergeDeep(component.props, props);
-    if (!props) {
-      return;
-    }
     const keys = Object.keys(props);
     if (props.style) {
       setElementStyle(component.dom!, props.style, (key: string, value: any) => {
@@ -205,7 +199,6 @@ export class UIManagerModule extends HippyWebModule {
       component.updateProperty?.(key, props[key]);
     }
   }
-
 
   private createNodePreCheck(rootViewId: any) {
     if (!this.rootDom) {
@@ -303,7 +296,7 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     await component!.beforeRemove?.();
-    await parentComponent.beforeChildRemove?.(component!);
+    parentComponent.beforeChildRemove?.(component!);
     if (parentComponent.removeChild) {
       await parentComponent.removeChild(component!);
     } else {
@@ -314,9 +307,7 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   private componentUpdateProcess(component: HippyBaseView | undefined | null, props: UIProps) {
-    if (component) {
-      this.updateComponentProps(component, props);
-    }
+    component && this.updateComponentProps(component, props);
   }
 }
 
@@ -332,8 +323,10 @@ function componentFunctionCallProcess(
   throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;
 }
 
-function mapComponent(context: HippyWebEngineContext, tagName: string, id: number, pId: number):
-HippyBaseView | undefined {
+function mapComponent(
+  context: HippyWebEngineContext, tagName: string,
+  id: number, pId: number,
+): HippyBaseView | undefined {
   if (context.engine.components[tagName]) {
     return new context.engine.components[tagName](context, id, pId);
   }

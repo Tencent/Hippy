@@ -91,6 +91,7 @@ export class RefreshWrapper extends HippyWebView<HTMLDivElement> {
     }, 500);
   }
 }
+
 export class RefreshWrapperItemView extends HippyWebView<HTMLDivElement> {
   public constructor(context, id, pId) {
     super(context, id, pId);

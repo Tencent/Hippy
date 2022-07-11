@@ -44,12 +44,4 @@ export class ImageLoadModule extends HippyWebModule {
     const img = new Image();
     img.src = url;
   }
-
-  public initialize() {
-
-  }
-
-  public destroy() {
-
-  }
 }

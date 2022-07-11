@@ -154,32 +154,6 @@ export class Modal extends HippyWebView<HTMLDivElement> {
     this.props[NodeProps.ANIMATION_TYPE] = value;
   }
 
-  public get supportedOrientations() {
-    return this.props[NodeProps.SUPPORTED_ORIENTATIONS];
-  }
-
-  public set supportedOrientations(value: ModalOrientations) {
-    this.props[NodeProps.SUPPORTED_ORIENTATIONS] = value;
-    // TODO to implement
-  }
-
-  public get immersionStatusBar() {
-    return this.props[NodeProps.IMMERSION_STATUS_BAR];
-  }
-
-  public set immersionStatusBar(value: ModalOrientations) {
-    this.props[NodeProps.IMMERSION_STATUS_BAR] = value;
-    // TODO to implement
-  }
-
-  public get darkStatusBarText() {
-    return this.props[NodeProps.DARK_STATUS_BAR_TEXT];
-  }
-
-  public set darkStatusBarText(value: ModalOrientations) {
-    this.props[NodeProps.DARK_STATUS_BAR_TEXT] = value;
-    // TODO to implement
-  }
 
   public get transparent() {
     return this.props[NodeProps.TRANSPARENT];
@@ -201,11 +175,6 @@ export class Modal extends HippyWebView<HTMLDivElement> {
     && this.context.sendUiEvent(this.id, NodeProps.ON_ORIENTATION_CHANGE, event);
   }
 
-  public onRequestClose(value?) {
-    this.props[NodeProps.ON_ORIENTATION_CHANGE]
-    && this.context.sendUiEvent(this.id, NodeProps.ON_REQUEST_CLOSE, value);
-    // TODO to implement
-  }
 
   public async beforeChildMount(child: HippyBaseView, childPosition: number) {
     await super.beforeChildMount(child, childPosition);

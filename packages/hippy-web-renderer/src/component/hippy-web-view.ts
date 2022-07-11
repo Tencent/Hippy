@@ -22,6 +22,7 @@
 
 import ResizeObserver from 'resize-observer-polyfill';
 import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps, HippyTransferData } from '../types';
+import { warn } from '../common';
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
@@ -46,13 +47,20 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public updateProperty(key: string, value: any) {
-    this[key] = value;
+    if (key in this && this[key] !== value) {
+      this[key] = value;
+    }
+    if (!(key in this)) {
+      warn(`${this.tagName} is unsupported ${key}`);
+    }
   }
 
   public set onClick(value: boolean) {
     this.props[NodeProps.ON_CLICK] = value;
     if (value) {
-      this.dom?.addEventListener('click', this.handleOnClick);
+      this.dom!.addEventListener('click', this.handleOnClick);
+    } else {
+      this.dom!.removeEventListener('click', this.handleOnClick);
     }
   }
 
@@ -63,7 +71,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public set onTouchDown(value: boolean) {
     this.props[NodeProps.ON_TOUCH_DOWN] = value;
     if (value) {
-      this.dom?.addEventListener('touchstart', this.handleOnTouchStart);
+      this.dom!.addEventListener('touchstart', this.handleOnTouchStart);
+    } else {
+      this.dom!.removeEventListener('touchstart', this.handleOnTouchStart);
     }
   }
 
@@ -78,7 +88,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public set onTouchMove(value: boolean) {
     this.props[NodeProps.ON_TOUCH_MOVE] = value;
     if (value) {
-      this.dom?.addEventListener('touchmove', this.handleOnTouchMove);
+      this.dom!.addEventListener('touchmove', this.handleOnTouchMove);
+    } else {
+      this.dom!.removeEventListener('touchmove', this.handleOnTouchMove);
     }
   }
 
@@ -89,7 +101,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public set onTouchEnd(value: boolean) {
     this.props[NodeProps.ON_TOUCH_END] = value;
     if (value) {
-      this.dom?.addEventListener('touchend', this.handleOnTouchEnd);
+      this.dom!.addEventListener('touchend', this.handleOnTouchEnd);
+    } else {
+      this.dom!.removeEventListener('touchend', this.handleOnTouchEnd);
     }
   }
 
@@ -100,7 +114,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public set onTouchCancel(value: boolean) {
     this.props[NodeProps.ON_TOUCH_CANCEL] = value;
     if (value) {
-      this.dom?.addEventListener('touchcancel', this.handleOnTouchCancel);
+      this.dom!.addEventListener('touchcancel', this.handleOnTouchCancel);
+    } else {
+      this.dom!.removeEventListener('touchcancel', this.handleOnTouchCancel);
     }
   }
 
@@ -178,8 +194,8 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     }
     const { left, top, width, height } = entry.contentRect;
     if ((this.layoutCache && this.layoutCache.width === width && this.layoutCache.height === height)
-        || (!this.dom || !this.dom.parentNode || !(this.id && document.getElementById(String(this.id)))
-        )) {
+      || (!this.dom || !this.dom.parentNode || !(this.id && document.getElementById(String(this.id)))
+      )) {
       return;
     }
     this.layoutCache =  {
@@ -208,6 +224,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     this.context.sendGestureEvent(buildHippyTouchEvent(event, 'onTouchDown', this.id));
     event.stopPropagation();
   }
+
   private handleOnTouchMove(event) {
     if (!this.onTouchMove) {
       return;

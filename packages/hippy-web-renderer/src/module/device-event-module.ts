@@ -25,51 +25,51 @@ export class DeviceEventModule extends HippyWebModule {
   private listen=false;
   private moduleListener: Array<() => void>=[];
 
-  public invokeDefaultBackPressHandler() {
-    setTimeout(() => {
-      this.listen = false;
-      back();
-    }, 0);
-  }
+  // public invokeDefaultBackPressHandler() {
+  //   setTimeout(() => {
+  //     this.listen = false;
+  //     // back();
+  //   }, 0);
+  // }
+  //
+  // public init() {
+  //   // !!! exit wx window size change problem
+  //   // addCacheHistoryState();
+  //   // listenHistory(this.handleBack.bind(this));
+  // }
 
-  public init() {
-    // !!! exit wx window size change problem
-    // addCacheHistoryState();
-    // listenHistory(this.handleBack.bind(this));
-  }
-
-  public setListenBackPress(listen: boolean) {
-    if (this.moduleListener.length > 0 && !listen) {
-      return;
-    }
-    this.listen = listen;
-  }
-
-  public setModuleListener(listener: () => void) {
-    this.moduleListener.push(listener);
-    this.listen = true;
-  }
-
-  public removeModuleListener(listener) {
-    this.moduleListener = this.moduleListener.filter(item => item !== listener);
-  }
-
-  private handleBack() {
-    if (!this.listen) {
-      return false;
-    }
-    if (this.moduleListener.length > 0) {
-      this.moduleListener.reverse()[0]();
-      return true;
-    } if (this.listen) {
-      this.context.sendEvent('hardwareBackPress', null);
-      return true;
-    }
-    return false;
-  }
+  // public setListenBackPress(listen: boolean) {
+  //   if (this.moduleListener.length > 0 && !listen) {
+  //     return;
+  //   }
+  //   this.listen = listen;
+  // }
+  //
+  // public setModuleListener(listener: () => void) {
+  //   this.moduleListener.push(listener);
+  //   this.listen = true;
+  // }
+  //
+  // public removeModuleListener(listener) {
+  //   this.moduleListener = this.moduleListener.filter(item => item !== listener);
+  // }
+  //
+  // private handleBack() {
+  //   if (!this.listen) {
+  //     return false;
+  //   }
+  //   if (this.moduleListener.length > 0) {
+  //     this.moduleListener.reverse()[0]();
+  //     return true;
+  //   } if (this.listen) {
+  //     this.context.sendEvent('hardwareBackPress', null);
+  //     return true;
+  //   }
+  //   return false;
+  // }
 }
 // const WAIT_FLAG = 'wait';
-const PUPPET_FLAG = 'puppet';
+// const PUPPET_FLAG = 'puppet';
 
 // function addCacheHistoryState() {
 //   if (!(history.state && history.state.target === PUPPET_FLAG)) {
@@ -78,10 +78,10 @@ const PUPPET_FLAG = 'puppet';
 //   }
 // }
 
-function back() {
-  const backCount = history?.state?.target === PUPPET_FLAG ? -3 : -2;
-  history.go(backCount);
-}
+// function back() {
+//   const backCount = history?.state?.target === PUPPET_FLAG ? -3 : -2;
+//   history.go(backCount);
+// }
 
 // function wait() {
 //   window.history.pushState({ target: PUPPET_FLAG, random: Math.random() }, '', location.href);

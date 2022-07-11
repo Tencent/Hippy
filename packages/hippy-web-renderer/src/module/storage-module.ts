@@ -20,11 +20,12 @@
 
 import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
+import { warn } from '../common';
 
 export class StorageModule extends HippyWebModule {
   public static preCheck() {
     if (!window.__localStorage) {
-      console.warn('not support localStorage');
+      warn('not support localStorage');
       return false;
     }
     return true;
@@ -43,7 +44,7 @@ export class StorageModule extends HippyWebModule {
     try {
       data = JSON.stringify(data);
     } catch (e) {
-      throw 'deserialize failed , getAllKeys()';
+      throw `deserialize failed , getAllKeys(),${e.toString()}`;
     }
     callBack.resolve(data);
   }
@@ -64,7 +65,7 @@ export class StorageModule extends HippyWebModule {
         try {
           dataItem = JSON.stringify(dataItem);
         } catch (e) {
-          throw 'deserialize failed , getAllKeys()';
+          throw `deserialize failed , getAllKeys(),${e.toString()}`;
         }
         data.push([key, dataItem]);
       }
@@ -110,13 +111,5 @@ export class StorageModule extends HippyWebModule {
       window.__localStorage.removeItem(keys[i]);
     }
     callBack.resolve('success');
-  }
-
-  public initialize() {
-
-  }
-
-  public destroy() {
-
   }
 }

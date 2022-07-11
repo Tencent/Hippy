@@ -39,11 +39,11 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public set numberOfLines(value: number|undefined) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
+    let style = { 'white-space': 'normal', 'word-break': 'break-all' };
     if (value === 1) {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all' });
-    } else {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all' });
+      style = { 'white-space': 'nowrap', 'word-break': 'keep-all' };
     }
+    setElementStyle(this.dom!, style);
   }
 
   public get numberOfLines() {
@@ -52,8 +52,7 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public set ellipsizeMode(value) {
     this.props[NodeProps.ELLIPSIZE_MODE] = value;
-
-    if (this.dom && value) setElementStyle(this.dom, { ...HippyEllipsizeModeMap[value], overflow: 'hidden' });
+    value && setElementStyle(this.dom!, { ...HippyEllipsizeModeMap[value], overflow: 'hidden' });
   }
 
   public get ellipsizeMode() {

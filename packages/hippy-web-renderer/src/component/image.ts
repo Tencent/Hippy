@@ -72,15 +72,6 @@ export class Image extends HippyWebView<HTMLImageElement> {
     return this.props[NodeProps.TINY_COLOR];
   }
 
-  public set capInsets(value) {
-    this.props[NodeProps.CAP_INSETS] = value;
-    // TODO to implement
-  }
-
-  public get capInsets() {
-    return this.props[NodeProps.CAP_INSETS];
-  }
-
   public set resizeMode(value: ImageResizeMode|undefined) {
     if (!value) {
       this.props[NodeProps.RESIZE_MODE] = ImageResizeMode.CONTAIN;
@@ -115,8 +106,8 @@ export class Image extends HippyWebView<HTMLImageElement> {
     }
 
     if (this.dom && !this.defaultSource) {
-      this.dom.src = value ?? '';
-      this.onLoadStart(null);
+      this.dom.src = this.props[NodeProps.SOURCE];
+      this.props[NodeProps.SOURCE] && this.onLoadStart(null);
       return;
     }
     if (!value) {
@@ -173,7 +164,7 @@ export class Image extends HippyWebView<HTMLImageElement> {
 
     if ((!loadUrl && this.dom?.src === this.src) || loadUrl === this.src) {
       this.onLoad(null);
-      if (this.dom?.src !== this.src) {
+      if (this.dom && this.dom!.src !== this.src) {
         this.dom!.src = this.src;
       }
     }

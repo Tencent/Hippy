@@ -57,14 +57,6 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
     };
   }
 
-  public get initialPage() {
-    return this.props[NodeProps.INITIAL_PAGE];
-  }
-
-  public set initialPage(value: number) {
-    this.props[NodeProps.INITIAL_PAGE] = value;
-  }
-
   public get scrollEnabled() {
     return this.props[NodeProps.SCROLL_ENABLED];
   }
@@ -212,7 +204,7 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
     needAnimation: boolean,
   ) {
     const pageWidth = this.dom!.clientWidth;
-    const tmpPosition: [number, number]  = [...this.lastPosition];
+    const tmpPosition: [number, number]  = [...this.lastPosition] as [number, number];
     const toPosition: [number, number] = [toIndex * pageWidth * -1, this.lastPosition[1]];
     this.onPageScrollStateChanged(buildScrollStateEvent(SCROLL_STATE.SETTL));
     const scrollCallBack = (position, index) => {

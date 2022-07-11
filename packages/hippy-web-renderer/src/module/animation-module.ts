@@ -45,40 +45,35 @@ export class AnimationModule extends HippyWebModule {
 
   public updateAnimation(animationId: number, param: AnimationOptions) {
     if (!this.animationPool[animationId]) {
-      console.log('hippy', 'animation update failed, animationId not find animation object');
-      return;
+      throw Error('animation update failed, animationId not find animation object');
     }
     this.animationPool[animationId]!.update(param);
   }
 
   public startAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
-      console.log('hippy', 'animation start failed, animationId not find animation object');
-      return;
+      throw Error('animation start failed, animationId not find animation object');
     }
     this.animationPool[animationId]!.start();
   }
 
   public pauseAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
-      console.log('hippy', 'animation stop failed, animationId not find animation object');
-      return;
+      throw Error('animation stop failed, animationId not find animation object');
     }
     this.animationPool[animationId]!.stop();
   }
 
   public resumeAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
-      console.log('hippy', 'animation resume failed, animationId not find animation object');
-      return;
+      throw Error('animation resume failed, animationId not find animation object');
     }
     this.animationPool[animationId]!.resume();
   }
 
   public destroyAnimation(animationId: number) {
     if (!this.animationPool[animationId]) {
-      console.log('hippy', 'animation destroy failed, animationId not find animation object');
-      return;
+      throw Error('animation destroy failed, animationId not find animation object');
     }
     this.animationPool[animationId]!.destroy();
   }
@@ -90,13 +85,6 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]!.refNodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
     this.animationPool[animationId]!.initAnimation(component.dom!);
-  }
-
-  public getAnimationStartValue(animationId: number) {
-    if (!this.animationPool[animationId]) {
-      return null;
-    }
-    return this.animationPool[animationId]!.animationBeginValue;
   }
 }
 
@@ -188,16 +176,6 @@ class SimpleAnimation {
 
   public get delayTime() {
     return this.animationInfo.delay ? `${this.animationInfo.delay / 1000}s` : '0s';
-  }
-
-  public get animationDom() {
-    if (this.dom) {
-      return this.dom;
-    }
-    if (this.refNodeId) {
-      this.dom = document.getElementById(String(this.refNodeId));
-    }
-    return this.dom;
   }
 
   public get animationName() {
@@ -343,9 +321,8 @@ class SimpleAnimation {
     if (!element) {
       return;
     }
-    let oldAnimationList = element.style.animation ? element.style.animation.split(',') : [];
-    if (!oldAnimationList && animation !== null) {
-      oldAnimationList = [];
+    const oldAnimationList = element.style.animation ? element.style.animation.split(',') : [];
+    if (oldAnimationList.length === 0 && animation !== null) {
       oldAnimationList.push(animation);
     } else {
       const index = oldAnimationList.findIndex((value: string) => value.indexOf(this.animationNamePrefix) !== -1) ?? -1;
@@ -385,14 +362,12 @@ class SimpleAnimation {
   }
 
   private handleAnimationStart(event: AnimationEvent) {
-    console.log('begin animation');
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.START);
     }
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
-    console.log('end animation');
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.END);
     }
@@ -436,7 +411,7 @@ function getKeyFrameFromCssStyle(name) {
   const keyFrameStyle: any = {};
   const ss = document.styleSheets;
   for (let i = 0; i < ss.length; ++i) {
-    const item = ss[i];
+    const item: CSSStyleSheet = ss[i] as CSSStyleSheet;
     if ((item.cssRules[0] as CSSKeyframesRule)?.name === name) {
       const [rule] = item.cssRules;
       keyFrameStyle.cssRule = rule;

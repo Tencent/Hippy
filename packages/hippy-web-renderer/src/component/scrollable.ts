@@ -181,7 +181,7 @@ function touchMoveDeal(
   ) {
     return lastPosition;
   }
-  const newPosition: [number, number] = [...lastPosition];
+  const newPosition: [number, number] = [...lastPosition] as [number, number];
 
   newPosition[0] += currentTouch.pageX - lastTouch.pageX;
   newPosition[1] += currentTouch.pageY - lastTouch.pageY;
