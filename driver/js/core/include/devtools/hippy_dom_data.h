@@ -24,7 +24,7 @@
 
 namespace hippy::devtools {
 struct HippyDomData {
-  int32_t dom_id;
+  uint32_t dom_id;
   std::weak_ptr<RootNode> root_node;
 };
 }  // namespace hippy::devtools

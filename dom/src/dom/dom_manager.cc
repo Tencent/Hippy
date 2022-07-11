@@ -29,9 +29,9 @@ using OneShotTimer = footstone::timer::OneShotTimer;
 using Serializer = footstone::value::Serializer;
 using Deserializer = footstone::value::Deserializer;
 
-static std::unordered_map<int32_t, std::shared_ptr<DomManager>> dom_manager_map;
+static std::unordered_map<uint32_t, std::shared_ptr<DomManager>> dom_manager_map;
 static std::mutex mutex;
-static std::atomic<int32_t> global_dom_manager_key{0};
+static std::atomic<uint32_t> global_dom_manager_key{1};
 
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
 
@@ -46,7 +46,7 @@ void DomManager::Insert(const std::shared_ptr<DomManager>& dom_manager) {
   dom_manager_map[dom_manager->id_] = dom_manager;
 }
 
-std::shared_ptr<DomManager> DomManager::Find(int32_t id) {
+std::shared_ptr<DomManager> DomManager::Find(uint32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
   const auto it = dom_manager_map.find(id);
   if (it == dom_manager_map.end()) {
@@ -55,7 +55,7 @@ std::shared_ptr<DomManager> DomManager::Find(int32_t id) {
   return it->second;
 }
 
-bool DomManager::Erase(int32_t id) {
+bool DomManager::Erase(uint32_t id) {
   std::lock_guard<std::mutex> lock(mutex);
   const auto it = dom_manager_map.find(id);
   if (it == dom_manager_map.end()) {
