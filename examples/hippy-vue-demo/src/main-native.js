@@ -21,8 +21,8 @@ global.Hippy.on('uncaughtException', (err) => {
 });
 
 // only supported in iOS temporarily
-global.Hippy.on('unhandledRejection', (err) => {
-  console.error('unhandledRejection error', err.stack, err.message);
+global.Hippy.on('unhandledRejection', (reason) => {
+  console.error('unhandledRejection reason', reason);
 });
 
 /**
