@@ -61,25 +61,8 @@ NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
 NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"HippyJavaScriptContextCreatedNotificationBridgeKey";
 
-struct __attribute__((packed)) ModuleData {
-    uint32_t offset;
-    uint32_t size;
-};
-
-using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
-using memory_ptr = std::unique_ptr<void, decltype(&free)>;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
-
-
-struct RandomAccessBundleData {
-    file_ptr bundle;
-    size_t baseOffset;
-    size_t numTableEntries;
-    std::unique_ptr<ModuleData[]> table;
-    RandomAccessBundleData()
-        : bundle(nullptr, fclose) { }
-};
 
 static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::function<void(u8string)> cb) {
     std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
@@ -128,12 +111,8 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
     JSContext *_JSContext;
-    // Set as needed:
-    RandomAccessBundleData _randomAccessBundle;
     JSValueRef _batchedBridgeRef;
-
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
-
     JSGlobalContextRef _JSGlobalContextRef;
 }
 
@@ -385,26 +364,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
     return _JSGlobalContextRef;
 }
 
-- (BOOL)_synchronouslyExecuteApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL JSContext:(JSContext *)context error:(NSError **)error {
-    BOOL isRAMBundle = NO;
-    script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, isRAMBundle, _randomAccessBundle, error);
-    if (!script) {
-        return NO;
-    }
-    if (isRAMBundle) {
-        registerNativeRequire(context, self);
-    }
-    NSError *returnedError = executeApplicationScript(script, sourceURL, _performanceLogger, [self JSGlobalContextRef]);
-    if (returnedError) {
-        if (error) {
-            *error = returnedError;
-        }
-        return NO;
-    } else {
-        return YES;
-    }
-}
-
 - (void)setUp {
 }
 
@@ -451,8 +410,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 - (void)dealloc {
     NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
     [self invalidate];
-    _randomAccessBundle.bundle.reset();
-    _randomAccessBundle.table.reset();
 }
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
@@ -615,11 +572,9 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCompleteBlock)onComplete {
     HippyAssertParam(script);
     HippyAssertParam(sourceURL);
-
-    BOOL isRAMBundle = NO;
     {
         NSError *error;
-        script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, isRAMBundle, _randomAccessBundle, &error);
+        script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, &error);
         if (script == nil) {
             if (onComplete) {
                 onComplete(error);
@@ -634,11 +589,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
         if (!self.isValid) {
             return;
         }
-
-        if (isRAMBundle) {
-            registerNativeRequire([self JSContext], self);
-        }
-
         NSError *error = executeApplicationScript(script, sourceURL, self->_performanceLogger, [self JSGlobalContextRef]);
         if (onComplete) {
             onComplete(error);
@@ -666,8 +616,7 @@ static void handleJsExcepiton(std::shared_ptr<Scope> scope) {
   }
 }
 
-static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSURL *sourceURL, __unused HippyPerformanceLogger *performanceLogger,
-    __unused BOOL &isRAMBundle, __unused RandomAccessBundleData &randomAccessBundle, __unused NSError **error) {
+static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSURL *sourceURL, __unused HippyPerformanceLogger *performanceLogger, __unused NSError **error) {
     // JSStringCreateWithUTF8CString expects a null terminated C string.
     // RAM Bundling already provides a null terminated one.
     @autoreleasepool {
@@ -677,13 +626,6 @@ static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSU
         script = nullTerminatedScript;
         return script;
     }
-}
-
-static void registerNativeRequire(JSContext *context, HippyJSCExecutor *executor) {
-    __weak HippyJSCExecutor *weakExecutor = executor;
-    context[@"nativeRequire"] = ^(NSNumber *moduleID) {
-        [weakExecutor _nativeRequire:moduleID];
-    };
 }
 
 static NSLock *jslock() {
@@ -756,7 +698,6 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
     // HippyProfileBeginFlowEvent();
     [self executeBlockOnJavaScriptQueue:^{
         // HippyProfileEndFlowEvent();
-
         HippyJSCExecutor *strongSelf = weakSelf;
         if (!strongSelf || !strongSelf.isValid) {
             return;
@@ -790,65 +731,6 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
             onComplete(error);
         }
     }];
-}
-
-static bool readRandomAccessModule(const RandomAccessBundleData &bundleData, size_t offset, size_t size, char *data) {
-    return fseek(bundleData.bundle.get(), offset + bundleData.baseOffset, SEEK_SET) == 0 && fread(data, 1, size, bundleData.bundle.get()) == size;
-}
-
-static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t moduleID, size_t offset, size_t size) {
-    auto data = std::make_unique<char[]>(size);
-    if (!readRandomAccessModule(executor->_randomAccessBundle, offset, size, data.get())) {
-        HippyFatal(NativeRenderErrorWithMessage(@"Error loading RAM module"));
-        return;
-    }
-
-    char url[14];  // 10 = maximum decimal digits in a 32bit unsigned int + ".js" + null byte
-    sprintf(url, "%" PRIu32 ".js", moduleID);
-
-    JSStringRef code = JSStringCreateWithUTF8CString(data.get());
-    JSValueRef jsError = NULL;
-    JSStringRef sourceURL = JSStringCreateWithUTF8CString(url);
-    JSGlobalContextRef ctx = [executor JSGlobalContextRef];
-    JSValueRef result = JSEvaluateScript(ctx, code, NULL, sourceURL, 0, &jsError);
-
-    JSStringRelease(code);
-    JSStringRelease(sourceURL);
-
-    if (!result) {
-        NSError *error = HippyNSErrorFromJSErrorRef(jsError, ctx);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            HippyFatal(error);
-            [executor invalidate];
-        });
-    }
-}
-
-- (void)_nativeRequire:(NSNumber *)moduleID {
-    if (!moduleID) {
-        return;
-    }
-
-    [_performanceLogger addValue:1 forTag:HippyPLRAMNativeRequiresCount];
-    [_performanceLogger appendStartForTag:HippyPLRAMNativeRequires];
-    // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, ([@"nativeRequire_" stringByAppendingFormat:@"%@", moduleID]), nil);
-
-    const uint32_t ID = [moduleID unsignedIntValue];
-
-    if (ID < _randomAccessBundle.numTableEntries) {
-        ModuleData *moduleData = &_randomAccessBundle.table[ID];
-        const uint32_t size = NSSwapLittleIntToHost(moduleData->size);
-
-        // sparse entry in the table -- module does not exist or is contained in the startup section
-        if (size == 0) {
-            return;
-        }
-
-        executeRandomAccessModule(self, ID, NSSwapLittleIntToHost(moduleData->offset), size);
-    }
-
-    // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"js_call");
-    [_performanceLogger appendStopForTag:HippyPLRAMNativeRequires];
 }
 
 - (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge {
