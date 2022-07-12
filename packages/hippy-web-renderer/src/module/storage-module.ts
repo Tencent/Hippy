@@ -44,7 +44,7 @@ export class StorageModule extends HippyWebModule {
     try {
       data = JSON.stringify(data);
     } catch (e) {
-      throw `deserialize failed , getAllKeys(),${e.toString()}`;
+      throw `deserialize failed , getAllKeys(),${(e as Error).toString()}`;
     }
     callBack.resolve(data);
   }
@@ -65,7 +65,7 @@ export class StorageModule extends HippyWebModule {
         try {
           dataItem = JSON.stringify(dataItem);
         } catch (e) {
-          throw `deserialize failed , getAllKeys(),${e.toString()}`;
+          throw `deserialize failed , getAllKeys(),${(e as Error).toString()}`;
         }
         data.push([key, dataItem]);
       }

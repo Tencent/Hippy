@@ -7,8 +7,6 @@
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-web-renderer",
   "license": "Apache-2.0",
   "types": "types/index.d.ts",
-  "source": "example/index.html",
-
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
   },
@@ -16,18 +14,11 @@
     "Hippy",
     "Web"
   ],
-  "scripts": {
-    "watch": "father-build --watch",
-    "build": "father-build",
-    "start": "parcel"
-  },
   "dependencies": {
     "@types/hammerjs": "^2.0.41",
     "hammerjs": "^2.0.8",
     "morphdom": "^2.3.1",
     "resize-observer-polyfill": "^1.5.1",
-    "whatwg-fetch": "^3.6.2",
-    "father-build": "^1.22.1",
-    "parcel": "^2.4.0"
+    "whatwg-fetch": "^3.6.2"
   }
 }
