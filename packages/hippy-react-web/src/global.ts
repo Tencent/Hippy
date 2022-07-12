@@ -24,6 +24,18 @@ import { warn } from './utils';
 global.Hippy = {
   // @ts-ignore
   Device,
+  on: (eventName: string, handler: Function) => {
+    if (eventName.toUpperCase() === 'UNHANDLEDREJECTION') {
+      window.addEventListener('unhandledrejection', (event) => {
+        handler(event.reason, event.promise);
+      });
+    }
+    if (eventName.toUpperCase() === 'UNCAUGHTEXCEPTION') {
+      window.onerror = (message, source, lineno, colno, error) => {
+        handler(error, message, source, lineno, colno);
+      };
+    }
+  },
 };
 global.getTurboModule = () => {
   warn('getTurboModule is unsupported');
