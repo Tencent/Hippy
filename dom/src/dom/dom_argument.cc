@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "footstone/logging.h"
 #include "footstone/deserializer.h"
+#include "footstone/logging.h"
 #include "footstone/serializer.h"
 
 namespace hippy {
@@ -15,10 +15,11 @@ DomArgument::~DomArgument() = default;
 
 bool DomArgument::ToBson(std::vector<uint8_t>& bson) const {
   if (argument_type_ == ArgumentType::OBJECT) {
-    auto dom_value = std::any_cast<footstone::value::HippyValue>(data_);
-    return ConvertObjectToBson(dom_value, bson);
+    auto dom_value = std::any_cast<footstone::value::HippyValue>(&data_);
+    return ConvertObjectToBson(*dom_value, bson);
   } else if (argument_type_ == ArgumentType::BSON) {
-    bson = std::any_cast<std::vector<uint8_t>>(data_);
+    auto vec = std::any_cast<std::vector<uint8_t>>(&data_);
+    bson = *vec;
     return true;
   }
   return false;
@@ -26,12 +27,13 @@ bool DomArgument::ToBson(std::vector<uint8_t>& bson) const {
 
 bool DomArgument::ToObject(footstone::value::HippyValue& dom_value) const {
   if (argument_type_ == ArgumentType::OBJECT) {
-    dom_value = std::any_cast<footstone::value::HippyValue>(data_);
+    auto vec = std::any_cast<footstone::value::HippyValue>(&data_);
+    dom_value = *vec;
     return true;
   } else if (argument_type_ == ArgumentType::BSON) {
-    auto bson = std::any_cast<std::vector<uint8_t>>(data_);
-    std::vector<const uint8_t> bson_copy(bson.begin(), bson.end());
-    return ConvertBsonToObject(bson_copy, dom_value);
+    auto vec = std::any_cast<std::vector<uint8_t>>(&data_);
+    std::vector<const uint8_t> bson(vec->begin(), vec->end());
+    return ConvertBsonToObject(bson, dom_value);
   }
   return false;
 }
