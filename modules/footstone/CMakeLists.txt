@@ -39,6 +39,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 
 # region source set
 set(SOURCE_SET
+    src/atomic_unique_id.cc
     src/base_timer.cc
     src/deserializer.cc
     src/hippy_value.cc
