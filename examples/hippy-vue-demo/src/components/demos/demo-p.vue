@@ -60,6 +60,67 @@
       >
         Text width letter-spacing 5
       </p>
+      <label>numberOfLines={{ numberOfLines.lines }} ellipsizeMode={{ numberOfLines.mode || 'undefined' }}</label>
+      <p
+        :numberOfLines="numberOfLines.lines"
+        :ellipsizeMode="numberOfLines.mode"
+        :style="{ backgroundColor: 'yellow' }"
+        class="p-demo-content"
+      >
+        <span :style="{ fontSize: 24, color: 'red' }">先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</span>
+        <span>然侍卫之臣不懈于内，忠志之士忘身于外者，盖追先帝之殊遇，欲报之于陛下也。</span>
+      </p>
+      <p
+        :numberOfLines="numberOfLines.lines"
+        :ellipsizeMode="numberOfLines.mode"
+        :style="{ backgroundColor: 'cyan' }"
+        class="p-demo-content"
+      >
+        {{ 'line 1\n\nline 3\n\nline 5' }}
+      </p>
+      <p
+        :numberOfLines="numberOfLines.lines"
+        :ellipsizeMode="numberOfLines.mode"
+        :style="{ backgroundColor: 'yellow', width: 240, lineHeight: 24 }"
+        class="p-demo-content"
+      >
+        <img
+          :style="{ width: 24, height: 24 }"
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAA
+          AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVLtEsM
+          gCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRKaXfzxc
+          84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TSAAAAABJR
+          U5ErkJggg=="
+        >
+        <span :style="{ fontSize: 24, fontFamily: 'monospace' }">looooooooooooong</span>
+        <img
+          :style="{ width: 24, height: 24 }"
+          src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAA
+          AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEnRSTlMA/QpX7WQU2m27pi3Ej9KEQXaD5HhjAAAAqklEQVQoz41SWxL
+          DIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPcw2Qwqi
+          pkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefweIFQU0Ef
+          nGDRoQAAAAASUVORK5CYII="
+        >
+        <span :style="{ fontSize: 24, fontFamily: 'monospace' }">loooooooooong</span>
+      </p>
+      <button
+        class="button"
+        @click="incrementLine"
+      >
+        <span>加一行</span>
+      </button>
+      <button
+        class="button"
+        @click="decrementLine"
+      >
+        <span>减一行</span>
+      </button>
+      <button
+        class="button"
+        @click="changeMode"
+      >
+        <span>ellipsizeMode</span>
+      </button>
     </div>
   </div>
 </template>
@@ -82,6 +143,10 @@ export default {
         // textShadowOffsetY: 1,
         textShadowRadius: 3,
         textShadowColor: 'grey',
+      },
+      numberOfLines: {
+        lines: 2,
+        mode: 'tail',
       },
     };
   },
@@ -114,6 +179,32 @@ export default {
       console.log('onTextTouchEnd', evt);
       evt.stopPropagation();
       console.log(evt);
+    },
+    incrementLine() {
+      if (this.numberOfLines.lines < 6) {
+        this.numberOfLines.lines += 1;
+      }
+    },
+    decrementLine() {
+      if (this.numberOfLines.lines > 0) {
+        this.numberOfLines.lines += 1;
+      }
+    },
+    changeMode() {
+      let mode;
+      switch (this.numberOfLines.mode) {
+        case undefined:
+          mode = 'clip';break;
+        case 'clip':
+          mode = 'head';break;
+        case 'head':
+          mode = 'middle';break;
+        case 'middle':
+          mode = 'tail';break;
+        default:
+          mode = undefined;break;
+      }
+      this.numberOfLines.mode = mode;
     },
   },
 };
@@ -175,5 +266,16 @@ export default {
 
 .p-demo .p-demo-9 {
   letter-spacing: 5px;
+}
+
+.p-demo .button {
+  width: 100px;
+  margin-bottom: 2px;
+  margin-left: 20px;
+  backgroundColor: #eee;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  align-items: center;
 }
 </style>

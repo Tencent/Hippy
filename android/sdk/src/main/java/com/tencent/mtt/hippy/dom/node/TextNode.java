@@ -784,10 +784,14 @@ public class TextNode extends StyleNode {
       // "${first line of the rest part}…${last line of the rest part}"
       CharSequence tmp = TextUtils.concat(origin.subSequence(start, leftEnd), ELLIPSIS, origin.subSequence(rightStart, origin.length()));
       final int[] outRange = new int[2];
-      CharSequence line = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE, false, (l, r) -> {
-        outRange[0] = l;
-        outRange[1] = r;
-      });
+      TextUtils.EllipsizeCallback callback = new TextUtils.EllipsizeCallback() {
+        @Override
+        public void ellipsized(int l, int r) {
+          outRange[0] = l;
+          outRange[1] = r;
+        }
+      };
+      CharSequence line = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE, false, callback);
       if (line != tmp) {
         int pos0 = leftEnd - start;
         int pos1 = pos0 + ELLIPSIS.length();
@@ -831,9 +835,13 @@ public class TextNode extends StyleNode {
     }
 
     public void execute(SpannableStringBuilder sb) {
-      int spanFlags = Spannable.SPAN_EXCLUSIVE_INCLUSIVE;
-      if (start == 0) {
+      int spanFlags;
+      if (what instanceof ImageSpan) {
+        spanFlags = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE;
+      } else if (start == 0) {
         spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
+      } else {
+        spanFlags = Spannable.SPAN_EXCLUSIVE_INCLUSIVE;
       }
 
       try {
