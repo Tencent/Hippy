@@ -80,26 +80,18 @@
         <p
           :numberOfLines="numberOfLines.lines"
           :ellipsizeMode="numberOfLines.mode"
-          style="backgroundColor: yellow; width: 240; lineHeight: 24"
+          :style="{ backgroundColor: 'yellow', width: 240, fontFamily: 'monospace', lineHeight: 24}"
         >
           <img
-            :style="{ width: 24, height: 24 }"
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
-            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVL
-            tEsMgCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRK
-            aXfzxc84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TS
-            AAAAABJRU5ErkJggg=="
+            :style="{ width: 24, height: 24, fontFamily: 'monospace', lineHeight: 24 }"
+            :src="img1"
           >
-          <span :style="{ fontSize: 24, fontFamily: 'monospace' }">looooooooooooong</span>
+          <span :style="{ fontSize: 24, fontFamily: 'monospace', lineHeight: 24 }">looooooooooooong</span>
           <img
-            :style="{ width: 24, height: 24 }"
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
-            AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEnRSTlMA/QpX7WQU2m27pi3Ej9KEQXaD5HhjAAAAqklEQVQoz41
-            SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
-            w2QwqipkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefw
-            eIFQU0EfnGDRoQAAAAASUVORK5CYII="
+            :style="{ width: 24, height: 24, fontFamily: 'monospace', lineHeight: 24 }"
+            :src="img2"
           >
-          <span :style="{ fontSize: 24, fontFamily: 'monospace' }">loooooooooong</span>
+          <span :style="{ fontSize: 24, fontFamily: 'monospace', lineHeight: 24 }">loooooooooong</span>
         </p>
         <div class="button-bar">
           <button
@@ -169,6 +161,16 @@ export default {
         lines: 2,
         mode: 'tail',
       },
+      img1: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVL
+        tEsMgCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRK
+        aXfzxc84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TS
+        AAAAABJRU5ErkJggg==`,
+      img2: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEnRSTlMA/QpX7WQU2m27pi3Ej9KEQXaD5HhjAAAAqklEQVQoz41
+        SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
+        w2QwqipkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefw
+        eIFQU0EfnGDRoQAAAAASUVORK5CYII=`,
     };
   },
   methods: {
