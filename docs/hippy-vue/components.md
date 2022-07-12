@@ -167,6 +167,8 @@
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | src        | 图片地址。现在支持的图片格式有 png , jpg , jpeg , bmp , gif 。 | string                                | `Android、iOS、Web-Renderer`    |
 | capInsets | 当调整 img 大小的时候，由 capInsets 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 |  `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS` | 
+| placeholder | 指定当 `img` 组件还没加载出 `src` 属性指定的图片或者图片加载出错时的占位符图片 | `string`: 图片 base64 字符串                                     | `Android、iOS、hippy-react-web`    |
+
 > `2.8.1` 版本后支持终端本地图片能力，可通过 webpack `file-loader` 加载。
 
 ## 样式内特殊属性

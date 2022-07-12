@@ -30,6 +30,7 @@ import { isFunc, noop } from '../utils';
 
 type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
 interface ImageProps {
+  [key: string]: any;
   style: HippyTypes.Style;
   tintColor?: HippyTypes.color;
   children?: any;
@@ -126,10 +127,12 @@ const resolveAssetUri = (source: string | { uri: string }) => {
  * @noInheritDoc
  */
 const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) => {
-  const { onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd = noop, resizeMode = 'none', children, style = {} } = props;
+  const {
+    onLoadStart, source = { uri: '' }, defaultSource, onLoad, onError, onLoadEnd = noop, resizeMode = 'none', children, style = {},
+    onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onLayout, ...restProps
+  } = props;
 
   const imgRef = useRef<null | HTMLImageElement>(null);
-  const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onLayout } = props;
   useResponderEvents(imgRef, { onTouchCancel, onTouchDown, onTouchEnd, onTouchMove });
   useElementLayout(imgRef, onLayout);
 
@@ -181,8 +184,15 @@ const Image: React.FC<ImageProps> = React.forwardRef((props: ImageProps, ref) =>
     prefetch: ImageLoader.prefetch,
   }));
 
+  // delete unsupported props
+  delete restProps.tintColor;
+  delete restProps.onProgress;
+  delete restProps.capInsets;
+
   return (
+    // @ts-ignore
     <img
+      {...restProps}
       src={imgSource.uri}
       style={formatWebStyle([baseStyle, imgStyle]) }
       ref={imgRef} onError={onImageLoadError}

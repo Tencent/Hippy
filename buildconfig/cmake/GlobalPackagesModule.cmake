@@ -53,13 +53,6 @@ function(GlobalPackages_Add_v8)
   endif ()
 endfunction()
 
-function(GlobalPackages_Add_dom)
-  if (NOT TARGET dom)
-    InfraPackage_Add(DOM
-        LOCAL "${CMAKE_CURRENT_LIST_DIR}/../../dom")
-  endif ()
-endfunction()
-
 function(GlobalPackages_Add)
   foreach (packageName IN LISTS ARGN)
     cmake_language(CALL GlobalPackages_Add_${packageName})
