@@ -141,7 +141,7 @@ For custom fonts, refer to [custom font instructions](guide/custom-font)
 | Type               | Required| Supported Platforms
 | ------ | -------- | --- |
 | string |No|  Android,iOS
- 
+
 # fontSize
 
 Font size
@@ -149,6 +149,16 @@ Font size
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
 | number |No|  Android,iOS
+
+# fontStyle
+
+Font style
+
+> Default value is `normal`
+
+| Type                     | Required | Supported Platforms |
+| ------------------------ | -------- | ------------------- |
+| enum('normal', 'italic') | No       | Android、iOS        |
 
 # fontWeight
 
