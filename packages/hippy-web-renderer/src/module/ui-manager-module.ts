@@ -262,7 +262,7 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     if (value.animationId) {
-      animationModule.linkAnimation2Element(value.animationId, component, key);
+      animationModule.linkInitAnimation2Element(value.animationId, component, key);
       return;
     }
     if (key !== 'transform') {
@@ -274,7 +274,7 @@ export class UIManagerModule extends HippyWebModule {
     for (const item of value) {
       for (const itemKey of Object.keys(item)) {
         if (item[itemKey].animationId) {
-          animationModule.linkAnimation2Element(item[itemKey].animationId, component, itemKey);
+          animationModule.linkInitAnimation2Element(item[itemKey].animationId, component, itemKey);
           continue;
         }
         valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey.startsWith('scale') ? '' : 'px'}) `;

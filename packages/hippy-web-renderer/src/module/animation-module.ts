@@ -102,6 +102,10 @@ export class AnimationModule extends HippyWebModule {
     if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
       return;
     }
+    if (this.animationSetPool[animationId]) {
+      this.linkAnimationSet2Element(animationId, component, animationProperty);
+      return;
+    }
     this.animationPool[animationId]!.refNodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
     this.animationPool[animationId]!.initAnimation(component.dom!);
@@ -115,7 +119,9 @@ export class AnimationModule extends HippyWebModule {
       this.linkAnimationSet2Element(animationId, component, animationProperty);
       return;
     }
-    if (this.animationPool[animationId]!.refNodeId) {
+    const uiManagerModule = this.context.getModuleByName('UIManagerModule') as any;
+    if (this.animationPool[animationId]!.refNodeId
+      && uiManagerModule.findViewById(this.animationPool[animationId]!.refNodeId as number)) {
       return;
     }
     this.animationPool[animationId]!.refNodeId = component.id;

@@ -194,7 +194,7 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     this.touchListenerRelease?.();
   }
 
-  public async scrollTo(x: number, y: number, animated: boolean) {
+  public scrollTo(x: number, y: number, animated: boolean) {
     if (!this.pagingEnabled) {
       this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: animated ? 'smooth' : 'auto' });
     } else {
@@ -225,14 +225,14 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     });
   }
 
-  private async pagingModeScroll(offset: number, animationTime = ANIMATION_TIME) {
+  private pagingModeScroll(offset: number, animationTime = ANIMATION_TIME) {
     this.onMomentumScrollBegin(this.buildScrollEvent(this.dom!));
     const toPosition: [number, number] = [offset * -1, 0];
     const scrollCallBack = (position) => {
       this.updatePositionInfo(position);
       this.onScroll(this.buildScrollEvent(this.dom!));
     };
-    await virtualSmoothScroll(
+    virtualSmoothScroll(
       this.dom!, scrollCallBack, this.lastPosition, toPosition,
       animationTime,
     );
