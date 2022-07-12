@@ -40,12 +40,17 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     color: 'black',
   },
+  buttonBar: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
   button: {
     width: 100,
     height: 24,
     borderColor: 'blue',
     borderWidth: 1,
     borderStyle: 'solid',
+    flexShrink: 1,
   },
   buttonText: {
     width: 100,
@@ -119,20 +124,8 @@ export default class TextExpo extends React.Component {
     }
   }
 
-  changeMode() {
-    let { ellipsizeMode } = this.state;
-    if (!ellipsizeMode) {
-      ellipsizeMode = 'clip';
-    } else if (ellipsizeMode === 'clip') {
-      ellipsizeMode = 'head';
-    } else if (ellipsizeMode === 'head') {
-      ellipsizeMode = 'middle';
-    } else if (ellipsizeMode === 'middle') {
-      ellipsizeMode = 'tail';
-    } else {
-      ellipsizeMode = undefined;
-    }
-    this.setState({ ellipsizeMode });
+  changeMode(mode) {
+    this.setState({ ellipsizeMode: mode });
   }
 
   render() {
@@ -208,14 +201,27 @@ export default class TextExpo extends React.Component {
             <Text>{'\n'}</Text>
             <Image style={{ width: 24, height: 24 }} source={{ uri: imgURL3 }} />
           </Text>
-          <View style={styles.button} onClick={this.incrementLine}>
-            <Text style={styles.buttonText}>加一行</Text>
+          <View style={styles.buttonBar}>
+            <View style={styles.button} onClick={this.incrementLine}>
+              <Text style={styles.buttonText}>加一行</Text>
+            </View>
+            <View style={styles.button} onClick={this.decrementLine}>
+              <Text style={styles.buttonText}>减一行</Text>
+            </View>
           </View>
-          <View style={styles.button} onClick={this.decrementLine}>
-            <Text style={styles.buttonText}>减一行</Text>
-          </View>
-          <View style={styles.button} onClick={this.changeMode}>
-            <Text style={styles.buttonText}>ellipsizeMode</Text>
+          <View style={styles.buttonBar}>
+            <View style={styles.button} onClick={() => this.changeMode('clip')}>
+              <Text style={styles.buttonText}>clip</Text>
+            </View>
+            <View style={styles.button} onClick={() => this.changeMode('head')}>
+              <Text style={styles.buttonText}>head</Text>
+            </View>
+            <View style={styles.button} onClick={() => this.changeMode('middle')}>
+              <Text style={styles.buttonText}>middle</Text>
+            </View>
+            <View style={styles.button} onClick={() => this.changeMode('tail')}>
+              <Text style={styles.buttonText}>tail</Text>
+            </View>
           </View>
         </View>
         {renderTitle('textDecoration')}
