@@ -22,7 +22,8 @@
 
 #include <memory>
 #include <string>
-#include "devtools_base/common/task_runner.h"
+#include "footstone/task_runner.h"
+#include "footstone/worker_manager.h"
 #include "module/model/base_model.h"
 
 namespace hippy::devtools {
@@ -34,6 +35,7 @@ class FramePollModel : public BaseModel, public std::enable_shared_from_this<Fra
   inline void SetResponseHandler(ResponseHandler handler) { response_handler_ = handler; }
   void StartPoll();
   void StopPoll();
+  explicit FramePollModel(std::shared_ptr<footstone::WorkerManager> worker_manager) : worker_manager_(worker_manager) {}
   ~FramePollModel();
 
  private:
@@ -43,9 +45,10 @@ class FramePollModel : public BaseModel, public std::enable_shared_from_this<Fra
   uint64_t frame_callback_handler_ = 0;
   ResponseHandler response_handler_;
   bool frame_is_dirty_ = true;
-  std::shared_ptr<TaskRunner> refresh_task_runner_;
+  std::shared_ptr<footstone::TaskRunner> refresh_task_runner_;
   std::function<void()> refresh_task_;
   std::recursive_mutex mutex_;
+  std::shared_ptr<footstone::WorkerManager> worker_manager_;
 };
 
 }  // namespace hippy::devtools

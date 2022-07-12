@@ -20,8 +20,8 @@
 
 #include "module/domain/tdf_common_protocol_domain.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
-#include "devtools_base/error.h"
+#include "footstone/macros.h"
+#include "module/util/error.h"
 
 namespace hippy::devtools {
 
@@ -36,8 +36,8 @@ bool TdfCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string 
   if (common_protocol_adapter) {
     // if has common adapter, then handle all the left Domain.Method
     common_protocol_adapter->HandleCommonProtocol(
-        id, method, params, [DEVTOOLS_WEAK_THIS, id](bool is_success, const nlohmann::json &data) {
-          DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfCommonProtocolDomain)
+        id, method, params, [WEAK_THIS, id](bool is_success, const nlohmann::json &data) {
+          DEFINE_AND_CHECK_SELF(TdfCommonProtocolDomain)
           if (is_success) {
             self->ResponseResultToFrontend(id, data);
           } else {

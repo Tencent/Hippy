@@ -19,7 +19,7 @@
  */
 
 #include "api/notification/data/devtools_http_request.h"
-#include "devtools_base/transform_string_util.h"
+#include "module/util/transform_string_util.h"
 
 constexpr char kHttpRequestRequestId[] = "requestId";
 constexpr char kHttpRequestLoaderId[] = "loaderId";

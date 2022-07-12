@@ -19,7 +19,7 @@
  */
 
 #include "module/request/css_node_data_request.h"
-#include "devtools_base/parse_json_util.h"
+#include "module/util/parse_json_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {

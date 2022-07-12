@@ -20,6 +20,7 @@
 
 #include "module/domain/tdf_runtime_domain.h"
 #include "api/devtools_backend_service.h"
+#include "footstone/logging.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -37,7 +38,7 @@ void TdfRuntimeDomain::RegisterCallback() {}
 void TdfRuntimeDomain::Resume(const BaseRequest& request) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   if (!GetDataProvider()->runtime_adapter->IsDebug()) {
-    BACKEND_LOGD(TDF_BACKEND, "not in debug mode, return.");
+    FOOTSTONE_DLOG(ERROR) << "not in debug mode, return.";
     return;  // don't send msg to v8 if not debug mode
   }
   auto vm_request = GetDataProvider()->vm_request_adapter;

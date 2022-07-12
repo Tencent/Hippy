@@ -20,7 +20,7 @@
 
 #include "module/domain/tdf_memory_domain.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
+#include "footstone/macros.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -37,8 +37,8 @@ void TdfMemoryDomain::GetHeapMeta(const BaseRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "get heap meta failed, no data.");
     return;
   }
-  memory_adapter->CollectMemoryUsage([DEVTOOLS_WEAK_THIS, request](const MemoryMetas& memoryMetas) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(TdfMemoryDomain)
+  memory_adapter->CollectMemoryUsage([WEAK_THIS, request](const MemoryMetas& memoryMetas) {
+    DEFINE_AND_CHECK_SELF(TdfMemoryDomain)
     self->ResponseResultToFrontend(request.GetId(), memoryMetas.Serialize());
   });
 }

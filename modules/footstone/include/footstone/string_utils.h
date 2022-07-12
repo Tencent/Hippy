@@ -23,12 +23,13 @@
 #include <string>
 #include <vector>
 
-namespace hippy::devtools {
+namespace footstone {
+inline namespace utils {
 
 /**
- * @brief Tdf devtools string tool class
+ * @brief string utils class, for split, trim and camelize
  */
-class TdfStringUtil {
+class StringUtils {
  public:
   /**
    * @brief split string method
@@ -36,14 +37,15 @@ class TdfStringUtil {
    * @param split_tag flag to split a string
    * @return array of partitioned strings
    */
-  static std::vector<std::string> SplitString(const std::string& origin, const std::string& split_tag);
+  static std::vector <std::string>
+  SplitString(const std::string &origin, const std::string &split_tag);
 
   /**
    * @brief method to remove whitespace at the beginning and end of a string
    * @param origin origin string
    * @return adjusted string
    */
-  static std::string TrimmingString(const std::string& origin);
+  static std::string TrimmingString(const std::string &origin);
 
   /**
    * @brief hump conversion method
@@ -51,7 +53,7 @@ class TdfStringUtil {
    * @param origin origin string
    * @return the adjusted string
    */
-  static std::string Camelize(const std::string& origin);
+  static std::string Camelize(const std::string &origin);
 
   /**
    * @brief inverse hump conversion method
@@ -59,7 +61,7 @@ class TdfStringUtil {
    * @param origin origin string
    * @return the adjusted string
    */
-  static std::string UnCamelize(const std::string& origin);
+  static std::string UnCamelize(const std::string &origin);
 
   /**
    * @brief simple characterization method
@@ -67,14 +69,13 @@ class TdfStringUtil {
    * @param value object that needs to be characterized
    * @return
    */
-  template <typename T>
+  template<typename T>
   static std::string ToString(T value) {
     std::stringstream temp_stream;
     temp_stream << value;
     return temp_stream.str();
   }
-
-  static std::string AdaptProtocolName(std::string domain_name);
 };
 
-}  // namespace hippy::devtools
+}
+}

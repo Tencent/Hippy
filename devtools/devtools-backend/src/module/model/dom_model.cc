@@ -21,10 +21,9 @@
 #include "module/model/dom_model.h"
 #include <sstream>
 #include "api/devtools_backend_service.h"
-#include "devtools_base/logging.h"
-#include "devtools_base/parse_json_util.h"
-#include "devtools_base/tdf_base_util.h"
-#include "devtools_base/tdf_string_util.h"
+#include "module/util/parse_json_util.h"
+#include "footstone/logging.h"
+#include "footstone/string_utils.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
@@ -182,13 +181,13 @@ nlohmann::json DomModel::BuildTextNodeJson() {
 nlohmann::json DomModel::BuildBoxModelBorder() {
   auto border = nlohmann::json::array();
   if (!provider_ || !provider_->screen_adapter) {
-    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetBoxModelBorder ScreenAdapter is null");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel::GetBoxModelBorder ScreenAdapter is null";
     return border;
   }
-  auto x = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, x_);
-  auto y = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, y_);
-  auto width = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, width_);
-  auto height = TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, height_);
+  auto x = AddScreenScaleFactor(provider_->screen_adapter, x_);
+  auto y = AddScreenScaleFactor(provider_->screen_adapter, y_);
+  auto width = AddScreenScaleFactor(provider_->screen_adapter, width_);
+  auto height = AddScreenScaleFactor(provider_->screen_adapter, height_);
   //  left-top                  right-top
   //  (border[0],border[1])     (border[2],border[3])
   //     --------------------------
@@ -217,7 +216,7 @@ nlohmann::json DomModel::BuildBoxModelBorder() {
 nlohmann::json DomModel::BuildBoxModelPadding(const nlohmann::json& border) {
   auto padding = nlohmann::json::array();
   if (!border.is_array()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelPadding, border isn't array");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel, BoxModelPadding, border isn't array";
     return padding;
   }
   std::vector<std::string> keys = {kBorderWidth, kBorderLeftWidth, kBorderTopWidth, kBorderRightWidth,
@@ -257,7 +256,7 @@ nlohmann::json DomModel::BuildBoxModelPadding(const nlohmann::json& border) {
 nlohmann::json DomModel::BuildBoxModelContent(const nlohmann::json& padding) {
   auto content = nlohmann::json::array();
   if (!padding.is_array()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelContent, padding isn't array");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel, BoxModelContent, padding isn't array";
     return content;
   }
   std::vector<std::string> keys = {kPadding, kPaddingLeft, kPaddingTop, kPaddingRight, kPaddingBottom};
@@ -296,7 +295,7 @@ nlohmann::json DomModel::BuildBoxModelContent(const nlohmann::json& padding) {
 nlohmann::json DomModel::BuildBoxModelMargin(const nlohmann::json& border) {
   auto margin = nlohmann::json::array();
   if (!border.is_array()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, BoxModelMargin, border isn't array");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel, BoxModelMargin, border isn't array";
     return margin;
   }
   std::vector<std::string> keys = {kMargin, kMarginLeft, kMarginTop, kMarginRight, kMarginBottom};
@@ -354,7 +353,7 @@ nlohmann::json DomModel::BuildNodeBasicJson(DomNodeType node_type) {
 nlohmann::json DomModel::BuildAttributesObjectToArray() {
   nlohmann::json attributes_array = nlohmann::json::array();
   if (!attributes_.is_object()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, attributes isn't object, parse error, return empty");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel, attributes isn't object, parse error, return empty";
     return attributes_array;
   }
   for (auto& attribute : attributes_.items()) {
@@ -373,7 +372,7 @@ nlohmann::json DomModel::BuildAttributesObjectToArray() {
     }
     if (!value.is_string()) {
       // non string type need change to string type
-      value = TdfStringUtil::ToString(value);
+      value = footstone::StringUtils::ToString(value);
     }
     attributes_array.emplace_back(attribute.key());
     attributes_array.emplace_back(value);
@@ -384,15 +383,15 @@ nlohmann::json DomModel::BuildAttributesObjectToArray() {
 std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<std::string> keys) {
   std::vector<int32_t> result;
   if (keys.size() < 5) {
-    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetLeftTopRightBottomValueFromStyle keys is empty");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel::GetLeftTopRightBottomValueFromStyle keys is empty";
     return result;
   }
   if (!provider_ || !provider_->screen_adapter) {
-    BACKEND_LOGD(TDF_BACKEND, "DOMModel::GetLeftTopRightBottomValueFromStyle ScreenAdapter is null");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel::GetLeftTopRightBottomValueFromStyle ScreenAdapter is null";
     return result;
   }
   if (!style_.is_object()) {
-    BACKEND_LOGE(TDF_BACKEND, "DOMModel, GetLeftTopRightBottomValueFromStyle, style isn't object");
+    FOOTSTONE_DLOG(ERROR) << "DOMModel, GetLeftTopRightBottomValueFromStyle, style isn't object";
     return result;
   }
   // keys [width, left_width, top_width, right_width, bottom_width]
@@ -420,10 +419,10 @@ std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<s
   if (bottom_it != style_.end()) {
     bottom = bottom_it.value();
   }
-  left = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, left));
-  top = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, top));
-  right = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, right));
-  bottom = static_cast<int32_t>(TdfBaseUtil::AddScreenScaleFactor(provider_->screen_adapter, bottom));
+  left = static_cast<int32_t>(AddScreenScaleFactor(provider_->screen_adapter, left));
+  top = static_cast<int32_t>(AddScreenScaleFactor(provider_->screen_adapter, top));
+  right = static_cast<int32_t>(AddScreenScaleFactor(provider_->screen_adapter, right));
+  bottom = static_cast<int32_t>(AddScreenScaleFactor(provider_->screen_adapter, bottom));
   result.emplace_back(left);
   result.emplace_back(top);
   result.emplace_back(right);
@@ -431,4 +430,10 @@ std::vector<int32_t> DomModel::GetLeftTopRightBottomValueFromStyle(std::vector<s
   return result;
 }
 
+double DomModel::AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value) {
+  if (!screen_adapter) {
+    return 1.f;
+  }
+  return origin_value * screen_adapter->GetScreenScale();
+}
 }  // namespace hippy::devtools

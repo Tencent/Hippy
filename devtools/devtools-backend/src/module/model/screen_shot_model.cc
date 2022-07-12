@@ -20,9 +20,9 @@
 
 #include "module/model/screen_shot_model.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
-#include "devtools_base/transform_string_util.h"
+#include "footstone/macros.h"
+#include "module/util/transform_string_util.h"
+#include "footstone/logging.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {
@@ -32,24 +32,24 @@ void ScreenShotModel::SetScreenShotRequest(const ScreenShotRequest &req) {
 }
 
 void ScreenShotModel::ReqScreenShotToResponse() {
-  ReqScreenShot([DEVTOOLS_WEAK_THIS, response_callback = response_callback_](const std::string &image, int32_t width,
+  ReqScreenShot([WEAK_THIS, response_callback = response_callback_](const std::string &image, int32_t width,
                                                                              int32_t height) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(ScreenShotModel)
+    DEFINE_AND_CHECK_SELF(ScreenShotModel)
     if (response_callback) {
       response_callback(ScreenShotResponse(image, width, height));
     }
-    BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToResponse end");
+    FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShotToResponse end";
   });
 }
 
 void ScreenShotModel::ReqScreenShotToSendEvent() {
-  ReqScreenShot([DEVTOOLS_WEAK_THIS, event_callback = send_event_callback_](const std::string &image_base64,
+  ReqScreenShot([WEAK_THIS, event_callback = send_event_callback_](const std::string &image_base64,
                                                                             int32_t width, int32_t height) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(ScreenShotModel)
+    DEFINE_AND_CHECK_SELF(ScreenShotModel)
     if (event_callback) {
       event_callback(ScreenShotResponse(image_base64, width, height));
     }
-    BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShotToSendEvent end");
+    FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShotToSendEvent end";
   });
 }
 
@@ -59,10 +59,10 @@ void ScreenShotModel::ReqScreenShot(ScreenAdapter::CoreScreenshotCallback screen
     return;
   }
   if (!provider_) {
-    BACKEND_LOGE(TDF_BACKEND, "ScreenShotModel provider is null");
+    FOOTSTONE_DLOG(ERROR) << "ScreenShotModel provider is null";
     return;
   }
-  BACKEND_LOGD(TDF_BACKEND, "ScreenShotModel ReqScreenShot start");
+  FOOTSTONE_DLOG(INFO) << "ScreenShotModel ReqScreenShot start";
   auto screen_adapter = provider_->screen_adapter;
   if (!screen_adapter) {
     return;

@@ -21,7 +21,7 @@
 #include "tunnel/net_channel.h"
 #include "tunnel/tcp/tcp_channel.h"
 #include "tunnel/ws/web_socket_channel.h"
-#include "devtools_base/common/macros.h"
+#include "footstone/macros.h"
 
 namespace hippy::devtools {
 std::shared_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& config) {
@@ -31,7 +31,7 @@ std::shared_ptr<NetChannel> NetChannel::CreateChannel(const DevtoolsConfig& conf
     case Tunnel::kTcp:
       return std::make_shared<TcpChannel>();
     default:
-      DEVTOOLS_BASE_UNREACHABLE();
+      FOOTSTONE_UNREACHABLE();
   }
 }
 }  // namespace hippy::devtools

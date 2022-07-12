@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 #include "module/request/screen_shot_request.h"
-#include "devtools_base/parse_json_util.h"
+#include "module/util/parse_json_util.h"
 #include "module/inspect_props.h"
 
 namespace hippy::devtools {

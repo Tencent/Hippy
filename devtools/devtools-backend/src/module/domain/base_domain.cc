@@ -87,4 +87,11 @@ std::shared_ptr<NotificationCenter> BaseDomain::GetNotificationCenter() {
   return domain_dispatch->GetDataChannel()->GetNotificationCenter();
 }
 
+std::shared_ptr<footstone::WorkerManager> BaseDomain::GetWorkerManager() {
+  auto domain_dispatch = dispatch_.lock();
+  if (!domain_dispatch) {
+    return nullptr;
+  }
+  return domain_dispatch->GetWorkerManager();
+}
 }  // namespace hippy::devtools

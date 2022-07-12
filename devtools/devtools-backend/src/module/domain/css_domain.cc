@@ -20,9 +20,7 @@
 
 #include "module/domain/css_domain.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
-#include "devtools_base/tdf_string_util.h"
+#include "footstone/macros.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -43,8 +41,8 @@ void CssDomain::RegisterMethods() {
 }
 
 void CssDomain::RegisterCallback() {
-  css_data_call_back_ = [DEVTOOLS_WEAK_THIS](int32_t node_id, CssStyleDataCallback callback) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+  css_data_call_back_ = [WEAK_THIS](int32_t node_id, CssStyleDataCallback callback) {
+    DEFINE_AND_CHECK_SELF(CssDomain)
     auto dom_tree_adapter = self->GetDataProvider()->dom_tree_adapter;
     if (!dom_tree_adapter) {
       if (callback) {
@@ -73,8 +71,8 @@ void CssDomain::GetMatchedStylesForNode(const CssNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetMatchedStyles, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+  css_data_call_back_(request.GetNodeId(), [WEAK_THIS, request](CssModel model) {
+    DEFINE_AND_CHECK_SELF(CssDomain)
     self->ResponseResultToFrontend(request.GetId(), model.BuildMatchedStylesResponseJson().dump());
   });
 }
@@ -89,8 +87,8 @@ void CssDomain::GetComputedStyleForNode(const CssNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetComputedStyle, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](CssModel model) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+  css_data_call_back_(request.GetNodeId(), [WEAK_THIS, request](CssModel model) {
+    DEFINE_AND_CHECK_SELF(CssDomain)
     self->ResponseResultToFrontend(request.GetId(), model.BuildComputedStyleResponseJson().dump());
   });
 }
@@ -104,8 +102,8 @@ void CssDomain::GetInlineStylesForNode(const CssNodeDataRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorParams, "CSSDomain, GetInlineStyles, params isn't object");
     return;
   }
-  css_data_call_back_(request.GetNodeId(), [DEVTOOLS_WEAK_THIS, request](const CssModel& model) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+  css_data_call_back_(request.GetNodeId(), [WEAK_THIS, request](const CssModel& model) {
+    DEFINE_AND_CHECK_SELF(CssDomain)
     self->ResponseResultToFrontend(request.GetId(), CssModel::BuildInlineStylesResponseJson().dump());
   });
 }
@@ -130,8 +128,8 @@ void CssDomain::SetStyleTexts(const CssEditStyleTextsRequest& request) {
   for (auto& edit : edits.items()) {
     auto edit_value = edit.value();
     auto node_id = edit_value[kFrontendKeyStyleSheetId];
-    css_data_call_back_(node_id, [DEVTOOLS_WEAK_THIS, request, edit_value](CssModel model) {
-      DEVTOOLS_DEFINE_AND_CHECK_SELF(CssDomain)
+    css_data_call_back_(node_id, [WEAK_THIS, request, edit_value](CssModel model) {
+      DEFINE_AND_CHECK_SELF(CssDomain)
       auto style_texts = self->style_text_map_[request.GetId()];
       auto request_call_back_count = self->request_call_back_count_map_[request.GetId()];
       auto style_json = model.UpdateDomTreeAndGetStyleTextJson(edit_value);

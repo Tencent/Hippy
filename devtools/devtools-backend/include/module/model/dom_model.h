@@ -137,6 +137,7 @@ class DomModel : public BaseModel {
   // return [left, top, right, bottom]
   // keys [width, left_width, top_width, right_width, bottom_width]
   std::vector<int32_t> GetLeftTopRightBottomValueFromStyle(std::vector<std::string> keys);
+  double AddScreenScaleFactor(const std::shared_ptr<ScreenAdapter>& screen_adapter, double origin_value);
 
   std::vector<DomModel> children_;
   std::string local_name_;

@@ -20,17 +20,18 @@
 
 #include "module/model/frame_poll_model.h"
 #include "api/devtools_backend_service.h"
-#include "devtools_base/common/macros.h"
-#include "devtools_base/common/worker_pool.h"
-#include "devtools_base/logging.h"
+#include "footstone/macros.h"
+#include "footstone/logging.h"
+#include "footstone/time_delta.h"
 
 namespace hippy::devtools {
 constexpr int32_t kRefreshIntervalMilliSeconds = 2000;
+constexpr char kTaskRunnerNameFramePoll[] = "frame_poll";
 
 void FramePollModel::InitTask() {
-  refresh_task_runner_ = WorkerPool::GetInstance(1)->CreateTaskRunner();
-  refresh_task_ = [DEVTOOLS_WEAK_THIS]() {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
+  refresh_task_runner_ = worker_manager_->CreateTaskRunner(kTaskRunnerNameFramePoll);
+  refresh_task_ = [WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(FramePollModel)
     std::lock_guard<std::recursive_mutex> lock(self->mutex_);
     if (!self->frame_is_dirty_ && self->provider_ && self->provider_->screen_adapter) {
       self->frame_is_dirty_ = !self->provider_->screen_adapter->SupportDirtyCallback();
@@ -43,13 +44,13 @@ void FramePollModel::InitTask() {
     }
     self->refresh_task_runner_->Clear();
     self->refresh_task_runner_->PostDelayedTask(self->refresh_task_,
-                                                TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
+                                                footstone::TimeDelta::FromMilliseconds(kRefreshIntervalMilliSeconds));
   };
 }
 
 void FramePollModel::StartPoll() {
   if (!provider_) {
-    BACKEND_LOGE(TDF_BACKEND, "StartPoll provider is null");
+    FOOTSTONE_DLOG(ERROR) << "StartPoll provider is null";
     return;
   }
   AddFrameCallback();
@@ -62,11 +63,11 @@ void FramePollModel::AddFrameCallback() {
   frame_is_dirty_ = true;
   if (!had_add_frame_callback_) {
     if (provider_->screen_adapter) {
-      frame_callback_handler_ = provider_->screen_adapter->AddPostFrameCallback([DEVTOOLS_WEAK_THIS]() {
-        DEVTOOLS_DEFINE_AND_CHECK_SELF(FramePollModel)
+      frame_callback_handler_ = provider_->screen_adapter->AddPostFrameCallback([WEAK_THIS]() {
+        DEFINE_AND_CHECK_SELF(FramePollModel)
         std::lock_guard<std::recursive_mutex> lock(self->mutex_);
         self->frame_is_dirty_ = true;
-        BACKEND_LOGD(TDF_BACKEND, "AddFrameCallback frame dirty callback");
+        FOOTSTONE_DLOG(INFO) << "AddFrameCallback frame dirty callback";
       });
     }
     had_add_frame_callback_ = true;
@@ -75,7 +76,7 @@ void FramePollModel::AddFrameCallback() {
 
 void FramePollModel::StopPoll() {
   if (!provider_) {
-    BACKEND_LOGE(TDF_BACKEND, "StopPoll provider is null");
+    FOOTSTONE_DLOG(ERROR) << "StopPoll provider is null";
     return;
   }
   RemoveFrameCallback();
@@ -95,6 +96,6 @@ void FramePollModel::RemoveFrameCallback() {
 
 FramePollModel::~FramePollModel() {
   RemoveFrameCallback();
-  WorkerPool::GetInstance(1)->RemoveTaskRunner(refresh_task_runner_);
+  worker_manager_->RemoveTaskRunner(refresh_task_runner_);
 }
 }  // namespace hippy::devtools

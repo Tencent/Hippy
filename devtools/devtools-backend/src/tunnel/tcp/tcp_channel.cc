@@ -23,9 +23,9 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <thread>
-#include "devtools_base/common/macros.h"
-#include "devtools_base/logging.h"
-#include "devtools_base/socket.h"
+#include "footstone/macros.h"
+#include "footstone/logging.h"
+#include "tunnel/tcp/socket.h"
 
 namespace hippy::devtools {
 constexpr char kListenHost[] = "127.0.0.1";
@@ -40,16 +40,16 @@ TcpChannel::TcpChannel() {
 }
 
 void TcpChannel::Connect(ReceiveDataHandler handler) {
-  frame_codec_.SetEncodeCallback([DEVTOOLS_WEAK_THIS](void *data, int32_t len) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(TcpChannel)
+  frame_codec_.SetEncodeCallback([WEAK_THIS](void *data, int32_t len) {
+    DEFINE_AND_CHECK_SELF(TcpChannel)
     if (self->client_fd_ < 0) {
-      BACKEND_LOGD(TDF_BACKEND, "TcpChannel, client_fd_ < 0.");
+      FOOTSTONE_DLOG(ERROR) << "TcpChannel, client_fd_ < 0.";
       return;
     }
     send(self->client_fd_, data, static_cast<size_t>(len), 0);
   });
-  frame_codec_.SetDecodeCallback([DEVTOOLS_WEAK_THIS](void *buffer, int32_t len, int32_t task_flag) {
-    DEVTOOLS_DEFINE_AND_CHECK_SELF(TcpChannel)
+  frame_codec_.SetDecodeCallback([WEAK_THIS](void *buffer, int32_t len, int32_t task_flag) {
+    DEFINE_AND_CHECK_SELF(TcpChannel)
     if (self->data_handler_) {
       std::string data(reinterpret_cast<char *>(buffer), reinterpret_cast<char *>(buffer) + len);
       self->data_handler_(data, static_cast<unsigned char>(task_flag));
@@ -94,13 +94,13 @@ bool TcpChannel::StartServer(const std::string &host, int port) {
     return false;
   }
   if (bind(socket_fd_, (struct sockaddr *)&server_address_, sizeof(server_address_)) < 0) {
-    BACKEND_LOGD(TDF_BACKEND, "TcpChannel, StartServer bind fail.");
+    FOOTSTONE_DLOG(ERROR) << "TcpChannel, StartServer bind fail.";
     close(socket_fd_);
     return false;
   }
 
   if (listen(socket_fd_, 5) < 0) {
-    BACKEND_LOGD(TDF_BACKEND, "TcpChannel, StartServer listen fail.");
+    FOOTSTONE_DLOG(ERROR) << "TcpChannel, StartServer listen fail.";
     close(socket_fd_);
     return false;
   }
@@ -108,7 +108,7 @@ bool TcpChannel::StartServer(const std::string &host, int port) {
 }
 
 void TcpChannel::SetStarting(bool starting) {
-  BACKEND_LOGD(TDF_BACKEND, "TcpChannel, SetStarting starting=%d.", starting);
+  FOOTSTONE_DLOG(INFO) << "TcpChannel, SetStarting starting=%d." << starting;
   if (is_starting_ == starting) {
     return;
   }
@@ -132,7 +132,7 @@ void TcpChannel::SetStarting(bool starting) {
 void TcpChannel::AcceptClient() {
   while (socket_fd_ != kNullSocket) {
     int fd = accept(socket_fd_, nullptr, nullptr);
-    BACKEND_LOGD(TDF_BACKEND, "TcpChannel, AcceptClient fd=%d.", fd);
+    FOOTSTONE_DLOG(INFO) << "TcpChannel, AcceptClient fd=%d." << fd;
     if (fd < 0) {
       if (errno != EWOULDBLOCK) {
         SetStarting(false);
@@ -147,13 +147,13 @@ void TcpChannel::AcceptClient() {
       close(client_fd_);
     }
     client_fd_ = fd;
-    BACKEND_LOGD(TDF_BACKEND, "TcpChannel, AcceptClient success, client_fd_=%d.", client_fd_);
+    FOOTSTONE_DLOG(INFO) << "TcpChannel, AcceptClient success, client_fd_=%d." << client_fd_;
     SetConnecting(true, "");
   }
 }
 
 void TcpChannel::SetConnecting(bool connected, const std::string &error) {
-  BACKEND_LOGD(TDF_BACKEND, "TcpChannel, SetConnecting connected=%d.", connected);
+  FOOTSTONE_DLOG(INFO) << "TcpChannel, SetConnecting connected=%d." << connected;
   if (is_connecting == connected) {
     return;
   }
@@ -181,7 +181,7 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
   while (client_fd_ != kNullSocket) {
     fd_set read_fds = fds;
     int ret_sel = select(client_fd + 1, &read_fds, nullptr, nullptr, nullptr);
-    BACKEND_LOGD(TDF_BACKEND, "TcpChannel, ListenerAndResponse ret_sel=%d.", ret_sel);
+    FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse ret_sel=%d." << ret_sel;
     if (ret_sel < 0) {
       SetConnecting(false, "");
       break;
@@ -196,9 +196,9 @@ void TcpChannel::ListenerAndResponse(int32_t client_fd) {
     // read data
     char buffer[kBufferSize];
     int read_len = socket_receive_timeout(client_fd, buffer, kBufferSize, 0, 100);
-    BACKEND_LOGD(TDF_BACKEND, "TcpChannel, ListenerAndResponse read_len=%d.", read_len);
+    FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse read_len=%d." << read_len;
     if (read_len <= 0) {
-      BACKEND_LOGD(TDF_BACKEND, "TcpChannel, ListenerAndResponse read fail error=%s.", strerror(errno));
+      FOOTSTONE_DLOG(INFO) << "TcpChannel, ListenerAndResponse read fail error=" << strerror(errno);
 #ifdef WIN32
       if (read_len == -WSAEINTR || read_len == -WSAEWOULDBLOCK) {
 #else

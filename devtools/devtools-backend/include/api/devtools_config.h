@@ -27,7 +27,7 @@ namespace hippy::devtools {
 /**
  * @brief framework type
  */
-enum class Framework {
+enum Framework {
   kHippy,
   kVl,
   kTdf

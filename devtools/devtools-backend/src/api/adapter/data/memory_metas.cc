@@ -19,7 +19,7 @@
  */
 
 #include "api/adapter/data/memory_metas.h"
-#include "devtools_base/transform_string_util.h"
+#include "module/util/transform_string_util.h"
 
 namespace hippy::devtools {
 

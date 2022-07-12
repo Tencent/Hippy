@@ -400,8 +400,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
           #ifdef ENABLE_INSPECTOR
             auto devtools_data_source = strongSelf->_batchedBridge.javaScriptExecutor.pScope->GetDevtoolsDataSource();
             if (devtools_data_source) {
-                hippy::DomManager::Insert(strongDomManager);
-                self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, strongDomManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+                hippy::DomManager::Insert(domManager);
+                self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+                devtools_data_source->SetRootNode(strongSelf->_rootNode);
             }
           #endif
           
@@ -425,13 +426,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             strongSelf->_renderManager->SetDomManager(domManager);
             domManager->SetRenderManager(strongSelf->_renderManager);
             strongSelf.renderContext = strongSelf->_renderManager->GetRenderContext();
-            
-#ifdef ENABLE_INSPECTOR
-            auto devtools_data_source = strongSelf->_batchedBridge.javaScriptExecutor.pScope->GetDevtoolsDataSource();
-            if (devtools_data_source) {
-                devtools_data_source->SetRootNode(strongSelf->_rootNode);
-            }
-#endif
         }
     };
     if (self.batchedBridge) {

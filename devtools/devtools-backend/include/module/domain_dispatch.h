@@ -24,6 +24,7 @@
 #include <memory>
 #include <string>
 #include "api/devtools_data_channel.h"
+#include "footstone/worker_manager.h"
 #include "module/domain/base_domain.h"
 #include "module/inspect_event.h"
 
@@ -36,9 +37,12 @@ class BaseDomain;
  */
 class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
  public:
-  explicit DomainDispatch(std::shared_ptr<DataChannel> data_channel) : data_channel_(data_channel) {}
+  DomainDispatch(std::shared_ptr<DataChannel> data_channel, std::shared_ptr<footstone::WorkerManager> worker_manager) :
+      data_channel_(data_channel), worker_manager_(worker_manager) {}
 
   inline std::shared_ptr<DataChannel> GetDataChannel() { return data_channel_; }
+
+  inline std::shared_ptr<footstone::WorkerManager> GetWorkerManager() { return worker_manager_; }
 
   /**
    * @brief register domain handler which can handle Domain.Method
@@ -83,9 +87,12 @@ class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
   void RegisterDefaultDomainListener();
 
  private:
+  static std::string AdaptProtocolName(std::string domain_name);
+
   std::map<std::string, std::shared_ptr<BaseDomain>> domain_register_map_;
   std::function<void(const std::string)> rsp_handler_;
   std::shared_ptr<DataChannel> data_channel_;
+  std::shared_ptr<footstone::WorkerManager> worker_manager_;
 };
 
 }  // namespace hippy::devtools

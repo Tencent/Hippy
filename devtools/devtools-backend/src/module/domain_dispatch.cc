@@ -21,9 +21,9 @@
 #include "module/domain_dispatch.h"
 #include "api/devtools_backend_service.h"
 #include "api/notification/default/default_network_notification.h"
-#include "devtools_base/domain_propos.h"
-#include "devtools_base/logging.h"
-#include "devtools_base/tdf_string_util.h"
+#include "module/domain_propos.h"
+#include "footstone/logging.h"
+#include "footstone/string_utils.h"
 #include "module/domain/css_domain.h"
 #include "module/domain/dom_domain.h"
 #include "module/domain/network_domain.h"
@@ -42,6 +42,8 @@ namespace hippy::devtools {
 constexpr char kDomainDispatchResult[] = "result";
 constexpr char kDomainDispatchError[] = "error";
 constexpr char kDomainClassSuffix[] = "Domain";
+constexpr char kDomainNameTdfPrefix[] = "Tdf";
+constexpr char kDomainNameTDFProtocol[] = "TDF";
 
 void DomainDispatch::RegisterJSDebuggerDomainListener() {
   auto dom_domain = std::make_shared<DomDomain>(shared_from_this());
@@ -78,10 +80,10 @@ void DomainDispatch::RegisterDomainHandler(const std::shared_ptr<BaseDomain>& ba
 void DomainDispatch::ClearDomainHandler() { domain_register_map_.clear(); }
 
 bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
-  BACKEND_LOGD(TDF_BACKEND, "DomainDispatch, receive data from frontend :%s", data_string.c_str());
+  FOOTSTONE_DLOG(INFO) << "DomainDispatch, receive data from frontend: " << data_string.c_str();
   nlohmann::json data_json = nlohmann::json::parse(data_string, nullptr, false);
   if (data_json.is_discarded()) {
-    BACKEND_LOGE(TDF_BACKEND, "DomainDispatch, parse input json is invalid");
+    FOOTSTONE_DLOG(ERROR) << "DomainDispatch, parse input json is invalid";
     return false;
   }
   // parse id
@@ -119,7 +121,7 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
     if (base_domain->second->HandleDomainSwitchEvent(id, method)) {
       return true;
     }
-    domain = TdfStringUtil::AdaptProtocolName(domain);
+    domain = AdaptProtocolName(domain);
     auto handler = DomainRegister::Instance()->GetMethod(domain + kDomainClassSuffix, method);
     if (handler) {
       handler(base_domain->second, id, params);
@@ -139,10 +141,10 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 
 void DomainDispatch::DispatchToVm(const std::string& data) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  BACKEND_LOGD(TDF_BACKEND, "JSDebugger, params=%s.", data.c_str());
+  FOOTSTONE_DLOG(INFO) << "JSDebugger, params=" << data.c_str();
   // if not in debug mode, then not send msg to v8
   if (!data_channel_->GetProvider()->runtime_adapter->IsDebug()) {
-    BACKEND_LOGD(TDF_BACKEND, "not in debug mode, return.");
+    FOOTSTONE_DLOG(ERROR) << "not in debug mode, return.";
     return;
   }
   auto vm_request = data_channel_->GetProvider()->vm_request_adapter;
@@ -154,7 +156,7 @@ void DomainDispatch::DispatchToVm(const std::string& data) {
 
 void DomainDispatch::SendDataToFrontend(int32_t id, bool is_success, const std::string& result) {
   if (result.empty()) {
-    BACKEND_LOGE(TDF_BACKEND, "send data to frontend, but msg is empty");
+    FOOTSTONE_DLOG(ERROR) << "send data to frontend, but msg is empty";
     return;
   }
   nlohmann::json rsp_json = nlohmann::json::object();
@@ -170,5 +172,18 @@ void DomainDispatch::SendEventToFrontend(InspectEvent&& event) {
   if (rsp_handler_) {
     rsp_handler_(event.ToJsonString());
   }
+}
+
+std::string DomainDispatch::AdaptProtocolName(std::string domain) {
+  auto found = domain.find(kDomainNameTDFProtocol);
+  if (std::string::npos != found) {
+    domain = domain.replace(found,
+                            strlen(kDomainNameTDFProtocol),
+                            kDomainNameTdfPrefix);
+  } else {  // if domain not startWith TDF, then Camel-Case CDP DOMAIN to Class Domain
+    std::transform(domain.begin(), domain.end(), domain.begin(), ::tolower);
+    domain[0] = static_cast<char>(toupper(domain[0]));
+  }
+  return domain;
 }
 }  // namespace hippy::devtools

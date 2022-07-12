@@ -21,7 +21,7 @@
 #pragma once
 
 #include <string>
-#include "devtools_base/common/logging.h"
+#include "footstone/logging.h"
 #include "module/record_logger.h"
 
 namespace hippy::devtools {
@@ -38,7 +38,7 @@ class LogNotification {
    * @param file_name log file name
    * @param line_number line numbder
    */
-  virtual void PrintLog(const std::string &log_module, const std::string &log_message, LogSeverity serverity,
+  virtual void PrintLog(const std::string &log_module, const std::string &log_message, footstone::LogSeverity serverity,
            const std::string &file_name, int32_t line_number) = 0;
 };
 }  // namespace hippy::devtools

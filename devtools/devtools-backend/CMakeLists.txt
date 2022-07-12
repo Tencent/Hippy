@@ -25,6 +25,7 @@ project("devtools_backend")
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/InfraPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
@@ -46,6 +47,11 @@ if ("${JS_ENGINE}" STREQUAL "V8")
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSC")
 endif ()
+# endregion
+
+# region footstone
+GlobalPackages_Add(footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
 # region asio
@@ -139,33 +145,6 @@ set(SOURCE_SET
     src/tunnel/tcp/tcp_channel.cc
     src/tunnel/tunnel_service.cc
     src/tunnel/ws/web_socket_channel.cc
-    # TODO: remove `devtools_base` from src when `base` library readly
-    src/devtools_base/common/base64.cc
-    src/devtools_base/common/log_settings.cc
-    src/devtools_base/common/log_settings_state.cc
-    src/devtools_base/common/platform/adr/CMakeLists.txt
-    src/devtools_base/common/platform/adr/logging.cc
-    src/devtools_base/common/platform/adr/thread.cc
-    src/devtools_base/common/platform/ios/CMakeLists.txt
-    src/devtools_base/common/platform/ios/logging.cc
-    src/devtools_base/common/platform/ios/thread.cc
-    src/devtools_base/common/platform/linux/CMakeLists.txt
-    src/devtools_base/common/platform/linux/logging.cc
-    src/devtools_base/common/platform/linux/thread.cc
-    src/devtools_base/common/platform/mac/CMakeLists.txt
-    src/devtools_base/common/platform/mac/logging.cc
-    src/devtools_base/common/platform/mac/thread.cc
-    src/devtools_base/common/platform/win/CMakeLists.txt
-    src/devtools_base/common/platform/win/logging.cc
-    src/devtools_base/common/platform/win/thread.cc
-    src/devtools_base/common/task.cc
-    src/devtools_base/common/task_runner.cc
-    src/devtools_base/common/unicode_string_view.cc
-    src/devtools_base/common/worker.cc
-    src/devtools_base/common/worker_pool.cc
-    src/devtools_base/logging.cc
-    src/devtools_base/socket.cc
-    src/devtools_base/tdf_base_util.cc
-    src/devtools_base/tdf_string_util.cc)
+    src/tunnel/tcp/socket.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion
