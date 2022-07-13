@@ -85,9 +85,9 @@ class Deserializer {
   template <typename T>
   T ReadZigZag();
 
-  uint32_t ReadObjectProperties(HippyValueObjectType& value, SerializationTag end_tag);
+  bool ReadObjectProperties(HippyValueObjectType& value, SerializationTag end_tag, uint32_t& number_properties);
 
-  uint32_t ReadObjectProperties(SerializationTag end_tag);
+  bool ReadObjectProperties(SerializationTag end_tag, uint32_t& number_properties);
 
  private:
   const uint8_t* position_;
