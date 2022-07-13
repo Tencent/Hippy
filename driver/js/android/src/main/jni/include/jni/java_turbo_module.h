@@ -29,7 +29,7 @@
 #include "core/core.h"
 
 #include "convert_utils.h"
-#include "scoped_java_ref.h"
+#include "jni/scoped_java_ref.h"
 
 class JavaTurboModule : public hippy::napi::HippyTurboModule {
  public:

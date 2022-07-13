@@ -20,7 +20,10 @@
  *
  */
 
-#include "bridge/root_node_repo.h"
+#include "atomic/root_node_repo.h"
+
+#include <unordered_map>
+#include <mutex>
 
 namespace hippy {
 namespace bridge {

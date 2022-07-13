@@ -20,18 +20,17 @@
  *
  */
 
-#include "jni/scoped_java_ref.h"
+#include "scoped_java_ref.h"
 
-#include "core/core.h"
-#include "jni/jni_env.h"
+#include "footstone/logging.h"
+#include "jni_env.h"
 
 JavaRef::JavaRef(JNIEnv* j_env, jobject j_obj) : obj_(nullptr) {
   // FOOTSTONE_DLOG(INFO) <<  "JavaRef create";
   if (!j_env) {
     j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   } else {
-    FOOTSTONE_DCHECK(j_env ==
-                    JNIEnvironment::GetInstance()->AttachCurrentThread());
+    FOOTSTONE_DCHECK(j_env == JNIEnvironment::GetInstance()->AttachCurrentThread());
   }
 
   if (j_obj) {
