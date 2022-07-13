@@ -55,30 +55,14 @@
 #import "HippyTurboModuleManager.h"
 #import "HippyDevInfo.h"
 #import "HippyBundleURLProvider.h"
+#import "NSObject+ToJSCtxValue.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 NSString *const HippyJavaScriptContextCreatedNotification = @"HippyJavaScriptContextCreatedNotification";
 NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey = @"HippyJavaScriptContextCreatedNotificationBridgeKey";
 
-struct __attribute__((packed)) ModuleData {
-    uint32_t offset;
-    uint32_t size;
-};
-
-using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
-using memory_ptr = std::unique_ptr<void, decltype(&free)>;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
-
-
-struct RandomAccessBundleData {
-    file_ptr bundle;
-    size_t baseOffset;
-    size_t numTableEntries;
-    std::unique_ptr<ModuleData[]> table;
-    RandomAccessBundleData()
-        : bundle(nullptr, fclose) { }
-};
 
 static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::function<void(u8string)> cb) {
     std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
@@ -127,12 +111,8 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
     JSContext *_JSContext;
-    // Set as needed:
-    RandomAccessBundleData _randomAccessBundle;
     JSValueRef _batchedBridgeRef;
-
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
-
     JSGlobalContextRef _JSGlobalContextRef;
 }
 
@@ -247,60 +227,73 @@ static unicode_string_view NSStringToU8(NSString* str) {
                 else {
                     context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8(@""));
                 }
-                jsContext[@"nativeRequireModuleConfig"] = ^NSArray *(NSString *moduleName) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return nil;
+                hippy::napi::Ctx::NativeFunction nativeRequireModuleConfigFunc = [weakSelf](void *data) {
+                    @autoreleasepool {
+                        HippyJSCExecutor *strongSelf = weakSelf;
+                        if (!strongSelf.valid || !data) {
+                            return strongSelf.pScope->GetContext()->CreateNull();
+                        }
+                        auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
+                        NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
+                        auto ctxValue = pTuple->arguments_[0];
+                        const auto &context = strongSelf.pScope->GetContext();
+                        if (context->IsString(ctxValue)) {
+                            unicode_string_view string;
+                            if (context->GetValueString(ctxValue, &string)) {
+                                unicode_string_view::u16string &u16String =string.utf16_value();
+                                NSString *moduleName =
+                                    [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
+                                NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
+                                auto ret = [NativeRenderNullIfNil(result) convertToCtxValue:context];
+                                return ret;
+                            }
+                        }
+                        return strongSelf.pScope->GetContext()->CreateNull();
                     }
-
-                    NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
-                    return NativeRenderNullIfNil(result);
                 };
+                context->RegisterNativeBinding("nativeRequireModuleConfig", nativeRequireModuleConfigFunc, nullptr);
 
-                jsContext[@"nativeFlushQueueImmediate"] = ^(NSArray<NSArray *> *calls) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid || !calls) {
-                        return;
+                hippy::napi::Ctx::NativeFunction nativeFlushQueueImmediateFunc = [weakSelf](void *data) {
+                    @autoreleasepool {
+                        HippyJSCExecutor *strongSelf = weakSelf;
+                        if (!strongSelf.valid || !data) {
+                            return strongSelf.pScope->GetContext()->CreateNull();
+                        }
+                        auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
+                        NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
+                        auto ctxValue = pTuple->arguments_[0];
+                        const auto &context = strongSelf.pScope->GetContext();
+                        if (context->IsArray(ctxValue)) {
+                            id object = ObjectFromJSValue(context, ctxValue);
+                            [strongSelf->_bridge handleBuffer:object batchEnded:YES];
+                        }
+                        
+                        return strongSelf.pScope->GetContext()->CreateNull();
                     }
-                    [strongSelf->_bridge handleBuffer:calls batchEnded:YES];
                 };
-
-                jsContext[@"nativeCallSyncHook"] = ^id(NSUInteger module, NSUInteger method, NSArray *args) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return nil;
-                    }
-
-                    id result = [strongSelf->_bridge callNativeModule:module method:method params:args];
-                    return result;
-                };
-
-    #if HIPPY_DEV
-                // Inject handler used by HMR
-                jsContext[@"nativeInjectHMRUpdate"] = ^(NSString *sourceCode, NSString *sourceCodeURL) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return;
-                    }
-
-                    JSStringRef execJSString = JSStringCreateWithUTF8CString(sourceCode.UTF8String);
-                    JSStringRef jsURL = JSStringCreateWithUTF8CString(sourceCodeURL.UTF8String);
-                    JSEvaluateScript([strongSelf JSGlobalContextRef], execJSString, NULL, jsURL, 0, NULL);
-                    JSStringRelease(jsURL);
-                    JSStringRelease(execJSString);
-                };
-    #endif
+                context->RegisterNativeBinding("nativeFlushQueueImmediate", nativeFlushQueueImmediateFunc, nullptr);
 
                 strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
-                jsContext[@"getTurboModule"] = ^id (NSString *name, NSString *args) {
-                    HippyJSCExecutor *strongSelf = weakSelf;
-                    if (!strongSelf.valid) {
-                        return nil;
+                hippy::napi::Ctx::NativeFunction getTurboModuleFunc = [weakSelf](void *data) {
+                    @autoreleasepool {
+                        HippyJSCExecutor *strongSelf = weakSelf;
+                        if (!strongSelf.valid || !data) {
+                            return strongSelf.pScope->GetContext()->CreateNull();
+                        }
+                        auto pTuple = static_cast<hippy::napi::CBDataTuple *>(data);
+                        NSCAssert(1 == pTuple->count_, @"nativeRequireModuleConfig should only contain 1 element");
+                        auto nameValue = pTuple->arguments_[0];
+                        const auto &context = strongSelf.pScope->GetContext();
+                        if (context->IsString(nameValue)) {
+                            NSString *name = ObjectFromJSValue(context, nameValue);
+                            auto value = [strongSelf JSTurboObjectWithName:name];
+                            return value;
+                        }
+                        return strongSelf.pScope->GetContext()->CreateNull();
                     }
-                    JSValueRef value_ = [strongSelf JSTurboObjectWithName:name];
-                    JSValue *objc_value = [JSValue valueWithJSValueRef:value_ inContext:[strongSelf JSContext]];
-                    return objc_value;
                 };
+                context->RegisterNativeBinding("getTurboModule", getTurboModuleFunc, nullptr);
+
             }
 
         }
@@ -324,20 +317,18 @@ static unicode_string_view NSStringToU8(NSString* str) {
     return ptr;
 }
 
-- (JSValueRef)JSTurboObjectWithName:(NSString *)name {
+- (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name {
     //create HostObject by name
     HippyOCTurboModule *turboModule = [self->_bridge turboModuleWithName:name];
     if (!turboModule) {
-        JSGlobalContextRef ctx = [self JSGlobalContextRef];
-        return JSValueMakeNull(ctx);
+        return self.pScope->GetContext()->CreateNull();
     }
 
     // create jsProxy
     std::shared_ptr<hippy::napi::HippyTurboModule> ho = [turboModule getTurboModule];
     //should be function!!!!!
     std::shared_ptr<hippy::napi::CtxValue> obj = self->_turboRuntime->CreateObject(ho);
-    std::shared_ptr<hippy::napi::JSCCtxValue> jscObj = std::static_pointer_cast<hippy::napi::JSCCtxValue>(obj);
-    return jscObj->value_;
+    return obj;
 }
 
 - (JSContext *)JSContext {
@@ -371,26 +362,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
         }
     }
     return _JSGlobalContextRef;
-}
-
-- (BOOL)_synchronouslyExecuteApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL JSContext:(JSContext *)context error:(NSError **)error {
-    BOOL isRAMBundle = NO;
-    script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, isRAMBundle, _randomAccessBundle, error);
-    if (!script) {
-        return NO;
-    }
-    if (isRAMBundle) {
-        registerNativeRequire(context, self);
-    }
-    NSError *returnedError = executeApplicationScript(script, sourceURL, _performanceLogger, [self JSGlobalContextRef]);
-    if (returnedError) {
-        if (error) {
-            *error = returnedError;
-        }
-        return NO;
-    } else {
-        return YES;
-    }
 }
 
 - (void)setUp {
@@ -439,8 +410,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 - (void)dealloc {
     NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
     [self invalidate];
-    _randomAccessBundle.bundle.reset();
-    _randomAccessBundle.table.reset();
 }
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
@@ -482,19 +451,21 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 -(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
-    JSContext *context = [self JSContext];
-    if (context) {
-        JSValue *value = context[@"__HIPPYNATIVEGLOBAL__"];
-        if (value) {
-            for (NSString *key in addInfoDict) {
-                value[key] = addInfoDict[key];
-            }
+    unicode_string_view string_view("__HIPPYNATIVEGLOBAL__");
+    const std::shared_ptr<hippy::napi::Ctx> &napi_context = self.pScope->GetContext();
+    std::shared_ptr<hippy::napi::CtxValue> hippyNativeGlobalObj = napi_context->GetGlobalObjVar(string_view);
+    HippyAssert(hippyNativeGlobalObj, @"__HIPPYNATIVEGLOBAL__ must not be null");
+    if (hippyNativeGlobalObj) {
+        for (NSString *key in addInfoDict) {
+            id value = addInfoDict[key];
+            footstone::unicode_string_view key_string([key UTF8String]);
+            std::shared_ptr<hippy::napi::CtxValue> ctx_value = [value convertToCtxValue:napi_context];
+            napi_context->SetProperty(hippyNativeGlobalObj, key_string, ctx_value, hippy::napi::PropertyAttribute::None);
         }
     }
 }
 
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete {
-    // TODO: Make this function handle first class instead of dynamically dispatching it. #9317773
     [self _executeJSCall:@"flushedQueue" arguments:@[] unwrapResult:YES callback:onComplete];
 }
 
@@ -521,7 +492,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 - (void)invokeCallbackID:(NSNumber *)cbID arguments:(NSArray *)args callback:(HippyJavaScriptCallback)onComplete {
-    // TODO: Make this function handle first class instead of dynamically dispatching it. #9317773
     [self _executeJSCall:@"invokeCallbackAndReturnFlushedQueue" arguments:@[cbID, args] unwrapResult:YES callback:onComplete];
 }
 
@@ -605,11 +575,9 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCompleteBlock)onComplete {
     HippyAssertParam(script);
     HippyAssertParam(sourceURL);
-
-    BOOL isRAMBundle = NO;
     {
         NSError *error;
-        script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, isRAMBundle, _randomAccessBundle, &error);
+        script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, &error);
         if (script == nil) {
             if (onComplete) {
                 onComplete(error);
@@ -624,11 +592,6 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
         if (!self.isValid) {
             return;
         }
-
-        if (isRAMBundle) {
-            registerNativeRequire([self JSContext], self);
-        }
-
         NSError *error = executeApplicationScript(script, sourceURL, self->_performanceLogger, [self JSGlobalContextRef]);
         if (onComplete) {
             onComplete(error);
@@ -656,8 +619,7 @@ static void handleJsExcepiton(std::shared_ptr<Scope> scope) {
   }
 }
 
-static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSURL *sourceURL, __unused HippyPerformanceLogger *performanceLogger,
-    __unused BOOL &isRAMBundle, __unused RandomAccessBundleData &randomAccessBundle, __unused NSError **error) {
+static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSURL *sourceURL, __unused HippyPerformanceLogger *performanceLogger, __unused NSError **error) {
     // JSStringCreateWithUTF8CString expects a null terminated C string.
     // RAM Bundling already provides a null terminated one.
     @autoreleasepool {
@@ -667,13 +629,6 @@ static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSU
         script = nullTerminatedScript;
         return script;
     }
-}
-
-static void registerNativeRequire(JSContext *context, HippyJSCExecutor *executor) {
-    __weak HippyJSCExecutor *weakExecutor = executor;
-    context[@"nativeRequire"] = ^(NSNumber *moduleID) {
-        [weakExecutor _nativeRequire:moduleID];
-    };
 }
 
 static NSLock *jslock() {
@@ -729,7 +684,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCompleteBlock)onComplete {
-    NSAssert(nil != script, @"param 'script' can't be nil");
+    HippyAssert(nil != script, @"param 'script' can't be nil");
     if (nil == script) {
         if (onComplete) {
             NSString *errorMessage = [NSString stringWithFormat:@"param 'script' is nil"];
@@ -746,7 +701,6 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
     // HippyProfileBeginFlowEvent();
     [self executeBlockOnJavaScriptQueue:^{
         // HippyProfileEndFlowEvent();
-
         HippyJSCExecutor *strongSelf = weakSelf;
         if (!strongSelf || !strongSelf.isValid) {
             return;
@@ -780,65 +734,6 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
             onComplete(error);
         }
     }];
-}
-
-static bool readRandomAccessModule(const RandomAccessBundleData &bundleData, size_t offset, size_t size, char *data) {
-    return fseek(bundleData.bundle.get(), offset + bundleData.baseOffset, SEEK_SET) == 0 && fread(data, 1, size, bundleData.bundle.get()) == size;
-}
-
-static void executeRandomAccessModule(HippyJSCExecutor *executor, uint32_t moduleID, size_t offset, size_t size) {
-    auto data = std::make_unique<char[]>(size);
-    if (!readRandomAccessModule(executor->_randomAccessBundle, offset, size, data.get())) {
-        HippyFatal(NativeRenderErrorWithMessage(@"Error loading RAM module"));
-        return;
-    }
-
-    char url[14];  // 10 = maximum decimal digits in a 32bit unsigned int + ".js" + null byte
-    sprintf(url, "%" PRIu32 ".js", moduleID);
-
-    JSStringRef code = JSStringCreateWithUTF8CString(data.get());
-    JSValueRef jsError = NULL;
-    JSStringRef sourceURL = JSStringCreateWithUTF8CString(url);
-    JSGlobalContextRef ctx = [executor JSGlobalContextRef];
-    JSValueRef result = JSEvaluateScript(ctx, code, NULL, sourceURL, 0, &jsError);
-
-    JSStringRelease(code);
-    JSStringRelease(sourceURL);
-
-    if (!result) {
-        NSError *error = HippyNSErrorFromJSErrorRef(jsError, ctx);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            HippyFatal(error);
-            [executor invalidate];
-        });
-    }
-}
-
-- (void)_nativeRequire:(NSNumber *)moduleID {
-    if (!moduleID) {
-        return;
-    }
-
-    [_performanceLogger addValue:1 forTag:HippyPLRAMNativeRequiresCount];
-    [_performanceLogger appendStartForTag:HippyPLRAMNativeRequires];
-    // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, ([@"nativeRequire_" stringByAppendingFormat:@"%@", moduleID]), nil);
-
-    const uint32_t ID = [moduleID unsignedIntValue];
-
-    if (ID < _randomAccessBundle.numTableEntries) {
-        ModuleData *moduleData = &_randomAccessBundle.table[ID];
-        const uint32_t size = NSSwapLittleIntToHost(moduleData->size);
-
-        // sparse entry in the table -- module does not exist or is contained in the startup section
-        if (size == 0) {
-            return;
-        }
-
-        executeRandomAccessModule(self, ID, NSSwapLittleIntToHost(moduleData->offset), size);
-    }
-
-    // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"js_call");
-    [_performanceLogger appendStopForTag:HippyPLRAMNativeRequires];
 }
 
 - (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge {

@@ -178,6 +178,38 @@ bool JSCCtx::GetValueJson(const std::shared_ptr<CtxValue>& value,
   return true;
 }
 
+bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                  std::map<unicode_string_view, std::shared_ptr<CtxValue>> &map) {
+  if (!value) {
+    return false;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value =
+      std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (!JSValueIsObject(context_, value_ref)) {
+    return false;
+  }
+  JSValueRef exception = nullptr;
+  JSObjectRef obj_value = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return false;
+  }
+  JSPropertyNameArrayRef name_arry = JSObjectCopyPropertyNames(context_, obj_value);
+  size_t len = JSPropertyNameArrayGetCount(name_arry);
+  for (uint32_t i = 0; i < len; ++i) {
+    JSStringRef props_key = JSPropertyNameArrayGetNameAtIndex(name_arry, i);
+    JSValueRef props_value = JSObjectGetProperty(context_, obj_value, props_key, nullptr);
+    const char16_t* utf16_string = reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(props_key));
+    unicode_string_view string_view(utf16_string);
+    auto value = std::make_shared<JSCCtxValue>(context_, props_value);
+    map[string_view] = value;
+  }
+  JSPropertyNameArrayRelease(name_arry);
+
+  return true;
+}
+
 bool JSCCtx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                               const unicode_string_view& name) {
   if (!value) {
@@ -271,9 +303,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::shared_ptr<CtxValue>, std::shared_ptr<CtxValue>> &object) {
-  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
-  JSClassRef cls_ref = JSClassCreate(&cls_def);
-  JSObjectRef obj = JSObjectMake(context_, cls_ref, nullptr);
+  JSObjectRef obj = JSObjectMake(context_, nullptr, nullptr);
   JSValueRef exception = nullptr;
   for (const auto& it : object) {
     unicode_string_view key;
@@ -286,12 +316,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
     }
     auto object_key = CreateJSCString(key);
     auto ctx_value = std::static_pointer_cast<JSCCtxValue>(it.second);
-    auto object_value = JSValueToObject(context_, ctx_value->value_, &exception);
-    if (exception) {
-      SetException(std::make_shared<JSCCtxValue>(context_, exception));
-      return nullptr;
-    }
-    JSObjectSetProperty(context_, obj, object_key, object_value, kJSPropertyAttributeNone, &exception);
+    JSObjectSetProperty(context_, obj, object_key, ctx_value->value_, kJSPropertyAttributeNone, &exception);
     if (exception) {
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
       return nullptr;
