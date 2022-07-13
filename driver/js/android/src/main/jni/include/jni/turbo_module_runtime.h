@@ -26,7 +26,7 @@
 
 #include "core/core.h"
 
-#include "jni_env.h"
+#include "jni/jni_env.h"
 
 class TurboModuleRuntime {
  public:

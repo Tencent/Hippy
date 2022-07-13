@@ -20,11 +20,11 @@
  *
  */
 
-#include "jni/jni_env.h"
+#include "jni_env.h"
 
 #include <sys/prctl.h>
 
-#include "core/core.h"
+#include "footstone/logging.h"
 
 std::shared_ptr<JNIEnvironment> JNIEnvironment::instance_ = nullptr;
 std::mutex JNIEnvironment::mutex_;

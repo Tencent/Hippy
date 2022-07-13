@@ -22,7 +22,6 @@
 
 #include "render/native_render_jni.h"
 
-#include "bridge/root_node_repo.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
 #include "dom/render_manager.h"
@@ -30,6 +29,7 @@
 #include "dom/scene.h"
 #include "jni/jni_register.h"
 #include "render/native_render_manager.h"
+#include "atomic/root_node_repo.h"
 
 using DomArgument = hippy::dom::DomArgument;
 using DomEvent = hippy::dom::DomEvent;

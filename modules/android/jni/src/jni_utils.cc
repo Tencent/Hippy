@@ -20,13 +20,13 @@
  *
  */
 
-#include "jni/jni_utils.h"  // NOLINT(build/include_subdir)
+#include "jni_utils.h"  // NOLINT(build/include_subdir)
 
-#include <android/log.h>
 #include <cstdlib>
-#include <cstring>
 
-#include "core/core.h"
+#include "footstone/check.h"
+#include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
