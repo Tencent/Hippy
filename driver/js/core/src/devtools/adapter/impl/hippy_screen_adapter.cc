@@ -97,10 +97,13 @@ void HippyScreenAdapter::GetScreenShot(const hippy::devtools::ScreenRequest& req
         footstone::value::HippyValue result_dom_value;
         arg->ToObject(result_dom_value);
         footstone::value::HippyValue::HippyValueObjectType base64_dom_value;
-        if (result_dom_value.IsArray()) {
+        if (result_dom_value.IsArray() && !result_dom_value.ToArrayChecked().empty()) {
           base64_dom_value = result_dom_value.ToArrayChecked()[0].ToObjectChecked();
-        } else {
+        } else if (result_dom_value.IsObject()) {
           base64_dom_value = result_dom_value.ToObjectChecked();
+        } else {
+          // don't have screenshot
+          return;
         }
         std::string base64_str = base64_dom_value.find(kScreenShot)->second.ToStringChecked();
         int32_t width = base64_dom_value.find(kScreenWidth)->second.ToInt32Checked();
