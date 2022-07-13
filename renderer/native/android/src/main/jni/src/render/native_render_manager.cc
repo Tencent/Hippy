@@ -26,6 +26,7 @@
 #include <iostream>
 #include <utility>
 
+#include "atomic/atomic_unique_id.h"
 #include "footstone/logging.h"
 #include "dom/root_node.h"
 #include "jni/jni_env.h"
@@ -59,7 +60,7 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 
 #define MARK_DIRTY_PROPERTY(STYLES, FIND_STYLE, NODE) \
   do {                                                \
-    FOOTSTONE_DCHECK(NODE != nullptr);                 \
+    FOOTSTONE_DCHECK(NODE != nullptr);                \
     if (STYLES->find(FIND_STYLE) != STYLES->end()) {  \
       NODE->MarkDirty();                              \
       return;                                         \
@@ -69,12 +70,12 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 namespace hippy {
 inline namespace dom {
 
-static std::atomic<int32_t> global_hippy_render_manager_key{0};
-footstone::utils::PersistentObjectMap<int32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
+footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
-    : render_delegate_(std::move(render_delegate)), serializer_(std::make_shared<footstone::value::Serializer>()) {
-  id_ = global_hippy_render_manager_key.fetch_add(1);
+    : id_(modules::atomic::FetchAddUniqueRenderManagerId()),
+      render_delegate_(std::move(render_delegate)),
+      serializer_(std::make_shared<footstone::value::Serializer>()) {
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,

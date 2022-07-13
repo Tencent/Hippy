@@ -171,7 +171,7 @@ void DoBind(JNIEnv* j_env,
 #ifdef ANDROID_NATIVE_RENDER
   auto& map = NativeRenderManager::PersistentMap();
   std::shared_ptr<NativeRenderManager> render_manager = nullptr;
-  bool ret = map.Find(footstone::check::checked_numeric_cast<jint, int32_t>(j_render_id), render_manager);
+  bool ret = map.Find(footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id), render_manager);
   if (!ret) {
     FOOTSTONE_DLOG(WARNING) << "DoBind render_manager invalid";
     return;
