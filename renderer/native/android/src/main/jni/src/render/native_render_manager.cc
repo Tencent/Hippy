@@ -26,7 +26,7 @@
 #include <iostream>
 #include <utility>
 
-#include "footstone/atomic_unique_id.h"
+#include "atomic/atomic_unique_id.h"
 #include "footstone/logging.h"
 #include "dom/root_node.h"
 #include "jni/jni_env.h"
@@ -73,7 +73,7 @@ inline namespace dom {
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
-    : id_(footstone::FetchAddUniqueRenderManagerId()),
+    : id_(modules::atomic::FetchAddUniqueRenderManagerId()),
       render_delegate_(std::move(render_delegate)),
       serializer_(std::make_shared<footstone::value::Serializer>()) {
 }

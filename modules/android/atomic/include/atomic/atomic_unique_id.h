@@ -1,7 +1,7 @@
 #include <cstdint>
 
-namespace footstone {
+namespace modules {
 inline namespace atomic {
 uint32_t FetchAddUniqueRenderManagerId();
 }  // namespace atomic
-}  // namespace footstone
+}  // namespace modules
