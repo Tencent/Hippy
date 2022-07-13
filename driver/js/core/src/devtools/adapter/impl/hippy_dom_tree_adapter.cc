@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #include "devtools/adapter/hippy_dom_tree_adapter.h"
 
 #include <string>
@@ -151,3 +151,4 @@ void HippyDomTreeAdapter::GetPushNodeByPath(PushNodePath path, PushNodeByPathCal
   DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
 }
 }  // namespace hippy::devtools
+#endif
