@@ -60,6 +60,16 @@
       >
         Text width letter-spacing 5
       </p>
+      <label>斜体：</label>
+      <div class="p-demo-content">
+        <p style="font-style: normal">
+          font-style: normal
+        </p>
+        <p style="font-style: italic">
+          font-style: italic
+        </p>
+        <p>font-style: [not set]</p>
+      </div>
       <label>numberOfLines={{ numberOfLines.lines }} ellipsizeMode={{ numberOfLines.mode || 'undefined' }}</label>
       <div class="p-demo-content">
         <p
