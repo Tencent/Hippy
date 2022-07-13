@@ -387,6 +387,27 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(
   return std::make_shared<JSCCtxValue>(context_, value_ref);
 }
 
+bool JSCCtx::SetProperty(const std::shared_ptr<CtxValue>& object,
+                                 const unicode_string_view& prop_key,
+                                 const std::shared_ptr<CtxValue>& value,
+                                 const PropertyAttribute& attr) {
+  std::shared_ptr<JSCCtxValue> ctx_object = std::static_pointer_cast<JSCCtxValue>(object);
+  JSValueRef object_ref = ctx_object->value_;
+  if (!JSValueIsObject(context_, object_ref)) {
+    return false;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (!JSValueIsObject(context_, value_ref)) {
+    return false;
+  }
+  JSValueRef js_error = nullptr;
+  JSObjectRef obj_ref = JSValueToObject(context_, object_ref, &js_error);
+  JSStringRef key_ref = CreateJSCString(prop_key);
+  JSObjectRef val_ref = JSValueToObject(context_, value_ref, &js_error);
+  JSObjectSetProperty(context_, obj_ref, key_ref, val_ref, ConvertPropertyAttribute(attr), &js_error);
+  return true;
+}
 std::shared_ptr<CtxValue> JSCCtx::GetProperty(
     const std::shared_ptr<CtxValue>& obj,
     const unicode_string_view& name) {

@@ -451,13 +451,16 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 -(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
-    JSContext *context = [self JSContext];
-    if (context) {
-        JSValue *value = context[@"__HIPPYNATIVEGLOBAL__"];
-        if (value) {
-            for (NSString *key in addInfoDict) {
-                value[key] = addInfoDict[key];
-            }
+    unicode_string_view string_view("__HIPPYNATIVEGLOBAL__");
+    const std::shared_ptr<hippy::napi::Ctx> &napi_context = self.pScope->GetContext();
+    std::shared_ptr<hippy::napi::CtxValue> hippyNativeGlobalObj = napi_context->GetGlobalObjVar(string_view);
+    HippyAssert(hippyNativeGlobalObj, @"__HIPPYNATIVEGLOBAL__ must not be null");
+    if (hippyNativeGlobalObj) {
+        for (NSString *key in addInfoDict) {
+            id value = addInfoDict[key];
+            footstone::unicode_string_view key_string([key UTF8String]);
+            std::shared_ptr<hippy::napi::CtxValue> ctx_value = [value convertToCtxValue:napi_context];
+            napi_context->SetProperty(hippyNativeGlobalObj, key_string, ctx_value, hippy::napi::PropertyAttribute::None);
         }
     }
 }
@@ -681,7 +684,7 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
 }
 
 - (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCompleteBlock)onComplete {
-    NSAssert(nil != script, @"param 'script' can't be nil");
+    HippyAssert(nil != script, @"param 'script' can't be nil");
     if (nil == script) {
         if (onComplete) {
             NSString *errorMessage = [NSString stringWithFormat:@"param 'script' is nil"];

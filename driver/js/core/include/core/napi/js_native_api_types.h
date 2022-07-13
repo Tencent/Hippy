@@ -146,6 +146,10 @@ class Ctx {
       const unicode_string_view& name) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
       const unicode_string_view& name) = 0;
+  virtual bool SetProperty(const std::shared_ptr<CtxValue>& object,
+                           const unicode_string_view& prop_key,
+                           const std::shared_ptr<CtxValue>& value,
+                           const PropertyAttribute& attr) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) = 0;

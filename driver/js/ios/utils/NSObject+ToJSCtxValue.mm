@@ -28,7 +28,8 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
     HippyAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
-    return context->CreateNull();
+    std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
+    return context->CreateObject(valueMap);
 }
 
 @end
@@ -73,14 +74,14 @@
     if (0 == [self count]) {
         return nullptr;
     }
-    std::map<CtxValuePtr, CtxValuePtr> valueMap;
+    std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
     for (id key in self) {
         id value = [self objectForKey:key];
         auto keyPtr = [key convertToCtxValue:context];
         auto valuePtr = [value convertToCtxValue:context];
         valueMap[keyPtr] = valuePtr;
     }
-    return context->CreateMap(valueMap);
+    return context->CreateObject(valueMap);
 }
 
 @end
