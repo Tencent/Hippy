@@ -69,6 +69,13 @@ function(GlobalPackages_Add_footstone)
   endif()
 endfunction()
 
+function(GlobalPackages_Add_atomic)
+  if (NOT TARGET atomic)
+    InfraPackage_Add(ATOMIC
+        LOCAL "${PROJECT_ROOT_DIR}/modules/android/atomic")
+  endif()
+endfunction()
+
 function(GlobalPackages_Add)
   foreach (packageName IN LISTS ARGN)
     cmake_language(CALL GlobalPackages_Add_${packageName})

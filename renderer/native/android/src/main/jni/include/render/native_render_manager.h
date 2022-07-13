@@ -22,7 +22,7 @@ class NativeRenderManager : public RenderManager {
   NativeRenderManager(NativeRenderManager &&) = delete;
   NativeRenderManager &operator=(NativeRenderManager &&) = delete;
 
-  int32_t GetId() { return id_; }
+  uint32_t GetId() { return id_; }
 
   void CreateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
   void UpdateRenderNode(std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>>&& nodes) override;
@@ -50,7 +50,7 @@ class NativeRenderManager : public RenderManager {
   void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
   std::shared_ptr<DomManager> GetDomManager() const { return dom_manager_.lock(); }
 
-  static footstone::utils::PersistentObjectMap<int32_t, std::shared_ptr<NativeRenderManager>>& PersistentMap() {
+  static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<NativeRenderManager>>& PersistentMap() {
     return persistent_map_;
   }
 
@@ -83,14 +83,14 @@ class NativeRenderManager : public RenderManager {
   void HandleListenerOps(std::weak_ptr<RootNode> root_node, std::map<uint32_t, std::vector<ListenerOp>>& ops, const std::string& method_name);
 
  private:
-  int32_t id_;
+  uint32_t id_;
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<footstone::value::Serializer> serializer_;
   float density_ = 1.0f;
   std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 
   std::weak_ptr<DomManager> dom_manager_;
-  static footstone::utils::PersistentObjectMap<int32_t, std::shared_ptr<NativeRenderManager>> persistent_map_;
+  static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<NativeRenderManager>> persistent_map_;
 };
 }  // namespace dom
 }  // namespace hippy
