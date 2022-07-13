@@ -401,7 +401,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             auto devtools_data_source = strongSelf->_batchedBridge.javaScriptExecutor.pScope->GetDevtoolsDataSource();
             if (devtools_data_source) {
                 hippy::DomManager::Insert(domManager);
-                self.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
+                strongSelf->_batchedBridge.javaScriptExecutor.pScope->GetDevtoolsDataSource()->Bind(0, domManager->GetId(), 0); // runtime_id for iOS is useless, set 0
                 devtools_data_source->SetRootNode(strongSelf->_rootNode);
             }
           #endif
