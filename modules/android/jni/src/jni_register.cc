@@ -20,15 +20,11 @@
  *
  */
 
-#include "jni/jni_register.h"
+#include "jni_register.h"
 
-#include "footstone/unicode_string_view.h"
-#include "core/core.h"
-#include "jni/jni_env.h"
-#include "jni/uri.h"
-
-using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+#include "footstone/check.h"
+#include "footstone/logging.h"
+#include "jni_env.h"
 
 std::unique_ptr<JNIRegister>& JNIRegister::GetInstance() {
   static std::unique_ptr<JNIRegister> instance = nullptr;

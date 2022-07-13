@@ -52,6 +52,18 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
+# region jni
+GlobalPackages_Add(jni)
+target_link_libraries(${PROJECT_NAME} PRIVATE jni)
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:jni,INTERFACE_INCLUDE_DIRECTORIES>)
+# endjni
+
+# region atomic
+GlobalPackages_Add(atomic)
+target_link_libraries(${PROJECT_NAME} PRIVATE atomic)
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:atomic,INTERFACE_INCLUDE_DIRECTORIES>)
+# endjni
+
 # region core
 add_subdirectory(${PROJECT_ROOT_DIR}/driver/js/core ${CMAKE_CURRENT_BINARY_DIR}/core)
 target_link_libraries(${PROJECT_NAME} PRIVATE core)
@@ -73,12 +85,7 @@ set(SOURCE_SET
     src/bridge/java2js.cc
     src/bridge/js2java.cc
     src/bridge/native_source_code_android.cc
-    src/bridge/root_node_repo.cc
     src/jni/exception_handler.cc
-    src/jni/jni_env.cc
-    src/jni/jni_register.cc
-    src/jni/jni_utils.cc
-    src/jni/scoped_java_ref.cc
     src/jni/uri.cc
     src/loader/adr_loader.cc)
 # TODO: modify the conditions, when moving into the framework
