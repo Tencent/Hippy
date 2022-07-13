@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include <string>
@@ -39,3 +39,4 @@ class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
   std::shared_ptr<HippyDomData> hippy_dom_;
 };
 }  // namespace hippy::devtools
+#endif

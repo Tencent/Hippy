@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include <memory>
@@ -76,3 +76,4 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
 };
 }  // namespace hippy::devtools
+#endif

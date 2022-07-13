@@ -17,8 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
+#ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 
 #include <utility>
@@ -142,3 +141,4 @@ void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
 }
 #endif
 }  // namespace hippy::devtools
+#endif

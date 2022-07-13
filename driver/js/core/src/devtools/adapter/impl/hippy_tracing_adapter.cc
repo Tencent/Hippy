@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "devtools/trace_control.h"
@@ -43,3 +43,4 @@ void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
 #endif
 }
 }  // namespace hippy::devtools
+#endif

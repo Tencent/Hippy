@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_utils.h"
 
 namespace hippy::devtools {
@@ -346,3 +346,4 @@ void DevToolsUtil::PostDomTask(uint32_t dom_id, std::function<void()> func) {
   }
 }
 }  // namespace hippy::devtools
+#endif

@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include "api/adapter/devtools_tracing_adapter.h"
@@ -28,3 +28,4 @@ class HippyTracingAdapter : public hippy::devtools::TracingAdapter {
   void StopTracing(TracingDataCallback callback) override;
 };
 }  // namespace hippy::devtools
+#endif

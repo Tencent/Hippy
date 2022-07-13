@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include <string>
@@ -54,3 +54,4 @@ class TraceControl {
   bool tracing_has_start_ = false;
 };
 }  // namespace hippy::devtools
+#endif

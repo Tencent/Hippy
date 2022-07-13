@@ -201,18 +201,24 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             NativeRenderLogArgumentError(weakSelf, index, json, "should be a function");
             return NO;
         }
+        __weak HippyBridge *weakBridge = bridge;
         Hippy_BLOCK_ARGUMENT(^(NSArray *args) {
+            __strong HippyBridge *strongBridge = weakBridge;
+            __strong HippyModuleMethod *strongSelf = weakSelf;
+            if (!strongBridge || !strongSelf) {
+                return;
+            }
             BOOL shouldEnqueueCallback = YES;
-            if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
-                NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+            if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                NSString *moduleName = HippyBridgeModuleNameForClass(strongSelf->_moduleClass);
                 shouldEnqueueCallback =
-                    [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
-                                                           methodName:[self JSMethodName]
-                                                           callbackId:json
-                                                            arguments:args];
+                    [[strongBridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                                                 methodName:[strongSelf JSMethodName]
+                                                                                 callbackId:json
+                                                                                  arguments:args];
             }
             if (shouldEnqueueCallback) {
-                [bridge enqueueCallback:json args:args];
+                [strongBridge enqueueCallback:json args:args];
             }
         });)
     };
@@ -302,20 +308,25 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                     NativeRenderLogArgumentError(weakSelf, index, json, "should be a function");
                     return NO;
                 }
-
+                __weak HippyBridge *weakBridge = bridge;
                 Hippy_BLOCK_ARGUMENT(^(NSError *error) {
+                    __strong HippyBridge *strongBridge = weakBridge;
+                    __strong HippyModuleMethod *strongSelf = weakSelf;
+                    if (!strongBridge || !strongSelf) {
+                        return;
+                    }
                     NSArray *errorArgs = @[NativeRenderJSErrorFromNSError(error)];
                     BOOL shouldEnqueueCallback = YES;
-                    if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
-                        NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+                    if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                        NSString *moduleName = HippyBridgeModuleNameForClass(strongSelf->_moduleClass);
                         shouldEnqueueCallback =
-                            [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
-                                                                                   methodName:[self JSMethodName]
-                                                                                   callbackId:json
-                                                                                    arguments:errorArgs];
+                            [[strongBridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                                                         methodName:[strongSelf JSMethodName]
+                                                                                         callbackId:json
+                                                                                          arguments:errorArgs];
                     }
                     if (shouldEnqueueCallback) {
-                        [bridge enqueueCallback:json args:errorArgs];
+                        [strongBridge enqueueCallback:json args:errorArgs];
                     }
                 });)
         } else if ([typeName isEqualToString:@"HippyPromiseResolveBlock"]) {
@@ -324,19 +335,25 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 NativeRenderLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
                 return NO;
             }
+            __weak HippyBridge *weakBridge = bridge;
             Hippy_BLOCK_ARGUMENT(^(id result) {
+                __strong HippyBridge *strongBridge = weakBridge;
+                __strong HippyModuleMethod *strongSelf = weakSelf;
+                if (!strongBridge || !strongSelf) {
+                    return;
+                }
                 NSArray *args = result ? @[result] : @[];
                 BOOL shouldEnqueueCallback = YES;
-                if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
-                    NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+                if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                    NSString *moduleName = HippyBridgeModuleNameForClass(strongSelf->_moduleClass);
                     shouldEnqueueCallback =
-                        [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
-                                                                               methodName:[self JSMethodName]
-                                                                               callbackId:json
-                                                                                arguments:args];
+                        [[strongBridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                                                     methodName:[strongSelf JSMethodName]
+                                                                                     callbackId:json
+                                                                                      arguments:args];
                 }
                 if (shouldEnqueueCallback) {
-                    [bridge enqueueCallback:json args:args];
+                    [strongBridge enqueueCallback:json args:args];
                 }
             });)
         } else if ([typeName isEqualToString:@"HippyPromiseRejectBlock"]) {
@@ -346,20 +363,26 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 NativeRenderLogArgumentError(weakSelf, index, json, "should be a promise rejecter function");
                 return NO;
             }
+            __weak HippyBridge *weakBridge = bridge;
             Hippy_BLOCK_ARGUMENT(^(NSString *code, NSString *message, NSError *error) {
+                __strong HippyBridge *strongBridge = weakBridge;
+                __strong HippyModuleMethod *strongSelf = weakSelf;
+                if (!strongBridge || !strongSelf) {
+                    return;
+                }
                 NSDictionary *errorJSON = NativeRenderJSErrorFromCodeMessageAndNSError(code, message, error);
                 NSArray *args = @[errorJSON];
                 BOOL shouldEnqueueCallback = YES;
-                if ([[bridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
-                    NSString *moduleName = HippyBridgeModuleNameForClass(self->_moduleClass);
+                if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
+                    NSString *moduleName = HippyBridgeModuleNameForClass(strongSelf->_moduleClass);
                     shouldEnqueueCallback =
-                        [[bridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
-                                                                               methodName:[self JSMethodName]
+                        [[strongBridge methodInterceptor] shouldCallbackBeInvokedWithModuleName:moduleName
+                                                                               methodName:[strongSelf JSMethodName]
                                                                                callbackId:json
                                                                                 arguments:args];
                 }
                 if (shouldEnqueueCallback) {
-                    [bridge enqueueCallback:json args:args];
+                    [strongBridge enqueueCallback:json args:args];
                 }
             });)
         } else if ([HippyTurboModuleManager isTurboModule:typeName]) {
