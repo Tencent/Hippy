@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include "dom/root_node.h"
@@ -28,3 +28,4 @@ struct HippyDomData {
   std::weak_ptr<RootNode> root_node;
 };
 }  // namespace hippy::devtools
+#endif

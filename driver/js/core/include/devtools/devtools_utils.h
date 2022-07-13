@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include "api/adapter/data/dom_node_location.h"
@@ -66,3 +66,4 @@ class DevToolsUtil {
                                 const HippyValue& dom_value);
 };
 }  // namespace hippy::devtools
+#endif

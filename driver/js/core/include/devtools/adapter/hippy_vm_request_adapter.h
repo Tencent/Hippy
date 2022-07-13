@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include <string>
@@ -41,3 +41,4 @@ class HippyVmRequestAdapter : public hippy::devtools::VmRequestAdapter {
 };
 }  // namespace devtools
 }  // namespace hippy
+#endif

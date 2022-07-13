@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef ENABLE_INSPECTOR
 #include "devtools/adapter/hippy_screen_adapter.h"
 
 #include "dom/dom_manager.h"
@@ -125,3 +125,4 @@ hippy::dom::DomArgument HippyScreenAdapter::makeScreenRequestArgument(const Scre
   return argument;
 }
 }  // namespace hippy::devtools
+#endif
