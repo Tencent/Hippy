@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.12](https://github.com/Tencent/Hippy/compare/2.13.11...2.13.12) (2022-07-13)
+
+
+### Bug Fixes
+
+* **ios:** check cookie availabity before commit ([4fc91e4](https://github.com/Tencent/Hippy/commit/4fc91e4a1bffa4eef7c7efa3b8dd25af91827dd2))
+* **ios:** fix a crash caused by thread race ([0453be0](https://github.com/Tencent/Hippy/commit/0453be0a39bffdac59182eed45429b07b27fc956))
+* **ios:** fix a crash caused by thread race ([c092ea5](https://github.com/Tencent/Hippy/commit/c092ea5db010a75d0f0f7b1049f415b41b9a84df))
+* **ios:** fix border bottom color display error ([4425284](https://github.com/Tencent/Hippy/commit/4425284827a17e883e321a589dd26e8c733831f1))
+* **ios:** fix memory leaks ([d0dd9ef](https://github.com/Tencent/Hippy/commit/d0dd9efcfe9aac14386cfcc94677422a192a1ff7))
+* **ios:** fix zpoistion error for indicator and header view ([90edc45](https://github.com/Tencent/Hippy/commit/90edc4565117a5cc6e8bb5949d44769ce047a48e))
+* **ios:** reset properties if value is null ([f79214e](https://github.com/Tencent/Hippy/commit/f79214e5eee9d83028bde593514e420331ffbf70))
+
+
+
+
+
 ## [2.13.11](https://github.com/Tencent/Hippy/compare/2.13.10...2.13.11) (2022-06-08)
 
 

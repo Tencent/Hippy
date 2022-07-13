@@ -1,6 +1,6 @@
 {
   "name": "@hippy/react-web",
-  "version": "2.13.11",
+  "version": "2.13.12",
   "description": "Web Adapter for Hippy React",
   "main": "dist/index.js",
   "homepage": "http://hippyjs.org",
