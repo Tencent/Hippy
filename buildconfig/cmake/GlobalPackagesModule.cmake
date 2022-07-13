@@ -69,6 +69,13 @@ function(GlobalPackages_Add_footstone)
   endif()
 endfunction()
 
+function(GlobalPackages_Add_jni)
+  if (NOT TARGET jni)
+    InfraPackage_Add(JNI
+            LOCAL "${PROJECT_ROOT_DIR}/modules/android/jni")
+  endif()
+endfunction()
+
 function(GlobalPackages_Add_atomic)
   if (NOT TARGET atomic)
     InfraPackage_Add(ATOMIC
