@@ -70,38 +70,42 @@
         </p>
         <p>font-style: [not set]</p>
       </div>
-      <label>numberOfLines={{ numberOfLines.lines }} ellipsizeMode={{ numberOfLines.mode || 'undefined' }}</label>
+      <label>numberOfLines={{ textMode.numberOfLines }} | ellipsizeMode={{ textMode.ellipsizeMode }}</label>
       <div class="p-demo-content">
         <p
-          :numberOfLines="numberOfLines.lines"
-          :ellipsizeMode="numberOfLines.mode"
-          style="backgroundColor: yellow"
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{ backgroundColor: '#40b883', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }"
         >
-          <span style="fontSize: 24; color: red">先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</span>
+          <span style="font-size: 19px; color: white">先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</span>
           <span>然侍卫之臣不懈于内，忠志之士忘身于外者，盖追先帝之殊遇，欲报之于陛下也。</span>
         </p>
         <p
-          :numberOfLines="numberOfLines.lines"
-          :ellipsizeMode="numberOfLines.mode"
-          style="backgroundColor: cyan"
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{ backgroundColor: '#40b883', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }"
         >
           {{ 'line 1\n\nline 3\n\nline 5' }}
         </p>
         <p
-          :numberOfLines="numberOfLines.lines"
-          :ellipsizeMode="numberOfLines.mode"
-          :style="{ backgroundColor: 'yellow', width: 240, fontFamily: 'monospace', lineHeight: 24}"
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{
+            backgroundColor: '#40b883',
+            marginBottom: 10,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            fontSize: 14
+          }"
         >
           <img
-            :style="{ width: 24, height: 24, fontFamily: 'monospace', lineHeight: 24 }"
+            :style="{ width: 24, height: 24 }"
             :src="img1"
           >
-          <span :style="{ fontSize: 24, fontFamily: 'monospace', lineHeight: 24 }">looooooooooooong</span>
           <img
-            :style="{ width: 24, height: 24, fontFamily: 'monospace', lineHeight: 24 }"
+            :style="{ width: 24, height: 24 }"
             :src="img2"
           >
-          <span :style="{ fontSize: 24, fontFamily: 'monospace', lineHeight: 24 }">loooooooooong</span>
         </p>
         <div class="button-bar">
           <button
@@ -167,15 +171,11 @@ export default {
         textShadowRadius: 3,
         textShadowColor: 'grey',
       },
-      numberOfLines: {
-        lines: 2,
-        mode: 'tail',
+      textMode: {
+        numberOfLines: 2,
+        ellipsizeMode: 'tail',
       },
-      img1: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVL
-        tEsMgCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRK
-        aXfzxc84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TS
-        AAAAABJRU5ErkJggg==`,
+      img1: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVLtEsMgCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRKaXfzxc84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TSAAAAABJRU5ErkJggg==',
       img2: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
         AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEnRSTlMA/QpX7WQU2m27pi3Ej9KEQXaD5HhjAAAAqklEQVQoz41
         SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
@@ -214,17 +214,17 @@ export default {
       console.log(evt);
     },
     incrementLine() {
-      if (this.numberOfLines.lines < 6) {
-        this.numberOfLines.lines += 1;
+      if (this.textMode.numberOfLines < 6) {
+        this.textMode.numberOfLines += 1;
       }
     },
     decrementLine() {
-      if (this.numberOfLines.lines > 0) {
-        this.numberOfLines.lines -= 1;
+      if (this.textMode.numberOfLines > 1) {
+        this.textMode.numberOfLines -= 1;
       }
     },
     changeMode(mode) {
-      this.numberOfLines.mode = mode;
+      this.textMode.ellipsizeMode = mode;
     },
   },
 };

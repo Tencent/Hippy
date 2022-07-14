@@ -397,7 +397,7 @@ import icon from './qb_icon_new.png';
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS、hippy-react-web` |
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS、hippy-react-web` |
 | onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `Android、iOS、hippy-react-web` |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum(head, middle, tail, clip)` | `Android(版本2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)、hippy-react-web(clip、ellipsis)` |
+| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 `default: tail` | `enum(head, middle, tail, clip)` | `Android(版本 2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)、hippy-react-web(clip、ellipsis)` |
 | onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web` |
 | onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web` |
 | onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
@@ -405,9 +405,9 @@ import icon from './qb_icon_new.png';
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS）
-  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（Android 2.14.1以上、iOS）
-  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（Android 2.14.1以上、iOS）
-  * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
+  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（Android 2.14.1 以上、iOS全支持）
+  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（Android 2.14.1 以上、iOS全支持）
+  * `tail`（默认值） - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
 
 ---
 
