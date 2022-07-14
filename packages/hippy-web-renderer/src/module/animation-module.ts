@@ -106,6 +106,7 @@ export class AnimationModule extends HippyWebModule {
       this.linkAnimationSet2Element(animationId, component, animationProperty);
       return;
     }
+    this.linkAnimationCheck(component, animationProperty);
     this.animationPool[animationId]!.refNodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
     this.animationPool[animationId]!.initAnimation(component.dom!);
@@ -124,6 +125,7 @@ export class AnimationModule extends HippyWebModule {
       && uiManagerModule.findViewById(this.animationPool[animationId]!.refNodeId as number)) {
       return;
     }
+    this.linkAnimationCheck(component, animationProperty);
     this.animationPool[animationId]!.refNodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
   }
@@ -145,6 +147,15 @@ export class AnimationModule extends HippyWebModule {
 
   public findAnimation(animationId: number) {
     return this.animationPool[animationId];
+  }
+
+  private linkAnimationCheck(component: HippyBaseView, animationProperty: string|object) {
+    for (const key of Object.keys(this.animationPool)) {
+      const animation = this.animationPool[key];
+      if (animation?.refNodeId === component.id && animation.refCssProperty === animationProperty && animation.state !== 'end') {
+        animation.clearLinkNode();
+      }
+    }
   }
 }
 
@@ -212,6 +223,7 @@ class SimpleAnimation {
   private animationState: 'play'|'end'|'wait' = 'wait';
   private beginListener: Array<() => void> = [];
   private endListener: Array<() => void> = [];
+  private cleared = false;
 
   public constructor(
     context: ComponentContext, animationId: string | number,
@@ -223,6 +235,10 @@ class SimpleAnimation {
     this.context = context;
     this.handleAnimationEnd = this.handleAnimationEnd.bind(this);
     this.handleAnimationStart = this.handleAnimationStart.bind(this);
+  }
+
+  public get state() {
+    return this.animationState;
   }
 
   public set nodeId(nodeId: string | number) {
@@ -299,6 +315,9 @@ class SimpleAnimation {
   }
 
   public initAnimation(element: HTMLElement) {
+    if (this.cleared) {
+      return;
+    }
     this.dom = element;
     let data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
     if (this.animationState === 'end' || this.animationState === 'play') {
@@ -313,6 +332,9 @@ class SimpleAnimation {
   }
 
   public start() {
+    if (this.cleared) {
+      return;
+    }
     const data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
     this.updateAnimationInfoToPageStyle(data);
     this.changeAnimationStatus('running');
@@ -342,6 +364,7 @@ class SimpleAnimation {
   }
 
   public update(param: AnimationOptions) {
+    this.cleared = false;
     this.animationState = 'wait';
     this.animationInfo = param;
     this.animationStamp = Date.now();
@@ -362,6 +385,11 @@ class SimpleAnimation {
         this.endListener.push(callBack);
         break;
     }
+  }
+
+  public clearLinkNode() {
+    this.cleared = true;
+    this.animationUpdate2Css(null);
   }
 
   private createAnimationBeginAndEndValue() {
