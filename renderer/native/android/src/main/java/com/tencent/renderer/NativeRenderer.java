@@ -311,6 +311,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
     }
 
+    @MainThread
     @Override
     public void onRootDestroy(int rootId) {
         if (mInstanceLifecycleEventListeners != null) {
@@ -318,7 +319,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 listener.onInstanceDestroy(rootId);
             }
         }
-        NativeRendererManager.removeRootNode(rootId);
+        mRenderManager.deleteNode(rootId, rootId);
+        mRenderManager.batch(rootId);
     }
 
     @Override

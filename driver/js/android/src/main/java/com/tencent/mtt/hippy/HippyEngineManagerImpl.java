@@ -202,21 +202,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void destroyEngine() {
-        if (mEngineContext == null) {
-            return;
+        if (mEngineContext != null) {
+            mEngineContext.destroyBridge(false);
         }
-
-        mEngineContext.destroyBridge(new Callback<Boolean>() {
-            @Override
-            public void callback(Boolean param, Throwable e) {
-                UIThreadUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        onDestroy();
-                    }
-                });
-            }
-        }, false);
     }
 
     protected void onDestroy() {
@@ -650,17 +638,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
     @Override
     public void onDevBundleReLoad() {
-        mEngineContext.destroyBridge(new Callback<Boolean>() {
-            @Override
-            public void callback(Boolean param, Throwable e) {
-                UIThreadUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        restartEngineInBackground(true);
-                    }
-                });
-            }
-        }, true);
+        mEngineContext.destroyBridge(true);
     }
 
     @Override
@@ -766,6 +744,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     ((NativeRenderProxy) renderProxy).onRuntimeInitialized(mRootView.getId());
                 }
             }
+        }
+
+        public void removeRootView(int rootId) {
+            onInstanceDestroy(rootId);
         }
 
         public void setComponentName(String componentName) {
@@ -908,8 +890,22 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return rootView;
         }
 
-        public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
-            mBridgeManager.destroyBridge(callback, isReload);
+        @Override
+        public void onBridgeDestroyed(final boolean isReload, Throwable e) {
+            UIThreadUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (isReload) {
+                        restartEngineInBackground(true);
+                    } else {
+                        onDestroy();
+                    }
+                }
+            });
+        }
+
+        public void destroyBridge(boolean isReload) {
+            mBridgeManager.destroyBridge(isReload);
         }
 
         public void destroy(boolean onReLoad) {
