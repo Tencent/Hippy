@@ -91,7 +91,7 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "destroy",
              "(JZZLcom/tencent/mtt/hippy/bridge/NativeCallback;)V",
-             DestroyInstance)
+             DestroyBridge)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "doBind",
@@ -128,6 +128,12 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
     "loadInstance",
     "(J[BII)V",
     LoadInstance)
+
+REGISTER_JNI( // NOLINT(cert-err58-cpp)
+    "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+    "destroyInstance",
+    "(J[BII)V",
+    DestroyInstance)
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
@@ -468,7 +474,7 @@ jlong InitInstance(JNIEnv* j_env,
   return static_cast<jlong>(runtime_id);
 }
 
-void DestroyInstance(__unused JNIEnv* j_env,
+void DestroyBridge(__unused JNIEnv* j_env,
                      __unused jobject j_object,
                      jlong j_runtime_id,
                      __unused jboolean j_single_thread_mode,
@@ -495,6 +501,16 @@ void LoadInstance(JNIEnv* j_env,
   V8BridgeUtils::LoadInstance(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
       std::move(buffer_data));
 }
+
+void DestroyInstance(JNIEnv* j_env,
+                     __unused jobject j_obj,
+                     jlong j_runtime_id,
+                     jbyteArray j_byte_array,
+                     jint j_offset,
+                     jint j_length) {
+
+}
+
 
 }  // namespace hippy
 

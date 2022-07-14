@@ -260,7 +260,7 @@ public class RenderNode {
     }
 
     private boolean shouldCreateView() {
-        return !checkNodeFlag(FLAG_LAZY_LOAD) && !hasView();
+        return !checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD) && !hasView();
     }
 
     private boolean hasView() {

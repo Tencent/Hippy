@@ -56,4 +56,8 @@ public interface HippyEngineContext {
   int getDomManagerId();
 
   void onRuntimeInitialized(long runtimeId);
+
+  void onBridgeDestroyed(boolean isReload, Throwable e);
+
+  void removeRootView(int rootId);
 }

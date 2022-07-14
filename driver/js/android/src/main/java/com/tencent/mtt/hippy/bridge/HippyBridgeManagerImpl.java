@@ -37,6 +37,7 @@ import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.compatible.Serializer;
@@ -61,6 +62,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     static final int MSG_CODE_RUN_BUNDLE = 11;
     static final int MSG_CODE_CALL_FUNCTION = 12;
     static final int MSG_CODE_DESTROY_BRIDGE = 13;
+    static final int MSG_CODE_ON_BRIDGE_DESTROYED = 14;
 
     static final int FUNCTION_ACTION_LOAD_INSTANCE = 1;
     static final int FUNCTION_ACTION_RESUME_INSTANCE = 2;
@@ -133,11 +135,9 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 }
             };
         }
-
         int functionId = msg.arg2;
         PrimitiveValueSerializer serializer = (msg.obj instanceof JSValue) ?
                 recommendSerializer : compatibleSerializer;
-
         if (msg.arg1 == BridgeTransferType.BRIDGE_TRANSFER_TYPE_NIO.value()) {
             ByteBuffer buffer;
             if (enableV8Serialization) {
@@ -184,28 +184,36 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
     }
 
+    private void onBridgeDestroyed(Message msg) {
+        mContext.onBridgeDestroyed((msg.arg1 == DESTROY_RELOAD), (Throwable) msg.obj);
+    }
+
     private void handleDestroyBridge(Message msg) {
         if (mThirdPartyAdapter != null) {
             mThirdPartyAdapter.onRuntimeDestroy();
         }
-
-        @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
+        final int code = msg.arg1;
+        final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = new Callback<Boolean>() {
+            @Override
+            public void callback(Boolean result, Throwable e) {
+                Message message = mHandler.obtainMessage(MSG_CODE_ON_BRIDGE_DESTROYED, e);
+                message.arg1 = code;
+                mHandler.sendMessage(message);
+            }
+        };
         mHippyBridge.destroy(new NativeCallback(mHandler) {
             @Override
             public void Call(long result, Message message, String action, String reason) {
                 boolean success = result == 0;
                 mHippyBridge.onDestroy();
-                if (destroyCallback != null) {
-                    RuntimeException exception = null;
-                    if (!success) {
-                        exception = new RuntimeException(
-                                "destroy error: result=" + result + ", reason=" + reason);
-                    }
-
-                    destroyCallback.callback(success, exception);
+                RuntimeException exception = null;
+                if (!success) {
+                    exception = new RuntimeException(
+                            "destroy error: result=" + result + ", reason=" + reason);
                 }
+                destroyCallback.callback(success, exception);
             }
-        },msg.arg1 == DESTROY_RELOAD);
+        }, (msg.arg1 == DESTROY_RELOAD));
     }
 
     @Override
@@ -332,6 +340,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                     handleDestroyBridge(msg);
                     return true;
                 }
+                case MSG_CODE_ON_BRIDGE_DESTROYED: {
+                    onBridgeDestroyed(msg);
+                    return true;
+                }
             }
         } catch (Throwable e) {
             reportException(e);
@@ -438,9 +450,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         if (!mIsInit) {
             return;
         }
-
+        JSObject jsObject = new JSObject();
+        jsObject.set("id", id);
         Message message = mHandler
-                .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_DESTROY_INSTANCE, id);
+                .obtainMessage(MSG_CODE_CALL_FUNCTION, 0, FUNCTION_ACTION_DESTROY_INSTANCE,
+                        jsObject);
         mHandler.sendMessage(message);
     }
 
@@ -454,16 +468,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     @Override
-    public void destroyBridge(Callback<Boolean> callback, boolean isReload) {
-        assert (mHandler != null);
-        //noinspection ConstantConditions
-        if (mHandler == null) {
-            return;
+    public void destroyBridge(boolean isReload) {
+        if (mHandler != null) {
+            Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE);
+            message.arg1 = isReload ? DESTROY_RELOAD : DESTROY_CLOSE;
+            mHandler.sendMessage(message);
         }
-
-        Message message = mHandler.obtainMessage(MSG_CODE_DESTROY_BRIDGE, callback);
-        message.arg1 = isReload ? DESTROY_RELOAD : DESTROY_CLOSE;
-        mHandler.sendMessage(message);
     }
 
     @Override
@@ -587,9 +597,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         globalParams.pushMap("Platform", platformParams);
 
         if (mContext.getDevSupportManager().isSupportDev()) {
-          HippyMap debugParams = new HippyMap();
-          debugParams.pushString("debugClientId", mContext.getDevSupportManager().getDevInstanceUUID());
-          globalParams.pushMap("Debug", debugParams);
+            HippyMap debugParams = new HippyMap();
+            debugParams.pushString("debugClientId",
+                    mContext.getDevSupportManager().getDevInstanceUUID());
+            globalParams.pushMap("Debug", debugParams);
         }
 
         HippyMap tkd = new HippyMap();

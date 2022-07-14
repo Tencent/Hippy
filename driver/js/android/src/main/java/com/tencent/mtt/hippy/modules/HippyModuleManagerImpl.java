@@ -42,6 +42,7 @@ import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import java.lang.reflect.Proxy;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -55,10 +56,14 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings({"unchecked", "unused", "rawtypes"})
 public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callback {
 
+    public static final String REMOVE_ROOT_VIEW_MODULE_NAME = "RootViewManager";
+    public static final String REMOVE_ROOT_VIEW_FUNC_NAME = "removeRootView";
+
     private static final int MSG_CODE_DO_DESERIALIZATION = 0;
     private static final int MSG_CODE_DO_CALL_NATIVES = 1;
     private static final int MSG_CODE_DESTROY_MODULE = 2;
     private static final int MSG_CODE_ON_DESTROY = 3;
+    private static final int MSG_CODE_REMOVE_ROOT_VIEW = 4;
     private final ConcurrentHashMap<String, HippyNativeModuleInfo> mNativeModuleInfo;
     //Only multi-threaded read
     private final HashMap<Class<? extends HippyJavaScriptModule>, HippyJavaScriptModule> mJsModules;
@@ -293,7 +298,15 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
     private void doDeserialization(@NonNull Message from) {
         HippyCallNativeParams params = null;
         try {
+            Handler handler = getModuleThreadHandler();
             params = (HippyCallNativeParams) from.obj;
+            if (params.moduleName != null && params.moduleName.equals(REMOVE_ROOT_VIEW_MODULE_NAME)
+                    && params.moduleFunc.equals(REMOVE_ROOT_VIEW_FUNC_NAME)) {
+                params.paramsValue = bytesToArgument(params.paramsBuffer, false);
+                Message to = handler.obtainMessage(MSG_CODE_REMOVE_ROOT_VIEW, params);
+                handler.sendMessage(to);
+                return;
+            }
             HippyNativeModuleInfo moduleInfo = mNativeModuleInfo.get(params.moduleName);
             if (moduleInfo == null) {
                 doErrorCallBack(params, "module can not be found");
@@ -306,7 +319,6 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
                 return;
             }
             params.paramsValue = bytesToArgument(params.paramsBuffer, method.useJSValueType());
-            Handler handler = getModuleThreadHandler();
             Message to = handler.obtainMessage(MSG_CODE_DO_CALL_NATIVES, params);
             handler.sendMessage(to);
         } catch (Throwable e) {
@@ -327,7 +339,8 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             HippyNativeModuleInfo.HippyNativeMethod method = moduleInfo
                     .findMethod(params.moduleFunc);
             if (method != null) {
-                PromiseImpl promise = new PromiseImpl(mContext, params.moduleName, params.moduleFunc,
+                PromiseImpl promise = new PromiseImpl(mContext, params.moduleName,
+                        params.moduleFunc,
                         params.callId);
                 method.invoke(moduleInfo.getInstance(), params.paramsValue, promise);
             }
@@ -352,7 +365,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             synchronized (HippyModuleManagerImpl.class) {
                 if (mBridgeThreadHandler == null) {
                     mBridgeThreadHandler = new Handler(
-                            mContext.getThreadExecutor().getModuleThread().getLooper(), this);
+                            mContext.getThreadExecutor().getBridgeThread().getLooper(), this);
                 }
             }
         }
@@ -385,6 +398,18 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             return;
         }
         adapter.onCallNativeFinished(mContext.getComponentName(), params);
+    }
+
+    private void removeRootView(@NonNull final HippyCallNativeParams params) {
+        UIThreadUtils.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (params.paramsValue instanceof Integer
+                        || params.paramsValue instanceof Long) {
+                    mContext.removeRootView((Integer) params.paramsValue);
+                }
+            }
+        });
     }
 
     @Override
@@ -422,6 +447,9 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             }
             case MSG_CODE_ON_DESTROY:
                 onDestroy();
+                break;
+            case MSG_CODE_REMOVE_ROOT_VIEW:
+                removeRootView((HippyCallNativeParams) msg.obj);
                 break;
             default:
                 break;
