@@ -11,7 +11,8 @@
 
 ## Demo 体验
 
-若想快速体验，可以直接基于我们的 [Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/web-demo) 来开发
+若想快速体验，可以直接基于我们的 [HippyReact Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 和 
+[HippyVue Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo) 来体验
 
 ## 快速接入
 
@@ -38,6 +39,7 @@ WebRenderer 的执行应符合以下流程：
   <body>
     <div id="root"></div>
     <!-- web renderer cdn url -->
+    <!-- Hippy不提供cdn资源管理，需业务自行上传之类 -->
     <script src="//xxx.com/lib/hippy-web-renderer/0.1.1/hippy-web-renderer.js"></script>
     <script src="src/index.ts"></script>
   </body>
@@ -82,7 +84,7 @@ import { HippyWebEngine } from '@hippy/web-renderer';
 
 const engine = HippyWebEngine.create();
 
-loadScript('https://xxxx.com/hippy-bundle/index.bundle.js').then(() => {
+ engine.load('https://xxxx.com/hippy-bundle/index.bundle.js').then(() => {
   engine.start({
     id: 'root',
     name: 'example',
@@ -123,7 +125,8 @@ engine.start({
   id: 'root',
   // 模块名
   name: 'module-name',
-  // 模块启动参数，业务自定义
+  // 模块启动参数，业务自定义,
+  // hippy-react 可以从 入口文件props里获取，hippy-vue可以从 app.$options.$superProps 里获取
   params: {
     path: '/home',
     singleModule: true,
