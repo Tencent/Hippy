@@ -27,7 +27,6 @@ const styles = StyleSheet.create({
   itemContent: {
     alignItems: 'flex-start',
     justifyContent: 'center',
-    height: 100,
     borderWidth: 1,
     borderStyle: 'solid',
     borderRadius: 2,
@@ -43,19 +42,20 @@ const styles = StyleSheet.create({
   buttonBar: {
     flexDirection: 'row',
     marginTop: 10,
+    flexGrow: 1,
   },
   button: {
-    width: 100,
     height: 24,
-    borderColor: 'blue',
+    borderColor: '#4c9afa',
     borderWidth: 1,
     borderStyle: 'solid',
+    flexGrow: 1,
     flexShrink: 1,
   },
   buttonText: {
-    width: 100,
     lineHeight: 24,
     textAlign: 'center',
+    paddingHorizontal: 20,
   },
   customFont: {
     color: '#0052d9',
@@ -117,7 +117,7 @@ export default class TextExpo extends React.Component {
 
   decrementLine() {
     const { numberOfLines } = this.state;
-    if (numberOfLines > 0) {
+    if (numberOfLines > 1) {
       this.setState({
         numberOfLines: numberOfLines - 1,
       });
@@ -138,7 +138,7 @@ export default class TextExpo extends React.Component {
     return (
       <ScrollView style={{ padding: 10 }}>
         {renderTitle('shadow')}
-        <View style={[styles.itemContent]} onClick={() => {
+        <View style={[styles.itemContent, { height: 60 }]} onClick={() => {
           let textShadowColor = 'red';
           let textShadowOffset = { x: 10, y: 1 };
           if (i % 2 === 1) {
@@ -162,13 +162,13 @@ export default class TextExpo extends React.Component {
             }]}>Text shadow is grey with radius 3 and offset 1</Text>
         </View>
         {renderTitle('color')}
-        <View style={[styles.itemContent]}>
+        <View style={[styles.itemContent, { height: 80 }]}>
           <Text style={[styles.normalText, { color: '#242424' }]}>Text color is black</Text>
           <Text style={[styles.normalText, { color: 'blue' }]}>Text color is blue</Text>
           <Text style={[styles.normalText, { color: 'rgb(228,61,36)' }]}>This is red</Text>
         </View>
         {renderTitle('fontSize')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent, { height: 100 }]}>
           <Text style={[styles.normalText, { fontSize }]}>
             { `Text fontSize is ${fontSize}` }
           </Text>
@@ -180,25 +180,28 @@ export default class TextExpo extends React.Component {
           </View>
         </View>
         {renderTitle('fontStyle')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent, { height: 100 }]}>
           <Text style={[styles.normalText, { fontStyle: 'normal' }]}>Text fontStyle is normal</Text>
           <Text style={[styles.normalText, { fontStyle: 'italic' }]}>Text fontStyle is italic</Text>
         </View>
         {renderTitle('numberOfLines and ellipsizeMode')}
-        <View style={[styles.itemContent, { justifyContent: 'flex-start', alignItems: 'stretch', height: 400 }]}>
-          <Text style={styles.normalText}>
-            {`numberOfLines=${numberOfLines} ellipsizeMode=${ellipsizeMode}`}
+        <View style={[styles.itemContent]}>
+          <Text style={[styles.normalText, { marginBottom: 10 }]}>
+            {`numberOfLines=${numberOfLines} | ellipsizeMode=${ellipsizeMode}`}
           </Text>
-          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[styles.normalText, { lineHeight: undefined, backgroundColor: 'gray' }]}>
-            <Text style={{ fontSize: 24, color: 'red' }}>先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</Text>
+          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={
+            [styles.normalText,
+              { lineHeight: undefined, backgroundColor: '#4c9afa', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }]}>
+            <Text style={{ fontSize: 19, color: 'white' }}>先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</Text>
             <Text>然侍卫之臣不懈于内，忠志之士忘身于外者，盖追先帝之殊遇，欲报之于陛下也。</Text>
           </Text>
-          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[styles.normalText, { backgroundColor: 'cyan' }]}>
+          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[
+            styles.normalText, { backgroundColor: '#4c9afa', marginBottom: 10, color: 'white', paddingHorizontal: 10, paddingVertical: 5 }]}>
             {'line 1\n\nline 3\n\nline 5'}
           </Text>
-          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[styles.normalText, { lineHeight: undefined, backgroundColor: 'gray' }]}>
+          <Text numberOfLines={numberOfLines} ellipsizeMode={ellipsizeMode} style={[styles.normalText,
+            { lineHeight: undefined, backgroundColor: '#4c9afa', marginBottom: 10,  paddingHorizontal: 10, paddingVertical: 5 }]}>
             <Image style={{ width: 24, height: 24 }} source={{ uri: imgURL2 }} />
-            <Text>{'\n'}</Text>
             <Image style={{ width: 24, height: 24 }} source={{ uri: imgURL3 }} />
           </Text>
           <View style={styles.buttonBar}>
@@ -225,7 +228,7 @@ export default class TextExpo extends React.Component {
           </View>
         </View>
         {renderTitle('textDecoration')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent, { height: 100 }]}>
           <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'underline', textDecorationStyle: 'dotted' }]}>
             underline
           </Text>
@@ -234,7 +237,7 @@ export default class TextExpo extends React.Component {
           </Text>
         </View>
         {renderTitle('LetterSpacing')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent, { height: 100 }]}>
           <Text numberOfLines={1} style={[styles.normalText, { letterSpacing: -1 }]}>
             Text width letter-spacing -1
           </Text>
@@ -243,7 +246,7 @@ export default class TextExpo extends React.Component {
           </Text>
         </View>
         {renderTitle('Nest Text')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent, { height: 100 }]}>
           <Text numberOfLines={3}>
             <Text numberOfLines={3} style={[styles.normalText, { color: '#4c9afa' }]}>#SpiderMan#</Text>
             <Text numberOfLines={3} style={styles.normalText}>
@@ -252,11 +255,11 @@ export default class TextExpo extends React.Component {
           </Text>
         </View>
         {renderTitle('Custom font')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent, { height: 100 }]}>
           <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
         </View>
         {renderTitle('Text Nested')}
-        <View style={styles.itemContent}>
+        <View style={[styles.itemContent, { height: 100 }]}>
           <Text style={Platform.OS === 'android' ? this.androidNestedTextWrapperStyle : {}}>
             <Text numberOfLines={1} style={styles.normalText}>后面有张图片</Text>
             <Image style={{ width: 70, height: 35 }} source={{ uri: imgURL }} />
