@@ -70,18 +70,6 @@ class CBTuple {
   void* data_;
 };
 
-class JSCCtxValue;
-class CBDataTuple {
- public:
-  CBDataTuple(const void *data,
-              const std::shared_ptr<JSCCtxValue> arguments[],
-              size_t count)
-      : data_(data), arguments_(arguments), count_(count) {}
-  const void *data_;
-  const std::shared_ptr<JSCCtxValue> *arguments_;
-  size_t count_;
-};
-
 class JSCVM : public VM {
  public:
   JSCVM(): VM(nullptr) { vm_ = JSContextGroupCreate(); }
@@ -134,6 +122,7 @@ class JSCCtx : public Ctx {
   inline void SetExceptionHandled(bool is_exception_handled) {
     is_exception_handled_ = is_exception_handled;
   }
+  void SetName(const char *name);
   virtual bool RegisterGlobalInJs() override;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) override;
   virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) override;
@@ -226,7 +215,7 @@ class JSCCtx : public Ctx {
   // Object Helpers
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
   virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
-                                    std::map<unicode_string_view, std::shared_ptr<CtxValue>> &map) override;
+                                    std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> &map) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> CopyNamedProperty(

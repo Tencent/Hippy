@@ -21,7 +21,7 @@
  */
 
 #import "HippyBridge.h"
-#import "HippyJSCExecutor.h"
+#import "HippyJSExecutor.h"
 #include "dom/dom_manager.h"
 #include "footstone/worker_manager.h"
 
@@ -85,7 +85,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
  * when the executor has been invalidated, or when you want to schedule calls on the
  * JS VM outside of Hippy Native. Use with care!
  */
-@property (nonatomic, weak, readonly) HippyJSCExecutor *javaScriptExecutor;
+@property (nonatomic, weak, readonly) HippyJSExecutor *javaScriptExecutor;
 
 /**
  * Used by HippyModuleData
@@ -150,7 +150,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 @interface HippyBatchedBridge : HippyBridge <NativeRenderInvalidating>
 
 @property (nonatomic, weak, readonly) HippyBridge *parentBridge;
-@property (nonatomic, weak, readonly) HippyJSCExecutor *javaScriptExecutor;
+@property (nonatomic, weak, readonly) HippyJSExecutor *javaScriptExecutor;
 @property (nonatomic, assign, readonly) BOOL moduleSetupComplete;
 
 @property (nonatomic, strong) dispatch_semaphore_t semaphore;

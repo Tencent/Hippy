@@ -139,19 +139,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
           frameworkProxy:(id<NativeRenderFrameworkProxy>) proxy rootView:(UIView *)view screenScale:(CGFloat)scale;
 
 /**
- * This method is used to call functions in the JavaScript application context
- * synchronously.  This is intended for use by applications which do their own
- * thread management and are careful to manage multi-threaded access to the JSVM.
- * See also -[HippyBridgeDelgate shouldBridgeLoadJavaScriptSynchronously], which
- * may be needed to ensure that any requires JS code is loaded before this method
- * is called.  If the underlying executor is not JSC, this will return nil.  Safe
- * to call from any thread.
- *
- * @experimental
- */
-- (JSValue *)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)arguments error:(NSError **)error;
-
-/**
  * Retrieve a bridge module instance by name or class. Note that modules are
  * lazily instantiated, so calling these methods for the first time with a given
  * module name/class may cause the class to be sychronously instantiated,

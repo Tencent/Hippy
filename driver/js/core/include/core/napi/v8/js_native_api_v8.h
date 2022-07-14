@@ -105,7 +105,10 @@ class CBTuple {
  public:
   CBTuple(hippy::base::RegisterFunction fn, void* data)
       : fn_(fn), data_(data) {}
+  CBTuple(Ctx::NativeFunction native_fn, void* data)
+      : native_fn_(native_fn), data_(data) {}
   hippy::base::RegisterFunction fn_;
+  Ctx::NativeFunction native_fn_;
   void* data_;
 };
 
@@ -229,7 +232,7 @@ class V8Ctx : public Ctx {
 
   // Object Helpers
   virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
-                                    std::map<unicode_string_view,
+                                    std::unordered_map<unicode_string_view,
                                     std::shared_ptr<CtxValue>> &map) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& utf8name) override;
@@ -300,7 +303,7 @@ class V8Ctx : public Ctx {
   v8::Isolate* isolate_;
   v8::Persistent<v8::ObjectTemplate> global_persistent_;
   v8::Persistent<v8::Context> context_persistent_;
-  std::unique_ptr<CBTuple> data_tuple_;
+  std::vector<std::unique_ptr<CBTuple>> function_private_data_container_;
 
  private:
   std::shared_ptr<CtxValue> InternalRunScript(
