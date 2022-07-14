@@ -64,7 +64,7 @@ class V8BridgeUtils {
                               const RegisterFunction& call_native_cb,
                               const unicode_string_view& data_dir,
                               const unicode_string_view& ws_url);
-  static bool DestroyInstance(int64_t runtime_id,  const std::function<void()>& callback, bool is_reload);
+  static void DestroyInstance(int64_t runtime_id,  const std::function<void(bool)>& callback, bool is_reload);
   static bool RunScript(const std::shared_ptr<Runtime>& runtime,
                         const unicode_string_view& file_name,
                         bool is_use_code_cache,
