@@ -643,6 +643,14 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
   return GetGlobalStrVar(name);
 }
 
+bool V8Ctx::SetProperty(const std::shared_ptr<CtxValue>& object,
+                        const unicode_string_view& prop_key,
+                        const std::shared_ptr<CtxValue>& value,
+                        const PropertyAttribute& attr) {
+  FOOTSTONE_UNIMPLEMENTED();
+  return false;
+}
+
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue>& object,
     const unicode_string_view& name) {
@@ -733,6 +741,11 @@ void V8Ctx::RegisterNativeBinding(const unicode_string_view& name,
       ->Set(context, v8_name,
             fn_template->GetFunction(context).ToLocalChecked())
       .ToChecked();
+}
+void V8Ctx::RegisterNativeBinding(const unicode_string_view& name,
+                                  NativeFunction fn,
+                                  void* data) {
+  FOOTSTONE_UNIMPLEMENTED();
 }
 
 std::shared_ptr<CtxValue> V8Ctx::RunScript(const unicode_string_view& str_view,
@@ -1654,6 +1667,16 @@ bool V8Ctx::IsMap(const std::shared_ptr<CtxValue>& value) {
   return handle_value->IsMap();
 }
 
+bool V8Ctx::IsString(const std::shared_ptr<CtxValue>& value) {
+  FOOTSTONE_UNIMPLEMENTED();
+  return false;
+}
+
+bool V8Ctx::IsNumber(const std::shared_ptr<CtxValue>& value) {
+  FOOTSTONE_UNIMPLEMENTED();
+  return false;
+}
+
 bool V8Ctx::IsObject(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return false;
@@ -1825,6 +1848,13 @@ std::shared_ptr<CtxValue> V8Ctx::ConvertMapToArray(
 }
 
 // Object Helpers
+
+bool V8Ctx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                 std::map<unicode_string_view,
+                                 std::shared_ptr<CtxValue>> &map) {
+  FOOTSTONE_UNIMPLEMENTED();
+  return false;
+}
 
 bool V8Ctx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                              const unicode_string_view& name) {

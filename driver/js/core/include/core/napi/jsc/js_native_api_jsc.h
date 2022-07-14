@@ -62,6 +62,25 @@ constexpr char16_t kHippyKey[] = u"Hippy";
 constexpr char kGetterStr[] = "getter";
 constexpr char kSetterStr[] = "setter";
 
+class CBTuple {
+ public:
+  CBTuple(Ctx::NativeFunction fn, void* data)
+      : fn_(fn), data_(data) {}
+  Ctx::NativeFunction fn_;
+  void* data_;
+};
+
+class JSCCtxValue;
+class CBDataTuple {
+ public:
+  CBDataTuple(const void *data,
+              const std::shared_ptr<JSCCtxValue> arguments[],
+              size_t count)
+      : data_(data), arguments_(arguments), count_(count) {}
+  const void *data_;
+  const std::shared_ptr<JSCCtxValue> *arguments_;
+  size_t count_;
+};
 
 class JSCVM : public VM {
  public:
@@ -129,6 +148,10 @@ class JSCCtx : public Ctx {
       const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
       const unicode_string_view& name) override;
+  virtual bool SetProperty(const std::shared_ptr<CtxValue>& object,
+                           const unicode_string_view& prop_key,
+                           const std::shared_ptr<CtxValue>& value,
+                           const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& obj,
       const unicode_string_view& name) override;
@@ -139,6 +162,9 @@ class JSCCtx : public Ctx {
                                     const ModuleClassMap& modules) override;
   virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
+                                     void* data) override;
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
+                                     NativeFunction fn,
                                      void* data) override;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
@@ -184,7 +210,10 @@ class JSCCtx : public Ctx {
     return false;
   }
 
-  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) override;
+  
+  virtual bool IsNumber(const std::shared_ptr<CtxValue>& value) override;
+
   // Null Helpers
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
 
@@ -195,7 +224,9 @@ class JSCCtx : public Ctx {
   virtual std::shared_ptr<CtxValue> CopyArrayElement(const std::shared_ptr<CtxValue>& value, uint32_t index) override;
 
   // Object Helpers
-
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::map<unicode_string_view, std::shared_ptr<CtxValue>> &map) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> CopyNamedProperty(
@@ -244,6 +275,7 @@ class JSCCtx : public Ctx {
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
+  std::vector<std::unique_ptr<CBTuple>> function_private_data_container_;
 };
 
 inline footstone::stringview::unicode_string_view ToStrView(JSStringRef str) {

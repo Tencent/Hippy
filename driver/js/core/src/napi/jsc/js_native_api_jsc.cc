@@ -387,6 +387,27 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(
   return std::make_shared<JSCCtxValue>(context_, value_ref);
 }
 
+bool JSCCtx::SetProperty(const std::shared_ptr<CtxValue>& object,
+                                 const unicode_string_view& prop_key,
+                                 const std::shared_ptr<CtxValue>& value,
+                                 const PropertyAttribute& attr) {
+  std::shared_ptr<JSCCtxValue> ctx_object = std::static_pointer_cast<JSCCtxValue>(object);
+  JSValueRef object_ref = ctx_object->value_;
+  if (!JSValueIsObject(context_, object_ref)) {
+    return false;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  if (!JSValueIsObject(context_, value_ref)) {
+    return false;
+  }
+  JSValueRef js_error = nullptr;
+  JSObjectRef obj_ref = JSValueToObject(context_, object_ref, &js_error);
+  JSStringRef key_ref = CreateJSCString(prop_key);
+  JSObjectRef val_ref = JSValueToObject(context_, value_ref, &js_error);
+  JSObjectSetProperty(context_, obj_ref, key_ref, val_ref, ConvertPropertyAttribute(attr), &js_error);
+  return true;
+}
 std::shared_ptr<CtxValue> JSCCtx::GetProperty(
     const std::shared_ptr<CtxValue>& obj,
     const unicode_string_view& name) {
@@ -445,6 +466,45 @@ void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
   FOOTSTONE_UNIMPLEMENTED();
+}
+
+void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
+                                   Ctx::NativeFunction fn,
+                                   void* data) {
+  JSStringRef native_func_name = CreateJSCString(name);
+  auto native_func_callback =
+    [](JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+       size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
+      if (exception && JSValueIsString(ctx, *exception)) {
+        JSStringRef stringRef = (JSStringRef)(*exception);
+        size_t size = JSStringGetMaximumUTF8CStringSize(stringRef) + 1;
+        char buffer[size];
+        JSStringGetUTF8CString(stringRef, buffer, size);
+      }
+      CBTuple *pTuple = static_cast<CBTuple *>(JSObjectGetPrivate(function));
+      std::shared_ptr<JSCCtxValue> args[argumentCount];
+      for (int index = 0; index < argumentCount; index++) {
+        JSValueRef valueRef = arguments[index];
+        JSGlobalContextRef contextRef = (JSGlobalContextRef)ctx;
+        auto ctxValue = std::make_shared<JSCCtxValue>(contextRef, valueRef);
+        args[index] = ctxValue;
+      }
+      CBDataTuple dataTuple(pTuple->data_, args, argumentCount);
+      const NativeFunction &fn = pTuple->fn_;
+      std::shared_ptr<CtxValue> value = fn(&dataTuple);
+      std::shared_ptr<JSCCtxValue> ctxValue = std::static_pointer_cast<JSCCtxValue>(value);
+      return ctxValue->value_;
+  };
+  function_private_data_container_.emplace_back(std::make_unique<CBTuple>(fn, data));
+  CBTuple *last = function_private_data_container_.back().get();
+  void *private_data = static_cast<void *>(last);
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.callAsFunction = native_func_callback;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef func_object = JSObjectMake(context_, cls_ref, private_data);
+  JSClassRelease(cls_ref);
+  JSObjectSetProperty(context_, JSContextGetGlobalObject(context_), native_func_name, func_object, kJSPropertyAttributeNone, NULL);
+  JSStringRelease(native_func_name);
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
@@ -813,6 +873,24 @@ bool JSCCtx::IsObject(const std::shared_ptr<CtxValue>& value) {
   std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
   return JSValueIsObject(context_, value_ref);
+}
+
+bool JSCCtx::IsString(const std::shared_ptr<CtxValue>& value) {
+  if (!value) {
+    return false;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  return JSValueIsString(context_, value_ref);
+}
+
+bool JSCCtx::IsNumber(const std::shared_ptr<CtxValue>& value) {
+  if (!value) {
+    return false;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+  JSValueRef value_ref = ctx_value->value_;
+  return JSValueIsNumber(context_, value_ref);
 }
 
 void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {

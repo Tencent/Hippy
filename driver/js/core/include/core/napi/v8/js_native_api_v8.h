@@ -150,6 +150,10 @@ class V8Ctx : public Ctx {
       const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
       const unicode_string_view& name) override;
+  virtual bool SetProperty(const std::shared_ptr<CtxValue>& object,
+                           const unicode_string_view& prop_key,
+                           const std::shared_ptr<CtxValue>& value,
+                           const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) override;
@@ -159,6 +163,9 @@ class V8Ctx : public Ctx {
                                     const ModuleClassMap& modules) override;
   virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
+                                     void* data) override;
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
+                                     NativeFunction fn,
                                      void* data) override;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
@@ -200,6 +207,10 @@ class V8Ctx : public Ctx {
 
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override;
 
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) override;
+
+  virtual bool IsNumber(const std::shared_ptr<CtxValue>& value) override;
+
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
 
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
@@ -217,7 +228,9 @@ class V8Ctx : public Ctx {
       const std::shared_ptr<CtxValue>& value);
 
   // Object Helpers
-
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::map<unicode_string_view,
+                                    std::shared_ptr<CtxValue>> &map) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& utf8name) override;
   virtual std::shared_ptr<CtxValue> CopyNamedProperty(
