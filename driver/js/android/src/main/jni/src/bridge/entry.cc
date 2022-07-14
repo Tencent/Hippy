@@ -474,13 +474,15 @@ void DestroyInstance(__unused JNIEnv* j_env,
                      __unused jboolean j_single_thread_mode,
                      jboolean j_is_reload,
                      jobject j_callback) {
-  auto ret = V8BridgeUtils::DestroyInstance(
-      footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id), nullptr, static_cast<bool>(j_is_reload));
-  if (ret) {
-    hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::SUCCESS);
-  } else {
-    hippy::bridge::CallJavaMethod(j_callback, INIT_CB_STATE::DESTROY_ERROR);
-  }
+  auto cb = std::make_shared<JavaRef>(j_env, j_callback);
+  V8BridgeUtils::DestroyInstance(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
+                                 [cb](bool ret) {
+                                   if (ret) {
+                                     hippy::bridge::CallJavaMethod(cb->GetObj(), INIT_CB_STATE::SUCCESS);
+                                   } else {
+                                     hippy::bridge::CallJavaMethod(cb->GetObj(), INIT_CB_STATE::DESTROY_ERROR);
+                                   }
+                                 }, static_cast<bool>(j_is_reload));
 }
 
 void LoadInstance(JNIEnv* j_env,
