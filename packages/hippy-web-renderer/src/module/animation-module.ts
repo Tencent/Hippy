@@ -289,10 +289,13 @@ class SimpleAnimation {
   }
 
   public get useForSetProperty() {
-    if (this.refCssProperty && TransformList[this.refCssProperty]) {
+    if (!this.refCssProperty) {
+      return '';
+    }
+    if (TransformList[this.refCssProperty]) {
       return 'transform';
     }
-    return this.refCssProperty;
+    return camel2Kebab(this.refCssProperty);
   }
 
   public initAnimation(element: HTMLElement) {
@@ -622,4 +625,7 @@ function createCssAnimation(
   repeat: AnimationIterationCount = '1', fillMode: AnimationFillMode = 'forwards',
 ) {
   return `${duration} ${timeFunction} ${delay} ${repeat} normal ${fillMode} ${state} ${name}`;
+}
+function camel2Kebab(str: string) {
+  return str.replace(/[A-Z]/g, item => `-${item.toLowerCase()}`);
 }
