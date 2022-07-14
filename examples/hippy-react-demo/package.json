@@ -29,7 +29,7 @@
     "@hippy/react-web": "latest",
     "@hippy/rmc-list-view": "latest",
     "@hippy/rmc-pull-to-refresh": "latest",
-    "@tencent/camp-hippy-web-renderer": "^0.1.0",
+    "@hippy/web-renderer": "^0.1.0",
     "animated-scroll-to": "^2.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
