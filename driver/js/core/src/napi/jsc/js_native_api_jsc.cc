@@ -257,6 +257,15 @@ std::shared_ptr<CtxValue> GetInternalBindingFn(const std::shared_ptr<Scope>& sco
   return std::make_shared<JSCCtxValue>(context->GetCtxRef(), func);
 }
 
+void JSCCtx::SetName(const char *name) {
+  if (!name) {
+    return;
+  }
+  JSStringRef js_name = JSStringCreateWithUTF8CString(name);
+  JSGlobalContextSetName(context_, js_name);
+  JSStringRelease(js_name);
+}
+
 bool JSCCtx::RegisterGlobalInJs() {
   JSStringRef global_ref = CreateWithCharacters(kGlobalStr);
   JSObjectSetProperty(context_, JSContextGetGlobalObject(context_), global_ref,
@@ -474,30 +483,29 @@ void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
   JSStringRef native_func_name = CreateJSCString(name);
   auto native_func_callback =
     [](JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
-       size_t argumentCount, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
+       size_t cnt, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
       if (exception && JSValueIsString(ctx, *exception)) {
         JSStringRef stringRef = (JSStringRef)(*exception);
         size_t size = JSStringGetMaximumUTF8CStringSize(stringRef) + 1;
         char buffer[size];
         JSStringGetUTF8CString(stringRef, buffer, size);
       }
-      CBTuple *pTuple = static_cast<CBTuple *>(JSObjectGetPrivate(function));
-      std::shared_ptr<JSCCtxValue> args[argumentCount];
-      for (int index = 0; index < argumentCount; index++) {
+      CBTuple *tuple_ptr = static_cast<CBTuple *>(JSObjectGetPrivate(function));
+      std::shared_ptr<CtxValue> args[cnt];
+      for (int index = 0; index < cnt; index++) {
         JSValueRef valueRef = arguments[index];
         JSGlobalContextRef contextRef = (JSGlobalContextRef)ctx;
-        auto ctxValue = std::make_shared<JSCCtxValue>(contextRef, valueRef);
-        args[index] = ctxValue;
+        args[index] = std::make_shared<JSCCtxValue>(contextRef, valueRef);
       }
-      CBDataTuple dataTuple(pTuple->data_, args, argumentCount);
-      const NativeFunction &fn = pTuple->fn_;
-      std::shared_ptr<CtxValue> value = fn(&dataTuple);
+      CBCtxValueTuple value_tuple(tuple_ptr->data_, args, cnt);
+      const NativeFunction &fn = tuple_ptr->fn_;
+      std::shared_ptr<CtxValue> value = fn(&value_tuple);
       std::shared_ptr<JSCCtxValue> ctxValue = std::static_pointer_cast<JSCCtxValue>(value);
       return ctxValue->value_;
   };
-  function_private_data_container_.emplace_back(std::make_unique<CBTuple>(fn, data));
-  CBTuple *last = function_private_data_container_.back().get();
-  void *private_data = static_cast<void *>(last);
+  auto tuple = std::make_unique<CBTuple>(fn, data);
+  void *private_data = static_cast<void *>(tuple.get());
+  function_private_data_container_.push_back(std::move(tuple));
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.callAsFunction = native_func_callback;
   JSClassRef cls_ref = JSClassCreate(&cls_def);

@@ -480,10 +480,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [self.batchedBridge enqueueCallback:cbID args:args];
 }
 
-- (JSValue *)callFunctionOnModule:(NSString *)module method:(NSString *)method arguments:(NSArray *)arguments error:(NSError **)error {
-    return [self.batchedBridge callFunctionOnModule:module method:method arguments:arguments error:error];
-}
-
 - (void)setRedBoxShowEnabled:(BOOL)enabled {
 #if HIPPY_DEBUG
     HippyRedBox *redBox = [self redBox];

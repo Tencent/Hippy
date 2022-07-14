@@ -179,7 +179,7 @@ bool JSCCtx::GetValueJson(const std::shared_ptr<CtxValue>& value,
 }
 
 bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
-                                  std::map<unicode_string_view, std::shared_ptr<CtxValue>> &map) {
+                                  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> &map) {
   if (!value) {
     return false;
   }

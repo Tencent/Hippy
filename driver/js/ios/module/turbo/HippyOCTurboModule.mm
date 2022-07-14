@@ -36,7 +36,7 @@
 #import "NativeRenderLog.h"
 #include "footstone/string_view_utils.h"
 #import "HippyBridge+Private.h"
-#import "HippyJSCExecutor.h"
+#import "HippyJSExecutor.h"
 #import "HippyTurboModuleManager.h"
 
 using namespace hippy;
@@ -243,7 +243,7 @@ static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shar
                                                                 id objcObject,
                                                                 HippyOCTurboModule *module) {
     std::shared_ptr<napi::JSCCtx> jscCtx = std::static_pointer_cast<napi::JSCCtx>(context);
-    HippyJSCExecutor *jsExecutor = (HippyJSCExecutor *)module.bridge.javaScriptExecutor;
+    HippyJSExecutor *jsExecutor = (HippyJSExecutor *)module.bridge.javaScriptExecutor;
     if ([objcObject isKindOfClass:[HippyOCTurboModule class]]) {
         NSString *name = [[objcObject class] turoboModuleName];
         std::shared_ptr<hippy::napi::CtxValue> value = [jsExecutor JSTurboObjectWithName:name];

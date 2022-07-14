@@ -28,7 +28,7 @@
 #import "HippyBridgeMethod.h"
 #import "NativeRenderConvert.h"
 #import "HippyDisplayLink.h"
-#import "HippyJSCExecutor.h"
+#import "HippyJSExecutor.h"
 #import "HippyJavaScriptLoader.h"
 #import "NativeRenderLog.h"
 #import "HippyModuleData.h"
@@ -41,7 +41,6 @@
 #import "HippyBundleURLProvider.h"
 #include "core/scope.h"
 #import "HippyTurboModuleManager.h"
-#import <core/napi/jsc/js_native_api_jsc.h>
 #include "NativeRenderManager.h"
 #include "dom/dom_manager.h"
 #import "UIView+NativeRender.h"
@@ -343,7 +342,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
 
         // Set executor instance
         if (moduleClass == self.executorClass) {
-            _javaScriptExecutor = (HippyJSCExecutor *)module;
+            _javaScriptExecutor = (HippyJSExecutor *)module;
         }
     }
     // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
@@ -354,7 +353,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     // probably just replace this with [self moduleForClass:self.executorClass]
     // HIPPY_PROFILE_BEGIN_EVENT(0, @"JavaScriptExecutor", nil);
     if (!_javaScriptExecutor) {
-        HippyJSCExecutor *executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey bridge:self];
+        HippyJSExecutor *executorModule = [[self.executorClass alloc] initWithExecurotKey:self.executorKey bridge:self];
         HippyModuleData *moduleData = [[HippyModuleData alloc] initWithModuleInstance:executorModule bridge:self];
         moduleDataByName[moduleData.name] = moduleData;
         [moduleClassesByID addObject:self.executorClass];
@@ -503,7 +502,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
     NSMutableArray<NSArray *> *config = [NSMutableArray new];
     dispatch_semaphore_wait(self.moduleSemaphore, DISPATCH_TIME_FOREVER);
     for (HippyModuleData *moduleData in _moduleDataByID) {
-        if (self.executorClass == [HippyJSCExecutor class]) {
+        if (self.executorClass == [HippyJSExecutor class]) {
             [config addObject:@[moduleData.name]];
         } else {
             [config addObject:NativeRenderNullIfNil(moduleData.config)];
@@ -674,7 +673,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
 }
 
 - (Class)executorClass {
-    return [HippyJSCExecutor class];
+    return [HippyJSExecutor class];
 }
 
 - (BOOL)debugMode {
@@ -867,42 +866,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithBundleURL
     [self dispatchBlock:^{
         [weakSelf _actuallyInvokeCallback:cbID arguments:args];
     } queue:HippyJSThread];
-}
-
-/**
- * JS thread only
- */
-- (JSValue *)callFunctionOnModule:(NSString *)module
-                           method:(NSString *)method
-                        arguments:(NSArray *)arguments
-                            error:(NSError *__autoreleasing *)error {
-    HippyJSCExecutor *jsExecutor = (HippyJSCExecutor *)_javaScriptExecutor;
-    if (![jsExecutor isKindOfClass:[HippyJSCExecutor class]]) {
-        NativeRenderLogWarn(@"FBHippyBridgeJSExecutor is only supported when running in JSC");
-        return nil;
-    }
-
-    __block JSValue *jsResult = nil;
-
-    HippyAssertJSThread();
-    // HIPPY_PROFILE_BEGIN_EVENT(0, @"callFunctionOnModule", (@{ @"module": module, @"method": method }));
-    [jsExecutor callFunctionOnModule:module method:method arguments:arguments ?: @[] jsValueCallback:^(JSValue *result, NSError *jsError) {
-        if (error) {
-            *error = jsError;
-        }
-#ifdef DEBUG
-        JSValue *length = result[@"length"];
-        HippyAssert([length isNumber] && [length toUInt32] == 2, @"Return value of a callFunction must be an array of size 2");
-#endif
-        jsResult = [result valueAtIndex:0];
-
-        NSArray *nativeModuleCalls = [[result valueAtIndex:1] toArray];
-        [self handleBuffer:nativeModuleCalls batchEnded:YES];
-    }];
-
-    // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"js_call");
-
-    return jsResult;
 }
 
 /**

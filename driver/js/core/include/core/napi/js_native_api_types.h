@@ -72,6 +72,18 @@ enum Encoding {
   UTF8_ENCODING
 };
 
+class CtxValue;
+class CBCtxValueTuple {
+ public:
+  CBCtxValueTuple(const void *data,
+                  const std::shared_ptr<CtxValue> arguments[],
+                  size_t count)
+      : data_(data), arguments_(arguments), count_(count) {}
+  const void *data_;
+  const std::shared_ptr<CtxValue> *arguments_;
+  size_t count_;
+};
+
 class CtxValue {
  public:
   CtxValue() {}
@@ -131,7 +143,6 @@ class Ctx {
 
   Ctx() {}
   virtual ~Ctx() { FOOTSTONE_DLOG(INFO) << "~Ctx"; }
-
   virtual bool RegisterGlobalInJs() = 0;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) = 0;
   virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) = 0;
@@ -219,8 +230,9 @@ class Ctx {
 
   // Object Helpers
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
+  //Currently, we only support the case where the 'key' is string type.
   virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
-                                    std::map<unicode_string_view, std::shared_ptr<CtxValue>> &map) = 0;
+                                    std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> &map) = 0;
 
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& name) = 0;
