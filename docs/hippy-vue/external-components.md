@@ -2,7 +2,7 @@
 
 # 终端扩展组件
 
-扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) 提供，但因为暂时还没有 `@hippy/vue-web-components` 所以暂时无法在浏览器中使用。
+扩展组件是终端提供了一些很方便的组件，在 hippy-vue 中由 [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) 提供
 
 ---
 
@@ -18,31 +18,104 @@
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| playing        | 控制动画是否播放 | boolean                                | `ALL`    |
-| actions*        | 动画方案，其实是一个样式值跟上它的动画方案，详情请参考范例。 | Object                                | `ALL`    |
+| playing        | 控制动画是否播放 | boolean                                | `Android、iOS、Web-Renderer`    |
+| actions*        | 动画方案，其实是一个样式值跟上它的动画方案，详情请参考范例。 | Object                                | `Android、iOS、Web-Renderer`    |
 
 * actions 详解
   
-  和 React 不同，它将单个动画 Animation 和动画序列 AnimationSet 合二为一了，其实方法特别简单，发现是个对象就是 Animation，如果是个数组就是动画序列就用 AnimationSet 处理，单个动画参数具体参考 [Animation 模块](../hippy-react/modules.md?id=animation)和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。需要说明 hippy-vue 的动画参数有一些[默认值](https://github.com/Tencent/Hippy/blob/master/packages/hippy-vue-native-components/src/animation.js#L5)，只有差异部分才需要填写。循环播放参数 `repeatCount: 'loop'` 在 `2.12.2` 及以上版本支持，低版本请使用 `repeatCount: -1`。
+  和 HippyReact 不同，HippyVue 将单个动画 Animation 和动画序列 AnimationSet 合二为一，如果是一个对象，就使用 Animation 处理，如果是数组动画序列就用 AnimationSet 处理。动画参数具体可参考 [HippyReact Animation 模块](../hippy-react/modules.md?id=animation) 和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。
 
-  特别说明，对 actions 替换后会自动新建动画，需手动启动新动画。有两种处理方式：
-  * 替换 actions => 延迟一定时间后（如setTimeout） 调用 `this.[animation ref].start()`（推荐）
-  * `playing = false` =>  替换 actions =>  延迟一定时间后（如setTimeout） `playing = true`
-  
-  2.6.0 版本新增 `backgroundColor` 背景色渐变动画支持，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
-  * 设置 `actions` 对 `backgroundColor` 进行修饰
-  * 设置 `valueType` 为 `color`
-  * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
+```vue
+<template>
+  <div>
+    <animation
+        ref="animationRef"
+        :actions="actionsConfig"
+        :playing="true"
+        @start="animationStart"
+        @end="animationEnd"
+        @repeat="animationRepeat"
+        @cancel="animationCancel"
+        @actionsDidUpdate="actionsDidUpdate"
+    />
+  </div>
+</template>
+<script>
+export default {
+  data() {
+    return {
+      actionsConfig: {
+        // AnimationSet
+        top: [
+          {
+            startValue: 14,
+            toValue: 8,
+            duration: 125, // 动画持续时间
+          },
+          {
+            startValue: 8,
+            toValue: 14,
+            duration: 250,
+            timingFunction: 'linear', // 动画插值器类型，可选 linear、ease-in、ease-out、ease-in-out、cubic-bezier(最低支持版本 2.9.0)
+            delay: 750, // 动画延迟开始的时间，单位为毫秒
+            repeatCount: -1, // 动画的重复次数，0 为不重复，-1('loop') 为重复播放，如果在数组中，整个动画数组的重复次数以最后一个动画的值为准
+          },
+        ],
+        transform: {
+          // 单个 Animation
+          rotate: {
+              startValue: 0,
+              toValue: 90,
+              duration: 250,
+              timingFunction: 'linear',
+              valueType: 'deg',  // 动画的开始和结束值的单位类型，默认为 undefined, 可设为 rad、deg、color
+            },
+        },
+      },
+    };
+  },
+  methods: {
+    animationStart() {
+      console.log('animation-start callback');
+    },
+    animationEnd() {
+      console.log('animation-end callback');
+    },
+    animationRepeat() {
+      console.log('animation-repeat callback');
+    },
+    animationCancel() {
+      console.log('animation-cancel callback');
+    },
+    actionsDidUpdate() {
+      this.animationRef.start();
+    }
+  },
+};
+</script>
+```
+
+  > 特别说明，对 actions 替换后会重新创建动画，需手动启动新动画。有两种处理方式：
+  > 
+  > * 替换 actions => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，调用 `this.[animation ref].start()`（推荐）
+  > * 设置 `playing = false` =>  替换 actions  => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，设置 `playing = true`
+
+  > `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
+
+  > `2.6.0` 及以上版本支持 `backgroundColor` 背景色渐变动画，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
+  > 
+  > * 设置 `actions` 对 `backgroundColor` 进行修饰
+  > * 设置 `valueType` 为 `color`
+  > * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
 
 ## 事件
 
-> 最低支持版本 2.5.2
-
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| start              | 动画开始时触发                                                            | `Function`                                                    | `ALL`    |
-| end         | 动画结束时触发                                                            | `Function`| `ALL`    |
-| repeat | 每次循环播放时触发                                                            | `Function` | `Android`   |
+| start              | 动画开始时触发，最低支持版本 `2.5.2`      | `Function`                                                    | `Android、iOS、Web-Renderer`    |
+| end         | 动画结束时触发，最低支持版本 `2.5.2`             | `Function`| `Android、iOS、Web-Renderer`    |
+| repeat | 每次循环播放时触发，最低支持版本 `2.5.2`               | `Function` | `Android`   |
+| actionsDidUpdate | 替换 actions 且动画对象创建成功后触发，可以在这个时机重新启动动画，最低支持版本 `2.14.0`  | `Function` | `Android、iOS`   |
 
 ## 方法
 
@@ -84,19 +157,19 @@
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `ALL`    |
-| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `ALL`    |
-| supportedOrientations | 支持屏幕翻转方向                                                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `ALL`    |
-| immersionStatusBar    | 是否是沉浸式状态栏。                                         | `boolean`                                                    | `ALL`    |
-| darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `ALL`    |
+| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS、Web-Renderer`    |
+| supportedOrientations | 支持屏幕翻转方向                                                       | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
+| immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                         | `boolean`                                                    | `Android`    |
+| darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS`    |
+| transparent | 背景是否是透明的。`default: true` | `boolean`                                                    | `Android、iOS、Web-Renderer`    |
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| show                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `ALL`    |
-| orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `ALL`    |
-| requestClose        | 在`Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
+| show                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `Android、iOS`    |
+| requestClose        | 在 `Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
 
 ---
 
@@ -111,19 +184,19 @@
 | 参数                     | 描述                                                         | 类型                                         | 支持平台 |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| current              | 实时改变当前所处页码 | `number`                                     | `ALL`    |
-| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `ALL`    |
-| needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `ALL`    |
-| scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `ALL`    |
+| current              | 实时改变当前所处页码 | `number`                                     | `Android、iOS、Web-Renderer`    |
+| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `Android、iOS、Web-Renderer`    |
+| needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `Android、iOS`    |
+| scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `Android、iOS、Web-Renderer`    |
 | direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `string`                                    | `Android`    |
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| dragging                | 拖动时触发。                            | `Function`                                                   | `ALL`    |
-| dropped   | 拖拽松手时触发，就是确定了滚动的页面时触发。                                                            | `Function`                                                   | `ALL`    |
-| stateChanged*   | 手指行为发生改变时触发，包含了 idle、dragging、settling 三种状态，通过 state 参数返回                                                             | `Function`                                                   | `ALL`    |
+| dragging                | 拖动时触发。                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| dropped   | 拖拽松手时触发，就是确定了滚动的页面时触发。                                                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| stateChanged*   | 手指行为发生改变时触发，包含了 idle、dragging、settling 三种状态，通过 state 参数返回                                                             | `Function`                                                   | `Android、iOS、Web-Renderer`    |
 
 * stateChanged 三种值的意思：
   * idle 空闲状态
@@ -150,15 +223,19 @@
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
-| pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `ALL`    |
-| released   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
+| idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS`    |
+| pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `Android、iOS`    |
+| released   | 滑动超出距离，松手后触发一次          | `Function`   | `Android、iOS`    |
 
 ## 方法
 
 ### collapsePullHeader
 
-`() => void` 收起顶部刷新条 `<pull-header>`。当使用了`pull-header`后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
+`(otions: { time: number }) => void` 收起顶部刷新条 `<pull-header>`。当使用了 `pull-header` 后，每当下拉刷新结束需要主动调用该方法收回 pull-header。
+
+> options 参数，最低支持版本 `2.14.0`
+>
+>* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
 ---
 
@@ -172,9 +249,9 @@
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `ALL`    |
-| pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `ALL`    |
-| refresh   | 滑动超出距离，松手后触发一次          | `Function`   | `ALL`    |
+| idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS`    |
+| pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `Android、iOS`    |
+| released   | 滑动超出距离松手后触发一次          | `Function`   | `Android、iOS`    |
 
 ## 方法
 
@@ -196,21 +273,21 @@
 
 | 参数              | 描述                                                  | 类型       | 支持平台 |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
-| columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `ALL`    |
-| interItemSpacing  | item 间的垂直间距                                        | `number`   | `ALL`    |
-| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `ALL`    |
+| columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `Android、iOS`    |
+| interItemSpacing  | item 间的垂直间距                                        | `number`   | `Android、iOS`    |
+| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`    |
 | containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS`    |
 | containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS`    |
-| containPullFooter | 是否包含 `pull-footer` | `boolean`  | `ALL` |
-| numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `ALL`    |
-| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `ALL`    |
+| containPullFooter | 是否包含 `pull-footer` | `boolean`  | `Android、iOS` |
+| numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `Android、iOS`    |
+| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `Android、iOS`    |
 
 ## 事件
 
 | 事件名称              | 描述           | `类型`     | 支持平台 |
 | --------------------- | -------------- | ---------- | -------- |
-| endReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                           | `Function` | `ALL`    |
-| scroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `ALL`    |
+| endReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                           | `Function` | `Android、iOS`    |
+| scroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS`    |
 
 ## 方法
 
@@ -239,5 +316,5 @@
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `ALL`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `ALL`    |
+| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |

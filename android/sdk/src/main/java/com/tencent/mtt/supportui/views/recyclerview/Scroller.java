@@ -494,6 +494,8 @@ public class Scroller
 	 */
 	public void fling(int startX, int startY, int velocityX, int velocityY, int minX, int maxX, int minY, int maxY)
 	{
+		float newVelocityX = velocityX;
+		float newVelocityY = velocityY;
 		// Continue a scroll or fling in progress
 		if (mFlywheel && !mFinished)
 		{
@@ -510,15 +512,15 @@ public class Scroller
 			float oldVelocityY = ndy * oldVel;
 			if (Math.signum(velocityX) == Math.signum(oldVelocityX) && Math.signum(velocityY) == Math.signum(oldVelocityY))
 			{
-				velocityX += oldVelocityX;
-				velocityY += oldVelocityY;
+				newVelocityX += oldVelocityX;
+				newVelocityY += oldVelocityY;
 			}
 		}
 
 		mMode = FLING_MODE;
 		mFinished = false;
 
-		float velocity = (float) Math.sqrt((double) velocityX * (double) velocityX + (double) velocityY * (double) velocityY);
+		float velocity = (float) Math.sqrt((double) newVelocityX * (double) newVelocityX + (double) newVelocityY * (double) newVelocityY);
 
 		mVelocity = velocity;
 		final double l = Math.log(START_TENSION * velocity / ALPHA);
@@ -527,8 +529,8 @@ public class Scroller
 		mStartX = startX;
 		mStartY = startY;
 
-		float coeffX = velocity == 0 ? 1.0f : velocityX / velocity;
-		float coeffY = velocity == 0 ? 1.0f : velocityY / velocity;
+		float coeffX = velocity == 0 ? 1.0f : newVelocityX / velocity;
+		float coeffY = velocity == 0 ? 1.0f : newVelocityY / velocity;
 
 		int totalDistance = (int) (ALPHA * Math.exp(DECELERATION_RATE / (DECELERATION_RATE - 1.0) * l));
 		mDistance = (int) (totalDistance * Math.signum(velocity));

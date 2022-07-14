@@ -20,6 +20,8 @@ fetch('//mywebsite.com/mydata.json');
 
 fetch 函数也支持 HTTP 请求的配置。
 
+> 低版本仅支持 `method | headers | body` 参数设置，`2.14.0` 及以上版本支持所有自定义参数透传，如 `redirect: 'follow'`
+
 ```javascript
 fetch('//mywebsite.com/endpoint/', {
   method: 'POST',
@@ -31,6 +33,7 @@ fetch('//mywebsite.com/endpoint/', {
     firstParam: 'yourValue',
     secondParam: 'yourOtherValue',
   }),
+  redirect: 'follow', // `2.14.0` 及以上版本支持
 });
 ```
 
@@ -194,6 +197,6 @@ export default class WebSocketExpo extends React.Component {
 
 Hippy 在接收来自服务器的 `set-cookie` header 时，会自动种入 cookie，下次再请求同域名服务时，就自动带上之前种下的 cookie。
 
-但和浏览器不同，Hippy 内提供提供了 NetworkModule 提供了对 cookie 读取和修改，详情可以参考 hippy-react 的 [NetworkModule](hippy-react/modules.md?id=networkmodule)，或者 hippy-vue 的 [Vue.Native.Cookie](/hippy-vue/vue-native.md?id=cookie) 文档。
+但和浏览器不同，Hippy 内提供了 `NetworkModule` 对 cookie 读取和修改，详情可以参考 hippy-react 的 [NetworkModule](hippy-react/modules.md?id=networkmodule)，或者 hippy-vue 的 [Vue.Native.Cookie](/hippy-vue/vue-native.md?id=cookie) 文档。
 
 > 浏览器中对 Cookie 的读写时通过 document 对象操作的，但是 Hippy 中暂时不能直接出现全局的 document，否则部分库会运行一些在浏览器中才有的 document 方法，但 Hippy 中并没有，会导致崩溃。

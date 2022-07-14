@@ -502,10 +502,6 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
       TDF_BASE_UNREACHABLE();
       break;
     }
-    case unicode_string_view::Encoding::Latin1: {
-      ret = JSStringCreateWithUTF8CString(str_view.latin1_value().c_str());
-      break;
-    }
     case unicode_string_view::Encoding::Utf8: {
       std::string u8_str(
           reinterpret_cast<const char*>(str_view.utf8_value().c_str()),
@@ -519,6 +515,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
           reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;
     }
+    case unicode_string_view::Encoding::Latin1:
     case unicode_string_view::Encoding::Utf32: {
       std::u16string u16_str =
           StringViewUtils::Convert(str_view,

@@ -11,7 +11,7 @@ before(() => {
   };
 });
 
-test('ListNode.polyFillNativeEvents test', (t) => {
+test('ListNode.polyfillNativeEvents test', (t) => {
   const listNode = new ListNode('ul');
   let called = false;
   const callback = (event) => {
@@ -27,8 +27,7 @@ test('ListNode.polyFillNativeEvents test', (t) => {
   called = false;
   t.is(called, false);
   listNode.removeEventListener('loadMore', callback);
-  listNode.removeEventListener('endReached', callback);
   listNode.addEventListener('endReached', callback);
   t.true(!!listNode._emitter);
-  t.not(listNode._emitter.getEventListeners().loadMore, undefined);
+  t.not(listNode._emitter.getEventListeners().endReached, undefined);
 });

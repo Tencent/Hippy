@@ -4,69 +4,79 @@
 
 # borderColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  | All
+| [color](style/color.md) | 否  | Android、iOS
 
 # borderTopColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  All
+| [color](style/color.md) | 否  |  Android、iOS
 
 # borderBottomColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否 | All
+| [color](style/color.md) | 否 | Android、iOS
 
 # borderLeftColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  All
+| [color](style/color.md) | 否  |  Android、iOS
 
 # borderRightColor
 
+> Android 默认值为 `transparent`，iOS 默认值为 `black`
+
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  All
+| [color](style/color.md) | 否  |  Android、iOS
 
 # borderRadius
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否   | All
+| number | 否   | Android、iOS
 
 # borderTopLeftRadius
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否       | All
+| number | 否       | Android、iOS
 
 # borderTopRightRadius
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否       | All
+| number | 否       | Android、iOS
 
 # borderBottomLeftRadius
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否       | All
+| number | 否       | Android、iOS
 
 # borderBottomRightRadius
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否       | All
+| number | 否       | Android、iOS
 
 # borderWidth
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否       | All
+| number | 否       | Android、iOS
 
 # borderTopWidth
 
@@ -96,21 +106,23 @@
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否   | All
+| [color](style/color.md) | 否   | Android、iOS
 
 # borderStyle
 
+> 默认值为 `solid`
+
 | 类型                              | 必需 | 支持平台
 | --------------------------------- | -------- | --- |
-| enum('solid', 'dotted', 'dashed') | 否   | 双平台。dotted、dashed 暂仅支持 iOS
+| enum('solid', 'dotted', 'dashed') | 否   | Android、iOS。dotted、dashed 暂仅支持 iOS
 
 
 # boxShadow
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| [Hippy-React 参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/BoxShadow/index.jsx) | 否 | 双平台支持，Android实现有差异（详见例子）
-| [Hippy-Vue 参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) | 否 | 双平台支持，Android实现有差异（详见例子）
+| [Hippy-React 参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/components/BoxShadow/index.jsx) | 否 | Android、iOS，Android实现有差异（详见例子）
+| [Hippy-Vue 参考例子](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-shadow.vue) | 否 | Android、iOS，Android实现有差异（详见例子）
 
 # color
 
@@ -118,7 +130,7 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| [color](style/color.md) | 否 | All
+| [color](style/color.md) | 否 | Android、iOS
 
 # fontFamily
 
@@ -128,7 +140,7 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| string | 否 | All
+| string | 否 | Android、iOS
 
 # fontSize
 
@@ -136,7 +148,7 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否  | All
+| number | 否  | Android、iOS
 
 # fontWeight
 
@@ -146,13 +158,25 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number \| string | 否 | All
+| number \| string | 否 | Android、iOS
+
+# letterSpacing
+
+文本字符间距
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/letter-spacing)
+
+!> hippy-vue 需采用 @hippy/vue-css-loader `2.14.1` 以上版本
+
+| 类型   | 必需 | 支持平台
+| ------ | -------- | --- |
+| number | 否 | Android、iOS
 
 # opacity
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| number | 否  | All
+| number | 否  | Android、iOS
 
 # textDecoration
 
@@ -160,7 +184,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| enum('underline', 'line-through', 'none')  | 否 | 双平台支持 |
+| enum('underline', 'line-through', 'none')  | 否 | Android、iOS |
 
 # textDecorationColor
 
@@ -184,7 +208,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| enum('underline', 'line-through', 'none')  | 否 | 双平台支持 |
+| enum('underline', 'line-through', 'none')  | 否 | Android、iOS |
 
 # textDecorationStyle
 
@@ -210,7 +234,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| [color](style/color.md)  | 否 | 双平台支持 |
+| [color](style/color.md)  | 否 | Android、iOS |
 
 # textShadowOffset
 
@@ -224,7 +248,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| object: { x: number, y: number }  | 否 | 双平台支持 |
+| object: { x: number, y: number }  | 否 | Android、iOS |
 
 # textShadowOffsetX
 
@@ -239,7 +263,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| number | 否 | 双平台支持 |
+| number | 否 | Android、iOS |
 
 # textShadowOffsetY
 
@@ -254,7 +278,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| number  | 否 | 双平台支持 |
+| number  | 否 | Android、iOS |
 
 # textShadowRadius
 
@@ -268,7 +292,7 @@
 
 | 类型   | 必需 | 平台 | 
 | ------ | -------- | --------|
-| number | 否 | 双平台支持 |
+| number | 否 | Android、iOS |
 
 # tintColor
 
@@ -276,11 +300,11 @@
 
 [Hippy-Vue 范例](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-img.vue)
 
-对图片进行染色（iOS暂不支持透明度）
+对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)
 
 | 类型               | 必需 | 支持平台
 | ------------------ | -------- | --- |
-| [color](style/color.md) | 否  |  All
+| [color](style/color.md) | 否  |  Android、iOS
 
 # visibility
 

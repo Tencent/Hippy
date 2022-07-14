@@ -21,6 +21,7 @@ import android.app.Application;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -51,8 +52,6 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   // 一个 DevServerImpl 实例可管理多个 HippyRootView 的调试，对应多个DebugButton
   private final Stack<DevFloatButton> mDebugButtonStack;
   private final LiveReloadController mLiveReloadController;
-  // to differ hippy page
-  private final UUID mInstanceUUID = UUID.randomUUID();
 
   DevServerImpl(HippyGlobalConfigs configs, String serverHost, String bundleName,
     String remoteServerUrl) {
@@ -148,8 +147,9 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   }
 
   @Override
-  public String createDebugUrl(String host) {
-    return mFetchHelper.createDebugURL(host, mServerConfig.getBundleName(), mInstanceUUID.toString());
+  public String createDebugUrl(String host, String debugClientId, String componentName) {
+    return mFetchHelper.createDebugURL(host, !TextUtils.isEmpty(componentName) ? componentName :
+      mServerConfig.getBundleName(), debugClientId);
   }
 
   @Override

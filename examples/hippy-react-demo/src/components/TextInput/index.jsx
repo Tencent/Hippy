@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
   input_style: {
     width: 300,
     marginVertical: 10,
-    placeholderTextColor: '#aaaaaa',
     fontSize: 16,
     color: '#242424',
     height: 30,
@@ -25,6 +24,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     width: 200,
     borderColor: '#4c9afa',
     borderWidth: 1,
+    borderStyle: 'solid',
     marginTop: 5,
     marginBottom: 5,
   },
@@ -80,6 +81,9 @@ export default class TextInputExpo extends Component {
             this.input = ref;
           }}
           style={styles.input_style}
+          caretColor='yellow'
+          underlineColorAndroid='grey'
+          placeholderTextColor='#4c9afa'
           placeholder="text"
           defaultValue={textContent}
         />

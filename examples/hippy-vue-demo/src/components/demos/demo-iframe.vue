@@ -77,11 +77,13 @@ export default {
     display: flex;
     flex: 1;
     flex-direction: column;
+    margin: 7px;
   }
   #iframe-demo #address {
     height: 48px;
     border-color: #ccc;
     border-width: 1px;
+    border-style: solid;
   }
 
   #iframe-demo #iframe {

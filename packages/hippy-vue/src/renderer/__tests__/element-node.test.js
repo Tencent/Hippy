@@ -30,12 +30,20 @@ test('Element.setAttribute("text") test', (t) => {
   }, TypeError);
 });
 
-test('Element.setAttribute("caretColor") test', (t) => {
+test('text-input color attribute test', (t) => {
   const caretColorNode = new ElementNode('div');
   caretColorNode.setAttribute('caretColor', '#abcdef');
   t.is(caretColorNode.attributes['caret-color'], 4289449455);
   caretColorNode.setAttribute('caret-color', '#abc');
   t.is(caretColorNode.attributes['caret-color'], 4289379276);
+  caretColorNode.setAttribute('placeholderTextColor', '#abcdef');
+  t.is(caretColorNode.attributes.placeholderTextColor, 4289449455);
+  caretColorNode.setAttribute('placeholder-text-color', '#abcdef');
+  t.is(caretColorNode.attributes.placeholderTextColor, 4289449455);
+  caretColorNode.setAttribute('underlineColorAndroid', '#abc');
+  t.is(caretColorNode.attributes.underlineColorAndroid, 4289379276);
+  caretColorNode.setAttribute('underline-color-android', '#abc');
+  t.is(caretColorNode.attributes.underlineColorAndroid, 4289379276);
 });
 
 test('Element.setNativeProps test', (t) => {
@@ -59,7 +67,11 @@ test('Element.setNativeProps test', (t) => {
   node.setNativeProps({ style: { cde: {} } });
   t.deepEqual(node.style.cde, {});
   node.setNativeProps({ style: { caretColor: '#abcdef' } });
-  t.is(node.attributes['caret-color'], 4289449455);
+  t.is(node.style['caret-color'], 4289449455);
+  node.setNativeProps({ style: { placeholderTextColor: '#abcdef' } });
+  t.is(node.style.placeholderTextColor, 4289449455);
+  node.setNativeProps({ style: { underlineColorAndroid: '#abcdef' } });
+  t.is(node.style.underlineColorAndroid, 4289449455);
 });
 
 test('Element.hasAttribute test', (t) => {
@@ -164,7 +176,17 @@ test('Element.setStyle test', (t) => {
   node.setStyle('cde', {});
   t.deepEqual(node.style.cde, {});
   node.setStyle('caretColor', '#abcdef');
-  t.is(node.attributes['caret-color'], 4289449455);
+  t.is(node.style['caret-color'], 4289449455);
+  node.setStyle('caret-color', '#abcdef');
+  t.is(node.style['caret-color'], 4289449455);
+  node.setStyle('placeholderTextColor', '#abcdef');
+  t.is(node.style.placeholderTextColor, 4289449455);
+  node.setStyle('placeholder-text-color', '#abcdef');
+  t.is(node.style.placeholderTextColor, 4289449455);
+  node.setStyle('underlineColorAndroid', '#abcdef');
+  t.is(node.style.underlineColorAndroid, 4289449455);
+  node.setStyle('underline-color-android', '#abcdef');
+  t.is(node.style.underlineColorAndroid, 4289449455);
   node.setStyle('backgroundImage', 'linear-gradient(to top right, red, yellow, blue 10%)');
   t.deepEqual(node.style.linearGradient, { angle: 'totopright', colorStopList: [{ color: 4294901760 }, { color: 4294967040 }, { color: 4278190335, ratio: 0.1 }] });
   node.setStyle('backgroundImage', 'linear-gradient(90deg, red, 10%, blue 10%)');
@@ -225,7 +247,7 @@ test('Element.dispatchEvent with polyfill event', (t) => {
   called = false;
   t.is(called, false);
   node.addEventListener('endReached', callback);
-  event = DocumentNode.createEvent('loadMore');
+  event = DocumentNode.createEvent('endReached');
   node.dispatchEvent(event);
   t.is(called, true);
   node.removeEventListener('endReached', callback);

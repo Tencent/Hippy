@@ -8,11 +8,15 @@
     <input
       ref="input"
       v-model="text"
-      caret-color="yellow"
       placeholder="Text"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
+      :editable="true"
       class="input"
       @click="stopPropagation"
       @keyboardWillShow="onKeyboardWillShow"
+      @keyboardWillHide="onKeyboardWillHide"
     >
     <div>
       <span>文本内容为：</span>
@@ -39,6 +43,9 @@
     <label>数字:</label>
     <input
       type="number"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
       placeholder="Number"
       class="input"
       @change="textChange"
@@ -47,6 +54,9 @@
     <label>密码:</label>
     <input
       type="password"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
       placeholder="Password"
       class="input"
       @change="textChange"
@@ -55,6 +65,9 @@
     <label>文本（限制5个字符）:</label>
     <input
       :maxlength="5"
+      caret-color="yellow"
+      underline-color-android="grey"
+      placeholder-text-color="#40b883"
       placeholder="5 个字符"
       class="input"
       @change="textChange"
@@ -102,8 +115,11 @@ export default {
     clearTextContent() {
       this.text = '';
     },
+    onKeyboardWillHide() {
+      console.log('onKeyboardWillHide');
+    },
     onKeyboardWillShow(evt) {
-      console.log(evt);
+      console.log('onKeyboardWillShow', evt);
     },
     getChildNodes(childNodes) {
       return !Vue.Native ? Array.from(childNodes) : childNodes;
@@ -126,20 +142,22 @@ export default {
   flex: 1;
   align-items: center;
   flex-direction: column;
+  margin: 7px;
 }
 .demo-input .input {
   width: 300px;
   height: 48px;
   color: #242424;
   border-width: 1px;
+  border-style: solid;
   border-color: #ccc;
   font-size: 16px;
   margin: 20px;
-  placeholder-text-color: #aaa;
 }
 .demo-input .input-button {
   border-color: #4c9afa;
   border-width: 1px;
+  border-style: solid;
   padding-left: 10px;
   padding-right: 10px;
   margin-top: 5px;

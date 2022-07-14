@@ -17,24 +17,99 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { NetInfoModule } from '../types';
+import { canUseDOM } from '../utils';
 
-/* eslint-disable no-console */
-// @ts-nocheck
-function fetch() {
-  // TODO: Return the real network status;
-  return 'wifi';
-}
+type NetInfoType = 'NONE' | 'WIFI' | 'CELL' | 'UNKNOWN';
+type ConnectionType =
+  | 'bluetooth'
+  | 'cellular'
+  | 'ethernet'
+  | 'mixed'
+  | 'none'
+  | 'other'
+  | 'unknown'
+  | 'wifi'
+  | 'wimax';
 
-function addEventListener() {
-  console.log('TODO');
-}
+const connection = window.navigator?.connection;
 
-function removeEventListener() {
-  console.log('TODO');
-}
-
-export {
-  fetch,
-  addEventListener,
-  removeEventListener,
+let didWarn = !canUseDOM;
+const unsupportedWarn = () => {
+  if (!didWarn) {
+    if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test') {
+      console.warn('NetInfo is an experimental technology which is not supported by your browser. '
+        + 'NetworkInformation document: https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation');
+      didWarn = true;
+    }
+  }
 };
+
+const getCurrentState = () => {
+  const isConnected = navigator.onLine;
+  let networkState: NetInfoType = 'UNKNOWN';
+  if (!connection && !isConnected) {
+    networkState = 'NONE';
+  }
+  if (connection) {
+    const networkWifi: ConnectionType = 'wifi';
+    const networkCell: ConnectionType = 'cellular';
+    if (connection.type === networkWifi) {
+      networkState = 'WIFI';
+    }
+    if (connection.type === networkCell) {
+      networkState = 'CELL';
+    }
+  }
+  return networkState;
+};
+const eventListenerList: Function[] = [];
+const NetInfo: NetInfoModule = {
+  addEventListener(eventName, listener) {
+    if (!connection) {
+      unsupportedWarn();
+    }
+    if (typeof listener !== 'function') {
+      throw new TypeError('Invalid arguments for addEventListener');
+    }
+    eventListenerList.push(listener);
+    if (eventName === 'change') {
+      if (connection) {
+        connection.addEventListener('change', () => {
+          eventListenerList.forEach((handler) => {
+            handler({ network_info: getCurrentState() });
+          });
+        });
+      } else {
+        window.addEventListener('online', () => {
+          eventListenerList.forEach((handler) => {
+            handler({ network_info: getCurrentState() });
+          });
+        });
+        window.addEventListener('offline', () => {
+          eventListenerList.forEach((handler) => {
+            handler({ network_info: getCurrentState() });
+          });
+        });
+      }
+    }
+    return {
+      remove: () => {
+        this.removeEventListener('change', listener);
+      },
+    };
+  },
+  removeEventListener(eventName: string, listener) {
+    if (eventName === 'change') {
+      eventListenerList.splice(eventListenerList.findIndex(handler => handler === listener), 1);
+    }
+  },
+  fetch() {
+    if (!connection) {
+      unsupportedWarn();
+    }
+    return Promise.resolve(getCurrentState());
+  },
+};
+
+export default NetInfo;

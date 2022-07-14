@@ -30,7 +30,7 @@
 #include "core/core.h"
 #include "jni/turbo_module_runtime.h"
 #include "jni/scoped_java_ref.h"
-#ifdef ENABLE_INSPECTOR
+#ifndef V8_WITHOUT_INSPECTOR
 #include "inspector/v8_inspector_client_impl.h"
 #endif
 

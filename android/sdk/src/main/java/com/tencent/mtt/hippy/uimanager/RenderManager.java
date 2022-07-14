@@ -187,6 +187,10 @@ public class RenderManager {
     //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"do batch size " + mShouldUpdateNodes.size());
 
     for (int i = 0; i < mUIUpdateNodes.size(); i++) {
+      RenderNode uiNode = mUIUpdateNodes.get(i);
+      uiNode.batchStart();
+    }
+    for (int i = 0; i < mUIUpdateNodes.size(); i++) {
       mUIUpdateNodes.get(i).createView();
     }
 
@@ -213,19 +217,18 @@ public class RenderManager {
   }
 
   private void deleteSelfFromParent(RenderNode uiNode) {
-
-    LogUtils.d("RenderManager", "delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
-    //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
-    if (uiNode.mParent != null) {
-      uiNode.mParent.removeChild(uiNode);
+    if (uiNode == null) {
+      return;
     }
-
-    mNodes.remove(uiNode.mId);
-
+    LogUtils.d("RenderManager", "delete RenderNode " + uiNode.mId + " class " + uiNode.mClassName);
     int childCount = uiNode.getChildCount();
     for (int i = 0; i < childCount; i++) {
       deleteSelfFromParent(uiNode.getChildAt(0));
     }
+    if (uiNode.mParent != null) {
+      uiNode.mParent.removeChild(uiNode);
+    }
+    mNodes.remove(uiNode.mId);
   }
 
   public DomNode createStyleNode(String className, boolean isVirtual, int id, int rootId) {

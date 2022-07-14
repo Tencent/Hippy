@@ -12,6 +12,7 @@
   * [动态加载](guide/dynamic-import.md)
   * [JSI 模式](guide/jsi.md)
   * [技术支持](guide/support.md)
+  * [隐私政策](guide/privacy.md)
 
 * Android
   * [Android 集成](android/integration.md)
@@ -28,7 +29,13 @@
   * [定制适配器](ios/custom-adapter.md)
   * [定制界面组件](ios/custom-component.md)
   * [定制模块](ios/custom-module.md)
-
+  
+* Web
+  * [Web 集成](web/integration.md)
+  * [Web 事件](web/event.md)
+  * [定制界面组件](web/custom-component.md)
+  * [定制模块](web/custom-module.md)
+  
 * Hippy-React
   * [介绍](hippy-react/introduction.md)
   * [组件](hippy-react/components.md)
@@ -59,4 +66,8 @@
   
 * 日志
   * [版本发布](https://github.com/Tencent/Hippy/releases)
+
+* 语言
+  * [中文](/)
+  * [英文](https://hippyjs.org/en-us)
 

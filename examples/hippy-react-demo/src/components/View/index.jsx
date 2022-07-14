@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',
@@ -30,6 +31,7 @@ const styles = StyleSheet.create({
     height: 100,
     borderColor: '#eee',
     borderWidth: 1,
+    borderStyle: 'solid',
     padding: 10,
     marginVertical: 10,
   },
@@ -80,12 +82,13 @@ export default function ViewExpo() {
         justifyContent: 'center',
         marginTop: 20,
         borderWidth: 2,
+        borderStyle: 'solid',
         borderColor: 'black',
         borderRadius: 2,
         backgroundImage: 'linear-gradient(30deg, blue 10%, yellow 40%, red 50%);',
       }]} ><Text style={{ color: 'white' }}>渐变色</Text></View>
       {renderTitle('border props')}
-      <View style={[styles.rectangle, { borderColor: '#242424', borderRadius: 4, borderWidth: 1 }]} />
+      <View style={[styles.rectangle, { borderColor: '#242424', borderRadius: 4, borderWidth: 1, borderStyle: 'solid' }]} />
       {renderTitle('flex props')}
       <View style={[styles.bigRectangle, {
         flexDirection: 'row',

@@ -245,7 +245,7 @@ Vue.Native.AsyncStorage.getItem('itemKey');
 
 # Cookie
 
-Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie 保存起来，下次再发出请求的时候就会带上，然后终端提供了这个界面让 业务可以获取或者修改保存好的 Cookie。
+Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie 保存起来，下次再发出请求的时候就会带上，业务可以获取或者修改保存好的 Cookie。
 
 ## 方法
 
@@ -253,11 +253,11 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 | 参数 | 类型     | 必需 | 参数意义 |
 | --------  | -------- | -------- |  -------- |
-| url | string | 是       | 获取指定 URL 下设置的 cookie |
+| url | string | 是       | 获取指定 url 下的所有 cookies，`2.14.0` 版本后过期的 Cookies 将不再返回。 |
 
 返回值：
 
-* `Prmoise<string>`，类似 `name=someone;gender=female` 的字符串，需要业务自己手工解析一下。
+* `Prmoise<string>`，获取到诸如 `name=hippy;network=mobile` 的字符串。
 
 ### set(url, keyValue, expireDate)
 
@@ -265,9 +265,9 @@ Hippy 中通过 fetch 服务返回的 `set-cookie` Header 会自动将 Cookie �
 
 | 参数 | 类型     | 必需 | 参数意义 |
 | -------- | -------- | -------- |  -------- |
-| url | string | 是       | 设置指定 URL 下设置的 cookie |
-| keyValue | string | 是       | 需要设置成 Cookie 的完整字符串，例如`name=someone;gender=female` |
-| expireDate | Date | 否 | Date 类型的过期时间，不填不过期 |
+| url | string | 是   | 设置指定 URL 下设置的 cookie |
+| keyValue | string | 是   | 需要设置成 cookie 的完整字符串，例如 `name=hippy;network=mobile`，`2.14.0` 版本后设置 `空字符串` 会强制清除（过期）指定域名下的所有 Cookies |
+| expireDate | Date | 否 | Date 类型的过期时间，不填不过期, 内部会通过 `toUTCString` 转成 `String` 传给客户端 |
 
 ---
 
@@ -288,7 +288,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 ---
 
-# ImageLoaderModule
+# ImageLoader
 
 通过该模块可以对远程图片进行相应操作
 
@@ -296,13 +296,13 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 ## 方法
 
-### ImageLoaderModule.getSize
+### ImageLoader.getSize
 
 `(url: string) => Promise<{width, height}>` 获取图片大小（会同时预加载图片）。
 
 > * url - 图片地址
 
-### ImageLoaderModule.prefetch
+### ImageLoader.prefetch
 
 `(url: string) => void` 用于预加载图片。
 
@@ -318,15 +318,15 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 `(ref) => Promise<{top: number, left: number, right: number, bottom: number, width: number, height: number}>`
 
-> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](hippy-vue/components?id=样式内特殊属性) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
+> * Promise resolve 的参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或 [节点被优化（仅在Android）](style/layout?id=collapsable) 会返回 { top: -1, left: -1, right: -1, bottom: -1, width: -1, height: -1 }
 
 ---
 
 # NetInfo
 
-通过该接口可以获得当前设备的网络状态，也可以注册一个监听器，当系统网络切换的时候，得到一个通知。
+通过该接口可以获得当前设备的网络状态；也可以注册一个监听器，当系统网络切换的时候，得到网络变化通知。
 
-> 最低支持版本 2.7.0
+> 最低支持版本 `2.7.0`
 
 安卓的开发者，在请求网络状态之前，你需要在app的 `AndroidManifest.xml` 加入以下配置 :
 

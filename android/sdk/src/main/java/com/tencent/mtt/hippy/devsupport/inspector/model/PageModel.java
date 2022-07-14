@@ -2,6 +2,7 @@ package com.tencent.mtt.hippy.devsupport.inspector.model;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Build;
 import android.text.TextUtils;
@@ -34,6 +35,7 @@ public class PageModel {
   private Bitmap screenBitmap;
   private WeakReference<FrameUpdateListener> mFrameUpdateListenerRef;
   private ViewTreeObserver.OnDrawListener mOnDrawListener;
+  private static float MINI_SCALE = 0.4f;
 
   public JSONObject startScreenCast(HippyEngineContext context, final JSONObject paramsObj) {
     isFramingScreenCast = true;
@@ -65,11 +67,10 @@ public class PageModel {
         mOnDrawListener = new ViewTreeObserver.OnDrawListener() {
           @Override
           public void onDraw() {
-            LogUtils.d(TAG, "HippyRootView, onDraw");
             if (mFrameUpdateListenerRef != null) {
               FrameUpdateListener listener = mFrameUpdateListenerRef.get();
               if (listener != null) {
-                listener.onFrameUpdate(context);
+                listener.onFrameUpdate();
               }
             }
           }
@@ -101,7 +102,9 @@ public class PageModel {
         LogUtils.e(TAG, "stopScreenCast error none hippyRootView");
         return;
       }
-      hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
+      if (mOnDrawListener != null) {
+        hippyRootView.getViewTreeObserver().removeOnDrawListener(mOnDrawListener);
+      }
     }
   }
 
@@ -141,7 +144,7 @@ public class PageModel {
       if (paramObj != null) {
         float scaleX = (float) this.maxWidth / (float) viewWidth;
         float scaleY = (float) this.maxHeight / (float) viewHeight;
-        scale = Math.min(scaleX, scaleY);
+        scale = Math.max(Math.min(scaleX, scaleY), MINI_SCALE); // select the proper scale which not less than MINI_SCALE
       }
       Bitmap bitmap = screenBitmap;
       if (bitmap == null) {
@@ -149,6 +152,7 @@ public class PageModel {
         screenBitmap = bitmap;
       }
       Canvas canvas = new Canvas(bitmap);
+      canvas.drawColor(Color.WHITE);
       hippyRootView.draw(canvas);
       if (scale != 1.0f) {
         Matrix matrix = new Matrix();
@@ -221,6 +225,6 @@ public class PageModel {
   }
 
   public interface FrameUpdateListener {
-    void onFrameUpdate(HippyEngineContext context);
+    void onFrameUpdate();
   }
 }

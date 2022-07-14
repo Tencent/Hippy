@@ -15,22 +15,22 @@
 - 在 render 时，将动画设置到需要产生动画效果的控件属性上；
 - 通过 Animation 的 start 接口启动动画，或是通过 destroy 停止并销毁动画。
 
-> 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画
+> 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画，hippy-react-web 不支持颜色渐变动画。
 
 ## 构造参数
 
 | 参数             | 类型               | 必需 | 默认值 | 描述                                                                                                                      |
 | ---------------- | ------------------ | ---- | ------ | ------------------------------------------------------------------------------------------------------------------------- |
-| mode             | `string`           | 是   | timing | 动画时间轴模式                                                                                                            |
-| delay            | `number`           | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行；指定列表的行数，一般直接传入数据源条数 `length` 即可 |
-| startValue       | `number`, `string` | 是   | -      | 动画开始时的值，可为 Number 类型 String 类型，如果为颜色值参考 [color](style/color.md)                                    |
-| toValue          | `number`, `string` | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
-| valueType\*      | `number`, `string` | 否   | null   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通 Number。 PS: Web 平台此接口只支持 number 类型传参            |
-| duration         | `number`           | 否   | -      | 动画时长，单位为毫秒(ms)                                                                                                  |
-| timingFunction\* | `string`           | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
+| mode             | `string`           | 是   | timing | 动画时间轴模式，当前仅支持 `timing` 模式，即随时间改变控件的属性，默认配置即为 `timing`                                                                                                         |
+| delay            | `number`           | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行 |
+| startValue       | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画开始时的值，可为 Number 类型、String 类型，颜色值 [color](style/color.md) 类型                                  |
+| toValue          | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
+| valueType\*      | `enum(undefined,rad,deg,color)` | 否   | undefined   | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通数值。 PS: Web 平台此接口只支持 number 类型传参            |
+| duration         | `number`           | 否   | 0     | 动画时长，单位为毫秒(ms)                                                                                                  |
+| timingFunction\* | `string`    | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
 | repeatCount      | `number`, `loop`   | 否   | -      | 动画的重复次数，默认为 0，即只播放一次；为 -1 或者 "loop" 时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次             |
 
-- valueType 的参数选项：
+- valueType 的额外参数选项：
 
   - `rad`：代表动画参数的起止值为弧度；
   - `deg`：代表动画参数的起止值为度数；
@@ -41,25 +41,13 @@
   - `ease-in`：使用加速插值器，动画速度将随时间逐渐增加；
   - `ease-out`：使用减速插值器，动画速度将随时间逐渐减小；
   - `ease-in-out`：使用加减速插值器，动画速度前半段先随时间逐渐增加，后半段速度将逐渐减小；
-  - `cubic-bezier`：(最低支持版本 2.9.0)使用自定义贝塞尔曲线，与 [css transition-timing-function 的 cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) 一致；
+  - `cubic-bezier`：使用自定义贝塞尔曲线，与 [css transition-timing-function 的 cubic-bezier](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function) 一致；`最低支持版本2.9.0`
 
 ## 方法
 
 ### destroy
 
-`() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
-
-### onAnimationEnd
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
-
-### onAnimationRepeat（仅 Android 支持）
-
-`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
-
-### onAnimationStart
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
+`() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗电。
 
 ### pause
 
@@ -79,6 +67,22 @@
 
 > - options: Object: 实例化参数
 
+### onAnimationCancel
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调 callback。
+
+### onAnimationEnd
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
+
+### onAnimationRepeat（仅 Android 支持）
+
+`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
+
+### onAnimationStart
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
+
 ---
 
 # AnimationSet
@@ -96,25 +100,13 @@
 | 参数        | 类型                                        | 必需 | 默认值 | 描述                                                                                                                                                                                                                                                        |
 | ----------- | ------------------------------------------- | ---- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | children    | `{ children: Animation, follow = false }[]` | 是   | -      | 接收一个 Array，用于指定子动画，该 Array 的每个元素包括： + animation：子动画对应的 Animation 对象； + follow：配置子动画的执行是否跟随执行，为 true，代表该子动画会等待上一个子动画执行完成后在开始，为 false 则代表和上一个子动画同时开始，默认为 false。 |
-| repeatCount | `number`                                    | 否   | -      | 动画 Set 的重复次数，默认为 0，即不重复播放，为'loop'时代表无限循环播放； `repeatCount` 设为 n 时，则动画会播放 n 次。                                                                                                                                      |
+| repeatCount | `number`, `loop`      | 否   | -      | 动画 Set 的重复次数，默认为 0，即不重复播放，为 `loop` 时代表无限循环播放； `repeatCount` 设为 n 时，则动画会播放 n 次。                                                                                                                                      |
 
 ## 方法
 
 ### destroy
 
 `() => void` 停止并销毁一个动画集。建议在组件销毁的生命周期执行此方法，避免动画在后台运行耗。
-
-### onAnimationEnd
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
-
-### onAnimationRepeat
-
-`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
-
-### onAnimationStart
-
-`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
 
 ### pause
 
@@ -128,9 +120,21 @@
 
 `() => void` 启动动画。注意：如果调用该方法前，动画尚未经过 render 赋值给相应控件, 或该动画已经 destroy 的话，那 start 将不会生效；
 
-### updateAnimation
+### onAnimationCancel
 
-`(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画被取消时将会回调 callback。
+
+### onAnimationEnd
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画结束时将会回调 callback。
+
+### onAnimationRepeat
+
+`(callback: () => void) => void` 注册一个动画的监听回调，当动画开始下一次重复播放时 callback 将被回调。
+
+### onAnimationStart
+
+`(callback: () => void) => void` 注册一个动画的监听回调，在动画开始时将会回调 callback。
 
 ---
 
@@ -191,7 +195,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 [[BackAndroid 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/pages/gallery.jsx#L171)
 
-可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。
+可以监听 Android 实体键的回退，在退出前做操作或拦截实体键的回退。 `hippy-react-web` 不支持。
 
 > 注意：该方法需要终端拦截实体返回按钮的事件，可以参考 [android-demo 的 onBackPressed 方法](//github.com/Tencent/Hippy/blob/master/examples/android-demo/example/src/main/java/com/tencent/mtt/hippy/example/MyActivity.java)
 
@@ -225,11 +229,11 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### Clipboard.getString
 
-`() => string` 获取剪贴板的内容
+`() => string` 获取剪贴板的内容。 `hippy-react-web: () => Promise<string>`
 
 ### Clipboard.setString
 
-`(value: string) => void` 设置剪贴板的内容
+`(value: string) => void` 设置剪贴板的内容。 `hippy-react-web: () => Promise<void>`
 
 > - value: string - 需要设置到剪贴板中的内容。
 
@@ -302,13 +306,15 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 [[NetInfo 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/NetInfo)
 
-通过该接口可以获得当前设备的网络状态，也可以注册一个监听器，当系统网络切换的时候，得到一个通知。
+通过该接口可以获得当前设备的网络状态；也可以注册一个监听器，当系统网络切换的时候，得到网络变化通知。
 
 安卓的开发者，在请求网络状态之前，你需要在 app 的 `AndroidManifest.xml` 加入以下配置 :
 
 ```xml
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
+
+`hippy-react-web` 使用了实验属性 NetworkInformation，详情参考 https://developer.mozilla.org/en-US/docs/Web/API/NetworkInformation 
 
 ## 网络状态
 
@@ -330,7 +336,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### NetInfo.fetch
 
-`() => Promise<NetInfo>` 用于获取当前的网络状态。
+`() => Promise<string>` 用于获取当前的网络状态。
 
 ### NetInfo.removeEventListener
 
@@ -345,21 +351,24 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 普通的网络请求请参考: [起步 - 网络请求](guide/network-request.md)
 
+`hippy-react-web` 获取 cookie 和 设置 cookie 有域名限制，具体参考 https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#define_where_cookies_are_sent
+
 ## 方法
 
 ### NetworkModule.getCookies
 
-`(url: string) => Promise<string>` 获取指定 url 的所有 cookie
+`(url: string) => Promise<string>` 获取指定 url 下的所有 cookies
 
 > - url: string - 需要获取 cookie 的目标 url
+> - 返回值：`Prmoise<string>`，获取到诸如 `name=hippy;network=mobile` 的字符串，`2.14.0` 版本后过期的 Cookies 将不再返回。
 
 ### NetworkModule.setCookie
 
-`(url: string, keyValue: string, expires?: string) => Promise<void>` 设置 Cookie
+`(url: string, keyValue: string, expires?: Date) => Promise<void>` 设置 Cookie
 
-> - url: string - 需要获取 cookie 的目标 url
-> - keyValue: string - 需要设置的键值对
-> - expires?: string - 设置 Cookie 的超市时间
+> - url: string - 需要设置 cookie 的目标 url
+> - keyValue: string - 需要设置的键值对，如 `name=hippy;network=mobile`，`2.14.0` 版本后设置 `空字符串` 会强制清除（过期）指定域名下的所有 Cookies。
+> - expires?: Date - 设置 Cookie 的过期时间，默认为空，会通过 `toUTCString` 转成 `String` 传给客户端
 
 ---
 
@@ -404,8 +413,8 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 | 参数         | 描述                                     | 类型                                                                                                                       | 支持平台 |
 | ------------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | -------- |
-| OS           | 用来判断是在 iOS 或者 Android 下         | `string`                                                                                                                   | `ALL`    |
-| Localization | 输出国际化相关信息, `最低支持版本 2.8.0` | `object: { country: string , language: string, direction: number }`， 其中 `direction` 为 0 表示 LTR 方向，1 表示 RTL 方向 | `ALL`    |
+| OS           | 用来判断是在 iOS 或者 Android 下         | `string`                                                                                                                   | `Android、iOS`    |
+| Localization | 输出国际化相关信息, `最低支持版本 2.8.0` | `object: { country: string , language: string, direction: number }`， 其中 `direction` 为 0 表示 LTR 方向，1 表示 RTL 方向 | `Android、iOS、hippy-react-web(不支持 country 信息)`    |
 
 ---
 
@@ -417,7 +426,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 | 参数          | 描述                                                                                                                                                                             | 类型     | 支持平台 |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------- |
-| hairlineWidth | 这一常量定义了当前平台上的最细的宽度。可以用作边框或是两个元素间的分隔线。然而，你不应该信任它作为一个衡量长度的单位，因为在不同机器与不同分辨率，hairlineWidth 可能会表现不同。 | `number` | `ALL`    |
+| hairlineWidth | 这一常量定义了当前平台上的最细的宽度。可以用作边框或是两个元素间的分隔线。然而，你不应该信任它作为一个衡量长度的单位，因为在不同机器与不同分辨率，hairlineWidth 可能会表现不同。 | `number` | `Android、iOS`    |
 
 ## 方法
 
@@ -447,7 +456,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### UIManagerModule.getElementFromFiberRef
 
-获取元素 Ref 对应的 Element(类似DOM)
+获取元素 Ref 对应的 Element(类似DOM)。`hippy-react-web` 不支持。
 
 `getElementFromFiberRef(instance: ref): ElementNode`
 
@@ -460,4 +469,4 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 `(ref, callback: Function) => Promise`
 
-> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](hippy-react/components?id=样式内特殊属性)可能返回 -1 或者 `this view is null` 字符串
+> - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)可能返回 -1 或者 `this view is null` 字符串

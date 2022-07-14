@@ -29,6 +29,7 @@
 #include "bridge/runtime.h"
 #include "bridge/serializer.h"
 #include "jni/jni_env.h"
+#include "jni/jni_utils.h"
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -165,7 +166,6 @@ void CallJava(hippy::napi::CBDataTuple *data) {
 
   j_env->CallVoidMethod(runtime->GetBridge()->GetObj(), j_method, j_module_name,
                         j_module_func, j_cb_id, j_buffer);
-
   JNIEnvironment::ClearJEnvException(j_env);
 
   // delete local ref

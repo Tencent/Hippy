@@ -15,6 +15,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 40,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderColor: '#e0e0e0',
     borderRadius: 2,
     backgroundColor: '#fafafa',
@@ -26,6 +27,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 100,
     borderWidth: 1,
+    borderStyle: 'solid',
     borderRadius: 2,
     borderColor: '#e0e0e0',
     backgroundColor: '#ffffff',
@@ -41,6 +43,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderColor: 'blue',
     borderWidth: 1,
+    borderStyle: 'solid',
   },
   buttonText: {
     width: 100,
@@ -68,7 +71,7 @@ export default class TextExpo extends React.Component {
     this.incrementFontSize = this.incrementFontSize.bind(this);
     this.decrementFontSize = this.decrementFontSize.bind(this);
     // if Android text nested is used，height and lineHeight attributes should be set in Text wrapper
-    this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 100 };
+    this.androidNestedTextWrapperStyle = { height: 100, lineHeight: 50 };
   }
 
   incrementFontSize() {
@@ -167,6 +170,15 @@ export default class TextExpo extends React.Component {
           </Text>
           <Text numberOfLines={1} style={[styles.normalText, { textDecorationLine: 'line-through', textDecorationColor: 'red' }]}>
             line-through
+          </Text>
+        </View>
+        {renderTitle('LetterSpacing')}
+        <View style={styles.itemContent}>
+          <Text numberOfLines={1} style={[styles.normalText, { letterSpacing: -1 }]}>
+            Text width letter-spacing -1
+          </Text>
+          <Text numberOfLines={1} style={[styles.normalText, { letterSpacing: 5 }]}>
+            Text width letter-spacing 5
           </Text>
         </View>
         {renderTitle('Nest Text')}

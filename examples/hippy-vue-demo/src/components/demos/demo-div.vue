@@ -154,6 +154,7 @@ export default {
          *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
          */
         backgroundImage: `${defaultImage}`,
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         justifyContent: 'center',
         alignItems: 'center',
@@ -179,6 +180,7 @@ export default {
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: '3px',
+        borderStyle: 'solid',
         borderColor: '#40b883',
       },
       squareRipple: {
@@ -270,6 +272,7 @@ export default {
     width: 200px;
     background-image: linear-gradient(30deg, blue 10%, yellow 40%, red 50%);
     border-width: 2px;
+    border-style: solid;
     border-color: black;
     border-radius: 2px;
     justify-content: center;

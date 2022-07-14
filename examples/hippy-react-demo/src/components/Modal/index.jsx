@@ -9,8 +9,8 @@ import {
 
 const SKIN_COLOR = {
   mainLight: '#4c9afa',
-  otherLight: '#f44837',
-  textWhite: '#fff',
+  otherLight: '#4c9afa',
+  textWhite: 'white',
 };
 
 const styles = StyleSheet.create({
@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
   buttonView: {
     borderColor: SKIN_COLOR.mainLight,
     borderWidth: 2,
+    borderStyle: 'solid',
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
@@ -74,7 +75,7 @@ export default class ModalExpo extends React.Component {
         <View style={styles.container}>
           <View
             onPressIn={() => this.feedback('in')}
-            onPressOut={() => this.feedback.bind('out')}
+            onPressOut={() => this.feedback('out')}
             onClick={this.show}
             style={[styles.buttonView, {
               borderColor: SKIN_COLOR.mainLight,
@@ -85,13 +86,14 @@ export default class ModalExpo extends React.Component {
           </View>
         </View>
         <Modal
-          transparent
+          transparent={true}
           animationType="slide_fade"
           visible={visible}
           onRequestClose={() => { /* Trigger when hardware back pressed */ }}
           supportedOrientations={['portrait']}
+          immersionStatusBar={true}
         >
-          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+          <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center',  backgroundColor: '#4c9afa88' }}>
             <View
               onClick={this.hide}
               style={{

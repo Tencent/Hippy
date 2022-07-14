@@ -48,13 +48,6 @@ class PullFooter extends React.Component<PullFooterProps, {}> {
   private instance: Element | Fiber | HTMLDivElement | null = null;
 
   /**
-  * @ignore
-  */
-  private defaultProps = {
-    sticky: true,
-  };
-
-  /**
    * Expand the PullView and display the content
    */
   public expandPullFooter() {

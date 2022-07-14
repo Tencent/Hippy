@@ -18,14 +18,45 @@
  * limitations under the License.
  */
 
+import { canUseDOM } from './utils';
+import { getDirection } from './modules/i18n';
+
 /* eslint-disable import/prefer-default-export */
 
 const globalThis = typeof window === 'object'
   ? window
   : { innerHeight: 0, innerWidth: 0, screen: { height: 0, width: 0 } };
 
-const Device = {
-  platform: 'web',
+interface DeviceInfo {
+  platform: {
+    OS: string;
+    Localization: {
+      language: string | undefined;
+      direction: 0 | 1 | undefined;
+    }
+  },
+  window: {
+    height: number;
+    width: number;
+    scale: number;
+    statusBarHeight: number;
+  },
+  screen: {
+    height: number;
+    width: number;
+    scale: number;
+    statusBarHeight: number;
+  }
+}
+
+const Device: DeviceInfo = {
+  platform: {
+    OS: 'web',
+    Localization: {
+      language: canUseDOM ? navigator.language : '',
+      direction: canUseDOM ? getDirection() : undefined,
+    },
+  },
   window: {
     height: globalThis.innerHeight,
     width: globalThis.innerWidth,
@@ -33,13 +64,47 @@ const Device = {
     statusBarHeight: 0,
   },
   screen: {
-    height: globalThis.screen.height,
-    width: globalThis.screen.width,
+    height: globalThis.innerHeight,
+    width: globalThis.innerWidth,
     scale: 1,
     statusBarHeight: 0,
   },
 };
 
+const Dimensions = {
+  get(name: 'window' | 'screen') {
+    return Device[name];
+  },
+  set(dimensions: { window?: typeof Device['window']; screen?: typeof Device['screen'] }) {
+    if (typeof window === 'object') {
+      /* eslint-disable-next-line no-console */
+      console.error('Dimensions cannot be set in the browser');
+      return;
+    }
+    if (dimensions.window) {
+      Device.window = dimensions.window;
+    }
+    if (dimensions.screen) {
+      Device.screen = dimensions.screen;
+    }
+  },
+};
+
+const Platform = Device.platform;
+
+const PixelRatio = {
+  get() {
+    return window.devicePixelRatio;
+  },
+};
+
+const ConsoleModule = console;
+
+
 export {
   Device,
+  Dimensions,
+  Platform,
+  PixelRatio,
+  ConsoleModule,
 };

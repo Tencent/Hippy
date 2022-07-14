@@ -25,6 +25,8 @@
 #include <mutex>
 #include <unordered_map>
 
+constexpr int32_t kReuseRuntimeId = -1;
+
 using V8Ctx = hippy::napi::V8Ctx;
 
 static std::unordered_map<int32_t, std::shared_ptr<Runtime>> RuntimeMap;
@@ -59,12 +61,19 @@ std::shared_ptr<Runtime> Runtime::Find(v8::Isolate *isolate) {
   }
   auto runtime_id =
       static_cast<int32_t>(reinterpret_cast<int64_t>(isolate->GetData(kRuntimeSlotIndex)));
-  if (runtime_id == -1) {// -1 means single isolate multi context mode
+  TDF_BASE_LOG(INFO) << "Runtime::Find runtime_id = " << runtime_id;
+  if (runtime_id == kReuseRuntimeId) {// -1 means single isolate multi context mode
     v8::Local<v8::Context> context = isolate->GetCurrentContext();
     std::lock_guard<std::mutex> lock(mutex);
     for (const auto& p: RuntimeMap) {
-      std::shared_ptr<Scope> scope = p.second->GetScope();
+      auto scope = p.second->GetScope();
+      if (!scope) {
+        continue;
+      }
       std::shared_ptr<V8Ctx> ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
+      if (!ctx) {
+        continue;
+      }
       if (ctx->context_persistent_ == context) {
         return p.second;
       }

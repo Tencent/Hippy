@@ -32,5 +32,3 @@ class TurboModuleManager {
 };
 
 int Install(JNIEnv *, jobject, jlong);
-
-void Uninstall(JNIEnv *, jobject, jlong);

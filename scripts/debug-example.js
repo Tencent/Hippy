@@ -7,7 +7,7 @@ const {
   test,
 } = require('shelljs');
 
-const cmdExample = 'please execute command like \'npm run debugexample -- hippy-react-demo dev\' or \'npm run debugexample -- hippy-react-demo debug\'';
+const cmdExample = 'please execute command like \'npm run debugexample hippy-react-demo dev\' or \'npm run debugexample hippy-react-demo debug\'';
 
 const example = process.argv[2];
 if (!example) {
@@ -34,10 +34,10 @@ pushd(DEMO_PATH);
 
 const execOptions = { stdio: 'inherit' };
 if (!fs.existsSync(path.resolve(DEMO_PATH, 'node_modules'))) {
-  console.error(`❌ ${example} dependencies have not been installed, please execute 'npm run init:example -- ${example}' first.`);
+  console.error(`❌ ${example} dependencies have not been installed, please execute 'npm run init:example ${example}' first.`);
   process.exit(1);
   return;
 }
 
 console.log(`Start to start ${example} with cmd 'npm run hippy:${cmd}'.`);
-exec(`npm run hippy:local-${cmd}`, execOptions); // start to build dev js
+exec(`npm run hippy:${cmd}`, execOptions); // start to build dev js

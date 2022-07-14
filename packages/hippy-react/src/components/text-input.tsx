@@ -179,6 +179,10 @@ interface TextInputProps extends LayoutableProps, ClickableProps {
 
 }
 
+const propsMap = {
+  caretColor: 'caret-color',
+};
+
 /**
  * A foundational component for inputting text into the app via a keyboard. Props provide
  * configurability for several features, such as auto-correction, auto-capitalization,
@@ -240,7 +244,7 @@ class TextInput extends React.Component<TextInputProps, {}> {
   }
 
   /**
-   * Make the `TextInput` blured.
+   * Make the `TextInput` blurred.
    */
   public blur() {
     callUIFunction(this.instance as Element, 'blurTextInput', []);
@@ -248,16 +252,18 @@ class TextInput extends React.Component<TextInputProps, {}> {
 
   /**
    * Show input method selection dialog.
+   * @deprecated
    */
   public showInputMethod() {
-    callUIFunction(this.instance as Element, 'showInputMethod', []);
+    // noop
   }
 
   /**
    * Hide the input method selection dialog.
+   * @deprecated
    */
   public hideInputMethod() {
-    callUIFunction(this.instance as Element, 'hideInputMethod', []);
+    // noop
   }
 
   /**
@@ -272,21 +278,26 @@ class TextInput extends React.Component<TextInputProps, {}> {
    */
   public render() {
     const nativeProps = { ...this.props };
-    ['underlineColorAndroid', 'placeholderTextColor', 'placeholderTextColors']
-      .forEach((prop) => {
-        if (typeof this.props[prop] === 'string') {
+    ['underlineColorAndroid', 'placeholderTextColor', 'placeholderTextColors', 'caretColor', 'caret-color']
+      .forEach((originalProp) => {
+        let prop = originalProp;
+        const value = this.props[originalProp];
+        if (typeof this.props[originalProp] === 'string') {
+          if (propsMap[originalProp]) {
+            prop = propsMap[originalProp];
+          }
           if (Array.isArray(nativeProps.style)) {
             nativeProps.style.push({
-              [prop]: this.props[prop],
+              [prop]: value,
             });
           } else if (nativeProps.style && typeof nativeProps.style === 'object') {
-            nativeProps.style[prop] = this.props[prop];
+            nativeProps.style[prop] = value;
           } else {
             nativeProps.style = {
-              [prop]: this.props[prop],
+              [prop]: value,
             };
           }
-          nativeProps[prop] = undefined;
+          delete nativeProps[originalProp];
         }
       });
 
@@ -310,7 +321,6 @@ class TextInput extends React.Component<TextInputProps, {}> {
         ref={(ref) => {
           this.instance = ref;
         }}
-        // @ts-ignore
         onChangeText={this.onChangeText}
         onKeyboardWillShow={this.onKeyboardWillShow}
       />

@@ -29,6 +29,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 50,
     marginTop: 30,
+    borderStyle: 'solid',
   },
   buttonText: {
     fontSize: 20,
@@ -56,10 +57,13 @@ export class Gallery extends Component {
     if (Platform.OS === 'android') {
       BackAndroid.addListener(() => {
         console.log('BackAndroid');
-        if (history.index === 0) {
+        if (history.index !== 0) {
           history.goBack();
           return true;
         }
+        // if returned to root route, you can decide whether to exit app,
+        // such as using popup
+        // BackAndroid.exitApp();
         return false;
       });
     }

@@ -30,6 +30,8 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.supportui.views.ScrollChecker;
 import java.util.HashMap;
+import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.HippyInstanceContext;
 
 @SuppressWarnings("deprecation")
 public class HippyHorizontalScrollView extends HorizontalScrollView implements HippyViewBase,
@@ -67,6 +69,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   private int mLastX = 0;
   private int initialContentOffset = 0;
   private boolean hasCompleteFirstBatch = false;
+  private final boolean isTvPlatform;
+  private HippyHorizontalScrollViewFocusHelper mFocusHelper = null;
 
   private HashMap<Integer, Integer> scrollOffsetForReuse = new HashMap<>();
 
@@ -74,6 +78,13 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     super(context);
     mHippyOnScrollHelper = new HippyOnScrollHelper();
     setHorizontalScrollBarEnabled(false);
+
+    HippyEngineContext engineContext = ((HippyInstanceContext) context).getEngineContext();
+    isTvPlatform = engineContext.isRunningOnTVPlatform();
+    if (isTvPlatform) {
+      mFocusHelper = new HippyHorizontalScrollViewFocusHelper(this);
+      setFocusableInTouchMode(true);
+    }
 
     if (I18nUtil.isRTL()) {
       setRotationY(180f);
@@ -142,7 +153,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         LogUtils.d("HippyHorizontalScrollView", "emitScrollBeginDragEvent");
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
       }
-    } else if (action == MotionEvent.ACTION_UP && mDragging) {
+    } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
       if (mScrollEndDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollEndDragEvent");
         HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
@@ -377,5 +388,21 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     }
 
     hasCompleteFirstBatch = true;
+  }
+
+  @Override
+  public View focusSearch(View focused, int direction) {
+    if (isTvPlatform) {
+      return mFocusHelper.focusSearch(focused, direction);
+    }
+    return super.focusSearch(focused, direction);
+  }
+
+  @Override
+  public void requestChildFocus(View child, View focused) {
+    if (isTvPlatform) {
+      mFocusHelper.scrollToFocusChild(focused);
+    }
+    super.requestChildFocus(child, focused);
   }
 }

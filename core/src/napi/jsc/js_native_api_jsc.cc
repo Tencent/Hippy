@@ -195,8 +195,6 @@ unicode_string_view JSCTryCatch::GetExceptionMsg() {
   return "";
 }
 
-void DetachThread() {}
-
 void JSCVM::RegisterUncaughtExceptionCallback() {}
 
 std::shared_ptr<Ctx> JSCVM::CreateContext() {

@@ -7,7 +7,7 @@ const {
   rm,
 } = require('shelljs');
 
-const cmdExample = 'please execute command like \'npm run init:example -- hippy-react-demo\' or \'npm run init:example -- hippy-vue-demo\'';
+const cmdExample = 'please execute command like \'npm run init:example hippy-react-demo\' or \'npm run init:example hippy-vue-demo\'';
 const example = process.argv[2];
 if (!example) {
   console.error(`❌ No example argument found, ${cmdExample}`);
@@ -24,7 +24,7 @@ if (!test('-d', DEMO_PATH)) {
 pushd(DEMO_PATH);
 
 const execOptions = { stdio: 'inherit' };
-console.log(`1/2 Start to install ${example} dependencies`);
+console.log(`1/2 Start to install ${example} dependencies.`);
 rm('-rf', './node_modules');
 exec('npm install --legacy-peer-deps', execOptions);
 

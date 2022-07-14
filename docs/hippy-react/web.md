@@ -1,8 +1,9 @@
+<!-- markdownlint-disable no-duplicate-header -->
 # 转 Web
 
 hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 库来将 Hippy 应用转译、运行在浏览器中。
 
-> 该项目仍在开发中，有不完善的地方，欢迎 PR。
+> @hippy/react-web 2.14.0 开始支持较为完整的转 Web 能力
 
 # 安装运行时依赖
 
@@ -10,9 +11,14 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 | 包名            | 说明                              |
 | --------------- | --------------------------------- |
-| bezier-easing   | hippy-react 动画在 Web 运行时需要 |
-| hippy-react-web | hippy-react 转 Web 适配器         |
-| react-dom       | react 的 Web 的渲染器             |
+| react           | react 版本 >= v16.8.0      |
+| hippy-react-web | hippy-react 转 Web 适配器    |
+| react-dom       | react 的 Web 的渲染器              |
+| animated-scroll-to | scroll 的时候添加动画            |
+| swiper          | ViewPager 需要                    |
+| @hippy/rmc-list-view   | ListView 需要                     |
+| @hippy/rmc-pull-to-refresh | ListView PullHeader 需要      |
+
 
 # 编译时依赖
 
@@ -55,3 +61,7 @@ hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/de
 # 启动调试
 
 执行 `npm run serve` 后就会启动 Web 调试，但要注意默认生成的 HTML 文件名是从 `package.json` 的 `name` 字段定义，而不是默认的 `index.html`，所以对于官方范例，需要使用 `http://localhost:8080/hippy-react-demo.html` 来访问调试用页面。
+
+# 转 Web 新方案
+
+未来 Hippy 会采用 `WebRenderer` 方案，增加基于公共通信协议的转换层，业务开发者可以使用同一套 Hippy 语法开发的业务代码，映射成 JS 实现的组件和模块，上层无论使用 React，Vue 或者其他第三方框架，都可以实现兼容，敬请期待。

@@ -39,7 +39,5 @@ std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
                                               std::shared_ptr<Ctx> ctx);
 
-void DetachThread();
-
 }  // namespace napi
 }  // namespace hippy

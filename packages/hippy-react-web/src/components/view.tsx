@@ -17,21 +17,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import React from 'react';
+import React, { useEffect, useRef, useImperativeHandle } from 'react';
 import { formatWebStyle } from '../adapters/transfer';
-import applyLayout from '../adapters/apply-layout';
+import useResponderEvents from '../modules/use-responder-events';
+import useElementLayout from '../modules/use-element-layout';
+import { TouchEvent } from '../modules/use-responder-events/types';
+import { LayoutEvent } from '../types';
+import { warn } from '../utils';
+import { DEFAULT_CONTAINER_STYLE } from '../constants';
 
 const styles = {
   root: {
-    alignItems: 'stretch',
+    ...DEFAULT_CONTAINER_STYLE,
     borderWidth: 0,
     borderStyle: 'solid',
     boxSizing: 'border-box',
-    display: 'flex',
-    flexBasis: 'auto',
-    flexDirection: 'column',
-    flexShrink: 0,
     margin: 0,
     padding: 0,
     position: 'relative',
@@ -40,12 +40,27 @@ const styles = {
   },
 };
 
-interface Props {
+interface ViewProps {
+  [key: string]: any;
+  ref?: any;
+  accessible?: boolean;
+  accessibilityLabel?: string;
   style?: HippyTypes.Style;
-  withRef: React.Ref<any>;
-  accessibilityLabel: string;
-  onPressIn?: () => void;
-  onClick?: () => void;
+  opacity?: number;
+  overflow?: 'visible' | 'hidden';
+  className?: any;
+  nativeBackgroundAndroid?: {
+    borderless: boolean;
+    color: HippyTypes.color;
+    rippleRadius: number;
+  };
+  onScroll?: (e: any) => void;
+  onLayout?: (e: LayoutEvent) => void;
+  onAttachedToWindow?: Function;
+  onTouchDown?: (e: TouchEvent) => void;
+  onTouchMove?: (e: TouchEvent) => void;
+  onTouchEnd?: (e: TouchEvent) => void;
+  onTouchCancel?: (e: TouchEvent) => void;
 }
 
 /**
@@ -57,32 +72,84 @@ interface Props {
  * View is designed to be nested inside other views and can have 0 to many children of any type.
  * @noInheritDoc
  */
-class View extends React.Component {
-  public constructor(props: Props) {
-    super(props);
-    this.state = {};
+const View: React.FC<ViewProps> = React.forwardRef<any, any>((props, ref) => {
+  const { style = {}, opacity, overflow, onAttachedToWindow } = props;
+  if (Array.isArray(style)) {
+    if (opacity) {
+      style.push({ opacity });
+    }
+    if (overflow) {
+      style.push({ overflow });
+    }
+  } else {
+    if (opacity) {
+      style.opacity = opacity;
+    }
+    if (overflow) {
+      // @ts-ignore
+      style.overflow = overflow;
+    }
   }
+  useEffect(() => {
+    if (typeof onAttachedToWindow === 'function') {
+      onAttachedToWindow();
+    }
+  }, []);
+  const hostRef: any = useRef(null);
+  const newStyle = formatWebStyle(style);
+  const finalStyle = Object.assign({}, styles.root, newStyle);
+  const newProps: any = Object.assign({}, props, {
+    style: finalStyle,
+  });
+  const { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onScroll } = props;
+  useResponderEvents(hostRef, { onTouchDown, onTouchEnd, onTouchCancel, onTouchMove, onScroll });
+  useElementLayout(hostRef, props.onLayout);
 
-  public render() {
-    const { style, withRef } = this.props as Props;
-    const newStyle = formatWebStyle(style);
-    const finalStyle = Object.assign({}, styles.root, newStyle);
-    const newProps = Object.assign({}, this.props, {
-      style: finalStyle,
-    }) as any;
-    const accessibilityLabelValue = newProps.accessibilityLabel;
-    delete newProps.onPressIn;
-    delete newProps.onPressOut;
-    delete newProps.onLayout;
-    delete newProps.accessibilityLabel;
+  // set unsupported methods
+  const setPressed = () => {
+    warn('View.setPressed is unsupported');
+  };
+  const setHotspot = () => {
+    warn('View.setHotspot is unsupported');
+  };
 
-    return (
-      <div {...newProps} ref={withRef} aria-label={accessibilityLabelValue} />
-    );
-  }
-}
+  useImperativeHandle(ref, () => ({
+    node: hostRef.current,
+    setHotspot,
+    setPressed,
+  }), [hostRef.current]);
 
-export default applyLayout(View);
+  const accessibilityLabelValue = newProps.accessibilityLabel;
+  // delete div unsupported props
+  delete newProps.onAttachedToWindow;
+  delete newProps.accessible;
+  delete newProps.accessibilityLabel;
+  delete newProps.accessibilityValue;
+  delete newProps.accessibilityRole;
+  delete newProps.accessibilityState;
+  delete newProps.onTouchCancel;
+  delete newProps.onTouchEnd;
+  delete newProps.onTouchMove;
+  delete newProps.onTouchDown;
+  delete newProps.onScroll;
+  delete newProps.opacity;
+  delete newProps.ref;
+  delete newProps.onLayout;
+  delete newProps.onPressIn;
+  delete newProps.onPressOut;
+  delete newProps.activeOpacity;
+  delete newProps.nativeName;
+  delete newProps.nativeBackgroundAndroid;
+
+  return (
+    <div {...newProps} ref={hostRef} aria-label={accessibilityLabelValue} />
+  );
+});
+
+View.displayName = 'View';
+
 export {
   View,
+  ViewProps,
 };
+export default View;

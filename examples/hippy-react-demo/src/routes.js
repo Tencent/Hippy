@@ -1,5 +1,3 @@
-
-
 import * as components from './components';
 import * as modules from './modules';
 import * as externals from './externals';
@@ -69,8 +67,8 @@ export default [
   },
   {
     path: '/PullHeader',
-    name: 'PullHeader 组件',
-    component: PAGE_LIST.PullHeader,
+    name: 'PullHeader/Footer组件',
+    component: PAGE_LIST.PullHeaderFooter,
     meta: {
       style: 1,
     },
@@ -165,7 +163,7 @@ export default [
   },
   {
     path: '/NetInfo',
-    name: 'NetInfo 能力',
+    name: 'Network 能力',
     component: PAGE_LIST.NetInfo,
     meta: {
       style: 2,

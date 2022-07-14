@@ -7,10 +7,8 @@ global.__fbBatchedBridge = {};
 
 __fbBatchedBridge.flushedQueue = () => {
   JSTimersExecution.callImmediates();
-
   const queue = __GLOBAL__._queue;
   __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
-
   return queue[0].length ? queue : null;
 };
 
@@ -22,20 +20,15 @@ __fbBatchedBridge.invokeCallbackAndReturnFlushedQueue = (cbID, args) => {
 
 __fbBatchedBridge.__invokeCallback = (cbID, args) => {
   const callback = __GLOBAL__._callbacks[cbID];
-  if (!callback) {
-    return;
-  }
-
+  if (!callback) return;
   if (!__GLOBAL__._notDeleteCallbackIds[cbID & ~1]
      && !__GLOBAL__._notDeleteCallbackIds[cbID | 1]) {
-    __GLOBAL__._callbacks[cbID & ~1] = null;
-    __GLOBAL__._callbacks[cbID | 1] = null;
+    delete __GLOBAL__._callbacks[cbID & ~1];
+    delete __GLOBAL__._callbacks[cbID | 1];
   }
-
   if (args && args.length > 1 && (args[0] === null || args[0] === undefined)) {
     args.splice(0, 1);
   }
-
   callback(...args);
 };
 
@@ -70,20 +63,15 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
         throw Error(`error: ${callObj.name} is not regist in js`);
       }
     } else if (method === 'unmountApplicationComponentAtRootTag') {
-      global.Hippy.emit('destroyInstance', args[0]);
-      const renderId = Date.now().toString();
-      Hippy.bridge.callNative('UIManagerModule', 'startBatch', renderId);
-      Hippy.bridge.callNative('UIManagerModule', 'removeRootView', args[0]);
-      Hippy.bridge.callNative('UIManagerModule', 'endBatch', renderId);
-      delete __GLOBAL__.nodeIdCache[args[0]];
-      delete __GLOBAL__.nodeTreeCache[args[0]];
-      delete __GLOBAL__.nodeParamCache[args[0]];
-      __GLOBAL__.destroyInstanceList[args[0]] = true;
+      const rootViewId = args[0];
+      global.Hippy.emit('destroyInstance', rootViewId);
+      Hippy.bridge.callNative('UIManagerModule', 'startBatch');
+      Hippy.bridge.callNative('UIManagerModule', 'removeRootView', rootViewId);
+      Hippy.bridge.callNative('UIManagerModule', 'endBatch');
     }
   } else if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];
     if (!targetModule || !targetModule[method] || typeof targetModule[method] !== 'function') {
-      // console.error("no module or no function");
     } else {
       targetModule[method].call(targetModule, args[1].params);
     }
@@ -103,8 +91,6 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
       });
     }
   }
-
   JSTimersExecution.callImmediates();
-
   return __fbBatchedBridge.flushedQueue();
 };

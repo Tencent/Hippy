@@ -160,8 +160,10 @@ HIPPY_EXPORT_MODULE()
     _pendingVirtualNodeBlocks = nil;
     _shadowViewRegistry = nil;
 
+    NSSet<NSNumber *> *rootViewSet = [_rootViewTags copy];
+    self->_rootViewTags = nil;
     dispatch_async(dispatch_get_main_queue(), ^{
-        for (NSNumber *rootViewTag in self->_rootViewTags) {
+        for (NSNumber *rootViewTag in rootViewSet) {
             [(id<HippyInvalidating>)self->_viewRegistry[rootViewTag] invalidate];
             [self->_viewRegistry removeObjectForKey:rootViewTag];
         }
@@ -173,7 +175,6 @@ HIPPY_EXPORT_MODULE()
             }
         }
 
-        self->_rootViewTags = nil;
         self->_viewRegistry = nil;
         self->_bridgeTransactionListeners = nil;
         self->_bridge = nil;
@@ -1510,6 +1511,7 @@ static UIView *_jsResponder;
                 [container insertHippySubview:subview atIndex:index];
                 index++;
             }
+            [container clearSortedSubviews];
             [container didUpdateHippySubviews];
         }];
 

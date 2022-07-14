@@ -18,8 +18,7 @@
  * limitations under the License.
  */
 
-/* eslint-disable import/prefer-default-export */
-// @ts-nocheck
+import React from 'react';
 
 /**
  * Warning information output
@@ -33,6 +32,55 @@ function warn(...context: any[]) {
   console.warn(...context);
 }
 
+export const error = (...context: any[]) => {
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+  console.error(...context);
+};
+
+export const warnWhenUseUnsupportedProp = (param: {
+  moduleProps: Record<string, any>,
+  unsupportedProps: string[],
+  moduleName: string,
+}) => {
+  const { moduleProps, moduleName, unsupportedProps } = param;
+  unsupportedProps.forEach((unsupportedProp) => {
+    if (moduleProps[unsupportedProp] !== undefined) {
+      warn(`prop ${unsupportedProp} does not support in ${moduleName}`);
+    }
+  });
+};
+
+const useStable = <T>(getInitialValue: () => T): T => {
+  const ref = React.useRef<T | null>(null);
+  if (ref.current === null) {
+    ref.current = getInitialValue();
+  }
+  return ref.current;
+};
+
+const getViewRefNode = (ref: any) => {
+  if (ref) {
+    if (ref?.current?.node) {
+      return ref.current.node as HTMLElement;
+    }
+    if (ref?.node) {
+      return ref.node as HTMLElement;
+    }
+    if (ref?.current) {
+      return ref.current as HTMLElement;
+    }
+  }
+  return ref;
+};
+
+export const noop = () => {};
+
+export * from './validation';
+export * from './execution-environment';
 export {
   warn,
+  useStable,
+  getViewRefNode,
 };

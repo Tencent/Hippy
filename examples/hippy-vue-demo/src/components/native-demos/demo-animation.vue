@@ -23,6 +23,7 @@
           :playing="loopPlaying"
           :direction="direction"
           :on-ref="onRef"
+          @actionsDidUpdate="actionsDidUpdate"
         >
           <p>I'm a looping animation</p>
         </loop>
@@ -107,8 +108,8 @@
  *   toValue: 0,               // 动画结束时候的值
  *   duration: 0,              // 动画运行时间
  *   direction: 'center',      // 动画运行方向
- *   timingFunction: 'linear', // 动画插值器类型，可选 linear、ease-in、ease-out、ease-in-out、ease_bezier、cubic-bezier(最低支持版本 2.9.0)
- *   repeatCount: 0,           // 动画的重复次数，0为不重复，-1 为一直重复不停，如果在数组中，整个动画的重复次数以第一个动画的值为准
+ *   timingFunction: 'linear', // 动画插值器类型，可选 linear、ease-in、ease-out、ease-in-out、cubic-bezier(最低支持版本 2.9.0)
+ *   repeatCount: 0,           // 动画的重复次数，0为不重复，-1('loop') 为一直重复不停，如果在数组中，整个动画的重复次数以最后一个动画的值为准
  *
  * actions替换后，需手动start动画
  *
@@ -159,21 +160,11 @@ export default {
       this.cubicPlaying = !this.cubicPlaying;
     },
     toggleDirection() {
-      /**
-       *  actions替换后会自动新建animation，需稍作延迟手动start animation播放
-       *  也可以通过 playing = false => 替换actions => playing = true 启动animation播放,
-       *  例:
-       *  this.loopPlaying = false;
-       *  this.direction = this.direction === 'horizon' ? 'vertical' : 'horizon';
-       *  setTimeout(() => {
-       *    this.loopPlaying = true;
-       *  }, 20);
-       *
-       */
       this.direction = this.direction === 'horizon' ? 'vertical' : 'horizon';
-      setTimeout(() => {
-        this.animationRef.start();
-      }, 20);
+    },
+    actionsDidUpdate() {
+      console.log('actions updated & startAnimation');
+      this.animationRef.start();
     },
   },
 };
@@ -182,6 +173,7 @@ export default {
 <style scoped>
 #animation-demo {
   overflow: scroll;
+  margin: 7px;
 }
 
 #animation-demo .vote-icon {

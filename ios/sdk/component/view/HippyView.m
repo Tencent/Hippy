@@ -574,8 +574,14 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     
     __weak typeof(self) weakSelf = self;
     [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
+        if (nil == contentImage) {
+            return;
+        }
         dispatch_async(dispatch_get_main_queue(), ^{
-            typeof(weakSelf) strongSelf = weakSelf;
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
+            }
             CALayer *strongLayer = strongSelf.layer;
             CGRect contentsCenter = ({
                 CGSize size = contentImage.size;
@@ -642,16 +648,23 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             }
 
             UIGraphicsBeginImageContextWithOptions(theFrame.size, NO, image.scale);
-            CGSize size = theFrame.size;
-
-            [image drawInRect:(CGRect) { CGPointZero, size }];
+            //draw background image
             CGSize imageSize = decodedImage.size;
             CGSize targetSize = UIEdgeInsetsInsetRect(theFrame, [self bordersAsInsets]).size;
 
             CGSize drawSize = makeSizeConstrainWithType(imageSize, targetSize, backgroundSize);
 
-            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX, borderInsets.top + backgroundPositionY, drawSize.width,
-                                         drawSize.height)];
+            CGPoint originOffset = CGPointMake((targetSize.width - drawSize.width) / 2.f, (targetSize.height - drawSize.height) / 2.f);
+            
+            [decodedImage drawInRect:CGRectMake(borderInsets.left + backgroundPositionX + originOffset.x,
+                                                borderInsets.top + backgroundPositionY + originOffset.y,
+                                                drawSize.width,
+                                                drawSize.height)];
+            //draw border
+            CGSize size = theFrame.size;
+            [image drawInRect:(CGRect) { CGPointZero, size }];
+            
+            //output image
             UIImage *resultingImage = UIGraphicsGetImageFromCurrentImageContext();
             UIGraphicsEndImageContext();
             contentBlock(resultingImage);
@@ -660,6 +673,10 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }
     else if (self.gradientObject) {
         CGSize size = theFrame.size;
+        if (0 >= size.width || 0 >= size.height) {
+            contentBlock(nil);
+            return NO;
+        }
         CanvasInfo info = {size, {0,0,0,0}, {{0,0},{0,0},{0,0},{0,0}}};
         info.size = size;
         info.cornerRadii = cornerRadii;

@@ -31,11 +31,12 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
 #demo-textarea {
   display: flex;
   align-items: center;
   flex-direction: column;
+  margin: 7px;
 }
 
 #demo-textarea .textarea {
@@ -44,6 +45,7 @@ export default {
   color: #242424;
   text-align: left;
   border-width: 1px;
+  border-style: solid;
   border-color: #ccc;
   underline-color-android: #40b883;
   placeholder-text-color: #666;

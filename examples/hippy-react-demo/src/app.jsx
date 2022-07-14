@@ -3,10 +3,9 @@ import {
   StyleSheet,
   View,
   Text,
-  Platform,
 } from '@hippy/react';
 import HomeEntry from './pages/entry';
-import Debug from './pages/debug';
+import RemoteDebug from './pages/remote-debug';
 import SafeAreaView from './shared/SafeAreaView';
 
 const styles = StyleSheet.create({
@@ -22,6 +21,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#fff',
     borderTopWidth: 1,
+    borderStyle: 'solid',
     borderTopColor: '#eee',
   },
   buttonText: {
@@ -44,30 +44,25 @@ export default class App extends Component {
 
   render() {
     const { pageIndex } = this.state;
-    const { isSimulator, __instanceId__: instanceId } = this.props;
+    const { __instanceId__: instanceId } = this.props;
 
     const renderPage = () => {
       switch (pageIndex) {
         case 0:
           return <HomeEntry />;
         case 1:
-        case 2:
-          return <Debug instanceId={instanceId} />;
+          return <RemoteDebug instanceId={instanceId} />;
         default:
           return <View style={styles.blankPage} />;
       }
     };
 
     const renderButton = () => {
-      let buttonArray = ['API', '本地调试'];
-      // iOS 真机仅支持查看范例
-      if (Platform.OS === 'ios' && !isSimulator) {
-        buttonArray = ['API'];
-      }
+      const buttonArray = ['API', '调试'];
       return (
-        buttonArray.map((v, i) => (
+        buttonArray.map((text, i) => (
           <View
-            key={`button_${v}`}
+            key={`button_${i}`}
             style={styles.button}
             onClick={() => this.setState({ pageIndex: i })}
           >
@@ -75,7 +70,7 @@ export default class App extends Component {
               style={[styles.buttonText, i === pageIndex ? { color: '#4c9afa' } : null]}
               numberOfLines={1}
             >
-              {v}
+              {text}
             </Text>
           </View>
         ))

@@ -1,4 +1,67 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply plugin: 'com.android.application'
+
+Properties gradleProperties = new Properties()
+def propFileDir = "$projectDir.absolutePath/../../../android/sdk/gradle.properties"
+def propFile = new File(propFileDir)
+def verifyReleaseAar = false
+def include_abi_armeabi_v7a = true
+def include_abi_arm64_v8a = true
+def include_abi_x86 = true
+def include_abi_x86_64 = true
+if (propFile.exists()) {
+    gradleProperties.load(propFile.newDataInputStream())
+    include_abi_armeabi_v7a = gradleProperties.getProperty('INCLUDE_ABI_ARMEABI_V7A')
+    include_abi_arm64_v8a = gradleProperties.getProperty('INCLUDE_ABI_ARM64_V8A')
+    include_abi_x86 = gradleProperties.getProperty('INCLUDE_ABI_X86')
+    include_abi_x86_64 = gradleProperties.getProperty('INCLUDE_ABI_X86_64')
+}
+
+android {
+    compileSdkVersion COMPILE_VERSION as int
+
+    signingConfigs {
+        release {
+            keyAlias 'key0'
+            keyPassword 'Hippydemo'
+            storeFile file('./hippy-demo.jks')
+            storePassword 'Hippydemo'
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.tencent.mtt.hippy.example"
+        minSdkVersion MIN_VERSION as int
+        // noinspection ExpiredTargetSdkVersion
+        //noinspection OldTargetApi
+        targetSdkVersion TARGET_VERSION as int
+        ndk  {
+            if (include_abi_armeabi_v7a.toBoolean()) {
+                abiFilters 'armeabi-v7a'
+            }
+            if (include_abi_arm64_v8a.toBoolean()) {
+                abiFilters 'arm64-v8a'
+            }
+            if (include_abi_x86.toBoolean()) {
+                abiFilters 'x86'
+            }
+            if (include_abi_x86_64.toBoolean()) {
+                abiFilters 'x86_64'
+            }
+
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            minifyEnabled false
+        }
+    }
+}
 
 buildscript {
     repositories {
@@ -6,35 +69,51 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.1'
+        classpath "com.android.tools.build:gradle:$AGP_VERSION"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
-    }
-    configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-        resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
     }
 }
 
 allprojects {
+    ext {
+        MAVEN_USER = System.getenv('maven_username')
+        MAVEN_PWD = System.getenv('maven_password')
+        MAVEN_URL = System.getenv('maven_url')
+    }
     repositories {
+        if (MAVEN_URL != null) {
+            maven {
+                url MAVEN_URL
+                credentials {
+                    username MAVEN_USER
+                    password MAVEN_PWD
+                }
+            }
+        }
         google()
         mavenCentral()
     }
-    configurations.all {
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-        resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+}
+
+android {
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
-
-project.afterEvaluate {
-    delete 'example/src/main/assets'
-    copy{
-        from "res"
-        into "example/src/main/assets"
+dependencies {
+    if (verifyReleaseAar) {
+        // options for maven packages or local libs integration
+        // api 'com.tencent.hippy:hippy-common:2.11.2'
+        // api 'com.tencent.hippy:hippy-debug:2.11.2'
+        api (name: 'android-sdk', ext: 'aar')
+    } else {
+        api project(path: ':android-sdk')
     }
+    // noinspection GradleDependency
+    api 'com.github.bumptech.glide:glide:3.6.1'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
 }

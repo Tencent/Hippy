@@ -232,6 +232,16 @@
         </div>
       </div>
 
+      <!-- Fetch使用 -->
+      <div
+        class="native-block"
+      >
+        <label class="vue-native-title">Fetch 使用</label>
+        <div class="item-wrapper">
+          <span>{{ fetchText }}</span>
+        </div>
+      </div>
+
       <!-- NetInfo使用 -->
       <div
         v-if="Vue.Native.NetInfo"
@@ -240,6 +250,32 @@
         <label class="vue-native-title">NetInfo 使用</label>
         <div class="item-wrapper">
           <span>{{ netInfoText }}</span>
+        </div>
+      </div>
+
+      <!-- Cookie 使用 -->
+      <div
+        v-if="Vue.Native.Cookie"
+        class="native-block"
+      >
+        <label class="vue-native-title">Cookie 使用</label>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="setCookie"
+          >
+            <span>setCookie</span>
+          </button>
+          <span>{{ cookieString }}</span>
+        </div>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="getCookie"
+          >
+            <span>getCookie</span>
+          </button>
+          <span>{{ cookiesValue }}</span>
         </div>
       </div>
 
@@ -293,7 +329,10 @@ export default {
       clipboardString: 'ready to set',
       clipboardValue: '',
       imageSize: '',
-      netInfoText: '正在获取..',
+      netInfoText: '正在获取...',
+      fetchText: '请求网址中...',
+      cookieString: 'ready to set',
+      cookiesValue: '',
       hasLayout: false,
     };
   },
@@ -305,8 +344,15 @@ export default {
     this.netInfoText = await Vue.Native.NetInfo.fetch();
     this.netInfoListener = Vue.Native.NetInfo.addEventListener('change', (info) => {
       this.netInfoText = `收到通知: ${info.network_info}`;
-      console.log('this.netInfoText change', this.netInfoText);
     });
+    fetch('https://hippyjs.org', {
+      mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body)
+    }).then((responseJson) => {
+      this.fetchText = `成功状态: ${responseJson.status}`;
+    })
+      .catch((error) => {
+        this.fetchText =  `收到错误: ${error}`;
+      });
   },
   async mounted() {
     this.app = getApp();
@@ -327,12 +373,10 @@ export default {
     async onLayout() {
       if (!this.hasLayout) {
         this.hasLayout = true;
-        // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
         const rect = await Vue.Native.measureInAppWindow(this.$refs.rect);
         this.rect = `Container rect: ${JSON.stringify(rect)}`;
       }
     },
-    // 通过界面，触发经过 app 中转的事件，其实就是个假的终端事件。
     triggerAppEvent() {
       this.app.$emit(TEST_EVENT_NAME);
     },
@@ -344,12 +388,12 @@ export default {
       this.screenIsVertical = Vue.Native.screenIsVertical;
     },
     setItem() {
-      Vue.Native.AsyncStorage.setItem('itemKey', 'storageValue');
-      this.storageSetStatus = 'set "storageValue" succeed';
+      Vue.Native.AsyncStorage.setItem('itemKey', 'hippy');
+      this.storageSetStatus = 'set "hippy" value succeed';
     },
     removeItem() {
       Vue.Native.AsyncStorage.removeItem('itemKey');
-      this.storageSetStatus = 'remove "storageValue" succeed';
+      this.storageSetStatus = 'remove "hippy" value succeed';
     },
     async getItem() {
       const storageValue = await Vue.Native.AsyncStorage.getItem('itemKey');
@@ -364,9 +408,18 @@ export default {
       console.log('ImageLoader getSize', result);
       this.imageSize = `${result.width}x${result.height}`;
     },
+    setCookie() {
+      Vue.Native.Cookie.set('https://hippyjs.org', 'name=hippy;network=mobile');
+      this.cookieString = '\'name=hippy;network=mobile\' is set';
+    },
+    getCookie() {
+      Vue.Native.Cookie.getAll('https://hippyjs.org').then((cookies) => {
+        this.cookiesValue = cookies;
+      });
+    },
     setString() {
-      Vue.Native.Clipboard.setString('clipboardValue');
-      this.clipboardString = 'clipboard set "clipboardValue" succeed';
+      Vue.Native.Clipboard.setString('hippy');
+      this.clipboardString = 'copy "hippy" value succeed';
     },
     async getString() {
       const value = await Vue.Native.Clipboard.getString();
@@ -380,7 +433,7 @@ export default {
 };
 </script>
 
-<style scope>
+<style scoped>
   #demo-vue-native {
     flex: 1;
     padding: 12px;
@@ -393,7 +446,7 @@ export default {
   }
 
   .native-block p {
-    marginVertical: 5px;
+    margin-vertical: 5px;
   }
 
   .vue-native-title {

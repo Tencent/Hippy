@@ -302,7 +302,7 @@ public class Serializer extends PrimitiveValueSerializer {
       writeValue(entry.getValue());
     }
     writeTag(SerializationTag.END_JS_MAP);
-    writer.putVarint(2 * count);
+    writer.putVarint(2L * count);
   }
 
   private void writeJSSet(@NonNull JSSet value) {
@@ -425,30 +425,37 @@ public class Serializer extends PrimitiveValueSerializer {
     JSError.ErrorType errorType = error.getType();
     ErrorTag tag;
     switch (errorType) {
-      case EvalError:
+      case EvalError: {
         tag = ErrorTag.EVAL_ERROR;
         break;
-      case RangeError:
+      }
+      case RangeError: {
         tag = ErrorTag.RANGE_ERROR;
         break;
-      case ReferenceError:
+      }
+      case ReferenceError: {
         tag = ErrorTag.REFERENCE_ERROR;
         break;
-      case SyntaxError:
+      }
+      case SyntaxError: {
         tag = ErrorTag.SYNTAX_ERROR;
         break;
-      case TypeError:
+      }
+      case TypeError: {
         tag = ErrorTag.TYPE_ERROR;
         break;
-      case URIError:
+      }
+      case URIError: {
         tag = ErrorTag.URI_ERROR;
         break;
-      default:
+      }
+      default: {
         tag = null;
         if (errorType != JSError.ErrorType.Error && errorType != JSError.ErrorType.AggregateError) {
           throw new UnreachableCodeException();
         }
         break;
+      }
     }
     if (tag != null) {
       writeTag(tag);

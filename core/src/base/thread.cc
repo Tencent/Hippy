@@ -79,7 +79,7 @@ void Thread::SetName(const char* name) {
 }
 
 static void SetThreadName(const char* name) {
-#ifdef OS_ANDROID
+#ifdef ANDROID
   pthread_setname_np(pthread_self(), name);
 #else
   pthread_setname_np(name);

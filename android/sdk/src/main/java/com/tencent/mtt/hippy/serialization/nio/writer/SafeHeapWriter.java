@@ -141,7 +141,7 @@ public final class SafeHeapWriter extends AbstractBinaryWriter {
   }
 
   @Override
-  public final ByteBuffer chunked() {
+  public ByteBuffer chunked() {
     ByteBuffer chunked = ByteBuffer.wrap(value, 0, count);
     reset();
     return chunked;

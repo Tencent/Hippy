@@ -261,11 +261,11 @@ public abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   protected ArrayBufferViewTag readArrayBufferViewTag() {
-    return ArrayBufferViewTag.fromTag(reader.getByte());
+    return ArrayBufferViewTag.fromTag((byte) reader.getVarint());
   }
 
   protected ErrorTag readErrorTag() {
-    return ErrorTag.fromTag(reader.getByte());
+    return ErrorTag.fromTag((byte) reader.getVarint());
   }
 
   protected int readZigZag() {
