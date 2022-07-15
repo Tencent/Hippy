@@ -19,7 +19,7 @@ module.exports = {
   },
   devtool: 'source-map',
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.web)],
+    index: ['regenerator-runtime', path.resolve(pkg.webMain)],
   },
   output: {
     // filename: `[name].${platform}.js`,

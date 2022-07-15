@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "main": "src/main.js",
-  "web": "src/main.web.js",
+  "webMain": "src/main.web.js",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
   "description": "Demo app for hippy-react",

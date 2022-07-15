@@ -11,7 +11,7 @@ module.exports = {
   mode: 'production',
   bail: true,
   entry: {
-    index: ['regenerator-runtime', path.resolve(pkg.web)],
+    index: ['regenerator-runtime', path.resolve(pkg.webMain)],
   },
   output: {
     filename: '[name].[contenthash:8].js',
