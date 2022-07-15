@@ -51,6 +51,10 @@ using CtxPtr = std::shared_ptr<hippy::napi::Ctx>;
 
 @end
 
+@interface NSData (ToJSCtxValue)
+
+@end
+
 @interface NSNull (ToJSCtxValue)
 
 @end

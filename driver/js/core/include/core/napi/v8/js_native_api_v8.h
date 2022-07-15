@@ -194,6 +194,8 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
+  virtual std::shared_ptr<CtxValue> CreateByteBuffer(void *buffer,size_t length, bool is_copy) override;
+
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
       const std::shared_ptr<CtxValue>& function,
@@ -217,6 +219,13 @@ class V8Ctx : public Ctx {
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
 
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
+
+    //buffer
+  virtual bool IsByteBuffer(const std::shared_ptr<CtxValue>& value) override;
+  virtual bool GetByteBuffer(const std::shared_ptr<CtxValue>& value,
+                             void** out_data,
+                             size_t& out_length,
+                             uint32_t& out_type) override;
 
   // Array Helpers
 
