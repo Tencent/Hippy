@@ -20,13 +20,13 @@
  *
  */
 
-#include "atomic/root_node_repo.h"
+#include "utils/root_node_repo.h"
 
-#include <unordered_map>
 #include <mutex>
+#include <unordered_map>
 
-namespace hippy {
-namespace bridge {
+namespace modules {
+namespace utils {
 
 std::unordered_map<uint32_t, std::shared_ptr<RootNode>> root_nodes;
 std::mutex mutex;
@@ -57,5 +57,5 @@ bool RootNodeRepo::Erase(uint32_t id) {
   return true;
 }
 
-}  // namespace bridge
-}  // namespace hippy
+}  // namespace utils
+}  // namespace modules

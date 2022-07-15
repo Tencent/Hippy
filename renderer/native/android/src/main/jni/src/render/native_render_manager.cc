@@ -25,8 +25,8 @@
 #include <cstdint>
 #include <iostream>
 #include <utility>
+#include <atomic>
 
-#include "atomic/atomic_unique_id.h"
 #include "footstone/logging.h"
 #include "dom/root_node.h"
 #include "jni/jni_env.h"
@@ -70,12 +70,13 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 namespace hippy {
 inline namespace dom {
 
+static std::atomic<uint32_t> unique_native_render_manager_id{0};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
-    : id_(modules::atomic::FetchAddUniqueRenderManagerId()),
-      render_delegate_(std::move(render_delegate)),
+    : render_delegate_(std::move(render_delegate)),
       serializer_(std::make_shared<footstone::value::Serializer>()) {
+  id_ = unique_native_render_manager_id.fetch_add(1);
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,

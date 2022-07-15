@@ -24,8 +24,10 @@
 
 #include "dom/root_node.h"
 
-namespace hippy {
-namespace bridge {
+namespace modules {
+namespace utils {
+
+using RootNode = hippy::dom::RootNode;
 
 class RootNodeRepo {
  public:
@@ -36,5 +38,5 @@ class RootNodeRepo {
   static bool Erase(uint32_t id);
 };
 
-}  // namespace bridge
-}  // namespace hippy
+}  // namespace utils
+}  // namespace modules

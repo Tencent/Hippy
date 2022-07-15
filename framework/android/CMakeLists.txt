@@ -18,9 +18,9 @@
 # limitations under the License.
 #
 
-project("native_renderer")
+project("framework_android")
 
-get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." REALPATH)
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
@@ -31,32 +31,35 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-target_compile_definitions(${PROJECT_NAME} INTERFACE "ANDROID_NATIVE_RENDER")
 # endregion
 
 # region dom
-GlobalPackages_Add(dom)
-# Just reference the `dom` header files, no library needed
 target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:dom,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region footstone
-GlobalPackages_Add(footstone)
-target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:footstone,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region jni
-GlobalPackages_Add(jni)
-target_link_libraries(${PROJECT_NAME} PRIVATE jni)
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:jni,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region utils
-GlobalPackages_Add(utils)
-target_link_libraries(${PROJECT_NAME} PRIVATE utils)
 target_include_directories(${PROJECT_NAME} PUBLIC $<TARGET_PROPERTY:utils,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
+# region native renderer
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:native_renderer,INTERFACE_INCLUDE_DIRECTORIES>)
+# endregion
+
 # region source set
-set(SOURCE_SET
-    src/render/native_render_manager.cc)
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+set(SOURCE_SET_STANDALONE src/framework_native_jni.cc)
+# The linker treats `.a` and `.o` files differently:
+#   * `.o` files from `.a` file only referenced `.o` object files are linked.
+#   * `.o` files in the linker always go inside, referenced or not.
+#
+# The `SOURCE_SET_STANDALONE` including static initializers,
+# so its visibility must be PUBLIC.
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
+# endregion

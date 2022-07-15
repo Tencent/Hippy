@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-project(atomic)
+project(utils)
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
 
@@ -28,7 +28,7 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(ATOMIC_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+set(UTILS_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 # region library
 add_library(${PROJECT_NAME} STATIC)
@@ -46,7 +46,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:footstone,I
 
 # region source set
 set(SOURCE_SET
-    src/atomic_unique_id.cc
     src/root_node_repo.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

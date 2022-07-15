@@ -56,13 +56,19 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:jni,INTERFACE_INCLUDE_DIRECTORIES>)
-# endjni
+# endregion
 
-# region atomic
-GlobalPackages_Add(atomic)
-target_link_libraries(${PROJECT_NAME} PRIVATE atomic)
-target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:atomic,INTERFACE_INCLUDE_DIRECTORIES>)
-# endjni
+# region utils
+GlobalPackages_Add(utils)
+target_link_libraries(${PROJECT_NAME} PRIVATE utils)
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:utils,INTERFACE_INCLUDE_DIRECTORIES>)
+# endregion
+
+# region framework_android
+GlobalPackages_Add(framework_android)
+target_link_libraries(${PROJECT_NAME} PRIVATE framework_android)
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:framework_android,INTERFACE_INCLUDE_DIRECTORIES>)
+# endregion
 
 # region core
 add_subdirectory(${PROJECT_ROOT_DIR}/driver/js/core ${CMAKE_CURRENT_BINARY_DIR}/core)

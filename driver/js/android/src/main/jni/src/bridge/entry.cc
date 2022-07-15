@@ -50,13 +50,13 @@
 #include "jni/jni_register.h"
 #include "jni/uri.h"
 #include "jni/jni_utils.h"
-#include "atomic/root_node_repo.h"
+#include "utils/root_node_repo.h"
 #include "loader/adr_loader.h"
 #ifdef ANDROID_NATIVE_RENDER
 #include "jni/java_turbo_module.h"
 #include "jni/turbo_module_manager.h"
 #include "render/native_render_manager.h"
-#include "render/native_render_jni.h"
+#include "native/framework_native_jni.h"
 #endif
 
 namespace hippy::bridge {
@@ -140,6 +140,7 @@ using Ctx = hippy::napi::Ctx;
 using ADRBridge = hippy::ADRBridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
+using RootNodeRepo = modules::utils::RootNodeRepo;
 
 static std::mutex log_mutex;
 static bool is_initialized = false;
