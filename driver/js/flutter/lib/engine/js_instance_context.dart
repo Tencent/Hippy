@@ -21,9 +21,7 @@
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import 'bundle.dart';
-import 'js_engine_context.dart';
 import 'js_module_params.dart';
-import 'voltron_js_engine.dart';
 
 class JSLoadInstanceContext with LoadInstanceContext {
   final ModuleLoadParams _moduleParams;
@@ -50,17 +48,23 @@ class JSLoadInstanceContext with LoadInstanceContext {
       var jsFilePath = params.jsFilePath;
       var jsHttpPath = params.jsHttpPath;
       if (jsAsstsPath != null && !isEmpty(jsAsstsPath)) {
-        _bundleLoader = AssetBundleLoader(jsAsstsPath,
-            canUseCodeCache: !isEmpty(params.codeCacheTag),
-            codeCacheTag: params.codeCacheTag);
+        _bundleLoader = AssetBundleLoader(
+          jsAsstsPath,
+          canUseCodeCache: !isEmpty(params.codeCacheTag),
+          codeCacheTag: params.codeCacheTag,
+        );
       } else if (jsFilePath != null && !isEmpty(jsFilePath)) {
-        _bundleLoader = FileBundleLoader(jsFilePath,
-            canUseCodeCache: !isEmpty(params.codeCacheTag),
-            codeCacheTag: params.codeCacheTag);
+        _bundleLoader = FileBundleLoader(
+          jsFilePath,
+          canUseCodeCache: !isEmpty(params.codeCacheTag),
+          codeCacheTag: params.codeCacheTag,
+        );
       } else if (jsHttpPath != null && !isEmpty(jsHttpPath)) {
-        _bundleLoader = HttpBundleLoader(jsHttpPath,
-            canUseCodeCache: !isEmpty(params.codeCacheTag),
-            codeCacheTag: params.codeCacheTag);
+        _bundleLoader = HttpBundleLoader(
+          jsHttpPath,
+          canUseCodeCache: !isEmpty(params.codeCacheTag),
+          codeCacheTag: params.codeCacheTag,
+        );
       }
     }
   }

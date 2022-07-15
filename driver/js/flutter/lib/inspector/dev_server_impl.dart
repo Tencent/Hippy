@@ -7,6 +7,7 @@ import '../inspector.dart';
 class DevServerImpl implements DevServerInterface {
   late DevServerHelper _devServerHelper;
   late DevServerConfig _devServerConfig;
+  DevServerCallback? _devServerCallback;
 
   DevServerImpl(
     GlobalConfigs configs,
@@ -29,17 +30,27 @@ class DevServerImpl implements DevServerInterface {
   }
 
   @override
-  void handleException(JsError error) {
-    // TODO: implement handleException
-  }
+  void handleException(JsError error) {}
 
   @override
   void attachToHost(RootWidgetViewModel viewModel) {
-    // TODO: implement attachToHost
+    viewModel.isDebugMode = true;
+    viewModel.reload = reload;
   }
 
   @override
   void detachFromHost(RootWidgetViewModel viewModel) {
-    // TODO: implement detachFromHost
+    viewModel.isDebugMode = false;
+    viewModel.reload = null;
+  }
+
+  @override
+  void setDevServerCallback(DevServerCallback devServerCallback) {
+    _devServerCallback = devServerCallback;
+  }
+
+  @override
+  void reload() {
+    _devServerCallback?.onDevBundleReload();
   }
 }

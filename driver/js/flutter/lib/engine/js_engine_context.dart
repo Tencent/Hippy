@@ -22,12 +22,9 @@ import 'package:voltron_renderer/voltron_renderer.dart';
 
 import '../adapter.dart';
 import '../bridge.dart';
+import '../engine.dart';
 import '../inspector.dart';
 import '../module.dart';
-import 'bundle.dart';
-import 'global_config.dart';
-import 'js_api_provider.dart';
-import 'js_render_context.dart';
 
 class EngineContext implements Destroyable {
   final List<EngineLifecycleEventListener> _engineLifecycleEventListeners = [];
@@ -163,6 +160,10 @@ class EngineContext implements Destroyable {
   }
 
   int get engineId => _id;
+
+  void destroyBridge(DestoryBridgeCallback<bool> callback, bool isReload) {
+    _bridgeManager.destroyBridge(callback, isReload);
+  }
 
   @override
   void destroy() {

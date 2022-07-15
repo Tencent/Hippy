@@ -18,6 +18,8 @@
 // limitations under the License.
 //
 
+typedef DestoryBridgeCallback<T> = Function(T b);
+
 typedef EngineListener = void Function(
   EngineInitStatus statusCode,
   String? msg,
