@@ -72,9 +72,6 @@
 @implementation NSDictionary (ToJSCtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    if (0 == [self count]) {
-        return nullptr;
-    }
     std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
     for (id key in self) {
         id value = [self objectForKey:key];
@@ -83,6 +80,18 @@
         valueMap[keyPtr] = valuePtr;
     }
     return context->CreateObject(valueMap);
+}
+
+@end
+
+@implementation NSData (ToJSCtxValue)
+
+- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
+    size_t bufferLength = [self length];
+    void *buff = malloc(bufferLength);
+    memset(buff, 0, bufferLength);
+    [self getBytes:buff length:bufferLength];
+    return context->CreateByteBuffer(buff, bufferLength, false);
 }
 
 @end
@@ -102,18 +111,18 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
             if (context->GetValueString(value, &string_view)) {
                 string_view = hippy::base::StringViewUtils::Convert(string_view, footstone::unicode_string_view::Encoding::Utf16);
                 footstone::unicode_string_view::u16string &u16String = string_view.utf16_value();
-                NSString *string = 
+                NSString *string =
                     [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
                 return string;
             }
         }
-        if (context->IsNumber(value)) {
+        else if (context->IsNumber(value)) {
             double number = 0;
             if (context->GetValueNumber(value, &number)) {
                 return @(number);
             }
         }
-        if (context->IsArray(value)) {
+        else if (context->IsArray(value)) {
             uint32_t length = context->GetArrayLength(value);
             NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
             for (uint32_t index = 0; index < length; index++) {
@@ -123,7 +132,16 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
             }
             return [array copy];
         }
-        if (context->IsObject(value)) {
+        //ArrayBuffer is kindof Object, so we must check if it is byte buffer first
+        else if(context->IsByteBuffer(value)) {
+            size_t length = 0;
+            uint32_t type;
+            void *bytes = NULL;
+            if (context->GetByteBuffer(value, &bytes, length, type)) {
+                return [NSData dataWithBytes:bytes length:length];
+            }
+        }
+        else if (context->IsObject(value)) {
             std::unordered_map<footstone::unicode_string_view, CtxValuePtr> map;
             if (context->GetEntriesFromObject(value, map)) {
                 NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
@@ -138,6 +156,9 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
                 }
                 return [dictionary copy];
             }
+        }
+        else {
+
         }
         return [NSNull null];
     }

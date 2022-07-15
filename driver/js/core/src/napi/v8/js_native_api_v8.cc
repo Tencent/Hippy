@@ -1563,6 +1563,70 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
   return std::make_shared<V8CtxValue>(isolate_, array);
 }
 
+static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data) {
+  free(data);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(void *buffer, size_t length, bool is_copy) {
+  if (!buffer) {
+    return nullptr;
+  }
+  void* data = buffer;
+  if (is_copy) {
+    data = malloc(length);
+    memcpy(data, buffer, length);
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  auto backingStore = v8::ArrayBuffer::NewBackingStore(data, length, ArrayBufferDataDeleter,
+                                                       nullptr);
+  v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_,std::move(backingStore));
+  if (array_buffer.IsEmpty()) {
+    FOOTSTONE_LOG(ERROR) << "array_buffer is empty";
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, array_buffer);
+}
+
+bool V8Ctx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+          std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+          v8::Local<v8::Value>::New(isolate_, persistent_value);
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  return handle_value->IsArrayBuffer();
+}
+
+bool V8Ctx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,
+                          void** out_data,
+                          size_t& out_length,
+                          uint32_t& out_type) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+          std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+          v8::Local<v8::Value>::New(isolate_, persistent_value);
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  if (!handle_value->IsArrayBuffer()) {
+    return false;
+  }
+  v8::ArrayBuffer* array_buffer = v8::ArrayBuffer::Cast(*handle_value);
+  *out_data = array_buffer->GetBackingStore()->Data();
+  out_length = array_buffer->GetBackingStore()->ByteLength();
+  return true;
+}
 std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
     std::shared_ptr<CtxValue>,
     std::shared_ptr<CtxValue>>& map) {
