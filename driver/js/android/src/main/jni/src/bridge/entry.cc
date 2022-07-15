@@ -140,7 +140,7 @@ using Ctx = hippy::napi::Ctx;
 using ADRBridge = hippy::ADRBridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
-using RootNodeRepo = modules::utils::RootNodeRepo;
+using RootNodeRepo = framework::utils::RootNodeRepo;
 
 static std::mutex log_mutex;
 static bool is_initialized = false;

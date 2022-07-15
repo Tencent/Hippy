@@ -25,7 +25,7 @@
 #include <mutex>
 #include <unordered_map>
 
-namespace modules {
+namespace framework {
 namespace utils {
 
 std::unordered_map<uint32_t, std::shared_ptr<RootNode>> root_nodes;
@@ -58,4 +58,4 @@ bool RootNodeRepo::Erase(uint32_t id) {
 }
 
 }  // namespace utils
-}  // namespace modules
+}  // namespace framework

@@ -45,16 +45,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:footstone,I
 target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:jni,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
-# region utils
-target_include_directories(${PROJECT_NAME} PUBLIC $<TARGET_PROPERTY:utils,INTERFACE_INCLUDE_DIRECTORIES>)
-# endregion
-
 # region native renderer
 target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:native_renderer,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region source set
-set(SOURCE_SET_STANDALONE src/framework_native_jni.cc)
+set(SOURCE_SET src/utils/root_node_repo.cc)
+set(SOURCE_SET_STANDALONE src/native/framework_native_jni.cc)
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # The linker treats `.a` and `.o` files differently:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.
 #   * `.o` files in the linker always go inside, referenced or not.

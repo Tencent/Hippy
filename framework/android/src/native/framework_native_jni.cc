@@ -39,7 +39,7 @@ using NativeRenderManager = hippy::dom::NativeRenderManager;
 using RenderManager = hippy::dom::RenderManager;
 using RootNode = hippy::dom::RootNode;
 using Scene = hippy::dom::Scene;
-using RootNodeRepo = modules::utils::RootNodeRepo;
+using RootNodeRepo = framework::utils::RootNodeRepo;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",

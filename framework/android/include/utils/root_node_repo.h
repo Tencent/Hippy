@@ -24,7 +24,7 @@
 
 #include "dom/root_node.h"
 
-namespace modules {
+namespace framework {
 namespace utils {
 
 using RootNode = hippy::dom::RootNode;
@@ -39,4 +39,4 @@ class RootNodeRepo {
 };
 
 }  // namespace utils
-}  // namespace modules
+}  // namespace framework

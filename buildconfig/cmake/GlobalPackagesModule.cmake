@@ -76,13 +76,6 @@ function(GlobalPackages_Add_jni)
   endif()
 endfunction()
 
-function(GlobalPackages_Add_utils)
-  if (NOT TARGET utils)
-    InfraPackage_Add(UTILS
-        LOCAL "${PROJECT_ROOT_DIR}/modules/android/utils")
-  endif()
-endfunction()
-
 function(GlobalPackages_Add_framework_android)
   if (NOT TARGET framework_android)
     InfraPackage_Add(FRAMEWORK_ANDROID
