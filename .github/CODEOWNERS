@@ -17,7 +17,9 @@
 *.h @ozonelmy
 *.m @ozonelmy
 *.mm @ozonelmy
+
 CMakeLists.txt @medns
+*.cmake @medns
 
 # ci, build & doc related
 /.github/ @zoomchan-cxj @medns
