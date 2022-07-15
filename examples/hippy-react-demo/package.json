@@ -9,15 +9,15 @@
   "description": "Demo app for hippy-react",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo",
   "scripts": {
-    "start": "npm run hippy:dev & npm run web:dev",
-    "serve": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web.dev.js",
+    "start": "npm run hippy:debug & npm run hippy:dev & npm run web:dev",
+    "serve": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
     "build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web.js",
-    "web:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web.render.dev.js",
-    "web:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web.render.js",
     "hippy:debug": "hippy-debug",
     "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
-    "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
+    "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js",
+    "web:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
+    "web:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web-renderer.js"
   },
   "keywords": [
     "Hippy",
