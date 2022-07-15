@@ -19,6 +19,7 @@
  */
 
 #include "render/tdf/image/net_image_loader.h"
+#include "footstone/logging.h"
 
 namespace tdfrender {
 
@@ -32,7 +33,8 @@ std::shared_ptr<tdfcore::Task> NetImageLoader::Load(const std::string &url, cons
                                                     const tdfcore::ImageLoadCallback &loader_callback) {
   return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, progress_callback, loader_callback] {
     DEFINE_AND_CHECK_SELF(NetImageLoader)
-    StringView src_uri = footstone::unicode_string_view(self->scheme_ + "://" + url);
+    StringView src_uri = footstone::unicode_string_view(url);
+    FOOTSTONE_LOG(INFO) << "---NetImageLoader::Load--- src = " << src_uri;
     self->uri_data_getter_(src_uri, [self, progress_callback, loader_callback](StringView::u8string data) {
       if (!data.empty()) {
         auto bytes = data.data();

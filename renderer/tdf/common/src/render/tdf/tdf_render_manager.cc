@@ -49,6 +49,8 @@ static std::atomic<int32_t> global_tdf_render_manager_key{1000};
 static std::map<std::string, tdfrender::node_creator> node_creator_tables_;
 static std::unordered_map<uint32_t, tdfrender::UriDataGetter> uri_data_getter_map_;
 
+constexpr const char* kUpdateFrame = "frameupdate";
+
 TDFRenderManager::TDFRenderManager() {
   id_ = global_tdf_render_manager_key.fetch_add(1);
 }
@@ -195,6 +197,9 @@ void TDFRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node, std::
   }
   auto render_context = render_context_repo_.find(root->GetId())->second;
   auto shell = render_context->GetShell();
+  if (name == kUpdateFrame) {
+    render_context->SetEnableUpdateAnimation(true);
+  }
   shell->GetUITaskRunner()->PostTask([=] {
     if (auto node = dom_node.lock(); node != nullptr) {
       auto id = node->GetId();
@@ -210,6 +215,14 @@ void TDFRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node, st
   FOOTSTONE_LOG(INFO) << "RemoveEventListener: "
                      << " |name: " << dom_node.lock()->GetViewName() << " |id: " << dom_node.lock()->GetId()
                      << " |event: " << name;
+  auto root = root_node.lock();
+  if (!root) {
+    return;
+  }
+  auto render_context = render_context_repo_.find(root->GetId())->second;
+  if (name == kUpdateFrame) {
+    render_context->SetEnableUpdateAnimation(false);
+  }
 }
 
 void TDFRenderManager::CallFunction(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,

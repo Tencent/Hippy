@@ -32,6 +32,8 @@
 
 namespace tdfrender {
 
+constexpr const char* kUpdateFrame = "frameupdate";
+
 TDFRenderContext::TDFRenderContext(uint32_t root_id, const std::shared_ptr<tdfcore::Shell>& shell,
                                    const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter)
     : root_id_(root_id), shell_(shell), dom_manager_(manager), getter_(std::move(getter)) {
@@ -51,6 +53,17 @@ void TDFRenderContext::Init() {
     self->Register(self->root_id_, root_view_node);
     self->view_context_->SetupDefaultBuildFunction();
 
+    if (auto shell = self->shell_.lock()) {
+      shell->GetEventCenter()->AddListener(tdfcore::PostRunLoopEvent::ClassType(),
+                                           [weak_this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
+                                             if (auto self = weak_this.lock()) {
+                                               if (self->is_enable_update_animation_.load()) {
+                                                 self->PostAnimationUpdateTask();
+                                               }
+                                             }
+                                             return tdfcore::EventDispatchBehavior::kContinue;
+                                           });
+    }
     self->UpdateRootNodeSize(self->shell_.lock()->GetViewportMetrics());
     self->GetShell()->GetEventCenter()->AddListener(
         tdfcore::ViewportEvent::ClassType(), [weak_this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
@@ -81,8 +94,18 @@ void TDFRenderContext::Init() {
     auto base64_image_loader = TDF_MAKE_SHARED(tdfrender::Base64ImageLoader);
     self->view_context_->GetImageManager()->GetImageLoadManager()->RegisterImageLoader(
         tdfrender::Base64ImageLoader::GetScheme(), base64_image_loader);
-
   });
+}
+
+void TDFRenderContext::PostAnimationUpdateTask() const {
+  std::shared_ptr<hippy::RootNode> root_node = hippy::bridge::RootNodeRepo::Find(root_id_);
+  std::__ndk1::vector<std::function<void()>> ops = {[node = std::move(root_node)] {
+    auto event = std::__ndk1::make_shared<hippy::DomEvent>(kUpdateFrame, node);
+    node->HandleEvent(event);
+  }};
+  if (auto dom_manager = dom_manager_.lock()) {
+    dom_manager->PostTask(hippy::Scene(std::move(ops)));
+  }
 }
 
 void TDFRenderContext::UpdateRootNodeSize(tdfcore::ViewportMetrics viewport_metrics) {

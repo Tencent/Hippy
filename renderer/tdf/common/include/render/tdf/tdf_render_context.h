@@ -60,6 +60,7 @@ class TDFRenderContext : public tdfcore::Object, public std::enable_shared_from_
   uint64_t AddEndBatchListener(const std::function<void()>& listener) { return end_batch_listener_.Add(listener); }
 
   void RemoveEndBatchListener(uint64_t id) { end_batch_listener_.Remove(id); }
+  void SetEnableUpdateAnimation(bool enable) { is_enable_update_animation_ = enable; }
 
   std::shared_ptr<hippy::DomManager> GetDomManager() {
     assert(!dom_manager_.expired());
@@ -68,6 +69,7 @@ class TDFRenderContext : public tdfcore::Object, public std::enable_shared_from_
 
  private:
   void UpdateRootNodeSize(tdfcore::ViewportMetrics viewport_metrics);
+  void PostAnimationUpdateTask() const;
 
   // Record the map from render_info.id(from DomNode) to ViewNode
   ViewNodeMap nodes_query_table_;
@@ -79,6 +81,7 @@ class TDFRenderContext : public tdfcore::Object, public std::enable_shared_from_
   std::weak_ptr<hippy::DomManager> dom_manager_;
   std::shared_ptr<tdfcore::ViewContext> view_context_;
   UriDataGetter getter_;
+  std::atomic<bool> is_enable_update_animation_ = false;
 };
 
 }  // namespace tdfrender

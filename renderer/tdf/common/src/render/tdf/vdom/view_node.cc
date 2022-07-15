@@ -37,6 +37,21 @@
 
 namespace tdfrender {
 
+constexpr const char* kMatrix = "matrix";
+constexpr const char* kPerspective = "perspective";
+constexpr const char* kRotateX = "rotateX";
+constexpr const char* kRotateY = "rotateY";
+constexpr const char* kRotateZ = "rotateZ";
+constexpr const char* kRotate = "rotate";
+constexpr const char* kScale = "scale";
+constexpr const char* kScaleX = "scaleX";
+constexpr const char* kScaleY = "scaleY";
+constexpr const char* kTranslate = "translate";
+constexpr const char* kTranslateX = "translateX";
+constexpr const char* kTranslateY = "translateY";
+constexpr const char* kSkewX = "skewX";
+constexpr const char* kSkewY = "skewY";
+
 node_creator ViewNode::GetViewNodeCreator() {
   return [](RenderInfo info) { return TDF_MAKE_SHARED(ViewNode, info); };
 }
@@ -140,11 +155,97 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
   util::ParseShadowInfo(*view, dom_style);
 
+  // animation
+  view->SetTransform(GenerateAnimationTransform(dom_style, view));
+
   // kTouchdown / kTouchend / kTouchmove / kTransform will will handled in ViewNode::OnAddEventListener
 
   if (auto it = dom_style.find(hippy::kZIndex); it != map_end) {
     view->SetZIndex(it->second->ToInt32Checked());
   }
+}
+
+tdfcore::TM33 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
+  auto transform = tdfcore::TM33();
+
+  if (auto it = dom_style.find(kMatrix); it != dom_style.end()) {
+    /// TODO(kloudwang) 确定下格式
+  }
+
+  if (auto it = dom_style.find(kPerspective); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    transform.Set(tdfcore::TM33::PERSP_2, static_cast<float>(it->second->ToDoubleChecked()));
+  }
+
+  auto rotate_x = 0.0f;
+  if (auto it = dom_style.find(kRotateX); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    rotate_x = static_cast<float>(it->second->ToDoubleChecked());
+    /// TODO(kloudwang)
+  }
+
+  auto rotate_y = 0.0f;
+  if (auto it = dom_style.find(kRotateY); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    rotate_y = static_cast<float>(it->second->ToDoubleChecked());
+    /// TODO(kloudwang)
+  }
+
+  /// TODO(kloudwang) transform.SetRotate(rotate_x, rotate_y, )
+
+  if (auto it = dom_style.find(kRotate); it != dom_style.end()) {
+    /// TODO(kloudwang)
+  }
+
+  if (auto it = dom_style.find(kRotateZ); it != dom_style.end()) {
+    /// TODO(kloudwang)
+  }
+
+  if (auto it = dom_style.find(kScale); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+    auto width = view->GetFrame().Width();
+    auto height = view->GetFrame().Height();
+    transform.SetScale(scale, scale, width / 2, height / 2);
+  }
+
+  if (auto it = dom_style.find(kScaleX); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    auto scale = static_cast<float>(it->second->ToDoubleChecked());
+    transform.SetScaleX(scale);
+  }
+
+  if (auto it = dom_style.find(kScaleY); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    transform.SetScaleY(static_cast<float>(it->second->ToDoubleChecked()));
+  }
+
+  if (auto it = dom_style.find(kTranslate); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    auto translate = static_cast<float>(it->second->ToDoubleChecked());
+    transform.SetTranslate(translate, translate);
+  }
+
+  if (auto it = dom_style.find(kTranslateX); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    auto translate_x = static_cast<float>(it->second->ToDoubleChecked());
+    transform.SetTranslateX(translate_x);
+  }
+
+  if (auto it = dom_style.find(kTranslateY); it != dom_style.end()) {
+    assert(it->second->IsDouble());
+    auto translate_y = static_cast<float>(it->second->ToDoubleChecked());
+    transform.SetTranslateY(translate_y);
+  }
+
+  if (auto it = dom_style.find(kSkewX); it != dom_style.end()) {
+    /// TODO(kloudwang)
+  }
+
+  if (auto it = dom_style.find(kSkewY); it != dom_style.end()) {
+    /// TODO(kloudwang)
+  }
+  return transform;
 }
 
 void ViewNode::OnDelete() {

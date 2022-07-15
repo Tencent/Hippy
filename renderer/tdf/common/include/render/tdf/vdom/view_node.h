@@ -201,6 +201,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual void HandleEventInfoUpdate();
 
+  tdfcore::TM33 GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view);
+
  private:
   std::weak_ptr<tdfcore::View> attached_view_;
 
