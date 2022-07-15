@@ -49,6 +49,8 @@
 @property (nonatomic, assign) BOOL bounces;
 @property (nonatomic, assign) BOOL showScrollIndicator;
 @property (nonatomic, assign) BOOL editable;
+/// enable partially reload feature or not
+@property (nonatomic, assign) BOOL canPartialReload;
 
 @property (nonatomic, strong) HippyListTableView *tableView;
 @property (nonatomic, strong, readonly) HippyBaseListViewDataSource *dataSource;

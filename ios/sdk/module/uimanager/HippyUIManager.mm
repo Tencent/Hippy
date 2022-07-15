@@ -1223,7 +1223,7 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
             if (listNode.isDirty) {
                 id <HippyBaseListViewProtocol> listView = (id <HippyBaseListViewProtocol>)self->_viewRegistry[tag];
                 if([listView flush]) {
-                    listNode.isDirty = NO;
+                    [listNode markAsCleanAfterUIFlush];
                 }
             }
         }];

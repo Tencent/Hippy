@@ -166,9 +166,10 @@ export default class ListExample extends React.Component {
     return index === 2;
   }
   getRowType(index) {
-    const self = this;
-    const item = self.state.dataSource[index];
-    return item.style;
+    const { dataSource, mySelectedCell } = this.state;
+    const isMySelectedCell = (mySelectedCell === index);
+    const item = dataSource[index];
+    return isMySelectedCell ? 666 : item.style;
   }
   // configure listItem style if horizontal listview is set
   getRowStyle() {
@@ -183,10 +184,11 @@ export default class ListExample extends React.Component {
   }
 
   getRenderRow(index) {
-    const { dataSource } = this.state;
+    const { dataSource, mySelectedCell } = this.state;
     let styleUI = null;
     const rowData = dataSource[index];
     const isLastItem = dataSource.length === index + 1;
+    const isMySelectedCell = (mySelectedCell === index);
     switch (rowData.style) {
       case 1:
         styleUI = <Style1 index={index} />;
@@ -216,10 +218,11 @@ export default class ListExample extends React.Component {
             onClick={(event) => {
               console.log('click style outer', event.target.nodeId, event.currentTarget.nodeId);
               // return false means trigger bubble
+              this.setState({ mySelectedCell: index });
               return false;
             }}>
-        <View style={styles.itemContainer}>
-          {styleUI}
+        <View style={ isMySelectedCell ? { ...styles.itemContainer, backgroundColor: 'green' } : styles.itemContainer}>
+          { isMySelectedCell ? <View style={{ height: 40 }}/> : styleUI }
         </View>
         {!isLastItem ? <View style={styles.separatorLine} /> : null }
       </View>
@@ -251,9 +254,9 @@ export default class ListExample extends React.Component {
             return true;
           }}
         bounces={true}
+        canPartialReload={true} // reload only dirty cells flag (iOS support only)
         overScrollEnabled={true}
-        // horizontal ListView  flag（only Android support）
-        horizontal={undefined}
+        horizontal={undefined} // horizontal ListView flag（Android support only）
         style={{ flex: 1, backgroundColor: '#ffffff' }}
         numberOfRows={dataSource.length}
         renderRow={this.getRenderRow}

@@ -33,6 +33,20 @@
 
 @interface HippyVirtualList: HippyVirtualNode
 
-@property (nonatomic, assign) BOOL isDirty;
+/// Indicates whether need reload, default NO
+@property (nonatomic, assign, readonly) BOOL isDirty;
+
+/// Indicates whether it can \c not be partially reload
+/// Default is NO, means that we can partially reload when dirtyCellIndexes is available
+/// YES means that we can not do partially reload (e.g. number of datasources has changed)
+@property (nonatomic, assign, readonly) BOOL noPartialReload;
+/// Cell indexes that need to be partially reloaded
+@property (nonatomic, strong) NSMutableIndexSet *dirtyCellIndexes;
+
+/// Mark the list as dirty (needing to reload)
+- (void)markAsDirty;
+
+/// Mark the list as clean
+- (void)markAsCleanAfterUIFlush;
 
 @end

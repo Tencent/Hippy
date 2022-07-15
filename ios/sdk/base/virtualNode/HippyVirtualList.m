@@ -24,38 +24,50 @@
 
 @implementation HippyVirtualList
 
-- (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(__unused NSInteger)atIndex
-{
-    self.isDirty = YES;
+- (void)insertHippySubview:(id<HippyComponent>)subview atIndex:(__unused NSInteger)atIndex {
+    [self setIsDirty:YES noPartialReload:YES];
     [super insertHippySubview: subview atIndex: atIndex];
 }
 
-- (void)removeHippySubview:(id<HippyComponent>)subview
-{
-    self.isDirty = YES;
+- (void)removeHippySubview:(id<HippyComponent>)subview {
+    [self setIsDirty:YES noPartialReload:YES];
     [super removeHippySubview: subview];
 }
 
-- (UIView *)createView:(HippyCreateViewForShadow)createBlock insertChildrens:(HippyInsertViewForShadow)insertChildrens {
+- (UIView *)createView:(HippyCreateViewForShadow)createBlock
+       insertChildrens:(HippyInsertViewForShadow)insertChildrens {
     UIView *view = [super createView:createBlock insertChildrens:insertChildrens];
-    self.isDirty = YES;
+    [self setIsDirty:YES noPartialReload:YES];
     return view;
+}
+
+- (void)setIsDirty:(BOOL)isDirty noPartialReload:(BOOL)cannotPartial {
+    _isDirty = isDirty;
+    _noPartialReload = cannotPartial;
+}
+
+- (void)markAsDirty {
+    _isDirty = YES;
+}
+
+- (void)markAsCleanAfterUIFlush {
+    _isDirty = NO;
+    _noPartialReload = NO;
+    _dirtyCellIndexes = nil;
 }
 
 @end
 
 @implementation HippyVirtualCell
 
-- (NSString *)description
-{
+- (NSString *)description {
     return [NSString stringWithFormat: @"hippyTag: %@, viewName: %@, props:%@ type: %@ frame:%@", self.hippyTag, self.viewName, self.props, self.itemViewType
                     , NSStringFromCGRect(self.frame)];
 }
 
 - (instancetype)initWithTag:(NSNumber *)tag
                    viewName:(NSString *)viewName
-                      props:(NSDictionary *)props
-{
+                      props:(NSDictionary *)props {
     if (self = [super initWithTag: tag viewName: viewName props: props]) {
         self.itemViewType = [NSString stringWithFormat: @"%@", props[@"type"]];
         self.sticky = [props[@"sticky"] boolValue];
@@ -64,8 +76,7 @@
 }
 
 
-- (void)setProps:(NSDictionary *)props
-{
+- (void)setProps:(NSDictionary *)props {
     [super setProps: props];
     
     self.itemViewType = [NSString stringWithFormat: @"%@", props[@"type"]];
@@ -80,12 +91,19 @@
     return list;
 }
 
-- (void)hippySetFrame:(CGRect)frame
-{
+- (void)hippySetFrame:(CGRect)frame {
     if (!CGSizeEqualToSize(self.frame.size, CGSizeZero) && !CGSizeEqualToSize(self.frame.size, frame.size)) {
-        self.listNode.isDirty = YES;
+        HippyVirtualList *listNode = self.listNode;
+        [listNode markAsDirty];
+        NSUInteger indexOfSelf = [listNode.subNodes indexOfObject:self];
+        if (!listNode.noPartialReload) {
+            if (!listNode.dirtyCellIndexes) {
+                listNode.dirtyCellIndexes = [NSMutableIndexSet indexSet];
+            }
+            [listNode.dirtyCellIndexes addIndex:indexOfSelf];
+        }
     }
-    [super hippySetFrame: frame];
+    [super hippySetFrame:frame];
 }
 
 - (BOOL)createViewLazily {

@@ -123,19 +123,45 @@
     return YES;
 }
 
+/// no partial reload when reach this threshold
+#define HIPPY_NO_PARTIAL_RELOAD_THRESHOLD 10
+
 - (void)reloadData {
     [_dataSource setDataSource:(NSArray<HippyVirtualCell *> *)_subNodes];
-    [_tableView reloadData];
+    
+    if (self.canPartialReload &&
+        !self.node.noPartialReload &&
+        self.node.dirtyCellIndexes.count > 0 &&
+        self.node.dirtyCellIndexes.count < HIPPY_NO_PARTIAL_RELOAD_THRESHOLD) {
+        // reload only dirty (frame changed) cells
+        NSMutableArray *arr = [NSMutableArray arrayWithCapacity:self.node.dirtyCellIndexes.count];
+        [self.node.dirtyCellIndexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL * _Nonnull stop) {
+            NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:idx];
+            if (indexPath) {
+                [arr addObject:indexPath];
+                // Since cell reuse the VirtualNode(cell.node),
+                // see 'cellForRowAtIndexPath' and 'didEndDisplayingCell'
+                // we must remove the node to avoid bugs when cell-resuing
+                UITableViewCell *cell = [_tableView cellForRowAtIndexPath:indexPath];
+                if ([cell isKindOfClass:[HippyBaseListViewCell class]]) {
+                    ((HippyBaseListViewCell *)cell).node = nil;
+                }
+            }
+        }];
+        [_tableView reloadRowsAtIndexPaths:arr withRowAnimation:UITableViewRowAnimationAutomatic];
+    } else {
+        // normal reload
+        [_tableView reloadData];
 
-    if (self.initialContentOffset) {
-        [_tableView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
-        self.initialContentOffset = 0;
-    }
-
-    if (!_isInitialListReady) {
-        _isInitialListReady = YES;
-        if (self.initialListReady) {
-            self.initialListReady(@{});
+        if (self.initialContentOffset) {
+            [_tableView setContentOffset:CGPointMake(0, self.initialContentOffset) animated:NO];
+            self.initialContentOffset = 0;
+        }
+        if (!_isInitialListReady) {
+            _isInitialListReady = YES;
+            if (self.initialListReady) {
+                self.initialListReady(@{});
+            }
         }
     }
 }
