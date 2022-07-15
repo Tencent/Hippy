@@ -86,6 +86,22 @@
 
 @end
 
+@implementation NSData (ToJSCtxValue)
+
+- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
+    if (0 == [self length]) {
+        return nullptr;
+    }
+    size_t bufferLength = [self length];
+    char* buff = new char[bufferLength];
+    memset(buff, 0, bufferLength);
+    [self getBytes:buff length:bufferLength];
+    
+    return context->CreateByteBufferNoCopy(buff, bufferLength);
+}
+
+@end
+
 @implementation NSNull (ToJSCtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
@@ -120,6 +136,13 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
                 [array addObject:obj];
             }
             return [array copy];
+        }
+        if(context->IsByteBuffer(value)) {
+            uint32_t length = 0;
+            void *bytes = context->GetByteBuffer(value,&length,nullptr);
+            if(nullptr != bytes){
+                return [NSData dataWithBytes:bytes length:length];
+            }
         }
         if (context->IsObject(value)) {
             std::map<footstone::unicode_string_view, CtxValuePtr> map;

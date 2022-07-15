@@ -192,7 +192,6 @@ static unicode_string_view NSStringToU8(NSString* str) {
             std::shared_ptr<Scope> scope = wrapper->scope_.lock();
             if (scope) {
                 std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
-                JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
                 context->RegisterGlobalInJs();
                 context->RegisterClasses(scope);
                 NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[strongSelf.bridge deviceInfo]];
@@ -528,8 +527,7 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
                         if (jscContext->IsFunction(method_value)) {
                             std::shared_ptr<hippy::napi::CtxValue> function_params[arguments.count];
                             for (NSUInteger i = 0; i < arguments.count; i++) {
-                                JSValueRef value = [JSValue valueWithObject:arguments[i] inContext:jsContext].JSValueRef;
-                                function_params[i] = std::make_shared<hippy::napi::JSCCtxValue>(globalContextRef, value);
+                                function_params[i] = [arguments[i] convertToCtxValue:jscContext];
                             }
                             hippy::napi::JSCTryCatch tryCatch(true, jscContext);
                             std::shared_ptr<hippy::napi::CtxValue> resultValue

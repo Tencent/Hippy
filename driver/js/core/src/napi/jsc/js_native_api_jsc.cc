@@ -893,6 +893,22 @@ bool JSCCtx::IsNumber(const std::shared_ptr<CtxValue>& value) {
   return JSValueIsNumber(context_, value_ref);
 }
 
+bool JSCCtx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
+  if (!value) {
+    return false;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+  if(nullptr == ctx_value) {
+      return false;
+  }
+  JSValueRef value_ref = ctx_value->value_;
+  if(!JSValueIsObject(context_, value_ref)){
+    return false;
+  }
+  JSTypedArrayType type = JSValueGetTypedArrayType(context_, value_ref, nullptr);
+  return kJSTypedArrayTypeNone != type;
+}
+
 void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
   auto instance_define = hippy::MakeEventInstanceDefine(scope, dom_event);
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;

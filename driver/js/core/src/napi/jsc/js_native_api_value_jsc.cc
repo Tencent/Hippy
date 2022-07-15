@@ -201,7 +201,8 @@ bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
     JSStringRef props_key = JSPropertyNameArrayGetNameAtIndex(name_arry, i);
     JSValueRef props_value = JSObjectGetProperty(context_, obj_value, props_key, nullptr);
     const char16_t* utf16_string = reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(props_key));
-    unicode_string_view string_view(utf16_string);
+    size_t str_length = JSStringGetLength(props_key);
+    unicode_string_view string_view(utf16_string,str_length);
     auto value = std::make_shared<JSCCtxValue>(context_, props_value);
     map[string_view] = value;
   }
@@ -347,6 +348,55 @@ std::shared_ptr<CtxValue> JSCCtx::CreateArray(
   }
   return std::make_shared<JSCCtxValue>(context_, value_ref);
 }
+
+void JSCCtx_dataBufferFree(void* bytes, void* deallocatorContext) {
+    char* buff = (char*)bytes;
+    delete [] buff;
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateByteBufferNoCopy(void *buffer,size_t length) {
+  if(nullptr == buffer || 0 == length) {
+    return nullptr;
+  }
+  
+  JSValueRef exception = nullptr;
+  JSValueRef value_ref = JSObjectMakeTypedArrayWithBytesNoCopy(context_, kJSTypedArrayTypeInt8Array, buffer, length, &JSCCtx_dataBufferFree, nullptr, &exception);
+  if (exception) {
+    SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
+     return nullptr;
+  }
+  return std::make_shared<hippy::napi::JSCCtxValue>(context_, value_ref);
+}
+
+void* JSCCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,uint32_t *out_length,uint32_t *out_type) {
+  if (!value) {
+    return nullptr;
+  }
+  std::shared_ptr<JSCCtxValue> ctx_value = std::static_pointer_cast<JSCCtxValue>(value);
+  if(nullptr == ctx_value) {
+      return nullptr;
+  }
+  JSValueRef value_ref = ctx_value->value_;
+  JSObjectRef object_ref = JSValueToObject(context_, value_ref, nullptr);
+  JSTypedArrayType type = JSValueGetTypedArrayType(context_, value_ref, nullptr);
+  void* data = nullptr;
+  size_t length = 0;
+  if(kJSTypedArrayTypeArrayBuffer ==type) {
+    data = JSObjectGetArrayBufferBytesPtr(context_,object_ref,nullptr);
+    length = JSObjectGetArrayBufferByteLength(context_,object_ref,nullptr);
+  }else if(kJSTypedArrayTypeNone != type) {
+    data = JSObjectGetTypedArrayBytesPtr(context_,object_ref,nullptr);
+    length =JSObjectGetTypedArrayLength(context_, object_ref, nullptr);
+  }
+  if(nullptr != out_length && nullptr != data) {
+    *out_length = (uint32_t)length;
+  }
+  if(nullptr != out_type) {
+    *out_type = (uint32_t)type;
+  }
+  return data;
+}
+
 
 std::shared_ptr<CtxValue> JSCCtx::CreateError(
     const unicode_string_view& msg) {

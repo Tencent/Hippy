@@ -1492,6 +1492,21 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
   return std::make_shared<V8CtxValue>(isolate_, array);
 }
 
+std::shared_ptr<CtxValue> V8Ctx::CreateByteBufferNoCopy(void *buffer,size_t length) {
+   FOOTSTONE_UNIMPLEMENTED();
+   return nullptr;
+}
+
+bool V8Ctx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
+   FOOTSTONE_UNIMPLEMENTED();
+   return false;
+}
+
+void* V8Ctx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,uint32_t *out_length,uint32_t *out_type) {
+  FOOTSTONE_UNIMPLEMENTED();
+  return nullptr;
+}
+
 std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
     std::shared_ptr<CtxValue>,
     std::shared_ptr<CtxValue>>& map) {
