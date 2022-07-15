@@ -242,24 +242,17 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, 
     return;
   }
 
-  std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
-  if (dom_manager == nullptr) {
-    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
-    return;
-  }
-
   std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
   if (root_node == nullptr) {
     FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent root_node is nullptr";
     return;
   }
 
-  auto node = dom_manager->GetNode(root_node,
-                                   footstone::check::checked_numeric_cast<jlong, uint32_t>(j_dom_id));
-  if (node == nullptr) {
-    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent DomNode not found for id: " << j_dom_id;
-    return;
-  }
+  uint32_t dom_id = footstone::check::checked_numeric_cast<jlong, uint32_t>(j_dom_id);
+
+  jboolean is_copy = JNI_TRUE;
+  const char* c = j_env->GetStringUTFChars(j_event_name, &is_copy);
+  std::string event_name(c);
 
   std::shared_ptr<HippyValue> params = nullptr;
   if (j_buffer != nullptr && j_length > 0) {
@@ -272,16 +265,8 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, 
     deserializer.ReadValue(*params);
   }
 
-  jboolean is_copy = JNI_TRUE;
-  const char* c = j_env->GetStringUTFChars(j_event_name, &is_copy);
-  std::string event_name(c);
+  bool capture = static_cast<bool>(j_use_capture);
+  bool bubble = static_cast<bool>(j_use_bubble);
 
-  std::vector<std::function<void()>> ops = {[node = std::move(node), params = std::move(params),
-                                             use_capture = static_cast<bool>(j_use_capture),
-                                             use_bubble = static_cast<bool>(j_use_bubble),
-                                             event_name = std::move(event_name)] {
-    auto event = std::make_shared<DomEvent>(event_name, node, use_capture, use_bubble, params);
-    node->HandleEvent(event);
-  }};
-  dom_manager->PostTask(Scene(std::move(ops)));
+  render_manager->ReceivedEvent(root_node, dom_id, event_name, params, capture, bubble);
 }
