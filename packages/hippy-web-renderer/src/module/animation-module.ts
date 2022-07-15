@@ -19,12 +19,13 @@
  */
 
 import { Property } from 'csstype';
-import { HippyBaseView, ComponentContext } from '../types';
+import { ComponentContext, HippyBaseView } from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
 import AnimationPlayState = Property.AnimationPlayState;
+
 export class AnimationModule extends HippyWebModule {
   public name = 'AnimationModule';
   private animationPool: {[key: string]: SimpleAnimation|null} = {};
@@ -107,7 +108,7 @@ export class AnimationModule extends HippyWebModule {
       return;
     }
     this.linkAnimationCheck(component, animationProperty);
-    this.animationPool[animationId]!.refNodeId = component.id;
+    this.animationPool[animationId]!.nodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
     this.animationPool[animationId]!.initAnimation(component.dom!);
   }
@@ -120,21 +121,21 @@ export class AnimationModule extends HippyWebModule {
       this.linkAnimationSet2Element(animationId, component, animationProperty);
       return;
     }
-    const uiManagerModule = this.context.getModuleByName('UIManagerModule') as any;
-    if (this.animationPool[animationId]!.refNodeId
-      && uiManagerModule.findViewById(this.animationPool[animationId]!.refNodeId as number)) {
-      return;
-    }
+    // const uiManagerModule = this.context.getModuleByName('UIManagerModule') as any;
+    // if (this.animationPool[animationId]!.refNodeId
+    //   && uiManagerModule.findViewById(this.animationPool[animationId]!.refNodeId as number)) {
+    //   return;
+    // }
     this.linkAnimationCheck(component, animationProperty);
-    this.animationPool[animationId]!.refNodeId = component.id;
+    this.animationPool[animationId]!.nodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
   }
 
   public linkAnimationSet2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
-    if (!this.animationSetPool[animationId] || this.animationSetPool[animationId]!.refNodeId) {
+    if (!this.animationSetPool[animationId]) {
       return;
     }
-    this.animationSetPool[animationId]!.refNodeId = component.id;
+    this.animationSetPool[animationId]!.nodeId = component.id;
     this.animationSetPool[animationId]!.initAnimationSet(animationId, component, animationProperty);
   }
 
@@ -152,10 +153,21 @@ export class AnimationModule extends HippyWebModule {
   private linkAnimationCheck(component: HippyBaseView, animationProperty: string|object) {
     for (const key of Object.keys(this.animationPool)) {
       const animation = this.animationPool[key];
-      if (animation?.refNodeId === component.id && animation.refCssProperty === animationProperty && animation.state !== 'end') {
+      if (animation?.hasLinkedView(component.id) && animation.refCssProperty === animationProperty && animation.state !== 'end' && !this.isAnimationSetChild(animation?.id)) {
         animation.clearLinkNode();
       }
     }
+  }
+
+  private isAnimationSetChild(animationId) {
+    for (const key of Object.keys(this.animationSetPool)) {
+      const animationSet = this.animationSetPool[key];
+      const isBelongToAnimation = animationSet?.containAnimationId(animationId);
+      if (isBelongToAnimation) {
+        return isBelongToAnimation;
+      }
+    }
+    return false;
   }
 }
 
@@ -217,9 +229,9 @@ class SimpleAnimation {
   public timeMode: string | undefined;
   public animationInfo: AnimationOptions;
   public refCssProperty: string | null = null;
-  public refNodeId: string | number | undefined;
-  public dom: HTMLElement | null = null;
   public animationStamp = Date.now();
+  private refNodeIds: Set<number> = new Set();
+  private domes: { [key: string]: HTMLElement } = {};
   private animationState: 'play'|'end'|'wait' = 'wait';
   private beginListener: Array<() => void> = [];
   private endListener: Array<() => void> = [];
@@ -241,8 +253,8 @@ class SimpleAnimation {
     return this.animationState;
   }
 
-  public set nodeId(nodeId: string | number) {
-    this.refNodeId = nodeId;
+  public set nodeId(nodeId: number) {
+    this.refNodeIds.add(nodeId);
   }
 
   public get animationBeginValue() {
@@ -263,16 +275,6 @@ class SimpleAnimation {
 
   public get animationUseTime() {
     return this.animationInfo.duration + (this.animationInfo.delay !== undefined ? this.animationInfo.delay : 0);
-  }
-
-  public get animationDom() {
-    if (this.dom) {
-      return this.dom;
-    }
-    if (this.refNodeId) {
-      this.dom = document.getElementById(String(this.refNodeId));
-    }
-    return this.dom;
   }
 
   public get animationName() {
@@ -314,11 +316,25 @@ class SimpleAnimation {
     return camel2Kebab(this.refCssProperty);
   }
 
+  public hasLinkedView(id: number) {
+    return this.refNodeIds.has(id);
+  }
+
+  public getDomByNodeId(id: number) {
+    if (this.domes[id]) {
+      return this.domes[id];
+    }
+    const dom = document.getElementById(String(id));
+    if (dom) {
+      this.domes[id] = dom;
+    }
+    return dom;
+  }
+
   public initAnimation(element: HTMLElement) {
     if (this.cleared) {
       return;
     }
-    this.dom = element;
     let data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
     if (this.animationState === 'end' || this.animationState === 'play') {
       data = this.createAnimationKeyFrame(this.createAnimationEndAndEndValue());
@@ -328,7 +344,7 @@ class SimpleAnimation {
       this.animationTime, this.animationName,
       this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
     );
-    this.animationUpdate2Css(animation);
+    this.animationUpdate2Css(animation, element);
   }
 
   public start() {
@@ -358,9 +374,7 @@ class SimpleAnimation {
 
   public destroy() {
     this.changeAnimationStatus('paused');
-    this.animationUpdate2Css(null);
-    this.dom?.removeEventListener?.('animationstart', this.handleAnimationStart);
-    this.dom?.removeEventListener?.('animationend', this.handleAnimationEnd);
+    this.batchUpdateCss(null);
   }
 
   public update(param: AnimationOptions) {
@@ -373,7 +387,7 @@ class SimpleAnimation {
       this.animationTime, this.animationName,
       this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
     );
-    this.animationUpdate2Css(animation);
+    this.batchUpdateCss(animation);
   }
 
   public addEventListener(type: string, callBack: () => void) {
@@ -389,7 +403,7 @@ class SimpleAnimation {
 
   public clearLinkNode() {
     this.cleared = true;
-    this.animationUpdate2Css(null);
+    this.batchUpdateCss(null);
   }
 
   private createAnimationBeginAndEndValue() {
@@ -426,10 +440,6 @@ class SimpleAnimation {
   }
 
   private changeAnimationStatus(status: AnimationPlayState) {
-    const element = this.animationDom;
-    if (!element) {
-      return;
-    }
     const keyFrame = getKeyFrameFromCssStyle(this.animationName);
     if (!keyFrame.cssRule) {
       return;
@@ -438,11 +448,20 @@ class SimpleAnimation {
       this.animationTime, this.animationName,
       this.animationInfo.timingFunction, this.delayTime, status, this.iteration, 'both',
     );
-    this.animationUpdate2Css(pauseAnimation);
+    this.batchUpdateCss(pauseAnimation);
   }
 
-  private animationUpdate2Css(animation: string|null) {
-    const element = this.animationDom;
+  private batchUpdateCss(animation: string|null) {
+    this.refNodeIds.forEach((id) => {
+      const dom = this.getDomByNodeId(id);
+      if (dom) {
+        this.animationUpdate2Css(animation, dom);
+      }
+    });
+  }
+
+  private animationUpdate2Css(animation: string|null, dom: HTMLElement) {
+    const element = dom;
     if (!element) {
       return;
     }
@@ -512,7 +531,7 @@ class SimpleAnimationSet {
   public id: string | number;
   public context: ComponentContext;
   public setOption: AnimationSetOptions;
-  public refNodeId: number | undefined;
+  private refNodeIds: Set<number> = new Set();
 
   public constructor(
     context: ComponentContext, animationId: string | number,
@@ -523,6 +542,13 @@ class SimpleAnimationSet {
     this.setOption = options;
     this.handleAnimationStart = this.handleAnimationStart.bind(this);
     this.handleAnimationEnd = this.handleAnimationEnd.bind(this);
+  }
+  public set nodeId(id: number) {
+    this.refNodeIds.add(id);
+  }
+
+  public hasLinkedView(nodeId: number) {
+    return this.refNodeIds.has(nodeId);
   }
 
   public start() {
@@ -572,6 +598,10 @@ class SimpleAnimationSet {
       }
       animationModule.linkAnimation2Element(item.animationId, component, animationProperty);
     });
+  }
+
+  public containAnimationId(animationId: number) {
+    return this.setOption.children.findIndex(item => item.animationId === animationId) !== -1;
   }
 
   private calculateAnimationTime() {
