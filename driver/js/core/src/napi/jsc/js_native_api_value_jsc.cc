@@ -360,7 +360,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateByteBufferNoCopy(void *buffer,size_t len
   }
   
   JSValueRef exception = nullptr;
-  JSValueRef value_ref = JSObjectMakeTypedArrayWithBytesNoCopy(context_, kJSTypedArrayTypeInt8Array, buffer, length, &JSCCtx_dataBufferFree, nullptr, &exception);
+  JSValueRef value_ref = JSObjectMakeArrayBufferWithBytesNoCopy(context_, buffer, length, JSCCtx_dataBufferFree, nullptr, &exception);
   if (exception) {
     SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
      return nullptr;
