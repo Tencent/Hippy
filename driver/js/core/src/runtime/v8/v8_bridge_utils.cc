@@ -361,16 +361,17 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
   FOOTSTONE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
-bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void()>& callback, bool is_reload) {
+void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void(bool)>& callback, bool is_reload) {
   FOOTSTONE_DLOG(INFO) << "DestroyInstance begin, runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
       footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl destroy, runtime_id invalid";
-    return false;
+    callback(false);
+    return;
   }
 
-  auto cb = [runtime, runtime_id, is_reload] {
+  auto cb = [runtime, runtime_id, is_reload, callback] {
     FOOTSTONE_LOG(INFO) << "js destroy begin, runtime_id = " << runtime_id << ", is_reload = " << is_reload;
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
@@ -394,6 +395,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     FOOTSTONE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     FOOTSTONE_LOG(INFO) << "js destroy end";
+    callback(true);
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerGroupId) {
@@ -411,10 +413,6 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
       FOOTSTONE_DLOG(INFO) << "reuse_engine_map cnt = " << cnt;
       if (cnt == 1) {
         reuse_engine_map.erase(it);
-        auto new_cb = [callback] {
-          callback();
-        };
-        runner->PostTask(std::move(new_cb));
       } else {
         std::get<uint32_t>(it->second) = cnt - 1;
       }
@@ -423,7 +421,6 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     }
   }
   FOOTSTONE_DLOG(INFO) << "destroy end";
-  return true;
 }
 
 void V8BridgeUtils::CallJs(const unicode_string_view& action,
