@@ -14,6 +14,22 @@
 若想快速体验，可以直接基于我们的 [HippyReact Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 和 
 [HippyVue Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo) 来体验
 
+### npm script
+
+在 demo 项目中，通过 `web:dev` 命令启动 WebRenderer 调试服务，通过 `web:build` 打包编译，也可以通过 `start` 命令同时启动 Hippy 调试和 WebRenderer 调试服务，方便对比各端渲染效果。
+
+```json
+  "scripts": {
+    "start": "npm run hippy:debug & npm run hippy:dev & npm run web:dev",
+    "web:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
+    "web:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web-renderer.js"
+  }
+```
+
+### 启动调试
+
+执行 `npm run web:dev` 启动 WebRenderer 调试，根据 demo 的 webpack 配置，WebRenderer 的 web 服务运行在`3000`端口，浏览器通过 `http://localhost:3000` 访问页面。
+
 ## 快速接入
 
 WebRenderer 的执行应符合以下流程：
