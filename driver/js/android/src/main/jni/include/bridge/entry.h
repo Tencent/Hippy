@@ -47,7 +47,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jstring j_data_dir,
                    jstring j_ws_url);
 
-void DestroyBridge(JNIEnv* j_env,
+void DestroyInstance(JNIEnv* j_env,
                      jobject j_object,
                      jlong j_runtime_id,
                      jboolean j_single_thread_mode,
@@ -106,7 +106,7 @@ void LoadInstance(JNIEnv* j_env,
                   jint j_offset,
                   jint j_length);
 
-void DestroyInstance(JNIEnv* j_env,
+void UnloadInstance(JNIEnv* j_env,
                      __unused jobject j_obj,
                      jlong j_runtime_id,
                      jbyteArray j_byte_array,

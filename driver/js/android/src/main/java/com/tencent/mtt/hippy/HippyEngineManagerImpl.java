@@ -384,12 +384,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDevSupportManager.detachFromHost(((ContextWrapper) context).getBaseContext());
             }
         }
-
         if (mEngineContext != null) {
             if (mEngineContext.getBridgeManager() != null) {
                 mEngineContext.getBridgeManager().destroyInstance(rootView.getId());
             }
-            mEngineContext.onInstanceDestroy(rootView.getId());
         }
     }
 

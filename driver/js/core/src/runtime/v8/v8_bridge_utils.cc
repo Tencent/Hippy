@@ -646,45 +646,32 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
   runner->PostTask(std::move(callback));
 }
 
-void V8BridgeUtils::UnloadInstance(
-    int32_t runtime_id,
-    std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb) {
-  FOOTSTONE_DLOG(INFO) << "Destroy instance runtime_id = " << runtime_id;
+void V8BridgeUtils::UnloadInstance(int32_t runtime_id, bytes&& buffer_data) {
+  FOOTSTONE_DLOG(INFO) << "UnloadInstance instance runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
-    FOOTSTONE_DLOG(WARNING) << "Destroy instance failed runtime_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "UnloadInstance instance failed runtime_id invalid";
     return;
   }
-  std::shared_ptr<TaskRunner> runner = runtime->GetEngine()->GetJsTaskRunner();
-  auto callback = [runtime, cb = std::move(cb)] {
-    std::shared_ptr<Scope> scope = runtime->GetScope();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
+  std::weak_ptr<Scope> weak_scope = runtime->GetScope();
+  auto callback = [weak_scope, buffer_data_ = std::move(buffer_data)] {
+    std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
-      FOOTSTONE_DLOG(WARNING) << "Destroy instance invalid";
       return;
     }
-    std::shared_ptr<Ctx> context = scope->GetContext();
-    if (!runtime->GetBridgeFunc()) {
-      FOOTSTONE_DLOG(INFO) << "init bridge func";
-      unicode_string_view name(kHippyBridgeName);
-      std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
-      bool is_fn = context->IsFunction(fn);
-      FOOTSTONE_DLOG(INFO) << "is_fn = " << is_fn;
-
-      if (!is_fn) {
-        cb(CALL_FUNCTION_CB_STATE::NO_METHOD_ERROR, u"hippyBridge not find");
-        return;
-      } else {
-        runtime->SetBridgeFunc(fn);
-      }
+    Deserializer deserializer(
+        reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
+        buffer_data_.length());
+    HippyValue value;
+    deserializer.ReadHeader();
+    auto ret = deserializer.ReadValue(value);
+    if (ret) {
+      scope->UnloadInstance(std::make_shared<HippyValue>(std::move(value)));
+    } else {
+      scope->GetContext()->ThrowException("LoadInstance param error");
     }
-    std::shared_ptr<CtxValue> action_value = context->CreateString(u"destroyInstance");
-    std::shared_ptr<CtxValue> params = context->CreateNull();
-
-    std::shared_ptr<CtxValue> argv[] = {action_value, params};
-    context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
-    cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
   };
-
   runner->PostTask(std::move(callback));
 }
 

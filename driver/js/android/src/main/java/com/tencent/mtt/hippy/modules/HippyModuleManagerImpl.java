@@ -33,6 +33,8 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModule;
 import com.tencent.mtt.hippy.modules.javascriptmodules.HippyJavaScriptModuleInvocationHandler;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
+import com.tencent.mtt.hippy.runtime.builtins.JSValue;
+import com.tencent.mtt.hippy.runtime.builtins.array.JSDenseArray;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
 import com.tencent.mtt.hippy.serialization.compatible.Deserializer;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
@@ -302,8 +304,8 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
             params = (HippyCallNativeParams) from.obj;
             if (params.moduleName != null && params.moduleName.equals(REMOVE_ROOT_VIEW_MODULE_NAME)
                     && params.moduleFunc.equals(REMOVE_ROOT_VIEW_FUNC_NAME)) {
-                params.paramsValue = bytesToArgument(params.paramsBuffer, false);
-                Message to = handler.obtainMessage(MSG_CODE_REMOVE_ROOT_VIEW, params);
+                params.paramsValue = bytesToArgument(params.paramsBuffer, true);
+                Message to = handler.obtainMessage(MSG_CODE_REMOVE_ROOT_VIEW, params.paramsValue);
                 handler.sendMessage(to);
                 return;
             }
@@ -400,13 +402,15 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
         adapter.onCallNativeFinished(mContext.getComponentName(), params);
     }
 
-    private void removeRootView(@NonNull final HippyCallNativeParams params) {
+    private void removeRootView(@NonNull final JSDenseArray roots) {
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (params.paramsValue instanceof Integer
-                        || params.paramsValue instanceof Long) {
-                    mContext.removeRootView((Integer) params.paramsValue);
+                if (roots.size() > 0) {
+                    Object valueObj = roots.get(0);
+                    if (valueObj instanceof Integer) {
+                        mContext.removeRootView((Integer) valueObj);
+                    }
                 }
             }
         });
@@ -449,7 +453,7 @@ public class HippyModuleManagerImpl implements HippyModuleManager, Handler.Callb
                 onDestroy();
                 break;
             case MSG_CODE_REMOVE_ROOT_VIEW:
-                removeRootView((HippyCallNativeParams) msg.obj);
+                removeRootView((JSDenseArray) msg.obj);
                 break;
             default:
                 break;
