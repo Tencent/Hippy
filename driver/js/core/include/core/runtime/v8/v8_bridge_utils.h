@@ -97,8 +97,7 @@ class V8BridgeUtils {
                                                   bool,
                                                   bytes)>& cb);
   static void LoadInstance(int32_t runtime_id, bytes&& buffer_data);
-  static void UnloadInstance(int32_t runtime_id,
-                              std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb);
+  static void UnloadInstance(int32_t runtime_id, bytes&& buffer_data);
  private:
   static std::function<void(std::shared_ptr<Runtime>,
                             unicode_string_view,
