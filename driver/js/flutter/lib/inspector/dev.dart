@@ -44,6 +44,10 @@ class DevSupportManager {
     return _devImp;
   }
 
+  void setDevCallback(DevServerCallback devCallback) {
+    _devImp.setDevServerCallback(devCallback);
+  }
+
   void attachToHost(RootWidgetViewModel view) {
     _devImp.attachToHost(view);
   }

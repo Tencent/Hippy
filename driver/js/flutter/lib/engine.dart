@@ -28,4 +28,5 @@ export 'engine/js_engine_context.dart';
 export 'engine/js_init_params.dart';
 export 'engine/js_instance_context.dart';
 export 'engine/js_module_params.dart';
+export 'engine/js_render_context.dart';
 export 'engine/voltron_js_engine.dart';

@@ -164,8 +164,10 @@ class MainPageWidget extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    PageTestWidget('http://localhost:38989/index.bundle', true),
+                                builder: (context) => PageTestWidget(
+                                  'http://localhost:38989/index.bundle',
+                                  true,
+                                ),
                               ),
                             );
                           },

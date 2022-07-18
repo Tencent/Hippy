@@ -166,14 +166,6 @@ class _PageTestWidgetState extends State<PageTestWidget> {
           loader: _jsLoader,
         ),
       );
-      if (widget.debugMode) {
-        child = Stack(
-          children: [
-            child,
-            reloadWidget(),
-          ],
-        );
-      }
     } else if (pageStatus == PageStatus.error) {
       child = Center(
         child: Text('init engine error, code: ${_errorCode.toString()}'),
@@ -189,87 +181,6 @@ class _PageTestWidgetState extends State<PageTestWidget> {
     }
     return Material(
       child: child,
-    );
-  }
-
-  Widget reloadWidget() {
-    final size = MediaQuery.of(context).size;
-    final height = size.height;
-    return Positioned(
-      left: offsetA.dx,
-      top: offsetA.dy,
-      child: Draggable(
-        //创建可以被拖动的Widget
-        child: FloatingActionButton(
-          child: Icon(Icons.refresh),
-          backgroundColor: Color(0xFF40b883),
-          onPressed: () {
-            Future.delayed(Duration.zero, () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PageTestWidget(
-                    _bundle,
-                    widget.debugMode,
-                  ),
-                ),
-              );
-            });
-          },
-        ),
-        //拖动过程中的Widget
-        feedback: FloatingActionButton(
-          child: Icon(Icons.refresh),
-          backgroundColor: Color(0xFF40b883),
-          onPressed: () {
-            Future.delayed(Duration.zero, () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => PageTestWidget(
-                    _bundle,
-                    widget.debugMode,
-                  ),
-                ),
-              );
-            });
-          },
-        ),
-        //拖动过程中，在原来位置停留的Widget，设定这个可以保留原本位置的残影，如果不需要可以直接设置为Container()
-        childWhenDragging: Container(),
-
-        // FloatingActionButton(
-        //   tooltip: 'Increment',
-        //   child: Icon(Icons.add), onPressed: () {},
-        // ),
-        //拖动结束后的Widget
-        onDraggableCanceled: (velocity, offset) {
-          // 计算组件可移动范围  更新位置信息
-          setState(
-            () {
-              var x = offset.dx;
-              var y = offset.dy;
-              if (offset.dx < 0) {
-                x = 20;
-              }
-
-              if (offset.dx > 375) {
-                x = 335;
-              }
-
-              if (offset.dy < kBottomNavigationBarHeight) {
-                y = kBottomNavigationBarHeight;
-              }
-
-              if (offset.dy > height - 100) {
-                y = height - 100;
-              }
-
-              offsetA = Offset(x, y);
-            },
-          );
-        },
-      ),
     );
   }
 }
