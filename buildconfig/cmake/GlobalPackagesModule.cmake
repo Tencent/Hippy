@@ -76,10 +76,10 @@ function(GlobalPackages_Add_jni)
   endif()
 endfunction()
 
-function(GlobalPackages_Add_atomic)
-  if (NOT TARGET atomic)
-    InfraPackage_Add(ATOMIC
-        LOCAL "${PROJECT_ROOT_DIR}/modules/android/atomic")
+function(GlobalPackages_Add_utils)
+  if (NOT TARGET utils)
+    InfraPackage_Add(UTILS
+        LOCAL "${PROJECT_ROOT_DIR}/modules/android/utils")
   endif()
 endfunction()
 
