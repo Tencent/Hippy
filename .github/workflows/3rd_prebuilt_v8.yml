@@ -11,7 +11,7 @@ on:
       build_args:
         description: 'Build args'
         type: string
-        default: 'is_component_build=false is_debug=false v8_use_external_startup_data=false is_official_build=true v8_enable_i18n_support=false treat_warnings_as_errors=false symbol_level=0 v8_enable_webassembly=false v8_monolithic=true'
+        default: 'is_debug=false v8_use_external_startup_data=false is_official_build=true v8_enable_i18n_support=false treat_warnings_as_errors=false symbol_level=0 v8_enable_webassembly=false'
         required: true
       package_tag:
         description: 'Package TAG'
@@ -21,6 +21,7 @@ on:
       hip_v8_root:
         description: 'HIP V8 root path'
         type: string
+        default: 'global_packages'
         require: true
       is_build_for_android:
         description: 'Build for Android platform'
@@ -34,6 +35,10 @@ on:
         description: 'Build for MacOS platform'
         type: boolean
         default: false
+      is_build_for_ios:
+        description: 'Build for iOS platform'
+        type: boolean
+        default: false
 
 jobs:
   android_prebuilt:
@@ -41,9 +46,6 @@ jobs:
     runs-on: [self-hosted, linux]
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
-      credentials:
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
     strategy:
       matrix:
         cpu: [arm, arm64, x86, x64]
@@ -101,7 +103,7 @@ jobs:
     - name: Generate ${{ matrix.arch }}
       working-directory: ./v8
       run: |
-        gn gen out --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" android32_ndk_api_level=21 android64_ndk_api_level=21 clang_use_chrome_plugins=false use_thin_lto=false use_custom_libcxx=false ${{ github.event.inputs.build_args }}"
+        gn gen out --args="target_os=\"android\" target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" android_ndk_root=\"${ANDROID_NDK_HOME}\" is_component_build=false v8_monolithic=true android32_ndk_api_level=21 android64_ndk_api_level=21 clang_use_chrome_plugins=false use_thin_lto=false use_custom_libcxx=false ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
@@ -150,7 +152,7 @@ jobs:
               target_compile_definitions(${PROJECT_NAME}
                   INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
                   INTERFACE "-DV8_DEPRECATION_WARNINGS"
-                  ${{ (github.event.inputs.v8_revision != '7.7.229' && (matrix.cpu == 'x64' || matrix.cpu == 'arm64')) && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
+                  ${{ (github.event.inputs.v8_revision != '7.7.229' && endsWith(matrix.arch, '64')) && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
 
               add_library(${PROJECT_NAME}_library STATIC IMPORTED)
               set_property(TARGET ${PROJECT_NAME}_library PROPERTY
@@ -231,7 +233,7 @@ jobs:
       run: |
         $env:DEPOT_TOOLS_WIN_TOOLCHAIN = 0
         $env:Path += ";C:\depot_tools"
-        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" chrome_pgo_phase=0 ${{ github.event.inputs.build_args }}"
+        gn gen out --args="target_cpu=""""""${{ matrix.arch }}"""""" v8_target_cpu=""""""${{ matrix.arch }}"""""" is_component_build=false v8_monolithic=true chrome_pgo_phase=0 ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
@@ -281,7 +283,7 @@ jobs:
               target_compile_definitions(${PROJECT_NAME}
                   INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
                   INTERFACE "-DV8_DEPRECATION_WARNINGS"
-                  ${{ (matrix.cpu == 'x64' || matrix.cpu == 'arm64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
+                  ${{ endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
 
               add_library(${PROJECT_NAME}_library STATIC IMPORTED)
               set_property(TARGET ${PROJECT_NAME}_library PROPERTY
@@ -339,7 +341,7 @@ jobs:
     runs-on: macos-latest
     strategy:
       matrix:
-        arch: [x64, amd64]
+        arch: [x64, arm64]
     steps:
     - name: Setup GN
       run: |
@@ -356,7 +358,7 @@ jobs:
       working-directory: ./v8
       run: |
         export PATH=/usr/local/opt/depot_tools:$PATH
-        gn gen out --args="target_cpu=\"${{ matrix.cpu }}\" v8_target_cpu=\"${{ matrix.cpu }}\" chrome_pgo_phase=0 ${{ github.event.inputs.build_args }}"
+        gn gen out --args="target_cpu=\"${{ matrix.arch }}\" v8_target_cpu=\"${{ matrix.arch }}\" chrome_pgo_phase=0 is_component_build=false v8_monolithic=true ${{ github.event.inputs.build_args }}"
     - name: Compile ${{ matrix.arch }}
       working-directory: ./v8
       run: |
@@ -406,7 +408,7 @@ jobs:
               target_compile_definitions(${PROJECT_NAME}
                   INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
                   INTERFACE "-DV8_DEPRECATION_WARNINGS"
-                  ${{ (matrix.cpu == 'x64' || matrix.cpu == 'arm64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
+                  ${{ endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
 
               add_library(${PROJECT_NAME}_library STATIC IMPORTED)
               set_property(TARGET ${PROJECT_NAME}_library PROPERTY
@@ -462,20 +464,140 @@ jobs:
         )
         print("ETag: " + response["ETag"])
 
-  notification:
-    if: ${{ always() }}
-    needs: [android_prebuilt, windows_prebuilt, macos_prebuilt]
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    env:
-      WECHAT_WORK_BOT_WEBHOOK: ${{ secrets.WECHAT_WORK_BOT_WEBHOOK }}
+  ios_prebuilt:
+    if: github.event.inputs.is_build_for_ios == 'true'
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch: [x64, arm64]
     steps:
-    - name: Wechat Work notification
-      uses: chf007/action-wechat-work@1.0.5
+    - name: Setup GN
+      run: |
+        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /usr/local/opt/depot_tools
+        export PATH=/usr/local/opt/depot_tools:$PATH
+    - name: Checkout v8
+      run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
+        fetch v8
+        cd v8
+        git checkout ${{ github.event.inputs.v8_revision }}
+    - name: Sync third_party
+      working-directory: ./v8
+      run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
+        echo "target_os = ['ios']" >> ../.gclient
+        gclient sync -D
+    - name: Remove compiler flags
+      working-directory: ./v8/build/config/compiler
+      run: |
+        awk '!/"-mllvm"/' BUILD.gn > BUILD.gn.0 && mv -f BUILD.gn.0 BUILD.gn
+        awk '!/"-instcombine-lower-dbg-declare=0"/' BUILD.gn > BUILD.gn.0 && mv -f BUILD.gn.0 BUILD.gn
+        awk '!/ldflags \+= \[ "-Wl,-mllvm,-instcombine-lower-dbg-declare=0" \]/' BUILD.gn > BUILD.gn.0 && mv -f BUILD.gn.0 BUILD.gn
+    - name: Generate ${{ matrix.arch }}
+      working-directory: ./v8
+      run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
+        gn gen out --args="target_os=\"ios\" target_cpu=\"${{ matrix.arch }}\" v8_target_cpu=\"${{ matrix.arch }}\" is_component_build=false v8_monolithic=true chrome_pgo_phase=0 enable_ios_bitcode=true ios_deployment_target=10 v8_enable_pointer_compression=false use_custom_libcxx=false ios_enable_code_signing=false ${{ github.event.inputs.build_args }}"
+    - name: Compile ${{ matrix.arch }}
+      working-directory: ./v8
+      run: |
+        export PATH=/usr/local/opt/depot_tools:$PATH
+        ninja -C out v8_monolith
+    - name: Prepare package
+      working-directory: ./v8/out
+      run: |
+        mkdir -p artifact/include/v8 artifact/lib
+        cp obj/libv8_monolith.a artifact/lib
+        cp -r ../include/* artifact/include/v8/
+        cp -r gen/include/* artifact/include/v8/
+        find artifact/include/v8/. ! -name "*.h" -type f -delete
+    - name: Generate CMakeLists
+      uses: DamianReeves/write-file-action@v1.0
       with:
-        msgtype: markdown
-        content: "Github [Action] Notification\n
-        > repository: ${{ github.repository }}\n
-        > workflow: ${{ github.workflow }}\n
-        > result: ${{ needs.pull-request.result == 'success' && '<font color=\"info\">success</font>' || '<font color=\"warning\">failure</font>'}}\n
-        > run: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+        path: ./v8/out/artifact/CMakeLists.txt
+        contents: |
+              #
+              # Tencent is pleased to support the open source community by making
+              # Hippy available.
+              #
+              # Copyright (C) 2022 THL A29 Limited, a Tencent company.
+              # All rights reserved.
+              #
+              # Licensed under the Apache License, Version 2.0 (the "License");
+              # you may not use this file except in compliance with the License.
+              # You may obtain a copy of the License at
+              #
+              #     http://www.apache.org/licenses/LICENSE-2.0
+              #
+              # Unless required by applicable law or agreed to in writing, software
+              # distributed under the License is distributed on an "AS IS" BASIS,
+              # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+              # See the License for the specific language governing permissions and
+              # limitations under the License.
+              #
+              cmake_minimum_required(VERSION 3.0)
+
+              project(v8)
+
+              add_library(${PROJECT_NAME} INTERFACE)
+              target_include_directories(${PROJECT_NAME}
+                  INTERFACE "include"
+                  INTERFACE "include/v8")
+
+              target_compile_definitions(${PROJECT_NAME}
+                  INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
+                  INTERFACE "-DV8_DEPRECATION_WARNINGS")
+
+              add_library(${PROJECT_NAME}_library STATIC IMPORTED)
+              set_property(TARGET ${PROJECT_NAME}_library PROPERTY
+                  IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a")
+              target_link_libraries(${PROJECT_NAME}
+                  INTERFACE ${PROJECT_NAME}_library)
+
+        write-mode: overwrite
+    - name: Release package
+      id: release_package
+      working-directory: ./v8
+      run: |
+        echo "::set-output name=head_full::$(git rev-parse HEAD)"
+        cd out
+        tar -zcvf ios-${{ matrix.arch }}.tgz -C artifact .
+    - name: Install Requirement
+      shell: bash
+      run: |
+        pip install -U cos-python-sdk-v5
+    - name: Publish package
+      shell: python
+      run: |
+        from qcloud_cos import CosConfig
+        from qcloud_cos import CosS3Client
+        import hashlib
+        import os
+        try:
+            from urllib.parse import urlencode
+        except ImportError:
+            from urllib import urlencode
+
+        artifact = "./v8/out/ios-${{ matrix.arch }}.tgz"
+
+        metadata = {}
+        metadata["ci-name"] = "Github Action"
+        metadata["ci-id"] = "${{ github.run_id }}"
+        metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        metadata["v8-builder"] = "${{ github.event.sender.login }}"
+        with open(artifact, "rb") as artifact_file:
+          metadata["v8-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
+        metadata["v8-revision"] = "${{ github.event.inputs.v8_revision }}"
+        metadata["v8-head"] = "${{ steps.release_package.outputs.head_full }}"
+
+        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
+        client = CosS3Client(config)
+        response = client.upload_file(
+            Bucket="${{ secrets.COS_BUCKET }}",
+            Key="hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/ios-${{ matrix.arch }}.tgz",
+            LocalFilePath=artifact,
+            EnableMD5=True,
+            ContentMD5=metadata["v8-md5"],
+            Metadata={"x-cos-tagging": urlencode(metadata)}
+        )
+        print("ETag: " + response["ETag"])
