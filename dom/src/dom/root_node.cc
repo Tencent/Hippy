@@ -23,6 +23,8 @@ using Serializer = footstone::value::Serializer;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
 using Task = footstone::Task;
 
+footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> RootNode::persistent_map_;
+
 RootNode::RootNode(uint32_t id) : DomNode(id, 0, 0, "", "", nullptr, nullptr, {}) {
   animation_manager_ = std::make_shared<AnimationManager>();
   interceptors_.push_back(animation_manager_);

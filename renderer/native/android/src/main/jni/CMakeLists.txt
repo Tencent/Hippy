@@ -50,11 +50,6 @@ GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
-# region utils
-GlobalPackages_Add(utils)
-target_link_libraries(${PROJECT_NAME} PRIVATE utils)
-# endregion
-
 # region source set
 set(SOURCE_SET
     src/render/native_render_manager.cc)
