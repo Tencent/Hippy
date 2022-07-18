@@ -16,11 +16,10 @@
 
 ### npm script
 
-在 demo 项目中，通过 `web:dev` 命令启动 WebRenderer 调试服务，通过 `web:build` 打包编译，也可以通过 `web:start` 命令同时启动 Hippy 调试和 WebRenderer 调试服务，方便对比各端渲染效果。
+在 demo 项目中，通过 `web:dev` 命令启动 WebRenderer 调试服务，通过 `web:build` 打包编译。
 
 ```json
   "scripts": {
-    "web:start": "npm run hippy:debug & npm run hippy:dev & npm run web:dev",
     "web:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
     "web:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web-renderer.js"
   }
