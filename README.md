@@ -82,7 +82,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
    > `npm run build`: Build each front-end sdk package.  
 
 2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo]` at root directory.
-3. Open the `examples/android-demo` with Android Studio.
+3. Open `Android Project` at root directory with Android Studio.
 4. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
 5. Open the project with Android Studio, run and install the apk.
 

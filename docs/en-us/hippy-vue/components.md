@@ -384,8 +384,8 @@ ul's child nodes, the minimum granularity of the native layer node recycling and
 
 | Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | Specify a function in which the type of the corresponding entry is returned (the natural number of the Number type is returned, and the default value is 0). List will reuse the entries of the same type, so reasonable type splitting can improve the performance of List. `Note: item components of the same type may not go through the complete component creation life cycle due to reuse.` | `number`              | `Android、iOS`    |
-| key             | Specify a function in which the Key value of the corresponding entry is returned. See [Vue Official Document](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
+| type            | Specify a value which is the type of the corresponding item (the natural number, and the default value is 0). List will reuse the entries of the same type, so reasonable type splitting can improve the performance of List. `Note: item components of the same type may not go through the complete component creation life cycle due to reuse.` | `number`              | `Android、iOS`    |
+| key             | Specify a value which is the key of the corresponding item. See [Vue Official Document](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
 | sticky       | Whether the corresponding item needs to use the hover effect (scroll to the top, will hover at the top of the ListView, won't roll out of the screen), with `ul` `rowShouldSticky`| `boolean`                                | `Android、iOS`
 | appear       | Called when a `li` node slides into the screen (exposure), the parameter returns the index value corresponding to the `li` node of the exposure. | `(index) => any` | `Android、iOS` |
 | disappear       | Called when a `li` node slides away from the screen, and the parameter returns the index value corresponding to the `li` node that left. | `(index) => any` | `Android、iOS` |
@@ -415,13 +415,13 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | numberOfLines | Used to trim text when it is too long. The total number of lines, including line breaks caused by folding, will not exceed the limit of this property. | `number`                                  | `Android、iOS`    |
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS`    |
-| ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. | `enum(head, middle, tail, clip)` | `Android only supports the tail attribute, iOS fully supports it`    |
+| ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android only supports the tail attribute, iOS fully supports it`    |
 
 * The meaning of parameters of ellipsizeMode：
-  * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(iOS only)
-  * `head` - Texts will be truncated from the beginning. To ensure that the string at the end of the text can be displayed at the end of the `Text` components, the texts will be truncated from the beginning. The truncated text will be replaced by "...". For example,"...wxyz ";(iOS only)
-  * `middle` - Text will be truncated from the middle to ensure that the last and first text of the string can be displayed in the response position of the Text component normally. And the text truncated in the middle will be replaced by "..." For example,"ab ab.."yz ";(iOS only)
-  * `tail` - Text will be truncated from the end to ensure that the first text of the string can be displayed normally in the front of the Text component, and the text truncated from the end will be replaced by "..." For example, "abcd ...";
+  * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)
+  * `head` - Texts will be truncated from the beginning. To ensure that the string at the end of the text can be displayed at the end of the `Text` components, the texts will be truncated from the beginning. The truncated text will be replaced by "...". For example,"...wxyz ";(Android  2.14.1+, iOS full supported)
+  * `middle` - Text will be truncated from the middle to ensure that the last and first text of the string can be displayed in the response position of the Text component normally. And the text truncated in the middle will be replaced by "..." For example,"ab ab.."yz ";(Android  2.14.1+, iOS full supported)
+  * `tail`(default value) - Text will be truncated from the end to ensure that the first text of the string can be displayed normally in the front of the Text component, and the text truncated from the end will be replaced by "..." For example, "abcd ...";
 
 ---
 
