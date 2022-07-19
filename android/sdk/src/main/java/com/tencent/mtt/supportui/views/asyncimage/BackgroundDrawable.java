@@ -53,7 +53,7 @@ public class BackgroundDrawable extends BaseDrawable
 	private DashPathEffect mDotPathEffect = new DashPathEffect(new float[] { 2, 2}, 0);
 	private Path	mPathWithBorder;
 	private final Paint	mPaint;
-	private int		mBackgroundColor;
+	private int		mBackgroundColor = Color.TRANSPARENT;
 	private RectF	mTempRectForBorderRadius;
 	private Path	mPathForBorderRadius;
 	private boolean	mNeedUpdateBorderPath	= false;
@@ -428,7 +428,7 @@ public class BackgroundDrawable extends BaseDrawable
 		boolean useGradientPaint = initGradientPaint();
 		if (useGradientPaint) {
 			canvas.drawPath(mPathForBorderRadius, gradientPaint);
-		} else if (mBackgroundColor != 0) {
+		} else {
 			mPaint.setColor(mBackgroundColor);
 			mPaint.setStyle(Paint.Style.FILL);
 			canvas.drawPath(mPathForBorderRadius, mPaint);
@@ -679,7 +679,7 @@ public class BackgroundDrawable extends BaseDrawable
 		boolean useGradientPaint = initGradientPaint();
 		if (useGradientPaint) {
 			canvas.drawRect(mRect, gradientPaint);
-		} else if (mBackgroundColor != 0) {
+		} else {
 			mPaint.setColor(mBackgroundColor);
 			mPaint.setStyle(Paint.Style.FILL);
 			canvas.drawRect(mRect, mPaint);
