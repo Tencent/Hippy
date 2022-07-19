@@ -65,7 +65,7 @@ using CallFunctionCallback = std::function<void(std::shared_ptr<DomArgument>)>;
 //    dom_manager->PostTask(Scene(std::move(ops)));
 class DomManager : public std::enable_shared_from_this<DomManager> {
  public:
-  using bytes = std::string;
+  using byte_string = std::string;
   using HippyValue = footstone::value::HippyValue;
   using TaskRunner = footstone::runner::TaskRunner;
   using Task = footstone::Task;
@@ -121,8 +121,8 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   uint32_t PostDelayedTask(const Scene&& scene, uint64_t delay);
   void CancelTask(uint32_t id);
 
-  static bytes GetSnapShot(const std::shared_ptr<RootNode>& root_node);
-  bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer);
+  static byte_string GetSnapShot(const std::shared_ptr<RootNode>& root_node);
+  bool SetSnapShot(const std::shared_ptr<RootNode>& root_node, const byte_string& buffer);
 
   static void Insert(const std::shared_ptr<DomManager>& dom_manager);
   static std::shared_ptr<DomManager> Find(uint32_t id);

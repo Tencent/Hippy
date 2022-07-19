@@ -219,7 +219,7 @@ void DomManager::CancelTask(uint32_t id) {
   timer_map_.erase(id);
 }
 
-DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_node) {
+DomManager::byte_string DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_node) {
   if (!root_node) {
     return {};
   }
@@ -232,7 +232,7 @@ DomManager::bytes DomManager::GetSnapShot(const std::shared_ptr<RootNode>& root_
   return {reinterpret_cast<const char*>(ret.first), ret.second};
 }
 
-bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const bytes& buffer) {
+bool DomManager::SetSnapShot(const std::shared_ptr<RootNode>& root_node, const byte_string& buffer) {
   Deserializer deserializer(reinterpret_cast<const uint8_t*>(buffer.c_str()), buffer.length());
   HippyValue value;
   deserializer.ReadHeader();
