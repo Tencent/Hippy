@@ -3,6 +3,7 @@
   "version": "2.0.0",
   "private": true,
   "main": "src/main.js",
+  "webMain": "src/main.web.js",
   "author": "XQ Kuang <x@kxq.io>",
   "license": "Apache-2.0",
   "description": "Demo app for hippy-react",
@@ -13,7 +14,9 @@
     "hippy:debug": "hippy-debug",
     "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
-    "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
+    "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js",
+    "web:dev": "npm run hippy:dev & cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
+    "web:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web-renderer.js"
   },
   "keywords": [
     "Hippy",
@@ -25,6 +28,7 @@
     "@hippy/react-web": "latest",
     "@hippy/rmc-list-view": "latest",
     "@hippy/rmc-pull-to-refresh": "latest",
+    "@hippy/web-renderer": "^0.0.1",
     "animated-scroll-to": "^2.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
