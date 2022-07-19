@@ -18,12 +18,18 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
 
-namespace footstone {
-inline namespace log {
+#define WEAK_THIS weak_this = weak_from_this()
+#define SHARED_THIS self = this->shared_from_this()
+// 表明该lambda不会被存储，可以安全使用this
+#define THIS_NO_STORE this
+#define HAS_SELF(type) auto self = std::static_pointer_cast<type>(weak_this.lock())
+#define DEFINE_SELF(type) HAS_SELF(type);
+#define DEFINE_AND_CHECK_SELF(type) \
+  DEFINE_SELF(type)                 \
+  if (!self) {                      \
+    return;                         \
+  }
 
-LogSettings global_log_settings;
 
-}  // namespace log
-}  // namespace footstone

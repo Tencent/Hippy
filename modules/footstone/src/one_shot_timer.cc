@@ -1,8 +1,8 @@
-#include "footstone/one_shot_timer.h"
+#include "one_shot_timer.h"
 
 #include <utility>
 
-#include "footstone/logging.h"
+#include "logging.h"
 
 namespace footstone {
 inline namespace timer {

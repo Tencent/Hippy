@@ -20,19 +20,21 @@
 
 #pragma once
 
-#include "footstone/thread_worker.h"
+#include <stdint.h>
 
-#include <thread>
+#include <chrono>
+
+#include "check.h"
 
 namespace footstone {
-inline namespace runner {
-
-class ThreadWorkerImpl: public ThreadWorker {
- public:
-  ThreadWorkerImpl(bool is_schedulable = true, std::string name = ""):
-    ThreadWorker(is_schedulable, std::move(name)) {}
-  virtual void SetName(const std::string& name) override;
-};
-
+inline namespace time {
+inline uint64_t MonotonicallyIncreasingTime() {
+  auto now = std::chrono::steady_clock::now();
+  auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now)
+                    .time_since_epoch();
+  auto ticks = std::chrono::duration_cast<std::chrono::milliseconds>(now_ms).count();
+  return footstone::check::checked_numeric_cast<long long, uint64_t>(ticks);
 }
-}
+}  // namespace base
+}  // namespace hippy
+

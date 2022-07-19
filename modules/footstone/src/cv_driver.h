@@ -18,12 +18,32 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
+
+#include "driver.h"
+
+#include <mutex>
+
+#include "time_delta.h"
 
 namespace footstone {
-inline namespace log {
+inline namespace runner {
 
-LogSettings global_log_settings;
+class CVDriver: public Driver {
+ public:
+  CVDriver() = default;
+  virtual ~CVDriver() = default;
 
-}  // namespace log
-}  // namespace footstone
+  virtual void Notify() override;
+  virtual void WaitFor(const TimeDelta& delta) override;
+  virtual void Start() override;
+  virtual void Terminate() override;
+
+ private:
+  std::condition_variable cv_;
+  std::mutex mutex_;
+};
+
+}
+}
+

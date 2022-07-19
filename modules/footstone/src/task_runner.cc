@@ -1,11 +1,11 @@
-#include "footstone/task_runner.h"
+#include "task_runner.h"
 
 #include <atomic>
 #include <array>
 #include <utility>
 
-#include "footstone/logging.h"
-#include "footstone/worker.h"
+#include "logging.h"
+#include "worker.h"
 
 namespace footstone {
 inline namespace runner {

@@ -1,8 +1,8 @@
-#include "footstone/idle_timer.h"
+#include "idle_timer.h"
 
 #include <utility>
 
-#include "footstone/logging.h"
+#include "logging.h"
 
 namespace footstone {
 inline namespace timer {

@@ -20,7 +20,7 @@
  *
  */
 
-#include "footstone/task.h"
+#include "task.h"
 
 #include <utility>
 

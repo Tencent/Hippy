@@ -7,7 +7,7 @@
 
 #include "footstone/logging.h"
 #include "footstone/task_runner.h"
-#include "footstone/thread_worker_impl.h"
+#include "footstone/worker_impl.h"
 #include "core/base/file.h"
 #include "footstone/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
@@ -23,7 +23,6 @@ using byte_string = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
 using WorkerManager = footstone::runner::WorkerManager;
-using ThreadWorkerImpl = footstone::runner::ThreadWorkerImpl;
 using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;

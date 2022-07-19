@@ -18,12 +18,31 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
+
+#include "logging.h"
 
 namespace footstone {
-inline namespace log {
+inline namespace check {
 
-LogSettings global_log_settings;
+template<typename SourceType, typename TargetType>
+static constexpr bool numeric_cast(const SourceType& source, TargetType& target) {
+  auto target_value = static_cast<TargetType>(source);
+  if (static_cast<SourceType>(target_value) != source || (target_value < 0 && source > 0)
+      || (target_value > 0 && source < 0)) {
+    return false;
+  }
+  target = target_value;
+  return true;
+}
 
-}  // namespace log
-}  // namespace footstone
+template<typename SourceType, typename TargetType>
+static constexpr TargetType checked_numeric_cast(const SourceType& source) {
+  TargetType target;
+  auto result = numeric_cast<SourceType, TargetType>(source, target);
+  FOOTSTONE_CHECK(result);
+  return target;
+}
+
+}
+}

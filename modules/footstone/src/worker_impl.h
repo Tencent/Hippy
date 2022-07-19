@@ -18,12 +18,27 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
+
+#include "worker.h"
+
+#include <memory>
+
+#include "cv_driver.h"
 
 namespace footstone {
-inline namespace log {
+inline namespace runner {
 
-LogSettings global_log_settings;
+class WorkerImpl: public Worker, public std::enable_shared_from_this<WorkerImpl> {
+ public:
+  WorkerImpl(std::string name = "", bool is_schedulable = true, std::unique_ptr<Driver> driver = std::make_unique<CVDriver>()):
+    Worker(std::move(name), is_schedulable, std::move(driver)) {}
+  virtual void SetName(const std::string& name) override;
+  virtual std::weak_ptr<Worker> GetSelf() override {
+      auto self = shared_from_this();
+      return std::static_pointer_cast<Worker>(self);
+  }
+};
 
-}  // namespace log
-}  // namespace footstone
+}
+}

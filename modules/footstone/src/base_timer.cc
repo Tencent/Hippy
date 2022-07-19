@@ -1,4 +1,4 @@
-#include "footstone/base_timer.h"
+#include "base_timer.h"
 
 namespace footstone {
 inline namespace timer {

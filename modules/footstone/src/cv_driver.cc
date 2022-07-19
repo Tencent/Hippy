@@ -18,33 +18,44 @@
  * limitations under the License.
  */
 
-#pragma once
-
-#include "footstone/worker.h"
-
-#include <android/looper.h>
+#include "cv_driver.h"
 
 namespace footstone {
 inline namespace runner {
 
-class LoopWorkerImpl: public Worker {
- public:
-  LoopWorkerImpl(bool is_schedulable = true, std::string name = "");
-  virtual ~LoopWorkerImpl();
+void CVDriver::Notify() {
+  cv_.notify_one();
+}
 
-  virtual void RunLoop() override;
-  virtual void TerminateWorker() override;
-  virtual void Notify() override;
-  virtual void WaitFor(const TimeDelta& delta) override;
-  virtual void Start() override;
+void CVDriver::WaitFor(const TimeDelta& delta) {
+  std::unique_lock<std::mutex> lock(mutex_);
 
- private:
-  void OnEventFired();
+  if (delta != TimeDelta::Max() && delta >= TimeDelta::Zero()) {
+    cv_.wait_for(lock, std::chrono::nanoseconds(delta.ToNanoseconds()));
+  } else {
+    cv_.wait(lock);
+  }
+}
 
-  ALooper* looper_;
-  int32_t fd_;
-  bool has_task_pending_;
-};
+void CVDriver::Start() {
+  if (is_exit_immediately_) {
+    while (!is_terminated_) {
+      unit_();
+    }
+  } else {
+    while (unit_()) {}
+  }
+}
+
+void CVDriver::Terminate() {
+  {
+    std::unique_lock<std::mutex> lock(mutex_);
+    is_terminated_ = true;
+  }
+}
 
 }
 }
+
+
+

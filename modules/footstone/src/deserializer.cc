@@ -1,12 +1,12 @@
-#include "footstone/deserializer.h"
+#include "deserializer.h"
 
 #include <cstring>
 
-#include "footstone/logging.h"
-#include "footstone/unicode_string_view.h"
-#include "footstone/string_view_utils.h"
-#include "footstone/hippy_value.h"
-#include "footstone/serializer.h"
+#include "logging.h"
+#include "unicode_string_view.h"
+#include "string_view_utils.h"
+#include "hippy_value.h"
+#include "serializer.h"
 
 namespace footstone {
 inline namespace value {

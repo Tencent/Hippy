@@ -1,6 +1,6 @@
-#include "footstone/hippy_value.h"
-#include "footstone/logging.h"
-#include "footstone/hash.h"
+#include "hippy_value.h"
+#include "logging.h"
+#include "hash.h"
 
 using HippyValue = footstone::value::HippyValue;
 

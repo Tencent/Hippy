@@ -18,12 +18,23 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
+
+#include "log_level.h"
+
+#include <string>
 
 namespace footstone {
 inline namespace log {
+struct LogSettings {
+  LogSeverity min_log_level = TDF_LOG_INFO;
+};
 
-LogSettings global_log_settings;
+void SetLogSettings(const LogSettings& settings);
+
+LogSettings GetLogSettings();
+
+int GetMinLogLevel();
 
 }  // namespace log
 }  // namespace footstone

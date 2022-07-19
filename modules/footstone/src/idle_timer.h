@@ -18,12 +18,35 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
+
+#include "base_timer.h"
+#include "idle_task.h"
 
 namespace footstone {
-inline namespace log {
+inline namespace timer {
+class IdleTimer : public BaseTimer {
+ public:
+  using Task = runner::Task;
+  using TaskRunner = runner::TaskRunner;
+  using TimeDelta = time::TimeDelta;
 
-LogSettings global_log_settings;
+  IdleTimer() = default;
+  explicit IdleTimer(std::shared_ptr<TaskRunner> task_runner);
+  virtual ~IdleTimer();
 
-}  // namespace log
-}  // namespace footstone
+  IdleTimer(IdleTimer&) = delete;
+  IdleTimer& operator=(IdleTimer&) = delete;
+
+  virtual void Start(std::unique_ptr<IdleTask> idle_task, TimeDelta timeout);
+  virtual void Start(std::unique_ptr<IdleTask> idle_task);
+
+ private:
+  void OnStop() final;
+  void RunUserTask() final;
+
+  std::shared_ptr<IdleTask> idle_task_ ;
+};
+
+}
+}

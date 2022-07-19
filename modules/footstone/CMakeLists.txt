@@ -51,21 +51,20 @@ set(SOURCE_SET
     src/serializer.cc
     src/task.cc
     src/task_runner.cc
-    src/thread_worker.cc
     src/unicode_string_view.cc
     src/worker.cc
     src/string_utils.cc
+    src/cv_driver.cc
     src/worker_manager.cc)
 if (ANDROID)
   list(APPEND SOURCE_SET
       src/platform/adr/logging.cc
-      src/platform/adr/loop_worker_impl.cc
-      src/platform/adr/thread_worker_impl.cc)
+      src/platform/adr/looper_driver.cc
+      src/platform/adr/worker_impl.cc)
 elseif (IOS)
   list(APPEND SOURCE_SET
       src/platform/ios/logging.cc
-      src/platform/ios/loop_worker_impl.cc
-      src/platform/ios/thread_worker_impl.cc)
+      src/platform/ios/worker_impl.cc)
 else()
   message(FATAL_ERROR “Unsupported platform ${CMAKE_SYSTEM_NAME}”)
 endif ()

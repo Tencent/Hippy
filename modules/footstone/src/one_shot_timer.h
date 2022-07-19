@@ -18,12 +18,37 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
+
+#include "base_timer.h"
 
 namespace footstone {
-inline namespace log {
+inline namespace timer {
 
-LogSettings global_log_settings;
+ class OneShotTimer : public BaseTimer, public std::enable_shared_from_this<OneShotTimer> {
+ public:
+  using Task = runner::Task;
+  using TaskRunner = runner::TaskRunner;
+  using TimeDelta = time::TimeDelta;
 
-}  // namespace log
+  OneShotTimer() = default;
+  explicit OneShotTimer(const std::shared_ptr<TaskRunner>& task_runner);
+  virtual ~OneShotTimer();
+
+  OneShotTimer(OneShotTimer&) = delete;
+  OneShotTimer& operator=(OneShotTimer&) = delete;
+
+  void Start(std::unique_ptr<Task> user_task, TimeDelta delay);
+  void FireNow();
+
+  virtual std::shared_ptr<BaseTimer> GetWeakSelf() override;
+
+ private:
+  void OnStop() final;
+  void RunUserTask() final;
+
+  std::unique_ptr<Task> user_task_;
+};
+
+}  // namespace base
 }  // namespace footstone

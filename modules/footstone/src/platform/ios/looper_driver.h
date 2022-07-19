@@ -20,30 +20,32 @@
 
 #pragma once
 
-#include "footstone/thread_worker_impl.h"
+#include "footstone/driver.h"
 
 #include <CoreFoundation/CoreFoundation.h>
+
+#include "footstone/time_delta.h"
 
 namespace footstone {
 inline namespace runner {
 
-class LoopWorkerImpl: public Worker {
+class LooperDriver: public Driver {
  public:
-  LoopWorkerImpl();
-  virtual ~LoopWorkerImpl();
+  LooperDriver();
+  virtual ~LooperDriver();
 
-  virtual void RunLoop() override;
-  virtual void TerminateWorker() override;
   virtual void Notify() override;
   virtual void WaitFor(const TimeDelta& delta) override;
   virtual void Start() override;
- private:
-  static void OnTimerFire(CFRunLoopTimerRef timer, LoopWorkerImpl* loop);
+  virtual void Terminate() override;
+  
+  void OnTimerFire(CFRunLoopTimerRef timer);
 
+ private:
   CFRunLoopTimerRef delayed_wake_timer_;
   CFRunLoopRef loop_;
+  bool has_task_pending_;
 };
 
 }
 }
-

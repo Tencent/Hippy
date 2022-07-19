@@ -1,10 +1,10 @@
-#include "footstone/serializer.h"
+#include "serializer.h"
 
 #include <codecvt>
 #include <type_traits>
 
-#include "footstone/logging.h"
-#include "footstone/check.h"
+#include "logging.h"
+#include "check.h"
 
 namespace footstone {
 inline namespace value {

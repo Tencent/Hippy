@@ -18,12 +18,35 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#pragma once
+
+#include "footstone/driver.h"
+
+#include <android/looper.h>
+
+#include "footstone/worker.h"
+#include "footstone/time_delta.h"
 
 namespace footstone {
-inline namespace log {
+inline namespace runner {
 
-LogSettings global_log_settings;
+class LooperDriver: public Driver {
+ public:
+  LooperDriver();
+  virtual ~LooperDriver();
 
-}  // namespace log
-}  // namespace footstone
+  virtual void Notify() override;
+  virtual void WaitFor(const TimeDelta& delta) override;
+  virtual void Start() override;
+  virtual void Terminate() override;
+
+ private:
+  void OnEventFired();
+
+  ALooper* looper_;
+  int32_t fd_;
+  bool has_task_pending_;
+};
+
+}
+}
