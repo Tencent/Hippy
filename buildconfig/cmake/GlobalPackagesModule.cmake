@@ -76,13 +76,6 @@ function(GlobalPackages_Add_jni)
   endif()
 endfunction()
 
-function(GlobalPackages_Add_utils)
-  if (NOT TARGET utils)
-    InfraPackage_Add(UTILS
-        LOCAL "${PROJECT_ROOT_DIR}/modules/android/utils")
-  endif()
-endfunction()
-
 function(GlobalPackages_Add)
   foreach (packageName IN LISTS ARGN)
     cmake_language(CALL GlobalPackages_Add_${packageName})
