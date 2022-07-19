@@ -29,7 +29,7 @@
 #include "dom/scene.h"
 #include "jni/jni_register.h"
 #include "render/native_render_manager.h"
-#include "atomic/root_node_repo.h"
+#include "utils/root_node_repo.h"
 
 using DomArgument = hippy::dom::DomArgument;
 using DomEvent = hippy::dom::DomEvent;
@@ -39,7 +39,7 @@ using NativeRenderManager = hippy::dom::NativeRenderManager;
 using RenderManager = hippy::dom::RenderManager;
 using RootNode = hippy::dom::RootNode;
 using Scene = hippy::dom::Scene;
-using RootNodeRepo = hippy::bridge::RootNodeRepo;
+using RootNodeRepo = modules::utils::RootNodeRepo;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
@@ -90,22 +90,22 @@ jint OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jfloat j_dens
   return footstone::check::checked_numeric_cast<uint32_t, jint>(native_render_manager->GetId());
 }
 
-void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_instance_id) {
+void OnDestroyNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {
   auto& map = NativeRenderManager::PersistentMap();
-  bool ret = map.Erase(static_cast<uint32_t>(j_instance_id));
+  bool ret = map.Erase(static_cast<uint32_t>(j_render_manager_id));
   if (!ret) {
     FOOTSTONE_DLOG(WARNING) << "OnDestroyNativeRenderProvider delete render manager invalid";
   }
 }
 
-void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_root_id,
+void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, jint j_root_id,
                     jfloat j_width, jfloat j_height) {
   auto& map = NativeRenderManager::PersistentMap();
   std::shared_ptr<NativeRenderManager> render_manager;
-  bool ret = map.Find(static_cast<uint32_t>(j_instance_id), render_manager);
+  bool ret = map.Find(static_cast<uint32_t>(j_render_manager_id), render_manager);
 
   if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "UpdateRootSize j_instance_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "UpdateRootSize j_render_manager_id invalid";
     return;
   }
 
@@ -134,14 +134,14 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_instance_id, jint j_
   dom_manager->PostTask(Scene(std::move(ops)));
 }
 
-void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j_root_id, jint j_node_id,
+void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_render_manager_id,  jint j_root_id, jint j_node_id,
                     jfloat j_width, jfloat j_height, jboolean j_is_sync) {
   auto& map = NativeRenderManager::PersistentMap();
   std::shared_ptr<NativeRenderManager> render_manager;
-  bool ret = map.Find(static_cast<uint32_t>(j_instance_id), render_manager);
+  bool ret = map.Find(static_cast<uint32_t>(j_render_manager_id), render_manager);
 
   if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize j_instance_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize j_render_manager_id invalid";
     return;
   }
 
@@ -180,14 +180,14 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_instance_id,  jint j
 }
 
 void DoCallBack(JNIEnv *j_env, jobject j_object,
-                jint j_instance_id, jint j_result, jstring j_func_name, jint j_root_id, jint j_node_id,
+                jint j_render_manager_id, jint j_result, jstring j_func_name, jint j_root_id, jint j_node_id,
                 jlong j_cb_id, jbyteArray j_buffer, jint j_offset, jint j_length) {
   auto& map = NativeRenderManager::PersistentMap();
   std::shared_ptr<NativeRenderManager> render_manager;
-  bool ret = map.Find(static_cast<uint32_t>(j_instance_id), render_manager);
+  bool ret = map.Find(static_cast<uint32_t>(j_render_manager_id), render_manager);
 
   if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "DoCallBack j_instance_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "DoCallBack j_render_manager_id invalid";
     return;
   }
 
@@ -231,20 +231,14 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
   callback(std::make_shared<DomArgument>(*params));
 }
 
-void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j_root_id, jint j_dom_id, jstring j_event_name,
+void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, jint j_root_id, jint j_dom_id, jstring j_event_name,
                      jbyteArray j_buffer, jint j_offset, jint j_length, jboolean j_use_capture, jboolean j_use_bubble) {
   auto& map = NativeRenderManager::PersistentMap();
   std::shared_ptr<NativeRenderManager> render_manager;
-  bool ret = map.Find(static_cast<uint32_t>(j_instance_id), render_manager);
+  bool ret = map.Find(static_cast<uint32_t>(j_render_manager_id), render_manager);
 
   if (!ret) {
-    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent j_instance_id invalid";
-    return;
-  }
-
-  std::shared_ptr<DomManager> dom_manager = render_manager->GetDomManager();
-  if (dom_manager == nullptr) {
-    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent dom_manager is nullptr";
+    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent j_render_manager_id invalid";
     return;
   }
 
@@ -254,12 +248,11 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j
     return;
   }
 
-  auto node = dom_manager->GetNode(root_node,
-                                   footstone::check::checked_numeric_cast<jlong, uint32_t>(j_dom_id));
-  if (node == nullptr) {
-    FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent DomNode not found for id: " << j_dom_id;
-    return;
-  }
+  uint32_t dom_id = footstone::check::checked_numeric_cast<jlong, uint32_t>(j_dom_id);
+
+  jboolean is_copy = JNI_TRUE;
+  const char* c = j_env->GetStringUTFChars(j_event_name, &is_copy);
+  std::string event_name(c);
 
   std::shared_ptr<HippyValue> params = nullptr;
   if (j_buffer != nullptr && j_length > 0) {
@@ -272,16 +265,8 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_instance_id, jint j
     deserializer.ReadValue(*params);
   }
 
-  jboolean is_copy = JNI_TRUE;
-  const char* c = j_env->GetStringUTFChars(j_event_name, &is_copy);
-  std::string event_name(c);
+  bool capture = static_cast<bool>(j_use_capture);
+  bool bubble = static_cast<bool>(j_use_bubble);
 
-  std::vector<std::function<void()>> ops = {[node = std::move(node), params = std::move(params),
-                                             use_capture = static_cast<bool>(j_use_capture),
-                                             use_bubble = static_cast<bool>(j_use_bubble),
-                                             event_name = std::move(event_name)] {
-    auto event = std::make_shared<DomEvent>(event_name, node, use_capture, use_bubble, params);
-    node->HandleEvent(event);
-  }};
-  dom_manager->PostTask(Scene(std::move(ops)));
+  render_manager->ReceivedEvent(root_node, dom_id, event_name, params, capture, bubble);
 }

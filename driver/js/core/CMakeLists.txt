@@ -64,7 +64,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # region jni
 GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
-# endjni
+# endregion
+
+# region jni
+GlobalPackages_Add(utils)
+target_link_libraries(${PROJECT_NAME} PRIVATE utils)
+# endregion
 
 # region jni common
 # TODO: will be removed when the JNI library is complete

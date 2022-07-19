@@ -26,7 +26,6 @@
 #include <iostream>
 #include <utility>
 
-#include "atomic/atomic_unique_id.h"
 #include "footstone/logging.h"
 #include "dom/root_node.h"
 #include "jni/jni_env.h"
@@ -70,12 +69,13 @@ constexpr char kNumberOfLines[] = "numberOfLines";
 namespace hippy {
 inline namespace dom {
 
+std::atomic<uint32_t> NativeRenderManager::unique_native_render_manager_id_{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
-    : id_(modules::atomic::FetchAddUniqueRenderManagerId()),
-      render_delegate_(std::move(render_delegate)),
+    : render_delegate_(std::move(render_delegate)),
       serializer_(std::make_shared<footstone::value::Serializer>()) {
+  id_ = NativeRenderManager::unique_native_render_manager_id_.fetch_add(1);
 }
 
 void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
@@ -386,6 +386,29 @@ void NativeRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
   j_env->DeleteLocalRef(j_buffer);
   j_env->DeleteLocalRef(j_name);
   j_env->DeleteLocalRef(j_class);
+}
+
+void NativeRenderManager::ReceivedEvent(std::weak_ptr<RootNode> root_node, uint32_t dom_id,
+                                        const std::string& event_name, const std::shared_ptr<HippyValue>& params,
+                                        bool capture, bool bubble) {
+  auto manager = dom_manager_.lock();
+  FOOTSTONE_DCHECK(manager != nullptr);
+  if (manager == nullptr) return;
+
+  auto root = root_node.lock();
+  FOOTSTONE_DCHECK(root != nullptr);
+  if (root == nullptr) return;
+
+  auto node = manager->GetNode(root_node, dom_id);
+  FOOTSTONE_DCHECK(node != nullptr);
+  if (node == nullptr) return;
+
+  std::vector<std::function<void()>> ops = {[node = std::move(node), params = std::move(params), use_capture = capture,
+                                             use_bubble = bubble, event_name = std::move(event_name)] {
+    auto event = std::make_shared<DomEvent>(event_name, node, use_capture, use_bubble, params);
+    node->HandleEvent(event);
+  }};
+  manager->PostTask(Scene(std::move(ops)));
 }
 
 float NativeRenderManager::DpToPx(float dp) const { return dp * density_; }
