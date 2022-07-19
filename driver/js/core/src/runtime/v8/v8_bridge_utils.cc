@@ -19,7 +19,7 @@
 
 namespace hippy::runtime {
 
-using bytes = std::string;
+using byte_string = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
 using WorkerManager = footstone::runner::WorkerManager;
@@ -426,7 +426,7 @@ void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
 void V8BridgeUtils::CallJs(const unicode_string_view& action,
                            int32_t runtime_id,
                            std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb,
-                           bytes buffer_data,
+                           byte_string buffer_data,
                            std::function<void()> on_js_runner) {
   FOOTSTONE_DLOG(INFO) << "CallJs runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
@@ -512,7 +512,7 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     unicode_string_view,
     unicode_string_view,
     bool,
-    bytes)>& cb) {
+    byte_string)>& cb) {
   FOOTSTONE_DLOG(INFO) << "CallNative";
   auto runtime_id = static_cast<int32_t>(reinterpret_cast<int64_t>(data->cb_tuple_.data_));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
@@ -590,14 +590,14 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     }
   }
 
-  bytes buffer;
+  byte_string buffer;
   if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
     if (runtime->IsEnableV8Serialization()) {
       Serializer serializer(isolate, context, runtime->GetBuffer());
       serializer.WriteHeader();
       serializer.WriteValue(info[3]);
       std::pair<uint8_t*, size_t> pair = serializer.Release();
-      buffer = bytes(reinterpret_cast<const char*>(pair.first), pair.second);
+      buffer = byte_string(reinterpret_cast<const char*>(pair.first), pair.second);
     } else {
       std::shared_ptr<hippy::napi::V8CtxValue> obj =
           std::make_shared<hippy::napi::V8CtxValue>(isolate, info[3]);
@@ -617,7 +617,7 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
   cb(runtime, module, func, cb_id, is_heap_buffer, buffer);
 }
 
-void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
+void V8BridgeUtils::LoadInstance(int32_t runtime_id, byte_string&& buffer_data) {
   FOOTSTONE_DLOG(INFO) << "LoadInstance runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
@@ -646,7 +646,7 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
   runner->PostTask(std::move(callback));
 }
 
-void V8BridgeUtils::UnloadInstance(int32_t runtime_id, bytes&& buffer_data) {
+void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data) {
   FOOTSTONE_DLOG(INFO) << "UnloadInstance instance runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {

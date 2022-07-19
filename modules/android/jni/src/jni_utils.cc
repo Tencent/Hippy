@@ -37,7 +37,7 @@ jsize SafeGetArrayLength(JNIEnv* j_env, const jbyteArray& j_byte_array) {
   return std::max(0, j_size);
 }
 
-JniUtils::bytes JniUtils::AppendJavaByteArrayToBytes(JNIEnv* j_env,
+JniUtils::byte_string JniUtils::AppendJavaByteArrayToBytes(JNIEnv* j_env,
                                                      jbyteArray j_byte_array,
                                                      jsize j_offset,
                                                      jsize j_length) {
@@ -55,7 +55,7 @@ JniUtils::bytes JniUtils::AppendJavaByteArrayToBytes(JNIEnv* j_env,
     return "";
   }
 
-  bytes ret;
+  byte_string ret;
   ret.resize(footstone::check::checked_numeric_cast<jsize, size_t>(j_length));
   j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
                             reinterpret_cast<int8_t*>(&ret[0]));

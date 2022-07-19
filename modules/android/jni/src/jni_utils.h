@@ -28,7 +28,7 @@
 
 class JniUtils {
   using unicode_string_view = footstone::stringview::unicode_string_view;
-  using bytes = std::string;
+  using byte_string = std::string;
 
  public:
   JniUtils() = default;
@@ -42,7 +42,7 @@ class JniUtils {
 
   static jstring StrViewToJString(JNIEnv* j_env,
                                   const unicode_string_view& str_view);
-  static bytes AppendJavaByteArrayToBytes(JNIEnv* j_env,
+  static byte_string AppendJavaByteArrayToBytes(JNIEnv* j_env,
                                                  jbyteArray byte_array,
                                                  jsize j_offset = 0,
                                                  jsize j_length = -1);
