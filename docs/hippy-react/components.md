@@ -327,6 +327,7 @@ import icon from './qb_icon_new.png';
 | multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `Android、iOS、hippy-react-web` |
 | numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、hippy-react-web` |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、hippy-react-web` |
+| onFocus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS、hippy-react-web` |
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
@@ -364,6 +365,12 @@ import icon from './qb_icon_new.png';
 `(value: string) => void` 设置文本框内容。
 
 > * value: string - 文本框内容
+
+### isFocused
+
+`最低支持版本 2.14.1。hippy-react-web 不支持。`
+
+`() => Promise<boolean>` 获得文本框的焦点状态。
 
 ---
 

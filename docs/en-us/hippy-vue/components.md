@@ -265,6 +265,7 @@ Please refer to the Android development documentation for details.
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | Called when the text box loses focus.    | `Function`                                                   | `Android、iOS`     |
+| focus | Called when the text box get focus. | `Function` | `Android、iOS` |
 | change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS`     |
 | keyboardWillShow    | Called when the input keyboard pops-up, the return value contains the keyboard height `keyboardHeight`, style such as `{keyboardHeight: 260 }`| `Function`                                                   | `Android、iOS`     |
 | keyboardWillHide     | Called when hiding input keyboard.| `Function`                                                   | `Android`     |
@@ -295,6 +296,12 @@ Please refer to the Android development documentation for details.
 `(value: string) => void` Sets the text box contents.
 
 > * value: string - Text Box Contents
+
+### isFocused
+
+`Minimum supported version 2.14.1. hippy-react-web does not support.`
+
+`() => Promise<boolean>`Get the focus status of the input box.
 
 ---
 
@@ -415,7 +422,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | numberOfLines | Used to trim text when it is too long. The total number of lines, including line breaks caused by folding, will not exceed the limit of this property. | `number`                                  | `Android、iOS`    |
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS`    |
-| ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android only supports the tail attribute, iOS fully supports it`    |
+| ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android( minimum supported version 2.14.1, earlier version only supported tail)、iOS(full supported)、hippy-react-web(clip、ellipsis)` |
 
 * The meaning of parameters of ellipsizeMode：
   * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)

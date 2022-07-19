@@ -99,6 +99,22 @@ HIPPY_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
 // clang-format on
 
 // clang-format off
+HIPPY_EXPORT_METHOD(isFocused:(nonnull NSNumber *)hippyTag callback:(HippyResponseSenderBlock)callback) {
+    [self.bridge.uiManager addUIBlock:
+     ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+         HippyBaseTextInput *view = (HippyBaseTextInput *)viewRegistry[hippyTag];
+         if (view == nil) return ;
+         if (![view isKindOfClass:[HippyBaseTextInput class]]) {
+             HippyLogError(@"Invalid view returned from registry, expecting HippyBaseTextInput, got: %@", view);
+         }
+         BOOL isFocused = [view isFirstResponder];
+         NSArray *callBack = [NSArray arrayWithObject:[NSDictionary dictionaryWithObject:[NSNumber numberWithBool:isFocused] forKey:@"value"]];
+         callback(callBack);
+     }];
+}
+// clang-format on
+
+// clang-format off
 HIPPY_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
     [self.bridge.uiManager addUIBlock:
      ^(__unused HippyUIManager *uiManager, NSDictionary<NSNumber *, UIView *> *viewRegistry){
