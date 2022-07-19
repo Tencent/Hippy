@@ -55,7 +55,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # region jni
 GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
-target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:jni,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region core
