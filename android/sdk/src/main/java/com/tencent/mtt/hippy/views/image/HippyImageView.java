@@ -256,7 +256,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     resetContent();
 
     if (url != null && (UrlUtils.isWebUrl(url) || UrlUtils.isFileUrl(url))) {
-      int defaultBackgroundColor = Color.LTGRAY;
+      int defaultBackgroundColor = Color.TRANSPARENT;
       if (mUserHasSetBackgroudnColor) {
         defaultBackgroundColor = mUserSetBackgroundColor;
       }
