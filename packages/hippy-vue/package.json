@@ -21,7 +21,6 @@
   ],
   "devDependencies": {
     "ansi-regex": "^5.0.1",
-    "glob-parent": "^5.1.2",
     "hosted-git-info": "~3.0.8",
     "lodash": "~4.17.21",
     "minimist": "^1.2.6",

@@ -62,7 +62,7 @@
     "got": "^12.1.0",
     "husky": "^7.0.4",
     "is-ci": "^2.0.0",
-    "lerna": "^5.1.6",
+    "lerna": "^5.1.8",
     "lint-staged": "^12.1.7",
     "markdown-it": "^12.3.2",
     "markdownlint-cli": "^0.31.1",
