@@ -1141,6 +1141,9 @@ static const char CRLFCRLFBytes[] = { '\r', '\n', '\r', '\n' };
     BOOL didWork = NO;
 
     if (self.readyState >= HippySR_CLOSING) {
+        dispatch_async(_workQueue, ^{
+            [self _disconnect];
+        });
         return didWork;
     }
 
