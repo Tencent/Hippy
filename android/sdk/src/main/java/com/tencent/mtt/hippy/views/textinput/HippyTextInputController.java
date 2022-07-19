@@ -67,6 +67,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
   private static final String CLEAR_FUNCTION = "clear";
   public static final String COMMAND_FOCUS = "focusTextInput";
   public static final String COMMAND_BLUR = "blurTextInput";
+  public static final String COMMAND_IS_FOCUSED = "isFocused";
   public static final String COMMAND_getValue = "getValue";
   public static final String COMMAND_setValue = "setValue";
   public static final String COMMAND_KEYBOARD_DISMISS = "dissmiss";
@@ -444,6 +445,11 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     if (COMMAND_getValue.equals(functionName)) {
       if (promise != null) {
         HippyMap resultMap = view.jsGetValue();
+        promise.resolve(resultMap);
+      }
+    } else if (COMMAND_IS_FOCUSED.equals(functionName)) {
+      if (promise != null) {
+        HippyMap resultMap = view.jsIsFocused();
         promise.resolve(resultMap);
       }
     }

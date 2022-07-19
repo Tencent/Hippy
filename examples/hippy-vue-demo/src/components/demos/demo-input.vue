@@ -17,11 +17,14 @@
       @click="stopPropagation"
       @keyboardWillShow="onKeyboardWillShow"
       @keyboardWillHide="onKeyboardWillHide"
+      @blur="onBlur"
+      @focus="onFocus"
     >
     <div>
       <span>文本内容为：</span>
       <span>{{ text }}</span>
     </div>
+    <div><span>{{ `事件: ${event} | isFocused: ${isFocused}` }}</span></div>
     <button
       class="input-button"
       @click="clearTextContent"
@@ -86,6 +89,8 @@ export default {
   data() {
     return {
       text: '',
+      event: undefined,
+      isFocused: undefined,
     };
   },
   mounted() {
@@ -131,6 +136,14 @@ export default {
     blur(evt) {
       evt.stopPropagation();
       this.$refs.input.blur();
+    },
+    async onFocus() {
+      this.isFocused = await this.$refs.input.isFocused();
+      this.event = 'onFocus';
+    },
+    async onBlur() {
+      this.isFocused = await this.$refs.input.isFocused();
+      this.event = 'onBlur';
     },
   },
 };
