@@ -50,7 +50,6 @@
 #include "jni/jni_register.h"
 #include "jni/uri.h"
 #include "jni/jni_utils.h"
-#include "utils/root_node_repo.h"
 #include "loader/adr_loader.h"
 #ifdef ANDROID_NATIVE_RENDER
 #include "jni/java_turbo_module.h"
@@ -146,7 +145,6 @@ using Ctx = hippy::napi::Ctx;
 using ADRBridge = hippy::ADRBridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
-using RootNodeRepo = modules::utils::RootNodeRepo;
 
 static std::mutex log_mutex;
 static bool is_initialized = false;
@@ -208,16 +206,20 @@ void AddRoot(JNIEnv* j_env,
              jint j_root_id) {
   auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_manager_id);
   std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
-  auto root_node = std::make_shared<hippy::RootNode>(j_root_id);
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  auto root_node = std::make_shared<hippy::RootNode>(root_id);
   root_node->SetDomManager(dom_manager);
-  RootNodeRepo::Insert(root_node);
+  auto& persistent_map = RootNode::PersistentMap();
+  persistent_map.Insert(root_id, root_node);
 }
 
 void RemoveRoot(__unused JNIEnv* j_env,
                 __unused jobject j_obj,
                 __unused jint j_dom_id,
                 jint j_root_id) {
-  RootNodeRepo::Erase(static_cast<uint32_t>(j_root_id));
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  auto& persistent_map = RootNode::PersistentMap();
+  persistent_map.Erase(root_id);
 }
 
 void DoConnect(__unused JNIEnv* j_env,
@@ -225,23 +227,34 @@ void DoConnect(__unused JNIEnv* j_env,
                jint j_runtime_id,
                jint j_root_id) {
   std::shared_ptr<Runtime> runtime = Runtime::Find(static_cast<int32_t>(j_runtime_id));
-  auto root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
-  if (runtime && root_node) {
-    auto scope = runtime->GetScope();
-    scope->SetRootNode(root_node);
+  if (runtime == nullptr) {
+    FOOTSTONE_DLOG(WARNING) << "DoConnect runtime is nullptr";
+    return;
+  }
+
+  auto& root_map = RootNode::PersistentMap();
+  std::shared_ptr<RootNode> root_node;
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  bool ret = root_map.Find(root_id, root_node);
+  if (!ret) {
+    FOOTSTONE_DLOG(WARNING) << "DoConnect root_node is nullptr";
+    return;
+  }
+
+  auto scope = runtime->GetScope();
+  scope->SetRootNode(root_node);
 #ifdef ENABLE_INSPECTOR
-    auto devtools_data_source = scope->GetDevtoolsDataSource();
-    if (devtools_data_source) {
-      devtools_data_source->SetRootNode(root_node);
-    }
+  auto devtools_data_source = scope->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+    devtools_data_source->SetRootNode(root_node);
+  }
 #endif
 
-    std::shared_ptr<NativeRenderManager> render_manager =
-            std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
-    float density = render_manager->GetDensity();
-    auto layout_node = root_node->GetLayoutNode();
-    layout_node->SetScaleFactor(density);
-  }
+  std::shared_ptr<NativeRenderManager> render_manager =
+          std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
+  float density = render_manager->GetDensity();
+  auto layout_node = root_node->GetLayoutNode();
+  layout_node->SetScaleFactor(density);
 }
 
 jint CreateWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj) {

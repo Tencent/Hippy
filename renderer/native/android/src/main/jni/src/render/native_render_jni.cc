@@ -29,7 +29,6 @@
 #include "dom/scene.h"
 #include "jni/jni_register.h"
 #include "render/native_render_manager.h"
-#include "utils/root_node_repo.h"
 
 using DomArgument = hippy::dom::DomArgument;
 using DomEvent = hippy::dom::DomEvent;
@@ -39,7 +38,6 @@ using NativeRenderManager = hippy::dom::NativeRenderManager;
 using RenderManager = hippy::dom::RenderManager;
 using RootNode = hippy::dom::RootNode;
 using Scene = hippy::dom::Scene;
-using RootNodeRepo = modules::utils::RootNodeRepo;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
@@ -115,8 +113,11 @@ void UpdateRootSize(JNIEnv *j_env, jobject j_object, jint j_render_manager_id, j
     return;
   }
 
-  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
-  if (root_node == nullptr) {
+  auto& root_map = RootNode::PersistentMap();
+  std::shared_ptr<RootNode> root_node;
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  ret = root_map.Find(root_id, root_node);
+  if (!ret) {
     FOOTSTONE_DLOG(WARNING) << "UpdateRootSize root_node is nullptr";
     return;
   }
@@ -151,8 +152,11 @@ void UpdateNodeSize(JNIEnv *j_env, jobject j_object, jint j_render_manager_id,  
     return;
   }
 
-  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
-  if (root_node == nullptr) {
+  auto& root_map = RootNode::PersistentMap();
+  std::shared_ptr<RootNode> root_node;
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  ret = root_map.Find(root_id, root_node);
+  if (!ret) {
     FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize root_node is nullptr";
     return;
   }
@@ -197,8 +201,11 @@ void DoCallBack(JNIEnv *j_env, jobject j_object,
     return;
   }
 
-  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
-  if (root_node == nullptr) {
+  auto& root_map = RootNode::PersistentMap();
+  std::shared_ptr<RootNode> root_node;
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  ret = root_map.Find(root_id, root_node);
+  if (!ret) {
     FOOTSTONE_DLOG(WARNING) << "DoCallBack root_node is nullptr";
     return;
   }
@@ -242,8 +249,11 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, 
     return;
   }
 
-  std::shared_ptr<RootNode> root_node = RootNodeRepo::Find(static_cast<uint32_t>(j_root_id));
-  if (root_node == nullptr) {
+  auto& root_map = RootNode::PersistentMap();
+  std::shared_ptr<RootNode> root_node;
+  uint32_t root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  ret = root_map.Find(root_id, root_node);
+  if (!ret) {
     FOOTSTONE_DLOG(WARNING) << "OnReceivedEvent root_node is nullptr";
     return;
   }
