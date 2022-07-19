@@ -24,6 +24,7 @@
 
 #include "dom/dom_node.h"
 #include "footstone/task_runner.h"
+#include "footstone/persistent_object_map.h"
 
 namespace hippy {
 inline namespace dom {
@@ -67,6 +68,11 @@ class RootNode : public DomNode {
   void Traverse(const std::function<void(const std::shared_ptr<DomNode>&)>& on_traverse);
   void AddInterceptor(const std::shared_ptr<DomActionInterceptor>& interceptor);
 
+
+  static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>>& PersistentMap() {
+    return persistent_map_;
+  }
+
  private:
   struct DomOperation {
     enum class Op {
@@ -96,6 +102,8 @@ class RootNode : public DomNode {
   std::weak_ptr<DomManager> dom_manager_;
   std::vector<std::shared_ptr<DomActionInterceptor>> interceptors_;
   std::shared_ptr<AnimationManager> animation_manager_;
+
+  static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<RootNode>> persistent_map_;
 };
 
 }  // namespace dom

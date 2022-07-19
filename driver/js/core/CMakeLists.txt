@@ -66,11 +66,6 @@ GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
-# region jni
-GlobalPackages_Add(utils)
-target_link_libraries(${PROJECT_NAME} PRIVATE utils)
-# endregion
-
 # region jni common
 # TODO: will be removed when the JNI library is complete
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/include)
