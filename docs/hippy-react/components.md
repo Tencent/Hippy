@@ -373,22 +373,6 @@ import icon from './qb_icon_new.png';
 
 文本组件。
 
-## 注意事项
-
-需要注意的是，在 `<Text>` 中拼接字符串时，推荐使用 ES6 的[模板字符串](//developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)：
-
-```jsx
-<Text>{ `现在时间是 ${new Date().toString()}` }</Text> // ✅
-```
-
-而不是
-
-```jsx
-<Text>现在时间是 { new Date().toString() }</Text> // ❌
-```
-
-后者有可能在数据更新时不会更新界面。
-
 ## 属性
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
