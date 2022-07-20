@@ -13,7 +13,7 @@
 #include "cv_driver.h"
 
 #ifdef ANDROID
-#include "footstone/platform/adr/looper_driver.h"
+#include "platform/adr/looper_driver.h"
 #elif defined __APPLE__
 #include "footstone/platform/ios/looper_driver.h"
 #endif

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "footstone/log_settings.h"
+#include "log_settings.h"
 
 namespace footstone {
 inline namespace log {
