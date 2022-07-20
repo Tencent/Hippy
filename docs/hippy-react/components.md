@@ -358,7 +358,7 @@ import icon from './qb_icon_new.png';
 
 ### getValue
 
-`() => Promise<string>` 获得文本框中的内容。
+`() => Promise<string>` 获得文本框中的内容。注意，由于是异步回调，收到回调时值可能已经改变。
 
 ### setValue
 
@@ -370,7 +370,7 @@ import icon from './qb_icon_new.png';
 
 `最低支持版本 2.14.1。hippy-react-web 不支持。`
 
-`() => Promise<boolean>` 获得文本框的焦点状态。
+`() => Promise<boolean>` 获得文本框的焦点状态。注意，由于是异步回调，收到回调时值可能已经改变。
 
 ---
 
