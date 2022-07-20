@@ -299,7 +299,7 @@ Please refer to the Android development documentation for details.
 
 ### isFocused
 
-`Minimum supported version 2.14.1. hippy-react-web does not support.`
+`Minimum supported version 2.14.2. hippy-react-web does not support.`
 
 `() => Promise<boolean>`Get the focus status of the input box. Caution, value may be changed since the callback is asynchronous.
 

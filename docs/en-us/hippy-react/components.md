@@ -323,7 +323,7 @@ For more details, please refer to the Android development documentation.
 | multiline             | If `true` , multiple lines of text can be entered in the text box. Due to native characteristics. | `boolean`                                             | `Android、iOS、hippy-react-web` |
 | numberOfLines         | Set the maximum number of lines displayed by `TextInput`. If `TextInput` does not explicitly set the height, it will calculate the height according to `numberOfLines` and expand. When using it, you must also set the `multiline` parameter to `true`. | `number`                                              | `Android、hippy-react-web`      |
 | onBlur                | This callback function is called when a text box loses focus. | `Function`                                            | `Android、iOS、hippy-react-web` |
-| onFocus               | This callback function is called when a text box get focus.  | `Function`                                            | `Android、iOS、hippy-react-web` |
+| onFocus               | This callback function is called when a text box get focus.  | `Function`                                            | `Android、iOS`                  |
 | onChangeText          | This callback function is called when the text box content changes. The changed text content is passed as a parameter. | `Function`                                            | `Android、iOS、hippy-react-web` |
 | onKeyboardWillShow    | This callback function is called when the input method keyboard pops up. The return value contains the keyboard height`keyboardHeight`, style is as follow`{ keyboardHeight: 260 }`. | `Function`                                            | `Android、iOS、hippy-react-web` |
 | onKeyboardWillHide    | This callback function is called when the input keyboard is hidden. | `Function`                                            | `Android`                       |
@@ -363,7 +363,7 @@ For more details, please refer to the Android development documentation.
 
 ### isFocused
 
-`Minimum supported version 2.14.1. hippy-react-web does not support.`
+`Minimum supported version 2.14.2. hippy-react-web does not support.`
 
 `() => Promise<boolean>`Get the focus status of the input box. Caution, value may be changed since the callback is asynchronous.
 
