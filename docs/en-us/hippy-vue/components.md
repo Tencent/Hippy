@@ -289,7 +289,7 @@ Please refer to the Android development documentation for details.
 
 ### getValue
 
-`() => Promise<string>` Get the contents of the text box.
+`() => Promise<string>` Get the contents of the text box. Caution, value may be changed since the callback is asynchronous.
 
 ### setValue
 
@@ -301,7 +301,7 @@ Please refer to the Android development documentation for details.
 
 `Minimum supported version 2.14.1. hippy-react-web does not support.`
 
-`() => Promise<boolean>`Get the focus status of the input box.
+`() => Promise<boolean>`Get the focus status of the input box. Caution, value may be changed since the callback is asynchronous.
 
 ---
 
