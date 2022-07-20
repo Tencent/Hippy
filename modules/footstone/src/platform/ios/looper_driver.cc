@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-#include "footstone/platform/ios/looper_driver.h"
+#include "looper_driver.h"
 
-#include "footstone/logging.h"
+#include "../../logging.h"
 
 namespace footstone {
 inline namespace runner {

@@ -28,33 +28,35 @@
 
 namespace footstone {
 inline namespace runner {
-  class Driver {
-   public:
-    Driver(): is_terminated_(false), is_exit_immediately_(false) {}
-    virtual ~Driver() = default;
 
-    virtual void Notify() = 0;
-    virtual void WaitFor(const TimeDelta& delta) = 0;
-    virtual void Start() = 0;
-    virtual void Terminate() = 0;
+class Driver {
+ public:
+  Driver(): is_terminated_(false), is_exit_immediately_(false) {}
+  virtual ~Driver() = default;
 
-    inline void SetUnit(std::function<bool()> unit) {
-      unit_ = std::move(unit);
-    }
+  virtual void Notify() = 0;
+  virtual void WaitFor(const TimeDelta& delta) = 0;
+  virtual void Start() = 0;
+  virtual void Terminate() = 0;
 
-    inline bool IsTerminated() {
-      return is_terminated_;
-    }
+  inline void SetUnit(std::function<bool()> unit) {
+    unit_ = std::move(unit);
+  }
 
-   protected:
-    std::function<bool()> unit_;
-    bool is_terminated_;
-    /*
-   * 是否立刻退出
-   * 如果该标志位为true，则队列中任务不再执行，直接退出；反之，则必须等待立刻执行队列（不包括延迟和空闲队列）执行完才会退出
-   *
-   */
-    bool is_exit_immediately_;
-  };
+  inline bool IsTerminated() {
+    return is_terminated_;
+  }
+
+ protected:
+  std::function<bool()> unit_;
+  bool is_terminated_;
+  /*
+ * 是否立刻退出
+ * 如果该标志位为true，则队列中任务不再执行，直接退出；反之，则必须等待立刻执行队列（不包括延迟和空闲队列）执行完才会退出
+ *
+ */
+  bool is_exit_immediately_;
+};
+
 }
 }

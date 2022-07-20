@@ -19,6 +19,7 @@
  */
 
 #include "string_utils.h"
+
 #include <regex>
 
 namespace footstone {

@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include "footstone/driver.h"
+#include "../../driver.h"
 
 #include <CoreFoundation/CoreFoundation.h>
 
-#include "footstone/time_delta.h"
+#include "../../time_delta.h"
 
 namespace footstone {
 inline namespace runner {
@@ -38,7 +38,7 @@ class LooperDriver: public Driver {
   virtual void WaitFor(const TimeDelta& delta) override;
   virtual void Start() override;
   virtual void Terminate() override;
-  
+
   void OnTimerFire(CFRunLoopTimerRef timer);
 
  private:

@@ -69,6 +69,9 @@
 		D88F2A87286AA6AD008D1439 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F2A64286AA6AD008D1439 /* logging.cc */; };
 		D88F440B28470C3E00989F01 /* animation_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F440A28470C3E00989F01 /* animation_module.cc */; };
 		D8907F99288648A1005696C7 /* cv_driver.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907F98288648A1005696C7 /* cv_driver.cc */; };
+		D8907FF02887FDA2005696C7 /* looper_driver.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907FE12887FDA2005696C7 /* looper_driver.cc */; };
+		D8907FF12887FDA2005696C7 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907FE32887FDA2005696C7 /* logging.cc */; };
+		D8907FF22887FDA2005696C7 /* worker_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907FE42887FDA2005696C7 /* worker_impl.cc */; };
 		D8DB860C28859A890012C084 /* looper_driver.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8DB860528859A890012C084 /* looper_driver.cc */; };
 		D8DB860D28859A890012C084 /* worker_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8DB860B28859A890012C084 /* worker_impl.cc */; };
 		F0889ED581FF7516357B3726 /* libPods-HippyDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C98B5A3CF5267599CFCFF48A /* libPods-HippyDemo.a */; };
@@ -388,6 +391,31 @@
 		D88F440A28470C3E00989F01 /* animation_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_module.cc; sourceTree = "<group>"; };
 		D8907F9728864884005696C7 /* cv_driver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cv_driver.h; sourceTree = "<group>"; };
 		D8907F98288648A1005696C7 /* cv_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cv_driver.cc; sourceTree = "<group>"; };
+		D8907FC82887FD83005696C7 /* base_time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_time.h; sourceTree = "<group>"; };
+		D8907FCE2887FDA1005696C7 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
+		D8907FCF2887FDA1005696C7 /* cv_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cv_driver.h; sourceTree = "<group>"; };
+		D8907FD02887FDA1005696C7 /* repeating_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = repeating_timer.h; sourceTree = "<group>"; };
+		D8907FD12887FDA1005696C7 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
+		D8907FD22887FDA1005696C7 /* task_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task_runner.h; sourceTree = "<group>"; };
+		D8907FD32887FDA1005696C7 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
+		D8907FD42887FDA1005696C7 /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
+		D8907FD52887FDA1005696C7 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
+		D8907FD62887FDA2005696C7 /* check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = check.h; sourceTree = "<group>"; };
+		D8907FD72887FDA2005696C7 /* idle_task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_task.h; sourceTree = "<group>"; };
+		D8907FD82887FDA2005696C7 /* base_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_timer.h; sourceTree = "<group>"; };
+		D8907FD92887FDA2005696C7 /* string_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_utils.h; sourceTree = "<group>"; };
+		D8907FE12887FDA2005696C7 /* looper_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = looper_driver.cc; sourceTree = "<group>"; };
+		D8907FE22887FDA2005696C7 /* looper_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = looper_driver.h; sourceTree = "<group>"; };
+		D8907FE32887FDA2005696C7 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
+		D8907FE42887FDA2005696C7 /* worker_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_impl.cc; sourceTree = "<group>"; };
+		D8907FE52887FDA2005696C7 /* serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = serializer.h; sourceTree = "<group>"; };
+		D8907FE62887FDA2005696C7 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
+		D8907FE72887FDA2005696C7 /* driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = driver.h; sourceTree = "<group>"; };
+		D8907FE82887FDA2005696C7 /* one_shot_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = one_shot_timer.h; sourceTree = "<group>"; };
+		D8907FE92887FDA2005696C7 /* hippy_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_value.h; sourceTree = "<group>"; };
+		D8907FEA2887FDA2005696C7 /* persistent_object_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = persistent_object_map.h; sourceTree = "<group>"; };
+		D8907FEB2887FDA2005696C7 /* deserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = deserializer.h; sourceTree = "<group>"; };
+		D8907FEC2887FDA2005696C7 /* string_view_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_view_utils.h; sourceTree = "<group>"; };
 		D8A88897286D413200D60489 /* deserializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = deserializer.h; sourceTree = "<group>"; };
 		D8A88898286D414C00D60489 /* hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
 		D8A88899286D414C00D60489 /* hippy_value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hippy_value.h; sourceTree = "<group>"; };
@@ -1196,6 +1224,28 @@
 		D88F2A54286AA6AD008D1439 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D8907FD82887FDA2005696C7 /* base_timer.h */,
+				D8907FD62887FDA2005696C7 /* check.h */,
+				D8907FCF2887FDA1005696C7 /* cv_driver.h */,
+				D8907FEB2887FDA2005696C7 /* deserializer.h */,
+				D8907FE72887FDA2005696C7 /* driver.h */,
+				D8907FD52887FDA1005696C7 /* hash.h */,
+				D8907FE92887FDA2005696C7 /* hippy_value.h */,
+				D8907FD72887FDA2005696C7 /* idle_task.h */,
+				D8907FD42887FDA1005696C7 /* idle_timer.h */,
+				D8907FCE2887FDA1005696C7 /* log_level.h */,
+				D8907FD32887FDA1005696C7 /* log_settings.h */,
+				D8907FE62887FDA2005696C7 /* logging.h */,
+				D8907FD12887FDA1005696C7 /* macros.h */,
+				D8907FE82887FDA2005696C7 /* one_shot_timer.h */,
+				D8907FEA2887FDA2005696C7 /* persistent_object_map.h */,
+				D8907FDA2887FDA2005696C7 /* platform */,
+				D8907FD02887FDA1005696C7 /* repeating_timer.h */,
+				D8907FE52887FDA2005696C7 /* serializer.h */,
+				D8907FD92887FDA2005696C7 /* string_utils.h */,
+				D8907FEC2887FDA2005696C7 /* string_view_utils.h */,
+				D8907FD22887FDA1005696C7 /* task_runner.h */,
+				D8907FC82887FD83005696C7 /* base_time.h */,
 				D8907F98288648A1005696C7 /* cv_driver.cc */,
 				9B4E720D2876D0B9006566E1 /* string_utils.cc */,
 				D806C5052872BC3C00E62992 /* base_timer.cc */,
@@ -1232,6 +1282,25 @@
 				D8DB860528859A890012C084 /* looper_driver.cc */,
 				D8DB860B28859A890012C084 /* worker_impl.cc */,
 				D88F2A64286AA6AD008D1439 /* logging.cc */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		D8907FDA2887FDA2005696C7 /* platform */ = {
+			isa = PBXGroup;
+			children = (
+				D8907FE02887FDA2005696C7 /* ios */,
+			);
+			path = platform;
+			sourceTree = "<group>";
+		};
+		D8907FE02887FDA2005696C7 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				D8907FE12887FDA2005696C7 /* looper_driver.cc */,
+				D8907FE22887FDA2005696C7 /* looper_driver.h */,
+				D8907FE32887FDA2005696C7 /* logging.cc */,
+				D8907FE42887FDA2005696C7 /* worker_impl.cc */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -2091,6 +2160,7 @@
 				F45D266A28067B6900CAB185 /* NativeRenderWaterfallViewManager.mm in Sources */,
 				F473F1452859C37100422C1A /* NativeRenderComponentMap.mm in Sources */,
 				F468DE582812A95200319196 /* NSObject+HippyTurbo.mm in Sources */,
+				D8907FF12887FDA2005696C7 /* logging.cc in Sources */,
 				D806C51D2872BC3C00E62992 /* unicode_string_view.cc in Sources */,
 				F438B744281248010078435B /* NativeRenderGradientObject.m in Sources */,
 				F468DE9E2812ACEA00319196 /* NativeRenderObjectRootView.mm in Sources */,
@@ -2185,6 +2255,7 @@
 				F482919D274E420C00D91128 /* HPNode.cpp in Sources */,
 				F45D268928067B6900CAB185 /* NativeRenderSmartViewPagerViewManager.mm in Sources */,
 				F45D265828067B6900CAB185 /* NativeRenderRefreshWrapperItemViewManager.mm in Sources */,
+				D8907FF22887FDA2005696C7 /* worker_impl.cc in Sources */,
 				F468DE622812A95200319196 /* HippyDevMenu.mm in Sources */,
 				D84AB9BC273A618B00987D03 /* module_register.cc in Sources */,
 				D84AB9C2273A618B00987D03 /* file.cc in Sources */,
@@ -2195,6 +2266,7 @@
 				F4A8424227D38CF900AEFC88 /* NativeRenderManager.mm in Sources */,
 				D8DB860D28859A890012C084 /* worker_impl.cc in Sources */,
 				F45EF2D9287BC47C00D79828 /* NSObject+ToJSCtxValue.mm in Sources */,
+				D8907FF02887FDA2005696C7 /* looper_driver.cc in Sources */,
 				F45D265E28067B6900CAB185 /* NativeRenderTextView.mm in Sources */,
 				F468DE842812A95200319196 /* HippyWebSocketManager.m in Sources */,
 				D86B3E62284E31EB007E729B /* animation.cc in Sources */,
