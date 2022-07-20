@@ -368,22 +368,6 @@ For more details, please refer to the Android development documentation.
 
 Text component.
 
-## Attentions
-
-It should be noted that it is recommended to use ES6 [Template literals](//developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals) when concatenating strings in `<Text>`:
-
-```jsx
-<Text>{ `The time is now ${new Date().toString()}` }</Text> // ✅
-```
-
-Instead of
-
-```jsx
-<Text>The time is now { new Date().toString() }</Text> // ❌
-```
-
-The second code has the potential to not update the UI when the data is updated.
-
 ## Attributes
 
 | Props          | Description                                                  | Type                             | Supported Platforms                                          |
