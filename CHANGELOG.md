@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.13.13](https://github.com/Tencent/Hippy/compare/2.13.12...2.13.13) (2022-07-20)
+
+
+### Bug Fixes
+
+* **android:** set default background color to TRANSPARENT ([eadd0fd](https://github.com/Tencent/Hippy/commit/eadd0fd7127c30e2391292b7a7378f5291054ad3))
+
+
+
+
+
 ## [2.13.12](https://github.com/Tencent/Hippy/compare/2.13.11...2.13.12) (2022-07-13)
 
 
