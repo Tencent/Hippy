@@ -132,7 +132,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
     }
 
-    @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "horizontal-unsupported", defaultType = HippyControllerProps.BOOLEAN)
     public void setHorizontalEnable(final HRW viewWrapper, boolean flag) {
         LayoutManager layoutManager = viewWrapper.getRecyclerView().getLayoutManager();
         if (!(layoutManager instanceof LinearLayoutManager)) {
