@@ -261,7 +261,7 @@
 - (CGFloat)tableView:(__unused UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath;
 {
     HippyVirtualCell *cell = [_dataSource cellForIndexPath:indexPath];
-    return ceil(CGRectGetHeight(cell.frame));
+    return CGRectGetHeight(cell.frame);
 }
 
 - (NSInteger)tableView:(__unused UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
