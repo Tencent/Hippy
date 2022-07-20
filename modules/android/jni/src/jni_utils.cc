@@ -20,7 +20,7 @@
  *
  */
 
-#include "jni_utils.h"  // NOLINT(build/include_subdir)
+#include "src/jni_utils.h"  // NOLINT(build/include_subdir)
 
 #include <cstdlib>
 
