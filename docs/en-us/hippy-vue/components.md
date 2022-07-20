@@ -264,8 +264,8 @@ Please refer to the Android development documentation for details.
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| blur                | Called when the text box loses focus.    | `Function`                                                   | `Android、iOS`     |
-| focus | Called when the text box get focus. | `Function` | `Android、iOS` |
+| blur                | Called when the text box is blurred. | `Function`                                                   | `Android、iOS`     |
+| focus | Called when the text box is focused. | `Function` | `Android、iOS` |
 | change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS`     |
 | keyboardWillShow    | Called when the input keyboard pops-up, the return value contains the keyboard height `keyboardHeight`, style such as `{keyboardHeight: 260 }`| `Function`                                                   | `Android、iOS`     |
 | keyboardWillHide     | Called when hiding input keyboard.| `Function`                                                   | `Android`     |
