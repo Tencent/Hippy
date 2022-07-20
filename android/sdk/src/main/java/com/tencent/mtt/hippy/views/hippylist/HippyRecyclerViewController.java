@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.HippyLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
@@ -129,6 +130,28 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
             ControllerManager controllerManager,
             boolean lazy) {
         return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
+    }
+
+    @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)
+    public void setHorizontalEnable(final HRW viewWrapper, boolean flag) {
+        LayoutManager layoutManager = viewWrapper.getRecyclerView().getLayoutManager();
+        if (!(layoutManager instanceof LinearLayoutManager)) {
+            return;
+        }
+        int orientation = ((LinearLayoutManager) layoutManager).getOrientation();
+        if (flag) {
+            if (orientation != LinearLayoutManager.HORIZONTAL) {
+                ((LinearLayoutManager) layoutManager).setOrientation(
+                        LinearLayoutManager.HORIZONTAL);
+                viewWrapper.getRecyclerView().getAdapter().onLayoutOrientationChanged();
+            }
+        } else {
+            if (orientation == LinearLayoutManager.HORIZONTAL) {
+                ((LinearLayoutManager) layoutManager).setOrientation(
+                        LinearLayoutManager.VERTICAL);
+                viewWrapper.getRecyclerView().getAdapter().onLayoutOrientationChanged();
+            }
+        }
     }
 
     @HippyControllerProps(name = "rowShouldSticky")

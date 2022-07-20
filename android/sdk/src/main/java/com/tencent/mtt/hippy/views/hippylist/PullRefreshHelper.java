@@ -23,11 +23,9 @@ import android.animation.ValueAnimator;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -146,19 +144,52 @@ public abstract class PullRefreshHelper {
         }
     }
 
+    public void onLayoutOrientationChanged() {
+        if (mItemView == null || mContainer == null) {
+            return;
+        }
+        boolean isVertical = isVertical();
+        if (isVertical) {
+            mContainer.setOrientation(LinearLayout.HORIZONTAL);
+        } else {
+            mContainer.setOrientation(LinearLayout.VERTICAL);
+        }
+        ViewGroup.LayoutParams lpChild = mItemView.getLayoutParams();
+        if (lpChild instanceof LinearLayout.LayoutParams) {
+            lpChild.width = mRenderNode.getWidth();
+            lpChild.height = mRenderNode.getHeight();
+            if (mItemView instanceof HippyPullHeaderView) {
+                ((LinearLayout.LayoutParams) lpChild).gravity = isVertical ? Gravity.BOTTOM : Gravity.RIGHT;
+            } else if (mItemView instanceof HippyPullFooterView) {
+                ((LinearLayout.LayoutParams) lpChild).gravity = isVertical ? Gravity.TOP : Gravity.LEFT;
+            }
+        }
+        ViewGroup.LayoutParams lpContainer = mContainer.getLayoutParams();
+        if (lpContainer != null) {
+            lpContainer.width = isVertical ? MATCH_PARENT : 0;
+            lpContainer.height = isVertical ? 0 : MATCH_PARENT;
+        }
+    }
+
     public void setItemView(View itemView) {
+        boolean isVertical = isVertical();
         mItemView = itemView;
         mContainer.removeAllViews();
-        LayoutParams lpChild = new LayoutParams(mRenderNode.getWidth(), mRenderNode.getHeight());
+        if (isVertical) {
+            mContainer.setOrientation(LinearLayout.HORIZONTAL);
+        } else {
+            mContainer.setOrientation(LinearLayout.VERTICAL);
+        }
+        LinearLayout.LayoutParams lpChild = new LinearLayout.LayoutParams(mRenderNode.getWidth(), mRenderNode.getHeight());
         if (itemView instanceof HippyPullHeaderView) {
-            lpChild.gravity = Gravity.BOTTOM;
+            lpChild.gravity = isVertical ? Gravity.BOTTOM : Gravity.RIGHT;
         } else if (itemView instanceof HippyPullFooterView) {
-            lpChild.gravity = Gravity.TOP;
+            lpChild.gravity = isVertical ? Gravity.TOP : Gravity.LEFT;
         }
         mContainer.addView(itemView, lpChild);
-        int width = isVertical() ? MATCH_PARENT : 0;
-        int height = isVertical() ? 0 : MATCH_PARENT;
-        ViewGroup.LayoutParams lpContainer = new ViewGroup.LayoutParams(width, height);
+        int width = isVertical ? MATCH_PARENT : 0;
+        int height = isVertical ? 0 : MATCH_PARENT;
+        RecyclerView.LayoutParams lpContainer = new RecyclerView.LayoutParams(width, height);
         mContainer.setLayoutParams(lpContainer);
     }
 

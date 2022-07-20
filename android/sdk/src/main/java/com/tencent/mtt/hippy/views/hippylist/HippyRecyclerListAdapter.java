@@ -28,7 +28,6 @@ import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.DiffUtils.PatchType;
@@ -36,13 +35,11 @@ import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderView;
 import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.IStickyItemsProvider;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created on 2020/12/22.
@@ -235,6 +232,15 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     public void enableHeaderRefresh() {
         if (headerRefreshHelper != null) {
             headerRefreshHelper.enableRefresh();
+        }
+    }
+
+    public void onLayoutOrientationChanged() {
+        if (headerRefreshHelper != null) {
+            headerRefreshHelper.onLayoutOrientationChanged();
+        }
+        if (footerRefreshHelper != null) {
+            footerRefreshHelper.onLayoutOrientationChanged();
         }
     }
 
