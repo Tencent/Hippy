@@ -20,6 +20,7 @@
  *
  */
 
+#include "bridge/bridge.h"
 #include "bridge/js2java.h"
 
 #include <memory>
@@ -164,7 +165,8 @@ void CallJava(hippy::napi::CBDataTuple *data) {
     j_method = instance->GetMethods().j_call_natives_method_id;
   }
 
-  j_env->CallVoidMethod(runtime->GetBridge()->GetObj(), j_method, j_module_name,
+  auto bridge = std::static_pointer_cast<ADRBridge>(runtime->GetBridge());
+  j_env->CallVoidMethod(bridge->GetObj(), j_method, j_module_name,
                         j_module_func, j_cb_id, j_buffer);
   JNIEnvironment::ClearJEnvException(j_env);
 

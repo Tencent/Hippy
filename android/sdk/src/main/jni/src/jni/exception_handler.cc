@@ -22,6 +22,7 @@
 
 #include "jni/exception_handler.h"
 
+#include "bridge/bridge.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
@@ -38,7 +39,8 @@ void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime
   jstring j_stack_trace = JniUtils::StrViewToJString(j_env, stack);
 
   if (runtime->GetBridge()) {
-    j_env->CallVoidMethod(runtime->GetBridge()->GetObj(),
+    auto bridge = std::static_pointer_cast<hippy::ADRBridge>(runtime->GetBridge());
+    j_env->CallVoidMethod(bridge->GetObj(),
                           JNIEnvironment::GetInstance()
                               ->GetMethods()
                               .j_report_exception_method_id,

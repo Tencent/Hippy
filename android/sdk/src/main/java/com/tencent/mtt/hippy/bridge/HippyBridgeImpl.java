@@ -281,8 +281,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     }
 
     @Override
-    public void destroy(NativeCallback callback) {
-        destroy(mV8RuntimeId, mSingleThreadMode, callback);
+    public void destroy(NativeCallback callback, boolean isReload) {
+        destroy(mV8RuntimeId, mSingleThreadMode, isReload, callback);
     }
 
     @Override
@@ -299,7 +299,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
             boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId, NativeCallback callback);
 
-    public native void destroy(long runtimeId, boolean useLowMemoryMode, NativeCallback callback);
+    public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean is_reload, NativeCallback callback);
 
     public native void callFunction(String action, long runtimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);

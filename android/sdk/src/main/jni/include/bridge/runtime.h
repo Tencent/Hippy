@@ -30,19 +30,22 @@
 #include "core/core.h"
 #include "jni/turbo_module_runtime.h"
 #include "jni/scoped_java_ref.h"
+#include "core/inspector/bridge.h"
 #ifndef V8_WITHOUT_INSPECTOR
-#include "inspector/v8_inspector_client_impl.h"
+#include "core/inspector/v8_inspector_client_impl.h"
 #endif
 
 class Runtime {
  public:
-  Runtime(std::shared_ptr<JavaRef> bridge, bool enable_v8_serialization, bool is_dev);
+  using Bridge = hippy::Bridge;
+  using V8InspectorContext = hippy::inspector::V8InspectorContext;
+  Runtime(std::shared_ptr<Bridge> bridge, bool enable_v8_serialization, bool is_dev);
 
   inline bool IsEnableV8Serialization() { return enable_v8_serialization_; }
   inline bool IsDebug() { return is_debug_; }
   inline int32_t GetId() { return id_; }
   inline int64_t GetGroupId() { return group_id_; }
-  inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
+  inline std::shared_ptr<Bridge> GetBridge() { return bridge_; }
   inline std::shared_ptr<Engine> GetEngine() { return engine_; }
   inline std::shared_ptr<Scope> GetScope() { return scope_; }
   inline std::shared_ptr<hippy::napi::CtxValue> GetBridgeFunc() {
@@ -56,6 +59,10 @@ class Runtime {
   }
   inline void SetEngine(std::shared_ptr<Engine> engine) { engine_ = engine; }
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
+  inline void SetInspectorContext(std::shared_ptr<V8InspectorContext> inspector_context) {
+    inspector_context_ = inspector_context;
+  }
+  inline std::shared_ptr<V8InspectorContext> GetInspectorContext() { return inspector_context_; }
 
   inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
     return turbo_module_runtime_;
@@ -75,11 +82,12 @@ class Runtime {
   bool enable_v8_serialization_;
   bool is_debug_;
   int64_t group_id_;
-  std::shared_ptr<JavaRef> bridge_;
+  std::shared_ptr<Bridge> bridge_;
   std::string serializer_reused_buffer_;
   std::shared_ptr<Engine> engine_;
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int32_t id_;
   std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
+  std::shared_ptr<V8InspectorContext> inspector_context_;
 };
