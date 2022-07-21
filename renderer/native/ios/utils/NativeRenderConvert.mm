@@ -66,7 +66,16 @@ HIPPY_JSON_CONVERTER(NSString)
 HIPPY_JSON_CONVERTER(NSNumber)
             
 HIPPY_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
-HIPPY_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncoding])
+//HIPPY_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncoding])
+
++ (NSData*)NSData:(id)json {
+    if([json isKindOfClass:[NSString class]]) {
+        return [json dataUsingEncoding:NSUTF8StringEncoding];
+    }else if([json isKindOfClass:[NSData class]]) {
+        return (NSData*)json;
+    }
+    return nil;
+}
 
 + (NSIndexSet *)NSIndexSet : (id)json {
     json = [self NSNumberArray:json];

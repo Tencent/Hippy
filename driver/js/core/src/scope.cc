@@ -51,6 +51,7 @@ using DomNode = hippy::dom::DomNode;
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
 constexpr char kLoadInstanceFuncName[] = "__loadInstance__";
+constexpr char kUnLoadInstanceFuncName[] = "__unloadInstance__";
 constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
 #ifdef ENABLE_INSPECTOR
 constexpr char kHippyModuleName[] = "name";
@@ -395,6 +396,31 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
           }
         }
 #endif
+        std::shared_ptr<CtxValue> argv[] = {param};
+        context->CallFunction(fn, 1, argv);
+      } else {
+        context->ThrowException("Application entry not found");
+      }
+    }
+  };
+  auto runner = engine_->GetJsTaskRunner();
+  if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
+    cb();
+  } else {
+    runner->PostTask(std::move(cb));
+  }
+}
+
+void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
+  std::weak_ptr<Ctx> weak_context = context_;
+  auto cb = [weak_context, value]() mutable {
+    std::shared_ptr<Ctx> context = weak_context.lock();
+    if (context) {
+      std::shared_ptr<CtxValue> fn = context->GetJsFn(kUnLoadInstanceFuncName);
+      bool is_fn = context->IsFunction(fn);
+      FOOTSTONE_DCHECK(is_fn);
+      if (is_fn) {
+        auto param = context->CreateCtxValue(value);
         std::shared_ptr<CtxValue> argv[] = {param};
         context->CallFunction(fn, 1, argv);
       } else {

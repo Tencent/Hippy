@@ -21,14 +21,6 @@ import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
-import com.tencent.mtt.hippy.modules.HippyModuleManager;
-import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleInfo;
-import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
-import com.tencent.mtt.hippy.serialization.compatible.Deserializer;
-import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
-import com.tencent.mtt.hippy.serialization.nio.reader.SafeDirectReader;
-import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
-import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 
@@ -38,19 +30,13 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Locale;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.DevRemoteDebugProxy;
-import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
@@ -262,6 +248,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         }
         if (functionId == HippyBridgeManagerImpl.FUNCTION_ACTION_LOAD_INSTANCE) {
             loadInstance(mV8RuntimeId, buffer, offset, length);
+        } else if (functionId == HippyBridgeManagerImpl.FUNCTION_ACTION_DESTROY_INSTANCE) {
+            destroyInstance(mV8RuntimeId, buffer, offset, length);
         } else {
             callFunction(functionName, mV8RuntimeId, callback, buffer, offset, length);
         }
@@ -302,6 +290,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     public native void callFunction(String action, long V8RuntimeId, NativeCallback callback,
             byte[] buffer, int offset, int length);
+
+    public native void destroyInstance(long V8RuntimeId, byte[] buffer, int offset, int length);
 
     public native void loadInstance(long V8RuntimeId, byte[] buffer, int offset, int length);
 

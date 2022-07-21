@@ -24,6 +24,8 @@ abstract class VoltronThirdPartyAdapter {
 
   void setVoltronBridgeId(int runtimeId);
 
+  void onRuntimeDestroy();
+
   String getPackageName();
 
   String getAppVersion();

@@ -19,7 +19,7 @@
 
 namespace hippy::runtime {
 
-using bytes = std::string;
+using byte_string = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
 using WorkerManager = footstone::runner::WorkerManager;
@@ -361,16 +361,17 @@ void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,
   FOOTSTONE_DLOG(INFO) << "HandleUncaughtJsError end";
 }
 
-bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void()>& callback, bool is_reload) {
+void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void(bool)>& callback, bool is_reload) {
   FOOTSTONE_DLOG(INFO) << "DestroyInstance begin, runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(
       footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl destroy, runtime_id invalid";
-    return false;
+    callback(false);
+    return;
   }
 
-  auto cb = [runtime, runtime_id, is_reload] {
+  auto cb = [runtime, runtime_id, is_reload, callback] {
     FOOTSTONE_LOG(INFO) << "js destroy begin, runtime_id = " << runtime_id << ", is_reload = " << is_reload;
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
@@ -394,6 +395,7 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     FOOTSTONE_LOG(INFO) << "erase runtime";
     Runtime::Erase(runtime);
     FOOTSTONE_LOG(INFO) << "js destroy end";
+    callback(true);
   };
   int64_t group = runtime->GetGroupId();
   if (group == kDebuggerGroupId) {
@@ -411,10 +413,6 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
       FOOTSTONE_DLOG(INFO) << "reuse_engine_map cnt = " << cnt;
       if (cnt == 1) {
         reuse_engine_map.erase(it);
-        auto new_cb = [callback] {
-          callback();
-        };
-        runner->PostTask(std::move(new_cb));
       } else {
         std::get<uint32_t>(it->second) = cnt - 1;
       }
@@ -423,13 +421,12 @@ bool V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     }
   }
   FOOTSTONE_DLOG(INFO) << "destroy end";
-  return true;
 }
 
 void V8BridgeUtils::CallJs(const unicode_string_view& action,
                            int32_t runtime_id,
                            std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb,
-                           bytes buffer_data,
+                           byte_string buffer_data,
                            std::function<void()> on_js_runner) {
   FOOTSTONE_DLOG(INFO) << "CallJs runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
@@ -515,7 +512,7 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     unicode_string_view,
     unicode_string_view,
     bool,
-    bytes)>& cb) {
+    byte_string)>& cb) {
   FOOTSTONE_DLOG(INFO) << "CallNative";
   auto runtime_id = static_cast<int32_t>(reinterpret_cast<int64_t>(data->cb_tuple_.data_));
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
@@ -593,14 +590,14 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     }
   }
 
-  bytes buffer;
+  byte_string buffer;
   if (info.Length() >= 4 && !info[3].IsEmpty() && info[3]->IsObject()) {
     if (runtime->IsEnableV8Serialization()) {
       Serializer serializer(isolate, context, runtime->GetBuffer());
       serializer.WriteHeader();
       serializer.WriteValue(info[3]);
       std::pair<uint8_t*, size_t> pair = serializer.Release();
-      buffer = bytes(reinterpret_cast<const char*>(pair.first), pair.second);
+      buffer = byte_string(reinterpret_cast<const char*>(pair.first), pair.second);
     } else {
       std::shared_ptr<hippy::napi::V8CtxValue> obj =
           std::make_shared<hippy::napi::V8CtxValue>(isolate, info[3]);
@@ -620,7 +617,7 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
   cb(runtime, module, func, cb_id, is_heap_buffer, buffer);
 }
 
-void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
+void V8BridgeUtils::LoadInstance(int32_t runtime_id, byte_string&& buffer_data) {
   FOOTSTONE_DLOG(INFO) << "LoadInstance runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
@@ -649,45 +646,32 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, bytes&& buffer_data) {
   runner->PostTask(std::move(callback));
 }
 
-void V8BridgeUtils::UnloadInstance(
-    int32_t runtime_id,
-    std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb) {
-  FOOTSTONE_DLOG(INFO) << "Destroy instance runtime_id = " << runtime_id;
+void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data) {
+  FOOTSTONE_DLOG(INFO) << "UnloadInstance instance runtime_id = " << runtime_id;
   std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
   if (!runtime) {
-    FOOTSTONE_DLOG(WARNING) << "Destroy instance failed runtime_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "UnloadInstance instance failed runtime_id invalid";
     return;
   }
-  std::shared_ptr<TaskRunner> runner = runtime->GetEngine()->GetJsTaskRunner();
-  auto callback = [runtime, cb = std::move(cb)] {
-    std::shared_ptr<Scope> scope = runtime->GetScope();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
+  std::weak_ptr<Scope> weak_scope = runtime->GetScope();
+  auto callback = [weak_scope, buffer_data_ = std::move(buffer_data)] {
+    std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
-      FOOTSTONE_DLOG(WARNING) << "Destroy instance invalid";
       return;
     }
-    std::shared_ptr<Ctx> context = scope->GetContext();
-    if (!runtime->GetBridgeFunc()) {
-      FOOTSTONE_DLOG(INFO) << "init bridge func";
-      unicode_string_view name(kHippyBridgeName);
-      std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
-      bool is_fn = context->IsFunction(fn);
-      FOOTSTONE_DLOG(INFO) << "is_fn = " << is_fn;
-
-      if (!is_fn) {
-        cb(CALL_FUNCTION_CB_STATE::NO_METHOD_ERROR, u"hippyBridge not find");
-        return;
-      } else {
-        runtime->SetBridgeFunc(fn);
-      }
+    Deserializer deserializer(
+        reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
+        buffer_data_.length());
+    HippyValue value;
+    deserializer.ReadHeader();
+    auto ret = deserializer.ReadValue(value);
+    if (ret) {
+      scope->UnloadInstance(std::make_shared<HippyValue>(std::move(value)));
+    } else {
+      scope->GetContext()->ThrowException("LoadInstance param error");
     }
-    std::shared_ptr<CtxValue> action_value = context->CreateString(u"destroyInstance");
-    std::shared_ptr<CtxValue> params = context->CreateNull();
-
-    std::shared_ptr<CtxValue> argv[] = {action_value, params};
-    context->CallFunction(runtime->GetBridgeFunc(), 2, argv);
-    cb(CALL_FUNCTION_CB_STATE::SUCCESS, "");
   };
-
   runner->PostTask(std::move(callback));
 }
 

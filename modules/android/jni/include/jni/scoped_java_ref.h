@@ -22,19 +22,17 @@
 
 #pragma once
 
-#include "dom/root_node.h"
+#include <jni.h>
 
-namespace hippy {
-namespace bridge {
-
-class RootNodeRepo {
+class JavaRef {
  public:
-  static void Insert(const std::shared_ptr<RootNode>& root_node);
+  JavaRef(JNIEnv* env, jobject obj);
+  ~JavaRef();
+  JavaRef(const JavaRef &) = delete;
+  JavaRef &operator=(const JavaRef &) = delete;
 
-  static std::shared_ptr<RootNode> Find(uint32_t id);
+  jobject GetObj() { return obj_; }
 
-  static bool Erase(uint32_t id);
+ private:
+  jobject obj_;
 };
-
-}  // namespace bridge
-}  // namespace hippy

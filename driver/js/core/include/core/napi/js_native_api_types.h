@@ -72,6 +72,18 @@ enum Encoding {
   UTF8_ENCODING
 };
 
+class CtxValue;
+class CBCtxValueTuple {
+ public:
+  CBCtxValueTuple(const void *data,
+                  const std::shared_ptr<CtxValue> arguments[],
+                  size_t count)
+      : data_(data), arguments_(arguments), count_(count) {}
+  const void *data_;
+  const std::shared_ptr<CtxValue> *arguments_;
+  size_t count_;
+};
+
 class CtxValue {
  public:
   CtxValue() {}
@@ -127,10 +139,10 @@ class Ctx {
   using JSValueWrapper = hippy::base::JSValueWrapper;
   using unicode_string_view = footstone::stringview::unicode_string_view;
   using HippyValue = footstone::value::HippyValue;
+  using NativeFunction = std::function<std::shared_ptr<hippy::napi::CtxValue>(void *)>;
 
   Ctx() {}
   virtual ~Ctx() { FOOTSTONE_DLOG(INFO) << "~Ctx"; }
-
   virtual bool RegisterGlobalInJs() = 0;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) = 0;
   virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) = 0;
@@ -145,6 +157,10 @@ class Ctx {
       const unicode_string_view& name) = 0;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
       const unicode_string_view& name) = 0;
+  virtual bool SetProperty(const std::shared_ptr<CtxValue>& object,
+                           const unicode_string_view& prop_key,
+                           const std::shared_ptr<CtxValue>& value,
+                           const PropertyAttribute& attr) = 0;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) = 0;
@@ -155,6 +171,9 @@ class Ctx {
                                     const ModuleClassMap& modules) = 0;
   virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
+                                     void* data) = 0;
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
+                                     NativeFunction fn,
                                      void* data) = 0;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) = 0;
@@ -178,6 +197,8 @@ class Ctx {
       std::shared_ptr<CtxValue> value[]) = 0;
   virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) = 0;
+  virtual std::shared_ptr<CtxValue> CreateByteBuffer(
+      void *buffer,size_t length, bool is_copy) = 0;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
@@ -199,7 +220,16 @@ class Ctx {
 
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) = 0;
 
-  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) = 0;
+
+  virtual bool IsNumber(const std::shared_ptr<CtxValue>& value) = 0;
+
+  //buffer
+  virtual bool IsByteBuffer(const std::shared_ptr<CtxValue>& value) = 0;
+  virtual bool GetByteBuffer(const std::shared_ptr<CtxValue>& value,
+                             void** out_data,
+                             size_t& out_length,
+                             uint32_t& out_type) = 0;
 
   // Array Helpers
   virtual bool IsArray(const std::shared_ptr<CtxValue>& value) = 0;
@@ -208,6 +238,10 @@ class Ctx {
                                                      uint32_t index) = 0;
 
   // Object Helpers
+  virtual bool IsObject(const std::shared_ptr<CtxValue>& value) = 0;
+  //Currently, we only support the case where the 'key' is string type.
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> &map) = 0;
 
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& name) = 0;

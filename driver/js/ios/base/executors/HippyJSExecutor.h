@@ -24,9 +24,8 @@
 #import "HippyDefines.h"
 #import "HippyBridgeModule.h"
 #import "NativeRenderInvalidating.h"
+#import "js_native_api_types.h"
 #import <memory>
-
-typedef void (^HippyJavaScriptValueCallback)(JSValue *result, NSError *error);
 
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
@@ -39,23 +38,9 @@ class Scope;
 HIPPY_EXTERN NSString *const HippyJSCThreadName;
 
 /**
- * This notification fires on the JS thread immediately after a `JSContext`
- * is fully initialized, but before the JS bundle has been loaded. The object
- * of this notification is the `JSContext`. Native modules should listen for
- * notification only if they need to install custom functionality into the
- * context. Note that this notification won't fire when debugging in Chrome.
- */
-HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotification;
-
-/**
- * A Key to referenct to a HippyBridge class in HippyJavaScriptContextCreatedNotification.
- */
-HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey;
-
-/**
  * Uses a JavaScriptCore context as the execution engine.
  */
-@interface HippyJSCExecutor : NSObject<HippyBridgeModule, NativeRenderInvalidating>
+@interface HippyJSExecutor : NSObject<HippyBridgeModule, NativeRenderInvalidating>
 
 @property (nonatomic, strong) HippyBridge *bridge;
 /**
@@ -68,12 +53,7 @@ HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey;
  *hippy-core js engine
  */
 @property (atomic, assign) std::shared_ptr<Scope> pScope;
-@property (readonly) JSGlobalContextRef JSGlobalContextRef;
 
-/**
- * Specify a name for the JSContext used, which will be visible in debugging tools
- * @default is "HippyJSContext"
- */
 @property (nonatomic, copy) NSString *contextName;
 
 - (instancetype)initWithExecurotKey:(NSString *)execurotkey bridge:(HippyBridge *)bridge;
@@ -84,18 +64,7 @@ HIPPY_EXTERN NSString *const HippyJavaScriptContextCreatedNotificationBridgeKey;
  */
 - (void)setUp;
 
-/**
- * Invokes the given module/method directly. The completion block will be called with the
- * JSValue returned by the JS context.
- *
- * Currently this does not flush the JS-to-native message queue.
- */
-- (void)callFunctionOnModule:(NSString *)module
-                      method:(NSString *)method
-                   arguments:(NSArray *)args
-             jsValueCallback:(HippyJavaScriptValueCallback)onComplete;
-
-- (JSValueRef)JSTurboObjectWithName:(NSString *)name;
+- (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback

@@ -38,7 +38,7 @@ namespace hippy::bridge {
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
-using bytes = std::string;
+using byte_string = std::string;
 
 void CallNative(hippy::napi::CBDataTuple* data) {
   auto cb = [](const std::shared_ptr<Runtime>& runtime,
@@ -46,7 +46,7 @@ void CallNative(hippy::napi::CBDataTuple* data) {
                const unicode_string_view& func,
                const unicode_string_view& cb_id,
                bool is_heap_buffer,
-               const bytes& buffer) {
+               const byte_string& buffer) {
     std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
     JNIEnv* j_env = instance->AttachCurrentThread();
     jobject j_buffer;

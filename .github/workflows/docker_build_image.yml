@@ -1,0 +1,97 @@
+name: '[docker] build docker image'
+
+on:
+  workflow_dispatch:
+    inputs:
+      images:
+        description: 'Images (separated by commas)'
+        required: true
+      tag:
+        description: 'TAG'
+        default: 'latest'
+        required: true
+  push:
+    branches:
+      - master
+      - main
+    tags-ignore:
+      - '**'
+    paths:
+      - 'docker/**'
+jobs:
+  changed_images:
+    runs-on: ubuntu-latest
+    outputs: 
+      changed_images: ${{ steps.changed_images.outputs.changed_images }}
+    steps:
+      - name: Get changed images
+        id: changed_images
+        uses: actions/github-script@v6.1.0
+        with:
+          script: |
+            const { basename, sep } = require('path');
+            const { eventName } = context;
+            const { owner, repo } = context.repo;
+            const { repos } = github.rest;
+            const push = context.payload;
+
+            const changedImages = new Set();
+
+            if (eventName === 'workflow_dispatch') {
+              '${{ github.event.inputs.images }}'.split(',').forEach(image => changedImages.add(image.trim()));
+            } else if (eventName === 'push') {
+              let page = 1;
+              const kMaxPage = 100;
+              const kMaxPerPage = 100;
+              for (; page < kMaxPage; page += 1) {
+                const { data: { files }} = await repos.compareCommits({
+                  owner,
+                  repo,
+                  base: push.before,
+                  head: push.after,
+                  per_page: kMaxPerPage,
+                  page,
+                });
+
+                files.filter(({ status, filename }) => 
+                  (status === 'added' || status === 'modified' || status === 'changed' || status === 'copied' || status === 'renamed')
+                  && filename.split(sep)[0] === 'docker'
+                  && basename(filename) === 'Dockerfile').forEach(({ filename }) => {
+                    changedImages.add(filename.split(sep)[1]);
+                });
+
+                if (files.length < kMaxPerPage) {
+                  break;
+                }
+              }
+            }
+
+            console.log(`::set-output name=changed_images::${JSON.stringify(Array.from(changedImages))}`);
+  build_images:
+    needs: changed_images
+    runs-on: [self-hosted, linux]
+    strategy:
+      matrix: 
+        images: ${{ fromJson(needs.changed_images.outputs.changed_images) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Log in
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get repo owner(in lowercase)
+        id: get_owner
+        uses: ASzc/change-string-case-action@v2
+        with:
+          string: ${{ github.repository_owner }}
+      - name: Make & Push to ghcr.io
+        uses: docker/build-push-action@v2
+        with:
+          context: docker/${{ matrix.images }}
+          push: true
+          tags: ghcr.io/${{ steps.get_owner.outputs.lowercase }}/${{ matrix.images }}:${{ github.event.inputs.tag || 'latest' }}

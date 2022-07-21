@@ -77,6 +77,14 @@ class RootWidgetViewModel extends ChangeNotifier {
     };
   }
 
+  bool isDebugMode = false;
+
+  Function? reload;
+
+  void restart() {
+    notifyListeners();
+  }
+
   void attachToEngine(RenderContext context) {
     _context = context;
     checkUpdateDimension(-1, -1, false, false);
@@ -253,6 +261,7 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   double? _curHeight;
   double? _curWidth;
   bool hasDispose = false;
+  Offset? debugButtonOffset;
 
   _VoltronWidgetState();
 
@@ -260,7 +269,6 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(doFirstFrame);
-    // viewModel!.executor = doFrame;
     viewModel._wrapper = () => context;
     hasDispose = false;
     AnimationController controller = AnimationController(vsync: this);
@@ -392,13 +400,13 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     if (emptyBuilder != null) {
       return emptyBuilder(context);
     }
-    return const Center(child: Text("Empty page"));
+    return Container();
   }
 
-  Widget _content(RootWidgetViewModel? viewModel) {
+  Widget _content(RootWidgetViewModel viewModel) {
     LogUtils.dWidget("root_widget", "create root widget content, build");
     var nodeList = <RenderNode>[];
-    var tree = viewModel?.renderTree;
+    var tree = viewModel.renderTree;
     if (tree != null) {
       var rootNode = tree.rootNode;
       if (rootNode != null && rootNode.childCount > 0) {
@@ -418,7 +426,86 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     for (var element in childList) {
       childrenWidget.add(_generateByRenderNode(context, element));
     }
+    if (viewModel.isDebugMode) {
+      childrenWidget.add(_reloadWidget(context));
+    }
     return Stack(children: childrenWidget);
+  }
+
+  Widget _reloadWidget(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final size = mediaQuery.size;
+    final height = size.height;
+    final safeTop = mediaQuery.padding.top;
+    final currentOffset = debugButtonOffset;
+    var dx = 20.0;
+    var dy = safeTop + 40;
+    if (currentOffset != null) {
+      dx = currentOffset.dx;
+      dy = currentOffset.dy;
+    }
+    return Positioned(
+      left: dx,
+      top: dy,
+      child: Draggable(
+        child: PopupMenuButton(
+          itemBuilder: (BuildContext context) {
+            return [
+              PopupMenuItem<int>(
+                value: 0,
+                child: const Text('reload'),
+                onTap: () {
+                  var reloadFn = viewModel.reload;
+                  if (reloadFn != null) {
+                    reloadFn();
+                  }
+                },
+              ),
+            ];
+          },
+          child: _buildReloadButton(),
+        ),
+        //拖动过程中的Widget
+        feedback: _buildReloadButton(),
+        childWhenDragging: Container(),
+        //拖动结束后的Widget
+        onDraggableCanceled: (velocity, offset) {
+          // 计算组件可移动范围  更新位置信息
+          if (!mounted) return;
+          setState(
+            () {
+              var x = offset.dx;
+              var y = offset.dy;
+              if (offset.dx < 0) {
+                x = 20;
+              }
+
+              if (offset.dx + 40 > 375) {
+                x = 335;
+              }
+
+              if (offset.dy < kBottomNavigationBarHeight) {
+                y = kBottomNavigationBarHeight;
+              }
+
+              if (offset.dy > height - 100) {
+                y = height - 100;
+              }
+
+              debugButtonOffset = Offset(x, y);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildReloadButton() {
+    return const Icon(
+      Icons.logo_dev,
+      color: Color(0xFF333333),
+      size: 40,
+    );
   }
 
   Widget _generateByRenderNode(BuildContext context, RenderNode childNode) {

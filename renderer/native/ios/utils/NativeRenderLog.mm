@@ -25,6 +25,8 @@
 #include <string>
 #include <mutex>
 #include "logging.h"
+#include "footstone/log_level.h"
+#include "footstone/logging.h"
 
 #pragma mark TDFLog Binding
 using LogSeverity = footstone::LogSeverity;

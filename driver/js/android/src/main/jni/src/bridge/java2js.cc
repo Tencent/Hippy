@@ -58,7 +58,7 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
     CallFunctionByDirectBuffer)
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using bytes = std::string;
+using byte_string = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
@@ -70,7 +70,7 @@ void CallFunction(JNIEnv* j_env,
                   jstring j_action,
                   jlong j_runtime_id,
                   jobject j_callback,
-                  bytes buffer_data,
+                  byte_string buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
@@ -108,7 +108,7 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
   char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
   FOOTSTONE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
-               bytes(buffer_address + j_offset,
+               byte_string(buffer_address + j_offset,
                      footstone::check::checked_numeric_cast<jint, unsigned long>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
 }

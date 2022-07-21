@@ -129,6 +129,42 @@ void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   FOOTSTONE_DLOG(INFO) << "run native cb end";
 }
 
+void NativeCallbackFuncWithValue(const v8::FunctionCallbackInfo<v8::Value>& info) {
+  FOOTSTONE_DLOG(INFO) << "NativeCallbackFuncWithValue";
+  auto data = info.Data().As<v8::External>();
+  if (data.IsEmpty()) {
+    FOOTSTONE_LOG(ERROR) << "NativeCallbackFuncWithValue data is empty";
+    info.GetReturnValue().SetNull();
+    return;
+  }
+  auto *cb_tuple = reinterpret_cast<CBTuple*>(data->Value());
+  if (!cb_tuple) {
+      FOOTSTONE_LOG(ERROR) << "NativeCallbackFuncWithValue data.Value() is empty";
+      info.GetReturnValue().SetNull();
+      return;
+  }
+  Ctx::NativeFunction fn = cb_tuple->native_fn_;
+  void *context_data = cb_tuple->data_;
+  FOOTSTONE_DLOG(INFO) << "run native cb begin";
+  int cnt = info.Length();
+  std::shared_ptr<CtxValue> args[cnt];
+  for (int index = 0; index < cnt; index++) {
+    args[index] = std::make_shared<V8CtxValue>(info.GetIsolate(), info[index]);
+  }
+  CBCtxValueTuple value_tuple(context_data, args, static_cast<size_t>(cnt));
+  std::shared_ptr<CtxValue> return_value = fn(&value_tuple);
+  std::shared_ptr<V8CtxValue> v8_value = std::static_pointer_cast<V8CtxValue>(return_value);
+  v8::Local<v8::Value> handle_value =
+    v8::Local<v8::Value>::New(info.GetIsolate(), v8_value->global_value_);
+  if (handle_value.IsEmpty()) {
+    FOOTSTONE_LOG(ERROR) << "NativeCallbackFuncWithValue local value is empty";
+    info.GetReturnValue().SetNull();
+    return;
+  }
+  info.GetReturnValue().Set(handle_value);
+  FOOTSTONE_DLOG(INFO) << "run native cb end";
+}
+
 void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
   FOOTSTONE_DLOG(INFO) << "v8 GetInternalBinding begin";
 
@@ -537,6 +573,7 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
 }
 
 #include "dom/scene_builder.h"
+
 bool V8Ctx::RegisterGlobalInJs() {
   FOOTSTONE_DLOG(INFO) << "RegisterGlobalInJs";
   v8::HandleScope handle_scope(isolate_);
@@ -643,6 +680,31 @@ std::shared_ptr<CtxValue> V8Ctx::GetGlobalObjVar(
   return GetGlobalStrVar(name);
 }
 
+bool V8Ctx::SetProperty(const std::shared_ptr<CtxValue>& object,
+                        const unicode_string_view& prop_key,
+                        const std::shared_ptr<CtxValue>& value,
+                        const PropertyAttribute& attr) {
+  FOOTSTONE_DLOG(INFO) << "GetGlobalStrVar name = " << prop_key;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  v8::Local<v8::Value> key = CreateV8String(prop_key);
+
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(object);
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  v8::Local<v8::Object> handle_object = v8::Local<v8::Object>::Cast(handle_value);
+
+  std::shared_ptr<V8CtxValue> prop_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  v8::Local<v8::Value> v8_prop_value =
+      v8::Local<v8::Value>::New(isolate_, prop_value->global_value_);
+
+  v8::Maybe<bool> ret = handle_object->Set(context, key, v8_prop_value);
+  return ret.FromMaybe(false);
+}
+
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue>& object,
     const unicode_string_view& name) {
@@ -723,10 +785,32 @@ void V8Ctx::RegisterNativeBinding(const unicode_string_view& name,
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  data_tuple_ = std::make_unique<CBTuple>(fn, data);
+  auto tuple = std::make_unique<CBTuple>(fn, data);
+  void *tuple_data = tuple.get();
+  function_private_data_container_.emplace_back(std::move(tuple));
   v8::Local<v8::FunctionTemplate> fn_template = v8::FunctionTemplate::New(
       isolate_, NativeCallbackFunc,
-      v8::External::New(isolate_, static_cast<void*>(data_tuple_.get())));
+      v8::External::New(isolate_, tuple_data));
+  fn_template->RemovePrototype();
+  v8::Local<v8::String> v8_name = CreateV8String(name);
+  context->Global()
+      ->Set(context, v8_name,
+            fn_template->GetFunction(context).ToLocalChecked())
+      .ToChecked();
+}
+
+void V8Ctx::RegisterNativeBinding(const unicode_string_view& name,
+                                  NativeFunction fn,
+                                  void* data) {
+  FOOTSTONE_DLOG(INFO) << "RegisterNativeBinding name = " << name;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  function_private_data_container_.emplace_back(std::make_unique<CBTuple>(fn, data));
+  void *tuple_data = function_private_data_container_.back().get();
+  v8::Local<v8::FunctionTemplate> fn_template = v8::FunctionTemplate::New(
+      isolate_, NativeCallbackFuncWithValue,
+      v8::External::New(isolate_, tuple_data));
   fn_template->RemovePrototype();
   v8::Local<v8::String> v8_name = CreateV8String(name);
   context->Global()
@@ -1479,6 +1563,70 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
   return std::make_shared<V8CtxValue>(isolate_, array);
 }
 
+static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data) {
+  free(data);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(void *buffer, size_t length, bool is_copy) {
+  if (!buffer) {
+    return nullptr;
+  }
+  void* data = buffer;
+  if (is_copy) {
+    data = malloc(length);
+    memcpy(data, buffer, length);
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  auto backingStore = v8::ArrayBuffer::NewBackingStore(data, length, ArrayBufferDataDeleter,
+                                                       nullptr);
+  v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_,std::move(backingStore));
+  if (array_buffer.IsEmpty()) {
+    FOOTSTONE_LOG(ERROR) << "array_buffer is empty";
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, array_buffer);
+}
+
+bool V8Ctx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+          std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+          v8::Local<v8::Value>::New(isolate_, persistent_value);
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  return handle_value->IsArrayBuffer();
+}
+
+bool V8Ctx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,
+                          void** out_data,
+                          size_t& out_length,
+                          uint32_t& out_type) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+          std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+          v8::Local<v8::Value>::New(isolate_, persistent_value);
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  if (!handle_value->IsArrayBuffer()) {
+    return false;
+  }
+  v8::ArrayBuffer* array_buffer = v8::ArrayBuffer::Cast(*handle_value);
+  *out_data = array_buffer->GetBackingStore()->Data();
+  out_length = array_buffer->GetBackingStore()->ByteLength();
+  return true;
+}
 std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
     std::shared_ptr<CtxValue>,
     std::shared_ptr<CtxValue>>& map) {
@@ -1654,6 +1802,44 @@ bool V8Ctx::IsMap(const std::shared_ptr<CtxValue>& value) {
   return handle_value->IsMap();
 }
 
+bool V8Ctx::IsString(const std::shared_ptr<CtxValue>& value) {
+  if (!value) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, persistent_value);
+
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  return handle_value->IsString();
+}
+
+bool V8Ctx::IsNumber(const std::shared_ptr<CtxValue>& value) {
+  if (!value) {
+    return false;
+  }
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, persistent_value);
+
+  if (handle_value.IsEmpty()) {
+    return false;
+  }
+  return handle_value->IsNumber();
+}
+
 bool V8Ctx::IsObject(const std::shared_ptr<CtxValue>& value) {
   if (!value) {
     return false;
@@ -1667,7 +1853,6 @@ bool V8Ctx::IsObject(const std::shared_ptr<CtxValue>& value) {
   const v8::Global<v8::Value>& persistent_value = ctx_value->global_value_;
   v8::Local<v8::Value> handle_value =
       v8::Local<v8::Value>::New(isolate_, persistent_value);
-
   if (handle_value.IsEmpty()) {
     return false;
   }
@@ -1826,6 +2011,45 @@ std::shared_ptr<CtxValue> V8Ctx::ConvertMapToArray(
 
 // Object Helpers
 
+bool V8Ctx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                 std::unordered_map<unicode_string_view,
+                                 std::shared_ptr<CtxValue>> &map) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+
+  std::shared_ptr<V8CtxValue> ctx_value =
+      std::static_pointer_cast<V8CtxValue>(value);
+  v8::Local<v8::Value> handle_value =
+      v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  v8::Local<v8::Object> handle_object = v8::Local<v8::Object>::Cast(handle_value);
+
+  v8::MaybeLocal<v8::Array> property_names = handle_object->GetPropertyNames(context);
+  if (property_names.IsEmpty()) {
+    return false;
+  }
+  v8::Local<v8::Array> names = property_names.ToLocalChecked();
+  for (uint32_t i = 0; i < names->Length(); i++) {
+    v8::MaybeLocal<v8::Value> maybe_key = names->Get(context, i);
+    if (maybe_key.IsEmpty()) {
+      continue;
+    }
+    v8::Local<v8::Value> key = maybe_key.ToLocalChecked();
+    if (!key->IsString()) {
+      continue;
+    }
+    v8::MaybeLocal<v8::Value> maybe_value = handle_object->Get(context, key);
+    if (maybe_value.IsEmpty()) {
+      continue;
+    }
+    v8::Local<v8::Value> checked_value = maybe_value.ToLocalChecked();
+    unicode_string_view key_string_view = ToStringView(key->ToString(context).ToLocalChecked());
+    std::shared_ptr<V8CtxValue> ctx_checked_value = std::make_shared<V8CtxValue>(isolate_, checked_value);
+    map[key_string_view] = ctx_checked_value;
+    return true;
+  }
+  return false;
+}
+
 bool V8Ctx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                              const unicode_string_view& name) {
   if (!value || StringViewUtils::IsEmpty(name)) {
@@ -1919,7 +2143,7 @@ bool V8Ctx::IsFunction(const std::shared_ptr<CtxValue>& value) {
 unicode_string_view V8Ctx::CopyFunctionName(
     const std::shared_ptr<CtxValue>& function) {
   if (!function) {
-    return unicode_string_view();
+    return {};
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);

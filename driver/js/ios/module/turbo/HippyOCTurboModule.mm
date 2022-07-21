@@ -36,7 +36,7 @@
 #import "NativeRenderLog.h"
 #include "footstone/string_view_utils.h"
 #import "HippyBridge+Private.h"
-#import "HippyJSCExecutor.h"
+#import "HippyJSExecutor.h"
 #import "HippyTurboModuleManager.h"
 
 using namespace hippy;
@@ -243,21 +243,21 @@ static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shar
                                                                 id objcObject,
                                                                 HippyOCTurboModule *module) {
     std::shared_ptr<napi::JSCCtx> jscCtx = std::static_pointer_cast<napi::JSCCtx>(context);
+    HippyJSExecutor *jsExecutor = (HippyJSExecutor *)module.bridge.javaScriptExecutor;
     if ([objcObject isKindOfClass:[HippyOCTurboModule class]]) {
         NSString *name = [[objcObject class] turoboModuleName];
-        HippyJSCExecutor *jsExecutor = (HippyJSCExecutor *)module.bridge.javaScriptExecutor;
-        JSValueRef jsValueObj = [jsExecutor JSTurboObjectWithName:name];
-        JSObjectRef jsObj = JSValueToObject(jscCtx->context_, jsValueObj, NULL);
-
+        std::shared_ptr<hippy::napi::CtxValue> value = [jsExecutor JSTurboObjectWithName:name];
+        auto jscValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(value);
+        
+        JSObjectRef jsValueObj = JSValueToObject(jscCtx->context_, jscValue->value_, NULL);
         JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(jscCtx->context_);
         JSContext *ctx = [JSContext contextWithJSGlobalContextRef:globalContextRef];
         JSValue *jsValue = [JSValue valueWithJSValueRef:jsValueObj inContext:ctx];
         HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
         [turboManager bindJSObject:jsValue toModuleName:name];
-
-        return std::make_shared<JSCCtxValue>(jscCtx->context_, jsObj);
+        return value;
     }
-    return std::make_shared<JSCCtxValue>(jscCtx->context_, JSValueMakeNull(jscCtx->context_));
+    return jsExecutor.pScope->GetContext()->CreateNull();
 }
 
 #pragma mark -

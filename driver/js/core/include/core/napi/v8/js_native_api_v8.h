@@ -105,7 +105,10 @@ class CBTuple {
  public:
   CBTuple(hippy::base::RegisterFunction fn, void* data)
       : fn_(fn), data_(data) {}
+  CBTuple(Ctx::NativeFunction native_fn, void* data)
+      : native_fn_(native_fn), data_(data) {}
   hippy::base::RegisterFunction fn_;
+  Ctx::NativeFunction native_fn_;
   void* data_;
 };
 
@@ -150,6 +153,10 @@ class V8Ctx : public Ctx {
       const unicode_string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
       const unicode_string_view& name) override;
+  virtual bool SetProperty(const std::shared_ptr<CtxValue>& object,
+                           const unicode_string_view& prop_key,
+                           const std::shared_ptr<CtxValue>& value,
+                           const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& object,
       const unicode_string_view& name) override;
@@ -159,6 +166,9 @@ class V8Ctx : public Ctx {
                                     const ModuleClassMap& modules) override;
   virtual void RegisterNativeBinding(const unicode_string_view& name,
                                      hippy::base::RegisterFunction fn,
+                                     void* data) override;
+  virtual void RegisterNativeBinding(const unicode_string_view& name,
+                                     NativeFunction fn,
                                      void* data) override;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
@@ -184,6 +194,8 @@ class V8Ctx : public Ctx {
   virtual std::shared_ptr<CtxValue> CreateError(
       const unicode_string_view& msg) override;
 
+  virtual std::shared_ptr<CtxValue> CreateByteBuffer(void *buffer,size_t length, bool is_copy) override;
+
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
       const std::shared_ptr<CtxValue>& function,
@@ -200,9 +212,20 @@ class V8Ctx : public Ctx {
 
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override;
 
+  virtual bool IsString(const std::shared_ptr<CtxValue>& value) override;
+
+  virtual bool IsNumber(const std::shared_ptr<CtxValue>& value) override;
+
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
 
   virtual bool IsNullOrUndefined(const std::shared_ptr<CtxValue>& value) override;
+
+    //buffer
+  virtual bool IsByteBuffer(const std::shared_ptr<CtxValue>& value) override;
+  virtual bool GetByteBuffer(const std::shared_ptr<CtxValue>& value,
+                             void** out_data,
+                             size_t& out_length,
+                             uint32_t& out_type) override;
 
   // Array Helpers
 
@@ -217,7 +240,9 @@ class V8Ctx : public Ctx {
       const std::shared_ptr<CtxValue>& value);
 
   // Object Helpers
-
+  virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
+                                    std::unordered_map<unicode_string_view,
+                                    std::shared_ptr<CtxValue>> &map) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
                                 const unicode_string_view& utf8name) override;
   virtual std::shared_ptr<CtxValue> CopyNamedProperty(
@@ -287,7 +312,7 @@ class V8Ctx : public Ctx {
   v8::Isolate* isolate_;
   v8::Persistent<v8::ObjectTemplate> global_persistent_;
   v8::Persistent<v8::Context> context_persistent_;
-  std::unique_ptr<CBTuple> data_tuple_;
+  std::vector<std::unique_ptr<CBTuple>> function_private_data_container_;
 
  private:
   std::shared_ptr<CtxValue> InternalRunScript(

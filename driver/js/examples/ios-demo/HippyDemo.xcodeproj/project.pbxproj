@@ -158,6 +158,7 @@
 		F45D269828067B6A00CAB185 /* NativeRenderModalCustomAnimationTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = F45D264C28067B6900CAB185 /* NativeRenderModalCustomAnimationTransition.m */; };
 		F45D269928067B6A00CAB185 /* NativeRenderModalHostViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D264E28067B6900CAB185 /* NativeRenderModalHostViewController.mm */; };
 		F45D269A28067B6A00CAB185 /* NativeRenderModalHostView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D265028067B6900CAB185 /* NativeRenderModalHostView.mm */; };
+		F45EF2D9287BC47C00D79828 /* NSObject+ToJSCtxValue.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4047DE3287BC10F0061C3E0 /* NSObject+ToJSCtxValue.mm */; };
 		F468DE562812A95200319196 /* HippyOCTurboModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDBF2812A95100319196 /* HippyOCTurboModule.mm */; };
 		F468DE572812A95200319196 /* HippyTurboModuleManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDC02812A95100319196 /* HippyTurboModuleManager.mm */; };
 		F468DE582812A95200319196 /* NSObject+HippyTurbo.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DDC12812A95100319196 /* NSObject+HippyTurbo.mm */; };
@@ -188,8 +189,7 @@
 		F468DE742812A95200319196 /* HippyJSEnginesMapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE112812A95200319196 /* HippyJSEnginesMapper.mm */; };
 		F468DE752812A95200319196 /* HippyJavaScriptLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE132812A95200319196 /* HippyJavaScriptLoader.mm */; };
 		F468DE762812A95200319196 /* HippyBatchedBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE152812A95200319196 /* HippyBatchedBridge.mm */; };
-		F468DE772812A95200319196 /* HippyJSCExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE192812A95200319196 /* HippyJSCExecutor.mm */; };
-		F468DE782812A95200319196 /* HippyJSCErrorHandling.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE1A2812A95200319196 /* HippyJSCErrorHandling.m */; };
+		F468DE772812A95200319196 /* HippyJSExecutor.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE192812A95200319196 /* HippyJSExecutor.mm */; };
 		F468DE792812A95200319196 /* HippyKeyCommands.m in Sources */ = {isa = PBXBuildFile; fileRef = F468DE1D2812A95200319196 /* HippyKeyCommands.m */; };
 		F468DE7B2812A95200319196 /* native_source_code_ios.cc in Sources */ = {isa = PBXBuildFile; fileRef = F468DE1F2812A95200319196 /* native_source_code_ios.cc */; };
 		F468DE7C2812A95200319196 /* HippyBridge.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE232812A95200319196 /* HippyBridge.mm */; };
@@ -337,7 +337,7 @@
 		D84AB93B273A618B00987D03 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		D84AB93E273A618B00987D03 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
 		D84AB942273A618B00987D03 /* callback_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = callback_info.h; sourceTree = "<group>"; };
-		D84AB943273A618B00987D03 /* js_native_api_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_types.h; sourceTree = "<group>"; };
+		D84AB943273A618B00987D03 /* js_native_api_types.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = js_native_api_types.h; sourceTree = "<group>"; tabWidth = 2; };
 		D84AB944273A618B00987D03 /* js_native_api.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api.h; sourceTree = "<group>"; };
 		D84AB945273A618B00987D03 /* native_source_code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native_source_code.h; sourceTree = "<group>"; };
 		D84AB947273A618B00987D03 /* js_native_jsc_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_jsc_helper.h; sourceTree = "<group>"; };
@@ -353,7 +353,7 @@
 		D84AB977273A618B00987D03 /* file.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file.cc; sourceTree = "<group>"; };
 		D84AB980273A618B00987D03 /* callback_info.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback_info.cc; sourceTree = "<group>"; };
 		D84AB982273A618B00987D03 /* js_native_jsc_helper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_jsc_helper.cc; sourceTree = "<group>"; };
-		D84AB984273A618B00987D03 /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; };
+		D84AB984273A618B00987D03 /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; tabWidth = 2; };
 		D84AB985273A618B00987D03 /* js_native_api_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_jsc.cc; sourceTree = "<group>"; tabWidth = 2; };
 		D86B3E55284E31D2007E729B /* animation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation.h; sourceTree = "<group>"; };
 		D86B3E56284E31D2007E729B /* animation_manager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_manager.h; sourceTree = "<group>"; };
@@ -400,6 +400,8 @@
 		F400C2E4274F6691008BD74B /* js_native_turbo_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo_jsc.h; sourceTree = "<group>"; };
 		F400C2E5274F66E3008BD74B /* js_native_turbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo.h; sourceTree = "<group>"; };
 		F400C2E6274F66ED008BD74B /* js_native_turbo.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo.cc; sourceTree = "<group>"; };
+		F4047DE2287BC10F0061C3E0 /* NSObject+ToJSCtxValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+ToJSCtxValue.h"; sourceTree = "<group>"; };
+		F4047DE3287BC10F0061C3E0 /* NSObject+ToJSCtxValue.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSObject+ToJSCtxValue.mm"; sourceTree = "<group>"; };
 		F4079542281ABA4100DD084A /* RenderVsyncManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RenderVsyncManager.h; sourceTree = "<group>"; };
 		F4079543281ABA4100DD084A /* RenderVsyncManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = RenderVsyncManager.mm; sourceTree = "<group>"; };
 		F419C381274634DB003E242A /* taitank_layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = taitank_layout_node.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -646,10 +648,8 @@
 		F468DE142812A95200319196 /* HippyPerformanceLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyPerformanceLogger.h; sourceTree = "<group>"; };
 		F468DE152812A95200319196 /* HippyBatchedBridge.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBatchedBridge.mm; sourceTree = "<group>"; };
 		F468DE162812A95200319196 /* HippyBridgeDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBridgeDelegate.h; sourceTree = "<group>"; };
-		F468DE192812A95200319196 /* HippyJSCExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSCExecutor.mm; sourceTree = "<group>"; };
-		F468DE1A2812A95200319196 /* HippyJSCErrorHandling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyJSCErrorHandling.m; sourceTree = "<group>"; };
-		F468DE1B2812A95200319196 /* HippyJSCExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSCExecutor.h; sourceTree = "<group>"; };
-		F468DE1C2812A95200319196 /* HippyJSCErrorHandling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSCErrorHandling.h; sourceTree = "<group>"; };
+		F468DE192812A95200319196 /* HippyJSExecutor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyJSExecutor.mm; sourceTree = "<group>"; };
+		F468DE1B2812A95200319196 /* HippyJSExecutor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyJSExecutor.h; sourceTree = "<group>"; };
 		F468DE1D2812A95200319196 /* HippyKeyCommands.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyKeyCommands.m; sourceTree = "<group>"; };
 		F468DE1F2812A95200319196 /* native_source_code_ios.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native_source_code_ios.cc; sourceTree = "<group>"; };
 		F468DE202812A95200319196 /* HippyEventDispatcher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyEventDispatcher.h; sourceTree = "<group>"; };
@@ -1711,6 +1711,8 @@
 				F468DDF42812A95100319196 /* HippyNullability.h */,
 				F468DDF52812A95100319196 /* HippyErrorInfo.m */,
 				F468DDF62812A95100319196 /* HippyAssert.h */,
+				F4047DE2287BC10F0061C3E0 /* NSObject+ToJSCtxValue.h */,
+				F4047DE3287BC10F0061C3E0 /* NSObject+ToJSCtxValue.mm */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -1764,10 +1766,8 @@
 		F468DE182812A95200319196 /* executors */ = {
 			isa = PBXGroup;
 			children = (
-				F468DE192812A95200319196 /* HippyJSCExecutor.mm */,
-				F468DE1A2812A95200319196 /* HippyJSCErrorHandling.m */,
-				F468DE1B2812A95200319196 /* HippyJSCExecutor.h */,
-				F468DE1C2812A95200319196 /* HippyJSCErrorHandling.h */,
+				F468DE192812A95200319196 /* HippyJSExecutor.mm */,
+				F468DE1B2812A95200319196 /* HippyJSExecutor.h */,
 			);
 			path = executors;
 			sourceTree = "<group>";
@@ -2019,7 +2019,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F468DE772812A95200319196 /* HippyJSCExecutor.mm in Sources */,
+				F468DE772812A95200319196 /* HippyJSExecutor.mm in Sources */,
 				F4CEDF9C27D858C700583C9E /* NativeRenderDownloadTask.m in Sources */,
 				F4BD045827D5AE2500339A2C /* UIView+Render.mm in Sources */,
 				D806C5152872BC3C00E62992 /* one_shot_timer.cc in Sources */,
@@ -2086,7 +2086,6 @@
 				D86B3E61284E31EB007E729B /* animation_math.cc in Sources */,
 				F468DE832812A95200319196 /* HippySRSIMDHelpers.m in Sources */,
 				F4B938FB2840C93C00187AFA /* NativeRenderObjectWatefallItem.mm in Sources */,
-				F468DE782812A95200319196 /* HippyJSCErrorHandling.m in Sources */,
 				D3D52E972873E8D100740B66 /* hippy_screen_adapter.cc in Sources */,
 				F45D266328067B6900CAB185 /* NativeRenderTextSelection.m in Sources */,
 				F45D266C28067B6900CAB185 /* NativeRenderCollectionViewWaterfallLayout.m in Sources */,
@@ -2199,6 +2198,7 @@
 				D806C51C2872BC3C00E62992 /* task_runner.cc in Sources */,
 				F45D266D28067B6900CAB185 /* NativeRenderWaterfallItemViewManager.mm in Sources */,
 				F4A8424227D38CF900AEFC88 /* NativeRenderManager.mm in Sources */,
+				F45EF2D9287BC47C00D79828 /* NSObject+ToJSCtxValue.mm in Sources */,
 				F45D265E28067B6900CAB185 /* NativeRenderTextView.mm in Sources */,
 				F468DE842812A95200319196 /* HippyWebSocketManager.m in Sources */,
 				D86B3E62284E31EB007E729B /* animation.cc in Sources */,
@@ -2366,6 +2366,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 					"ENABLE_INSPECTOR=true",
+					"JS_USE_JSC=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
@@ -2406,6 +2407,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
 					"COCOAPODS=1",
+					"JS_USE_JSC=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",

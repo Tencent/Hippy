@@ -45,15 +45,9 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region atomic
-GlobalPackages_Add(atomic)
-target_link_libraries(${PROJECT_NAME} PRIVATE atomic)
-target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:atomic,INTERFACE_INCLUDE_DIRECTORIES>)
-# endregion
-
-# region jni common
-# TODO: will be removed when the JNI library is complete
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/include)
+# region jni
+GlobalPackages_Add(jni)
+target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
 # region source set

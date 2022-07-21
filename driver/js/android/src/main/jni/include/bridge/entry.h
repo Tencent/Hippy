@@ -106,5 +106,12 @@ void LoadInstance(JNIEnv* j_env,
                   jint j_offset,
                   jint j_length);
 
+void UnloadInstance(JNIEnv* j_env,
+                     __unused jobject j_obj,
+                     jlong j_runtime_id,
+                     jbyteArray j_byte_array,
+                     jint j_offset,
+                     jint j_length);
+
 }  // namespace bridge
 }  // namespace hippy

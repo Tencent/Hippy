@@ -1,13 +1,13 @@
 import 'package:voltron_renderer/voltron_renderer.dart';
 
+import '../inspector.dart';
+
 abstract class DevServerInterface {
-  // void reload();
+  void reload();
 
   String createResourceUrl(String resName);
 
-// void loadRemoteResource(String url, DevServerCallBack serverCallBack);
-
-// void setDevServerCallback(DevServerCallBack devServerCallback);
+  void setDevServerCallback(DevServerCallback devServerCallback);
 
   void attachToHost(RootWidgetViewModel viewModel);
 

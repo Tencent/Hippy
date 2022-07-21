@@ -77,6 +77,7 @@ class ListViewController extends BaseGroupController<ListViewModel> {
         NodeProps.kOnMomentumScrollEnd:
             ControllerMethodProp(setMomentumScrollEndEventEnable, false),
         NodeProps.kOnScrollEnable: ControllerMethodProp(setOnScrollEventEnable, false),
+        NodeProps.kOnEndReached: ControllerMethodProp(setOnEndReached, true),
         NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnable, true),
         NodeProps.kScrollEventThrottle: ControllerMethodProp(setScrollEventThrottle, 30),
         kShowScrollIndicator: ControllerMethodProp(setShowScrollIndicator, false),
@@ -133,6 +134,11 @@ class ListViewController extends BaseGroupController<ListViewModel> {
   @ControllerProps(NodeProps.kOnScrollEnable)
   void setOnScrollEventEnable(ListViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEventEnable = flag;
+  }
+
+  @ControllerProps(NodeProps.kOnEndReached)
+  void setOnEndReached(ListViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.endReachedEventEnable = true;
   }
 
   @ControllerProps(NodeProps.kScrollEnable)

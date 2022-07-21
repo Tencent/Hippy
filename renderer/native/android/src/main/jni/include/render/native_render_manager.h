@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <memory>
 
 #include "dom/dom_node.h"
@@ -43,6 +44,9 @@ class NativeRenderManager : public RenderManager {
 
   void CallFunction(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string& name, const DomArgument& param,
                     uint32_t cb_id) override;
+
+  void ReceivedEvent(std::weak_ptr<RootNode> root_node, uint32_t dom_id, const std::string& event_name,
+                     const std::shared_ptr<HippyValue>& params, bool capture, bool bubble);
 
   void SetDensity(float density) { density_ = density; }
   float GetDensity() { return density_; }
@@ -90,6 +94,7 @@ class NativeRenderManager : public RenderManager {
   std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 
   std::weak_ptr<DomManager> dom_manager_;
+  static std::atomic<uint32_t> unique_native_render_manager_id_;
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<NativeRenderManager>> persistent_map_;
 };
 }  // namespace dom

@@ -41,7 +41,7 @@ enum class CALL_FUNCTION_CB_STATE {
 
 class V8BridgeUtils {
  public:
-  using bytes = std::string;
+  using byte_string = std::string;
   using unicode_string_view = footstone::stringview::unicode_string_view;
   using u8string = unicode_string_view::u8string;
   using V8VMInitParam = hippy::napi::V8VMInitParam;
@@ -64,7 +64,7 @@ class V8BridgeUtils {
                               const RegisterFunction& call_native_cb,
                               const unicode_string_view& data_dir,
                               const unicode_string_view& ws_url);
-  static bool DestroyInstance(int64_t runtime_id,  const std::function<void()>& callback, bool is_reload);
+  static void DestroyInstance(int64_t runtime_id,  const std::function<void(bool)>& callback, bool is_reload);
   static bool RunScript(const std::shared_ptr<Runtime>& runtime,
                         const unicode_string_view& file_name,
                         bool is_use_code_cache,
@@ -87,7 +87,7 @@ class V8BridgeUtils {
   static void CallJs(const unicode_string_view& action,
                      int32_t runtime_id,
                      std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb,
-                     bytes buffer_data,
+                     byte_string buffer_data,
                      std::function<void()> on_js_runner);
   static void CallNative(hippy::napi::CBDataTuple* data,
                          const std::function<void(std::shared_ptr<Runtime>,
@@ -95,10 +95,9 @@ class V8BridgeUtils {
                                                   unicode_string_view,
                                                   unicode_string_view,
                                                   bool,
-                                                  bytes)>& cb);
-  static void LoadInstance(int32_t runtime_id, bytes&& buffer_data);
-  static void UnloadInstance(int32_t runtime_id,
-                              std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb);
+                                                  byte_string)>& cb);
+  static void LoadInstance(int32_t runtime_id, byte_string&& buffer_data);
+  static void UnloadInstance(int32_t runtime_id, byte_string&& buffer_data);
  private:
   static std::function<void(std::shared_ptr<Runtime>,
                             unicode_string_view,

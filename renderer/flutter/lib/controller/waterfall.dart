@@ -24,6 +24,7 @@ import 'package:flutter/widgets.dart';
 import '../common.dart';
 import '../controller.dart';
 import '../render.dart';
+import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
@@ -36,7 +37,6 @@ class WaterfallViewController extends BaseViewController<WaterfallViewModel> {
   static const String interItemSpacing = "interItemSpacing";
   static const String contentInset = "contentInset";
   static const String preloadItemNumber = "preloadItemNumber";
-  static const String onEndReached = "onEndReached";
   static const String containBannerView = "containBannerView";
   static const String containPullHeader = "containPullHeader";
   static const String containPullFooter = "containPullFooter";
@@ -61,6 +61,7 @@ class WaterfallViewController extends BaseViewController<WaterfallViewModel> {
     extraMap[contentInset] = ControllerMethodProp(setContentInset, null);
     extraMap[containBannerView] = ControllerMethodProp(setContainBannerView, false);
     extraMap[containPullFooter] = ControllerMethodProp(setContainPullFooter, false);
+    extraMap[NodeProps.kOnEndReached] = ControllerMethodProp(setOnEndReached, true);
     return extraMap;
   }
 
@@ -108,6 +109,11 @@ class WaterfallViewController extends BaseViewController<WaterfallViewModel> {
   @ControllerProps(containPullFooter)
   void setContainPullFooter(WaterfallViewModel renderViewModel, bool containPullFooter) {
     renderViewModel.containPullFooter = containPullFooter;
+  }
+
+  @ControllerProps(NodeProps.kOnEndReached)
+  void setOnEndReached(WaterfallViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.endReachedEventEnable = true;
   }
 
   @override
