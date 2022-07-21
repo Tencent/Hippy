@@ -192,7 +192,7 @@ bool Deserializer::ReadDenseJSArray(HippyValue& dom_value) {
   uint32_t num_properties;
   uint32_t expected_num_properties;
   uint32_t expected_length;
-  bool ret = ReadObjectProperties(SerializationTag::kEndDenseJSArray, num_properties);
+  bool ret = ReadObjectProperties(num_properties, SerializationTag::kEndDenseJSArray);
   if (!ret) return false;
   expected_num_properties = ReadVarint<uint32_t>();
   expected_length = ReadVarint<uint32_t>();
@@ -207,7 +207,7 @@ bool Deserializer::ReadJSObject(HippyValue& dom_value) {
   bool ret = true;
   uint32_t num_properties;
   HippyValueObjectType object;
-  ret = ReadObjectProperties(object, SerializationTag::kEndJSObject, num_properties);
+  ret = ReadObjectProperties(object, num_properties, SerializationTag::kEndJSObject);
   if (!ret) return false;
 
   uint32_t expected_num_properties;
@@ -322,8 +322,8 @@ bool Deserializer::ReadObject(HippyValue& value) {
   return ret;
 }
 
-bool Deserializer::ReadObjectProperties(HippyValueObjectType& property, SerializationTag end_tag, uint32_t& number_properties) {
-  uint32_t num_properties = 0;
+bool Deserializer::ReadObjectProperties(HippyValueObjectType& property, uint32_t& number_properties, SerializationTag end_tag) {
+  uint32_t number = 0;
   HippyValue::HippyValueObjectType object;
   bool ret = true;
 
@@ -332,7 +332,7 @@ bool Deserializer::ReadObjectProperties(HippyValueObjectType& property, Serializ
   while (PeekTag(tag)) {
     if (tag == end_tag) {
       ConsumeTag(end_tag);
-      number_properties = num_properties;
+      number_properties = number;
       return true;
     }
 
@@ -346,24 +346,24 @@ bool Deserializer::ReadObjectProperties(HippyValueObjectType& property, Serializ
       object.insert(std::pair<std::string, HippyValue>(key.ToStringChecked(), value));
       property = object;
     }
-    num_properties++;
+    number++;
   }
 
   return false;
 }
 
-bool Deserializer::ReadObjectProperties(SerializationTag end_tag, uint32_t& number_properties) {
-  uint32_t num_properties = 0;
+bool Deserializer::ReadObjectProperties(uint32_t& number_properties, SerializationTag end_tag) {
+  uint32_t number = 0;
 
   // Slow path.
   SerializationTag tag;
   while (PeekTag(tag)) {
     if (tag == end_tag) {
       ConsumeTag(end_tag);
-      number_properties = num_properties;
+      number_properties = number;
       return true;
     }
-    num_properties++;
+    number++;
   }
 
   return false;
