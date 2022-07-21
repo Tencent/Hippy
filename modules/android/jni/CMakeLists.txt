@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD 17)
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME}
-    INTERFACE include
+    PUBLIC include
     PRIVATE .)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
@@ -44,13 +44,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # region sources(.h header files are for IDE only, promote better integration)
 set(SOURCE_SET
     src/jni_env.cc
-    src/jni_env.h
     src/jni_register.cc
-    src/jni_register.h
     src/jni_utils.cc
-    src/jni_utils.h
-    src/scoped_java_ref.cc
-    src/scoped_java_ref.h)
+    src/scoped_java_ref.cc)
 set(PUBLIC_HEADER_SET
     include/jni/jni_env.h
     include/jni/jni_register.h
