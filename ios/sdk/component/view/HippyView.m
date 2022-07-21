@@ -540,7 +540,7 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
 }
 
 - (CALayerContentsFilter)magnificationFilter {
-    return kCAFilterLinear;
+    return kCAFilterNearest;
 }
 
 - (void)displayLayer:(CALayer *)layer {
