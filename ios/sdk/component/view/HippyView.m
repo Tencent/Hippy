@@ -535,6 +535,14 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
     }
 }
 
+- (CALayerContentsFilter)minificationFilter {
+    return kCAFilterLinear;
+}
+
+- (CALayerContentsFilter)magnificationFilter {
+    return kCAFilterLinear;
+}
+
 - (void)displayLayer:(CALayer *)layer {
     if (CGSizeEqualToSize(layer.bounds.size, CGSizeZero)) {
         return;
@@ -596,7 +604,8 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
             //  weakLayer.contents = (id)image.CGImage;
             strongLayer.contentsScale = contentImage.scale;
             strongLayer.needsDisplayOnBoundsChange = YES;
-            strongLayer.magnificationFilter = kCAFilterNearest;
+            strongLayer.magnificationFilter = [strongSelf magnificationFilter];
+            strongLayer.minificationFilter = [strongSelf minificationFilter];
 
             const BOOL isResizable = !UIEdgeInsetsEqualToEdgeInsets(contentImage.capInsets, UIEdgeInsetsZero);
 

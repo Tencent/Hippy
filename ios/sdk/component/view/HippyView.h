@@ -83,6 +83,13 @@
 - (BOOL)getLayerContentForColor:(UIColor *)color completionBlock:(void (^)(UIImage *))contentBlock;
 
 /**
+ * CALayerContents Filter
+ * Default is kCAFilterLinear
+ */
+- (CALayerContentsFilter)minificationFilter;
+- (CALayerContentsFilter)magnificationFilter;
+
+/**
  * Border radii.
  */
 @property (nonatomic, assign) CGFloat borderRadius;
