@@ -96,12 +96,14 @@ import icon from './qb_icon_new.png';
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android`    |
+| bounces | 是否开启回弹效果，默认 `true`， Android `2.14.1` 版本后支持该属性，老版本使用 `overScrollEnabled` | `boolean`                                                  | `Android`、`iOS`    |
+| overScrollEnabled | 是否开启回弹效果，默认 `true`，3.0 版本后即将废弃 | `boolean`                                                  | `Android`    |
 | getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS、hippy-react-web` |
-| getRowStyle           | 设置`ListViewItem`容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `Android、iOS、hippy-react-web` |
+| getRowStyle           | 设置 `ListViewItem` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `Android、iOS、hippy-react-web` |
+| getHeaderStyle           | 设置 `PullHeader` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `PullHeader` 宽度。`最低支持版本2.14.1`              | `() => styleObject`                                    | `Android、iOS` |
+| getFooterStyle           | 设置 `PullFooter` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `PullFooter` 宽度。`最低支持版本2.14.1`              | `() => styleObject`                                    | `Android、iOS` |
 | getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `(index: number) => number`                                    | `Android、iOS、hippy-react-web` |
-| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局，iOS 暂不支持横向 `ListView`| `boolean \| undefined`   | `Android、hippy-react-web` |
+| horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 暂不支持横向 `ListView`| `boolean \| undefined`   | `Android、hippy-react-web` |
 | initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `Android、iOS` |
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `Android、iOS`    |
 | onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web` |
@@ -327,6 +329,7 @@ import icon from './qb_icon_new.png';
 | multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `Android、iOS、hippy-react-web` |
 | numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、hippy-react-web` |
 | onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、hippy-react-web` |
+| onFocus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
 | onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
@@ -357,13 +360,19 @@ import icon from './qb_icon_new.png';
 
 ### getValue
 
-`() => Promise<string>` 获得文本框中的内容。
+`() => Promise<string>` 获得文本框中的内容。注意，由于是异步回调，收到回调时值可能已经改变。
 
 ### setValue
 
 `(value: string) => void` 设置文本框内容。
 
 > * value: string - 文本框内容
+
+### isFocused
+
+`最低支持版本 2.14.1。hippy-react-web 不支持。`
+
+`() => Promise<boolean>` 获得文本框的焦点状态。注意，由于是异步回调，收到回调时值可能已经改变。
 
 ---
 
@@ -373,22 +382,6 @@ import icon from './qb_icon_new.png';
 
 文本组件。
 
-## 注意事项
-
-需要注意的是，在 `<Text>` 中拼接字符串时，推荐使用 ES6 的[模板字符串](//developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals)：
-
-```jsx
-<Text>{ `现在时间是 ${new Date().toString()}` }</Text> // ✅
-```
-
-而不是
-
-```jsx
-<Text>现在时间是 { new Date().toString() }</Text> // ❌
-```
-
-后者有可能在数据更新时不会更新界面。
-
 ## 属性
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
@@ -397,17 +390,17 @@ import icon from './qb_icon_new.png';
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS、hippy-react-web` |
 | onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS、hippy-react-web` |
 | onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `Android、iOS、hippy-react-web` |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum(head, middle, tail, clip)` | `Android 仅支持 tail 属性，iOS 全支持、hippy-react-web(clip、ellipsis)` |
+| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 `default: tail` | `enum(head, middle, tail, clip)` | `Android(版本 2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)、hippy-react-web(clip、ellipsis)` |
 | onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web` |
 | onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web` |
 | onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
 | onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
 
 * ellipsizeMode 的参数含义：
-  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（仅iOS支持）
-  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（仅iOS支持）
-  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（仅iOS支持）
-  * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
+  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS）
+  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（Android 2.14.1 以上、iOS全支持）
+  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（Android 2.14.1 以上、iOS全支持）
+  * `tail`（默认值） - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
 
 ---
 
