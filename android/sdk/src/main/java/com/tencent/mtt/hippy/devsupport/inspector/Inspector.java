@@ -58,6 +58,9 @@ public class Inspector implements BatchListener {
     if (domManager != null) {
       domManager.setOnBatchListener(null);
     }
+    for (InspectorDomain domain: mDomainMap.values()) {
+      domain.onDestroy();
+    }
   }
 
   public boolean dispatchReqFromFrontend(HippyEngineContext context, String msg) {
