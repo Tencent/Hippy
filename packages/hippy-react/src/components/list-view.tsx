@@ -108,6 +108,22 @@ interface ListViewProps {
   getRowStyle?: (index: number) => HippyTypes.Style;
 
   /**
+   * Returns the style for PullHeader.
+   *
+   * @param {number} index - Index Of data.
+   * @returns {Object}
+   */
+  getHeaderStyle?: () => HippyTypes.Style;
+
+  /**
+   * Returns the style for PullFooter.
+   *
+   * @param {number} index - Index Of data.
+   * @returns {Object}
+   */
+  getFooterStyle?: () => HippyTypes.Style;
+
+  /**
    * Specfic the key of row, for better data diff
    * More info: https://reactjs.org/docs/lists-and-keys.html
    *
@@ -352,6 +368,8 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       renderPullFooter,
       getRowType,
       getRowStyle,
+      getHeaderStyle,
+      getFooterStyle,
       getRowKey,
       dataSource,
       initialListSize,
@@ -373,8 +391,8 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
         initialListReady,
       } = this.state;
       let { numberOfRows } = this.props;
-      const pullHeader = this.getPullHeader(renderPullHeader, onHeaderPulling, onHeaderReleased);
-      const pullFooter = this.getPullFooter(renderPullFooter, onFooterPulling, onFooterReleased);
+      const pullHeader = this.getPullHeader(renderPullHeader, onHeaderPulling, onHeaderReleased, getHeaderStyle);
+      const pullFooter = this.getPullFooter(renderPullFooter, onFooterPulling, onFooterReleased, getFooterStyle);
       if (!numberOfRows && dataSource) {
         numberOfRows = dataSource.length;
       }
@@ -457,11 +475,18 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     renderPullHeader: undefined | (() => React.ReactElement),
     onHeaderPulling: undefined | (() => void),
     onHeaderReleased: undefined | (() => void),
+    getHeaderStyle: undefined | (() => any),
   ) {
     let pullHeader: JSX.Element | null = null;
+    let style = {};
+    if (typeof getHeaderStyle === 'function') {
+      style = getHeaderStyle();
+    }
     if (typeof renderPullHeader === 'function') {
       pullHeader = (
         <PullHeader
+          // @ts-ignore
+          style={style}
           key={'pull-header'}
           ref={(ref) => {
             this.pullHeader = ref;
@@ -480,11 +505,18 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
     renderPullFooter: undefined | (() => React.ReactElement),
     onFooterPulling: undefined | (() => void),
     onFooterReleased: undefined | (() => void),
+    getFooterStyle: undefined | (() => any),
   ) {
     let pullFooter: JSX.Element | null = null;
+    let style = {};
+    if (typeof getFooterStyle === 'function') {
+      style = getFooterStyle();
+    }
     if (typeof renderPullFooter === 'function') {
       pullFooter = (
         <PullFooter
+          // @ts-ignore
+          style={style}
           key={'pull-footer'}
           ref={(ref) => {
             this.pullFooter = ref;

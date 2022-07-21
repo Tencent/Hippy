@@ -299,7 +299,7 @@ Please refer to the Android development documentation for details.
 
 ### isFocused
 
-`Minimum supported version 2.14.2. hippy-react-web does not support.`
+`Minimum supported version 2.14.1. hippy-react-web does not support.`
 
 `() => Promise<boolean>`Get the focus status of the input box. Caution, value may be changed since the callback is asynchronous.
 
@@ -328,17 +328,19 @@ Show the text. All the same as [p](hippy-vue/components.md?id=p)。
 
 Hippy's key features, high performance reusable list components, on the native side will be mapped to `ListView`, contains all abilities of `ListView`. The first layer inside can only contain `<li>`.
 
+!> Android replaced `ListView` with `RecyclerView` after `2.14.0`
+
 ## Attributes
 
 | Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| horizontal       | Specifies whether `ul` is laid out horizontally. `default: undefined` | `any`   | `Android`    |
+| horizontal       | Specifies whether `ul` is laid out horizontally. `default: undefined`, Android can set `false` after `2.14.1`. iOS not supported horizontal `ul`. | `boolean`  \| `undefined`   | `Android`    |
 | initialContentOffset  | The initial offset value. In the list of initialization can specify the scroll distance, avoid flashing caused by series method of scrollT after oinitialization. Android supports after version ` 2.8.0 `  | `number`  | `Android、iOS` |
-| bounces | Whether to open the rebound effect, default `true` | `boolean`                                                  | `iOS`    |
-| overScrollEnabled | Whether to open the rebound effect, default `true` | `boolean`                                                  | `Android`    |
+| bounces | Whether to open the rebound effect, default `true`, Android supports this attribute after `2.14.1`, `overScrollEnabled` can be used in old version | `boolean`                                                  | `Android, iOS`    |
+| overScrollEnabled | Whether to open the rebound effect, default `true`, it will be deprecated in version 3.0 | `boolean`                                                  | `Android`    |
 | rowShouldSticky  | Sets whether `ul` needs to turn on the hover ability, used in conjunction with `li` 's `sticky`. `default: false` | `boolean`  | `Android、iOS`
 | scrollEnabled    | Whether the slide function is on.`default: true` | `boolean` | `Android、iOS` |
-| scrollEventThrottle   | Specify the sliding event callback frequency, the incoming value specifies how many milliseconds (ms) components will call a `onScroll` callback event, the default is 200 ms | `number`                                                    | `Android、iOS`    |
+| scrollEventThrottle   | Specify the sliding event callback frequency, the incoming value specifies how many milliseconds (ms) components will call a `onScroll` callback event, the default is 200 ms | `number`                                                    | `Android, iOS`    |
 | showScrollIndicator   | Whether scroll bars are displayed. `default: true` | `boolean`                                                   | `iOS`    |
 | preloadItemNumber     | Specifies the number of rows that will call the `endReached` function when the list scrolls.| `number` | `Android、iOS` |
 | exposureEventEnabled | The switch to enable Android exposure ability, if you want to use the `appear` and `disappear` related events, Android needs to set the switch (iOS need not set), `default: true` | `boolean` | `Android`
