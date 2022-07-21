@@ -237,12 +237,13 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
             mThirdPartyAdapter.onRuntimeDestroy();
         }
 
+        boolean isReload = msg.arg1 == DESTROY_RELOAD;
         @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> destroyCallback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
         mHippyBridge.destroy(new NativeCallback(mHandler) {
             @Override
             public void Call(long result, Message message, String action, String reason) {
                 boolean success = result == 0;
-                mHippyBridge.onDestroy(msg.arg1 == DESTROY_RELOAD);
+                mHippyBridge.onDestroy(isReload);
                 if (destroyCallback != null) {
                     RuntimeException exception = null;
                     if (!success) {
