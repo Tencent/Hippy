@@ -343,6 +343,7 @@ import icon from './qb_icon_new.png';
 | underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性） | [`color`](style/color.md)                                                      | `Android` |
 | value                 | 指定 `TextInput` 组件的值。                                  | `string`                                                     | `Android、iOS、hippy-react-web` |
 | autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `Android、iOS、hippy-react-web` |
+| textBreakStrategy | 设置Android API 23及以上系统的文本换行策略。 | `enum(simple, highQuality, balanced)` | `Android(版本 2.14.2以上)` |
 
 ## 方法
 
@@ -395,6 +396,7 @@ import icon from './qb_icon_new.png';
 | onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web` |
 | onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
 | onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
+| textBreakStrategy | 设置Android API 23及以上系统的文本换行策略。 | `enum(simple, highQuality, balanced)` | `Android(版本 2.14.2以上)` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS）

@@ -148,14 +148,49 @@
           </button>
         </div>
       </div>
+      <label v-if="Platform === 'android'">textBreakStrategy={{ textBreakStrategy }}</label>
+      <div
+        v-if="Platform === 'android'"
+        class="p-demo-content"
+      >
+        <p
+          :textBreakStrategy="textBreakStrategy"
+          style="border-width: 1; border-color: gray;"
+        >
+          {{ longText }}
+        </p>
+        <div class="button-bar">
+          <button
+            class="button"
+            @click="() => changeTextBreakStrategy('simple')"
+          >
+            <span>simple</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeTextBreakStrategy('highQuality')"
+          >
+            <span>highQuality</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeTextBreakStrategy('balanced')"
+          >
+            <span>balanced</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
+
 export default {
   data() {
     return {
+      Platform: Vue.Native.Platform,
       textShadowIndex: 0,
       isClicked: false,
       isPressing: false,
@@ -181,6 +216,9 @@ export default {
         SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
         w2QwqipkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefw
         eIFQU0EfnGDRoQAAAAASUVORK5CYII=`,
+      longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is '
+        + 'the name of a town on Anglesey, an island of Wales.',
+      textBreakStrategy: 'simple',
     };
   },
   methods: {
@@ -225,6 +263,9 @@ export default {
     },
     changeMode(mode) {
       this.textMode.ellipsizeMode = mode;
+    },
+    changeTextBreakStrategy(strategy) {
+      this.textBreakStrategy = strategy;
     },
   },
 };

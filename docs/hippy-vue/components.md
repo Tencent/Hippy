@@ -258,6 +258,7 @@
 | underline-color-android  | `input` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性）  `最低支持版本2.13.4`      | [`color`](style/color.md)                                                      | `Android` |
 | returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`              | `Android、iOS`     |
 | value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `Android、iOS`     |
+| textBreakStrategy | 设置Android API 23及以上系统的文本换行策略。 | `enum(simple, highQuality, balanced)` | `Android(版本 2.14.2以上)` |
 
 ## 事件
 
@@ -425,6 +426,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `Android、iOS`    |
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS`    |
 | ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。`default: tail` | `enum(head, middle, tail, clip)` | `Android(版本2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)` |
+| textBreakStrategy | 设置Android API 23及以上系统的文本换行策略。 | `enum(simple, highQuality, balanced)` | `Android(版本 2.14.2以上)` |
 
 * ellipsizeMode 的参数含义：
   * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS全支持）

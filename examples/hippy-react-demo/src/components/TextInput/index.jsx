@@ -5,7 +5,10 @@ import {
   StyleSheet,
   View,
   Text,
+  Platform,
 } from '@hippy/react';
+
+const DEFAULT_VALUE = 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is the name of a town on Anglesey, an island of Wales.';
 
 const styles = StyleSheet.create({
   container_style: {
@@ -18,6 +21,14 @@ const styles = StyleSheet.create({
     color: '#242424',
     height: 30,
     lineHeight: 30,
+  },
+  input_style_block: {
+    height: 100,
+    lineHeight: 20,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: 'gray',
+    underlineColorAndroid: 'transparent',
   },
   itemTitle: {
     alignItems: 'flex-start',
@@ -34,13 +45,21 @@ const styles = StyleSheet.create({
   itemContent: {
     marginTop: 10,
   },
+  buttonBar: {
+    flexDirection: 'row',
+    marginTop: 10,
+    flexGrow: 1,
+  },
   button: {
     width: 200,
+    height: 24,
     borderColor: '#4c9afa',
     borderWidth: 1,
     borderStyle: 'solid',
     marginTop: 5,
     marginBottom: 5,
+    flexGrow: 1,
+    flexShrink: 1,
   },
 });
 
@@ -85,8 +104,12 @@ export default class TextInputExpo extends Component {
     });
   }
 
+  changetTextBreakStrategy(textBreakStrategy) {
+    this.setState({ textBreakStrategy });
+  }
+
   render() {
-    const { textContent, event, isFocused } = this.state;
+    const { textContent, event, isFocused, textBreakStrategy } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text>{title}</Text>
@@ -144,6 +167,28 @@ export default class TextInputExpo extends Component {
           placeholder="maxLength=5"
           maxLength={5}
         />
+        {Platform.OS === 'android' && (
+          <>
+            {renderTitle('textBreakStrategy')}
+            <TextInput
+              style={styles.input_style_block}
+              textBreakStrategy={textBreakStrategy}
+              defaultValue={DEFAULT_VALUE} />
+            <Text style={{}}>{`textBreakStrategy: ${textBreakStrategy}`}</Text>
+            <View style={styles.buttonBar}>
+              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('simple')}>
+                <Text style={styles.buttonText}>simple</Text>
+              </View>
+              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('highQuality')}>
+                <Text style={styles.buttonText}>highQuality</Text>
+              </View>
+              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('balanced')}>
+                <Text style={styles.buttonText}>balanced</Text>
+              </View>
+            </View>
+          </>
+        )}
+        <View style={{ height: 50 }} />
       </ScrollView>
     );
   }

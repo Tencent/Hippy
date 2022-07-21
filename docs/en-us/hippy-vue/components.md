@@ -259,6 +259,7 @@ Please refer to the Android development documentation for details.
 | underline-color-android  |  The color of the underline under `input`. Can be set to `transparent` to remove the bottom line (can also be set to the Style property) `Minimum supported version 2.13.4`.  | [`color`](style/color.md)                                                      | `Android` |
 | returnKeyType         | Specifies the style of the soft keyboard's Enter key displayed.   | `enum(done, go, next, search, send)`              | `Android、iOS`     |
 | value                 | Specifies the value of the `input` component.                        | `string`                                                     | `Android、iOS`     |
+| textBreakStrategy | Set text break strategy on Android API 23 and above. | `enum(simple, highQuality, balanced)` | `Android(minimum supported version 2.14.2)` |
 
 ## Events
 
@@ -425,6 +426,7 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | numberOfLines | Used to trim text when it is too long. The total number of lines, including line breaks caused by folding, will not exceed the limit of this property. | `number`                                  | `Android、iOS`    |
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS`    |
 | ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android( minimum supported version 2.14.1, earlier version only supported tail)、iOS(full supported)、hippy-react-web(clip、ellipsis)` |
+| textBreakStrategy | Set text break strategy on Android API 23 and above. | `enum(simple, highQuality, balanced)` | `Android(minimum supported version 2.14.2)` |
 
 * The meaning of parameters of ellipsizeMode：
   * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)

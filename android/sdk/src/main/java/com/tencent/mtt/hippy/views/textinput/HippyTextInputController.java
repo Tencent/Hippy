@@ -25,6 +25,7 @@ import android.os.MessageQueue;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
@@ -41,6 +42,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.dom.node.TextExtra;
+import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -437,6 +439,23 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
       view.setGravityVertical(Gravity.CENTER_VERTICAL);
     }
 
+  }
+
+  @HippyControllerProps(name = NodeProps.TEXT_BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = TextNode.STRATEGY_SIMPLE)
+  public void setTextBreakStrategy(HippyTextInput view, String strategy) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      int strategyInt;
+      if (strategy == null || TextNode.STRATEGY_SIMPLE.equals(strategy)) {
+        strategyInt = Layout.BREAK_STRATEGY_SIMPLE;
+      } else if (TextNode.STRATEGY_HIGH_QUALITY.equals(strategy)) {
+        strategyInt = Layout.BREAK_STRATEGY_HIGH_QUALITY;
+      } else if (TextNode.STRATEGY_BALANCED.equals(strategy)) {
+        strategyInt = Layout.BREAK_STRATEGY_BALANCED;
+      } else {
+        throw new RuntimeException("Invalid textBreakStrategy: " + strategy);
+      }
+      view.setBreakStrategy(strategyInt);
+    }
   }
 
   @Override

@@ -25,6 +25,8 @@ import android.os.Build;
 import android.text.*;
 import android.text.style.*;
 
+import androidx.annotation.RequiresApi;
+
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
@@ -51,9 +53,13 @@ public class TextNode extends StyleNode {
   public final static String MODE_MIDDLE = "middle";
   public final static String MODE_TAIL = "tail";
   public final static String MODE_CLIP = "clip";
+  public final static String STRATEGY_SIMPLE = "simple";
+  public final static String STRATEGY_HIGH_QUALITY = "highQuality";
+  public final static String STRATEGY_BALANCED = "balanced";
   CharSequence mText;
   protected int mNumberOfLines = UNSET;
   private String mEllipsizeMode = MODE_TAIL;
+  private String mTextBreakStrategy = STRATEGY_SIMPLE;
 
   protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
   private float mLineHeight = UNSET;
@@ -421,7 +427,7 @@ public class TextNode extends StyleNode {
     markUpdated();
   }
 
-  @HippyControllerProps(name = NodeProps.ELLIPSIZE_MODE, defaultType = HippyControllerProps.STRING, defaultString = "tail")
+  @HippyControllerProps(name = NodeProps.ELLIPSIZE_MODE, defaultType = HippyControllerProps.STRING, defaultString = MODE_TAIL)
   public void setEllipsizeMode(String mode) {
     if (mode == null) {
       mode = MODE_TAIL;
@@ -432,6 +438,24 @@ public class TextNode extends StyleNode {
         markUpdated();
       } else {
         throw new RuntimeException("Invalid ellipsizeMode: " + mode);
+      }
+    }
+  }
+
+  @HippyControllerProps(name = NodeProps.TEXT_BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = STRATEGY_SIMPLE)
+  public void setTextBreakStrategy(String strategy) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      return;
+    }
+    if (strategy == null) {
+      strategy = STRATEGY_SIMPLE;
+    }
+    if (!mTextBreakStrategy.equals(strategy)) {
+      if (STRATEGY_SIMPLE.equals(strategy) || STRATEGY_HIGH_QUALITY.equals(strategy) || STRATEGY_BALANCED.equals(strategy)) {
+        mTextBreakStrategy = strategy;
+        markUpdated();
+      } else {
+        throw new RuntimeException("Invalid textBreakStrategy: " + strategy);
       }
     }
   }
@@ -676,17 +700,41 @@ public class TextNode extends StyleNode {
     return mLineSpacingMultiplier <= 0 ? 1.0f : mLineSpacingMultiplier;
   }
 
-  private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width) {
+  @RequiresApi(api = Build.VERSION_CODES.M)
+  private int getBreakStrategy() {
+    final String strategy = mTextBreakStrategy;
+    if (strategy == null || TextNode.STRATEGY_SIMPLE.equals(strategy)) {
+      return Layout.BREAK_STRATEGY_SIMPLE;
+    } else if (TextNode.STRATEGY_HIGH_QUALITY.equals(strategy)) {
+      return Layout.BREAK_STRATEGY_HIGH_QUALITY;
+    } else if (TextNode.STRATEGY_BALANCED.equals(strategy)) {
+      return Layout.BREAK_STRATEGY_BALANCED;
+    } else {
+      throw new RuntimeException("Invalid textBreakStrategy: " + strategy);
+    }
+  }
+
+  private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width,
+                                         boolean detectRtl) {
     Layout.Alignment textAlign = mTextAlign;
-    if (I18nUtil.isRTL()) {
+    if (detectRtl && I18nUtil.isRTL()) {
       BidiFormatter bidiFormatter = BidiFormatter.getInstance();
       if (bidiFormatter.isRtl(source.toString()) && textAlign == Layout.Alignment.ALIGN_OPPOSITE) {
         textAlign = Layout.Alignment.ALIGN_NORMAL;
       }
     }
 
-    return new StaticLayout(source, paint, width, textAlign, getLineSpacingMultiplier(), mLineSpacingExtra,
-        true);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      return StaticLayout.Builder.obtain(source, 0, source.length(), paint, width)
+        .setAlignment(textAlign)
+        .setLineSpacing(mLineSpacingExtra, getLineSpacingMultiplier())
+        .setIncludePad(true)
+        .setBreakStrategy(getBreakStrategy())
+        .build();
+    } else {
+      return new StaticLayout(source, paint, width, textAlign, getLineSpacingMultiplier(),
+        mLineSpacingExtra, true);
+    }
   }
 
   protected Layout createLayout(float width, FlexMeasureMode widthMode) {
@@ -704,12 +752,11 @@ public class TextNode extends StyleNode {
     boolean unconstrainedWidth = widthMode == FlexMeasureMode.UNDEFINED || width < 0;
     if (boring == null && (unconstrainedWidth || (!FlexConstants.isUndefined(desiredWidth)
         && desiredWidth <= width))) {
-      layout = new StaticLayout(text, textPaint, (int)Math.ceil(desiredWidth), mTextAlign, getLineSpacingMultiplier(),
-        mLineSpacingExtra, true);
+      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(desiredWidth), false);
     } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
       layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
     } else {
-      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width));
+      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width), true);
     }
     if (mNumberOfLines != UNSET && mNumberOfLines > 0) {
       if (layout.getLineCount() > mNumberOfLines) {
@@ -762,7 +809,7 @@ public class TextNode extends StyleNode {
       truncated = formerLines == null ? lastLine : TextUtils.concat(formerLines, newLine ? "\n" : "", lastLine);
     }
 
-    return buildStaticLayout(truncated, paint, width);
+    return buildStaticLayout(truncated, paint, width, true);
   }
 
   private float getLineHeight(Layout layout, int line) {
