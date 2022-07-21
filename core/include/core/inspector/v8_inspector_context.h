@@ -38,7 +38,7 @@ class V8InspectorContext {
 
   inline void SetSession(std::unique_ptr<v8_inspector::V8InspectorSession> session) { session_ = std::move(session); }
   inline void SetBridge(std::shared_ptr<Bridge> bridge) { if (channel_) { channel_->SetBridge(std::move(bridge));} }
-  inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
+  inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = std::move(scope); }
   inline std::shared_ptr<Scope> GetScope() { return scope_; }
   inline V8ChannelImpl* GetV8Channel() { return channel_.get(); }
   inline int32_t GetContextGroupId() { return context_group_id_; }

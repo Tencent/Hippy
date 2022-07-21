@@ -45,14 +45,11 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   ~V8InspectorClientImpl() = default;
 
   void CreateInspector(const std::shared_ptr<Scope>& scope);
-  std::shared_ptr<V8InspectorContext> CreateInspectorContext(const std::shared_ptr<Bridge>& bridge);
-  void DestroyInspectorContext(const std::shared_ptr<V8InspectorContext> &inspector_context);
-  inline void SetReloadInspectorContext(std::shared_ptr<V8InspectorContext> inspector_context) { reload_inspector_context_ = inspector_context; }
-  inline std::shared_ptr<V8InspectorContext> GetReloadInspectorContext() { return reload_inspector_context_; }
+  std::shared_ptr<V8InspectorContext> CreateInspectorContext(const std::shared_ptr<Scope>& scope, const std::shared_ptr<Bridge>& bridge);
+  void DestroyInspectorContext(bool is_reload, const std::shared_ptr<V8InspectorContext> &inspector_context);
 
   void SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context, const unicode_string_view& params);
-  void CreateContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
-  void DestroyContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
+
   v8::Local<v8::Context> ensureDefaultContextInGroup(
       int contextGroupId) override;
 
@@ -61,6 +58,9 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   void runIfWaitingForDebugger(int contextGroupId) override;
 
  private:
+  void CreateContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
+  void DestroyContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
+
   std::unique_ptr<v8_inspector::V8Inspector> inspector_;
   std::weak_ptr<JavaScriptTaskRunner> js_runner_;
   std::shared_ptr<V8InspectorContext> reload_inspector_context_;

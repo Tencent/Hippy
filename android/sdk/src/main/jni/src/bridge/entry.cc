@@ -478,16 +478,8 @@ jlong InitInstance(JNIEnv* j_env,
         auto inspector_client = runtime->GetEngine()->GetInspectorClient();
         if (inspector_client) {
           inspector_client->CreateInspector(scope);
-          auto inspector_context = inspector_client->GetReloadInspectorContext();
-          if (inspector_context) {
-            TDF_BASE_DLOG(INFO) << "inspector is reload and reuse context";
-            inspector_context->SetBridge(runtime->GetBridge());
-          } else {
-            inspector_context = inspector_client->CreateInspectorContext(runtime->GetBridge());
-          }
-          inspector_context->SetScope(scope);
+          auto inspector_context = inspector_client->CreateInspectorContext(scope, runtime->GetBridge());
           runtime->SetInspectorContext(inspector_context);
-          inspector_client->CreateContext(inspector_context);
         }
       }
 #endif
@@ -605,13 +597,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
         auto inspector_client = runtime->GetEngine()->GetInspectorClient();
         if (inspector_client) {
           auto inspector_context = runtime->GetInspectorContext();
-          inspector_client->DestroyContext(inspector_context);
-          // preserve inspector_context for reload reuse
-          inspector_client->SetReloadInspectorContext(is_reload ? inspector_context: nullptr);
-          if (!is_reload) {
-            inspector_client->DestroyInspectorContext(inspector_context);
-          }
-          inspector_context->SetScope(nullptr);
+          inspector_client->DestroyInspectorContext(is_reload, inspector_context);
         }
     } else {
       runtime->GetScope()->WillExit();

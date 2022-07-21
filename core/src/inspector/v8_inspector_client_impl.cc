@@ -40,19 +40,35 @@ void V8InspectorClientImpl::CreateInspector(const std::shared_ptr<Scope>& scope)
   inspector_ = v8_inspector::V8Inspector::create(isolate, this);
 }
 
-std::shared_ptr<V8InspectorContext> V8InspectorClientImpl::CreateInspectorContext(const std::shared_ptr<Bridge>& bridge) {
-  auto context_group_id = context_group_count_.fetch_add(1, std::memory_order_relaxed);
-  auto channel = std::make_unique<V8ChannelImpl>(bridge);
-  auto session = inspector_->connect(context_group_id, channel.get(), v8_inspector::StringView());
-  auto inspector_context = std::make_shared<V8InspectorContext>(context_group_id, std::move(channel), std::move(session));
-  std::lock_guard<std::mutex> lock(inspector_context_mutex_);
-  inspector_context_map_[context_group_id] = inspector_context;
+std::shared_ptr<V8InspectorContext> V8InspectorClientImpl::CreateInspectorContext(const std::shared_ptr<Scope>& scope, const std::shared_ptr<Bridge>& bridge) {
+  auto inspector_context = reload_inspector_context_;
+  if (inspector_context) {
+    TDF_BASE_DLOG(INFO) << "reload need inspector reuse context, session and change bridge";
+    inspector_context->SetBridge(bridge);
+  } else {
+    auto context_group_id = context_group_count_.fetch_add(1, std::memory_order_relaxed);
+    auto channel = std::make_unique<V8ChannelImpl>(bridge);
+    auto session = inspector_->connect(context_group_id, channel.get(), v8_inspector::StringView());
+    inspector_context = std::make_shared<V8InspectorContext>(context_group_id, std::move(channel), std::move(session));
+    std::lock_guard<std::mutex> lock(inspector_context_mutex_);
+    inspector_context_map_[context_group_id] = inspector_context;
+  }
+  inspector_context->SetScope(scope);
+  // enter v8 context
+  CreateContext(inspector_context);
   return inspector_context;
 }
 
-void V8InspectorClientImpl::DestroyInspectorContext(const std::shared_ptr<V8InspectorContext> &inspector_context) {
-  std::lock_guard<std::mutex> lock(inspector_context_mutex_);
-  inspector_context_map_.erase(inspector_context->GetContextGroupId());
+void V8InspectorClientImpl::DestroyInspectorContext(bool is_reload, const std::shared_ptr<V8InspectorContext> &inspector_context) {
+  // exit v8 context
+  DestroyContext(inspector_context);
+  // preserve inspector_context for reload reuse
+  reload_inspector_context_ = is_reload ? inspector_context: nullptr;
+  if (!is_reload) {
+    std::lock_guard<std::mutex> lock(inspector_context_mutex_);
+    inspector_context_map_.erase(inspector_context->GetContextGroupId());
+  }
+  inspector_context->SetScope(nullptr);
 }
 
 void V8InspectorClientImpl::CreateContext(const std::shared_ptr<V8InspectorContext>& inspector_context) {
