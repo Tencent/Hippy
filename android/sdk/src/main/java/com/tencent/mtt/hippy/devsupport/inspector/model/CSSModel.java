@@ -261,11 +261,11 @@ public class CSSModel {
     return 0;
   }
 
-  private static int getIntegerValue(String value) {
+  private static long getLongValue(String value) {
     try {
-      return Integer.parseInt(value);
+      return Long.parseLong(value);
     } catch (Exception e) {
-      LogUtils.e(TAG, "getIntegerValue, Exception: ", e);
+      LogUtils.e(TAG, "getLongValue, Exception: ", e);
     }
     return 0;
   }
@@ -397,7 +397,7 @@ public class CSSModel {
       return getEnumValue(transformEnumMap.get(key), value);
     }
     if (transformColorSet.contains(key)) {
-      return getIntegerValue(value);
+      return getLongValue(value);
     }
     return value;
   }
