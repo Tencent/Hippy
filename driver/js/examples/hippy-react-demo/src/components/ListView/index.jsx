@@ -4,6 +4,7 @@ import {
   View,
   StyleSheet,
   Text,
+  Platform,
 } from '@hippy/react';
 
 const STYLE_LOADING = 100;
@@ -106,6 +107,7 @@ export default class ListExample extends React.Component {
     this.state = {
       dataSource: mockDataArray,
       fetchingDataFlag: false,
+      horizontal: undefined,
     };
     this.delText = 'Delete';
     this.mockFetchData = this.mockFetchData.bind(this);
@@ -139,10 +141,6 @@ export default class ListExample extends React.Component {
       dataSource: dataSource.concat([{ style: STYLE_LOADING }]),
     });
     const newData = await this.mockFetchData();
-    const lastLineItem = dataSource[dataSource.length - 1];
-    if (lastLineItem && lastLineItem.style === STYLE_LOADING) {
-      dataSource.pop();
-    }
     const newDataSource = dataSource.concat(newData);
     this.setState({ dataSource: newDataSource, fetchingDataFlag: false });
   }
@@ -172,10 +170,11 @@ export default class ListExample extends React.Component {
   }
   // configure listItem style if horizontal listview is set
   getRowStyle() {
-    return {
+    const { horizontal } = this.state;
+    return horizontal ? {
       width: 100,
       height: 50,
-    };
+    } : {};
   }
 
   getRowKey(index) {
@@ -201,7 +200,7 @@ export default class ListExample extends React.Component {
         styleUI = <Text style={styles.loading}>Loading now...</Text>;
         break;
       default:
-        // pass
+      // pass
     }
     return (
       <View style={styles.container}
@@ -228,16 +227,21 @@ export default class ListExample extends React.Component {
 
   mockFetchData() {
     return new Promise((resolve) => {
-      setTimeout(() => {
-        return resolve(mockDataArray);
-      }, 600);
+      setTimeout(() => resolve(mockDataArray), 600);
+    });
+  }
+
+  changeDirection() {
+    this.setState({
+      horizontal: this.state.horizontal === undefined ? true : undefined,
     });
   }
 
   render() {
-    const { dataSource } = this.state;
+    const { dataSource, horizontal } = this.state;
     return (
-      <ListView
+      <View style={{ flex: 1, collapsable: false }}>
+        <ListView
           onTouchDown={(event) => {
             console.log('onTouchDown ListView', event.target.nodeId, event.currentTarget.nodeId);
           }}
@@ -252,28 +256,55 @@ export default class ListExample extends React.Component {
             // return false means trigger bubble
             return true;
           }}
-        bounces={true}
-        overScrollEnabled={true}
-        // horizontal ListView  flag（only Android support）
-        horizontal={undefined}
-        style={{ flex: 1, backgroundColor: '#ffffff' }}
-        numberOfRows={dataSource.length}
-        renderRow={this.getRenderRow}
-        onEndReached={this.onEndReached}
-        getRowType={this.getRowType}
-        onDelete={this.onDelete}
-        delText={this.delText}
-        editable={true}
-        // configure listItem style if horizontal listview is set
-        // getRowStyle={this.getRowStyle}
-        getRowKey={this.getRowKey}
-        initialListSize={15}
-        rowShouldSticky={this.rowShouldSticky}
-        onAppear={this.onAppear}
-        onDisappear={this.onDisappear}
-        onWillAppear={this.onWillAppear}
-        onWillDisappear={this.onWillDisappear}
-      />
+          bounces={true}
+          // horizontal ListView  flag（only Android support）
+          horizontal={horizontal}
+          style={[{ backgroundColor: '#ffffff' }, horizontal ? { height: 50 } : { flex: 1 }]}
+          numberOfRows={dataSource.length}
+          renderRow={this.getRenderRow}
+          onEndReached={this.onEndReached}
+          getRowType={this.getRowType}
+          onDelete={this.onDelete}
+          delText={this.delText}
+          editable={true}
+          // configure listItem style if horizontal listview is set
+          getRowStyle={this.getRowStyle}
+          getRowKey={this.getRowKey}
+          initialListSize={15}
+          rowShouldSticky={this.rowShouldSticky}
+          onAppear={this.onAppear}
+          onDisappear={this.onDisappear}
+          onWillAppear={this.onWillAppear}
+          onWillDisappear={this.onWillDisappear}
+        />
+        {Platform.OS === 'android'
+          ? <View
+            onClick={() => this.changeDirection()}
+            style={{
+              position: 'absolute',
+              right: 20,
+              bottom: 20,
+              width: 67,
+              height: 67,
+              borderRadius: 30,
+              boxShadowOpacity: 0.6,
+              boxShadowRadius: 5,
+              boxShadowOffsetX: 3,
+              boxShadowOffsetY: 3,
+              boxShadowColor: '#4c9afa' }}>
+            <View style={{
+              width: 60,
+              height: 60,
+              borderRadius: 30,
+              backgroundColor: '#4c9afa',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Text style={{ color: 'white' }}>切换方向</Text>
+          </View>
+        </View> : null}
+      </View>
     );
   }
 }

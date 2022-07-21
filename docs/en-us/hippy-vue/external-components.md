@@ -101,6 +101,8 @@ export default {
   > * Set `playing = false`=> replace actions => delay after a certain time (such as setTimeout) or in `actionsDidUpdate` (supported after 2.14.0), set `playing = true`
    
   > Version `2.12.2` and the above support parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
+
+  > iOS version `2.14.1` and the above support skew animation. 
    
   > Version `2.6.0` and the above support `backgroundColor` background color gradient animation, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
   >
@@ -214,7 +216,7 @@ Subcontainer of the flipping component container.
 
 # pull-header
 
-[[Example: demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+[[Example: demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 Dropdown refresh component, nested in `ul` as first child element
 
@@ -240,7 +242,7 @@ Dropdown refresh component, nested in `ul` as first child element
 
 # pull-footer
 
-[[Example: demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+[[Example: demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 Pull-up refresh component, nested in `ul` as last child element
 
