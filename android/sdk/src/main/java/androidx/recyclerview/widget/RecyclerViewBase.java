@@ -101,9 +101,10 @@ public class RecyclerViewBase extends RecyclerView {
         return enableOverDrag;
     }
 
-    public void setEnableOverPull(boolean enableOverDrag) {
-        this.enableOverDrag = enableOverDrag;
-        if (enableOverDrag) {
+    public void enableOverPullIfNeeded() {
+        LayoutManager layoutManager = getLayoutManager();
+        boolean isVertical = (layoutManager != null) ? layoutManager.canScrollVertically() : false;
+        if (enableOverDrag && isVertical) {
             if (overPullHelper == null) {
                 overPullHelper = new HippyOverPullHelper(this);
             }
@@ -114,6 +115,11 @@ public class RecyclerViewBase extends RecyclerView {
             }
             overPullHelper = null;
         }
+    }
+
+    public void setEnableOverPull(boolean enableOverDrag) {
+        this.enableOverDrag = enableOverDrag;
+        enableOverPullIfNeeded();
     }
 
     @Override

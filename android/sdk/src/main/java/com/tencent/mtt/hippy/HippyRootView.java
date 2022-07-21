@@ -113,8 +113,12 @@ public class HippyRootView extends FrameLayout {
           mOnLoadCompleteListener
               .onLoadComplete(mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());
         }
-        mEngineContext.getGlobalConfigs().getEngineMonitorAdapter()
-            .reportModuleLoadComplete(this, mTimeMonitor.getTotalTime(), mTimeMonitor.getEvents());
+        final int id = getId();
+        if (id > 0) {
+          mEngineContext.getGlobalConfigs().getEngineMonitorAdapter()
+                  .reportModuleLoadComplete(this, mTimeMonitor.getTotalTime(),
+                          mTimeMonitor.getEvents());
+        }
       }
     }
   }
