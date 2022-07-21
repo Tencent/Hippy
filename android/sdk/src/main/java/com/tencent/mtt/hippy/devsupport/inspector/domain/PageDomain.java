@@ -67,7 +67,9 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   }
 
   private void handleStartScreenCast(HippyEngineContext context, int id, JSONObject paramsObj) {
-    mHandlerThread = new ScreenCastHandlerThread(this);
+    if (mHandlerThread == null) {
+      mHandlerThread = new ScreenCastHandlerThread(this);
+    }
     Handler hander = mHandlerThread.getHandler();
     Message msg = hander.obtainMessage(MSG_START_SCREEN_CAST);
     msg.obj = context;
@@ -85,8 +87,6 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
       Handler hander = mHandlerThread.getHandler();
       hander.removeMessages(MSG_START_SCREEN_CAST);
       hander.removeMessages(MSG_SCREEN_CAST_ACK);
-      mHandlerThread.quit();
-      mHandlerThread = null;
     }
   }
 
@@ -94,6 +94,15 @@ public class PageDomain extends InspectorDomain implements Handler.Callback, Pag
   public void onFrontendClosed(HippyEngineContext context) {
     handleStopScreenCast(context);
     mPageModel.clear();
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
+    if (mHandlerThread != null) {
+      mHandlerThread.quit();
+      mHandlerThread = null;
+    }
   }
 
   private void handleScreenFrameAck(final HippyEngineContext context, final JSONObject paramsObj) {

@@ -313,28 +313,29 @@ For more details, please refer to the Android development documentation.
 
 ## Attributes
 
-| Props                 | Description                                                                                                                                                                                                                                                                   | Type                                                  | Supported Platforms           |
-|-----------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|-------------------------------|
-| caretColor            | The color of the cursor when typing (Can also be set to the Style property). `Minimum supported version 2.11.5`                                                                                                                                                               | [`color`](style/color.md)                             | `Android、hippy-react-web`     |
+| Props                 | Description                                                  | Type                                                  | Supported Platforms             |
+| --------------------- | ------------------------------------------------------------ | ----------------------------------------------------- | ------------------------------- |
+| caretColor            | The color of the cursor when typing (Can also be set to the Style property). `Minimum supported version 2.11.5` | [`color`](style/color.md)                             | `Android、hippy-react-web`      |
 | defaultValue          | Provides an initial value in a text box. When the user starts typing, the value can change. In some simple use cases, you don't want to keep the property and state in sync by listening for messages and then updating the value property, you can use defaultValue instead. | `string`                                              | `Android、iOS、hippy-react-web` |
-| editable              | If false, the text box is not editable. `default: true`                                                                                                                                                                                                                       | `boolean`                                             | `Android、iOS、hippy-react-web` |
-| keyboardType          | Determines which type of soft keyboard pops up. Note：`password` only takes effect in a single-line text box with the attribute `multiple=false`.                                                                                                                              | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web` |
-| maxLength             | Limits the maximum number of characters in a text box. Use this property instead of Javascript to avoid flickering.                                                                                                                                                           | `number`                                              | `Android、iOS、hippy-react-web` |
-| multiline             | If `true` , multiple lines of text can be entered in the text box. Due to native characteristics.                                                                                                                                                                             | `boolean`                                             | `Android、iOS、hippy-react-web` |
-| numberOfLines         | Set the maximum number of lines displayed by `TextInput`. If `TextInput` does not explicitly set the height, it will calculate the height according to `numberOfLines` and expand. When using it, you must also set the `multiline` parameter to `true`.                      | `number`                                              | `Android、hippy-react-web`     |
-| onBlur                | This callback function is called when a text box loses focus.                                                                                                                                                                                                                 | `Function`                                            | `Android、iOS、hippy-react-web` |
-| onChangeText          | This callback function is called when the text box content changes. The changed text content is passed as a parameter.                                                                                                                                                        | `Function`                                            | `Android、iOS、hippy-react-web` |
-| onKeyboardWillShow    | This callback function is called when the input method keyboard pops up. The return value contains the keyboard height`keyboardHeight`, style is as follow`{ keyboardHeight: 260 }`.                                                                                          | `Function`                                            | `Android、iOS、hippy-react-web` |
-| onKeyboardWillHide    | This callback function is called when the input keyboard is hidden.                                                                                                                                                                                                           | `Function`                                            | `Android`                     |
-| onEndEditing          | This callback function is called when the text input ends.                                                                                                                                                                                                                    | `Function`                                            | `Android、iOS、hippy-react-web` |
-| onLayout              | This callback function is called when the component is mounted or the layout changes. The parameter is `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are the coordinates relative to the parent element.                                              | `Function`                                            | `Android、iOS、hippy-react-web` |
-| onSelectionChange     | This callback function is called when the range of the selected text in the input box is changed, and the return parameter is in the form of `nativeEvent: { selection: { start, end } }`.                                                                                    | `Function`                                            | `Android、iOS`                 |
-| placeholder           | This string is displayed if no text is entered.                                                                                                                                                                                                                               | `string`                                              | `Android、iOS、hippy-react-web` |
-| placeholderTextColor  | The color of the text displayed by the placeholder string (can also be set to the Style property). `Minimum supported version 2.13.4`.                                                                                                                                        | [`color`](style/color.md)                             | `Android、iOS`                 |
-| returnKeyType         | Specifies the style of the soft keyboard's Enter key display.                                                                                                                                                                                                                 | `enum (done, go, next, search, send)`                 | `Android、iOS`                 |
-| underlineColorAndroid | The color of the bottom line under the `TextInput`. Can be set to 'transparent' to remove the bottom line (can also be set to the Style property).                                                                                                                            | [`color`](style/color.md)                             | `Android`                     |
-| value                 | Specifies the value of the `TextInput` component.                                                                                                                                                                                                                             | `string`                                              | `Android、iOS、hippy-react-web` |
-| autoFocus             | Whether to automatically gain focus when the component has finished rendering.                                                                                                                                                                                                | `boolean`                                             | `Android、iOS、hippy-react-web` |
+| editable              | If false, the text box is not editable. `default: true`      | `boolean`                                             | `Android、iOS、hippy-react-web` |
+| keyboardType          | Determines which type of soft keyboard pops up. Note：`password` only takes effect in a single-line text box with the attribute `multiple=false`. | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web` |
+| maxLength             | Limits the maximum number of characters in a text box. Use this property instead of Javascript to avoid flickering. | `number`                                              | `Android、iOS、hippy-react-web` |
+| multiline             | If `true` , multiple lines of text can be entered in the text box. Due to native characteristics. | `boolean`                                             | `Android、iOS、hippy-react-web` |
+| numberOfLines         | Set the maximum number of lines displayed by `TextInput`. If `TextInput` does not explicitly set the height, it will calculate the height according to `numberOfLines` and expand. When using it, you must also set the `multiline` parameter to `true`. | `number`                                              | `Android、hippy-react-web`      |
+| onBlur                | This callback function is called when the text box is blurred. | `Function`                                            | `Android、iOS、hippy-react-web` |
+| onFocus               | This callback function is called when the text box is focused. | `Function`                                            | `Android、iOS`                  |
+| onChangeText          | This callback function is called when the text box content changes. The changed text content is passed as a parameter. | `Function`                                            | `Android、iOS、hippy-react-web` |
+| onKeyboardWillShow    | This callback function is called when the input method keyboard pops up. The return value contains the keyboard height`keyboardHeight`, style is as follow`{ keyboardHeight: 260 }`. | `Function`                                            | `Android、iOS、hippy-react-web` |
+| onKeyboardWillHide    | This callback function is called when the input keyboard is hidden. | `Function`                                            | `Android`                       |
+| onEndEditing          | This callback function is called when the text input ends.   | `Function`                                            | `Android、iOS、hippy-react-web` |
+| onLayout              | This callback function is called when the component is mounted or the layout changes. The parameter is `nativeEvent: { layout: { x, y, width, height } }`, where `x` and `y` are the coordinates relative to the parent element. | `Function`                                            | `Android、iOS、hippy-react-web` |
+| onSelectionChange     | This callback function is called when the range of the selected text in the input box is changed, and the return parameter is in the form of `nativeEvent: { selection: { start, end } }`. | `Function`                                            | `Android、iOS`                  |
+| placeholder           | This string is displayed if no text is entered.              | `string`                                              | `Android、iOS、hippy-react-web` |
+| placeholderTextColor  | The color of the text displayed by the placeholder string (can also be set to the Style property). `Minimum supported version 2.13.4`. | [`color`](style/color.md)                             | `Android、iOS`                  |
+| returnKeyType         | Specifies the style of the soft keyboard's Enter key display. | `enum (done, go, next, search, send)`                 | `Android、iOS`                  |
+| underlineColorAndroid | The color of the bottom line under the `TextInput`. Can be set to 'transparent' to remove the bottom line (can also be set to the Style property). | [`color`](style/color.md)                             | `Android`                       |
+| value                 | Specifies the value of the `TextInput` component.            | `string`                                              | `Android、iOS、hippy-react-web` |
+| autoFocus             | Whether to automatically gain focus when the component has finished rendering. | `boolean`                                             | `Android、iOS、hippy-react-web` |
 
 ## Methods
 
@@ -352,13 +353,19 @@ For more details, please refer to the Android development documentation.
 
 ### getValue
 
-`() => Promise<string>` Get the contents of the text box.
+`() => Promise<string>` Get the contents of the text box. Caution, value may be changed since the callback is asynchronous.
 
 ### setValue
 
 `(value: string) => void` Set the text box content.
 
 >* Value: string - text box contents.
+
+### isFocused
+
+`Minimum supported version 2.14.2. hippy-react-web does not support.`
+
+`() => Promise<boolean>`Get the focus status of the input box. Caution, value may be changed since the callback is asynchronous.
 
 ---
 
