@@ -192,7 +192,8 @@ bool Deserializer::ReadDenseJSArray(HippyValue& dom_value) {
   uint32_t num_properties;
   uint32_t expected_num_properties;
   uint32_t expected_length;
-  num_properties = ReadObjectProperties(SerializationTag::kEndDenseJSArray);
+  bool ret = ReadObjectProperties(SerializationTag::kEndDenseJSArray, num_properties);
+  if (!ret) return false;
   expected_num_properties = ReadVarint<uint32_t>();
   expected_length = ReadVarint<uint32_t>();
   if (num_properties != expected_num_properties) return false;
@@ -206,7 +207,8 @@ bool Deserializer::ReadJSObject(HippyValue& dom_value) {
   bool ret = true;
   uint32_t num_properties;
   HippyValueObjectType object;
-  num_properties = ReadObjectProperties(object, SerializationTag::kEndJSObject);
+  ret = ReadObjectProperties(object, SerializationTag::kEndJSObject, num_properties);
+  if (!ret) return false;
 
   uint32_t expected_num_properties;
   expected_num_properties = ReadVarint<uint32_t>();
@@ -320,43 +322,52 @@ bool Deserializer::ReadObject(HippyValue& value) {
   return ret;
 }
 
-uint32_t Deserializer::ReadObjectProperties(HippyValueObjectType& property, SerializationTag end_tag) {
+bool Deserializer::ReadObjectProperties(HippyValueObjectType& property, SerializationTag end_tag, uint32_t& number_properties) {
   uint32_t num_properties = 0;
   HippyValue::HippyValueObjectType object;
+  bool ret = true;
 
   // Slow path.
-  for (;; num_properties++) {
-    SerializationTag tag;
-    PeekTag(tag);
+  SerializationTag tag;
+  while (PeekTag(tag)) {
     if (tag == end_tag) {
       ConsumeTag(end_tag);
-      return num_properties;
+      number_properties = num_properties;
+      return true;
     }
 
     if (end_tag == SerializationTag::kEndJSObject) {
       HippyValue key;
-      ReadObject(key);
+      ret = ReadObject(key);
+      if (!ret) return false;
       HippyValue value;
-      ReadObject(value);
+      ret = ReadObject(value);
+      if (!ret) return false;
       object.insert(std::pair<std::string, HippyValue>(key.ToStringChecked(), value));
       property = object;
     }
+    num_properties++;
   }
+
+  return false;
 }
 
-uint32_t Deserializer::ReadObjectProperties(SerializationTag end_tag) {
+bool Deserializer::ReadObjectProperties(SerializationTag end_tag, uint32_t& number_properties) {
   uint32_t num_properties = 0;
 
   // Slow path.
-  for (;; num_properties++) {
-    SerializationTag tag;
-    PeekTag(tag);
+  SerializationTag tag;
+  while (PeekTag(tag)) {
     if (tag == end_tag) {
       ConsumeTag(end_tag);
-      return num_properties;
+      number_properties = num_properties;
+      return true;
     }
+    num_properties++;
   }
+
+  return false;
 }
 
-}  // namespace base
-}  // namespace tdf
+}  // namespace value
+}  // namespace footstone
