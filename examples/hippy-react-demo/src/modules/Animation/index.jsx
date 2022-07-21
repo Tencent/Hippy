@@ -115,6 +115,90 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
+    this.rotateAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 180,
+            duration: 2000,
+            delay: 0,
+            valueType: 'deg',
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 180,
+            toValue: 360,
+            duration: 2000,
+            delay: 0,
+            valueType: 'deg',
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+    this.skewXAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 20,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 20,
+            toValue: 0,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+    this.skewYAnimationSet = new AnimationSet({
+      children: [
+        {
+          animation: new Animation({
+            startValue: 0,
+            toValue: 20,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: false, // 配置子动画的执行是否跟随执行
+        },
+        {
+          animation: new Animation({
+            startValue: 20,
+            toValue: 0,
+            duration: 2000,
+            delay: 0,
+            mode: 'timing',
+            timingFunction: 'linear',
+          }),
+          follow: true,
+        },
+      ],
+      repeatCount: 'loop',
+    });
+
     this.bgColorAnimationSet = new AnimationSet({
       children: [
         {
@@ -212,7 +296,11 @@ export default class AnimationExample extends React.Component {
       this.scaleAnimationSet.setRef(this.scaleRef);
       this.bgColorAnimationSet.setRef(this.bgColorRef);
       this.txtColorAnimationSet.setRef(this.textColorRef);
+      this.txtColorAnimationSet.setRef(this.textColorRef);
       this.cubicBezierScaleAnimationSet.setRef(this.cubicBezierScaleRef);
+      this.rotateAnimationSet.setRef(this.rotateRef);
+      this.skewXAnimationSet.setRef(this.skewRef);
+      this.skewYAnimationSet.setRef(this.skewRef);
     }
     this.horizonAnimation.onAnimationStart(() => {
       /* eslint-disable-next-line no-console */
@@ -250,6 +338,15 @@ export default class AnimationExample extends React.Component {
     }
     if (this.cubicBezierScaleAnimationSet) {
       this.cubicBezierScaleAnimationSet.destroy();
+    }
+    if (this.rotateAnimationSet) {
+      this.rotateAnimationSet.destroy();
+    }
+    if (this.skewXAnimationSet) {
+      this.skewXAnimationSet.destroy();
+    }
+    if (this.skewYAnimationSet) {
+      this.skewYAnimationSet.destroy();
     }
   }
 
@@ -337,6 +434,88 @@ export default class AnimationExample extends React.Component {
             }}
             style={[styles.square, {
               height: this.verticalAnimation,
+            }]}
+          />
+        </View>
+        <Text style={styles.title}>旋转动画</Text>
+        <View style={styles.buttonContainer}>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.rotateAnimationSet.start();
+            }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+            style={[styles.button]}
+            onClick={() => {
+              this.rotateAnimationSet.pause();
+            }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.rotateAnimationSet.resume();
+            }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={styles.showArea}>
+          <View
+            ref={(ref) => {
+              this.rotateRef = ref;
+            }}
+            style={[styles.square, {
+              transform: [{
+                rotate: this.rotateAnimationSet,
+              }],
+            }]}
+          />
+        </View>
+        <Text style={styles.title}>倾斜动画</Text>
+        <View style={styles.buttonContainer}>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.skewXAnimationSet.start();
+              this.skewYAnimationSet.start();
+            }}
+          >
+            <Text style={styles.buttonText}>开始</Text>
+          </View>
+          <View
+            style={[styles.button]}
+            onClick={() => {
+              this.skewXAnimationSet.pause();
+              this.skewYAnimationSet.pause();
+            }}
+          >
+            <Text style={styles.buttonText}>暂停</Text>
+          </View>
+          <View
+            style={styles.button}
+            onClick={() => {
+              this.skewXAnimationSet.resume();
+              this.skewYAnimationSet.resume();
+            }}
+          >
+            <Text style={styles.buttonText}>继续</Text>
+          </View>
+        </View>
+        <View style={styles.showArea}>
+          <View
+            ref={(ref) => {
+              this.skewRef = ref;
+            }}
+            style={[styles.square, {
+              transform: [{
+                skewX: this.skewXAnimationSet,
+                skewY: this.skewYAnimationSet,
+              }],
             }]}
           />
         </View>

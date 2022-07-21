@@ -1,6 +1,12 @@
 <template>
-  <div id="root">
-    <div id="header">
+  <div
+    id="root"
+    :collapsable="false"
+  >
+    <div
+      id="header"
+      :collapsable="false"
+    >
       <div class="left-title">
         <img
           v-show="!['/', '/debug', '/remote-debug'].includes($router.history.current.path)"
@@ -95,7 +101,7 @@ export default {
     display: flex;
     flex-direction: column;
   }
-  #header {
+  #root #header {
     height: 60px;
     background-color: #40b883;
     display: flex;
