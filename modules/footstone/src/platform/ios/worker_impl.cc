@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "../../worker_impl.h"
+#include "src/worker_impl.h"
 
 #include <pthread.h>
 

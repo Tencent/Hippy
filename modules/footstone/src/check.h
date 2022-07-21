@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "logging.h"
+#include "src/logging.h"
 
 namespace footstone {
 inline namespace check {

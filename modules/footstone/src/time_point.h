@@ -20,12 +20,11 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include <chrono>
+#include <cstdint>
 #include <iosfwd>
 
-#include "time_delta.h"
+#include "src/time_delta.h"
 
 namespace footstone {
 inline namespace time {

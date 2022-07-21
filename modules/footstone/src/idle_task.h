@@ -24,7 +24,7 @@
 #include <cstdint>
 #include <functional>
 
-#include "time_delta.h"
+#include "src/time_delta.h"
 
 namespace footstone {
 inline namespace runner {

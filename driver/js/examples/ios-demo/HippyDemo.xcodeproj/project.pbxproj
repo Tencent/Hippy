@@ -2447,6 +2447,7 @@
 					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
 					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
 					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
+					"$(SRCROOT)/../../../../modules/footstone",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -2488,6 +2489,7 @@
 					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
 					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
 					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
+					"$(SRCROOT)/../../../../modules/footstone",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;

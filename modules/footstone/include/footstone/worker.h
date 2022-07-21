@@ -22,16 +22,16 @@
 
 #include <list>
 #include <map>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
 #include <vector>
-#include <mutex>
 
-#include "driver.h"
-#include "task.h"
-#include "time_delta.h"
-#include "time_point.h"
+#include "footstone/driver.h"
+#include "footstone/task.h"
+#include "footstone/time_delta.h"
+#include "footstone/time_point.h"
 
 namespace footstone {
 inline namespace runner {

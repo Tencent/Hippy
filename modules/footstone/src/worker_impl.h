@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include "worker.h"
+#include "src/worker.h"
 
 #include <memory>
 
-#include "cv_driver.h"
+#include "src/cv_driver.h"
 
 namespace footstone {
 inline namespace runner {

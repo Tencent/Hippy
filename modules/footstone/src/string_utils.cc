@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "string_utils.h"
+#include "src/string_utils.h"
 
 #include <regex>
 

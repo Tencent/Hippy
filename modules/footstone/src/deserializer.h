@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include "serializer.h"
+#include "src/serializer.h"
 
 namespace footstone {
 inline namespace value {

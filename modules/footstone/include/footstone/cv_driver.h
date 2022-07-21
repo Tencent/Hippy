@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include "driver.h"
+#include "footstone/driver.h"
 
 #include <mutex>
 
-#include "time_delta.h"
+#include "footstone/time_delta.h"
 
 namespace footstone {
 inline namespace runner {

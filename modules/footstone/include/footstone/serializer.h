@@ -22,7 +22,7 @@
 
 #include <string>
 
-#include "hippy_value.h"
+#include "footstone/hippy_value.h"
 
 namespace footstone {
 inline namespace value {

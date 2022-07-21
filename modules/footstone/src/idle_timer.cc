@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-#include "idle_timer.h"
+#include "src/idle_timer.h"
 
 #include <utility>
 
-#include "logging.h"
+#include "src/logging.h"
 
 namespace footstone {
 inline namespace timer {

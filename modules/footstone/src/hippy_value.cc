@@ -18,10 +18,10 @@
  * limitations under the License.
  */
 
-#include "hippy_value.h"
+#include "src/hippy_value.h"
 
-#include "logging.h"
-#include "hash.h"
+#include "src/logging.h"
+#include "src/hash.h"
 
 using HippyValue = footstone::value::HippyValue;
 

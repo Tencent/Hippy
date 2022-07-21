@@ -18,10 +18,11 @@
  * limitations under the License.
  */
 
-#include "looper_driver.h"
+#include "src/platform/adr/looper_driver.h"
+
+#include <sys/timerfd.h>
 
 #include <android/looper.h>
-#include <sys/timerfd.h>
 #include <ctime>
 
 namespace footstone {

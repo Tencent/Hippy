@@ -18,15 +18,15 @@
  * limitations under the License.
  */
 
-#include "deserializer.h"
+#include "src/deserializer.h"
 
 #include <cstring>
 
-#include "logging.h"
-#include "unicode_string_view.h"
-#include "string_view_utils.h"
-#include "hippy_value.h"
-#include "serializer.h"
+#include "src/hippy_value.h"
+#include "src/logging.h"
+#include "src/string_view_utils.h"
+#include "src/serializer.h"
+#include "src/unicode_string_view.h"
 
 namespace footstone {
 inline namespace value {

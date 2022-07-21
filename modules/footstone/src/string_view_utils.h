@@ -25,8 +25,8 @@
 #include <string>
 #include <utility>
 
-#include "logging.h"
-#include "unicode_string_view.h"
+#include "src/logging.h"
+#include "src/unicode_string_view.h"
 
 #define EXTEND_LITERAL(ch) ch, ch, u##ch, U##ch
 

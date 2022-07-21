@@ -24,7 +24,7 @@
 
 #include <chrono>
 
-#include "check.h"
+#include "src/check.h"
 
 namespace footstone {
 inline namespace time {

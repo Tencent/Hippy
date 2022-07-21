@@ -18,16 +18,15 @@
  * limitations under the License.
  */
 
-#include "worker_manager.h"
+#include "src/worker_manager.h"
 
-#include "worker_impl.h"
-
-#include <map>
-#include <cmath>
 #include <array>
+#include <cmath>
+#include <map>
 #include <utility>
 
-#include "logging.h"
+#include "src/logging.h"
+#include "src/worker_impl.h"
 
 namespace footstone {
 inline namespace runner {

@@ -24,7 +24,7 @@
 
 #include <functional>
 
-#include "time_delta.h"
+#include "src/time_delta.h"
 
 namespace footstone {
 inline namespace runner {
@@ -51,10 +51,10 @@ class Driver {
   std::function<bool()> unit_;
   bool is_terminated_;
   /*
- * 是否立刻退出
- * 如果该标志位为true，则队列中任务不再执行，直接退出；反之，则必须等待立刻执行队列（不包括延迟和空闲队列）执行完才会退出
- *
- */
+   * 是否立刻退出
+   * 如果该标志位为true，则队列中任务不再执行，直接退出；反之，则必须等待立刻执行队列（不包括延迟和空闲队列）执行完才会退出
+   *
+   */
   bool is_exit_immediately_;
 };
 

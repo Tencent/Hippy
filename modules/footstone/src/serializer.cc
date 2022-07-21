@@ -18,13 +18,13 @@
  * limitations under the License.
  */
 
-#include "serializer.h"
+#include "src/serializer.h"
 
 #include <codecvt>
 #include <type_traits>
 
-#include "logging.h"
-#include "check.h"
+#include "src/check.h"
+#include "src/logging.h"
 
 namespace footstone {
 inline namespace value {

@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "worker.h"
+#include "src/worker.h"
 
 #include <algorithm>
 #include <array>
@@ -26,11 +26,10 @@
 #include <map>
 #include <utility>
 
-#include "check.h"
-#include "logging.h"
-#include "worker_manager.h"
-
-#include "cv_driver.h"
+#include "src/check.h"
+#include "src/cv_driver.h"
+#include "src/logging.h"
+#include "src/worker_manager.h"
 
 #ifdef ANDROID
 #include "platform/adr/looper_driver.h"

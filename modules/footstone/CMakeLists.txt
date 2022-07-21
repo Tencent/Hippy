@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.13)
 
 project(footstone)
 
@@ -33,40 +33,118 @@ set(THIRD_PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
 
 # region library
 add_library(${PROJECT_NAME} STATIC)
-target_include_directories(${PROJECT_NAME} INTERFACE include)
+target_include_directories(${PROJECT_NAME}
+    INTERFACE include
+    PRIVATE .)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
 # region source set
 set(SOURCE_SET
+    src/base_time.h
     src/base_timer.cc
-    src/deserializer.cc
-    src/hippy_value.cc
-    src/idle_task.cc
-    src/idle_timer.cc
-    src/log_settings.cc
-    src/log_settings_state.cc
-    src/one_shot_timer.cc
-    src/repeating_timer.cc
-    src/serializer.cc
-    src/task.cc
-    src/task_runner.cc
-    src/unicode_string_view.cc
-    src/worker.cc
-    src/string_utils.cc
+    src/base_timer.h
+    src/check.h
     src/cv_driver.cc
-    src/worker_manager.cc)
+    src/cv_driver.h
+    src/deserializer.cc
+    src/deserializer.h
+    src/driver.h
+    src/hash.h
+    src/hippy_value.cc
+    src/hippy_value.h
+    src/idle_task.cc
+    src/idle_task.h
+    src/idle_timer.cc
+    src/idle_timer.h
+    src/log_level.h
+    src/log_settings.cc
+    src/log_settings.h
+    src/log_settings_state.cc
+    src/logging.h
+    src/macros.h
+    src/one_shot_timer.cc
+    src/one_shot_timer.h
+    src/persistent_object_map.h
+    src/repeating_timer.cc
+    src/repeating_timer.h
+    src/serializer.cc
+    src/serializer.h
+    src/string_utils.cc
+    src/string_utils.h
+    src/string_view_utils.h
+    src/task.cc
+    src/task.h
+    src/task_runner.cc
+    src/task_runner.h
+    src/time_delta.h
+    src/time_point.h
+    src/unicode_string_view.cc
+    src/unicode_string_view.h
+    src/worker.cc
+    src/worker.h
+    src/worker_impl.h
+    src/worker_manager.cc
+    src/worker_manager.h)
 if (ANDROID)
   list(APPEND SOURCE_SET
-      src/platform/adr/logging.cc
       src/platform/adr/looper_driver.cc
+      src/platform/adr/looper_driver.h
+      src/platform/adr/logging.cc
       src/platform/adr/worker_impl.cc)
 elseif (IOS)
   list(APPEND SOURCE_SET
+      src/platform/ios/looper_driver.cc
+      src/platform/ios/looper_driver.h
       src/platform/ios/logging.cc
       src/platform/ios/worker_impl.cc)
-else()
+else ()
   message(FATAL_ERROR “Unsupported platform ${CMAKE_SYSTEM_NAME}”)
 endif ()
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+
+set(PUBLIC_HEADER_SET
+    include/footstone
+    include/footstone/task.h
+    include/footstone/idle_task.h
+    include/footstone/string_utils.h
+    include/footstone/string_view_utils.h
+    include/footstone/platform
+    include/footstone/deserializer.h
+    include/footstone/cv_driver.h
+    include/footstone/driver.h
+    include/footstone/logging.h
+    include/footstone/worker.h
+    include/footstone/one_shot_timer.h
+    include/footstone/task_runner.h
+    include/footstone/serializer.h
+    include/footstone/hippy_value.h
+    include/footstone/log_level.h
+    include/footstone/macros.h
+    include/footstone/check.h
+    include/footstone/time_point.h
+    include/footstone/repeating_timer.h
+    include/footstone/base_time.h
+    include/footstone/worker_impl.h
+    include/footstone/log_settings.h
+    include/footstone/persistent_object_map.h
+    include/footstone/time_delta.h
+    include/footstone/idle_timer.h
+    include/footstone/hash.h
+    include/footstone/unicode_string_view.h
+    include/footstone/base_timer.h
+    include/footstone/worker_manager.h)
+
+if (ANDROID)
+  list(APPEND PUBLIC_HEADER_SET
+      include/footstone/platform/adr/looper_driver.h)
+elseif (IOS)
+  list(APPEND PUBLIC_HEADER_SET
+      include/footstone/platform/ios/looper_driver.h)
+else ()
+  message(FATAL_ERROR “Unsupported platform ${CMAKE_SYSTEM_NAME}”)
+endif ()
+
+target_sources(${PROJECT_NAME}
+    PRIVATE ${SOURCE_SET}
+    PUBLIC ${PUBLIC_HEADER_SET})
 # endregion

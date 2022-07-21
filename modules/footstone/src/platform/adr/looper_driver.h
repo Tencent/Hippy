@@ -20,12 +20,12 @@
 
 #pragma once
 
-#include "../../driver.h"
+#include "src/driver.h"
 
 #include <android/looper.h>
 
-#include "../../worker.h"
-#include "../../time_delta.h"
+#include "src/time_delta.h"
+#include "src/worker.h"
 
 namespace footstone {
 inline namespace runner {

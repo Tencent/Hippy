@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "cv_driver.h"
+#include "src/cv_driver.h"
 
 namespace footstone {
 inline namespace runner {
@@ -56,6 +56,3 @@ void CVDriver::Terminate() {
 
 }
 }
-
-
-

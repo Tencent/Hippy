@@ -24,8 +24,8 @@
 
 #include <android/looper.h>
 
-#include "footstone/worker.h"
 #include "footstone/time_delta.h"
+#include "footstone/worker.h"
 
 namespace footstone {
 inline namespace runner {

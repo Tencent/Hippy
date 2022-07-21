@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-#include "one_shot_timer.h"
+#include "src/one_shot_timer.h"
 
 #include <utility>
 
-#include "logging.h"
+#include "src/logging.h"
 
 namespace footstone {
 inline namespace timer {
