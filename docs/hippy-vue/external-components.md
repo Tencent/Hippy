@@ -215,7 +215,7 @@ export default {
 
 # pull-header
 
-[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 下拉刷新组件，嵌套在 `ul` 中作为第一个子元素使用
 
@@ -241,7 +241,7 @@ export default {
 
 # pull-footer
 
-[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 上拉刷新组件，嵌套在 `ul` 中作为最后一个子元素使用
 

@@ -30,6 +30,12 @@
   * [Custom UI Components](ios/custom-component.md)
   * [Custom Modules](ios/custom-module.md)
 
+* Web
+  * [Web Integration](web/integration.md)
+  * [Web Events](web/event.md)
+  * [Custom UI Components](web/custom-component.md)
+  * [Custom Modules](web/custom-module.md)
+
 * Hippy-React
   * [Introduction](hippy-react/introduction.md)
   * [Components](hippy-react/components.md)
