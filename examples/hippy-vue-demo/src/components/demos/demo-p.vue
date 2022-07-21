@@ -60,7 +60,7 @@
       >
         Text width letter-spacing 5
       </p>
-      <label>斜体：</label>
+      <label>字体 style：</label>
       <div class="p-demo-content">
         <p style="font-style: normal">
           font-style: normal
