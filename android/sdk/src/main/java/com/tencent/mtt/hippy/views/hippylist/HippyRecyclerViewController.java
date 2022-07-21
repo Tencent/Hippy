@@ -132,7 +132,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
     }
 
-    @HippyControllerProps(name = "horizontal-unsupported", defaultType = HippyControllerProps.BOOLEAN)
+    @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)
     public void setHorizontalEnable(final HRW viewWrapper, boolean flag) {
         LayoutManager layoutManager = viewWrapper.getRecyclerView().getLayoutManager();
         if (!(layoutManager instanceof LinearLayoutManager)) {
@@ -216,12 +216,13 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         } else {
             viewWrapper.setOverScrollMode(View.OVER_SCROLL_NEVER);
         }
+        setBounces(viewWrapper, flag);
     }
 
     @HippyControllerProps(name = OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
     public void setBounces(HRW viewWrapper, boolean flag) {
         HippyRecyclerView recyclerView = viewWrapper.getRecyclerView();
-        if (recyclerView != null && HippyListUtils.isVerticalLayout(recyclerView)) {
+        if (recyclerView != null) {
             recyclerView.setEnableOverPull(flag);
         }
     }

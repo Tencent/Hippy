@@ -242,6 +242,7 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         if (footerRefreshHelper != null) {
             footerRefreshHelper.onLayoutOrientationChanged();
         }
+        hippyRecyclerView.enableOverPullIfNeeded();
     }
 
     private void initHeaderRefreshHelper(View itemView, RenderNode node) {
