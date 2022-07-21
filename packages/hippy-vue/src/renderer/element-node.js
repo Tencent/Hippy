@@ -338,6 +338,9 @@ class ElementNode extends ViewNode {
   setStyle(property, value, notToNative = false) {
     if (value === undefined) {
       delete this.style[property];
+      if (!notToNative) {
+        updateChild(this);
+      }
       return;
     }
     // Preprocess the style
