@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.HippyLinearLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.View;
+import androidx.recyclerview.widget.RecyclerView.LayoutManager;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
@@ -131,6 +132,28 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         return new ListViewRenderNode(id, props, className, hippyRootView, controllerManager, lazy);
     }
 
+    @HippyControllerProps(name = "horizontal", defaultType = HippyControllerProps.BOOLEAN)
+    public void setHorizontalEnable(final HRW viewWrapper, boolean flag) {
+        LayoutManager layoutManager = viewWrapper.getRecyclerView().getLayoutManager();
+        if (!(layoutManager instanceof LinearLayoutManager)) {
+            return;
+        }
+        int orientation = ((LinearLayoutManager) layoutManager).getOrientation();
+        if (flag) {
+            if (orientation != LinearLayoutManager.HORIZONTAL) {
+                ((LinearLayoutManager) layoutManager).setOrientation(
+                        LinearLayoutManager.HORIZONTAL);
+                viewWrapper.getRecyclerView().getAdapter().onLayoutOrientationChanged();
+            }
+        } else {
+            if (orientation == LinearLayoutManager.HORIZONTAL) {
+                ((LinearLayoutManager) layoutManager).setOrientation(
+                        LinearLayoutManager.VERTICAL);
+                viewWrapper.getRecyclerView().getAdapter().onLayoutOrientationChanged();
+            }
+        }
+    }
+
     @HippyControllerProps(name = "rowShouldSticky")
     public void setRowShouldSticky(HRW view, boolean enable) {
         view.setRowShouldSticky(enable);
@@ -193,12 +216,13 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         } else {
             viewWrapper.setOverScrollMode(View.OVER_SCROLL_NEVER);
         }
+        setBounces(viewWrapper, flag);
     }
 
     @HippyControllerProps(name = OVER_PULL, defaultType = HippyControllerProps.BOOLEAN, defaultBoolean = true)
     public void setBounces(HRW viewWrapper, boolean flag) {
         HippyRecyclerView recyclerView = viewWrapper.getRecyclerView();
-        if (recyclerView != null && HippyListUtils.isVerticalLayout(recyclerView)) {
+        if (recyclerView != null) {
             recyclerView.setEnableOverPull(flag);
         }
     }
