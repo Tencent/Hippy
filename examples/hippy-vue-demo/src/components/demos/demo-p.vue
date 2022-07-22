@@ -148,13 +148,13 @@
           </button>
         </div>
       </div>
-      <label v-if="Platform === 'android'">textBreakStrategy={{ textBreakStrategy }}</label>
+      <label v-if="Platform === 'android'">breakStrategy={{ breakStrategy }}</label>
       <div
         v-if="Platform === 'android'"
         class="p-demo-content"
       >
         <p
-          :textBreakStrategy="textBreakStrategy"
+          :breakStrategy="breakStrategy"
           style="border-width: 1; border-color: gray;"
         >
           {{ longText }}
@@ -162,19 +162,19 @@
         <div class="button-bar">
           <button
             class="button"
-            @click="() => changeTextBreakStrategy('simple')"
+            @click="() => changeBreakStrategy('simple')"
           >
             <span>simple</span>
           </button>
           <button
             class="button"
-            @click="() => changeTextBreakStrategy('highQuality')"
+            @click="() => changeBreakStrategy('high_quality')"
           >
-            <span>highQuality</span>
+            <span>high_quality</span>
           </button>
           <button
             class="button"
-            @click="() => changeTextBreakStrategy('balanced')"
+            @click="() => changeBreakStrategy('balanced')"
           >
             <span>balanced</span>
           </button>
@@ -218,7 +218,7 @@ export default {
         eIFQU0EfnGDRoQAAAAASUVORK5CYII=`,
       longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is '
         + 'the name of a town on Anglesey, an island of Wales.',
-      textBreakStrategy: 'simple',
+      breakStrategy: 'simple',
     };
   },
   methods: {
@@ -264,8 +264,8 @@ export default {
     changeMode(mode) {
       this.textMode.ellipsizeMode = mode;
     },
-    changeTextBreakStrategy(strategy) {
-      this.textBreakStrategy = strategy;
+    changeBreakStrategy(strategy) {
+      this.breakStrategy = strategy;
     },
   },
 };

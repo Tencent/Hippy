@@ -441,8 +441,8 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
   }
 
-  @HippyControllerProps(name = NodeProps.TEXT_BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = TextNode.STRATEGY_SIMPLE)
-  public void setTextBreakStrategy(HippyTextInput view, String strategy) {
+  @HippyControllerProps(name = NodeProps.BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = TextNode.STRATEGY_SIMPLE)
+  public void setBreakStrategy(HippyTextInput view, String strategy) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       int strategyInt;
       if (strategy == null || TextNode.STRATEGY_SIMPLE.equals(strategy)) {
@@ -452,7 +452,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
       } else if (TextNode.STRATEGY_BALANCED.equals(strategy)) {
         strategyInt = Layout.BREAK_STRATEGY_BALANCED;
       } else {
-        throw new RuntimeException("Invalid textBreakStrategy: " + strategy);
+        throw new RuntimeException("Invalid breakStrategy: " + strategy);
       }
       view.setBreakStrategy(strategyInt);
     }

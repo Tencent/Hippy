@@ -13,29 +13,29 @@
         输入的文本为：{{ content }}
       </p>
     </div>
-    <label v-if="Platform === 'android'">textBreakStrategy={{ textBreakStrategy }}</label>
+    <label v-if="Platform === 'android'">breakStrategy={{ breakStrategy }}</label>
     <div v-if="Platform === 'android'">
       <textarea
         class="textarea"
         :defaultValue="longText"
-        :textBreakStrategy="textBreakStrategy"
+        :breakStrategy="breakStrategy"
       />
       <div class="button-bar">
         <button
           class="button"
-          @click="() => changeTextBreakStrategy('simple')"
+          @click="() => changeBreakStrategy('simple')"
         >
           <span>simple</span>
         </button>
         <button
           class="button"
-          @click="() => changeTextBreakStrategy('highQuality')"
+          @click="() => changeBreakStrategy('high_quality')"
         >
-          <span>highQuality</span>
+          <span>high_quality</span>
         </button>
         <button
           class="button"
-          @click="() => changeTextBreakStrategy('balanced')"
+          @click="() => changeBreakStrategy('balanced')"
         >
           <span>balanced</span>
         </button>
@@ -54,15 +54,15 @@ export default {
       content: 'The quick brown fox jumps over the lazy dog，快灰狐狸跳过了懒 🐕。',
       longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is '
         + 'the name of a town on Anglesey, an island of Wales.',
-      textBreakStrategy: 'simple',
+      breakStrategy: 'simple',
     };
   },
   methods: {
     contentSizeChange(evt) {
       console.log(evt);
     },
-    changeTextBreakStrategy(strategy) {
-      this.textBreakStrategy = strategy;
+    changeBreakStrategy(strategy) {
+      this.breakStrategy = strategy;
     },
   },
 };

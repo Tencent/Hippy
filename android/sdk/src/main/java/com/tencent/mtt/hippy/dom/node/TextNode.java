@@ -54,12 +54,12 @@ public class TextNode extends StyleNode {
   public final static String MODE_TAIL = "tail";
   public final static String MODE_CLIP = "clip";
   public final static String STRATEGY_SIMPLE = "simple";
-  public final static String STRATEGY_HIGH_QUALITY = "highQuality";
+  public final static String STRATEGY_HIGH_QUALITY = "high_quality";
   public final static String STRATEGY_BALANCED = "balanced";
   CharSequence mText;
   protected int mNumberOfLines = UNSET;
   private String mEllipsizeMode = MODE_TAIL;
-  private String mTextBreakStrategy = STRATEGY_SIMPLE;
+  private String mBreakStrategy = STRATEGY_SIMPLE;
 
   protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
   private float mLineHeight = UNSET;
@@ -442,20 +442,20 @@ public class TextNode extends StyleNode {
     }
   }
 
-  @HippyControllerProps(name = NodeProps.TEXT_BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = STRATEGY_SIMPLE)
-  public void setTextBreakStrategy(String strategy) {
+  @HippyControllerProps(name = NodeProps.BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = STRATEGY_SIMPLE)
+  public void setBreakStrategy(String strategy) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       return;
     }
     if (strategy == null) {
       strategy = STRATEGY_SIMPLE;
     }
-    if (!mTextBreakStrategy.equals(strategy)) {
+    if (!mBreakStrategy.equals(strategy)) {
       if (STRATEGY_SIMPLE.equals(strategy) || STRATEGY_HIGH_QUALITY.equals(strategy) || STRATEGY_BALANCED.equals(strategy)) {
-        mTextBreakStrategy = strategy;
+        mBreakStrategy = strategy;
         markUpdated();
       } else {
-        throw new RuntimeException("Invalid textBreakStrategy: " + strategy);
+        throw new RuntimeException("Invalid breakStrategy: " + strategy);
       }
     }
   }
@@ -702,22 +702,21 @@ public class TextNode extends StyleNode {
 
   @RequiresApi(api = Build.VERSION_CODES.M)
   private int getBreakStrategy() {
-    final String strategy = mTextBreakStrategy;
-    if (strategy == null || TextNode.STRATEGY_SIMPLE.equals(strategy)) {
+    final String strategy = mBreakStrategy;
+    if (strategy == null || STRATEGY_SIMPLE.equals(strategy)) {
       return Layout.BREAK_STRATEGY_SIMPLE;
-    } else if (TextNode.STRATEGY_HIGH_QUALITY.equals(strategy)) {
+    } else if (STRATEGY_HIGH_QUALITY.equals(strategy)) {
       return Layout.BREAK_STRATEGY_HIGH_QUALITY;
-    } else if (TextNode.STRATEGY_BALANCED.equals(strategy)) {
+    } else if (STRATEGY_BALANCED.equals(strategy)) {
       return Layout.BREAK_STRATEGY_BALANCED;
     } else {
-      throw new RuntimeException("Invalid textBreakStrategy: " + strategy);
+      throw new RuntimeException("Invalid breakStrategy: " + strategy);
     }
   }
 
-  private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width,
-                                         boolean detectRtl) {
+  private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width) {
     Layout.Alignment textAlign = mTextAlign;
-    if (detectRtl && I18nUtil.isRTL()) {
+    if (I18nUtil.isRTL()) {
       BidiFormatter bidiFormatter = BidiFormatter.getInstance();
       if (bidiFormatter.isRtl(source.toString()) && textAlign == Layout.Alignment.ALIGN_OPPOSITE) {
         textAlign = Layout.Alignment.ALIGN_NORMAL;
@@ -752,11 +751,11 @@ public class TextNode extends StyleNode {
     boolean unconstrainedWidth = widthMode == FlexMeasureMode.UNDEFINED || width < 0;
     if (boring == null && (unconstrainedWidth || (!FlexConstants.isUndefined(desiredWidth)
         && desiredWidth <= width))) {
-      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(desiredWidth), false);
+      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(desiredWidth));
     } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
       layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
     } else {
-      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width), true);
+      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(width));
     }
     if (mNumberOfLines != UNSET && mNumberOfLines > 0) {
       if (layout.getLineCount() > mNumberOfLines) {
@@ -809,7 +808,7 @@ public class TextNode extends StyleNode {
       truncated = formerLines == null ? lastLine : TextUtils.concat(formerLines, newLine ? "\n" : "", lastLine);
     }
 
-    return buildStaticLayout(truncated, paint, width, true);
+    return buildStaticLayout(truncated, paint, width);
   }
 
   private float getLineHeight(Layout layout, int line) {

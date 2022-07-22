@@ -104,12 +104,12 @@ export default class TextInputExpo extends Component {
     });
   }
 
-  changetTextBreakStrategy(textBreakStrategy) {
-    this.setState({ textBreakStrategy });
+  changeBreakStrategy(breakStrategy) {
+    this.setState({ breakStrategy });
   }
 
   render() {
-    const { textContent, event, isFocused, textBreakStrategy } = this.state;
+    const { textContent, event, isFocused, breakStrategy } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text>{title}</Text>
@@ -167,22 +167,22 @@ export default class TextInputExpo extends Component {
           placeholder="maxLength=5"
           maxLength={5}
         />
-        {Platform.OS === 'android' && renderTitle('textBreakStrategy')}
+        {Platform.OS === 'android' && renderTitle('breakStrategy')}
         {Platform.OS === 'android' && (
           <>
             <TextInput
               style={styles.input_style_block}
-              textBreakStrategy={textBreakStrategy}
+              breakStrategy={breakStrategy}
               defaultValue={DEFAULT_VALUE} />
-            <Text style={{}}>{`textBreakStrategy: ${textBreakStrategy}`}</Text>
+            <Text style={{}}>{`breakStrategy: ${breakStrategy}`}</Text>
             <View style={styles.buttonBar}>
-              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('simple')}>
+              <View style={styles.button} onClick={() => this.changeBreakStrategy('simple')}>
                 <Text style={styles.buttonText}>simple</Text>
               </View>
-              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('highQuality')}>
-                <Text style={styles.buttonText}>highQuality</Text>
+              <View style={styles.button} onClick={() => this.changeBreakStrategy('high_quality')}>
+                <Text style={styles.buttonText}>high_quality</Text>
               </View>
-              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('balanced')}>
+              <View style={styles.button} onClick={() => this.changeBreakStrategy('balanced')}>
                 <Text style={styles.buttonText}>balanced</Text>
               </View>
             </View>

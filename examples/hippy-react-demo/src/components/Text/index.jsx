@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   Image,
+  Platform,
 } from '@hippy/react';
 
 const imgURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAtCAMAAABmgJ64AAAAOVBMVEX/Rx8AAAD/QiL/Tif/QyH/RR//QiH/QiP/RCD/QSL/Qxz/QyH/QiL/QiD/QyL/QiL/QiH/QyH/QiLwirLUAAAAEnRSTlMZAF4OTC7DrWzjI4iietrRk0EEv/0YAAAB0UlEQVRYw72Y0Y6sIAxAKwUFlFH7/x97izNXF2lN1pU5D800jD2hJAJCdwYZuAUyVbmToKh903IhQHgErAVH+ccV0KI+G2oBPMxJgPA4WAigAT8F0IRDgNAE3ARyfeMFDGSc3YHVFkTBAHKDAgkEyHjacae/GTjxFqAo8NbakXrL9DRy9B+BCQwRcXR9OBKmEuAmAFFgcy0agBnIc1xZsMPOI5loAoUsQFmQjDEL9YbpaeGYBMGRKKAuqFEFL/JXApCw/zFEZk9qgbLGBx0gXLISxT25IUBREEgh1II1fph/IViGnZnCcDDVAgfgVg6gCy6ZaClySbDQpAl04vCGaB4+xGcFRK8CLvW0IBb5bQGqAlNwU4C6oEIVTLTcmoEr0AWcpKsZ/H0NAtkLQffnFjkOqiC/TTWBL9AFCwXQBHgI7rXImMgjCZwFa50s6DRBXyALmIECuMASiWNPFgRTgSJwM+XW8PDCmbwndzdaNL8FMYXPNjASDVChnIvWlBI/MKadPV952HszbmXtRERhhQ0vGFA52SVSSVt7MjHvxfRK8cdTpqovn02dUcltMrwiKf+wQ1FxXKCk9en6e/eDNnP44h2thQEb35O/etNv/q3iHza+KuhqqhZAAAAAAElFTkSuQmCC';
@@ -127,12 +128,12 @@ export default class TextExpo extends React.Component {
     this.setState({ ellipsizeMode: mode });
   }
 
-  changetTextBreakStrategy(textBreakStrategy) {
-    this.setState({ textBreakStrategy });
+  changeBreakStrategy(breakStrategy) {
+    this.setState({ breakStrategy });
   }
 
   render() {
-    const { fontSize, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode, textBreakStrategy } = this.state;
+    const { fontSize, textShadowColor, textShadowOffset, numberOfLines, ellipsizeMode, breakStrategy } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text style>{title}</Text>
@@ -269,23 +270,23 @@ export default class TextExpo extends React.Component {
             <Text numberOfLines={1} style={styles.customFont}>前面有张图片</Text>
           </Text>
         </View>
-        {Platform.OS === 'android' && renderTitle('textBreakStrategy')}
+        {Platform.OS === 'android' && renderTitle('breakStrategy')}
         {Platform.OS === 'android' && (
           <View style={styles.itemContent}>
             <Text
               style={[styles.normalText, { borderWidth: 1, borderColor: 'gray' }]}
-              textBreakStrategy={textBreakStrategy}>
+              breakStrategy={breakStrategy}>
               {DEFAULT_VALUE}
             </Text>
-            <Text style={styles.normalText}>{`textBreakStrategy: ${textBreakStrategy}`}</Text>
+            <Text style={styles.normalText}>{`breakStrategy: ${breakStrategy}`}</Text>
             <View style={styles.buttonBar}>
-              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('simple')}>
+              <View style={styles.button} onClick={() => this.changeBreakStrategy('simple')}>
                 <Text style={styles.buttonText}>simple</Text>
               </View>
-              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('highQuality')}>
-                <Text style={styles.buttonText}>highQuality</Text>
+              <View style={styles.button} onClick={() => this.changeBreakStrategy('high_quality')}>
+                <Text style={styles.buttonText}>high_quality</Text>
               </View>
-              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('balanced')}>
+              <View style={styles.button} onClick={() => this.changeBreakStrategy('balanced')}>
                 <Text style={styles.buttonText}>balanced</Text>
               </View>
             </View>
