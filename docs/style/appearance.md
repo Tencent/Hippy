@@ -150,6 +150,16 @@
 | ------ | -------- | --- |
 | number | 否  | Android、iOS
 
+# fontStyle
+
+字体样式
+
+> 默认值为 `normal`
+
+| 类型                     | 必需 | 支持平台     |
+| ------------------------ | ---- | ------------ |
+| enum('normal', 'italic') | 否   | Android、iOS |
+
 # fontWeight
 
 字体粗细

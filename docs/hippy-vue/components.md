@@ -264,10 +264,11 @@
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS`     |
+| focus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
 | change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS`     |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS`     |
 | keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
-| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |                                 
+| keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |
 | endEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS`     |
 | layout              | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS`     |
 | selectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `{ nativeEvent: { selection: { start, end } } }`。 | `Function`                                                   | `Android、iOS`     |
@@ -288,13 +289,19 @@
 
 ### getValue
 
-`() => Promise<string>` 获得文本框中的内容。
+`() => Promise<string>` 获得文本框中的内容。注意，由于是异步回调，收到回调时值可能已经改变。
 
 ### setValue
 
 `(value: string) => void` 设置文本框内容。
 
 > * value: string - 文本框内容
+
+### isFocused
+
+`最低支持版本 2.14.1。hippy-react-web 不支持。`
+
+`() => Promise<boolean>` 获得文本框的焦点状态。注意，由于是异步回调，收到回调时值可能已经改变。
 
 ---
 
@@ -327,10 +334,10 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` 纵向布局，iOS 暂不支持横向 `ul` | `any`   | `Android`    |
+| horizontal       | 指定 `ul` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 暂不支持横向 `ul` | `boolean \| undefined`   | `Android`    |
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `Android、iOS` |
-| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android`    |
+| bounces | 是否开启回弹效果，默认 `true`， Android `2.14.1` 版本后支持该属性，老版本使用 `overScrollEnabled` | `boolean`                                                  | `Android、iOS`    |
+| overScrollEnabled | 是否开启回弹效果，默认 `true`，3.0 版本后即将废弃 | `boolean`                                                  | `Android`    |
 | rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `Android、iOS`
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS` |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `Android、iOS`    |
@@ -386,8 +393,8 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `number`              | `Android、iOS`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
+| type            | 指定对应条目的类型（Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `number`              | `Android、iOS`    |
+| key             | 指定对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
 | sticky       | 对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在 ListView 顶部，不会滚出屏幕），需跟 `ul` 的 `rowShouldSticky` 配合使用 | `boolean`                                | `Android、iOS`
 | appear       | 当有`li`节点滑动进入屏幕时（曝光）触发，入参返回曝光的`li`节点对应索引值。 | `(index) => any` | `Android、iOS` |
 | disappear       | 当有`li`节点滑动离开屏幕时触发，入参返回离开的`li`节点对应索引值。 | `(index) => any` | `Android、iOS` |
@@ -417,13 +424,13 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `Android、iOS`    |
 | opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS`    |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 | `enum(head, middle, tail, clip)` | `Android 仅支持 tail 属性，iOS 全支持`    |
+| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。`default: tail` | `enum(head, middle, tail, clip)` | `Android(版本2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)` |
 
 * ellipsizeMode 的参数含义：
-  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（仅iOS支持）
-  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（仅iOS支持）
-  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（仅iOS支持）
-  * `tail` - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
+  * `clip` - 超过指定行数的文字会被直接截断，不显示“...”；（Android 2.14.1以上、iOS全支持）
+  * `head` - 文字将会从头开始截断，保证字符串的最后的文字可以正常显示在 `Text` 组件的最后，而从开头给截断的文字，将以 “...” 代替，例如 “...wxyz”；（Android 2.14.1以上、iOS全支持）
+  * `middle` - "文字将会从中间开始截断，保证字符串的最后与最前的文字可以正常显示在Text组件的响应位置，而中间给截断的文字，将以 “...” 代替，例如 “ab...yz”；（Android 2.14.1以上、iOS全支持）
+  * `tail`(默认值) - 文字将会从最后开始截断，保证字符串的最前的文字可以正常显示在 Text 组件的最前，而从最后给截断的文字，将以 “...” 代替，例如 “abcd...”；
 
 ---
 

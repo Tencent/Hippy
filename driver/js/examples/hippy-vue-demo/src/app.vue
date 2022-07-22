@@ -1,13 +1,24 @@
 <template>
-  <div id="root">
-    <div id="header">
-      <img
-        v-show="!['/', '/debug', '/remote-debug'].includes($router.history.current.path)"
-        id="back-btn"
-        :src="imgs.backButtonImg"
-        @click="goToHome"
-      >
-      <label class="title">Hippy Vue 示例</label>
+  <div
+    id="root"
+    :collapsable="false"
+  >
+    <div
+      id="header"
+      :collapsable="false"
+    >
+      <div class="left-title">
+        <img
+          v-show="!['/', '/debug', '/remote-debug'].includes($router.history.current.path)"
+          id="back-btn"
+          :src="imgs.backButtonImg"
+          @click="goToHome"
+        >
+        <label
+          v-if="['/', '/debug', '/remote-debug'].includes($router.history.current.path)"
+          class="title"
+        >Hippy Vue</label>
+      </div>
       <label
         class="title"
       >{{ subtitle }}</label>
@@ -90,23 +101,28 @@ export default {
     display: flex;
     flex-direction: column;
   }
-  #header {
+  #root #header {
     height: 60px;
     background-color: #40b883;
     display: flex;
     flex-direction: row;
-    align-content: center;
+    align-items: center;
     justify-content: space-between;
+    padding-horizontal: 10px;
   }
-  #back-btn {
-    height: 24px;
+  #root .left-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  #root #back-btn {
+    height: 20px;
     width: 24px;
-    marginTop: 18px;
+    margin-top: 18px;
     margin-bottom: 18px;
-    margin-left: 18px;
-    margin-right: 0;
   }
-  .body-container {
+  #root .body-container {
     flex: 1;
   }
   .row {
