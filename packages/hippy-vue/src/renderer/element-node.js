@@ -300,6 +300,9 @@ class ElementNode extends ViewNode {
         case 'caret-color':
           this.attributes['caret-color'] = Native.parseColor(value);
           break;
+        case 'break-strategy':
+          this.attributes.breakStrategy = value;
+          break;
         case 'placeholderTextColor':
         case 'placeholder-text-color':
           this.attributes.placeholderTextColor = Native.parseColor(value);
