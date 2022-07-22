@@ -1,12 +1,32 @@
-#include "footstone/deserializer.h"
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "include/footstone/deserializer.h"
 
 #include <cstring>
 
-#include "footstone/logging.h"
-#include "footstone/unicode_string_view.h"
-#include "footstone/string_view_utils.h"
-#include "footstone/hippy_value.h"
-#include "footstone/serializer.h"
+#include "include/footstone/hippy_value.h"
+#include "include/footstone/logging.h"
+#include "include/footstone/string_view_utils.h"
+#include "include/footstone/serializer.h"
+#include "include/footstone/unicode_string_view.h"
 
 namespace footstone {
 inline namespace value {

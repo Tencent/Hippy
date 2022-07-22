@@ -22,28 +22,22 @@
 
 #include "footstone/worker.h"
 
-#include <android/looper.h>
+#include <memory>
+
+#include "footstone/cv_driver.h"
 
 namespace footstone {
 inline namespace runner {
 
-class LoopWorkerImpl: public Worker {
+class WorkerImpl: public Worker, public std::enable_shared_from_this<WorkerImpl> {
  public:
-  LoopWorkerImpl(bool is_schedulable = true, std::string name = "");
-  virtual ~LoopWorkerImpl();
-
-  virtual void RunLoop() override;
-  virtual void TerminateWorker() override;
-  virtual void Notify() override;
-  virtual void WaitFor(const TimeDelta& delta) override;
-  virtual void Start() override;
-
- private:
-  void OnEventFired();
-
-  ALooper* looper_;
-  int32_t fd_;
-  bool has_task_pending_;
+  WorkerImpl(std::string name = "", bool is_schedulable = true, std::unique_ptr<Driver> driver = std::make_unique<CVDriver>()):
+    Worker(std::move(name), is_schedulable, std::move(driver)) {}
+  virtual void SetName(const std::string& name) override;
+  virtual std::weak_ptr<Worker> GetSelf() override {
+      auto self = shared_from_this();
+      return std::static_pointer_cast<Worker>(self);
+  }
 };
 
 }

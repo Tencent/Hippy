@@ -23,7 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "core/engine.h"
 #import "dom/dom_manager.h"
-#import "footstone/thread_worker_impl.h"
+#import "footstone/worker.h"
 #import "footstone/task_runner.h"
 
 class EngineResource {
@@ -35,7 +35,7 @@ public:
   
 private:
     std::shared_ptr<Engine> engine_;
-    std::shared_ptr<footstone::ThreadWorker> dom_worker_;
+    std::shared_ptr<footstone::Worker> dom_worker_;
     std::shared_ptr<hippy::DomManager> dom_manager_;
 };
 
