@@ -28,9 +28,6 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(FOOTSTONE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
-set(THIRD_PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
-
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME}
