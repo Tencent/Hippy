@@ -22,14 +22,16 @@
 
 #include <list>
 #include <map>
+#include <mutex>
 #include <queue>
 #include <string>
+#include <thread>
 #include <vector>
-#include <mutex>
 
-#include "task.h"
-#include "time_delta.h"
-#include "time_point.h"
+#include "footstone/driver.h"
+#include "footstone/task.h"
+#include "footstone/time_delta.h"
+#include "footstone/time_point.h"
 
 namespace footstone {
 inline namespace runner {
@@ -49,10 +51,10 @@ class Worker {
     std::function<void(void *)> destruct = nullptr;
   };
 
-  Worker(bool is_schedulable = true, std::string name = "");
+  Worker(std::string name, bool is_schedulable, std::unique_ptr<Driver> driver);
   virtual ~Worker();
 
-  void Run();
+  void Notify();
   void Terminate();
   void BindGroup(uint32_t father_id, const std::shared_ptr<TaskRunner>& child);
   void Bind(std::vector<std::shared_ptr<TaskRunner>> runner);
@@ -74,24 +76,11 @@ class Worker {
     group_id_ = id;
   }
   static bool IsTaskRunning();
- protected:
-  virtual void Start() = 0;
-  virtual void RunLoop() = 0;
-  virtual void TerminateWorker() = 0;
-  virtual void Notify() = 0;
-  virtual void WaitFor(const TimeDelta &delta) = 0;
-
   bool RunTask();
-  std::unique_ptr<Task> GetNextTask();
+  void Start(bool in_new_thread = true);
 
-  std::string name_;
-  bool is_terminated_;
-  /*
-   * 是否立刻退出
-   * 如果该标志位为true，则队列中任务不再执行，直接退出；反之，则必须等待立刻执行队列（不包括延迟和空闲队列）执行完才会退出
-   *
-   */
-  bool is_exit_immediately_;
+  virtual void SetName(const std::string& name) = 0;
+  virtual std::weak_ptr<Worker> GetSelf() = 0;
  private:
   friend class WorkerManager;
   friend class TaskRunner;
@@ -100,6 +89,7 @@ class Worker {
   // 该方法只允许在task运行中调用，如果在task之外调用则会返回nullptr
   static std::shared_ptr<TaskRunner> GetCurrentTaskRunner();
 
+  std::unique_ptr<Task> GetNextTask();
   void AddImmediateTask(std::unique_ptr<Task> task);
   bool HasUnschedulableRunner();
   void BalanceNoLock();
@@ -117,6 +107,8 @@ class Worker {
   std::array<void *, Worker::kWorkerKeysMax> GetMovedSpecific(uint32_t task_runner_id);
   void UpdateSpecific(uint32_t task_runner_id, std::array<void *, kWorkerKeysMax> array);
 
+  std::thread thread_;
+  std::string name_;
   std::list<std::vector<std::shared_ptr<TaskRunner>>> running_group_list_;
   std::list<std::vector<std::shared_ptr<TaskRunner>>> pending_group_list_;
   std::mutex running_mutex_; // 容器不是线程安全，锁住running_group_
@@ -138,6 +130,7 @@ class Worker {
    */
   bool is_schedulable_;
   uint32_t group_id_;
+  std::unique_ptr<Driver> driver_;
 };
 
 }  // namespace runner

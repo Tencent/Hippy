@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "base_timer.h"
-#include "idle_task.h"
+#include "footstone/base_timer.h"
+#include "footstone/idle_task.h"
 
 namespace footstone {
 inline namespace timer {

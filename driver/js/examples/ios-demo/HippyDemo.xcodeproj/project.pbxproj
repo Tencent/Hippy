@@ -32,7 +32,6 @@
 		D4B5A0872816641600ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A0852816641600ABBD9C /* scene_builder.cc */; };
 		D806C5082872BC3C00E62992 /* repeating_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4EF2872BC3B00E62992 /* repeating_timer.cc */; };
 		D806C5092872BC3C00E62992 /* task.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4F02872BC3B00E62992 /* task.cc */; };
-		D806C50A2872BC3C00E62992 /* thread_worker.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4F12872BC3B00E62992 /* thread_worker.cc */; };
 		D806C50B2872BC3C00E62992 /* idle_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4F22872BC3B00E62992 /* idle_timer.cc */; };
 		D806C5122872BC3C00E62992 /* deserializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4FC2872BC3B00E62992 /* deserializer.cc */; };
 		D806C5132872BC3C00E62992 /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = D806C4FD2872BC3B00E62992 /* log_settings_state.cc */; };
@@ -67,10 +66,14 @@
 		D86B3E62284E31EB007E729B /* animation.cc in Sources */ = {isa = PBXBuildFile; fileRef = D86B3E5D284E31EB007E729B /* animation.cc */; };
 		D86B3E63284E31EB007E729B /* cubic_bezier_animation.cc in Sources */ = {isa = PBXBuildFile; fileRef = D86B3E5E284E31EB007E729B /* cubic_bezier_animation.cc */; };
 		D86B3E64284E31EB007E729B /* animation_set.cc in Sources */ = {isa = PBXBuildFile; fileRef = D86B3E5F284E31EB007E729B /* animation_set.cc */; };
-		D88F2A85286AA6AD008D1439 /* thread_worker_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F2A62286AA6AD008D1439 /* thread_worker_impl.cc */; };
-		D88F2A86286AA6AD008D1439 /* loop_worker_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F2A63286AA6AD008D1439 /* loop_worker_impl.cc */; };
 		D88F2A87286AA6AD008D1439 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F2A64286AA6AD008D1439 /* logging.cc */; };
 		D88F440B28470C3E00989F01 /* animation_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = D88F440A28470C3E00989F01 /* animation_module.cc */; };
+		D8907F99288648A1005696C7 /* cv_driver.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907F98288648A1005696C7 /* cv_driver.cc */; };
+		D8907FF02887FDA2005696C7 /* looper_driver.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907FE12887FDA2005696C7 /* looper_driver.cc */; };
+		D8907FF12887FDA2005696C7 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907FE32887FDA2005696C7 /* logging.cc */; };
+		D8907FF22887FDA2005696C7 /* worker_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8907FE42887FDA2005696C7 /* worker_impl.cc */; };
+		D8DB860C28859A890012C084 /* looper_driver.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8DB860528859A890012C084 /* looper_driver.cc */; };
+		D8DB860D28859A890012C084 /* worker_impl.cc in Sources */ = {isa = PBXBuildFile; fileRef = D8DB860B28859A890012C084 /* worker_impl.cc */; };
 		F0889ED581FF7516357B3726 /* libPods-HippyDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C98B5A3CF5267599CFCFF48A /* libPods-HippyDemo.a */; };
 		F400C2E3274F65FA008BD74B /* js_native_turbo_jsc.cc in Sources */ = {isa = PBXBuildFile; fileRef = F400C2E2274F65FA008BD74B /* js_native_turbo_jsc.cc */; };
 		F400C2E7274F66ED008BD74B /* js_native_turbo.cc in Sources */ = {isa = PBXBuildFile; fileRef = F400C2E6274F66ED008BD74B /* js_native_turbo.cc */; };
@@ -298,7 +301,6 @@
 		D4B5A0892816642300ABBD9C /* scene_builder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene_builder.h; sourceTree = "<group>"; };
 		D806C4EF2872BC3B00E62992 /* repeating_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = repeating_timer.cc; sourceTree = "<group>"; };
 		D806C4F02872BC3B00E62992 /* task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = task.cc; sourceTree = "<group>"; };
-		D806C4F12872BC3B00E62992 /* thread_worker.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_worker.cc; sourceTree = "<group>"; };
 		D806C4F22872BC3B00E62992 /* idle_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_timer.cc; sourceTree = "<group>"; };
 		D806C4FC2872BC3B00E62992 /* deserializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = deserializer.cc; sourceTree = "<group>"; };
 		D806C4FD2872BC3B00E62992 /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
@@ -368,8 +370,6 @@
 		D88F2A31286AA6AD008D1439 /* task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task.h; sourceTree = "<group>"; };
 		D88F2A32286AA6AD008D1439 /* idle_task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_task.h; sourceTree = "<group>"; };
 		D88F2A35286AA6AD008D1439 /* string_view_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_view_utils.h; sourceTree = "<group>"; };
-		D88F2A36286AA6AD008D1439 /* thread_worker_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread_worker_impl.h; sourceTree = "<group>"; };
-		D88F2A3B286AA6AD008D1439 /* loop_worker_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loop_worker_impl.h; sourceTree = "<group>"; };
 		D88F2A3D286AA6AD008D1439 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		D88F2A3F286AA6AD008D1439 /* worker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worker.h; sourceTree = "<group>"; };
 		D88F2A40286AA6AD008D1439 /* one_shot_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = one_shot_timer.h; sourceTree = "<group>"; };
@@ -383,19 +383,24 @@
 		D88F2A49286AA6AD008D1439 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
 		D88F2A4C286AA6AD008D1439 /* time_delta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = time_delta.h; sourceTree = "<group>"; };
 		D88F2A4E286AA6AD008D1439 /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
-		D88F2A50286AA6AD008D1439 /* thread_worker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread_worker.h; sourceTree = "<group>"; };
 		D88F2A51286AA6AD008D1439 /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
 		D88F2A52286AA6AD008D1439 /* base_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_timer.h; sourceTree = "<group>"; };
 		D88F2A53286AA6AD008D1439 /* worker_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worker_manager.h; sourceTree = "<group>"; };
-		D88F2A62286AA6AD008D1439 /* thread_worker_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = thread_worker_impl.cc; sourceTree = "<group>"; };
-		D88F2A63286AA6AD008D1439 /* loop_worker_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = loop_worker_impl.cc; sourceTree = "<group>"; };
 		D88F2A64286AA6AD008D1439 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
 		D88F440528470C2000989F01 /* animation_module.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = animation_module.h; sourceTree = "<group>"; };
 		D88F440A28470C3E00989F01 /* animation_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_module.cc; sourceTree = "<group>"; };
+		D8907F9728864884005696C7 /* cv_driver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cv_driver.h; sourceTree = "<group>"; };
+		D8907F98288648A1005696C7 /* cv_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cv_driver.cc; sourceTree = "<group>"; };
+		D8907FE12887FDA2005696C7 /* looper_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = looper_driver.cc; sourceTree = "<group>"; };
+		D8907FE32887FDA2005696C7 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
+		D8907FE42887FDA2005696C7 /* worker_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_impl.cc; sourceTree = "<group>"; };
 		D8A88897286D413200D60489 /* deserializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = deserializer.h; sourceTree = "<group>"; };
 		D8A88898286D414C00D60489 /* hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
 		D8A88899286D414C00D60489 /* hippy_value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hippy_value.h; sourceTree = "<group>"; };
 		D8A8889A286D415600D60489 /* serializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = serializer.h; sourceTree = "<group>"; };
+		D8DB860528859A890012C084 /* looper_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = looper_driver.cc; sourceTree = "<group>"; };
+		D8DB860B28859A890012C084 /* worker_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_impl.cc; sourceTree = "<group>"; };
+		D8DB860E28859C180012C084 /* looper_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = looper_driver.h; sourceTree = "<group>"; };
 		F400C2E2274F65FA008BD74B /* js_native_turbo_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo_jsc.cc; sourceTree = "<group>"; };
 		F400C2E4274F6691008BD74B /* js_native_turbo_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo_jsc.h; sourceTree = "<group>"; };
 		F400C2E5274F66E3008BD74B /* js_native_turbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo.h; sourceTree = "<group>"; };
@@ -408,7 +413,6 @@
 		F419C382274634E9003E242A /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; tabWidth = 2; };
 		F42155EB2816939D00688C0D /* HippyMethodInterceptorProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyMethodInterceptorProtocol.h; sourceTree = "<group>"; };
 		F42155EF2816A78000688C0D /* dom_action_interceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_action_interceptor.h; sourceTree = "<group>"; };
-		F42155F02816A78000688C0D /* macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macro.h; sourceTree = "<group>"; };
 		F42EA796277C354C007874A2 /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
 		F42EA797277C354C007874A2 /* TurboConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboConfig.h; sourceTree = "<group>"; };
 		F42EA798277C354C007874A2 /* TurboBaseModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TurboBaseModule.h; sourceTree = "<group>"; };
@@ -918,7 +922,6 @@
 				D4B5A0832816640500ABBD9C /* scene_builder.h */,
 				D4B5A0822816640500ABBD9C /* scene.h */,
 				F42155EF2816A78000688C0D /* dom_action_interceptor.h */,
-				F42155F02816A78000688C0D /* macro.h */,
 				9252AE8C2809534100B27E50 /* root_node.h */,
 				F4810952277062A1005C221B /* layer_optimized_render_manager.h */,
 				F4E7B437276C61DC00F17139 /* diff_utils.h */,
@@ -1150,6 +1153,7 @@
 		D88F2A2F286AA6AD008D1439 /* footstone */ = {
 			isa = PBXGroup;
 			children = (
+				D8907F9728864884005696C7 /* cv_driver.h */,
 				D8A8889A286D415600D60489 /* serializer.h */,
 				D8A88898286D414C00D60489 /* hash.h */,
 				D8A88899286D414C00D60489 /* hippy_value.h */,
@@ -1158,7 +1162,6 @@
 				D88F2A32286AA6AD008D1439 /* idle_task.h */,
 				D88F2A35286AA6AD008D1439 /* string_view_utils.h */,
 				9B4E720C2876D0A8006566E1 /* string_utils.h */,
-				D88F2A36286AA6AD008D1439 /* thread_worker_impl.h */,
 				D88F2A37286AA6AD008D1439 /* platform */,
 				D88F2A3D286AA6AD008D1439 /* logging.h */,
 				D88F2A3F286AA6AD008D1439 /* worker.h */,
@@ -1173,7 +1176,6 @@
 				D88F2A49286AA6AD008D1439 /* log_settings.h */,
 				D88F2A4C286AA6AD008D1439 /* time_delta.h */,
 				D88F2A4E286AA6AD008D1439 /* idle_timer.h */,
-				D88F2A50286AA6AD008D1439 /* thread_worker.h */,
 				D88F2A51286AA6AD008D1439 /* unicode_string_view.h */,
 				D88F2A52286AA6AD008D1439 /* base_timer.h */,
 				D88F2A53286AA6AD008D1439 /* worker_manager.h */,
@@ -1192,7 +1194,7 @@
 		D88F2A3A286AA6AD008D1439 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				D88F2A3B286AA6AD008D1439 /* loop_worker_impl.h */,
+				D8DB860E28859C180012C084 /* looper_driver.h */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -1200,6 +1202,8 @@
 		D88F2A54286AA6AD008D1439 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				D8907FDA2887FDA2005696C7 /* platform */,
+				D8907F98288648A1005696C7 /* cv_driver.cc */,
 				9B4E720D2876D0B9006566E1 /* string_utils.cc */,
 				D806C5052872BC3C00E62992 /* base_timer.cc */,
 				D806C4FC2872BC3B00E62992 /* deserializer.cc */,
@@ -1213,7 +1217,6 @@
 				D806C5022872BC3C00E62992 /* serializer.cc */,
 				D806C5062872BC3C00E62992 /* task_runner.cc */,
 				D806C4F02872BC3B00E62992 /* task.cc */,
-				D806C4F12872BC3B00E62992 /* thread_worker.cc */,
 				D806C5072872BC3C00E62992 /* unicode_string_view.cc */,
 				D806C4FE2872BC3B00E62992 /* worker_manager.cc */,
 				D806C5032872BC3C00E62992 /* worker.cc */,
@@ -1233,9 +1236,27 @@
 		D88F2A60286AA6AD008D1439 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				D88F2A62286AA6AD008D1439 /* thread_worker_impl.cc */,
-				D88F2A63286AA6AD008D1439 /* loop_worker_impl.cc */,
+				D8DB860528859A890012C084 /* looper_driver.cc */,
+				D8DB860B28859A890012C084 /* worker_impl.cc */,
 				D88F2A64286AA6AD008D1439 /* logging.cc */,
+			);
+			path = ios;
+			sourceTree = "<group>";
+		};
+		D8907FDA2887FDA2005696C7 /* platform */ = {
+			isa = PBXGroup;
+			children = (
+				D8907FE02887FDA2005696C7 /* ios */,
+			);
+			path = platform;
+			sourceTree = "<group>";
+		};
+		D8907FE02887FDA2005696C7 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				D8907FE12887FDA2005696C7 /* looper_driver.cc */,
+				D8907FE32887FDA2005696C7 /* logging.cc */,
+				D8907FE42887FDA2005696C7 /* worker_impl.cc */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -2023,7 +2044,6 @@
 				F4CEDF9C27D858C700583C9E /* NativeRenderDownloadTask.m in Sources */,
 				F4BD045827D5AE2500339A2C /* UIView+Render.mm in Sources */,
 				D806C5152872BC3C00E62992 /* one_shot_timer.cc in Sources */,
-				D88F2A85286AA6AD008D1439 /* thread_worker_impl.cc in Sources */,
 				F468DE562812A95200319196 /* HippyOCTurboModule.mm in Sources */,
 				D4B09E392750D2C000643CDF /* Flex.cpp in Sources */,
 				F45D266E28067B6900CAB185 /* NativeRenderImageView.m in Sources */,
@@ -2062,7 +2082,6 @@
 				D84AB9BD273A618B00987D03 /* ui_manager_module.cc in Sources */,
 				F438B745281248010078435B /* OCTypeToDomArgument.mm in Sources */,
 				F468DE612812A95200319196 /* HippyAsyncLocalStorage.mm in Sources */,
-				D88F2A86286AA6AD008D1439 /* loop_worker_impl.cc in Sources */,
 				F482919E274E420C00D91128 /* FlexLine.cpp in Sources */,
 				D806C5142872BC3C00E62992 /* worker_manager.cc in Sources */,
 				F482919A274E420C00D91128 /* HPStyle.cpp in Sources */,
@@ -2078,6 +2097,7 @@
 				F4C1CE23281131EC00CED4C4 /* NSData+DataType.m in Sources */,
 				D806C50B2872BC3C00E62992 /* idle_timer.cc in Sources */,
 				F468DE632812A95200319196 /* HippyRedBox.mm in Sources */,
+				D8DB860C28859A890012C084 /* looper_driver.cc in Sources */,
 				D806C5092872BC3C00E62992 /* task.cc in Sources */,
 				D84AB9BE273A618B00987D03 /* console_module.cc in Sources */,
 				F45D267C28067B6900CAB185 /* NativeRenderBaseListViewDataSource.mm in Sources */,
@@ -2096,6 +2116,7 @@
 				F45D266A28067B6900CAB185 /* NativeRenderWaterfallViewManager.mm in Sources */,
 				F473F1452859C37100422C1A /* NativeRenderComponentMap.mm in Sources */,
 				F468DE582812A95200319196 /* NSObject+HippyTurbo.mm in Sources */,
+				D8907FF12887FDA2005696C7 /* logging.cc in Sources */,
 				D806C51D2872BC3C00E62992 /* unicode_string_view.cc in Sources */,
 				F438B744281248010078435B /* NativeRenderGradientObject.m in Sources */,
 				F468DE9E2812ACEA00319196 /* NativeRenderObjectRootView.mm in Sources */,
@@ -2119,6 +2140,7 @@
 				F468DE5A2812A95200319196 /* HippyFetchInfo.m in Sources */,
 				D84AB9BF273A618B00987D03 /* timer_module.cc in Sources */,
 				F45D267228067B6900CAB185 /* NativeRenderImageView+NativeRenderTouchesImplementation.mm in Sources */,
+				D8907F99288648A1005696C7 /* cv_driver.cc in Sources */,
 				F468DE5C2812A95200319196 /* HippyNetInfo.mm in Sources */,
 				F468DE7C2812A95200319196 /* HippyBridge.mm in Sources */,
 				D84AB8EF273A5AAD00987D03 /* layout_node.cc in Sources */,
@@ -2152,7 +2174,6 @@
 				D806C51A2872BC3C00E62992 /* idle_task.cc in Sources */,
 				F482919F274E420D00D91128 /* Hippy.cpp in Sources */,
 				F468DE732812A95200319196 /* HippyBundleURLProvider.m in Sources */,
-				D806C50A2872BC3C00E62992 /* thread_worker.cc in Sources */,
 				F45D268E28067B6900CAB185 /* NativeRenderNavigationControllerAnimator.m in Sources */,
 				D86B3E60284E31EB007E729B /* animation_manager.cc in Sources */,
 				F45D267428067B6900CAB185 /* NativeRenderObjectBaseListItem.mm in Sources */,
@@ -2190,6 +2211,7 @@
 				F482919D274E420C00D91128 /* HPNode.cpp in Sources */,
 				F45D268928067B6900CAB185 /* NativeRenderSmartViewPagerViewManager.mm in Sources */,
 				F45D265828067B6900CAB185 /* NativeRenderRefreshWrapperItemViewManager.mm in Sources */,
+				D8907FF22887FDA2005696C7 /* worker_impl.cc in Sources */,
 				F468DE622812A95200319196 /* HippyDevMenu.mm in Sources */,
 				D84AB9BC273A618B00987D03 /* module_register.cc in Sources */,
 				D84AB9C2273A618B00987D03 /* file.cc in Sources */,
@@ -2198,7 +2220,9 @@
 				D806C51C2872BC3C00E62992 /* task_runner.cc in Sources */,
 				F45D266D28067B6900CAB185 /* NativeRenderWaterfallItemViewManager.mm in Sources */,
 				F4A8424227D38CF900AEFC88 /* NativeRenderManager.mm in Sources */,
+				D8DB860D28859A890012C084 /* worker_impl.cc in Sources */,
 				F45EF2D9287BC47C00D79828 /* NSObject+ToJSCtxValue.mm in Sources */,
+				D8907FF02887FDA2005696C7 /* looper_driver.cc in Sources */,
 				F45D265E28067B6900CAB185 /* NativeRenderTextView.mm in Sources */,
 				F468DE842812A95200319196 /* HippyWebSocketManager.m in Sources */,
 				D86B3E62284E31EB007E729B /* animation.cc in Sources */,
@@ -2369,8 +2393,8 @@
 					"JS_USE_JSC=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../modules/footstone/include",
+					"$(SRCROOT)/../../../../modules/footstone",
 					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../layout",
 					"$(SRCROOT)/../../../../dom/include",
@@ -2410,8 +2434,8 @@
 					"JS_USE_JSC=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../modules/footstone/include",
+					"$(SRCROOT)/../../../../modules/footstone",
 					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../layout",
 					"$(SRCROOT)/../../../../dom/include",

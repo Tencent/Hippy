@@ -1,6 +1,26 @@
-#include <cassert>
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-#include "footstone/unicode_string_view.h"
+#include "include/footstone/unicode_string_view.h"
+
+#include "include/footstone/logging.h"
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
 
@@ -264,35 +284,35 @@ bool unicode_string_view::is_utf16() const noexcept { return encoding_ == Encodi
 bool unicode_string_view::is_utf32() const noexcept { return encoding_ == Encoding::Utf32; }
 
 unicode_string_view::string& unicode_string_view::latin1_value() {
-  assert(encoding_ == Encoding::Latin1);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Latin1);
   return latin1_string_;
 }
 const unicode_string_view::string& unicode_string_view::latin1_value() const {
-  assert(encoding_ == Encoding::Latin1);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Latin1);
   return latin1_string_;
 }
 unicode_string_view::u8string& unicode_string_view::utf8_value() {
-  assert(encoding_ == Encoding::Utf8);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Utf8);
   return u8_string_;
 }
 const unicode_string_view::u8string& unicode_string_view::utf8_value() const {
-  assert(encoding_ == Encoding::Utf8);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Utf8);
   return u8_string_;
 }
 unicode_string_view::u16string& unicode_string_view::utf16_value() {
-  assert(encoding_ == Encoding::Utf16);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Utf16);
   return u16_string_;
 }
 const unicode_string_view::u16string& unicode_string_view::utf16_value() const {
-  assert(encoding_ == Encoding::Utf16);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Utf16);
   return u16_string_;
 }
 unicode_string_view::u32string& unicode_string_view::utf32_value() {
-  assert(encoding_ == Encoding::Utf32);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Utf32);
   return u32_string_;
 }
 const unicode_string_view::u32string& unicode_string_view::utf32_value() const {
-  assert(encoding_ == Encoding::Utf32);
+  FOOTSTONE_CHECK(encoding_ == Encoding::Utf32);
   return u32_string_;
 }
 

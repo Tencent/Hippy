@@ -64,7 +64,7 @@
 
 /**
  * CALayerContents Filter
- * Default is kCAFilterLinear
+ * Default is kCAFilterLinear for minificationFilter and kCAFilterNearest for magnificationFilter
  */
 - (CALayerContentsFilter)minificationFilter;
 - (CALayerContentsFilter)magnificationFilter;

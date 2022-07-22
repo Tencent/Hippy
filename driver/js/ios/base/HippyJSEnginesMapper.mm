@@ -23,8 +23,12 @@
 #import "HippyJSEnginesMapper.h"
 #import "NativeRenderLog.h"
 
+#include "footstone/worker_impl.h"
+#include "footstone/platform/ios/looper_driver.h"
+
 EngineResource::EngineResource() {
-    dom_worker_ = std::make_shared<footstone::ThreadWorkerImpl>(false, "hippy_dom");
+    auto driver = std::make_unique<footstone::LooperDriver>();
+    dom_worker_ = std::make_shared<footstone::WorkerImpl>("hippy_dom", false, std::move(driver));
     dom_worker_->Start();
     auto task_runner = std::make_shared<footstone::TaskRunner>();
     dom_worker_->Bind({task_runner});

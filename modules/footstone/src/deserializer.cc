@@ -1,12 +1,32 @@
-#include "footstone/deserializer.h"
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "include/footstone/deserializer.h"
 
 #include <cstring>
 
-#include "footstone/logging.h"
-#include "footstone/unicode_string_view.h"
-#include "footstone/string_view_utils.h"
-#include "footstone/hippy_value.h"
-#include "footstone/serializer.h"
+#include "include/footstone/hippy_value.h"
+#include "include/footstone/logging.h"
+#include "include/footstone/string_view_utils.h"
+#include "include/footstone/serializer.h"
+#include "include/footstone/unicode_string_view.h"
 
 namespace footstone {
 inline namespace value {
@@ -192,7 +212,8 @@ bool Deserializer::ReadDenseJSArray(HippyValue& dom_value) {
   uint32_t num_properties;
   uint32_t expected_num_properties;
   uint32_t expected_length;
-  num_properties = ReadObjectProperties(SerializationTag::kEndDenseJSArray);
+  bool ret = ReadObjectProperties(num_properties, SerializationTag::kEndDenseJSArray);
+  if (!ret) return false;
   expected_num_properties = ReadVarint<uint32_t>();
   expected_length = ReadVarint<uint32_t>();
   if (num_properties != expected_num_properties) return false;
@@ -206,7 +227,8 @@ bool Deserializer::ReadJSObject(HippyValue& dom_value) {
   bool ret = true;
   uint32_t num_properties;
   HippyValueObjectType object;
-  num_properties = ReadObjectProperties(object, SerializationTag::kEndJSObject);
+  ret = ReadObjectProperties(object, num_properties, SerializationTag::kEndJSObject);
+  if (!ret) return false;
 
   uint32_t expected_num_properties;
   expected_num_properties = ReadVarint<uint32_t>();
@@ -320,43 +342,52 @@ bool Deserializer::ReadObject(HippyValue& value) {
   return ret;
 }
 
-uint32_t Deserializer::ReadObjectProperties(HippyValueObjectType& property, SerializationTag end_tag) {
-  uint32_t num_properties = 0;
+bool Deserializer::ReadObjectProperties(HippyValueObjectType& property, uint32_t& number_properties, SerializationTag end_tag) {
+  uint32_t number = 0;
   HippyValue::HippyValueObjectType object;
+  bool ret = true;
 
   // Slow path.
-  for (;; num_properties++) {
-    SerializationTag tag;
-    PeekTag(tag);
+  SerializationTag tag;
+  while (PeekTag(tag)) {
     if (tag == end_tag) {
       ConsumeTag(end_tag);
-      return num_properties;
+      number_properties = number;
+      return true;
     }
 
     if (end_tag == SerializationTag::kEndJSObject) {
       HippyValue key;
-      ReadObject(key);
+      ret = ReadObject(key);
+      if (!ret) return false;
       HippyValue value;
-      ReadObject(value);
+      ret = ReadObject(value);
+      if (!ret) return false;
       object.insert(std::pair<std::string, HippyValue>(key.ToStringChecked(), value));
       property = object;
     }
+    number++;
   }
+
+  return false;
 }
 
-uint32_t Deserializer::ReadObjectProperties(SerializationTag end_tag) {
-  uint32_t num_properties = 0;
+bool Deserializer::ReadObjectProperties(uint32_t& number_properties, SerializationTag end_tag) {
+  uint32_t number = 0;
 
   // Slow path.
-  for (;; num_properties++) {
-    SerializationTag tag;
-    PeekTag(tag);
+  SerializationTag tag;
+  while (PeekTag(tag)) {
     if (tag == end_tag) {
       ConsumeTag(end_tag);
-      return num_properties;
+      number_properties = number;
+      return true;
     }
+    number++;
   }
+
+  return false;
 }
 
-}  // namespace base
-}  // namespace tdf
+}  // namespace value
+}  // namespace footstone

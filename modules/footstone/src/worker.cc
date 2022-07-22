@@ -1,4 +1,24 @@
-#include "footstone/worker.h"
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "include/footstone/worker.h"
 
 #include <algorithm>
 #include <array>
@@ -6,14 +26,15 @@
 #include <map>
 #include <utility>
 
-#include "footstone/check.h"
-#include "footstone/logging.h"
-#include "footstone/worker_manager.h"
+#include "include/footstone/check.h"
+#include "include/footstone/cv_driver.h"
+#include "include/footstone/logging.h"
+#include "include/footstone/worker_manager.h"
 
 #ifdef ANDROID
-#include "footstone/platform/adr/loop_worker_impl.h"
-#elif defined IOS
-#include "footstone/platform/ios/loop_worker_impl.h"
+#include "include/footstone/platform/adr/looper_driver.h"
+#elif defined __APPLE__
+#include "include/footstone/platform/ios/looper_driver.h"
 #endif
 
 namespace footstone {
@@ -25,13 +46,21 @@ thread_local bool is_task_running = false;
 thread_local std::shared_ptr<TaskRunner> local_runner;
 thread_local std::vector<std::shared_ptr<TaskRunner>> curr_group;
 
-Worker::Worker(bool is_schedulable, std::string name)
-    : name_(std::move(name)), is_terminated_(false), is_exit_immediately_(true),
-      min_wait_time_(TimeDelta::Max()), next_task_time_(TimePoint::Max()), need_balance_(false),
-      is_stacking_mode_(false), has_migration_data_(false), is_schedulable_(is_schedulable) {}
+Worker::Worker(std::string name, bool is_schedulable, std::unique_ptr<Driver> driver)
+    : thread_(),
+      name_(std::move(name)),
+      min_wait_time_(TimeDelta::Max()),
+      next_task_time_(TimePoint::Max()),
+      need_balance_(false),
+      is_stacking_mode_(false),
+      has_migration_data_(false),
+      is_schedulable_(is_schedulable),
+      group_id_(0),
+      driver_(std::move(driver)) {
+}
 
 Worker::~Worker() {
-  FOOTSTONE_CHECK(is_terminated_) << "Terminate function must be called before destruction";
+  FOOTSTONE_CHECK(!driver_->IsTerminated()) << "Terminate function must be called before destruction";
   Worker::WorkerDestroySpecifics();
 }
 
@@ -84,18 +113,28 @@ bool Worker::RunTask() {
     for (auto &it : curr_group) {
       it->AddTime(TimePoint::Now() - begin);
     }
-  } else if (is_terminated_) {
+  } else if (driver_->IsTerminated()) {
     return false;
   }
   return true;
 }
 
-void Worker::Run() {
-  if (is_terminated_) {
-    return;
+void Worker::Start(bool in_new_thread) {
+  driver_->SetUnit([weak_self = GetSelf()]() -> bool {
+    auto self = weak_self.lock();
+    if (self) {
+      return self->RunTask();
+    }
+    return false;
+  });
+  if (in_new_thread) {
+    thread_ = std::thread([this]() -> void {
+      SetName(name_);
+      driver_->Start();
+    });
+  } else {
+    driver_->Start();
   }
-  local_worker_id = global_worker_id.fetch_add(1);
-  RunLoop();
 }
 
 void Worker::SortNoLock() { // sort后优先级越高的TaskRunner分组距离队列头部越近
@@ -113,8 +152,12 @@ void Worker::SortNoLock() { // sort后优先级越高的TaskRunner分组距离�
   }
 }
 
+void Worker::Notify() {
+  driver_->Notify();
+}
+
 void Worker::Terminate() {
-  TerminateWorker();
+  driver_->Terminate();
 }
 
 void Worker::BindGroup(uint32_t father_id, const std::shared_ptr<TaskRunner> &child) {
@@ -160,7 +203,7 @@ void Worker::Bind(std::vector<std::shared_ptr<TaskRunner>> group) {
     pending_group_list_.insert(pending_group_list_.end(), std::move(group));
   }
   need_balance_ = true;
-  Notify();
+  driver_->Notify();
 }
 
 void Worker::Bind(std::list<std::vector<std::shared_ptr<TaskRunner>>> list) {
@@ -169,7 +212,7 @@ void Worker::Bind(std::list<std::vector<std::shared_ptr<TaskRunner>>> list) {
     pending_group_list_.splice(pending_group_list_.end(), list);
   }
   need_balance_ = true;
-  Notify();
+  driver_->Notify();
 }
 
 bool EraseRunnerNoLock(std::list<std::vector<std::shared_ptr<TaskRunner>>>& list,
@@ -295,7 +338,7 @@ auto MakeCopyable(F&& f) {
 }
 
 std::unique_ptr<Task> Worker::GetNextTask() {
-  if (is_terminated_) {
+  if (driver_->IsTerminated()) {
     return nullptr;
   }
   {
@@ -350,7 +393,7 @@ std::unique_ptr<Task> Worker::GetNextTask() {
         }));
     return wrapper_idle_task;
   }
-  WaitFor(min_wait_time_);
+  driver_->WaitFor(min_wait_time_);
   return nullptr;
 }
 

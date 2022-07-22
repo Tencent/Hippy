@@ -20,20 +20,30 @@
 
 #pragma once
 
-#include <chrono>
-#include <cstdint>
+#include "footstone/driver.h"
 
-#include "footstone/check.h"
+#include <mutex>
+
+#include "footstone/time_delta.h"
 
 namespace footstone {
-inline namespace time {
-inline uint64_t MonotonicallyIncreasingTime() {
-  auto now = std::chrono::steady_clock::now();
-  auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now)
-                    .time_since_epoch();
-  auto ticks = std::chrono::duration_cast<std::chrono::milliseconds>(now_ms).count();
-  return footstone::check::checked_numeric_cast<long long, uint64_t>(ticks);
+inline namespace runner {
+
+class CVDriver: public Driver {
+ public:
+  CVDriver() = default;
+  virtual ~CVDriver() = default;
+
+  virtual void Notify() override;
+  virtual void WaitFor(const TimeDelta& delta) override;
+  virtual void Start() override;
+  virtual void Terminate() override;
+
+ private:
+  std::condition_variable cv_;
+  std::mutex mutex_;
+};
+
 }
-}  // namespace base
-}  // namespace hippy
+}
 
