@@ -87,7 +87,6 @@ using V8VM = hippy::napi::V8VM;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 #ifndef V8_WITHOUT_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
-std::mutex inspector_mutex;
 #endif
 
 constexpr char kLogTag[] = "native";
@@ -446,7 +445,6 @@ jlong InitInstance(JNIEnv* j_env,
 #ifndef V8_WITHOUT_INSPECTOR
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (runtime->IsDebug()) {
-      std::lock_guard<std::mutex> lock(inspector_mutex);
       auto inspector = std::make_shared<V8InspectorClientImpl>(runtime->GetEngine()->GetJSRunner());
       runtime->GetEngine()->SetInspectorClient(inspector);
     }
@@ -474,7 +472,6 @@ jlong InitInstance(JNIEnv* j_env,
     }
 #ifndef V8_WITHOUT_INSPECTOR
       if (runtime->IsDebug()) {
-        std::lock_guard<std::mutex> lock(inspector_mutex);
         auto inspector_client = runtime->GetEngine()->GetInspectorClient();
         if (inspector_client) {
           inspector_client->CreateInspector(scope);
@@ -540,8 +537,7 @@ jlong InitInstance(JNIEnv* j_env,
       runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
-  } else
-    if (group != kDefaultEngineId) {
+  } else if (group != kDefaultEngineId) {
     std::lock_guard<std::mutex> lock(engine_mutex);
     auto it = reuse_engine_map.find(group);
     if (it != reuse_engine_map.end()) {
@@ -593,7 +589,6 @@ void DestroyInstance(__unused JNIEnv* j_env,
     TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
 #ifndef V8_WITHOUT_INSPECTOR
     if (runtime->IsDebug()) {
-        std::lock_guard<std::mutex> lock(inspector_mutex);
         auto inspector_client = runtime->GetEngine()->GetInspectorClient();
         if (inspector_client) {
           auto inspector_context = runtime->GetInspectorContext();

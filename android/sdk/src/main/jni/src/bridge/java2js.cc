@@ -56,10 +56,6 @@ using bytes = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using StringViewUtils = hippy::base::StringViewUtils;
-#ifndef V8_WITHOUT_INSPECTOR
-using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
-extern std::mutex inspector_mutex;
-#endif
 
 const char kHippyBridgeName[] = "hippyBridge";
 
@@ -117,7 +113,6 @@ void CallFunction(JNIEnv* j_env,
     if (runtime->IsDebug() &&
         action_name.utf16_value() == u"onWebsocketMsg") {
 #ifndef V8_WITHOUT_INSPECTOR
-      std::lock_guard<std::mutex> lock(inspector_mutex);
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
       auto inspector_client = runtime->GetEngine()->GetInspectorClient();
