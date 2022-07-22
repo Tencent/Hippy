@@ -93,8 +93,6 @@ jobs:
         ./gradlew example::assembleDebug
     - name: Build C++
       if: steps.detect_languages.outputs.language == 'cpp'
-      env:
-        CMAKE_INFA_PACKAGES_URL: https://hippy-packages-1258344701.cos.na-siliconvalley.myqcloud.com
       run: |
         ./gradlew hippy-driver::buildCMakeRelease
     - name: Perform CodeQL Analysis

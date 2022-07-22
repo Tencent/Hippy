@@ -20,7 +20,7 @@
  *
  */
 
-#include "src/jni_env.h"
+#include "include/jni/jni_env.h"
 
 #include <sys/prctl.h>
 
