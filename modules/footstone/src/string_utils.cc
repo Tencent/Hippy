@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "src/string_utils.h"
+#include "include/footstone/string_utils.h"
 
 #include <regex>
 

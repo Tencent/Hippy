@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "src/platform/adr/looper_driver.h"
+#include "include/footstone/platform/adr/looper_driver.h"
 
 #include <sys/timerfd.h>
 

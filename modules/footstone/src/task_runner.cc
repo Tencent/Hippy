@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 
-#include "src/task_runner.h"
+#include "include/footstone/task_runner.h"
 
 #include <atomic>
 #include <array>
 #include <utility>
 
-#include "src/logging.h"
-#include "src/worker.h"
+#include "include/footstone/logging.h"
+#include "include/footstone/worker.h"
 
 namespace footstone {
 inline namespace runner {

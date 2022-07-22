@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-#include "unicode_string_view.h"
+#include "include/footstone/unicode_string_view.h"
 
-#include "src/logging.h"
+#include "include/footstone/logging.h"
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
 

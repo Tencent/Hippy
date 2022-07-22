@@ -18,14 +18,14 @@
  * limitations under the License.
  */
 
-#include "src/logging.h"
+#include "include/footstone/logging.h"
 
 #include <android/log.h>
 
 #include <algorithm>
 #include <iostream>
 
-#include "src/log_settings.h"
+#include "include/footstone/log_settings.h"
 
 namespace footstone {
 inline namespace log {

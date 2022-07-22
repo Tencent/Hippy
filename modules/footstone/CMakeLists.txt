@@ -34,68 +34,38 @@ set(THIRD_PARTY ${CMAKE_CURRENT_SOURCE_DIR}/third_party)
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME}
-    INTERFACE include
+    PUBLIC include
     PRIVATE .)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
 # region source set
 set(SOURCE_SET
-    src/base_time.h
     src/base_timer.cc
-    src/base_timer.h
-    src/check.h
     src/cv_driver.cc
-    src/cv_driver.h
     src/deserializer.cc
-    src/deserializer.h
-    src/driver.h
-    src/hash.h
     src/hippy_value.cc
-    src/hippy_value.h
     src/idle_task.cc
-    src/idle_task.h
     src/idle_timer.cc
-    src/idle_timer.h
-    src/log_level.h
     src/log_settings.cc
-    src/log_settings.h
     src/log_settings_state.cc
-    src/logging.h
-    src/macros.h
     src/one_shot_timer.cc
-    src/one_shot_timer.h
-    src/persistent_object_map.h
     src/repeating_timer.cc
-    src/repeating_timer.h
     src/serializer.cc
-    src/serializer.h
     src/string_utils.cc
-    src/string_utils.h
-    src/string_view_utils.h
     src/task.cc
-    src/task.h
     src/task_runner.cc
-    src/task_runner.h
-    src/time_delta.h
-    src/time_point.h
     src/unicode_string_view.cc
-    src/unicode_string_view.h
     src/worker.cc
-    src/worker.h
-    src/worker_impl.h
-    src/worker_manager.cc
-    src/worker_manager.h)
+    src/worker_manager.cc)
 if (ANDROID)
   list(APPEND SOURCE_SET
       src/platform/adr/looper_driver.cc
-      src/platform/adr/looper_driver.h
       src/platform/adr/logging.cc
       src/platform/adr/worker_impl.cc)
 elseif (IOS)
   list(APPEND SOURCE_SET
       src/platform/ios/looper_driver.cc
-      src/platform/ios/looper_driver.h
       src/platform/ios/logging.cc
       src/platform/ios/worker_impl.cc)
 else ()
@@ -103,7 +73,6 @@ else ()
 endif ()
 
 set(PUBLIC_HEADER_SET
-    include/footstone
     include/footstone/task.h
     include/footstone/idle_task.h
     include/footstone/string_utils.h

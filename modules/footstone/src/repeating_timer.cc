@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-#include "src/repeating_timer.h"
+#include "include/footstone/repeating_timer.h"
 
-#include "src/logging.h"
+#include "include/footstone/logging.h"
 
 namespace footstone {
 inline namespace timer {

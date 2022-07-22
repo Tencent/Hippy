@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "src/cv_driver.h"
+#include "include/footstone/cv_driver.h"
 
 namespace footstone {
 inline namespace runner {

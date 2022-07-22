@@ -391,31 +391,9 @@
 		D88F440A28470C3E00989F01 /* animation_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_module.cc; sourceTree = "<group>"; };
 		D8907F9728864884005696C7 /* cv_driver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cv_driver.h; sourceTree = "<group>"; };
 		D8907F98288648A1005696C7 /* cv_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cv_driver.cc; sourceTree = "<group>"; };
-		D8907FC82887FD83005696C7 /* base_time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_time.h; sourceTree = "<group>"; };
-		D8907FCE2887FDA1005696C7 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
-		D8907FCF2887FDA1005696C7 /* cv_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cv_driver.h; sourceTree = "<group>"; };
-		D8907FD02887FDA1005696C7 /* repeating_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = repeating_timer.h; sourceTree = "<group>"; };
-		D8907FD12887FDA1005696C7 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
-		D8907FD22887FDA1005696C7 /* task_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task_runner.h; sourceTree = "<group>"; };
-		D8907FD32887FDA1005696C7 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
-		D8907FD42887FDA1005696C7 /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
-		D8907FD52887FDA1005696C7 /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
-		D8907FD62887FDA2005696C7 /* check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = check.h; sourceTree = "<group>"; };
-		D8907FD72887FDA2005696C7 /* idle_task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_task.h; sourceTree = "<group>"; };
-		D8907FD82887FDA2005696C7 /* base_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_timer.h; sourceTree = "<group>"; };
-		D8907FD92887FDA2005696C7 /* string_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_utils.h; sourceTree = "<group>"; };
 		D8907FE12887FDA2005696C7 /* looper_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = looper_driver.cc; sourceTree = "<group>"; };
-		D8907FE22887FDA2005696C7 /* looper_driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = looper_driver.h; sourceTree = "<group>"; };
 		D8907FE32887FDA2005696C7 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
 		D8907FE42887FDA2005696C7 /* worker_impl.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worker_impl.cc; sourceTree = "<group>"; };
-		D8907FE52887FDA2005696C7 /* serializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = serializer.h; sourceTree = "<group>"; };
-		D8907FE62887FDA2005696C7 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
-		D8907FE72887FDA2005696C7 /* driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = driver.h; sourceTree = "<group>"; };
-		D8907FE82887FDA2005696C7 /* one_shot_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = one_shot_timer.h; sourceTree = "<group>"; };
-		D8907FE92887FDA2005696C7 /* hippy_value.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_value.h; sourceTree = "<group>"; };
-		D8907FEA2887FDA2005696C7 /* persistent_object_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = persistent_object_map.h; sourceTree = "<group>"; };
-		D8907FEB2887FDA2005696C7 /* deserializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = deserializer.h; sourceTree = "<group>"; };
-		D8907FEC2887FDA2005696C7 /* string_view_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_view_utils.h; sourceTree = "<group>"; };
 		D8A88897286D413200D60489 /* deserializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = deserializer.h; sourceTree = "<group>"; };
 		D8A88898286D414C00D60489 /* hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
 		D8A88899286D414C00D60489 /* hippy_value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hippy_value.h; sourceTree = "<group>"; };
@@ -1224,28 +1202,7 @@
 		D88F2A54286AA6AD008D1439 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				D8907FD82887FDA2005696C7 /* base_timer.h */,
-				D8907FD62887FDA2005696C7 /* check.h */,
-				D8907FCF2887FDA1005696C7 /* cv_driver.h */,
-				D8907FEB2887FDA2005696C7 /* deserializer.h */,
-				D8907FE72887FDA2005696C7 /* driver.h */,
-				D8907FD52887FDA1005696C7 /* hash.h */,
-				D8907FE92887FDA2005696C7 /* hippy_value.h */,
-				D8907FD72887FDA2005696C7 /* idle_task.h */,
-				D8907FD42887FDA1005696C7 /* idle_timer.h */,
-				D8907FCE2887FDA1005696C7 /* log_level.h */,
-				D8907FD32887FDA1005696C7 /* log_settings.h */,
-				D8907FE62887FDA2005696C7 /* logging.h */,
-				D8907FD12887FDA1005696C7 /* macros.h */,
-				D8907FE82887FDA2005696C7 /* one_shot_timer.h */,
-				D8907FEA2887FDA2005696C7 /* persistent_object_map.h */,
 				D8907FDA2887FDA2005696C7 /* platform */,
-				D8907FD02887FDA1005696C7 /* repeating_timer.h */,
-				D8907FE52887FDA2005696C7 /* serializer.h */,
-				D8907FD92887FDA2005696C7 /* string_utils.h */,
-				D8907FEC2887FDA2005696C7 /* string_view_utils.h */,
-				D8907FD22887FDA1005696C7 /* task_runner.h */,
-				D8907FC82887FD83005696C7 /* base_time.h */,
 				D8907F98288648A1005696C7 /* cv_driver.cc */,
 				9B4E720D2876D0B9006566E1 /* string_utils.cc */,
 				D806C5052872BC3C00E62992 /* base_timer.cc */,
@@ -1298,7 +1255,6 @@
 			isa = PBXGroup;
 			children = (
 				D8907FE12887FDA2005696C7 /* looper_driver.cc */,
-				D8907FE22887FDA2005696C7 /* looper_driver.h */,
 				D8907FE32887FDA2005696C7 /* logging.cc */,
 				D8907FE42887FDA2005696C7 /* worker_impl.cc */,
 			);
@@ -2437,8 +2393,8 @@
 					"JS_USE_JSC=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../modules/footstone/include",
+					"$(SRCROOT)/../../../../modules/footstone",
 					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../layout",
 					"$(SRCROOT)/../../../../dom/include",
@@ -2447,7 +2403,6 @@
 					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
 					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
 					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
-					"$(SRCROOT)/../../../../modules/footstone",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
@@ -2479,8 +2434,8 @@
 					"JS_USE_JSC=1",
 				);
 				HEADER_SEARCH_PATHS = (
-					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../modules/footstone/include",
+					"$(SRCROOT)/../../../../modules/footstone",
 					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../../../layout",
 					"$(SRCROOT)/../../../../dom/include",
@@ -2489,7 +2444,6 @@
 					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
 					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
 					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
-					"$(SRCROOT)/../../../../modules/footstone",
 				);
 				INFOPLIST_FILE = HippyDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;

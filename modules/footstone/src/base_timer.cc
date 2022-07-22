@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "src/base_timer.h"
+#include "include/footstone/base_timer.h"
 
 namespace footstone {
 inline namespace timer {

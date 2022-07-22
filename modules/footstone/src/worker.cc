@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "src/worker.h"
+#include "include/footstone/worker.h"
 
 #include <algorithm>
 #include <array>
@@ -26,15 +26,15 @@
 #include <map>
 #include <utility>
 
-#include "src/check.h"
-#include "src/cv_driver.h"
-#include "src/logging.h"
-#include "src/worker_manager.h"
+#include "include/footstone/check.h"
+#include "include/footstone/cv_driver.h"
+#include "include/footstone/logging.h"
+#include "include/footstone/worker_manager.h"
 
 #ifdef ANDROID
-#include "platform/adr/looper_driver.h"
+#include "include/footstone/platform/adr/looper_driver.h"
 #elif defined __APPLE__
-#include "platform/ios/looper_driver.h"
+#include "include/footstone/platform/ios/looper_driver.h"
 #endif
 
 namespace footstone {

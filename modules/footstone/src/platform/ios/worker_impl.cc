@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-#include "src/worker_impl.h"
+#include "include/footstone/worker_impl.h"
 
 #include <pthread.h>
 

@@ -20,7 +20,7 @@
  *
  */
 
-#include "src/idle_task.h"
+#include "include/footstone/idle_task.h"
 
 #include <utility>
 
