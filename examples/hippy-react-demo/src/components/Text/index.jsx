@@ -269,29 +269,27 @@ export default class TextExpo extends React.Component {
             <Text numberOfLines={1} style={styles.customFont}>前面有张图片</Text>
           </Text>
         </View>
+        {Platform.OS === 'android' && renderTitle('textBreakStrategy')}
         {Platform.OS === 'android' && (
-          <>
-            {renderTitle('textBreakStrategy')}
-            <View style={styles.itemContent}>
-              <Text
-                style={[styles.normalText, { borderWidth: 1, borderColor: 'gray' }]}
-                textBreakStrategy={textBreakStrategy}>
-                {DEFAULT_VALUE}
-              </Text>
-              <Text style={styles.normalText}>{`textBreakStrategy: ${textBreakStrategy}`}</Text>
-              <View style={styles.buttonBar}>
-                <View style={styles.button} onClick={() => this.changetTextBreakStrategy('simple')}>
-                  <Text style={styles.buttonText}>simple</Text>
-                </View>
-                <View style={styles.button} onClick={() => this.changetTextBreakStrategy('highQuality')}>
-                  <Text style={styles.buttonText}>highQuality</Text>
-                </View>
-                <View style={styles.button} onClick={() => this.changetTextBreakStrategy('balanced')}>
-                  <Text style={styles.buttonText}>balanced</Text>
-                </View>
+          <View style={styles.itemContent}>
+            <Text
+              style={[styles.normalText, { borderWidth: 1, borderColor: 'gray' }]}
+              textBreakStrategy={textBreakStrategy}>
+              {DEFAULT_VALUE}
+            </Text>
+            <Text style={styles.normalText}>{`textBreakStrategy: ${textBreakStrategy}`}</Text>
+            <View style={styles.buttonBar}>
+              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('simple')}>
+                <Text style={styles.buttonText}>simple</Text>
+              </View>
+              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('highQuality')}>
+                <Text style={styles.buttonText}>highQuality</Text>
+              </View>
+              <View style={styles.button} onClick={() => this.changetTextBreakStrategy('balanced')}>
+                <Text style={styles.buttonText}>balanced</Text>
               </View>
             </View>
-          </>
+          </View>
         )}
       </ScrollView>
     );

@@ -167,9 +167,9 @@ export default class TextInputExpo extends Component {
           placeholder="maxLength=5"
           maxLength={5}
         />
+        {Platform.OS === 'android' && renderTitle('textBreakStrategy')}
         {Platform.OS === 'android' && (
           <>
-            {renderTitle('textBreakStrategy')}
             <TextInput
               style={styles.input_style_block}
               textBreakStrategy={textBreakStrategy}
@@ -188,7 +188,6 @@ export default class TextInputExpo extends Component {
             </View>
           </>
         )}
-        <View style={{ height: 50 }} />
       </ScrollView>
     );
   }
