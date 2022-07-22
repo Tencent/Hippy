@@ -27,7 +27,8 @@ function updateAttrs(oldVNode, vNode) {
   if (!oldVNode.data.attrs && !vNode.data.attrs) {
     return;
   }
-  const updatePayload = {};
+  let cur;
+  let old;
   const { elm } = vNode;
   const oldAttrs = oldVNode.data.attrs || {};
   let attrs = vNode.data.attrs || {};
@@ -36,21 +37,18 @@ function updateAttrs(oldVNode, vNode) {
     attrs = extend({}, attrs);
     vNode.data.attrs = attrs;
   }
-  Object.keys(oldAttrs).forEach((key) => {
-    const newPropValue = attrs[key];
-    if (newPropValue === null || newPropValue === undefined) {
-      updatePayload[key] = undefined;
-    }
-  });
   Object.keys(attrs).forEach((key) => {
-    const oldPropValue = oldAttrs[key];
-    const newPropValue = attrs[key];
-    if (oldPropValue !== newPropValue) {
-      updatePayload[key] = newPropValue;
+    cur = attrs[key];
+    old = oldAttrs[key];
+    if (old !== cur) {
+      elm.setAttribute(key, cur);
     }
   });
-  Object.keys(updatePayload).forEach((key) => {
-    elm.setAttribute(key, updatePayload[key]);
+  Object.keys(oldAttrs).forEach((key) => {
+    // eslint-disable-next-line eqeqeq
+    if (attrs[key] == null) {
+      elm.setAttribute(key);
+    }
   });
 }
 

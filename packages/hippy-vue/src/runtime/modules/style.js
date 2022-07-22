@@ -22,7 +22,6 @@
 /* eslint-disable no-param-reassign */
 
 import { extend, cached, camelize } from 'shared/util';
-import { updateChild } from '../../renderer/native';
 
 const normalize = cached(camelize);
 
@@ -60,19 +59,19 @@ function updateStyle(oldVNode, vNode) {
   // Remove the removed styles at first
   Object.keys(oldStyle).forEach((name) => {
     if (style[name] === undefined) {
-      elm.setStyle(normalize(name), undefined, true);
+      elm.setStyle(normalize(name), undefined);
     }
   });
   // Then set the new styles.
   Object.keys(style).forEach((name) => {
     cur = style[name];
-    elm.setStyle(normalize(name), cur, true);
+    elm.setStyle(normalize(name), cur);
   });
-  updateChild(elm);
 }
 
 
 function createStyle(oldVNode, vNode) {
+  // console.log(`\t\t ===> createStyle(${oldVNode}, ${vNode})`)
   if (!vNode.data.staticStyle) {
     updateStyle(oldVNode, vNode);
     return;
@@ -81,7 +80,7 @@ function createStyle(oldVNode, vNode) {
   const { staticStyle } = vNode.data;
   Object.keys(staticStyle).forEach((name) => {
     if (staticStyle[name]) {
-      elm.setStyle(normalize(name), staticStyle[name], true);
+      elm.setStyle(normalize(name), staticStyle[name]);
     }
   });
   updateStyle(oldVNode, vNode);
