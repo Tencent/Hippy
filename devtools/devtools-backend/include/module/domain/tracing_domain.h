@@ -20,17 +20,22 @@
 
 #pragma once
 
-#include <string>
+#include "module/domain/base_domain.h"
+#include "module/request/base_request.h"
 
 namespace hippy::devtools {
-/**
- * Virtual machine running tracing stack
- */
-class TracingAdapter {
+
+class TracingDomain: public BaseDomain , public std::enable_shared_from_this<TracingDomain> {
  public:
-  using TracingDataCallback = std::function<void(const std::string&)>;
-  virtual void StartTracing() = 0;
-  virtual void StopTracing(const std::string& params_key, TracingDataCallback callback) = 0;
-  virtual ~TracingAdapter(){}
+  explicit TracingDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
+  std::string GetDomainName() override;
+  void RegisterMethods() override;
+  void RegisterCallback() override;
+
+ private:
+  void Start(const BaseRequest& request);
+  void End(const BaseRequest& request);
+
 };
+
 }  // namespace hippy::devtools

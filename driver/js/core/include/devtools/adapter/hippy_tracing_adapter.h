@@ -25,7 +25,7 @@
 namespace hippy::devtools {
 class HippyTracingAdapter : public hippy::devtools::TracingAdapter {
   void StartTracing() override;
-  void StopTracing(TracingDataCallback callback) override;
+  void StopTracing(const std::string& params_key, TracingDataCallback callback) override;
 };
 }  // namespace hippy::devtools
 #endif

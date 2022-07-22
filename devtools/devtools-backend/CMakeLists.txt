@@ -125,6 +125,7 @@ set(SOURCE_SET
     src/module/domain/tdf_memory_domain.cc
     src/module/domain/tdf_performance_domain.cc
     src/module/domain/tdf_runtime_domain.cc
+    src/module/domain/tracing_domain.cc
     src/module/domain_dispatch.cc
     src/module/model/css_model.cc
     src/module/model/dom_model.cc

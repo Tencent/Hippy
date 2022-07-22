@@ -30,8 +30,7 @@
 
 namespace hippy::devtools {
 constexpr char kCacheFileName[] = "/v8_trace.json";
-constexpr char kTraceBeginTag[] = "{\"traceEvents\":[";
-constexpr char kTraceEndTag[] = "]}";
+constexpr char kTraceIncludedCategoryV8[] = "v8";
 
 bool TraceControl::OpenCacheFile() {
   if (cache_file_dir_.empty() || std::string::npos != cache_file_dir_.find("..")) {
@@ -65,12 +64,15 @@ void TraceControl::StartTracing() {
     if (!OpenCacheFile()) {
       return;
     }
-    v8_trace_control_->StartTracing(v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig());
+    auto trace_config = v8::platform::tracing::TraceConfig::CreateDefaultTraceConfig();
+    trace_config->SetTraceRecordMode(v8::platform::tracing::TraceRecordMode::RECORD_CONTINUOUSLY);
+    trace_config->AddIncludedCategory(kTraceIncludedCategoryV8);
+    v8_trace_control_->StartTracing(trace_config);
     tracing_has_start_ = true;
   }
 }
 
-std::string TraceControl::GetTracingContent() {
+std::string TraceControl::GetTracingContent(const std::string& params_key) {
   std::ifstream ifs(cache_file_path_);
   if (ifs.good()) {
     std::ostringstream buffer;
@@ -81,7 +83,9 @@ std::string TraceControl::GetTracingContent() {
     if (!tracing_content.empty() && tracing_content[0] == ',') {
       tracing_content = tracing_content.substr(1);
     }
-    return kTraceBeginTag + tracing_content + kTraceEndTag;
+    std::string result = "{\"";
+    result.append(params_key).append("\":[").append(tracing_content).append("]}");
+    return result;
   }
   return "";
 }
