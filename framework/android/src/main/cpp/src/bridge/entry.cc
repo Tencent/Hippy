@@ -60,7 +60,7 @@
 #endif
 #ifdef ENABLE_TDF_RENDER
 #include "render/tdf_render_bridge.h"
-#include "render/tdf/tdf_render_manager.h"
+#include "renderer/tdf/tdf_render_manager.h"
 #endif
 
 namespace hippy {
@@ -186,7 +186,7 @@ void DoBind(JNIEnv* j_env,
 #ifdef ANDROID_NATIVE_RENDER
   auto& map = NativeRenderManager::PersistentMap();
   std::shared_ptr<NativeRenderManager> native_render_manager = nullptr;
-  bool ret = map.Find(footstone::check::checked_numeric_cast<jint, int32_t>(j_render_id), native_render_manager);
+  bool ret = map.Find(footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id), native_render_manager);
   if (ret) {
     render_manager = native_render_manager;
     native_render_manager->SetDomManager(dom_manager);
@@ -197,7 +197,7 @@ void DoBind(JNIEnv* j_env,
   if (render_manager == nullptr) {
     auto& tdf_map = TDFRenderManager::PersistentMap();
     std::shared_ptr<TDFRenderManager> tdf_render_manager = nullptr;
-    bool tdf_ret = tdf_map.Find(footstone::check::checked_numeric_cast<jint, int32_t>(j_render_id), tdf_render_manager);
+    bool tdf_ret = tdf_map.Find(footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id), tdf_render_manager);
     if (tdf_ret) {
       render_manager = tdf_render_manager;
       tdf_render_manager->SetDomManager(dom_manager);
@@ -209,7 +209,10 @@ void DoBind(JNIEnv* j_env,
   dom_manager->SetRenderManager(render_manager);
 
 #ifdef ENABLE_TDF_RENDER
-  TDFRenderBridge::RegisterScopeForUriLoader(static_cast<int32_t>(j_render_id), scope);
+  /// TODO(kloudwang) 这里为了tdf_renderer复用native
+  /// renderer的图片下载能力(临时方案)，后面应该直接走FrameworkProxy
+  TDFRenderBridge::RegisterScopeForUriLoader(static_cast<int32_t>(j_render_id),
+                                             scope);
 #endif
 
 #ifdef ENABLE_INSPECTOR
@@ -270,13 +273,13 @@ void DoConnect(__unused JNIEnv* j_env,
   }
 #endif
 
-#ifdef ANDROID_NATIVE_RENDER
-  std::shared_ptr<NativeRenderManager> render_manager =
-          std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
-  float density = render_manager->GetDensity();
-  auto layout_node = root_node->GetLayoutNode();
-  layout_node->SetScaleFactor(density);
-#endif
+  /// TODO(kloudwang) GetDensity()方法应该抽象到
+  /// RenderManager里面去，目前只有NativeRenderManager才有这个方法
+  //  std::shared_ptr<NativeRenderManager> render_manager =
+  //          std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
+  //  float density = render_manager->GetDensity();
+  //  auto layout_node = root_node->GetLayoutNode();
+  //  layout_node->SetScaleFactor(density);
 }
 
 jint CreateWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj) {

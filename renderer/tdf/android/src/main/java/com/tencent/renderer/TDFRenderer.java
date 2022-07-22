@@ -1,3 +1,19 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.tencent.renderer;
 
 import android.app.Activity;
@@ -36,7 +52,7 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
 
     public TDFRenderer() {
         // Create TDF Render in Native(C++) Side
-        mInstanceId = OnCreateTDFRender(PixelUtil.getDensity());
+        mInstanceId = onCreateTDFRender(PixelUtil.getDensity());
     }
 
     @Override
@@ -69,7 +85,7 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         tdfHippyRootView.setEngineCallback(engine -> {
             // Notify TDF Render in Native(C++) size to bind with TDF Shell, this is the key process for TDF Render.
             // At this time point, TDF Core's Shell is created but not started.
-            RegisterTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
+            registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
             LogUtils.d(TAG, "onTDFEngineCreate: " + engine.getJNI().getnativeEngine());
             engine.registerLifecycleListener(TDFRenderer.this);
             registerControllers(mRootViewId, mControllers, tdfHippyRootView, TDFRenderer.this, engine);
@@ -128,8 +144,8 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         return null;
     }
 
-    private native int OnCreateTDFRender(float j_density);
+    private native int onCreateTDFRender(float j_density);
 
-    private native void RegisterTDFEngine(int renderId, long tdfEngineId, int rootViewId);
+    private native void registerTDFEngine(int renderId, long tdfEngineId, int rootViewId);
 }
 
