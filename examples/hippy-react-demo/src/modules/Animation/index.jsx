@@ -144,13 +144,15 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
+    // iOS support skew animation after 2.14.1
     this.skewXAnimationSet = new AnimationSet({
       children: [
         {
           animation: new Animation({
             startValue: 0,
-            toValue: 20,
+            toValue: Math.PI,
             duration: 2000,
+            valueType: 'rad',
             delay: 0,
             mode: 'timing',
             timingFunction: 'linear',
@@ -159,10 +161,11 @@ export default class AnimationExample extends React.Component {
         },
         {
           animation: new Animation({
-            startValue: 20,
+            startValue: Math.PI,
             toValue: 0,
             duration: 2000,
             delay: 0,
+            valueType: 'rad',
             mode: 'timing',
             timingFunction: 'linear',
           }),
@@ -171,14 +174,16 @@ export default class AnimationExample extends React.Component {
       ],
       repeatCount: 'loop',
     });
+    // iOS support skew animation after 2.14.1
     this.skewYAnimationSet = new AnimationSet({
       children: [
         {
           animation: new Animation({
             startValue: 0,
-            toValue: 20,
+            toValue: Math.PI,
             duration: 2000,
             delay: 0,
+            valueType: 'rad',
             mode: 'timing',
             timingFunction: 'linear',
           }),
@@ -186,10 +191,11 @@ export default class AnimationExample extends React.Component {
         },
         {
           animation: new Animation({
-            startValue: 20,
+            startValue: Math.PI,
             toValue: 0,
             duration: 2000,
             delay: 0,
+            valueType: 'rad',
             mode: 'timing',
             timingFunction: 'linear',
           }),
@@ -514,12 +520,13 @@ export default class AnimationExample extends React.Component {
             style={[styles.square, {
               transform: [{
                 skewX: this.skewXAnimationSet,
+              }, {
                 skewY: this.skewYAnimationSet,
               }],
             }]}
           />
         </View>
-        <Text style={styles.title}>组合形变动画</Text>
+        <Text style={styles.title}>缩放动画</Text>
         <View style={styles.buttonContainer}>
           <View
             style={styles.button}
