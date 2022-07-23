@@ -13,12 +13,12 @@
         输入的文本为：{{ content }}
       </p>
     </div>
-    <label v-if="Platform === 'android'">breakStrategy={{ breakStrategy }}</label>
+    <label v-if="Platform === 'android'">break-strategy={{ breakStrategy }}</label>
     <div v-if="Platform === 'android'">
       <textarea
         class="textarea"
         :defaultValue="longText"
-        :breakStrategy="breakStrategy"
+        :break-strategy="breakStrategy"
       />
       <div class="button-bar">
         <button

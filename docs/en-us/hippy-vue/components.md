@@ -259,9 +259,9 @@ Please refer to the Android development documentation for details.
 | underline-color-android  |  The color of the underline under `input`. Can be set to `transparent` to remove the bottom line (can also be set to the Style property) `Minimum supported version 2.13.4`.  | [`color`](style/color.md)                                                      | `Android` |
 | returnKeyType         | Specifies the style of the soft keyboard's Enter key displayed.   | `enum(done, go, next, search, send)`              | `Android、iOS`     |
 | value                 | Specifies the value of the `input` component.                        | `string`                                                     | `Android、iOS`     |
-| breakStrategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
+| break-strategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
 
-* Attributes meaning of breakStrategy:
+* Attributes meaning of break-strategy:
   * `simple`(default value): strategy indicating simple line breaking, Automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `blanced`: strategy indicating balanced line breaking. The breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
@@ -431,14 +431,14 @@ Display text, but because there is no `display: Inline` display mode, the defaul
 | numberOfLines | Used to trim text when it is too long. The total number of lines, including line breaks caused by folding, will not exceed the limit of this property. | `number`                                  | `Android、iOS`    |
 | opacity       | Configure the transparency of the `View`, at the same time will affect the transparency of the child nodes.             | `number`                                  | `Android、iOS`    |
 | ellipsizeMode* | When set the `numberOfLines` value, this parameter specifies how the string is truncated. So when using `ellipsizeMode`, `numberOfLines` value must be specified at the same time. `default: tail` | `enum(head, middle, tail, clip)` | `Android( minimum supported version 2.14.1, earlier version only supported tail)、iOS(full supported)、hippy-react-web(clip、ellipsis)` |
-| breakStrategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
+| break-strategy* | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)` | `Android(minimum supported version 2.14.2)` |
 
 * The meaning of parameters of ellipsizeMode：
   * `clip` - Texts that exceed the specified number of lines will be truncated directly, "..." will not shows;(Android  2.14.1+, iOS full supported)
   * `head` - Texts will be truncated from the beginning. To ensure that the string at the end of the text can be displayed at the end of the `Text` components, the texts will be truncated from the beginning. The truncated text will be replaced by "...". For example,"...wxyz ";(Android  2.14.1+, iOS full supported)
   * `middle` - Text will be truncated from the middle to ensure that the last and first text of the string can be displayed in the response position of the Text component normally. And the text truncated in the middle will be replaced by "..." For example,"ab ab.."yz ";(Android  2.14.1+, iOS full supported)
   * `tail`(default value) - Text will be truncated from the end to ensure that the first text of the string can be displayed normally in the front of the Text component, and the text truncated from the end will be replaced by "..." For example, "abcd ...";
-* Attributes meaning of breakStrategy:
+* Attributes meaning of break-strategy:
   * `simple`(default value): strategy indicating simple line breaking, Automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `blanced`: strategy indicating balanced line breaking. The breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.

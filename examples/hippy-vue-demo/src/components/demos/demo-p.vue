@@ -148,13 +148,13 @@
           </button>
         </div>
       </div>
-      <label v-if="Platform === 'android'">breakStrategy={{ breakStrategy }}</label>
+      <label v-if="Platform === 'android'">break-strategy={{ breakStrategy }}</label>
       <div
         v-if="Platform === 'android'"
         class="p-demo-content"
       >
         <p
-          :breakStrategy="breakStrategy"
+          :break-strategy="breakStrategy"
           style="border-width: 1; border-color: gray;"
         >
           {{ longText }}
