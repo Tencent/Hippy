@@ -81,13 +81,23 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
 
   }
 
+  private static boolean hasCollapsable(HippyMap props) {
+    if (props == null) {
+      return false;
+    }
+    if (props.get(NodeProps.COLLAPSABLE) != null && !((Boolean) props
+            .get(NodeProps.COLLAPSABLE))) {
+      return true;
+    }
+    return false;
+  }
+
   private static boolean jsJustLayout(HippyMap props) {
     if (props == null) {
       return true;
     }
 
-    if (props.get(NodeProps.COLLAPSABLE) != null && !((Boolean) props
-        .get(NodeProps.COLLAPSABLE))) {
+    if (hasCollapsable(props)) {
       return false;
     }
 
@@ -315,7 +325,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
       //		boolean isLayoutOnly=false;
       boolean isLayoutOnly =
           (NodeProps.VIEW_CLASS_NAME.equals(node.getViewClass())) && jsJustLayout(
-              (HippyMap) props.get(NodeProps.STYLE))
+              (HippyMap) props.get(NodeProps.STYLE)) && !hasCollapsable(props)
               && !isTouchEvent(props);
       LogUtils.d(TAG,
           "dom create node id: " + id + " mClassName " + className + " pid " + pid + " mIndex:"
@@ -467,7 +477,7 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
       mDomStyleUpdateManager.updateStyle(node, hippyMap);
 
       boolean layoutOnlyHasChanged =
-          node.isJustLayout() && (!jsJustLayout((HippyMap) props.get(NodeProps.STYLE))
+          node.isJustLayout() && (!jsJustLayout((HippyMap) props.get(NodeProps.STYLE)) || hasCollapsable(props)
               || isTouchEvent(props));
 
       if (layoutOnlyHasChanged) {

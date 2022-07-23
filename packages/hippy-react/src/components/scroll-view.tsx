@@ -24,7 +24,6 @@ import React from 'react';
 import * as StyleSheet from '../modules/stylesheet';
 import { callUIFunction } from '../modules/ui-manager-module';
 import Element from '../dom/element-node';
-import { warn } from '../utils';
 import { isRTL } from '../utils/i18n';
 import View from './view';
 
@@ -175,9 +174,7 @@ class ScrollView extends React.Component<ScrollViewProps, {}> {
     let x_ = x;
     let y_ = y;
     let animated_ = animated;
-    if (typeof x === 'number') {
-      warn('`scrollTo(x, y, animated)` is deprecated, Use `scrollTo({x: 5, y: 5, animated: true})` instead.');
-    } else if (typeof x === 'object' && x) {
+    if (typeof x === 'object' && x) {
       ({ x: x_, y: y_, animated: animated_ } = x);
     }
     x_ = x_ || 0;
