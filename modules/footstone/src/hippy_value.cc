@@ -325,20 +325,20 @@ std::ostream& operator<<(std::ostream& os, const HippyValue& dom_value) {
     os << "null";
   } else if (dom_value.type_ == HippyValue::Type::kNumber) {
     if (dom_value.number_type_ == HippyValue::NumberType::kNaN) {
-      os << "nan";
+      os << "NaN";
     } else {
       os << dom_value.ToDoubleChecked();
     }
   } else if (dom_value.type_ == HippyValue::Type::kBoolean) {
     os << dom_value.ToBooleanChecked();
   } else if (dom_value.type_ == HippyValue::Type::kString) {
-    os << dom_value.ToStringChecked();
+    os << "\"" << dom_value.ToStringChecked() << "\"";
   } else if (dom_value.type_ == HippyValue::Type::kObject) {
     os << "{";
     auto map = dom_value.ToObjectChecked();
     size_t index = 0;
     for (const auto& kv : map) {
-      os << kv.first << ": " << kv.second;
+      os << "\"" << kv.first << "\": " << kv.second;
       if (index != map.size() - 1) os << ",";
       index++;
     }

@@ -74,6 +74,7 @@ set(SOURCE_SET
     src/dom/animation/animation_math.cc
     src/dom/animation/animation_set.cc
     src/dom/animation/cubic_bezier_animation.cc
+    src/dom/tools/tools.cc
     src/dom/diff_utils.cc
     src/dom/dom_argument.cc
     src/dom/dom_event.cc
