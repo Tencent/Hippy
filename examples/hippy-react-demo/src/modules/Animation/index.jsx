@@ -150,9 +150,8 @@ export default class AnimationExample extends React.Component {
         {
           animation: new Animation({
             startValue: 0,
-            toValue: Math.PI,
+            toValue: 20,
             duration: 2000,
-            valueType: 'rad',
             delay: 0,
             mode: 'timing',
             timingFunction: 'linear',
@@ -161,11 +160,10 @@ export default class AnimationExample extends React.Component {
         },
         {
           animation: new Animation({
-            startValue: Math.PI,
+            startValue: 20,
             toValue: 0,
             duration: 2000,
             delay: 0,
-            valueType: 'rad',
             mode: 'timing',
             timingFunction: 'linear',
           }),
@@ -180,10 +178,9 @@ export default class AnimationExample extends React.Component {
         {
           animation: new Animation({
             startValue: 0,
-            toValue: Math.PI,
+            toValue: 20,
             duration: 2000,
             delay: 0,
-            valueType: 'rad',
             mode: 'timing',
             timingFunction: 'linear',
           }),
@@ -191,11 +188,10 @@ export default class AnimationExample extends React.Component {
         },
         {
           animation: new Animation({
-            startValue: Math.PI,
+            startValue: 20,
             toValue: 0,
             duration: 2000,
             delay: 0,
-            valueType: 'rad',
             mode: 'timing',
             timingFunction: 'linear',
           }),
