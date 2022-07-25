@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* **hippy-react-web:** add unhandleRejection event handler ([145364b](https://github.com/Tencent/Hippy/commit/145364b0e1efdd2a001fbea271b9ab9e125ca550))
+* **hippy-react-web:** fix borwser does not support addRule ([1b30755](https://github.com/Tencent/Hippy/commit/1b307553366dc2107b384693e9a78aee497acb0c))
+* **hippy-react-web:** fix error handler ([d289f39](https://github.com/Tencent/Hippy/commit/d289f3960b99b67167c366dd60d4acaaeef6ad9b))
+* **hippy-react-web:** fix img onClick envet does not emit ([2d4d57b](https://github.com/Tencent/Hippy/commit/2d4d57b6bf917b560c8d79a0ec3efcb897c732ff))
+* **hippy-react-web:** support ListView renderPullFooter ([#2166](https://github.com/Tencent/Hippy/issues/2166)) ([95fc4c5](https://github.com/Tencent/Hippy/commit/95fc4c54c969147d406f95e77fed197ef1e3fb94))
+* **npm:** update lerna to fix vulernable npm package ([6dcdd9c](https://github.com/Tencent/Hippy/commit/6dcdd9cd5aca908a47b0694c59d106493377f62c))
+
+
+### Features
+
+* **hippy-react-web:** fix web style issues ([#2087](https://github.com/Tencent/Hippy/issues/2087)) ([e6d0416](https://github.com/Tencent/Hippy/commit/e6d04161da9204335bd269b5310a330c4426dce6))
+
+
+
+
+
 # [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
 
 

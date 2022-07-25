@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* **npm:** update lerna to fix vulernable npm package ([6dcdd9c](https://github.com/Tencent/Hippy/commit/6dcdd9cd5aca908a47b0694c59d106493377f62c))
+* **react:** add ref null judgement for getElementFromFiberRef ([eb55f3e](https://github.com/Tencent/Hippy/commit/eb55f3e439ffec14b9d29bf04fc5a5433d52a54d))
+
+
+### Features
+
+* **core:** add `isFocused` method for `TextInput` ([c84a566](https://github.com/Tencent/Hippy/commit/c84a5662e176212d9ef61c648b70efb089f92abb))
+* **hippy-react:** support horizontal PullHeader & PullFooter ([f9541f2](https://github.com/Tencent/Hippy/commit/f9541f2e3e84695692a4ac5f52cf853ae704eb7b))
+
+
+
+
+
 # [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
 
 

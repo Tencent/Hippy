@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* **npm:** update lerna to fix vulernable npm package ([6dcdd9c](https://github.com/Tencent/Hippy/commit/6dcdd9cd5aca908a47b0694c59d106493377f62c))
+* **npm:** update vulnerable npm packages ([a06bae2](https://github.com/Tencent/Hippy/commit/a06bae20f95a7e24716a303b611b5bb187b15ff3))
+
+
+
+
+
 # [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
 
 **Note:** Version bump only for package @hippy/vue-loader

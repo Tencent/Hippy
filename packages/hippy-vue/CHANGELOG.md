@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* **npm:** update got from vulnerable to safe version ([0987946](https://github.com/Tencent/Hippy/commit/0987946b2ea2b1ebca2222f2209e27cc4c2fe128))
+* **npm:** update vulnerable npm packages ([a06bae2](https://github.com/Tencent/Hippy/commit/a06bae20f95a7e24716a303b611b5bb187b15ff3))
+
+
+### Features
+
+* **core:** add `isFocused` method for `TextInput` ([c84a566](https://github.com/Tencent/Hippy/commit/c84a5662e176212d9ef61c648b70efb089f92abb))
+* **hippy-vue:** perf attribute & style update performance ([10945d7](https://github.com/Tencent/Hippy/commit/10945d7f3dec7112a46be44ae5602df07655652b))
+
+
+
+
+
 # [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
 
 

@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
+
+
+### Bug Fixes
+
+* **hippy-vue-css-loader:** support to parse letter-spacing ([7b404f5](https://github.com/Tencent/Hippy/commit/7b404f59951e20aaeefcca12bf30c0b67e06db26))
+* **npm:** update got from vulnerable to safe version ([0987946](https://github.com/Tencent/Hippy/commit/0987946b2ea2b1ebca2222f2209e27cc4c2fe128))
+* **npm:** update vulnerable npm packages ([a06bae2](https://github.com/Tencent/Hippy/commit/a06bae20f95a7e24716a303b611b5bb187b15ff3))
+* **vue-css-loader:** fixed collapsable boolean convert error ([e49d3b5](https://github.com/Tencent/Hippy/commit/e49d3b579c585772e39ce94e4e8a2a40deb85e55))
+
+
+
+
+
 # [2.14.0](https://github.com/Tencent/Hippy/compare/2.13.10...2.14.0) (2022-06-21)
 
 **Note:** Version bump only for package @hippy/vue-css-loader
