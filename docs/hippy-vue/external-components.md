@@ -103,8 +103,6 @@ export default {
 
   > `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
 
-  > iOS `2.14.1` 及以上版本支持 skew 动画
-
   > `2.6.0` 及以上版本支持 `backgroundColor` 背景色渐变动画，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
   > 
   > * 设置 `actions` 对 `backgroundColor` 进行修饰
