@@ -337,7 +337,7 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
 }
 
 - (CALayerContentsFilter)magnificationFilter {
-    return kCAFilterLinear;
+    return kCAFilterNearest;
 }
 
 - (void)displayLayer:(CALayer *)layer {

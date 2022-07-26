@@ -23,9 +23,9 @@
 #include <functional>
 #include <memory>
 
-#include "task_runner.h"
-#include "time_delta.h"
-#include "time_point.h"
+#include "footstone/task_runner.h"
+#include "footstone/time_delta.h"
+#include "footstone/time_point.h"
 
 namespace footstone {
 inline namespace timer {

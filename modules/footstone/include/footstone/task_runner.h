@@ -28,12 +28,13 @@
 #include <memory>
 #include <cstdint>
 
-#include "macros.h"
-#include "task.h"
-#include "idle_task.h"
-#include "worker.h"
-#include "time_delta.h"
-#include "time_point.h"
+#include "footstone/idle_task.h"
+#include "footstone/macros.h"
+#include "footstone/task.h"
+#include "footstone/time_delta.h"
+#include "footstone/time_point.h"
+#include "footstone/worker.h"
+
 
 namespace footstone {
 inline namespace runner {

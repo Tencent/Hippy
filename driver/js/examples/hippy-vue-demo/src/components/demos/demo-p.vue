@@ -60,6 +60,94 @@
       >
         Text width letter-spacing 5
       </p>
+      <label>字体 style：</label>
+      <div class="p-demo-content">
+        <p style="font-style: normal">
+          font-style: normal
+        </p>
+        <p style="font-style: italic">
+          font-style: italic
+        </p>
+        <p>font-style: [not set]</p>
+      </div>
+      <label>numberOfLines={{ textMode.numberOfLines }} | ellipsizeMode={{ textMode.ellipsizeMode }}</label>
+      <div class="p-demo-content">
+        <p
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{ backgroundColor: '#40b883', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }"
+        >
+          <span style="font-size: 19px; color: white">先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</span>
+          <span>然侍卫之臣不懈于内，忠志之士忘身于外者，盖追先帝之殊遇，欲报之于陛下也。</span>
+        </p>
+        <p
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{ backgroundColor: '#40b883', marginBottom: 10, paddingHorizontal: 10, paddingVertical: 5 }"
+        >
+          {{ 'line 1\n\nline 3\n\nline 5' }}
+        </p>
+        <p
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{
+            backgroundColor: '#40b883',
+            marginBottom: 10,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            fontSize: 14
+          }"
+        >
+          <img
+            :style="{ width: 24, height: 24 }"
+            :src="img1"
+          >
+          <img
+            :style="{ width: 24, height: 24 }"
+            :src="img2"
+          >
+        </p>
+        <div class="button-bar">
+          <button
+            class="button"
+            @click="incrementLine"
+          >
+            <span>加一行</span>
+          </button>
+          <button
+            class="button"
+            @click="decrementLine"
+          >
+            <span>减一行</span>
+          </button>
+        </div>
+        <div class="button-bar">
+          <button
+            class="button"
+            @click="() => changeMode('clip')"
+          >
+            <span>clip</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeMode('head')"
+          >
+            <span>head</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeMode('middle')"
+          >
+            <span>middle</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeMode('tail')"
+          >
+            <span>tail</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -83,6 +171,16 @@ export default {
         textShadowRadius: 3,
         textShadowColor: 'grey',
       },
+      textMode: {
+        numberOfLines: 2,
+        ellipsizeMode: 'tail',
+      },
+      img1: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVLtEsMgCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRKaXfzxc84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TSAAAAABJRU5ErkJggg==',
+      img2: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEnRSTlMA/QpX7WQU2m27pi3Ej9KEQXaD5HhjAAAAqklEQVQoz41
+        SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
+        w2QwqipkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefw
+        eIFQU0EfnGDRoQAAAAASUVORK5CYII=`,
     };
   },
   methods: {
@@ -114,6 +212,19 @@ export default {
       console.log('onTextTouchEnd', evt);
       evt.stopPropagation();
       console.log(evt);
+    },
+    incrementLine() {
+      if (this.textMode.numberOfLines < 6) {
+        this.textMode.numberOfLines += 1;
+      }
+    },
+    decrementLine() {
+      if (this.textMode.numberOfLines > 1) {
+        this.textMode.numberOfLines -= 1;
+      }
+    },
+    changeMode(mode) {
+      this.textMode.ellipsizeMode = mode;
     },
   },
 };
@@ -175,5 +286,20 @@ export default {
 
 .p-demo .p-demo-9 {
   letter-spacing: 5px;
+}
+
+.p-demo .button-bar {
+  flex-direction: row;
+}
+
+.p-demo .button {
+  width: 100px;
+  margin: 2px;
+  backgroundColor: #eee;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  align-items: center;
+  flex-shrink: 1;
 }
 </style>

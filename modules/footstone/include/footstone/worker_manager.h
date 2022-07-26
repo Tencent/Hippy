@@ -22,8 +22,8 @@
 
 #include <mutex>
 
-#include "task_runner.h"
-#include "worker.h"
+#include "footstone/task_runner.h"
+#include "footstone/worker.h"
 
 namespace footstone {
 inline namespace runner {

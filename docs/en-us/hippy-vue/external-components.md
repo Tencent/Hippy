@@ -214,7 +214,7 @@ Subcontainer of the flipping component container.
 
 # pull-header
 
-[[Example: demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+[[Example: demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 Dropdown refresh component, nested in `ul` as first child element
 
@@ -240,7 +240,7 @@ Dropdown refresh component, nested in `ul` as first child element
 
 # pull-footer
 
-[[Example: demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+[[Example: demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 Pull-up refresh component, nested in `ul` as last child element
 

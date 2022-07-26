@@ -4,13 +4,12 @@ import {
   View,
   StyleSheet,
   Text,
+  Platform,
 } from '@hippy/react';
 import mockData from '../../shared/UIStyles/mock';
 import Style1 from '../../shared/UIStyles/Style1';
 import Style2 from '../../shared/UIStyles/Style2';
 import Style5 from '../../shared/UIStyles/Style5';
-
-const MAX_FETCH_TIMES = 50;
 
 const styles = StyleSheet.create({
   container: {
@@ -51,7 +50,7 @@ const styles = StyleSheet.create({
 });
 
 /**
- * PullHeader 组件范例
+ * PullHeaderFooter 组件范例
  *
  * 该组件可以在列表开头增加一个下拉区域，可以轻松实现下拉加载更多、或者加载之前的内容等功能。
  * 该组件在下拉过程中通过返回 contentOffset 拖拽的距离，可以轻松做到很多种效果。
@@ -63,14 +62,19 @@ export default class PullHeaderFooterExample extends React.Component {
     super(props);
     this.state = {
       dataSource: [],
-      pullingText: '继续下拉触发刷新',
-      loadingState: '正在加载...',
+      headerRefreshText: '继续下拉触发刷新',
+      footerRefreshText: '正在加载...',
+      horizontal: undefined,
     };
-    this.fetchTimes = 0;
+    this.loadMoreDataFlag = false;
+    this.fetchingDataFlag = false;
     this.mockFetchData = this.mockFetchData.bind(this);
     this.renderRow = this.renderRow.bind(this);
     this.getRowType = this.getRowType.bind(this);
     this.getRowKey = this.getRowKey.bind(this);
+    this.getHeaderStyle = this.getHeaderStyle.bind(this);
+    this.getFooterStyle = this.getFooterStyle.bind(this);
+    this.getRowStyle = this.getRowStyle.bind(this);
     this.renderPullHeader = this.renderPullHeader.bind(this);
     this.renderPullFooter = this.renderPullFooter.bind(this);
     this.onEndReached = this.onEndReached.bind(this);
@@ -84,6 +88,15 @@ export default class PullHeaderFooterExample extends React.Component {
     this.setState({ dataSource });
     // 结束时需主动调用collapsePullHeader
     this.listView.collapsePullHeader();
+  }
+
+  /**
+   * 获取 mock 数据
+   */
+  mockFetchData() {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(mockData), 800);
+    });
   }
 
   /**
@@ -101,7 +114,7 @@ export default class PullHeaderFooterExample extends React.Component {
     }
     this.loadMoreDataFlag = true;
     this.setState({
-      loadingState: '加载更多...',
+      footerRefreshText: '加载更多...',
     });
     let newData = [];
     try {
@@ -109,7 +122,7 @@ export default class PullHeaderFooterExample extends React.Component {
     } catch (err) {}
     if (newData.length === 0) {
       this.setState({
-        loadingState: '没有更多数据',
+        footerRefreshText: '没有更多数据',
       });
     }
     const newDataSource = [...dataSource, ...newData];
@@ -128,19 +141,19 @@ export default class PullHeaderFooterExample extends React.Component {
     this.fetchingDataFlag = true;
     console.log('onHeaderReleased');
     this.setState({
-      pullingText: '刷新数据中，请稍等',
+      headerRefreshText: '刷新数据中，请稍等',
     });
     let dataSource = [];
     try {
       dataSource = await this.mockFetchData();
+      dataSource = dataSource.reverse();
     } catch (err) {}
     this.fetchingDataFlag = false;
     this.setState({
       dataSource,
-      pullingText: '2秒后收起',
+      headerRefreshText: '2秒后收起',
     }, () => {
       this.listView.collapsePullHeader({ time: 2000 });
-      this.fetchTimes = 0;
     });
   }
 
@@ -159,11 +172,11 @@ export default class PullHeaderFooterExample extends React.Component {
     console.log('onHeaderPulling', evt.contentOffset);
     if (evt.contentOffset > styles.pullContent.height) {
       this.setState({
-        pullingText: '松手，即可触发刷新',
+        headerRefreshText: '松手，即可触发刷新',
       });
     } else {
       this.setState({
-        pullingText: '继续下拉，触发刷新',
+        headerRefreshText: '继续下拉，触发刷新',
       });
     }
   }
@@ -205,43 +218,70 @@ export default class PullHeaderFooterExample extends React.Component {
     return `row-${index}`;
   }
 
-  /**
-   * 获取 mock 数据
-   */
-  mockFetchData() {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        this.fetchTimes += 1;
-        let data = [];
-        if (this.fetchTimes < MAX_FETCH_TIMES) {
-          data = mockData;
-        }
-        return resolve(data);
-      }, 800);
-    });
+  getHeaderStyle() {
+    const { horizontal } = this.state;
+    return !horizontal ? {} : {
+      width: 50,
+    };
   }
 
   /**
    * 渲染 pullHeader 组件
    */
   renderPullHeader() {
-    const { pullingText } = this.state;
+    const { headerRefreshText, horizontal } = this.state;
     return (
-      <View style={styles.pullContainer}>
-        <Text style={styles.pullContent}>{ pullingText }</Text>
+      !horizontal ? <View style={styles.pullContainer}>
+        <Text style={styles.pullContent}>{headerRefreshText}</Text>
+      </View> : <View style={{
+        width: 40,
+        height: 300,
+        backgroundColor: '#4c9afa',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}>
+        <Text style={{
+          lineHeight: 25,
+          color: 'white',
+          width: 40,
+          paddingHorizontal: 15,
+        }}>{headerRefreshText}</Text>
       </View>
     );
+  }
+
+  getFooterStyle() {
+    const { horizontal } = this.state;
+    return !horizontal ? {} : {
+      width: 40,
+    };
   }
 
   /**
    * 渲染 pullFooter 组件
    */
   renderPullFooter() {
-    return (<View style={styles.pullFooter} >
+    const { horizontal } = this.state;
+    return !horizontal ? <View style={styles.pullFooter}>
       <Text style={{
         color: 'white',
-      }}>{this.state.loadingState}</Text>
-    </View>);
+      }}
+      >{this.state.footerRefreshText}</Text>
+    </View> : <View style={{
+      width: 40,
+      height: 300,
+      backgroundColor: '#4c9afa',
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}>
+      <Text style={{
+        color: 'white',
+        lineHeight: 25,
+        width: 40,
+        paddingHorizontal: 15,
+      }}
+      >{this.state.footerRefreshText}</Text>
+    </View>;
   }
 
   /**
@@ -280,29 +320,78 @@ export default class PullHeaderFooterExample extends React.Component {
     );
   }
 
+  // configure listItem style if horizontal listview is set
+  getRowStyle() {
+    const { horizontal } = this.state;
+    return !horizontal ? {} : {
+      height: 300,
+      justifyContent: 'center',
+      alignItems: 'center',
+    };
+  }
+
+  changeDirection() {
+    this.setState({
+      horizontal: this.state.horizontal === undefined ? true : undefined,
+    });
+  }
+
   /**
    * 渲染范例组件
    */
   render() {
-    const { dataSource } = this.state;
+    const { dataSource, horizontal } = this.state;
     return (
-      <ListView
-        onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
-        ref={(ref) => {
-          this.listView = ref;
-        }}
-        style={{ flex: 1, backgroundColor: '#ffffff' }}
-        numberOfRows={dataSource.length}
-        getRowType={this.getRowType}
-        getRowKey={this.getRowKey}
-        renderRow={this.renderRow}
-        renderPullHeader={this.renderPullHeader}
-        renderPullFooter={this.renderPullFooter}
-        onHeaderReleased={this.onHeaderReleased}
-        onHeaderPulling={this.onHeaderPulling}
-        onFooterReleased={this.onEndReached}
-        onFooterPulling={this.onFooterPulling}
-      />
+      <View style={{ flex: 1, collapsable: false }}>
+        <ListView
+          horizontal={horizontal}
+          onClick={event => console.log('ListView', event.target.nodeId, event.currentTarget.nodeId)}
+          ref={(ref) => {
+            this.listView = ref;
+          }}
+          style={[{ backgroundColor: '#ffffff' }, horizontal ? { height: 300 } : { flex: 1 }]}
+          numberOfRows={dataSource.length}
+          getRowType={this.getRowType}
+          getRowKey={this.getRowKey}
+          getHeaderStyle={this.getHeaderStyle}
+          getFooterStyle={this.getFooterStyle}
+          getRowStyle={this.getRowStyle}
+          renderRow={this.renderRow}
+          renderPullHeader={this.renderPullHeader}
+          renderPullFooter={this.renderPullFooter}
+          onHeaderReleased={this.onHeaderReleased}
+          onHeaderPulling={this.onHeaderPulling}
+          onFooterReleased={this.onEndReached}
+          onFooterPulling={this.onFooterPulling}
+        />
+        {Platform.OS === 'android'
+          ? <View
+            onClick={() => this.changeDirection()}
+            style={{
+              position: 'absolute',
+              right: 20,
+              bottom: 20,
+              width: 67,
+              height: 67,
+              borderRadius: 30,
+              boxShadowOpacity: 0.6,
+              boxShadowRadius: 5,
+              boxShadowOffsetX: 3,
+              boxShadowOffsetY: 3,
+              boxShadowColor: '#4c9afa' }}>
+            <View style={{
+              width: 60,
+              height: 60,
+              borderRadius: 30,
+              backgroundColor: '#4c9afa',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+              <Text style={{ color: 'white' }}>切换方向</Text>
+            </View>
+          </View> : null}
+      </View>
     );
   }
 }

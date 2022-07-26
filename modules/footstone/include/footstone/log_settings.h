@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "log_level.h"
+#include "footstone/log_level.h"
 
 #include <string>
 

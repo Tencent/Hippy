@@ -20,10 +20,9 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <time.h>
-
 #include <chrono>
+#include <cstdint>
+#include <ctime>
 #include <iosfwd>
 #include <limits>
 

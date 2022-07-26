@@ -18,34 +18,19 @@
  * limitations under the License.
  */
 
-#pragma once
+#include "include/footstone/worker_impl.h"
 
-#include <thread>
-
-#include "footstone/worker.h"
+#include <pthread.h>
 
 namespace footstone {
 inline namespace runner {
 
-class ThreadWorker: public Worker {
- public:
-  ThreadWorker(bool is_schedulable, std::string name = "");
-  virtual ~ThreadWorker();
-
-  virtual void Start() override;
- protected:
-  virtual void RunLoop() override;
-  virtual void TerminateWorker() override;
-  virtual void Notify() override;
-  virtual void WaitFor(const TimeDelta& delta) override;
-  virtual void Join();
-  virtual void SetName(const std::string& name) = 0;
-
- private:
-  std::thread thread_;
-  std::condition_variable cv_;
-  std::mutex mutex_; // 任意PV操作和终止判断一体，不可打断，否则会出现先Notify再Wait，线程永远无法退出
-};
+void WorkerImpl::SetName(const std::string& name) {
+  if (name.empty()) {
+    return;
+  }
+  pthread_setname_np(pthread_self(), name.c_str());
+}
 
 }
 }
