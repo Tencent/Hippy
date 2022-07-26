@@ -30,10 +30,6 @@
 #include "core/core.h"
 #include "jni/turbo_module_runtime.h"
 #include "jni/scoped_java_ref.h"
-#include "core/inspector/bridge.h"
-#ifndef V8_WITHOUT_INSPECTOR
-#include "core/inspector/v8_inspector_client_impl.h"
-#endif
 
 class Runtime {
  public:

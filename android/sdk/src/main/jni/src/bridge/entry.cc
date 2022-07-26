@@ -32,7 +32,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "bridge/bridge.h"
+#include "bridge/adr_bridge.h"
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
 #include "bridge/runtime.h"

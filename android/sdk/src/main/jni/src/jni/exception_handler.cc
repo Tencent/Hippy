@@ -22,7 +22,7 @@
 
 #include "jni/exception_handler.h"
 
-#include "bridge/bridge.h"
+#include "bridge/adr_bridge.h"
 #include "core/core.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"

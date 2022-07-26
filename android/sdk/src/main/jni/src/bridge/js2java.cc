@@ -20,7 +20,7 @@
  *
  */
 
-#include "bridge/bridge.h"
+#include "bridge/adr_bridge.h"
 #include "bridge/js2java.h"
 
 #include <memory>

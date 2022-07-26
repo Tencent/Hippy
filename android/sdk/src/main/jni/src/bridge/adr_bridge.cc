@@ -20,7 +20,7 @@
  *
  */
 
-#include "bridge/bridge.h"
+#include "bridge/adr_bridge.h"
 
 #include "core/base/common.h"
 #include "jni/jni_env.h"
