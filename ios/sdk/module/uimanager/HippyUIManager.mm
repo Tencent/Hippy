@@ -981,6 +981,10 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
             listview.node = (HippyVirtualList *)node;
             [self->_listTags addObject:hippyTag];
         }
+        // Lazy loading list needs to be layout
+        dispatch_async(HippyGetUIManagerQueue(), ^{
+            [self setNeedsLayout:hippyTag];
+        });
     }
     return view;
 }
