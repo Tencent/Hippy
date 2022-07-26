@@ -345,8 +345,10 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     [hpCell.cellView removeFromSuperview];
     HippyVirtualNode *cellNode = hpCell.node;
     NSString *reuseIdentifier = [self reuseIdentifierForIndexPath:indexPath];
-    [_reusableNodeCache enqueueItemNode:cellNode forIdentifier:reuseIdentifier];
-    hpCell.node = nil;
+    if (cellNode && reuseIdentifier) {
+        [_reusableNodeCache enqueueItemNode:cellNode forIdentifier:reuseIdentifier];
+        hpCell.node = nil;
+    }
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
