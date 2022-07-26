@@ -1029,7 +1029,7 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
     NSDictionary *newProps = props;
     NSDictionary *virtualProps = props;
     if (shadowView) {
-        newProps = [shadowView mergeProps: props];
+        newProps = [shadowView mergeProps:props];
         virtualProps = shadowView.props;
         [componentData setProps:newProps forShadowView:shadowView];
     }
