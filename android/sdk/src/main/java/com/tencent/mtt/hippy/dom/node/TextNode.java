@@ -429,7 +429,7 @@ public class TextNode extends StyleNode {
 
   @HippyControllerProps(name = NodeProps.ELLIPSIZE_MODE, defaultType = HippyControllerProps.STRING, defaultString = MODE_TAIL)
   public void setEllipsizeMode(String mode) {
-    if (mode == null || "".equals(mode)) {
+    if (TextUtils.isEmpty(mode)) {
       mode = MODE_TAIL;
     }
     if (!mEllipsizeMode.equals(mode)) {
