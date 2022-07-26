@@ -24,8 +24,6 @@
 
 #include <string>
 
-#include "core/core.h"
-
 namespace hippy {
 namespace inspector {
 
