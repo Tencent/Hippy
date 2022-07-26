@@ -25,6 +25,8 @@ import android.os.Build;
 import android.text.*;
 import android.text.style.*;
 
+import androidx.annotation.RequiresApi;
+
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.font.HippyFontScaleAdapter;
 import com.tencent.mtt.hippy.adapter.image.HippyDrawable;
@@ -51,9 +53,13 @@ public class TextNode extends StyleNode {
   public final static String MODE_MIDDLE = "middle";
   public final static String MODE_TAIL = "tail";
   public final static String MODE_CLIP = "clip";
+  public final static String STRATEGY_SIMPLE = "simple";
+  public final static String STRATEGY_HIGH_QUALITY = "high_quality";
+  public final static String STRATEGY_BALANCED = "balanced";
   CharSequence mText;
   protected int mNumberOfLines = UNSET;
   private String mEllipsizeMode = MODE_TAIL;
+  private String mBreakStrategy = STRATEGY_SIMPLE;
 
   protected int mFontSize = (int) Math.ceil(PixelUtil.dp2px(NodeProps.FONT_SIZE_SP));
   private float mLineHeight = UNSET;
@@ -421,9 +427,9 @@ public class TextNode extends StyleNode {
     markUpdated();
   }
 
-  @HippyControllerProps(name = NodeProps.ELLIPSIZE_MODE, defaultType = HippyControllerProps.STRING, defaultString = "tail")
+  @HippyControllerProps(name = NodeProps.ELLIPSIZE_MODE, defaultType = HippyControllerProps.STRING, defaultString = MODE_TAIL)
   public void setEllipsizeMode(String mode) {
-    if (mode == null) {
+    if (TextUtils.isEmpty(mode)) {
       mode = MODE_TAIL;
     }
     if (!mEllipsizeMode.equals(mode)) {
@@ -432,6 +438,24 @@ public class TextNode extends StyleNode {
         markUpdated();
       } else {
         throw new RuntimeException("Invalid ellipsizeMode: " + mode);
+      }
+    }
+  }
+
+  @HippyControllerProps(name = NodeProps.BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = STRATEGY_SIMPLE)
+  public void setBreakStrategy(String strategy) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+      return;
+    }
+    if (TextUtils.isEmpty(strategy)) {
+      strategy = STRATEGY_SIMPLE;
+    }
+    if (!mBreakStrategy.equals(strategy)) {
+      if (STRATEGY_SIMPLE.equals(strategy) || STRATEGY_HIGH_QUALITY.equals(strategy) || STRATEGY_BALANCED.equals(strategy)) {
+        mBreakStrategy = strategy;
+        markUpdated();
+      } else {
+        throw new RuntimeException("Invalid breakStrategy: " + strategy);
       }
     }
   }
@@ -676,6 +700,21 @@ public class TextNode extends StyleNode {
     return mLineSpacingMultiplier <= 0 ? 1.0f : mLineSpacingMultiplier;
   }
 
+  @RequiresApi(api = Build.VERSION_CODES.M)
+  private int getBreakStrategy() {
+    final String strategy = mBreakStrategy;
+    switch (strategy) {
+      case STRATEGY_SIMPLE:
+        return Layout.BREAK_STRATEGY_SIMPLE;
+      case STRATEGY_HIGH_QUALITY:
+        return Layout.BREAK_STRATEGY_HIGH_QUALITY;
+      case STRATEGY_BALANCED:
+        return Layout.BREAK_STRATEGY_BALANCED;
+      default:
+        throw new RuntimeException("Invalid breakStrategy: " + strategy);
+    }
+  }
+
   private StaticLayout buildStaticLayout(CharSequence source, TextPaint paint, int width) {
     Layout.Alignment textAlign = mTextAlign;
     if (I18nUtil.isRTL()) {
@@ -685,8 +724,17 @@ public class TextNode extends StyleNode {
       }
     }
 
-    return new StaticLayout(source, paint, width, textAlign, getLineSpacingMultiplier(), mLineSpacingExtra,
-        true);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      return StaticLayout.Builder.obtain(source, 0, source.length(), paint, width)
+        .setAlignment(textAlign)
+        .setLineSpacing(mLineSpacingExtra, getLineSpacingMultiplier())
+        .setIncludePad(true)
+        .setBreakStrategy(getBreakStrategy())
+        .build();
+    } else {
+      return new StaticLayout(source, paint, width, textAlign, getLineSpacingMultiplier(),
+        mLineSpacingExtra, true);
+    }
   }
 
   protected Layout createLayout(float width, FlexMeasureMode widthMode) {
@@ -704,8 +752,7 @@ public class TextNode extends StyleNode {
     boolean unconstrainedWidth = widthMode == FlexMeasureMode.UNDEFINED || width < 0;
     if (boring == null && (unconstrainedWidth || (!FlexConstants.isUndefined(desiredWidth)
         && desiredWidth <= width))) {
-      layout = new StaticLayout(text, textPaint, (int)Math.ceil(desiredWidth), mTextAlign, getLineSpacingMultiplier(),
-        mLineSpacingExtra, true);
+      layout = buildStaticLayout(text, textPaint, (int)Math.ceil(desiredWidth));
     } else if (boring != null && (unconstrainedWidth || boring.width <= width)) {
       layout = BoringLayout.make(text, textPaint, boring.width, mTextAlign, getLineSpacingMultiplier(), mLineSpacingExtra, boring, true);
     } else {
