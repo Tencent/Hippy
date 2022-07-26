@@ -37,7 +37,7 @@ public interface HippyBridge {
 
     void onDestroy(boolean isReload);
 
-    void destroy(NativeCallback callback);
+    void destroy(NativeCallback callback, boolean isReload);
 
     void callFunction(String action, NativeCallback callback, ByteBuffer buffer);
 

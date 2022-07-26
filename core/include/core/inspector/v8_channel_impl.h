@@ -24,9 +24,7 @@
 
 #include <memory>
 
-#include "jni/jni_env.h"
-#include "jni/jni_utils.h"
-#include "jni/scoped_java_ref.h"
+#include "bridge.h"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"
 #include "v8/v8-inspector.h"
@@ -37,12 +35,12 @@ namespace inspector {
 
 class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  public:
-  explicit V8ChannelImpl(std::shared_ptr<JavaRef> bridge);
+  explicit V8ChannelImpl(std::shared_ptr<Bridge> bridge);
   ~V8ChannelImpl() override = default;
 
-  inline std::shared_ptr<JavaRef> GetBridge() { return bridge_; }
+  inline std::shared_ptr<Bridge> GetBridge() { return bridge_; }
 
-  inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; }
+  inline void SetBridge(std::shared_ptr<Bridge> bridge) { bridge_ = bridge; }
 
   void sendResponse(
       int callId,
@@ -53,7 +51,7 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
 
  private:
   friend class V8InspectorClientImpl;
-  std::shared_ptr<JavaRef> bridge_;
+  std::shared_ptr<Bridge> bridge_;
 };
 
 }  // namespace inspector
