@@ -343,9 +343,9 @@ For more details, please refer to the Android development documentation.
 | breakStrategy*        | Set text break strategy on Android API 23 and above. `default: simple` | `enum(simple, high_quality, balanced)`                | `Android(minimum supported version 2.14.2)` |
 
 * Attributes meaning of breakStrategy:
-  * `simple`(default value): strategy indicating simple line breaking, Automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
+  * `simple`(default value): strategy indicating simple line breaking, automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
-  * `blanced`: strategy indicating balanced line breaking. The breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
+  * `blanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
 
 ## Methods
 
@@ -406,9 +406,9 @@ Text component.
   * `middle` - The text will be truncated from the middle to ensure that the text at the end and the beginning of the string can be displayed normally in the corresponding position of the Text component, and the truncated text in the middle will be replaced by "...", such as "ab...yz" . (Android  2.14.1+, iOS full supported)
   * `tail`(default value) - The text will be truncated from the end to ensure that the text at the beginning of the string can be displayed normally at the beginning of the Text component, and the text that is truncated at the end will be replaced by "...", such as "abcd...".
 * Attributes meaning of breakStrategy:
-  * `simple`(default value): strategy indicating simple line breaking, Automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
+  * `simple`(default value): strategy indicating simple line breaking, automatic hyphens are not added, and modifying text generally doesn't affect the layout before it (which yields a more consistent user experience when editing), but layout may not be the highest quality;
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
-  * `blanced`: strategy indicating balanced line breaking. The breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
+  * `blanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
 
 ---
 
