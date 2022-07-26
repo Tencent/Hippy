@@ -413,7 +413,42 @@ UIWindow *__nullable NativeRenderKeyWindow(void) {
     if (NativeRenderRunningInAppExtension()) {
         return nil;
     }
-    return NativeRenderSharedApplication().keyWindow;
+    UIWindow *keyWindow = nil;
+    UIApplication *application = NativeRenderSharedApplication();
+    if (@available(iOS 13.0, *)) {
+        NSArray<UIScene *> *scenes = [[application connectedScenes] allObjects];
+        BOOL keyWindowFound = NO;
+        for (UIScene *obj in scenes) {
+            if (UISceneActivationStateForegroundActive != obj.activationState) {
+                continue;
+            }
+            if ([obj isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *windowScene = (UIWindowScene *)obj;
+                if (@available(iOS 15.0, *)) {
+                    keyWindow = windowScene.keyWindow;
+                    break;
+                }
+                else {
+                    NSArray<UIWindow *> *windows = [windowScene windows];
+                    for (UIWindow *window in windows) {
+                        if (![window isKeyWindow]) {
+                            continue;
+                        }
+                        keyWindow = window;
+                        keyWindowFound = YES;
+                        break;
+                    }
+                }
+                if (keyWindowFound) {
+                    break;
+                }
+            }
+        }
+    }
+    if (!keyWindow && [application respondsToSelector:@selector(keyWindow)]) {
+        keyWindow = [application keyWindow];
+    }
+    return keyWindow;
 }
 
 UIViewController *__nullable NativeRenderPresentedViewController(void) {
