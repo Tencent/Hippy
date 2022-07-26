@@ -447,7 +447,7 @@ public class TextNode extends StyleNode {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       return;
     }
-    if (strategy == null || "".equals(strategy)) {
+    if (TextUtils.isEmpty(strategy)) {
       strategy = STRATEGY_SIMPLE;
     }
     if (!mBreakStrategy.equals(strategy)) {
@@ -703,14 +703,15 @@ public class TextNode extends StyleNode {
   @RequiresApi(api = Build.VERSION_CODES.M)
   private int getBreakStrategy() {
     final String strategy = mBreakStrategy;
-    if (strategy == null || STRATEGY_SIMPLE.equals(strategy)) {
-      return Layout.BREAK_STRATEGY_SIMPLE;
-    } else if (STRATEGY_HIGH_QUALITY.equals(strategy)) {
-      return Layout.BREAK_STRATEGY_HIGH_QUALITY;
-    } else if (STRATEGY_BALANCED.equals(strategy)) {
-      return Layout.BREAK_STRATEGY_BALANCED;
-    } else {
-      throw new RuntimeException("Invalid breakStrategy: " + strategy);
+    switch (strategy) {
+      case STRATEGY_SIMPLE:
+        return Layout.BREAK_STRATEGY_SIMPLE;
+      case STRATEGY_HIGH_QUALITY:
+        return Layout.BREAK_STRATEGY_HIGH_QUALITY;
+      case STRATEGY_BALANCED:
+        return Layout.BREAK_STRATEGY_BALANCED;
+      default:
+        throw new RuntimeException("Invalid breakStrategy: " + strategy);
     }
   }
 

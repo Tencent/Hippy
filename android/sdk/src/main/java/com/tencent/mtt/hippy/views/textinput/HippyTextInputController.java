@@ -445,7 +445,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
   public void setBreakStrategy(HippyTextInput view, String strategy) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       int strategyInt;
-      if (strategy == null || "".equals(strategy) || TextNode.STRATEGY_SIMPLE.equals(strategy)) {
+      if (TextUtils.isEmpty(strategy) || TextNode.STRATEGY_SIMPLE.equals(strategy)) {
         strategyInt = Layout.BREAK_STRATEGY_SIMPLE;
       } else if (TextNode.STRATEGY_HIGH_QUALITY.equals(strategy)) {
         strategyInt = Layout.BREAK_STRATEGY_HIGH_QUALITY;
