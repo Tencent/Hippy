@@ -278,7 +278,7 @@ Used to get the width and height of the current device.
 
 > - target: 'window' |'Screen' - Specify to measure Hippy Root View or screen size.
 > - Android special instructions: Due to historical problems, the statusBarHeight in screen mode is calculated in actual pixels, and in window mode, it has been corrected to dp units.
-> - navigatorBarHeight: Android bottom navigatorBar height. Minimum supported version 2.3.4.
+> - navigatorBarHeight: Android bottom navigatorBar height, minimum supported version 2.3.4; iOS safeArea inset bottom, minimum supported version 2.14.2 and iOS 11.
 
 ---
 

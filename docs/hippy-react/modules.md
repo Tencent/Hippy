@@ -278,7 +278,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 > - target: 'window' | 'screen' - 指定丈量 Hippy Root View 或者屏幕尺寸。
 > - Android 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
-> - navigatorBarHeight: Android 底部 navigatorBar 高度；最低支持版本 2.3.4
+> - navigatorBarHeight: Android 为底部 navigatorBar 高度，最低支持版本 2.3.4；iOS 为底部安全区域高度，最低支持iOS 11，SDK 2.14.2版本
 
 ---
 
