@@ -23,7 +23,6 @@
 #include <limits.h>
 
 #include <iostream>
-
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 #include "core/napi/js_native_api.h"
@@ -353,15 +352,16 @@ void JSCCtx_dataBufferFree(void* bytes, void* deallocatorContext) {
   free(bytes);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateByteBuffer(void *buffer, size_t length, bool is_copy) {
+std::shared_ptr<CtxValue> JSCCtx::CreateByteBuffer(const void* buffer, size_t length) {
   if (nullptr == buffer || 0 == length) {
     return nullptr;
   }
-  void* data = buffer;
-  if (is_copy) {
-    data = malloc(length);
-    memcpy(data, buffer, length);
+  void* data = malloc(length);
+  if (!data) {
+    FOOTSTONE_DLOG(ERROR) << "malloc failure, Out of memory";
+    return nullptr;
   }
+  memcpy(data, buffer, length);
   JSValueRef exception = nullptr;
   JSValueRef value_ref = JSObjectMakeArrayBufferWithBytesNoCopy(context_, data, length, JSCCtx_dataBufferFree, nullptr, &exception);
   if (exception) {

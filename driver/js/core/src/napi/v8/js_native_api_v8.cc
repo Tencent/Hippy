@@ -1563,25 +1563,27 @@ std::shared_ptr<CtxValue> V8Ctx::CreateArray(
   return std::make_shared<V8CtxValue>(isolate_, array);
 }
 
+#if V8_MAJOR_VERSION >= 9
 static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data) {
   free(data);
 }
+#endif //V8_MAJOR_VERSION >= 9
 
-std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(void *buffer, size_t length, bool is_copy) {
+std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(const void* buffer, size_t length) {
   if (!buffer) {
     return nullptr;
-  }
-  void* data = buffer;
-  if (is_copy) {
-    data = malloc(length);
-    memcpy(data, buffer, length);
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
-  auto backingStore = v8::ArrayBuffer::NewBackingStore(data, length, ArrayBufferDataDeleter,
+#if V8_MAJOR_VERSION < 9
+  v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_, buffer, length, v8::ArrayBufferCreationMode::kInternalized);
+#else
+  auto backingStore = v8::ArrayBuffer::NewBackingStore(const_cast<void*>(buffer), length, ArrayBufferDataDeleter,
                                                        nullptr);
-  v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_,std::move(backingStore));
+  v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_, std::move(backingStore));
+#endif //V8_MAJOR_VERSION >= 9
+
   if (array_buffer.IsEmpty()) {
     FOOTSTONE_LOG(ERROR) << "array_buffer is empty";
     return nullptr;
@@ -1622,9 +1624,14 @@ bool V8Ctx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,
   if (!handle_value->IsArrayBuffer()) {
     return false;
   }
-  v8::ArrayBuffer* array_buffer = v8::ArrayBuffer::Cast(*handle_value);
+  v8::Local<v8::ArrayBuffer> array_buffer = v8::Local<v8::ArrayBuffer>::Cast(handle_value);
+#if V8_MAJOR_VERSION < 9
+  *out_data = array_buffer->GetContents().Data();
+  out_length = array_buffer->ByteLength();
+#else
   *out_data = array_buffer->GetBackingStore()->Data();
-  out_length = array_buffer->GetBackingStore()->ByteLength();
+  out_length = array_buffer->ByteLength();
+#endif //V8_MAJOR_VERSION < 9
   return true;
 }
 std::shared_ptr<CtxValue> V8Ctx::CreateMap(const std::map<
