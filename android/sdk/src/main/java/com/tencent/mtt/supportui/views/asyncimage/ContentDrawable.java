@@ -32,7 +32,6 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView.ScaleType;
 
@@ -123,10 +122,11 @@ public class ContentDrawable extends BaseDrawable
 	{
 		if (mNeedUpdateBorderPath && mContentBitmap != null)
 		{
-			if (mBorderPath == null)
-			{
-				mBorderPath = new Path();
-			}
+      if (mBorderPath == null) {
+        mBorderPath = new Path();
+      } else {
+        mBorderPath.reset();
+      }
 			mNeedUpdateBorderPath = false;
 			if (mTempRectForBorderRadius == null)
 			{
@@ -263,7 +263,7 @@ public class ContentDrawable extends BaseDrawable
 
 		updateContentRegion();
 		updatePath();
-    
+
 		if (mContentBitmap != null)
 		{
 			Matrix matrix = new Matrix();
