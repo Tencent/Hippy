@@ -84,6 +84,11 @@ if ("${JS_ENGINE}" STREQUAL "V8")
       src/napi/v8/js_native_api_v8.cc
       src/napi/v8/js_native_turbo_v8.cc
       src/napi/v8/native_source_code_android.cc)
+  if (NOT V8_WITHOUT_INSPECTOR)
+    list(APPEND SOURCE_SET
+            src/inspector/v8_channel_impl.cc
+            src/inspector/v8_inspector_client_impl.cc)
+  endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET
       src/napi/jsc/js_native_api_jsc.cc
