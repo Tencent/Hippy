@@ -1,0 +1,24 @@
+{
+  "name": "hippy-style-parser",
+  "version": "2.2.1",
+  "description": "> TODO: description",
+  "author": "mitnickliu <mitnickliu@tencent.com>",
+  "homepage": "https://github.com/Tencent/Hippy#readme",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "keywords": [
+    "hippy",
+    "style",
+    "parser"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tencent/Hippy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "dependencies": {
+    "@vue/shared": "^3.2.21"
+  }
+}

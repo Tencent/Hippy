@@ -1,0 +1,31 @@
+{
+  "name": "hippy-vue-next",
+  "version": "2.2.1",
+  "description": "Vue-Next binding for Hippy native framework",
+  "author": "mitnickliu <mitnickliu@tencent.com>",
+  "homepage": "http://hippyjs.org",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-next",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "keywords": [
+    "hippy",
+    "hippy-vue-next",
+    "native",
+    "web",
+    "framework",
+    "compiler"
+  ],
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "README.md"
+  ],
+  "dependencies": {
+    "@vue/runtime-core": "^3.2.21",
+    "@vue/shared": "^3.2.21",
+    "tiny-emitter": "2.1.0"
+  }
+}
