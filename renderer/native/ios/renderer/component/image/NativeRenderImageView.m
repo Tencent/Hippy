@@ -565,8 +565,11 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         _borderWidthLayer = borderLayer;
         [self.layer addSublayer:borderLayer];
     } else {
+        //radius must be smaller than MIN(self.frame.size.width, self.frame.size.height) / 2.0
+        CGFloat minOfRadius = MIN(self.frame.size.width, self.frame.size.height) / 2.0f;
+        double radius = NativeRenderZeroIfNaN(MIN(minOfRadius, _borderRadius));
         self.layer.mask = nil;
-        self.layer.cornerRadius = _borderRadius;
+        self.layer.cornerRadius = radius;
     }
 }
 
