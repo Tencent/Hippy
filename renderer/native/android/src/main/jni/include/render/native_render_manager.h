@@ -13,7 +13,7 @@
 namespace hippy {
 inline namespace dom {
 
-class NativeRenderManager : public RenderManager {
+class NativeRenderManager : public RenderManager, public std::enable_shared_from_this<NativeRenderManager> {
  public:
   NativeRenderManager(std::shared_ptr<JavaRef> render_delegate);
 
