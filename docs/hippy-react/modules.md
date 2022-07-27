@@ -17,8 +17,6 @@
 
 > 注意，转 Web 需要用 setRef 方法手动传入 ref 才可以正常运行动画，hippy-react-web 不支持颜色渐变动画。
 
-> iOS skew 动画最低支持版本 `2.14.1`
-
 ## 构造参数
 
 | 参数             | 类型               | 必需 | 默认值 | 描述                                                                                                                      |
@@ -27,14 +25,14 @@
 | delay            | `number`           | 是   | -      | 动画延迟开始的时间，单位为毫秒，默认为 0，即动画 start 之后立即执行 |
 | startValue       | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画开始时的值，可为 Number 类型、String 类型，颜色值 [color](style/color.md) 类型                                  |
 | toValue          | `number`, `string`,  [color](style/color.md) | 是   | -      | 动画结束时候的值；如果为颜色值参考 [color](style/color.md)                                                                |
-| valueType\*      | `enum(undefined,rad,deg,color)` | 否   | undefined `(rotate、skew 动画默认单位为 rad)`  | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通数值。 PS: Web 平台此接口只支持 number 类型传参            |
+| valueType\*      | `enum(undefined,rad,deg,color)` | 否   | undefined `(rotate 动画默认单位为 rad)`  | 动画的开始和结束值的类型，默认为空，代表动画起止的单位是普通数值。 PS: Web 平台此接口只支持 number 类型传参            |
 | duration         | `number`           | 否   | 0     | 动画时长，单位为毫秒(ms)                                                                                                  |
 | timingFunction\* | `string`    | 否   | linear | 动画插值器类型, 支持 `linear`，`ease-in`， `ease-out`，`ease-in-out`，`cubic-bezier`                                                                                                       |
 | repeatCount      | `number`, `loop`   | 否   | -      | 动画的重复次数，默认为 0，即只播放一次；为 -1 或者 "loop" 时代表无限循环播放； repeatCount 设为 n 时，则动画会播放 n 次             |
 
 - valueType 的额外参数选项：
 
-  - `rad`：代表动画参数的起止值为弧度， `这是 rotate、skew 动画的默认单位`；
+  - `rad`：代表动画参数的起止值为弧度， `这是 rotate 动画的默认单位`；
   - `deg`：代表动画参数的起止值为度数；
   - `color`：代表动画参数的起止值为颜色值，可修饰背景色 `backgroundColor` 和文字颜色 `color`(仅 Android 支持)，参考 [例子](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/modules/Animation/index.jsx) `最低支持版本2.6.0`
 

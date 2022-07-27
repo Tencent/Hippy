@@ -538,7 +538,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSDictionary *newProps = props;
     NSDictionary *virtualProps = props;
     if (renderObject) {
-        newProps = [renderObject mergeProps: props];
+        newProps = [renderObject mergeProps:props];
         virtualProps = renderObject.props;
         [componentData setProps:newProps forRenderObjectView:renderObject];
         [renderObject dirtyPropagation];

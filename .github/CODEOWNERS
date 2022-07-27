@@ -22,7 +22,7 @@ CMakeLists.txt @medns
 *.cmake @medns
 
 # ci, build & doc related
-/.github/ @zoomchan-cxj @medns
+/.github/ @zoomchan-cxj
 /.gitattributes @zoomchan-cxj
 /.husky/ @zoomchan-cxj
 /docker/ @medns
@@ -66,7 +66,6 @@ CMakeLists.txt @medns
 # android related
 /driver/js/android/ @siguangli
 /renderer/native/android/ @siguangli
-/modules/android/ @siguangli
 /gradle/ @siguangli
 /gradle.properties @siguangli
 /gradlew @siguangli
@@ -77,7 +76,6 @@ CMakeLists.txt @medns
 # ios related
 /driver/js/ios/ @ozonelmy
 /renderer/native/ios/ @ozonelmy
-/modules/ios/ @ozonelmy
 /hippy.podspec @ozonelmy
 
 # flutter related
@@ -88,3 +86,8 @@ CMakeLists.txt @medns
 # devtools related
 /devtools/ @churchill-zhang @medns
 
+# modules related
+/modules/footstone @churchill-zhang
+/modules/android/jni @churchill-zhang
+/modules/android/ @siguangli
+/modules/ios/ @ozonelmy

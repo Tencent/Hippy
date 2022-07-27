@@ -29,6 +29,13 @@ constexpr char kNodePropertyViewName[] = "name";
 constexpr char kNodePropertyStyle[] = "style";
 constexpr char kNodePropertyExt[] = "ext";
 
+
+const std::map<int32_t, std::string> kRelativeTypeMap = {
+    {-1, "kFront"},
+    {0, "kDefault"},
+    {1, "kBack"},
+};
+
 using HippyValueObjectType = footstone::value::HippyValue::HippyValueObjectType;
 
 DomNode::DomNode(uint32_t id, uint32_t pid, int32_t index, std::string tag_name, std::string view_name,
@@ -527,6 +534,52 @@ bool DomNode::ReplaceStyle(HippyValue& style, const std::string& key, const Hipp
   }
 
   return false;
+}
+
+
+std::ostream& operator<<(std::ostream& os, const RefInfo& ref_info) {
+  os << "{";
+  os << "\"ref_id\": " << ref_info.ref_id << ", ";
+  os << "\"relative_to_ref\": \"" << kRelativeTypeMap.find(ref_info.relative_to_ref)->second << "\"";
+  os << "}";
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const DomNode& dom_node) {
+  os << "{";
+  os << "\"id\": " << dom_node.id_ << ", ";
+  os << "\"pid\": " << dom_node.pid_ << ", ";
+  os << "\"view name\": \"" << dom_node.view_name_ << "\", ";
+  if (dom_node.style_map_ != nullptr) {
+    os << "\"style\": {";
+    for (const auto& s : *dom_node.style_map_) {
+      os << "\"" << s.first << "\": " << *s.second << ", ";
+    }
+    os << "}, ";
+  }
+  if (dom_node.dom_ext_map_ != nullptr) {
+    os << "\"ext style\": {";
+    for (const auto& e : *dom_node.dom_ext_map_) {
+      os << "\"" << e.first << "\": " << *e.second << ", ";
+    }
+    os << "}, ";
+  }
+  os << "}";
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const DomInfo& dom_info) {
+  auto dom_node = dom_info.dom_node;
+  auto ref_info = dom_info.ref_info;
+  os << "{";
+  if (ref_info != nullptr) {
+    os << "\"ref info\": " << *ref_info << ", ";
+  }
+  if (dom_node != nullptr) {
+    os << "\"dom node\": " << *dom_node << ", ";
+  }
+  os << "}";
+  return os;
 }
 
 HippyValue DomNode::Serialize() const {
