@@ -351,13 +351,13 @@ HIPPY_EXPORT_VIEW_PROPERTY(onTouchCancel, HippyDirectEventBlock)
 
 HIPPY_EXPORT_SHADOW_PROPERTY(zIndex, NSInteger)
 
-HIPPY_CUSTOM_VIEW_PROPERTY(direction, MTTDirection, HippyShadowView) {
+HIPPY_CUSTOM_SHADOW_PROPERTY(direction, MTTDirection, HippyShadowView) {
     if (json) {
         MTTDirection dir = (MTTDirection)[HippyConvert int:json];
         view.layoutDirection = dir;
     }
     else {
-        view.layoutDirection = defaultView.layoutDirection;
+        view.layoutDirection = DirectionInherit;
     }
 }
 
