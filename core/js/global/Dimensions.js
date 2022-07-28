@@ -51,6 +51,12 @@ function getProcessedDimensions(nativeDimensions) {
         fontScale: nativeWindow.fontScale,
         statusBarHeight: nativeWindow.statusBarHeight / nativeWindow.scale,
         navigatorBarHeight: nativeWindow.navigationBarHeight / nativeWindow.scale,
+        safeArea: {
+          left: nativeWindow.safeArea.left / nativeWindow.scale,
+          right: nativeWindow.safeArea.right / nativeWindow.scale,
+          top: nativeWindow.safeArea.top / nativeWindow.scale,
+          bottom: nativeWindow.safeArea.bottom / nativeWindow.scale,
+        }
       };
   }
   if (nativeScreen) {
@@ -64,6 +70,12 @@ function getProcessedDimensions(nativeDimensions) {
         fontScale: nativeScreen.fontScale,
         statusBarHeight: nativeScreen.statusBarHeight,
         navigatorBarHeight: nativeScreen.navigationBarHeight / nativeScreen.scale,
+        safeArea: {
+          left: nativeScreen.safeArea.left / nativeScreen.scale,
+          right: nativeScreen.safeArea.right / nativeScreen.scale,
+          top: nativeScreen.safeArea.top / nativeScreen.scale,
+          bottom: nativeScreen.safeArea.bottom / nativeScreen.scale,
+        }
       };
   }
   return {

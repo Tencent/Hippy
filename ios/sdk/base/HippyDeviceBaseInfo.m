@@ -43,6 +43,18 @@ NSDictionary *hippyExportedDimensions() {
     if (statusBarHeight == 0) {
         statusBarHeight = isiPhoneX() ? 44 : 20;
     }
+    UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = HippyKeyWindow() ? HippyKeyWindow().safeAreaInsets : UIEdgeInsetsZero;
+    };
+    
+    NSDictionary *safeAreaDic = @{
+        @"top": @(safeAreaInsets.top),
+        @"bottom": @(screenSize.height - safeAreaInsets.bottom),
+        @"left": @(safeAreaInsets.left),
+        @"right": @(screenSize.width - safeAreaInsets.right)
+    };
+
     static NSNumber *screenScale = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -50,14 +62,20 @@ NSDictionary *hippyExportedDimensions() {
     });
     NSDictionary *dimensions = @{
         // 备注，window和screen的区别在于有没有底bar虚拟导航栏，而iOS没有这个东西，所以window和screen是一样的
-        @"window":
-            @ { @"width": @(windowSize.width), @"height": @(windowSize.height), @"scale": screenScale, @"statusBarHeight": @(statusBarHeight) },
+        @"window": @ {
+            @"width": @(windowSize.width),
+            @"height": @(windowSize.height),
+            @"scale": screenScale,
+            @"statusBarHeight": @(statusBarHeight),
+            @"safeArea": safeAreaDic
+        },
         @"screen": @ {
             @"width": @(screenSize.width),
             @"height": @(screenSize.height),
             @"scale": screenScale,
             @"fontScale": @(1),
-            @"statusBarHeight": @(statusBarHeight)
+            @"statusBarHeight": @(statusBarHeight),
+            @"safeArea": safeAreaDic
         }
     };
     return dimensions;
