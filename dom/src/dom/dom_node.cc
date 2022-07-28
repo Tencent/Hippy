@@ -332,14 +332,16 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
                                    weak_from_this(),
                                    std::make_shared<HippyValue>(std::move(layout_obj)));
     auto root = root_node_.lock();
-    if (root == nullptr) return;
-    auto manager = root->GetDomManager().lock();
-    if (manager == nullptr) return;
-    std::vector<std::function<void()>> ops = {[WEAK_THIS, event] {
-      DEFINE_AND_CHECK_SELF(DomNode)
-      self->HandleEvent(event);
-    }};
-    manager->PostTask(Scene(std::move(ops)));
+    if (root != nullptr) {
+      auto manager = root->GetDomManager().lock();
+      if (manager != nullptr) {
+        std::vector<std::function<void()>> ops = {[WEAK_THIS, event] {
+          DEFINE_AND_CHECK_SELF(DomNode)
+          self->HandleEvent(event);
+        }};
+        manager->PostTask(Scene(std::move(ops)));
+      }
+    }
   }
   for (auto& it : children_) {
     it->TransferLayoutOutputsRecursive(changed_nodes);
