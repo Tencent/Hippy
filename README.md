@@ -98,7 +98,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 2. Run `npm run init:example [hippy-react-demo|hippy-vue-demo]` at root directory.
 3. Run `npm run debugexample [hippy-react-demo|hippy-vue-demo] dev` at root directory.
 
-> Or you can `cd` to `examples/hippy-react-demo` or `examples/hippy-vue-demo` directory to run `npm run hippy:debug` and `npm run hippy:dev` instead.
+> Or you can `cd` to `examples/hippy-react-demo` or `examples/hippy-vue-demo` directory to run `npm run hippy:dev` instead.
 >
 > On example debug mode, npm packages such as @hippy/react, @hippy/vue are linked to `packages` > `[different package]` > `dist`(not node_modules), so if you have changed js package source code and want to make it take effect in target example, please call `npm run build` at root directory again.
 >
@@ -112,6 +112,14 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 4. Run `npm run hippy:vendor` and `npm run hippy:build` in sequence to build the production `vendor.[android|ios].js` and `index.[android|ios].js`.
 
 > Hippy demo uses DllPlugin to split the common chunk and app chunk.
+
+### How to Integrate
+
+* [Android Integration](https://hippyjs.org/#/android/integration)
+
+* [iOS Integration](https://hippyjs.org/#/ios/integration)
+
+* [Front-End Integration](https://hippyjs.org/#/guide/integration?id=front-end-integration)
 
 ## 📁 Documentation
 
