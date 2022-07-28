@@ -4,7 +4,8 @@ install! 'cocoapods', :deterministic_uuids => false, :disable_input_output_paths
 def run_devtools_cmake
   system("rm -rf devtools_backend")
   system("mkdir devtools_backend")
-  system("cmake ../../../../devtools/devtools-backend/CMakeLists.txt -B ./devtools_backend -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DENABLE_BITCODE=YES -DENABLE_ARC=YES -DENABLE_INSPECTOR=YES")
+  system("cmake ../../../../devtools/devtools-backend/CMakeLists.txt -B ./devtools_backend -G Xcode -DMODULE_TOOLS=YES -DCMAKE_TOOLCHAIN_FILE=./ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DENABLE_BITCODE=YES -DENABLE_ARC=YES -DDEPLOYMENT_TARGET=11.0 -DENABLE_INSPECTOR=YES")
+
 end
 
 pre_install do |installer|
@@ -15,6 +16,7 @@ pre_install do |installer|
      raise "cmake is not installed, use `brew install cmake` to install cmake "
   end
 end
+
 
 workspace 'HippyDemo.xcworkspace'
 project 'HippyDemo.xcodeproj'
