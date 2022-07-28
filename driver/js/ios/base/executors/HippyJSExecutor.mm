@@ -375,15 +375,21 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
 #endif
     NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
-    self.pScope->WillExit();
-    self.pScope = nullptr;
 #ifdef JS_USE_JSC
-    auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
-    jsc_context->SetName("HippyJSContext(delete)");
+    auto scope = self.pScope;
+    if (scope) {
+        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+        jsc_context->SetName("HippyJSContext(delete)");
+    }
 #endif //JS_USE_JSC
+    self.pScope->WillExit();
+    NSString *executorKey = [self executorkey];
+    if (!executorKey) {
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
-        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", [self executorkey]);
-        [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:[self executorkey]];
+        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", executorKey);
+        [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:executorKey];
     });
 }
 
