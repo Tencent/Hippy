@@ -18,7 +18,21 @@
 
 1. 创建一个 Android 工程
 
-2. 本地集成
+2. Maven 集成
+
+   - 查询 [Maven Central Hippy 版本](https://search.maven.org/search?q=com.tencent.hippy)，其中 `hippy-common` 为 `release` 版本（不携带 `inspector`），`hippy-debug` 为 `debug` 版本
+
+   - 配置 build.gradle
+
+   ```java
+    // api 'com.tencent.hippy:hippy-debug:1.0.0'
+    api 'com.tencent.hippy:hippy-common:1.0.0'
+    // 后面的 glide 与 support-v4 主要是在demo里面拉取图片资源用的，当然你也可以使用自己的三方库来处理图片请求。
+    api 'com.github.bumptech.glide:glide:3.6.1'
+    api 'com.android.support:support-v4:28.0.0'
+   ```
+
+3. 本地集成（可选）
 
    - [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) 工程运行 Gradle Task `other => assembleRelease` 或者 `other => assembleDebug` 后会在 `android\sdk\build\outputs\aar` 目录下生成 `release` 或者 `debug` 模式的`android-sdk.aar`，将 `android-sdk.aar` 拷贝到你项目的 `libs` 目录下。
 
@@ -28,19 +42,6 @@
 
    ```java
     api (name:'android-sdk', ext:'aar')
-    // 后面的 glide 与 support-v4 主要是在demo里面拉取图片资源用的，当然你也可以使用自己的三方库来处理图片请求。
-    api 'com.github.bumptech.glide:glide:3.6.1'
-    api 'com.android.support:support-v4:28.0.0'
-
-3. Maven 集成（可选）
-
-   - 查询 [Maven Central Hippy 版本](https://search.maven.org/search?q=com.tencent.hippy)，其中 `hippy-common` 为 `release` 版本（不携带 `inspector`），`hippy-debug` 为 `debug` 版本
-
-   - 配置 build.gradle
-
-   ```java
-    // api 'com.tencent.hippy:hippy-debug:1.0.0'
-    api 'com.tencent.hippy:hippy-common:1.0.0'
     // 后面的 glide 与 support-v4 主要是在demo里面拉取图片资源用的，当然你也可以使用自己的三方库来处理图片请求。
     api 'com.github.bumptech.glide:glide:3.6.1'
     api 'com.android.support:support-v4:28.0.0'
