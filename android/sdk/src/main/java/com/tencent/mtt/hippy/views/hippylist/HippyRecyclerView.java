@@ -132,7 +132,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         if (!isEnableScroll) {
             return false;
         }
-        return super.onTouchEvent(e);
+      boolean handled = super.onTouchEvent(e);
+      if (handled && (e.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
+        requestDisallowInterceptTouchEvent(true);
+      }
+      return handled;
     }
 
     public void setInitialContentOffset(int initialContentOffset) {
