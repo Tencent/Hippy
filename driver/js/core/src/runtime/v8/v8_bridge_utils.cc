@@ -38,7 +38,8 @@
 #include "footstone/task_runner.h"
 #include "footstone/worker_impl.h"
 
-namespace hippy::runtime {
+namespace hippy {
+inline namespace runtime {
 
 using byte_string = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
@@ -695,4 +696,5 @@ void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data
   runner->PostTask(std::move(callback));
 }
 
+}
 }

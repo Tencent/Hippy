@@ -113,6 +113,7 @@ if ("${JS_ENGINE}" STREQUAL "V8")
       src/napi/v8/js_native_api_v8.cc
       src/napi/v8/js_native_turbo_v8.cc
       src/napi/v8/serializer.cc
+      src/runtime/v8/interrupt_queue.cc
       src/runtime/v8/runtime.cc
       src/runtime/v8/v8_bridge_utils.cc)
   if (NOT V8_WITHOUT_INSPECTOR)
