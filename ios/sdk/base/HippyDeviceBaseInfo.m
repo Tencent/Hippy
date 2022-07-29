@@ -44,8 +44,9 @@ NSDictionary *hippyExportedDimensions() {
         statusBarHeight = isiPhoneX() ? 44 : 20;
     }
     UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
+    safeAreaInsets.top = statusBarHeight;
     if (@available(iOS 11.0, *)) {
-        safeAreaInsets = HippyKeyWindow() ? HippyKeyWindow().safeAreaInsets : UIEdgeInsetsZero;
+        safeAreaInsets = HippyKeyWindow() ? HippyKeyWindow().safeAreaInsets : safeAreaInsets;
     };
     
     NSDictionary *safeAreaDic = @{

@@ -171,6 +171,34 @@ public class DimensionsUtil {
         return STATUS_BAR_HEIGHT;
     }
 
+    public static HippyMap getSafeArea(int screenDisplayWidth, int screenDisplayHeight, int navigationBarHeight, int statusBarHeight) {
+      HippyMap safeAreaMap = new HippyMap();
+      double safeAreaLeft = 0;
+      double safeAreaRight = screenDisplayWidth;
+      double safeAreaBottom = screenDisplayHeight - navigationBarHeight;
+      double safeAreaTop = statusBarHeight;
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        WindowManager wm = (WindowManager) ContextHolder.getAppContext()
+          .getSystemService(Context.WINDOW_SERVICE);
+        WindowMetrics windowMetrics = wm.getCurrentWindowMetrics();
+        WindowInsets windowInsets = windowMetrics.getWindowInsets();
+        if (windowInsets != null) {
+          DisplayCutout displayCutout = windowInsets.getDisplayCutout();
+          if (displayCutout != null) {
+            safeAreaLeft = Math.round(PixelUtil.px2dp(displayCutout.getSafeInsetLeft()));
+            safeAreaRight = screenDisplayWidth - Math.round(PixelUtil.px2dp(displayCutout.getSafeInsetRight()));
+            safeAreaBottom = screenDisplayHeight - Math.round(PixelUtil.px2dp(displayCutout.getSafeInsetBottom()));
+            safeAreaTop = Math.round(PixelUtil.px2dp(displayCutout.getSafeInsetTop()));
+          }
+        }
+      }
+      safeAreaMap.pushDouble("left", safeAreaLeft);
+      safeAreaMap.pushDouble("right", safeAreaRight);
+      safeAreaMap.pushDouble("bottom", safeAreaBottom);
+      safeAreaMap.pushDouble("top", safeAreaTop);
+      return safeAreaMap;
+    }
+
     public static HippyMap getDimensions(int windowWidth, int windowHeight, Context context,
             boolean shouldUseScreenDisplay) {
         if (context == null) {
@@ -218,7 +246,7 @@ public class DimensionsUtil {
         }
         windowDisplayMetricsMap.pushDouble("statusBarHeight", statusBarHeight);
         windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
-        dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
+
         HippyMap screenDisplayMetricsMap = new HippyMap();
         screenDisplayMetricsMap.pushInt("width", screenDisplayWidth);
         screenDisplayMetricsMap.pushInt("height", screenDisplayHeight);
@@ -229,29 +257,11 @@ public class DimensionsUtil {
         screenDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
 
         // 获取安全区域高度
-        HippyMap safeAreaMap = new HippyMap();
-        double safeAreaLeft = 0;
-        double safeAreaRight = screenDisplayWidth;
-        double safeAreaBottom = screenDisplayHeight - navigationBarHeight;
-        double safeAreaTop = statusBarHeight;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-          WindowInsets windowInsets = ((Activity)context).getWindow().getDecorView().getRootWindowInsets();
-          if (windowInsets != null) {
-            DisplayCutout displayCutout = windowInsets.getDisplayCutout();
-            if (displayCutout != null) {
-              safeAreaLeft = displayCutout.getSafeInsetLeft();
-              safeAreaRight = displayCutout.getSafeInsetRight();
-              safeAreaBottom = displayCutout.getSafeInsetBottom();
-              safeAreaTop = displayCutout.getSafeInsetTop();
-            }
-          }
-        }
-        safeAreaMap.pushDouble("left", safeAreaLeft);
-        safeAreaMap.pushDouble("right", safeAreaRight);
-        safeAreaMap.pushDouble("bottom", safeAreaBottom);
-        safeAreaMap.pushDouble("top", safeAreaTop);
+        HippyMap safeAreaMap = getSafeArea(screenDisplayWidth, screenDisplayHeight, navigationBarHeight, statusBarHeight);
         windowDisplayMetricsMap.pushMap("safeArea", safeAreaMap);
         screenDisplayMetricsMap.pushMap("safeArea", safeAreaMap);
+
+        dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
         dimensionMap.pushMap("screenPhysicalPixels", screenDisplayMetricsMap);
         return dimensionMap;
     }

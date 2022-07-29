@@ -133,6 +133,18 @@
         <p>{{ Vue.Native.Dimensions.screen.statusBarHeight }}</p>
       </div>
 
+      <!-- 安全区域坐标 -->
+      <div
+        v-if="Vue.Native.Dimensions.window.safeArea"
+        class="native-block"
+      >
+        <label class="vue-native-title">Vue.Native.Dimensions.window.safeArea</label>
+        <p>left: {{ Vue.Native.Dimensions.window.safeArea.left }}</p>
+        <p>right: {{ Vue.Native.Dimensions.window.safeArea.right }}</p>
+        <p>top: {{ Vue.Native.Dimensions.window.safeArea.top }}</p>
+        <p>bottom: {{ Vue.Native.Dimensions.window.safeArea.bottom }}</p>
+      </div>
+
       <!-- android虚拟导航栏高度 -->
       <div
         v-if="Vue.Native.Platform === 'android'

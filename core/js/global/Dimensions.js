@@ -56,7 +56,7 @@ function getProcessedDimensions(nativeDimensions) {
           right: nativeWindow.safeArea.right / nativeWindow.scale,
           top: nativeWindow.safeArea.top / nativeWindow.scale,
           bottom: nativeWindow.safeArea.bottom / nativeWindow.scale,
-        }
+        },
       };
   }
   if (nativeScreen) {
@@ -75,7 +75,7 @@ function getProcessedDimensions(nativeDimensions) {
           right: nativeScreen.safeArea.right / nativeScreen.scale,
           top: nativeScreen.safeArea.top / nativeScreen.scale,
           bottom: nativeScreen.safeArea.bottom / nativeScreen.scale,
-        }
+        },
       };
   }
   return {
