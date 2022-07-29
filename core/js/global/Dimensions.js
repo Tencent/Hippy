@@ -52,10 +52,10 @@ function getProcessedDimensions(nativeDimensions) {
         statusBarHeight: nativeWindow.statusBarHeight / nativeWindow.scale,
         navigatorBarHeight: nativeWindow.navigationBarHeight / nativeWindow.scale,
         safeArea: {
-          left: nativeWindow.safeArea.left / nativeWindow.scale,
-          right: nativeWindow.safeArea.right / nativeWindow.scale,
-          top: nativeWindow.safeArea.top / nativeWindow.scale,
-          bottom: nativeWindow.safeArea.bottom / nativeWindow.scale,
+          left: nativeWindow.safeArea.left,
+          right: nativeWindow.safeArea.right,
+          top: nativeWindow.safeArea.top,
+          bottom: nativeWindow.safeArea.bottom,
         },
       };
   }
@@ -71,10 +71,10 @@ function getProcessedDimensions(nativeDimensions) {
         statusBarHeight: nativeScreen.statusBarHeight,
         navigatorBarHeight: nativeScreen.navigationBarHeight / nativeScreen.scale,
         safeArea: {
-          left: nativeScreen.safeArea.left / nativeScreen.scale,
-          right: nativeScreen.safeArea.right / nativeScreen.scale,
-          top: nativeScreen.safeArea.top / nativeScreen.scale,
-          bottom: nativeScreen.safeArea.bottom / nativeScreen.scale,
+          left: nativeScreen.safeArea.left,
+          right: nativeScreen.safeArea.right,
+          top: nativeScreen.safeArea.top,
+          bottom: nativeScreen.safeArea.bottom,
         },
       };
   }
