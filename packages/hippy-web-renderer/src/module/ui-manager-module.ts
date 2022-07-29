@@ -84,7 +84,6 @@ export class UIManagerModule extends HippyWebModule {
       const { props } = nodeItemData;
       const component = mapComponent(this.context, tagName, id, pId);
       if (!component) {
-        debugger;
         throw `create component failed, can't find ${tagName}' constructor`;
       }
       if (theUpdateComponentIdSet.has(id)) {
@@ -279,6 +278,9 @@ export class UIManagerModule extends HippyWebModule {
         }
         valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey.startsWith('scale') ? '' : 'px'}) `;
       }
+    }
+    if (!valueString) {
+      return;
     }
     style.transform = valueString;
     setElementStyle(component.dom!, style);
