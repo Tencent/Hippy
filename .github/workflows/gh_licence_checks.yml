@@ -1,0 +1,64 @@
+name: '[gh] pull request file license header checks'
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit-from:
+        description: 'specify the start of commit hash'
+        required: false
+      commit-to:
+        description: 'specify the end of commit hash'
+        required: false
+  pull_request:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    paths:
+      - '**.tsx?'
+      - '**.jsx?'
+      - '**.vue'
+      - '**.ejs'
+      - '**.mjs'
+      - '**.es6'
+      - '**.css'
+      - '**.less'
+      - '**.scss'
+      - '**.hh?'
+      - '**.hpp'
+      - '**.h\\+\\+'
+      - '**.hxx'
+      - '**.cc?'
+      - '**.c\\+\\+'
+      - '**.cpp'
+      - '**.C'
+      - '**.cxx'
+      - '**.mm?'
+      - '**.swift'
+      - '**.podspec'
+      - '**.html?'
+      - '**.xhtml?'
+      - '**.xml'
+      - '**.cmake'
+      - '**.java'
+      - '**.cfg'
+      - '**.txt'
+      - '**.sh'
+      - '**.yaml'
+      - '**.bat'
+      - '**.dart'
+      - "**.py"
+
+jobs:
+  pull_request_license_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check License or Date from github PR files
+        uses: zoomchan-cxj/actions-license@v0.0.5
+        with:
+          config-path: .github/license-check.json
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          FORCE_COLOR: 3
