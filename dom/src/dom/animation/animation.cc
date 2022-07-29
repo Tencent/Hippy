@@ -1,4 +1,26 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "dom/animation/animation.h"
+
+#include <utility>
 
 #include "footstone/base_time.h"
 #include "footstone/logging.h"
@@ -19,6 +41,7 @@ Animation::Animation(int32_t cnt,
                      uint64_t duration,
                      uint64_t exec_time,
                      double start_value,
+                     double current_value,
                      AnimationStartCb on_start,
                      AnimationEndCb on_end,
                      AnimationCancelCb on_cancel,
@@ -34,14 +57,15 @@ Animation::Animation(int32_t cnt,
       duration_(duration),
       exec_time_(exec_time),
       start_value_(start_value),
-      on_start_(on_start),
-      on_end_(on_end),
-      on_cancel_(on_cancel),
-      on_repeat_(on_repeat),
+      current_value_(current_value),
+      on_start_(std::move(on_start)),
+      on_end_(std::move(on_end)),
+      on_cancel_(std::move(on_cancel)),
+      on_repeat_(std::move(on_repeat)),
       parent_id_(parent_id),
-      children_(children),
+      children_(std::move(children)),
       status_(status),
-      animation_manager_(animation_manager) {}
+      animation_manager_(std::move(animation_manager)) {}
 
 Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double start_value) :
     Animation(
@@ -50,6 +74,7 @@ Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double star
         footstone::time::MonotonicallyIncreasingTime(),
         duration,
         0,
+        start_value,
         start_value,
         nullptr,
         nullptr,
@@ -63,6 +88,7 @@ Animation::Animation(int32_t cnt, uint64_t delay, uint64_t duration, double star
 Animation::Animation(int32_t cnt) : Animation(cnt,
                                               0,
                                               footstone::time::MonotonicallyIncreasingTime(),
+                                              0,
                                               0,
                                               0,
                                               0,
@@ -80,7 +106,7 @@ Animation::Animation(int32_t cnt) : Animation(cnt,
 Animation::Animation() : Animation(0, 0, 0, 0) {}
 
 double Animation::Calculate(uint64_t time) {
-  return start_value_;
+  return current_value_;
 }
 
 void Animation::AddEventListener(const std::string& event, AnimationCb cb) {
@@ -219,7 +245,6 @@ void Animation::Run(uint64_t now, const AnimationOnRun& on_run) {
       FOOTSTONE_LOG(ERROR) << "animation status = " << static_cast<uint32_t>(status_);
       FOOTSTONE_UNREACHABLE();
     }
-
   }
 
   if (HasChildren()) {
@@ -232,7 +257,8 @@ void Animation::Run(uint64_t now, const AnimationOnRun& on_run) {
       if (exec_time >= delay && exec_time < delay + duration) {
         if (!child->HasChildren()) {
           if (on_run) {
-            on_run(child->Calculate(now));
+            current_value_ = child->Calculate(now);
+            on_run(current_value_);
           }
         }
       } else if (exec_time < delay) {
@@ -315,13 +341,17 @@ void Animation::Pause() {
   switch (status) {
     case Animation::Status::kStart:
     case Animation::Status::kRunning:
-    case Animation::Status::kResume:animation->SetStatus(Animation::Status::kPause);
+    case Animation::Status::kResume: {
+      animation->SetStatus(Animation::Status::kPause);
       break;
+    }
     case Animation::Status::kCreated:
     case Animation::Status::kPause:
     case Animation::Status::kEnd:
     case Animation::Status::kDestroy:
-    default:return;
+    default: {
+      return;
+    }
   }
   animation_manager->RemoveActiveAnimation(id_);
   animation_manager->CancelDelayedAnimation(id_);
@@ -350,15 +380,19 @@ void Animation::Resume() {
   }
   auto status = animation->GetStatus();
   switch (status) {
-    case Animation::Status::kPause:animation->SetStatus(Animation::Status::kResume);
+    case Animation::Status::kPause: {
+      animation->SetStatus(Animation::Status::kResume);
       break;
+    }
     case Animation::Status::kCreated:
     case Animation::Status::kStart:
     case Animation::Status::kRunning:
     case Animation::Status::kResume:
     case Animation::Status::kEnd:
     case Animation::Status::kDestroy:
-    default:return;
+    default: {
+      return;
+    }
   }
   auto exec_time = animation->GetExecTime();
   auto delay = animation->GetDelay();
@@ -389,6 +423,18 @@ void Animation::Resume() {
     auto now = footstone::time::MonotonicallyIncreasingTime();
     last_begin_time_ = now;
     animation_manager->AddActiveAnimation(animation);
+  } else {
+    animation->SetStatus(Animation::Status::kEnd);
+    if (animation_manager) {
+      animation_manager->RemoveActiveAnimation(id_);
+    }
+    if (on_end_) {
+      on_end_();
+    }
+    if (cnt_ > 0 || cnt_ == hippy::kLoopCnt) {
+      auto now = footstone::time::MonotonicallyIncreasingTime();
+      Repeat(now);
+    }
   }
 }
 

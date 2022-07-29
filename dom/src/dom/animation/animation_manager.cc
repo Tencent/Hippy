@@ -1,7 +1,22 @@
-//
-// Copyright (c) 2022 Tencent. All rights reserved.
-// Created by omegaxiao on 2022/4/14.
-//
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "dom/animation/animation_manager.h"
 
@@ -43,6 +58,20 @@ void AnimationManager::OnDomNodeDelete(const std::vector<std::shared_ptr<DomInfo
   }
 }
 
+void AnimationManager::EmplaceNodeProp(const std::shared_ptr<DomNode>& node, const std::string& prop, uint32_t animation_id) {
+  auto node_id = node->GetId();
+  auto it = animation_nodes_map_.find(animation_id);
+  if (it != animation_nodes_map_.end()) {
+    it->second.insert(node_id);
+  } else {
+    std::set<uint32_t> nodeIds;
+    nodeIds.insert(node_id);
+    animation_nodes_map_.insert({animation_id, nodeIds});
+  }
+  auto animation = GetAnimation(animation_id);
+  node->EmplaceStyleMap(prop, HippyValue(animation->GetStartValue()));
+}
+
 void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
   auto dom_ext_map_ = node->GetExtStyle();
   auto use_animation_it = dom_ext_map_->find(kUseAnimation);
@@ -63,22 +92,29 @@ void AnimationManager::ParseAnimation(const std::shared_ptr<DomNode>& node) {
         FetchAnimationsFromArray(*style.second, animation_prop_map);
       }
     }
-    DeleteAnimationMap(node);
+
     if (!animation_prop_map.empty()) {
       auto node_id = node->GetId();
-      node_animation_props_map_.insert({node_id, animation_prop_map});
-      for (const auto& pair: animation_prop_map) {
-        auto animation_id = pair.first;
-        auto it = animation_nodes_map_.find(animation_id);
-        if (it != animation_nodes_map_.end()) {
-          it->second.insert(node_id);
-        } else {
-          std::set<uint32_t> nodeIds;
-          nodeIds.insert(node_id);
-          animation_nodes_map_.insert({animation_id, nodeIds});
+      auto node_animation_props_it = node_animation_props_map_.find(node_id);
+      if (node_animation_props_it != node_animation_props_map_.end()) {
+        std::vector<std::shared_ptr<DomNode>> update_nodes;
+        auto& orig_animation_prop_map = node_animation_props_it->second;
+        for (auto& pair: animation_prop_map) {
+          auto animation_id = pair.first;
+          auto prop = pair.second;
+          if (orig_animation_prop_map[animation_id] == prop) {
+            auto animation = GetAnimation(animation_id);
+            node->EmplaceStyleMap(prop, HippyValue(animation->GetCurrentValue()));
+          } else {
+            orig_animation_prop_map[animation_id] = animation_prop_map[animation_id];
+            EmplaceNodeProp(node, pair.second, animation_id);
+          }
         }
-        auto animation = GetAnimation(animation_id);
-        node->EmplaceStyleMap(pair.second, HippyValue(animation->GetStartValue()));
+      } else {
+        node_animation_props_map_.insert({node_id, animation_prop_map});
+        for (const auto& pair: animation_prop_map) {
+          EmplaceNodeProp(node, pair.second, pair.first);
+        }
       }
     }
   } else {
@@ -203,7 +239,7 @@ void AnimationManager::AddActiveAnimation(const std::shared_ptr<Animation>& anim
                                       if (!animation_manager) {
                                         return;
                                       }
-                                      animation_manager->UpdateAnimation();
+                                      animation_manager->UpdateAnimations();
                                     }};
                                     dom_manager->PostTask(Scene(std::move(ops)));
                                   });
@@ -307,7 +343,22 @@ std::shared_ptr<RenderManager> AnimationManager::GetRenderManager() {
   return dom_manager->GetRenderManager().lock();
 }
 
-void AnimationManager::UpdateAnimation() {
+void AnimationManager::UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now,
+                                       std::vector<std::shared_ptr<DomNode>>& update_nodes) {
+  auto animation_id = animation->GetId();
+  auto parent_id = animation->GetParentId();
+  auto related_animation_id = parent_id;
+  if (related_animation_id == hippy::kInvalidAnimationParentId) {
+    related_animation_id = animation_id;
+  }
+
+  // on_run is called synchronously
+  animation->Run(now, [this, related_animation_id, &update_nodes](double current) {
+    UpdateCubicBezierAnimation(current, related_animation_id, update_nodes);
+  });
+}
+
+void AnimationManager::UpdateAnimations() {
   auto root_node = root_node_.lock();
   if (!root_node) {
     return;
@@ -319,18 +370,9 @@ void AnimationManager::UpdateAnimation() {
 
   auto now = footstone::time::MonotonicallyIncreasingTime();
   std::vector<std::shared_ptr<DomNode>> update_nodes;
+  // xcode crash if we change for to loop
   for (std::vector<std::shared_ptr<Animation>>::size_type i = 0; i < active_animations_.size(); ++i) {
-    auto animation = active_animations_[i];
-    auto animation_id = animation->GetId();
-    auto parent_id = animation->GetParentId();
-    auto related_animation_id = parent_id;
-    if (related_animation_id == hippy::kInvalidAnimationParentId) {
-      related_animation_id = animation_id;
-    }
-    // on_run is called synchronously
-    animation->Run(now, [this, related_animation_id, &update_nodes](double current) {
-      UpdateCubicBezierAnimation(current, related_animation_id, update_nodes);
-    });
+    UpdateAnimation(active_animations_[i], now, update_nodes);
   }
   dom_manager->UpdateAnimation(root_node_, std::move(update_nodes));
   dom_manager->EndBatch(root_node_);

@@ -61,10 +61,6 @@ class CubicBezierAnimation : public Animation {
   CubicBezierAnimation();
   ~CubicBezierAnimation() = default;
 
-  inline double GetCurrentValue() {
-    return current_value_;
-  }
-
   inline uint32_t GetRelatedId() {
     return related_id_;
   }
@@ -84,15 +80,14 @@ class CubicBezierAnimation : public Animation {
               uint32_t related_id = kInvalidAnimationId);
 
  private:
-  CubicBezier ParseCubicBezierStr(std::string str);
-  double CalculateColor(double start_color, double to_color, double scale);
+  static CubicBezier ParseCubicBezierStr(const std::string& str);
+  static double CalculateColor(double start_color, double to_color, double scale);
 
   Mode mode_;
   double to_value_;
-  double current_value_;
   ValueType type_;
   std::string func_;
-  CubicBezier cubic_bezier_{};
+  CubicBezier cubic_bezier_;
   uint32_t related_id_;
 };
 
