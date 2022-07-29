@@ -47,6 +47,10 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   }
 
   public updateProperty(key: string, value: any) {
+    if (typeof this[key] === 'function') {
+      this.props[key] = value;
+      return;
+    }
     if (key in this && this[key] !== value) {
       this[key] = value;
     }

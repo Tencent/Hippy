@@ -196,9 +196,6 @@ export class UIManagerModule extends HippyWebModule {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
         continue;
       }
-      if (typeof component[key] === 'function') {
-        continue;
-      }
       component.updateProperty?.(key, props[key]);
     }
   }
@@ -277,6 +274,8 @@ export class UIManagerModule extends HippyWebModule {
     if (!component.dom) {
       throw Error(`component init process failed ,component's dom must be exit after component create ${component.tagName ?? ''}`);
     }
+    const { dom } = component;
+    dom.id = String(component.id);
     this.updateComponentProps(component, props);
     const parent = this.findViewById(component.pId);
     if (!parent || !parent.dom) {
@@ -294,8 +293,6 @@ export class UIManagerModule extends HippyWebModule {
     } else {
       this.appendChild(parent, component, realIndex);
     }
-    const { dom } = component;
-    dom.id = String(component.id);
     component.mounted?.();
   }
 

@@ -191,25 +191,19 @@ function isFontSize(key) {
 
 function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
   if (!style.borderStyle) {
-    if (style.borderTopWidth) {
-      styleUpdateWithCheck(el, 'borderTopStyle', 'solid');
-    }
-    if (style.borderLeftWidth) {
-      styleUpdateWithCheck(el, 'borderLeftStyle', 'solid');
-    }
-    if (style.borderRightWidth) {
-      styleUpdateWithCheck(el, 'borderRightStyle', 'solid');
-    }
-    if (style.borderBottomWidth) {
-      styleUpdateWithCheck(el, 'borderBottomStyle', 'solid');
-    }
+    singleUpdateBorderStyle(el, style);
   }
   if (style.borderStyle && !style.borderWidth && !style.borderTopWidth && !style.borderLeftWidth
     && !style.borderRightWidth && !style.borderBottomWidth) {
     styleUpdateWithCheck(el, 'borderStyle', 'none');
   } else if (!style.borderStyle && style.borderWidth) {
     styleUpdateWithCheck(el, 'borderStyle', 'solid');
+  } else if (style.borderStyle && !style.borderWidth && (style.borderTopWidth || style.borderLeftWidth
+    || style.borderRightWidth || style.borderBottomWidth)) {
+    styleUpdateWithCheck(el, 'borderStyle', 'none');
+    singleUpdateBorderStyle(el, style);
   }
+
   if (style[STYLE_MARGIN_V] !== undefined) {
     styleUpdateWithCheck(el, 'marginTop', transformForSize(style[STYLE_MARGIN_V]));
     styleUpdateWithCheck(el, 'marginBottom', transformForSize(style[STYLE_MARGIN_V]));
@@ -225,6 +219,20 @@ function borderStyleProcess(el: HTMLElement, style: { [key: string]: any }) {
   if (style[STYLE_PADDING_H] !== undefined) {
     styleUpdateWithCheck(el, 'paddingLeft',  transformForSize(style[STYLE_PADDING_H]));
     styleUpdateWithCheck(el, 'paddingRight', transformForSize(style[STYLE_PADDING_H]));
+  }
+}
+function singleUpdateBorderStyle(el: HTMLElement, style: { [key: string]: any }) {
+  if (style.borderTopWidth) {
+    styleUpdateWithCheck(el, 'borderTopStyle', 'solid');
+  }
+  if (style.borderLeftWidth) {
+    styleUpdateWithCheck(el, 'borderLeftStyle', 'solid');
+  }
+  if (style.borderRightWidth) {
+    styleUpdateWithCheck(el, 'borderRightStyle', 'solid');
+  }
+  if (style.borderBottomWidth) {
+    styleUpdateWithCheck(el, 'borderBottomStyle', 'solid');
   }
 }
 export function warn(...context: any[]) {
