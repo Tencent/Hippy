@@ -72,18 +72,18 @@ public class DimensionsUtil {
     }
     try {
       @SuppressWarnings("rawtypes") Class systemPropertiesClass = Class
-        .forName("android.os.SystemProperties");
+          .forName("android.os.SystemProperties");
       @SuppressWarnings("unchecked") Method m = systemPropertiesClass
-        .getMethod("get", String.class);
+          .getMethod("get", String.class);
       String navBarOverride = (String) m.invoke(systemPropertiesClass, "qemu.hw.mainkeys");
       //判断是否隐藏了底部虚拟导航
       int navigationBarIsMin;
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
         navigationBarIsMin = Settings.System.getInt(context.getContentResolver(),
-          getNavigationBarIsMinKeyName(), 0);
+            getNavigationBarIsMinKeyName(), 0);
       } else {
         navigationBarIsMin = Settings.Global.getInt(context.getContentResolver(),
-          getNavigationBarIsMinKeyName(), 0);
+            getNavigationBarIsMinKeyName(), 0);
       }
       if ("1".equals(navBarOverride) || 1 == navigationBarIsMin) {
         checkResult = false;
@@ -110,13 +110,13 @@ public class DimensionsUtil {
     }
 
     String navBarHeightIdentifier = (context.getResources().getConfiguration().orientation
-      != Configuration.ORIENTATION_LANDSCAPE)
-      ? NAV_BAR_HEIGHT_RES_NAME : NAV_BAR_HEIGHT_LANDSCAPE_RES_NAME;
+        != Configuration.ORIENTATION_LANDSCAPE)
+        ? NAV_BAR_HEIGHT_RES_NAME : NAV_BAR_HEIGHT_LANDSCAPE_RES_NAME;
 
     int result = 0;
     try {
       int resourceId = context.getResources()
-        .getIdentifier(navBarHeightIdentifier, "dimen", "android");
+          .getIdentifier(navBarHeightIdentifier, "dimen", "android");
       result = context.getResources().getDimensionPixelSize(resourceId);
     } catch (NotFoundException e) {
       LogUtils.d("DimensionsUtil", "getNavigationBarHeight: " + e.getMessage());
@@ -133,11 +133,11 @@ public class DimensionsUtil {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
       WindowManager wm = (WindowManager) ContextHolder.getAppContext()
-        .getSystemService(Context.WINDOW_SERVICE);
+              .getSystemService(Context.WINDOW_SERVICE);
       WindowMetrics windowMetrics = wm.getCurrentWindowMetrics();
       WindowInsets windowInsets = windowMetrics.getWindowInsets();
       Insets insets = windowInsets
-        .getInsetsIgnoringVisibility(WindowInsets.Type.statusBars());
+              .getInsetsIgnoringVisibility(WindowInsets.Type.statusBars());
       STATUS_BAR_HEIGHT = insets.top;
     } else {
       Class<?> c;
@@ -159,7 +159,7 @@ public class DimensionsUtil {
       if (STATUS_BAR_HEIGHT < 1) {
         try {
           int statebarH_id = context.getResources()
-            .getIdentifier("statebar_height", "dimen", context.getPackageName());
+                  .getIdentifier("statebar_height", "dimen", context.getPackageName());
           STATUS_BAR_HEIGHT = Math.round(context.getResources().getDimension(statebarH_id));
         } catch (NotFoundException e) {
           LogUtils.d("DimensionsUtil", "getDimensions: " + e.getMessage());
@@ -199,7 +199,7 @@ public class DimensionsUtil {
   }
 
   public static HippyMap getDimensions(int windowWidth, int windowHeight, Context context,
-                                       boolean shouldUseScreenDisplay) {
+      boolean shouldUseScreenDisplay) {
     if (context == null) {
       return null;
     }
@@ -214,9 +214,9 @@ public class DimensionsUtil {
     } else {
       try {
         @SuppressWarnings("JavaReflectionMemberAccess") Method mGetRawH = Display.class
-          .getMethod("getRawHeight");
+            .getMethod("getRawHeight");
         @SuppressWarnings("JavaReflectionMemberAccess") Method mGetRawW = Display.class
-          .getMethod("getRawWidth");
+            .getMethod("getRawWidth");
 
         Object width = mGetRawW.invoke(defaultDisplay);
         screenDisplayMetrics.widthPixels = width != null ? (Integer) width : 0;
@@ -236,17 +236,17 @@ public class DimensionsUtil {
 
     if (shouldUseScreenDisplay) {
       windowDisplayMetricsMap
-        .pushInt("width", windowWidth >= 0 ? windowWidth : screenDisplayMetrics.widthPixels);
+          .pushInt("width", windowWidth >= 0 ? windowWidth : screenDisplayMetrics.widthPixels);
       windowDisplayMetricsMap
-        .pushInt("height", windowHeight >= 0 ? windowHeight : screenDisplayMetrics.heightPixels);
+          .pushInt("height", windowHeight >= 0 ? windowHeight : screenDisplayMetrics.heightPixels);
       windowDisplayMetricsMap.pushDouble("scale", screenDisplayMetrics.density);
       windowDisplayMetricsMap.pushDouble("fontScale", screenDisplayMetrics.scaledDensity);
       windowDisplayMetricsMap.pushDouble("densityDpi", screenDisplayMetrics.densityDpi);
     } else {
       windowDisplayMetricsMap
-        .pushInt("width", windowWidth >= 0 ? windowWidth : windowDisplayMetrics.widthPixels);
+          .pushInt("width", windowWidth >= 0 ? windowWidth : windowDisplayMetrics.widthPixels);
       windowDisplayMetricsMap
-        .pushInt("height", windowHeight >= 0 ? windowHeight : windowDisplayMetrics.heightPixels);
+          .pushInt("height", windowHeight >= 0 ? windowHeight : windowDisplayMetrics.heightPixels);
       windowDisplayMetricsMap.pushDouble("scale", windowDisplayMetrics.density);
       windowDisplayMetricsMap.pushDouble("fontScale", windowDisplayMetrics.scaledDensity);
       windowDisplayMetricsMap.pushDouble("densityDpi", windowDisplayMetrics.densityDpi);

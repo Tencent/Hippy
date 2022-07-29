@@ -1,5 +1,7 @@
 import React from 'react';
 import {
+  ScrollView,
+  Text,
   View,
   StyleSheet,
   Image,
