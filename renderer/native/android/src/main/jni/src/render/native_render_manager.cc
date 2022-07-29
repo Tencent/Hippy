@@ -27,6 +27,7 @@
 #include <utility>
 
 #include "footstone/logging.h"
+#include "footstone/macros.h"
 #include "dom/root_node.h"
 #include "jni/jni_env.h"
 
@@ -102,19 +103,21 @@ void NativeRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
 
     if (nodes[i]->GetViewName() == kMeasureNode) {
       int32_t id =  footstone::check::checked_numeric_cast<uint32_t, int32_t>(nodes[i]->GetId());
-      MeasureFunction measure_function = [this, root_id, id](float width,
-          LayoutMeasureMode width_measure_mode, float height,
-          LayoutMeasureMode height_measure_mode,
-          void* layoutContext) -> LayoutSize {
+      MeasureFunction measure_function = [WEAK_THIS, root_id, id](float width, LayoutMeasureMode width_measure_mode,
+                                                                  float height, LayoutMeasureMode height_measure_mode,
+                                                                  void* layoutContext) -> LayoutSize {
+        DEFINE_SELF(NativeRenderManager)
+        if (!self) {
+          return LayoutSize{0, 0};
+        }
         int64_t result;
-        this->CallNativeMeasureMethod(root_id, id, DpToPx(width), width_measure_mode,
-                                      DpToPx(height), height_measure_mode,
-                                      result);
+        self->CallNativeMeasureMethod(root_id, id, self->DpToPx(width), width_measure_mode, self->DpToPx(height),
+                                      height_measure_mode, result);
         LayoutSize layout_result;
-        layout_result.width = PxToDp(static_cast<float>((int32_t) (0xFFFFFFFF & (result >> 32))));
-        layout_result.height = PxToDp(static_cast<float>((int32_t) (0xFFFFFFFF & result)));
+        layout_result.width = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & (result >> 32))));
+        layout_result.height = self->PxToDp(static_cast<float>((int32_t)(0xFFFFFFFF & result)));
         FOOTSTONE_DLOG(INFO) << "measure width: " << (int32_t)(0xFFFFFFFF & (result >> 32))
-                            << ", height: " << (int32_t)(0xFFFFFFFF & result) << ", result: " << result;
+                             << ", height: " << (int32_t)(0xFFFFFFFF & result) << ", result: " << result;
         return layout_result;
       };
       nodes[i]->GetLayoutNode()->SetMeasureFunction(measure_function);

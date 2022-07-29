@@ -37,6 +37,14 @@ V8InspectorClientImpl::V8InspectorClientImpl(std::shared_ptr<Scope> scope, std::
   v8::Isolate* isolate = ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
   inspector_ = v8_inspector::V8Inspector::create(isolate, this);
+  interrupt_queue_ = std::make_shared<InterruptQueue>(isolate);
+  auto& map = InterruptQueue::GetPersistentMap();
+  map.Insert(interrupt_queue_->GetId(), interrupt_queue_);
+}
+
+V8InspectorClientImpl::~V8InspectorClientImpl() {
+  auto& map = InterruptQueue::GetPersistentMap();
+  map.Erase(interrupt_queue_->GetId());
 }
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
@@ -78,6 +86,7 @@ void V8InspectorClientImpl::SendMessageToV8(unicode_string_view&& params) {
       FOOTSTONE_LOG(ERROR) << "msg runner error";
       return;
     }
+    interrupt_queue_->SetTaskRunner(msg_runner);
   }
 
   auto weak_self = weak_from_this();
@@ -126,7 +135,7 @@ void V8InspectorClientImpl::SendMessageToV8(unicode_string_view&& params) {
     }
     session->dispatchProtocolMessage(message_view);
   };
-  msg_runner->PostTask(std::move(msg_unit));
+  interrupt_queue_->PostTask(std::move(msg_unit));
 }
 
 void V8InspectorClientImpl::DestroyContext() {

@@ -178,7 +178,7 @@ std::unique_ptr<Task> TaskRunner::GetNext() {
   {
     std::lock_guard<std::mutex> lock(queue_mutex_);
     if (!task_queue_.empty()) {
-      std::unique_ptr<Task> result = std::move(task_queue_.front());
+      auto result = std::move(task_queue_.front());
       task_queue_.pop();
       return result;
     }

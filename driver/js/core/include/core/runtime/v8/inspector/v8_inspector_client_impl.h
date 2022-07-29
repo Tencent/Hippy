@@ -26,8 +26,10 @@
 
 #include "footstone/unicode_string_view.h"
 #include "footstone/task_runner.h"
-#include "core/core.h"
-#include "v8_channel_impl.h"
+#include "core/napi/v8/js_native_api_v8.h"
+#include "core/runtime/v8/inspector/v8_channel_impl.h"
+#include "core/runtime/v8/interrupt_queue.h"
+#include "core/scope.h"
 
 namespace hippy {
 namespace inspector {
@@ -39,7 +41,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   using TaskRunner = footstone::TaskRunner;
 
   explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope, std::weak_ptr<TaskRunner> runner);
-  ~V8InspectorClientImpl() = default;
+  ~V8InspectorClientImpl();
 
   inline std::shared_ptr<TaskRunner> GetInspectorRunner() {
     return inspector_runner_;
@@ -82,6 +84,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   std::weak_ptr<TaskRunner> js_runner_;
   std::shared_ptr<TaskRunner> inspector_runner_;
   std::mutex mutex_;
+  std::shared_ptr<InterruptQueue> interrupt_queue_;
 };
 
 }  // namespace inspector

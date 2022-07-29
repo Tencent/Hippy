@@ -7,6 +7,7 @@
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
+#include "dom/scene.h"
 #include "footstone/serializer.h"
 
 namespace hippy {
@@ -330,7 +331,17 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
         std::make_shared<DomEvent>(kLayoutEvent,
                                    weak_from_this(),
                                    std::make_shared<HippyValue>(std::move(layout_obj)));
-    HandleEvent(event);
+    auto root = root_node_.lock();
+    if (root != nullptr) {
+      auto manager = root->GetDomManager().lock();
+      if (manager != nullptr) {
+        std::vector<std::function<void()>> ops = {[WEAK_THIS, event] {
+          DEFINE_AND_CHECK_SELF(DomNode)
+          self->HandleEvent(event);
+        }};
+        manager->PostTask(Scene(std::move(ops)));
+      }
+    }
   }
   for (auto& it : children_) {
     it->TransferLayoutOutputsRecursive(changed_nodes);
