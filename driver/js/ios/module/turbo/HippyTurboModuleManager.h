@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#include <JavaScriptCore/JSValue.h>
+#include <JavaScriptCore/JSObjectRef.h>
 #import "HippyBridge.h"
 #import "HippyOCTurboModule.h"
 
@@ -39,8 +39,8 @@
 
 + (BOOL)isTurboModule:(NSString *)name;
 
-- (void)bindJSObject:(JSValue *)jsObj toModuleName:(NSString *)moduleName;
-- (NSString *)turboModuleNameForJSObject:(JSValue *)jsObj;
+- (void)bindJSObject:(JSObjectRef)jsObj toModuleName:(NSString *)moduleName;
+- (NSString *)turboModuleNameForJSObject:(JSObjectRef)jsObj;
 
 @end
 

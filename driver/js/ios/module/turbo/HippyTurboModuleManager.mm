@@ -55,14 +55,39 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
     [HippyTurboModuleMap setObject:moduleClass forKey:moduleName];
 }
 
-@interface HippyTurboBindInfo : NSObject
+@interface HippyTurboBindInfo : NSObject {
+    JSObjectRef _jsObjectRef;
+}
 
 @property (nonatomic, copy) NSString *moduleName;
-@property (nonatomic, strong) JSManagedValue *managedJsObject;
+
+- (instancetype)initWithMoudleName:(NSString *)moduleName
+                       jsObjectRef:(JSObjectRef)jsObjectRef;
+- (BOOL)containJsObjectRef:(JSObjectRef)jsObjectRef;
 
 @end
 
 @implementation HippyTurboBindInfo
+
+- (instancetype)initWithMoudleName:(NSString *)moduleName
+                       jsObjectRef:(JSObjectRef)jsObjectRef {
+    if (self = [super init]) {
+        _moduleName = moduleName;
+        _jsObjectRef = jsObjectRef;
+    }
+    return self;
+}
+
+- (BOOL)containJsObjectRef:(JSObjectRef)jsObjectRef {
+    if (_jsObjectRef == NULL || jsObjectRef == NULL) {
+        return NO;
+    }
+    return _jsObjectRef == jsObjectRef;
+}
+
+- (void)dealloc {
+    _jsObjectRef = NULL;
+}
 
 @end
 
@@ -138,20 +163,19 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
     return module;
 }
 
-- (void)bindJSObject:(JSValue *)jsObj toModuleName:(NSString *)moduleName {
-    HippyTurboBindInfo *info = [[HippyTurboBindInfo alloc] init];
-    info.moduleName = moduleName;
-    info.managedJsObject = [[JSManagedValue alloc] initWithValue:jsObj];
+- (void)bindJSObject:(JSObjectRef)jsObj toModuleName:(NSString *)moduleName {
+    HippyTurboBindInfo *info = [[HippyTurboBindInfo alloc] initWithMoudleName:moduleName
+                                                                  jsObjectRef:jsObj];
     dispatch_sync(_bindingQueue, ^{
         [self.bindingInfos setObject:info forKey:@(self.moduleStorageCount++)];
     });
 }
 
-- (NSString *)turboModuleNameForJSObject:(JSValue *)jsObj {
+- (NSString *)turboModuleNameForJSObject:(JSObjectRef)jsObj {
     HippyTurboBindInfo __block * bindInfo = nil;
     dispatch_sync(_bindingQueue, ^{
         [self.bindingInfos enumerateKeysAndObjectsUsingBlock:^(NSNumber * _Nonnull key, HippyTurboBindInfo * _Nonnull obj, BOOL * _Nonnull stop) {
-            if (obj.managedJsObject.value == jsObj) {
+            if ([obj containJsObjectRef:jsObj]) {
                 bindInfo = obj;
                 *stop = YES;
             }

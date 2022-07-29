@@ -248,13 +248,9 @@ static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shar
         NSString *name = [[objcObject class] turoboModuleName];
         std::shared_ptr<hippy::napi::CtxValue> value = [jsExecutor JSTurboObjectWithName:name];
         auto jscValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(value);
-        
-        JSObjectRef jsValueObj = JSValueToObject(jscCtx->context_, jscValue->value_, NULL);
-        JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(jscCtx->context_);
-        JSContext *ctx = [JSContext contextWithJSGlobalContextRef:globalContextRef];
-        JSValue *jsValue = [JSValue valueWithJSValueRef:jsValueObj inContext:ctx];
         HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
-        [turboManager bindJSObject:jsValue toModuleName:name];
+        JSObjectRef objRef = JSValueToObject(jscCtx->context_, jscValue->value_, NULL);
+        [turboManager bindJSObject:objRef toModuleName:name];
         return value;
     }
     return jsExecutor.pScope->GetContext()->CreateNull();
@@ -352,12 +348,9 @@ static NSArray *convertJSIArrayToNSArray(const std::shared_ptr<napi::JSCCtx> &co
 static NSObject *convertJSIObjectToTurboObject(const std::shared_ptr<napi::JSCCtx> &context,
                                                const std::shared_ptr<napi::JSCCtxValue> &value,
                                                HippyOCTurboModule *module) {
-    JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(context->context_);
-    JSContext *ctx = [JSContext contextWithJSGlobalContextRef:globalContextRef];
-    JSValue *jsValue = [JSValue valueWithJSValueRef:value->value_ inContext:ctx];
     HippyTurboModuleManager *turboManager = module.bridge.turboModuleManager;
-    NSString *moduleNameStr = [turboManager turboModuleNameForJSObject:jsValue];
-
+    JSObjectRef objRef = JSValueToObject(context->context_, value->value_, NULL);
+    NSString *moduleNameStr = [turboManager turboModuleNameForJSObject:objRef];
     if (moduleNameStr) {
         HippyOCTurboModule *turboModule = [module.bridge turboModuleWithName:moduleNameStr];
         return turboModule;
