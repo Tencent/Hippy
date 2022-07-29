@@ -19,15 +19,17 @@
  */
 
 import { Property } from 'csstype';
-import { HippyBaseView, ComponentContext } from '../types';
+import { ComponentContext, HippyBaseView } from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
 import AnimationPlayState = Property.AnimationPlayState;
+
 export class AnimationModule extends HippyWebModule {
   public name = 'AnimationModule';
   private animationPool: {[key: string]: SimpleAnimation|null} = {};
+  private animationSetPool: {[key: string]: SimpleAnimationSet|null} = {};
   public createAnimation(animationId: number, mode = 'timing', params: AnimationOptions) {
     if (this.animationPool[animationId]) {
       return;
@@ -43,48 +45,124 @@ export class AnimationModule extends HippyWebModule {
     }
   }
 
-  public updateAnimation(animationId: number, param: AnimationOptions) {
-    if (!this.animationPool[animationId]) {
-      throw Error('animation update failed, animationId not find animation object');
+  public createAnimationSet(animationId: number, params: AnimationSetOptions) {
+    if (this.animationSetPool[animationId]) {
+      return;
     }
-    this.animationPool[animationId]!.update(param);
+    this.animationSetPool[animationId] = new SimpleAnimationSet(
+      this.context,
+      animationId, params,
+    );
+  }
+
+  public updateAnimation(animationId: number, param: AnimationOptions) {
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+      console.warn('hippy', 'animation update failed, animationId not find animation object', animationId);
+      return;
+    }
+    this.animationPool[animationId]?.update(param);
   }
 
   public startAnimation(animationId: number) {
-    if (!this.animationPool[animationId]) {
-      throw Error('animation start failed, animationId not find animation object');
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+      console.warn('hippy', 'animation start failed, animationId not find animation object', animationId);
+      return;
     }
-    this.animationPool[animationId]!.start();
+    this.animationSetPool[animationId]?.start();
+    this.animationPool[animationId]?.start();
   }
 
   public pauseAnimation(animationId: number) {
-    if (!this.animationPool[animationId]) {
-      throw Error('animation stop failed, animationId not find animation object');
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+      console.warn('hippy', 'animation stop failed, animationId not find animation object', animationId);
+      return;
     }
-    this.animationPool[animationId]!.stop();
+    this.animationSetPool[animationId]?.stop();
+    this.animationPool[animationId]?.stop();
   }
 
   public resumeAnimation(animationId: number) {
-    if (!this.animationPool[animationId]) {
-      throw Error('animation resume failed, animationId not find animation object');
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+      console.warn('hippy', 'animation resume failed, animationId not find animation object', animationId);
+      return;
     }
-    this.animationPool[animationId]!.resume();
+    this.animationSetPool[animationId]?.resume();
+    this.animationPool[animationId]?.resume();
   }
 
   public destroyAnimation(animationId: number) {
-    if (!this.animationPool[animationId]) {
-      throw Error('animation destroy failed, animationId not find animation object');
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+      console.warn('hippy', 'animation destroy failed, animationId not find animation object', animationId);
+      return;
     }
-    this.animationPool[animationId]!.destroy();
+    this.animationSetPool[animationId]?.destroy();
+    this.animationPool[animationId]?.destroy();
+  }
+
+  public linkInitAnimation2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+      return;
+    }
+    if (this.animationSetPool[animationId]) {
+      this.linkAnimationSet2Element(animationId, component, animationProperty);
+      return;
+    }
+    this.linkAnimationCheck(component, animationProperty);
+    this.animationPool[animationId]!.nodeId = component.id;
+    this.animationPool[animationId]!.animationProperty = animationProperty;
+    this.animationPool[animationId]!.initAnimation(component.dom!);
   }
 
   public linkAnimation2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
-    if (!this.animationPool[animationId]) {
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
       return;
     }
-    this.animationPool[animationId]!.refNodeId = component.id;
+    if (this.animationSetPool[animationId]) {
+      this.linkAnimationSet2Element(animationId, component, animationProperty);
+      return;
+    }
+    this.linkAnimationCheck(component, animationProperty);
+    this.animationPool[animationId]!.nodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
-    this.animationPool[animationId]!.initAnimation(component.dom!);
+  }
+
+  public linkAnimationSet2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
+    if (!this.animationSetPool[animationId]) {
+      return;
+    }
+    this.animationSetPool[animationId]!.nodeId = component.id;
+    this.animationSetPool[animationId]!.initAnimationSet(animationId, component, animationProperty);
+  }
+
+  public getAnimationStartValue(animationId: number) {
+    if (!this.animationPool[animationId]) {
+      return null;
+    }
+    return this.animationPool[animationId]!.animationBeginValue;
+  }
+
+  public findAnimation(animationId: number) {
+    return this.animationPool[animationId];
+  }
+
+  private linkAnimationCheck(component: HippyBaseView, animationProperty: string|object) {
+    for (const key of Object.keys(this.animationPool)) {
+      const animation = this.animationPool[key];
+      if (animation?.hasLinkedView(component.id) && animation.refCssProperty === animationProperty && animation.state !== 'end' && !this.isAnimationSetChild(animation?.id)) {
+        animation.clearLinkNode();
+      }
+    }
+  }
+
+  private isAnimationSetChild(animationId) {
+    for (const key of Object.keys(this.animationSetPool)) {
+      const animationSet = this.animationSetPool[key];
+      const isBelongToAnimation = animationSet?.containAnimationId(animationId);
+      if (isBelongToAnimation) {
+        return isBelongToAnimation;
+      }
+    }
+    return false;
   }
 }
 
@@ -134,6 +212,11 @@ interface AnimationOptions {
   inputRange?: any[];
   outputRange?: any[];
 }
+interface AnimationSetOptions {
+  repeatCount: number,
+  virtual: undefined|boolean,
+  children: Array<{animationId: number, follow: boolean}>
+}
 
 class SimpleAnimation {
   public id: string | number;
@@ -141,10 +224,13 @@ class SimpleAnimation {
   public timeMode: string | undefined;
   public animationInfo: AnimationOptions;
   public refCssProperty: string | null = null;
-  public refNodeId: string | number | undefined;
-  public dom: HTMLElement | null = null;
   public animationStamp = Date.now();
+  private refNodeIds: Set<number> = new Set();
+  private domes: { [key: string]: HTMLElement } = {};
   private animationState: 'play'|'end'|'wait' = 'wait';
+  private beginListener: Array<() => void> = [];
+  private endListener: Array<() => void> = [];
+  private cleared = false;
 
   public constructor(
     context: ComponentContext, animationId: string | number,
@@ -158,8 +244,12 @@ class SimpleAnimation {
     this.handleAnimationStart = this.handleAnimationStart.bind(this);
   }
 
-  public set nodeId(nodeId: string | number) {
-    this.refNodeId = nodeId;
+  public get state() {
+    return this.animationState;
+  }
+
+  public set nodeId(nodeId: number) {
+    this.refNodeIds.add(nodeId);
   }
 
   public get animationBeginValue() {
@@ -176,6 +266,10 @@ class SimpleAnimation {
 
   public get delayTime() {
     return this.animationInfo.delay ? `${this.animationInfo.delay / 1000}s` : '0s';
+  }
+
+  public get animationUseTime() {
+    return this.animationInfo.duration + (this.animationInfo.delay !== undefined ? this.animationInfo.delay : 0);
   }
 
   public get animationName() {
@@ -208,14 +302,34 @@ class SimpleAnimation {
   }
 
   public get useForSetProperty() {
-    if (this.refCssProperty && TransformList[this.refCssProperty]) {
+    if (!this.refCssProperty) {
+      return '';
+    }
+    if (TransformList[this.refCssProperty]) {
       return 'transform';
     }
-    return this.refCssProperty;
+    return camel2Kebab(this.refCssProperty);
+  }
+
+  public hasLinkedView(id: number) {
+    return this.refNodeIds.has(id);
+  }
+
+  public getDomByNodeId(id: number) {
+    if (this.domes[id]) {
+      return this.domes[id];
+    }
+    const dom = document.getElementById(String(id));
+    if (dom) {
+      this.domes[id] = dom;
+    }
+    return dom;
   }
 
   public initAnimation(element: HTMLElement) {
-    this.dom = element;
+    if (this.cleared) {
+      return;
+    }
     let data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
     if (this.animationState === 'end' || this.animationState === 'play') {
       data = this.createAnimationKeyFrame(this.createAnimationEndAndEndValue());
@@ -225,19 +339,24 @@ class SimpleAnimation {
       this.animationTime, this.animationName,
       this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
     );
-    this.animationUpdate2Css(animation);
-    element.addEventListener('animationend', this.handleAnimationEnd);
+    this.animationUpdate2Css(animation, element);
   }
 
   public start() {
-    this.changeAnimationStatus('running');
+    if (this.cleared) {
+      return;
+    }
     const data = this.createAnimationKeyFrame(this.createAnimationBeginAndEndValue());
     this.updateAnimationInfoToPageStyle(data);
+    this.changeAnimationStatus('running');
     this.animationState = 'play';
     setTimeout(() => {
       this.handleAnimationStart({ animationName: this.animationName, elapsedTime: 0, pseudoElement: '' } as AnimationEvent);
-      this.animationState = 'end';
     }, this.animationInfo.delay ?? 0);
+    setTimeout(() => {
+      this.handleAnimationEnd({ animationName: this.animationName, elapsedTime: 0, pseudoElement: '' } as AnimationEvent);
+      this.animationState = 'end';
+    }, (this.animationInfo.delay ?? 0) + this.animationInfo.duration);
   }
 
   public stop() {
@@ -250,12 +369,11 @@ class SimpleAnimation {
 
   public destroy() {
     this.changeAnimationStatus('paused');
-    this.animationUpdate2Css(null);
-    this.dom?.removeEventListener?.('animationstart', this.handleAnimationStart);
-    this.dom?.removeEventListener?.('animationend', this.handleAnimationEnd);
+    this.batchUpdateCss(null);
   }
 
   public update(param: AnimationOptions) {
+    this.cleared = false;
     this.animationState = 'wait';
     this.animationInfo = param;
     this.animationStamp = Date.now();
@@ -264,7 +382,23 @@ class SimpleAnimation {
       this.animationTime, this.animationName,
       this.animationInfo.timingFunction, this.delayTime, 'paused', this.iteration, 'both',
     );
-    this.animationUpdate2Css(animation);
+    this.batchUpdateCss(animation);
+  }
+
+  public addEventListener(type: string, callBack: () => void) {
+    switch (type) {
+      case 'begin':
+        this.beginListener.push(callBack);
+        break;
+      case 'end':
+        this.endListener.push(callBack);
+        break;
+    }
+  }
+
+  public clearLinkNode() {
+    this.cleared = true;
+    this.batchUpdateCss(null);
   }
 
   private createAnimationBeginAndEndValue() {
@@ -301,10 +435,6 @@ class SimpleAnimation {
   }
 
   private changeAnimationStatus(status: AnimationPlayState) {
-    const element = this.dom;
-    if (!element) {
-      return;
-    }
     const keyFrame = getKeyFrameFromCssStyle(this.animationName);
     if (!keyFrame.cssRule) {
       return;
@@ -313,16 +443,26 @@ class SimpleAnimation {
       this.animationTime, this.animationName,
       this.animationInfo.timingFunction, this.delayTime, status, this.iteration, 'both',
     );
-    this.animationUpdate2Css(pauseAnimation);
+    this.batchUpdateCss(pauseAnimation);
   }
 
-  private animationUpdate2Css(animation: string|null) {
-    const element = this.dom;
+  private batchUpdateCss(animation: string|null) {
+    this.refNodeIds.forEach((id) => {
+      const dom = this.getDomByNodeId(id);
+      if (dom) {
+        this.animationUpdate2Css(animation, dom);
+      }
+    });
+  }
+
+  private animationUpdate2Css(animation: string|null, dom: HTMLElement) {
+    const element = dom;
     if (!element) {
       return;
     }
-    const oldAnimationList = element.style.animation ? element.style.animation.split(',') : [];
-    if (oldAnimationList.length === 0 && animation !== null) {
+    let oldAnimationList = element.style.animation ? element.style.animation.split(',') : [];
+    if (!oldAnimationList && animation !== null) {
+      oldAnimationList = [];
       oldAnimationList.push(animation);
     } else {
       const index = oldAnimationList.findIndex((value: string) => value.indexOf(this.animationNamePrefix) !== -1) ?? -1;
@@ -365,14 +505,123 @@ class SimpleAnimation {
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.START);
     }
+    this.beginListener.forEach((item) => {
+      item();
+    });
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.END);
     }
-    event.stopPropagation();
     this.changeAnimationStatus('paused');
+    this.endListener.forEach((item) => {
+      item();
+    });
+  }
+}
+class SimpleAnimationSet {
+  public id: string | number;
+  public context: ComponentContext;
+  public setOption: AnimationSetOptions;
+  private refNodeIds: Set<number> = new Set();
+
+  public constructor(
+    context: ComponentContext, animationId: string | number,
+    options: AnimationSetOptions,
+  ) {
+    this.id = animationId;
+    this.context = context;
+    this.setOption = options;
+    this.handleAnimationStart = this.handleAnimationStart.bind(this);
+    this.handleAnimationEnd = this.handleAnimationEnd.bind(this);
+  }
+  public set nodeId(id: number) {
+    this.refNodeIds.add(id);
+  }
+
+  public hasLinkedView(nodeId: number) {
+    return this.refNodeIds.has(nodeId);
+  }
+
+  public start() {
+    const animationTimelineList = this.calculateAnimationTime();
+    for (let i = 0;i < this.setOption.children.length;i++) {
+      const child = this.setOption.children[i];
+      const animation = (this.context.getModuleByName('AnimationModule') as AnimationModule).findAnimation(child.animationId);
+      if (i === 0) {
+        window.requestAnimationFrame(() => {
+          animation!.start();
+        });
+        continue;
+      }
+      const preChild = this.setOption.children[i - 1];
+      const preAnimation = (this.context.getModuleByName('AnimationModule') as AnimationModule).findAnimation(preChild.animationId);
+      preAnimation?.addEventListener('end', () => {
+        preAnimation.destroy();
+        animation?.start();
+      });
+    }
+    const maxTime = Math.max.apply(null, animationTimelineList);
+    setTimeout(this.handleAnimationStart, 0);
+    setTimeout(this.handleAnimationEnd, maxTime);
+  }
+
+  public stop() {
+  }
+
+  public resume() {
+  }
+
+  public destroy() {
+  }
+
+  public findFirstAnimation() {
+    const [firstChild] = this.setOption.children;
+    const animationModule = this.context.getModuleByName('AnimationModule') as AnimationModule;
+    return animationModule.findAnimation(firstChild.animationId);
+  }
+
+  public initAnimationSet(animationId: number, component: HippyBaseView, animationProperty: string|object) {
+    const animationModule = this.context.getModuleByName('AnimationModule') as AnimationModule;
+    this.setOption.children.forEach((item, index) => {
+      if (index === 0) {
+        animationModule.linkInitAnimation2Element(item.animationId, component, animationProperty);
+        return;
+      }
+      animationModule.linkAnimation2Element(item.animationId, component, animationProperty);
+    });
+  }
+
+  public containAnimationId(animationId: number) {
+    return this.setOption.children.findIndex(item => item.animationId === animationId) !== -1;
+  }
+
+  private calculateAnimationTime() {
+    const animationEndTime: Array<number> = [];
+    const animationModule = this.context.getModuleByName('AnimationModule') as AnimationModule;
+    for (let i = 0;i < this.setOption.children.length;i++) {
+      const child = this.setOption.children[i];
+      if (i === 0) {
+        animationEndTime[i] = animationModule.findAnimation(child.animationId)!.animationUseTime;
+        continue;
+      }
+      animationEndTime[i] = animationEndTime[i - 1]
+          + (animationModule.findAnimation(child.animationId)?.animationUseTime ?? 0);
+    }
+    return animationEndTime;
+  }
+  private handleAnimationStart() {
+    this.dispatchEvent(HippyAnimationEvent.START);
+  }
+
+  private handleAnimationEnd() {
+    console.log('end animation set');
+    this.dispatchEvent(HippyAnimationEvent.END);
+  }
+
+  private dispatchEvent(eventName: HippyAnimationEvent) {
+    this.context.sendEvent(eventName, this.id);
   }
 }
 function object2Style(object: {[key: string]: string}) {
@@ -411,7 +660,7 @@ function getKeyFrameFromCssStyle(name) {
   const keyFrameStyle: any = {};
   const ss = document.styleSheets;
   for (let i = 0; i < ss.length; ++i) {
-    const item: CSSStyleSheet = ss[i] as CSSStyleSheet;
+    const item = ss[i];
     if ((item.cssRules[0] as CSSKeyframesRule)?.name === name) {
       const [rule] = item.cssRules;
       keyFrameStyle.cssRule = rule;
@@ -427,4 +676,7 @@ function createCssAnimation(
   repeat: AnimationIterationCount = '1', fillMode: AnimationFillMode = 'forwards',
 ) {
   return `${duration} ${timeFunction} ${delay} ${repeat} normal ${fillMode} ${state} ${name}`;
+}
+function camel2Kebab(str: string) {
+  return str.replace(/[A-Z]/g, item => `-${item.toLowerCase()}`);
 }

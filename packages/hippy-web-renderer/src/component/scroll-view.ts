@@ -115,14 +115,23 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     this.props[NodeProps.SCROLL_EVENT_THROTTLE] = value;
   }
 
+  public get scrollIndicatorInsets() {
+    return this.props[NodeProps.SCROLL_INDICATOR_INSETS];
+  }
+
+  public set scrollIndicatorInsets(value: { top: number, left: number, bottom: number, right: number }) {
+    this.props[NodeProps.SCROLL_INDICATOR_INSETS] = value;
+    // TODO to implement
+  }
+
   public get contentContainerStyle() {
     return this.props[NodeProps.CONTENT_CONTAINER_STYLE];
   }
 
   public set contentContainerStyle(value) {
     this.props[NodeProps.CONTENT_CONTAINER_STYLE] = value;
-    if (this.dom!.childNodes.length === 1) {
-      setElementStyle(this.dom!.childNodes[0] as HTMLElement, this.contentContainerStyle);
+    if (this.dom?.childNodes.length === 1) {
+      setElementStyle(this.dom?.childNodes[0] as HTMLElement, this.contentContainerStyle);
     }
   }
 
@@ -176,7 +185,7 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     this.touchListenerRelease?.();
   }
 
-  public  scrollTo(x: number, y: number, animated: boolean) {
+  public scrollTo(x: number, y: number, animated: boolean) {
     if (!this.pagingEnabled) {
       this.dom?.scrollTo({ top: this.horizontal ? 0 : y, left: this.horizontal ? x : 0, behavior: animated ? 'smooth' : 'auto' });
     } else {
@@ -184,7 +193,7 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     }
   }
 
-  public  scrollToWithOptions({ x, y, duration }) {
+  public scrollToWithOptions({ x, y, duration }) {
     if (!this.pagingEnabled) {
       this.scrollTo(x, y, true);
     } else {
@@ -197,7 +206,7 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
       onBeginDrag: this.handleBeginDrag.bind(this),
       onEndDrag: this.handleEndDrag.bind(this),
       onScroll: this.handleScroll.bind(this),
-      onTouchMove: this.handleScroll.bind(this),
+      onTouchMove: this.handleTouchMove.bind(this),
       onBeginSliding: this.handleBeginSliding.bind(this),
       onEndSliding: this.handleEndSliding.bind(this),
       updatePosition: this.updatePositionInfo.bind(this),
@@ -207,14 +216,14 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     });
   }
 
-  private async pagingModeScroll(offset: number, animationTime = ANIMATION_TIME) {
+  private pagingModeScroll(offset: number, animationTime = ANIMATION_TIME) {
     this.onMomentumScrollBegin(this.buildScrollEvent(this.dom!));
     const toPosition: [number, number] = [offset * -1, 0];
     const scrollCallBack = (position) => {
       this.updatePositionInfo(position);
       this.onScroll(this.buildScrollEvent(this.dom!));
     };
-    await virtualSmoothScroll(
+    virtualSmoothScroll(
       this.dom!, scrollCallBack, this.lastPosition, toPosition,
       animationTime,
     );
@@ -272,15 +281,23 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
   private scrollEndCalculate(lastPosition: Array<number>) {
     const pageUnitSize = this.dom!.clientWidth;
     const scrollSize = this.dom!.scrollWidth;
-    const [originOffset] = lastPosition;
+    const originOffset = lastPosition[0];
     return calculateScrollEndPagePosition(pageUnitSize, scrollSize, originOffset);
   }
 
-  private handleScroll() {
-    this.dom && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
+  private handleTouchMove() {
+    this.handleScroll();
+  }
+
+  private handleScroll(force = false) {
+    if (!this.dom) {
+      return;
+    }
+    !force && eventThrottle(this.lastTimestamp, this.scrollEventThrottle, () => {
       this.onScroll(this.buildScrollEvent(this.dom!));
       this.lastTimestamp = Date.now();
     });
+    force && this.onScroll(this.buildScrollEvent(this.dom!));
   }
 
   private handleBeginSliding() {

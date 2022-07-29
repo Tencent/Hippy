@@ -28,6 +28,7 @@ export class UIManagerModule extends HippyWebModule {
   private viewDictionary: { [key in string | number]: HippyBaseView } = {};
   private rootDom: HTMLElement | undefined;
   private contentDom: HTMLElement | undefined;
+  private afterCreateAction: Array<() => void> = [];
   constructor(context) {
     super(context);
     this.mode = 'sequential';
@@ -69,6 +70,8 @@ export class UIManagerModule extends HippyWebModule {
       const component = this.findViewById(id as number);
       (component as any)?.endBatch();
     }
+    this.afterCreateAction.forEach(item => item());
+    this.afterCreateAction = [];
   }
 
   public async deleteNode(rootViewId: string, data: Array<{ id: number }>) {
@@ -177,9 +180,6 @@ export class UIManagerModule extends HippyWebModule {
       throw Error(`component update props process failed ,component's dom must be exited ${component.tagName ?? ''}`);
     }
 
-    if (!props) {
-      return;
-    }
     const keys = Object.keys(props);
     if (props.style) {
       setElementStyle(component.dom!, props.style, (key: string, value: any) => {
@@ -187,6 +187,9 @@ export class UIManagerModule extends HippyWebModule {
       });
       if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position) {
         setElementStyle(this.findViewById(component.pId)!.dom!, { position: 'relative' });
+      }
+      if (props.style.position === 'absolute' && !props.style.width && !props.style.height && !props.style.overflow) {
+        setElementStyle(component.dom!, { overflow: 'visible' });
       }
     }
     for (const key of keys) {
@@ -198,6 +201,10 @@ export class UIManagerModule extends HippyWebModule {
       }
       component.updateProperty?.(key, props[key]);
     }
+  }
+
+  public addAfterCreateAction(callBack: () => void) {
+    this.afterCreateAction.push(callBack);
   }
 
   private createNodePreCheck(rootViewId: any) {
@@ -241,7 +248,7 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     if (value.animationId) {
-      animationModule.linkAnimation2Element(value.animationId, component, key);
+      animationModule.linkInitAnimation2Element(value.animationId, component, key);
       return;
     }
     if (key !== 'transform') {
@@ -253,11 +260,14 @@ export class UIManagerModule extends HippyWebModule {
     for (const item of value) {
       for (const itemKey of Object.keys(item)) {
         if (item[itemKey].animationId) {
-          animationModule.linkAnimation2Element(item[itemKey].animationId, component, itemKey);
+          animationModule.linkInitAnimation2Element(item[itemKey].animationId, component, itemKey);
           continue;
         }
         valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey.startsWith('scale') ? '' : 'px'}) `;
       }
+    }
+    if (!valueString) {
+      return;
     }
     style.transform = valueString;
     setElementStyle(component.dom!, style);
@@ -273,9 +283,8 @@ export class UIManagerModule extends HippyWebModule {
       throw Error(`component init process failed ,component's parent not exist or dom not exist, pid: ${component.pId}`);
     }
     let realIndex = index;
-    const parentChildLength = parent.dom?.childNodes?.length;
-    if (!parent.insertChild && parentChildLength !== undefined && index > parentChildLength) {
-      realIndex = parentChildLength ?? index;
+    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
+      realIndex = parent.dom?.childNodes?.length ?? index;
     }
     await component.beforeMount?.(parent, realIndex);
     await parent.beforeChildMount?.(component, realIndex);
@@ -296,7 +305,7 @@ export class UIManagerModule extends HippyWebModule {
       return;
     }
     await component!.beforeRemove?.();
-    parentComponent.beforeChildRemove?.(component!);
+    await parentComponent.beforeChildRemove?.(component!);
     if (parentComponent.removeChild) {
       await parentComponent.removeChild(component!);
     } else {
