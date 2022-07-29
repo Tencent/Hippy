@@ -63,6 +63,7 @@ endif ()
 
 # region source set
 set(SOURCE_SET
+    src/bridge/adr_bridge.cc
     src/bridge/entry.cc
     src/bridge/java2js.cc
     src/bridge/js2java.cc
@@ -78,12 +79,6 @@ set(SOURCE_SET
     src/jni/turbo_module_manager.cc
     src/jni/uri.cc
     src/loader/adr_loader.cc)
-get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
-if (NOT V8_WITHOUT_INSPECTOR)
-  list(APPEND SOURCE_SET
-      src/inspector/v8_channel_impl.cc
-      src/inspector/v8_inspector_client_impl.cc)
-endif ()
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE.
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})

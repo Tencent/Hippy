@@ -727,10 +727,10 @@ X5_STYLE_PROPERTY(DisplayType, displayType, Display, DisplayType)
     NSMutableDictionary *needUpdatedProps = [[NSMutableDictionary alloc] initWithDictionary:props];
     NSMutableArray<NSString *> *sameKeys = [NSMutableArray new];
     [self.props enumerateKeysAndObjectsUsingBlock:^(NSString *_Nonnull key, id _Nonnull obj, __unused BOOL *stop) {
+        if ([key isEqualToString:@"rootTag"]) {
+            return;
+        }
         if (needUpdatedProps[key] == nil) {
-            // HippyNilIfNull方法会将NULL转化为nil,对于数字类型属性则为0，导致实际上为kCFNull的属性，最终会转化为0
-            //比如view长宽属性，前端并没有设置其具体数值，而使用css需要终端计算大小，但由于上述机制，导致MTT排版引擎将其宽高设置为0，0，引发bug
-            //因此这里做个判断，遇到mergeprops时，如果需要删除的属性是布局相关类型，那一律将新值设置为默认值
             needUpdatedProps[key] = [self defaultValueForKey:key];
         } else {
             if ([needUpdatedProps[key] isEqual:obj]) {

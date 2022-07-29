@@ -25,6 +25,7 @@ import android.os.MessageQueue;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
@@ -41,6 +42,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.dom.node.TextExtra;
+import com.tencent.mtt.hippy.dom.node.TextNode;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -67,6 +69,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
   private static final String CLEAR_FUNCTION = "clear";
   public static final String COMMAND_FOCUS = "focusTextInput";
   public static final String COMMAND_BLUR = "blurTextInput";
+  public static final String COMMAND_IS_FOCUSED = "isFocused";
   public static final String COMMAND_getValue = "getValue";
   public static final String COMMAND_setValue = "setValue";
   public static final String COMMAND_KEYBOARD_DISMISS = "dissmiss";
@@ -438,12 +441,34 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
   }
 
+  @HippyControllerProps(name = NodeProps.BREAK_STRATEGY, defaultType = HippyControllerProps.STRING, defaultString = TextNode.STRATEGY_SIMPLE)
+  public void setBreakStrategy(HippyTextInput view, String strategy) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      int strategyInt;
+      if (TextUtils.isEmpty(strategy) || TextNode.STRATEGY_SIMPLE.equals(strategy)) {
+        strategyInt = Layout.BREAK_STRATEGY_SIMPLE;
+      } else if (TextNode.STRATEGY_HIGH_QUALITY.equals(strategy)) {
+        strategyInt = Layout.BREAK_STRATEGY_HIGH_QUALITY;
+      } else if (TextNode.STRATEGY_BALANCED.equals(strategy)) {
+        strategyInt = Layout.BREAK_STRATEGY_BALANCED;
+      } else {
+        throw new RuntimeException("Invalid breakStrategy: " + strategy);
+      }
+      view.setBreakStrategy(strategyInt);
+    }
+  }
+
   @Override
   public void dispatchFunction(final HippyTextInput view, String functionName, HippyArray params,
       Promise promise) {
     if (COMMAND_getValue.equals(functionName)) {
       if (promise != null) {
         HippyMap resultMap = view.jsGetValue();
+        promise.resolve(resultMap);
+      }
+    } else if (COMMAND_IS_FOCUSED.equals(functionName)) {
+      if (promise != null) {
+        HippyMap resultMap = view.jsIsFocused();
         promise.resolve(resultMap);
       }
     }

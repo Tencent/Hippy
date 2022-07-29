@@ -45,7 +45,7 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 hippy-react-web 和 hippy-react 的启动参数一致，可以共享同一个 `main.js` 入口文件。
 
-# npm script
+# NPM 脚本
 
 hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/dev-server/) 来启动调试，可以支持全部的 Web 调试特性，而同时使用同一份配置文件换而使用 webpack 进行打包。
 
@@ -62,6 +62,6 @@ hippy-react-web 使用了 [webpack-dev-server](//webpack.js.org/configuration/de
 
 执行 `npm run serve` 后就会启动 Web 调试，但要注意默认生成的 HTML 文件名是从 `package.json` 的 `name` 字段定义，而不是默认的 `index.html`，所以对于官方范例，需要使用 `http://localhost:8080/hippy-react-demo.html` 来访问调试用页面。
 
-# 转 Web 新方案
+# WebRenderer 方案
 
-未来 Hippy 会采用 `WebRenderer` 方案，增加基于公共通信协议的转换层，业务开发者可以使用同一套 Hippy 语法开发的业务代码，映射成 JS 实现的组件和模块，上层无论使用 React，Vue 或者其他第三方框架，都可以实现兼容，敬请期待。
+Hippy 全新 [`WebRenderer`](web/integration.md) 方案，增加基于公共通信协议的转换层，业务开发者可以使用同一套 Hippy 语法开发的业务代码，映射成 JS 实现的组件和模块，上层无论使用 React，Vue 或者其他第三方框架，都可以实现兼容，可参考。

@@ -137,6 +137,10 @@
     return ![self _shouldDisableScrollInteraction];
 }
 
+static inline BOOL CGPointIsNull(CGPoint point) {
+    return (isnan(point.x) || isnan(point.y));
+}
+
 /*
  * Automatically centers the content such that if the content is smaller than the
  * ScrollView, we force it to be centered, but when you zoom or the content otherwise
@@ -154,6 +158,10 @@
         if (subviewSize.height <= scrollViewSize.height) {
             contentOffset.y = -(scrollViewSize.height - subviewSize.height) / 2.0;
         }
+    }
+    NSAssert(!CGPointIsNull(contentOffset), @"contentoffset can't be null, check call stack symbols!!!");
+    if (CGPointIsNull(contentOffset)) {
+        return;
     }
     super.contentOffset = contentOffset;
 }

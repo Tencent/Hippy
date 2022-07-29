@@ -981,6 +981,10 @@ HIPPY_EXPORT_METHOD(createView:(nonnull NSNumber *)hippyTag
             listview.node = (HippyVirtualList *)node;
             [self->_listTags addObject:hippyTag];
         }
+        // Lazy loading list needs to be layout
+        dispatch_async(HippyGetUIManagerQueue(), ^{
+            [self setNeedsLayout:hippyTag];
+        });
     }
     return view;
 }
@@ -1029,7 +1033,7 @@ HIPPY_EXPORT_METHOD(updateView:(nonnull NSNumber *)hippyTag
     NSDictionary *newProps = props;
     NSDictionary *virtualProps = props;
     if (shadowView) {
-        newProps = [shadowView mergeProps: props];
+        newProps = [shadowView mergeProps:props];
         virtualProps = shadowView.props;
         [componentData setProps:newProps forShadowView:shadowView];
     }

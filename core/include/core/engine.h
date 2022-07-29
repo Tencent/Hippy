@@ -32,6 +32,10 @@
 #include "core/task/javascript_task_runner.h"
 #include "core/task/worker_task_runner.h"
 
+#ifndef V8_WITHOUT_INSPECTOR
+#include "core/inspector/v8_inspector_client_impl.h"
+#endif
+
 class Scope;
 
 class Engine {
@@ -60,6 +64,14 @@ class Engine {
   inline std::shared_ptr<WorkerTaskRunner> GetWorkerTaskRunner() {
     return worker_task_runner_;
   }
+#ifndef V8_WITHOUT_INSPECTOR
+  inline void SetInspectorClient(std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client) {
+    inspector_client_ = inspector_client;
+  }
+  inline std::shared_ptr<hippy::inspector::V8InspectorClientImpl> GetInspectorClient() {
+    return inspector_client_;
+  }
+#endif
 
  private:
   void SetupThreads();
@@ -74,4 +86,7 @@ class Engine {
   std::unique_ptr<RegisterMap> map_;
   std::mutex cnt_mutex_;
   uint32_t scope_cnt_;
+#ifndef V8_WITHOUT_INSPECTOR
+  std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client_;
+#endif
 };
