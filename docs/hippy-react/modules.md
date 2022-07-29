@@ -274,7 +274,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 ### Dimensions.get
 
-`(target: 'window' | 'screen') => { height: number, width: number, scale: number, statusBarHeight, navigatorBarHeight  }` Hippy Root View 尺寸或者屏幕尺寸。
+`(target: 'window' | 'screen') => { height: number, width: number, scale: number, statusBarHeight, navigatorBarHeight }` Hippy Root View 尺寸或者屏幕尺寸。
 
 > - target: 'window' | 'screen' - 指定丈量 Hippy Root View 或者屏幕尺寸。
 > - Android 特别说明：因为历史遗留问题，screen 下的 statusBarHeight 是按实际像素算的，window 下经过修正已经是 dp 单位。
