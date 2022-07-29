@@ -67,17 +67,16 @@ NSDictionary *hippyExportedDimensions() {
             @"width": @(windowSize.width),
             @"height": @(windowSize.height),
             @"scale": screenScale,
-            @"statusBarHeight": @(statusBarHeight),
-            @"safeArea": safeAreaDic
+            @"statusBarHeight": @(statusBarHeight)
         },
         @"screen": @ {
             @"width": @(screenSize.width),
             @"height": @(screenSize.height),
             @"scale": screenScale,
             @"fontScale": @(1),
-            @"statusBarHeight": @(statusBarHeight),
-            @"safeArea": safeAreaDic
-        }
+            @"statusBarHeight": @(statusBarHeight)
+        },
+        @"safeArea": safeAreaDic
     };
     return dimensions;
 }

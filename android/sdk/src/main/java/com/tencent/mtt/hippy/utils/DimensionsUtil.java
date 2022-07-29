@@ -253,6 +253,7 @@ public class DimensionsUtil {
     }
     windowDisplayMetricsMap.pushDouble("statusBarHeight", STATUS_BAR_HEIGHT);
     windowDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
+    dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
 
     HippyMap screenDisplayMetricsMap = new HippyMap();
     screenDisplayMetricsMap.pushInt("width", screenDisplayMetrics.widthPixels);
@@ -263,13 +264,12 @@ public class DimensionsUtil {
     screenDisplayMetricsMap.pushDouble("statusBarHeight", STATUS_BAR_HEIGHT);
     screenDisplayMetricsMap.pushDouble("navigationBarHeight", navigationBarHeight);
 
-    // 安全区域的获取
-    HippyMap safeArea = getSafeArea(screenDisplayMetrics.widthPixels, screenDisplayMetrics.heightPixels, navigationBarHeight, STATUS_BAR_HEIGHT);
-    windowDisplayMetricsMap.pushMap("safeArea", safeArea);
-    screenDisplayMetricsMap.pushMap("safeArea", safeArea);
-
-    dimensionMap.pushMap("windowPhysicalPixels", windowDisplayMetricsMap);
     dimensionMap.pushMap("screenPhysicalPixels", screenDisplayMetricsMap);
+
+    // 安全区域的坐标值
+    HippyMap safeArea = getSafeArea(screenDisplayMetrics.widthPixels, screenDisplayMetrics.heightPixels, navigationBarHeight, STATUS_BAR_HEIGHT);
+    safeArea.pushDouble("scale", screenDisplayMetrics.density);
+    dimensionMap.pushMap("safeAreaPhysicalPixels", safeArea);
     return dimensionMap;
   }
 }

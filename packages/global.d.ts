@@ -210,6 +210,13 @@ declare namespace HippyTypes {
       statusBarHeight?: number;
       width?: number;
     };
+    safeAreaPhysicalPixels: {
+      left?: number;
+      right?: number;
+      top?: number;
+      bottom?: number;
+      scale?: number;
+    };
   }
 
   export interface Platform {

@@ -25,21 +25,25 @@
 function transferToUnifiedDimensions(nativeDimensions) {
   let nativeWindow;
   let nativeScreen;
+  let nativeSafeArea;
   if (global.__HIPPYNATIVEGLOBAL__.OS === 'ios') {
-    ({ window: nativeWindow, screen: nativeScreen  } = nativeDimensions);
+    ({ window: nativeWindow, screen: nativeScreen, safeArea: nativeSafeArea  } = nativeDimensions);
   } else {
-    ({ windowPhysicalPixels: nativeWindow, screenPhysicalPixels: nativeScreen } = nativeDimensions);
+    ({ windowPhysicalPixels: nativeWindow,
+      screenPhysicalPixels: nativeScreen,
+      safeAreaPhysicalPixels: nativeSafeArea } = nativeDimensions);
   }
   return {
     nativeWindow,
     nativeScreen,
+    nativeSafeArea,
   };
 }
 
 function getProcessedDimensions(nativeDimensions) {
   let window = {};
   let screen = {};
-  const { nativeWindow, nativeScreen } = transferToUnifiedDimensions(nativeDimensions);
+  const { nativeWindow, nativeScreen, nativeSafeArea } = transferToUnifiedDimensions(nativeDimensions);
   if (nativeWindow) {
     // android is physical resolution, divided by scale needed
     global.__HIPPYNATIVEGLOBAL__.OS === 'ios'
@@ -51,12 +55,6 @@ function getProcessedDimensions(nativeDimensions) {
         fontScale: nativeWindow.fontScale,
         statusBarHeight: nativeWindow.statusBarHeight / nativeWindow.scale,
         navigatorBarHeight: nativeWindow.navigationBarHeight / nativeWindow.scale,
-        safeArea: {
-          left: nativeWindow.safeArea.left,
-          right: nativeWindow.safeArea.right,
-          top: nativeWindow.safeArea.top,
-          bottom: nativeWindow.safeArea.bottom,
-        },
       };
   }
   if (nativeScreen) {
@@ -70,17 +68,23 @@ function getProcessedDimensions(nativeDimensions) {
         fontScale: nativeScreen.fontScale,
         statusBarHeight: nativeScreen.statusBarHeight,
         navigatorBarHeight: nativeScreen.navigationBarHeight / nativeScreen.scale,
-        safeArea: {
-          left: nativeScreen.safeArea.left,
-          right: nativeScreen.safeArea.right,
-          top: nativeScreen.safeArea.top,
-          bottom: nativeScreen.safeArea.bottom,
-        },
+      };
+  }
+  if (nativeSafeArea) {
+    // android is physical resolution, divided by scale needed
+    global.__HIPPYNATIVEGLOBAL__.OS === 'ios'
+      ? safeArea = nativeSafeArea
+      : safeArea = {
+        left: nativeSafeArea.left,
+        right: nativeSafeArea.right,
+        top: nativeSafeArea.top,
+        bottom: nativeSafeArea.bottom,
       };
   }
   return {
     window,
     screen,
+    safeArea,
   };
 }
 
