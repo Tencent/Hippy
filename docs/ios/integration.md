@@ -38,6 +38,10 @@
 
     * fork一份Hippy源码，并修改对应的 `hippy.podspec` 配置文件，并给 `user_target` 添加如下配置，再引用此源码。
 
+    ```text
+    s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
+    ```
+
 4. 在命令行中执行
 
     ```text

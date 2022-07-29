@@ -20,18 +20,31 @@
 
 #pragma once
 
-#include "footstone/thread_worker.h"
+#include "footstone/driver.h"
 
-#include <thread>
+#include <CoreFoundation/CoreFoundation.h>
+
+#include "footstone/time_delta.h"
 
 namespace footstone {
 inline namespace runner {
 
-class ThreadWorkerImpl: public ThreadWorker {
+class LooperDriver: public Driver {
  public:
-  ThreadWorkerImpl(bool is_schedulable = true, std::string name = ""):
-    ThreadWorker(is_schedulable, std::move(name)) {}
-  virtual void SetName(const std::string& name) override;
+  LooperDriver();
+  virtual ~LooperDriver();
+
+  virtual void Notify() override;
+  virtual void WaitFor(const TimeDelta& delta) override;
+  virtual void Start() override;
+  virtual void Terminate() override;
+  
+  void OnTimerFire(CFRunLoopTimerRef timer);
+
+ private:
+  CFRunLoopTimerRef delayed_wake_timer_;
+  CFRunLoopRef loop_;
+  bool has_task_pending_;
 };
 
 }

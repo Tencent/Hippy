@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.13)
 
 project(jni)
 
@@ -30,7 +30,9 @@ set(CMAKE_CXX_STANDARD 17)
 
 # region library
 add_library(${PROJECT_NAME} STATIC)
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME}
+    PUBLIC include
+    PRIVATE .)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
@@ -39,11 +41,18 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region source set
+# region sources(.h header files are for IDE only, promote better integration)
 set(SOURCE_SET
-        src/jni_env.cc
-        src/jni_register.cc
-        src/jni_utils.cc
-        src/scoped_java_ref.cc)
-target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+    src/jni_env.cc
+    src/jni_register.cc
+    src/jni_utils.cc
+    src/scoped_java_ref.cc)
+set(PUBLIC_HEADER_SET
+    include/jni/jni_env.h
+    include/jni/jni_register.h
+    include/jni/jni_utils.h
+    include/jni/scoped_java_ref.h)
+target_sources(${PROJECT_NAME}
+    PRIVATE ${SOURCE_SET}
+    PUBLIC ${PUBLIC_HEADER_SET})
 # endregion

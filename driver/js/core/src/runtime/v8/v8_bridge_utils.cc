@@ -1,29 +1,50 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "core/runtime/v8/v8_bridge_utils.h"
+
+#include <sys/stat.h>
 
 #include <functional>
 #include <future>
 #include <utility>
-#include <sys/stat.h>
 
-#include "footstone/logging.h"
-#include "footstone/task_runner.h"
-#include "footstone/thread_worker_impl.h"
 #include "core/base/file.h"
-#include "footstone/string_view_utils.h"
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/serializer.h"
-#include "footstone/task.h"
 #include "devtools/devtools_macro.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
+#include "footstone/logging.h"
+#include "footstone/string_view_utils.h"
+#include "footstone/task.h"
+#include "footstone/task_runner.h"
+#include "footstone/worker_impl.h"
 
-namespace hippy::runtime {
+namespace hippy {
+inline namespace runtime {
 
 using byte_string = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
 using WorkerManager = footstone::runner::WorkerManager;
-using ThreadWorkerImpl = footstone::runner::ThreadWorkerImpl;
 using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -675,4 +696,5 @@ void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data
   runner->PostTask(std::move(callback));
 }
 
+}
 }

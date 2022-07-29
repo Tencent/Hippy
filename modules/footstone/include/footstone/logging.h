@@ -22,12 +22,12 @@
 
 #include <cassert>
 #include <codecvt>
-#include <sstream>
 #include <mutex>
+#include <sstream>
 
-#include "log_level.h"
-#include "macros.h"
-#include "unicode_string_view.h"
+#include "footstone/log_level.h"
+#include "footstone/macros.h"
+#include "footstone/unicode_string_view.h"
 
 namespace footstone {
 inline namespace log {
@@ -126,18 +126,18 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 }  // namespace base
 }  // namespace tdf
 
-#define FOOTSTONE_LOG_STREAM(severity)                                                       \
+#define FOOTSTONE_LOG_STREAM(severity)                                                                \
   ::footstone::log::LogMessage(::footstone::log::LogSeverity::TDF_LOG_##severity, __FILE__, __LINE__, \
-                          nullptr)                                                          \
+                          nullptr)                                                                    \
       .stream()
 
 #define FOOTSTONE_LAZY_STREAM(stream, condition) \
   !(condition) ? (void)0 : ::footstone::log::LogMessageVoidify() & (stream)
 
-#define FOOTSTONE_EAT_STREAM_PARAMETERS(ignored)                                             \
-  true || (ignored)                                                                         \
-      ? (void)0                                                                             \
-      : ::footstone::log::LogMessageVoidify() &                                                  \
+#define FOOTSTONE_EAT_STREAM_PARAMETERS(ignored)                                                      \
+  true || (ignored)                                                                                   \
+      ? (void)0                                                                                       \
+      : ::footstone::log::LogMessageVoidify() &                                                       \
             ::footstone::log::LogMessage(::footstone::log::LogSeverity::TDF_LOG_FATAL, 0, 0, nullptr) \
                 .stream()
 
@@ -147,10 +147,10 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 #define FOOTSTONE_LOG(severity) \
   FOOTSTONE_LAZY_STREAM(FOOTSTONE_LOG_STREAM(severity), FOOTSTONE_LOG_IS_ON(severity))
 
-#define FOOTSTONE_CHECK(condition)                                                                 \
+#define FOOTSTONE_CHECK(condition)                                                                           \
   FOOTSTONE_LAZY_STREAM(::footstone::log::LogMessage(::footstone::log::LogSeverity::TDF_LOG_FATAL, __FILE__, \
-                                               __LINE__, #condition)                              \
-                           .stream(),                                                             \
+                                               __LINE__, #condition)                                         \
+                           .stream(),                                                                        \
                        !(condition))
 
 #define FOOTSTONE_VLOG_IS_ON(verbose_level) ((verbose_level) <= ::footstone::log::GetVlogVerbosity())
@@ -170,15 +170,15 @@ bool ShouldCreateLogMessage(LogSeverity severity);
 #endif
 
 #define FOOTSTONE_UNREACHABLE() \
-  do {                        \
-    FOOTSTONE_DCHECK(false);   \
-    abort();                  \
+  do {                          \
+    FOOTSTONE_DCHECK(false);    \
+    abort();                    \
   } while (0)
 
 #define FOOTSTONE_UNIMPLEMENTED() \
   FOOTSTONE_LOG(ERROR) << "Not implemented in: " << __PRETTY_FUNCTION__
 
 #define FOOTSTONE_USE(expr) \
-  do {                     \
-    (void)(expr);          \
+  do {                      \
+    (void)(expr);           \
   } while (0)

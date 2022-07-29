@@ -181,13 +181,16 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
                     backgroundImage = [imageProvider image];
                 }
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    if (weakView) {
-                        NativeRenderView *strongView = weakView;
+                    NativeRenderView *strongView = weakView;
+                    if (strongView) {
                         strongView.backgroundImage = backgroundImage;
                     }
                 });
             }
         }];
+    }
+    else {
+        view.backgroundImage = nil;
     }
 }
 
@@ -209,6 +212,10 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, NativeRenderVie
         view.gradientObject = [[NativeRenderGradientObject alloc] initWithGradientObject:linearGradientObject];
         [view.layer setNeedsDisplay];
     }
+    else {
+        view.gradientObject = defaultView.gradientObject;
+        [view.layer setNeedsDisplay];
+    }
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, NativeRenderView) {
@@ -224,24 +231,30 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, NativeRenderView) {
     if (json) {
         view.layer.shadowColor = [NativeRenderConvert UIColor:json].CGColor;
     } else {
-        view.layer.shadowColor = [UIColor blackColor].CGColor;
+        view.layer.shadowColor = defaultView.layer.shadowColor;
     }
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, NativeRenderView) {
+    CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
-        CGSize shadowOffset = view.layer.shadowOffset;
         shadowOffset.width = [NativeRenderConvert CGFloat:json];
-        view.layer.shadowOffset = shadowOffset;
     }
+    else {
+        shadowOffset.width = defaultView.layer.shadowOffset.width;
+    }
+    view.layer.shadowOffset = shadowOffset;
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, NativeRenderView) {
+    CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
-        CGSize shadowOffset = view.layer.shadowOffset;
         shadowOffset.height = [NativeRenderConvert CGFloat:json];
-        view.layer.shadowOffset = shadowOffset;
     }
+    else {
+        shadowOffset.height = defaultView.layer.shadowOffset.height;
+    }
+    view.layer.shadowOffset = shadowOffset;
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, NativeRenderView) {
@@ -256,6 +269,9 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, NativeRenderView)
             height = offset[@"y"];
         }
         view.layer.shadowOffset = CGSizeMake([width floatValue], [height floatValue]);
+    }
+    else {
+        view.layer.shadowOffset = defaultView.layer.shadowOffset;
     }
 }
 
@@ -428,28 +444,29 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onDetachedFromWindow, NativeRenderDirectEvent
 
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(zIndex, NSInteger)
 
-- (HPDirection)convertDirection:(NSString *)direction {
-    if ([direction isEqualToString:@"rtl"]) {
-        return DirectionRTL;
-    }
-    else if ([direction isEqualToString:@"ltr"]) {
-        return DirectionLTR;
-    }
-    else {
+static inline HPDirection ConvertDirection(id direction) {
+    if (!direction) {
         return DirectionInherit;
     }
+    if ([direction isKindOfClass:[NSNumber class]]) {
+        return (HPDirection)[direction intValue];
+    }
+    else if ([direction isKindOfClass:[NSString class]]) {
+        if ([direction isEqualToString:@"rtl"]) {
+            return DirectionRTL;
+        }
+        else if ([direction isEqualToString:@"ltr"]) {
+            return DirectionLTR;
+        }
+        else {
+            return DirectionInherit;
+        }
+    }
+    return DirectionInherit;
 }
 
-//NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(direction, id, UIView) {
-//    if (json) {
-//        view.layoutDirection = [self convertDirection:json];
-//    }
-//}
-
 NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(direction, id, NativeRenderObjectView) {
-    if (json) {
-        view.layoutDirection = [self convertDirection:json];
-    }
+    view.layoutDirection = ConvertDirection(json);
 }
 
 @end

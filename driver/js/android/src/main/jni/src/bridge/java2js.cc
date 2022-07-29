@@ -33,13 +33,15 @@
 #include "jni/jni_env.h"
 #include "jni/scoped_java_ref.h"
 
-namespace hippy::runtime {
+namespace hippy {
+inline namespace runtime {
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
 #endif
 
+}
 }
 
 namespace hippy::bridge {

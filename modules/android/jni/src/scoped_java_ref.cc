@@ -20,10 +20,10 @@
  *
  */
 
-#include "scoped_java_ref.h"
+#include "include/jni/scoped_java_ref.h"
 
 #include "footstone/logging.h"
-#include "jni_env.h"
+#include "include/jni/jni_env.h"
 
 JavaRef::JavaRef(JNIEnv* j_env, jobject j_obj) : obj_(nullptr) {
   // FOOTSTONE_DLOG(INFO) <<  "JavaRef create";

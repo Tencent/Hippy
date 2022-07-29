@@ -31,6 +31,9 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
+  itemContent: {
+    marginTop: 10,
+  },
   button: {
     width: 200,
     borderColor: '#4c9afa',
@@ -66,8 +69,24 @@ export default class TextInputExpo extends Component {
     this.input.blur();
   }
 
+  async onFocus() {
+    const value = await this.input.isFocused();
+    this.setState({
+      event: 'onFocus',
+      isFocused: value,
+    });
+  }
+
+  async onBlur() {
+    const value = await this.input.isFocused();
+    this.setState({
+      event: 'onBlur',
+      isFocused: value,
+    });
+  }
+
   render() {
-    const { textContent } = this.state;
+    const { textContent, event, isFocused } = this.state;
     const renderTitle = title => (
       <View style={styles.itemTitle}>
         <Text>{title}</Text>
@@ -86,7 +105,10 @@ export default class TextInputExpo extends Component {
           placeholderTextColor='#4c9afa'
           placeholder="text"
           defaultValue={textContent}
+          onBlur={() => this.onBlur()}
+          onFocus={() => this.onFocus()}
         />
+        <Text style={styles.itemContent}>{`事件: ${event} | isFocused: ${isFocused}`}</Text>
         <View style={styles.button} onClick={this.changeInputContent}>
           <Text>点击改变输入框内容</Text>
         </View>

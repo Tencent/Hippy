@@ -20,11 +20,11 @@
  *
  */
 
-#include "jni_register.h"
+#include "include/jni/jni_register.h"
 
 #include "footstone/check.h"
 #include "footstone/logging.h"
-#include "jni_env.h"
+#include "include/jni/jni_env.h"
 
 std::unique_ptr<JNIRegister>& JNIRegister::GetInstance() {
   static std::unique_ptr<JNIRegister> instance = nullptr;

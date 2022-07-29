@@ -26,8 +26,10 @@
 
 #include "footstone/unicode_string_view.h"
 #include "footstone/task_runner.h"
-#include "core/core.h"
-#include "v8_channel_impl.h"
+#include "core/napi/v8/js_native_api_v8.h"
+#include "core/runtime/v8/inspector/v8_channel_impl.h"
+#include "core/runtime/v8/interrupt_queue.h"
+#include "core/scope.h"
 
 namespace hippy {
 namespace inspector {
@@ -39,7 +41,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   using TaskRunner = footstone::TaskRunner;
 
   explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope, std::weak_ptr<TaskRunner> runner);
-  ~V8InspectorClientImpl() = default;
+  ~V8InspectorClientImpl();
 
   inline std::shared_ptr<TaskRunner> GetInspectorRunner() {
     return inspector_runner_;
@@ -74,51 +76,6 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   void quitMessageLoopOnPause() override;
   void runIfWaitingForDebugger(int contextGroupId) override;
 
-  void muteMetrics(int contextGroupId) override {}
-  void unmuteMetrics(int contextGroupId) override {}
-
-  void beginUserGesture() override {}
-  void endUserGesture() override {}
-
-  std::unique_ptr<v8_inspector::StringBuffer> valueSubtype(
-      v8::Local<v8::Value>) override {
-    return nullptr;
-  }
-  bool formatAccessorsAsProperties(v8::Local<v8::Value>) {
-    return false;
-  }
-  bool isInspectableHeapObject(v8::Local<v8::Object>) override { return true; }
-
-  void beginEnsureAllContextsInGroup(int contextGroupId) override {}
-  void endEnsureAllContextsInGroup(int contextGroupId) override {}
-
-  void installAdditionalCommandLineAPI(v8::Local<v8::Context>,
-                                       v8::Local<v8::Object>) override {}
-  void consoleAPIMessage(int contextGroupId,
-                         v8::Isolate::MessageErrorLevel level,
-                         const v8_inspector::StringView& message,
-                         const v8_inspector::StringView& url,
-                         unsigned lineNumber,
-                         unsigned columnNumber,
-                         v8_inspector::V8StackTrace*) override {}
-
-  v8::MaybeLocal<v8::Value> memoryInfo(v8::Isolate*,
-                                       v8::Local<v8::Context>) override {
-    return v8::MaybeLocal<v8::Value>();
-  }
-
-  void consoleTime(const v8_inspector::StringView& title) override {}
-  void consoleTimeEnd(const v8_inspector::StringView& title) override {}
-  void consoleTimeStamp(const v8_inspector::StringView& title) override {}
-  void consoleClear(int contextGroupId) override {}
-  double currentTimeMS() override { return 0; }
-  typedef void (*TimerCallback)(void*);
-  void startRepeatingTimer(double, TimerCallback, void* data) override {}
-  void cancelTimer(void* data) override {}
-  bool canExecuteScripts(int contextGroupId) override { return true; }
-
-  void maxAsyncCallStackDepthChanged(int depth) override {}
-
  private:
   std::shared_ptr<Scope> scope_;
   std::unique_ptr<v8_inspector::V8Inspector> inspector_;
@@ -127,6 +84,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   std::weak_ptr<TaskRunner> js_runner_;
   std::shared_ptr<TaskRunner> inspector_runner_;
   std::mutex mutex_;
+  std::shared_ptr<InterruptQueue> interrupt_queue_;
 };
 
 }  // namespace inspector

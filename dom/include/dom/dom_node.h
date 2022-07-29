@@ -24,16 +24,17 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <ostream>
 #include <string>
 #include <vector>
 
-#include "footstone/check.h"
 #include "dom/animation/animation_manager.h"
-#include "dom/dom_listener.h"
 #include "dom/dom_event.h"
+#include "dom/dom_listener.h"
 #include "dom/dom_manager.h"
-#include "footstone/hippy_value.h"
 #include "dom/layout_node.h"
+#include "footstone/check.h"
+#include "footstone/hippy_value.h"
 
 namespace hippy {
 inline namespace dom {
@@ -58,12 +59,18 @@ struct RefInfo {
   uint32_t ref_id;
   int32_t relative_to_ref = RelativeType::kDefault;
   RefInfo(uint32_t id, int32_t ref) : ref_id(id), relative_to_ref(ref) {}
+
+ private:
+  friend std::ostream& operator<<(std::ostream& os, const RefInfo& ref_info);
 };
 
 struct DomInfo {
   std::shared_ptr<DomNode> dom_node;
   std::shared_ptr<RefInfo> ref_info;
   DomInfo(std::shared_ptr<DomNode> node, std::shared_ptr<RefInfo> ref) : dom_node(node), ref_info(ref) {}
+
+ private:
+  friend std::ostream& operator<<(std::ostream& os, const DomInfo& dom_info);
 };
 
 struct DomEventListenerInfo {
@@ -194,6 +201,8 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void UpdateStyle(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style);
   void UpdateObjectStyle(HippyValue& style_map, const HippyValue& update_style);
   bool ReplaceStyle(HippyValue& object, const std::string& key, const HippyValue& value);
+
+  friend std::ostream& operator<<(std::ostream& os, const DomNode& dom_value);
 
  private:
   uint32_t id_{};          // 节点唯一id

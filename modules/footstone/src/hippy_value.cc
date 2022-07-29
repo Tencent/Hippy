@@ -1,6 +1,27 @@
-#include "footstone/hippy_value.h"
-#include "footstone/logging.h"
-#include "footstone/hash.h"
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "include/footstone/hippy_value.h"
+
+#include "include/footstone/logging.h"
+#include "include/footstone/hash.h"
 
 using HippyValue = footstone::value::HippyValue;
 
@@ -304,20 +325,20 @@ std::ostream& operator<<(std::ostream& os, const HippyValue& dom_value) {
     os << "null";
   } else if (dom_value.type_ == HippyValue::Type::kNumber) {
     if (dom_value.number_type_ == HippyValue::NumberType::kNaN) {
-      os << "nan";
+      os << "NaN";
     } else {
       os << dom_value.ToDoubleChecked();
     }
   } else if (dom_value.type_ == HippyValue::Type::kBoolean) {
     os << dom_value.ToBooleanChecked();
   } else if (dom_value.type_ == HippyValue::Type::kString) {
-    os << dom_value.ToStringChecked();
+    os << "\"" << dom_value.ToStringChecked() << "\"";
   } else if (dom_value.type_ == HippyValue::Type::kObject) {
     os << "{";
     auto map = dom_value.ToObjectChecked();
     size_t index = 0;
     for (const auto& kv : map) {
-      os << kv.first << ": " << kv.second;
+      os << "\"" << kv.first << "\": " << kv.second;
       if (index != map.size() - 1) os << ",";
       index++;
     }

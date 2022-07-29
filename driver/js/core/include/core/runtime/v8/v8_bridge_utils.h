@@ -31,7 +31,8 @@
 #include "core/runtime/v8/bridge.h"
 #include "v8/v8.h"
 
-namespace hippy::runtime {
+namespace hippy {
+inline namespace runtime {
 
 enum class CALL_FUNCTION_CB_STATE {
   NO_METHOD_ERROR = -2,
@@ -105,4 +106,4 @@ class V8BridgeUtils {
 };
 
 }
-
+}

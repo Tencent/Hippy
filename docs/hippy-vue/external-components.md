@@ -25,6 +25,7 @@
   
   和 HippyReact 不同，HippyVue 将单个动画 Animation 和动画序列 AnimationSet 合二为一，如果是一个对象，就使用 Animation 处理，如果是数组动画序列就用 AnimationSet 处理。动画参数具体可参考 [HippyReact Animation 模块](../hippy-react/modules.md?id=animation) 和 [范例](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/native-demos/animations)。
 
+
 ```vue
 <template>
   <div>
@@ -215,7 +216,7 @@ export default {
 
 # pull-header
 
-[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header.vue)
+[[范例：demo-pull-header.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 下拉刷新组件，嵌套在 `ul` 中作为第一个子元素使用
 
@@ -241,7 +242,7 @@ export default {
 
 # pull-footer
 
-[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-footer.vue)
+[[范例：demo-pull-footer.vue]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-pull-header-footer.vue)
 
 上拉刷新组件，嵌套在 `ul` 中作为最后一个子元素使用
 

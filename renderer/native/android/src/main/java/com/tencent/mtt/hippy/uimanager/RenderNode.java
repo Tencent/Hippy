@@ -260,7 +260,7 @@ public class RenderNode {
     }
 
     private boolean shouldCreateView() {
-        return !checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD) && !hasView();
+        return !isDeleted() && !isLazyLoad() && !hasView();
     }
 
     private boolean hasView() {
@@ -372,6 +372,10 @@ public class RenderNode {
         return checkNodeFlag(FLAG_ALREADY_DELETED);
     }
 
+    public boolean isLazyLoad() {
+        return checkNodeFlag(FLAG_LAZY_LOAD);
+    }
+
     public boolean checkRegisteredEvent(@NonNull String eventName) {
         if (mEvents != null && mEvents.containsKey(eventName)) {
             Object value = mEvents.get(eventName);
@@ -383,13 +387,13 @@ public class RenderNode {
     }
 
     protected void batchStart() {
-        if (!checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD)) {
+        if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchStart(mRootId, mId, mClassName);
         }
     }
 
     protected void batchComplete() {
-        if (!checkNodeFlag(FLAG_ALREADY_DELETED | FLAG_LAZY_LOAD)) {
+        if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchComplete(mRootId, mId, mClassName);
         }
     }

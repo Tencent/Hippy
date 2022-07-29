@@ -20,11 +20,10 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include <chrono>
+#include <cstdint>
 
-#include "check.h"
+#include "footstone/check.h"
 
 namespace footstone {
 inline namespace time {

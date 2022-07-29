@@ -88,10 +88,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     size_t bufferLength = [self length];
-    void *buff = malloc(bufferLength);
-    memset(buff, 0, bufferLength);
-    [self getBytes:buff length:bufferLength];
-    return context->CreateByteBuffer(buff, bufferLength, false);
+    return context->CreateByteBuffer([self bytes], bufferLength);
 }
 
 @end
