@@ -135,14 +135,14 @@
 
       <!-- 安全区域坐标 -->
       <div
-        v-if="Vue.Native.Dimensions.window.safeArea"
+        v-if="Vue.Native.Dimensions.safeArea"
         class="native-block"
       >
-        <label class="vue-native-title">Vue.Native.Dimensions.window.safeArea</label>
-        <p>left: {{ Vue.Native.Dimensions.window.safeArea.left }}</p>
-        <p>right: {{ Vue.Native.Dimensions.window.safeArea.right }}</p>
-        <p>top: {{ Vue.Native.Dimensions.window.safeArea.top }}</p>
-        <p>bottom: {{ Vue.Native.Dimensions.window.safeArea.bottom }}</p>
+        <label class="vue-native-title">Vue.Native.Dimensions.safeArea</label>
+        <p>left: {{ Vue.Native.Dimensions.safeArea.left }}</p>
+        <p>right: {{ Vue.Native.Dimensions.safeArea.right }}</p>
+        <p>top: {{ Vue.Native.Dimensions.safeArea.top }}</p>
+        <p>bottom: {{ Vue.Native.Dimensions.safeArea.bottom }}</p>
       </div>
 
       <!-- android虚拟导航栏高度 -->

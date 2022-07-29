@@ -274,9 +274,9 @@ Used to get the width and height of the current device.
 
 ### Dimensions.get
 
-`(target: 'window' | 'screen') => { height: number, width: number, scale: number, statusBarHeight, navigatorBarHeight, safeArea }` Hippy Root View size or screen size.
+`(target: 'window' | 'screen') => { height: number, width: number, scale: number, statusBarHeight, navigatorBarHeight }` Hippy Root View size or screen size.
 
-> - target: 'window' |'Screen' - Specify to measure Hippy Root View or screen size.
+> - target: 'window' |'Screen' |'safeArea' - Specify to measure Hippy Root View or screen size.
 > - Android special instructions: Due to historical problems, the statusBarHeight in screen mode is calculated in actual pixels, and in window mode, it has been corrected to dp units.
 > - navigatorBarHeight: Android bottom navigatorBar height. Minimum supported version 2.3.4.
 > - safeArea: { left: number, right: number, top: number, bottom: number}. Minimum supported version 2.14.2

@@ -30,7 +30,7 @@ export default class SafeAreaView extends Component {
         <View
           style={[
             { backgroundColor: statusBarColor || '#fff' },
-            { height: Dimensions.get('screen').safeArea.top },
+            { height: Dimensions.get('safeArea').top },
           ]}
         />
       );
