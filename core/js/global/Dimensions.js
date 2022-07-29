@@ -43,6 +43,7 @@ function transferToUnifiedDimensions(nativeDimensions) {
 function getProcessedDimensions(nativeDimensions) {
   let window = {};
   let screen = {};
+  let safeArea = {};
   const { nativeWindow, nativeScreen, nativeSafeArea } = transferToUnifiedDimensions(nativeDimensions);
   if (nativeWindow) {
     // android is physical resolution, divided by scale needed
@@ -97,9 +98,10 @@ const Dimensions = {
     if (!nativeDimensions) {
       return;
     }
-    const { window, screen } = getProcessedDimensions(nativeDimensions);
+    const { window, screen, safeArea } = getProcessedDimensions(nativeDimensions);
     Hippy.device.window = window;
     Hippy.device.screen = screen;
+    Hippy.device.safeArea = safeArea;
     Hippy.device.pixelRatio = Hippy.device.window.scale;
   },
   init() {
