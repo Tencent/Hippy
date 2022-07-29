@@ -1,0 +1,23 @@
+{
+  "name": "@hippy/shared",
+  "version": "2.2.1",
+  "description": "> TODO: description",
+  "author": "mitnickliu <mitnickliu@tencent.com>",
+  "homepage": "http://hippyjs.org",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-next",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "README.md"
+  ],
+  "main": "./dist/index.js",
+  "entry": "./src/index.ts",
+  "keywords": [
+    "hippy",
+    "shared"
+  ]
+}

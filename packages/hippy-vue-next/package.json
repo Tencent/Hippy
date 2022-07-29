@@ -1,5 +1,5 @@
 {
-  "name": "hippy-vue-next",
+  "name": "@hippy/vue-next",
   "version": "2.2.1",
   "description": "Vue-Next binding for Hippy native framework",
   "author": "mitnickliu <mitnickliu@tencent.com>",
@@ -27,5 +27,6 @@
     "@vue/runtime-core": "^3.2.21",
     "@vue/shared": "^3.2.21",
     "tiny-emitter": "2.1.0"
-  }
+  },
+  "entry": "./src/index.ts"
 }

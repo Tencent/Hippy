@@ -1,7 +1,7 @@
 import {
   HIPPY_GLOBAL_STYLE_NAME,
   HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
-} from '@tencent/hippy-vue-next-shared';
+} from '../../config/index';
 
 import { SelectorsMap } from './css-selectors-match';
 

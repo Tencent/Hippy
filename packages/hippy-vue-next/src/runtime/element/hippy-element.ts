@@ -1,6 +1,6 @@
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
-import { type PropertiesMapType, parseBackgroundImage, PROPERTIES_MAP, translateColor } from '@next-css-loader/index';
+import { type PropertiesMapType, parseBackgroundImage, PROPERTIES_MAP, translateColor } from '@style-parser/index';
 import type { CallbackType } from '../../../global';
 import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {

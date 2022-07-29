@@ -4,7 +4,7 @@ import {
   type App,
   createRenderer,
 } from '@vue/runtime-core';
-import type { CssDeclarationType, CssNodeType } from '@next-css-loader/index';
+import type { CssDeclarationType, CssNodeType } from '@style-parser/index';
 import { BackAndroid } from './android-back';
 import BuiltInComponent from './built-in-component';
 import { drawIphoneStatusBar } from './iphone';

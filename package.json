@@ -81,7 +81,7 @@
     "tar": "^4.4.19",
     "trim-newlines": "^3.0.1",
     "tslib": "^2.3.1",
-    "typescript": "^4.5.4",
+    "typescript": "^4.6.3",
     "vue": "^2.6.14",
     "watch": "^0.13.0"
   },
@@ -96,6 +96,8 @@
     "@vue": "packages/hippy-vue/src",
     "@router": "packages/hippy-vue-router/src",
     "@css-loader": "packages/hippy-vue-css-loader/src",
-    "@native-components": "packages/hippy-vue-native-components/src"
+    "@native-components": "packages/hippy-vue-native-components/src",
+    "@style-parser": "packages/hippy-style-parser/src",
+    "@hippy-shared": "packages/hippy-shared/src"
   }
 }

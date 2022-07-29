@@ -9,7 +9,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 // eslint-disable-next-line max-classes-per-file
-import type { CssDeclarationType } from '@next-css-loader/index';
+import type { CssDeclarationType } from '@style-parser/index';
 import type { HippyElement } from '../element/hippy-element';
 
 import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';

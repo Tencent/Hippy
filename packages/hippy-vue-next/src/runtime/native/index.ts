@@ -2,7 +2,7 @@
  * Native提供的global接口
  */
 import { isFunction } from '@vue/shared';
-import { translateColor } from '@next-css-loader/index';
+import { translateColor } from '@style-parser/index';
 import type { CallbackType } from '../../../global';
 import { NATIVE_COMPONENT_MAP } from '../../config';
 import { trace } from '../../util';

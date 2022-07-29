@@ -142,6 +142,8 @@ module.exports = {
           ['shared', resolveVue('shared')],
           ['sfc', resolveVue('sfc')],
           ['he', path.resolve(__dirname, './packages/hippy-vue/src/util/entity-decoder')],
+          ['@style-parser', resolvePackage('hippy-style-parser')],
+          ['@hippy-shared', resolvePackage('hippy-shared')],
         ],
       },
     },
