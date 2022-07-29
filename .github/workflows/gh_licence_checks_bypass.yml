@@ -1,0 +1,51 @@
+name: '[gh] pull request file license header checks'
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+      - v3.0-dev
+      - v3.0
+    paths-ignore:
+      - '**.tsx?'
+      - '**.jsx?'
+      - '**.vue'
+      - '**.ejs'
+      - '**.mjs'
+      - '**.es6'
+      - '**.css'
+      - '**.less'
+      - '**.scss'
+      - '**.hh?'
+      - '**.hpp'
+      - '**.h\\+\\+'
+      - '**.hxx'
+      - '**.cc?'
+      - '**.c\\+\\+'
+      - '**.cpp'
+      - '**.C'
+      - '**.cxx'
+      - '**.mm?'
+      - '**.swift'
+      - '**.podspec'
+      - '**.html?'
+      - '**.xhtml?'
+      - '**.xml'
+      - '**.cmake'
+      - '**.java'
+      - '**.cfg'
+      - '**.txt'
+      - '**.sh'
+      - '**.yaml'
+      - '**.bat'
+      - '**.dart'
+      - "**.py"
+
+jobs:
+  pull_request_license_checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: License checks Bypass
+        run: |
+          echo "No license checks required"
