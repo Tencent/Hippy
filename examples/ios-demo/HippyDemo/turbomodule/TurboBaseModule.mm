@@ -59,7 +59,7 @@ HIPPY_EXPORT_TURBO_METHOD(getTurboConfig) {
 }
 
 HIPPY_EXPORT_TURBO_METHOD(printTurboConfig:(TurboConfig *)turboConfig) {
-    TurboConfig *localConfig = [self.bridge turboModuleWithName:[TurboConfig turoboModuleName]];
+    TurboConfig *localConfig = (TurboConfig *)[self.bridge turboModuleWithName:[TurboConfig turoboModuleName]];
     NSLog(@"====> turboConfig:%@, self.turboConfig:%@", turboConfig, localConfig);
     return [turboConfig description];
 }
