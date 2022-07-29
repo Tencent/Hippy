@@ -320,6 +320,7 @@ const Native = {
         ...screen,
         statusBarHeight,
       },
+      safeArea: Dimensions.safeArea,
     };
   },
 
