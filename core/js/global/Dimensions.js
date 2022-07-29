@@ -76,10 +76,11 @@ function getProcessedDimensions(nativeDimensions) {
     global.__HIPPYNATIVEGLOBAL__.OS === 'ios'
       ? safeArea = nativeSafeArea
       : safeArea = {
-        left: nativeSafeArea.left,
-        right: nativeSafeArea.right,
-        top: nativeSafeArea.top,
-        bottom: nativeSafeArea.bottom,
+        scale: nativeSafeArea.scale,
+        left: nativeSafeArea.left / nativeSafeArea.scale,
+        right: nativeSafeArea.right / nativeSafeArea.scale,
+        top: nativeSafeArea.top / nativeSafeArea.scale,
+        bottom: nativeSafeArea.bottom / nativeSafeArea.scale,
       };
   }
   return {
