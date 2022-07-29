@@ -47,6 +47,7 @@ class AnimationManager
 
  public:
   AnimationManager();
+  ~AnimationManager() = default;
 
   AnimationManager(AnimationManager&) = delete;
   AnimationManager& operator=(AnimationManager&) = delete;
@@ -100,13 +101,13 @@ class AnimationManager
 
   void RemoveActiveAnimation(uint32_t id);
 
-  void UpdateAnimation();
+  void UpdateAnimations();
 
   void DeleteAnimationMap(const std::shared_ptr<DomNode>& dom_node);
 
-  ~AnimationManager() {}
-
  private:
+  void EmplaceNodeProp(const std::shared_ptr<DomNode>& node, const std::string& prop, uint32_t animation_id);
+  void UpdateAnimation(const std::shared_ptr<Animation>& animation, uint64_t now, std::vector<std::shared_ptr<DomNode>>& update_nodes);
   void ParseAnimation(const std::shared_ptr<DomNode>& node);
   void FetchAnimationsFromObject(const std::string& prop,
                                  const std::shared_ptr<HippyValue>& value,

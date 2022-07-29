@@ -53,7 +53,6 @@ class CubicBezier {
  public:
   CubicBezier(ControlPoint p1, ControlPoint p2);
   CubicBezier() = default;
-  ~CubicBezier() = default;
 
   static ControlPoint NormalizedPoint(ControlPoint p);
   inline double SolveEpsilon(uint64_t duration) {
