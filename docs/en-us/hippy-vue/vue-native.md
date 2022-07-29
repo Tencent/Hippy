@@ -53,9 +53,10 @@ Gets the screen resolution.
 * Example
 
 ```javascript
-const { window, screen } = Vue.Native.Dimensions;
+const { window, screen, safeArea } = Vue.Native.Dimensions;
 console.log(`Screen Size：${screen.height}x${screen.width}`); // => 640x480
 console.log(`Window size with status bar: ${window.height}x${window.width}`); // => 640x460
+console.log(`safe area positon left: ${safeArea.left} right: ${safeArea.right} top: ${safeArea.top} bottom: ${safeArea.bottom}`);
 ```
 
 ## PixelRatio

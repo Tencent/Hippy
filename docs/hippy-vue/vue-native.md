@@ -53,9 +53,10 @@ console.log(Vue.Native.Platform); // => android
 * 示例
 
 ```javascript
-const { window, screen } = Vue.Native.Dimensions;
+const { window, screen, safeArea } = Vue.Native.Dimensions;
 console.log(`屏幕尺寸：${screen.height}x${screen.width}`); // => 640x480
 console.log(`带状态栏的窗口尺寸：${window.height}x${window.width}`); // => 640x460
+console.log(`安全区域坐标 left: ${safeArea.left} right: ${safeArea.right} top: ${safeArea.top} bottom: ${safeArea.bottom}`);
 ```
 
 ## PixelRatio
