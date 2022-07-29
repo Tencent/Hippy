@@ -433,6 +433,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #endif  // HIPPY_DEBUG
 }
 
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
+    return [self.batchedBridge turboModuleWithName:name];
+}
+
 @end
 
 @implementation UIView(Bridge)
