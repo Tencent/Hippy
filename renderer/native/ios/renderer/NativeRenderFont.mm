@@ -133,7 +133,7 @@ static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
                  scaleMultiplier:1];
 }
 
-HIPPY_ENUM_CONVERTER(NativeRenderFontWeight, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderFontWeight, (@{
     @"normal": @(UIFontWeightRegular),
     @"bold": @(UIFontWeightBold),
     @"100": @(UIFontWeightUltraLight),
@@ -149,7 +149,7 @@ HIPPY_ENUM_CONVERTER(NativeRenderFontWeight, (@{
     UIFontWeightRegular, doubleValue)
 
 typedef BOOL NativeRenderFontStyle;
-HIPPY_ENUM_CONVERTER(NativeRenderFontStyle, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderFontStyle, (@{
     @"normal": @NO,
     @"italic": @YES,
     @"oblique": @YES,
@@ -192,7 +192,7 @@ typedef NSDictionary NativeRenderFontVariantDescriptor;
     return value;
 }
 
-HIPPY_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
+NATIVE_RENDER_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
     @end
 

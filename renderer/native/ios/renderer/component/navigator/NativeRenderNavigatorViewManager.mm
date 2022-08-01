@@ -35,18 +35,18 @@
 }
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(push:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(push:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
     [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[hippyTag];
+        NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView push:params];
     }];
 }
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(pop:(NSNumber *__nonnull)hippyTag parms:(NSDictionary *__nonnull)params) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(pop:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
     [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[hippyTag];
+        NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView pop:params];
     }];
 }

@@ -123,11 +123,11 @@
     return self;
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)index {
-    [super insertHippySubview:subview atIndex:index];
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)index {
+    [super insertNativeRenderSubview:subview atIndex:index];
     if ([subview isKindOfClass:[NativeRenderText class]]) {
         if (_richTextView) {
-            //NativeRenderLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
+            NativeRenderLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
         }
         _richTextView = (NativeRenderText *)subview;
 
@@ -141,15 +141,15 @@
     }
 }
 
-- (void)removeHippySubview:(UIView *)subview {
-    [super removeHippySubview:subview];
+- (void)removeNativeRenderSubview:(UIView *)subview {
+    [super removeNativeRenderSubview:subview];
     if (_richTextView == subview) {
         _richTextView = nil;
         [self performTextUpdate];
     }
 }
 
-- (void)didUpdateHippySubviews {
+- (void)didUpdateNativeRenderSubviews {
     // Do nothing, as we don't allow non-text subviews
 }
 
@@ -173,12 +173,12 @@
     }
 }
 
-static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) {
+static NSAttributedString *removeComponentTagFromString(NSAttributedString *string) {
     if (string.length == 0) {
         return string;
     } else {
         NSMutableAttributedString *mutableString = [[NSMutableAttributedString alloc] initWithAttributedString:string];
-        [mutableString removeAttribute:NativeRenderHippyTagAttributeName range:NSMakeRange(0, mutableString.length)];
+        [mutableString removeAttribute:NativeRenderComponentTagAttributeName range:NSMakeRange(0, mutableString.length)];
         return mutableString;
     }
 }
@@ -188,13 +188,13 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
         return;
     }
 
-    // The underlying <Text> node that produces _pendingAttributedText has a hippy tag attribute on it that causes the
+    // The underlying <Text> node that produces _pendingAttributedText has a component tag attribute on it that causes the
     // -isEqualToAttributedString: comparison below to spuriously fail. We don't want that comparison to fail unless it
     // needs to because when the comparison fails, we end up setting attributedText on the text view, which clears
     // autocomplete state for CKJ text input.
     //
     // TODO: Kill this after we finish passing all style/attribute info into JS.
-    _pendingAttributedText = removeHippyTagFromString(_pendingAttributedText);
+    _pendingAttributedText = removeComponentTagFromString(_pendingAttributedText);
 
     if ([_textView.attributedText isEqualToAttributedString:_pendingAttributedText]) {
         _pendingAttributedText = nil;  // Don't try again.
@@ -267,7 +267,7 @@ static NSAttributedString *removeHippyTagFromString(NSAttributedString *string) 
                 @"height": @(size.height),
                 @"width": @(size.width),
             },
-            @"target": self.hippyTag,
+            @"target": self.componentTag,
         });
     }
 }
@@ -594,7 +594,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     _nativeUpdatesInFlight = NO;
     //  _nativeEventCount++;
 
-    if (!self.hippyTag || !_onChangeText) {
+    if (!self.componentTag || !_onChangeText) {
         return;
     }
 
@@ -615,7 +615,7 @@ static BOOL findMismatch(NSString *first, NSString *second, NSRange *firstRange,
     _onChangeText(@{
         @"text": self.text,
         @"contentSize": @ { @"height": @(contentHeight), @"width": @(textView.contentSize.width) },
-        @"target": self.hippyTag,
+        @"target": self.componentTag,
         @"eventCount": @(_nativeEventCount),
     });
 }

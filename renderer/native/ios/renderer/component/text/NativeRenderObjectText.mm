@@ -32,7 +32,7 @@
 
 NSString *const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
 NSString *const NativeRenderIsHighlightedAttributeName = @"IsHighlightedAttributeName";
-NSString *const NativeRenderHippyTagAttributeName = @"NativeRenderTagAttributeName";
+NSString *const NativeRenderComponentTagAttributeName = @"NativeRenderTagAttributeName";
 
 // CGFloat const NativeRenderTextAutoSizeDefaultMinimumFontScale       = 0.5f;
 CGFloat const NativeRenderTextAutoSizeWidthErrorMargin = 0.05f;
@@ -138,7 +138,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if ([[self hippySuperview] isKindOfClass:[NativeRenderObjectText class]]) {
+    if ([[self nativeRenderSuperview] isKindOfClass:[NativeRenderObjectText class]]) {
         return parentProperties;
     }
 
@@ -147,13 +147,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
 
-    NSNumber *parentTag = [[self hippySuperview] hippyTag];
+    NSNumber *parentTag = [[self nativeRenderSuperview] componentTag];
     // MTTlayout
     NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
     UIColor *color = self.color ?: [UIColor blackColor];
     [applierBlocks addObject:^(NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        NativeRenderText *view = (NativeRenderText *)viewRegistry[self.hippyTag];
+        NativeRenderText *view = (NativeRenderText *)viewRegistry[self.componentTag];
         view.textFrame = textFrame;
         view.textStorage = textStorage;
         view.textColor = color;
@@ -185,7 +185,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (child) {
                 float width = child.frame.size.width, height = child.frame.size.height;
                 if (isnan(width) || isnan(height)) {
-                    //NativeRenderLogError(@"Views nested within a <Text> must have a width and height");
+                    NativeRenderLogError(@"Views nested within a <Text> must have a width and height");
                 }
 
                 /**
@@ -273,8 +273,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             @autoreleasepool {
                 if (weakSelf) {
                     NativeRenderObjectView *strongSelf = weakSelf;
-                    int32_t hippyTag = [[strongSelf hippyTag] intValue];
-                    auto domNode = domManager->GetNode(strongSelf.rootNode, hippyTag);
+                    int32_t componentTag = [[strongSelf componentTag] intValue];
+                    auto domNode = domManager->GetNode(strongSelf.rootNode, componentTag);
                     if (domNode) {
                         auto layoutNode = domNode->GetLayoutNode();
                         layoutNode->MarkDirty();
@@ -355,7 +355,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
-    for (NativeRenderObjectView *child in [self hippySubviews]) {
+    for (NativeRenderObjectView *child in [self nativeRenderSubviews]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             NativeRenderObjectText *shadowText = (NativeRenderObjectText *)child;
             [attributedString appendAttributedString:[shadowText _attributedStringWithFontFamily:fontFamily fontSize:fontSize fontWeight:fontWeight
@@ -370,8 +370,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             float width = 0, height = 0;
             auto domManager = [child domManager].lock();
             if (domManager) {
-                int32_t hippyTag = [child.hippyTag intValue];
-                auto domNode = domManager->GetNode(child.rootNode, hippyTag);
+                int32_t componentTag = [child.componentTag intValue];
+                auto domNode = domManager->GetNode(child.rootNode, componentTag);
                 if (domNode) {
                     width = domNode->GetLayoutNode()->GetStyleWidth();
                     height = domNode->GetLayoutNode()->GetStyleHeight();
@@ -382,7 +382,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
             if (isnan(width) || isnan(height)) {
-                //NativeRenderLogError(@"Views nested within a <Text> must have a width and height");
+                NativeRenderLogError(@"Views nested within a <Text> must have a width and height");
             }
             static UIImage *placehoderImage = nil;
             static dispatch_once_t onceToken;
@@ -419,7 +419,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     [self _addAttribute:NSFontAttributeName withValue:font toAttributedString:attributedString];
     [self _addAttribute:NSKernAttributeName withValue:letterSpacing toAttributedString:attributedString];
-    [self _addAttribute:NativeRenderHippyTagAttributeName withValue:self.hippyTag toAttributedString:attributedString];
+    [self _addAttribute:NativeRenderComponentTagAttributeName withValue:self.componentTag toAttributedString:attributedString];
     [self _setParagraphStyleOnAttributedString:attributedString fontLineHeight:font.lineHeight heightOfTallestSubview:heightOfTallestSubview];
     if ([self isLayoutSubviewsRTL]) {
         NSDictionary *dic = @{NSWritingDirectionAttributeName: @[@(NSWritingDirectionRightToLeft | NSWritingDirectionEmbedding)]};
@@ -669,33 +669,33 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     [self dirtyText];
 }
 
-#define HIPPY_TEXT_PROPERTY(setProp, ivar, type) \
-    -(void)set##setProp : (type)value;           \
-    {                                            \
-        ivar = value;                            \
-        [self dirtyText];                        \
+#define NATIVE_RENDER_TEXT_PROPERTY(setProp, ivar, type)    \
+    -(void)set##setProp : (type)value;                      \
+    {                                                       \
+        ivar = value;                                       \
+        [self dirtyText];                                   \
     }
 
-HIPPY_TEXT_PROPERTY(AdjustsFontSizeToFit, _adjustsFontSizeToFit, BOOL)
-HIPPY_TEXT_PROPERTY(Color, _color, UIColor *)
-HIPPY_TEXT_PROPERTY(FontFamily, _fontFamily, NSString *)
-HIPPY_TEXT_PROPERTY(FontSize, _fontSize, CGFloat)
-HIPPY_TEXT_PROPERTY(FontWeight, _fontWeight, NSString *)
-HIPPY_TEXT_PROPERTY(FontStyle, _fontStyle, NSString *)
-HIPPY_TEXT_PROPERTY(FontVariant, _fontVariant, NSArray *)
-HIPPY_TEXT_PROPERTY(IsHighlighted, _isHighlighted, BOOL)
-HIPPY_TEXT_PROPERTY(LetterSpacing, _letterSpacing, CGFloat)
-HIPPY_TEXT_PROPERTY(LineHeight, _lineHeight, CGFloat)
-HIPPY_TEXT_PROPERTY(LineHeightMultiple, _lineHeightMultiple, CGFloat)
-HIPPY_TEXT_PROPERTY(NumberOfLines, _numberOfLines, NSUInteger)
-HIPPY_TEXT_PROPERTY(EllipsizeMode, _ellipsizeMode, NSLineBreakMode)
-HIPPY_TEXT_PROPERTY(TextDecorationColor, _textDecorationColor, UIColor *);
-HIPPY_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, NativeRenderTextDecorationLineType);
-HIPPY_TEXT_PROPERTY(TextDecorationStyle, _textDecorationStyle, NSUnderlineStyle);
-HIPPY_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
-HIPPY_TEXT_PROPERTY(TextShadowOffset, _textShadowOffset, CGSize);
-HIPPY_TEXT_PROPERTY(TextShadowRadius, _textShadowRadius, CGFloat);
-HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
+NATIVE_RENDER_TEXT_PROPERTY(AdjustsFontSizeToFit, _adjustsFontSizeToFit, BOOL)
+NATIVE_RENDER_TEXT_PROPERTY(Color, _color, UIColor *)
+NATIVE_RENDER_TEXT_PROPERTY(FontFamily, _fontFamily, NSString *)
+NATIVE_RENDER_TEXT_PROPERTY(FontSize, _fontSize, CGFloat)
+NATIVE_RENDER_TEXT_PROPERTY(FontWeight, _fontWeight, NSString *)
+NATIVE_RENDER_TEXT_PROPERTY(FontStyle, _fontStyle, NSString *)
+NATIVE_RENDER_TEXT_PROPERTY(FontVariant, _fontVariant, NSArray *)
+NATIVE_RENDER_TEXT_PROPERTY(IsHighlighted, _isHighlighted, BOOL)
+NATIVE_RENDER_TEXT_PROPERTY(LetterSpacing, _letterSpacing, CGFloat)
+NATIVE_RENDER_TEXT_PROPERTY(LineHeight, _lineHeight, CGFloat)
+NATIVE_RENDER_TEXT_PROPERTY(LineHeightMultiple, _lineHeightMultiple, CGFloat)
+NATIVE_RENDER_TEXT_PROPERTY(NumberOfLines, _numberOfLines, NSUInteger)
+NATIVE_RENDER_TEXT_PROPERTY(EllipsizeMode, _ellipsizeMode, NSLineBreakMode)
+NATIVE_RENDER_TEXT_PROPERTY(TextDecorationColor, _textDecorationColor, UIColor *);
+NATIVE_RENDER_TEXT_PROPERTY(TextDecorationLine, _textDecorationLine, NativeRenderTextDecorationLineType);
+NATIVE_RENDER_TEXT_PROPERTY(TextDecorationStyle, _textDecorationStyle, NSUnderlineStyle);
+NATIVE_RENDER_TEXT_PROPERTY(Opacity, _opacity, CGFloat)
+NATIVE_RENDER_TEXT_PROPERTY(TextShadowOffset, _textShadowOffset, CGSize);
+NATIVE_RENDER_TEXT_PROPERTY(TextShadowRadius, _textShadowRadius, CGFloat);
+NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 
 - (void)setLineSpacingMultiplier:(CGFloat)lineSpacingMultiplier {
     _lineHeightMultiple = lineSpacingMultiplier;
@@ -715,8 +715,8 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [super setDomManager:domManager];
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {
-        int32_t hippyTag = [self.hippyTag intValue];
-        auto node = shared_domNode->GetNode(self.rootNode, hippyTag);
+        int32_t componentTag = [self.componentTag intValue];
+        auto node = shared_domNode->GetNode(self.rootNode, componentTag);
         if (node) {
             __weak NativeRenderObjectText *weakSelf = self;
             hippy::MeasureFunction measureFunc =
@@ -764,7 +764,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling {
     _allowFontScaling = allowFontScaling;
-    for (NativeRenderObjectView *child in [self hippySubviews]) {
+    for (NativeRenderObjectView *child in [self nativeRenderSubviews]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
         }
@@ -775,10 +775,10 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 - (void)setFontSizeMultiplier:(CGFloat)fontSizeMultiplier {
     _fontSizeMultiplier = fontSizeMultiplier;
     if (_fontSizeMultiplier == 0) {
-        //NativeRenderLogError(@"fontSizeMultiplier value must be > zero.");
+        NativeRenderLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
-    for (NativeRenderObjectView *child in [self hippySubviews]) {
+    for (NativeRenderObjectView *child in [self nativeRenderSubviews]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }
@@ -793,12 +793,12 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [self dirtyText];
 }
 
-- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:subview atIndex:atIndex];
+- (void)insertNativeRenderSubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex {
+    [super insertNativeRenderSubview:subview atIndex:atIndex];
     auto domManager = [self domManager].lock();
     if (domManager) {
-        int32_t hippyTag = [self.hippyTag intValue];
-        auto node = domManager->GetNode(self.rootNode, hippyTag);
+        int32_t componentTag = [self.componentTag intValue];
+        auto node = domManager->GetNode(self.rootNode, componentTag);
         __weak NativeRenderObjectText *weakSelf = self;
         hippy::MeasureFunction measureFunc =
             [weakSelf](float width, hippy::LayoutMeasureMode widthMeasureMode,

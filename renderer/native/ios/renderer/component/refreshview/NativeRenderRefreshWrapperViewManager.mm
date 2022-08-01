@@ -33,18 +33,18 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 }
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)hippyTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)componentTag) {
     [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        NativeRenderRefreshWrapper *wrapperView = viewRegistry[hippyTag];
+        NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView refreshCompleted];
     }];
 }
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)hippyTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)componentTag) {
     [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        NativeRenderRefreshWrapper *wrapperView = viewRegistry[hippyTag];
+        NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView startRefresh];
     }];
 }

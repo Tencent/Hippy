@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, NativeRenderSizeComparison) {
 };
 
 extern NSString *const NativeRenderIsHighlightedAttributeName;
-extern NSString *const NativeRenderHippyTagAttributeName;
+extern NSString *const NativeRenderComponentTagAttributeName;
 extern NSString *const NativeRenderRenderObjectAttributeName;
 
 NATIVE_RENDER_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);

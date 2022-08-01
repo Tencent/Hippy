@@ -73,14 +73,14 @@
     }
 }
 
-- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)index {
+- (void)insertNativeRenderSubview:(UIView *)view atIndex:(NSInteger)index {
     if ([view isKindOfClass:[NativeRenderRefreshWrapperItemView class]]) {
         _wrapperItemView = (NativeRenderRefreshWrapperItemView *)view;
     } else if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
         _scrollableView = (id<NativeRenderScrollableProtocol>)view;
         [_scrollableView addScrollListener:self];
     }
-    [super insertHippySubview:view atIndex:index];
+    [super insertNativeRenderSubview:view atIndex:index];
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {

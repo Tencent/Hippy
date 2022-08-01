@@ -72,7 +72,7 @@
         _isPresented = YES;
         UIView *rootView = [self createRootViewForModuleName:_appName initProperties:_initProps];
         NativeRenderNavigatorItemViewController *itemViewController = [[NativeRenderNavigatorItemViewController alloc] initWithView:rootView];
-        UIViewController *presentingViewController = [self hippyViewController];
+        UIViewController *presentingViewController = [self nativeRenderViewController];
         NSAssert(presentingViewController, @"no presenting view controller for navigator module");
         _navigatorRootViewController = [[NativeRenderNavigatorRootViewController alloc] initWithRootViewController:itemViewController];
         _navigatorRootViewController.navigationBar.hidden = YES;
@@ -84,8 +84,8 @@
     }
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:subview atIndex:0];
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertNativeRenderSubview:subview atIndex:0];
 }
 
 - (void)didMoveToSuperview {

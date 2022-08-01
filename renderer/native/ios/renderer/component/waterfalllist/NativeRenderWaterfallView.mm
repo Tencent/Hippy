@@ -91,6 +91,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (void)dealloc {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -118,11 +119,11 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     _scrollEventThrottle = scrollEventThrottle;
 }
 
-- (void)removeHippySubview:(UIView *)subview {
+- (void)removeNativeRenderSubview:(UIView *)subview {
 }
 
-- (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
+- (void)nativeRenderSetFrame:(CGRect)frame {
+    [super nativeRenderSetFrame:frame];
     _collectionView.frame = self.bounds;
 }
 
@@ -133,6 +134,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 
 - (void)invalidate {
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_scrollListeners removeAllObjects];
 }
 
@@ -159,7 +161,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated {
 }
 
-- (void)didUpdateHippySubviews {
+- (void)didUpdateNativeRenderSubviews {
     [self refreshItemNodes];
     [self flush];
 }
@@ -169,7 +171,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (void)refreshItemNodes {
-    [_dataSource setDataSource:self.nativeRenderObjectView.hippySubviews containBannerView:_containBannerView];
+    [_dataSource setDataSource:self.nativeRenderObjectView.nativeRenderSubviews containBannerView:_containBannerView];
 }
 
 #pragma mark Setter & Getter
@@ -226,7 +228,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
     //purge view
     NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
-    [self.renderContext purgeViewsFromHippyTags:objects onRootTag:self.rootTag];
+    [self.renderContext purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
     //purge cache
     [_cachedItems removeObjectsForKeys:furthestIndexPaths];
 }
@@ -276,7 +278,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     return YES;
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     if ([subview isKindOfClass:[NativeRenderHeaderRefresh class]]) {
         if (_headerRefreshView) {
             [_headerRefreshView removeFromSuperview];
@@ -285,7 +287,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         [_headerRefreshView setScrollView:self.collectionView];
         _headerRefreshView.delegate = self;
         _headerRefreshView.frame = subview.nativeRenderObjectView.frame;
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
+        [_weakItemMap setObject:subview forKey:[subview componentTag]];
     } else if ([subview isKindOfClass:[NativeRenderFooterRefresh class]]) {
         if (_footerRefreshView) {
             [_footerRefreshView removeFromSuperview];
@@ -296,11 +298,11 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         _footerRefreshView.frame = subview.nativeRenderObjectView.frame;
         UIEdgeInsets insets = self.collectionView.contentInset;
         self.collectionView.contentInset = UIEdgeInsetsMake(insets.top, insets.left, _footerRefreshView.frame.size.height, insets.right);
-        [_weakItemMap setObject:subview forKey:[subview hippyTag]];
+        [_weakItemMap setObject:subview forKey:[subview componentTag]];
     }
 }
 
-- (NSArray<UIView *> *)hippySubviews {
+- (NSArray<UIView *> *)nativeRenderSubviews {
     return [[_weakItemMap dictionaryRepresentation] allValues];
 }
 
@@ -349,7 +351,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     if ([cell isKindOfClass:[NativeRenderWaterfallViewCell class]]) {
         NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
         if (hpCell.cellView) {
-            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:indexPath];
+            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:indexPath];
             hpCell.cellView = nil;
         }
     }
@@ -359,7 +361,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObjectView.hippyTag onRootTag:renderObjectView.rootTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObjectView.componentTag onRootTag:renderObjectView.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
@@ -367,7 +369,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
         cellView = [self.renderContext createViewRecursivelyFromRenderObject:renderObjectView];
     }
     hpCell.cellView = cellView;
-    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
+    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 
 #pragma mark - NativeRenderCollectionViewDelegateWaterfallLayout
@@ -608,7 +610,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     }
     UIView *view = [self superview];
     while (view) {
-        if (0 == [[view hippyTag] intValue] % 10) {
+        if (0 == [[view componentTag] intValue] % 10) {
             _rootView = view;
             return view;
         }
@@ -631,7 +633,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (void)cleanUpCachedItems {
     //purge view
     NSArray<NSNumber *> *objects = [_cachedItems allValues];
-    [self.renderContext purgeViewsFromHippyTags:objects onRootTag:self.rootTag];
+    [self.renderContext purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
     //purge cache
     [_cachedItems removeAllObjects];
 }
