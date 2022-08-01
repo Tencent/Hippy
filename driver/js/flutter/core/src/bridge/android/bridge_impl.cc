@@ -25,8 +25,8 @@
 #include <future>
 #include <utility>
 
-#include "core/runtime/v8/runtime.h"
-#include "core/runtime/v8/v8_bridge_utils.h"
+#include "driver/runtime/v8/runtime.h"
+#include "driver/runtime/v8/v8_bridge_utils.h"
 #include "bridge_impl.h"
 #include "dart2js.h"
 #include "voltron_bridge.h"

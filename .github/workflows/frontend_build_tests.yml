@@ -10,10 +10,9 @@ on:
     paths:
       - 'driver/js/packages/**'
       - 'driver/js/examples/hippy-*-demo/**'
-      - 'driver/js/core/js/**/*.js'
+      - 'driver/js/lib/**/*.js'
       - 'driver/js/scripts/**/*.js'
       - 'package*.json'
-      - 'scripts/**/*.js'
 defaults:
   run:
     working-directory: driver/js

@@ -96,7 +96,7 @@ jobs:
     - name: Build C++
       if: steps.detect_languages.outputs.language == 'cpp'
       run: |
-        ./gradlew hippy-driver::buildCMakeRelease
+        ./gradlew hippy-framework::buildCMakeRelease
     - name: Perform CodeQL Analysis
       if: steps.detect_languages.outputs.language
       uses: github/codeql-action/analyze@v2

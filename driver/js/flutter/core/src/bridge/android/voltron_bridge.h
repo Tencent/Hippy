@@ -23,7 +23,7 @@
 #pragma once
 
 #include "bridge/bridge_runtime.h"
-#include "core/runtime/v8/bridge.h"
+#include "driver/runtime/v8/bridge.h"
 
 namespace voltron {
 using hippy::Bridge;
