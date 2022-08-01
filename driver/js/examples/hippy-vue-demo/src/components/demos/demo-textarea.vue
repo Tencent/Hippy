@@ -13,19 +13,56 @@
         输入的文本为：{{ content }}
       </p>
     </div>
+    <label v-if="Platform === 'android'">break-strategy={{ breakStrategy }}</label>
+    <div v-if="Platform === 'android'">
+      <textarea
+        class="textarea"
+        :defaultValue="longText"
+        :break-strategy="breakStrategy"
+      />
+      <div class="button-bar">
+        <button
+          class="button"
+          @click="() => changeBreakStrategy('simple')"
+        >
+          <span>simple</span>
+        </button>
+        <button
+          class="button"
+          @click="() => changeBreakStrategy('high_quality')"
+        >
+          <span>high_quality</span>
+        </button>
+        <button
+          class="button"
+          @click="() => changeBreakStrategy('balanced')"
+        >
+          <span>balanced</span>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import Vue from 'vue';
+
 export default {
   data() {
     return {
+      Platform: Vue.Native.Platform,
       content: 'The quick brown fox jumps over the lazy dog，快灰狐狸跳过了懒 🐕。',
+      longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is '
+        + 'the name of a town on Anglesey, an island of Wales.',
+      breakStrategy: 'simple',
     };
   },
   methods: {
     contentSizeChange(evt) {
       console.log(evt);
+    },
+    changeBreakStrategy(strategy) {
+      this.breakStrategy = strategy;
     },
   },
 };
@@ -39,9 +76,16 @@ export default {
   margin: 7px;
 }
 
+#demo-textarea label {
+  align-self: flex-start;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 #demo-textarea .textarea {
   width: 300px;
-  height: 170px;
+  height: 150px;
   color: #242424;
   text-align: left;
   border-width: 1px;
@@ -49,9 +93,25 @@ export default {
   border-color: #ccc;
   underline-color-android: #40b883;
   placeholder-text-color: #666;
+  align-self: center;
 }
 
-.demo-textarea .output {
+#demo-textarea .output {
   word-break: break-all;
+}
+
+#demo-textarea .button-bar {
+  flex-direction: row;
+}
+
+#demo-textarea .button {
+  width: 100px;
+  margin: 2px;
+  backgroundColor: #eee;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  align-items: center;
+  flex-shrink: 1;
 }
 </style>
