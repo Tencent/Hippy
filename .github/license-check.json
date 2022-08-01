@@ -36,6 +36,7 @@
     "docs/**",
     "driver/js/examples/android-demo/res/**",
     "driver/js/examples/ios-demo/res/**",
-    "driver/js/examples/hippy-**-demo/**"
+    "driver/js/examples/hippy-**-demo/**",
+    "driver/js/flutter/example/**"
   ]
 }
