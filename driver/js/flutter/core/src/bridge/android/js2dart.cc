@@ -20,8 +20,8 @@
  *
  */
 
-#include "core/runtime/v8/runtime.h"
-#include "core/runtime/v8/v8_bridge_utils.h"
+#include "driver/runtime/v8/runtime.h"
+#include "driver/runtime/v8/v8_bridge_utils.h"
 #include "js2dart.h"
 #include "voltron_bridge.h"
 

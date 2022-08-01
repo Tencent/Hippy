@@ -27,9 +27,9 @@
 #import "NativeRenderUtils.h"
 #import "NativeRenderLog.h"
 #import "HippyModuleMethod.h"
-#include <core/napi/jsc/js_native_turbo_jsc.h>
-#include "core/napi/jsc/js_native_jsc_helper.h"
-#include "core/napi/jsc/js_native_api_jsc.h"
+#include "driver/napi/jsc/js_native_turbo_jsc.h"
+#include "driver/napi/jsc/js_native_jsc_helper.h"
+#include "driver/napi/jsc/js_native_api_jsc.h"
 #include <JavaScriptCore/JavaScriptCore.h>
 #include <JavaScriptCore/JSObjectRef.h>
 #import "NSObject+HippyTurbo.h"

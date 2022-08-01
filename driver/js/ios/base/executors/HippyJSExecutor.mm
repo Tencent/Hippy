@@ -46,16 +46,16 @@
 #include "footstone/string_view_utils.h"
 #include "footstone/task_runner.h"
 #include "footstone/task.h"
-#include "core/napi/js_native_api.h"
-#include "core/scope.h"
-#include "core/engine.h"
+#include "driver/napi/js_native_api.h"
+#include "driver/scope.h"
+#include "driver/engine.h"
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyDevInfo.h"
 #import "HippyBundleURLProvider.h"
 #import "NSObject+ToJSCtxValue.h"
 #ifdef JS_USE_JSC
-#import "core/napi/jsc/js_native_api_jsc.h"
+#import "driver/napi/jsc/js_native_api_jsc.h"
 #endif //JS_USE_JSC
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";

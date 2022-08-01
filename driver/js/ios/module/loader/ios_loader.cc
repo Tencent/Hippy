@@ -23,7 +23,7 @@
 
 #include "ios_loader.h"
 
-#include "core/core.h"
+#include "driver/driver.h"
 
 IOSLoader::IOSLoader(RequestUntrustedContentPtr loader, CFTypeRef userData): loader_(loader), userData_(CFRetain(userData)) {}
 

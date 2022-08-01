@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "core/napi/js_native_api_types.h"
+#import "driver/napi/js_native_api_types.h"
 #import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN

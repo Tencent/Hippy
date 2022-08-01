@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "core/engine.h"
+#import "driver/engine.h"
 #import "dom/dom_manager.h"
 #import "footstone/worker.h"
 #import "footstone/task_runner.h"

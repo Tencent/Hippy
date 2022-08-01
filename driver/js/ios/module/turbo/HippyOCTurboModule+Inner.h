@@ -23,7 +23,7 @@
 #ifndef HippyOCTurboModule_Inner_h
 #define HippyOCTurboModule_Inner_h
 
-#import <core/napi/jsc/js_native_turbo_jsc.h>
+#import "driver/napi/jsc/js_native_turbo_jsc.h"
 #import "HippyOCTurboModule.h"
 
 @interface HippyOCTurboModule (Inner)

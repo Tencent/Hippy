@@ -39,7 +39,7 @@
 #import "HippyDeviceBaseInfo.h"
 #import "NativeRenderI18nUtils.h"
 #import "HippyBundleURLProvider.h"
-#include "core/scope.h"
+#include "driver/scope.h"
 #import "HippyTurboModuleManager.h"
 #include "NativeRenderManager.h"
 #include "dom/dom_manager.h"

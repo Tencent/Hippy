@@ -55,24 +55,27 @@ function(GlobalPackages_Add_v8)
   endif ()
 endfunction()
 
-function(GlobalPackages_Add_dom)
-  if (NOT TARGET dom)
-    InfraPackage_Add(DOM
-        LOCAL "${PROJECT_ROOT_DIR}/dom")
-  endif ()
-endfunction()
-
 function(GlobalPackages_Add_footstone)
   if (NOT TARGET footstone)
-    InfraPackage_Add(DOM
-        LOCAL "${PROJECT_ROOT_DIR}/modules/footstone")
+    InfraPackage_Add(DOM LOCAL "${PROJECT_ROOT_DIR}/modules/footstone")
   endif()
 endfunction()
 
 function(GlobalPackages_Add_jni)
   if (NOT TARGET jni)
-    InfraPackage_Add(JNI
-            LOCAL "${PROJECT_ROOT_DIR}/modules/android/jni")
+    InfraPackage_Add(COMMON_JNI LOCAL "${PROJECT_ROOT_DIR}/modules/android/jni")
+  endif()
+endfunction()
+
+function(GlobalPackages_Add_dom)
+  if (NOT TARGET dom)
+    InfraPackage_Add(DOM LOCAL "${PROJECT_ROOT_DIR}/dom")
+  endif ()
+endfunction()
+
+function(GlobalPackages_Add_driver)
+  if (NOT TARGET driver)
+    InfraPackage_Add(JNI LOCAL "${PROJECT_ROOT_DIR}/driver/js")
   endif()
 endfunction()
 
