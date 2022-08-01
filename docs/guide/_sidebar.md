@@ -11,6 +11,7 @@
 * [异常捕获](guide/exception.md)
 * [自定义字体](guide/custom-font.md)
 * [动态加载](guide/dynamic-import.md)
+* [Performance](guide/performance.md)
 * [JSI 模式](guide/jsi.md)
 * [技术支持](guide/support.md)
 * [隐私政策](guide/privacy.md)

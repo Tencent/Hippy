@@ -11,6 +11,7 @@
   * [异常捕获](guide/exception.md)
   * [自定义字体](guide/custom-font.md)
   * [动态加载](guide/dynamic-import.md)
+  * [Performance](guide/performance.md)
   * [JSI 模式](guide/jsi.md)
   * [技术支持](guide/support.md)
   * [隐私政策](guide/privacy.md)
@@ -23,6 +24,7 @@
   * [定制模块](android/custom-module.md)
   * [节点缓存](android/dom-cache.md)
   * [ECMAScript 与 Java 类型映射](android/type-mapping.md)
+  * [V8 API](android/v8-api.md)
 
 * iOS
   * [iOS 集成](ios/integration.md)
@@ -36,7 +38,7 @@
   * [Web 事件](web/event.md)
   * [定制界面组件](web/custom-component.md)
   * [定制模块](web/custom-module.md)
-  
+
 * Hippy-React
   * [介绍](hippy-react/introduction.md)
   * [组件](hippy-react/components.md)

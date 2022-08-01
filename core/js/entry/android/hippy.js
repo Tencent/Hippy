@@ -37,6 +37,7 @@ require('../../global/android/global.js'); // __GLOBAL__
 require('../../bridge/android/native2js.js');
 require('../../global/android/requestAnimationFrame.js'); // requestAnimationFrame cancelAnimationFrame
 require('../../global/android/Turbo.js'); // turbo
+require('../../global/MemoryModule.js'); // performance.memory
 
 // alias
 global.localStorage = Hippy.asyncStorage;
