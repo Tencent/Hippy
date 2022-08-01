@@ -96,7 +96,7 @@ NSNumber *AllocRootViewTag() {
         _loadingViewFadeDelay = 0.25;
         _loadingViewFadeDuration = 0.25;
         _delegate = delegate;
-        _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.hippyTag];
+        _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.componentTag];
         _contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
@@ -197,8 +197,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     _bridge = bridge;
 }
 
-- (UIViewController *)hippyViewController {
-    return _hippyViewController ?: [super hippyViewController];
+- (UIViewController *)nativeRenderViewController {
+    return _hippyViewController ?: [super nativeRenderViewController];
 }
 
 - (BOOL)canBecomeFirstResponder {
@@ -239,18 +239,18 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     [self contentDidAppear:[n.userInfo[@"cost"] longLongValue]];
 }
 
-- (NSNumber *)hippyTag {
+- (NSNumber *)componentTag {
     NativeRenderAssertMainQueue();
-    if (!super.hippyTag) {
-        self.hippyTag = AllocRootViewTag();
+    if (!super.componentTag) {
+        self.componentTag = AllocRootViewTag();
     }
-    return super.hippyTag;
+    return super.componentTag;
 }
 
 - (void)bridgeDidReload {
     NativeRenderAssertMainQueue();
     // Clear the hippyTag so it can be re-assigned
-    self.hippyTag = nil;
+    self.componentTag = nil;
 }
 
 - (void)javaScriptDidLoad:(NSNotification *)notification {
@@ -330,7 +330,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     NSString *moduleName = _moduleName ?: @"";
     NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, _appProperties);
     NSDictionary *param = @{@"name": moduleName,
-                            @"id": _contentView.hippyTag,
+                            @"id": _contentView.componentTag,
                             @"params": _appProperties ?: @{},
                             @"version": HippySDKVersion};
     footstone::value::HippyValue value = OCTypeToDomValue(param);
@@ -403,7 +403,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
                      hippyTag:(NSNumber *)hippyTag {
     if ((self = [super initWithFrame:frame])) {
         _bridge = bridge;
-        self.hippyTag = hippyTag;
+        self.componentTag = hippyTag;
         self.layer.backgroundColor = NULL;
         _startTimpStamp = CACurrentMediaTime() * 1000;
     }
@@ -413,8 +413,8 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithFrame : (CGRect)frame)
 HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder)
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:subview atIndex:atIndex];
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertNativeRenderSubview:subview atIndex:atIndex];
     [_bridge.performanceLogger markStopForTag:HippyPLTTI];
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -430,13 +430,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
 
 - (void)setFrame:(CGRect)frame {
     super.frame = frame;
-    if (self.hippyTag && _bridge.isValid) {
+    if (self.componentTag && _bridge.isValid) {
         [_bridge.renderContext setFrame:frame forRootView:self];
     }
 }
 
 - (void)removeAllSubviews {
-    [self resetHippySubviews];
+    [self resetNativeRenderSubviews];
 }
 
 - (void)setBackgroundColor:(UIColor *)backgroundColor {
@@ -455,7 +455,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
     if (self.userInteractionEnabled) {
         self.userInteractionEnabled = NO;
         [(HippyRootView *)self.superview contentViewInvalidated];
-        [_bridge enqueueJSCall:@"AppRegistry" method:@"unmountApplicationComponentAtRootTag" args:@[self.hippyTag] completion:NULL];
+        [_bridge enqueueJSCall:@"AppRegistry" method:@"unmountApplicationComponentAtRootTag" args:@[self.componentTag] completion:NULL];
     }
 }
 

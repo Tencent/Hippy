@@ -24,9 +24,9 @@
 
 @interface NSData (DataType)
 
-- (BOOL)hippy_isGif;
-- (BOOL)hippy_isAPNG;
+- (BOOL)datatype_isGif;
+- (BOOL)datatype_isAPNG;
 
-- (BOOL)hippy_isAnimatedImage;
+- (BOOL)datatype_isAnimatedImage;
 
 @end

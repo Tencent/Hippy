@@ -30,7 +30,7 @@
 }
 
 - (void)amendLayoutBeforeMount {
-    for (NativeRenderObjectView *renderObject in self.hippySubviews) {
+    for (NativeRenderObjectView *renderObject in self.nativeRenderSubviews) {
         [renderObject amendLayoutBeforeMount];
     }
 }

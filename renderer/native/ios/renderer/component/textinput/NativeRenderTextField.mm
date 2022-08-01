@@ -163,7 +163,7 @@
     // selectedTextRange observer isn't triggered when you type even though the
     // cursor position moves, so we send event again here.
 
-    if (!self.hippyTag || !_onChangeText) {
+    if (!self.componentTag || !_onChangeText) {
         return;
     }
 

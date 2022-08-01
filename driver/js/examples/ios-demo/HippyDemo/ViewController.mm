@@ -101,7 +101,7 @@
 
     rootView.frame = self.view.bounds;
 
-    [bridge setUpWithRootTag:rootView.hippyTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView screenScale:[UIScreen mainScreen].scale];
+    [bridge setUpWithRootTag:rootView.componentTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView screenScale:[UIScreen mainScreen].scale];
 
     //4.set frameworkProxy for bridge.If bridge cannot handle frameworkProxy protocol, it will forward to {self}
     bridge.frameworkProxy = self;
@@ -162,7 +162,7 @@ std::string mock;
 
     //2.set root tag for root view. root tag is of the essence
     int32_t rootTag = 20;
-    view.hippyTag = @(rootTag);
+    view.componentTag = @(rootTag);
     [self.view addSubview:view];
 
     //3.set native render manager's frameworkProxy to bridge
@@ -191,7 +191,7 @@ std::string mock;
 }
 
 - (void)initRenderContextWithRootView:(UIView *)rootView {
-    int hippyTag = [[rootView hippyTag] intValue];
+    int hippyTag = [[rootView componentTag] intValue];
     HippyAssert(0 != hippyTag && 0 == hippyTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
     if (rootView && hippyTag) {
         _rootNode = std::make_shared<hippy::RootNode>(hippyTag);

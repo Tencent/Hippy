@@ -88,21 +88,21 @@ using RootNode = hippy::RootNode;
 
 - (void)addComponent:(__kindof id<NativeRenderComponentProtocol>)component forRootTag:(NSNumber *)tag {
     NSAssert(tag, @"component and tag must not be null in method %@", NSStringFromSelector(_cmd));
-    NSAssert([component hippyTag], @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
+    NSAssert([component componentTag], @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
-        [map setObject:component forKey:[component hippyTag]];
+        [map setObject:component forKey:[component componentTag]];
     }
 }
 
 - (void)removeComponent:(__kindof id<NativeRenderComponentProtocol>)component forRootTag:(NSNumber *)tag {
     NSAssert(tag, @"component and tag must not be null in method %@", NSStringFromSelector(_cmd));
-    NSAssert([component hippyTag], @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
+    NSAssert([component componentTag], @"component's tag must not be null in %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));
     if (component && tag) {
         id map = [_componentsMap objectForKey:tag];
-        [map removeObjectForKey:[component hippyTag]];
+        [map removeObjectForKey:[component componentTag]];
     }
 }
 

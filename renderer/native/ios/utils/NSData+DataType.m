@@ -33,7 +33,7 @@ static bool memcontains(const void *s, const void *t, size_t sl, size_t tl) {
 
 @implementation NSData (DataType)
 
-- (BOOL)hippy_isGif {
+- (BOOL)datatype_isGif {
     if (self.length < 12) {
         return NO;
     }
@@ -48,7 +48,7 @@ static bool memcontains(const void *s, const void *t, size_t sl, size_t tl) {
     return NO;
 }
 
-- (BOOL)hippy_isAPNG {
+- (BOOL)datatype_isAPNG {
     if ([self length] < 0x50) {
         return NO;
     }
@@ -61,12 +61,12 @@ static bool memcontains(const void *s, const void *t, size_t sl, size_t tl) {
     return NO;
 }
 
-- (BOOL)hippy_isAnimatedImage {
+- (BOOL)datatype_isAnimatedImage {
     do {
-        if ([self hippy_isGif]) {
+        if ([self datatype_isGif]) {
             return YES;
         }
-        if ([self hippy_isAPNG]) {
+        if ([self datatype_isAPNG]) {
             return YES;
         }
     } while (0);

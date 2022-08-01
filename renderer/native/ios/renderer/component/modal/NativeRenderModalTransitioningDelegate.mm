@@ -58,13 +58,13 @@
         }
     };
     if (_presentationBlock) {
-        _presentationBlock([modalHostView hippyViewController], viewController, animated, completionBlock);
+        _presentationBlock([modalHostView nativeRenderViewController], viewController, animated, completionBlock);
     } else {
         if ([modalHostView.hideStatusBar boolValue]) {
             viewController.modalPresentationCapturesStatusBarAppearance = YES;
             viewController.hideStatusBar = [modalHostView hideStatusBar];
         }
-        [[modalHostView hippyViewController] presentViewController:viewController animated:animated completion:completionBlock];
+        [[modalHostView nativeRenderViewController] presentViewController:viewController animated:animated completion:completionBlock];
     }
 }
 
@@ -83,7 +83,7 @@
     };
 
     if (_dismissalBlock) {
-        _dismissalBlock([modalHostView hippyViewController], viewController, animated, nil);
+        _dismissalBlock([modalHostView nativeRenderViewController], viewController, animated, nil);
     } else {
         [viewController dismissViewControllerAnimated:animated completion:completionBlock];
     }

@@ -534,19 +534,19 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
         CGFloat height = CGRectGetHeight(contentRect);
         BOOL flag1 = _borderTopLeftRadius <= MIN(width, height) / 2;
         if (!flag1) {
-            //NativeRenderLog(@"[warning] _borderTopLeftRadius must be shorter than width / 2");
+            NativeRenderLog(@"[warning] _borderTopLeftRadius must be shorter than width / 2");
         }
         BOOL flag2 = _borderTopRightRadius <= MIN(width, height) / 2;
         if (!flag2) {
-            //NativeRenderLog(@"[warning] _borderTopRightRadius must be shorter than width / 2");
+            NativeRenderLog(@"[warning] _borderTopRightRadius must be shorter than width / 2");
         }
         BOOL flag3 = _borderBottomLeftRadius <= MIN(width, height) / 2;
         if (!flag3) {
-            //NativeRenderLog(@"[warning] _borderBottomLeftRadius must be shorter than width / 2");
+            NativeRenderLog(@"[warning] _borderBottomLeftRadius must be shorter than width / 2");
         }
         BOOL flag4 = _borderBottomRightRadius <= MIN(width, height) / 2;
         if (!flag4) {
-            //NativeRenderLog(@"[warning] _borderBottomRightRadius must be shorter than width / 2");
+            NativeRenderLog(@"[warning] _borderBottomRightRadius must be shorter than width / 2");
         }
 #endif
 
@@ -670,7 +670,7 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 @implementation NativeRenderConvert (NativeRenderResizeMode)
 
-HIPPY_ENUM_CONVERTER(NativeRenderResizeMode, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderResizeMode, (@{
     @"cover": @(NativeRenderResizeModeCover),
     @"contain": @(NativeRenderResizeModeContain),
     @"stretch": @(NativeRenderResizeModeStretch),
@@ -679,7 +679,7 @@ HIPPY_ENUM_CONVERTER(NativeRenderResizeMode, (@{
 }),
     NativeRenderResizeModeStretch, integerValue)
 
-HIPPY_ENUM_CONVERTER(NativeRenderShapeMode, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderShapeMode, (@{
     @"normal": @(NativeRenderResizeModeDefalt),
     @"circle": @(NativeRenderResizeModeCircle)
 }), NativeRenderResizeModeDefalt, integerValue)

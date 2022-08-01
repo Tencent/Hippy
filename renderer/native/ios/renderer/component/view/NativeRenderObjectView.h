@@ -69,30 +69,30 @@ extern NSString *const NativeRenderShadowViewDiffTag;
  */
 
 /**
- * Get all hippy shadow views
+ * Get all native render object
  */
-- (NSArray<NativeRenderObjectView *> *)hippySubviews NS_REQUIRES_SUPER;
+- (NSArray<NativeRenderObjectView *> *)nativeRenderSubviews NS_REQUIRES_SUPER;
 
 /**
- * Get super shadow view
+ * Get super render object
  */
-- (NativeRenderObjectView *)hippySuperview NS_REQUIRES_SUPER;
+- (NativeRenderObjectView *)nativeRenderSuperview NS_REQUIRES_SUPER;
 
 /**
- * Insert hippy shadow view at index.
+ * Insert native render object at index.
  *
- * @param subview A hippy shadow subview to insert
+ * @param subview A render object subview to insert
  * @param atIndex position for hippy subview to insert
  * @discussion atIndex must not exceed range of current index
  */
-- (void)insertHippySubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex;
+- (void)insertNativeRenderSubview:(NativeRenderObjectView *)subview atIndex:(NSInteger)atIndex;
 
 /**
- * Remove hippy shadow view
+ * Remove render object
  *
- * @param subview A hippy shadow subview to delete
+ * @param subview A render object to delete
  */
-- (void)removeHippySubview:(NativeRenderObjectView *)subview;
+- (void)removeNativeRenderSubview:(NativeRenderObjectView *)subview;
 
 @property(nonatomic, weak, readonly) NativeRenderObjectView *superview;
 @property(nonatomic, copy) NSString *viewName;
@@ -189,7 +189,7 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 /**
  * As described in NativeRenderComponent protocol.
  */
-- (void)didUpdateHippySubviews NS_REQUIRES_SUPER;
+- (void)didUpdateNativeRenderSubviews NS_REQUIRES_SUPER;
 - (void)didSetProps:(NSArray<NSString *> *)changedProps NS_REQUIRES_SUPER;
 
 - (NSDictionary *)mergeProps:(NSDictionary *)props;

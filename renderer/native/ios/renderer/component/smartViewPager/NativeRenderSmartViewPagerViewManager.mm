@@ -45,14 +45,14 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
 }
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[hippyTag];
+        UIView *view = viewRegistry[componentTag];
 
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
-//            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
-//                        "with tag #%@", view, hippyTag);
+            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
+                        "with tag #%@", view, componentTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
         [(NativeRenderSmartViewPagerView *)view setPage:pageNumberInteger animated:YES];
@@ -61,13 +61,13 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[hippyTag];
+        UIView *view = viewRegistry[componentTag];
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
-//            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
-//                        "with tag #%@", view, hippyTag);
+            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
+                        "with tag #%@", view, componentTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
         [(NativeRenderSmartViewPagerView *)view setPage:pageNumberInteger animated:NO];
@@ -76,10 +76,10 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber 
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)componentTag
                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        NativeRenderSmartViewPagerView *view = viewRegistry[hippyTag];
+        NativeRenderSmartViewPagerView *view = viewRegistry[componentTag];
         NSInteger currrentPage = [view getCurrentPage];
         callback(@(currrentPage));
     }];

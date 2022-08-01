@@ -226,8 +226,8 @@
 #pragma mark Animating Images
 
 - (NSTimeInterval)frameDelayGreatestCommonDivisor {
-    // Presision is set to half of the `kHippyAnimatedImageDelayTimeIntervalMinimum` in order to minimize frame dropping.
-    const NSTimeInterval kGreatestCommonDivisorPrecision = 2.0 / kHippyAnimatedImageDelayTimeIntervalMinimum;
+    // Presision is set to half of the `kAnimatedImageDelayTimeIntervalMinimum` in order to minimize frame dropping.
+    const NSTimeInterval kGreatestCommonDivisorPrecision = 2.0 / kAnimatedImageDelayTimeIntervalMinimum;
 
     NSArray *delays = self.animatedImage.delayTimesForIndexes.allValues;
 

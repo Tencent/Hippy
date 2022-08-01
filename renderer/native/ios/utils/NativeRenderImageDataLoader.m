@@ -21,7 +21,6 @@
  */
 
 #import "NativeRenderImageDataLoader.h"
-#import "HippyImageCacheManager.h"
 #import "NativeRenderDownloadTask.h"
 
 NSString *const NativeRenderImageDataLoaderErrorDomain = @"NativeRenderImageDataLoaderErrorDomain";

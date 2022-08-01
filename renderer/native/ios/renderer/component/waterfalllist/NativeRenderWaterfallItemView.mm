@@ -32,8 +32,8 @@
     return self;
 }
 
-- (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
+- (void)nativeRenderSetFrame:(CGRect)frame {
+    [super nativeRenderSetFrame:frame];
     self.frame = self.bounds;
 }
 

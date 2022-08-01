@@ -135,17 +135,17 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageVie
     }];
 }
 
-#define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                                \
-        if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                   \
-            view.border##SIDE##Radius = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Radius; \
-        }                                                                                                      \
+#define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                          \
+        if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
+            view.border##SIDE##Radius = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
+        }                                                                                                               \
     }
 
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopLeft)
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(TopLeft)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 - (UIView *)view {
     return [[NativeRenderImageView alloc] init];
