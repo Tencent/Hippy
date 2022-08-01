@@ -68,7 +68,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 
 # region jni common
 # TODO: will be removed when the JNI library is complete
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/android/src/main/jni/include)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/framework/android/include)
 # endregion
 
 # region devtools
