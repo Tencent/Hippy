@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.2](https://github.com/Tencent/Hippy/compare/2.14.1...2.14.2) (2022-08-01)
+
+
+### Features
+
+* **android:** add breakStrategy prop for Text and TextInput ([#2285](https://github.com/Tencent/Hippy/issues/2285)) ([8dd4c03](https://github.com/Tencent/Hippy/commit/8dd4c0307e9ea856e3841cf27feb898ad1f159e2))
+
+
+
+
+
 ## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
 
 

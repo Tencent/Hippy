@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.2](https://github.com/Tencent/Hippy/compare/2.14.1...2.14.2) (2022-08-01)
+
+
+### Bug Fixes
+
+* **android:** horizontal `ScrollView` cannot scroll in other scrollable ([724d4af](https://github.com/Tencent/Hippy/commit/724d4af45d73606c00ebf5509b26fea6c48338e4))
+* **android:** listview can not scroll inside other listview ([d92ac95](https://github.com/Tencent/Hippy/commit/d92ac953f9def0866419c5eef549664c68dc6b7c))
+* **buildcore:** fix buildcore script ([4bce58c](https://github.com/Tencent/Hippy/commit/4bce58cf4927d499fe67fbef34bb7f52ead5d47a))
+* **image:** fix image border path not reset ([cfb800d](https://github.com/Tencent/Hippy/commit/cfb800de485d00966d5ed02df06354d1ba2effd8))
+* **ios:** direction is for shadow view ,not view ([63189f7](https://github.com/Tencent/Hippy/commit/63189f703d0847e5f9f2343b5d6bb78ac99ff536))
+* **ios:** fix a potential null pointer when waterfallview cell resuse ([e50fc40](https://github.com/Tencent/Hippy/commit/e50fc403f15780c1dddb6ebf3637d0d99b74c14b))
+* **ios:** fix HippyDevLoadingView shows in release environment ([37faba6](https://github.com/Tencent/Hippy/commit/37faba63aed52823acf37c2a960559820ed31b0c))
+* **ios:** nested listview may not get rendered ([bb12159](https://github.com/Tencent/Hippy/commit/bb121591302b91399ddd202bda522e23097aab7f))
+* **ios:** radius must be smaller than half of component's length ([0e97ad0](https://github.com/Tencent/Hippy/commit/0e97ad056e328e97f613a47aaf22cf2e274d1dd0))
+* **ios:** roottag property should not be updated ([34ca26f](https://github.com/Tencent/Hippy/commit/34ca26f3f53783526b92a917b22979a3809f3999))
+* **ios:** try to avoid cases where result is NAN ([7989dbe](https://github.com/Tencent/Hippy/commit/7989dbe00d5833dde17d713166c26127835ea30d))
+
+
+### Features
+
+* **android:** add breakStrategy prop for Text and TextInput ([#2285](https://github.com/Tencent/Hippy/issues/2285)) ([8dd4c03](https://github.com/Tencent/Hippy/commit/8dd4c0307e9ea856e3841cf27feb898ad1f159e2))
+* **devtools:** support multi jscontext debug ([#2189](https://github.com/Tencent/Hippy/issues/2189)) ([3e18e89](https://github.com/Tencent/Hippy/commit/3e18e89a0f0eed7077bec663c64f6d144eac83d3))
+* **hippy-vue:** support breakStrategy ([d5309c2](https://github.com/Tencent/Hippy/commit/d5309c20c33988427318fed09adb98b12630ddfe))
+* **ios:** add method to get key window in ios13 ([6a625b6](https://github.com/Tencent/Hippy/commit/6a625b638ef26dbd315341d5f9919802460b1339))
+
+
+
+
+
 ## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.2](https://github.com/Tencent/Hippy/compare/2.14.1...2.14.2) (2022-08-01)
+
+
+### Features
+
+* **hippy-vue:** support breakStrategy ([d5309c2](https://github.com/Tencent/Hippy/commit/d5309c20c33988427318fed09adb98b12630ddfe))
+
+
+
+
+
 ## [2.14.1](https://github.com/Tencent/Hippy/compare/2.14.0...2.14.1) (2022-07-25)
 
 
