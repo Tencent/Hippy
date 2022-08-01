@@ -101,6 +101,10 @@ set(SOURCE_SET_STANDALONE
     src/modules/console_module.cc
     src/modules/contextify_module.cc
     src/modules/timer_module.cc)
+if ("${JS_ENGINE}" STREQUAL "V8")
+  list(APPEND SOURCE_SET_STANDALONE
+       src/napi/v8/memory_module.cc)
+endif ()
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.
