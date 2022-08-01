@@ -26,10 +26,9 @@
 
 #include "footstone/unicode_string_view.h"
 #include "footstone/task_runner.h"
-#include "core/napi/v8/js_native_api_v8.h"
 #include "core/runtime/v8/inspector/v8_channel_impl.h"
+#include "core/runtime/v8/inspector/v8_inspector_context.h"
 #include "core/runtime/v8/interrupt_queue.h"
-#include "core/scope.h"
 
 namespace hippy {
 namespace inspector {
@@ -40,51 +39,38 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   using unicode_string_view = footstone::stringview::unicode_string_view;
   using TaskRunner = footstone::TaskRunner;
 
-  explicit V8InspectorClientImpl(std::shared_ptr<Scope> scope, std::weak_ptr<TaskRunner> runner);
+  explicit V8InspectorClientImpl(std::weak_ptr<TaskRunner> runner): js_runner_(std::move(runner)) {}
   ~V8InspectorClientImpl();
 
-  inline std::shared_ptr<TaskRunner> GetInspectorRunner() {
-    return inspector_runner_;
-  }
-
-  inline std::unique_ptr<V8ChannelImpl>& GetChannel() {
-    return channel_;
-  }
-
-  inline std::unique_ptr<v8_inspector::V8InspectorSession>& GetSession() {
-    return session_;
-  }
-
-  inline void SetSession(std::unique_ptr<v8_inspector::V8InspectorSession> session) {
-    session_ = std::move(session);
-  }
+  void CreateInspector(const std::shared_ptr<Scope>& scope);
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  std::shared_ptr<V8InspectorContext> CreateInspectorContext(const std::shared_ptr<Scope> scope, std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
+  void DestroyInspectorContext(bool is_reload, const std::shared_ptr<V8InspectorContext> &inspector_context);
+#endif
+  void SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context, unicode_string_view&& params);
 
   inline std::unique_ptr<v8_inspector::V8Inspector>& GetInspector() {
     return inspector_;
   }
 
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  void Reset(std::shared_ptr<Scope> scope, const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
-  void Connect(const std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
-#endif
-
-  void SendMessageToV8(unicode_string_view&& params);
-  void CreateContext();
-  void DestroyContext();
   v8::Local<v8::Context> ensureDefaultContextInGroup(int contextGroupId) override;
   void runMessageLoopOnPause(int contextGroupId) override;
   void quitMessageLoopOnPause() override;
   void runIfWaitingForDebugger(int contextGroupId) override;
 
  private:
-  std::shared_ptr<Scope> scope_;
+  void CreateContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
+  void DestroyContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
+
   std::unique_ptr<v8_inspector::V8Inspector> inspector_;
-  std::unique_ptr<V8ChannelImpl> channel_;
-  std::unique_ptr<v8_inspector::V8InspectorSession> session_;
   std::weak_ptr<TaskRunner> js_runner_;
   std::shared_ptr<TaskRunner> inspector_runner_;
   std::mutex mutex_;
   std::shared_ptr<InterruptQueue> interrupt_queue_;
+  std::shared_ptr<V8InspectorContext> reload_inspector_context_;
+  std::atomic_int32_t context_group_count_{1};
+  std::unordered_map<int32_t, std::shared_ptr<V8InspectorContext>> inspector_context_map_;
+  std::mutex inspector_context_mutex_;
 };
 
 }  // namespace inspector

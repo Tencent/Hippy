@@ -31,10 +31,6 @@
 #include "jni/scoped_java_ref.h"
 #endif
 
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-#include "core/runtime/v8/inspector/v8_inspector_client_impl.h"
-#endif
-
 #include "core/engine.h"
 #include "core/napi/js_native_api.h"
 #include "core/napi/v8/js_native_api_v8.h"
@@ -72,6 +68,12 @@ class Runtime {
   inline void SetBridge(std::shared_ptr<Bridge> bridge) {
     bridge_ = bridge;
   }
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  inline void SetInspectorContext(std::shared_ptr<hippy::inspector::V8InspectorContext> inspector_context) {
+    inspector_context_ = inspector_context;
+  }
+  inline std::shared_ptr<hippy::inspector::V8InspectorContext> GetInspectorContext() { return inspector_context_; }
+#endif
 #ifdef ENABLE_INSPECTOR
   inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
     devtools_data_source_ = devtools_data_source;
@@ -113,4 +115,7 @@ class Runtime {
 #endif
 
   std::shared_ptr<Bridge> bridge_;
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  std::shared_ptr<hippy::inspector::V8InspectorContext> inspector_context_;
+#endif
 };
