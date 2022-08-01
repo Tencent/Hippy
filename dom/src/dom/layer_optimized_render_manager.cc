@@ -144,71 +144,22 @@ bool LayerOptimizedRenderManager::ComputeLayoutOnly(const std::shared_ptr<DomNod
 
 bool LayerOptimizedRenderManager::CheckStyleJustLayout(const std::shared_ptr<DomNode>& node) const {
   const auto &style_map = node->GetStyleMap();
-  for (const auto &entry : *style_map) {
+  return std::all_of(style_map->begin(), style_map->end(), [this](const auto &entry) {
     const auto &key = entry.first;
     const auto &value = entry.second;
 
-    if (IsJustLayoutProp(key.c_str())) {
-      continue;
+    if (key == kCollapsable) {
+      if (value->IsBoolean() && !value->ToBooleanChecked()) {
+        return false;
+      }
     }
 
-    if (key == kOpacity) {
-      if (value->IsNull() || (value->IsNumber() && value->ToDoubleChecked() == 1)) {
-        continue;
-      }
-    } else if (key == kBorderRadius) {
-      const auto &background_color = style_map->find(kBackgroundColor);
-      if (background_color != style_map->end() &&
-          (*background_color).second->IsNumber() &&
-          (*background_color).second->ToDoubleChecked() != 0) {
-        return false;
-      }
-      const auto &border_width = style_map->find(kBorderWidth);
-      if (border_width != style_map->end() &&
-          (*border_width).second->IsNumber() &&
-          (*border_width).second->ToDoubleChecked() != 0) {
-        return false;
-      }
-    } else if (key == kBorderLeftColor) {
-      if (value->IsNumber() && value->ToDoubleChecked() == 0) {
-        continue;
-      }
-    } else if (key == kBorderRightColor) {
-      if (value->IsNumber() && value->ToDoubleChecked() == 0) {
-        continue;
-      }
-    } else if (key == kBorderTopColor) {
-      if (value->IsNumber() && value->ToDoubleChecked() == 0) {
-        continue;
-      }
-    } else if (key == kBorderBottomColor) {
-      if (value->IsNumber() && value->ToDoubleChecked() == 0) {
-        continue;
-      }
-    } else if (key == kBorderWidth) {
-      if (value->IsNull() || (value->IsNumber() && value->ToDoubleChecked() == 0)) {
-        continue;
-      }
-    } else if (key == kBorderLeftWidth) {
-      if (value->IsNull() || (value->IsNumber() && value->ToDoubleChecked() == 0)) {
-        continue;
-      }
-    } else if (key == kBorderTopWidth) {
-      if (value->IsNull() || (value->IsNumber() && value->ToDoubleChecked() == 0)) {
-        continue;
-      }
-    } else if (key == kBorderRightWidth) {
-      if (value->IsNull() || (value->IsNumber() && value->ToDoubleChecked() == 0)) {
-        continue;
-      }
-    } else if (key == kBorderBottomWidth) {
-      if (value->IsNull() || (value->IsNumber() && value->ToDoubleChecked() == 0)) {
-        continue;
-      }
+    if (IsJustLayoutProp(key.c_str())) {
+      return true;
     }
+
     return false;
-  }
-  return true;
+  });
 }
 
 static constexpr std::array<const char*, 31> kJustLayoutProps = {

@@ -22,8 +22,8 @@
 
 #include "bridge/bridge.h"
 
+#include "driver/base/common.h"
 #include "footstone/check.h"
-#include "core/base/common.h"
 #include "jni/jni_env.h"
 
 namespace hippy {

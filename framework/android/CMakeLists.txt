@@ -47,29 +47,37 @@ if (${ANDROID_STL} STREQUAL "c++_static")
 endif ()
 # endregion
 
+## region v8
+if ("${JS_ENGINE}" STREQUAL "V8")
+  GlobalPackages_Add(v8)
+  target_link_libraries(${PROJECT_NAME} PRIVATE v8)
+  get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
+  if (V8_WITHOUT_INSPECTOR)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
+  endif ()
+endif ()
+## endregion
+
 # region footstone
 GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region jni
-GlobalPackages_Add(jni)
-target_link_libraries(${PROJECT_NAME} PRIVATE jni)
+# region driver
+GlobalPackages_Add(driver)
+target_link_libraries(${PROJECT_NAME} PRIVATE driver)
 # endregion
 
-# region core
-add_subdirectory(${PROJECT_ROOT_DIR}/driver/js/core ${CMAKE_CURRENT_BINARY_DIR}/core)
-target_link_libraries(${PROJECT_NAME} PRIVATE core)
+# region common_jni
+GlobalPackages_Add(common_jni)
+target_link_libraries(${PROJECT_NAME} PRIVATE common_jni)
 # endregion
 
-# region v8
-GlobalPackages_Add(v8)
-target_link_libraries(${PROJECT_NAME} PRIVATE v8)
-get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
-if (V8_WITHOUT_INSPECTOR)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
-endif ()
+# region native renderer
+GlobalPackages_Add(native_renderer)
+target_link_libraries(${PROJECT_NAME} PRIVATE native_renderer)
 # endregion
+
 
 # region source set
 set(SOURCE_SET

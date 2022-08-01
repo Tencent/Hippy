@@ -34,8 +34,8 @@
 #include "bridge/entry.h"
 #include "bridge/java2js.h"
 #include "bridge/js2java.h"
-#include "core/runtime/v8/runtime.h"
-#include "core/runtime/v8/v8_bridge_utils.h"
+#include "driver/runtime/v8/runtime.h"
+#include "driver/runtime/v8/v8_bridge_utils.h"
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "dom/node_props.h"
@@ -51,6 +51,9 @@
 #include "jni/uri.h"
 #include "jni/jni_utils.h"
 #include "loader/adr_loader.h"
+
+#define ANDROID_NATIVE_RENDER
+
 #ifdef ANDROID_NATIVE_RENDER
 #include "jni/java_turbo_module.h"
 #include "jni/turbo_module_manager.h"

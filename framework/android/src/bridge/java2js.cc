@@ -25,8 +25,8 @@
 #include <utility>
 
 #include "bridge/js2java.h"
-#include "core/runtime/v8/runtime.h"
-#include "core/runtime/v8/v8_bridge_utils.h"
+#include "driver/runtime/v8/runtime.h"
+#include "driver/runtime/v8/v8_bridge_utils.h"
 #include "footstone/string_view_utils.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"

@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "core/runtime/v8/bridge.h"
+#include "driver/runtime/v8/bridge.h"
 
 #include <memory>
 

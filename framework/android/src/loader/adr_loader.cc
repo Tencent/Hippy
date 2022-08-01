@@ -24,7 +24,7 @@
 
 #include <future>
 
-#include "core/runtime/v8/runtime.h"
+#include "driver/runtime/v8/runtime.h"
 #include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"

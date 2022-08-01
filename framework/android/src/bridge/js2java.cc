@@ -24,14 +24,14 @@
 
 #include <memory>
 
+#include "bridge/bridge.h"
+#include "driver/runtime/v8/v8_bridge_utils.h"
+#include "driver/napi/v8/serializer.h"
 #include "footstone/logging.h"
-#include "footstone/unicode_string_view.h"
-#include "core/runtime/v8/v8_bridge_utils.h"
 #include "footstone/string_view_utils.h"
-#include "core/napi/v8/serializer.h"
+#include "footstone/unicode_string_view.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
-#include "bridge/bridge.h"
 
 namespace hippy::bridge {
 

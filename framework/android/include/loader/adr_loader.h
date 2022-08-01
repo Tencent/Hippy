@@ -26,7 +26,7 @@
 
 #include <map>
 
-#include "core/core.h"
+#include "driver/driver.h"
 #include "footstone/check.h"
 #include "jni/scoped_java_ref.h"
 

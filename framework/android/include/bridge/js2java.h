@@ -24,7 +24,7 @@
 
 #include <jni.h>
 
-#include "core/core.h"
+#include "driver/driver.h"
 
 namespace hippy {
 namespace bridge {

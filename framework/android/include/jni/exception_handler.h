@@ -25,7 +25,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "core/runtime/v8/runtime.h"
+#include "driver/runtime/v8/runtime.h"
 
 class JNIEnvironment;
 
