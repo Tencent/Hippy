@@ -78,7 +78,8 @@ set(SOURCE_SET
     src/jni/scoped_java_ref.cc
     src/jni/turbo_module_manager.cc
     src/jni/uri.cc
-    src/loader/adr_loader.cc)
+    src/loader/adr_loader.cc
+    src/performance/memory.cc)
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE.
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})

@@ -3,14 +3,14 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019-2022 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE_2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,20 +22,13 @@
 
 #pragma once
 
-#include "bridge/entry.h"
-#include "bridge/java2js.h"
-#include "bridge/js2java.h"
-#include "bridge/runtime.h"
-#include "bridge/serializer.h"
-#include "jni/exception_handler.h"
-#include "jni/jni_env.h"
-#include "jni/jni_register.h"
-#include "jni/jni_utils.h"
-#include "jni/scoped_java_ref.h"
-#include "loader/adr_loader.h"
-#include "performance/memory.h"
-#ifndef V8_WITHOUT_INSPECTOR
-#include "inspector/v8_channel_impl.h"
-#include "inspector/v8_inspector_client_impl.h"
-#endif
-#include "v8/v8.h"
+#include "core/modules/module_base.h"
+#include "core/napi/callback_info.h"
+
+class Scope;
+
+class MemoryModule : public ModuleBase {
+ public:
+  MemoryModule() {}
+  void Get(const hippy::napi::CallbackInfo &info);
+};

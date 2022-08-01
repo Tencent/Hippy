@@ -11,6 +11,7 @@
 * [Exception Handler](guide/exception.md)
 * [Custom Font](guide/custom-font.md)
 * [Dynamic Load](guide/dynamic-import.md)
+* [Performance](guide/performance.md)
 * [JSI](guide/jsi.md)
 * [Tech Support](guide/support.md)
 * [Privacy Policy](guide/privacy.md)
