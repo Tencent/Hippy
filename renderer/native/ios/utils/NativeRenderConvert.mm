@@ -30,43 +30,42 @@
 
 // clang-format off
 
-HIPPY_CONVERTER(id, id, self)
-HIPPY_CONVERTER(BOOL, BOOL, boolValue)
-HIPPY_NUMBER_CONVERTER(double, doubleValue)
-HIPPY_NUMBER_CONVERTER(float, floatValue)
-HIPPY_NUMBER_CONVERTER(int, intValue)
-HIPPY_NUMBER_CONVERTER(int64_t, longLongValue)
-HIPPY_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue)
-HIPPY_NUMBER_CONVERTER(NSInteger, integerValue)
-HIPPY_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
+NATIVE_RENDER_CONVERTER(id, id, self)
+NATIVE_RENDER_CONVERTER(BOOL, BOOL, boolValue)
+NATIVE_RENDER_NUMBER_CONVERTER(double, doubleValue)
+NATIVE_RENDER_NUMBER_CONVERTER(float, floatValue)
+NATIVE_RENDER_NUMBER_CONVERTER(int, intValue)
+NATIVE_RENDER_NUMBER_CONVERTER(int64_t, longLongValue)
+NATIVE_RENDER_NUMBER_CONVERTER(uint64_t, unsignedLongLongValue)
+NATIVE_RENDER_NUMBER_CONVERTER(NSInteger, integerValue)
+NATIVE_RENDER_NUMBER_CONVERTER(NSUInteger, unsignedIntegerValue)
 /**
  * This macro is used for creating converter functions for directly
  * representable json values that require no conversion.
  */
 #if NATIVE_RENDER_DEBUG
-#define HIPPY_JSON_CONVERTER(type)               \
-    +(type *)type : (id)json {                   \
-        if ([json isKindOfClass:[type class]]) { \
-            return json;                         \
-        } else if (json) {                       \
-            NativeRenderLogConvertError(json, @ #type); \
-        }                                        \
-        return nil;                              \
+#define NATIVE_RENDER_JSON_CONVERTER(type)                  \
+    +(type *)type : (id)json {                              \
+        if ([json isKindOfClass:[type class]]) {            \
+            return json;                                    \
+        } else if (json) {                                  \
+            NativeRenderLogConvertError(json, @ #type);     \
+        }                                                   \
+        return nil;                                         \
     }
 #else
-#define HIPPY_JSON_CONVERTER(type) \
-    +(type *)type : (id)json {     \
-        return json;               \
+#define NATIVE_RENDER_JSON_CONVERTER(type)  \
+    +(type *)type : (id)json {              \
+        return json;                        \
     }
 #endif
 
-HIPPY_JSON_CONVERTER(NSArray)
-HIPPY_JSON_CONVERTER(NSDictionary)
-HIPPY_JSON_CONVERTER(NSString)
-HIPPY_JSON_CONVERTER(NSNumber)
+NATIVE_RENDER_JSON_CONVERTER(NSArray)
+NATIVE_RENDER_JSON_CONVERTER(NSDictionary)
+NATIVE_RENDER_JSON_CONVERTER(NSString)
+NATIVE_RENDER_JSON_CONVERTER(NSNumber)
             
-HIPPY_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
-//HIPPY_CUSTOM_CONVERTER(NSData *, NSData, [json dataUsingEncoding:NSUTF8StringEncoding])
+NATIVE_RENDER_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
 
 + (NSData*)NSData:(id)json {
     if([json isKindOfClass:[NSString class]]) {
@@ -232,10 +231,10 @@ HIPPY_CUSTOM_CONVERTER(NSSet *, NSSet, [NSSet setWithArray:json])
 }
 
 // JS Standard for time is milliseconds
-HIPPY_CUSTOM_CONVERTER(NSTimeInterval, NSTimeInterval, [self double:json] / 1000.0)
+NATIVE_RENDER_CUSTOM_CONVERTER(NSTimeInterval, NSTimeInterval, [self double:json] / 1000.0)
 
 // JS standard for time zones is minutes.
-HIPPY_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
+NATIVE_RENDER_CUSTOM_CONVERTER(NSTimeZone *, NSTimeZone, [NSTimeZone timeZoneForSecondsFromGMT:[self double:json] * 60.0])
 
 NSNumber *NativeRenderConvertEnumValue(__unused const char *typeName, NSDictionary *mapping, NSNumber *defaultValue, id json) {
     if (!json) {
@@ -275,7 +274,7 @@ NSNumber *NativeRenderConvertMultiEnumValue(const char *typeName, NSDictionary *
     return NativeRenderConvertEnumValue(typeName, mapping, defaultValue, json);
 }
 
-HIPPY_ENUM_CONVERTER(NSLineBreakMode, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NSLineBreakMode, (@{
     @"clip": @(NSLineBreakByClipping),
     @"head": @(NSLineBreakByTruncatingHead),
     @"tail": @(NSLineBreakByTruncatingTail),
@@ -284,7 +283,7 @@ HIPPY_ENUM_CONVERTER(NSLineBreakMode, (@{
 }),
 NSLineBreakByTruncatingTail, integerValue)
 
-HIPPY_ENUM_CONVERTER(NSTextAlignment, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NSTextAlignment, (@{
     @"auto": @(NSTextAlignmentNatural),
     @"left": @(NSTextAlignmentLeft),
     @"center": @(NSTextAlignmentCenter),
@@ -293,7 +292,7 @@ HIPPY_ENUM_CONVERTER(NSTextAlignment, (@{
 }),
 NSTextAlignmentNatural, integerValue)
 
-HIPPY_ENUM_CONVERTER(NSUnderlineStyle, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NSUnderlineStyle, (@{
     @"solid": @(NSUnderlineStyleSingle),
     @"double": @(NSUnderlineStyleDouble),
     @"dotted": @(NSUnderlinePatternDot | NSUnderlineStyleSingle),
@@ -301,7 +300,7 @@ HIPPY_ENUM_CONVERTER(NSUnderlineStyle, (@{
 }),
 NSUnderlineStyleSingle, integerValue)
 
-HIPPY_ENUM_CONVERTER(NativeRenderBorderStyle, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderBorderStyle, (@{
     @"solid": @(NativeRenderBorderStyleSolid),
     @"dotted": @(NativeRenderBorderStyleDotted),
     @"dashed": @(NativeRenderBorderStyleDashed),
@@ -309,7 +308,7 @@ HIPPY_ENUM_CONVERTER(NativeRenderBorderStyle, (@{
 }),
 NativeRenderBorderStyleSolid, integerValue)
 
-HIPPY_ENUM_CONVERTER(NativeRenderTextDecorationLineType, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderTextDecorationLineType, (@{
     @"none": @(NativeRenderTextDecorationLineTypeNone),
     @"underline": @(NativeRenderTextDecorationLineTypeUnderline),
     @"line-through": @(NativeRenderTextDecorationLineTypeStrikethrough),
@@ -317,14 +316,14 @@ HIPPY_ENUM_CONVERTER(NativeRenderTextDecorationLineType, (@{
 }),
 NativeRenderTextDecorationLineTypeNone, integerValue)
 
-HIPPY_ENUM_CONVERTER(NSWritingDirection, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NSWritingDirection, (@{
     @"auto": @(NSWritingDirectionNatural),
     @"ltr": @(NSWritingDirectionLeftToRight),
     @"rtl": @(NSWritingDirectionRightToLeft),
 }),
 NSWritingDirectionNatural, integerValue)
 
-HIPPY_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
     @"none": @(UITextAutocapitalizationTypeNone),
     @"words": @(UITextAutocapitalizationTypeWords),
     @"sentences": @(UITextAutocapitalizationTypeSentences),
@@ -332,7 +331,7 @@ HIPPY_ENUM_CONVERTER(UITextAutocapitalizationType, (@{
 }),
 UITextAutocapitalizationTypeSentences, integerValue)
 
-HIPPY_ENUM_CONVERTER(UITextFieldViewMode, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UITextFieldViewMode, (@{
     @"never": @(UITextFieldViewModeNever),
     @"while-editing": @(UITextFieldViewModeWhileEditing),
     @"unless-editing": @(UITextFieldViewModeUnlessEditing),
@@ -340,7 +339,7 @@ HIPPY_ENUM_CONVERTER(UITextFieldViewMode, (@{
 }),
 UITextFieldViewModeNever, integerValue)
 
-HIPPY_ENUM_CONVERTER(UIKeyboardType, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UIKeyboardType, (@{
     @"default": @(UIKeyboardTypeDefault),
     @"phone-pad": @(UIKeyboardTypePhonePad),
     @"email": @(UIKeyboardTypeEmailAddress),
@@ -360,7 +359,7 @@ HIPPY_ENUM_CONVERTER(UIKeyboardType, (@{
 }),
 UIKeyboardTypeDefault, integerValue)
 
-HIPPY_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
+NATIVE_RENDER_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
     @"phoneNumber": @(UIDataDetectorTypePhoneNumber),
     @"link": @(UIDataDetectorTypeLink),
     @"address": @(UIDataDetectorTypeAddress),
@@ -370,14 +369,14 @@ HIPPY_MULTI_ENUM_CONVERTER(UIDataDetectorTypes, (@{
 }),
 UIDataDetectorTypePhoneNumber, unsignedIntegerValue)
 
-HIPPY_ENUM_CONVERTER(UIKeyboardAppearance, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UIKeyboardAppearance, (@{
     @"default": @(UIKeyboardAppearanceDefault),
     @"light": @(UIKeyboardAppearanceLight),
     @"dark": @(UIKeyboardAppearanceDark),
 }),
 UIKeyboardAppearanceDefault, integerValue)
 
-HIPPY_ENUM_CONVERTER(UIReturnKeyType, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UIReturnKeyType, (@{
     @"default": @(UIReturnKeyDefault),
     @"go": @(UIReturnKeyGo),
     @"google": @(UIReturnKeyGoogle),
@@ -392,7 +391,7 @@ HIPPY_ENUM_CONVERTER(UIReturnKeyType, (@{
 }),
 UIReturnKeyDefault, integerValue)
 
-HIPPY_ENUM_CONVERTER(UIViewContentMode, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UIViewContentMode, (@{
     @"scale-to-fill": @(UIViewContentModeScaleToFill),
     @"scale-aspect-fit": @(UIViewContentModeScaleAspectFit),
     @"scale-aspect-fill": @(UIViewContentModeScaleAspectFill),
@@ -413,7 +412,7 @@ HIPPY_ENUM_CONVERTER(UIViewContentMode, (@{
 }),
 UIViewContentModeScaleAspectFill, integerValue)
 
-HIPPY_ENUM_CONVERTER(UIBarStyle, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UIBarStyle, (@{
     @"default": @(UIBarStyleDefault),
     @"black": @(UIBarStyleBlack),
 }),
@@ -453,45 +452,45 @@ static void NativeRenderConvertCGStructValue(__unused const char *type, NSArray 
  * This macro is used for creating converter functions for structs that consist
  * of a number of CGFloat properties, such as CGPoint, CGRect, etc.
  */
-#define HIPPY_CGSTRUCT_CONVERTER(type, values, aliases)                              \
-    +(type)type : (id)json {                                                         \
-        static NSArray *fields;                                                      \
-        static dispatch_once_t onceToken;                                            \
-        dispatch_once(&onceToken, ^{                                                 \
-            fields = values;                                                         \
-        });                                                                          \
-        type result;                                                                 \
+#define NATIVE_RENDER_CGSTRUCT_CONVERTER(type, values, aliases)                             \
+    +(type)type : (id)json {                                                                \
+        static NSArray *fields;                                                             \
+        static dispatch_once_t onceToken;                                                   \
+        dispatch_once(&onceToken, ^{                                                        \
+            fields = values;                                                                \
+        });                                                                                 \
+        type result;                                                                        \
         NativeRenderConvertCGStructValue(#type, fields, aliases, (CGFloat *)&result, json); \
-        return result;                                                               \
+        return result;                                                                      \
     }
 
-HIPPY_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json])
-HIPPY_CGSTRUCT_CONVERTER(CGPoint, (@[@"x", @"y"]), (@{ @"l": @"x", @"t": @"y" }))
-HIPPY_CGSTRUCT_CONVERTER(CGSize, (@[@"width", @"height"]), (@{ @"w": @"width", @"h": @"height" }))
-HIPPY_CGSTRUCT_CONVERTER(CGRect, (@[@"x", @"y", @"width", @"height"]), (@{ @"l": @"x", @"t": @"y", @"w": @"width", @"h": @"height" }))
-HIPPY_CGSTRUCT_CONVERTER(UIEdgeInsets, (@[@"top", @"left", @"bottom", @"right"]), nil)
-HIPPY_ENUM_CONVERTER(CGLineJoin, (@{
+NATIVE_RENDER_CUSTOM_CONVERTER(CGFloat, CGFloat, [self double:json])
+NATIVE_RENDER_CGSTRUCT_CONVERTER(CGPoint, (@[@"x", @"y"]), (@{ @"l": @"x", @"t": @"y" }))
+NATIVE_RENDER_CGSTRUCT_CONVERTER(CGSize, (@[@"width", @"height"]), (@{ @"w": @"width", @"h": @"height" }))
+NATIVE_RENDER_CGSTRUCT_CONVERTER(CGRect, (@[@"x", @"y", @"width", @"height"]), (@{ @"l": @"x", @"t": @"y", @"w": @"width", @"h": @"height" }))
+NATIVE_RENDER_CGSTRUCT_CONVERTER(UIEdgeInsets, (@[@"top", @"left", @"bottom", @"right"]), nil)
+NATIVE_RENDER_ENUM_CONVERTER(CGLineJoin, (@{
     @"miter": @(kCGLineJoinMiter),
     @"round": @(kCGLineJoinRound),
     @"bevel": @(kCGLineJoinBevel),
 }),
 kCGLineJoinMiter, intValue)
 
-HIPPY_ENUM_CONVERTER(CGLineCap, (@{
+NATIVE_RENDER_ENUM_CONVERTER(CGLineCap, (@{
     @"butt": @(kCGLineCapButt),
     @"round": @(kCGLineCapRound),
     @"square": @(kCGLineCapSquare),
     }),
 kCGLineCapButt, intValue)
 
-    // HIPPY_CGSTRUCT_CONVERTER(CATransform3D, (@[
+    // NATIVE_RENDER_CGSTRUCT_CONVERTER(CATransform3D, (@[
     //  @"m11", @"m12", @"m13", @"m14",
     //  @"m21", @"m22", @"m23", @"m24",
     //  @"m31", @"m32", @"m33", @"m34",
     //  @"m41", @"m42", @"m43", @"m44"
     //]), nil)
 
-HIPPY_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"]), nil)
+NATIVE_RENDER_CGSTRUCT_CONVERTER(CGAffineTransform, (@[@"a", @"b", @"c", @"d", @"tx", @"ty"]), nil)
 
 + (UIColor *)UIColor : (id)json {
     if (!json) {
@@ -551,29 +550,32 @@ SEL NativeRenderConvertSelectorForType(NSString *type) {
     return NSSelectorFromString([NativeRenderParseType(&input) stringByAppendingString:@":"]);
 }
 
-HIPPY_ARRAY_CONVERTER(NSURL) HIPPY_ARRAY_CONVERTER(NativeRenderFileURL) HIPPY_ARRAY_CONVERTER(UIColor)
+NATIVE_RENDER_ARRAY_CONVERTER(NSURL)
+NATIVE_RENDER_ARRAY_CONVERTER(NativeRenderFileURL)
+NATIVE_RENDER_ARRAY_CONVERTER(UIColor)
+
 /**
  * This macro is used for creating converter functions for directly
  * representable json array values that require no conversion.
  */
 #if NATIVE_RENDER_DEBUG
-#define HIPPY_JSON_ARRAY_CONVERTER(type) HIPPY_ARRAY_CONVERTER(type)
+#define NATIVE_RENDER_JSON_ARRAY_CONVERTER(type) NATIVE_RENDER_ARRAY_CONVERTER(type)
 #else
-#define HIPPY_JSON_ARRAY_CONVERTER(type) \
-    +(NSArray *)type##Array : (id)json { \
-        return json;                     \
+#define NATIVE_RENDER_JSON_ARRAY_CONVERTER(type)    \
+    +(NSArray *)type##Array : (id)json {            \
+        return json;                                \
     }
 #endif
 
-HIPPY_JSON_ARRAY_CONVERTER(NSArray)
-HIPPY_JSON_ARRAY_CONVERTER(NSString)
+NATIVE_RENDER_JSON_ARRAY_CONVERTER(NSArray)
+NATIVE_RENDER_JSON_ARRAY_CONVERTER(NSString)
 + (NSArray<NSArray<NSString *> *> *)NSStringArrayArray : (id)json {
     return NativeRenderConvertArrayValue(@selector(NSStringArray:), json);
 }
-HIPPY_JSON_ARRAY_CONVERTER(NSDictionary)
-HIPPY_JSON_ARRAY_CONVERTER(NSNumber)
+NATIVE_RENDER_JSON_ARRAY_CONVERTER(NSDictionary)
+NATIVE_RENDER_JSON_ARRAY_CONVERTER(NSNumber)
 
-// Can't use HIPPY_ARRAY_CONVERTER due to bridged cast
+// Can't use NATIVE_RENDER_ARRAY_CONVERTER due to bridged cast
 + (NSArray *)CGColorArray : (id)json {
     NSMutableArray *colors = [NSMutableArray new];
     for (id value in [self NSArray:json]) {
@@ -632,17 +634,17 @@ static id NativeRenderConvertPropertyListValue(id json) {
     return NativeRenderConvertPropertyListValue(json);
 }
 
-HIPPY_ENUM_CONVERTER(css_backface_visibility_t, (@{ @"hidden": @NO, @"visible": @YES }), YES, boolValue)
+NATIVE_RENDER_ENUM_CONVERTER(css_backface_visibility_t, (@{ @"hidden": @NO, @"visible": @YES }), YES, boolValue)
 
 // hplayout
-HIPPY_ENUM_CONVERTER(OverflowType, (@{
+NATIVE_RENDER_ENUM_CONVERTER(OverflowType, (@{
     @"hidden": @(OverflowHidden),
     @"visible": @(OverflowVisible),
     @"scroll": @(OverflowScroll),
 }),
 OverflowVisible, intValue)
 
-HIPPY_ENUM_CONVERTER(FlexDirection, (@{
+NATIVE_RENDER_ENUM_CONVERTER(FlexDirection, (@{
     @"row": @(FLexDirectionRow),
     @"row-reverse": @(FLexDirectionRowReverse),
     @"column": @(FLexDirectionColumn),
@@ -650,7 +652,7 @@ HIPPY_ENUM_CONVERTER(FlexDirection, (@{
 }),
 FLexDirectionColumn, intValue)
 
-HIPPY_ENUM_CONVERTER(FlexAlign, (@{
+NATIVE_RENDER_ENUM_CONVERTER(FlexAlign, (@{
     @"auto": @(FlexAlignAuto),
     @"flex-start": @(FlexAlignStart),
     @"flex-end": @(FlexAlignEnd),
@@ -663,14 +665,14 @@ HIPPY_ENUM_CONVERTER(FlexAlign, (@{
 }),
 FlexAlignAuto, intValue)
 
-HIPPY_ENUM_CONVERTER(PositionType, (@{ @"absolute": @(PositionTypeAbsolute), @"relative": @(PositionTypeRelative) }), PositionTypeRelative, intValue)
+NATIVE_RENDER_ENUM_CONVERTER(PositionType, (@{ @"absolute": @(PositionTypeAbsolute), @"relative": @(PositionTypeRelative) }), PositionTypeRelative, intValue)
 
-HIPPY_ENUM_CONVERTER(FlexWrapMode, (@{ @"wrap": @(FlexWrap), @"nowrap": @(FlexNoWrap), @"wrap-reverse": @(FlexWrapReverse) }), FlexNoWrap, intValue)
+NATIVE_RENDER_ENUM_CONVERTER(FlexWrapMode, (@{ @"wrap": @(FlexWrap), @"nowrap": @(FlexNoWrap), @"wrap-reverse": @(FlexWrapReverse) }), FlexNoWrap, intValue)
 
-HIPPY_ENUM_CONVERTER(
+NATIVE_RENDER_ENUM_CONVERTER(
     DisplayType, (@{ @"flex": @(DisplayTypeFlex), @"block": @(DisplayTypeFlex), @"none": @(DisplayTypeNone) }), DisplayTypeFlex, intValue)
 
-HIPPY_ENUM_CONVERTER(NativeRenderPointerEvents, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderPointerEvents, (@{
     @"none": @(NativeRenderPointerEventsNone),
     @"box-only": @(NativeRenderPointerEventsBoxOnly),
     @"box-none": @(NativeRenderPointerEventsBoxNone),
@@ -678,7 +680,7 @@ HIPPY_ENUM_CONVERTER(NativeRenderPointerEvents, (@{
 }),
 NativeRenderPointerEventsUnspecified, integerValue)
 
-HIPPY_ENUM_CONVERTER(NativeRenderAnimationType, (@{
+NATIVE_RENDER_ENUM_CONVERTER(NativeRenderAnimationType, (@{
     @"spring": @(NativeRenderAnimationTypeSpring),
     @"linear": @(NativeRenderAnimationTypeLinear),
     @"easeIn": @(NativeRenderAnimationTypeEaseIn),

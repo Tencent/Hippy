@@ -47,15 +47,15 @@ typedef void (^NativeRenderRenderUIBlock)(id<NativeRenderContext> renderContext,
 
 - (__kindof NativeRenderViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
-- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag;
+- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
 
 - (__kindof UIView *)createViewRecursivelyFromRenderObject:(NativeRenderObjectView *)renderObject;
 
-- (void)purgeViewsFromHippyTags:(NSArray<NSNumber *> *)hippyTag onRootTag:(NSNumber *)rootTag;
+- (void)purgeViewsFromComponentTags:(NSArray<NSNumber *> *)componentTag onRootTag:(NSNumber *)rootTag;
 
 - (void)addUIBlock:(NativeRenderRenderUIBlock)block;
 
-- (void)updateView:(NSNumber *)hippyTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
+- (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
 
 - (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
 

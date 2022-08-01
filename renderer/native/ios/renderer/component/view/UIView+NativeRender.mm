@@ -24,15 +24,16 @@
 #import <objc/runtime.h>
 #import "NativeRenderObjectView.h"
 #import "UIView+MountEvent.h"
+#import "NativeRenderLog.h"
 
 @implementation UIView (NativeRender)
 
-- (NSNumber *)hippyTag {
+- (NSNumber *)componentTag {
     return objc_getAssociatedObject(self, _cmd);
 }
 
-- (void)setHippyTag:(NSNumber *)hippyTag {
-    objc_setAssociatedObject(self, @selector(hippyTag), hippyTag, OBJC_ASSOCIATION_COPY_NONATOMIC);
+- (void)setComponentTag:(NSNumber *)tag {
+    objc_setAssociatedObject(self, @selector(componentTag), tag, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 - (NSNumber *)rootTag {
@@ -88,36 +89,36 @@
     objc_setAssociatedObject(self, @selector(nativeRenderObjectView), hashTable, OBJC_ASSOCIATION_RETAIN);
 }
 
-- (BOOL)isHippyRootView {
-    return NativeRenderIsHippyRootView(self.hippyTag);
+- (BOOL)isNativeRenderRootView {
+    return NativeRenderIsRootView(self.componentTag);
 }
 
-- (NSNumber *)hippyTagAtPoint:(CGPoint)point {
+- (NSNumber *)componentTagAtPoint:(CGPoint)point {
     UIView *view = [self hitTest:point withEvent:nil];
-    while (view && !view.hippyTag) {
+    while (view && !view.componentTag) {
         view = view.superview;
     }
-    return view.hippyTag;
+    return view.componentTag;
 }
 
-- (NSArray<UIView *> *)hippySubviews {
+- (NSArray<UIView *> *)nativeRenderSubviews {
     return objc_getAssociatedObject(self, _cmd);
 }
 
-- (UIView *)hippySuperview {
+- (UIView *)nativeRenderSuperview {
     return self.superview;
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     // We access the associated object directly here in case someone overrides
-    // the `hippySubviews` getter method and returns an immutable array.
+    // the `nativeRenderSubviews` getter method and returns an immutable array.
     if (nil == subview) {
         return;
     }
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(nativeRenderSubviews));
     if (!subviews) {
         subviews = [NSMutableArray new];
-        objc_setAssociatedObject(self, @selector(hippySubviews), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(nativeRenderSubviews), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
     if (atIndex <= [subviews count]) {
@@ -128,21 +129,21 @@
     }
 }
 
-- (void)removeHippySubview:(UIView *)subview {
+- (void)removeNativeRenderSubview:(UIView *)subview {
     // We access the associated object directly here in case someone overrides
-    // the `hippySubviews` getter method and returns an immutable array.
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
+    // the `nativeRenderSubviews` getter method and returns an immutable array.
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(nativeRenderSubviews));
     [subviews removeObject:subview];
     [subview sendDetachedFromWindowEvent];
     [subview removeFromSuperview];
 }
 
-- (void)removeFromHippySuperview {
-    [self.hippySuperview removeHippySubview:self];
+- (void)removeFromNativeRenderSuperview {
+    [self.nativeRenderSuperview removeNativeRenderSubview:self];
 }
 
-- (void)resetHippySubviews {
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(hippySubviews));
+- (void)resetNativeRenderSubviews {
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(nativeRenderSubviews));
     if (subviews) {
         [subviews makeObjectsPerformSelector:@selector(sendDetachedFromWindowEvent)];
         [subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
@@ -151,63 +152,63 @@
     [self clearSortedSubviews];
 }
 
-- (UIView *)hippyRootView {
+- (UIView *)NativeRenderRootView {
     UIView *candidateRootView = self;
-    BOOL isHippyRootView = [candidateRootView isHippyRootView];
-    while (!isHippyRootView && !candidateRootView) {
+    BOOL isRootView = [candidateRootView isNativeRenderRootView];
+    while (!isRootView && !candidateRootView) {
         candidateRootView = [candidateRootView superview];
-        isHippyRootView = [candidateRootView isHippyRootView];
+        isRootView = [candidateRootView isNativeRenderRootView];
     }
     return candidateRootView;
 }
 
-- (NSInteger)hippyZIndex {
+- (NSInteger)nativeRenderZIndex {
     return [objc_getAssociatedObject(self, _cmd) integerValue];
 }
 
-- (void)setHippyZIndex:(NSInteger)hippyZIndex {
-    objc_setAssociatedObject(self, @selector(hippyZIndex), @(hippyZIndex), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setNativeRenderZIndex:(NSInteger)zIndex {
+    objc_setAssociatedObject(self, @selector(nativeRenderZIndex), @(zIndex), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (BOOL)isHippySubviewsUpdated {
+- (BOOL)isNativeRenderSubviewsUpdated {
     return [objc_getAssociatedObject(self, _cmd) integerValue];
 }
 
-- (void)setHippySubviewsUpdated:(BOOL)hippySubViewsUpdated {
-    objc_setAssociatedObject(self, @selector(isHippySubviewsUpdated), @(hippySubViewsUpdated), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setNativeRenderSubviewsUpdated:(BOOL)subViewsUpdated {
+    objc_setAssociatedObject(self, @selector(isNativeRenderSubviewsUpdated), @(subViewsUpdated), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSArray<UIView *> *)sortedHippySubviews {
+- (NSArray<UIView *> *)sortedNativeRenderSubviews {
     NSArray *subviews = objc_getAssociatedObject(self, _cmd);
     if (!subviews) {
         // Check if sorting is required - in most cases it won't be
         BOOL sortingRequired = NO;
-        for (UIView *subview in self.hippySubviews) {
-            if (subview.hippyZIndex != 0) {
+        for (UIView *subview in self.nativeRenderSubviews) {
+            if (subview.nativeRenderZIndex != 0) {
                 sortingRequired = YES;
                 break;
             }
         }
-        subviews = sortingRequired ? [self.hippySubviews sortedArrayUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
-            if (a.hippyZIndex > b.hippyZIndex) {
+        subviews = sortingRequired ? [self.nativeRenderSubviews sortedArrayUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
+            if (a.nativeRenderZIndex > b.nativeRenderZIndex) {
                 return NSOrderedDescending;
             } else {
                 // ensure sorting is stable by treating equal zIndex as ascending so
                 // that original order is preserved
                 return NSOrderedAscending;
             }
-        }] : self.hippySubviews;
+        }] : self.nativeRenderSubviews;
         objc_setAssociatedObject(self, _cmd, subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return subviews;
 }
 
 - (void)clearSortedSubviews {
-    objc_setAssociatedObject(self, @selector(sortedHippySubviews), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @selector(sortedNativeRenderSubviews), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void)didUpdateHippySubviews {
-    for (UIView *subview in self.sortedHippySubviews) {
+- (void)didUpdateNativeRenderSubviews {
+    for (UIView *subview in self.sortedNativeRenderSubviews) {
         if (subview.superview != self) {
             [subview sendAttachedToWindowEvent];
         }
@@ -216,7 +217,7 @@
     }
 }
 
-- (void)hippySetFrame:(CGRect)frame {
+- (void)nativeRenderSetFrame:(CGRect)frame {
     // These frames are in terms of anchorPoint = topLeft, but internally the
     // views are anchorPoint = center for easier scale and rotation animations.
     // Convert the frame so it works with anchorPoint = center.
@@ -226,8 +227,8 @@
     // Avoid crashes due to nan coords
     if (isnan(position.x) || isnan(position.y) || isnan(bounds.origin.x) || isnan(bounds.origin.y) || isnan(bounds.size.width)
         || isnan(bounds.size.height)) {
-        //NativeRenderLogError(
-//            @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.hippyTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
+        NativeRenderLogError(
+            @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.componentTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
         return;
     }
 
@@ -237,11 +238,11 @@
     self.frame = frame;
 }
 
-- (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
+- (void)nativeRenderSetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
     // Does nothing by default
 }
 
-- (UIViewController *)hippyViewController {
+- (UIViewController *)nativeRenderViewController {
     id responder = [self nextResponder];
     while (responder) {
         if ([responder isKindOfClass:[UIViewController class]]) {
@@ -256,16 +257,16 @@
     return YES;
 }
 
-- (void)hippyAddControllerToClosestParent:(UIViewController *)controller {
+- (void)NativeRenderAddControllerToClosestParent:(UIViewController *)controller {
     if (!controller.parentViewController) {
-        UIView *parentView = (UIView *)self.hippySuperview;
+        UIView *parentView = (UIView *)self.nativeRenderSuperview;
         while (parentView) {
-            if (parentView.hippyViewController) {
-                [parentView.hippyViewController addChildViewController:controller];
-                [controller didMoveToParentViewController:parentView.hippyViewController];
+            if (parentView.nativeRenderViewController) {
+                [parentView.nativeRenderViewController addChildViewController:controller];
+                [controller didMoveToParentViewController:parentView.nativeRenderViewController];
                 break;
             }
-            parentView = (UIView *)parentView.hippySuperview;
+            parentView = (UIView *)parentView.nativeRenderSuperview;
         }
         return;
     }

@@ -65,16 +65,16 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotificatio
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 
 /**
- * Gets the view associated with a hippyTag.
+ * Gets the view associated with a componentTag.
  */
-- (UIView *)viewForHippyTag:(NSNumber *)hippyTag
+- (UIView *)viewForComponentTag:(NSNumber *)componentTag
                   onRootTag:(NSNumber *)rootTag;
 
 
 /**
- * Get the shadow view associated with a hippyTag
+ * Get the shadow view associated with a componentTag
  */
-- (NativeRenderObjectView *)renderObjectForHippyTag:(NSNumber *)hippyTag
+- (NativeRenderObjectView *)renderObjectForcomponentTag:(NSNumber *)componentTag
                                           onRootTag:(NSNumber *)rootTag;
 
 /**
@@ -98,10 +98,10 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotificatio
 /**
  * Manully create views recursively from hippy tag
  *
- * @param hippyTag hippy tag corresponding to UIView
+ * @param componentTag hippy tag corresponding to UIView
  * @return view created by hippy tag
  */
-- (UIView *)createViewRecursivelyFromHippyTag:(NSNumber *)hippyTag
+- (UIView *)createViewRecursivelyFromcomponentTag:(NSNumber *)componentTag
                                     onRootTag:(NSNumber *)rootTag;
 
 /**
@@ -168,7 +168,7 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotificatio
  *
  * @param functionName Function Name to be invoked
  * @param viewName Name of target view whose function invokes
- * @param hippyTag id of target view whose function invokes
+ * @param componentTag id of target view whose function invokes
  * @param params parameters of function to be invoked
  * @param cb A callback for the return value of function
  *
@@ -176,7 +176,7 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotificatio
  */
 - (id)dispatchFunction:(const std::string &)functionName
               viewName:(const std::string &)viewName
-               viewTag:(int32_t)hippyTag
+               viewTag:(int32_t)componentTag
             onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode
                 params:(const footstone::value::HippyValue &)params
               callback:(hippy::CallFunctionCallback)cb;

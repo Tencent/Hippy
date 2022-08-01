@@ -21,10 +21,7 @@
  */
 
 #import "NativeRenderComponentData.h"
-
 #import <objc/message.h>
-
-#import "HippyBridge.h"
 #import "NativeRenderConvert.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderUtils.h"
@@ -76,21 +73,13 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         _manager = viewManager;
         _viewPropBlocks = [NSMutableDictionary new];
         _renderObjectPropBlocks = [NSMutableDictionary new];
-        // Hackety hack, this partially re-implements HippyBridgeModuleNameForClass
-        // We want to get rid of NativeRender and RK prefixes, but a lot of JS code still references
-        // view names by prefix. So, while HippyBridgeModuleNameForClass now drops these
-        // prefixes by default, we'll still keep them around here.
         NSString *name = viewName;
         if (name.length == 0) {
             name = NSStringFromClass(_managerClass);
         }
-        if ([name hasPrefix:@"RK"]) {
-            name = [name stringByReplacingCharactersInRange:(NSRange) { 0, @"RK".length } withString:@"NativeRender"];
-        }
         if ([name hasSuffix:@"Manager"]) {
             name = [name substringToIndex:name.length - @"Manager".length];
         }
-
         NSAssert(name.length, @"Invalid moduleName '%@'", name);
         _name = name;
 
@@ -99,7 +88,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         while (cls != [NativeRenderViewManager class]) {
             _implementsUIBlockToAmendWithRenderObjectRegistry
                 = _implementsUIBlockToAmendWithRenderObjectRegistry
-                  || NativeRenderClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistryuiBlockToAmendWithRenderObjectRegistry:));
+                  || NativeRenderClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistry:));
             cls = [cls superclass];
         }
     }
@@ -109,7 +98,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 - (UIView *)createViewWithTag:(NSNumber *)tag {
     NSAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread");
     UIView *view = [self.manager view];
-    view.hippyTag = tag;
+    view.componentTag = tag;
     view.multipleTouchEnabled = YES;
     view.userInteractionEnabled = YES;    // required for touch handling
     view.layer.allowsGroupOpacity = YES;  // required for touch handling
@@ -120,7 +109,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
     NSAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread");
     self.manager.props = props;
     UIView *view = [self.manager view];
-    view.hippyTag = tag;
+    view.componentTag = tag;
     view.rootTag = props[@"rootTag"];
     view.multipleTouchEnabled = YES;
     view.userInteractionEnabled = YES;    // required for touch handling
@@ -130,7 +119,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 
 - (NativeRenderObjectView *)createRenderObjectViewWithTag:(NSNumber *)tag {
     NativeRenderObjectView *renderObject = [self.manager nativeRenderObjectView];
-    renderObject.hippyTag = tag;
+    renderObject.componentTag = tag;
     renderObject.viewName = _name;
     return renderObject;
 }
@@ -215,50 +204,50 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                     };
                 }
                 switch (typeSignature.methodReturnType[0]) {
-#define HIPPY_CASE(_value, _type)                                               \
-    case _value: {                                                              \
-        __block BOOL setDefaultValue = NO;                                      \
-        __block _type defaultValue;                                             \
-        _type (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;        \
-        _type (*get)(id, SEL) = (__typeof(get))objc_msgSend;                    \
-        void (*set)(id, SEL, _type) = (__typeof(set))objc_msgSend;              \
-        setterBlock = ^(id target, id json) {                                   \
-            if (json) {                                                         \
-                if (!setDefaultValue && target) {                               \
-                    if ([target respondsToSelector:getter]) {                   \
-                        defaultValue = get(target, getter);                     \
-                    }                                                           \
-                    setDefaultValue = YES;                                      \
-                }                                                               \
-                if ([target respondsToSelector:setter]) {                       \
-                    set(target, setter, convert([NativeRenderConvert class], type, json)); \
-                }                                                               \
-            } else if (setDefaultValue) {                                       \
-                if ([target respondsToSelector:setter]) {                       \
-                    set(target, setter, defaultValue);                          \
-                }                                                               \
-            }                                                                   \
-        };                                                                      \
-        break;                                                                  \
+#define NATIVE_RENDER_CASE(_value, _type)                                                   \
+    case _value: {                                                                          \
+        __block BOOL setDefaultValue = NO;                                                  \
+        __block _type defaultValue;                                                         \
+        _type (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;                    \
+        _type (*get)(id, SEL) = (__typeof(get))objc_msgSend;                                \
+        void (*set)(id, SEL, _type) = (__typeof(set))objc_msgSend;                          \
+        setterBlock = ^(id target, id json) {                                               \
+            if (json) {                                                                     \
+                if (!setDefaultValue && target) {                                           \
+                    if ([target respondsToSelector:getter]) {                               \
+                        defaultValue = get(target, getter);                                 \
+                    }                                                                       \
+                    setDefaultValue = YES;                                                  \
+                }                                                                           \
+                if ([target respondsToSelector:setter]) {                                   \
+                    set(target, setter, convert([NativeRenderConvert class], type, json));  \
+                }                                                                           \
+            } else if (setDefaultValue) {                                                   \
+                if ([target respondsToSelector:setter]) {                                   \
+                    set(target, setter, defaultValue);                                      \
+                }                                                                           \
+            }                                                                               \
+        };                                                                                  \
+        break;                                                                              \
     }
 
-                    HIPPY_CASE(_C_SEL, SEL)
-                    HIPPY_CASE(_C_CHARPTR, const char *)
-                    HIPPY_CASE(_C_CHR, char)
-                    HIPPY_CASE(_C_UCHR, unsigned char)
-                    HIPPY_CASE(_C_SHT, short)
-                    HIPPY_CASE(_C_USHT, unsigned short)
-                    HIPPY_CASE(_C_INT, int)
-                    HIPPY_CASE(_C_UINT, unsigned int)
-                    HIPPY_CASE(_C_LNG, long)
-                    HIPPY_CASE(_C_ULNG, unsigned long)
-                    HIPPY_CASE(_C_LNG_LNG, long long)
-                    HIPPY_CASE(_C_ULNG_LNG, unsigned long long)
-                    HIPPY_CASE(_C_FLT, float)
-                    HIPPY_CASE(_C_DBL, double)
-                    HIPPY_CASE(_C_BOOL, BOOL)
-                    HIPPY_CASE(_C_PTR, void *)
-                    HIPPY_CASE(_C_ID, id)
+                    NATIVE_RENDER_CASE(_C_SEL, SEL)
+                    NATIVE_RENDER_CASE(_C_CHARPTR, const char *)
+                    NATIVE_RENDER_CASE(_C_CHR, char)
+                    NATIVE_RENDER_CASE(_C_UCHR, unsigned char)
+                    NATIVE_RENDER_CASE(_C_SHT, short)
+                    NATIVE_RENDER_CASE(_C_USHT, unsigned short)
+                    NATIVE_RENDER_CASE(_C_INT, int)
+                    NATIVE_RENDER_CASE(_C_UINT, unsigned int)
+                    NATIVE_RENDER_CASE(_C_LNG, long)
+                    NATIVE_RENDER_CASE(_C_ULNG, unsigned long)
+                    NATIVE_RENDER_CASE(_C_LNG_LNG, long long)
+                    NATIVE_RENDER_CASE(_C_ULNG_LNG, unsigned long long)
+                    NATIVE_RENDER_CASE(_C_FLT, float)
+                    NATIVE_RENDER_CASE(_C_DBL, double)
+                    NATIVE_RENDER_CASE(_C_BOOL, BOOL)
+                    NATIVE_RENDER_CASE(_C_PTR, void *)
+                    NATIVE_RENDER_CASE(_C_ID, id)
 
                     case _C_STRUCT_B:
                     default: {
@@ -343,7 +332,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
             NativeRenderPropBlock unwrappedBlock = propBlock;
             propBlock = ^(id<NativeRenderComponentProtocol> view, id json) {
                 NSString *logPrefix =
-                    [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.hippyTag];
+                    [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.componentTag];
 
                 NativeRenderPerformBlockWithLogPrefix(
                     ^{
@@ -487,7 +476,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (NSString *)selectorStringFromSignature:(NSString *)signature {
-//    signature = @"createView:(nonnull NSNumber *)hippyTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
+//    signature = @"createView:(nonnull NSNumber *)componentTag viewName:(NSString *)viewName rootTag:(nonnull NSNumber *)rootTag tagName:(NSString *)tagName props:(NSDictionary *)props";
 //    signature = @"startBatch";
 //    signature = @"endBatch:";
 //    signature = @"startBatch:::";

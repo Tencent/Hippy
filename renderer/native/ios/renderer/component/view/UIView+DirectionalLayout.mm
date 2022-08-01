@@ -54,7 +54,7 @@
 - (void)checkLayoutDirection:(NSMutableSet<UIView *> *)viewsSet direction:(HPDirection *)direction{
     if (DirectionInherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        [[self hippySuperview] checkLayoutDirection:viewsSet direction:direction];
+        [[self nativeRenderSuperview] checkLayoutDirection:viewsSet direction:direction];
     }
     else if (direction) {
         *direction = self.confirmedLayoutDirection;
@@ -64,7 +64,7 @@
 - (void)superviewLayoutDirectionChangedTo:(HPDirection)direction {
     if (DirectionInherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
-        for (UIView *subview in self.hippySubviews) {
+        for (UIView *subview in self.nativeRenderSubviews) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }

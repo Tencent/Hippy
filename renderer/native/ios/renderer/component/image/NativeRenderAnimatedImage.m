@@ -33,7 +33,7 @@
 
 // This is how the fastest browsers do it as per 2012:
 // http://nullsleep.tumblr.com/post/16524517190/animated-gif-minimum-frame-delay-browser-compatibility
-const NSTimeInterval kHippyAnimatedImageDelayTimeIntervalMinimum = 0.02;
+const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum = 0.02;
 
 // An animated image's data size (dimensions * frameCount) category; its value is the max allowed memory (in MB).
 // E.g.: A 100x200px GIF with 30 frames is ~2.3MB in our pixel format and would fall into the `NativeRenderAnimatedImageDataSizeCategoryAll` category.
@@ -235,12 +235,12 @@ static NSHashTable *allAnimatedImagesWeak;
                         delayTimeAtFrame = [imageProvider delayTimeAtFrame:i];
                     }
 
-                    // Support frame delays as low as `kHippyAnimatedImageDelayTimeIntervalMinimum`, with anything below being rounded up to
+                    // Support frame delays as low as `kAnimatedImageDelayTimeIntervalMinimum`, with anything below being rounded up to
                     // `kDelayTimeIntervalDefault` for legacy compatibility. To support the minimum even when rounding errors occur, use an epsilon
                     // when comparing. We downcast to float because that's what we get for delayTime from ImageIO.
-                    if (delayTimeAtFrame < ((float)kHippyAnimatedImageDelayTimeIntervalMinimum - FLT_EPSILON)) {
+                    if (delayTimeAtFrame < ((float)kAnimatedImageDelayTimeIntervalMinimum - FLT_EPSILON)) {
                         RAILog(RAILogLevelInfo, @"Rounding frame %zu's `delayTime` from %f up to default %f (minimum supported: %f).", i,
-                            [delayTime floatValue], kDelayTimeIntervalDefault, kHippyAnimatedImageDelayTimeIntervalMinimum);
+                            [delayTime floatValue], kDelayTimeIntervalDefault, kAnimatedImageDelayTimeIntervalMinimum);
                         delayTimeAtFrame = kDelayTimeIntervalDefault;
                     }
                     delayTimesForIndexesMutable[@(i)] = @(delayTimeAtFrame);
@@ -412,12 +412,12 @@ static NSHashTable *allAnimatedImagesWeak;
                                 delayTime = delayTimesForIndexesMutable[@(i - 1)];
                             }
                         }
-                        // Support frame delays as low as `kHippyAnimatedImageDelayTimeIntervalMinimum`, with anything below being rounded up to
+                        // Support frame delays as low as `kAnimatedImageDelayTimeIntervalMinimum`, with anything below being rounded up to
                         // `kDelayTimeIntervalDefault` for legacy compatibility. To support the minimum even when rounding errors occur, use an
                         // epsilon when comparing. We downcast to float because that's what we get for delayTime from ImageIO.
-                        if ([delayTime floatValue] < ((float)kHippyAnimatedImageDelayTimeIntervalMinimum - FLT_EPSILON)) {
+                        if ([delayTime floatValue] < ((float)kAnimatedImageDelayTimeIntervalMinimum - FLT_EPSILON)) {
                             RAILog(RAILogLevelInfo, @"Rounding frame %zu's `delayTime` from %f up to default %f (minimum supported: %f).", i,
-                                [delayTime floatValue], kDelayTimeIntervalDefault, kHippyAnimatedImageDelayTimeIntervalMinimum);
+                                [delayTime floatValue], kDelayTimeIntervalDefault, kAnimatedImageDelayTimeIntervalMinimum);
                             delayTime = @(kDelayTimeIntervalDefault);
                         }
                         delayTimesForIndexesMutable[@(i)] = delayTime;

@@ -26,7 +26,7 @@
 
 @implementation NativeRenderConvert (UIScrollView)
 
-HIPPY_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
     @"none": @(UIScrollViewKeyboardDismissModeNone),
     @"on-drag": @(UIScrollViewKeyboardDismissModeOnDrag),
     @"interactive": @(UIScrollViewKeyboardDismissModeInteractive),
@@ -35,7 +35,7 @@ HIPPY_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
 }),
     UIScrollViewKeyboardDismissModeNone, integerValue)
 
-HIPPY_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
+NATIVE_RENDER_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
     @"default": @(UIScrollViewIndicatorStyleDefault),
     @"black": @(UIScrollViewIndicatorStyleBlack),
     @"white": @(UIScrollViewIndicatorStyleWhite),
@@ -95,10 +95,10 @@ NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRender
 }
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
-        NativeRenderScrollView *view = viewRegistry[hippyTag];
+        NativeRenderScrollView *view = viewRegistry[componentTag];
         CGSize size = view.scrollView.contentSize;
         callback(@{@"width" : @(size.width),@"height" : @(size.height)});
     }];
@@ -106,30 +106,30 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)hippyTa
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
                     offsetX:(NSNumber *)x
                     offsetY:(NSNumber *)y
                     animated:(NSNumber *)animated) {
     [self.renderContext addUIBlock:
      ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[hippyTag];
+        UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
             [(id<NativeRenderScrollableProtocol>)view scrollToOffset:(CGPoint){[x floatValue], [y floatValue]} animated:[animated boolValue]];
         } else {
-//            NativeRenderLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
-//                          "with tag #%@", view, hippyTag);
+            NativeRenderLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
+                          "with tag #%@", view, componentTag);
         }
     }];
 }
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
                     options:(NSDictionary *)options) {
     [self.renderContext addUIBlock:
      ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-        UIView *view = viewRegistry[hippyTag];
+        UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
             CGFloat duration = 1.0;
@@ -148,8 +148,8 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hi
                 ((NativeRenderScrollView *)view).scrollView.contentOffset = CGPointMake(x, y);
             }];
         } else {
-//            NativeRenderLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
-//                          "with tag #%@", view, hippyTag);
+            NativeRenderLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
+                          "with tag #%@", view, componentTag);
         }
     }];
 }

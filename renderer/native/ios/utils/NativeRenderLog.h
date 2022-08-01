@@ -23,11 +23,11 @@
 #import <Foundation/Foundation.h>
 #import "NativeRenderDefines.h"
 
-#ifndef HIPPYLOG_ENABLED
+#ifndef NATIVE_RENDER_LOG_ENABLED
 #ifdef DEBUG
-#define HIPPYLOG_ENABLED 1
+#define NATIVE_RENDER_LOG_ENABLED 1
 #else
-#define HIPPYLOG_ENABLED 0
+#define NATIVE_RENDER_LOG_ENABLED 0
 #endif
 #endif
 
@@ -114,7 +114,7 @@ NATIVE_RENDER_EXTERN void NativeRenderPerformBlockWithLogPrefix(void (^block)(vo
 /**
  * Private logging function - ignore this.
  */
-#if HIPPYLOG_ENABLED
+#if NATIVE_RENDER_LOG_ENABLED
 #define _NativeRenderLog(lvl, ...) NativeRenderLogNativeInternal(lvl, __FILE__, __LINE__, __VA_ARGS__);
 #else
 #define _NativeRenderLog(lvl, ...) \

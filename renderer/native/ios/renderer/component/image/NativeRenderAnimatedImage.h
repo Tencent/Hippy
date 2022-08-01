@@ -32,7 +32,7 @@
 #endif
 #endif
 
-extern const NSTimeInterval kHippyAnimatedImageDelayTimeIntervalMinimum;
+extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 
 //
 //  An `NativeRenderAnimatedImage`'s job is to deliver frames in a highly performant way and works in conjunction with `NativeRenderAnimatedImageView`.

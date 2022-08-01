@@ -31,51 +31,51 @@
 /**
  * NativeRenderComponent interface.
  */
-- (NSArray<UIView *> *)hippySubviews;
-- (UIView *)hippySuperview;
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex;
-- (void)removeHippySubview:(UIView *)subview;
-- (void)resetHippySubviews;
+- (NSArray<UIView *> *)nativeRenderSubviews;
+- (UIView *)nativeRenderSuperview;
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex;
+- (void)removeNativeRenderSubview:(UIView *)subview;
+- (void)resetNativeRenderSubviews;
 - (void)clearSortedSubviews;
-- (UIView *)hippyRootView;
+- (UIView *)NativeRenderRootView;
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews.
  */
-@property (nonatomic, assign) NSInteger hippyZIndex;
+@property (nonatomic, assign) NSInteger nativeRenderZIndex;
 
 /**
  * set true when hippy subviews changed, but subviews does not.
  * set false after subviews does.
  */
-@property (nonatomic, assign, getter=isHippySubviewsUpdated) BOOL hippySubviewsUpdated;
+@property (nonatomic, assign, getter=isNativeRenderSubviewsUpdated) BOOL nativeRenderSubviewsUpdated;
 
 /**
  * The hippySubviews array, sorted by zIndex. This value is cached and
  * automatically recalculated if views are added or removed.
  */
-@property (nonatomic, copy, readonly) NSArray<UIView *> *sortedHippySubviews;
+@property (nonatomic, copy, readonly) NSArray<UIView *> *sortedNativeRenderSubviews;
 
 /**
  * Updates the subviews array based on the hippySubviews. Default behavior is
  * to insert the sortedHippySubviews into the UIView.
  */
-- (void)didUpdateHippySubviews;
+- (void)didUpdateNativeRenderSubviews;
 
 /**
  * Used by the UIIManager to set the view frame.
  * May be overriden to disable animation, etc.
  */
-- (void)hippySetFrame:(CGRect)frame;
+- (void)nativeRenderSetFrame:(CGRect)frame;
 
 /**
  * Used to improve performance when compositing views with translucent content.
  */
-- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor;
+- (void)nativeRenderSetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor;
 
 /**
  * This method finds and returns the containing view controller for the view.
  */
-- (UIViewController *)hippyViewController;
+- (UIViewController *)nativeRenderViewController;
 
 /**
  * CellView is reusable.
@@ -91,7 +91,7 @@
  * controller is found (which may happen if the view is not currently
  * attached to the view hierarchy).
  */
-- (void)hippyAddControllerToClosestParent:(UIViewController *)controller;
+- (void)NativeRenderAddControllerToClosestParent:(UIViewController *)controller;
 
 @property (nonatomic, weak) __kindof NativeRenderObjectView *nativeRenderObjectView;
 

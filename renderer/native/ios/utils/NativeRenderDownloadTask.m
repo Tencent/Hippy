@@ -27,12 +27,12 @@ typedef void(^CompletionBlock)(NSData *, NSURL *, NSError *);
 
 static NSOperationQueue *DataLoaderQueue(void) {
     static dispatch_once_t onceToken;
-    static NSOperationQueue *_hippy_data_queue = nil;
+    static NSOperationQueue *_render_data_queue = nil;
     dispatch_once(&onceToken, ^{
-        _hippy_data_queue = [[NSOperationQueue alloc] init];
-        _hippy_data_queue.maxConcurrentOperationCount = 8;
+        _render_data_queue = [[NSOperationQueue alloc] init];
+        _render_data_queue.maxConcurrentOperationCount = 8;
     });
-    return _hippy_data_queue;
+    return _render_data_queue;
 }
 
 @interface NativeRenderDownloadTask ()<NSURLSessionDataDelegate> {
