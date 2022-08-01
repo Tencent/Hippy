@@ -1,73 +1,43 @@
-/*
- * Tencent is pleased to support the open source community by making
- * Hippy available.
- *
- * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
- * All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+/* eslint-disable-next-line import/no-extraneous-dependencies */
 const babel = require('@babel/core');
 
 /**
- * Babel configuration
+ * Babel configuration for iOS compiling
  */
-const babelConfig = {
-  flutter: {
-    comments: false,
-    compact: false,
-  },
-  android: {
-    comments: false,
-    compact: false,
-  },
-  ios: {
-    presets: [
-      [
-        '@babel/env',
-        {
-          targets: {
-            safari: '8',
-          },
+const iOSBabelConfig = {
+  presets: [
+    [
+      '@babel/env',
+      {
+        targets: {
+          safari: '8',
         },
-      ],
+      },
     ],
-    comments: false,
-    compact: false,
-  },
+  ],
 };
 
 /**
  * Code header and content
  */
 const CodePieces = {
-  header() {
+  header(platform) {
     return `/*
+ *
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.
+ * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -139,7 +109,7 @@ namespace hippy {
 };
 
 /**
- * Initial the code git st buffer header and footer.
+ * Initial the codegit st buffer header and footer.
  */
 const wrapperBeginBuffer = Buffer.from('(function(exports, require, internalBinding) {');
 const wraperBeginByteArr = [];
@@ -178,8 +148,7 @@ function getAllRequiredFiles(platform) {
     ];
 
     rl.on('line', (line) => {
-      const lineSlice = line.split('//')[0];
-      if (lineSlice.indexOf('require(\'') > -1 || lineSlice.indexOf('require("') > -1) {
+      if (line.split('//')[0].indexOf('require') > -1) {
         const entry = line.split('(\'')[1].split('\')')[0];
         filePaths.push(getAbsolutePath(`../core/js/entry/${platform}/${entry}`));
       }
@@ -198,12 +167,16 @@ function getAllRequiredFiles(platform) {
  */
 function readFileToBuffer(platform, filePath) {
   switch (platform) {
-    case 'flutter':
-    case 'android':
+    case 'android': {
+      return fs.readFileSync(filePath);
+    }
     case 'ios': {
       const code = fs.readFileSync(filePath).toString();
-      const compiled = babel.transform(code, babelConfig[platform]);
+      const compiled = babel.transform(code, iOSBabelConfig);
       return Buffer.from(compiled.code);
+    }
+    case 'flutter': {
+      return fs.readFileSync(filePath);
     }
     default:
       return null;
