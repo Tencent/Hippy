@@ -51,6 +51,16 @@ using voltron::JSBridgeRuntime;
 using voltron::Sp;
 using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
+using footstone::WorkerManager;
+
+using WorkManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<WorkerManager>>;
+
+static WorkManagerMap worker_manager_map;
+static std::atomic<uint32_t> global_worker_manager_key{1};
+
+constexpr uint32_t kDefaultNumberOfThreads = 2;
+constexpr char kDomRunnerName[] = "hippy_dom";
+
 
 EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height,
                                 const char* params, int32_t params_length) {
@@ -108,8 +118,12 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
   BridgeManager::Create(engine_id, ffi_runtime);
 
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map.Find(work_manager_id, worker_manager);
+  FOOTSTONE_DCHECK(flag);
+
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
-                                         work_manager_id, dom_manager_id, global_config, 0, 0,
+                                         worker_manager, dom_manager_id, global_config, 0, 0,
                                          [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, char_data_dir, char_ws_url);
   ffi_runtime->SetRuntimeId(result);
 
@@ -227,19 +241,37 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
 }
 
 EXTERN_C uint32_t CreateWorkerManager() {
-  return BridgeImpl::CreateWorkerManager();
+  auto worker_manager = std::make_shared<WorkerManager>(kDefaultNumberOfThreads);
+  auto id = global_worker_manager_key.fetch_add(1);
+  worker_manager_map.Insert(id, worker_manager);
+  return id;
 }
 
 EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id) {
-  BridgeImpl::DestroyWorkerManager(worker_manager_id);
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map.Find(worker_manager_id, worker_manager);
+  if (flag && worker_manager) {
+    worker_manager->Terminate();
+    worker_manager_map.Erase(worker_manager_id);
+  }
 }
 
 EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id) {
-  return BridgeImpl::CreateDomInstance(worker_manager_id);
+  auto dom_manager = std::make_shared<DomManager>();
+  DomManager::Insert(dom_manager);
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map.Find(worker_manager_id, worker_manager);
+  FOOTSTONE_DCHECK(flag);
+  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
+  dom_manager->SetTaskRunner(runner);
+  return dom_manager->GetId();
 }
 
 EXTERN_C void DestroyDomInstance(uint32_t dom_id) {
-  BridgeImpl::DestroyDomInstance(dom_id);
+  auto dom_manager = DomManager::Find(dom_id);
+  if (dom_manager) {
+    DomManager::Erase(dom_id);
+  }
 }
 
 #ifdef __cplusplus

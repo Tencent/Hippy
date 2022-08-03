@@ -57,7 +57,6 @@ set(SRC_FILES
 
 set(LINKED_LIBS
         render_core
-        footstone
         ${FRAMEWORK_CORE_DEPS})
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
@@ -169,7 +168,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
     list(APPEND LINKED_LIBS -lz)
     target_link_libraries( # Specifies the target library.
             ${CMAKE_LIBRARY_NAME}
-            FOOTSTONE_common
             ${LINKED_LIBS}
             ${JSCORE_LIBRARY}
             )

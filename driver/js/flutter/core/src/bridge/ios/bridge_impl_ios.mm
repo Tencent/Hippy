@@ -127,6 +127,8 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
                                     bool bridge_param_json,
                                     bool is_dev_module,
                                     int64_t group_id,
+                                    const std::shared_ptr<WorkerManager> &worker_manager,
+                                    uint32_t dom_manager_id,
                                     const char16_t *char_globalConfig,
                                     size_t initial_heap_size,
                                     size_t maximum_heap_size,
@@ -253,7 +255,7 @@ void BridgeImpl::BindDomManager(int64_t runtime_id, const std::shared_ptr<DomMan
     auto scope = bridge.jscExecutor.pScope;
     if (scope) {
         scope->SetDomManager(dom_manager);
-        dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
+        //dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
     }
 }
 

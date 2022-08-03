@@ -46,8 +46,6 @@ using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
-constexpr uint32_t kDefaultNumberOfThreads = 2;
-constexpr char kDomRunnerName[] = "hippy_dom";
 
 
 int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platform_runtime,
@@ -55,7 +53,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
                                  bool bridge_param_json,
                                  bool is_dev_module,
                                  int64_t group_id,
-                                 uint32_t work_manager_id,
+                                 const std::shared_ptr<WorkerManager> &worker_manager,
                                  uint32_t dom_manager_id,
                                  const char16_t *char_globalConfig,
                                  size_t initial_heap_size,

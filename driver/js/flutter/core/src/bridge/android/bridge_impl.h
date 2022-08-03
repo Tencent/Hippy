@@ -47,7 +47,7 @@ class BridgeImpl {
                               bool bridge_param_json,
                               bool is_dev_module,
                               int64_t group_id,
-                              uint32_t work_manager_id,
+                              const std::shared_ptr<WorkerManager> &worker_manager,
                               uint32_t dom_manager_id,
                               const char16_t *char_globalConfig,
                               size_t initial_heap_size,
@@ -76,18 +76,6 @@ class BridgeImpl {
   static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
 
   static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
-
-  static uint32_t CreateWorkerManager();
-
-  static void DestroyWorkerManager(uint32_t worker_manager_id);
-
-  static uint32_t CreateDomInstance(uint32_t worker_manager_id);
-
-  static void DestroyDomInstance(uint32_t dom_id);
-
- private:
-  inline static WorkManagerMap worker_manager_map_;
-  inline static std::atomic<uint32_t> global_worker_manager_key_{1};
 };
 
 #ifdef __cplusplus

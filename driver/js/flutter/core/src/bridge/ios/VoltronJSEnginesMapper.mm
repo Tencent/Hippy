@@ -55,7 +55,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-        std::shared_ptr<Engine> engine = std::make_shared<Engine>();
+      std::shared_ptr<Engine> engine = std::make_shared<Engine>(nullptr, nullptr);
         [self setEngine:engine forKey:key];
         return engine;
     }
@@ -90,7 +90,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         if (0 == ref.second) {
             VoltronLogInfo(@"[Voltron_OC_Log][Life_Circle],VoltronJSCExecutor destroy engine %@", key);
             std::shared_ptr<Engine> engine = ref.first;
-            engine->TerminateRunner();
+            //engine->TerminateRunner();
             _engineMapper.erase(it);
         }
     }

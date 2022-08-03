@@ -56,7 +56,6 @@
 #include "footstone/task.h"
 #include "core/napi/js_native_api.h"
 #include "core/scope.h"
-#include "core/task/javascript_task_runner.h"
 #include "core/engine.h"
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
@@ -733,11 +732,11 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
     Engine *engine = [[VoltronJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
     if (engine) {
-        auto runner = engine->GetJSRunner();
+        auto runner = engine->GetJsTaskRunner();
         if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
           block();
         } else {
-          engine->GetJSRunner()->PostTask(block);
+          engine->GetJsTaskRunner()->PostTask(block);
         }
     }
 }
@@ -745,9 +744,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
     Engine *engine = [[VoltronJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
     if (engine) {
-        std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-        task->callback = block;
-        engine->GetJSRunner()->PostTask(task);
+        engine->GetJsTaskRunner()->PostTask(block);
     }
 }
 
