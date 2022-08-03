@@ -2035,7 +2035,10 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = "V8_WITHOUT_INSPECTOR=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"V8_WITHOUT_INSPECTOR=1",
+				);
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../core/include\"",
 					"\"$(SRCROOT)/../../core/third_party/base/include\"",
@@ -2062,7 +2065,10 @@
 				DEVELOPMENT_TEAM = "";
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = "V8_WITHOUT_INSPECTOR=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"V8_WITHOUT_INSPECTOR=1",
+					"NDEBUG=1",
+				);
 				HEADER_SEARCH_PATHS = (
 					"\"$(SRCROOT)/../../core/include\"",
 					"\"$(SRCROOT)/../../core/third_party/base/include\"",
