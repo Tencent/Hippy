@@ -32,6 +32,7 @@ import {
   endsWith,
   getBeforeLoadStyle,
   warn,
+  isEmpty,
 } from '../util';
 import Native from '../runtime/native';
 import { eventHandlerType } from '../util/node';
@@ -366,6 +367,15 @@ class ElementNode extends ViewNode {
     delete this.attributes[key];
   }
 
+  setStyles(batchStyles) {
+    if (isEmpty(batchStyles)) return;
+    Object.keys(batchStyles).forEach((styleKey) => {
+      const styleValue = batchStyles[styleKey];
+      this.setStyle(styleKey, styleValue, true);
+    });
+    updateChild(this);
+  }
+
   setStyle(property, value, notToNative = false) {
     if (value === undefined) {
       delete this.style[property];
@@ -438,12 +448,7 @@ class ElementNode extends ViewNode {
   setNativeProps(nativeProps) {
     if (nativeProps) {
       const { style } = nativeProps;
-      if (style) {
-        Object.keys(style).forEach((key) => {
-          this.setStyle(key, style[key], true);
-        });
-        updateChild(this);
-      }
+      this.setStyles(style);
     }
   }
 
