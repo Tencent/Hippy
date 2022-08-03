@@ -197,7 +197,7 @@ void DoBind(JNIEnv* j_env,
   if (render_manager == nullptr) {
     auto& tdf_map = TDFRenderManager::PersistentMap();
     std::shared_ptr<TDFRenderManager> tdf_render_manager = nullptr;
-    bool tdf_ret = tdf_map.Find(footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id), tdf_render_manager);
+    bool tdf_ret = tdf_map.Find(footstone::check::checked_numeric_cast<jint, int32_t>(j_render_id), tdf_render_manager);
     if (tdf_ret) {
       render_manager = tdf_render_manager;
       tdf_render_manager->SetDomManager(dom_manager);
@@ -211,7 +211,7 @@ void DoBind(JNIEnv* j_env,
 #ifdef ENABLE_TDF_RENDER
   /// TODO(kloudwang) 这里为了tdf_renderer复用native
   /// renderer的图片下载能力(临时方案)，后面应该直接走FrameworkProxy
-  TDFRenderBridge::RegisterScopeForUriLoader(static_cast<int32_t>(j_render_id),
+  TDFRenderBridge::RegisterScopeForUriLoader(static_cast<uint32_t>(j_render_id),
                                              scope);
 #endif
 

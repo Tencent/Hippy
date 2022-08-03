@@ -91,12 +91,6 @@ static std::string GetJSONStringWithProps(const DomStyleMap &dom_style) {
 EmbeddedViewNode::EmbeddedViewNode(RenderInfo render_info, const std::string &native_view_type)
     : ViewNode(render_info), native_view_type_(native_view_type) {}
 
-node_creator EmbeddedViewNode::GetCreator(const std::string &native_view_type) {
-  return [native_view_type](RenderInfo render_info) {
-    return std::make_shared<EmbeddedViewNode>(render_info, native_view_type);
-  };
-}
-
 std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView() {
   return TDF_MAKE_SHARED(tdfcore::EmbeddedView, native_view_type_);
 }

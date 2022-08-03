@@ -21,6 +21,7 @@
 #pragma once
 
 #include "core/common/listener.h"
+#include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
 #include "core/tdfi/view/view.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_node.h"
@@ -34,6 +35,103 @@
   }
 
 namespace tdfrender {
+
+inline namespace view {
+constexpr const char kView[] = "View";
+constexpr const char kAccessibilityLabel[] = "accessibilityLabel";                          // String
+constexpr const char kAttachedtowindow[] = "attachedtowindow";                              // boolean
+constexpr const char kBackgroundColor[] = "backgroundColor";                                // int
+constexpr const char kBackgroundImage[] = "backgroundImage";                                // String
+constexpr const char kBackgroundPositionX[] = "backgroundPositionX";                        // int
+constexpr const char kBackgroundPositionY[] = "backgroundPositionY";                        // int
+constexpr const char kBackgroundSize[] = "backgroundSize";                                  // String
+constexpr const char kBorderBottomColor[] = "borderBottomColor";                            // int
+constexpr const char kBorderBottomLeftRadius[] = "borderBottomLeftRadius";                  // float
+constexpr const char kBorderBottomRightRadius[] = "borderBottomRightRadius";                // float
+constexpr const char kBorderBottomWidth[] = "borderBottomWidth";                            // float
+constexpr const char kBorderColor[] = "borderColor";                                        // int
+constexpr const char kBorderLeftColor[] = "borderLeftColor";                                // int
+constexpr const char kBorderLeftWidth[] = "borderLeftWidth";                                // float
+constexpr const char kBorderRadius[] = "borderRadius";                                      // float
+constexpr const char kBorderRightColor[] = "borderRightColor";                              // int
+constexpr const char kBorderRightWidth[] = "borderRightWidth";                              // float
+constexpr const char kBorderTopColor[] = "borderTopColor";                                  // int
+constexpr const char kBorderTopLeftRadius[] = "borderTopLeftRadius";                        // float
+constexpr const char kBorderTopRightRadius[] = "borderTopRightRadius";                      // float
+constexpr const char kBorderTopWidth[] = "borderTopWidth";                                  // float
+constexpr const char kBorderWidth[] = "borderWidth";                                        // float
+constexpr const char kClick[] = "click";                                                    // boolean
+constexpr const char kCustomProp[] = "customProp";                                          // Object
+constexpr const char kDetachedfromwindow[] = "detachedfromwindow";                          // boolean
+constexpr const char kFocusable[] = "focusable";                                            // boolean
+constexpr const char kInterceptpullupevent[] = "interceptpullupevent";                      // boolean
+constexpr const char kIntercepttouchevent[] = "intercepttouchevent";                        // boolean
+constexpr const char kLinearGradient[] = "linearGradient";                                  // HippyMap
+constexpr const char kLongclick[] = "longclick";                                            // boolean
+constexpr const char kNativeBackgroundAndroid[] = "nativeBackgroundAndroid";                // Map
+constexpr const char kNextFocusDownId[] = "nextFocusDownId";                                // int
+constexpr const char kNextFocusLeftId[] = "nextFocusLeftId";                                // int
+constexpr const char kNextFocusRightId[] = "nextFocusRightId";                              // int
+constexpr const char kNextFocusUpId[] = "nextFocusUpId";                                    // int
+constexpr const char kOpacity[] = "opacity";                                                // float
+constexpr const char kOverflow[] = "overflow";                                              // String
+constexpr const char kPressin[] = "pressin";                                                // boolean
+constexpr const char kPressout[] = "pressout";                                              // boolean
+constexpr const char kRenderToHardwareTextureAndroid[] = "renderToHardwareTextureAndroid";  // boolean
+constexpr const char kRequestFocus[] = "requestFocus";                                      // boolean
+constexpr const char kShadowColor[] = "shadowColor";                                        // int
+constexpr const char kShadowOffset[] = "shadowOffset";                                      // HippyMap
+constexpr const char kShadowOffsetX[] = "shadowOffsetX";                                    // float
+constexpr const char kShadowOffsetY[] = "shadowOffsetY";                                    // float
+constexpr const char kShadowOpacity[] = "shadowOpacity";                                    // float
+constexpr const char kShadowRadius[] = "shadowRadius";                                      // float
+constexpr const char kShadowSpread[] = "shadowSpread";                                      // float
+constexpr const char kTouchcancel[] = "touchcancel";                                        // boolean
+constexpr const char kTouchend[] = "touchend";                                              // boolean
+constexpr const char kTouchmove[] = "touchmove";                                            // boolean
+constexpr const char kTouchstart[] = "touchstart";                                          // boolean
+constexpr const char kTransform[] = "transform";                                            // ArrayList
+constexpr const char kZIndex[] = "zIndex";
+constexpr const char kMatrix[] = "matrix";
+constexpr const char kPerspective[] = "perspective";
+constexpr const char kRotateX[] = "rotateX";
+constexpr const char kRotateY[] = "rotateY";
+constexpr const char kRotateZ[] = "rotateZ";
+constexpr const char kRotate[] = "rotate";
+constexpr const char kScale[] = "scale";
+constexpr const char kScaleX[] = "scaleX";
+constexpr const char kScaleY[] = "scaleY";
+constexpr const char kTranslate[] = "translate";
+constexpr const char kTranslateX[] = "translateX";
+constexpr const char kTranslateY[] = "translateY";
+constexpr const char kSkewX[] = "skewX";
+constexpr const char kSkewY[] = "skewY";
+}  // namespace view
+
+inline namespace waterfallview {
+constexpr const char kWaterfallView[] = "WaterfallView";
+constexpr const char kBannerViewMatch[] = "bannerViewMatch";                  // boolean
+constexpr const char kColumnSpacing[] = "columnSpacing";                      // int
+constexpr const char kContainBannerView[] = "containBannerView";              // boolean
+constexpr const char kContentInset[] = "contentInset";                        // HippyMap
+constexpr const char kEnableExposureReport[] = "enableExposureReport";        // boolean
+constexpr const char kEnableLoadingFooter[] = "enableLoadingFooter";          // boolean
+constexpr const char kEnableOnScrollForReport[] = "enableOnScrollForReport";  // boolean
+constexpr const char kEnableRefresh[] = "enableRefresh";                      // boolean
+constexpr const char kInterItemSpacing[] = "interItemSpacing";                // int
+constexpr const char kNumberOfColumns[] = "numberOfColumns";                  // int
+constexpr const char kPaddingStartZero[] = "paddingStartZero";                // boolean
+constexpr const char kPreloadItemNumber[] = "preloadItemNumber";              // int
+constexpr const char kRefreshColor[] = "refreshColor";                        // int
+constexpr const char kRefreshColors[] = "refreshColors";                      // HippyArray
+}  // namespace waterfallview
+
+inline namespace defaultvalue {
+constexpr const float kDefaultFontSize = 16.0;
+constexpr const float kDefaultLineHeight = 16.0;
+constexpr const tdfcore::Color kDefaultTextColor = tdfcore::Color::Black();
+}  // namespace defaultvalue
+
 using DomValueObjectType = footstone::HippyValue::HippyValueObjectType;
 using hippy::dom::DomArgument;
 using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
@@ -132,12 +230,12 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief notify after the attach action
    */
-  virtual void OnAttach(){}
+  virtual void OnAttach() {}
 
   /**
    * @brief notify before the detach action
    */
-  virtual void OnDetach(){}
+  virtual void OnDetach() {}
 
   int32_t GetCorrectedIndex() const { return corrected_index_; }
 
@@ -152,7 +250,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   void SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr);
 
-  void SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr);
+  void SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr,
+                      bool can_capture = false, bool can_bubble = false);
 
   /**
    * @brief Be called in ViewNode::OnCreate(mount in the ViewNode Tree immediately after create)
@@ -173,12 +272,12 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief notify after the AddChild action(sync the tdfcore::View Tree)
    */
-  virtual void OnChildAdd(ViewNode& child, int64_t index);
+  virtual void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index);
 
   /**
    * @brief notify before the RemoveChild action(sync the tdfcore::View Tree)
    */
-  virtual void OnChildRemove(ViewNode& child);
+  virtual void OnChildRemove(const std::shared_ptr<ViewNode>& child);
 
   void SetParent(std::shared_ptr<ViewNode> parent) { parent_ = parent; }
 
@@ -204,6 +303,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   tdfcore::TM33 GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view);
 
  private:
+  void RegisterTapEvent(std::string& event_type);
+  void RemoveTapEvent(std::string& event_type);
+
   std::weak_ptr<tdfcore::View> attached_view_;
 
   /**
@@ -219,6 +321,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   std::vector<std::shared_ptr<ViewNode>> children_;
 
   std::set<std::string> supported_events_;
+  std::unordered_map<std::string, std::shared_ptr<tdfcore::GestureRecognizer>> gestures_map_;
 };
 
 }  // namespace tdfrender

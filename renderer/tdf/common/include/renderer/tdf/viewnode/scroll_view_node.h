@@ -26,40 +26,59 @@
 
 namespace tdfrender {
 
+inline namespace scrollview {
+constexpr const char kScrollView[] = "ScrollView";
+constexpr const char kContentOffset4Reuse[] = "contentOffset4Reuse";    // HippyMap
+constexpr const char kFlingEnabled[] = "flingEnabled";                  // boolean
+constexpr const char kInitialContentOffset[] = "initialContentOffset";  // int
+constexpr const char kPagingEnabled[] = "pagingEnabled";                // boolean
+constexpr const char kScrollEnabled[] = "scrollEnabled";                // boolean
+constexpr const char kScrollEventThrottle[] = "scrollEventThrottle";    // int
+constexpr const char kScrollMinOffset[] = "scrollMinOffset";            // int
+constexpr const char kShowScrollIndicator[] = "showScrollIndicator";    // boolean
+constexpr const char kHorizontal[] = "horizontal";
+constexpr const char kOnScroll[] = "onScroll";
+constexpr const char kEventTypeBeginDrag[] = "scrollbegindrag";
+constexpr const char kEventTypeEndDrag[] = "scrollenddrag";
+constexpr const char kEventTypeScroll[] = "scroll";
+constexpr const char kEventTypeMomentumBegin[] = "momentumscrollbegin";
+constexpr const char kEventTypeMomentumEnd[] = "momentumscrollend";
+constexpr const char kEventTypeAnimationEnd[] = "scrollanimationend";
+}  // namespace scrollview
+
 class ScrollViewNode : public ViewNode {
  public:
   using ViewNode::ViewNode;
-  static node_creator GetCreator();
 
  protected:
   std::shared_ptr<tdfcore::View> CreateView() override;
 
-  void HandleStyleUpdate(const DomStyleMap &dom_style) override;
+  void HandleStyleUpdate(const DomStyleMap& dom_style) override;
 
-  void OnChildAdd(ViewNode &child, int64_t index) override;
+  void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
 
-  void OnChildRemove(ViewNode &child) override;
+  void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
 
  private:
   void InitScrollStartListener();
 
-  void HandleScrollStartListener(bool listen);
+  void RegisterScrollStartListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitScrollUpdateListener();
 
-  void HandleScrollUpdateListener(bool listen);
+  void RegisterScrollUpdateListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitScrollEndListener();
 
-  void HandleScrollEndListener(bool listen);
+  void RegisterScrollEndListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitDragStartListener();
 
-  void HandleDragStartListener(bool listen);
+  void RegisterDragStartListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitDragEndListener();
 
-  void HandleDragEndListener(bool listen);
+  void RegisterDragEndListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void HandleInnerEvent(std::string type);
 

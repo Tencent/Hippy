@@ -40,7 +40,72 @@ using OnChangeText = std::function<void(std::string)>;
 using OnKeyboardHeightChange = std::function<void(float)>;
 using OnEndEditing = std::function<void(std::u16string)>;
 using OnSelectionChange = std::function<void(size_t, size_t)>;
-using JsFunctionPrototype = std::function<void(const uint32_t callback_id, const DomArgument& dom_value)>;
+using InputEventCallBack = std::function<void(const uint32_t callback_id, const DomArgument& dom_value)>;
+
+inline namespace textinput {
+constexpr const char kTextInput[] = "TextInput";
+constexpr const char kCaret_color[] = "caret_color";                      // int
+constexpr const char kColor[] = "color";                                  // int
+constexpr const char kDefaultValue[] = "defaultValue";                    // String
+constexpr const char kEditable[] = "editable";                            // boolean
+constexpr const char kFontFamily[] = "fontFamily";                        // String
+constexpr const char kFontSize[] = "fontSize";                            // float
+constexpr const char kFontStyle[] = "fontStyle";                          // String
+constexpr const char kFontWeight[] = "fontWeight";                        // String
+constexpr const char kKeyboardType[] = "keyboardType";                    // String
+constexpr const char kLetterSpacing[] = "letterSpacing";                  // float
+constexpr const char kMaxLength[] = "maxLength";                          // int
+constexpr const char kMultiline[] = "multiline";                          // boolean
+constexpr const char kNumberOfLines[] = "numberOfLines";                  // int
+constexpr const char kOnBlur[] = "onBlur";                                // boolean
+constexpr const char kOnChangeText[] = "onChangeText";                    // boolean
+constexpr const char kOnContentSizeChange[] = "onContentSizeChange";      // boolean
+constexpr const char kOnEndEditing[] = "onEndEditing";                    // boolean
+constexpr const char kOnFocus[] = "onFocus";                              // boolean
+constexpr const char kOnSelectionChange[] = "onSelectionChange";          // boolean
+constexpr const char kPlaceholder[] = "placeholder";                      // String
+constexpr const char kPlaceholderTextColor[] = "placeholderTextColor";    // int
+constexpr const char kReturnKeyType[] = "returnKeyType";                  // String
+constexpr const char kTextAlign[] = "textAlign";                          // String
+constexpr const char kTextAlignVertical[] = "textAlignVertical";          // String
+constexpr const char kUnderlineColorAndroid[] = "underlineColorAndroid";  // Integer
+constexpr const char kValidator[] = "validator";                          // String
+constexpr const char kValue[] = "value";                                  // String
+constexpr const char kCaretColor[] = "caret-color";
+constexpr const char kHeight[] = "height";                  // float
+constexpr const char kWidth[] = "width";                    // String
+constexpr const char kKeyActionName[] = "actionName";       // String
+constexpr const char kOnEditorAction[] = "onEditorAction";  // String
+
+constexpr const char kBlurTextInput[] = "blurTextInput";
+constexpr const char kClear[] = "clear";
+constexpr const char kFocusTextInput[] = "focusTextInput";
+constexpr const char kGetValue[] = "getValue";
+constexpr const char kHideInputMethod[] = "hideInputMethod";
+constexpr const char kShowInputMethod[] = "showInputMethod";
+
+constexpr const char kKeyboardType_Default[] = "default";
+constexpr const char kKeyboardType_Numeric[] = "numeric";
+constexpr const char kKeyboardType_Password[] = "password";
+constexpr const char kKeyboardType_Email[] = "email";
+constexpr const char kKeyboardType_PhonePad[] = "phone-pad";
+
+constexpr const char kKeyboardAction_Done[] = "done";
+constexpr const char kKeyboardAction_Go[] = "go";
+constexpr const char kKeyboardAction_Next[] = "next";
+constexpr const char kKeyboardAction_Search[] = "search";
+constexpr const char kKeyboardAction_Send[] = "send";
+constexpr const char kKeyboardAction_None[] = "none";
+constexpr const char kKeyboardAction_Previous[] = "previous";
+constexpr const char kKeyboardAction_Unknown[] = "unknown";
+
+constexpr const char kOnKeyBoardWillShow[] = "onKeyboardWillShow";
+constexpr const char kOnKeyBoardWillHide[] = "keyboardWillHide";
+constexpr const char kFontBold[] = "bold";
+constexpr const char kFontItalic[] = "italic";
+}  // namespace textinput
+
+constexpr const int64_t kViewportListenerNotAddID = 0;
 
 class TextInputNode : public ViewNode {
  public:
@@ -48,8 +113,6 @@ class TextInputNode : public ViewNode {
   ~TextInputNode() override;
 
   void CallFunction(const std::string& function_name, const DomArgument& param, const uint32_t call_back_id) override;
-
-  static node_creator GetCreator();
 
   struct EventCallback {
     bool on_selection_change_flag = false;
@@ -70,7 +133,7 @@ class TextInputNode : public ViewNode {
   std::shared_ptr<tdfcore::View> CreateView() override;
 
  private:
-  void InitJsCall();
+  void InitCallBackMap();
   void InitCallback();
   void RegisterViewportListener();
   void UnregisterViewportListener();
@@ -111,21 +174,23 @@ class TextInputNode : public ViewNode {
 
   void UpdateFontStyle(TextStyle& text_style);
 
+  void SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event);
+
   std::weak_ptr<TextInputView> text_input_view_;
   std::shared_ptr<tdfcore::TextEditingController> edit_controller_;
   std::shared_ptr<tdfcore::TextSelectionControl> selection_control_;
-  std::map<std::string, JsFunctionPrototype> js_function_map_;
+  std::map<std::string, InputEventCallBack> input_event_callback_map_;
   tdfcore::TextSelection text_selection_;
   std::string font_style_ = "";
   std::string font_weight_ = "";
-  float font_size_ = 16.0;
-  float line_height_ = 16.0;
+  float font_size_ = kDefaultFontSize;
+  float line_height_ = kDefaultLineHeight;
   TextShadow text_shadow_;
   bool has_shadow_ = true;
   std::string place_holder_;
-  Color place_holder_color_ = Color::Black();
+  Color place_holder_color_ = kDefaultTextColor;
   tdfcore::KeyboardAction keyboard_action_ = tdfcore::KeyboardAction::kDone;
-  uint64_t viewport_listener_id_ = 0;
+  uint64_t viewport_listener_id_ = kViewportListenerNotAddID;
   EventCallback event_callback_;
 };
 

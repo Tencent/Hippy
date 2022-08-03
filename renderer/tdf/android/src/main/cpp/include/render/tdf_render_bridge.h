@@ -21,8 +21,11 @@
 #pragma once
 
 #include <memory>
-#include <jni.h>
-#include "core/scope.h"
+
+#include "driver/scope.h"
+#include "jni/jni_env.h"
+
+class Scope;
 
 class TDFRenderBridge {
  public:
@@ -33,4 +36,3 @@ class TDFRenderBridge {
   // TODO: need a better implementation.
   static void RegisterScopeForUriLoader(uint32_t render_id, const std::shared_ptr<Scope>& scope);
 };
-

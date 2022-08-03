@@ -26,12 +26,24 @@
 
 namespace tdfrender {
 
+inline namespace modal {
+constexpr const char kModal[] = "Modal";
+constexpr const char kAnimationType[] = "animationType";            // String
+constexpr const char kDarkStatusBarText[] = "darkStatusBarText";    // boolean
+constexpr const char kImmersionStatusBar[] = "immersionStatusBar";  // boolean
+constexpr const char kTransparent[] = "transparent";                // boolean
+constexpr const char kOnShow[] = "onShow";
+constexpr const char KOnDismiss[] = "onDismiss";
+constexpr const char kOnRequestClose[] = "onRequestClose";
+constexpr const char kOnOrientationChange[] = "onOrientationChange";
+constexpr const char kSupportedOrientation[] = "supportedOrientations";
+}  // namespace modal
+
 class ModalViewNode : public ViewNode {
  public:
   using ViewNode::ViewNode;
   ~ModalViewNode() override = default;
 
-  static node_creator GetCreator();
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
   std::shared_ptr<tdfcore::View> CreateView() override;
   std::string GetViewName() const override { return kModaViewName; }

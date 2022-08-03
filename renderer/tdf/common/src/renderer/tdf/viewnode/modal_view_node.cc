@@ -20,35 +20,24 @@
 
 #include "renderer/tdf/viewnode/modal_view_node.h"
 #include "core/tdfi/view/view.h"
-#include "renderer/tdf/viewnode/node_props.h"
 
 namespace tdfrender {
 
 using tdfcore::View;
 using tdfcore::ViewContext;
 
-const auto kOnShow = "onShow";
-const auto KOnDismiss = "onDismiss";
-const auto kOnRequestClose = "onRequestClose";
-const auto kOnOrientationChange = "onOrientationChange";
-const auto kSupportedOrientation = "supportedOrientations";
-
-node_creator tdfrender::ModalViewNode::GetCreator() {
-  return [](RenderInfo info) { return TDF_MAKE_SHARED(ModalViewNode, info); };
-}
-
 void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
 
-  if (auto iterator = dom_style.find(modal::kImmersionStatusBar); iterator != dom_style.end()) {
+  if (auto iterator = dom_style.find(kImmersionStatusBar); iterator != dom_style.end()) {
     SetImmersionStatusBar(iterator->second->ToBooleanChecked());
   }
 
-  if (auto iterator = dom_style.find(modal::kAnimationType); iterator != dom_style.end()) {
+  if (auto iterator = dom_style.find(kAnimationType); iterator != dom_style.end()) {
     // todo(kloudwang)
   }
 
-  if (auto iterator = dom_style.find(modal::kDarkStatusBarText); iterator != dom_style.end()) {
+  if (auto iterator = dom_style.find(kDarkStatusBarText); iterator != dom_style.end()) {
     // todo(kloudwang)
   }
 
@@ -56,7 +45,7 @@ void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     // todo(kloudwang)
   }
 
-  if (auto iterator = dom_style.find(modal::kTransparent); iterator != dom_style.end()) {
+  if (auto iterator = dom_style.find(kTransparent); iterator != dom_style.end()) {
     if (iterator->second->ToBooleanChecked()) {
       GetView()->SetBackgroundColor(tdfcore::Color::Transparent());
     } else {

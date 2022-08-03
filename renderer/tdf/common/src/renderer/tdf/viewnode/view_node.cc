@@ -24,37 +24,16 @@
 #include <cassert>
 #include <utility>
 
-#include "footstone/logging.h"
 #include "core/common/color.h"
-#include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
 #include "core/support/text/UTF.h"
 #include "core/tdfi/view/view_context.h"
-#include "footstone/hippy_value.h"
 #include "dom/node_props.h"
 #include "dom/scene.h"
-#include "renderer/tdf/viewnode/node_props.h"
-#include "renderer/tdf/viewnode/node_utils.h"
+#include "footstone/hippy_value.h"
+#include "footstone/logging.h"
+#include "renderer/tdf/viewnode/node_attributes_parser.h"
 
 namespace tdfrender {
-
-constexpr const char kMatrix[] = "matrix";
-constexpr const char kPerspective[] = "perspective";
-constexpr const char kRotateX[] = "rotateX";
-constexpr const char kRotateY[] = "rotateY";
-constexpr const char kRotateZ[] = "rotateZ";
-constexpr const char kRotate[] = "rotate";
-constexpr const char kScale[] = "scale";
-constexpr const char kScaleX[] = "scaleX";
-constexpr const char kScaleY[] = "scaleY";
-constexpr const char kTranslate[] = "translate";
-constexpr const char kTranslateX[] = "translateX";
-constexpr const char kTranslateY[] = "translateY";
-constexpr const char kSkewX[] = "skewX";
-constexpr const char kSkewY[] = "skewY";
-
-node_creator ViewNode::GetViewNodeCreator() {
-  return [](RenderInfo info) { return TDF_MAKE_SHARED(ViewNode, info); };
-}
 
 ViewNode::ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view)
     : render_info_(info), attached_view_(std::move(view)), corrected_index_(info.index) {
@@ -98,7 +77,7 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto const map_end = dom_style.cend();
 
   if (auto it = dom_style.find(view::kAccessibilityLabel); it != map_end) {
-//    view->SetAccessibilityLabel(utf16_string.utf16_value());
+    //    view->SetAccessibilityLabel(utf16_string.utf16_value());
   }
 
   // Skip Parse: view::kAttachedtowindow
@@ -264,8 +243,8 @@ void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   auto new_frame =
       tdfcore::TRect::MakeXYWH(layout_result.left, layout_result.top, layout_result.width, layout_result.height);
   GetView()->SetFrame(new_frame);
-  FOOTSTONE_LOG(INFO) << "ViewNode::HandleLayoutUpdate: "<< render_info_.id << " |" << new_frame.X() << " | " << new_frame.Y() << " | "
-  << new_frame.Width() <<" | " << new_frame.Height();
+  FOOTSTONE_LOG(INFO) << "ViewNode::HandleLayoutUpdate: " << render_info_.id << " |" << new_frame.X() << " | "
+                      << new_frame.Y() << " | " << new_frame.Width() << " | " << new_frame.Height();
   layout_listener_.Notify(new_frame);
 }
 
@@ -289,37 +268,41 @@ void ViewNode::OnRemoveEventListener(uint32_t id, const std::string& name) {
 }
 
 void ViewNode::HandleEventInfoUpdate() {
-  if (supported_events_.find(hippy::kClickEvent) != supported_events_.end()) {
-    auto tap_gesture = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
-    tap_gesture->SetTap([WEAK_THIS]() {
-      DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(hippy::kClickEvent, nullptr);
-    });
-    GetView()->AddGesture(tap_gesture);
+  std::string click_event(hippy::kClickEvent);
+  if (supported_events_.find(click_event) != supported_events_.end()) {
+    RegisterTapEvent(click_event);
   } else {
-    // TODO Remove GestureRecognizer
+    RemoveTapEvent(click_event);
   }
 
-  if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end()) {
-    auto tap_gesture = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
-    tap_gesture->SetTapDown([WEAK_THIS](const tdfcore::TapDetails& detail) {
-      DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(hippy::kTouchStartEvent, nullptr);
-    });
-    GetView()->AddGesture(tap_gesture);
+  std::string touch_start_event(hippy::kTouchStartEvent);
+  if (supported_events_.find(touch_start_event) != supported_events_.end()) {
+    RegisterTapEvent(touch_start_event);
   } else {
-    // TODO Remove GestureRecognizer
+    RemoveTapEvent(touch_start_event);
   }
 
-  if (supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end()) {
-    auto tap_gesture = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
-    tap_gesture->SetTapUp([WEAK_THIS](const tdfcore::TapDetails& detail) {
-      DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(hippy::kTouchEndEvent, nullptr);
-    });
-    GetView()->AddGesture(tap_gesture);
+  std::string touch_end_event(hippy::kTouchEndEvent);
+  if (supported_events_.find(touch_end_event) != supported_events_.end()) {
+    RegisterTapEvent(touch_end_event);
   } else {
-    // TODO Remove GestureRecognizer
+    RemoveTapEvent(touch_end_event);
+  }
+}
+
+void ViewNode::RegisterTapEvent(std::string& event_type) {
+  auto tap_gesture_recognizer = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
+  tap_gesture_recognizer->SetTapUp([WEAK_THIS, event_type](const tdfcore::TapDetails& detail) {
+    DEFINE_AND_CHECK_SELF(ViewNode)
+    self->SendGestureDomEvent(event_type, nullptr);
+  });
+  gestures_map_.emplace(event_type, tap_gesture_recognizer);
+  GetView()->AddGesture(tap_gesture_recognizer);
+}
+
+void ViewNode::RemoveTapEvent(std::string& event_type) {
+  if (gestures_map_.find(event_type) != gestures_map_.end()) {
+    GetView()->RemoveGesture(gestures_map_.find(event_type)->second);
   }
 }
 
@@ -327,36 +310,30 @@ std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const {
   return GetRenderContext()->FindDomNode(render_info_.id);
 }
 
-void ViewNode::OnChildAdd(ViewNode& child, int64_t index) {
+void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   // inherited from parent
   if (!IsAttached()) {
     return;
   }
   // TODO(vimerzhao): index is not used.
-  child.Attach();
+  child->Attach();
 }
 
-void ViewNode::OnChildRemove(ViewNode& child) { child.Detach(); }
+void ViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { child->Detach(); }
 
 void ViewNode::SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value) {
-  auto dom_node = GetRenderContext()->FindDomNode(GetRenderInfo().id);
-  auto event = std::make_shared<hippy::DomEvent>(type, dom_node, true, true, value);
-  std::vector<std::function<void()>> ops = {[dom_node, event] {
-    dom_node->HandleEvent(event);
-  }};
-  GetRenderContext()->GetDomManager()->PostTask(hippy::Scene(std::move(ops)));
+  SendUIDomEvent(type, value, true, true);
 }
 
-void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value) {
+void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value, bool can_capture,
+                              bool can_bubble) {
   auto dom_node = GetRenderContext()->FindDomNode(GetRenderInfo().id);
   if (!dom_node) {
     return;
   }
   std::transform(type.begin(), type.end(), type.begin(), ::tolower);
-  auto event = std::make_shared<hippy::DomEvent>(type, dom_node, false, false, value);
-  std::vector<std::function<void()>> ops = {[dom_node, event] {
-    dom_node->HandleEvent(event);
-  }};
+  auto event = std::make_shared<hippy::DomEvent>(type, dom_node, can_capture, can_bubble, value);
+  std::vector<std::function<void()>> ops = {[dom_node, event] { dom_node->HandleEvent(event); }};
   GetRenderContext()->GetDomManager()->PostTask(hippy::Scene(std::move(ops)));
 }
 
@@ -372,14 +349,14 @@ void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index)
   children_.insert(children_.begin() + index, child);
   child->SetParent(shared_from_this());
   // notify the ViewNode
-  OnChildAdd(*child, index);
+  OnChildAdd(child, index);
 }
 
 void ViewNode::RemoveChild(const std::shared_ptr<ViewNode>& child) {
   FOOTSTONE_DCHECK(child != nullptr);
   if (auto result = std::find(children_.begin(), children_.end(), child); result != children_.end()) {
     // notify the ViewNode to sync the tdfcore::View Tree
-    OnChildRemove(*child);
+    OnChildRemove(child);
     // Update related field
     child->SetParent(nullptr);
     children_.erase(result);
@@ -392,7 +369,7 @@ std::shared_ptr<ViewNode> ViewNode::RemoveChildAt(int32_t index) {
   FOOTSTONE_DCHECK(index < children_.size());
   auto child = children_[footstone::checked_numeric_cast<int32_t, unsigned long>(index)];
   FOOTSTONE_DCHECK(child != nullptr);
-  OnChildRemove(*child);
+  OnChildRemove(child);
   child->SetParent(nullptr);
   children_.erase(children_.begin() + index);
   return child;

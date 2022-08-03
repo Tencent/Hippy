@@ -25,6 +25,14 @@
 
 namespace tdfrender {
 
+inline namespace refreshwrapper {
+constexpr const char kRefreshWrapper[] = "RefreshWrapper";
+constexpr const char kBounceTime[] = "bounceTime";                    // int
+constexpr const char kOnScrollEnable[] = "onScrollEnable";            // boolean
+constexpr const char kScrollEventThrottle[] = "scrollEventThrottle";  // int
+constexpr const char kRefreshComplected[] = "refreshComplected";
+}  // namespace refreshwrapper
+
 class HippyRefreshHeader : public tdfcore::RefreshHeader {
  public:
   explicit HippyRefreshHeader(std::shared_ptr<tdfcore::View> content_view)
@@ -41,7 +49,6 @@ class HippyRefreshHeader : public tdfcore::RefreshHeader {
 class RefreshWrapperItemNode : public ViewNode {
  public:
   using ViewNode::ViewNode;
-  static node_creator GetCreator();
 
   /**
    * @brief make CreateView public,because it's call by RefreshWrapperNode
@@ -56,11 +63,11 @@ class RefreshWrapperNode : public ViewNode {
   using ViewNode::ViewNode;
   static node_creator GetCreator();
 
-  void OnChildAdd(ViewNode &child, int64_t index) override;
-  void OnChildRemove(ViewNode &child) override;
+  void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
+  void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
 
  protected:
-  void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) override;
+  void CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) override;
 
  private:
   std::shared_ptr<tdfcore::View> CreateView() override;

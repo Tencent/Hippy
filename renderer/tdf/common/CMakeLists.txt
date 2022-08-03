@@ -33,7 +33,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${TDF_RENDER_DIR}/common/include)
 # TODO: remove dependency of scope.h
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/core/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/include)
 # region end
 
 target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_TDF_RENDER")
@@ -73,11 +73,27 @@ add_subdirectory(${TDF_CORE_DIR} tdfcore/build)
 target_link_libraries(${PROJECT_NAME} PUBLIC tdfcore)
 
 # region source set
-file(GLOB_RECURSE SRC_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/**
+set(SRC_SET
+        src/renderer/tdf/tdf_render_context.cc
+        src/renderer/tdf/tdf_render_manager.cc
+        src/renderer/tdf/viewnode/net_image_loader.cc
+        src/renderer/tdf/viewnode/scroll_view_node.cc
+        src/renderer/tdf/viewnode/root_view_node.cc
+        src/renderer/tdf/viewnode/embedded_view_node.cc
+        src/renderer/tdf/viewnode/modal_view_node.cc
+        src/renderer/tdf/viewnode/refresh_wrapper_node.cc
+        src/renderer/tdf/viewnode/image_view_node.cc
+        src/renderer/tdf/viewnode/text_input_node.cc
+        src/renderer/tdf/viewnode/view_pager_node.cc
+        src/renderer/tdf/viewnode/list_view_node.cc
+        src/renderer/tdf/viewnode/text_view_node.cc
+        src/renderer/tdf/viewnode/node_attributes_parser.cc
+        src/renderer/tdf/viewnode/base64_image_loader.cc
+        src/renderer/tdf/viewnode/view_node.cc
+        src/renderer/tdf/view/modal_view.cc
+        src/renderer/tdf/view/view_pager.cc
         )
-message("vimer->6 ${SRC_FILES}")
-target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
+target_sources(${PROJECT_NAME} PRIVATE ${SRC_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.
 #   * `.o` files in the linker always go inside, referenced or not.

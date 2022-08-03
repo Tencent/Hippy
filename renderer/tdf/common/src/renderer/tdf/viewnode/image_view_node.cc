@@ -25,11 +25,30 @@
 #include "dom/node_props.h"
 #include "renderer/tdf/viewnode/base64_image_loader.h"
 #include "renderer/tdf/tdf_render_manager.h"
-#include "renderer/tdf/viewnode/node_props.h"
+#include "renderer/tdf/viewnode/base64_image_loader.h"
 
 namespace tdfrender {
 
-constexpr const char kAssetPrex[] = "hpfile://./";
+constexpr const char kImage[] = "Image";
+inline namespace image {
+constexpr const char kBackgroundColor[] = "backgroundColor";        // int
+constexpr const char kCapInsets[] = "capInsets";                    // HippyMap
+constexpr const char kDefaultSource[] = "defaultSource";            // String
+constexpr const char kHeight[] = "height";                          // float
+constexpr const char kImageType[] = "imageType";                    // String
+constexpr const char kLeft[] = "left";                              // float
+constexpr const char kOnError[] = "onError";                        // boolean
+constexpr const char kOnLoad[] = "onLoad";                          // boolean
+constexpr const char kOnLoadEnd[] = "onLoadEnd";                    // boolean
+constexpr const char kOnLoadStart[] = "onLoadStart";                // boolean
+constexpr const char kOnProgress[] = "onProgress";                  // boolean
+constexpr const char kResizeMode[] = "resizeMode";                  // String
+constexpr const char kSrc[] = "src";                                // String
+constexpr const char kTintColor[] = "tintColor";                    // int
+constexpr const char kTintColorBlendMode[] = "tintColorBlendMode";  // int
+constexpr const char kTop[] = "top";                                // float
+constexpr const char kVerticalAlignment[] = "verticalAlignment";    // int
+constexpr const char kWidth[] = "width";                            // float
 constexpr const char kScaleTypeCover[] = "cover";
 constexpr const char kScaleTypeContain[] = "contain";
 constexpr const char kScaleTypeStretch[] = "stretch";
@@ -39,15 +58,14 @@ constexpr const char kError[] = "error";
 constexpr const char kLoad[] = "load";
 constexpr const char kLoadEnd[] = "loadEnd";
 constexpr const char kLoadStart[] = "loadStart";
+}  // namespace image
+
+constexpr const char kAssetPrex[] = "hpfile://./";
 
 std::shared_ptr<tdfcore::View> ImageViewNode::CreateView() {
   auto image_view = TDF_MAKE_SHARED(tdfcore::ImageView);
   image_view->SetScaleType(tdfcore::ScaleType::kAspectFill);
   return image_view;
-}
-
-node_creator ImageViewNode::GetImageViewNodeCreator() {
-  return [](RenderInfo info) { return std::make_shared<ImageViewNode>(info); };
 }
 
 void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
@@ -65,27 +83,27 @@ void ImageViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
 }
 
 void ImageViewNode::SetScaleType(const std::string &type) {
-  scale_type_ = type;
-  tdfcore::ScaleType scale_type = tdfcore::ScaleType::kAspectFit;
+  tdfcore::ScaleType scale_type;
   if (type == kScaleTypeCover) {
     scale_type = tdfcore::ScaleType::kAspectFill;
   } else if (type == kScaleTypeStretch) {
     scale_type = tdfcore::ScaleType::kStretch;
+  }else{
+    scale_type = tdfcore::ScaleType::kAspectFit;
   }
-
   GetView<tdfcore::ImageView>()->SetScaleType(scale_type);
 }
 
 void ImageViewNode::SetDefaultSrc(const std::string &src) {
   default_src_ = src;
-  /// TODO(kloudwang): default_src is slower than src_.
+  /// TODO(kloudwang): default_src is slower than image_src_.
   LoadImage(default_src_);
 }
 
 void ImageViewNode::SetSrc(const std::string &src) {
-  if (src == src_) return;
-  src_ = src;
-  LoadImage(src_);
+  if (src == image_src_) return;
+    image_src_ = src;
+  LoadImage(image_src_);
 }
 
 void ImageViewNode::LoadImage(std::string url) {

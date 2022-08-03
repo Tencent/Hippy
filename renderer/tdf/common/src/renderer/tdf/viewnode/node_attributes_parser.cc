@@ -18,10 +18,10 @@
  * limitations under the License.
  */
 
-#include "renderer/tdf/viewnode/node_utils.h"
+#include "renderer/tdf/viewnode/node_attributes_parser.h"
 
-#include "renderer/tdf/viewnode/node_props.h"
 #include "footstone/logging.h"
+#include "renderer/tdf/viewnode/view_node.h"
 
 namespace tdfrender {
 namespace util {

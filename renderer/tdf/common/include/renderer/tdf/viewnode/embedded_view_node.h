@@ -29,7 +29,6 @@ class EmbeddedViewNode : public ViewNode {
   ~EmbeddedViewNode() override = default;
   using ViewNode::ViewNode;
   EmbeddedViewNode(RenderInfo render_info, const std::string &view_type);
-  static node_creator GetCreator(const std::string &view_type);
 
  protected:
   void HandleStyleUpdate(const DomStyleMap &dom_style) override;

@@ -20,6 +20,7 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.tdf.embed.EmbeddedView;
 
@@ -31,17 +32,14 @@ public class TDFEmbeddedViewWrapper implements EmbeddedView {
 
     private View mView;
     private int mViewID;
-    private int mRootId;
-    private String mViewType;
     private ControllerManager mControllerManager;
-
+    private RenderNode mRenderNode;
 
     public TDFEmbeddedViewWrapper(int rootId, ControllerManager controllerManager, View view, int viewID, String viewType) {
-        this.mRootId = rootId;
         this.mView = view;
-        this.mViewType = viewType;
         this.mControllerManager = controllerManager;
         this.mViewID = viewID;
+        mRenderNode = new RenderNode(rootId, viewID, viewType, mControllerManager);
     }
 
     @Override
@@ -56,7 +54,7 @@ public class TDFEmbeddedViewWrapper implements EmbeddedView {
     @Override
     public void updateProps(Map<String, String> propsMap) {
         EmbeddedView.super.updateProps(propsMap);
-        mControllerManager.updateView(mRootId, mViewID, mViewType, parsePropsStringToMap(propsMap), null);
+        mControllerManager.updateView(mRenderNode, parsePropsStringToMap(propsMap), null);
     }
 
     private Map<String, Object> parsePropsStringToMap(Map<String, String> propsMap) {

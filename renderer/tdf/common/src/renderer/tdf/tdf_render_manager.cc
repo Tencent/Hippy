@@ -48,31 +48,45 @@ static std::atomic<int32_t> global_tdf_render_manager_key{1000};
 constexpr const char kUpdateFrame[] = "frameupdate";
 
 void InitNodeCreator() {
-    RegisterNodeCreator(tdfrender::kViewName, tdfrender::ViewNode::GetViewNodeCreator());
-    RegisterNodeCreator(tdfrender::kTextViewName, tdfrender::TextViewNode::GetTextViewNodeCreator());
-    RegisterNodeCreator(tdfrender::kImageViewName, tdfrender::ImageViewNode::GetImageViewNodeCreator());
-    RegisterNodeCreator(tdfrender::kListViewName, tdfrender::ListViewNode::GetCreator());
-    RegisterNodeCreator(tdfrender::kTextInputViewName, tdfrender::TextInputNode::GetCreator());
-    RegisterNodeCreator(tdfrender::kListViewItemName, tdfrender::ListViewItemNode::GetCreator());
-    RegisterNodeCreator(tdfrender::kScrollViewName, tdfrender::ScrollViewNode::GetCreator());
-    RegisterNodeCreator(tdfrender::kWebViewName, tdfrender::EmbeddedViewNode::GetCreator(tdfrender::kWebViewName));
-    RegisterNodeCreator(tdfrender::kModaViewName, tdfrender::ModalViewNode::GetCreator());
-    RegisterNodeCreator(tdfrender::kViewPagerName, tdfrender::ViewPagerNode::GetCreator());
-    RegisterNodeCreator(tdfrender::kRefreshWrapperName, tdfrender::RefreshWrapperNode::GetCreator());
-    RegisterNodeCreator(tdfrender::kRefreshWrapperItemViewName, tdfrender::RefreshWrapperItemNode::GetCreator());
+  RegisterNodeCreator(tdfrender::kViewName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::ViewNode, info); });
+  RegisterNodeCreator(tdfrender::kTextViewName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::TextViewNode, info); });
+  RegisterNodeCreator(tdfrender::kImageViewName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::ImageViewNode, info); });
+  RegisterNodeCreator(tdfrender::kListViewName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::ListViewNode, info); });
+  RegisterNodeCreator(tdfrender::kTextInputViewName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::TextInputNode, info); });
+  RegisterNodeCreator(tdfrender::kListViewItemName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::ListViewItemNode, info); });
+  RegisterNodeCreator(tdfrender::kScrollViewName,
+                      [](tdfrender::RenderInfo info) { return std::make_shared<tdfrender::ScrollViewNode>(info); });
+  RegisterNodeCreator(tdfrender::kWebViewName, [](tdfrender::RenderInfo render_info) {
+    return std::make_shared<tdfrender::EmbeddedViewNode>(render_info, tdfrender::kWebViewName);
+  });
+  RegisterNodeCreator(tdfrender::kModaViewName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::ModalViewNode, info); });
+  RegisterNodeCreator(tdfrender::kViewPagerName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::ViewPagerNode, info); });
+  RegisterNodeCreator(tdfrender::kRefreshWrapperName,
+                      [](tdfrender::RenderInfo info) { return TDF_MAKE_SHARED(tdfrender::RefreshWrapperNode, info); });
+  RegisterNodeCreator(tdfrender::kRefreshWrapperItemViewName, [](tdfrender::RenderInfo info) {
+    return TDF_MAKE_SHARED(tdfrender::RefreshWrapperItemNode, info);
+  });
 }
 
-void RegisterNodeCreator(const std::string &view_name, const tdfrender::node_creator &creator) {
-    node_creator_tables_.insert(std::make_pair(view_name, creator));
+void RegisterNodeCreator(const std::string& view_name, const tdfrender::node_creator& creator) {
+  node_creator_tables_.insert(std::make_pair(view_name, creator));
 }
 
-tdfrender::node_creator GetNodeCreator(const std::string &view_name) {
-    auto result = node_creator_tables_.find(view_name);
-    if (result != node_creator_tables_.end()) {
-        return result->second;
-    }
-    return tdfrender::ViewNode::GetViewNodeCreator();
-    // TODO return EmbeddedNode::GetNodeCreator(class_name);
+tdfrender::node_creator GetNodeCreator(const std::string& view_name) {
+  auto result = node_creator_tables_.find(view_name);
+  if (result != node_creator_tables_.end()) {
+    return result->second;
+  } else {
+    return node_creator_tables_.find(tdfrender::kViewName)->second;
+  }
 }
 
 TDFRenderManager::TDFRenderManager() { id_ = global_tdf_render_manager_key.fetch_add(1); }

@@ -19,20 +19,19 @@
  */
 
 #pragma once
-
 namespace tdfrender {
-const auto kViewName = "View";
-const auto kTextViewName = "Text";
-const auto kTextInputViewName = "TextInput";
-const auto kImageViewName = "Image";
-const auto kListViewName = "ListView";
-const auto kListViewItemName = "ListViewItem";
-const auto kModaViewName = "Modal";
-const auto kScrollViewName = "ScrollView";
-const auto kViewPagerName = "ViewPager";
-const auto kViewPagerItemName = "ViewPagerItem";
-const auto kWebViewName = "WebView";
-const auto kRefreshWrapperName = "RefreshWrapper";
-const auto kRefreshWrapperItemViewName = "RefreshWrapperItemView";
+constexpr const char kViewName[] = "View";
+constexpr const char kTextViewName[] = "Text";
+constexpr const char kTextInputViewName[] = "TextInput";
+constexpr const char kImageViewName[] = "Image";
+constexpr const char kListViewName[] = "ListView";
+constexpr const char kListViewItemName[] = "ListViewItem";
+constexpr const char kModaViewName[] = "Modal";
+constexpr const char kScrollViewName[] = "ScrollView";
+constexpr const char kViewPagerName[] = "ViewPager";
+constexpr const char kViewPagerItemName[] = "ViewPagerItem";
+constexpr const char kWebViewName[] = "WebView";
+constexpr const char kRefreshWrapperName[] = "RefreshWrapper";
+constexpr const char kRefreshWrapperItemViewName[] = "RefreshWrapperItemView";
 // TODO: CustomProps / RecyclerView / PullFooterView / PullHeaderView / WaterfallView / WaterfallItem
 }  // namespace tdfrender

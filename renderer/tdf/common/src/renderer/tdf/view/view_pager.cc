@@ -41,7 +41,6 @@ void ViewPager::Init() {
 
   AddScrollUpdateListener([WEAK_THIS](TPoint before, TPoint after) {
     DEFINE_AND_CHECK_SELF(ViewPager)
-    self->DetermineTargetPage();
     if (self->offset_listener_) {
       auto main_axis_offset = self->IsHorizontal() ? (after.x - before.x) : (after.y - after.y);
       self->offset_listener_(self->current_page_, main_axis_offset);
@@ -130,25 +129,6 @@ void ViewPager::SetCurrentPage(int32_t page) {
     selected_listener_(page);
   }
   current_page_ = real_page;
-}
-
-void ViewPager::DetermineTargetPage() {
-  // 滑动方向剩余的偏移
-  auto remaining_offset = IsHorizontal() ? GetOffset().x : GetOffset().y;
-  auto real_page = 0;
-  auto children = GetChildren();
-  for (const auto& child : children) {
-    auto main_axis_length = IsHorizontal() ? child->GetFrame().Width() : child->GetFrame().Height();
-    if (remaining_offset <= main_axis_length / 2) {
-      break;
-    }
-    remaining_offset -= main_axis_length;
-    real_page++;
-  }
-
-  if (real_page != current_page_) {
-    SetCurrentPage(real_page);
-  }
 }
 
 void ViewPager::ScrollTo(int32_t target_page, bool animated) {

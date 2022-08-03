@@ -34,16 +34,15 @@ add_subdirectory(${TDF_RENDER_COMMON} tdf_renderer_common/build)
 target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer_common)
 
 # region source set
-file(GLOB_RECURSE SRC_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/**
-        )
-message("vimer->6 ${SRC_FILES}")
-target_sources(${PROJECT_NAME} PRIVATE ${SRC_FILES})
+set(SOURCE_SET )
+set(SOURCE_SET_STANDALONE
+        src/render/tdf_render_bridge.cc)
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.
 #   * `.o` files in the linker always go inside, referenced or not.
 #
 # The `SOURCE_SET_STANDALONE` including static initializers,
 # so its visibility must be PUBLIC.
-#target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
 # endregion

@@ -32,6 +32,7 @@ using StringView = footstone::unicode_string_view;
 using DataCb = std::function<void(StringView::u8string)>;
 using UriDataGetter = std::function<bool(const StringView &uri, DataCb cb)>;
 
+/// TODO(kloudwang) 到时跟Base64ImageLoader统一走VFS
 class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<NetImageLoader> {
  public:
   ~NetImageLoader() override = default;

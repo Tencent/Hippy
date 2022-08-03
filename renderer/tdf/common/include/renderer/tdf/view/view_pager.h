@@ -163,11 +163,6 @@ class ViewPager : public ScrollView {
 
  private:
   /**
-   * calculate page index with current page offset
-   */
-  void DetermineTargetPage();
-
-  /**
    * scroll to target page
    */
   void ScrollTo(int32_t target, bool animated = true);

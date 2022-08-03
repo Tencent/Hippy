@@ -21,21 +21,43 @@
 #pragma once
 
 #include "renderer/tdf/view/view_pager.h"
-#include "renderer/tdf/viewnode/view_node.h"
+#include "renderer/tdf/viewnode/scroll_view_node.h"
 
 namespace tdfrender {
+
+inline namespace viewpager {
+constexpr const char kViewPager[] = "ViewPager";
+constexpr const char kInitialPage[] = "initialPage";      // int
+constexpr const char kOverflow[] = "overflow";            // String
+constexpr const char kPageMargin[] = "pageMargin";        // float
+constexpr const char kScrollEnabled[] = "scrollEnabled";  // boolean
+constexpr const char kDirection[] = "direction";
+constexpr const char kOnPageScroll[] = "pagescroll";
+constexpr const char kOnPageSelected[] = "pageselected";
+constexpr const char kOnPageScrollStateChanged[] = "onPageScrollStateChanged";
+constexpr const char kVertical[] = "vertical";
+constexpr const char kOverFlowVisible[] = "visible";
+constexpr const char kOverFlowHidden[] = "hidden";
+constexpr const char kPosition[] = "position";
+constexpr const char kSetPage[] = "setPage";
+constexpr const char kSetPageWithoutAnimation[] = "setPageWithoutAnimation";
+constexpr const char kSetIndex[] = "setIndex";
+constexpr const char kNext[] = "next";
+constexpr const char kPrev[] = "prev";
+constexpr const char kOffset[] = "offset";
+constexpr const char kPageScrollState[] = "pageScrollState";
+}  // namespace viewpager
 
 using ScrollOffsetListener = std::function<void(int32_t position, double offset)>;
 using PageSelectedListener = std::function<void(int32_t position)>;
 using ScrollStateChangedListener = std::function<void(std::string old_state, std::string new_state)>;
 
-class ViewPagerNode : public ViewNode {
+class ViewPagerNode : public ScrollViewNode {
  public:
-  using ViewNode::ViewNode;
+  using ScrollViewNode::ScrollViewNode;
   ~ViewPagerNode() override = default;
 
-  static node_creator GetCreator();
-  void OnChildAdd(ViewNode& child, int64_t index) override;
+  void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
   std::shared_ptr<tdfcore::View> CreateView() override;
   void CallFunction(const std::string& function_name, const DomArgument& param, const uint32_t call_back_id) override;
@@ -56,7 +78,6 @@ class ViewPagerNode : public ViewNode {
   void HandleSelectedListener(int32_t position);
   void HandleStateChangedListener(std::string state);
 
-  std::weak_ptr<ViewPager> weak_view_pager;
   bool has_on_page_scroll_event_ = false;
   bool has_on_page_selected_event_ = false;
   bool has_on_page_scroll_state_changed_event_ = false;

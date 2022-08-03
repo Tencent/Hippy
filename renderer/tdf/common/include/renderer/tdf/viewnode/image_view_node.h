@@ -28,7 +28,6 @@ namespace tdfrender {
 class ImageViewNode : public ViewNode {
  public:
   using ViewNode::ViewNode;
-  static node_creator GetImageViewNodeCreator();
 
   void SetDefaultSrc(const std::string &src);
   void SetSrc(const std::string &src);
@@ -40,7 +39,7 @@ class ImageViewNode : public ViewNode {
 
  private:
   std::string default_src_;
-  std::string src_;
+  std::string image_src_;
   bool main_image_set_ = false;
   std::string scale_type_;
   std::shared_ptr<tdfcore::View> CreateView() override;

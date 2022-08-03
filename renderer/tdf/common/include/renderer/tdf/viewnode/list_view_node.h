@@ -27,13 +27,31 @@
 
 namespace tdfrender {
 
+inline namespace listview {
+constexpr const char kListViewItem[] = "ListViewItem";
+constexpr const char kListView[] = "ListView";
+constexpr const char kBounces[] = "bounces";                              // boolean
+constexpr const char kExposureEventEnabled[] = "exposureEventEnabled";    // boolean
+constexpr const char kOnMomentumScrollBegin[] = "onMomentumScrollBegin";  // boolean
+constexpr const char kOnMomentumScrollEnd[] = "onMomentumScrollEnd";      // boolean
+constexpr const char kOnScrollBeginDrag[] = "onScrollBeginDrag";          // boolean
+constexpr const char kOnScrollEnable[] = "onScrollEnable";                // boolean
+constexpr const char kOnScrollEndDrag[] = "onScrollEndDrag";              // boolean
+constexpr const char kOverScrollEnabled[] = "overScrollEnabled";          // boolean
+constexpr const char kPreloadItemNumber[] = "preloadItemNumber";          // int
+constexpr const char kRowShouldSticky[] = "rowShouldSticky";              // boolean
+constexpr const char kScrollEnabled[] = "scrollEnabled";                  // boolean
+constexpr const char kScrollEventThrottle[] = "scrollEventThrottle";      // int
+constexpr const char kSuspendViewListener[] = "suspendViewListener";      // int
+constexpr const char kEndreached[] = "endreached";
+constexpr const char kLoadmore[] = "loadmore";
+}  // namespace listview
+
 class ListViewItemNode : public ViewNode {
  public:
   using ViewNode::ViewNode;
-  static node_creator GetCreator();
 
   bool GetIsSticky() const { return is_sticky_; }
-
   int64_t GetViewType() const { return view_type_; }
 
   /**
@@ -55,7 +73,7 @@ class ListViewNode;
 
 class ListViewDataSource : public tdfcore::CustomLayoutViewDataSource, public tdfcore::Object {
  public:
-  ListViewDataSource(std::shared_ptr<ListViewNode> host) : list_view_node_(host){}
+  ListViewDataSource(std::shared_ptr<ListViewNode> host) : list_view_node_(host) {}
 
   std::shared_ptr<tdfcore::View> GetItem(int64_t index,
                                          const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) override;
@@ -80,8 +98,8 @@ class ListViewNode : public ScrollViewNode {
   static node_creator GetCreator();
 
  protected:
-  void OnChildAdd(ViewNode& child, int64_t index) override;
-  void OnChildRemove(ViewNode& child) override;
+  void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
+  void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
 
   void OnAttach() override;
   void OnDetach() override;
@@ -92,7 +110,6 @@ class ListViewNode : public ScrollViewNode {
 
  private:
   void HandleEndReachedEvent();
-  std::shared_ptr<ListViewDataSource> data_source_;
   bool should_reload_ = false;
   uint64_t on_reach_end_listener_id_;
   uint64_t batch_end_listener_id_;

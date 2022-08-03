@@ -20,17 +20,14 @@
 
 #include "renderer/tdf/viewnode/refresh_wrapper_node.h"
 
+#include <cassert>
 #include "renderer/tdf/viewnode/view_names.h"
 
 namespace tdfrender {
 
-constexpr const char kRefreshComplected[] = "refreshComplected";
+constexpr const char kRefreshEvent[] = "refresh";
 
 void HippyRefreshHeader::Init() { tdfcore::RefreshHeader::Init(); }
-
-node_creator tdfrender::RefreshWrapperItemNode::GetCreator() {
-  return [](RenderInfo info) { return TDF_MAKE_SHARED(RefreshWrapperItemNode, info); };
-}
 
 std::shared_ptr<tdfcore::View> RefreshWrapperItemNode::CreateView() {
   auto view = ViewNode::CreateView();
@@ -39,7 +36,7 @@ std::shared_ptr<tdfcore::View> RefreshWrapperItemNode::CreateView() {
 }
 
 void RefreshWrapperItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
-   // Do not use Hippy's layout location.Only use Hippy's layout size. The same to ListViewItemNode.
+  // Do not use Hippy's layout location.Only use Hippy's layout size. The same to ListViewItemNode.
   TDF_RENDER_CHECK_ATTACH
   auto origin_left = GetView()->GetFrame().left;
   auto origin_top = GetView()->GetFrame().top;
@@ -48,44 +45,40 @@ void RefreshWrapperItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_resul
   ViewNode::HandleLayoutUpdate(layout_result);
 }
 
-node_creator tdfrender::RefreshWrapperNode::GetCreator() {
-  return [](RenderInfo info) { return TDF_MAKE_SHARED(RefreshWrapperNode, info); };
-}
-
 std::shared_ptr<tdfcore::View> RefreshWrapperNode::CreateView() {
   auto view = ViewNode::CreateView();
   view->SetClipToBounds(true);
   return view;
 }
 
-void RefreshWrapperNode::OnChildAdd(ViewNode &child, int64_t index) {
-  auto child_dom_node = child.GetDomNode();
+void RefreshWrapperNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
+  auto child_dom_node = child->GetDomNode();
   FOOTSTONE_DCHECK(IsAttached());
   if (child_dom_node->GetViewName() == kRefreshWrapperItemViewName) {
-    item_node_ = std::static_pointer_cast<RefreshWrapperItemNode>(child.GetSharedPtr());
+    item_node_ = std::static_pointer_cast<RefreshWrapperItemNode>(child->GetSharedPtr());
     refresh_header_ = TDF_MAKE_SHARED(HippyRefreshHeader, item_node_->CreateView());
-    child.Attach(refresh_header_->GetView());
+    child->Attach(refresh_header_->GetView());
     return;
   }
 
   // RefreshHeader's location in ViewNode Tree is different from View Tree,
   // so we need to correct index here.
-  child.SetCorrectedIndex(index - 1);
+  child->SetCorrectedIndex(index - 1);
   ViewNode::OnChildAdd(child, index);
   if (child_dom_node->GetViewName() == kListViewName) {
-    refresh_header_node_id_ = child.GetRenderInfo().id;
-    list_node_ = std::static_pointer_cast<ListViewNode>(child.GetSharedPtr());
+    refresh_header_node_id_ = child->GetRenderInfo().id;
+    list_node_ = std::static_pointer_cast<ListViewNode>(child->GetSharedPtr());
     FOOTSTONE_DCHECK(item_node_ != nullptr && item_node_->IsAttached());
     // TODO release refresh_header_'s pointer here.
     list_node_->GetView<tdfcore::CustomLayoutView>()->SetHeader(refresh_header_);
     refresh_header_->AddStateListener(tdfcore::RefreshHeaderState::kRefreshing, [WEAK_THIS]() {
       DEFINE_AND_CHECK_SELF(RefreshWrapperNode)
-      self->SendUIDomEvent("refresh");
+      self->SendUIDomEvent(kRefreshEvent);
     });
   }
 }
-void RefreshWrapperNode::OnChildRemove(ViewNode &child) {
-  if (child.GetRenderInfo().id == refresh_header_node_id_) {
+void RefreshWrapperNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
+  if (child->GetRenderInfo().id == refresh_header_node_id_) {
     refresh_header_ = nullptr;
     list_node_->GetView<tdfcore::CustomLayoutView>()->SetHeader(nullptr);
     return;
@@ -93,7 +86,7 @@ void RefreshWrapperNode::OnChildRemove(ViewNode &child) {
   ViewNode::OnChildRemove(child);
 }
 
-void RefreshWrapperNode::CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) {
+void RefreshWrapperNode::CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) {
   if (name == kRefreshComplected) {
     if (refresh_header_ && refresh_header_->GetState() == tdfcore::RefreshHeaderState::kRefreshing) {
       refresh_header_->FinishRefresh();

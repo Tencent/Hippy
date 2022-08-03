@@ -19,12 +19,13 @@
  */
 
 #include "renderer/tdf/viewnode/text_input_node.h"
+
 #include "footstone/string_view_utils.h"
+#include "renderer/tdf/viewnode/text_view_node.h"
 
 #include "core/tdfi/view/text/cupertino_text_selection_control.h"
 #include "core/tdfi/view/view_context.h"
-#include "renderer/tdf/viewnode/node_props.h"
-#include "renderer/tdf/viewnode/node_utils.h"
+#include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "src/core/SkBlurMask.h"
 
 #define INVOKE_IF_VIEW_IS_VALIDATE(fn)         \
@@ -41,43 +42,17 @@ using tdfcore::CupertinoTextSelectionControl;
 using tdfcore::ViewContext;
 using tdfcore::ViewportEvent;
 using tdfcore::textlayout::TextAlign;
-
-const auto kCaretColor = "caret-color";
-
-const auto kBlurTextInput = "blurTextInput";
-const auto kClear = "clear";
-const auto kFocusTextInput = "focusTextInput";
-const auto kGetValue = "getValue";
-const auto kHideInputMethod = "hideInputMethod";
-const auto kShowInputMethod = "showInputMethod";
-
-const auto kKeyboardType_Default = "default";
-const auto kKeyboardType_Numeric = "numeric";
-const auto kKeyboardType_Password = "password";
-const auto kKeyboardType_Email = "email";
-const auto kKeyboardType_PhonePad = "phone-pad";
-
-const auto kKeyboardAction_Done = "done";
-const auto kKeyboardAction_Go = "go";
-const auto kKeyboardAction_Next = "next";
-const auto kKeyboardAction_Search = "search";
-const auto kKeyboardAction_Send = "send";
-
-const auto kOnKeyBoardWillShow = "onKeyboardWillShow";
-const auto kOnKeyBoardWillHide = "keyboardWillHide";
+using unicode_string_view = footstone::stringview::unicode_string_view;
+using hippy::base::StringViewUtils;
 
 TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
   text_shadow_.fColor = tdfcore::Color::Transparent();
   text_shadow_.fOffset = tdfcore::TPoint::Make(0, 0);
-  InitJsCall();
+  InitCallBackMap();
   InitCallback();
 }
 
 TextInputNode::~TextInputNode() { UnregisterViewportListener(); }
-
-node_creator TextInputNode::GetCreator() {
-  return [](RenderInfo info) { return std::make_shared<TextInputNode>(info); };
-}
 
 void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto text_input_view = text_input_view_.lock();
@@ -122,10 +97,9 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (has_shadow_) {
     text_style.addShadow(text_shadow_);
   }
-  auto utf8_string = footstone::unicode_string_view::new_from_utf8(place_holder_.c_str());
   auto utf16_string =
-      hippy::base::StringViewUtils::CovertToUtf16(utf8_string, footstone::unicode_string_view::Encoding::Utf8);
-  text_input_view->SetPlaceholder(utf16_string.utf16_value(), place_holder_color_);
+      StringViewUtils::CovertToUtf16(place_holder_.c_str(), unicode_string_view::Encoding::Latin1).utf16_value();
+  text_input_view->SetPlaceholder(utf16_string, place_holder_color_);
   text_input_view->SetTextStyle(text_style);
   text_input_view->SetKeyboardAction(keyboard_action_);
 }
@@ -136,19 +110,46 @@ std::shared_ptr<View> TextInputNode::CreateView() {
   auto text_input_view = TDF_MAKE_SHARED(TextInputView, edit_controller_, selection_control_);
   edit_controller_->AddListener([&, text_input_view](const auto& v) { DidChangeTextEditingValue(text_input_view); });
   auto text_style = text_input_view->GetAttributes().paragraph_style->getTextStyle();
-  text_style.setColor(tdfcore::Color::Black());
+  text_style.setColor(kDefaultTextColor);
   text_input_view->GetAttributes().paragraph_style->setTextStyle(text_style);
   text_input_view_ = text_input_view;
+  text_input_view->GetViewContext()->GetShell()->GetEventCenter()->AddListener(
+      tdfcore::KeyboardActionEvent::ClassType(),
+      [WEAK_THIS](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
+        DEFINE_SELF(TextInputNode)
+        if (self) {
+          self->SendKeyActionEvent(event);
+        }
+        return tdfcore::EventDispatchBehavior::kContinue;
+      });
   return text_input_view;
 }
 
+void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event) {
+  static std::map<KeyboardAction, const char*> action_name_map = {
+      {KeyboardAction::kDone, kKeyboardAction_Done},        {KeyboardAction::kGo, kKeyboardAction_Go},
+      {KeyboardAction::kNext, kKeyboardAction_Next},        {KeyboardAction::kSearch, kKeyboardAction_Search},
+      {KeyboardAction::kSend, kKeyboardAction_Send},        {KeyboardAction::kNone, kKeyboardAction_None},
+      {KeyboardAction::kPrevious, kKeyboardAction_Previous}};
+  auto keyboard_action_event = std::static_pointer_cast<tdfcore::KeyboardActionEvent>(event);
+  auto key_action = keyboard_action_event->GetKeyboardAction();
+  auto action_name = kKeyboardAction_Unknown;
+  if (action_name_map.find(key_action) != action_name_map.end()) {
+    action_name = action_name_map.find(key_action)->second;
+  }
+
+  DomValueObjectType param;
+  param[kKeyActionName] = action_name;
+  SendUIDomEvent(kOnEditorAction, std::make_shared<footstone::HippyValue>(param));
+}
+
 void TextInputNode::DidChangeTextEditingValue(std::shared_ptr<TextInputView> text_input_view) {
-  auto text = edit_controller_->GetText();
-  if (edit_controller_->GetText() != text) {
-    text_input_view->SetText(text);
+  auto text_u16 = edit_controller_->GetText();
+  if (edit_controller_->GetText() != text_u16) {
+    text_input_view->SetText(text_u16);
     if (event_callback_.on_change_text_flag) {
       event_callback_.on_change_text(
-          std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(text));
+          StringViewUtils::CovertToUtf8(text_u16.c_str(), unicode_string_view::Encoding::Utf16).latin1_value());
     }
   }
   auto selection = edit_controller_->GetSelection();
@@ -162,36 +163,36 @@ void TextInputNode::DidChangeTextEditingValue(std::shared_ptr<TextInputView> tex
 void TextInputNode::CallFunction(const std::string& function_name, const DomArgument& param,
                                  const uint32_t call_back_id) {
   ViewNode::CallFunction(function_name, param, call_back_id);
-  auto func = js_function_map_.find(function_name);
+  auto func = input_event_callback_map_.find(function_name);
   FOOTSTONE_LOG(INFO) << "TextInputNode::CallFunction function_name = " << function_name;
-  if (func != js_function_map_.end()) {
+  if (func != input_event_callback_map_.end()) {
     func->second(call_back_id, param);
   }
 }
 
-void TextInputNode::InitJsCall() {
-  js_function_map_[kBlurTextInput] = [this](const uint32_t callback_id, const DomArgument& param) {
+void TextInputNode::InitCallBackMap() {
+  input_event_callback_map_[kBlurTextInput] = [this](const uint32_t callback_id, const DomArgument& param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) { std::static_pointer_cast<TextInputView>(view)->ClearFocus(); };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  js_function_map_[kClear] = [this](const uint32_t callback_id, const DomArgument& param) {
+  input_event_callback_map_[kClear] = [this](const uint32_t callback_id, const DomArgument& param) {
     auto fn = [](std::shared_ptr<View> view) { std::static_pointer_cast<TextInputView>(view)->SetText(u""); };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  js_function_map_[kFocusTextInput] = [this](const uint32_t callback_id, const DomArgument& param) {
+  input_event_callback_map_[kFocusTextInput] = [this](const uint32_t callback_id, const DomArgument& param) {
     auto fn = [](std::shared_ptr<View> view) { std::static_pointer_cast<TextInputView>(view)->RequestFocus(); };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  js_function_map_[kGetValue] = [](const uint32_t callback_id, const DomArgument& param) {
+  input_event_callback_map_[kGetValue] = [](const uint32_t callback_id, const DomArgument& param) {
     // TODO(kloudwang)
   };
-  js_function_map_[kHideInputMethod] = [this](const uint32_t callback_id, const DomArgument& param) {
+  input_event_callback_map_[kHideInputMethod] = [this](const uint32_t callback_id, const DomArgument& param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) {
       std::static_pointer_cast<tdfcore::TextInputView>(view)->TryHidingInputMethod();
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  js_function_map_[kShowInputMethod] = [this](const uint32_t callback_id, const DomArgument& param) {
+  input_event_callback_map_[kShowInputMethod] = [this](const uint32_t callback_id, const DomArgument& param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) {
       std::static_pointer_cast<tdfcore::TextInputView>(view)->TryShowingInputMethod();
     };
@@ -200,35 +201,43 @@ void TextInputNode::InitJsCall() {
 }
 
 void TextInputNode::InitCallback() {
-  event_callback_.on_blur = [this]() { SendUIDomEvent(textinput::kOnBlur); };
-  event_callback_.on_change_text = [this](const std::string& value) {
-    DomValueObjectType param;
-    param["text"] = value;
-    SendUIDomEvent(textinput::kOnChangeText, std::make_shared<footstone::HippyValue>(param));
+  event_callback_.on_blur = [WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(TextInputNode)
+    self->SendUIDomEvent(textinput::kOnBlur);
   };
-  event_callback_.on_keyboard_height_change = [this](float keyboard_height) {
+  event_callback_.on_change_text = [WEAK_THIS](const std::string& value) {
+    DEFINE_AND_CHECK_SELF(TextInputNode)
+    DomValueObjectType param;
+    param[kText] = value;
+    self->SendUIDomEvent(textinput::kOnChangeText, std::make_shared<footstone::HippyValue>(param));
+  };
+  event_callback_.on_keyboard_height_change = [WEAK_THIS](float keyboard_height) {
+    DEFINE_AND_CHECK_SELF(TextInputNode)
     auto function_name = keyboard_height < 1 ? kOnKeyBoardWillHide : kOnKeyBoardWillShow;
     DomValueObjectType param;
     param["keyboardHeight"] = keyboard_height;
-    SendUIDomEvent(function_name, std::make_shared<footstone::HippyValue>(param));
+    self->SendUIDomEvent(function_name, std::make_shared<footstone::HippyValue>(param));
   };
-  event_callback_.on_end_editing = [this](std::u16string final_text) {
+  event_callback_.on_end_editing = [WEAK_THIS](std::u16string final_text) {
+    DEFINE_AND_CHECK_SELF(TextInputNode)
     DomValueObjectType param;
-    param["text"] = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(final_text);
-    SendUIDomEvent(textinput::kOnEndEditing, std::make_shared<footstone::HippyValue>(param));
+    param[kText] =
+        StringViewUtils::CovertToUtf8(final_text.c_str(), unicode_string_view::Encoding::Utf16).latin1_value();
+    self->SendUIDomEvent(textinput::kOnEndEditing, std::make_shared<footstone::HippyValue>(param));
   };
-  event_callback_.on_selection_change = [this](size_t start, size_t end) {
+  event_callback_.on_selection_change = [WEAK_THIS](size_t start, size_t end) {
+    DEFINE_AND_CHECK_SELF(TextInputNode)
     DomValueObjectType param;
     DomValueObjectType selection_param;
     selection_param["start"] = footstone::HippyValue(static_cast<uint32_t>(start));
     selection_param["end"] = footstone::HippyValue(static_cast<uint32_t>(end));
     param["selection"] = footstone::HippyValue(selection_param);
-    SendUIDomEvent(textinput::kOnSelectionChange, std::make_shared<footstone::HippyValue>(param));
+    self->SendUIDomEvent(textinput::kOnSelectionChange, std::make_shared<footstone::HippyValue>(param));
   };
 }
 
 void TextInputNode::RegisterViewportListener() {
-  if (viewport_listener_id_ == 0) {
+  if (viewport_listener_id_ == kViewportListenerNotAddID) {
     auto listener = [this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
       auto viewport_event = std::static_pointer_cast<tdfcore::ViewportEvent>(event);
       event_callback_.on_keyboard_height_change(
@@ -241,7 +250,7 @@ void TextInputNode::RegisterViewportListener() {
 }
 
 void TextInputNode::UnregisterViewportListener() {
-  if (viewport_listener_id_ != 0) {
+  if (viewport_listener_id_ != kViewportListenerNotAddID) {
     ViewContext::GetCurrent()->GetShell()->GetEventCenter()->RemoveListener(ViewportEvent::ClassType(),
                                                                             viewport_listener_id_);
   }
@@ -264,8 +273,10 @@ void TextInputNode::SetColor(const DomStyleMap& dom_style, TextStyle& text_style
 void TextInputNode::SetDefaultValue(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
   if (auto iter = dom_style.find(textinput::kDefaultValue); iter != dom_style.end()) {
     FOOTSTONE_LOG(INFO) << "TextInputNode::SetDefaultValue value = " << iter->second->ToStringChecked();
-    text_input_view->SetText(std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.from_bytes(
-        iter->second->ToStringChecked()));
+    auto text_u16 =
+        StringViewUtils::CovertToUtf16(iter->second->ToStringChecked().c_str(), unicode_string_view::Encoding::Latin1)
+            .utf16_value();
+    text_input_view->SetText(text_u16);
   }
 }
 
@@ -303,9 +314,6 @@ void TextInputNode::SetLineHeight(const DomStyleMap& dom_style, TextStyle& text_
 void TextInputNode::SetFontStyle(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(textinput::kFontStyle); iter != dom_style.end()) {
     auto font_style = iter->second->ToStringChecked();
-    if (font_style_ == font_style) {
-      return;
-    }
     font_style_ = font_style;
     UpdateFontStyle(text_style);
   }
@@ -324,7 +332,7 @@ void TextInputNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_
       // 具体数值
       auto font_weight = dom_value->ToDoubleChecked();
       if (font_weight > SkFontStyle::Weight::kMedium_Weight) {
-        font_weight_ = "bold";
+        font_weight_ = kFontBold;
       }
       auto font_style =
           SkFontStyle(static_cast<int>(font_weight), SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
@@ -441,17 +449,17 @@ void TextInputNode::SetPlaceHolderTextColor(const DomStyleMap& dom_style) {
 }
 
 void TextInputNode::SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  static std::map<std::string, KeyboardAction> action_map = {{kKeyboardAction_Done, KeyboardAction::kDone},
-                                                             {kKeyboardAction_Go, KeyboardAction::kGo},
-                                                             {kKeyboardAction_Next, KeyboardAction::kNext},
-                                                             {kKeyboardAction_Search, KeyboardAction::kSearch},
-                                                             {kKeyboardAction_Send, KeyboardAction::kSend}};
-  if (auto iter = dom_style.find(textinput::kPlaceholderTextColor); iter != dom_style.end()) {
-    //    auto action = iter->second->ToStringChecked();
-    //    auto action_iterator = action_map.find(action);
-    //    if (action_iterator != action_map.end()) {
-    //      text_input_view->SetKeyboardAction(action_iterator->second);
-    //    }
+  static std::map<std::string, KeyboardAction> name_action_map = {
+      {kKeyboardAction_Done, KeyboardAction::kDone},         {kKeyboardAction_Go, KeyboardAction::kGo},
+      {kKeyboardAction_Next, KeyboardAction::kNext},         {kKeyboardAction_Search, KeyboardAction::kSearch},
+      {kKeyboardAction_Send, KeyboardAction::kSend},         {kKeyboardAction_None, KeyboardAction::kNone},
+      {kKeyboardAction_Previous, KeyboardAction::kPrevious}, {kKeyboardAction_Send, KeyboardAction::kSend}};
+  if (auto iter = dom_style.find(textinput::kReturnKeyType); iter != dom_style.end()) {
+    auto action = iter->second->ToStringChecked();
+    auto action_iterator = name_action_map.find(action);
+    if (action_iterator != name_action_map.end()) {
+      text_input_view->SetKeyboardAction(action_iterator->second);
+    }
   }
 }
 
@@ -504,10 +512,10 @@ void TextInputNode::SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle
 void TextInputNode::UpdateFontStyle(TextStyle& text_style) {
   bool is_italic = false;
   bool is_bold = false;
-  if (font_style_ == "italic") {
+  if (font_style_ == kFontItalic) {
     is_italic = true;
   }
-  if (font_weight_ == "bold") {
+  if (font_weight_ == kFontBold) {
     is_bold = true;
   }
   if (is_italic && is_bold) {

@@ -29,6 +29,7 @@ namespace tdfrender {
 
 constexpr const char kBase64Scheme[] = "data:image/png;base64";
 
+/// TODO(kloudwang) 到时跟NetImageLoader统一走VFS
 class Base64ImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<Base64ImageLoader> {
  public:
   ~Base64ImageLoader() override = default;

@@ -19,6 +19,7 @@
  */
 
 #include "renderer/tdf/viewnode/list_view_node.h"
+
 #include <cassert>
 #include "dom/node_props.h"
 #include "renderer/tdf/viewnode/view_node.h"
@@ -31,31 +32,25 @@ constexpr const char kSticky[] = "sticky";
 constexpr const char kViewTypeNew[] = "itemViewType";
 }  // namespace listviewitem
 
-constexpr const char kEndreached[] = "endreached";
-constexpr const char kLoadmore[] = "loadmore";
-
-node_creator ListViewNode::GetCreator() {
-  return [](RenderInfo info) { return std::make_shared<ListViewNode>(info); };
-}
-
 std::shared_ptr<tdfcore::View> ListViewNode::CreateView() {
-  data_source_ = TDF_MAKE_SHARED(ListViewDataSource, std::static_pointer_cast<ListViewNode>(shared_from_this()));
+  auto data_source = TDF_MAKE_SHARED(ListViewDataSource, std::static_pointer_cast<ListViewNode>(shared_from_this()));
   auto layout = TDF_MAKE_SHARED(tdfcore::LinearCustomLayout);
-  return TDF_MAKE_SHARED(tdfcore::CustomLayoutView, data_source_, layout);
+  return TDF_MAKE_SHARED(tdfcore::CustomLayoutView, data_source, layout);
 }
 
 void ListViewNode::OnAttach() {
   auto list_view = GetView<tdfcore::CustomLayoutView>();
   list_view->SetItemChangeCallback(
-      [this](int64_t index, const std::shared_ptr<tdfcore::View>& item, tdfcore::ItemAction action) {
-        FOOTSTONE_DCHECK(index < GetChildren().size());
-        auto node = std::static_pointer_cast<ListViewItemNode>(GetChildren()[index]);
+      [WEAK_THIS](int64_t index, const std::shared_ptr<tdfcore::View>& item, tdfcore::ItemAction action) {
+        DEFINE_AND_CHECK_SELF(ListViewNode)
+        FOOTSTONE_DCHECK(index < self->GetChildren().size());
+        auto node = std::static_pointer_cast<ListViewItemNode>(self->GetChildren()[index]);
         if (action == tdfcore::ItemAction::kAdd) {
           // attach when updateItem (before add to listview)
           FOOTSTONE_DCHECK(node->IsAttached());
         } else {
-          FOOTSTONE_DCHECK(GetChildren()[index]->IsAttached());
-          GetChildren()[index]->Detach(false);
+          FOOTSTONE_DCHECK(self->GetChildren()[index]->IsAttached());
+          self->GetChildren()[index]->Detach(false);
         }
       });
   batch_end_listener_id_ = GetRenderContext()->AddEndBatchListener([WEAK_THIS]() {
@@ -109,13 +104,9 @@ void ListViewItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   ViewNode::HandleLayoutUpdate(layout_result);
 }
 
-void ListViewNode::OnChildAdd(ViewNode& child, int64_t index) { should_reload_ = true; }
+void ListViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) { should_reload_ = true; }
 
-void ListViewNode::OnChildRemove(ViewNode& child) { should_reload_ = true; }
-
-node_creator ListViewItemNode::GetCreator() {
-  return [](RenderInfo info) { return std::make_shared<ListViewItemNode>(info); };
-}
+void ListViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { should_reload_ = true; }
 
 std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() { return TDF_MAKE_SHARED(tdfcore::View); }
 
@@ -127,7 +118,7 @@ void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
     if (it->second->IsString()) {
       view_type_ = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
-    } else if (it->second->IsInt32()){
+    } else if (it->second->IsInt32()) {
       view_type_ = it->second->ToInt32Checked();
     }
     // TODO Other Type

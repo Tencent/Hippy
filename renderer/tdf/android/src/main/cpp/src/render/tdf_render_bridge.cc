@@ -20,7 +20,6 @@
 
 #include "render/tdf_render_bridge.h"
 #include "core/platform/android/jni/jni_platform_android.h"
-#include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "renderer/tdf/tdf_render_manager.h"
 

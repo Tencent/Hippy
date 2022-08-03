@@ -33,6 +33,7 @@ std::shared_ptr<tdfcore::Task> NetImageLoader::Load(const std::string &url, cons
     DEFINE_AND_CHECK_SELF(NetImageLoader)
     StringView src_uri = footstone::unicode_string_view(url);
     FOOTSTONE_LOG(INFO) << "---NetImageLoader::Load--- src = " << src_uri;
+    /// TODO(kloudwang) 后面统一走VFS 不需要依赖外部的uriGetter
     self->uri_data_getter_(src_uri, [self, loader_callback](StringView::u8string data) {
       if (!data.empty()) {
         auto bytes = data.data();

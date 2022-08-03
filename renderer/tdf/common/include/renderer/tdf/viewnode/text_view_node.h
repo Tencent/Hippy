@@ -27,6 +27,26 @@
 
 namespace tdfrender {
 
+inline namespace text {
+constexpr const char kText[] = "text";                                    // String
+constexpr const char kColor[] = "color";                                  // Integer
+constexpr const char kEnableScale[] = "enableScale";                      // boolean
+constexpr const char kFontFamily[] = "fontFamily";                        // String
+constexpr const char kFontSize[] = "fontSize";                            // float
+constexpr const char kFontStyle[] = "fontStyle";                          // String
+constexpr const char kFontWeight[] = "fontWeight";                        // String
+constexpr const char kLetterSpacing[] = "letterSpacing";                  // float
+constexpr const char kLineHeight[] = "lineHeight";                        // int
+constexpr const char kLineSpacingExtra[] = "lineSpacingExtra";            // float
+constexpr const char kLineSpacingMultiplier[] = "lineSpacingMultiplier";  // float
+constexpr const char kNumberOfLines[] = "numberOfLines";                  // int
+constexpr const char kTextAlign[] = "textAlign";                          // String
+constexpr const char kTextDecorationLine[] = "textDecorationLine";        // String
+constexpr const char kTextShadowColor[] = "textShadowColor";              // int
+constexpr const char kTextShadowOffset[] = "textShadowOffset";            // HashMap
+constexpr const char kTextShadowRadius[] = "textShadowRadius";            // float
+}  // namespace text
+
 using hippy::LayoutMeasureMode;
 using tdfcore::TextView;
 using tdfcore::textlayout::TextAlign;
@@ -38,14 +58,12 @@ class TextViewNode : public ViewNode {
  public:
   explicit TextViewNode(const RenderInfo info);
 
-  static node_creator GetTextViewNodeCreator();
-
   void OnCreate() override;
 
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
-  void OnChildAdd(ViewNode& child, int64_t index) override;
-  void OnChildRemove(ViewNode& child) override;
+  void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
+  void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
   std::string GetViewName() const { return kTextViewName; }
 
   void HandleLayoutUpdate(hippy::LayoutResult layout_result) override;
@@ -82,8 +100,8 @@ class TextViewNode : public ViewNode {
   std::string font_weight_ = "";
   TextShadow text_shadow_;
   bool has_shadow_ = true;
-  float font_size_ = 16.0;
-  float line_height_ = 16.0;
+  float font_size_ = kDefaultFontSize;
+  float line_height_ = kDefaultLineHeight;
 
   // support layout when not attached.
   std::shared_ptr<tdfcore::TextView> layout_view_;

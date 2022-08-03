@@ -21,18 +21,8 @@
 #include "renderer/tdf/viewnode/view_pager_node.h"
 
 #include "footstone/logging.h"
-#include "renderer/tdf/viewnode/node_props.h"
 
 namespace tdfrender {
-
-const auto kDirection = "direction";
-const auto kOnPageScroll = "pagescroll";
-const auto kOnPageSelected = "pageselected";
-const auto kOnPageScrollStateChanged = "onPageScrollStateChanged";
-const auto kVertical = "vertical";
-const auto kOverFlowVisible = "visible";
-const auto kOverFlowHidden = "hidden";
-const auto kPosition = "position";
 
 enum class FunctionType {
   kFunctionSetPage,
@@ -42,11 +32,9 @@ enum class FunctionType {
   kFunctionPrevPage
 };
 
-node_creator ViewPagerNode::GetCreator() {
-  return [](RenderInfo info) { return TDF_MAKE_SHARED(ViewPagerNode, info); };
+void ViewPagerNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
+  ViewNode::OnChildAdd(child, index);
 }
-
-void ViewPagerNode::OnChildAdd(ViewNode& child, int64_t index) { ViewNode::OnChildAdd(child, index); }
 
 void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
@@ -62,20 +50,19 @@ void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
 std::shared_ptr<tdfcore::View> ViewPagerNode::CreateView() {
   auto view_pager = TDF_MAKE_SHARED(ViewPager);
-  weak_view_pager = view_pager;
   return view_pager;
 }
 
 void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgument& param,
                                  const uint32_t call_back_id) {
   static std::map<std::string, FunctionType> function_map = {
-      {"setPage", FunctionType::kFunctionSetPage},
-      {"setPageWithoutAnimation", FunctionType::kFunctionSetPageWithoutAnimation},
-      {"setIndex", FunctionType::kFunctionSetIndex},
-      {"next", FunctionType::kFunctionNextPage},
-      {"prev", FunctionType::kFunctionPrevPage},
+      {kSetPage, FunctionType::kFunctionSetPage},
+      {kSetPageWithoutAnimation, FunctionType::kFunctionSetPageWithoutAnimation},
+      {kSetIndex, FunctionType::kFunctionSetIndex},
+      {kNext, FunctionType::kFunctionNextPage},
+      {kPrev, FunctionType::kFunctionPrevPage},
   };
-  auto view_pager = weak_view_pager.lock();
+  auto view_pager = GetView<ViewPager>();
   footstone::HippyValue value;
   param.ToObject(value);
   auto index = value.ToArrayChecked().at(0).ToDoubleChecked();
@@ -111,6 +98,7 @@ void ViewPagerNode::InitialPage(const DomStyleMap& dom_style, std::shared_ptr<Vi
 }
 
 void ViewPagerNode::HandleEventInfoUpdate() {
+  /// TODO(kloudwang) infinite loop scroll
   auto supported_events = GetSupportedEvents();
   if (auto iterator = supported_events.find(kOnPageSelected); iterator != supported_events.end()) {
     has_on_page_selected_event_ = true;
@@ -180,7 +168,7 @@ void ViewPagerNode::HandleOffsetListener(int32_t position, double offset) {
   FOOTSTONE_DCHECK(has_on_page_scroll_event_);
   DomValueObjectType param;
   param[kPosition] = position;
-  param["offset"] = offset;
+  param[kOffset] = offset;
   SendUIDomEvent(kOnPageScroll, std::make_shared<footstone::HippyValue>(param));
 }
 
@@ -194,7 +182,7 @@ void ViewPagerNode::HandleSelectedListener(int32_t position) {
 void ViewPagerNode::HandleStateChangedListener(std::string state) {
   FOOTSTONE_DCHECK(has_on_page_scroll_state_changed_event_);
   DomValueObjectType param;
-  param["pageScrollState"] = state;
+  param[kPageScrollState] = state;
   SendUIDomEvent(kOnPageScrollStateChanged, std::make_shared<footstone::HippyValue>(param));
 }
 

@@ -22,8 +22,7 @@
 
 #include "dom/layout_node.h"
 #include "footstone/string_view_utils.h"
-#include "renderer/tdf/viewnode/node_props.h"
-#include "renderer/tdf/viewnode/node_utils.h"
+#include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "src/core/SkBlurMask.h"
 
 namespace tdfrender {
@@ -38,6 +37,7 @@ void TextViewNode::OnCreate() {
   ViewNode::OnCreate();
   auto shell = tdfcore::ViewContext::GetCurrent()->GetShell();
   // set the related DomNode's measure function immediately after create.
+  /// TODO(kloudwang) sync measure
   GetDomNode()->GetLayoutNode()->SetMeasureFunction([this, shell](float width, LayoutMeasureMode width_measure_mode,
                                                                   float height, LayoutMeasureMode height_measure_mode,
                                                                   void* layoutContext) {
@@ -73,13 +73,9 @@ std::shared_ptr<tdfcore::TextView> TextViewNode::GetTextView() {
 std::shared_ptr<tdfcore::View> TextViewNode::CreateView() {
   auto text_view = TDF_MAKE_SHARED(TextView);
   auto text_style = text_view->GetTextStyle();
-  text_style.setColor(tdfcore::Color::Black());
+  text_style.setColor(kDefaultTextColor);
   text_view->SetTextStyle(text_style);
   return text_view;
-}
-
-node_creator TextViewNode::GetTextViewNodeCreator() {
-  return [](RenderInfo info) { return TDF_MAKE_SHARED(TextViewNode, info); };
 }
 
 void TextViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
@@ -125,25 +121,25 @@ void TextViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   ViewNode::HandleLayoutUpdate(layout_result);
 }
 
-void TextViewNode::OnChildAdd(ViewNode& child, int64_t index) {
+void TextViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   ViewNode::OnChildAdd(child, index);
-  FOOTSTONE_DCHECK(child.IsAttached());
+  FOOTSTONE_DCHECK(child->IsAttached());
   // 不能嵌套非Text的节点。Hippy也可以嵌套Image，这里暂时不支持
-  if (child.GetViewName() != kTextViewName) {
+  if (child->GetViewName() != kTextViewName) {
     return;
   }
-  auto text_node = static_cast<TextViewNode*>(&child);
+  auto text_node = std::static_pointer_cast<TextViewNode>(child);
   auto text_span = text_node->GetTextView()->GetTextSpan();
   children_text_span_.push_back(text_span);
   GetTextView()->GetTextSpan()->SetChildren(children_text_span_);
 }
 
-void TextViewNode::OnChildRemove(ViewNode& child) {
+void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
   ViewNode::OnChildRemove(child);
-  if (child.GetViewName() != kTextViewName) {
+  if (child->GetViewName() != kTextViewName) {
     return;
   }
-  auto text_node = static_cast<TextViewNode*>(&child);
+  auto text_node = std::static_pointer_cast<TextViewNode>(child);
   auto text_span = text_node->GetTextView()->GetTextSpan();
   auto location = std::find(children_text_span_.begin(), children_text_span_.end(), text_span);
   if (location != children_text_span_.end()) {
