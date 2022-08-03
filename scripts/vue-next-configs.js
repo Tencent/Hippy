@@ -5,7 +5,7 @@ const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const typescript = require('rollup-plugin-typescript2');
 
-const VueVersion = require('vue/package.json').version;
+const VueVersion = require('../packages/hippy-vue-next/node_modules/@vue/runtime-core/package.json').version;
 const hippyVueNextPackage = require('../packages/hippy-vue-next/package.json');
 const hippyStyleParserPackage = require('../packages/hippy-style-parser/package.json');
 const hippySharedPackage = require('../packages/hippy-shared/package.json');
