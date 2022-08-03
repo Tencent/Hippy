@@ -21,13 +21,7 @@
  */
 
 apply plugin: 'com.android.library'
-apply from: './mavencentral.gradle'
-
-ext {
-  CMAKE_PATH = "src/main/cpp/CMakeLists.txt"
-  OUTPUT_PATH = "$buildDir/outputs/aar"
-  skipCmakeAndNinja = System.getenv('skipCmakeAndNinja') != null
-}
+apply from: './publish.gradle'
 
 buildscript {
   repositories {
@@ -42,24 +36,7 @@ buildscript {
 }
 
 allprojects {
-  ext {
-    MAVEN_USER = System.getenv('maven_username')
-    MAVEN_PWD = System.getenv('maven_password')
-    MAVEN_URL = System.getenv('maven_url')
-
-    println("MAVEN_USER=" + MAVEN_USER + ", MAVEN_PWD=" + MAVEN_PWD)
-  }
-
   repositories {
-    if (MAVEN_URL != null) {
-      maven {
-        url MAVEN_URL
-        credentials {
-          username MAVEN_USER
-          password MAVEN_PWD
-        }
-      }
-    }
     google()
     mavenCentral()
   }
@@ -72,7 +49,6 @@ android {
   defaultConfig {
     minSdkVersion MIN_VERSION as int
     targetSdkVersion TARGET_VERSION as int
-    versionCode VERSION_CODE as int
     versionName VERSION_NAME
 
     // 保证app使用aar时，会自动将该proguard文件添加到本身的proguard规则中
@@ -160,11 +136,11 @@ android {
     }
   }
 
-  if (!SKIP_CMAKE_AND_NINJA.toBoolean() && !skipCmakeAndNinja) {
+  if (!SKIP_CMAKE_AND_NINJA.toBoolean() && System.getenv('skipCmakeAndNinja') == null) {
     externalNativeBuild {
       cmake {
         version CMAKE_VERSION
-        path CMAKE_PATH
+        path "src/main/cpp/CMakeLists.txt"
       }
     }
   }
@@ -276,36 +252,37 @@ task dealAfterStripDebugDebugSymbols() {
   }
 }
 
-def dealAfterAssemble(buildType) {
-  file("$OUTPUT_PATH/$buildType").deleteDir()
-  File target = file("$OUTPUT_PATH/$ARCHIVES_BASE_NAME" + ".aar")
+def dealAfterAssemble(outputPath, buildType) {
+  file("$outputPath/$buildType").deleteDir()
+  File target = file("$outputPath/$ARCHIVES_BASE_NAME" + ".aar")
   delete target
-  file(OUTPUT_PATH).list().each{fileName ->
+  file(outputPath).list().each{fileName ->
     if (fileName.contains(buildType + ".aar")) {
       copy {
-        from zipTree("$OUTPUT_PATH/$fileName")
-        into "$OUTPUT_PATH/$buildType"
+        from zipTree("$outputPath/$fileName")
+        into "$outputPath/$buildType"
       }
       copy {
-        from "$OUTPUT_PATH/$buildType"
-        into OUTPUT_PATH
+        from "$outputPath/$buildType"
+        into outputPath
         include 'classes.jar'
         rename 'classes.jar', 'hippy.jar'
       }
-      file("$OUTPUT_PATH/$fileName").renameTo(target)
+      file("$outputPath/$fileName").renameTo(target)
     }
   }
 }
 
+def OUTPUT_PATH = "$buildDir/outputs/aar"
 task dealAfterAssembleDebug() {
   doLast {
-    dealAfterAssemble("debug")
+    dealAfterAssemble(OUTPUT_PATH, "debug")
   }
 }
 
 task dealAfterAssembleRelease() {
   doLast {
-    dealAfterAssemble("release")
+    dealAfterAssemble(OUTPUT_PATH, "release")
     copy {
       from "$OUTPUT_PATH/$ARCHIVES_BASE_NAME-release.aar"
       into "$projectDir.absolutePath/../examples/android-demo/example/libs"
