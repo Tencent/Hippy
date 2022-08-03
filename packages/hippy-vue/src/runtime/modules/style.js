@@ -22,7 +22,6 @@
 /* eslint-disable no-param-reassign */
 
 import { extend, cached, camelize } from 'shared/util';
-import { updateChild } from '../../renderer/native';
 
 const normalize = cached(camelize);
 
@@ -41,7 +40,6 @@ function updateStyle(oldVNode, vNode) {
   if (!oldVNode.data.style && !vNode.data.style) {
     return;
   }
-  let cur;
   const { elm } = vNode;
   const oldStyle = oldVNode.data.style || {};
   let style = vNode.data.style || {};
@@ -57,18 +55,23 @@ function updateStyle(oldVNode, vNode) {
     style = extend({}, style);
     vNode.data.style = style;
   }
+  const batchedStyles = {};
   // Remove the removed styles at first
   Object.keys(oldStyle).forEach((name) => {
-    if (style[name] === undefined) {
-      elm.setStyle(normalize(name), undefined, true);
+    const newStyleValue = style[name];
+    if (newStyleValue === undefined || newStyleValue === null) {
+      batchedStyles[normalize(name)] = undefined;
     }
   });
   // Then set the new styles.
   Object.keys(style).forEach((name) => {
-    cur = style[name];
-    elm.setStyle(normalize(name), cur, true);
+    const oldStyleValue = oldStyle[name];
+    const newStyleValue = style[name];
+    if (oldStyleValue !== newStyleValue) {
+      batchedStyles[normalize(name)] = newStyleValue;
+    }
   });
-  updateChild(elm);
+  elm.setStyles(batchedStyles);
 }
 
 
@@ -79,11 +82,13 @@ function createStyle(oldVNode, vNode) {
   }
   const { elm } = vNode;
   const { staticStyle } = vNode.data;
+  const batchStyles = {};
   Object.keys(staticStyle).forEach((name) => {
     if (staticStyle[name]) {
-      elm.setStyle(normalize(name), staticStyle[name], true);
+      batchStyles[normalize(name)] = staticStyle[name];
     }
   });
+  elm.setStyles(batchStyles);
   updateStyle(oldVNode, vNode);
 }
 
