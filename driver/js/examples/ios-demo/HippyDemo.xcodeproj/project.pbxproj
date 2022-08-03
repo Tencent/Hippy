@@ -2404,6 +2404,7 @@
 					"COCOAPODS=1",
 					"JS_USE_JSC=1",
 					"V8_WITHOUT_INSPECTOR=1",
+					"NDEBUG=1",
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../../../modules/footstone/include",
