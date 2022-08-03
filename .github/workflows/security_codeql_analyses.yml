@@ -75,6 +75,8 @@ jobs:
     - name: Checkout repository
       if: steps.detect_languages.outputs.language
       uses: actions/checkout@v3
+      with:
+        lfs: true
     - name: Initialize CodeQL
       if: steps.detect_languages.outputs.language
       uses: github/codeql-action/init@v2
