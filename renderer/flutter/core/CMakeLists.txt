@@ -7,6 +7,11 @@ set(RENDER_CORE_SRC_DIR ${RENDER_CORE_DIR}/src)
 set(CODEC_DIR ${RENDER_CORE_DIR}/third_party/codec)
 set(CODEC_SRC_DIR ${RENDER_CORE_DIR}/third_party/codec/src)
 
+set(PROJECT_ROOT_DIR ${RENDER_CORE_DIR}/../../..)
+
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
+include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
+
 set(SRC_FILES
         ${RENDER_CORE_SRC_DIR}/render/queue/render_queue.cc
         ${RENDER_CORE_SRC_DIR}/render/queue/render_task.cc
@@ -34,11 +39,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib/${ANDROID_ABI})
 endif()
 
-add_subdirectory(${DOM_DIR} dom)
-include_directories(${DOM_DIR}/include)
-
-set(LINKED_LIBS
-        dom)
 
 if (ENABLE_INSPECTOR STREQUAL "true")
     add_definitions(-DENABLE_INSPECTOR)
@@ -83,3 +83,9 @@ else()
     target_link_libraries(${LIB_NAME} ${LINKED_LIBS})
     set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)
 endif()
+
+GlobalPackages_Add(dom)
+target_link_libraries(${LIB_NAME} PRIVATE dom)
+
+GlobalPackages_Add(footstone)
+target_link_libraries(${LIB_NAME} PRIVATE footstone)

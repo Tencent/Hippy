@@ -113,10 +113,10 @@ void BridgeManager::ReverseTraversal(int32_t engine_id, const std::function<void
 
 void BridgeManager::InitInstance(int32_t engine_id, int32_t root_id, Sp<hippy::RenderManager> render_manager) {
   Sp<DomManager> dom_manager = std::make_shared<DomManager>();
-  dom_manager->Init(root_id);
+//  dom_manager->Init(root_id);
   DomManager::Insert(dom_manager);
   dom_manager->SetRenderManager(render_manager);
-  dom_manager->GetAnimationManager()->SetDomManager(dom_manager);
+//  dom_manager->GetAnimationManager()->SetDomManager(dom_manager);
   BindDomManager(root_id, dom_manager);
   BindRenderManager(root_id, render_manager);
 }
@@ -127,7 +127,7 @@ void BridgeManager::DestroyInstance(int32_t engine_id, int32_t root_id) {
   }
   auto dom_manager = dom_manager_map_.find(root_id);
   if (dom_manager != dom_manager_map_.end()) {
-    dom_manager->second->TerminateTaskRunner();
+//    dom_manager->second->TerminateTaskRunner();
     dom_manager_map_.erase(root_id);
     DomManager::Erase(dom_manager->second);
   }

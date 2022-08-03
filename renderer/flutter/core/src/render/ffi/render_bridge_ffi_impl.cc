@@ -114,7 +114,7 @@ EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id,
                                                                 params_len);
           voltron::ReleaseCopy(copy_params);
 
-          auto dom_node = dom_manager->GetNode(node_id);
+          auto dom_node = dom_manager->GetNode(std::weak_ptr<hippy::dom::RootNode>(), node_id);
           FOOTSTONE_DLOG(INFO) << "CallNativeEventFFI event_name:" << event_name
                               << " node_id:" << node_id << " node:" << dom_node;
           if (dom_node) {
@@ -124,7 +124,7 @@ EXTERN_C void CallNativeEventFFI(int32_t engine_id, int32_t root_id,
         dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
       } else {
         std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name]() {
-          auto dom_node = dom_manager->GetNode(node_id);
+          auto dom_node = dom_manager->GetNode(std::weak_ptr<hippy::dom::RootNode>(), node_id);
           if (dom_node) {
             render_manager->CallEvent(dom_node, event_name, nullptr);
           }
@@ -142,10 +142,11 @@ EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id,
     auto dom_manager = bridge_manager->GetDomManager(root_id);
     if (dom_manager) {
       std::vector<std::function<void()>> ops = {[dom_manager, width, height, node_id]() {
+        auto rootNode = std::weak_ptr<hippy::dom::RootNode>();
         if (node_id == 0) {
-          dom_manager->SetRootSize((float)width, (float)height);
+          dom_manager->SetRootSize(rootNode, (float)width, (float)height);
         } else {
-          auto node = dom_manager->GetNode(node_id);
+          auto node = dom_manager->GetNode(rootNode, node_id);
           if (node) {
             node->SetLayoutSize((float)width, (float)height);
           }

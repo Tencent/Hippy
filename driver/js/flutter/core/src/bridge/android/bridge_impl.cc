@@ -32,6 +32,7 @@
 #include "voltron_bridge.h"
 #include "exception_handler.h"
 #include "js2dart.h"
+#include "footstone/worker_manager.h"
 
 using string_view = footstone::stringview::string_view;
 using u8string = string_view::u8string;
@@ -44,27 +45,31 @@ using voltron::VoltronBridge;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using StringViewUtils = hippy::base::StringViewUtils;
 
-
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
+constexpr uint32_t kDefaultNumberOfThreads = 2;
+constexpr char kDomRunnerName[] = "hippy_dom";
+
 
 int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platform_runtime,
                                  bool single_thread_mode,
                                  bool bridge_param_json,
                                  bool is_dev_module,
                                  int64_t group_id,
+                                 uint32_t work_manager_id,
+                                 uint32_t dom_manager_id,
                                  const char16_t *char_globalConfig,
                                  size_t initial_heap_size,
                                  size_t maximum_heap_size,
                                  const std::function<void(int64_t)> &callback,
-                                 const char16_t* char_data_dir,
-                                 const char16_t* char_ws_url) {
+                                 const char16_t *char_data_dir,
+                                 const char16_t *char_ws_url) {
   FOOTSTONE_LOG(INFO) << "InitInstance begin, single_thread_mode = "
-                     << single_thread_mode
-                     << ", bridge_param_json = "
-                     << bridge_param_json
-                     << ", is_dev_module = "
-                     << is_dev_module
-                     << ", group_id = " << group_id;
+                      << single_thread_mode
+                      << ", bridge_param_json = "
+                      << bridge_param_json
+                      << ", is_dev_module = "
+                      << is_dev_module
+                      << ", group_id = " << group_id;
 
   std::shared_ptr<V8VMInitParam> param = std::make_shared<V8VMInitParam>();
   if (initial_heap_size > 0 && maximum_heap_size > 0 && initial_heap_size >= maximum_heap_size) {
@@ -76,8 +81,8 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
     FOOTSTONE_LOG(INFO) << "run scope cb";
     outerCallback(runtime_id);
   };
-  auto call_native_cb = [](void* p) {
-    auto* data = reinterpret_cast<hippy::napi::CBDataTuple*>(p);
+  auto call_native_cb = [](void *p) {
+    auto *data = reinterpret_cast<hippy::napi::CBDataTuple *>(p);
     voltron::bridge::CallDart(data);
   };
   V8BridgeUtils::SetOnThrowExceptionToJS([](const std::shared_ptr<Runtime>& runtime,
@@ -89,11 +94,19 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
   string_view global_config = string_view(char_globalConfig);
   string_view data_dir = string_view(char_data_dir);
   string_view ws_url = string_view(char_ws_url);
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map_.Find(work_manager_id, worker_manager);
+  FOOTSTONE_DCHECK(flag);
+  auto dom_manager = DomManager::Find(dom_manager_id);
+  FOOTSTONE_DCHECK(dom_manager);
+  auto dom_task_runner = dom_manager->GetTaskRunner();
   runtime_id = V8BridgeUtils::InitInstance(
       true,
       static_cast<bool>(is_dev_module),
       global_config,
       static_cast<int32_t>(group_id),
+      worker_manager,
+      dom_task_runner,
       param,
       bridge,
       scope_cb,
@@ -110,8 +123,9 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
                                    bool can_use_code_cache,
                                    std::function<void(int64_t)> callback) {
   FOOTSTONE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
-                      << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+                       << runtime_id;
+  std::shared_ptr<Runtime>
+      runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     FOOTSTONE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
@@ -133,21 +147,17 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
   string_view base_path = StringViewUtils::SubStr(script_path, 0, pos + 1);
 
   FOOTSTONE_DLOG(INFO) << "RunScriptFromFile path = " << script_path
-                      << ", script_name = " << script_name
-                      << ", base_path = " << base_path
-                      << ", code_cache_dir = " << code_cache_dir;
+                       << ", script_name = " << script_name
+                       << ", base_path = " << base_path
+                       << ", code_cache_dir = " << code_cache_dir;
 
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-
-  task->callback = [ctx, base_path] {
+  runner->PostTask([ctx, base_path] {
     ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
-  };
-  runner->PostTask(task);
+  });
 
-  task = std::make_shared<JavaScriptTask>();
-  task->callback = [runtime, script_path, script_name,
+  auto func = [runtime, script_path, script_name,
       can_use_code_cache, code_cache_dir,
       time_begin, callBack_ = std::move(callback)] {
     FOOTSTONE_DLOG(INFO) << "RunScriptFromFile enter";
@@ -164,6 +174,8 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
                                                                             content,
                                                                             false);
                                                         if (!content.empty()) {
+                                                          return unicode_string_view(std::move(
+                                                              content));
                                                           return string_view(std::move(content));
                                                         } else {
                                                           return string_view{};
@@ -174,13 +186,14 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
         .time_since_epoch()
         .count();
 
-    FOOTSTONE_DLOG(INFO) << "runScriptFromFile = " << (time_end - time_begin) << ", uri = " << script_path;
+    FOOTSTONE_DLOG(INFO)
+    << "runScriptFromFile = " << (time_end - time_begin) << ", uri = " << script_path;
     int64_t value = !flag ? 0 : 1;
     callBack_(value);
     return flag;
   };
 
-  runner->PostTask(task);
+  runner->PostTask(func);
 
   return true;
 }
@@ -192,8 +205,9 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
                                      std::function<void(int64_t)> callback,
                                      const char16_t *asset_content_str) {
   FOOTSTONE_DLOG(INFO) << "RunScriptFromFile begin, runtime_id = "
-                      << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+                       << runtime_id;
+  std::shared_ptr<Runtime>
+      runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     FOOTSTONE_DLOG(WARNING)
     << "BridgeImpl RunScriptFromFile, runtime_id invalid";
@@ -209,13 +223,12 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
   string_view asset_content = string_view(asset_content_str);
 
   FOOTSTONE_DLOG(INFO) << "RunScriptFromAssets asset_name = " << asset_name_str
-                      << ", code_cache_dir = " << code_cache_dir;
+                       << ", code_cache_dir = " << code_cache_dir;
 
-  auto runner = runtime->GetEngine()->GetJSRunner();
+  auto runner = runtime->GetEngine()->GetJsTaskRunner();
   std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
 
-  task->callback = [runtime, asset_name,
+  auto func = [runtime, asset_name,
       can_use_code_cache, code_cache_dir, asset_content,
       time_begin, callBack_ = std::move(callback)] {
     FOOTSTONE_DLOG(INFO) << "RunScriptFromFile enter";
@@ -242,7 +255,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
     return flag;
   };
 
-  runner->PostTask(task);
+  runner->PostTask(func);
 
   return true;
 }
@@ -256,42 +269,75 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, std::s
 }
 
 void BridgeImpl::Destroy(int64_t runtimeId,
-                         const std::function<void(int64_t)>& callback, bool is_reload) {
-  V8BridgeUtils::DestroyInstance(runtimeId, []() {}, is_reload);
+                         const std::function<void(int64_t)> &callback, bool is_reload) {
+  V8BridgeUtils::DestroyInstance(runtimeId, [](bool ret) {}, is_reload);
   callback(1);
 }
 
 void BridgeImpl::BindDomManager(int64_t runtime_id,
                                 const std::shared_ptr<DomManager> &dom_manager) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+  std::shared_ptr<Runtime>
+      runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     FOOTSTONE_DLOG(WARNING) << "Bind dom Manager failed, runtime_id invalid";
     return;
   }
   runtime->GetScope()->SetDomManager(dom_manager);
-  dom_manager->SetDelegateTaskRunner(runtime->GetScope()->GetTaskRunner());
 }
 
 
 void BridgeImpl::LoadInstance(int64_t runtime_id,
-                              std::string&& params) {
-  V8BridgeUtils::LoadInstance(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id), std::move(params));
+                              std::string &&buffer_data) {
+  V8BridgeUtils::LoadInstance(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id),
+                              std::move(buffer_data));
 }
 
-void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback) {
-    V8BridgeUtils::UnloadInstance(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id),
-                                  [callback = std::move(callback)](
-                                          hippy::runtime::CALL_FUNCTION_CB_STATE state,
-                                          const string_view &msg) {
-                                      callback(static_cast<int64_t>(state));
-                                  });
+void BridgeImpl::UnloadInstance(int64_t runtime_id, byte_string &&buffer_data) {
+  V8BridgeUtils::UnloadInstance(footstone::check::checked_numeric_cast<int64_t,
+                                                                       int32_t>(runtime_id),
+                                std::move(buffer_data));
 }
 
 std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
-  std::shared_ptr<Runtime> runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
+  std::shared_ptr<Runtime>
+      runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
   if (!runtime) {
     FOOTSTONE_DLOG(WARNING) << "GetScope failed, runtime_id invalid";
     return nullptr;
   }
   return runtime->GetScope();
+}
+
+uint32_t BridgeImpl::CreateWorkerManager() {
+  auto worker_manager = std::make_shared<WorkerManager>(kDefaultNumberOfThreads);
+  auto id = global_worker_manager_key_.fetch_add(1);
+  worker_manager_map_.Insert(id, worker_manager);
+  return id;
+}
+
+void BridgeImpl::DestroyWorkerManager(uint32_t worker_manager_id) {
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
+  if (flag && worker_manager) {
+    worker_manager->Terminate();
+    worker_manager_map_.Erase(worker_manager_id);
+  }
+}
+
+uint32_t BridgeImpl::CreateDomInstance(uint32_t worker_manager_id) {
+  auto dom_manager = std::make_shared<DomManager>();
+  DomManager::Insert(dom_manager);
+  std::shared_ptr<WorkerManager> worker_manager;
+  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
+  FOOTSTONE_DCHECK(flag);
+  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
+  dom_manager->SetTaskRunner(runner);
+  return dom_manager->GetId();
+}
+
+void BridgeImpl::DestroyDomInstance(uint32_t dom_id) {
+  auto dom_manager = DomManager::Find(dom_id);
+  if (dom_manager) {
+    DomManager::Erase(dom_id);
+  }
 }

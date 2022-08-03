@@ -43,6 +43,7 @@ EXTERN_C void InitBridge();
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
+                                    uint32_t work_manager_id, uint32_t dom_manager_id,
                                     int32_t engine_id, int32_t callback_id, const char16_t* char_data_dir,
                                     const char16_t* char_ws_url);
 
@@ -53,11 +54,11 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset
                                         int32_t can_use_code_cache, const char16_t* asset_str_char,
                                         int32_t callback_id);
 
-EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height, const char16_t* action,
-                                const char* params, int32_t params_length, int32_t callback_id);
+EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height,
+                                const char* params, int32_t params_length);
 
-EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char16_t* action,
-                                 int32_t callback_id);
+EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id,
+                                 const char* params, int32_t params_length);
 
 EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char* params, int32_t params_length, int32_t callback_id);
 
@@ -66,6 +67,15 @@ EXTERN_C const char* GetCrashMessageFFI();
 EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id, int32_t is_reload);
 
 EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, int32_t event_type, const char16_t* response, const char16_t* extra);
+
+EXTERN_C uint32_t CreateWorkerManager();
+
+EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id);
+
+EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id);
+
+EXTERN_C void DestroyDomInstance(uint32_t dom_id);
+
 
 #ifdef __cplusplus
 }

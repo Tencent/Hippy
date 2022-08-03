@@ -18,6 +18,9 @@ set(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions("-DVOLTRON")
 
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../.." REALPATH)
+
+
 # Android在build.gradle里指定
 if (NOT CMAKE_SYSTEM_NAME STREQUAL "Android")
     set(CMAKE_CXX_STANDARD 17)
@@ -26,6 +29,7 @@ endif ()
 if ((CMAKE_SYSTEM_NAME STREQUAL "Android") OR (CMAKE_SYSTEM_NAME STREQUAL "Android"))
     add_definitions("-DJS_V8")
 endif ()
+
 
 set(DOM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../dom)
 set(FRAMEWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../)
@@ -53,6 +57,7 @@ set(SRC_FILES
 
 set(LINKED_LIBS
         render_core
+        footstone
         ${FRAMEWORK_CORE_DEPS})
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")

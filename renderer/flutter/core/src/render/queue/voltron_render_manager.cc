@@ -36,29 +36,29 @@ VoltronRenderManager::VoltronRenderManager(int32_t root_id, int32_t engine_id)
 VoltronRenderManager::~VoltronRenderManager() = default;
 
 void voltron::VoltronRenderManager::CreateRenderNode(
-    std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  for (const auto &node : nodes) {
+    std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  for (const auto &node: nodes) {
     RunCreateDomNode(node);
   }
 }
 
 void VoltronRenderManager::UpdateRenderNode(
-    std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  for (const auto& n : nodes) {
+    std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  for (const auto &n: nodes) {
     if (n->GetTagName() == "Text") {
-      MarkTextDirty(n->GetId());
+      MarkTextDirty(root_node, n->GetId());
     }
   }
-  for (const auto &node : nodes) {
+  for (const auto &node: nodes) {
     RunUpdateDomNode(node);
   }
 }
 
-void VoltronRenderManager::MarkTextDirty(uint32_t node_id) {
+void VoltronRenderManager::MarkTextDirty(const std::weak_ptr<RootNode> &root_node, uint32_t node_id) {
   auto dom_manager = GetDomManager();
   FOOTSTONE_DCHECK(dom_manager);
   if (dom_manager) {
-    auto node = dom_manager->GetNode(node_id);
+    auto node = dom_manager->GetNode(root_node, node_id);
     FOOTSTONE_DCHECK(node);
     if (node) {
       auto diff_style = node->GetDiffStyle();
@@ -83,7 +83,9 @@ void VoltronRenderManager::MarkTextDirty(uint32_t node_id) {
   }
 }
 
-void VoltronRenderManager::MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> diff_style,
+void VoltronRenderManager::MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string,
+                                                                                std::shared_ptr<
+                                                                                    HippyValue>>> diff_style,
                                              const char *prop_name,
                                              std::shared_ptr<LayoutNode> layout_node) {
   FOOTSTONE_DCHECK(layout_node != nullptr);
@@ -93,30 +95,31 @@ void VoltronRenderManager::MarkDirtyProperty(std::shared_ptr<std::unordered_map<
   }
 }
 
-
 void VoltronRenderManager::DeleteRenderNode(
-    std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  for (const auto &node : nodes) {
+    std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  for (const auto &node: nodes) {
     RunDeleteDomNode(node);
   }
 }
 
-void VoltronRenderManager::MoveRenderNode(std::vector<int32_t> &&ids,
-                                          int32_t pid, int32_t id) {
+void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                          std::vector<int32_t> &&ids,
+                                          int32_t pid,
+                                          int32_t id) {
   RunMoveDomNode(std::move(ids), pid, id);
 }
 
 void VoltronRenderManager::UpdateLayout(
-    const std::vector<std::shared_ptr<DomNode>> &nodes) {
+    std::weak_ptr<RootNode> root_node, const std::vector<std::shared_ptr<DomNode>> &nodes) {
   RunUpdateLayout(nodes);
 }
 
-void VoltronRenderManager::EndBatch() {
+void VoltronRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
   FOOTSTONE_DLOG(INFO) << "RunEndBatch";
   RunBatch();
 }
 
-void VoltronRenderManager::BeforeLayout() {
+void VoltronRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {
   RunLayoutBefore();
   FOOTSTONE_DLOG(INFO) << "RunLayoutBefore";
 
@@ -130,12 +133,13 @@ void VoltronRenderManager::BeforeLayout() {
   }
 }
 
-void VoltronRenderManager::AfterLayout() {
+void VoltronRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
   RunLayoutFinish();
   FOOTSTONE_DLOG(INFO) << "RunLayoutFinish";
 }
 
-void VoltronRenderManager::CallFunction(std::weak_ptr<DomNode> dom_node,
+void VoltronRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
+                                        std::weak_ptr<DomNode> dom_node,
                                         const std::string &name,
                                         const DomArgument &param,
                                         uint32_t cb_id) {
@@ -148,7 +152,8 @@ void VoltronRenderManager::CallEvent(
   RunCallEvent(dom_node, name, params);
 }
 
-void VoltronRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
+void VoltronRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
+                                            std::weak_ptr<DomNode> dom_node,
                                             const std::string &name) {
   auto dom_node_p = dom_node.lock();
   if (dom_node_p) {
@@ -156,7 +161,8 @@ void VoltronRenderManager::AddEventListener(std::weak_ptr<DomNode> dom_node,
   }
 }
 
-void VoltronRenderManager::RemoveEventListener(std::weak_ptr<DomNode> dom_node,
+void VoltronRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
+                                               std::weak_ptr<DomNode> dom_node,
                                                const std::string &name) {
   auto dom_node_p = dom_node.lock();
   if (dom_node_p) {
@@ -172,7 +178,8 @@ void VoltronRenderManager::Notify() {
   }
 }
 
-void VoltronRenderManager::MoveRenderNode(std::vector<std::shared_ptr<DomNode>> &&nodes) {
+void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
+                                          std::vector<std::shared_ptr<DomNode>> &&nodes) {
   // todo 待实现move node
   FOOTSTONE_UNREACHABLE();
 }

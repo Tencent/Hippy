@@ -52,8 +52,8 @@ using voltron::Sp;
 using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
 
-EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height, const char16_t* action,
-                                const char* params, int32_t params_length, int32_t callback_id) {
+EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height,
+                                const char* params, int32_t params_length) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     auto render_manager = std::make_shared<VoltronRenderManager>(engine_id, root_id);
@@ -70,7 +70,7 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
       }
 #endif
       std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
-          dom_manager->SetRootSize((float) width, (float) height);
+          dom_manager->SetRootSize(std::weak_ptr<hippy::dom::RootNode>(), (float) width, (float) height);
       }};
       dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
       if (params_length > 0) {
@@ -81,14 +81,15 @@ EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width
   }
 }
 
-EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char16_t* action, int32_t callback_id) {
+EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char* params, int32_t params_length) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (bridge_manager) {
     bridge_manager->DestroyInstance(engine_id, root_id);
     auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
     if (runtime) {
       auto runtime_id = runtime->GetRuntimeId();
-      BridgeImpl::UnloadInstance(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
+      std::string param_str(params, static_cast<unsigned int>(params_length));
+      BridgeImpl::UnloadInstance(runtime_id, std::move(param_str));
     }
   }
 }
@@ -101,13 +102,14 @@ EXTERN_C void InitBridge() {
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
+                                    uint32_t work_manager_id, uint32_t dom_manager_id,
                                     int32_t engine_id, int32_t callback_id, const char16_t* char_data_dir,
                                     const char16_t* char_ws_url) {
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
   BridgeManager::Create(engine_id, ffi_runtime);
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
-                                         global_config, 0, 0,
+                                         work_manager_id, dom_manager_id, global_config, 0, 0,
                                          [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, char_data_dir, char_ws_url);
   ffi_runtime->SetRuntimeId(result);
 
@@ -222,6 +224,22 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
     notification_center->network_notification->LoadingFinished(request_string, hippy::devtools::DevtoolsLoadingFinished(content_string));
   }
 #endif
+}
+
+EXTERN_C uint32_t CreateWorkerManager() {
+  return BridgeImpl::CreateWorkerManager();
+}
+
+EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id) {
+  BridgeImpl::DestroyWorkerManager(worker_manager_id);
+}
+
+EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id) {
+  return BridgeImpl::CreateDomInstance(worker_manager_id);
+}
+
+EXTERN_C void DestroyDomInstance(uint32_t dom_id) {
+  BridgeImpl::DestroyDomInstance(dom_id);
 }
 
 #ifdef __cplusplus
