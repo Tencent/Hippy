@@ -1,21 +1,33 @@
 <template>
   <div id="shadow-demo">
-    <div v-if="isAndroid" class="no-offset-shadow-demo-cube-android">
+    <div
+      v-if="isAndroid"
+      class="no-offset-shadow-demo-cube-android"
+    >
       <div class="no-offset-shadow-demo-content-android">
         <p>没有偏移阴影样式</p>
       </div>
     </div>
-    <div v-if="isIos" class="no-offset-shadow-demo-cube-ios">
+    <div
+      v-if="isIos"
+      class="no-offset-shadow-demo-cube-ios"
+    >
       <div class="no-offset-shadow-demo-content-ios">
         <p>没有偏移阴影样式</p>
       </div>
     </div>
-    <div v-if="isAndroid" class="offset-shadow-demo-cube-android">
+    <div
+      v-if="isAndroid"
+      class="offset-shadow-demo-cube-android"
+    >
       <div class="offset-shadow-demo-content-android">
         <p>偏移阴影样式</p>
       </div>
     </div>
-    <div v-if="isIos" class="offset-shadow-demo-cube-ios">
+    <div
+      v-if="isIos"
+      class="offset-shadow-demo-cube-ios"
+    >
       <div class="offset-shadow-demo-content-ios">
         <p>偏移阴影样式</p>
       </div>
@@ -23,17 +35,17 @@
   </div>
 </template>
 <script lang="ts">
-  import { Native } from '@hippy/vue-next';
-  import { defineComponent } from '@vue/runtime-core';
+import { Native } from '@hippy/vue-next';
+import { defineComponent } from '@vue/runtime-core';
 
-  export default defineComponent({
-    setup() {
-      return {
-        isAndroid: Native.isAndroid(),
-        isIos: Native.isIOS(),
-      };
-    },
-  });
+export default defineComponent({
+  setup() {
+    return {
+      isAndroid: Native.isAndroid(),
+      isIos: Native.isIOS(),
+    };
+  },
+});
 </script>
 <style>
   #shadow-demo {

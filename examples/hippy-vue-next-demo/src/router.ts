@@ -1,23 +1,29 @@
 import { createRouter, createMemoryHistory, type Router } from 'vue-router';
 
-import demos from './components/demo';
-import nativeDemos from './components/native-demo';
-import Menu from './menu.vue';
+import Demos from './components/demo';
+import NativeDemos from './components/native-demo';
+import Menu from './pages/menu.vue';
+import RemoteDebug from './pages/remote-debug.vue';
 
 const routes = [
   {
     path: '/',
     component: Menu,
   },
-  ...Object.keys(demos).map((demoId) => ({
+  {
+    path: '/remote-debug',
+    component: RemoteDebug,
+    name: 'Debug',
+  },
+  ...Object.keys(Demos).map((demoId) => ({
     path: `/demo/${demoId}`,
-    name: demos[demoId].name,
-    component: demos[demoId].component,
+    name: Demos[demoId].name,
+    component: Demos[demoId].component,
   })),
-  ...Object.keys(nativeDemos).map((demoId) => ({
+  ...Object.keys(NativeDemos).map((demoId) => ({
     path: `/demo/${demoId}`,
-    name: nativeDemos[demoId].name,
-    component: nativeDemos[demoId].component,
+    name: NativeDemos[demoId].name,
+    component: NativeDemos[demoId].component,
   })),
 ];
 

@@ -1,10 +1,30 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import type { HippyElement } from '../runtime/element/hippy-element';
 
 /**
- * 给元素设置class属性
+ * Set the class attribute to an element
  *
- * @param el - 要设置的元素
- * @param newValue - 要设置的新值
+ * @param el - element
+ * @param newValue - new value
  */
 export function patchClass(el: HippyElement, newValue: string): void {
   let value = newValue;
@@ -14,9 +34,8 @@ export function patchClass(el: HippyElement, newValue: string): void {
   }
 
   // directly setting className should be faster than setAttribute in theory
-  // if this is an element during a transition, take the temporary transition
-  // classes into account.
-  // 动画class后续再来处理
+  // if this is an element during a transition, take the temporary transition classes into account.
+  // the animation class will be processed later
   // const transitionClasses = (el as ElementWithTransition)._vtc;
   const transitionClasses = '';
   if (transitionClasses) {

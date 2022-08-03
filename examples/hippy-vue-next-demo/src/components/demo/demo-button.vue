@@ -9,56 +9,73 @@
       @touchend.stop="onTouchBtnEnd"
       @click="onClickView"
     >
-      <span v-if="isClicked" class="button-text"
-        >视图已经被点击了，再点一下恢复</span
-      >
-      <span v-else class="button-text">视图尚未点击</span>
+      <span
+        v-if="isClicked"
+        class="button-text"
+      >视图已经被点击了，再点一下恢复</span>
+      <span
+        v-else
+        class="button-text"
+      >视图尚未点击</span>
     </button>
     <img
       v-show="isClicked"
       alt="demo1-image"
-      src="https://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png"
+      src="https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png"
       class="button-demo-1-image"
-    />
+    >
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from '@vue/runtime-core';
+import {
+  defineComponent,
+  onActivated,
+  onDeactivated,
+  ref,
+} from '@vue/runtime-core';
 
-  import { warn } from '../../util';
+import { warn } from '../../util';
 
-  export default defineComponent({
-    setup() {
-      const isClicked = ref(false);
-      const isPressing = ref(false);
+export default defineComponent({
+  setup() {
+    const isClicked = ref(false);
+    const isPressing = ref(false);
 
-      /**
+    onActivated(() => {
+      warn(`${Date.now()}-button-activated`);
+    });
+
+    onDeactivated(() => {
+      warn(`${Date.now()}-button-Deactivated`);
+    });
+
+    /**
        * 点击视图更改状态
        */
-      const onClickView = () => {
-        isClicked.value = !isClicked.value;
-      };
-      const onTouchBtnStart = (evt: Event) => {
-        warn('onBtnTouchDown', evt);
-      };
-      const onTouchBtnMove = (evt: Event) => {
-        warn('onBtnTouchMove', evt);
-      };
-      const onTouchBtnEnd = (evt: Event) => {
-        warn('onBtnTouchEnd', evt);
-      };
+    const onClickView = () => {
+      isClicked.value = !isClicked.value;
+    };
+    const onTouchBtnStart = (evt: Event) => {
+      warn('onBtnTouchDown', evt);
+    };
+    const onTouchBtnMove = (evt: Event) => {
+      warn('onBtnTouchMove', evt);
+    };
+    const onTouchBtnEnd = (evt: Event) => {
+      warn('onBtnTouchEnd', evt);
+    };
 
-      return {
-        isClicked,
-        isPressing,
-        onClickView,
-        onTouchBtnStart,
-        onTouchBtnMove,
-        onTouchBtnEnd,
-      };
-    },
-  });
+    return {
+      isClicked,
+      isPressing,
+      onClickView,
+      onTouchBtnStart,
+      onTouchBtnMove,
+      onTouchBtnEnd,
+    };
+  },
+});
 </script>
 
 <style>

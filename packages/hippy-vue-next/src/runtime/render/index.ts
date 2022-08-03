@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * Render模块，提供Native的render方法
  */
@@ -68,12 +88,7 @@ function renderToNative(
   nativeNodes: NativeNode[],
   operateType: NodeOperateType,
 ) {
-  // 如果终端未在处理进程中，则打开脚本开关
-  if (IS_HANDLING) {
-    Native.hippyNativeDocument.startBatch();
-  }
-
-  // 然后将节点插入待处理列表
+  // 首先将节点插入待处理列表
   BATCH_NATIVE_NODES.push({
     type: operateType,
     nodes: nativeNodes,
@@ -85,6 +100,14 @@ function renderToNative(
   }
   IS_HANDLING = true;
 
+  // 如果节点已经处理完成，则将锁打开，下次即可直接处理
+  if (BATCH_NATIVE_NODES.length === 0) {
+    IS_HANDLING = false;
+    return;
+  }
+
+  // 打开终端处理开关
+  Native.hippyNativeDocument.startBatch();
   // 进入终端节点操作逻辑，等待vue的节点操作完成之后再处理
   nextTick().then(() => {
     // 将相邻的相同类型的节点组合到一起，减少操作次数

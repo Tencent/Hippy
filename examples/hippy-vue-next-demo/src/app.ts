@@ -3,18 +3,26 @@ import {
   type HippyApp,
   EventBus,
   setScreenSize,
+  BackAndroid,
 } from '@hippy/vue-next';
 
 import App from './app.vue';
-// 手Q 大同上报指令，不需要的可以忽略
-import { vReport } from './directives/v-report';
 import { createHippyRouter } from './router';
-import { warn } from './util';
+import { warn, setGlobalInitProps } from './util';
+
+global.Hippy.on('uncaughtException', (err) => {
+  warn('uncaughtException error', err.stack, err.message);
+});
+
+// only supported in iOS temporarily
+global.Hippy.on('unhandledRejection', (reason) => {
+  warn('unhandledRejection reason', reason);
+});
 
 // 创建 hippy app 实例
 const app: HippyApp = createHippyApp(App, {
   // hippy native module名
-  appName: 'QQNearbyGameGroup',
+  appName: 'QQSmallHouseCenter',
   iPhone: {
     // 状态栏配置
     statusBar: {
@@ -28,7 +36,7 @@ const app: HippyApp = createHippyApp(App, {
       backgroundColor: 4282431619,
 
       // 状态栏背景图，要注意这个会根据容器尺寸拉伸。
-      // backgroundImage: 'https://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png',
+      // backgroundImage: 'https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png',
     },
   },
 });
@@ -49,13 +57,14 @@ EventBus.$on('onSizeChanged', (newScreenSize) => {
   }
 });
 
-// 注册大同上报指令，非手Q 可注释
-app.directive('report', vReport);
-
 // 启动 hippy，需要等hippy native 注册成功之后才能去调用vue的mount
-app.$start().then(({ superProps }) => {
+app.$start().then(({ superProps, rootViewId }) => {
   // 初始化参数
   warn(superProps);
+  setGlobalInitProps({
+    superProps,
+    rootViewId,
+  });
   // 因为现在使用的是vue-router的memory history，因此需要手动推送初始位置，否则router将无法ready
   // 浏览器上则是由vue-router根据location.href去匹配，默认推送根路径'/'
   router.push('/');
@@ -69,4 +78,11 @@ app.$start().then(({ superProps }) => {
   //   // mount app
   //   app.mount('#root');
   // });
+
+  // listen android native back press
+  BackAndroid.addListener(() => {
+    warn('backAndroid');
+    // set true interrupts native back
+    // return true;
+  });
 });

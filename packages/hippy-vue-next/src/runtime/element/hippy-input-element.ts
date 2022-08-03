@@ -1,74 +1,103 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import type { NeedToTyped } from '@hippy-shared/index';
 import { Native } from '../native';
 
 import { HippyElement } from './hippy-element';
 
 /**
- * Hippy输入框元素，如input，textarea等，派生自HippyElement类
+ * Hippy input element, such as input, textarea
  *
  * @public
  */
 export class HippyInputElement extends HippyElement {
   /**
-   * 设置节点的文本内容
-   *
-   * @param text - 文本内容
+   * show input menu
    */
-  public setText(text: string): void {
+  public static showInputMenu(): void {
+    // noop
+  }
+
+  /**
+   * hide input menu
+   */
+  public static hideInputMenu(): void {
+    // noop
+  }
+
+  /**
+   * set text content of input element
+   *
+   * @param text - text content
+   * @param options - options
+   */
+  public setText(text: string, options: NeedToTyped = {}): void {
     if (this.tagName === 'textarea') {
-      // textarea的文本内容是节点的value
-      this.setAttribute('value', text);
+      // for textarea, set the value attribute
+      this.setAttribute('value', text, { notToNative: !!options.notToNative });
     } else {
-      // 其他节点文本内容就是节点的text属性
-      this.setAttribute('text', text);
+      // for other input element, set the text attribute
+      this.setAttribute('text', text, { notToNative: !!options.notToNative });
     }
   }
 
   /**
-   * 获取 input 元素的内容
+   * get value of input element
    */
-  async getValue(): Promise<string> {
+  public async getValue(): Promise<string> {
     return new Promise(resolve => Native.callUIFunction(this, 'getValue', (r: { text: string }) => resolve(r.text)));
   }
 
   /**
-   * 设置 input 元素的内容
+   * set value of input element
    */
-  setValue(value: string): void {
+  public setValue(value: string): void {
     Native.callUIFunction(this, 'setValue', [value]);
   }
 
   /**
-   * 让 input 元素获取焦点
+   * get the focus
    */
-  focus(): void {
+  public focus(): void {
     Native.callUIFunction(this, 'focusTextInput', []);
   }
 
   /**
-   * 让 input 元素失去焦点
+   * make the element lose focus
    */
-  blur(): void {
+  public blur(): void {
     Native.callUIFunction(this, 'blurTextInput', []);
   }
 
   /**
-   * 清除 input 元素内容
+   * clear content
    */
-  clear(): void {
+  public clear(): void {
     Native.callUIFunction(this, 'clear', []);
   }
 
   /**
-   * 展示输入法菜单
+   * get text input focus status
    */
-  showInputMenu(): void {
-    Native.callUIFunction(this, 'showInputMethod', []);
-  }
-
-  /**
-   * 隐藏输入法菜单
-   */
-  hideInputMenu(): void {
-    Native.callUIFunction(this, 'hideInputMethod', []);
+  public async isFocused(): Promise<boolean> {
+    return new Promise(resolve => Native.callUIFunction(this, 'isFocused', r => resolve(r.value)));
   }
 }

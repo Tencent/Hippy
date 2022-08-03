@@ -1,17 +1,37 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { camelize } from '@vue/runtime-core';
 import { isString } from '@vue/shared';
 
 import type { HippyElement } from '../runtime/element/hippy-element';
 
-/** 样式的类型 */
+// type of style
 type Style = string | Record<string, string | string[]> | null;
 
 /**
- * 设置Style属性
+ * set the Style property
  *
- * @param rawEl - 要设置的元素
- * @param prev - 旧值
- * @param next - 新值
+ * @param rawEl - target element
+ * @param prev - old value
+ * @param next - new value
  */
 export function patchStyle(
   rawEl: HippyElement,
@@ -21,24 +41,27 @@ export function patchStyle(
   const el = rawEl;
 
   if (!next) {
-    // 清空样式
-    el.removeAttribute('style');
+    // clear style
+    el.removeStyle();
   } else if (isString(next)) {
-    // hippy应该都是array，抛异常
-    throw new Error('Style is Not Array');
+    // in hippy, the styles are all array or Object types, and if it is a string, thrown an exception
+    throw new Error('Style is Not Object');
   } else {
-    // next新样式是array，则将新样式全部应用
+    // the new style is an array or Object, apply the new style to all
+    // style is an array, so we do not update native instantly, we will update at the end
     Object.keys(next).forEach((key) => {
-      el.setStyle(camelize(key), next[key]);
+      el.setStyle(camelize(key), next[key], true);
     });
 
-    // 旧样式如果存在并且是数组，则遍历并移除
+    // old style if exists and is an array, traverse to remove
     if (prev && !isString(prev)) {
       Object.keys(prev).forEach((key) => {
         if (next[key] === null) {
-          el.setStyle(camelize(key), '');
+          el.setStyle(camelize(key), '', true);
         }
       });
     }
+    // update native node
+    el.updateNativeNode();
   }
 }

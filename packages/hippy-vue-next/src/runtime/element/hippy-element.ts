@@ -1,6 +1,33 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import type { NeedToTyped } from '@hippy-shared/index';
+import {
+  parseBackgroundImage,
+  PROPERTIES_MAP,
+  translateColor,
+  type PropertiesMapType,
+} from '@style-parser/index';
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
-import { type PropertiesMapType, parseBackgroundImage, PROPERTIES_MAP, translateColor } from '@style-parser/index';
+
 import type { CallbackType } from '../../../global';
 import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {
@@ -31,9 +58,9 @@ interface OffsetMapType {
 /**
  * parse text shadow offset
  *
- * @param property - 属性名
- * @param value - 属性值
- * @param rawStyle - 原样式
+ * @param property - property name
+ * @param value - property value
+ * @param rawStyle - original style
  *
  */
 function parseTextShadowOffset(
@@ -57,10 +84,10 @@ function parseTextShadowOffset(
 }
 
 /**
- * 对文本节点组件的特殊情况进行处理
+ * Handle special cases of text input component
  *
- * @param node - 节点
- * @param rawStyle - 原样式
+ * @param node - text input element
+ * @param rawStyle - original style
  */
 function parseTextInputComponent(
   node: HippyElement,
@@ -68,7 +95,7 @@ function parseTextInputComponent(
 ) {
   const style = rawStyle;
 
-  // 文本输入组件需要支持从右至左文字书写方式
+  // text input components need to support right-to-left text writing
   if (node.component.name === NATIVE_COMPONENT_MAP.TextInput) {
     if (isRTL()) {
       if (!style.textAlign) {
@@ -79,11 +106,11 @@ function parseTextInputComponent(
 }
 
 /**
- * 对view组件的特殊情况进行处理
+ * Handle special cases of view component
  *
- * @param node - 节点
- * @param rawNativeNode - native 节点
- * @param rawStyle - 原样式
+ * @param node - hippy element
+ * @param rawNativeNode - native node
+ * @param rawStyle - original style
  */
 // eslint-disable-next-line complexity
 function parseViewComponent(
@@ -95,7 +122,8 @@ function parseViewComponent(
   const style = rawStyle;
 
   if (node.component.name === NATIVE_COMPONENT_MAP.View) {
-    // 如果发现view组件的样式中包含了scroll属性，此时必须将其转换为ScrollView，View是不支持滚动的
+    // If the scroll property is included in the style of the view component,
+    // convert it to ScrollView at this time. View does not support scrolling.
     if (style.overflowX === 'scroll' && style.overflowY === 'scroll') {
       warn('overflow-x and overflow-y for View can not work together');
     }
@@ -127,15 +155,15 @@ function parseViewComponent(
 }
 
 /**
- * HippyElement类型，派生自HippyNode类
+ * HippyElement
  *
  * @public
  */
 export class HippyElement extends HippyNode {
   /**
-   * 对样式单位中的rem进行处理，返回实际大小值
+   * process the rem in the style unit and return the actual size value
    *
-   * @param styleObject - 待处理样式
+   * @param styleObject - style
    */
   static parseRem(styleObject: NativeNodeProps): NativeNodeProps {
     let style: NativeNodeProps = {};
@@ -152,52 +180,55 @@ export class HippyElement extends HippyNode {
     return style;
   }
 
-  // 模版标签名，如div，ul，hi-swiper等
+  // element tag name, such as div, ul, hi-swiper, etc.
   public tagName: string;
 
-  // 节点的id属性
+  // id
   public id = '';
 
-  // 节点的样式列表，如class="wrapper red" => ['wrapper', 'red']
+  // style list, such as class="wrapper red" => ['wrapper', 'red']
   public classList: Set<string>;
 
-  // 属性的集合
+  // attributes
   public attributes: NativeNodeProps;
 
-  // 内置样式
+  // style
   public style: NativeNodeProps;
 
-  // 文本元素事件的元素内容
+  // element content for text element
   public value?: string;
 
-  // 对Native事件进行polyFill
+  // additional processing of properties
+  public filterAttribute?: CallbackType;
+
+  // polyFill of native event
   protected polyFillNativeEvents?: (type: string) => string;
 
   constructor(tagName: string) {
     super(NodeType.ElementNode);
 
-    // 模版中可能会有大写的tag name，需要转为小写
+    // tag name should be lowercase
     this.tagName = tagName.toLowerCase();
     this.classList = new Set();
     this.attributes = {};
     this.style = {};
-    // 对特殊问题进行 hack 处理
+    // hack special problems
     this.hackSpecialIssue();
   }
 
-  // 样式预处理器
+  // style preprocessor
   public beforeLoadStyle: CallbackType = val => val;
 
   /**
-   * 获取节点所属tag的组件信息
+   * get component info
    */
   public get component(): TagComponent {
-    // 如果节点所属tag的组件信息存在则直接返回
+    // If the value has been taken, return directly
     if (this.tagComponent) {
       return this.tagComponent;
     }
 
-    // 否则去component里取并保存
+    // Otherwise, go to fetch and save
     this.tagComponent = getTagComponent(this.tagName);
 
     return this.tagComponent;
@@ -209,123 +240,116 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * 添加孩子节点
+   * append child node
    *
-   * @param child - 子节点
+   * @param child - child node
    */
   public appendChild(child: HippyNode): void {
-    super.appendChild(child);
-
-    // 如果节点类型是Text，则调用本实例的setText设置文本
-    // 不像Dom中是会有一个新的Text节点
-    // 节点可能是文本节点，就会有text属性
+    // If the node type is text node, call setText method to set the text property
     if (child instanceof HippyText) {
-      this.setText(child.text);
+      this.setText(child.text, { notToNative: true });
     }
+
+    super.appendChild(child);
   }
 
   /**
-   * 在给定锚点前插入节点
+   * Insert the node before the specified node
    *
-   * @param child - 要插入的子节点
-   * @param anchor - 插入的锚点
+   * @param child - node to be added
+   * @param anchor - anchor node
    */
   public insertBefore(child: HippyNode, anchor: HippyNode): void {
-    super.insertBefore(child, anchor);
-
-    // 如果节点类型是Text，则调用本实例的setText设置文本
-    // 不像Dom中是会有一个新的Text节点
-    // 节点可能是文本节点，就会有text属性
+    // If the node type is text node, call setText method to set the text property
     if (child instanceof HippyText) {
-      this.setText(child.text);
+      this.setText(child.text, { notToNative: true });
     }
+    super.insertBefore(child, anchor);
   }
 
   /**
-   * 移动节点至给定锚点
+   * move child node before specified node
    *
-   * @param child - 要移动的子节点
-   * @param anchor - 插入的锚点
+   * @param child - child node that needs to be moved
+   * @param anchor - anchor node
    */
   public moveChild(child: HippyNode, anchor: HippyNode): void {
-    super.moveChild(child, anchor);
-
-    // 如果节点类型是Text，则调用本实例的setText设置文本
-    // 不像Dom中是会有一个新的Text节点
-    // 节点可能是文本节点，就会有text属性
+    // If the node type is text node, call setText method to set the text property
     if (child instanceof HippyText) {
-      this.setText(child.text);
+      this.setText(child.text, { notToNative: true });
     }
+    super.moveChild(child, anchor);
   }
 
   /**
-   * 移动子节点
+   * remove child node
    *
-   * @param child - 要移除的子节点
+   * @param child - node to be removed
    */
   public removeChild(child: HippyNode): void {
-    super.removeChild(child);
-
-    // 如果节点类型是Text，则调用本实例的setText设置文本
-    // 不像Dom中是会有一个新的Text节点
-    // 节点可能是文本节点，就会有text属性
+    // If the node type is text node, call setText method to set the text property
     if (child instanceof HippyText) {
-      this.setText('');
+      this.setText('', { notToNative: true });
     }
+    super.removeChild(child);
   }
 
   /**
-   * 判断元素是否包含某个属性
+   * Check if an attribute is included
    *
-   * @param key - 属性名
+   * @param key - attribute name
    */
   public hasAttribute(key: string): boolean {
     return !!this.attributes[key];
   }
 
   /**
-   * 获取元素的属性值
+   * get value of attribute
    *
-   * @param key - 属性名
+   * @param key - attribute name
    */
-  public getAttribute(key: string): NativeNodeProps {
+  public getAttribute(key: string): NeedToTyped {
     return this.attributes[key];
   }
 
   /**
-   * 移除元素上的属性
+   * remove specified attribute
    *
-   * @param key - 属性名
+   * @param key - attribute name
    */
   public removeAttribute(key: string): void {
     delete this.attributes[key];
   }
 
   /**
-   * 为元素设置属性值
+   * set attribute
    *
-   * @param key - 属性名
-   * @param rawValue - 属性值
+   * @param key - attribute name
+   * @param rawValue - attribute value
+   * @param options - options
    */
   // eslint-disable-next-line complexity
-  public setAttribute(key: string, rawValue: any): void {
+  public setAttribute(
+    key: string,
+    rawValue: NeedToTyped,
+    options: NeedToTyped = {},
+  ): void {
     let value = rawValue;
 
     try {
       // detect expandable attrs for boolean values
-      // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
       if (typeof this.attributes[key] === 'boolean' && value === '') {
         value = true;
       }
       if (key === undefined) {
-        this.updateNativeNode();
+        !options.notToNative && this.updateNativeNode();
         return;
       }
       switch (key) {
         case 'class': {
           const newClassList = new Set(value.split(' ').filter((x: string) => x.trim()) as string);
 
-          // 如果 classList 没有变化则直接返回
+          // If classList is still the same, return directly
           if (setsAreEqual(this.classList, newClassList)) {
             return;
           }
@@ -333,7 +357,7 @@ export class HippyElement extends HippyNode {
           this.classList = newClassList;
 
           // update current node and child nodes
-          this.updateNativeNode(true);
+          !options.notToNative && this.updateNativeNode(true);
           return;
         }
         case 'id':
@@ -342,7 +366,7 @@ export class HippyElement extends HippyNode {
           }
           this.id = value;
           // update current node and child nodes
-          this.updateNativeNode(true);
+          !options.notToNative && this.updateNativeNode(true);
           return;
         // Convert text related to character for interface.
         case 'text':
@@ -356,7 +380,12 @@ export class HippyElement extends HippyNode {
               warn(`Property ${key} must be string：${(error as Error).message}`);
             }
           }
-          value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+          if (!options.textUpdate) {
+            // Only when non-text nodes are automatically updated,
+            // need to deal with leading and trailing whitespace characters, etc.
+            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+          }
+
           this.attributes[key] = unicodeToChar(value);
           break;
         }
@@ -372,10 +401,33 @@ export class HippyElement extends HippyNode {
         case 'caret-color':
           this.attributes['caret-color'] = Native.parseColor(value);
           break;
+        case 'break-strategy':
+          this.attributes.breakStrategy = value;
+          break;
+        case 'placeholderTextColor':
+        case 'placeholder-text-color':
+          this.attributes.placeholderTextColor = Native.parseColor(value);
+          break;
+        case 'underlineColorAndroid':
+        case 'underline-color-android':
+          this.attributes.underlineColorAndroid = Native.parseColor(value);
+          break;
+        case 'nativeBackgroundAndroid': {
+          const nativeBackgroundAndroid = value;
+          if (typeof nativeBackgroundAndroid.color !== 'undefined') {
+            nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
+          }
+          this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
+          break;
+        }
         default:
           this.attributes[key] = value;
       }
-      this.updateNativeNode();
+
+      if (typeof this.filterAttribute === 'function') {
+        this.filterAttribute(this.attributes);
+      }
+      !options.notToNative && this.updateNativeNode();
     } catch (err) {
       // Throw error in development mode
       if (process.env.NODE_ENV !== 'production') {
@@ -385,29 +437,44 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * 设置节点的文本内容
+   * set text
    *
-   * @param text - 文本内容
+   * @param text - text content
+   * @param options - options
    */
-  public setText(text: string): void {
-    return this.setAttribute('text', text);
+  public setText(text: string, options: NeedToTyped = {}): void {
+    return this.setAttribute('text', text, {
+      notToNative: !!options.notToNative,
+    });
   }
 
   /**
-   * 设置元素的样式内容
+   * remove style attr
+   */
+  public removeStyle(): void {
+    // remove all style
+    this.style = {};
+    this.updateNativeNode();
+  }
+
+  /**
+   * set style
    *
-   * @param property - 属性名
-   * @param value - 属性值
-   * @param isBatchUpdate - 是否批量更新
+   * @param property - property name
+   * @param value - property value
+   * @param notToNative - not pass to native
    */
   // eslint-disable-next-line complexity
   public setStyle(
     property: string,
-    value: any,
-    isBatchUpdate = false,
+    value: NeedToTyped,
+    notToNative = false,
   ): void {
     if (value === undefined) {
       delete this.style[property];
+      if (!notToNative) {
+        this.updateNativeNode();
+      }
       return;
     }
     // Preprocess the style
@@ -421,9 +488,6 @@ export class HippyElement extends HippyNode {
         if (typeof styleValue !== 'string') {
           styleValue = styleValue.toString();
         }
-        break;
-      case 'caretColor':
-        this.attributes['caret-color'] = translateColor(styleValue);
         break;
       case 'backgroundImage': {
         [styleProperty, styleValue] = parseBackgroundImage(
@@ -451,7 +515,7 @@ export class HippyElement extends HippyNode {
         if (
           Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, styleProperty)
         ) {
-          styleProperty = PROPERTIES_MAP[styleProperty as keyof PropertiesMapType];
+          styleProperty =            PROPERTIES_MAP[styleProperty as keyof PropertiesMapType];
         }
         // Convert the value
         if (typeof styleValue === 'string') {
@@ -471,7 +535,7 @@ export class HippyElement extends HippyNode {
       }
     }
 
-    // 样式值不存在或者与原值相等，则直接返回
+    // If the style value does not exist or is equal to the original value, return directly
     if (
       styleValue === undefined
       || styleValue === null
@@ -480,11 +544,10 @@ export class HippyElement extends HippyNode {
       return;
     }
 
-    // 赋值
     this.style[styleProperty] = styleValue;
 
-    // 非批量更新时，直接更新Native节点
-    if (!isBatchUpdate) {
+    // directly update the native node
+    if (!notToNative) {
       this.updateNativeNode();
     }
   }
@@ -534,91 +597,100 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * 添加元素事件监听器
+   * add element event listener
    *
-   * @param type - 事件类型
-   * @param callback - 事件回调
-   * @param options - 注册事件参数
+   * @param type - event type
+   * @param callback - callback
+   * @param options - options
    */
   public addEventListener(
     type: string,
     callback: CallbackType,
     options?: EventListenerOptions,
   ): void {
-    // 调用父类方法注册事件
-    super.addEventListener(type, callback, options);
-
-    // 如果有事件polyfill，则进行polyfill，对需要polyfill的事件也绑定相应的事件回调
-    if (this.polyFillNativeEvents) {
-      const eventName = this.polyFillNativeEvents(type);
-
-      if (eventName) {
-        super.addEventListener(eventName, callback, options);
+    let eventName = type;
+    // Added default scrollEventThrottle when scroll event is added.
+    if (
+      eventName === 'scroll'
+      && !(this.getAttribute('scrollEventThrottle') > 0)
+    ) {
+      const scrollEventThrottle = 200;
+      if (scrollEventThrottle) {
+        this.attributes.scrollEventThrottle = scrollEventThrottle;
       }
     }
-    // 更新节点
+
+    // If there is an event polyfill, bind the corresponding event callback to the event that needs polyfill
+    if (typeof this.polyFillNativeEvents === 'function') {
+      const polyfillEventName = this.polyFillNativeEvents(type);
+
+      if (polyfillEventName) {
+        eventName = polyfillEventName;
+      }
+    }
+
+    super.addEventListener(eventName, callback, options);
+    // update native node
     this.updateNativeNode();
   }
 
   /**
-   * 移除元素事件监听器
+   * remove event listener
    *
-   * @param type - 事件类型
-   * @param callback - 事件回调
-   * @param options - 注册事件参数
+   * @param type - event type
+   * @param callback - callback
+   * @param options - options
    */
   public removeEventListener(
     type: string,
     callback: CallbackType,
     options?: EventListenerOptions,
   ): void {
-    // 如果有polyfill，则进行处理
-    // 如果有事件polyfill，则进行polyfill，对需要polyfill的事件也绑定相应的事件回调
-    if (this.polyFillNativeEvents) {
-      const eventName = this.polyFillNativeEvents(type);
+    let eventName = type;
+    // If there is an event polyfill, remove the corresponding event callback for events that require polyfill
+    if (typeof this.polyFillNativeEvents === 'function') {
+      const polyfillEventName = this.polyFillNativeEvents(type);
 
-      if (eventName) {
-        super.removeEventListener(eventName, callback, options);
+      if (polyfillEventName) {
+        eventName = polyfillEventName;
       }
     }
 
-    // 调用父类方法移除事件
-    super.removeEventListener(type, callback, options);
+    super.removeEventListener(eventName, callback, options);
+
+    // update native node
+    this.updateNativeNode();
   }
 
   /**
-   * 分发事件
+   * dispatch event
    *
-   * @param rawEvent - 事件对象
+   * @param rawEvent - event object
    */
   public dispatchEvent(rawEvent: HippyEvent): void {
     const event = rawEvent;
 
-    // 将事件当前触发对象赋值为自己
     event.currentTarget = this;
 
-    // 如果事件触发对象为空，则当前是第一次链条，赋值
     if (!event.target) {
       event.target = this;
 
-      // 如果事件值是文本，则将其赋值给节点的文本内容
-      // TODO: 不一定覆盖了所有的终端事件，所以这里不能用instanceof，先简单绕过下
+      // TODO: Does not cover all terminal events, so instanceof cannot be used here, simply bypass it first
       if (eventIsKeyboardEvent(event)) {
         (event.target as HippyElement).value = event.value;
       }
     }
 
-    // 触发事件
     this.emitEvent(event);
 
-    // 冒泡
+    // event bubbling
     if (this.parentNode && event.bubbles) {
       this.parentNode.dispatchEvent.call(this.parentNode, event);
     }
   }
 
   public convertToNativeNodes(isIncludeChild: boolean): NativeNode[] {
-    // 如果节点不需要插入native，则直接返回
+    // If the node does not need to be inserted into native, return directly
     if (!this.isNeedInsertToNative) {
       return [];
     }
@@ -627,22 +699,22 @@ export class HippyElement extends HippyNode {
       return super.convertToNativeNodes(true);
     }
 
-    // 获取节点的样式
+    // get styles
     const style: NativeNodeProps = this.getNativeStyles();
 
     const elementExtraAttributes: Partial<NativeNode> = {
       name: this.component.name,
       props: {
-        // 节点属性
+        // node props
         ...this.getNativeProps(),
-        // 事件属性
+        // node events
         ...this.getNativeEvents(),
-        // 样式属性
+        // node style
         style,
       },
     };
 
-    // 调试环境hack，增加属性用于chrome inspector调试
+    // hack in dev environment, added properties for chrome inspector debugging
     if (!IS_PROD) {
       elementExtraAttributes.tagName = this.tagName;
       if (elementExtraAttributes.props) {
@@ -650,49 +722,86 @@ export class HippyElement extends HippyNode {
       }
     }
 
-    // 处理文本组件问题
+    // handle special cases of text input components
     parseTextInputComponent(this, style);
 
-    // 处理view组件问题
+    // handle special cases of view component
     parseViewComponent(this, elementExtraAttributes, style);
 
     return super.convertToNativeNodes(false, elementExtraAttributes);
   }
 
   /**
-   * 当通过HMR或是动态加载时，使用最新的样式map重绘元素
+   * When loaded via HMR or dynamically, redraw the element with the latest style map
    */
   public repaintWithChildren(): void {
     this.updateNativeNode(true);
   }
 
   /**
-   * 获取hippyNode节点内联的样式
+   * set native style props
+   */
+  public setNativeProps(nativeProps: NeedToTyped): void {
+    if (nativeProps) {
+      const { style } = nativeProps;
+      if (style) {
+        Object.keys(style).forEach((key) => {
+          this.setStyle(key, style[key], true);
+        });
+        // update native node
+        this.updateNativeNode();
+      }
+    }
+  }
+
+  /**
+   * Set pressed state
+   *
+   * @param pressed - whether to press
+   */
+  public setPressed(pressed: boolean): void {
+    Native.callUIFunction(this, 'setPressed', [pressed]);
+  }
+
+  /**
+   * Set hot zone
+   *
+   * @param x - x coordinate
+   * @param y - y coordinate
+   */
+  public setHotspot(x: number, y: number): void {
+    Native.callUIFunction(this, 'setHotspot', [x, y]);
+  }
+
+  /**
+   * get the inline style
    */
   private getInlineStyle(): NativeNodeProps {
     const nodeStyle: NativeNodeProps = {};
 
     Object.keys(this.style).forEach((key) => {
-      nodeStyle[key] = toRaw(this.style[key]);
+      const styleValue = toRaw(this.style[key]);
+      if (styleValue !== undefined) {
+        nodeStyle[key] = styleValue;
+      }
     });
 
     return nodeStyle;
   }
 
   /**
-   * 根据节点属性和全局样式表，得到节点的样式属性
+   * get the style attribute of the node according to the node attribute and the global style sheet
    */
   private getNativeStyles(): NativeNodeProps {
-    // 样式属性
     let style: NativeNodeProps = {};
 
-    // 首先添加组件默认样式
+    // first add default style
     if (this.component.defaultNativeStyle) {
       style = { ...this.component.defaultNativeStyle };
     }
 
-    // 然后从全局的CSS样式表中获取样式
-    // 这里需要对rem进行处理
+    // then get the styles from the global CSS stylesheet
+    // rem needs to be processed here
     const matchedSelectors = getCssMap().query(this);
     matchedSelectors.selectors.forEach((matchedSelector) => {
       if (matchedSelector.ruleSet?.declarations?.length) {
@@ -704,21 +813,21 @@ export class HippyElement extends HippyNode {
       }
     });
 
-    // 最后从节点的style属性中获取样式，并进行rem单位处理
+    // finally, get the style from the style attribute of the node and process the rem unit
     style = HippyElement.parseRem({ ...style, ...this.getInlineStyle() });
 
     return style;
   }
 
   /**
-   * 生成Native Node的props时，有些额外逻辑需要hack处理
+   * When generating props for Native Node, some additional logic needs to be hacked
    *
-   * @param rawProps - 原props属性
+   * @param rawProps - original props
    */
   private hackNativeProps(rawProps: NativeNodeProps) {
     const props = rawProps;
 
-    // hack 解决iOS的image的src props的问题，应该后续需要native修复
+    // solve the problem of src props of iOS image, which should be repaired by native
     if (this.tagName === 'img' && Native.isIOS()) {
       props.source = [
         {
@@ -731,56 +840,54 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * 获取节点的属性，并转换为Native节点所需的属性格式，属性包括节点的属性以及节点所属组件的默认属性等
+   * get the props of the Native node, the properties include the properties of the node and
+   * the default properties of the component to which the node belongs
    */
   private getNativeProps(): NativeNodeProps {
     const props: NativeNodeProps = {};
     const { defaultNativeProps } = this.component;
 
-    // 如果节点所属组件有默认属性，则首先加上，比如native的dialog节点，默认就是透明的，transparent是true，等等
+    // first add default props
     if (defaultNativeProps) {
       Object.keys(defaultNativeProps).forEach((key) => {
-        // 如果节点已经定义了属性，则不设置
+        // the property has not been set, use the default property to set
         if (this.getAttribute(key) === undefined) {
           const prop = defaultNativeProps[key];
 
-          // 如果默认属性是函数，则执行，否则直接赋值
+          // if the default property is a function, execute, otherwise assign directly
           props[key] = isFunction(prop) ? prop(this) : prop;
         }
       });
     }
 
-    // 然后转换节点自身的attributes
+    // then convert the attributes of the node itself
     Object.keys(this.attributes).forEach((key) => {
-      // 获取节点属性值
       let value = toRaw(this.getAttribute(key));
 
-      // 如果没有定义属性map或者map中没有该key，则直接赋值
+      // if the key does not exist in the map, assign it directly
       if (!this.component.attributeMaps || !this.component.attributeMaps[key]) {
         props[key] = value;
         return;
       }
 
-      // 对于属性map中已有属性，如果定义的map是string，则将map作为key
-      // 这里也是类似事件别名的方式，vue模版使用的属性和native使用的属性名不一致，因此进行map转换
+      // If there is an attribute in the attribute map, and the map value is a string, use the map as the key
       const map = this.component.attributeMaps[key];
       if (isString(map)) {
         props[map] = value;
         return;
       }
 
-      // 如果是方法，则将value作为参数入餐执行方法
+      // If it is a method, use the value after the method is executed as the attribute value
       if (isFunction(map)) {
         props[key] = map(value);
         return;
       }
 
-      // 如果map和value都定义了
       const { name: propsKey, propsValue, jointKey } = map;
       if (isFunction(propsValue)) {
         value = propsValue(value);
       }
-      // 如果jointKey有设置，多个属性会被写入相同的的jointKey对象
+      // If jointKey is set, multiple properties will be written to the same jointKey object
       if (jointKey) {
         props[jointKey] = props[jointKey] ?? {};
 
@@ -794,20 +901,21 @@ export class HippyElement extends HippyNode {
 
     const { nativeProps } = this.component;
     if (nativeProps) {
-      // 然后处理配置的nativeProps，这里的优先级最高，有设置则覆盖其他
+      // Then process the configured nativeProps,
+      // the priority here is the highest, and if there are settings, it will override others
       Object.keys(nativeProps).forEach((key) => {
         props[key] = nativeProps[key];
       });
     }
 
-    // 最后处理hack逻辑
+    // Finally handle the hack logic
     this.hackNativeProps(props);
 
     return props;
   }
 
   /**
-   * 获取目标节点的attributes，用于chrome inspector
+   * Get the attributes of the target node for chrome inspector
    */
   private getNodeAttributes() {
     try {
@@ -819,7 +927,7 @@ export class HippyElement extends HippyNode {
         ...nodeAttributes,
       };
 
-      // 移除不需要使用的属性
+      // remove unwanted properties
       delete attributes.text;
       delete attributes.value;
 
@@ -830,62 +938,53 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * 获取节点绑定的事件列表，并转换为native节点事件属性所需列表
-   *
+   * Get the list of events bound to the node and convert it to the list required by the native node event properties
    */
   private getNativeEvents(): NativeNodeProps {
     const events: NativeNodeProps = {};
     const eventList = this.getEventListenerList();
-    // 这里取出来的事件key都是vue注册的事件，是去除了on开头前缀的事件名
+    // The event keys taken out here are all events
+    // registered by vue, which are the event names with the on prefix removed.
     const eventKeys = Object.keys(eventList);
 
-    // 有绑定事件
     if (eventKeys.length) {
       const { eventNamesMap } = this.component;
 
-      // 如果节点属于自定义组件，有自定义事件map，则使用自定义事件map
-      // 例如节点注册了事件appear,但是终端这个事件名叫做onWidgetShow，那么
-      // native这里传入的事件名就应该是onWidgetShow，这里应该是因为有些终端
-      // 事件名不易理解，不直观，所以做了map
-      if (eventNamesMap) {
-        eventKeys.forEach((eventKey) => {
-          const nativeEventName = eventNamesMap.get(eventKey);
-
-          // 组件有终端适配事件名的情况下，直接使用适配的终端事件名即可
-          if (nativeEventName) {
-            events[nativeEventName] = true;
-          } else {
-            // 否则与其他vue事件一样，首字母大写并加上on前缀
-            events[`on${capitalizeFirstLetter(eventKey)}`] = true;
-          }
-        });
-      } else {
-        // 没有自定义事件则使用保存的事件名，给终端的事件名必须是onXXX
-        eventKeys.forEach((eventKey) => {
-          events[`on${capitalizeFirstLetter(eventKey)}`] = true;
-        });
-      }
+      // If the node belongs to a custom component and has a custom event map, use the custom event map
+      // For example, the node registers the event "appear", but the event name in Native is called onWidgetShow
+      eventKeys.forEach((eventKey) => {
+        const nativeEventName = eventNamesMap?.get(eventKey);
+        if (nativeEventName) {
+          // there is a native mapping name, just use the native event name directly
+          events[nativeEventName] = !!eventList[eventKey];
+        } else {
+          // otherwise, like other vue events, capitalize the first letter and prefix it with on
+          const name = `on${capitalizeFirstLetter(eventKey)}`;
+          events[name] = !!eventList[eventKey];
+        }
+      });
     }
 
     return events;
   }
 
   /**
-   * 统一调用需要特殊处理的逻辑
+   * Unified invocation of logic that requires special handling
    */
   private hackSpecialIssue() {
-    // 对节点的属性做特殊处理
+    // special handling of node attributes
     this.fixVShowDirectiveIssue();
   }
 
   /**
-   * 修复 vShow 指令不生效的问题
+   * Fix the problem that the v-show does not take effect
    *
    */
   private fixVShowDirectiveIssue(): void {
     let display;
-    // 监听 this.style.display，如果发现修改了 display 属性的时候，就 fix vue 传入的 display 值
-    // fixme 需要注意的是，如果这里用户主动通过 setStyle 的方式设置 display，则可能会触发多一次 updateNode，这里看看如何处理
+    // watch the modification of this.style.display and update it with the modified value
+    // fixme If the user here actively sets the display by means of setStyle,
+    // the updateNode may be triggered one more time, here's how to deal with it
     Object.defineProperty(this.style, 'display', {
       enumerable: true,
       configurable: true,
@@ -893,9 +992,9 @@ export class HippyElement extends HippyNode {
         return display;
       },
       set: (newValue: string) => {
-        // hippy 中 display 属性默认是 flex，才能正常显示，web 中为空即可显示
+        // the display property in hippy defaults to flex
         display = newValue === undefined ? 'flex' : newValue;
-        // 调用更新节点
+        // update native node
         this.updateNativeNode();
       },
     });

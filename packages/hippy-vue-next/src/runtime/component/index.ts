@@ -1,48 +1,66 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
- * hippy模版组件处理模块
+ * module for the Hippy tag
  *
- * 比如我们模版中会包含div/ul/hi-swiper等dom或hippy内置tag，这些tag都属于HippyNode，
- * 但是这些tag所对应的Native的类型是不同的，而且我们需要支持扩展Native类型。因此这些类型相关
- * 的定义和兼容处理不能定义在node或者element中，而且这些类型相关的标签某种意义上，类似于vue component，
- * 所以我们定义了component模块来统一处理，在这里进行tag to Native Type的统一注册，统一的默认参数，事件
- * 处理等等
+ * Register Hippy tag uniformly,
+ * establish the mapping between Hippy tag and native tag, and add default parameters and event processing logic.
  *
- * todo 组件信息是在节点内获取，还是使用的地方获取，这是一个问题，倾向于根节点一起，毕竟tag还是关联节点的
+ * TODO Is it better to obtain component information in the node or where it is used?
  *
  */
+
+import type { NeedToTyped } from '@hippy-shared/index';
 import { normalizeTagName } from '../../util';
 import type { EventsUnionType, HippyEvent } from '../event/hippy-event';
 import type { NativeNodeProps } from '../native/native-node';
 
-/** tag所属组件信息的类型 */
 export interface TagComponent {
-  // Native实际渲染的组件的类型，如View，TextView等
+  // the type of component that Native actually renders, such as View, TextView, etc.
   name: string;
-  // 额外事件处理方法，如果存在的话，事件相应时需要调用
+  // manually modify the native event return value and do some additional processing logic
   processEventData?: (
     evtData: EventsUnionType,
-    nativeEventParams: any,
+    nativeEventParams: NeedToTyped,
   ) => HippyEvent;
-  // 事件Map，比如我们Dom的touchStart，在native这边实际是onTouchDown事件
+  // event Map, for example, touchmove in template corresponds to native onTouchMove
   eventNamesMap?: Map<string, string>;
-  // 组件默认都需要加上的样式
+  // default style
   defaultNativeStyle?: NativeNodeProps;
-  // 组件默认都需要加上的props
+  // default props
   defaultNativeProps?: NativeNodeProps;
-  // Native节点的属性，优先级最高
+  // can be used to set the props of the Native node, with the highest priority
   nativeProps?: NativeNodeProps;
-  // 属性Map，对属性做map处理
+  // attribute map
   attributeMaps?: NativeNodeProps;
 }
 
-// 保存注册的tag信息
+// the mapping between Hippy tag and native tag
 const tagMap = new Map();
 
 /**
- * 给指定tag注册组件信息
+ * register component information for the specified tag
  *
- * @param tagName - 标签名
- * @param component - 标签所属组件
+ * @param tagName - tag name
+ * @param component - component
  */
 export function registerHippyTag(
   tagName: string,
@@ -52,22 +70,22 @@ export function registerHippyTag(
     throw new Error('tagName can not be empty');
   }
 
-  // 标准化标签名
+  // normalize tag name
   const normalizedTagName = normalizeTagName(tagName);
 
-  // 已注册的无需再次注册
+  // register only those who have not yet registered
   if (!tagMap.has(normalizedTagName)) {
-    // 合并组件默认信息 todo
+    // TODO merge component default information
 
-    // 保存组件
+    // save the component with tag
     tagMap.set(normalizedTagName, component);
   }
 }
 
 /**
- * 获取指定tag的组件信息
+ * get the component information of the specified tag
  *
- * @param tagName - 标签名
+ * @param tagName - tag name
  */
 export function getTagComponent(tagName: string): TagComponent {
   return tagMap.get(tagName);

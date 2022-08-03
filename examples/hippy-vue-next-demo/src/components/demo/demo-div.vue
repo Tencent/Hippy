@@ -1,17 +1,80 @@
 <template>
-  <div id="div-demo">
+  <div
+    id="div-demo"
+    @scroll="onOuterScroll"
+  >
     <div>
+      <div v-if="!isIOS">
+        <label>水波纹效果: </label>
+        <div :style="{ ...imgRectangle, ...imgRectangleExtra }">
+          <demo-ripple-div
+            :position-y="offsetY"
+            :wrapper-style="imgRectangle"
+            :native-background-android="{ borderless: true, color: '#666666' }"
+          >
+            <p :style="{ color: 'white', maxWidth: 200 }">
+              外层背景图，内层无边框水波纹，受外层影响始终有边框
+            </p>
+          </demo-ripple-div>
+        </div>
+        <demo-ripple-div
+          :position-y="offsetY"
+          :wrapper-style="circleRipple"
+          :native-background-android="{
+            borderless: true,
+            color: '#666666',
+            rippleRadius: 100,
+          }"
+        >
+          <p :style="{ color: 'black', textAlign: 'center' }">
+            无边框圆形水波纹
+          </p>
+        </demo-ripple-div>
+        <demo-ripple-div
+          :position-y="offsetY"
+          :wrapper-style="squareRipple"
+          :native-background-android="{ borderless: false, color: '#666666' }"
+        >
+          <p :style="{ color: '#fff' }">
+            带背景色水波纹
+          </p>
+        </demo-ripple-div>
+      </div>
+      <label>背景图效果:</label>
+      <div
+        :style="demo1Style"
+        :accessible="true"
+        aria-label="背景图"
+        :aria-disabled="false"
+        :aria-selected="true"
+        :aria-checked="false"
+        :aria-expanded="false"
+        :aria-busy="true"
+        role="image"
+        :aria-valuemax="10"
+        :aria-valuemin="1"
+        :aria-valuenow="5"
+        aria-valuetext="middle"
+      >
+        <p class="div-demo-1-text">
+          Hippy 背景图展示
+        </p>
+      </div>
       <label>渐变色效果:</label>
       <div class="div-demo-1-1">
-        <p class="div-demo-1-text">Hippy 背景渐变色展示</p>
+        <p class="div-demo-1-text">
+          Hippy 背景渐变色展示
+        </p>
       </div>
       <label>Transform</label>
       <div class="div-demo-transform">
-        <p class="div-demo-transform-text">Transform</p>
+        <p class="div-demo-transform-text">
+          Transform
+        </p>
       </div>
       <label>水平滚动:</label>
       <div
-        ref="demo-2"
+        ref="demo2"
         class="div-demo-2"
         :bounces="true"
         :scrollEnabled="true"
@@ -25,22 +88,45 @@
       >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-row">
-          <p class="text-block">A</p>
-          <p class="text-block">B</p>
-          <p class="text-block">C</p>
-          <p class="text-block">D</p>
-          <p class="text-block">E</p>
+          <p class="text-block">
+            A
+          </p>
+          <p class="text-block">
+            B
+          </p>
+          <p class="text-block">
+            C
+          </p>
+          <p class="text-block">
+            D
+          </p>
+          <p class="text-block">
+            E
+          </p>
         </div>
       </div>
       <label>垂直滚动:</label>
-      <div class="div-demo-3" :showsVerticalScrollIndicator="false">
+      <div
+        class="div-demo-3"
+        :showsVerticalScrollIndicator="false"
+      >
         <!-- div 带着 overflow 属性的，只能有一个子节点，否则终端会崩溃 -->
         <div class="display-flex flex-column">
-          <p class="text-block">A</p>
-          <p class="text-block">B</p>
-          <p class="text-block">C</p>
-          <p class="text-block">D</p>
-          <p class="text-block">E</p>
+          <p class="text-block">
+            A
+          </p>
+          <p class="text-block">
+            B
+          </p>
+          <p class="text-block">
+            C
+          </p>
+          <p class="text-block">
+            D
+          </p>
+          <p class="text-block">
+            E
+          </p>
         </div>
       </div>
     </div>
@@ -48,57 +134,132 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent } from '@vue/runtime-core';
+import { type HippyElement, Native } from '@hippy/vue-next';
+import {
+  defineComponent,
+  onActivated,
+  onDeactivated,
+  onMounted,
+  ref,
+} from '@vue/runtime-core';
 
-  import defaultImage from '../../assets/defaultSource.jpg';
-  import { warn } from '../../util';
+import defaultImage from '../../assets/defaultSource.jpg';
+import { warn } from '../../util';
 
-  const onScroll = (e: Event) => {
-    warn('onScroll', e);
-  };
-  const onMomentumScrollBegin = (e: Event) => {
-    warn('onMomentumScrollBegin', e);
-  };
-  const onMomentumScrollEnd = (e: Event) => {
-    warn('onMomentumScrollEnd', e);
-  };
-  const onScrollBeginDrag = (e: Event) => {
-    warn('onScrollBeginDrag', e);
-  };
-  const onScrollEndDrag = (e: Event) => {
-    warn('onScrollEndDrag', e);
-  };
+import DemoRippleDiv from './demo-ripple-div.vue';
 
-  export default defineComponent({
-    setup() {
-      /**
+const onScroll = (e: Event) => {
+  warn('onScroll', e);
+};
+const onMomentumScrollBegin = (e: Event) => {
+  warn('onMomentumScrollBegin', e);
+};
+const onMomentumScrollEnd = (e: Event) => {
+  warn('onMomentumScrollEnd', e);
+};
+const onScrollBeginDrag = (e: Event) => {
+  warn('onScrollBeginDrag', e);
+};
+const onScrollEndDrag = (e: Event) => {
+  warn('onScrollEndDrag', e);
+};
+
+export default defineComponent({
+  components: {
+    DemoRippleDiv,
+  },
+  setup() {
+    const offsetY = ref(0);
+    const demo2 = ref(null);
+
+    /**
+       * 外层滚动事件
+       *
+       * @param e - 滚动事件
+       */
+    const onOuterScroll = (e) => {
+      offsetY.value = e.offsetY;
+    };
+
+    onActivated(() => {
+      warn(`${Date.now()}-div-activated`);
+    });
+
+    onDeactivated(() => {
+      warn(`${Date.now()}-div-Deactivated`);
+    });
+
+    onMounted(() => {
+      if (demo2.value) {
+        (demo2.value as HippyElement).scrollTo(50, 0, 1000);
+      }
+    });
+
+    /**
        * demo1 needs to use variable base64 DefaultImage，so inline style mode is a must.
        * if image path is remote address, declaration style class .div-demo-1 can be used.
        */
-      return {
-        demo1Style: {
-          display: 'flex',
-          height: '40px',
-          width: '200px',
-          /**
+    return {
+      demo2,
+      demo1Style: {
+        display: 'flex',
+        height: '40px',
+        width: '200px',
+        /**
            *  inline style 'backgroundImage': `url(${DefaultImage})` with 'url()' syntax only supported above 2.6.1.
            *  declaration css style supports 'background-image': `url('https://xxxx')` format and remote address only.
            */
-          backgroundImage: `${defaultImage}`,
-          backgroundRepeat: 'no-repeat',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: '10px',
-          marginBottom: '10px',
-        },
-        onScroll,
-        onMomentumScrollBegin,
-        onMomentumScrollEnd,
-        onScrollBeginDrag,
-        onScrollEndDrag,
-      };
-    },
-  });
+        backgroundImage: `${defaultImage}`,
+        backgroundRepeat: 'no-repeat',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: '10px',
+        marginBottom: '10px',
+      },
+      imgRectangle: {
+        width: '260px',
+        height: '56px',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      imgRectangleExtra: {
+        marginTop: '20px',
+        backgroundImage: `${defaultImage}`,
+        backgroundSize: 'cover',
+        backgroundRepeat: 'no-repeat',
+      },
+      circleRipple: {
+        marginTop: '30px',
+        width: '150px',
+        height: '56px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: '3px',
+        borderStyle: 'solid',
+        borderColor: '#40b883',
+      },
+      squareRipple: {
+        marginBottom: '20px',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '150px',
+        height: '150px',
+        backgroundColor: '#40b883',
+        marginTop: '30px',
+        borderRadius: '12px',
+        overflow: 'hidden',
+      },
+      isIOS: Native.isIOS(),
+      offsetY,
+      onScroll,
+      onMomentumScrollBegin,
+      onMomentumScrollEnd,
+      onScrollBeginDrag,
+      onScrollEndDrag,
+      onOuterScroll,
+    };
+  },
+});
 </script>
 
 <style>
@@ -138,7 +299,7 @@
   /*.div-demo-1 {*/
   /*  display: flex;*/
   /*  height: 40px;*/
-  /*  background-image: url('http://mat1.gtimg.com/www/qq2018/imgs/qq_logo_2018x2.png');*/
+  /*  background-image: url('https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png');*/
   /*  background-repeat: no-repeat;*/
   /*}*/
 

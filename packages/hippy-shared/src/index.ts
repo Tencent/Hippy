@@ -1,3 +1,5 @@
+export type NeedToTyped = any;
+
 /**
  * 全局的样式存储标识名称
  *

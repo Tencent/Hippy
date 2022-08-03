@@ -8,6 +8,7 @@ import DemoList from './demo-list.vue';
 import DemoP from './demo-p.vue';
 import DemoShadow from './demo-shadow.vue';
 import DemoTextarea from './demo-textarea.vue';
+import DemoTurbo from './demo-turbo.vue';
 import DemoWebSocket from './demo-websocket.vue';
 
 const demos = {
@@ -54,6 +55,10 @@ const demos = {
   demoDynamicImport: {
     name: 'DynamicImport',
     component: DemoDynamicImport,
+  },
+  demoTurbo: {
+    name: 'Turbo',
+    component: DemoTurbo,
   },
 };
 

@@ -1,9 +1,9 @@
 const MOCK_IMG =
-  'https://cdn.read.html5.qq.com/image?imageUrl=http%3A%2F%2Finews%2Egtimg%2Ecom%2Fnewsapp%5Fmatch%2F0%2F3377717982%2F0&src=read&t=0&w=1080&h=720&q=6&rspimgflag=0&imgflag=15&filesize=45829&referUrl=http%3A%2F%2Fkuaibao%2Eqq%2Ecom%2Fs%2F20180504A0KP3600';
+  'https://user-images.githubusercontent.com/12878546/148736841-59ce5d1c-8010-46dc-8632-01c380159237.jpg';
 const MOCK_IMG2 =
-  'https://cdn.read.html5.qq.com/image?src=feeds&subsrc=circle&q=5&r=0&imgflag=13&cdn_cache=24&w=120&h=120&imageUrl=http%3A%2F%2Finews%2Egtimg%2Ecom%2Fnewsapp%5Fls%2F0%2F2813667713%5F200200%2F0';
+  'https://user-images.githubusercontent.com/12878546/148736850-4fc13304-25d4-4b6a-ada3-cbf0745666f5.jpg';
 const MOCK_COVER =
-  'https://cdn.read.html5.qq.com/image?src=video_hot&q=5&h=693&w=1125&r=0&imageUrl=https%3A%2F%2Fvpic.video.qq.com%2F86124154%2Ff05265k1iyt.png';
+  'https://user-images.githubusercontent.com/12878546/148736859-29e3a5b2-612a-4fdd-ad21-dc5d29fa538f.jpg';
 
 const STYLE_1 = {
   style: 1,

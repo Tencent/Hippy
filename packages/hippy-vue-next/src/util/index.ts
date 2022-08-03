@@ -1,9 +1,29 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /**
  * util工具类集合
  */
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { capitalize } from '@vue/shared';
-
+import type { NeedToTyped } from '@hippy-shared/index';
 import type { CallbackType, CommonMapParams } from '../../global';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
 
@@ -28,7 +48,7 @@ export function getUniqueId(): number {
  *
  * @param context - 要跟踪的内容
  */
-export function trace(...context: any[]): void {
+export function trace(...context: NeedToTyped[]): void {
   // 生产环境不输出
   if (IS_PROD) {
     return;
@@ -44,7 +64,7 @@ export function trace(...context: any[]): void {
  *
  * @param context - 要输出的内容
  */
-export function warn(...context: any[]): void {
+export function warn(...context: NeedToTyped[]): void {
   // 生产环境不输出
   if (IS_PROD) {
     return;
@@ -219,7 +239,7 @@ export function convertImageLocalPath(originalUrl: string): string {
  * @param arr - 待统计的数组
  * @param iterator - 需要执行的回调
  */
-export function arrayCount(arr: any[], iterator: CallbackType): number {
+export function arrayCount(arr: NeedToTyped[], iterator: CallbackType): number {
   let count = 0;
 
   for (const arrayItem of arr) {

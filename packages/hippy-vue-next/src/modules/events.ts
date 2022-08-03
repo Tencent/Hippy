@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import type { ComponentInternalInstance } from '@vue/runtime-core';
 import { callWithAsyncErrorHandling, ErrorCodes } from '@vue/runtime-core';
 
@@ -5,27 +25,27 @@ import type { CallbackType } from '../../global';
 import type { HippyElement } from '../runtime/element/hippy-element';
 import { lowerFirstLetter } from '../util';
 
-/** 事件回调类型 */
+// event callback type
 type EventValue = CallbackType | CallbackType[];
 
-/** Vue事件回调接口类型 */
+// Vue event callback interface type
 interface Invoker extends EventListener {
   value: EventValue;
   attached?: number;
 }
 
-/** Native事件Option */
+// native event option
 interface EventOption {
   [key: string]: boolean;
 }
 
-// 事件修饰符正则判断表达式
+// event modifier regular expression
 const optionsModifierRE = /(?:Once|Passive|Capture)$/;
 
 /**
- * 处理事件名，去掉on并将首字母转小写
+ * process the event name, remove on and lowercase the first letter
  *
- * @param eventName - 事件名
+ * @param eventName - event name
  */
 function parseName(eventName: string): (string | EventOption)[] {
   let name = eventName;
@@ -39,15 +59,15 @@ function parseName(eventName: string): (string | EventOption)[] {
     }
   }
 
-  // 去掉事件名中的on,然后首字母转小写
+  // remove on and lowercase the first letter
   return [lowerFirstLetter(name.slice(2)), options];
 }
 
 /**
- * 创建事件执行方法
+ * create event execution method
  *
- * @param initialValue - 事件的初始值
- * @param instance - vue 实例
+ * @param initialValue - the initial value of the event
+ * @param instance - vue instance
  */
 function createInvoker(
   initialValue: EventValue,
@@ -67,13 +87,13 @@ function createInvoker(
 }
 
 /**
- * 给元素设置事件
+ * set events on elements
  *
- * @param rawEl - 要设置的元素
- * @param rawName - 事件名称
- * @param prevValue - 旧值
- * @param nextValue - 新值
- * @param instance - vue 实例
+ * @param rawEl - target element
+ * @param rawName - event name
+ * @param prevValue - old value
+ * @param nextValue - new value
+ * @param instance - vue instance
  */
 export function patchEvent(
   rawEl: HippyElement & { _vei?: Record<string, Invoker | undefined> },
@@ -84,18 +104,17 @@ export function patchEvent(
 ): void {
   // vei = vue event invokers
   const el = rawEl;
-  const invokers: Record<string, Invoker | undefined> =
-    el._vei ?? (el._vei = {});
+  const invokers: Record<string, Invoker | undefined> = el._vei ?? (el._vei = {});
   const existingInvoker: Invoker | undefined = invokers[rawName];
 
   if (nextValue && existingInvoker) {
-    // 更新事件
+    // update event
     existingInvoker.value = nextValue;
   } else {
     const [name, options] = parseName(rawName);
 
     if (nextValue) {
-      // 添加事件，先创建事件并保存在_vei中，然后给el绑定事件
+      // first create the event and save it in _vei, then bind the event to el
       invokers[rawName] = createInvoker(nextValue, instance);
       const invoker = invokers[rawName];
       el.addEventListener(
@@ -104,13 +123,13 @@ export function patchEvent(
         options as EventOption,
       );
     } else {
-      // 移除事件，先从el移除事件
+      // remove the event, first remove the event from el
       el.removeEventListener(
         name as string,
         existingInvoker as Invoker,
         options as EventOption,
       );
-      // 然后移除_vei中的事件
+      // then remove the event in _vei
       invokers[rawName] = undefined;
     }
   }

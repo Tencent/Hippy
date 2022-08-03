@@ -1,12 +1,18 @@
 <template>
-  <div id="demo-vue-native" ref="rectRef">
+  <div
+    id="demo-vue-native"
+    ref="rectRef"
+  >
     <div>
       <!-- 操作系统平台 -->
       <div class="native-block">
         <label class="vue-native-title">Native能力使用示例：</label>
       </div>
       <!-- 操作系统平台 -->
-      <div v-if="Native.platform" class="native-block">
+      <div
+        v-if="Native.platform"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.platform</label>
         <p>{{ Native.platform }}</p>
       </div>
@@ -28,13 +34,19 @@
       </div>
 
       <!-- 是否是 iPhone X，仅限操作系统为 iOS 使用 -->
-      <div v-if="Native.isIOS()" class="native-block">
+      <div
+        v-if="Native.isIOS()"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.isIphoneX</label>
         <p>{{ Native.isIphoneX }}</p>
       </div>
 
       <!-- 操作系统版本，目前仅限 iOS 使用，其它平台返回 null -->
-      <div v-if="Native.isIOS()" class="native-block">
+      <div
+        v-if="Native.isIOS()"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.osVersion</label>
         <p>{{ Native.osVersion || 'null' }}</p>
       </div>
@@ -51,7 +63,10 @@
       </div>
 
       <!-- API 版本，目前仅限 Android 使用，其它平台返回 null -->
-      <div v-if="Native.isAndroid()" class="native-block">
+      <div
+        v-if="Native.isAndroid()"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.apiLevel</label>
         <p>{{ Native.apiLevel || 'null' }}</p>
       </div>
@@ -63,25 +78,37 @@
       </div>
 
       <!-- 窗口宽度 -->
-      <div v-if="Native.dimensions.window.width" class="native-block">
+      <div
+        v-if="Native.dimensions.window.width"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.dimensions.window.width</label>
         <p>{{ Native.dimensions.window.width }}</p>
       </div>
 
       <!-- 窗口高度，需要注意的是双平台都是包含状态栏的，而 Android 会从状态栏下方第一个像素开始画 -->
-      <div v-if="Native.dimensions.window.height" class="native-block">
+      <div
+        v-if="Native.dimensions.window.height"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.dimensions.window.height</label>
         <p>{{ Native.dimensions.window.height }}</p>
       </div>
 
       <!-- 屏幕宽度 -->
-      <div v-if="Native.dimensions.screen.width" class="native-block">
+      <div
+        v-if="Native.dimensions.screen.width"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.dimensions.screen.width</label>
         <p>{{ Native.dimensions.screen.width }}</p>
       </div>
 
       <!-- 屏幕高度 -->
-      <div v-if="Native.dimensions.screen.height" class="native-block">
+      <div
+        v-if="Native.dimensions.screen.height"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.dimensions.screen.height</label>
         <p>{{ Native.dimensions.screen.height }}</p>
       </div>
@@ -97,17 +124,20 @@
         v-if="Native.dimensions.screen.navigatorBarHeight"
         class="native-block"
       >
-        <label class="vue-native-title"
-          >Native.dimensions.screen.navigatorBarHeight</label
-        >
+        <label
+          class="vue-native-title"
+        >Native.dimensions.screen.navigatorBarHeight</label>
         <p>{{ Native.dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
       <!-- 状态栏高度 -->
-      <div v-if="Native.dimensions.screen.statusBarHeight" class="native-block">
-        <label class="vue-native-title"
-          >Native.dimensions.screen.statusBarHeight</label
-        >
+      <div
+        v-if="Native.dimensions.screen.statusBarHeight"
+        class="native-block"
+      >
+        <label
+          class="vue-native-title"
+        >Native.dimensions.screen.statusBarHeight</label>
         <p>{{ Native.dimensions.screen.statusBarHeight }}</p>
       </div>
 
@@ -115,47 +145,65 @@
       <div
         v-if="
           Native.isAndroid() &&
-          Native.dimensions.screen.navigatorBarHeight !== undefined
+            Native.dimensions.screen.navigatorBarHeight !== undefined
         "
         class="native-block"
       >
-        <label class="vue-native-title"
-          >Native.dimensions.screen.navigatorBarHeight(Android only)</label
-        >
+        <label
+          class="vue-native-title"
+        >Native.dimensions.screen.navigatorBarHeight(Android only)</label>
         <p>{{ Native.dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
       <!-- 终端传递过来的启动参数 superProps -->
-      <div v-if="superProps" class="native-block">
-        <label class="vue-native-title"
-          >在$start完成后的回调参数中包含了superProps</label
-        >
+      <div
+        v-if="superProps"
+        class="native-block"
+      >
+        <label
+          class="vue-native-title"
+        >在$start完成后的回调参数中包含了superProps</label>
         <p>{{ superProps }}</p>
       </div>
 
       <!-- 测量一个元素尺寸的范例，其实它是 measureInWindow 的封装 -->
-      <div ref="measure-block" class="native-block">
+      <div
+        ref="measure-block"
+        class="native-block"
+      >
         <label class="vue-native-title">Element.getBoundingClientRect</label>
         <p>{{ rect }}</p>
       </div>
 
       <!-- 本地存储使用 -->
-      <div v-if="Native.asyncStorage" class="native-block">
+      <div
+        v-if="Native.asyncStorage"
+        class="native-block"
+      >
         <label class="vue-native-title">AsyncStorage 使用</label>
         <div class="item-wrapper">
-          <button class="item-button" @click="setItem">
+          <button
+            class="item-button"
+            @click="setItem"
+          >
             <span>setItem</span>
           </button>
           <span>{{ storageSetStatus }}</span>
         </div>
         <div class="item-wrapper">
-          <button class="item-button" @click="removeItem">
+          <button
+            class="item-button"
+            @click="removeItem"
+          >
             <span>removeItem</span>
           </button>
           <span>{{ storageSetStatus }}</span>
         </div>
         <div class="item-wrapper">
-          <button class="item-button" @click="getItem">
+          <button
+            class="item-button"
+            @click="getItem"
+          >
             <span>getItem</span>
           </button>
           <span>{{ storageValue }}</span>
@@ -163,35 +211,86 @@
       </div>
 
       <!-- ImageLoader使用 -->
-      <div v-if="Native.imageLoader" class="native-block">
+      <div
+        v-if="Native.imageLoader"
+        class="native-block"
+      >
         <label class="vue-native-title">ImageLoader 使用</label>
         <div class="item-wrapper">
-          <button class="item-button" @click="getSize">
+          <button
+            class="item-button"
+            @click="getSize"
+          >
             <span>getSize</span>
           </button>
           <span>{{ imageSize }}</span>
         </div>
       </div>
 
+      <!-- Fetch使用 -->
+      <div class="native-block">
+        <label class="vue-native-title">Fetch 使用</label>
+        <div class="item-wrapper">
+          <span>{{ fetchText }}</span>
+        </div>
+      </div>
+
       <!-- NetInfo使用 -->
-      <div v-if="Native.network" class="native-block">
+      <div
+        v-if="Native.network"
+        class="native-block"
+      >
         <label class="vue-native-title">NetInfo 使用</label>
         <div class="item-wrapper">
           <span>{{ netInfoText }}</span>
         </div>
       </div>
 
+      <!-- Cookie 使用 -->
+      <div
+        v-if="Native.cookie"
+        class="native-block"
+      >
+        <label class="vue-native-title">Cookie 使用</label>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="setCookie"
+          >
+            <span>setCookie</span>
+          </button>
+          <span>{{ cookieString }}</span>
+        </div>
+        <div class="item-wrapper">
+          <button
+            class="item-button"
+            @click="getCookie"
+          >
+            <span>getCookie</span>
+          </button>
+          <span>{{ cookiesValue }}</span>
+        </div>
+      </div>
       <!-- Clipboard使用 -->
-      <div v-if="Native.clipboard" class="native-block">
+      <div
+        v-if="Native.clipboard"
+        class="native-block"
+      >
         <label class="vue-native-title">Clipboard 使用</label>
         <div class="item-wrapper">
-          <button class="item-button" @click="setString">
+          <button
+            class="item-button"
+            @click="setString"
+          >
             <span>setString</span>
           </button>
           <span>{{ clipboardString }}</span>
         </div>
         <div class="item-wrapper">
-          <button class="item-button" @click="getString">
+          <button
+            class="item-button"
+            @click="getString"
+          >
             <span>getString</span>
           </button>
           <span>{{ clipboardValue }}</span>
@@ -202,122 +301,149 @@
 </template>
 
 <script lang="ts">
-  import { Native, type HippyNode } from '@hippy/vue-next';
-  import { defineComponent, onMounted, ref } from '@vue/runtime-core';
+import { Native, type HippyNode } from '@hippy/vue-next';
+import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 
-  import { getGlobalInitProps, warn } from '../../util';
+import { getGlobalInitProps, warn } from '../../util';
 
-  export default defineComponent({
-    setup() {
-      const clipboardString = ref('ready to set');
-      const clipboardValue = ref('');
-      const storageSetStatus = ref('ready to set');
-      const storageValue = ref('');
-      const imageSize = ref('');
-      const netInfoText = ref('正在获取...');
-      const rect = ref('');
-      const superProps = ref('');
-      const rectRef = ref(null);
+export default defineComponent({
+  setup() {
+    const clipboardString = ref('ready to set');
+    const clipboardValue = ref('');
+    const storageSetStatus = ref('ready to set');
+    const storageValue = ref('');
+    const imageSize = ref('');
+    const netInfoText = ref('正在获取...');
+    const rect = ref('');
+    const superProps = ref('');
+    const rectRef = ref(null);
+    const fetchText = ref('请求网址中...');
+    const cookieString = ref('ready to set');
+    const cookiesValue = ref('');
 
-      /**
+    /**
        * 设置 item 内容
        */
-      const setItem = () => {
-        Native.asyncStorage.setItem('itemKey', 'storageValue');
-        storageSetStatus.value = 'set "storageValue" succeed';
-      };
+    const setItem = () => {
+      Native.asyncStorage.setItem('itemKey', 'hippy');
+      storageSetStatus.value = 'set "hippy" value succeed';
+    };
 
-      /**
+    /**
        * 移除 item 内容
        */
-      const removeItem = () => {
-        Native.asyncStorage.removeItem('itemKey');
-        storageSetStatus.value = 'remove "storageValue" succeed';
-      };
+    const removeItem = () => {
+      Native.asyncStorage.removeItem('itemKey');
+      storageSetStatus.value = 'remove "hippy" value succeed';
+    };
 
-      /**
+    /**
        * 获取 item 内容
        */
-      const getItem = async () => {
-        const cacheValue = await Native.asyncStorage.getItem('itemKey');
-        if (cacheValue) {
-          storageValue.value = cacheValue;
-        } else {
-          storageValue.value = 'undefined';
-        }
-      };
+    const getItem = async () => {
+      const cacheValue = await Native.asyncStorage.getItem('itemKey');
+      if (cacheValue) {
+        storageValue.value = cacheValue;
+      } else {
+        storageValue.value = 'undefined';
+      }
+    };
 
-      /**
+    /**
        * 获取图片尺寸
        */
-      const getSize = async () => {
-        const result = await Native.imageLoader.getSize(
-          'https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png',
-        );
-        warn('ImageLoader getSize', result);
-        imageSize.value = `${result.width}x${result.height}`;
-      };
+    const getSize = async () => {
+      const result = await Native.imageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
+      warn('ImageLoader getSize', result);
+      imageSize.value = `${result.width}x${result.height}`;
+    };
 
-      /**
+    const setCookie = () => {
+      Native.cookie.set('https://hippyjs.org', 'name=hippy;network=mobile');
+      cookieString.value = '\'name=hippy;network=mobile\' is set';
+    };
+    const getCookie = () => {
+      Native.cookie.getAll('https://hippyjs.org').then((cookies) => {
+        cookiesValue.value = cookies;
+      });
+    };
+
+    /**
        * 设置剪贴板内容
        */
-      const setString = () => {
-        Native.clipboard.setString('clipboardValue');
-        clipboardString.value = 'clipboard set "clipboardValue" succeed';
-      };
+    const setString = () => {
+      Native.clipboard.setString('hippy');
+      clipboardString.value = 'clipboard set "hippy" value succeed';
+    };
 
-      /**
+    /**
        * 获取剪贴板内容
        */
-      const getString = async () => {
-        const value = await Native.clipboard.getString();
-        if (value) {
-          clipboardValue.value = value;
-        } else {
-          clipboardValue.value = 'undefined';
-        }
-      };
+    const getString = async () => {
+      const value = await Native.clipboard.getString();
+      if (value) {
+        clipboardValue.value = value;
+      } else {
+        clipboardValue.value = 'undefined';
+      }
+    };
 
-      onMounted(() => {
-        // hippy 初始化参数
-        superProps.value = JSON.stringify(getGlobalInitProps());
+    onMounted(() => {
+      // hippy 初始化参数
+      superProps.value = JSON.stringify(getGlobalInitProps());
 
-        // netInfo
-        Native.network.getNetStatus().then((netInfo) => {
-          netInfoText.value = netInfo;
-        });
-
-        // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
-        if (rectRef.value) {
-          Native.measureInAppWindow(rectRef.value as HippyNode).then(
-            (rectInfo) => {
-              rect.value = `Container rect: ${JSON.stringify(rectInfo)}`;
-            },
-          );
-        }
+      // netInfo
+      Native.netInfo.fetch().then((netInfo) => {
+        netInfoText.value = netInfo;
+      });
+      Native.netInfo.addEventListener('change', (info) => {
+        netInfoText.value = `收到通知: ${info.network_info}`;
       });
 
-      // 屏幕是否是竖屏
-      return {
-        Native,
-        rect,
-        rectRef,
-        storageValue,
-        storageSetStatus,
-        clipboardString,
-        clipboardValue,
-        imageSize,
-        netInfoText,
-        superProps,
-        getSize,
-        setItem,
-        getItem,
-        removeItem,
-        setString,
-        getString,
-      };
-    },
-  });
+      fetch('https://hippyjs.org', {
+        mode: 'no-cors', // 2.14.0 or above supports other options(not only method/headers/url/body)
+      })
+        .then((responseJson) => {
+          fetchText.value = `成功状态: ${responseJson.status}`;
+        })
+        .catch((error) => {
+          fetchText.value = `收到错误: ${error}`;
+        });
+
+      // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
+      if (rectRef.value) {
+        Native.measureInAppWindow(rectRef.value as HippyNode).then((rectInfo) => {
+          rect.value = `Container rect: ${JSON.stringify(rectInfo)}`;
+        });
+      }
+    });
+
+    // 屏幕是否是竖屏
+    return {
+      Native,
+      rect,
+      rectRef,
+      storageValue,
+      storageSetStatus,
+      clipboardString,
+      clipboardValue,
+      imageSize,
+      netInfoText,
+      superProps,
+      fetchText,
+      cookieString,
+      cookiesValue,
+      getSize,
+      setItem,
+      getItem,
+      removeItem,
+      setString,
+      getString,
+      setCookie,
+      getCookie,
+    };
+  },
+});
 </script>
 
 <style>
@@ -333,7 +459,7 @@
   }
 
   .native-block p {
-    marginvertical: 5px;
+    margin-vertical: 5px;
   }
 
   .vue-native-title {

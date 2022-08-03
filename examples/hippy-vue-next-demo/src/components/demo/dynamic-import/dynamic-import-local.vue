@@ -1,15 +1,20 @@
 <template>
-  <div id="async-component-local" class="local-local">
-    <p class="async-txt">我是本地异步组件</p>
+  <div
+    id="async-component-local"
+    class="local-local"
+  >
+    <p class="async-txt">
+      我是本地异步组件
+    </p>
   </div>
 </template>
 
-<script>
-  import { defineComponent } from '@vue/runtime-core';
+<script lang="ts">
+import { defineComponent } from '@vue/runtime-core';
 
-  export default defineComponent({
-    name: 'DynamicImportLocal',
-  });
+export default defineComponent({
+  name: 'DynamicImportLocal',
+});
 </script>
 
 <style>

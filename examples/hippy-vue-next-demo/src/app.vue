@@ -1,98 +1,133 @@
 <template>
-  <div
-    id="root-wrapper"
-    v-report="{
-      notReport: !isLoaded,
-      pageId: isOldUser ? 'pg_zplan_xiaowo_olduer' : 'pg_zplan_xiaowo_newuer',
-      pageParams: {
-        dt_appkey: '0DOU00GF3L42XIJR',
-        zplan_external_entrance: 'dynamic',
-        zplan_bullet_chat: 0,
-      },
-    }"
-  >
+  <div id="root-wrapper">
     <div id="header">
       <img
+        v-show="!['/', '/debug', '/remote-debug'].includes(currentRoute.path)"
         id="back-btn"
-        v-report="{
-          elementId: isOldUser
-            ? 'em_zplan_entrance_xiaowo_olduer'
-            : 'em_zplan_entrance_xiaowo_newuer',
-          elementParams: {
-            zplan_entrance_xiaowo_status: 0,
-          },
-        }"
         :src="backButtonImg"
         @click="goBack"
-      />
-      <label class="title" @click.stop="onClickDemo">Hippy Vue3 示例</label>
+      >
+      <label class="title">Hippy Vue Next Demo</label>
+      <label class="title">{{ subTitle }}</label>
     </div>
-    <router-view class="feature-content" />
-    <!--  暂不支持keep-alive的写法，待修复  <router-view class="feature-content" v-slot="{ Component }">-->
-    <!--      <keep-alive>-->
-    <!--        <component :is="Component" />-->
-    <!--      </keep-alive>-->
-    <!--    </router-view>-->
+    <div
+      class="body-container"
+      @click.stop="() => {}"
+    >
+      <!--  if you don't need keep-alive, just use '<router-view  />' -->
+      <router-view v-slot="{ Component, route }">
+        <keep-alive>
+          <component
+            :is="Component"
+            :key="route.path"
+          />
+        </keep-alive>
+      </router-view>
+    </div>
+    <div class="bottom-tabs">
+      <div
+        v-for="(tab, i) in tabs"
+        :key="'tab-' + i"
+        :class="['bottom-tab', i === activatedTab ? 'activated' : '']"
+        @click.stop="navigateTo(tab, i)"
+      >
+        <span class="bottom-tab-text">
+          {{ tab.text }}
+        </span>
+      </div>
+    </div>
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent, ref } from '@vue/runtime-core';
-  import { useRouter } from 'vue-router';
+import { defineComponent, ref } from '@vue/runtime-core';
+import { useRoute, useRouter } from 'vue-router';
 
-  import backButtonImg from './back-icon.png';
+import backButtonImg from './back-icon.png';
 
-  export default defineComponent({
-    name: 'App',
-    setup() {
-      const isLoaded = ref(false);
-      const isOldUser = ref(false);
-      const router = useRouter();
+export default defineComponent({
+  name: 'App',
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+    const subTitle = ref('');
+    const activatedTab = ref(0);
+    const tabs = ref([
+      {
+        text: 'API',
+        path: '/',
+      },
+      {
+        text: 'Debug',
+        path: '/remote-debug',
+      },
+    ]);
 
-      /**
-       * 点击返回上一页
+    /**
+       * go back
        */
-      const goBack = () => {
-        router.back();
-      };
+    const goBack = () => {
+      router.back();
+    };
 
-      /**
-       * 点击标题
+    /**
+       * navigator to target tab
        */
-      const onClickDemo = () => {
-        // 变量获取成功
-        isOldUser.value = true;
+    const navigateTo = (tab, i) => {
+      if (i === activatedTab.value) {
+        return;
+      }
 
-        // 数据加载成功，触发上报
-        isLoaded.value = true;
-      };
+      // change tab
+      activatedTab.value = i;
 
-      return {
-        backButtonImg,
-        isLoaded,
-        isOldUser,
-        goBack,
-        onClickDemo,
-      };
-    },
-  });
+      // replace to target path
+      router.replace({
+        path: tab.path,
+      });
+    };
+
+    return {
+      activatedTab,
+      backButtonImg,
+      currentRoute: route,
+      subTitle,
+      tabs,
+      goBack,
+      navigateTo,
+    };
+  },
+});
 </script>
 <style>
   #root-wrapper {
     flex: 1;
     background-color: white;
+    display: flex;
+    flex-direction: column;
   }
   #header {
     height: 60px;
     background-color: #40b883;
     display: flex;
     flex-direction: row;
-    align-content: center;
+    align-items: center;
     justify-content: space-between;
+    padding-horizontal: 10px;
   }
-  #back-btn {
-    height: 24px;
+  #root-wrapper .left-title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  #root-wrapper #back-btn {
+    height: 20px;
     width: 24px;
-    margin: 18px;
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+  #root-wrapper .body-container {
+    flex: 1;
   }
   .row {
     flex-direction: row;
@@ -159,7 +194,7 @@
     line-height: 40px;
   }
   .title {
-    font-size: 0.4rem;
+    font-size: 20px;
     line-height: 60px;
     margin-left: 5px;
     margin-right: 10px;
@@ -169,5 +204,34 @@
   }
   .feature-content {
     background-color: #fff;
+  }
+  .bottom-tabs {
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    border-top-width: 1px;
+    border-style: solid;
+    border-top-color: #eee;
+  }
+  .bottom-tab {
+    height: 48px;
+    flex: 1;
+    font-size: 16px;
+    color: #242424;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+  .bottom-tab:not(:last-child) {
+    border-right-width: 1px;
+    border-right-color: #eee;
+    border-style: solid;
+  }
+  .bottom-tab.activated .bottom-tab-text {
+    color: #4c9afa;
   }
 </style>

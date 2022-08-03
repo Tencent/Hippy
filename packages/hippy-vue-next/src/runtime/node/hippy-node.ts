@@ -1,6 +1,7 @@
 import type { CallbackType } from '../../../global';
 import { getUniqueId, DEFAULT_ROOT_ID } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
+import { preCacheNode } from '../../util/node-cache';
 import type { TagComponent } from '../component';
 import type { HippyEvent } from '../event/hippy-event';
 import { HippyEventTarget } from '../event/hippy-event-target';
@@ -12,78 +13,81 @@ import {
 } from '../render';
 
 export enum NodeType {
-  ElementNode = 1,
-  TextNode,
-  CommentNode,
-  DocumentNode,
+  ElementNode = 1, // element node
+  TextNode, // text node
+  CommentNode, // comment node
+  DocumentNode, // document node
 }
 
+/**
+ * whether it needs to be inserted into the native node tree
+ * @param nodeType - node type
+ */
 function needInsertToNative(nodeType: NodeType): boolean {
   return nodeType === NodeType.ElementNode;
 }
 
 /**
- * HippyNode节点基类，包含了构建树结构Node所需的基本的Node操作方法，属性
- * 继承自EventTarget类
+ * hippy node base class, including the basic Node operation methods
+ * and attributes required to build a tree structure Node
+ * inherited from the EventTarget class
  *
  * @public
  */
 export class HippyNode extends HippyEventTarget {
   /**
-   * 获取唯一节点id，用于终端Native节点唯一标识
+   * get the unique node id, which is used to uniquely identify the terminal Native node
    */
   private static getUniqueNodeId(): number {
     return getUniqueId();
   }
 
-  // 节点是否需要插入Native
+  // whether it needs to be inserted into the native node tree
   public isNeedInsertToNative: boolean;
 
-  // 节点是否已插入Native
+  // whether the node is mounted
   public isMounted = false;
 
-  // 节点的终端id，需要在constructor中赋值
+  // node id
   public nodeId: number;
 
-  // 节点类型
+  // node type
   public nodeType: NodeType;
 
-  // 孩子节点
+  // child nodes
   public childNodes: HippyNode[] = [];
 
-  // 父节点
+  // parent node
   public parentNode: HippyNode | null = null;
 
-  // 前兄弟节点
+  // previous sibling
   public prevSibling: HippyNode | null = null;
 
-  // 后兄弟节点
+  // next sibling
   public nextSibling: HippyNode | null = null;
 
-  // 节点所属tag的Native组件信息
+  // native component information corresponding to the node
   protected tagComponent: TagComponent | null = null;
 
   constructor(nodeType: NodeType) {
     super();
 
-    // 给节点唯一id，用于终端Native节点标识
     this.nodeId = HippyNode.getUniqueNodeId();
 
     this.nodeType = nodeType;
 
-    // 节点是否需要插入Native，比如text节点、comment节点无需插入Native
     this.isNeedInsertToNative = needInsertToNative(nodeType);
   }
 
   /**
-   * 获取第一个孩子节点
+   * get the first child node
    */
   public get firstChild(): HippyNode | null {
     return this.childNodes.length ? this.childNodes[0] : null;
   }
 
   /**
-   * 获取最后一个孩子节点
+   * get the last child node
    */
   public get lastChild(): HippyNode | null {
     const len = this.childNodes.length;
@@ -92,20 +96,20 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
-   * 获取节点所属tag的组件信息
+   * get the native component information corresponding to the node
    */
   public get component(): TagComponent {
     return this.tagComponent as TagComponent;
   }
 
   /**
-   * 获取本节点在兄弟节点中的索引，从零开始
+   * get the index of this node in the sibling node, starting from zero
    */
   public get index(): number {
     let index = 0;
 
     if (this.parentNode) {
-      // 不需要插入Native的节点需要过滤掉
+      // filter out nodes that do not need to be inserted
       const needInsertToNativeChildNodes: HippyNode[] = this.parentNode.childNodes
         .filter(node => node.isNeedInsertToNative);
       index = needInsertToNativeChildNodes.indexOf(this);
@@ -115,17 +119,16 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
-   * 当前节点是否是根节点
+   * whether the current node is the root node
    */
   public isRootNode(): boolean {
-    // 节点nodeId等于根节点的nodeId 或者 节点的id等于根节点的id（即初始化传入的rootView）
     return this.nodeId === DEFAULT_ROOT_ID;
   }
 
   /**
-   * 添加子节点
+   * append child node
    *
-   * @param rawChild - 需要添加的子节点
+   * @param rawChild - child node to be added
    */
   public appendChild(rawChild: HippyNode): void {
     const child = rawChild;
@@ -134,37 +137,39 @@ export class HippyNode extends HippyEventTarget {
       throw new Error('No child to append');
     }
 
+    // If the node to be added has a parent node and
+    // the parent node is not the current node, remove it from the container first
+    // In the case of keep-alive, the node still exists and will be moved to the virtual container
     if (child.parentNode && child.parentNode !== this) {
-      // 在vue3的keep-alive实现中，会出现这里的问题 todo
-      throw new Error('Can\'t append child, because the node already has a different parent');
+      child.parentNode.removeChild(child);
     }
 
-    // 如果节点已经存在，则先移除
+    // If the node is already mounted, remove it first
     if (child.isMounted) {
       this.removeChild(child);
     }
 
-    // 保存节点的parentNode
+    // save the parent node of the node
     child.parentNode = this;
 
-    // 修改最后child的引用
+    // modify the pointer of the last child
     if (this.lastChild) {
       child.prevSibling = this.lastChild;
       this.lastChild.nextSibling = child;
     }
 
-    // 添加子节点
+    // add node
     this.childNodes.push(child);
 
-    // 调用native接口插入节点
+    // call the native interface to insert a node
     this.insertChildNativeNode(child);
   }
 
   /**
-   * 将子节点插入到指定节点之前
+   * Insert the node before the specified node
    *
-   * @param rawChild - 需要插入的孩子节点
-   * @param rawAnchor - 需要插入的节点的参照物节点
+   * @param rawChild - node to be added
+   * @param rawAnchor - anchor node
    */
   public insertBefore(rawChild: HippyNode, rawAnchor: HippyNode | null): void {
     const child = rawChild;
@@ -174,54 +179,58 @@ export class HippyNode extends HippyEventTarget {
       throw new Error('No child to insert');
     }
 
-    // 无锚点则插入到最后
+    // If there is no anchor node, it will be inserted at the end.
+    // For the case of keep-alive components, when deactivate,
+    // the node will be moved to the virtual container. At this time, the anchor is null, so appendChild is triggered.
+    // The activation and deactivation of keep-alive nodes
+    // are essentially implemented by calling the insert => insertBefore interface.
+    // The active node is added under the actual node,
+    // and the deactivated node is moved under the virtual container node
     if (!anchor) {
       this.appendChild(child);
       return;
     }
 
     if (child.parentNode !== null && child.parentNode !== this) {
-      // 要插入的子节点已经有父节点了，不予插入
+      // the child node to be inserted already has a parent node and will not be inserted
       throw new Error('Can not insert child, because the child node is already has a different parent');
     }
 
-    // 需要插入child的父节点
+    // determine parent node
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     let parentNode: HippyNode = this;
     if (anchor.parentNode !== this) {
-      // 插入到父节点为其他节点的锚点
       parentNode = anchor.parentNode as HippyNode;
     }
 
-    // anchor在子节点中的位置
+    // the index of the anchor node in the child node
     const index = parentNode.childNodes.indexOf(anchor);
 
-    // 保存父节点
+    // modify node hierarchy
     child.parentNode = parentNode;
-    // 保存兄弟节点
     child.nextSibling = anchor;
     child.prevSibling = parentNode.childNodes[index - 1];
 
-    // 如果前一个兄弟节点存在，则将前一个节点的下一个兄弟节点设为child
+    // If the previous sibling node exists, set the next sibling node of the previous node to child node
     if (parentNode.childNodes[index - 1]) {
       parentNode.childNodes[index - 1].nextSibling = child;
     }
 
-    // 锚点的前一个兄弟节点为child
+    // set the previous sibling of the anchor node
     anchor.prevSibling = child;
 
-    // 往要插入节点的父节点的子节点列表中插入child
+    // insert the node
     parentNode.childNodes.splice(index, 0, child);
 
-    // 将节点插入native
+    // call the native interface to insert a node
     this.insertChildNativeNode(child);
   }
 
   /**
-   * 移动子节点到指定节点之前
+   * move child node before specified node
    *
-   * @param rawChild - 需要移动的孩子节点
-   * @param rawAnchor - 需要移动的节点的参照物节点
+   * @param rawChild - child node that needs to be moved
+   * @param rawAnchor - anchor node
    */
   // eslint-disable-next-line complexity
   public moveChild(rawChild: HippyNode, rawAnchor: HippyNode | null): void {
@@ -232,14 +241,14 @@ export class HippyNode extends HippyEventTarget {
       throw new Error('No child to move');
     }
 
-    // 无锚点则插入到最后
+    // If there is no anchor node, it will be inserted at the end.
     if (!anchor) {
       this.appendChild(child);
       return;
     }
 
     if (child.parentNode !== null && child.parentNode !== this) {
-      // 要插入的子节点已经有父节点了，不予玉栋
+      // The child node to be inserted already has a parent node and will not be moved
       throw new Error('Can not move child, because the child node is already has a different parent');
     }
 
@@ -248,27 +257,27 @@ export class HippyNode extends HippyEventTarget {
     }
 
     const oldIndex = this.childNodes.indexOf(child);
-    const newIndex = this.childNodes.indexOf(anchor);
+    const anchorIndex = this.childNodes.indexOf(anchor);
 
-    // 位置一样，无需移动
-    if (newIndex === oldIndex) {
+    // same location, no need to move
+    if (anchorIndex === oldIndex) {
       return;
     }
 
-    // 重新设置兄弟节点关系
+    // reset sibling relationship
     child.nextSibling = anchor;
     child.prevSibling = anchor.prevSibling;
     anchor.prevSibling = child;
 
-    // 新位置兄弟节点关系更新
-    if (this.childNodes[newIndex - 1]) {
-      this.childNodes[newIndex - 1].nextSibling = child;
+    // new location sibling relationship update
+    if (this.childNodes[anchorIndex - 1]) {
+      this.childNodes[anchorIndex - 1].nextSibling = child;
     }
-    if (this.childNodes[newIndex + 1]) {
-      this.childNodes[newIndex + 1].prevSibling = child;
+    if (this.childNodes[anchorIndex + 1]) {
+      this.childNodes[anchorIndex + 1].prevSibling = child;
     }
 
-    // 旧位置兄弟节点关系更新
+    // old location sibling relationship update
     if (this.childNodes[oldIndex - 1]) {
       this.childNodes[oldIndex - 1].nextSibling = this.childNodes[oldIndex + 1];
     }
@@ -276,22 +285,23 @@ export class HippyNode extends HippyEventTarget {
       this.childNodes[oldIndex + 1].prevSibling = this.childNodes[oldIndex - 1];
     }
 
-    // 调用Native接口移除native中的旧元素 todo
-    // removeChild(this, child);
+    // move old node first
+    this.childNodes.splice(oldIndex, 1);
+    // call the Native interface to remove old node in native
+    this.removeChildNativeNode(child);
 
-    // 在实例中插入新元素
+    // find the new position to insert
+    const newIndex = this.childNodes.indexOf(anchor);
+    // insert new node
     this.childNodes.splice(newIndex, 0, child);
-    // 在实例中移除旧元素，如果新位置大，则从oldIndex开始，如果新位置小，因为已经插入了一个新元素，因此从oldIndex + 1开始
-    this.childNodes.splice(oldIndex + (newIndex < oldIndex ? 1 : 0), 1);
-
-    // 调用Native接口插入节点
+    // call the Native interface to insert node
     this.insertChildNativeNode(child);
   }
 
   /**
-   * 移除子节点
+   * remove child node
    *
-   * @param rawChild - 需要移除的孩子节点
+   * @param rawChild - child node to be removed
    */
   public removeChild(rawChild: HippyNode): void {
     const child = rawChild;
@@ -305,15 +315,22 @@ export class HippyNode extends HippyEventTarget {
     }
 
     if (child.parentNode !== this) {
-      // 在vue3的keep-alive实现中，会出现这里的问题
-      throw new Error('Can\'t remove child, because it has a different parent.');
+      // If the current container is not the parent node of the node to be deleted,
+      // call the delete method of the parent node of the node to be deleted
+      // The main consideration here is that in the case of keep-alive,
+      // deleting a node is to remove the node from the actual container
+      // and cache it in the virtual keep-alive component,
+      // so "this" is the virtual container at this time,
+      // not the actual container, so it is necessary to call the node the actual parentNode to remove the current node
+      child.parentNode.removeChild(child);
+      return;
     }
 
     if (!child.isNeedInsertToNative) {
       return;
     }
 
-    // 修正实例中兄弟节点的关系
+    // fix the relationship of sibling nodes
     if (child.prevSibling) {
       child.prevSibling.nextSibling = child.nextSibling;
     }
@@ -321,29 +338,30 @@ export class HippyNode extends HippyEventTarget {
       child.nextSibling.prevSibling = child.prevSibling;
     }
 
-    // 理论上应当移除孩子节点的父节点，但这样会导致重复插入节点
+    // In theory, the parent node of the child node should be removed,
+    // but this will result in repeated insertion of the node
     // child.parentNode = null;
 
-    // 切断child与其他节点的关系
+    // sever the relationship of the node to be deleted from other nodes
     child.prevSibling = null;
     child.nextSibling = null;
 
-    // 找到child节点的位置
+    // find the index
     const index = this.childNodes.indexOf(child);
-    // 移除child节点
+    // remove the node
     this.childNodes.splice(index, 1);
 
-    // 调用Native接口移除Native元素
+    // call the Native interface to remove node
     this.removeChildNativeNode(child);
   }
 
   /**
-   * 查找符合给定条件的子节点
+   * Find child nodes that match a given condition
    *
-   * @param condition - 需要执行的条件回调函数
+   * @param condition - condition callback
    */
   public findChild(condition: CallbackType): HippyNode | null {
-    // 判断当前节点是否符合条件
+    // determine whether the current node meets the conditions
     const yes = condition(this);
 
     if (yes) {
@@ -363,17 +381,17 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
-   * 遍历所有子节点，执行传入的callback
+   * Traverse all child nodes including its own node and execute the incoming callback
    *
-   * @param callback - 需要执行的回调函数
+   * @param callback - callback
    */
   public eachNode(callback: CallbackType): void {
-    // 先对节点自身进行回调
+    // call back the node itself first
     if (callback) {
       callback(this);
     }
 
-    // 对子节点遍历执行回调
+    // execute callback for child node traversal
     if (this.childNodes.length) {
       this.childNodes.forEach((child) => {
         this.eachNode.call(child, callback);
@@ -382,34 +400,33 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
-   * 传入触发的事件对象，分发事件执行
+   * dispatch event
    *
-   * @param rawEvent - 接收到的事件对象
+   * @param rawEvent - event object
    */
   public dispatchEvent(rawEvent: HippyEvent): void {
     const event = rawEvent;
     const { type: eventName } = event;
 
-    // 取当前事件注册的事件回调列表
+    // get the list of event callbacks registered by the current event
     const listeners = this.listeners[eventName];
 
-    // 无回调则返回
+    // return if without callback
     if (!listeners) {
       return;
     }
 
-    // 将事件的当前对象设为当前节点
     event.currentTarget = this;
 
-    // 从后往前，循环执行事件回调方法
+    // from back to front, execute the event callback method
     for (let i = listeners.length - 1; i >= 0; i -= 1) {
       const listener = listeners[i];
-      // 对于once方法，执行一次后即移除
+      // for the once method, remove it after executing it once
       if (listener?.options?.once) {
         listeners.splice(i, 1);
       }
 
-      // 如果回调内指定了this上下文，则使用apply传入this上下文执行回调
+      // If this context is specified in the callback, use apply to pass the context to execute the callback
       if (listener?.options?.thisArg) {
         listener.callback.apply(listener.options.thisArg, [event]);
       } else {
@@ -419,80 +436,86 @@ export class HippyNode extends HippyEventTarget {
   }
 
   /**
-   * 插入子NativeNode
+   * insert native node
    *
-   * @param child - 子 native 节点
+   * @param child - to be inserted node
    */
   public insertChildNativeNode(child: HippyNode): void {
     if (!child.isNeedInsertToNative) return;
 
-    if (this.isRootNode() && !this.isMounted) {
-      // 如果根节点没有上屏渲染，则先从根节点开始进行渲染
-      renderInsertChildNativeNode(this.convertToNativeNodes(true));
-      // 打标记
-      this.eachNode((rawNode: HippyNode) => {
-        const node = rawNode;
+    const renderRootNodeCondition = this.isRootNode() && !this.isMounted;
+    const renderOtherNodeCondition = this.isMounted && !child.isMounted;
 
-        if (!node.isMounted) {
+    if (renderRootNodeCondition || renderOtherNodeCondition) {
+      // Determine parentNode node based on rendering conditions
+      const parentNode = renderRootNodeCondition ? this : child;
+
+      // if the root node is not rendered on the screen, start rendering from the root node first
+      // render the child node if the child node is not rendered
+      renderInsertChildNativeNode(parentNode.convertToNativeNodes(true));
+      // update the isMounted flag
+      // 打标记
+      parentNode.eachNode((rawNode: HippyNode) => {
+        const node = rawNode;
+        if (!node.isMounted && node.isNeedInsertToNative) {
           node.isMounted = true;
         }
-      });
-    } else if (this.isMounted && !child.isMounted) {
-      // 子节点未渲染则渲染子节点
-      renderInsertChildNativeNode(child.convertToNativeNodes(true));
-      // 打标记
-      child.eachNode((rawNode: HippyNode) => {
-        const node = rawNode;
-
-        if (!node.isMounted) {
-          node.isMounted = true;
-        }
+        // cache the nodes inserted into the native to improve the search speed
+        preCacheNode(node, node.nodeId);
       });
     }
   }
 
   /**
-   * 移除子NativeNode
+   * remove native node
    *
-   * @param child - 子native节点
+   * @param child - to be removed node
    */
   // eslint-disable-next-line class-methods-use-this
   public removeChildNativeNode(child: HippyNode): void {
     const toRemoveNode = child;
-    // 将节点设置为未插入
-    toRemoveNode.isMounted = false;
+    if (toRemoveNode.isMounted) {
+      // update the isMounted flag
+      toRemoveNode.isMounted = false;
 
-    renderRemoveChildNativeNode(toRemoveNode.convertToNativeNodes(false));
+      renderRemoveChildNativeNode(toRemoveNode.convertToNativeNodes(false));
+    }
   }
 
   /**
-   * 更新节点的NativeNode
+   * update native node
    *
-   * @param isIncludeChildren - 是否同时更新所有后代节点
+   * @param isIncludeChildren - whether to update all descendant nodes at the same time
    */
   public updateNativeNode(isIncludeChildren = false): void {
-    // 未插入Native的节点无需处理
+    // nodes that are not inserted into Native do not need to be processed
     if (!this.isMounted) {
       return;
     }
 
-    // 将节点转成Native格式
-    const updateNodes: NativeNode[] = this.convertToNativeNodes(isIncludeChildren);
+    // get native nodes
+    const updateNodes: NativeNode[] =      this.convertToNativeNodes(isIncludeChildren);
     renderUpdateChildNativeNode(updateNodes);
   }
 
+  /**
+   * get native nodes
+   * @param isIncludeChild - whether to update all descendant nodes at the same time
+   * @param extraAttributes - extra attributes
+   */
   public convertToNativeNodes(
     isIncludeChild: boolean,
     extraAttributes?: Partial<NativeNode>,
   ): NativeNode[] {
-    // 如果节点不需要插入native，则直接返回
+    // If the node does not need to be inserted into native, return directly
     if (!this.isNeedInsertToNative) {
       return [];
     }
 
+    // need update all descendant nodes at the same time
     if (isIncludeChild) {
       const nativeNodes: NativeNode[] = [];
-      // 递归将每个节点都进行转换
+      // recursively transform each node
       this.eachNode((targetNode: HippyNode) => {
         const nativeChildNodes = targetNode.convertToNativeNodes(false);
 
@@ -504,7 +527,8 @@ export class HippyNode extends HippyEventTarget {
       return nativeNodes;
     }
 
-    // 如果节点没有component属性，则说明本组件还没有注册，需要抛出错误
+    // If the node does not have a component attribute,
+    // it means that the component has not been registered and an error needs to be thrown
     if (!this.component) {
       throw new Error('tagName is not supported yet');
     }
@@ -512,7 +536,6 @@ export class HippyNode extends HippyEventTarget {
     const { rootViewId } = getHippyCachedInstance();
     const attributes = extraAttributes ?? {};
 
-    // 转换Hippy Node，得到Native Node
     return [
       {
         id: this.nodeId,

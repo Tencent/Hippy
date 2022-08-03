@@ -1,38 +1,55 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { looseEqual } from '@vue/shared';
 
 import type { CallbackType } from '../../../global';
 
 import type { HippyEvent } from './hippy-event';
 
-/** 回调事件参数类型 */
 export interface EventListenerOptions {
-  // 事件选项参数
   [key: string]: string | boolean;
 }
 
-/** 回调事件类型 */
 interface EventListener {
-  // 事件回调
+  // event callback
   callback: CallbackType;
-  // 事件选项参数
+  // options
   options?: EventListenerOptions;
 }
 
-/** 回调事件列表 */
+// callback event list
 interface EventListeners {
   [eventName: string]: EventListener[] | undefined;
 }
 
 /**
- * Hippy Event Target，所有Node和Element的事件对象基类
+ * Hippy Event Target
  */
 export abstract class HippyEventTarget {
   /**
-   * 在事件回调列表中查找匹配的回调的索引位置
+   * Find the index position of the matching callback in the event callback list
    *
-   * @param list - 存储事件监听器列表
-   * @param callback - 事件回调函数
-   * @param options - 选项参数
+   * @param list - list of event listeners
+   * @param callback - call back
+   * @param options - options
    *
    */
   private static indexOfListener(
@@ -51,31 +68,30 @@ export abstract class HippyEventTarget {
     });
   }
 
-  // 事件监听列表
+  // event listeners list
   protected listeners: EventListeners = {};
 
   /**
-   * 添加事件监听器
+   * add event listener
    *
-   * @param type - 事件类型
-   * @param callback - 事件回调
-   * @param options - 选项参数
+   * @param type - event name
+   * @param callback - callback
+   * @param options - options
    */
   public addEventListener(
     type: string,
     callback: CallbackType,
     options?: EventListenerOptions,
   ): void {
-    // 事件名可以有多个，主要用于native-component的事件映射
-    // 在模版中的事件名为通用事件名，实际Native的可能是另外的名称
+    // there can be multiple event names, separated by commas
     const events = type.split(',');
     const len = events.length;
     for (let i = 0; i < len; i += 1) {
       const eventName = events[i].trim();
 
-      // 获取当前已注册的事件
+      // get currently registered events
       const existEventList = this.listeners[eventName];
-      // 事件列表
+      // event list
       const eventList = existEventList ?? [];
 
       eventList.push({
@@ -83,37 +99,35 @@ export abstract class HippyEventTarget {
         options,
       });
 
-      // 保存事件列表
       this.listeners[eventName] = eventList;
     }
   }
 
   /**
-   * 移除事件监听器
+   * remove event listener
    *
-   * @param type - 事件类型
-   * @param callback - 事件回调
-   * @param options - 选项参数
+   * @param type - event name
+   * @param callback - callback
+   * @param options - options
    */
   public removeEventListener(
     type: string,
     callback: CallbackType,
     options?: EventListenerOptions,
   ): void {
-    // 事件名可以有多个，主要用于native-component的事件映射
-    // 在模版中的事件名为通用事件名，实际Native的可能是另外的名称
+    // there can be multiple event names, separated by commas
     const events = type.split(',');
     const len = events.length;
     for (let i = 0; i < len; i += 1) {
       const eventName = events[i].trim();
 
       if (callback) {
-        // 指定了回调则移除回调
+        // callback is specified
         if (this.listeners[eventName]) {
           const list = this.listeners[eventName];
 
           if (list?.length) {
-            // 查找指定回调找到则移除指定回调
+            // find the specified callback
             const index = HippyEventTarget.indexOfListener(
               list,
               callback,
@@ -121,47 +135,47 @@ export abstract class HippyEventTarget {
             );
 
             if (index >= 0) {
-              // 如果有匹配的选项，则移除
+              // there is a matching option, remove it
               list.splice(index, 1);
             }
 
-            // 如果移除回调之后，回调列表为空，则清除回调
+            // if the callback list is empty after removing the callback, clear the callback
             if (!list.length) {
               this.listeners[eventName] = undefined;
             }
           }
         }
       } else {
-        // 未指定回调则移除整个事件的回调
+        // if no callback is specified, the callback for the entire event is removed
         this.listeners[eventName] = undefined;
       }
     }
   }
 
   /**
-   * 执行事件
+   * emit event
    *
-   * @param event - 触发的事件实例
+   * @param event - event object
    */
   public emitEvent(event: HippyEvent): void {
     const { type: eventName } = event;
     const listeners = this.listeners[eventName];
 
-    // 将指定事件类型的回调函数列表取出并逐一执行
     if (!listeners) {
       return;
     }
 
+    // take out the list of callback functions of the specified event type and execute them one by one
     for (let i = listeners.length - 1; i >= 0; i -= 1) {
       const listener = listeners[i];
 
-      // 如果事件是once，则仅执行一次
+      // if the event is once, execute only once
       if (listener.options?.once) {
         listeners.splice(i, 1);
       }
 
-      // 如果指定了 this 变量，则使用指定的this
       if (listener.options?.thisArg) {
+        // this variable is specified, use apply
         listener.callback.apply(listener.options.thisArg, [event]);
       } else {
         listener.callback(event);
@@ -170,16 +184,16 @@ export abstract class HippyEventTarget {
   }
 
   /**
-   * 获取当前节点所绑定的事件列表
+   * Get the list of events bound to the current node
    */
   public getEventListenerList(): EventListeners {
     return this.listeners;
   }
 
   /**
-   * 传入触发的事件对象，分发事件执行
+   * dispatch event
    *
-   * @param event - Hippy事件对象
+   * @param event - event object
    */
   public abstract dispatchEvent(event: HippyEvent): void;
 }

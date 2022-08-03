@@ -1,9 +1,29 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import { Native } from '../native';
 
 import { HippyElement } from './hippy-element';
 
 /**
- * Hippy列表item元素，li，派生自HippyElement类
+ * Hippy list item, such as li
  *
  * @public
  */
@@ -12,13 +32,14 @@ export class HippyListItemElement extends HippyElement {
     super(tagName);
 
     /**
-     * 对 Native 事件进行polyfill，返回需要polyfill的事件名，无法匹配则返回空
+     * polyfill Native events, and return the event name that needs to be polyfilled.
+     * If it cannot match, it will return empty.
      *
-     * @param eventNames - 事件名称
+     * @param eventNames - event name
      */
     this.polyFillNativeEvents = (eventNames: string): string => {
-      if (eventNames === 'disappear') {
-        return Native.isIOS() ? 'disappear' : 'disAppear';
+      if (eventNames === 'disappear' && Native.isAndroid()) {
+        return 'disAppear';
       }
 
       return '';

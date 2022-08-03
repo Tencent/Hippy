@@ -14,52 +14,51 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, onMounted, ref } from '@vue/runtime-core';
+import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 
-  const horizonAnimation = {
-    transform: {
-      translateX: [
-        {
-          startValue: 50,
-          toValue: 150,
-          duration: 1000,
-          repeatCount: -1,
-          timingFunction: 'cubic-bezier(  0.45,2.84, 000.38,.5)',
-        },
-        {
-          startValue: 150,
-          toValue: 50,
-          duration: 1000,
-          repeatCount: -1,
-          timingFunction: 'cubic-bezier(  0.45,2.84, 000.38,.5)',
-        },
-      ],
-    },
-  };
-
-  export default defineComponent({
-    props: {
-      playing: Boolean,
-      onRef: {
-        type: Function,
-        default: () => {},
+const horizonAnimation = {
+  transform: {
+    translateX: [
+      {
+        startValue: 50,
+        toValue: 150,
+        duration: 1000,
+        timingFunction: 'cubic-bezier(  0.45,2.84, 000.38,.5)',
       },
-    },
-    setup(props) {
-      const animationViewRef = ref(null);
+      {
+        startValue: 150,
+        toValue: 50,
+        duration: 1000,
+        repeatCount: -1,
+        timingFunction: 'cubic-bezier(  0.45,2.84, 000.38,.5)',
+      },
+    ],
+  },
+};
 
-      onMounted(() => {
-        if (props.onRef) {
-          props.onRef(animationViewRef.value);
-        }
-      });
-
-      return {
-        animationViewRef,
-        loopActions: horizonAnimation,
-      };
+export default defineComponent({
+  props: {
+    playing: Boolean,
+    onRef: {
+      type: Function,
+      default: () => {},
     },
-  });
+  },
+  setup(props) {
+    const animationViewRef = ref(null);
+
+    onMounted(() => {
+      if (props.onRef) {
+        props.onRef(animationViewRef.value);
+      }
+    });
+
+    return {
+      animationViewRef,
+      loopActions: horizonAnimation,
+    };
+  },
+});
 </script>
 
 <style>

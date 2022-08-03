@@ -1,27 +1,48 @@
-/**
- * Native提供的global接口
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-import { isFunction } from '@vue/shared';
+
+import type { NeedToTyped } from '@hippy-shared/index';
 import { translateColor } from '@style-parser/index';
+import { isFunction } from '@vue/shared';
+
 import type { CallbackType } from '../../../global';
 import { NATIVE_COMPONENT_MAP } from '../../config';
-import { trace } from '../../util';
+import { trace, warn } from '../../util';
+import { type HippyElement } from '../element/hippy-element';
+import { EventBus } from '../event/event-bus';
 import { type HippyNode } from '../node/hippy-node';
+import { getCssMap } from '../style/css-map';
 
 import { type NativeInterfaceMap } from './modules';
 
-/** 扩展global接口定义 */
+// Extend the global interface definition
 declare global {
-  // 这里是为了typescript扩展global定义所使用的 var，所以disable eslint
   // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
-  var Hippy: any;
+  var Hippy: NeedToTyped;
   // eslint-disable-next-line no-var,@typescript-eslint/naming-convention,vars-on-top
-  var __HIPPYNATIVEGLOBAL__: any;
+  var __HIPPYNATIVEGLOBAL__: NeedToTyped;
   // eslint-disable-next-line no-var,vars-on-top
   var localStorage: Storage;
 }
 
-/** 屏幕维度信息 */
+// screen dimension information
 interface ScreenInfo {
   width: number;
   height: number;
@@ -36,7 +57,7 @@ interface Dimensions {
   screen: ScreenInfo;
 }
 
-/** 元素位置信息类型 */
+// Element position information type
 interface MeasurePosition {
   top: number;
   left: number;
@@ -46,7 +67,7 @@ interface MeasurePosition {
   height: number;
 }
 
-/** Native位置信息类型 */
+// Native location information type
 interface NativePosition {
   x: number;
   y: number;
@@ -54,28 +75,27 @@ interface NativePosition {
   height: number;
 }
 
-/* 图片size类型 */
+// image size type
 interface ImageSize {
   width: number;
   height: number;
 }
 
-// 取出对应函数的签名
+// Get the function's signature
 type CallNativeFunctionSignature<
   K extends keyof NativeInterfaceMap,
   T extends keyof NativeInterfaceMap[K],
-> = NativeInterfaceMap[K][T] extends (...args: any[]) => any
+> = NativeInterfaceMap[K][T] extends (...args: NeedToTyped[]) => NeedToTyped
   ? NativeInterfaceMap[K][T]
   : never;
 
-// 调用终端接口的模块类型
 interface CallNativeFunctionType {
   <K extends keyof NativeInterfaceMap, T extends keyof NativeInterfaceMap[K]>(
     moduleName: K,
     methodName: T,
     ...args: Parameters<CallNativeFunctionSignature<K, T>>
   ): void;
-  // 补充function.call的调用签名，如果有function.apply再补充
+  // supplement the call signature of function.call
   call: <
     K extends keyof NativeInterfaceMap,
     T extends keyof NativeInterfaceMap[K],
@@ -117,123 +137,121 @@ export interface AsyncStorage {
 }
 
 /**
- * Native Api 类型
+ * network info revoker
+ */
+export interface NetInfoRevoker {
+  eventName?: string;
+  listener?: CallbackType;
+  remove: () => void;
+}
+
+/**
+ * Native api type
  *
  * @public
  */
 export interface NativeApiType {
-  // hippy Native Document实例
+  // hippy native document
   hippyNativeDocument: {
-    createNode: (rootViewId: any, queue: any) => void;
-    updateNode: (rootViewId: any, queue: any) => void;
-    deleteNode: (rootViewId: any, queue: any) => void;
-    flushBatch: (rootViewId: any, queue: any) => void;
-    setNodeTree: (rootViewId: any, newNodeTree: any) => void;
-    setNodeId: (rootViewId: any, cacheIdList: any) => void;
-    getNodeById: (nodeId: any) => any;
-    getNodeIdByRef: (ref: any) => any;
+    createNode: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+    updateNode: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+    deleteNode: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+    flushBatch: (rootViewId: NeedToTyped, queue: NeedToTyped) => void;
+    setNodeTree: (rootViewId: NeedToTyped, newNodeTree: NeedToTyped) => void;
+    setNodeId: (rootViewId: NeedToTyped, cacheIdList: NeedToTyped) => void;
+    getNodeById: (nodeId: NeedToTyped) => NeedToTyped;
+    getNodeIdByRef: (ref: NeedToTyped) => NeedToTyped;
     callUIFunction: (
-      node: any,
-      funcName: any,
-      paramList?: any,
-      callback?: any,
+      node: NeedToTyped,
+      funcName: NeedToTyped,
+      paramList?: NeedToTyped,
+      callback?: NeedToTyped,
     ) => void;
-    measureInWindow: (node: any, callBack: any) => void;
+    measureInWindow: (node: NeedToTyped, callBack: NeedToTyped) => void;
     startBatch: () => void;
     endBatch: () => void;
     sendRenderError: (error: Error) => void;
   };
-  // hippy Native 注册对象方法
+  // hippy native register
   hippyNativeRegister: {
     regist: CallbackType;
   };
 
-  // 当前平台的本地化信息
+  // localized information for the current platform
   localization: {
     direction: number;
   };
-  // 平台字符串
+  // platform
   platform: string;
-  // 当前屏幕像素比
+  // current screen pixel ratio
   pixelRatio: number;
-  // hippy版的异步localstorage
+  // async localstorage
   asyncStorage: AsyncStorage;
 
-  /** 剪贴板模块 */
   clipboard: {
-    // 获取简介版内容
+    // get clipboard content
     getString: () => Promise<string>;
-    // 设置剪贴板内容
+    // set clipboard content
     setString: (content: string) => void;
   };
 
-  /** Cookie管理模块 */
   cookie: {
-    // 获取指定url的全部cookie
+    // get all cookies of the specified url
     getAll: (url: string) => Promise<string>;
-    // 设置cookie
-    set: (url: string, keyValue: string, expireDate: Date) => void;
+    // set cookies
+    set: (url: string, keyValue: string, expireDate?: Date) => void;
   };
 
-  // 获取API版本，仅Android
+  // get API version, only callable for Android
   apiLevel: string | null;
 
-  // 设备信息
+  // device info
   device: string | undefined;
 
-  // 设备是否是iPhoneX刘海屏设备
+  // whether the device is iPhoneX
   isIphoneX: boolean;
 
-  // 设备上1px的大小
+  // 1px size on device
   onePixel: number;
 
-  // 获取当前系统版本，仅iOS
+  // get the current system version, only available for iOS
   osVersion: string | null;
 
-  // 获取终端sdk版本，仅iOS
+  // get sdk version, only available for iOS
   sdkVersion: string | null;
 
-  // 屏幕当前是否是竖屏
+  // whether the screen is currently vertical
   isVerticalScreen: boolean;
 
-  // 网络信息模块
-  network: {
-    // 获取网络状态信息
-    getNetStatus: () => Promise<string>;
-    addStatusChangeListener: () => void;
-    removeStatusChangeListener: () => void;
+  // network info
+  netInfo: {
+    // fetch network info
+    fetch: () => Promise<string>;
+    addEventListener: (
+      eventName: string,
+      listener: CallbackType,
+    ) => NetInfoRevoker;
+    removeEventListener: (
+      eventName: string,
+      listener: CallbackType | NetInfoRevoker,
+    ) => void;
   };
 
-  // 图片加载器
   imageLoader: {
     getSize: (url: string) => Promise<ImageSize>;
     prefetch: (url: string) => void;
   };
 
-  /**
-   *  屏幕维度信息
-   */
+  // include window and screen info
   dimensions: Dimensions;
 
-  // 调用Native接口
+  // call native interface, no return value
   callNative: CallNativeFunctionType;
 
-  /**
-   * 调用native接口，返回格式为promise格式
-   *
-   * @param moduleName - 模块名称
-   * @param methodName - 模块方法
-   * @param args - 调用参数
-   */
+  // call native interface, return with promise
   callNativeWithPromise: CallNativeWithPromiseType;
 
-  /**
-   * 传入callback id调用native接口
-   *
-   * @param moduleName - 模块名称
-   * @param methodName - 模块方法
-   * @param args - 调用参数
-   */
+  // use callback id to call native interface
   callNativeWithCallbackId: <
     K extends keyof NativeInterfaceMap,
     T extends keyof NativeInterfaceMap[K],
@@ -243,56 +261,41 @@ export interface NativeApiType {
     ...args: Parameters<CallNativeFunctionSignature<K, T>>
   ) => number;
 
-  /**
-   * 调用Native的UI模块方法
-   *
-   * @param el - hippy元素实例
-   * @param funcName - 方法名称
-   * @param args - 调用参数
-   */
+  // call native UI function
   callUIFunction: (
-    el: Record<string, any>,
-    funcName: any,
-    ...args: any[]
+    el: Record<string, NeedToTyped>,
+    funcName: NeedToTyped,
+    ...args: NeedToTyped[]
   ) => void;
 
-  /**
-   * 当前平台是否是android
-   */
   isAndroid: () => boolean;
 
-  /**
-   * 当前平台是否是ios
-   */
   isIOS: () => boolean;
 
-  /**
-   * 测量元素在窗口内的位置
-   *
-   * @param el - 需要测量的hippy节点
-   */
+  // measure the position of an element within the window
   measureInAppWindow: (el: HippyNode) => Promise<MeasurePosition>;
-  // 将给定颜色字符串转为Native能识别的int32
+
+  // convert the given color string to int32 recognized by Native
   parseColor: (color: string, { platform: string }?) => number;
+  // 获取指定元素的样式
+  getElemCss: (element: HippyElement) => NeedToTyped;
 }
 
-/** 缓存的类型数据 */
+// cached data type
 interface CacheType {
-  // 颜色parser map
+  // color parser map
   COLOR_PARSER?: {
     [key: string]: number;
   };
-  // 一像素大小
+  // one pixel size
   OnePixel?: number;
-  // 当前设备是否是iPhoneX
   isIPhoneX?: boolean;
   Device?: string;
 }
 
-// 缓存不变的数据
 export const CACHE: CacheType = {};
 
-// 从Native注入全局的Hippy对象中解构出我们所需的属性和方法
+// deconstruct the required properties and methods from the native injected global Hippy object
 export const {
   bridge: { callNative, callNativeWithPromise, callNativeWithCallbackId },
   device: {
@@ -305,10 +308,10 @@ export const {
 } = global.Hippy;
 
 /**
- * 调用Native接口测量节点的位置信息并返回
+ * Call the Native interface to measure the location information of the node
  *
- * @param el - Hippy的元素实例
- * @param method - 方法名称
+ * @param el - Hippy node instance
+ * @param method - method name
  */
 export const measureInWindowByMethod = async (
   el: HippyNode,
@@ -342,7 +345,6 @@ export const measureInWindowByMethod = async (
         return resolve(empty);
       }
 
-      // 返回位置信息
       if (typeof pos !== 'string') {
         return resolve({
           top: pos.y,
@@ -359,13 +361,17 @@ export const measureInWindowByMethod = async (
   ));
 };
 
+// 设备连接事件
+const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
+// 订阅的网络事件
+const networkSubscriptions = new Map();
+
 /**
- * 封装Native相关接口，方便调用
+ * Native interfaces
  *
  * @public
  */
 export const Native: NativeApiType = {
-  // 本地信息相关
   localization,
 
   hippyNativeDocument,
@@ -382,19 +388,13 @@ export const Native: NativeApiType = {
 
   callNativeWithCallbackId,
 
-  /**
-   * Hippy的异步版localStorage
-   */
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   asyncStorage: global.localStorage,
 
-  /**
-   * 调用Native提供的UI相关方法
-   */
   callUIFunction(...args) {
     const [el, funcName, ...options] = args;
-    // el 元素不存在或不合法，则直接 return
+    // if the el element does not exist or is invalid, return directly
     if (!el?.nodeId) {
       return;
     }
@@ -422,14 +422,14 @@ export const Native: NativeApiType = {
         ]);
       }
     } else if (Native.isIOS() && el.component.name) {
-      // iOS平台必须传入组件的Native名称作为参数
-      // 获取节点所属组件的Native的View的名称，比如div的native组件名称是View
+      // in iOS platform, the native name of the component must be passed in as a parameter
+      // get the name of the Native View of the component to which the node belongs.
+      // For example, the name of the native component of a div is View
       let { name: componentName } = el.component;
       // FIXME: iOS callNative method need the real component name,
       //        but there's no a module named View in __GLOBAL__.NativeModules.
       //        Because only ScrollView use the method so far, so just a workaround here.
       if (componentName === NATIVE_COMPONENT_MAP.View) {
-        // iOS中都是ScrollView
         componentName = NATIVE_COMPONENT_MAP.ScrollView;
       }
       if (isFunction(callback) && Array.isArray(params)) {
@@ -444,12 +444,9 @@ export const Native: NativeApiType = {
     }
   },
 
-  /**
-   * 剪切板模块
-   */
   clipboard: {
     /**
-     * 获取剪贴板内容
+     * get clipboard content
      */
     async getString(): Promise<string> {
       return Native.callNativeWithPromise.call(
@@ -460,21 +457,18 @@ export const Native: NativeApiType = {
     },
 
     /**
-     * 设置剪贴板内容
+     * set clipboard content
      *
-     * @param content - 需要设置的内容
+     * @param content - content string
      */
     setString(content: string): void {
       Native.callNative.call(this, 'ClipboardModule', 'setString', content);
     },
   },
 
-  /**
-   * cookie模块
-   */
   cookie: {
     /**
-     * Get all cookies by string
+     * Get all cookies by url
      *
      * @param url - Get the cookies by specific url.
      */
@@ -495,9 +489,9 @@ export const Native: NativeApiType = {
      * @param keyValue - Full of key values, like `name=someone;gender=female`.
      * @param expireDate - Specific date of expiration.
      */
-    set(url: string, keyValue: string, expireDate: Date) {
+    set(url: string, keyValue: string, expireDate?: Date) {
       if (!url) {
-        throw new TypeError('Vue.Native.Cookie.getAll() must have url argument');
+        throw new TypeError('Native.cookie.set() must have url argument');
       }
 
       let expireStr = '';
@@ -515,14 +509,11 @@ export const Native: NativeApiType = {
     },
   },
 
-  /**
-   * 图片加载模块
-   */
   imageLoader: {
     /**
-     * 在图片渲染前获取图片大小
+     * get image size before image rendering
      *
-     * @param url - 图片的 url 链接
+     * @param url - image url
      */
     async getSize(url): Promise<ImageSize> {
       return Native.callNativeWithPromise.call(
@@ -534,9 +525,10 @@ export const Native: NativeApiType = {
     },
 
     /**
-     * 预加载指定url的图片，后续再有此类图片加载时，可以加快渲染速度，无需下载
+     * Preload the image of the specified url. When such images are loaded later,
+     * the rendering speed can be accelerated without downloading.
      *
-     * @param url - 图片的 url 链接
+     * @param url - image url
      */
     prefetch(url: string): void {
       Native.callNative.call(this, 'ImageLoaderModule', 'prefetch', url);
@@ -544,7 +536,7 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 获取屏幕尺寸等维度信息
+   * Get the screen or view size.
    */
   get dimensions(): Dimensions {
     const { screen } = device;
@@ -565,7 +557,7 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 获取当前设备类型
+   * get device type
    */
   get device(): string | undefined {
     if (typeof CACHE.Device === 'undefined') {
@@ -576,10 +568,10 @@ export const Native: NativeApiType = {
           CACHE.Device = 'iPhone';
         }
       } else if (Native.isAndroid()) {
-        // 目前Android 终端还没有填充这里的详情
+        // currently the Android terminal has not filled the details here
         CACHE.Device = 'Android device';
       } else {
-        CACHE.Device = 'Unknow device';
+        CACHE.Device = 'Unknown device';
       }
     }
 
@@ -587,22 +579,16 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 当前屏幕是否是竖屏
+   * Whether the current screen is vertical
    */
   get isVerticalScreen(): boolean {
     return Native.dimensions.window.width < Native.dimensions.window.height;
   },
 
-  /**
-   * 判断当前平台是否是 Android 平台
-   */
   isAndroid(): boolean {
     return Native.platform === 'android';
   },
 
-  /**
-   * 判断当前平台是否是 iOS 平台
-   */
   isIOS(): boolean {
     return Native.platform === 'ios';
   },
@@ -616,32 +602,73 @@ export const Native: NativeApiType = {
     }
     return measureInWindowByMethod(el, 'measureInAppWindow');
   },
-
-  network: {
+  netInfo: {
     /**
-     * 获取当前网络状态，是个promise的方法
+     * get current network status, return with promise
      */
-    async getNetStatus(): Promise<string> {
+    async fetch(): Promise<string> {
       return Native.callNativeWithPromise(
         'NetInfo',
         'getCurrentConnectivity',
       ).then(({ network_info }) => network_info);
     },
-    addStatusChangeListener() {},
-    removeStatusChangeListener() {},
+    addEventListener(
+      eventName: string,
+      listener: CallbackType,
+    ): NetInfoRevoker {
+      let event = eventName;
+      if (event === 'change') {
+        event = DEVICE_CONNECTIVITY_EVENT;
+      }
+      if (networkSubscriptions.size === 0) {
+        Native.callNative('NetInfo', 'addListener', event);
+      }
+      EventBus.$on(event, listener);
+      networkSubscriptions.set(listener, listener);
+
+      return {
+        eventName,
+        listener,
+        remove() {
+          if (!this.eventName || !this.listener) {
+            return;
+          }
+          Native.netInfo.removeEventListener(this.eventName, this.listener);
+          this.listener = undefined;
+        },
+      };
+    },
+    removeEventListener(
+      eventName: string,
+      listener: CallbackType | NetInfoRevoker,
+    ): void {
+      if ((listener as NetInfoRevoker)?.remove) {
+        (listener as NetInfoRevoker).remove();
+        return;
+      }
+      let event = eventName;
+      if (eventName === 'change') {
+        event = DEVICE_CONNECTIVITY_EVENT;
+      }
+      if (networkSubscriptions.size <= 1) {
+        Native.callNative('NetInfo', 'removeListener', event);
+      }
+      const handler = networkSubscriptions.get(listener);
+      if (!handler) {
+        return;
+      }
+
+      EventBus.$off(event, handler);
+      networkSubscriptions.delete(listener);
+    },
   },
 
-  /**
-   * 判断当前版本是否是刘海屏iPhone
-   */
   get isIphoneX(): boolean {
     if (typeof CACHE.isIPhoneX === 'undefined') {
-      // 通常情况下都不是X
       let isIPhoneX = false;
       if (Native.isIOS()) {
         // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
-        const statusBarHeightList = [44, 47, 48];
-        isIPhoneX =          statusBarHeightList.indexOf(Native.dimensions.screen.statusBarHeight) > -1;
+        isIPhoneX = Native.dimensions.screen.statusBarHeight !== 20;
       }
       CACHE.isIPhoneX = isIPhoneX;
     }
@@ -650,7 +677,7 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 获取设备一像素的大小
+   * Get the one pixel size of device
    */
   get onePixel(): number {
     if (typeof CACHE.OnePixel === 'undefined') {
@@ -666,7 +693,7 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 获取API版本，仅支持Android
+   * Get the API version, the API is only for Android so far.
    */
   get apiLevel(): string | null {
     if (!Native.isAndroid()) {
@@ -681,7 +708,7 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 获取当前系统版本，目前仅支持iOS
+   * Get the OS version, the API is only for ios so far.
    *
    */
   get osVersion(): string | null {
@@ -696,7 +723,7 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 获取终端sdk版本，仅支持iOS
+   * Get the SDK version, the API is only for ios so far.
    */
   get sdkVersion(): string | null {
     if (!Native.isIOS()) {
@@ -711,17 +738,33 @@ export const Native: NativeApiType = {
   },
 
   /**
-   * 将颜色转换为Native可以理解的int32颜色值
+   * Convert the color to the native corresponding int32 color value
    *
-   * @param color - 颜色描述字符串
-   * @param options - parse选项参数
+   * @param color - color string
+   * @param options - parse options
    */
   parseColor(color: string, options = { platform: Native.platform }): number {
-    const cache = CACHE.COLOR_PARSER ?? (CACHE.COLOR_PARSER = Object.create(null));
+    const cache =      CACHE.COLOR_PARSER ?? (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
-      // 缓存颜色parse结果
+      // cache parse result
       cache[color] = translateColor(color, options);
     }
     return cache[color];
+  },
+
+  getElemCss(element: HippyElement) {
+    const style = Object.create(null);
+    try {
+      getCssMap()
+        .query(element)
+        .selectors.forEach((matchedSelector) => {
+          matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+            style[cssStyle.property] = cssStyle.value;
+          });
+        });
+    } catch (err) {
+      warn('getDomCss Error:', err);
+    }
+    return style;
   },
 };

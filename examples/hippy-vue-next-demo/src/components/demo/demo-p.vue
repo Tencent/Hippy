@@ -1,69 +1,271 @@
 <template>
   <div class="p-demo">
-    <label>不带样式：</label>
-    <p
-      class="p-demo-content"
-      @touchstart.stop="onTouchTextStart"
-      @touchmove.stop="onTouchTextMove"
-      @touchend.stop="onTouchTextEnd"
-    >
-      这是最普通的一行文字 - 当前 touch 状态: {{ labelTouchStatus }}
-    </p>
-    <label>颜色：</label>
-    <p class="p-demo-1 p-demo-content">这行文字改变了颜色</p>
-    <label>尺寸：</label>
-    <p class="p-demo-2 p-demo-content">这行改变了大小</p>
-    <label>粗体：</label>
-    <p class="p-demo-3 p-demo-content">这行加粗了</p>
-    <label>下划线：</label>
-    <p class="p-demo-4 p-demo-content">这里有条下划线</p>
-    <label>删除线：</label>
-    <p class="p-demo-5 p-demo-content">这里有条删除线</p>
-    <label>自定义字体：</label>
-    <p class="p-demo-6 p-demo-content">腾讯字体 Hippy</p>
+    <div>
+      <label>不带样式：</label>
+      <p
+        class="p-demo-content"
+        @touchstart.stop="onTouchTextStart"
+        @touchmove.stop="onTouchTextMove"
+        @touchend.stop="onTouchTextEnd"
+      >
+        这是最普通的一行文字 - 当前 touch 状态: {{ labelTouchStatus }}
+      </p>
+      <label>颜色：</label>
+      <p class="p-demo-1 p-demo-content">
+        这行文字改变了颜色
+      </p>
+      <label>尺寸：</label>
+      <p class="p-demo-2 p-demo-content">
+        这行改变了大小
+      </p>
+      <label>粗体：</label>
+      <p class="p-demo-3 p-demo-content">
+        这行加粗了
+      </p>
+      <label>下划线：</label>
+      <p class="p-demo-4 p-demo-content">
+        这里有条下划线
+      </p>
+      <label>删除线：</label>
+      <p class="p-demo-5 p-demo-content">
+        这里有条删除线
+      </p>
+      <label>自定义字体：</label>
+      <p class="p-demo-6 p-demo-content">
+        腾讯字体 Hippy
+      </p>
+      <label>文字阴影：</label>
+      <p
+        class="p-demo-7 p-demo-content"
+        :style="textShadow"
+        @click="changeTextShadow"
+      >
+        这里是文字灰色阴影，点击可改变颜色
+      </p>
+      <label>文本字符间距</label>
+      <p
+        class="p-demo-8 p-demo-content"
+        style="margin-bottom: 5px"
+      >
+        Text width letter-spacing -1
+      </p>
+      <p
+        class="p-demo-9 p-demo-content"
+        style="margin-top: 5px"
+      >
+        Text width letter-spacing 5
+      </p>
+      <label>斜体：</label>
+      <div class="p-demo-content">
+        <p style="font-style: normal">
+          font-style: normal
+        </p>
+        <p style="font-style: italic">
+          font-style: italic
+        </p>
+        <p>font-style: [not set]</p>
+      </div>
+      <label>numberOfLines={{ textMode.numberOfLines }} | ellipsizeMode={{
+        textMode.ellipsizeMode
+      }}</label>
+      <div class="p-demo-content">
+        <p
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{
+            backgroundColor: '#40b883',
+            marginBottom: 10,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+          }"
+        >
+          <span
+            style="font-size: 19px; color: white"
+          >先帝创业未半而中道崩殂，今天下三分，益州疲弊，此诚危急存亡之秋也。</span>
+          <span>然侍卫之臣不懈于内，忠志之士忘身于外者，盖追先帝之殊遇，欲报之于陛下也。</span>
+        </p>
+        <p
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{
+            backgroundColor: '#40b883',
+            marginBottom: 10,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+          }"
+        >
+          {{ 'line 1\n\nline 3\n\nline 5' }}
+        </p>
+        <p
+          :numberOfLines="textMode.numberOfLines"
+          :ellipsizeMode="textMode.ellipsizeMode"
+          :style="{
+            backgroundColor: '#40b883',
+            marginBottom: 10,
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+            fontSize: 14,
+          }"
+        >
+          <img
+            :style="{ width: 24, height: 24 }"
+            :src="img1"
+          >
+          <img
+            :style="{ width: 24, height: 24 }"
+            :src="img2"
+          >
+        </p>
+        <div class="button-bar">
+          <button
+            class="button"
+            @click="incrementLine"
+          >
+            <span>加一行</span>
+          </button>
+          <button
+            class="button"
+            @click="decrementLine"
+          >
+            <span>减一行</span>
+          </button>
+        </div>
+        <div class="button-bar">
+          <button
+            class="button"
+            @click="() => changeMode('clip')"
+          >
+            <span>clip</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeMode('head')"
+          >
+            <span>head</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeMode('middle')"
+          >
+            <span>middle</span>
+          </button>
+          <button
+            class="button"
+            @click="() => changeMode('tail')"
+          >
+            <span>tail</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from '@vue/runtime-core';
+import { defineComponent, ref } from '@vue/runtime-core';
 
-  import { warn } from '../../util';
+import { warn } from '../../util';
 
-  export default defineComponent({
-    setup() {
-      const labelTouchStatus = ref('');
+export default defineComponent({
+  setup() {
+    const labelTouchStatus = ref('');
+    const textShadowIndex = ref(0);
+    const textMode = ref({
+      numberOfLines: 2,
+      ellipsizeMode: 'tail',
+    });
+    const textShadow = ref({
+      textShadowOffset: {
+        x: 1,
+        y: 1,
+      },
+      // support declare textShadowOffsetX & textShadowOffsetY separately
+      textShadowOffsetX: 1,
+      textShadowOffsetY: 1,
+      textShadowRadius: 3,
+      textShadowColor: 'grey',
+    });
 
+    // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
+    const onTouchTextStart = (evt: Event) => {
+      labelTouchStatus.value = 'touch start';
+      warn('onTextTouchDown', evt);
+    };
       // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
-      const onTouchTextStart = (evt: Event) => {
-        labelTouchStatus.value = 'touch start';
-        warn('onTextTouchDown', evt);
-      };
+    const onTouchTextMove = (evt: Event) => {
+      labelTouchStatus.value = 'touch move';
+      warn('onTextTouchMove', evt);
+      warn(evt);
+    };
       // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
-      const onTouchTextMove = (evt: Event) => {
-        labelTouchStatus.value = 'touch move';
-        warn('onTextTouchMove', evt);
-        warn(evt);
-      };
-      // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
-      const onTouchTextEnd = (evt: Event) => {
-        labelTouchStatus.value = 'touch end';
-        warn('onTextTouchEnd', evt);
-        warn(evt);
-      };
+    const onTouchTextEnd = (evt: Event) => {
+      labelTouchStatus.value = 'touch end';
+      warn('onTextTouchEnd', evt);
+      warn(evt);
+    };
 
-      return {
-        labelTouchStatus,
-        onTouchTextEnd,
-        onTouchTextMove,
-        onTouchTextStart,
-      };
-    },
-  });
+    const incrementLine = () => {
+      if (textMode.value.numberOfLines < 6) {
+        textMode.value.numberOfLines += 1;
+      }
+    };
+
+    const decrementLine = () => {
+      if (textMode.value.numberOfLines > 1) {
+        textMode.value.numberOfLines -= 1;
+      }
+    };
+
+    const changeMode = (mode) => {
+      textMode.value.ellipsizeMode = mode;
+    };
+
+    const changeTextShadow = () => {
+      textShadow.value.textShadowOffsetX =          textShadowIndex.value % 2 === 1 ? 10 : 1;
+      textShadow.value.textShadowColor =          textShadowIndex.value % 2 === 1 ? 'red' : 'grey';
+
+      textShadowIndex.value += 1;
+    };
+
+    return {
+      img1: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVLtEsMgCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRKaXfzxc84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TSAAAAABJRU5ErkJggg==',
+      img2: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEnRSTlMA/QpX7WQU2m27pi3Ej9KEQXaD5HhjAAAAqklEQVQoz41
+        SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
+        w2QwqipkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefw
+        eIFQU0EfnGDRoQAAAAASUVORK5CYII=`,
+      labelTouchStatus,
+      textMode,
+      textShadow,
+      textShadowIndex,
+      onTouchTextEnd,
+      onTouchTextMove,
+      onTouchTextStart,
+      decrementLine,
+      incrementLine,
+      changeMode,
+      changeTextShadow,
+    };
+  },
+});
 </script>
 
 <style>
+  .p-demo {
+    margin: 7px;
+    overflow-y: scroll;
+    flex: 1;
+    flex-direction: column;
+  }
+
   .p-demo .p-demo-content {
     margin: 20px;
+  }
+
+  .p-demo .p-demo-content-status {
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 10px;
   }
 
   .p-demo .p-demo-1 {
@@ -78,16 +280,46 @@
 
   .p-demo .p-demo-4 {
     text-decoration-line: underline;
-    text-decoration: underline;
+    text-decoration-style: dotted;
   }
 
   .p-demo .p-demo-5 {
-    color: #0052d9;
+    text-decoration-line: line-through;
+    text-decoration-color: red;
   }
 
   .p-demo .p-demo-6 {
     color: #0052d9;
     font-family: TTTGB;
     font-size: 32px;
+  }
+
+  .p-demo .p-demo-7 {
+    /*text-shadow-offset: 1px 1px; !* not support declared separately *!*/
+    /*text-shadow-radius: 3;*/
+    /*text-shadow-color: grey;*/
+  }
+
+  .p-demo .p-demo-8 {
+    letter-spacing: -1px;
+  }
+
+  .p-demo .p-demo-9 {
+    letter-spacing: 5px;
+  }
+
+  .p-demo .button-bar {
+    flex-direction: row;
+  }
+
+  .p-demo .button {
+    width: 100px;
+    margin: 2px;
+    backgroundcolor: #eee;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
+    align-items: center;
+    flex-shrink: 1;
   }
 </style>

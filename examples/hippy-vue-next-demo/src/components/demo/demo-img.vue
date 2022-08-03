@@ -4,76 +4,96 @@
       <label>Contain:</label>
       <img
         alt=""
-        src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         :placeholder="defaultImage"
         class="image contain"
         @touchstart="onTouchStart"
         @touchmove="onTouchMove"
         @touchend="onTouchEnd"
-      />
+      >
       <label>Cover:</label>
       <img
         alt=""
         :placeholder="defaultImage"
-        src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         class="image cover"
-      />
+      >
       <label>Center:</label>
       <img
         alt=""
         :placeholder="defaultImage"
-        src="https://static.res.qq.com/nav/3b202b2c44af478caf1319dece33fff2.png"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
         class="image center"
-      />
+      >
+      <label>CapInsets:</label>
+      <img
+        :placeholder="defaultImage"
+        src="https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png"
+        class="image cover"
+        :capInsets="{
+          top: 50,
+          left: 50,
+          bottom: 50,
+          right: 50,
+        }"
+      >
+      <label>TintColor:</label>
+      <img
+        :src="hippyLogoImage"
+        class="image center tint-color"
+      >
       <label>Gif:</label>
       <img
         alt=""
         :placeholder="defaultImage"
-        src="https://img.qdaily.com/article/article_show/20180226115511QR0IMWjcBZmo8FaV.gif"
+        src="https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif"
         class="image cover"
-      />
+      >
     </div>
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent } from '@vue/runtime-core';
+import { defineComponent } from '@vue/runtime-core';
 
-  import defaultImage from '../../assets/defaultSource.jpg';
-  import { warn } from '../../util';
+import defaultImage from '../../assets/defaultSource.jpg';
+import hippyLogoImage from '../../assets/hippyLogoWhite.png';
+import { warn } from '../../util';
 
-  export default defineComponent({
-    setup() {
+export default defineComponent({
+  setup() {
+    // img touch event is supported after hippy-vue 2.6.2
+    const onTouchStart = (evt: Event) => {
+      warn('onTouchDown', evt);
+      evt.stopPropagation();
+    };
       // img touch event is supported after hippy-vue 2.6.2
-      const onTouchStart = (evt: Event) => {
-        warn('onTouchDown', evt);
-        evt.stopPropagation();
-      };
+    const onTouchMove = (evt: Event) => {
+      warn('onTouchMove', evt);
+      evt.stopPropagation();
+      warn(evt);
+    };
       // img touch event is supported after hippy-vue 2.6.2
-      const onTouchMove = (evt: Event) => {
-        warn('onTouchMove', evt);
-        evt.stopPropagation();
-        warn(evt);
-      };
-      // img touch event is supported after hippy-vue 2.6.2
-      const onTouchEnd = (evt: Event) => {
-        warn('onTouchEnd', evt);
-        evt.stopPropagation();
-        warn(evt);
-      };
+    const onTouchEnd = (evt: Event) => {
+      warn('onTouchEnd', evt);
+      evt.stopPropagation();
+      warn(evt);
+    };
 
-      return {
-        defaultImage,
-        onTouchEnd,
-        onTouchMove,
-        onTouchStart,
-      };
-    },
-  });
+    return {
+      defaultImage,
+      hippyLogoImage,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+    };
+  },
+});
 </script>
 <style>
   #demo-img {
     overflow-y: scroll;
     flex: 1;
+    margin: 7px;
   }
 
   #demo-img #demo-img-container {
@@ -86,6 +106,7 @@
     height: 180px;
     margin: 30px;
     border-width: 1px;
+    border-style: solid;
     border-color: #40b883;
   }
 
@@ -99,5 +120,9 @@
 
   #demo-img .center {
     resize-mode: center;
+  }
+
+  #demo-img .tint-color {
+    tint-color: #40b88399;
   }
 </style>

@@ -1,31 +1,39 @@
-/**
- * 存放项目配置常量等
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-// 默认调试端口
+/**
+ * project Configuration and constants
+ */
+
+// default debug port
 const DEBUG_PORT = 38989;
 
-/**
- * Hippy debug的地址
- *
- * @public
- */
+// hippy debug address
 const HIPPY_DEBUG_ADDRESS = `http://127.0.0.1:${
   typeof process !== 'undefined' ? process.env.PORT : DEBUG_PORT
 }/`;
 
-/**
- * 当前环境是否是生产环境
- *
- * @public
- */
+// whether the current environment is a production environment
 const IS_PROD = process.env.NODE_ENV === 'production';
 
-/**
- * native最基础版本所支持的组件Map
- *
- * @public
- */
+// component Map supported by the most basic version of native
 const NATIVE_COMPONENT_MAP = {
   View: 'View',
   Image: 'Image',
@@ -35,24 +43,15 @@ const NATIVE_COMPONENT_MAP = {
   TextInput: 'TextInput',
   WebView: 'WebView',
   VideoPlayer: 'VideoPlayer',
-  // Native内置组件，与View组件属性方法基本一致，仅名称不同
   ScrollView: 'ScrollView',
 };
 
-/**
- * Hippy静态文件协议地址
- *
- * @public
- */
+// Hippy static file protocol address
 const HIPPY_STATIC_PROTOCOL = 'hpfile://';
-const HIPPY_GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
-const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
 
 export {
   HIPPY_DEBUG_ADDRESS,
   HIPPY_STATIC_PROTOCOL,
   NATIVE_COMPONENT_MAP,
   IS_PROD,
-  HIPPY_GLOBAL_STYLE_NAME,
-  HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
 };

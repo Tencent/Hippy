@@ -28,8 +28,8 @@ import { defineComponent, ref } from '@vue/runtime-core';
 
 export default defineComponent({
   setup() {
-    const targetUrl = ref('https://v.qq.com');
-    const displayUrl = ref('https://v.qq.com');
+    const targetUrl = ref('https://hippyjs.org');
+    const displayUrl = ref('https://hippyjs.org');
     const inputRef = ref(null);
     const iframeRef = ref(null);
 

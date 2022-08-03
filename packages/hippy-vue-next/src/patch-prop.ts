@@ -1,6 +1,27 @@
-/**
- * 实现Vue3 VNode mount所需的patch props方法
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
+/**
+ * Implement the patch props method required for Vue3 VNode mount
+ */
+import type { NeedToTyped } from '@hippy-shared/index';
 import type { ComponentInternalInstance, VNode } from '@vue/runtime-core';
 import { isOn } from '@vue/shared';
 
@@ -12,16 +33,15 @@ import type { HippyElement } from './runtime/element/hippy-element';
 import type { HippyNode } from './runtime/node/hippy-node';
 
 export function patchProp(
-  el: any,
+  el: NeedToTyped,
   key: string,
-  prevValue: any,
-  nextValue: any,
+  prevValue: NeedToTyped,
+  nextValue: NeedToTyped,
   isSVG: boolean,
-  // prevChildren 是Vue所使用的VNode
   prevChildren: VNode<HippyNode, HippyElement>[] | undefined,
   parentComponent: ComponentInternalInstance,
 ): void {
-  // 需要说明的是，这里prop包含的值会有字符串，数字，数组，对象，等无法确定类型，因此使用any
+  // It should be noted that the values contained in prop here will have strings, numbers, arrays, objects, etc.
   switch (key) {
     case 'class':
       patchClass(el, nextValue);
@@ -31,11 +51,11 @@ export function patchProp(
       break;
     default:
       if (isOn(key)) {
-        // 表示事件
+        // event prop
         patchEvent(el, key, prevValue, nextValue, parentComponent);
       } else {
-        // 处理属性
-        patchAttr(el, key, nextValue);
+        // attribute prop
+        patchAttr(el, key, prevValue, nextValue);
       }
       break;
   }

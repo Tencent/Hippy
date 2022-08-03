@@ -1,10 +1,18 @@
 <template>
   <div class="list-view-item style-five">
-    <p :numberOfLines="2" :enableScale="true" class="article-title">
+    <p
+      :numberOfLines="2"
+      :enableScale="true"
+      class="article-title"
+    >
       {{ itemBean.title }}
     </p>
     <div class="style-five-image-container">
-      <img :src="itemBean.picUrl" alt="" class="image" />
+      <img
+        :src="itemBean.picUrl"
+        alt=""
+        class="image"
+      >
     </div>
     <div class="tag-line">
       <p class="normal-text">
@@ -14,15 +22,15 @@
   </div>
 </template>
 <script lang="ts">
-  import { defineComponent } from '@vue/runtime-core';
+import { defineComponent } from '@vue/runtime-core';
 
-  export default defineComponent({
-    inheritAttrs: false,
-    props: {
-      itemBean: {
-        type: Object,
-        default: () => {},
-      },
+export default defineComponent({
+  inheritAttrs: false,
+  props: {
+    itemBean: {
+      type: Object,
+      default: () => {},
     },
-  });
+  },
+});
 </script>

@@ -1,8 +1,9 @@
+import DemoSetNativeProps from '../demo/demo-set-native-props.vue';
+
 import NativeAnimation from './demo-animation.vue';
 import NativeDialog from './demo-dialog.vue';
 import NativeDemo from './demo-native.vue';
-import NativePullFooter from './demo-pull-footer.vue';
-import NativePullHeader from './demo-pull-header.vue';
+import NativePullHeaderFooter from './demo-pull-header-footer.vue';
 import NativeSwiper from './demo-swiper.vue';
 import NativeWaterfall from './demo-waterfall.vue';
 
@@ -19,13 +20,9 @@ const nativeDemos = {
     name: 'Native 支持能力列表',
     component: NativeDemo,
   },
-  demoPullHeader: {
-    name: 'Pull Header 组件',
-    component: NativePullHeader,
-  },
-  demoPullFooter: {
-    name: 'Pull Footer 组件',
-    component: NativePullFooter,
+  demoPullHeaderFooter: {
+    name: 'Pull Header & Footer 组件',
+    component: NativePullHeaderFooter,
   },
   demoSwiper: {
     name: 'Swiper 组件',
@@ -34,6 +31,10 @@ const nativeDemos = {
   demoWaterfall: {
     name: 'Waterfall 组件',
     component: NativeWaterfall,
+  },
+  demoSetNativeProps: {
+    name: 'setNativeProps',
+    component: DemoSetNativeProps,
   },
 };
 

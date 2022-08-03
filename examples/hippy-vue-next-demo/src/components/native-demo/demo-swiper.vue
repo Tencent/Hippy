@@ -1,13 +1,24 @@
 <template>
   <div id="demo-swiper">
     <div class="toolbar">
-      <button class="toolbar-btn" @click="scrollToPrevPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToPrevPage"
+      >
         <span>翻到上一页</span>
       </button>
-      <button class="toolbar-btn" @click="scrollToNextPage">
+      <button
+        class="toolbar-btn"
+        @click="scrollToNextPage"
+      >
         <span>翻到下一页</span>
       </button>
-      <p class="toolbar-text">当前第 {{ currentSlideNum + 1 }} 页</p>
+      <p class="toolbar-text">
+        当前第 {{ currentSlideNum + 1 }} 页
+      </p>
+      <p class="toolbar-text">
+        滚屏状态：{{ state }}
+      </p>
     </div>
     <!--
       swiper 组件参数
@@ -47,87 +58,88 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, ref } from '@vue/runtime-core';
+import { defineComponent, ref } from '@vue/runtime-core';
 
-  import { warn } from '../../util';
+import { warn } from '../../util';
 
-  const max = 7;
+const max = 7;
 
-  export default defineComponent({
-    setup() {
-      // 当前状态
-      const state = ref('idle');
-      // 当前展示的 slide 的索引
-      const currentSlide = ref(2);
-      // 因为 Android 终端的通讯性能限制，导致如果快速点击时 dropped 事件会发很多次，导致 swiper-slider 发生推拉抽屉的现象
-      // 所以这里单独做个变量，保存当前正在显示的值，跟 currentSlide 的值做个区分，避免推拉现象。
-      const currentSlideNum = ref(2);
+export default defineComponent({
+  setup() {
+    // 当前状态
+    const state = ref('idle');
+    // 当前展示的 slide 的索引
+    const currentSlide = ref(2);
+    // 因为 Android 终端的通讯性能限制，导致如果快速点击时 dropped 事件会发很多次，导致 swiper-slider 发生推拉抽屉的现象
+    // 所以这里单独做个变量，保存当前正在显示的值，跟 currentSlide 的值做个区分，避免推拉现象。
+    const currentSlideNum = ref(2);
 
-      /**
+    /**
        * 滚至下一页
        */
-      const scrollToNextPage = () => {
-        warn('scroll next', currentSlide.value, currentSlideNum.value);
-        if (currentSlide.value < max) {
-          currentSlide.value = currentSlideNum.value + 1;
-        } else {
-          currentSlide.value = 0;
-        }
-      };
+    const scrollToNextPage = () => {
+      warn('scroll next', currentSlide.value, currentSlideNum.value);
+      if (currentSlide.value < max) {
+        currentSlide.value = currentSlideNum.value + 1;
+      } else {
+        currentSlide.value = 0;
+      }
+    };
 
-      /**
+    /**
        * 滚至上一页
        */
-      const scrollToPrevPage = () => {
-        warn('scroll prev', currentSlide.value, currentSlideNum.value);
-        if (currentSlide.value === 0) {
-          currentSlide.value = max - 1;
-        } else {
-          currentSlide.value = currentSlideNum.value - 1;
-        }
-      };
+    const scrollToPrevPage = () => {
+      warn('scroll prev', currentSlide.value, currentSlideNum.value);
+      if (currentSlide.value === 0) {
+        currentSlide.value = max - 1;
+      } else {
+        currentSlide.value = currentSlideNum.value - 1;
+      }
+    };
 
-      /**
+    /**
        * 拖动
        *
        * @param evt
        */
-      const onDragging = (evt) => {
-        // FIXME: Android 该事件存在 bug，往后翻 nextSlide 依然是当前的 index，往前翻正常。
-        /* eslint-disable-next-line no-console */
-        warn(
-          'Current offset is',
-          evt.offset,
-          'and will into slide',
-          evt.nextSlide + 1,
-        );
-      };
-      const onDropped = (evt) => {
-        warn('onDropped', evt);
-        // 更细当前页码
-        currentSlideNum.value = evt.currentSlide;
-      };
-      const onStateChanged = (evt) => {
-        warn('onStateChanged', evt);
-        // 更新当前滚屏状态
-        state.value = evt.state;
-      };
+    const onDragging = (evt) => {
+      // FIXME: Android 该事件存在 bug，往后翻 nextSlide 依然是当前的 index，往前翻正常。
+      /* eslint-disable-next-line no-console */
+      warn(
+        'Current offset is',
+        evt.offset,
+        'and will into slide',
+        evt.nextSlide + 1,
+      );
+    };
+    const onDropped = (evt) => {
+      warn('onDropped', evt);
+      // 更细当前页码
+      currentSlideNum.value = evt.currentSlide;
+    };
+    const onStateChanged = (evt) => {
+      warn('onStateChanged', evt);
+      // 更新当前滚屏状态
+      state.value = evt.state;
+    };
 
-      return {
-        // 假数据，7 是页数，页数初始化成功后不可更改。
-        // 所以如果是动态加载的数据，建议再 <swiper> 上加上 v-if 判断数据加载完成之后再进行渲染。
-        dataSource: new Array(max).fill(0).map((n, i) => i),
-        currentSlide,
-        currentSlideNum,
-        state,
-        scrollToNextPage,
-        scrollToPrevPage,
-        onDragging,
-        onDropped,
-        onStateChanged,
-      };
-    },
-  });
+    return {
+      // 假数据，7 是页数，页数初始化成功后不可更改。
+      // 所以如果是动态加载的数据，建议再 <swiper> 上加上 v-if 判断数据加载完成之后再进行渲染。
+      dataSource: new Array(max).fill(0)
+        .map((n, i) => i),
+      currentSlide,
+      currentSlideNum,
+      state,
+      scrollToNextPage,
+      scrollToPrevPage,
+      onDragging,
+      onDropped,
+      onStateChanged,
+    };
+  },
+});
 </script>
 
 <style>

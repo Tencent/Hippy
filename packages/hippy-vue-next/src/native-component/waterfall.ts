@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-param-reassign */
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
@@ -9,15 +29,14 @@ import { Native } from '../runtime/native';
 import { getEventRedirects } from '../util';
 
 /**
- * 注册瀑布流的native组件
+ * register water fall component
  *
- * @param vueApp - vue app 实例
+ * @param vueApp - vue instance
  */
 export function registerWaterfall(vueApp: App): void {
   const hippyWaterfallTag = 'hi-waterfall';
   const hippyWaterfallItemTag = 'hi-waterfall-item';
 
-  // 注册瀑布流组件
   registerHippyTag(hippyWaterfallTag, {
     name: 'WaterfallView',
     processEventData(
@@ -66,57 +85,56 @@ export function registerWaterfall(vueApp: App): void {
     },
   });
 
-  // 注册瀑布流组件item
   registerHippyTag(hippyWaterfallItemTag, {
     name: 'WaterfallItem',
   });
 
-  // 注册
   vueApp.component('Waterfall', {
     props: {
-      // 瀑布流列数量，默认为2
+      // the number of waterfall flow columns, the default is 2
       numberOfColumns: {
         type: Number,
         default: 2,
       },
 
-      // 内容缩进
-      contentInsert: {
+      // inner content padding
+      contentInset: {
         type: Object,
         default: () => ({ top: 0, left: 0, bottom: 0, right: 0 }),
       },
 
-      // 瀑布流每列之前的水平间距
+      // horizontal space between columns
       columnSpacing: {
         type: Number,
         default: 0,
       },
 
-      // item间的水平间距
+      // vertical spacing between items
       interItemSpacing: {
         type: Number,
         default: 0,
       },
 
-      // 滑动到瀑布流底部前提前预加载的item数量
+      // the number of items preloaded in advance before sliding to the bottom of the waterfall
       preloadItemNumber: {
         type: Number,
         default: 0,
       },
 
-      // 是否包含bannerView，只能有一个，且Android暂不支持
+      // whether to include a bannerView, there can only be one bannerView, Android does not currently support
       containBannerView: {
         type: Boolean,
         default: false,
       },
 
-      // 是否包含pull-header，android暂不支持
+      // whether to include pull-header;
+      // Android does not currently support it, you can use the ul-refresh component instead
       containPullHeader: {
         type: Boolean,
         default: false,
       },
 
-      // 是否包含pull-footer
+      // whether to include pull-footer
       containPullFooter: {
         type: Boolean,
         default: false,
@@ -124,43 +142,43 @@ export function registerWaterfall(vueApp: App): void {
     },
     methods: {
       /**
-       * 调用native的方法
+       * call native method
        *
-       * @param action - native的方法名
-       * @param params - 调用参数
+       * @param action - method name
+       * @param params - params
        */
       call(action: string, params: CommonMapParams) {
         Native.callUIFunction(this.$refs.waterfall, action, params);
       },
 
       /**
-       * 开始刷新
+       * start refresh
        */
       startRefresh() {
         this.call('startRefresh');
       },
 
       /**
-       * 指定type进行startRefresh
+       * specify type to refresh
        *
-       * @param type - 刷新类型
+       * @param type - refresh type
        */
       startRefreshWithType(type: string) {
         this.call('startRefreshWithType', [type]);
       },
 
       /**
-       * 调用曝光上报
+       * call exposure report
        */
       callExposureReport() {
         this.call('callExposureReport', []);
       },
 
       /**
-       * 滚动到指定index
+       * scroll to the specified index
        *
-       * @param index - 滚动到的索引值
-       * @param animated - 是否需要动画
+       * @param index - index value to scroll to
+       * @param animated - determine if animation is required
        */
       scrollToIndex({
         index = 0,
@@ -173,11 +191,11 @@ export function registerWaterfall(vueApp: App): void {
       },
 
       /**
-       * 滚动到指定偏移量
+       * scroll to the specified offset
        *
-       * @param xOffset - x方向偏移量
-       * @param yOffset - y方向偏移量
-       * @param animated - 是否需要动画
+       * @param xOffset - x Offset
+       * @param yOffset - y Offset
+       * @param animated - determine if animation is required
        */
       scrollToContentOffset({
         xOffset = 0,
@@ -192,7 +210,7 @@ export function registerWaterfall(vueApp: App): void {
       },
 
       /**
-       * 开始加载更多瀑布流元素
+       * load more waterfall elements
        */
       startLoadMore() {
         this.call('startLoadMore');
@@ -214,7 +232,7 @@ export function registerWaterfall(vueApp: App): void {
           ...on,
           ref: 'waterfall',
           numberOfColumns: this.numberOfColumns,
-          contentInsert: this.contentInsert,
+          contentInset: this.contentInset,
           interItemSpacing: this.interItemSpacing,
           preloadItemNumber: this.preloadItemNumber,
           containBannerView: this.containBannerView,
@@ -236,10 +254,8 @@ export function registerWaterfall(vueApp: App): void {
     render() {
       return h(
         hippyWaterfallItemTag,
+        // vue3 会将事件处理为 onXXX 并放在 attrs 内，因此无需再处理 $listeners 了
         {
-          on: {
-            ...this.$listeners,
-          },
           type: this.type,
         },
         this.$slots.default ? this.$slots.default() : null,

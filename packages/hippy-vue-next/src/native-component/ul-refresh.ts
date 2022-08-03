@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
@@ -5,25 +25,23 @@ import { registerHippyTag } from '../runtime/component';
 import { Native } from '../runtime/native';
 
 /**
- *  将native的可下拉刷新组件注册为vue3的component
+ *  register pull down to refresh component
  *
- *  @param vueApp - vue app 实例
+ *  @param vueApp - vue instance
  */
 export function registerUlRefresh(vueApp: App): void {
   const hippyRefreshWrapperTag = 'hi-ul-refresh-wrapper';
   const hippyRefreshItemTag = 'hi-refresh-wrapper-item';
 
-  // 将refresh-wrapper的tag注册为hi-ul-refresh-wrapper的hippy的element
   registerHippyTag(hippyRefreshWrapperTag, {
     name: 'RefreshWrapper',
   });
 
-  // 将refresh-wrapper-item的tag注册为hi-ul-refresh-wrapper-item的hippy的element
   registerHippyTag(hippyRefreshItemTag, {
     name: 'RefreshWrapperItemView',
   });
 
-  // 注册UlRefreshWrapper组件
+  // register UlRefreshWrapper component
   vueApp.component('UlRefreshWrapper', {
     props: {
       bounceTime: {
@@ -33,17 +51,17 @@ export function registerUlRefresh(vueApp: App): void {
     },
     methods: {
       /**
-       * 调用native接口触发刷新逻辑
+       * call the native interface to trigger the refresh logic
        */
       startRefresh() {
         Native.callUIFunction(this.$refs.refreshWrapper, 'startRefresh', null);
       },
 
       /**
-       * 刷新完成之后调用
+       * refresh completed
        */
       refreshCompleted() {
-        // FIXME: 这里终端有个拼写错误，后续需要修正
+        // FIXME: there is a spelling error in the native code, which needs to be corrected later
         Native.callUIFunction(
           this.$refs.refreshWrapper,
           'refreshComplected',
@@ -52,8 +70,6 @@ export function registerUlRefresh(vueApp: App): void {
       },
     },
     render() {
-      // Vue2中事件不会转换，需要自行处理，如@refresh="xxx"，需要转成onRefresh并存放到vue实例的
-      // on属性中。Vue3拍平了属性，直接在$attrs中有onRefresh即可
       return h(
         hippyRefreshWrapperTag,
         {
@@ -64,7 +80,7 @@ export function registerUlRefresh(vueApp: App): void {
     },
   });
 
-  // 注册UlRefresh组件
+  // register UlRefresh component
   vueApp.component('UlRefresh', {
     render() {
       const child = h(
