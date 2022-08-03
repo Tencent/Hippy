@@ -26,7 +26,7 @@
 
 #include <string>
 
-#include "core/core.h"
+#include "driver/driver.h"
 
 #include "convert_utils.h"
 #include "jni/scoped_java_ref.h"

@@ -74,10 +74,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE common_jni)
 # endregion
 
 # region native renderer
-GlobalPackages_Add(native_renderer)
-target_link_libraries(${PROJECT_NAME} PRIVATE native_renderer)
+add_subdirectory(${PROJECT_ROOT_DIR}/renderer/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/renderer/native)
+target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)
 # endregion
-
 
 # region source set
 set(SOURCE_SET

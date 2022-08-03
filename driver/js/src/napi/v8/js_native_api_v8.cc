@@ -615,7 +615,7 @@ bool V8Ctx::SetGlobalJsonVar(const unicode_string_view& name,
 
 bool V8Ctx::SetGlobalStrVar(const unicode_string_view& name,
                             const unicode_string_view& str) {
-  FOOTSTONE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
+  // FOOTSTONE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
   if (StringViewUtils::IsEmpty(name)) {
     return false;
   }

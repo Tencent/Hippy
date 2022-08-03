@@ -23,7 +23,8 @@
 #pragma once
 
 #include <jni.h>
-#include "core/core.h"
+
+#include "driver/driver.h"
 #include "jni/scoped_java_ref.h"
 
 struct JNIArgs {

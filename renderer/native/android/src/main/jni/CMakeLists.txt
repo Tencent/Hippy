@@ -46,8 +46,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
 # region jni
-GlobalPackages_Add(jni)
-target_link_libraries(${PROJECT_NAME} PRIVATE jni)
+GlobalPackages_Add(common_jni)
+target_link_libraries(${PROJECT_NAME} PRIVATE common_jni)
 # endregion
 
 # region source set

@@ -25,7 +25,7 @@
 #include <cstdint>
 
 #include "driver/runtime/v8/runtime.h"
-#include "core/napi/v8/js_native_api_v8.h"
+#include "driver/napi/v8/js_native_api_v8.h"
 #include "jni/java_turbo_module.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
