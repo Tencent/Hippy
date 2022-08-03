@@ -52,8 +52,6 @@
 #include "jni/jni_utils.h"
 #include "loader/adr_loader.h"
 
-#define ANDROID_NATIVE_RENDER
-
 #ifdef ANDROID_NATIVE_RENDER
 #include "jni/java_turbo_module.h"
 #include "jni/turbo_module_manager.h"
@@ -158,7 +156,7 @@ enum INIT_CB_STATE {
   SUCCESS = 0,
 };
 
-constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
+// constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 constexpr uint32_t kDefaultNumberOfThreads = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
 
@@ -365,20 +363,28 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   size_t len = StringViewUtils::GetLength(uri);
   unicode_string_view script_name = StringViewUtils::SubStr(uri, pos + 1, len);
   unicode_string_view base_path = StringViewUtils::SubStr(uri, 0, pos + 1);
-  FOOTSTONE_DLOG(INFO) << "runScriptFromUri uri = " << uri
-                      << ", script_name = " << script_name
-                      << ", base_path = " << base_path
-                      << ", code_cache_dir = " << code_cache_dir;
+//  FOOTSTONE_DLOG(INFO) << "runScriptFromUri uri = " << uri
+//                      << ", script_name = " << script_name
+//                      << ", base_path = " << base_path
+//                      << ", code_cache_dir = " << code_cache_dir;
 
-  auto runner = runtime->GetEngine()->GetJsTaskRunner();
-  std::shared_ptr<Ctx> ctx = runtime->GetScope()->GetContext();
-  runner->PostTask([ctx, base_path] {
-    ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
-  });
+  auto engine = runtime->GetEngine();
+  FOOTSTONE_DCHECK(engine);
+  auto runner = engine->GetJsTaskRunner();
+  FOOTSTONE_DCHECK(runner);
+  auto scope = runtime->GetScope();
+  FOOTSTONE_DCHECK(scope);
+  std::shared_ptr<Ctx> ctx = scope->GetContext();
+  FOOTSTONE_DCHECK(ctx);
+//  runner->PostTask([ctx, base_path] {
+//    ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
+//  });
 
   std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
-  auto bridge = std::static_pointer_cast<ADRBridge>(runtime->GetBridge());
-  loader->SetBridge(bridge->GetRef());
+  auto xxx = runtime->GetBridge();
+  auto bridge = std::static_pointer_cast<ADRBridge>(xxx);
+  auto ref = bridge->GetRef();
+  loader->SetBridge(ref);
   loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
   runtime->GetScope()->SetUriLoader(loader);
   AAssetManager* aasset_manager = nullptr;

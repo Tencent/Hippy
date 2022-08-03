@@ -64,7 +64,10 @@ class Runtime {
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
 
 
-  inline std::shared_ptr<Bridge> GetBridge() { return bridge_; }
+  // std::shared_ptr<Bridge> GetBridge();
+  inline std::shared_ptr<Bridge> GetBridge() {
+    return bridge_;
+  }
   inline void SetBridge(std::shared_ptr<Bridge> bridge) {
     bridge_ = bridge;
   }

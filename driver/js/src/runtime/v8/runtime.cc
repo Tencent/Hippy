@@ -90,3 +90,7 @@ bool Runtime::Erase(int32_t id) {
 bool Runtime::Erase(const std::shared_ptr<Runtime>& runtime) {
   return Runtime::Erase(runtime->id_);
 }
+
+//std::shared_ptr<hippy::Bridge> Runtime::GetBridge() {
+//  return bridge_;
+//}
