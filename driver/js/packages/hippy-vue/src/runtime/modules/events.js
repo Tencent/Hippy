@@ -30,23 +30,22 @@ function remove(event, handler, capture, _target) {
   (_target || target).removeEventListener(event);
 }
 
-function add(event, handler, once, capture) {
+// eslint-disable-next-line no-unused-vars
+function add(event, handler, capture, passive, params) {
   if (capture) {
     return;
   }
-  if (once) {
-    const oldHandler = handler;
-    const _target = target; // save current target element in closure
-    handler = (ev) => {
-      const res = arguments.length === 1
-        ? oldHandler(ev)
-        : oldHandler(...arguments);
-      if (res !== null) {
-        remove(event, null, null, _target);
-      }
-    };
-  }
   target.addEventListener(event, handler);
+}
+
+function createOnceHandler(event, handler, capture) {
+  const _target = target; // save current target element in closure
+  return function onceHandler() {
+    const res = handler(...arguments);
+    if (res !== null) {
+      remove(event, onceHandler, capture, _target);
+    }
+  };
 }
 
 function updateDOMListeners(oldVNode, vNode) {
@@ -56,7 +55,7 @@ function updateDOMListeners(oldVNode, vNode) {
   const on = vNode.data.on || {};
   const oldOn = oldVNode.data.on || {};
   target = vNode.elm;
-  updateListeners(on, oldOn, add, remove, vNode.context);
+  updateListeners(on, oldOn, add, remove, createOnceHandler, vNode.context);
 }
 
 export default {
