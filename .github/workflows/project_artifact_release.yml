@@ -64,7 +64,7 @@ jobs:
         SIGNING_PASSWORD: ${{ secrets.ANDROID_SIGNING_PASSWORD }}
         SIGNING_SECRET_KEY: ${{ secrets.ANDROID_SIGNING_SECRET_KEY }}
       run: |
-        ./gradlew assemble${{ matrix.build_type }} -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }}
+        ./gradlew assemble${{ matrix.build_type }} -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
         ./gradlew signMavenAarPublication
     - name: Pre Archive artifacts
       shell: bash
@@ -76,14 +76,18 @@ jobs:
       run: |
         from qcloud_cos import CosConfig
         from qcloud_cos import CosS3Client
-        from glob import glob
         from urllib.parse import urlencode
         import os
+        import tempfile
+        import zipfile
 
         artifacts = [("outputs/aar/android-sdk.aar", "hippy/android/${{ matrix.artifact_id }}/${{ github.event.inputs.version_name }}/android-sdk.aar")]
-        root_dir = "intermediates/merged_native_libs/%s/out/lib" % "${{ matrix.build_type }}".lower()
-        for file in glob("%s/**/*.so" % root_dir, recursive=True):
-            artifacts.append((file, "hippy/android/${{ matrix.artifact_id }}/${{ github.event.inputs.version_name }}/lib.unstripped/" + os.path.relpath(file, root_dir)))
+        for path, dirs, files in os.walk("intermediates/merged_native_libs/%s/out/lib" % "${{ matrix.build_type }}".lower()):
+          if files:
+            with zipfile.ZipFile(tempfile.mkstemp()[1], "w", zipfile.ZIP_DEFLATED) as zip_file:
+              for file in files:
+                zip_file.write(os.path.join(path, file), file)
+              artifacts.append((zip_file.filename, "hippy/android/${{ matrix.artifact_id }}/${{ github.event.inputs.version_name }}/symbols/%s.zip" % os.path.basename(path)))
 
         metadata = {}
         metadata["ci-name"] = "Github Action"
@@ -123,5 +127,4 @@ jobs:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
       run: |
-        ./gradlew publish -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }}
-
+        ./gradlew publish -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
