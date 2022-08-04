@@ -124,8 +124,22 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.vue', '.json', '.ts'],
-    alias: (() => ({
-      src: path.resolve('./src'),
-    }))(),
+    alias: (() => {
+      const aliases = {
+        src: path.resolve('./src'),
+      };
+
+      // If @vue/runtime-core was built exist in packages directory then make a alias
+      // Remove the section if you don't use it
+      const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
+      if (fs.existsSync(path.resolve(hippyVueRuntimeCorePath, 'index.js'))) {
+        console.warn(`* Using the @vue/runtime-core in ${hippyVueRuntimeCorePath} as vue alias`);
+        aliases['@vue/runtime-core'] = hippyVueRuntimeCorePath;
+      } else {
+        console.warn('* Using the @vue/runtime-core defined in package.json');
+      }
+
+      return aliases;
+    })(),
   },
 };

@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@hippy/vue-next": "file:../../packages/hippy-vue-next",
-    "@vue/runtime-core": "file:../../packages/hippy-vue-next/node_modules/@vue/runtime-core",
+    "@vue/runtime-core": "^3.2.21",
     "vue-router": "4.0.12"
   },
   "devDependencies": {
