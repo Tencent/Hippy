@@ -46,7 +46,8 @@
                 @"transform.scale.x": @[@"scaleX"],
                 @"transform.scale.y": @[@"scaleY"],
                 @"transform.translation.x": @[@"translateX"],
-                @"transform.translation.y": @[@"translateY"]
+                @"transform.translation.y": @[@"translateY"],
+                @"transform": @[@"skewX", @"skewY"],
             };
         }
     });
@@ -192,6 +193,27 @@
         } else {
             self.fromValue = @(_startValue);
             self.toValue = @(_endValue);
+        }
+        if ([animationKey isEqualToString:@"transform"]) {
+            CATransform3D originTransform3D = CATransform3DIdentity;
+            if (@available(iOS 13.0, *)) {
+                originTransform3D = view.transform3D;
+            } else {
+                originTransform3D = view.layer.transform;
+            }
+            if ([prop isEqualToString:@"skewX"]) {
+                originTransform3D.m21 = tanf([self.fromValue doubleValue]);
+                self.fromValue = [NSValue valueWithCATransform3D:originTransform3D];
+                originTransform3D.m21 = tanf([self.toValue doubleValue]);
+                self.toValue = [NSValue valueWithCATransform3D:originTransform3D];
+            }
+            else if ([prop isEqualToString:@"skewY"]) {
+                originTransform3D.m12 = tanf([self.fromValue doubleValue]);
+                self.fromValue = [NSValue valueWithCATransform3D:originTransform3D];
+                originTransform3D.m12 = tanf([self.toValue doubleValue]);
+                self.toValue = [NSValue valueWithCATransform3D:originTransform3D];
+            }
+            
         }
     } else if ([animationKey isEqualToString:@"position.x"] || [animationKey isEqualToString:@"position.y"]) {
         [self calcValueWithCenter:view.center forProp:prop];

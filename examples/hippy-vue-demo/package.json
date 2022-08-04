@@ -10,7 +10,6 @@
   "description": "Demo app for hippy-vue",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo",
   "scripts": {
-    "start": "npm run hippy:debug & npm run hippy:dev & npm run web:dev",
     "serve": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
     "build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "lint": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider vue-cli-service lint",
@@ -18,7 +17,8 @@
     "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js",
     "hippy:vendor": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
     "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js",
-    "web:dev": "cross-env-os os=\\\"Windows_NT,Linux\\\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-web-renderer-dev"
+    "web:dev": "npm run hippy:dev & cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
+    "web:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web-renderer.js"
   },
   "dependencies": {
     "@hippy/vue": "latest",
@@ -27,7 +27,7 @@
     "core-js": "^3.11.0",
     "vue": "^2.6.10",
     "vue-router": "^3.1.3",
-    "@hippy/web-renderer": "^0.1.0"
+    "@hippy/web-renderer": "^0.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.0",

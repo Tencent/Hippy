@@ -204,11 +204,14 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     newParent.appendChild(this.renderImgDom!);
     oldParent.insertBefore(this.dom, oldParent.childNodes[realIndex] ?? null);
     this.context.getModuleByName('UIManagerModule').defaultUpdateComponentProps(this, this.props);
-    this.imDomFilterNoUseStyle();
+    this.imgDomFilterNoUseStyle();
   }
 
-  private imDomFilterNoUseStyle() {
+  private imgDomFilterNoUseStyle() {
     const { style } = this.props;
+    if (!style) {
+      return;
+    }
     for (const key of Object.keys(style)) {
       if (! hasOwnProperty(style, key)) {
         return;

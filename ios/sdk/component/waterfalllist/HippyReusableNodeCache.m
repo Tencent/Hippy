@@ -40,6 +40,9 @@
 }
 
 - (void)enqueueItemNode:(HippyVirtualNode *)node forIdentifier:(NSString *)identifier {
+    if (!node || !identifier) {
+        return;
+    }
     NSMutableSet *set = _cache[identifier];
     if (!set) {
         set = [NSMutableSet set];

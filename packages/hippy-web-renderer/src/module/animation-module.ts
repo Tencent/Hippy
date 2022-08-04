@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,12 +20,11 @@
 
 import { Property } from 'csstype';
 import { ComponentContext, HippyBaseView } from '../types';
-import { setElementStyle } from '../common';
+import {setElementStyle, warn} from '../common';
 import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
 import AnimationPlayState = Property.AnimationPlayState;
-
 export class AnimationModule extends HippyWebModule {
   public name = 'AnimationModule';
   private animationPool: {[key: string]: SimpleAnimation|null} = {};
@@ -57,7 +56,7 @@ export class AnimationModule extends HippyWebModule {
 
   public updateAnimation(animationId: number, param: AnimationOptions) {
     if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
-      console.log('hippy', 'animation update failed, animationId not find animation object', animationId);
+      warn('hippy', 'animation update failed, animationId not find animation object', animationId);
       return;
     }
     this.animationPool[animationId]?.update(param);
@@ -65,7 +64,7 @@ export class AnimationModule extends HippyWebModule {
 
   public startAnimation(animationId: number) {
     if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
-      console.log('hippy', 'animation start failed, animationId not find animation object', animationId);
+      warn('hippy', 'animation start failed, animationId not find animation object', animationId);
       return;
     }
     this.animationSetPool[animationId]?.start();
@@ -74,7 +73,7 @@ export class AnimationModule extends HippyWebModule {
 
   public pauseAnimation(animationId: number) {
     if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
-      console.log('hippy', 'animation stop failed, animationId not find animation object', animationId);
+      warn('hippy', 'animation stop failed, animationId not find animation object', animationId);
       return;
     }
     this.animationSetPool[animationId]?.stop();
@@ -83,7 +82,7 @@ export class AnimationModule extends HippyWebModule {
 
   public resumeAnimation(animationId: number) {
     if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
-      console.log('hippy', 'animation resume failed, animationId not find animation object', animationId);
+      warn('hippy', 'animation resume failed, animationId not find animation object', animationId);
       return;
     }
     this.animationSetPool[animationId]?.resume();
@@ -92,7 +91,7 @@ export class AnimationModule extends HippyWebModule {
 
   public destroyAnimation(animationId: number) {
     if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
-      console.log('hippy', 'animation destroy failed, animationId not find animation object', animationId);
+      warn('hippy', 'animation destroy failed, animationId not find animation object', animationId);
       return;
     }
     this.animationSetPool[animationId]?.destroy();
@@ -121,11 +120,6 @@ export class AnimationModule extends HippyWebModule {
       this.linkAnimationSet2Element(animationId, component, animationProperty);
       return;
     }
-    // const uiManagerModule = this.context.getModuleByName('UIManagerModule') as any;
-    // if (this.animationPool[animationId]!.refNodeId
-    //   && uiManagerModule.findViewById(this.animationPool[animationId]!.refNodeId as number)) {
-    //   return;
-    // }
     this.linkAnimationCheck(component, animationProperty);
     this.animationPool[animationId]!.nodeId = component.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
@@ -176,7 +170,7 @@ enum HippyAnimationEvent {
   START = 'onHippyAnimationStart',
   END = 'onHippyAnimationEnd',
   CANCEL = 'onHippyAnimationCancel',
-  REPAET = 'onHippyAnimationRepeat',
+  REPEAT = 'onHippyAnimationRepeat',
 }
 
 const TransformList = {
@@ -290,7 +284,7 @@ class SimpleAnimation {
       return 'infinite';
     }
     if (!this.animationInfo || !this.animationInfo.repeatCount) {
-      return String(1);
+      return '1';
     }
     return String(this.animationInfo.repeatCount);
   }
@@ -507,7 +501,6 @@ class SimpleAnimation {
   }
 
   private handleAnimationStart(event: AnimationEvent) {
-    console.log('begin animation');
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.START);
     }
@@ -517,7 +510,6 @@ class SimpleAnimation {
   }
 
   private handleAnimationEnd(event: AnimationEvent) {
-    console.log('end animation');
     if (event.animationName === this.animationName) {
       this.dispatchEvent(HippyAnimationEvent.END);
     }
@@ -623,7 +615,6 @@ class SimpleAnimationSet {
   }
 
   private handleAnimationEnd() {
-    console.log('end animation set');
     this.dispatchEvent(HippyAnimationEvent.END);
   }
 
