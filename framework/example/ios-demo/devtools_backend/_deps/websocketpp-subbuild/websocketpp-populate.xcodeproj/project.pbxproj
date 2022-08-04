@@ -1,0 +1,1033 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		9FE82356CA6E43B5A9644B9F /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = D81F6C18C34F44C4B555F036 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				55B32C1A67808E3919388BB1 /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				283A59CE4FC94AD294910D53 /* PBXTargetDependency */,
+				267D2262214140E0BBC1E009 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		DEAA386E27DE44DBADCBBAC2 /* websocketpp-populate */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 2CC84847E9424BE9992FF05F /* Build configuration list for PBXAggregateTarget "websocketpp-populate" */;
+			buildPhases = (
+				705A74B245FB49536DAAFD84 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-mkdir */,
+				B53024ABF490736E945D2810 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-download */,
+				10EEA14F6C6D635999FC201C /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-update */,
+				0F9C488ADC3F44AC132AFB48 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-patch */,
+				5AB48FC5B49544ADBABC8E1A /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-configure */,
+				921B4B81CE0C035759060562 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-build */,
+				617210C12BF31390E344A7DA /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-install */,
+				2659BD2033858CDE499CC008 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-test */,
+				EC67DB73EFBFB594C211C3E9 /* Generate CMakeFiles/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-complete */,
+				F149A7D017551B51631F5B17 /* Generate CMakeFiles/websocketpp-populate */,
+			);
+			dependencies = (
+				A4103263950C4F058E4EA4CE /* PBXTargetDependency */,
+			);
+			name = "websocketpp-populate";
+			productName = "websocketpp-populate";
+		};
+		E22B97E407DD46F6BB70F025 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = AD2FFC12155D45098A71A4C1 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				E09DFA54D1930C7D253F70BD /* Generate CMakeFiles/ZERO_CHECK */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildStyle section */
+		3246FB7CBE4F4E37A4EBF556 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		89892C5260D8461793566C00 /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+		A7A2568F4B2746CE911C04E3 /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+		ABC096C95B6D44D88A6BDA16 /* MinSizeRel */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = MinSizeRel;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		102645A83F3E49C8B4B380F7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E92FDDF2DF344938AF6FC6FC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DEAA386E27DE44DBADCBBAC2;
+			remoteInfo = "websocketpp-populate";
+		};
+		4049509F227841248F57895A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E92FDDF2DF344938AF6FC6FC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E22B97E407DD46F6BB70F025;
+			remoteInfo = ZERO_CHECK;
+		};
+		6D8BB7A483D046CD874B71CA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E92FDDF2DF344938AF6FC6FC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E22B97E407DD46F6BB70F025;
+			remoteInfo = ZERO_CHECK;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		40AD3859A79746D9A19B6997 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		A211B03CD32A4F4EAEFA21FC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		003F08D991574B1F8A9C49C3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2D64AFC0BD1C49BBAF91A3C2 /* websocketpp-populate */ = {
+			isa = PBXGroup;
+			children = (
+				B77A75AA5C0744B681A9B25C /* CMake Rules */,
+				A211B03CD32A4F4EAEFA21FC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeLists.txt */,
+			);
+			name = "websocketpp-populate";
+			sourceTree = "<group>";
+		};
+		3EA5DEB14FC84E87BCE4F047 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		75EE2D6C43B6409FAAB36ED7 /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				9C176C2202044EF985A58EC4 /* CMake Rules */,
+				40AD3859A79746D9A19B6997 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		9C176C2202044EF985A58EC4 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		B77A75AA5C0744B681A9B25C /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		C85F85C5CF9A4465A1011639 = {
+			isa = PBXGroup;
+			children = (
+				2D64AFC0BD1C49BBAF91A3C2 /* websocketpp-populate */,
+				75EE2D6C43B6409FAAB36ED7 /* ALL_BUILD */,
+				003F08D991574B1F8A9C49C3 /* Products */,
+				3EA5DEB14FC84E87BCE4F047 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		E92FDDF2DF344938AF6FC6FC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1340;
+			};
+			buildConfigurationList = E9EC3F5A27024754A11F9D15 /* Build configuration list for PBXProject "websocketpp-populate" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				3246FB7CBE4F4E37A4EBF556 /* Debug */,
+				89892C5260D8461793566C00 /* Release */,
+				ABC096C95B6D44D88A6BDA16 /* MinSizeRel */,
+				A7A2568F4B2746CE911C04E3 /* RelWithDebInfo */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = C85F85C5CF9A4465A1011639;
+			projectDirPath = .;
+			projectRoot = "";
+			targets = (
+				9FE82356CA6E43B5A9644B9F /* ALL_BUILD */,
+				E22B97E407DD46F6BB70F025 /* ZERO_CHECK */,
+				DEAA386E27DE44DBADCBBAC2 /* websocketpp-populate */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0F9C488ADC3F44AC132AFB48 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-patch */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-update"			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-patch";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-patch"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-patch
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-patch
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-patch
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-patch
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		10EEA14F6C6D635999FC201C /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-update */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-download"			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-update";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-update"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-update
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-update
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-update
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-update
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		1833413F6A71012AC001447C = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		2659BD2033858CDE499CC008 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-test */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-install"			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-test";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-test"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-test
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-test
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-test
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-test
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		3C0110FC8322DE7E50886E21 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		55B32C1A67808E3919388BB1 /* Generate CMakeFiles/ALL_BUILD */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ALL_BUILD";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/ALL_BUILD"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  echo Build\\ all\\ projects
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		5AB48FC5B49544ADBABC8E1A /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-configure */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-patch","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/tmp/websocketpp-populate-cfgcmd.txt"			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-configure";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-configure"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-configure
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-configure
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-configure
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-configure
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		617210C12BF31390E344A7DA /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-install */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-build"			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-install";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-install"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-install
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-install
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-install
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-install
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		705A74B245FB49536DAAFD84 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-mkdir */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-mkdir";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-mkdir"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/tmp/websocketpp-populate-mkdirs.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-mkdir
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/tmp/websocketpp-populate-mkdirs.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-mkdir
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/tmp/websocketpp-populate-mkdirs.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-mkdir
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/tmp/websocketpp-populate-mkdirs.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-mkdir
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		921B4B81CE0C035759060562 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-build */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-configure"			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-build";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-build"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-build
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-build
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-build
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-build
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E echo_append
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-build
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		9B50530E35CC49C82C2FACCF = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		B53024ABF490736E945D2810 /* Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-download */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-mkdir","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/download-websocketpp-populate.cmake","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/websocketpp-populate-urlinfo.txt"			);
+			name = "Generate websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-download";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-download"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/download-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/verify-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/extract-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-download
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/download-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/verify-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/extract-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-download
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/download-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/verify-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/extract-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-download
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/download-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/verify-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -P /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/extract-websocketpp-populate.cmake
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-download
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		E09DFA54D1930C7D253F70BD /* Generate CMakeFiles/ZERO_CHECK */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ZERO_CHECK";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/ZERO_CHECK"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  make -f /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  make -f /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  make -f /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  make -f /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeScripts/ReRunCMake.make
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		EC67DB73EFBFB594C211C3E9 /* Generate CMakeFiles/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-complete */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-build","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-configure","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-download","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-install","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-mkdir","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-patch","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-test","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-update"			);
+			name = "Generate CMakeFiles/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-complete";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-complete"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E make_directory /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-complete
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-done
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E make_directory /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-complete
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-done
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E make_directory /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-complete
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-done
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E make_directory /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-complete
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -E touch /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/$CONFIGURATION$EFFECTIVE_PLATFORM_NAME/websocketpp-populate-done
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		F149A7D017551B51631F5B17 /* Generate CMakeFiles/websocketpp-populate */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)/websocketpp-populate-complete"			);
+			name = "Generate CMakeFiles/websocketpp-populate";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/websocketpp-populate"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+fi
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+fi
+if test \"$CONFIGURATION\" = \"MinSizeRel\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		267D2262214140E0BBC1E009 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DEAA386E27DE44DBADCBBAC2 /* websocketpp-populate */;
+			targetProxy = 102645A83F3E49C8B4B380F7 /* PBXContainerItemProxy */;
+		};
+		283A59CE4FC94AD294910D53 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E22B97E407DD46F6BB70F025 /* ZERO_CHECK */;
+			targetProxy = 6D8BB7A483D046CD874B71CA /* PBXContainerItemProxy */;
+		};
+		A4103263950C4F058E4EA4CE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E22B97E407DD46F6BB70F025 /* ZERO_CHECK */;
+			targetProxy = 4049509F227841248F57895A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		179F318483C44C90B8813C7E /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/build";
+			};
+			name = MinSizeRel;
+		};
+		3E3A7174660C47DC917BA596 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		3F08D4EAD347477FB2AAA643 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		6BF2BC4AD898401CA3D8C48C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		8B69A1F4BF5D406AB3E6F348 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/build";
+			};
+			name = Debug;
+		};
+		98DBC2CED46D415A966CB07F /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/build";
+			};
+			name = RelWithDebInfo;
+		};
+		9A723E96B86547EEA4D1A6E1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk;
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/build";
+			};
+			name = Release;
+		};
+		9B675736EC2A46C3BBB8C411 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		A57BDE6D73984843A70939AF /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		AC3F125101BF427A9655B9B8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		B79E063CF2724EE8A2C78042 /* MinSizeRel */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "websocketpp-populate";
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = MinSizeRel;
+		};
+		BBFBB6CA8E5D44EBB03FE4B7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "websocketpp-populate";
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		CAD415271EF94359A5023989 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "websocketpp-populate";
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		D8A82D1C05E844AB8AC858F8 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		EBB0D434E45F473385B62F0D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		FAD1DF0B3D5B41D78F3FC814 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "websocketpp-populate";
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2CC84847E9424BE9992FF05F /* Build configuration list for PBXAggregateTarget "websocketpp-populate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAD1DF0B3D5B41D78F3FC814 /* Debug */,
+				BBFBB6CA8E5D44EBB03FE4B7 /* Release */,
+				B79E063CF2724EE8A2C78042 /* MinSizeRel */,
+				CAD415271EF94359A5023989 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AD2FFC12155D45098A71A4C1 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC3F125101BF427A9655B9B8 /* Debug */,
+				3F08D4EAD347477FB2AAA643 /* Release */,
+				9B675736EC2A46C3BBB8C411 /* MinSizeRel */,
+				D8A82D1C05E844AB8AC858F8 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D81F6C18C34F44C4B555F036 /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EBB0D434E45F473385B62F0D /* Debug */,
+				6BF2BC4AD898401CA3D8C48C /* Release */,
+				A57BDE6D73984843A70939AF /* MinSizeRel */,
+				3E3A7174660C47DC917BA596 /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E9EC3F5A27024754A11F9D15 /* Build configuration list for PBXProject "websocketpp-populate" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B69A1F4BF5D406AB3E6F348 /* Debug */,
+				9A723E96B86547EEA4D1A6E1 /* Release */,
+				179F318483C44C90B8813C7E /* MinSizeRel */,
+				98DBC2CED46D415A966CB07F /* RelWithDebInfo */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E92FDDF2DF344938AF6FC6FC /* Project object */;
+}

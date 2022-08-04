@@ -1,0 +1,12 @@
+.deps
+.dirstamp
+*.o
+*.obj
+*.exe
+c_callback_wrapper
+callback_wrapper
+composed_[0-9]
+*.ilk
+*.manifest
+*.pdb
+*.tds

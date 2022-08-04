@@ -1,0 +1,139 @@
+/** \page reference.config Config Reference
+
+WebSocket++ uses a config template parameter to supply a number of compile time policy types and default numerical values for buffer sizes, timeouts, security behavior, etc. Swapping policies allows changing certain core library behavior designed to be pluggable.
+
+A custom config can be made standalone or can subclass one of the bundled configs and just override a few things.
+
+__Example__
+```
+// some config options may require additional includes or dependencies.
+// syslog logging policy, for example, requires <syslog.h>, 
+// the permessage deflate settings require zlib.
+#include <websocketpp/logger/syslog.hpp>
+#include <websocketpp/extensions/permessage_deflate/enabled.hpp>
+
+// Custom server config based on bundled asio config
+struct custom_server_config : public websocketpp::config::asio {
+	// Replace default stream logger with a syslog logger
+	typedef websocketpp::log::syslog<concurrency_type, websocketpp::log::elevel> elog_type;
+	typedef websocketpp::log::syslog<concurrency_type, websocketpp::log::alevel> alog_type;
+
+	// Reduce read buffer size to optimize for small messages
+	static const size_t connection_read_buffer_size = 1024;
+
+	// enable permessage_compress extension
+    struct permessage_deflate_config {};
+
+    typedef websocketpp::extensions::permessage_deflate::enabled
+        <permessage_deflate_config> permessage_deflate_type;
+};
+
+typedef websocketpp::server<custom_server_config> server_endpoint_type;
+```
+
+Core Config Options
+-------------------
+
+### Policies
+
+Policies are classes used to allow clean swapping of behavior without changing the core library
+
+| Typedef Name              | Effect                                 | Core policies |
+| ------------------------- | -------------------------------------- | ------------- |
+| concurrency_type          | Provides concurrency primitives        | **None** Stub to disable concurrency overhead & dependencies in single threaded environments |
+| ^                         | ^                                      | **Basic** Primities provided by the C++11 STL or Boost.Atomic |
+| elog_type                 | Provides error logging functionality                      | |
+| alog_type                 | Provides access logging functionality  | |
+| request_type              | Stores and manipulates HTTP requests   | |
+| response_type             | Stores and manipulates HTTP responses  | |
+| message_type              | Stores and manipulates WebSocket Messages | |
+| con_msg_manager_type      | Connection level message manager       | |
+| endpoint_msg_manager_type | Endpoint level message manager         | |
+| rng_type                  | Random Number Generation policy        | |
+| transport_type            | Provides network I/O and timers        | |
+| endpoint_base             | User overridable Endpoint base class   | |
+| connection_base           | User overridable Connection base class | |
+
+### Timeouts Values
+
+These represent the length of time (in ms) before the given operation is aborted
+
+| Field                   | Type | Default | Operation                   |
+| ----------------------- | ---- | ------- | --------------------------- |
+| timeout_open_handshake  | long | 5000    | Opening handshake           |
+| timeout_close_handshake | long | 5000    | Closing handshake           |
+| timeout_pong            | long | 5000    | No pong recieved after ping |
+
+### Performance tuning
+
+| Field                       | Type   | Default  | Meaning                                                            |
+| --------------------------- | ------ | -------- | ------------------------------------------------------------------ |
+| connection_read_buffer_size | size_t | 16384    | Size of the per-connection read buffer                             |
+| enable_multithreading       | bool   | true     | Disabling may reduce locking overhead for single threaded programs |
+
+#### Connection Read Buffer
+
+Each connection has an internal buffer of this size. A larger value will result in fewer trips through the library and less CPU overhead at the expense of increased memory usage per connection.
+
+If your application primarily deals in very large messages you may want to try setting this value higher.
+
+If your application has a lot of connections or primarily deals in small messages you may want to try setting this smaller.
+
+### Security settings
+
+| Field                  | Type   | Default | Effect                                 |
+| ---------------------- | ------ | ------- | -------------------------------------- |
+| drop_on_protocol_error | bool   | false   | Omit close handshake on protocol error |
+| silent_close           | bool   | false   | Don't return close codes or reasons    |
+| max_message_size       | size_t | 32MB    | WebSocket max message size limit       |
+| max_http_body_size     | size_t | 32MB    | HTTP Parser's max body size limit      |
+
+#### Drop on protocol error
+Drop connections on protocol error rather than sending a close frame. Off by default. This may result in legitimate messages near the error being dropped as well. It may free up resources otherwise spent dealing with misbehaving clients.
+
+#### Silent Close
+Silenct close suppresses the return of detailed connection close information during the closing handshake. This information is useful for debugging and presenting useful errors to end users but may be undesirable for security reasons in some production environments. Close reasons could be used by an attacker to confirm that the endpoint is out of resources or be used to identify the WebSocket implementation in use.
+
+Note: this will suppress *all* close codes, including those explicitly sent by local applications.
+
+#### Max message size
+Default value for the processor's maximum message size. Maximum message size determines the point at which the library will drop a connection with the message_too_big protocol error.
+
+#### Max HTTP header size
+Maximum body size determines the point at which the library will abort reading an HTTP message body and return the 413/request entity too large error.
+
+Transport Config Options
+------------------------
+
+### Policies
+
+Policies are classes used to allow clean swapping of behavior without changing the core library
+
+| Typedef Name     | Effect             |
+| ---------------- | ------------------ |
+| concurrency_type | Concurrency Policy |
+| elog_type        | Error logger type  |
+| alog_type        | Access logger type |
+| request_type     | HTTP request type  |
+| response_type    | HTTP response type |
+
+### Timeouts Values
+
+These represent the length of time (in ms) before the given operation is aborted
+
+| Field                    | Type | Default | Operation                                     |
+| ------------------------ | ---- | ------- | --------------------------------------------- |
+| timeout_socket_pre_init  | long | 5000    | Transport dependent                           |
+| timeout_proxy            | long | 5000    | Proxy handshake                               |
+| timeout_socket_post_init | long | 5000    | Transport dependent (commonly: TLS handshake) |
+| timeout_dns_resolve      | long | 5000    | DNS resolution                                |
+| timeout_connect          | long | 5000    | TCP Connect                                   |
+| timeout_socket_shutdown  | long | 5000    | Socket shutdown                               |
+
+### Performance tuning
+
+| Field                       | Type   | Default  | Meaning                                                            |
+| --------------------------- | ------ | -------- | ------------------------------------------------------------------ |
+| enable_multithreading       | bool   | true     | Disabling may reduce locking overhead for single threaded programs |
+
+*/

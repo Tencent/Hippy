@@ -1,0 +1,15 @@
+.deps
+.dirstamp
+*.o
+*.obj
+*.exe
+connect_pair
+stream_server
+stream_client
+iostream_client
+fd_passing_stream_server
+fd_passing_stream_client
+*.ilk
+*.manifest
+*.pdb
+*.tds

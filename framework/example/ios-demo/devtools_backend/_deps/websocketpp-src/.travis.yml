@@ -1,0 +1,30 @@
+language: cpp
+dist: bionic
+compiler:
+  - gcc
+addons:
+  apt:
+    packages:
+      - libboost-random-dev
+      - libboost-system-dev
+      - libboost-test-dev
+      - libboost-thread-dev
+      - zlib1g-dev
+      - cmake
+env:
+  global:
+    - BOOST_INCLUDES=/usr/include
+    - BOOST_LIBS=/usr/lib/x86_64-linux-gnu
+script: cmake -DBUILD_EXAMPLES=1 -DBUILD_TESTS=1 . && make -j 2 && make test
+branches:
+  except:
+    - 0.2.x
+    - experimental
+    - legacy
+
+notifications:
+  recipients:
+    - travis@zaphoyd.com
+  email:
+    on_success: change
+    on_failure: always

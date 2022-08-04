@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/CMakeFiles/json-populate"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/CMakeFiles/json-populate.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/CMakeFiles/CMakeFiles/json-populate-complete.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-build.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-configure.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-download.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-install.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-mkdir.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-patch.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-test.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-subbuild/json-populate-prefix/src/json-populate-stamp/CMakeFiles/json-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"json-populate"
+		],
+		"name" : "json-populate"
+	}
+}

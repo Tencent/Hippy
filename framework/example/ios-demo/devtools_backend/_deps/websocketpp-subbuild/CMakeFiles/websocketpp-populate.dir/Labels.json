@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/websocketpp-populate"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/websocketpp-populate.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/CMakeFiles/CMakeFiles/websocketpp-populate-complete.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-build.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-configure.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-download.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-install.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-mkdir.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-patch.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-test.rule"
+		},
+		{
+			"file" : "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-subbuild/websocketpp-populate-prefix/src/websocketpp-populate-stamp/CMakeFiles/websocketpp-populate-update.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"websocketpp-populate"
+		],
+		"name" : "websocketpp-populate"
+	}
+}

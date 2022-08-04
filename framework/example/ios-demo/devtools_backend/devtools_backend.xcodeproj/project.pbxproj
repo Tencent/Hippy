@@ -1,0 +1,1425 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		0BBB600DB4284DE0BB00A4C5 /* ZERO_CHECK */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 1CBA3A5C3250477EBC81D861 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */;
+			buildPhases = (
+				590A7F611DBD46FBAEC4338B /* Generate CMakeFiles/ZERO_CHECK */,
+			);
+			dependencies = (
+			);
+			name = ZERO_CHECK;
+			productName = ZERO_CHECK;
+		};
+		92805D2100E947AA89D94A7D /* ALL_BUILD */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 70BA1C3F35394B56920B7E1A /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */;
+			buildPhases = (
+				CF26660F8F03CEB8D4A6A5FE /* Generate CMakeFiles/ALL_BUILD */,
+			);
+			dependencies = (
+				D919CEC7731C41BE8A82A560 /* PBXTargetDependency */,
+				79C05F69830E4A4B8F916091 /* PBXTargetDependency */,
+				D1D83E0A28FD46538B003EB6 /* PBXTargetDependency */,
+			);
+			name = ALL_BUILD;
+			productName = ALL_BUILD;
+		};
+		97CDD163FB1F438B8FB6CCB7 /* install */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 08B4880F807F44FEB247099D /* Build configuration list for PBXAggregateTarget "install" */;
+			buildPhases = (
+				93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */,
+			);
+			dependencies = (
+				BA63F7FAFDBF434FB7762720 /* PBXTargetDependency */,
+			);
+			name = install;
+			productName = install;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		01FEFE45CFB6452EB7109D1F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/repeating_timer.cc */ = {isa = PBXBuildFile; fileRef = 084FEA5D9DB941C08F1CF265 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/repeating_timer.cc */; };
+		02C50FD846EE48969A40A4F3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_log_notification.cc */ = {isa = PBXBuildFile; fileRef = 9C429A2387BD496EA0AA779C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_log_notification.cc */; };
+		04C5EA44156948CD8808DB25 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */ = {isa = PBXBuildFile; fileRef = 07EDD7A8D19541A187DDF448 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */; };
+		0AFB1EA709AA4FDFB45B1E26 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/dom_model.cc */ = {isa = PBXBuildFile; fileRef = 5EBC2C4A877F4C21A20C7B75 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/dom_model.cc */; };
+		0B00F78087C946F0AA135D48 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */ = {isa = PBXBuildFile; fileRef = 2D4A5F358466439E8B985D07 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */; };
+		0CBFBF4401C04B1FA8F6675A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/css_domain.cc */ = {isa = PBXBuildFile; fileRef = 96463E5483654BED99EB4380 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/css_domain.cc */; };
+		0D9060F87746424EBD84692E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/frame_codec.cc */ = {isa = PBXBuildFile; fileRef = CEDB43B4E8644BFA9116D8AD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/frame_codec.cc */; };
+		100E5D6F0483452C85028C64 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task.cc */ = {isa = PBXBuildFile; fileRef = 6692243B9CBE47ABA9806DDF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task.cc */; };
+		12987E2B8FE44D899265A655 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */ = {isa = PBXBuildFile; fileRef = B41E6D417C2D4BC0B640B0F4 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */; };
+		1500DD08AB1E45D58CF76237 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/looper_driver.cc */ = {isa = PBXBuildFile; fileRef = 101622D5458C48B082E401E5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/looper_driver.cc */; };
+		15A1894D8B734712ABD56630 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */ = {isa = PBXBuildFile; fileRef = 3C72A2456887459C8C026C52 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */; };
+		1A2053F532FE4D888C6CBB5F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_for_location_request.cc */ = {isa = PBXBuildFile; fileRef = 97AFC051612A44B987CE88E6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_for_location_request.cc */; };
+		1D8A8411A11F4261B6E73250 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */ = {isa = PBXBuildFile; fileRef = CB31B1C03B6447A6B7548D91 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */; };
+		1DAB7DC28F5F4D409BDD424E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/worker_impl.cc */ = {isa = PBXBuildFile; fileRef = F5B0AE9D56124BBB8B8EF487 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/worker_impl.cc */; };
+		200E43215CAB41BB9C705414 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_memory_domain.cc */ = {isa = PBXBuildFile; fileRef = D64AC469463E47FD9D475AFF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_memory_domain.cc */; };
+		234F42CD9119404F92C2A39B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/memory_metas.cc */ = {isa = PBXBuildFile; fileRef = C5B3D85D03CE427E96F89D6F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/memory_metas.cc */; };
+		23C2C1741ED9455CBEC31846 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */ = {isa = PBXBuildFile; fileRef = 438839E396F44E3087DF0BD4 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */; };
+		24FE3A440FA64BD9A221EBAC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_model.cc */ = {isa = PBXBuildFile; fileRef = E0D84B9BC16A409F9364115F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_model.cc */; };
+		26303C5E737C47769FF986F3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/deserializer.cc */ = {isa = PBXBuildFile; fileRef = B00D20871596472F8B80BAFB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/deserializer.cc */; };
+		27F81F1FE61C4AE09A54AD41 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */ = {isa = PBXBuildFile; fileRef = 5EBCC5CE6CD4418490815BEF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */; };
+		291C5C92ADD0489EA0BF45C1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */ = {isa = PBXBuildFile; fileRef = AC41BB98A2D54722BCB2B7AB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */; };
+		2B67C957D6944B4D8DF2B789 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings_state.cc */ = {isa = PBXBuildFile; fileRef = 5F7A78A16A5344329EA47B8E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings_state.cc */; };
+		2C2813E9D958480BBEF04163 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_inspector_domain.cc */ = {isa = PBXBuildFile; fileRef = E05A51A8DE384CDCA7ABC196 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_inspector_domain.cc */; };
+		2D50E0DB5B6547EC871D43CD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */ = {isa = PBXBuildFile; fileRef = 9D1ECC332A1E4381AAD547F1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */; };
+		31D8CE957D2B4249A48DABDB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */ = {isa = PBXBuildFile; fileRef = 4321462F175A4A338DD2FD00 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */; };
+		32A1C5673FDF4FBDA9C861BB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */ = {isa = PBXBuildFile; fileRef = 295A9CB8E5F54E43B154B689 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */; };
+		32CC7DB5027C4A90A477C309 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/css_model.cc */ = {isa = PBXBuildFile; fileRef = 17134C504072458C85071EFA /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/css_model.cc */; };
+		35758E51D67148FC9C39589A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 794E701621F54579BBD60911 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/CMakeLists.txt */; };
+		36681B37EA6042689EE79480 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/selected_render_object_request.cc */ = {isa = PBXBuildFile; fileRef = D34FD61B21ED448488E77B05 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/selected_render_object_request.cc */; };
+		372C953F9BF7410A92B43E8C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker.cc */ = {isa = PBXBuildFile; fileRef = 3823244500CB4A75AE4CA041 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker.cc */; };
+		3A490776A55849A897053884 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_node_metas.cc */ = {isa = PBXBuildFile; fileRef = 61437974B86544449C7ED81E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_node_metas.cc */; };
+		3A90C957E1844DDC837F3338 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/serializer.cc */ = {isa = PBXBuildFile; fileRef = 5437F50B1635466A8516B4C6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/serializer.cc */; };
+		3B63A2991B4B4C278FE200B1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */ = {isa = PBXBuildFile; fileRef = BD7140DD61354D6EABD3CFED /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */; };
+		3CA8F723650F4EA688687700 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/trace_event_metas.cc */ = {isa = PBXBuildFile; fileRef = 20F0435F679C49498BBD9FF9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/trace_event_metas.cc */; };
+		3E027FC03C874C7E86F689F3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */ = {isa = PBXBuildFile; fileRef = 61C8C5E992664E1F8CEDE6B0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */; };
+		4086F0521476438FA5B48E9E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_response.cc */ = {isa = PBXBuildFile; fileRef = 4E206A6998A34E91912FAB4A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_response.cc */; };
+		40A8190981694F57AAC63EAF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_timer.cc */ = {isa = PBXBuildFile; fileRef = 7264ADB15D8D4781AECEA090 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_timer.cc */; };
+		423902062CF947FB82925C6E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */ = {isa = PBXBuildFile; fileRef = E0C19C55C52A493F87B8555F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */; };
+		43767EBE87B547B181A9A627 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */ = {isa = PBXBuildFile; fileRef = AEEBE22A42314BBB84395943 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */; };
+		45722520D2E64227A3E9339A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */ = {isa = PBXBuildFile; fileRef = 673C4794ED5A4EBB951D675E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */; };
+		466DFCD3FF30411B87058016 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */ = {isa = PBXBuildFile; fileRef = 8688C9A35CA7481EAAF38681 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */; };
+		477543F7976646D4BDAC41E8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */ = {isa = PBXBuildFile; fileRef = 1037A9BCF2D44E1E895AE7E6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */; };
+		4894602545D74AFDBEF70869 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */ = {isa = PBXBuildFile; fileRef = 53E4B656F63846E2A042D01D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */; };
+		48C18FC219B341BCB7E4D8C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_runtime_domain.cc */ = {isa = PBXBuildFile; fileRef = 0D46B138727C49258C8B23A6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_runtime_domain.cc */; };
+		4A55C8E604E243748252C136 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain_dispatch.cc */ = {isa = PBXBuildFile; fileRef = 04CB3E143CBD456E8777B6EF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain_dispatch.cc */; };
+		4AE165B4A75241F9AB0D7737 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_nodes_request.cc */ = {isa = PBXBuildFile; fileRef = 10A68C35E29E4622AB4FAD70 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_nodes_request.cc */; };
+		4B05BEEC0D114204A9E05ED6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */ = {isa = PBXBuildFile; fileRef = AF6DFA55A1864F62B800F63D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */; };
+		4CAE8778A1A741998974DA3D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */ = {isa = PBXBuildFile; fileRef = 130173352A3C4A1A82068E8A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */; };
+		4F0F0C54D9D04293ABFB6065 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/frame_poll_model.cc */ = {isa = PBXBuildFile; fileRef = 426303BD5F4748AFA388D794 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/frame_poll_model.cc */; };
+		505C0076971B42ECBDFB7A9C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeFiles/devtools_backend.dir/Info.plist */ = {isa = PBXBuildFile; fileRef = FD1AD549720F4A9BB82B6859 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeFiles/devtools_backend.dir/Info.plist */; };
+		5478F719031046668EC99AAF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */ = {isa = PBXBuildFile; fileRef = 28354C576C044C6F8DEE9737 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */; };
+		54E5682AEB2D43F8B8C3A23C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_task.cc */ = {isa = PBXBuildFile; fileRef = 87B07812A42643519B144B7E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_task.cc */; };
+		56E44AAAD34C444CAD4E0EA2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */ = {isa = PBXBuildFile; fileRef = 8F7B3B183C9F4656BABE16F8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */; };
+		5B27E6A1BF8942679355D67F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */ = {isa = PBXBuildFile; fileRef = 2CED16F626674A50AF253730 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */; };
+		5B319270E62044F2AD7072F3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/tcp_channel.cc */ = {isa = PBXBuildFile; fileRef = 40E17A7E115E405C98E95532 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/tcp_channel.cc */; };
+		5BA36B00AF2742A482F5A88C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_performance_domain.cc */ = {isa = PBXBuildFile; fileRef = 6FA03B7A0CD5479A979BB074 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_performance_domain.cc */; };
+		5DE86FBEEF3940B29F8AABA2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */ = {isa = PBXBuildFile; fileRef = D9BB4304F1574D3182991FB7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */; };
+		5F80C415349F493CAB316262 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/network_response_body_request.cc */ = {isa = PBXBuildFile; fileRef = 8EFD293A3CF24BBF8C4DBEFD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/network_response_body_request.cc */; };
+		5FF6C75C6EBA467AB6F14AC8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */ = {isa = PBXBuildFile; fileRef = 9382FE28DD9D457D8A591506 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */; };
+		601E0F5891A94E2A9C80BAD1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */ = {isa = PBXBuildFile; fileRef = C033BB0B741845AA91C47ABE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */; };
+		663C9FF60EB94D71B8432FE8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */ = {isa = PBXBuildFile; fileRef = 36AEF6534D3A4FE996EDDFBF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */; };
+		6B3009AF9F5C4461A2DB8BA2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */ = {isa = PBXBuildFile; fileRef = 4D3BDF6FCFEB4C8D948D0C5B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */; };
+		6C246272B37D430682801902 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */ = {isa = PBXBuildFile; fileRef = 7BDDF5617B75479D9EB99814 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */; };
+		6D05244B7BC24C67BE49BB98 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_runtime_notification.cc */ = {isa = PBXBuildFile; fileRef = B7BB420E84AD4F12873E419D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_runtime_notification.cc */; };
+		7045C61D345E45B89DB25809 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */ = {isa = PBXBuildFile; fileRef = 7B3F55F1DEBD45ABADF9FB08 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */; };
+		723243CFB7D44661AD192E56 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tunnel_service.cc */ = {isa = PBXBuildFile; fileRef = E3C9EE45555C4172A2026A12 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tunnel_service.cc */; };
+		73D85C54E7494FDF91D13147 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/base_timer.cc */ = {isa = PBXBuildFile; fileRef = DBAC06FAA2B645CB8377BA9C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/base_timer.cc */; };
+		74BF6FFE43AD4666BE4EC163 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */ = {isa = PBXBuildFile; fileRef = EFE0610F7D23496FB06BA9F1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */; };
+		766DB07292A64DABAFE66BFD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */ = {isa = PBXBuildFile; fileRef = C131C95BE9424B14A583A123 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */; };
+		768C07E8360043A9A4C4540F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */ = {isa = PBXBuildFile; fileRef = 7CAB31479A4244A088ED7D0C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */; };
+		77349C93FAAE4DA28C58B644 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/socket.cc */ = {isa = PBXBuildFile; fileRef = 07AD83CA331B40C39F0A9988 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/socket.cc */; };
+		7BD8DDDCB935473A80599B46 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_push_node_path_metas.cc */ = {isa = PBXBuildFile; fileRef = 52599E3F270B4880821758AD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_push_node_path_metas.cc */; };
+		81D7B52A14DD4B6188C343ED /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */ = {isa = PBXBuildFile; fileRef = 9FCB220278BC4BCE9AC663C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */; };
+		84B2E73A55CA4F9FADCA72D0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/screen_shot_request.cc */ = {isa = PBXBuildFile; fileRef = 9C059E43F07E4252AB38FB48 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/screen_shot_request.cc */; };
+		86B5488245774F6A8215FAE1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */ = {isa = PBXBuildFile; fileRef = F1C3C03F26424C869076B999 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */; };
+		89F62831892B4AECBFAD9E95 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */ = {isa = PBXBuildFile; fileRef = 80CB0BD74408484A8788567F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */; };
+		89FDC95CD11547DCBFDB560F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings.cc */ = {isa = PBXBuildFile; fileRef = 9E8088A878C445838D913FC8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings.cc */; };
+		8A2BC6A7167C4EBAB0002662 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */ = {isa = PBXBuildFile; fileRef = 074FCA5F5F9A4709B3169BC3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */; };
+		8AE7FE4A14A9434B9C887198 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task_runner.cc */ = {isa = PBXBuildFile; fileRef = E1164F65E6B4418FBD235DAE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task_runner.cc */; };
+		8FEACF2C4BE047F18DB7B348 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_loading_finished.cc */ = {isa = PBXBuildFile; fileRef = FA05D4FDBD18409B89917B0E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_loading_finished.cc */; };
+		90B4C81AD3B54CBEBEAFA07A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_edit_style_texts_request.cc */ = {isa = PBXBuildFile; fileRef = 2065A66AFC274546915A05C7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_edit_style_texts_request.cc */; };
+		944F80C7A0F7426B939A9430 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */ = {isa = PBXBuildFile; fileRef = AB5AA240FC3F4B72AD7DA892 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */; };
+		9558790D2B2745149FED7847 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_request.cc */ = {isa = PBXBuildFile; fileRef = DA85CB1C45DC45C9B027C620 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_request.cc */; };
+		973DABA396A2495380A8FFCE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/net_channel.cc */ = {isa = PBXBuildFile; fileRef = A05F66CAB7384F9DA0EDCA02 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/net_channel.cc */; };
+		9866DD9A7E974109AC9449AC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/CMakeLists.txt */ = {isa = PBXBuildFile; fileRef = 3DE76E34D13B47249F4C3587 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/CMakeLists.txt */; };
+		9B4E59B6FA8245708F702E44 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/devtools_backend_service.cc */ = {isa = PBXBuildFile; fileRef = 7E426803F72F4494A5EC8F18 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/devtools_backend_service.cc */; };
+		9E94C110DD3E4AF2B725A4FE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_metas.cc */ = {isa = PBXBuildFile; fileRef = CDA1F803DAD44787806A811E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_metas.cc */; };
+		A289A2A1AD08487095262546 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */ = {isa = PBXBuildFile; fileRef = 5DA1F4D8887A4F9B82574D47 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */; };
+		A5BBE687973649A0905204D2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */ = {isa = PBXBuildFile; fileRef = F73C982011F543D9BF8FD69B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */; };
+		A7AA47580C7D4C7880A634F7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */ = {isa = PBXBuildFile; fileRef = F7071366243940B6A3B842BD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */; };
+		A993FD5883F547F38EE0C854 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */ = {isa = PBXBuildFile; fileRef = C3BC5F0A098A4FB4B0B43DD5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */; };
+		B021B7AEF69B41CDB65E4824 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */ = {isa = PBXBuildFile; fileRef = 1D7EED1CE6A44F439E8FE5B7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */; };
+		B0DCA34F91764728B30A46E3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/page_domain.cc */ = {isa = PBXBuildFile; fileRef = 28F5905A01104C2DB9EE6C71 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/page_domain.cc */; };
+		B6A46708F4EB463391A6AD57 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */ = {isa = PBXBuildFile; fileRef = 1FF41EEFAD6546198EFE08A9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */; };
+		B84EB1BACB384C199A73A39C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/base_domain.cc */ = {isa = PBXBuildFile; fileRef = 0A0BB93A822C4763969393B5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/base_domain.cc */; };
+		B8B231D0337943F8ACCD5694 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/infa_packages/dom/CMakeFiles/footstone.dir/Info.plist */ = {isa = PBXBuildFile; fileRef = E03B16E52FFB4509AAAF8099 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/infa_packages/dom/CMakeFiles/footstone.dir/Info.plist */; };
+		BF8D584453B14F4094C88D5D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */ = {isa = PBXBuildFile; fileRef = D827345EE2274107968ECBAB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */; };
+		C23600D99E8D408EB8316FCA /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/unicode_string_view.cc */ = {isa = PBXBuildFile; fileRef = FF34D956303948A083E38D5A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/unicode_string_view.cc */; };
+		C3139CCBCE5441C09281AE6C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */ = {isa = PBXBuildFile; fileRef = C14D4C0C6FDD4972A6F086CF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */; };
+		C32B887ADCF64C1786B16E3B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_data_request.cc */ = {isa = PBXBuildFile; fileRef = A2177345AD6E4ACEBA6940D1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_data_request.cc */; };
+		C455DBB5A82C41A890D63519 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/cv_driver.cc */ = {isa = PBXBuildFile; fileRef = E2D94B30DDA945F594672966 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/cv_driver.cc */; };
+		C55A3857CF494B4F845CE3B6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */ = {isa = PBXBuildFile; fileRef = 43016D0265E54627B9D50EAB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */; };
+		C5890B7B65D94C3B9F78E21D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/hippy_value.cc */ = {isa = PBXBuildFile; fileRef = 0E4AAA7FB0F649C9B8FDA99D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/hippy_value.cc */; };
+		C659A060CE2743488A62975B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_node_by_path_request.cc */ = {isa = PBXBuildFile; fileRef = FB00A218F97C412B83BD282F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_node_by_path_request.cc */; };
+		C86AA69047524CF8B2806B2C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_response.cc */ = {isa = PBXBuildFile; fileRef = 9C62BCDE45AC41A7A92B2EB9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_response.cc */; };
+		C8F2942F3A794631B7FB7D24 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */ = {isa = PBXBuildFile; fileRef = 39C1051D47E647BA9C4260EF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */; };
+		C916E4FBCC8848DD950143EC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_node_data_request.cc */ = {isa = PBXBuildFile; fileRef = 6E41B8FFC3A6466E8D5FBF5E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_node_data_request.cc */; };
+		CA3D3A5ED3C249D5B45EF819 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/one_shot_timer.cc */ = {isa = PBXBuildFile; fileRef = FDBB4061B6B54CED98554B6A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/one_shot_timer.cc */; };
+		CB735BC6D8594BE3AC4EB695 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker_manager.cc */ = {isa = PBXBuildFile; fileRef = 3A12A3049898411E85791BC1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker_manager.cc */; };
+		CBDC636F27EC4997BD828027 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */ = {isa = PBXBuildFile; fileRef = B0387CEA62EC48D8A2161AEC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */; };
+		CE736B57498C4EBCB4D67A29 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/string_utils.cc */ = {isa = PBXBuildFile; fileRef = 80CEF04730C24029B646181D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/string_utils.cc */; };
+		D09E4BAA5933454EA1317681 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */ = {isa = PBXBuildFile; fileRef = ABDA5153EBCE4DB0829217B0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */; };
+		D576414C7E23482193299F03 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */ = {isa = PBXBuildFile; fileRef = 3FF3195F719645FEAA110D4D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */; };
+		E16E1DA963D649A89BCD893E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */ = {isa = PBXBuildFile; fileRef = 395848B75038418F86344F49 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */; };
+		E1A07C0179CD462EB05A4D11 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/domain_metas.cc */ = {isa = PBXBuildFile; fileRef = 12CFECD2A64E49CE8A18C42F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/domain_metas.cc */; };
+		E36539FD299A43E5A383F6B1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */ = {isa = PBXBuildFile; fileRef = BE5C4BD8FD7E4AB5A12F4CA9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */; };
+		E4AB8431B62C4F6CA7B2B091 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_location.cc */ = {isa = PBXBuildFile; fileRef = 7D68337CE25E467DB1B1F84A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_location.cc */; };
+		E58533DF88784165981565E0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */ = {isa = PBXBuildFile; fileRef = 4CB7AD480A564D2E87AF72F2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */; };
+		E75C6F5FCF5D4179A8C4BB61 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */ = {isa = PBXBuildFile; fileRef = 28F268D963A44C088BFEF4C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */; };
+		E786F4CCBC1042A288B72165 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */ = {isa = PBXBuildFile; fileRef = 5CAD3A717CC64542B1A9D877 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */; };
+		EAE4487E01F042E4A2141DB0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/ws/web_socket_channel.cc */ = {isa = PBXBuildFile; fileRef = 67F4479BF47D405EA9D16A3D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/ws/web_socket_channel.cc */; };
+		F03B4ABF36DE4B5F9C722243 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */ = {isa = PBXBuildFile; fileRef = 3F599837DDBF4A42B6B0A452 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */; };
+		F38631652A9449E28F1F6FC5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/dom_domain.cc */ = {isa = PBXBuildFile; fileRef = D21193FAF5AA4086877FCFD0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/dom_domain.cc */; };
+		F4A00EE2EAD14927B3713B2A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_network_notification.cc */ = {isa = PBXBuildFile; fileRef = 36A263F356514501AE6F5B92 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_network_notification.cc */; };
+		F5334C3EC7254E2085C2C5E0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/network_domain.cc */ = {isa = PBXBuildFile; fileRef = 8E4D9C43DBF745368171CA2A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/network_domain.cc */; };
+		F6651F05B3084024877BBA99 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */ = {isa = PBXBuildFile; fileRef = E0E7D2163208467086DC1EB0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */; };
+		F747D8BA6D544E528FFA38B3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */ = {isa = PBXBuildFile; fileRef = 23FEED65B9F44D429EAA5C1F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */; };
+		F7779523991F4A1C8124DA64 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */ = {isa = PBXBuildFile; fileRef = 7063A08E5CF64B32A4394848 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */; };
+		FCE2E8EB4A054DD4B09EDCE1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/logging.cc */ = {isa = PBXBuildFile; fileRef = ACB1545400A04762B0903088 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/logging.cc */; };
+		FF6FC5E6FC2644D588DA23E5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */ = {isa = PBXBuildFile; fileRef = 60C21425BDFD450EA7C7A1B6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */; };
+		FF8DB44B01F2473199448476 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */ = {isa = PBXBuildFile; fileRef = 0257A667707D4BB6AE3FBA3D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildStyle section */
+		0A8B0CF8EF89465C887F305E /* RelWithDebInfo */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = RelWithDebInfo;
+		};
+		14FE8C28BCA649E6911CBD02 /* Debug */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		AEF52CA3C3C74BBE836BD7DE /* Release */ = {
+			isa = PBXBuildStyle;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Release;
+		};
+/* End PBXBuildStyle section */
+
+/* Begin PBXContainerItemProxy section */
+		01B515C29C8743AF982201A7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E34F7CE88E194BD5BDD618F0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AD867BD370724FCD891FFAF2;
+			remoteInfo = devtools_backend;
+		};
+		0749EBABCE8B4D57AC90FAAB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E34F7CE88E194BD5BDD618F0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 92805D2100E947AA89D94A7D;
+			remoteInfo = ALL_BUILD;
+		};
+		20BF89A425D14DE5A319D737 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E34F7CE88E194BD5BDD618F0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6F1B074F51A94C38B4D9E543;
+			remoteInfo = footstone;
+		};
+		34BD0A1C2A9446AB93CA1D27 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E34F7CE88E194BD5BDD618F0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0BBB600DB4284DE0BB00A4C5;
+			remoteInfo = ZERO_CHECK;
+		};
+		4926B627FC0447D6992BDE51 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E34F7CE88E194BD5BDD618F0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0BBB600DB4284DE0BB00A4C5;
+			remoteInfo = ZERO_CHECK;
+		};
+		C64096EC3CE44AB9A31582F8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E34F7CE88E194BD5BDD618F0 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6F1B074F51A94C38B4D9E543;
+			remoteInfo = footstone;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0257A667707D4BB6AE3FBA3D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = string_utils.h; path = ../../modules/footstone/include/footstone/string_utils.h; sourceTree = SOURCE_ROOT; };
+		04CB3E143CBD456E8777B6EF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain_dispatch.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_dispatch.cc; path = src/module/domain_dispatch.cc; sourceTree = SOURCE_ROOT; };
+		074FCA5F5F9A4709B3169BC3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = worker_manager.h; path = ../../modules/footstone/include/footstone/worker_manager.h; sourceTree = SOURCE_ROOT; };
+		07AD83CA331B40C39F0A9988 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/socket.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = socket.cc; path = src/tunnel/tcp/socket.cc; sourceTree = SOURCE_ROOT; };
+		07EDD7A8D19541A187DDF448 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; name = platform; path = ../../modules/footstone/include/footstone/platform; sourceTree = SOURCE_ROOT; };
+		084FEA5D9DB941C08F1CF265 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/repeating_timer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = repeating_timer.cc; path = ../../modules/footstone/src/repeating_timer.cc; sourceTree = SOURCE_ROOT; };
+		0A0BB93A822C4763969393B5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/base_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = base_domain.cc; path = src/module/domain/base_domain.cc; sourceTree = SOURCE_ROOT; };
+		0D46B138727C49258C8B23A6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_runtime_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_runtime_domain.cc; path = src/module/domain/tdf_runtime_domain.cc; sourceTree = SOURCE_ROOT; };
+		0E4AAA7FB0F649C9B8FDA99D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/hippy_value.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = hippy_value.cc; path = ../../modules/footstone/src/hippy_value.cc; sourceTree = SOURCE_ROOT; };
+		101622D5458C48B082E401E5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/looper_driver.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = looper_driver.cc; path = ../../modules/footstone/src/platform/ios/looper_driver.cc; sourceTree = SOURCE_ROOT; };
+		1037A9BCF2D44E1E895AE7E6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = time_delta.h; path = ../../modules/footstone/include/footstone/time_delta.h; sourceTree = SOURCE_ROOT; };
+		10A68C35E29E4622AB4FAD70 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_nodes_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_push_nodes_request.cc; path = src/module/request/dom_push_nodes_request.cc; sourceTree = SOURCE_ROOT; };
+		12CFECD2A64E49CE8A18C42F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/domain_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = domain_metas.cc; path = src/api/adapter/data/domain_metas.cc; sourceTree = SOURCE_ROOT; };
+		130173352A3C4A1A82068E8A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = deserializer.h; path = ../../modules/footstone/include/footstone/deserializer.h; sourceTree = SOURCE_ROOT; };
+		17134C504072458C85071EFA /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/css_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_model.cc; path = src/module/model/css_model.cc; sourceTree = SOURCE_ROOT; };
+		1D7EED1CE6A44F439E8FE5B7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = repeating_timer.h; path = ../../modules/footstone/include/footstone/repeating_timer.h; sourceTree = SOURCE_ROOT; };
+		1FF41EEFAD6546198EFE08A9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = task_runner.h; path = ../../modules/footstone/include/footstone/task_runner.h; sourceTree = SOURCE_ROOT; };
+		2065A66AFC274546915A05C7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_edit_style_texts_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_edit_style_texts_request.cc; path = src/module/request/css_edit_style_texts_request.cc; sourceTree = SOURCE_ROOT; };
+		20F0435F679C49498BBD9FF9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/trace_event_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = trace_event_metas.cc; path = src/api/adapter/data/trace_event_metas.cc; sourceTree = SOURCE_ROOT; };
+		23FEED65B9F44D429EAA5C1F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = macros.h; path = ../../modules/footstone/include/footstone/macros.h; sourceTree = SOURCE_ROOT; };
+		28354C576C044C6F8DEE9737 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = task.h; path = ../../modules/footstone/include/footstone/task.h; sourceTree = SOURCE_ROOT; };
+		28F268D963A44C088BFEF4C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = serializer.h; path = ../../modules/footstone/include/footstone/serializer.h; sourceTree = SOURCE_ROOT; };
+		28F5905A01104C2DB9EE6C71 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/page_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = page_domain.cc; path = src/module/domain/page_domain.cc; sourceTree = SOURCE_ROOT; };
+		295A9CB8E5F54E43B154B689 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = logging.h; path = ../../modules/footstone/include/footstone/logging.h; sourceTree = SOURCE_ROOT; };
+		2CED16F626674A50AF253730 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = log_settings.h; path = ../../modules/footstone/include/footstone/log_settings.h; sourceTree = SOURCE_ROOT; };
+		2D4A5F358466439E8B985D07 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = one_shot_timer.h; path = ../../modules/footstone/include/footstone/one_shot_timer.h; sourceTree = SOURCE_ROOT; };
+		36A263F356514501AE6F5B92 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_network_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_network_notification.cc; path = src/api/notification/default/default_network_notification.cc; sourceTree = SOURCE_ROOT; };
+		36AEF6534D3A4FE996EDDFBF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = hippy_value.h; path = ../../modules/footstone/include/footstone/hippy_value.h; sourceTree = SOURCE_ROOT; };
+		3823244500CB4A75AE4CA041 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = worker.cc; path = ../../modules/footstone/src/worker.cc; sourceTree = SOURCE_ROOT; };
+		395848B75038418F86344F49 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = driver.h; path = ../../modules/footstone/include/footstone/driver.h; sourceTree = SOURCE_ROOT; };
+		39C1051D47E647BA9C4260EF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = hash.h; path = ../../modules/footstone/include/footstone/hash.h; sourceTree = SOURCE_ROOT; };
+		3A12A3049898411E85791BC1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker_manager.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = worker_manager.cc; path = ../../modules/footstone/src/worker_manager.cc; sourceTree = SOURCE_ROOT; };
+		3C72A2456887459C8C026C52 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = log_level.h; path = ../../modules/footstone/include/footstone/log_level.h; sourceTree = SOURCE_ROOT; };
+		3DE76E34D13B47249F4C3587 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = ../../modules/footstone/CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		3F599837DDBF4A42B6B0A452 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = base_time.h; path = ../../modules/footstone/include/footstone/base_time.h; sourceTree = SOURCE_ROOT; };
+		3FF3195F719645FEAA110D4D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = idle_task.h; path = ../../modules/footstone/include/footstone/idle_task.h; sourceTree = SOURCE_ROOT; };
+		40E17A7E115E405C98E95532 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/tcp_channel.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tcp_channel.cc; path = src/tunnel/tcp/tcp_channel.cc; sourceTree = SOURCE_ROOT; };
+		426303BD5F4748AFA388D794 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/frame_poll_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = frame_poll_model.cc; path = src/module/model/frame_poll_model.cc; sourceTree = SOURCE_ROOT; };
+		43016D0265E54627B9D50EAB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = worker.h; path = ../../modules/footstone/include/footstone/worker.h; sourceTree = SOURCE_ROOT; };
+		4321462F175A4A338DD2FD00 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = serializer.h; path = ../../modules/footstone/include/footstone/serializer.h; sourceTree = SOURCE_ROOT; };
+		438839E396F44E3087DF0BD4 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = idle_timer.h; path = ../../modules/footstone/include/footstone/idle_timer.h; sourceTree = SOURCE_ROOT; };
+		4CB7AD480A564D2E87AF72F2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = time_point.h; path = ../../modules/footstone/include/footstone/time_point.h; sourceTree = SOURCE_ROOT; };
+		4D3BDF6FCFEB4C8D948D0C5B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = idle_timer.h; path = ../../modules/footstone/include/footstone/idle_timer.h; sourceTree = SOURCE_ROOT; };
+		4E206A6998A34E91912FAB4A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_response.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_response.cc; path = src/module/model/screen_shot_response.cc; sourceTree = SOURCE_ROOT; };
+		52599E3F270B4880821758AD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_push_node_path_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_push_node_path_metas.cc; path = src/api/adapter/data/dom_push_node_path_metas.cc; sourceTree = SOURCE_ROOT; };
+		53E4B656F63846E2A042D01D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = string_utils.h; path = ../../modules/footstone/include/footstone/string_utils.h; sourceTree = SOURCE_ROOT; };
+		5437F50B1635466A8516B4C6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/serializer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = serializer.cc; path = ../../modules/footstone/src/serializer.cc; sourceTree = SOURCE_ROOT; };
+		5CAD3A717CC64542B1A9D877 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = unicode_string_view.h; path = ../../modules/footstone/include/footstone/unicode_string_view.h; sourceTree = SOURCE_ROOT; };
+		5DA1F4D8887A4F9B82574D47 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = check.h; path = ../../modules/footstone/include/footstone/check.h; sourceTree = SOURCE_ROOT; };
+		5EBC2C4A877F4C21A20C7B75 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/dom_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_model.cc; path = src/module/model/dom_model.cc; sourceTree = SOURCE_ROOT; };
+		5EBCC5CE6CD4418490815BEF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = idle_task.h; path = ../../modules/footstone/include/footstone/idle_task.h; sourceTree = SOURCE_ROOT; };
+		5F7A78A16A5344329EA47B8E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings_state.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = log_settings_state.cc; path = ../../modules/footstone/src/log_settings_state.cc; sourceTree = SOURCE_ROOT; };
+		60C21425BDFD450EA7C7A1B6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = repeating_timer.h; path = ../../modules/footstone/include/footstone/repeating_timer.h; sourceTree = SOURCE_ROOT; };
+		61437974B86544449C7ED81E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = render_node_metas.cc; path = src/api/adapter/data/render_node_metas.cc; sourceTree = SOURCE_ROOT; };
+		61C8C5E992664E1F8CEDE6B0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = unicode_string_view.h; path = ../../modules/footstone/include/footstone/unicode_string_view.h; sourceTree = SOURCE_ROOT; };
+		61DA34C0B06742A2822ABC57 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		6692243B9CBE47ABA9806DDF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = task.cc; path = ../../modules/footstone/src/task.cc; sourceTree = SOURCE_ROOT; };
+		673C4794ED5A4EBB951D675E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = task_runner.h; path = ../../modules/footstone/include/footstone/task_runner.h; sourceTree = SOURCE_ROOT; };
+		67F4479BF47D405EA9D16A3D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/ws/web_socket_channel.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = web_socket_channel.cc; path = src/tunnel/ws/web_socket_channel.cc; sourceTree = SOURCE_ROOT; };
+		6E41B8FFC3A6466E8D5FBF5E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_node_data_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_node_data_request.cc; path = src/module/request/css_node_data_request.cc; sourceTree = SOURCE_ROOT; };
+		6FA03B7A0CD5479A979BB074 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_performance_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_performance_domain.cc; path = src/module/domain/tdf_performance_domain.cc; sourceTree = SOURCE_ROOT; };
+		7063A08E5CF64B32A4394848 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_common_protocol_domain.cc; path = src/module/domain/tdf_common_protocol_domain.cc; sourceTree = SOURCE_ROOT; };
+		7264ADB15D8D4781AECEA090 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_timer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = idle_timer.cc; path = ../../modules/footstone/src/idle_timer.cc; sourceTree = SOURCE_ROOT; };
+		78C4F42634124578BF47D635 /* devtools_backend */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libdevtools_backend.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		794E701621F54579BBD60911 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; name = CMakeLists.txt; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
+		7B3F55F1DEBD45ABADF9FB08 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = hippy_value.h; path = ../../modules/footstone/include/footstone/hippy_value.h; sourceTree = SOURCE_ROOT; };
+		7BDDF5617B75479D9EB99814 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = persistent_object_map.h; path = ../../modules/footstone/include/footstone/persistent_object_map.h; sourceTree = SOURCE_ROOT; };
+		7CAB31479A4244A088ED7D0C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = check.h; path = ../../modules/footstone/include/footstone/check.h; sourceTree = SOURCE_ROOT; };
+		7D68337CE25E467DB1B1F84A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_location.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_location.cc; path = src/api/adapter/data/dom_node_location.cc; sourceTree = SOURCE_ROOT; };
+		7E426803F72F4494A5EC8F18 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/devtools_backend_service.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devtools_backend_service.cc; path = src/api/devtools_backend_service.cc; sourceTree = SOURCE_ROOT; };
+		80CB0BD74408484A8788567F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = persistent_object_map.h; path = ../../modules/footstone/include/footstone/persistent_object_map.h; sourceTree = SOURCE_ROOT; };
+		80CEF04730C24029B646181D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/string_utils.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = string_utils.cc; path = ../../modules/footstone/src/string_utils.cc; sourceTree = SOURCE_ROOT; };
+		8688C9A35CA7481EAAF38681 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = looper_driver.h; path = ../../modules/footstone/include/footstone/platform/ios/looper_driver.h; sourceTree = SOURCE_ROOT; };
+		87B07812A42643519B144B7E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_task.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = idle_task.cc; path = ../../modules/footstone/src/idle_task.cc; sourceTree = SOURCE_ROOT; };
+		8E4D9C43DBF745368171CA2A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/network_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = network_domain.cc; path = src/module/domain/network_domain.cc; sourceTree = SOURCE_ROOT; };
+		8EFD293A3CF24BBF8C4DBEFD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/network_response_body_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = network_response_body_request.cc; path = src/module/request/network_response_body_request.cc; sourceTree = SOURCE_ROOT; };
+		8F7B3B183C9F4656BABE16F8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = frame_timing_metas.cc; path = src/api/adapter/data/frame_timing_metas.cc; sourceTree = SOURCE_ROOT; };
+		9382FE28DD9D457D8A591506 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = hash.h; path = ../../modules/footstone/include/footstone/hash.h; sourceTree = SOURCE_ROOT; };
+		96463E5483654BED99EB4380 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/css_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = css_domain.cc; path = src/module/domain/css_domain.cc; sourceTree = SOURCE_ROOT; };
+		97AFC051612A44B987CE88E6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_for_location_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_for_location_request.cc; path = src/module/request/dom_node_for_location_request.cc; sourceTree = SOURCE_ROOT; };
+		9C059E43F07E4252AB38FB48 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/screen_shot_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_request.cc; path = src/module/request/screen_shot_request.cc; sourceTree = SOURCE_ROOT; };
+		9C429A2387BD496EA0AA779C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_log_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_log_notification.cc; path = src/api/notification/default/default_log_notification.cc; sourceTree = SOURCE_ROOT; };
+		9C62BCDE45AC41A7A92B2EB9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_response.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devtools_http_response.cc; path = src/api/notification/data/devtools_http_response.cc; sourceTree = SOURCE_ROOT; };
+		9D1ECC332A1E4381AAD547F1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = looper_driver.h; path = ../../modules/footstone/include/footstone/platform/ios/looper_driver.h; sourceTree = SOURCE_ROOT; };
+		9E8088A878C445838D913FC8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = log_settings.cc; path = ../../modules/footstone/src/log_settings.cc; sourceTree = SOURCE_ROOT; };
+		9FCB220278BC4BCE9AC663C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = folder; name = platform; path = ../../modules/footstone/include/footstone/platform; sourceTree = SOURCE_ROOT; };
+		A05F66CAB7384F9DA0EDCA02 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/net_channel.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = net_channel.cc; path = src/tunnel/net_channel.cc; sourceTree = SOURCE_ROOT; };
+		A2177345AD6E4ACEBA6940D1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_data_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_data_request.cc; path = src/module/request/dom_node_data_request.cc; sourceTree = SOURCE_ROOT; };
+		AB5AA240FC3F4B72AD7DA892 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = worker_manager.h; path = ../../modules/footstone/include/footstone/worker_manager.h; sourceTree = SOURCE_ROOT; };
+		ABDA5153EBCE4DB0829217B0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = task.h; path = ../../modules/footstone/include/footstone/task.h; sourceTree = SOURCE_ROOT; };
+		AC41BB98A2D54722BCB2B7AB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = base_timer.h; path = ../../modules/footstone/include/footstone/base_timer.h; sourceTree = SOURCE_ROOT; };
+		ACB1545400A04762B0903088 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/logging.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = logging.cc; path = ../../modules/footstone/src/platform/ios/logging.cc; sourceTree = SOURCE_ROOT; };
+		AEEBE22A42314BBB84395943 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = one_shot_timer.h; path = ../../modules/footstone/include/footstone/one_shot_timer.h; sourceTree = SOURCE_ROOT; };
+		AF6DFA55A1864F62B800F63D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = driver.h; path = ../../modules/footstone/include/footstone/driver.h; sourceTree = SOURCE_ROOT; };
+		B00D20871596472F8B80BAFB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/deserializer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = deserializer.cc; path = ../../modules/footstone/src/deserializer.cc; sourceTree = SOURCE_ROOT; };
+		B0387CEA62EC48D8A2161AEC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = worker_impl.h; path = ../../modules/footstone/include/footstone/worker_impl.h; sourceTree = SOURCE_ROOT; };
+		B41E6D417C2D4BC0B640B0F4 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cv_driver.h; path = ../../modules/footstone/include/footstone/cv_driver.h; sourceTree = SOURCE_ROOT; };
+		B7BB420E84AD4F12873E419D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_runtime_notification.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = default_runtime_notification.cc; path = src/api/notification/default/default_runtime_notification.cc; sourceTree = SOURCE_ROOT; };
+		BD7140DD61354D6EABD3CFED /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = string_view_utils.h; path = ../../modules/footstone/include/footstone/string_view_utils.h; sourceTree = SOURCE_ROOT; };
+		BDDEF20FF9D04EC8B9374C20 /* footstone */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libfootstone.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		BE5C4BD8FD7E4AB5A12F4CA9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = macros.h; path = ../../modules/footstone/include/footstone/macros.h; sourceTree = SOURCE_ROOT; };
+		C033BB0B741845AA91C47ABE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = worker_impl.h; path = ../../modules/footstone/include/footstone/worker_impl.h; sourceTree = SOURCE_ROOT; };
+		C131C95BE9424B14A583A123 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = log_settings.h; path = ../../modules/footstone/include/footstone/log_settings.h; sourceTree = SOURCE_ROOT; };
+		C14D4C0C6FDD4972A6F086CF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = render_diagnostic_metas.cc; path = src/api/adapter/data/render_diagnostic_metas.cc; sourceTree = SOURCE_ROOT; };
+		C3BC5F0A098A4FB4B0B43DD5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = time_point.h; path = ../../modules/footstone/include/footstone/time_point.h; sourceTree = SOURCE_ROOT; };
+		C5B3D85D03CE427E96F89D6F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/memory_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = memory_metas.cc; path = src/api/adapter/data/memory_metas.cc; sourceTree = SOURCE_ROOT; };
+		CB31B1C03B6447A6B7548D91 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = log_level.h; path = ../../modules/footstone/include/footstone/log_level.h; sourceTree = SOURCE_ROOT; };
+		CDA1F803DAD44787806A811E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_metas.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_node_metas.cc; path = src/api/adapter/data/dom_node_metas.cc; sourceTree = SOURCE_ROOT; };
+		CEDB43B4E8644BFA9116D8AD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/frame_codec.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = frame_codec.cc; path = src/tunnel/tcp/frame_codec.cc; sourceTree = SOURCE_ROOT; };
+		D21193FAF5AA4086877FCFD0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/dom_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_domain.cc; path = src/module/domain/dom_domain.cc; sourceTree = SOURCE_ROOT; };
+		D34FD61B21ED448488E77B05 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/selected_render_object_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = selected_render_object_request.cc; path = src/module/request/selected_render_object_request.cc; sourceTree = SOURCE_ROOT; };
+		D64AC469463E47FD9D475AFF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_memory_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_memory_domain.cc; path = src/module/domain/tdf_memory_domain.cc; sourceTree = SOURCE_ROOT; };
+		D827345EE2274107968ECBAB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = logging.h; path = ../../modules/footstone/include/footstone/logging.h; sourceTree = SOURCE_ROOT; };
+		D9BB4304F1574D3182991FB7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = worker.h; path = ../../modules/footstone/include/footstone/worker.h; sourceTree = SOURCE_ROOT; };
+		DA85CB1C45DC45C9B027C620 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devtools_http_request.cc; path = src/api/notification/data/devtools_http_request.cc; sourceTree = SOURCE_ROOT; };
+		DBAC06FAA2B645CB8377BA9C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/base_timer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = base_timer.cc; path = ../../modules/footstone/src/base_timer.cc; sourceTree = SOURCE_ROOT; };
+		E03B16E52FFB4509AAAF8099 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/infa_packages/dom/CMakeFiles/footstone.dir/Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.text.plist; fileEncoding = 4; name = Info.plist; path = "../../framework/example/ios-demo/devtools_backend/infa_packages/dom/CMakeFiles/footstone.dir/Info.plist"; sourceTree = SOURCE_ROOT; };
+		E05A51A8DE384CDCA7ABC196 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_inspector_domain.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tdf_inspector_domain.cc; path = src/module/domain/tdf_inspector_domain.cc; sourceTree = SOURCE_ROOT; };
+		E0C19C55C52A493F87B8555F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = cv_driver.h; path = ../../modules/footstone/include/footstone/cv_driver.h; sourceTree = SOURCE_ROOT; };
+		E0D84B9BC16A409F9364115F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_model.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = screen_shot_model.cc; path = src/module/model/screen_shot_model.cc; sourceTree = SOURCE_ROOT; };
+		E0E7D2163208467086DC1EB0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = base_timer.h; path = ../../modules/footstone/include/footstone/base_timer.h; sourceTree = SOURCE_ROOT; };
+		E1164F65E6B4418FBD235DAE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task_runner.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = task_runner.cc; path = ../../modules/footstone/src/task_runner.cc; sourceTree = SOURCE_ROOT; };
+		E2D94B30DDA945F594672966 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/cv_driver.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = cv_driver.cc; path = ../../modules/footstone/src/cv_driver.cc; sourceTree = SOURCE_ROOT; };
+		E3C9EE45555C4172A2026A12 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tunnel_service.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = tunnel_service.cc; path = src/tunnel/tunnel_service.cc; sourceTree = SOURCE_ROOT; };
+		EFE0610F7D23496FB06BA9F1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = deserializer.h; path = ../../modules/footstone/include/footstone/deserializer.h; sourceTree = SOURCE_ROOT; };
+		F1C3C03F26424C869076B999 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = string_view_utils.h; path = ../../modules/footstone/include/footstone/string_view_utils.h; sourceTree = SOURCE_ROOT; };
+		F5B0AE9D56124BBB8B8EF487 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/worker_impl.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = worker_impl.cc; path = ../../modules/footstone/src/platform/ios/worker_impl.cc; sourceTree = SOURCE_ROOT; };
+		F7071366243940B6A3B842BD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = time_delta.h; path = ../../modules/footstone/include/footstone/time_delta.h; sourceTree = SOURCE_ROOT; };
+		F73C982011F543D9BF8FD69B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = base_time.h; path = ../../modules/footstone/include/footstone/base_time.h; sourceTree = SOURCE_ROOT; };
+		FA05D4FDBD18409B89917B0E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_loading_finished.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = devtools_http_loading_finished.cc; path = src/api/notification/data/devtools_http_loading_finished.cc; sourceTree = SOURCE_ROOT; };
+		FB00A218F97C412B83BD282F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_node_by_path_request.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = dom_push_node_by_path_request.cc; path = src/module/request/dom_push_node_by_path_request.cc; sourceTree = SOURCE_ROOT; };
+		FD1AD549720F4A9BB82B6859 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeFiles/devtools_backend.dir/Info.plist */ = {isa = PBXFileReference; explicitFileType = sourcecode.text.plist; fileEncoding = 4; name = Info.plist; path = "../../framework/example/ios-demo/devtools_backend/CMakeFiles/devtools_backend.dir/Info.plist"; sourceTree = SOURCE_ROOT; };
+		FDBB4061B6B54CED98554B6A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/one_shot_timer.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = one_shot_timer.cc; path = ../../modules/footstone/src/one_shot_timer.cc; sourceTree = SOURCE_ROOT; };
+		FF34D956303948A083E38D5A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/unicode_string_view.cc */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = unicode_string_view.cc; path = ../../modules/footstone/src/unicode_string_view.cc; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		957D4E91C7CF4741BDCE8145 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CDF412EDDFCB49C5A594CF1A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		133188C3E3794C68B5C8454E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				78C4F42634124578BF47D635 /* devtools_backend */,
+				BDDEF20FF9D04EC8B9374C20 /* footstone */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		183F12F7AC59462CB99ED3F6 /* ALL_BUILD */ = {
+			isa = PBXGroup;
+			children = (
+				277E940A49E84F548B2E7B49 /* CMake Rules */,
+				61DA34C0B06742A2822ABC57 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/CMakeLists.txt */,
+			);
+			name = ALL_BUILD;
+			sourceTree = "<group>";
+		};
+		277E940A49E84F548B2E7B49 /* CMake Rules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "CMake Rules";
+			sourceTree = "<group>";
+		};
+		6AC8715C728E4B079FC25543 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E03B16E52FFB4509AAAF8099 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/infa_packages/dom/CMakeFiles/footstone.dir/Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		795E51294FA64D379B2111C3 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				7D68337CE25E467DB1B1F84A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_location.cc */,
+				CDA1F803DAD44787806A811E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_metas.cc */,
+				52599E3F270B4880821758AD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_push_node_path_metas.cc */,
+				12CFECD2A64E49CE8A18C42F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/domain_metas.cc */,
+				8F7B3B183C9F4656BABE16F8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */,
+				C5B3D85D03CE427E96F89D6F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/memory_metas.cc */,
+				C14D4C0C6FDD4972A6F086CF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */,
+				61437974B86544449C7ED81E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_node_metas.cc */,
+				20F0435F679C49498BBD9FF9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/trace_event_metas.cc */,
+				7E426803F72F4494A5EC8F18 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/devtools_backend_service.cc */,
+				FA05D4FDBD18409B89917B0E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_loading_finished.cc */,
+				DA85CB1C45DC45C9B027C620 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_request.cc */,
+				9C62BCDE45AC41A7A92B2EB9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_response.cc */,
+				9C429A2387BD496EA0AA779C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_log_notification.cc */,
+				36A263F356514501AE6F5B92 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_network_notification.cc */,
+				B7BB420E84AD4F12873E419D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_runtime_notification.cc */,
+				0A0BB93A822C4763969393B5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/base_domain.cc */,
+				96463E5483654BED99EB4380 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/css_domain.cc */,
+				D21193FAF5AA4086877FCFD0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/dom_domain.cc */,
+				8E4D9C43DBF745368171CA2A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/network_domain.cc */,
+				28F5905A01104C2DB9EE6C71 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/page_domain.cc */,
+				7063A08E5CF64B32A4394848 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */,
+				E05A51A8DE384CDCA7ABC196 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_inspector_domain.cc */,
+				D64AC469463E47FD9D475AFF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_memory_domain.cc */,
+				6FA03B7A0CD5479A979BB074 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_performance_domain.cc */,
+				0D46B138727C49258C8B23A6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_runtime_domain.cc */,
+				04CB3E143CBD456E8777B6EF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain_dispatch.cc */,
+				17134C504072458C85071EFA /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/css_model.cc */,
+				5EBC2C4A877F4C21A20C7B75 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/dom_model.cc */,
+				426303BD5F4748AFA388D794 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/frame_poll_model.cc */,
+				E0D84B9BC16A409F9364115F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_model.cc */,
+				4E206A6998A34E91912FAB4A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_response.cc */,
+				2065A66AFC274546915A05C7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_edit_style_texts_request.cc */,
+				6E41B8FFC3A6466E8D5FBF5E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_node_data_request.cc */,
+				A2177345AD6E4ACEBA6940D1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_data_request.cc */,
+				97AFC051612A44B987CE88E6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_for_location_request.cc */,
+				FB00A218F97C412B83BD282F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_node_by_path_request.cc */,
+				10A68C35E29E4622AB4FAD70 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_nodes_request.cc */,
+				8EFD293A3CF24BBF8C4DBEFD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/network_response_body_request.cc */,
+				9C059E43F07E4252AB38FB48 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/screen_shot_request.cc */,
+				D34FD61B21ED448488E77B05 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/selected_render_object_request.cc */,
+				A05F66CAB7384F9DA0EDCA02 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/net_channel.cc */,
+				CEDB43B4E8644BFA9116D8AD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/frame_codec.cc */,
+				07AD83CA331B40C39F0A9988 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/socket.cc */,
+				40E17A7E115E405C98E95532 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/tcp_channel.cc */,
+				E3C9EE45555C4172A2026A12 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tunnel_service.cc */,
+				67F4479BF47D405EA9D16A3D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/ws/web_socket_channel.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+		8CC35F6DEBCC409191611828 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				3F599837DDBF4A42B6B0A452 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */,
+				E0E7D2163208467086DC1EB0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */,
+				7CAB31479A4244A088ED7D0C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */,
+				E0C19C55C52A493F87B8555F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */,
+				EFE0610F7D23496FB06BA9F1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */,
+				395848B75038418F86344F49 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */,
+				9382FE28DD9D457D8A591506 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */,
+				7B3F55F1DEBD45ABADF9FB08 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */,
+				5EBCC5CE6CD4418490815BEF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */,
+				438839E396F44E3087DF0BD4 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */,
+				3C72A2456887459C8C026C52 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */,
+				C131C95BE9424B14A583A123 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */,
+				D827345EE2274107968ECBAB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */,
+				23FEED65B9F44D429EAA5C1F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */,
+				2D4A5F358466439E8B985D07 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */,
+				80CB0BD74408484A8788567F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */,
+				8688C9A35CA7481EAAF38681 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */,
+				60C21425BDFD450EA7C7A1B6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */,
+				28F268D963A44C088BFEF4C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */,
+				53E4B656F63846E2A042D01D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */,
+				BD7140DD61354D6EABD3CFED /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */,
+				ABDA5153EBCE4DB0829217B0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */,
+				1FF41EEFAD6546198EFE08A9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */,
+				1037A9BCF2D44E1E895AE7E6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */,
+				C3BC5F0A098A4FB4B0B43DD5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */,
+				5CAD3A717CC64542B1A9D877 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */,
+				D9BB4304F1574D3182991FB7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */,
+				B0387CEA62EC48D8A2161AEC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */,
+				074FCA5F5F9A4709B3169BC3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		948C776231764ED0AB4A43F8 = {
+			isa = PBXGroup;
+			children = (
+				C9CC9348F1714BF0B353619D /* devtools_backend */,
+				183F12F7AC59462CB99ED3F6 /* ALL_BUILD */,
+				F71E9410793C413CB6272BC9 /* footstone */,
+				133188C3E3794C68B5C8454E /* Products */,
+				ACBD92D1BE324181BD81F6C8 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		ACBD92D1BE324181BD81F6C8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B8B8CB0D196B4E7BA6717BDE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				FD1AD549720F4A9BB82B6859 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeFiles/devtools_backend.dir/Info.plist */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
+		C9CC9348F1714BF0B353619D /* devtools_backend */ = {
+			isa = PBXGroup;
+			children = (
+				795E51294FA64D379B2111C3 /* Source Files */,
+				EA67DB187EEB49EA9E6D67F1 /* Header Files */,
+				B8B8CB0D196B4E7BA6717BDE /* Resources */,
+				794E701621F54579BBD60911 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/CMakeLists.txt */,
+				07EDD7A8D19541A187DDF448 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */,
+			);
+			name = devtools_backend;
+			sourceTree = "<group>";
+		};
+		EA67DB187EEB49EA9E6D67F1 /* Header Files */ = {
+			isa = PBXGroup;
+			children = (
+				F73C982011F543D9BF8FD69B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_time.h */,
+				AC41BB98A2D54722BCB2B7AB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/base_timer.h */,
+				5DA1F4D8887A4F9B82574D47 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/check.h */,
+				B41E6D417C2D4BC0B640B0F4 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/cv_driver.h */,
+				130173352A3C4A1A82068E8A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/deserializer.h */,
+				AF6DFA55A1864F62B800F63D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/driver.h */,
+				39C1051D47E647BA9C4260EF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hash.h */,
+				36AEF6534D3A4FE996EDDFBF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/hippy_value.h */,
+				3FF3195F719645FEAA110D4D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_task.h */,
+				4D3BDF6FCFEB4C8D948D0C5B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/idle_timer.h */,
+				CB31B1C03B6447A6B7548D91 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_level.h */,
+				2CED16F626674A50AF253730 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/log_settings.h */,
+				295A9CB8E5F54E43B154B689 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/logging.h */,
+				BE5C4BD8FD7E4AB5A12F4CA9 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/macros.h */,
+				AEEBE22A42314BBB84395943 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/one_shot_timer.h */,
+				7BDDF5617B75479D9EB99814 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/persistent_object_map.h */,
+				9D1ECC332A1E4381AAD547F1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform/ios/looper_driver.h */,
+				1D7EED1CE6A44F439E8FE5B7 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/repeating_timer.h */,
+				4321462F175A4A338DD2FD00 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/serializer.h */,
+				0257A667707D4BB6AE3FBA3D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_utils.h */,
+				F1C3C03F26424C869076B999 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/string_view_utils.h */,
+				28354C576C044C6F8DEE9737 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task.h */,
+				673C4794ED5A4EBB951D675E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/task_runner.h */,
+				F7071366243940B6A3B842BD /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_delta.h */,
+				4CB7AD480A564D2E87AF72F2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/time_point.h */,
+				61C8C5E992664E1F8CEDE6B0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/unicode_string_view.h */,
+				43016D0265E54627B9D50EAB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker.h */,
+				C033BB0B741845AA91C47ABE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_impl.h */,
+				AB5AA240FC3F4B72AD7DA892 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/worker_manager.h */,
+			);
+			name = "Header Files";
+			sourceTree = "<group>";
+		};
+		F71E9410793C413CB6272BC9 /* footstone */ = {
+			isa = PBXGroup;
+			children = (
+				FD676F359BDA4C58B18B5605 /* Source Files */,
+				8CC35F6DEBCC409191611828 /* Header Files */,
+				6AC8715C728E4B079FC25543 /* Resources */,
+				3DE76E34D13B47249F4C3587 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/CMakeLists.txt */,
+				9FCB220278BC4BCE9AC663C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include/footstone/platform */,
+			);
+			name = footstone;
+			sourceTree = "<group>";
+		};
+		FD676F359BDA4C58B18B5605 /* Source Files */ = {
+			isa = PBXGroup;
+			children = (
+				DBAC06FAA2B645CB8377BA9C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/base_timer.cc */,
+				E2D94B30DDA945F594672966 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/cv_driver.cc */,
+				B00D20871596472F8B80BAFB /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/deserializer.cc */,
+				0E4AAA7FB0F649C9B8FDA99D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/hippy_value.cc */,
+				87B07812A42643519B144B7E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_task.cc */,
+				7264ADB15D8D4781AECEA090 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_timer.cc */,
+				9E8088A878C445838D913FC8 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings.cc */,
+				5F7A78A16A5344329EA47B8E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings_state.cc */,
+				FDBB4061B6B54CED98554B6A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/one_shot_timer.cc */,
+				ACB1545400A04762B0903088 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/logging.cc */,
+				101622D5458C48B082E401E5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/looper_driver.cc */,
+				F5B0AE9D56124BBB8B8EF487 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/worker_impl.cc */,
+				084FEA5D9DB941C08F1CF265 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/repeating_timer.cc */,
+				5437F50B1635466A8516B4C6 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/serializer.cc */,
+				80CEF04730C24029B646181D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/string_utils.cc */,
+				6692243B9CBE47ABA9806DDF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task.cc */,
+				E1164F65E6B4418FBD235DAE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task_runner.cc */,
+				FF34D956303948A083E38D5A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/unicode_string_view.cc */,
+				3823244500CB4A75AE4CA041 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker.cc */,
+				3A12A3049898411E85791BC1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker_manager.cc */,
+			);
+			name = "Source Files";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		6F1B074F51A94C38B4D9E543 /* footstone */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 39CAB4D87FE64ECE9F9D907D /* Build configuration list for PBXNativeTarget "footstone" */;
+			buildPhases = (
+				BA61F2E4ECBA431B8D178D56 /* Sources */,
+				CDF412EDDFCB49C5A594CF1A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = footstone;
+			productName = footstone;
+			productReference = BDDEF20FF9D04EC8B9374C20 /* footstone */;
+			productType = "com.apple.product-type.library.static";
+		};
+		AD867BD370724FCD891FFAF2 /* devtools_backend */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE5810025D3B44479F33F9E9 /* Build configuration list for PBXNativeTarget "devtools_backend" */;
+			buildPhases = (
+				57A0E9821C774AEFB81EB9B9 /* Sources */,
+				957D4E91C7CF4741BDCE8145 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				225A2CC444C54DCF9B16FFF3 /* PBXTargetDependency */,
+				4AD40DB08AA941ACB398FFE5 /* PBXTargetDependency */,
+			);
+			name = devtools_backend;
+			productName = devtools_backend;
+			productReference = 78C4F42634124578BF47D635 /* devtools_backend */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E34F7CE88E194BD5BDD618F0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1340;
+			};
+			buildConfigurationList = C5794013A2AC458ABC845F47 /* Build configuration list for PBXProject "devtools_backend" */;
+			buildSettings = {
+			};
+			buildStyles = (
+				AEF52CA3C3C74BBE836BD7DE /* Release */,
+				0A8B0CF8EF89465C887F305E /* RelWithDebInfo */,
+				14FE8C28BCA649E6911CBD02 /* Debug */,
+			);
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 0;
+			mainGroup = 948C776231764ED0AB4A43F8;
+			projectDirPath = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend";
+			projectRoot = "";
+			targets = (
+				92805D2100E947AA89D94A7D /* ALL_BUILD */,
+				0BBB600DB4284DE0BB00A4C5 /* ZERO_CHECK */,
+				AD867BD370724FCD891FFAF2 /* devtools_backend */,
+				6F1B074F51A94C38B4D9E543 /* footstone */,
+				97CDD163FB1F438B8FB6CCB7 /* install */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3C0110FC8322DE7E50886E21 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		590A7F611DBD46FBAEC4338B /* Generate CMakeFiles/ZERO_CHECK */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ZERO_CHECK";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeFiles/ZERO_CHECK"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  make -f /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  make -f /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeScripts/ReRunCMake.make
+fi
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  make -f /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeScripts/ReRunCMake.make
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		87AF4882E018677E2624B544 = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		93426DA6A4AC2C2AC9CE883C /* CMake PostBuild Rules */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "CMake PostBuild Rules";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  /usr/local/Cellar/cmake/3.23.2/bin/cmake -DBUILD_TYPE=$CONFIGURATION -DEFFECTIVE_PLATFORM_NAME=$EFFECTIVE_PLATFORM_NAME -P cmake_install.cmake
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+		9B50530E35CC49C82C2FACCF = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# shell script goes here
+exit 0";
+			showEnvVarsInLog = 0;
+		};
+		CF26660F8F03CEB8D4A6A5FE /* Generate CMakeFiles/ALL_BUILD */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Generate CMakeFiles/ALL_BUILD";
+			outputPaths = (
+"/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/CMakeFiles/ALL_BUILD"			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e
+if test \"$CONFIGURATION\" = \"Release\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"RelWithDebInfo\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  echo Build\\ all\\ projects
+fi
+if test \"$CONFIGURATION\" = \"Debug\"; then :
+  cd /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend
+  echo Build\\ all\\ projects
+fi
+";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		57A0E9821C774AEFB81EB9B9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E4AB8431B62C4F6CA7B2B091 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_location.cc */,
+				9E94C110DD3E4AF2B725A4FE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_node_metas.cc */,
+				7BD8DDDCB935473A80599B46 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/dom_push_node_path_metas.cc */,
+				E1A07C0179CD462EB05A4D11 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/domain_metas.cc */,
+				56E44AAAD34C444CAD4E0EA2 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/frame_timing_metas.cc */,
+				234F42CD9119404F92C2A39B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/memory_metas.cc */,
+				C3139CCBCE5441C09281AE6C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_diagnostic_metas.cc */,
+				3A490776A55849A897053884 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/render_node_metas.cc */,
+				3CA8F723650F4EA688687700 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/adapter/data/trace_event_metas.cc */,
+				9B4E59B6FA8245708F702E44 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/devtools_backend_service.cc */,
+				8FEACF2C4BE047F18DB7B348 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_loading_finished.cc */,
+				9558790D2B2745149FED7847 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_request.cc */,
+				C86AA69047524CF8B2806B2C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/data/devtools_http_response.cc */,
+				02C50FD846EE48969A40A4F3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_log_notification.cc */,
+				F4A00EE2EAD14927B3713B2A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_network_notification.cc */,
+				6D05244B7BC24C67BE49BB98 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/api/notification/default/default_runtime_notification.cc */,
+				B84EB1BACB384C199A73A39C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/base_domain.cc */,
+				0CBFBF4401C04B1FA8F6675A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/css_domain.cc */,
+				F38631652A9449E28F1F6FC5 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/dom_domain.cc */,
+				F5334C3EC7254E2085C2C5E0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/network_domain.cc */,
+				B0DCA34F91764728B30A46E3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/page_domain.cc */,
+				F7779523991F4A1C8124DA64 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_common_protocol_domain.cc */,
+				2C2813E9D958480BBEF04163 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_inspector_domain.cc */,
+				200E43215CAB41BB9C705414 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_memory_domain.cc */,
+				5BA36B00AF2742A482F5A88C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_performance_domain.cc */,
+				48C18FC219B341BCB7E4D8C0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain/tdf_runtime_domain.cc */,
+				4A55C8E604E243748252C136 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/domain_dispatch.cc */,
+				32CC7DB5027C4A90A477C309 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/css_model.cc */,
+				0AFB1EA709AA4FDFB45B1E26 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/dom_model.cc */,
+				4F0F0C54D9D04293ABFB6065 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/frame_poll_model.cc */,
+				24FE3A440FA64BD9A221EBAC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_model.cc */,
+				4086F0521476438FA5B48E9E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/model/screen_shot_response.cc */,
+				90B4C81AD3B54CBEBEAFA07A /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_edit_style_texts_request.cc */,
+				C916E4FBCC8848DD950143EC /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/css_node_data_request.cc */,
+				C32B887ADCF64C1786B16E3B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_data_request.cc */,
+				1A2053F532FE4D888C6CBB5F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_node_for_location_request.cc */,
+				C659A060CE2743488A62975B /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_node_by_path_request.cc */,
+				4AE165B4A75241F9AB0D7737 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/dom_push_nodes_request.cc */,
+				5F80C415349F493CAB316262 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/network_response_body_request.cc */,
+				84B2E73A55CA4F9FADCA72D0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/screen_shot_request.cc */,
+				36681B37EA6042689EE79480 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/module/request/selected_render_object_request.cc */,
+				973DABA396A2495380A8FFCE /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/net_channel.cc */,
+				0D9060F87746424EBD84692E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/frame_codec.cc */,
+				77349C93FAAE4DA28C58B644 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/socket.cc */,
+				5B319270E62044F2AD7072F3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tcp/tcp_channel.cc */,
+				723243CFB7D44661AD192E56 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/tunnel_service.cc */,
+				EAE4487E01F042E4A2141DB0 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/src/tunnel/ws/web_socket_channel.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BA61F2E4ECBA431B8D178D56 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				73D85C54E7494FDF91D13147 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/base_timer.cc */,
+				C455DBB5A82C41A890D63519 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/cv_driver.cc */,
+				26303C5E737C47769FF986F3 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/deserializer.cc */,
+				C5890B7B65D94C3B9F78E21D /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/hippy_value.cc */,
+				54E5682AEB2D43F8B8C3A23C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_task.cc */,
+				40A8190981694F57AAC63EAF /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/idle_timer.cc */,
+				89FDC95CD11547DCBFDB560F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings.cc */,
+				2B67C957D6944B4D8DF2B789 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/log_settings_state.cc */,
+				CA3D3A5ED3C249D5B45EF819 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/one_shot_timer.cc */,
+				FCE2E8EB4A054DD4B09EDCE1 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/logging.cc */,
+				1500DD08AB1E45D58CF76237 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/looper_driver.cc */,
+				1DAB7DC28F5F4D409BDD424E /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/platform/ios/worker_impl.cc */,
+				01FEFE45CFB6452EB7109D1F /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/repeating_timer.cc */,
+				3A90C957E1844DDC837F3338 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/serializer.cc */,
+				CE736B57498C4EBCB4D67A29 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/string_utils.cc */,
+				100E5D6F0483452C85028C64 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task.cc */,
+				8AE7FE4A14A9434B9C887198 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/task_runner.cc */,
+				C23600D99E8D408EB8316FCA /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/unicode_string_view.cc */,
+				372C953F9BF7410A92B43E8C /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker.cc */,
+				CB735BC6D8594BE3AC4EB695 /* /Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/src/worker_manager.cc */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		225A2CC444C54DCF9B16FFF3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6F1B074F51A94C38B4D9E543 /* footstone */;
+			targetProxy = C64096EC3CE44AB9A31582F8 /* PBXContainerItemProxy */;
+		};
+		4AD40DB08AA941ACB398FFE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0BBB600DB4284DE0BB00A4C5 /* ZERO_CHECK */;
+			targetProxy = 34BD0A1C2A9446AB93CA1D27 /* PBXContainerItemProxy */;
+		};
+		79C05F69830E4A4B8F916091 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6F1B074F51A94C38B4D9E543 /* footstone */;
+			targetProxy = 20BF89A425D14DE5A319D737 /* PBXContainerItemProxy */;
+		};
+		BA63F7FAFDBF434FB7762720 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 92805D2100E947AA89D94A7D /* ALL_BUILD */;
+			targetProxy = 0749EBABCE8B4D57AC90FAAB /* PBXContainerItemProxy */;
+		};
+		D1D83E0A28FD46538B003EB6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 0BBB600DB4284DE0BB00A4C5 /* ZERO_CHECK */;
+			targetProxy = 4926B627FC0447D6992BDE51 /* PBXContainerItemProxy */;
+		};
+		D919CEC7731C41BE8A82A560 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AD867BD370724FCD891FFAF2 /* devtools_backend */;
+			targetProxy = 01B515C29C8743AF982201A7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		15310878D05D4A27949E7FBB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "arm64 x86_64";
+				"ARCHS[sdk=iphoneos*]" = arm64;
+				"ARCHS[sdk=iphonesimulator*]" = x86_64;
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_BITCODE = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk;
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/build";
+			};
+			name = Debug;
+		};
+		4AD8E6AFB49D4F828164A664 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		60178497B71C4673AAA0526E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		6842176ED4B24CB0AB615D38 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		73102158BA8F452CBCED1C3C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (arm64,x86_64);
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include,/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/.,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "   '-std=gnu++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = footstone;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/infa_packages/dom";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		787560ABA8FF46FFB624042D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		80CE25F83F13439C9A9305E5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		89A48DCC92574B6EB2933A68 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ZERO_CHECK;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		9169267FBE6842629F1E4272 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "arm64 x86_64";
+				"ARCHS[sdk=iphoneos*]" = arm64;
+				"ARCHS[sdk=iphonesimulator*]" = x86_64;
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_BITCODE = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk;
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/build";
+			};
+			name = Release;
+		};
+		9FD2500536844AF591B5A3F2 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (arm64,x86_64);
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include,/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/.,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG '-std=gnu++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = footstone;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/infa_packages/dom";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+		A02AD5B27F0D42488DE92B4F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		B1BD9A772848470491EA40D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = install;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		B8E594F150F9476AA43C2D12 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (arm64,x86_64);
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = (/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include,/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/.,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=gnu++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = footstone;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/infa_packages/dom";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		BA1DC7A8A0A841DA900587CC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'","$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				INSTALL_PATH = "";
+				OTHER_LDFLAGS = ("","$(inherited)");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = ALL_BUILD;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		D50B15DC2A444B0D8BA579C0 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "arm64 x86_64";
+				"ARCHS[sdk=iphoneos*]" = arm64;
+				"ARCHS[sdk=iphonesimulator*]" = x86_64;
+				BITCODE_GENERATION_MODE = bitcode;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGNING_REQUIRED = NO;
+				ENABLE_BITCODE = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				ONLY_ACTIVE_ARCH = NO;
+				SDKROOT = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS15.5.sdk;
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/build";
+			};
+			name = RelWithDebInfo;
+		};
+		D90A64194D434EA296DDFD51 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (arm64,x86_64);
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",IOS,ASIO_NO_TYPEID,ASIO_NO_EXCEPTIONS,ASIO_DISABLE_ALIGNOF,_WEBSOCKETPP_NO_EXCEPTIONS_,JSON_NOEXCEPTION,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/include","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/asio-src/asio/include","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-src","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-src/single_include",/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "    -DNDEBUG '-std=gnu++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = devtools_backend;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Release;
+		};
+		E00D794831FE4BA4BB399EA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (arm64,x86_64);
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",IOS,ASIO_NO_TYPEID,ASIO_NO_EXCEPTIONS,ASIO_DISABLE_ALIGNOF,_WEBSOCKETPP_NO_EXCEPTIONS_,JSON_NOEXCEPTION,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/include","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/asio-src/asio/include","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-src","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-src/single_include",/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "   '-std=gnu++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = devtools_backend;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = Debug;
+		};
+		E380E6E6A438499497F877D8 /* RelWithDebInfo */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (arm64,x86_64);
+				COMBINE_HIDPI_IMAGES = YES;
+				EXECUTABLE_PREFIX = lib;
+				EXECUTABLE_SUFFIX = .a;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
+				GCC_OPTIMIZATION_LEVEL = 2;
+				GCC_PREPROCESSOR_DEFINITIONS = ("'CMAKE_INTDIR=\"$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)\"'",IOS,ASIO_NO_TYPEID,ASIO_NO_EXCEPTIONS,ASIO_DISABLE_ALIGNOF,_WEBSOCKETPP_NO_EXCEPTIONS_,JSON_NOEXCEPTION,"$(inherited)");
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				HEADER_SEARCH_PATHS = ("/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/devtools/devtools-backend/include","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/asio-src/asio/include","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/websocketpp-src","/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend/_deps/json-src/single_include",/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/modules/footstone/include,"$(inherited)");
+				INSTALL_PATH = "";
+				LIBRARY_STYLE = STATIC;
+				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CPLUSPLUSFLAGS = "       -DNDEBUG '-std=gnu++17' ";
+				OTHER_LIBTOOLFLAGS = ("");
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = devtools_backend;
+				SECTORDER_FLAGS = "";
+				SYMROOT = "/Users/mengyanluo/work_project/HippyCode/GithubHippy_3.0/framework/example/ios-demo/devtools_backend";
+				USE_HEADERMAP = NO;
+				WARNING_CFLAGS = ("$(inherited)");
+			};
+			name = RelWithDebInfo;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		08B4880F807F44FEB247099D /* Build configuration list for PBXAggregateTarget "install" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B1BD9A772848470491EA40D2 /* Release */,
+				6842176ED4B24CB0AB615D38 /* RelWithDebInfo */,
+				A02AD5B27F0D42488DE92B4F /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1CBA3A5C3250477EBC81D861 /* Build configuration list for PBXAggregateTarget "ZERO_CHECK" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				80CE25F83F13439C9A9305E5 /* Release */,
+				89A48DCC92574B6EB2933A68 /* RelWithDebInfo */,
+				787560ABA8FF46FFB624042D /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		39CAB4D87FE64ECE9F9D907D /* Build configuration list for PBXNativeTarget "footstone" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B8E594F150F9476AA43C2D12 /* Release */,
+				9FD2500536844AF591B5A3F2 /* RelWithDebInfo */,
+				73102158BA8F452CBCED1C3C /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		70BA1C3F35394B56920B7E1A /* Build configuration list for PBXAggregateTarget "ALL_BUILD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				60178497B71C4673AAA0526E /* Release */,
+				4AD8E6AFB49D4F828164A664 /* RelWithDebInfo */,
+				BA1DC7A8A0A841DA900587CC /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C5794013A2AC458ABC845F47 /* Build configuration list for PBXProject "devtools_backend" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9169267FBE6842629F1E4272 /* Release */,
+				D50B15DC2A444B0D8BA579C0 /* RelWithDebInfo */,
+				15310878D05D4A27949E7FBB /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CE5810025D3B44479F33F9E9 /* Build configuration list for PBXNativeTarget "devtools_backend" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D90A64194D434EA296DDFD51 /* Release */,
+				E380E6E6A438499497F877D8 /* RelWithDebInfo */,
+				E00D794831FE4BA4BB399EA5 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E34F7CE88E194BD5BDD618F0 /* Project object */;
+}
