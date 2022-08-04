@@ -44,23 +44,23 @@ import icon from './qb_icon_new.png';
 
 ## 参数
 
-| 参数          | 描述                                                         | 类型                                                         | 支持平台 |
-| ------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
-| capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
-| defaultSource | 指定当 `Image` 组件还没加载出来 `source` 属性指定的图片的占位符图片，当 `source` 属性指定的图片加载失败时， `Image` 组件会显示 `defaultSource` 属性指定的图片 | `string`: 图片 base64 字符串                                     | `Android、iOS、hippy-react-web`    |
-| source        | uri 是一个表示图片的资源标识的字符串。 现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。 | `{ uri: string }`                                            | `Android、iOS、hippy-react-web`    |
-| tintColor     | 对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)。 | [color](style/color.md) | `Android、iOS`|
-| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                                                   | `Android、iOS、hippy-react-web`    |
-| onLoad        | 加载成功完成时调用此回调函数。                               | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}` | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。               | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。`注意：hippy-react-web 不支持 repeat`   |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS、hippy-react-web` |
-| onError       | 当加载错误的时候调用此回调函数，参数为 `nativeEvent: { error }` | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onProgress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小 | `Function`                                                   |      `iOS`     |
-| onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web` |
-| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web` |
-| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
-| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
+| 参数          | 描述                                                                                                                                                                       | 类型                                                         | 支持平台 |
+| ------------- |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------| ------------------------------------------------------------ | -------- |
+| capInsets     | 当调整 `Image` 大小的时候，由 `capInsets` 指定的边角尺寸会被固定而不进行缩放，而中间和边上其他的部分则会被拉伸。这在制作一些可变大小的圆角按钮、阴影、以及其它资源的时候非常有用。                                                                     | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
+| defaultSource | 指定当 `Image` 组件还没加载出来 `source` 属性指定的图片的占位符图片，当 `source` 属性指定的图片加载失败时， `Image` 组件会显示 `defaultSource` 属性指定的图片                                                               | `string`: 图片 base64 字符串                                     | `Android、iOS、hippy-react-web、Web-Renderer`    |
+| source        | uri 是一个表示图片的资源标识的字符串。 现在支持的图片格式有 `png` , `jpg` , `jpeg` , `bmp` , `gif` 。                                                                                                | `{ uri: string }`                                            | `Android、iOS、hippy-react-web、Web-Renderer`    |
+| tintColor     | 对图片进行染色(对非纯色图片进行有透明度的染色时，Android 和 iOS 的 `blendMode` 默认值有差异)。                                                                                                            | [color](style/color.md) | `Android、iOS、Web-Renderer`|
+| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置                                                                        | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer`    |
+| onLoad        | 加载成功完成时调用此回调函数。                                                                                                                                                          | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onLoadStart   | 加载开始时调用。 例如, `onLoadStart={() => this.setState({ loading: true })}`                                                                                                      | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onLoadEnd     | 加载结束后，不论成功还是失败，调用此回调函数。                                                                                                                                                  | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| resizeMode    | 决定当组件尺寸和图片尺寸不成比例的时候如何调整图片的大小。`注意：hippy-react-web、Web-Renderer 不支持 repeat`                                                                                                |  `enum (cover, contain, stretch, repeat, center)` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onError       | 当加载错误的时候调用此回调函数，参数为 `nativeEvent: { error }`                                                                                                                             | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onProgress    | 在加载过程中不断调用，参数为 `nativeEvent: { loaded: number, total: number }`, `loaded` 表示加载中的图片大小， `total` 表示图片总大小                                                                    | `Function`                                                   |      `iOS`     |
+| onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置                                             | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置                                          | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置                                     | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
 
 ## 方法
 
@@ -98,29 +98,29 @@ import icon from './qb_icon_new.png';
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
 | bounces | 是否开启回弹效果，默认 `true`， Android `2.14.1` 版本后支持该属性，老版本使用 `overScrollEnabled` | `boolean`                                                  | `Android`、`iOS`    |
 | overScrollEnabled | 是否开启回弹效果，默认 `true`，3.0 版本后即将废弃 | `boolean`                                                  | `Android`    |
-| getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS、hippy-react-web` |
-| getRowStyle           | 设置 `ListViewItem` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `Android、iOS、hippy-react-web` |
+| getRowKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| getRowStyle           | 设置 `ListViewItem` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `ListViewItem` 宽度              | `(index: number) => styleObject`                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | getHeaderStyle           | 设置 `PullHeader` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `PullHeader` 宽度。`最低支持版本2.14.1`              | `() => styleObject`                                    | `Android、iOS` |
 | getFooterStyle           | 设置 `PullFooter` 容器的样式。当设置了 `horizontal=true` 启用横向 `ListView` 时，需显式设置 `PullFooter` 宽度。`最低支持版本2.14.1`              | `() => styleObject`                                    | `Android、iOS` |
-| getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `(index: number) => number`                                    | `Android、iOS、hippy-react-web` |
+| getRowType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。`注意：同一 type 的 item 组件由于复用可能不会走完整组件创建生命周期` | `(index: number) => number`                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | horizontal       | 指定 `ListView` 是否采用横向布局。`default: undefined` 纵向布局，Android `2.14.1` 版本后可设置 `false` 显式固定纵向布局；iOS 暂不支持横向 `ListView`| `boolean \| undefined`   | `Android、hippy-react-web` |
-| initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `Android、iOS` |
-| initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `Android、iOS`    |
-| onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web` |
-| onDisappear     | 当有`ListViewItem`滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web` |
+| initialListSize       | 指定在组件刚挂载的时候渲染多少行数据。用这个属性来确保首屏显示合适数量的数据，而不是花费太多帧时间逐步显示出来。 | `number`                                                    | `Android、iOS、Web-Renderer` |
+| initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持        | `number`                                             | `Android、iOS、Web-Renderer`    |
+| onAppear     | 当有`ListViewItem`滑动进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onDisappear     | 当有`ListViewItem`滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 | `(index) => void` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onWillAppear     | 当有`ListViewItem`至少一个像素进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 `最低支持版本2.3.0` | `(index) => void` | `Android、iOS` |
 | onWillDisappear     | 当有`ListViewItem`至少一个像素滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 `最低支持版本2.3.0`| `(index) => void` | `Android、iOS` |
-| onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS、hippy-react-web` |
-| onMomentumScrollBegin | 在 `ListView` 开始滑动的时候触发。                          | `Function`                                                  | `Android、iOS`    |
-| onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候触发。                          | `Function`                                                  | `Android、iOS`    |
-| onScroll              | 在 `ListView` 滑动时回调。调用频率可能较高，可使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向 ListView 时，Android 在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `Android、iOS、hippy-react-web` |
-| onScrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `Android、iOS`    |
-| onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动时调用 | `Function`                                                  | `Android、iOS`    |
-| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `Android、iOS` |
-| renderRow             | 这里的入参是当前行的索引 index，需返回 Node 节点。在这里可以凭借 index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `Android、iOS、hippy-react-web` |
-| rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回 true 或 false 指定对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕）。 | `(index: number) => boolean`                                | `Android、iOS、hippy-react-web` |
-| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 事件 | `number`                                                    | `Android、iOS、hippy-react-web` |
-| scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、hippy-react-web` |
+| onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onMomentumScrollBegin | 在 `ListView` 开始滑动的时候触发。                          | `Function`                                                  | `Android、iOS、Web-Renderer`    |
+| onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候触发。                          | `Function`                                                  | `Android、iOS、Web-Renderer`    |
+| onScroll              | 在 `ListView` 滑动时回调。调用频率可能较高，可使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向 ListView 时，Android 在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `Android、iOS、Web-Renderer`    |
+| onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动时调用 | `Function`                                                  | `Android、iOS、Web-Renderer`    |
+| preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `Android、iOS、Web-Renderer` |
+| renderRow             | 这里的入参是当前行的索引 index，需返回 Node 节点。在这里可以凭借 index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回 true 或 false 指定对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕）。 | `(index: number) => boolean`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 事件 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`  | `iOS、hippy-react-web` |
 | renderPullHeader   | 设置列表下拉头部（刷新条），配合`onHeaderReleased`、`onHeaderPulling` 和 `collapsePullHeader`使用, 参考 [DEMO](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/PullHeaderFooter/index.jsx)。 | `() => View`                                                   | `Android、iOS、hippy-react-web` |
 | onHeaderPulling   | 下拉过程中触发, 事件会通过 contentOffset 参数返回拖拽高度，可以根据下拉偏移量做相应的逻辑。 | `(obj: { contentOffset: number }) => any`                                                   | `Android、iOS、hippy-react-web` |
@@ -176,16 +176,16 @@ import icon from './qb_icon_new.png';
 
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
-| animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `Android、iOS、hippy-react-web` |
-| animationType         | 动画效果                                                            | `enum (none, slide, fade, slide_fade)` | `Android、iOS、hippy-react-web` |
+| animated              | 弹出时是否需要带动画                                                            | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| animationType         | 动画效果                                                            | `enum (none, slide, fade, slide_fade)` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | supportedOrientations | 支持屏幕翻转方向                                                            | `enum (portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
 | immersionStatusBar    | 是否是沉浸式状态栏。`default: false`                                        | `boolean`                                                    | `Android`    |
 | darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS`    |
-| onShow                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS、hippy-react-web` |
+| onShow                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onOrientationChange   | 屏幕旋转方向改变时执行会回调                       | `Function`                                                   | `Android、iOS`    |
 | onRequestClose        | 在 `Modal` 请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android、hippy-react-web` |
-| transparent           | 背景是否是透明的。`default: true`                    | `boolean`                                                    | `Android、iOS、hippy-react-web` |
-| visible               | 是否显示。`default: true`                                                    | `boolean`                                                    | `Android、iOS、hippy-react-web` |
+| transparent           | 背景是否是透明的。`default: true`                    | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| visible               | 是否显示。`default: true`                                                    | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 
 ---
 
@@ -201,9 +201,9 @@ import icon from './qb_icon_new.png';
 
 | 参数       | 描述                                                 | 类型       | 支持平台 |
 | ---------- | ---------------------------------------------------- | ---------- | -------- |
-| onRefresh  | 当`RefreshWrapper`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web` |
-| getRefresh | 定义刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web` |
-| bounceTime | 指定刷新条收回动画的时长，单位为ms                   | `number`   | `Android、iOS`    |
+| onRefresh  | 当`RefreshWrapper`执行刷新操作时，会触发到此回调函数 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| getRefresh | 定义刷新栏的视图表现，返回 `View`， `Text` 等组件。  | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| bounceTime | 指定刷新条收回动画的时长，单位为ms                   | `number`   | `Android、iOS、Web-Renderer`    |
 
 ## 方法
 
@@ -233,17 +233,17 @@ import icon from './qb_icon_new.png';
 | 参数                           | 描述                                                         | 类型                                                         | 支持平台 |
 | ------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | -------- |
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| contentContainerStyle          | 这些样式会应用到一个内层的内容容器上，所有的子视图都会包裹在内容容器内。 | `StyleSheet`                                                 | `Android、iOS、hippy-react-web` |
-| horizontal                     | 当此属性为 `true` 的时候，所有的子视图会在水平方向上排成一行，而不是默认的在垂直方向上排成一列 | `boolean`                                                    | `Android、iOS、hippy-react-web` |
-| onMomentumScrollBegin          | 在 `ScrollView` 滑动开始的时候调起。                         | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onMomentumScrollEnd            | 在 `ScrollView` 滑动结束的时候调起。                         | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onScroll                       | 在滚动的过程中，每帧最多调用一次此回调函数。                 | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onScrollBeginDrag              | 当用户开始拖拽 `ScrollView` 时调用。                         | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` | `boolean`                                                    | `Android、iOS、hippy-react-web` |
-| scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `Android、iOS、hippy-react-web` |
+| contentContainerStyle          | 这些样式会应用到一个内层的内容容器上，所有的子视图都会包裹在内容容器内。 | `StyleSheet`                                                 | `Android、iOS、hippy-react-web、Web-Renderer` |
+| horizontal                     | 当此属性为 `true` 的时候，所有的子视图会在水平方向上排成一行，而不是默认的在垂直方向上排成一列 | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onMomentumScrollBegin          | 在 `ScrollView` 滑动开始的时候调起。                         | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onMomentumScrollEnd            | 在 `ScrollView` 滑动结束的时候调起。                         | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScroll                       | 在滚动的过程中，每帧最多调用一次此回调函数。                 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollBeginDrag              | 当用户开始拖拽 `ScrollView` 时调用。                         | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
-| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                        | `boolean`                                                    | `Android、iOS、hippy-react-web` |
+| scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                        | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android\、hippy-react-web` |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS`    |
@@ -322,27 +322,26 @@ import icon from './qb_icon_new.png';
 | 参数                  | 描述                                                         | 类型                                                         | 支持平台  |
 | --------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------- |
 | caretColor          | 输入光标颜色。（也可设置为 Style 属性） `最低支持版本2.11.5` | [`color`](style/color.md)    | `Android、hippy-react-web` |
-| defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `Android、iOS、hippy-react-web` |
-| editable              | 如果为 false，文本框是不可编辑的。 `default: true`                          | `boolean`                                                    | `Android、iOS、hippy-react-web` |
-| keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web` |
-| maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `Android、iOS、hippy-react-web` |
-| multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `Android、iOS、hippy-react-web` |
-| numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、hippy-react-web` |
-| onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onFocus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
-| onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
+| defaultValue          | 提供一个文本框中的初始值。当用户开始输入的时候，值就可以改变。  在一些简单的使用情形下，如果你不想用监听消息然后更新 value 属性的方法来保持属性和状态同步的时候，就可以用 defaultValue 来代替。 | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
+| editable              | 如果为 false，文本框是不可编辑的。 `default: true`                          | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| keyboardType          | 决定弹出的何种软键盘的。 注意，`password`仅在属性 `multiline=false` 单行文本框时生效。 | `enum (default, numeric, password, email, phone-pad)` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| maxLength             | 限制文本框中最多的字符数。使用这个属性而不用JS 逻辑去实现，可以避免闪烁的现象。 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| multiline             | 如果为 `true` ，文本框中可以输入多行文字。 由于终端特性。    | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| numberOfLines         | 设置 `TextInput` 最大显示行数，如果 `TextInput` 没有显式设置高度，会根据 `numberOfLines` 来计算高度撑开。在使用的时候必需同时设置 `multiline` 参数为 `true`。 | `number`                                                     | `Android、hippy-react-web、Web-Renderer` |
+| onBlur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onChangeText          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | onKeyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
 | onKeyboardWillHide    | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
 | onKeyboardHeightChanged    | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function`                                                   | `iOS`     |
-| onEndEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、hippy-react-web` |
-| onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `nativeEvent: { selection: { start, end } }`。 | `Function`                                                   | `Android、iOS`     |
-| placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、hippy-react-web` |
-| placeholderTextColor  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）`最低支持版本2.13.4`                | [`color`](style/color.md)                                | `Android、iOS`     |
-| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum (done, go, next, search, send)`              | `Android、iOS`     |
+| onEndEditing          | 当文本输入结束后调用此回调函数。                             | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onLayout              | 当组件挂载或者布局变化的时候调用，参数为`nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onSelectionChange     | 当输入框选择文字的范围被改变时调用。返回参数的样式如 `nativeEvent: { selection: { start, end } }`。 | `Function`                                                   | `Android、iOS、Web-Renderer`     |
+| placeholder           | 如果没有任何文字输入，会显示此字符串。                       | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
+| placeholderTextColor  | 占位字符串显示的文字颜色。（也可设置为 Style 属性）`最低支持版本2.13.4`                | [`color`](style/color.md)                                | `Android、iOS、Web-Renderer`     |
+| returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum (done, go, next, search, send)`              | `Android、iOS、Web-Renderer`     |
 | underlineColorAndroid | `TextInput` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性） | [`color`](style/color.md)                                                      | `Android` |
-| value                 | 指定 `TextInput` 组件的值。                                  | `string`                                                     | `Android、iOS、hippy-react-web` |
-| autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `Android、iOS、hippy-react-web` |
+| value                 | 指定 `TextInput` 组件的值。                                  | `string`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
+| autoFocus             | 组件渲染时自动获得焦点。                                       | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | breakStrategy* | 设置Android API 23及以上系统的文本折行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
 
 * breakStrategy 的参数含义：
@@ -392,15 +391,15 @@ import icon from './qb_icon_new.png';
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `Android、iOS、hippy-react-web` |
-| opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS、hippy-react-web` |
-| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS、hippy-react-web` |
-| onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `Android、iOS、hippy-react-web` |
-| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 `default: tail` | `enum(head, middle, tail, clip)` | `Android(版本 2.14.1以上全支持，低版本仅支持tail)、iOS(全支持)、hippy-react-web(clip、ellipsis)` |
-| onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web` |
-| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web` |
-| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
-| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
+| numberOfLines | 用来当文本过长的时候裁剪文本。包括折叠产生的换行在内，总的行数不会超过这个属性的限制。 | `number`                                  | `Android、iOS、hippy-react-web、Web-Renderer` |
+| opacity       | 配置 `View` 的透明度，同时会影响子节点的透明度。             | `number`                                  | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onLayout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onClick       | 当文本被点击以后调用此回调函数。  例如， `onClick={() => console.log('onClick') }` | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| ellipsizeMode* | 当设定了 `numberOfLines` 值后，这个参数指定了字符串如何被截断。所以在使用 `ellipsizeMode` 时，必须得同时指定 `numberOfLines` 数值。 `default: tail` | `enum(head, middle, tail, clip)` | `Android 仅支持 tail 属性，iOS 全支持、hippy-react-web(clip、ellipsis)、Web-Renderer(clip、ellipsis)` |
+| onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
 | breakStrategy* | 设置Android API 23及以上系统的文本折行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
 
 * ellipsizeMode 的参数含义：
@@ -429,16 +428,16 @@ import icon from './qb_icon_new.png';
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。启用无障碍的其他属性时，必须优先设置 `accessible` 为 `true`。 | `boolean` | `Android、iOS、hippy-react-web` |
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `string`                               | `Android、iOS、hippy-react-web` |
 | collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失 `（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`(也可设置为 Style 属性)` | `boolean`                            | `Android` |
-| style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS、hippy-react-web` |
-| opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、hippy-react-web` |
-| overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、hippy-react-web` |
+| style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS、hippy-react-web、Web-Renderer` |
+| opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、hippy-react-web、Web-Renderer` |
+| overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、hippy-react-web、Web-Renderer` |
 | nativeBackgroundAndroid    | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认 false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/index.jsx) | `Object`| `Android`    |
-| onLayout           | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                           | `Android、iOS、hippy-react-web` |
-| onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `Android、iOS、hippy-react-web` |
-| onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web` |
-| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web` |
-| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
-| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web` |
+| onLayout           | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                           | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onAttachedToWindow           | 这个事件会在节点已经渲染并且添加到容器组件中触发，因为 Hippy 的渲染是异步的，这是很稳妥的执行后续操作的事件。 | `Function`                           | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchDown  | 当用户开始在控件上按下手指时，将回调此函数，并将触屏点信息作为参数传递进来； 参数为 `nativeEvent: { name, page_x, page_y, id }`,  `page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置| `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchMove   | 当用户在控件移动手指时，此函数会持续收到回调，并通过event参数告知控件的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchEnd    | 当触屏操作结束，用户在该控件上抬起手指时，此函数将被回调，event参数也会通知当前的触屏点信息；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onTouchCancel | 当用户触屏过程中，某个系统事件中断了触屏，例如电话呼入、组件变化（如设置为hidden）、其他组件的滑动手势，此函数会收到回调，触屏点信息也会通过event参数告知前端；参数为 `nativeEvent: { name, page_x, page_y, id }`，`page_x` 和 `page_y` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
 
 
 ## 方法
@@ -447,7 +446,7 @@ import icon from './qb_icon_new.png';
 
 [[setPressed 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
 
-`最低支持版本 2.13.1。hippy-react-web 不支持`
+`最低支持版本 2.13.1。hippy-react-web、Web-Renderer 不支持`
 
 `(pressed: boolean) => void` 通过传入一个布尔值，通知终端当前是否需要显示水波纹效果
 
@@ -457,7 +456,7 @@ import icon from './qb_icon_new.png';
 
 [[setHotspot 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/RippleViewAndroid/RippleViewAndroid.jsx)
 
-`最低支持版本 2.13.1 hippy-react-web 不支持`
+`最低支持版本 2.13.1 hippy-react-web、Web-Renderer 不支持`
 
 `(x: number, y: number) => void` 通过传入一个 `x, y` 坐标值，通知终端设置当前波纹中心位置
 
@@ -474,11 +473,11 @@ import icon from './qb_icon_new.png';
 | 参数                     | 描述                                                         | 类型                                         | 支持平台 |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面 index，默认不指定的时候是0 | `number`                                     | `Android、iOS、hippy-react-web` |
-| scrollEnabled            | 指定 ViewPager 是否可以滑动，默认为 `true`                        | `boolean`                                    | `Android、iOS、hippy-react-web` |
-| onPageSelected           | 指定一个函数，当 page 被选中时进行回调。回调参数是一个 event 对象，回调参数： `position: number` - 表示即将滑到的目标 page 的索引 | `(obj: {position: number}) => void`      | `Android、iOS、hippy-react-web` |
-| onPageScroll             | 指定一个函数，当 page 被滑动时进行回调。回调参数是一个 event 对象，回调参数 `position: number` - 表示即将滑到的目标 page 的索引，`offset: number` - 当前被选中的 page 的相对位移，取值范围 -1 到 1 | `(obj: {position: number, offset: number}) => void` | `Android、iOS`    |
-| onPageScrollStateChanged | 指定一个函数，当 page 的滑动状态改变时进行回调。回调参数： `pageScrollState: string` - 改变后的状态，`idle` 表示停止，`dragging` 表示用户用手拖拽，`settling` 表示 page 正在滑动 | `(pageScrollState: string) => void`          | `Android、iOS、hippy-react-web` |
+| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面 index，默认不指定的时候是0 | `number`                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
+| scrollEnabled            | 指定 ViewPager 是否可以滑动，默认为 `true`                        | `boolean`                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onPageSelected           | 指定一个函数，当 page 被选中时进行回调。回调参数是一个 event 对象，回调参数： `position: number` - 表示即将滑到的目标 page 的索引 | `(obj: {position: number}) => void`      | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onPageScroll             | 指定一个函数，当 page 被滑动时进行回调。回调参数是一个 event 对象，回调参数 `position: number` - 表示即将滑到的目标 page 的索引，`offset: number` - 当前被选中的 page 的相对位移，取值范围 -1 到 1 | `(obj: {position: number, offset: number}) => void` | `Android、iOS、Web-Renderer`    |
+| onPageScrollStateChanged | 指定一个函数，当 page 的滑动状态改变时进行回调。回调参数： `pageScrollState: string` - 改变后的状态，`idle` 表示停止，`dragging` 表示用户用手拖拽，`settling` 表示 page 正在滑动 | `(pageScrollState: string) => void`          | `Android、iOS、hippy-react-web、Web-Renderer` |
 | direction | 设置 viewPager 滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动 | `string`          | `Android、hippy-react-web` |
 
 ## 方法
@@ -556,10 +555,10 @@ WebView组件。
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| source | Webview 内嵌地址 | `{ uri: string }` | `Android、iOS、hippy-react-web` |
+| source | Webview 内嵌地址 | `{ uri: string }` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | userAgent | Webview userAgent | `string` | `Android、iOS`|
 | method     | 请求方式， `get`、`post` | `string`   | `Android、iOS`    |
-| onLoadStart  | 网页开始加载时触发 | `(object: { url:string }) => void`   | `Android、iOS`  |
-| onLoad  | 网页加载时触发  | `(object: { url:string }) => void`   | `Android、iOS`  |
-| onLoadEnd  | 网页加载结束时触发 | `(object: { url:string }) => void`   | `Android、iOS、hippy-react-web` |
-| style  | Webview 容器样式  | `Object`   | `Android、iOS、hippy-react-web` |
+| onLoadStart  | 网页开始加载时触发 | `(object: { url:string }) => void`   | `Android、iOS、Web-Renderer`  |
+| onLoad  | 网页加载时触发  | `(object: { url:string }) => void`   | `Android、iOS、Web-Renderer`  |
+| onLoadEnd  | 网页加载结束时触发 | `(object: { url:string }) => void`   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| style  | Webview 容器样式  | `Object`   | `Android、iOS、hippy-react-web、Web-Renderer` |
