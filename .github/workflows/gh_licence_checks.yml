@@ -5,10 +5,10 @@ on:
     inputs:
       commit-from:
         description: 'specify the start of commit hash'
-        required: false
+        required: true
       commit-to:
         description: 'specify the end of commit hash'
-        required: false
+        required: true
   pull_request:
     branches:
       - master
@@ -35,12 +35,8 @@ on:
       - '**.mm?'
       - '**.swift'
       - '**.podspec'
-      - '**.html?'
-      - '**.xhtml?'
-      - '**.xml'
       - '**.cmake'
       - '**.java'
-      - '**.cfg'
       - '**.txt'
       - '**.sh'
       - '**.yaml'
@@ -54,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check License or Date from github PR files
-        uses: zoomchan-cxj/actions-license@v0.0.5
+        uses: zoomchan-cxj/actions-license@v0.1.0
         with:
           config-path: .github/license-check.json
           token: ${{ secrets.GITHUB_TOKEN }}
