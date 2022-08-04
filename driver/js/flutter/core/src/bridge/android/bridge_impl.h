@@ -40,7 +40,6 @@ class BridgeImpl {
 
  public:
   using byte_string = hippy::V8BridgeUtils::byte_string;
-  using WorkManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<footstone::WorkerManager>>;
 
   static int64_t InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platform_runtime,
                               bool single_thread_mode,
