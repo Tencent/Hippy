@@ -19,16 +19,18 @@
  */
 
 import { ImageResizeMode, NodeProps, InnerNodeTag, UIProps, HippyBaseView } from '../types';
-import { convertHexToRgbaArray, setElementStyle } from '../common';
-import { Color, Solver } from '../third-lib/color-transform.js';
+import { convertHexToRgba, hasOwnProperty, setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
 
-export class Image extends HippyWebView<HTMLImageElement> {
+export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private isLoadSuccess = false;
+  private tintModeContainerDom: HTMLElement | null = null;
+  private renderImgDom: HTMLImageElement | null = null;
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.IMAGE;
     this.dom = document.createElement('img');
+    this.renderImgDom = this.dom as HTMLImageElement;
     this.handleLoad = this.handleLoad.bind(this);
     this.init();
   }
@@ -58,11 +60,14 @@ export class Image extends HippyWebView<HTMLImageElement> {
   public set tintColor(value) {
     this.props[NodeProps.TINY_COLOR] = value;
     if (value !== undefined && value !== 0) {
-      const [red, blue, green] = convertHexToRgbaArray(value);
-      const color = new Color(red, blue, green);
-      const solver = new Solver(color);
-      const filter = solver.solve();
-      setElementStyle(this.dom!, { filter: filter.filter, willChange: 'auto' });
+      if (this.tintModeContainerDom === null) {
+        this.buildTintDomContainer();
+        if (this.dom?.parentNode) {
+          this.imgDomChangeContainer(this.dom?.parentNode as HTMLElement, this.tintModeContainerDom!);
+        }
+        return;
+      }
+      this.updateTintColor();
     } else {
       setElementStyle(this.dom!, { filter: '' });
     }
@@ -86,8 +91,8 @@ export class Image extends HippyWebView<HTMLImageElement> {
       this.props[NodeProps.RESIZE_MODE] = ImageResizeMode.CONTAIN;
     }
     this.props[NodeProps.RESIZE_MODE] = value;
-    if (this.dom && value) {
-      setElementStyle(this.dom, { objectFit: ImageResizeModeToObjectFit[value] });
+    if (this.renderImgDom && value) {
+      setElementStyle(this.renderImgDom, { objectFit: ImageResizeModeToObjectFit[value] });
     }
   }
 
@@ -114,8 +119,8 @@ export class Image extends HippyWebView<HTMLImageElement> {
       this.isLoadSuccess = false;
     }
 
-    if (this.dom && !this.defaultSource) {
-      this.dom.src = value ?? '';
+    if (this.renderImgDom && !this.defaultSource) {
+      this.renderImgDom.src = value ?? '';
       this.onLoadStart(null);
       return;
     }
@@ -140,7 +145,7 @@ export class Image extends HippyWebView<HTMLImageElement> {
   public set defaultSource(value: string) {
     this.props[NodeProps.DEFAULT_SOURCE] = value;
     if (!this.isLoadSuccess) {
-      this.dom!.src = value;
+      this.renderImgDom!.src = value;
     }
   }
 
@@ -164,20 +169,81 @@ export class Image extends HippyWebView<HTMLImageElement> {
     this.props[NodeProps.ON_PROGRESS] && this.context.sendUiEvent(this.id, NodeProps.ON_PROGRESS, event);
   }
 
+  public mounted() {
+    if (this.tintModeContainerDom && this.dom !== this.tintModeContainerDom) {
+      const oldParentNode = this.dom!.parentNode!;
+      this.imgDomChangeContainer(oldParentNode as HTMLElement, this.tintModeContainerDom);
+      this.updateTintColor();
+    }
+  }
+
   private init() {
     this.dom!.addEventListener('load', this.handleLoad);
   }
 
   private handleLoad(_event: Event, loadUrl?: string) {
     this.isLoadSuccess = false;
-
-    if ((!loadUrl && this.dom?.src === this.src) || loadUrl === this.src) {
+    if ((!loadUrl && this.renderImgDom?.src === this.src) || loadUrl === this.src) {
       this.onLoad(null);
-      if (this.dom?.src !== this.src) {
-        this.dom!.src = this.src;
+      if (this.renderImgDom?.src !== this.src) {
+        this.renderImgDom!.src = this.src;
       }
     }
     this.onLoadEnd(null);
+  }
+
+  private buildTintDomContainer() {
+    this.tintModeContainerDom = document.createElement('div');
+    this.tintModeContainerDom.style.overflow = 'hidden';
+  }
+
+  private imgDomChangeContainer(oldParent: HTMLElement, newParent: HTMLElement) {
+    const realIndex = this.findDomIndex();
+    oldParent.removeChild(this.dom!);
+    this.dom = this.tintModeContainerDom!;
+    newParent.appendChild(this.renderImgDom!);
+    oldParent.insertBefore(this.dom, oldParent.childNodes[realIndex] ?? null);
+    this.context.getModuleByName('UIManagerModule').defaultUpdateComponentProps(this, this.props);
+    this.imDomFilterNoUseStyle();
+  }
+
+  private imDomFilterNoUseStyle() {
+    const { style } = this.props;
+    for (const key of Object.keys(style)) {
+      if (! hasOwnProperty(style, key)) {
+        return;
+      }
+      if (key.indexOf('width') !== -1 || key.indexOf('height') !== -1) {
+        continue;
+      }
+      this.renderImgDom!.style[key] = '';
+      this.clearBorder();
+    }
+  }
+  private clearBorder() {
+    this.renderImgDom!.style.borderStyle = '';
+    this.renderImgDom!.style.borderTopStyle = '';
+    this.renderImgDom!.style.borderLeftStyle = '';
+    this.renderImgDom!.style.borderRightStyle = '';
+    this.renderImgDom!.style.borderBottomStyle = '';
+  }
+
+  private findDomIndex() {
+    let realIndex = 0;
+    this.dom?.parentNode!.childNodes.forEach((item, index) => {
+      if (item === this.dom) {
+        realIndex = index;
+      }
+    });
+    return realIndex;
+  }
+
+  private updateTintColor() {
+    const colorValue = convertHexToRgba(this.tintColor);
+    setElementStyle(this.renderImgDom!, {
+      transform: 'translateX(-100%)',
+      filter: `drop-shadow(${this.props.style.width}px 0 ${colorValue})`,
+    });
   }
 }
 export const ImageResizeModeToObjectFit = (function () {
