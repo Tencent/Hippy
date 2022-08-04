@@ -18,11 +18,10 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped, CommonMapParams } from '@hippy-shared/index';
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
-import type { CommonMapParams } from '../../global';
 import { EventBus as HippyEventBus } from '../runtime/event/event-bus';
 import { Native } from '../runtime/native';
 

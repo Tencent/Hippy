@@ -21,3 +21,10 @@ export const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
  * @public
  */
 export const HIPPY_STATIC_PROTOCOL = 'hpfile://';
+
+export type CallbackType = Function;
+
+// 通用的对象map式格式
+export interface CommonMapParams {
+  [key: string]: NeedToTyped;
+}

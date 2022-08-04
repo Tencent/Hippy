@@ -1,4 +1,4 @@
-import type { CallbackType } from '../../../global';
+import type { CallbackType } from '@hippy-shared/index';
 import { getUniqueId, DEFAULT_ROOT_ID } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { preCacheNode } from '../../util/node-cache';

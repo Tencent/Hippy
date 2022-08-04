@@ -5,7 +5,10 @@
   "author": "mitnickliu <mitnickliu@tencent.com>",
   "homepage": "https://hippyjs.org",
   "license": "Apache-2.0",
-  "main": "dist/index.js",
+  "entry": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-next",
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
@@ -27,6 +30,5 @@
     "@vue/runtime-core": "^3.2.21",
     "@vue/shared": "^3.2.21",
     "tiny-emitter": "2.1.0"
-  },
-  "entry": "./src/index.ts"
+  }
 }

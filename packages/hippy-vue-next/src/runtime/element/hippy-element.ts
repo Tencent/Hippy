@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped, CallbackType } from '@hippy-shared/index';
 import {
   parseBackgroundImage,
   PROPERTIES_MAP,
@@ -28,7 +28,6 @@ import {
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
 
-import type { CallbackType } from '../../../global';
 import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {
   capitalizeFirstLetter,

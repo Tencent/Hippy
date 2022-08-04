@@ -4,6 +4,7 @@ const cjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const typescript = require('rollup-plugin-typescript2');
+const { apiExtractor } = require('rollup-plugin-api-extractor');
 
 const VueVersion = require('../packages/hippy-vue-next/node_modules/@vue/runtime-core/package.json').version;
 const hippyVueNextPackage = require('../packages/hippy-vue-next/package.json');
@@ -51,13 +52,12 @@ function resolvePackage(src, extra = 'src') {
 }
 
 const builds = {
-  '@hippy/vue-next': {
-    entry: resolvePackage('hippy-vue-next', 'src/index.ts'),
-    dest: resolvePackage('hippy-vue-next', 'dist/index.js'),
-    format: 'es',
-    banner: banner('@hippy/vue', hippyVueNextPackage.version),
-    name: 'hippy-vue-next',
-    external: ['@vue/runtime-core'],
+  '@hippy/shared': {
+    entry: resolvePackage('hippy-shared', 'src/index.ts'),
+    dest: resolvePackage('hippy-shared', 'dist/index.js'),
+    format: 'cjs',
+    moduleName: 'hippy-shared',
+    banner: banner('@hippy/shared', hippySharedPackage.version),
   },
   '@hippy/style-parser': {
     entry: resolvePackage('hippy-style-parser', 'src/index.ts'),
@@ -66,12 +66,13 @@ const builds = {
     moduleName: 'hippy-style-parser',
     banner: banner('@hippy/style-parser', hippyStyleParserPackage.version),
   },
-  '@hippy/shared': {
-    entry: resolvePackage('hippy-shared', 'src/index.ts'),
-    dest: resolvePackage('hippy-shared', 'dist/index.js'),
-    format: 'cjs',
-    moduleName: 'hippy-shared',
-    banner: banner('@hippy/shared', hippySharedPackage.version),
+  '@hippy/vue-next': {
+    entry: resolvePackage('hippy-vue-next', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next', 'dist/index.js'),
+    format: 'es',
+    banner: banner('@hippy/vue', hippyVueNextPackage.version),
+    name: 'hippy-vue-next',
+    external: ['@vue/runtime-core'],
   },
 };
 
@@ -96,7 +97,35 @@ function genConfig(name) {
           'inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__': 'global.__VUE_DEVTOOLS_GLOBAL_HOOK__',
         },
       }),
-      typescript({}),
+      typescript({
+        typescript: require('ttypescript'),
+        tsconfigDefaults: {
+          compilerOptions: {
+            plugins: [
+              // only deal with d.ts，ignore js
+              // do not transform external npm package path in d.ts
+              { transform: 'typescript-transform-paths', afterDeclarations: true, exclude: ['**/@vue/runtime-core/**'] },
+            ],
+          },
+        },
+        tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+        tsconfigOverride: {
+          compilerOptions: {
+            declaration: true,
+            declarationMap: false,
+          },
+          exclude: ['**/__tests__/*.test.*'],
+        },
+      }),
+      apiExtractor({
+        configFile: path.resolve(__dirname, '../packages/', opts.name || opts.moduleName, './api-extractor.json'),
+        configuration: {
+          projectFolder: '.',
+          compiler: {
+            tsconfigFilePath: './tsconfig.json',
+          },
+        },
+      }),
       nodeResolve({
         preferBuiltins: true,
       }),
