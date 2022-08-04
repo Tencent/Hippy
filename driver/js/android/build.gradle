@@ -111,6 +111,7 @@ android {
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
+                  "-DENABLE_TURBO=$ENABLE_TURBO",
                   "-DV8_COMPONENT=$V8_COMPONENT",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
@@ -138,6 +139,7 @@ android {
                   "-DANDROID_PLATFORM=android-21",
                   "-DANDROID_ARM_NEON=${INCLUDE_ABI_ARMEABI.toBoolean() ? 'FALSE' : 'TRUE'}",
                   "-DCMAKE_BUILD_TYPE=Debug",
+                  "-DENABLE_TURBO=$ENABLE_TURBO",
                   "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
                   "-DANDROID_STL=$ANDROID_STL",
                   "-DV8_COMPONENT=$V8_COMPONENT",

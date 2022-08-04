@@ -52,9 +52,12 @@
 #include "jni/jni_utils.h"
 #include "loader/adr_loader.h"
 
-#ifdef ANDROID_NATIVE_RENDER
+#ifdef ENABLE_TURBO
 #include "jni/java_turbo_module.h"
 #include "jni/turbo_module_manager.h"
+#endif
+
+#ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
 #include "render/native_render_jni.h"
 #endif
@@ -551,10 +554,14 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
   Uri::Init();
-#ifdef ANDROID_NATIVE_RENDER
+
+#ifdef  ENABLE_TURBO
   ConvertUtils::Init();
   JavaTurboModule::Init();
   TurboModuleManager::Init();
+#endif
+
+#ifdef ANDROID_NATIVE_RENDER
   NativeRenderJni::Init();
 #endif
 
@@ -565,12 +572,15 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   hippy::napi::V8VM::PlatformDestroy();
 
   Uri::Destroy();
-#ifdef ANDROID_NATIVE_RENDER
+
+#ifdef ENABLE_TURBO
   ConvertUtils::Destroy();
   JavaTurboModule::Destroy();
   TurboModuleManager::Destroy();
-  NativeRenderJni::Destroy();
 #endif
 
+#ifdef ANDROID_NATIVE_RENDER
+  NativeRenderJni::Destroy();
+#endif
   JNIEnvironment::DestroyInstance();
 }

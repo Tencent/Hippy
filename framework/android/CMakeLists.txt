@@ -89,12 +89,14 @@ set(SOURCE_SET
     src/jni/uri.cc
     src/loader/adr_loader.cc)
 # TODO: modify the conditions, when moving into the framework
-if (TARGET native_renderer)
+
+if (ENABLE_TURBO)
   list(APPEND SOURCE_SET
       src/jni/convert_utils.cc
       src/jni/turbo_module_manager.cc
       src/jni/java_turbo_module.cc)
 endif ()
+
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})

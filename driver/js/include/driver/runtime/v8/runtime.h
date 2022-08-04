@@ -26,9 +26,8 @@
 
 #include <memory>
 
-#ifdef ANDROID_NATIVE_RENDER
-#include "jni/turbo_module_runtime.h"
-#include "jni/scoped_java_ref.h"
+#ifdef ENABLE_TURBO
+class TurboModuleRuntime;
 #endif
 
 #include "driver/engine.h"
@@ -86,7 +85,7 @@ class Runtime {
     return devtools_data_source_;
   }
 #endif
-#ifdef ANDROID_NATIVE_RENDER
+#ifdef ENABLE_TURBO
   inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
     return turbo_module_runtime_;
   }
@@ -111,7 +110,7 @@ class Runtime {
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<CtxValue> bridge_func_;
   int32_t id_;
-#ifdef ANDROID_NATIVE_RENDER
+#ifdef ENABLE_TURBO
   std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
 #endif
 #ifdef ENABLE_INSPECTOR

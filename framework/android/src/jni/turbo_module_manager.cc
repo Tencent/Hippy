@@ -27,8 +27,10 @@
 #include "driver/runtime/v8/runtime.h"
 #include "driver/napi/v8/js_native_api_v8.h"
 #include "jni/java_turbo_module.h"
+#include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
+#include "jni/turbo_module_runtime.h"
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
              "install",
@@ -40,7 +42,7 @@ using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 jclass turbo_module_manager_clazz;
-jmethodID get_method_id;
+jmethodID j_method_id;
 
 /**
  * com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager.get
@@ -48,14 +50,14 @@ jmethodID get_method_id;
 std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime> &runtime,
                                               const std::string &module_name) {
   FOOTSTONE_DLOG(INFO) << "enter QueryTurboModuleImpl " << module_name.c_str();
-  JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jstring name = env->NewStringUTF(module_name.c_str());
-  jobject module_impl = env->CallObjectMethod(
+  JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  jstring j_name = j_env->NewStringUTF(module_name.c_str());
+  jobject module_impl = j_env->CallObjectMethod(
       runtime->GetTurboModuleRuntime()->turbo_module_manager_obj_,
-      get_method_id, name);
-  auto result = std::make_shared<JavaRef>(env, module_impl);
-  env->DeleteLocalRef(name);
-  env->DeleteLocalRef(module_impl);
+      j_method_id, j_name);
+  auto result = std::make_shared<JavaRef>(j_env, module_impl);
+  j_env->DeleteLocalRef(j_name);
+  j_env->DeleteLocalRef(module_impl);
   return result;
 }
 
@@ -65,8 +67,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
   int64_t runtime_key = (reinterpret_cast<int64_t>(data->Value()));
 
   auto runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_key));
-  std::shared_ptr<Ctx> ctx =
-      std::static_pointer_cast<Ctx>(runtime->GetScope()->GetContext());
+  std::shared_ptr<Ctx> ctx = std::static_pointer_cast<Ctx>(runtime->GetScope()->GetContext());
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx);
   auto isolate = v8_ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
@@ -155,16 +156,14 @@ void BindNativeFunction(const std::shared_ptr<Runtime>& runtime,
 }
 
 void TurboModuleManager::Init() {
-  JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jclass clazz =
-      env->FindClass("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager");
-  turbo_module_manager_clazz = reinterpret_cast<jclass>(env->NewGlobalRef(clazz));
-  env->DeleteLocalRef(clazz);
+  JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  jclass j_class = j_env->FindClass("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager");
+  turbo_module_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_class));
+  j_env->DeleteLocalRef(j_class);
 
-  get_method_id =
-      env->GetMethodID(turbo_module_manager_clazz, "get",
-                       "(Ljava/lang/String;)Lcom/tencent/mtt/hippy/modules/"
-                       "nativemodules/HippyNativeModuleBase;");
+  j_method_id = j_env->GetMethodID(turbo_module_manager_clazz, "get",
+                                     "(Ljava/lang/String;)Lcom/tencent/mtt/hippy/modules/"
+                                     "nativemodules/HippyNativeModuleBase;");
 }
 
 void TurboModuleManager::Destroy() {
@@ -173,7 +172,7 @@ void TurboModuleManager::Destroy() {
     env->DeleteGlobalRef(turbo_module_manager_clazz);
   }
 
-  get_method_id = nullptr;
+  j_method_id = nullptr;
 }
 
 int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
