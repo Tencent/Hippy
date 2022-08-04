@@ -78,7 +78,7 @@ bool DoubleIsEqual(const double a, const double b) {
   if (isUndefined(b)) {
     return isUndefined(a);
   }
-  return fabs(a - b) < 0.0001;
+  return fabs(a - b) < 0.0002;
 }
 
 bool FloatIsEqualInScale(float a, float b, float scale) {
