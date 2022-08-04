@@ -5,16 +5,11 @@
   "private": true,
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo",
   "license": "Apache-2.0",
-  "author": "birdguo",
+  "author": "birdguo@tencent.com",
   "scripts": {
-    "demo:debug": "hippy-debug",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "vite:build-dev": "vite build -c ./scripts/vite.config.dev.js --watch --mode development",
-    "vite:build-prod-android": "vite build -c ./scripts/vite.config.android.js",
-    "vite:build-prod-ios": "vite build -c ./scripts/vite.config.ios.js",
-    "webpack:build-dev": "hippy-dev -c ./scripts/webpack.dev.js",
-    "webpack:build-prod-android": "webpack --config ./scripts/webpack.android.js",
-    "webpack:build-prod-ios": "webpack --config ./scripts/webpack.ios.js"
+    "hippy:debug": "hippy-debug",
+    "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/webpack.dev.js",
+    "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/webpack.ios.js --config ./scripts/webpack.android.js"
   },
   "dependencies": {
     "@hippy/vue-next": "file:../../packages/hippy-vue-next",
@@ -43,6 +38,7 @@
     "babel-loader": "^8.1.0",
     "case-sensitive-paths-webpack-plugin": "^2.2.0",
     "clean-webpack-plugin": "^4.0.0",
+    "cross-env-os": "^7.1.1",
     "esbuild": "^0.13.14",
     "esbuild-loader": "^2.18.0",
     "file-loader": "^4.3.0",
@@ -51,7 +47,6 @@
     "terser": "^4.8.0",
     "ts-loader": "^8.4.0",
     "url-loader": "^4.0.0",
-    "vite": "^2.6.14",
     "vue": "^3.2.21",
     "vue-loader": "^17.0.0",
     "webpack": "^4.46.0",

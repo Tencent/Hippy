@@ -15,12 +15,12 @@ const routes = [
     component: RemoteDebug,
     name: 'Debug',
   },
-  ...Object.keys(Demos).map((demoId) => ({
+  ...Object.keys(Demos).map(demoId => ({
     path: `/demo/${demoId}`,
     name: Demos[demoId].name,
     component: Demos[demoId].component,
   })),
-  ...Object.keys(NativeDemos).map((demoId) => ({
+  ...Object.keys(NativeDemos).map(demoId => ({
     path: `/demo/${demoId}`,
     name: NativeDemos[demoId].name,
     component: NativeDemos[demoId].component,

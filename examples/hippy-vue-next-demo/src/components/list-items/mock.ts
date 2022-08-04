@@ -1,9 +1,6 @@
-const MOCK_IMG =
-  'https://user-images.githubusercontent.com/12878546/148736841-59ce5d1c-8010-46dc-8632-01c380159237.jpg';
-const MOCK_IMG2 =
-  'https://user-images.githubusercontent.com/12878546/148736850-4fc13304-25d4-4b6a-ada3-cbf0745666f5.jpg';
-const MOCK_COVER =
-  'https://user-images.githubusercontent.com/12878546/148736859-29e3a5b2-612a-4fdd-ad21-dc5d29fa538f.jpg';
+const MOCK_IMG =  'https://user-images.githubusercontent.com/12878546/148736841-59ce5d1c-8010-46dc-8632-01c380159237.jpg';
+const MOCK_IMG2 =  'https://user-images.githubusercontent.com/12878546/148736850-4fc13304-25d4-4b6a-ada3-cbf0745666f5.jpg';
+const MOCK_COVER =  'https://user-images.githubusercontent.com/12878546/148736859-29e3a5b2-612a-4fdd-ad21-dc5d29fa538f.jpg';
 
 const STYLE_1 = {
   style: 1,

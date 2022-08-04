@@ -3,7 +3,7 @@
   "version": "2.2.1",
   "description": "Vue-Next binding for Hippy native framework",
   "author": "mitnickliu <mitnickliu@tencent.com>",
-  "homepage": "http://hippyjs.org",
+  "homepage": "https://hippyjs.org",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-next",

@@ -41,19 +41,15 @@ export default defineComponent({
        *  import 出错时需在catch里做对应的降级方案
        */
 
-    AsyncComponentFromLocal: defineAsyncComponent(async () => import(
-      /* webpackMode: "lazy", webpackChunkName: "asyncComponentFromLocal" */ './dynamic-import/dynamic-import-local.vue')),
-
+    AsyncComponentFromLocal: defineAsyncComponent(async () => import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromLocal" */ './dynamic-import/dynamic-import-local.vue')),
     /**
        *  远程加载参考 AsyncComponentFromHttp，需显式指定chunk远程地址 customChunkPath，和chunk名称 webpackChunkName
        *  customChunkPath 会在运行时替换全局配置的publicPath
        *  import 出错时需在catch里做对应的降级方案
        */
     AsyncComponentFromHttp: defineAsyncComponent(async () => (process.env.NODE_ENV === 'development'
-      ? import(
-        /* webpackMode: "lazy", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue')
-      : import(
-        /* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/static/hippy-vue-next/", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue'))),
+      ? import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue')
+      : import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/static/hippy-vue-next/", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue'))),
   },
   setup() {
     const loaded = ref(false);

@@ -163,7 +163,7 @@ function createRootNode(rootContainer: string): HippyNode {
  *
  * @public
  */
-export const createHippyApp = (
+export const createApp = (
   vueRootComponent: Component,
   options: HippyAppOptions,
 ): HippyApp => {

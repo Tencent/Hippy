@@ -2,6 +2,7 @@
   <div
     id="demo-vue-native"
     ref="rectRef"
+    @layout="onLayout"
   >
     <div>
       <!-- 操作系统平台 -->
@@ -306,6 +307,8 @@ import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 
 import { getGlobalInitProps, warn } from '../../util';
 
+let networkListener;
+
 export default defineComponent({
   setup() {
     const clipboardString = ref('ready to set');
@@ -320,6 +323,7 @@ export default defineComponent({
     const fetchText = ref('请求网址中...');
     const cookieString = ref('ready to set');
     const cookiesValue = ref('');
+    let hasLayout = false;
 
     /**
        * 设置 item 内容
@@ -388,6 +392,19 @@ export default defineComponent({
       }
     };
 
+    /**
+     * layout event triggered means node real render on native
+     */
+    const onLayout = () => {
+      // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
+      if (!hasLayout && rectRef.value) {
+        hasLayout = true;
+        Native.measureInAppWindow(rectRef.value as HippyNode).then((rectInfo) => {
+          rect.value = `Container rect: ${JSON.stringify(rectInfo)}`;
+        });
+      }
+    };
+
     onMounted(() => {
       // hippy 初始化参数
       superProps.value = JSON.stringify(getGlobalInitProps());
@@ -396,7 +413,7 @@ export default defineComponent({
       Native.netInfo.fetch().then((netInfo) => {
         netInfoText.value = netInfo;
       });
-      Native.netInfo.addEventListener('change', (info) => {
+      networkListener = Native.netInfo.addEventListener('change', (info) => {
         netInfoText.value = `收到通知: ${info.network_info}`;
       });
 
@@ -409,13 +426,6 @@ export default defineComponent({
         .catch((error) => {
           fetchText.value = `收到错误: ${error}`;
         });
-
-      // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
-      if (rectRef.value) {
-        Native.measureInAppWindow(rectRef.value as HippyNode).then((rectInfo) => {
-          rect.value = `Container rect: ${JSON.stringify(rectInfo)}`;
-        });
-      }
     });
 
     // 屏幕是否是竖屏
@@ -441,7 +451,13 @@ export default defineComponent({
       getString,
       setCookie,
       getCookie,
+      onLayout,
     };
+  },
+  beforeDestroy() {
+    if (networkListener) {
+      Native.netInfo.removeEventListener('change', networkListener);
+    }
   },
 });
 </script>

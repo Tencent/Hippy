@@ -1,5 +1,5 @@
 import {
-  createHippyApp,
+  createApp,
   type HippyApp,
   EventBus,
   setScreenSize,
@@ -20,9 +20,9 @@ global.Hippy.on('unhandledRejection', (reason) => {
 });
 
 // 创建 hippy app 实例
-const app: HippyApp = createHippyApp(App, {
+const app: HippyApp = createApp(App, {
   // hippy native module名
-  appName: 'QQSmallHouseCenter',
+  appName: 'Demo',
   iPhone: {
     // 状态栏配置
     statusBar: {

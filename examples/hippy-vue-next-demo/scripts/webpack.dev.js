@@ -18,7 +18,7 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
 
 module.exports = {
   mode: 'development',
-  devtool: 'eval-source-map',
+  // devtool: 'eval-source-map',
   watch: true,
   watchOptions: {
     aggregateTimeout: 1500,
@@ -138,7 +138,7 @@ module.exports = {
         src: path.resolve('./src'),
       };
 
-      // If @vue/runtime-core was built exist in packages directory then make a alias
+      // If @vue/runtime-core was built exist in packages directory then make an alias
       // Remove the section if you don't use it
       const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
       if (fs.existsSync(path.resolve(hippyVueRuntimeCorePath, 'index.js'))) {
