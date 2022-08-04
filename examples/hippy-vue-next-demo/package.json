@@ -12,7 +12,7 @@
     "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/webpack.ios.js --config ./scripts/webpack.android.js"
   },
   "dependencies": {
-    "@hippy/vue-next": "file:../../packages/hippy-vue-next",
+    "@hippy/vue-next": "latest",
     "@vue/runtime-core": "^3.2.21",
     "vue-router": "4.0.12"
   },

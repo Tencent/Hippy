@@ -1,4 +1,4 @@
- # hippy-vue-next
+ # @hippy/vue-next
 
 ### Introduction
 
@@ -8,16 +8,16 @@ This package implements the logic of core runtime based on the custom renderer `
 
 ```javascript
 import { defineComponent } from 'vue';
-import { createHippyApp } from '@hippy/vue-next';
+import { createApp } from '@hippy/vue-next';
 
-const app = createHippyApp(defineComponent({
+const app = createApp(defineComponent({
   data() {
     return {
       counter: 0,
     }
   }
 }), {
-  appName: 'QQSmallHouseCenter',
+  appName: 'Demo',
 });
 ```
 
