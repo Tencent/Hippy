@@ -19,7 +19,7 @@
  */
 
 /**
- * Hippy内置支持的tag列表
+ * Tags supported by Hippy built-in
  */
 import type { NeedToTyped } from '@hippy-shared/index';
 
@@ -31,22 +31,20 @@ import { Native } from './runtime/native';
 import type { HippyNode } from './runtime/node/hippy-node';
 import { mapHippyEvent, convertImageLocalPath, warn, arrayCount } from './util';
 
-// 内置tag组件列表
+// list of built-in tag components
 const builtInTagComponentList: Map<string, TagComponent> = new Map();
 
-/** 输入框类型 */
 interface InputValueMapType {
   [key: string]: string;
 }
 
-// 输入框的类型
 const INPUT_VALUE_MAP: InputValueMapType = {
   number: 'numeric',
   text: 'default',
   search: 'web-search',
 };
 
-// 无障碍属性
+// accessibility properties
 const accessibilityAttrMaps = {
   role: 'accessibilityRole',
   'aria-label': 'accessibilityLabel',
@@ -88,7 +86,7 @@ const accessibilityAttrMaps = {
   },
 };
 
-// div组件
+// div component
 const div: TagComponent = {
   name: NATIVE_COMPONENT_MAP.View,
   eventNamesMap: mapHippyEvent([
@@ -137,7 +135,7 @@ const div: TagComponent = {
   },
 };
 
-// button组件
+// button component
 const button: TagComponent = {
   name: NATIVE_COMPONENT_MAP.View,
   attributeMaps: div.attributeMaps,
@@ -145,12 +143,12 @@ const button: TagComponent = {
   processEventData: div.processEventData,
 };
 
-// form组件
+// form component
 const form: TagComponent = {
   name: NATIVE_COMPONENT_MAP.View,
 };
 
-// img组件
+// img component
 const img: TagComponent = {
   name: NATIVE_COMPONENT_MAP.Image,
   eventNamesMap: div.eventNamesMap,
@@ -185,7 +183,7 @@ const img: TagComponent = {
   },
 };
 
-// list组件
+// list component
 const ul: TagComponent = {
   name: NATIVE_COMPONENT_MAP.ListView,
   defaultNativeStyle: {
@@ -228,7 +226,7 @@ const ul: TagComponent = {
   },
 };
 
-// list-item 组件
+// list-item component
 const li: TagComponent = {
   name: NATIVE_COMPONENT_MAP.ListViewItem,
   attributeMaps: {
@@ -239,7 +237,7 @@ const li: TagComponent = {
   ]),
 };
 
-// span文本组件
+// span component
 const span: TagComponent = {
   name: NATIVE_COMPONENT_MAP.Text,
   attributeMaps: div.attributeMaps,
@@ -253,13 +251,13 @@ const span: TagComponent = {
   },
 };
 
-// Label组件
+// label component
 const label: TagComponent = span;
 
-// p组件
+// p component
 const p: TagComponent = span;
 
-// a组件
+// a component
 const a: TagComponent = {
   ...span,
   defaultNativeStyle: {
@@ -281,7 +279,7 @@ const a: TagComponent = {
   },
 };
 
-// input 组件
+// input component
 const input: TagComponent = {
   name: NATIVE_COMPONENT_MAP.TextInput,
   attributeMaps: {
@@ -364,7 +362,7 @@ const input: TagComponent = {
   },
 };
 
-// textarea 组件
+// textarea component
 const textarea: TagComponent = {
   name: NATIVE_COMPONENT_MAP.TextInput,
   defaultNativeProps: {
@@ -383,7 +381,7 @@ const textarea: TagComponent = {
   processEventData: input.processEventData,
 };
 
-// iframe 组件
+// iframe component
 const iframe: TagComponent = {
   name: NATIVE_COMPONENT_MAP.WebView,
   defaultNativeProps: {
@@ -421,37 +419,23 @@ const iframe: TagComponent = {
   },
 };
 
-// div组件
 builtInTagComponentList.set('div', div);
-// button组件
 builtInTagComponentList.set('button', button);
-// form组件
 builtInTagComponentList.set('form', form);
-// image组件
 builtInTagComponentList.set('img', img);
-// ul组件
 builtInTagComponentList.set('ul', ul);
-// li组件
 builtInTagComponentList.set('li', li);
-// span组件 label组件 p组件, 这三个在native都是一样的
 builtInTagComponentList.set('span', span);
 builtInTagComponentList.set('label', label);
 builtInTagComponentList.set('p', p);
-// a组件
 builtInTagComponentList.set('a', a);
-// input组件
 builtInTagComponentList.set('input', input);
-// textarea组件
 builtInTagComponentList.set('textarea', textarea);
-// iframe组件
 builtInTagComponentList.set('iframe', iframe);
 
-/**
- * 导出Vue使用组件中间件默认的install方法
- */
 export default {
   install(): void {
-    // 注册全部内置built-in组件
+    // register all built-in components
     builtInTagComponentList.forEach((tagComponent, tagName) => {
       registerHippyTag(tagName, tagComponent);
     });

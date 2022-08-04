@@ -59,7 +59,7 @@ function remove(child: HippyNode): void {
 
   if (parent) {
     parent.removeChild(child);
-    // 移除节点时，也将缓存的节点移除
+    // when removing a node, also remove the cached node
     unCacheNodeOnIdle(child);
   }
 }

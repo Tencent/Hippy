@@ -361,9 +361,9 @@ export const measureInWindowByMethod = async (
   ));
 };
 
-// 设备连接事件
+// device connection event
 const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
-// 订阅的网络事件
+// subscribed web events
 const networkSubscriptions = new Map();
 
 /**

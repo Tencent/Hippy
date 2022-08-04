@@ -254,7 +254,6 @@ export function registerWaterfall(vueApp: App): void {
     render() {
       return h(
         hippyWaterfallItemTag,
-        // vue3 会将事件处理为 onXXX 并放在 attrs 内，因此无需再处理 $listeners 了
         {
           type: this.type,
         },
