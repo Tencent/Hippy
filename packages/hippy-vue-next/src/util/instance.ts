@@ -18,55 +18,53 @@
  * limitations under the License.
  */
 
-/** 定义Hippy Instance 缓存的格式 */
 import type { ComponentPublicInstance, App } from '@vue/runtime-core';
 import type { NeedToTyped } from '@hippy-shared/index';
 
 /**
  * @public
  *
- * Hippy 缓存实例的类型接口
+ * cache initialization parameters passed by native, instance
  */
 export interface HippyCachedInstanceType {
-  // 业务方传入的root container id，通常是root
+  // root container id
   rootContainer?: string;
-  // Native初始化的root view的id
+  // id of root view returned by native
   rootViewId: number;
-  // 项目初始化参数，由终端传入，类型未定
+  // initialization parameters passed by native
   superProps: NeedToTyped;
-  // 保存当前所使用的Vue app 实例
+  // Vue app instance
   app: App;
-  // 保存Vue app实例mount之后得到的ComponentPublicInstance
+  // ComponentPublicInstance after mounted
   instance?: ComponentPublicInstance;
-  // 设计稿基准宽度
+  // base screen width
   ratioBaseWidth: number;
 }
 
-// 缓存hippy instance实例
+// cache of hippy instance
 let hippyCachedInstance: HippyCachedInstanceType;
 
 /**
- * 获取保存的hippy实例
+ * get cache of hippy instance
  */
 export function getHippyCachedInstance(): HippyCachedInstanceType {
   return hippyCachedInstance;
 }
 
 /**
- * 缓存hippy实例
+ * set cache of hippy instance
  *
- * @param instance - hippy app 实例
+ * @param instance - hippy app instance
  */
 export function setHippyCachedInstance(instance: HippyCachedInstanceType): void {
   hippyCachedInstance = instance;
 }
 
 /**
- * 缓存hippy实例的某个key，key的类型是string，value
- * 是HippyCachedInstance的类型之一
+ * set cache of hippy instance by key
  *
- * @param key - hippy app 缓存实例的key
- * @param value - 缓存的值
+ * @param key - key of hippy app
+ * @param value - value
  */
 export function setHippyCachedInstanceParams<
   K extends keyof HippyCachedInstanceType,

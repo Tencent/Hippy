@@ -18,16 +18,16 @@
  * limitations under the License.
  */
 
-// 屏幕尺寸信息类型
+// size of screen
 export interface ScreenSize {
   width: number;
   height: number;
 }
 
 /**
- * 设置屏幕尺寸数据
+ * set size info of screen
  *
- * @param newScreenSize - 要设置的新屏幕尺寸数据
+ * @param newScreenSize - size info
  *
  * @public
  */

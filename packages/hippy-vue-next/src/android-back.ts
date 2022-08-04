@@ -26,19 +26,19 @@ const backPressSubscriptions = new Set();
 let hasInitialized = false;
 
 /**
- * 安卓物理返回键事件监听
+ * Android physical return key event listener
  */
 const realBackAndroid = {
   /**
-   * 退出APP
+   * exit APP
    */
   exitApp() {
     Native.callNative(DEVICE_MODULE, 'invokeDefaultBackPressHandler');
   },
   /**
-   * 添加物理按键监听事件
+   * Add physical button listener events
    *
-   * @param handler - 处理事件
+   * @param handler - handler method
    *
    */
   addListener(handler) {
@@ -56,9 +56,9 @@ const realBackAndroid = {
   },
 
   /**
-   * 移除物理按键监听事件
+   * Remove physical button listener events
    *
-   * @param handler - 处理事件
+   * @param handler - handler method
    */
   removeListener(handler) {
     backPressSubscriptions.delete(handler);
@@ -68,10 +68,10 @@ const realBackAndroid = {
   },
 
   /**
-   * 初始化事件监听器
+   * Initialize event listeners
    */
   initEventListener() {
-    // Vue3无$on $off等，使用tiny-emitter提供的事件总线
+    // Vue3 has no $on $off, etc., uses the event bus provided by tiny-emitter
     EventBus.$on('hardwareBackPress', () => {
       let invokeDefault = true;
       const subscriptions = Array.from(backPressSubscriptions).reverse();
@@ -90,7 +90,7 @@ const realBackAndroid = {
 };
 
 /**
- * 为iOS模拟物理返回按键的处理事件
+ * Handle events that simulate physical return keys for iOS
  */
 const fakeBackAndroid = {
   exitApp() {},
@@ -104,7 +104,7 @@ const fakeBackAndroid = {
 };
 
 /**
- * 安卓物理返回按键处理
+ * physical return button processing
  *
  * @public
  */

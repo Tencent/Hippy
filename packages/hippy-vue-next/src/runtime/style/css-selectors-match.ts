@@ -27,31 +27,19 @@ import type { CommonMapParams } from '../../../global';
 import type { HippyElement } from '../element/hippy-element';
 import type { RuleSet, SelectorCore } from './css-selectors';
 
-/**
- * 样式节点的类型
- *
- * @public
- */
 export type CssAttribute = CommonMapParams;
 
-/**
- * 节点选择器类型
- *
- * @public
- */
 export interface DocSelector {
   sel: SelectorCore;
   pos: number;
 }
 
 /**
- * 节点选择器适配类，存储节点所匹配的Selector列表
+ * stores the Selector list matched by the node
  */
 class SelectorsMatch {
-  // 存储节点的属性map
   public changeMap;
 
-  // 节点所匹配的选择器类列表
   public selectors;
 
   constructor() {
@@ -59,10 +47,10 @@ class SelectorsMatch {
   }
 
   /**
-   * 添加选择器属性
+   * Add attribute
    *
-   * @param node - 待添加的节点
-   * @param attribute - 待添加待属性
+   * @param node - target node
+   * @param attribute - attribute name
    */
   addAttribute(node: HippyElement, attribute: NeedToTyped): void {
     const deps = this.properties(node);
@@ -73,10 +61,10 @@ class SelectorsMatch {
   }
 
   /**
-   * 给节点添加伪类
+   * add pseudo class
    *
-   * @param node - 节点
-   * @param pseudoClass - 伪类名称
+   * @param node - target node
+   * @param pseudoClass - pseudo class
    */
   addPseudoClass(node: HippyElement, pseudoClass: string): void {
     const deps = this.properties(node);
@@ -86,11 +74,6 @@ class SelectorsMatch {
     deps.pseudoClasses.add(pseudoClass);
   }
 
-  /**
-   * 获取节点cache的属性map，如果没有cache过，则cache
-   *
-   * @param node - hippy节点
-   */
   properties(node: HippyElement): CommonMapParams {
     let set = this.changeMap.get(node);
     if (!set) {
@@ -100,16 +83,14 @@ class SelectorsMatch {
   }
 }
 
-/**
- * 选择器适配类
- */
+
 class SelectorsMap {
   /**
-   * 移除样式规则map中的样式
+   * Remove the specified style from the style rules map
    *
-   * @param map - 样式 map
-   * @param head - 样式标识
-   * @param sel - 选择器类
+   * @param map - style map
+   * @param head - style key
+   * @param sel - selector
    */
   static removeFromMap(
     map: CssAttribute,
@@ -124,22 +105,19 @@ class SelectorsMap {
     }
   }
 
-  // 节点的id
   public id: CssAttribute;
 
-  // 节点的class
   public class: CssAttribute;
 
-  // 节点的type
   public type: CssAttribute;
 
-  // 节点的通用选择器，如*
+  // generic selector for nodes, eg.*
   public universal: DocSelector[];
 
-  // 节点的位置
+  // position of node
   public position: number;
 
-  // 规则集合列表
+  // rule set
   public ruleSets: RuleSet[];
 
   constructor(ruleSets: RuleSet[]) {
@@ -153,9 +131,9 @@ class SelectorsMap {
   }
 
   /**
-   * 附加新的样式规则列表
+   * Append a new list of style rules
    *
-   * @param appendRules - 需要添加的样式规则列表
+   * @param appendRules - list of style rules
    */
   public append(appendRules: RuleSet[]): void {
     this.ruleSets = this.ruleSets.concat(appendRules);
@@ -163,13 +141,13 @@ class SelectorsMap {
   }
 
   /**
-   * 找出样式规则列表中需要移除的样式并删除
+   * Find the style in the list of style rules according to the hash value and delete it
    *
-   * @param hash - 样式 chunk 的 hash 值
+   * @param hash - hash of style chunk
    */
   public delete(hash: string): void {
     const removeRuleSets: RuleSet[] = [];
-    // 根据要删除的hash，选出当前样式规则列表中hash匹配的规则
+    // Find the style in the list of style rules according to the hash value
     this.ruleSets = this.ruleSets.filter((rule) => {
       if (rule.hash !== hash) {
         return true;
@@ -178,14 +156,14 @@ class SelectorsMap {
       removeRuleSets.push(rule);
       return false;
     });
-    // 调用移除规则api移除失活的样式规则
+    // Call the remove rule api to remove the deactivated style rule
     removeRuleSets.forEach(rule => rule.removeSort(this));
   }
 
   /**
-   * 根据hippy node的id，class，属性等标识，找出匹配的样式信息
+   * Find the matching style information according to the id, class, attribute of the hippy node
    *
-   * @param node - 待查询待节点
+   * @param node - target node
    */
   public query(node: HippyElement): SelectorsMatch {
     const { tagName, id, classList } = node;
@@ -244,11 +222,11 @@ class SelectorsMap {
   }
 
   /**
-   * 将样式选择器添加到map中
+   * add style selector to map
    *
-   * @param map - 样式 map
-   * @param head - 样式标识
-   * @param sel - 选择器类
+   * @param map - style map
+   * @param head - style key
+   * @param sel - selector
    */
   public addToMap(map: CssAttribute, head: string, sel: SelectorCore): void {
     this.position += 1;

@@ -18,9 +18,6 @@
  * limitations under the License.
  */
 
-/**
- * util工具类集合
- */
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { capitalize } from '@vue/shared';
 import type { NeedToTyped } from '@hippy-shared/index';
@@ -29,13 +26,13 @@ import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
 
 let uniqueId = 0;
 
-// rootViewId初始值，因为默认为0，生成id时会加1，root container id一定是1
+// rootViewId initial value
 export const DEFAULT_ROOT_ID = 1;
 
 export function getUniqueId(): number {
   uniqueId += 1;
 
-  // id不使用整10数字，从hippy-vue copy而来，实现原因需要了解
+  // The id does not use numbers that are multiples of 10
   if (uniqueId % 10 === 0) {
     uniqueId += 1;
   }
@@ -44,76 +41,71 @@ export function getUniqueId(): number {
 }
 
 /**
- * 将调试信息输出到console中
+ * output debugging information to the console
  *
- * @param context - 要跟踪的内容
+ * @param context - content to output
  */
 export function trace(...context: NeedToTyped[]): void {
-  // 生产环境不输出
+  // do not print information in production environment
   if (IS_PROD) {
     return;
   }
 
-  // console统一封装处理
   // eslint-disable-next-line no-console
   console.log(...context);
 }
 
 /**
- * 将警告调试信息输出到console中
+ * output warning debug information to console
  *
- * @param context - 要输出的内容
+ * @param context - content to output
  */
 export function warn(...context: NeedToTyped[]): void {
-  // 生产环境不输出
+  // do not print information in production environment
   if (IS_PROD) {
     return;
   }
 
-  // console统一封装处理
   // eslint-disable-next-line no-console
   console.warn(...context);
 }
 
 /**
- * 统一标准化标签名
+ * normalize tag name, use lowercase
  *
- * @param tagName - 标签名
+ * @param tagName - tag name
  */
 export function normalizeTagName(tagName: string): string {
   return tagName.toLowerCase();
 }
 
 /**
- * 将字符串的首字母小写
+ * lowercase first letter of string
  *
- * @param str - 要处理的字符串
+ * @param str - target string
  */
 export function lowerFirstLetter(str: string): string {
   return `${str.charAt(0).toLowerCase()}${str.slice(1)}`;
 }
 
 /**
- * 将字符串的首字母大写
+ * uppercase first letter of string
  *
- * @param str - 要处理的字符串
+ * @param str - target string
  */
 export function capitalizeFirstLetter(str: string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// 数字格式正则
+// regular expression of number format
 const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
 
-/**
- * 将字符串尽可能转为数字
- */
 export function tryConvertNumber<T extends string | number>(
   str: T,
 ): T extends number ? number : string | number;
 
 /**
- * 将字符串尽可能转为数字
+ * Convert strings to numbers as much as possible
  */
 export function tryConvertNumber(str: string | number): string | number {
   if (typeof str === 'number') {
@@ -131,39 +123,39 @@ export function tryConvertNumber(str: string | number): string | number {
   return str;
 }
 
-// 样式加载钩子
+// hook of loading style
 let beforeLoadStyleHook: CallbackType = (declaration: CallbackType): CallbackType => declaration;
 
 /**
- * 保存样式加载的钩子函数
+ * set hook method of loading style
  *
- * @param beforeLoadStyle - 样式预处理钩子
+ * @param beforeLoadStyle - hook method
  */
 export function setBeforeLoadStyle(beforeLoadStyle: CallbackType): void {
   beforeLoadStyleHook = beforeLoadStyle;
 }
 
 /**
- * 返回样式加载的钩子函数
+ * get hook method of loading style
  */
 export function getBeforeLoadStyle(): CallbackType {
   return beforeLoadStyleHook;
 }
 
 /**
- * 将 unicode 格式字符串转成 char 型
+ * Convert unicode format string to char type
  *
- * @param text - 待转换的文本
+ * @param text - target string
  */
 export function unicodeToChar(text: string): string {
   return text.replace(/\\u[\dA-F]{4}|\\x[\dA-F]{2}/gi, match => String.fromCharCode(parseInt(match.replace(/\\u|\\x/g, ''), 16)));
 }
 
 /**
- * 比较两个Set是否相等
+ * Compares two Sets for equality
  *
- * @param leftSet - 待比较的set1
- * @param rightSet - 待比较的set2
+ * @param leftSet - one set
+ * @param rightSet - the other set
  */
 export function setsAreEqual(
   leftSet: Set<unknown>,
@@ -187,10 +179,10 @@ export function setsAreEqual(
 }
 
 /**
- * 对Hippy事件进行 Map，vue事件名格式和native事件名格式互相处理
+ * Set the Hippy event Map, using the vue event name and the native event name as the key respectively
  *
- * @param generalEventParams - 通用事件参数
- * @param rawNativeEventName - 终端事件名
+ * @param generalEventParams - general event params
+ * @param rawNativeEventName - native event name
  */
 export function mapHippyEvent(
   generalEventParams: string | string[][],
@@ -198,10 +190,9 @@ export function mapHippyEvent(
 ): Map<string, string> {
   const map = new Map();
 
-  // 如果第一个参数是数组，则第一个参数是事件 map 列表
   if (Array.isArray(generalEventParams)) {
-    // vueEventName标识click，change等vue监听等事件名，无on
-    // native事件名则是onXxx格式
+    // vue EventName means click, change the name of the event monitored by vue
+    // The native event name is in onXxx format
     generalEventParams.forEach(([vueEventName, nativeEventName]) => {
       map.set(vueEventName, nativeEventName);
       map.set(nativeEventName, vueEventName);
@@ -215,9 +206,9 @@ export function mapHippyEvent(
 }
 
 /**
- * 将本地格式的路径转换为Native可以识别的格式
+ * Convert the path in local format to a format that Native can recognize
  *
- * @param originalUrl - 待转换的原始url
+ * @param originalUrl - target path
  */
 export function convertImageLocalPath(originalUrl: string): string {
   let url: string = originalUrl;
@@ -234,10 +225,10 @@ export function convertImageLocalPath(originalUrl: string): string {
 }
 
 /**
- * 统计数组元素总数，需要过滤不符合要求的 item
+ * Count the number of elements in an array that satisfy a condition
  *
- * @param arr - 待统计的数组
- * @param iterator - 需要执行的回调
+ * @param arr - target array
+ * @param iterator - condition
  */
 export function arrayCount(arr: NeedToTyped[], iterator: CallbackType): number {
   let count = 0;
@@ -252,19 +243,18 @@ export function arrayCount(arr: NeedToTyped[], iterator: CallbackType): number {
 }
 
 /**
- * 获取标准事件名，类似onClick
+ * Get the standard event name, starting with on
  *
- * @param name - 事件名
+ * @param name - original event name
  */
 export function getNormalizeEventName(name: string): string {
   return `on${capitalize(name)}`;
 }
 
 /**
- * 获取事件转发器处理后的事件，
- *
- * 因为比如swiper，提供给用户在vue上定义的事件与native实际事件名有所不同，
- * 所以需要进行转换，在vue2中，事件需要单独赋值给on属性，vue3拍平了属性
+ * Get the event processed by the event forwarder
+ * e.g. swiper, the event provided to the user defined on the vue is different from native event name
+ * so it needs to be converted
  *
  * @param events - 事件列表
  */
@@ -275,18 +265,20 @@ export function getEventRedirects(
   const on: CommonMapParams = {};
 
   events.forEach((event) => {
-    // 对于array的情况，exposedEventName已经在vue中声明，因此需要处理nativeEvent
-    // 对于非array的情况，因为vue现在已经是对属性处理成onXXX类型了，所以这里无需再处理了
+    /**
+     * For the case of array, exposedEventName has been declared in vue, so nativeEvent needs to be handled
+     * For the case of non-array, because vue has already processed the attribute into onXXX type,
+     * there is no need to deal with it here.
+     */
     if (Array.isArray(event)) {
-      // exposedEventName已经在vue中声明，nativeEventName已经在native中声明
-      // 用户标签上定义的事件名
+      // The event name defined on the user tag
       const exposedEventName = getNormalizeEventName(event[0]);
-      // 终端native所使用的事件名
+      // The event name used by the terminal native
       const nativeEventName = getNormalizeEventName(event[1]);
 
-      // 如果已经定义了vue事件，则可以进行事件转换，否则不处理
+      // If the vue event has been defined, the event conversion can be done, otherwise it is not processed
       if (Object.prototype.hasOwnProperty.call(this.$attrs, exposedEventName)) {
-        // 如果没有定义native事件则使用vue事件
+        // If no native event is defined, use the vue event
         if (!this.$attrs[nativeEventName]) {
           on[nativeEventName] = this.$attrs[exposedEventName];
         }

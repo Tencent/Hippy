@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-/** selector 的类型 */
 import { type NeedToTyped } from '@hippy-shared/index';
 
 export interface SelectorType {
@@ -29,38 +28,21 @@ export interface SelectorType {
   value?: string;
 }
 
-/** combinator的pair的值类型 */
 export type PairValueType = [SelectorType[] | undefined, undefined | string];
 
-/** parse 之后得到的选择器的值类型 */
+
 export type ParsedSelectorValueType = (SelectorType[][] | PairValueType)[];
 
-/** combinator类型 */
+
 export interface CombinatorType {
   start: number;
   end: number;
   value: string;
 }
 
-/** 选择器parse完成后的类型 */
 export interface SelectorParsedType {
   start: number | undefined;
   end: number | undefined;
-  // value是一个二维数组，默认第一个index为0是选择器的类型，其值也是一个数组，类型是SelectorType
-  // PairValueType则是combinator类型的情况下，index为1的类型
-  /* 形如普通选择器：
-  [
-    [
-      [ { type:'', identifier: '' } ], [ { type:'', identifier: '' } ]
-    ]
-  ]
-  或是combinator
-  [
-    [
-      [ { type:'' } ], 'combinator' ]
-    ]
-  ]
-   */
   value: ParsedSelectorValueType;
 }
 
@@ -202,7 +184,6 @@ function parseSimpleSelectorSequence(text, start) {
     return null;
   }
   let { end } = simpleSelector;
-  // 这里simpleSelector的value可能为任意类型
   const value: NeedToTyped[] = [];
   while (simpleSelector) {
     value.push(simpleSelector.value);
@@ -236,15 +217,14 @@ function parseCombinator(text, start) {
 }
 
 /**
- * 对选择器进行parse
- * selector parse之后：
- * 1、end值是选择器结束的位置索引
- * 2、start是指定开始的位置
- * 3、value则是选择器的值，包括type：如id选择器，类选择器等。
- * identifier 该type的标识
+ * parse the selector
+ * after parsing：
+ * 1、end is the index of the position where the selector ends
+ * 2、start is the specified start position
+ * 3、value is the value of the selector, including type: such as id selector, class selector, etc.
  *
- * @param text - 选择器内容
- * @param start - 开始位置
+ * @param text - selector content
+ * @param start - starting position
  */
 function parseSelector(
   text: string,

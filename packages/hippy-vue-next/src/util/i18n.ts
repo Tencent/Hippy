@@ -21,7 +21,7 @@
 import { Native } from '../runtime/native';
 
 /**
- * 判断是否是从右至左方式的设备
+ * Determine if it is a right-to-left device
  */
 export function isRTL(): boolean {
   const { localization } = Native;

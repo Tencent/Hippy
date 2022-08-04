@@ -39,30 +39,31 @@ import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';
  * Base classes
  */
 class SelectorCore {
-  // 是否是动态样式
+  // is it a dynamic style
   public dynamic?: boolean;
 
-  // 样式权重
+  // style weight
   public specificity = 0;
 
-  // 规则集
+  // rule set
   public ruleSet?: RuleSet;
 
   /**
-   * 将样式规则按照类别进行排序存储，比如id选择器一类，class类名的一类等等
+   * Sort and store style rules according to categories,
+   * such as id selectors are grouped into one category, class names are grouped into one category, etc.
    *
-   * @param sorter - 排序规则
-   * @param base - 查找的基类
+   * @param sorter - sort rules
+   * @param base - base
    */
   lookupSort(sorter: SelectorsMap, base?: SelectorCore): void {
     sorter.sortAsUniversal(base ?? this);
   }
 
   /**
-   * 移除排序
+   * remove sort
    *
-   * @param sorter - 排序规则
-   * @param base - 查找的基类
+   * @param sorter - sort rules
+   * @param base - base
    */
   removeSort(sorter: SelectorsMap, base?: SelectorCore): void {
     sorter.removeAsUniversal(base ?? this);
@@ -70,13 +71,13 @@ class SelectorCore {
 }
 
 /**
- * 简单选择器类型，提供了判断节点是否match的方法，和track节点属性等的方法
+ * Simple selector type
+ * provides the method for judging whether a node matches and the method for tracking node attributes
  */
 class SimpleSelector extends SelectorCore {
-  // 样式的rarity，稀有性
+  // rarity of style
   public rarity = 0;
 
-  // combinator类型
   public combinator?: string;
 
   public accumulateChanges(node: HippyElement, match: SelectorsMatch) {
@@ -91,34 +92,35 @@ class SimpleSelector extends SelectorCore {
   }
 
   /**
-   * 判断节点是否 match 的方法，不同选择器判断方式不同，比如 id 选择器直接判断 id 是否相等即可
+   * determine if the node matches
    *
-   * @param node - 需要判断的节点
+   * @param node - target node
    */
   public match(node: HippyElement): boolean {
     return !!node;
   }
 
   /**
-   * 预判断
+   * prejudgment
    *
-   * @param node - 节点
+   * @param node - target node
    */
   public mayMatch(node: HippyElement) {
     return this.match(node);
   }
 
   /**
-   * track节点变动
-   * track节点变动
+   * track changes of node
    *
-   * @param node - 要跟踪的节点
-   * @param match - 要记录变动的match
+   * @param node - target node
+   * @param match - SelectorsMatch
    */
   public trackChanges(node?: HippyElement, match?: SelectorsMatch): void {
     if (node && match) {
-      // do nothing 这里本来应该是要定义为抽象方法的，但是因为某些selector并不需要这个方法
-      // 目前并不确定哪些方法不需要，因此先留空 fixme
+      /**
+       * fixme This should be defined as an abstract method, but because some selectors do not need this method,
+       * it is not sure which methods do not need it, so leave it blank first
+       */
     }
   }
 }
@@ -126,7 +128,7 @@ class SimpleSelector extends SelectorCore {
 class SimpleSelectorSequence extends SimpleSelector {
   public head: SimpleSelector | null | boolean;
 
-  // 选择器列表
+  // list of selector
   public selectors: SimpleSelector[];
 
   constructor(selectors: SimpleSelector[]) {
@@ -175,7 +177,7 @@ class SimpleSelectorSequence extends SimpleSelector {
 }
 
 /**
- * 通用选择器类型，如*
+ * Generic selector type, eg. *
  */
 class UniversalSelector extends SimpleSelector {
   constructor() {
@@ -190,13 +192,13 @@ class UniversalSelector extends SimpleSelector {
   }
 
   match(): boolean {
-    // 通用选择器全部都能 match
+    // universal selectors can all match
     return true;
   }
 }
 
 /**
- * ID选择器，如 #root 等
+ * ID selector, eg. #root
  */
 class IdSelector extends SimpleSelector {
   public id: string;
@@ -227,7 +229,7 @@ class IdSelector extends SimpleSelector {
 }
 
 /**
- * 类型选择器，比如div，ul等
+ * tag selector, eg. div, ul
  */
 class TypeSelector extends SimpleSelector {
   public cssType: string;
@@ -258,7 +260,7 @@ class TypeSelector extends SimpleSelector {
 }
 
 /**
- * class选择器
+ * class selector
  */
 class ClassSelector extends SimpleSelector {
   public className: string;
@@ -289,7 +291,7 @@ class ClassSelector extends SimpleSelector {
 }
 
 /**
- * 伪类选择器，目前并未支持
+ * pseudo class selector, not currently supported
  */
 class PseudoClassSelector extends SimpleSelector {
   public cssPseudoClass: string;
@@ -324,13 +326,13 @@ class PseudoClassSelector extends SimpleSelector {
  */
 
 class AttributeSelector extends SimpleSelector {
-  // 节点的属性
+  // attribute of node
   public attribute = '';
 
-  // 属性测试条件
+  // property Test Conditions
   public test = '';
 
-  // 节点的值，可能有
+  // value of node
   public value = '';
 
   // eslint-disable-next-line complexity
@@ -397,9 +399,9 @@ class AttributeSelector extends SimpleSelector {
   }
 
   /**
-   * 统统返回false
+   * return false
    *
-   * @param node - 节点
+   * @param node - target node
    */
   match(node: HippyElement): boolean {
     return node ? !node : false;
@@ -447,13 +449,13 @@ class InvalidSelector extends SimpleSelector {
 }
 
 /**
- * 孩子节点Group
+ * child node group
  */
 class ChildGroup {
-  // 选择器列表
+  // list of selector
   public selectors: SelectorCore[];
 
-  // 是否是动态选择器
+  // is dynamic
   public dynamic: boolean;
 
   constructor(selectors) {
@@ -495,13 +497,13 @@ class ChildGroup {
 }
 
 /**
- * 兄弟节点Group
+ * Sibling node group
  */
 class SiblingGroup {
-  // 选择器列表
+  // list of selector
   public selectors: SelectorCore[];
 
-  // 是否是动态选择器
+  // is dynamic selector
   public dynamic: boolean;
 
   constructor(selectors) {
@@ -543,7 +545,7 @@ class SiblingGroup {
 }
 
 /**
- * 大选择器类
+ * selector class
  */
 class Selector extends SelectorCore {
   public groups;

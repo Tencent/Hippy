@@ -22,7 +22,7 @@ import type { HippyElement } from '../element/hippy-element';
 import { HippyNode, NodeType } from '../node/hippy-node';
 
 /**
- * 文本节点
+ * hippy text node
  */
 export class HippyText extends HippyNode {
   public text: string;

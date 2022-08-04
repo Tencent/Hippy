@@ -19,7 +19,7 @@
  */
 
 /**
- * Render模块，提供Native的render方法
+ * Render in Native, include create, update and delete native node operations
  */
 import { nextTick } from '@vue/runtime-core';
 
@@ -28,36 +28,36 @@ import { getHippyCachedInstance } from '../../util/instance';
 import { Native } from '../native';
 import type { NativeNode } from '../native/native-node';
 
-/** Native节点操作方法 */
+// operation type of native node
 enum NodeOperateType {
   CREATE,
   UPDATE,
   DELETE,
 }
 
-/** 批处理Native节点接口类型 */
+// batch operation of native node
 interface BatchNativeNode {
-  // 节点操作类型
+  // operation type
   type: NodeOperateType;
-  // 节点列表
+  // node list
   nodes: NativeNode[];
 }
 
-// 终端是否正在处理节点操作
+// is operating node
 let IS_HANDLING = false;
 
-// 待处理的批处理节点列表
+// list of nodes waiting to be batched operated
 let BATCH_NATIVE_NODES: BatchNativeNode[] = [];
 
 /**
- * 将batchNodes节点转换，相同type且相邻的nodes组合到一起
+ * Rearrange and combine the nodes in batchNodes, and put adjacent nodes of the same type together
  *
- * @param batchNodes - 待处理的批量native节点
+ * @param batchNodes - list of nodes waiting to be batched operated
  */
 function chunkNodes(batchNodes: BatchNativeNode[]): BatchNativeNode[] {
-  // 处理格式形如：
+  // original node list：
   // [ { type: 1, nodes: [1] }, { type: 1, nodes: [2] }, { type: 2, nodes: [3] }, { type: 1, nodes: [4] },  ]
-  // 变为：
+  // after rearranging the combination：
   // [ { type: 1, nodes: [1, 2] }, { type: 2, nodes: [3] }, { type: 1, nodes: [4] },  ]
   const result: BatchNativeNode[] = [];
 
@@ -79,43 +79,43 @@ function chunkNodes(batchNodes: BatchNativeNode[]): BatchNativeNode[] {
 }
 
 /**
- * 将Native Node调用Native接口最终渲染到终端界面上
+ * Call the Native interface to render the Native Node to the terminal interface
  *
- * @param nativeNodes - 待处理native节点
- * @param operateType - 操作类型
+ * @param nativeNodes - list of native nodes
+ * @param operateType - operate type
  */
 function renderToNative(
   nativeNodes: NativeNode[],
   operateType: NodeOperateType,
 ) {
-  // 首先将节点插入待处理列表
+  // First insert the node into the pending list
   BATCH_NATIVE_NODES.push({
     type: operateType,
     nodes: nativeNodes,
   });
 
-  // 再判断当前是否已经在处理，如果终端还在处理，则先行返回
+  // Then judge whether it is currently being processed, and if it is still processing, return first
   if (IS_HANDLING) {
     return;
   }
   IS_HANDLING = true;
 
-  // 如果节点已经处理完成，则将锁打开，下次即可直接处理
+  // If the node has been processed, open the lock and process it directly next time
   if (BATCH_NATIVE_NODES.length === 0) {
     IS_HANDLING = false;
     return;
   }
 
-  // 打开终端处理开关
+  // start to batch
   Native.hippyNativeDocument.startBatch();
-  // 进入终端节点操作逻辑，等待vue的节点操作完成之后再处理
+  // invoke native action after nextTick
   nextTick().then(() => {
-    // 将相邻的相同类型的节点组合到一起，减少操作次数
+    // put adjacent nodes of the same type together to the number of operations
     const chunks = chunkNodes(BATCH_NATIVE_NODES);
 
-    // 获取Native root view的id
+    // get native root view id
     const { rootViewId } = getHippyCachedInstance();
-    // 根据类型对节点进行批量操作，上屏
+    // batch operations on nodes based on operation type
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NodeOperateType.CREATE:
@@ -124,7 +124,7 @@ function renderToNative(
           break;
         case NodeOperateType.UPDATE:
           trace('updateNode', Date.now(), chunk.nodes);
-          // iOS目前还不能一次性更新批量节点，这个需要终端修复，目前尚未
+          // iOS currently cannot update nodes in batches, this requires ios client repair
           if (Native.isIOS()) {
             chunk.nodes.forEach((node) => {
               Native.hippyNativeDocument.updateNode(rootViewId, [node]);
@@ -135,7 +135,7 @@ function renderToNative(
           break;
         case NodeOperateType.DELETE:
           trace('deleteNode', Date.now(), chunk.nodes);
-          // iOS目前还不能一次性删除批量节点，待修复
+          // iOS currently cannot delete nodes in batches, this requires ios client repair
           if (Native.isIOS()) {
             chunk.nodes.forEach((node) => {
               Native.hippyNativeDocument.deleteNode(rootViewId, [node]);
@@ -149,38 +149,38 @@ function renderToNative(
       }
     });
 
-    // 节点操作处理完之后，调用native关闭批量处理开关
+    // after the node operation is processed, call native to turn off the batch processing switch
     Native.hippyNativeDocument.endBatch();
 
-    // 复位批处理开关
+    // reset flag
     IS_HANDLING = false;
-    // 清空待处理节点
+    // clear list
     BATCH_NATIVE_NODES = [];
   });
 }
 
 /**
- * 将待渲染待native节点插入native
+ * insert native nodes
  *
- * @param nativeNodes - 待插入 native 节点
+ * @param nativeNodes - nodes list
  */
 export function renderInsertChildNativeNode(nativeNodes: NativeNode[]): void {
   renderToNative(nativeNodes, NodeOperateType.CREATE);
 }
 
 /**
- * 将待移除native节点从native移除
+ * delete native nodes
  *
- * @param deleteNodes - 待移除 native 节点
+ * @param deleteNodes - nodes list
  */
 export function renderRemoveChildNativeNode(deleteNodes: NativeNode[]): void {
   renderToNative(deleteNodes, NodeOperateType.DELETE);
 }
 
 /**
- * 将待更新native节点更新
+ * update native nodes
  *
- * @param updateNodes - 待更新 native 节点
+ * @param updateNodes - nodes list
  */
 export function renderUpdateChildNativeNode(updateNodes: NativeNode[]): void {
   renderToNative(updateNodes, NodeOperateType.UPDATE);

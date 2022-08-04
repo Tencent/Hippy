@@ -133,7 +133,7 @@ export function unCacheNodeOnIdle(node: HippyNode | number): void {
  * find target node by nodeId with Vue Node Tree.
  * This function is the lower performance funtion, do not recommend to use.
  *
- * @param targetNodeId - 目标节点的id
+ * @param targetNodeId - id of target node
  */
 export function findTargetNode(targetNodeId: number): HippyNode | null {
   const vueInstance: Partial<HippyCachedInstanceType> = getHippyCachedInstance();

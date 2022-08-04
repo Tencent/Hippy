@@ -26,13 +26,12 @@ import { warn, getNormalizeEventName } from '../../util';
 import { EventBus } from '../event/event-bus';
 import { Native } from '../native';
 
-/** 回调事件列表 */
 interface EventListeners {
   [eventName: string]: CallbackType[];
 }
 
 /**
- * websocket回调方法类型
+ * type of websocket callback
  *
  * @public
  */
@@ -43,23 +42,24 @@ export interface WebsocketCallback {
   onMessage?: CallbackType[];
 }
 
-// 定义websocket状态常量
+// websocket state constants
 const READY_STATE_CONNECTING = 0;
 const READY_STATE_OPEN = 1;
 const READY_STATE_CLOSING = 2;
 const READY_STATE_CLOSED = 3;
 
-// websocket模块名称和native事件名称
+// module name of websocket
 const WEB_SOCKET_MODULE_NAME = 'websocket';
+// native event name for websocket
 const WEB_SOCKET_NATIVE_EVENT = 'hippyWebsocketEvents';
 
-// 是否已经绑定了 websocket 事件监听器
+// whether the websocket event listener has been bound
 let isBindWebsocketEvent = false;
 
 /**
- * 判断事件类型是否是合法的 websocket 事件
+ * determine whether it is a legitimate websocket event
  *
- * @param type - 事件类型
+ * @param type - event type
  */
 const isValidEventType = (type: string): boolean => ['open', 'close', 'message', 'error'].indexOf(type) !== -1;
 
@@ -70,22 +70,22 @@ const isValidEventType = (type: string): boolean => ['open', 'close', 'message',
  * poll the server for a reply.
  */
 class WebSocket {
-  // websocket的状态码
+  // status code of websocket
   public readyState: number;
 
-  // websocket回调方法
+  // callback of websocket
   public webSocketCallbacks: WebsocketCallback;
 
   // webSocketId
   public webSocketId = -1;
 
-  // 要访问的websocket链接
+  // websocket link to access
   public readonly url: string;
 
-  // 服务器选择的协议
+  // the protocol chosen by the server
   public readonly protocol: string = '';
 
-  // 事件监听列表
+  // event listeners
   protected listeners: EventListeners = {};
 
   /**
@@ -118,7 +118,7 @@ class WebSocket {
     };
 
     if (!isBindWebsocketEvent) {
-      // 总线是全局的，如果是多实例可能会有问题，待验证 fixme
+      // The bus is global, if it is multi-instance, there may be problems, to be verified fixme
       isBindWebsocketEvent = true;
       EventBus.$on(WEB_SOCKET_NATIVE_EVENT, this.onWebSocketEvent);
     }
@@ -263,29 +263,27 @@ class WebSocket {
   }
 
   /**
-   * 添加 websocket 事件监听器
+   * Add websocket event listener
    *
-   * @param type - 事件类型
-   * @param listener - 事件回调方法
+   * @param type - event type
+   * @param listener - callback method
    */
   addEventListener(type: string, listener: CallbackType): void {
     if (isValidEventType(type)) {
-      // 如果监听类型的事件列表没有初始化，则先进行初始化
+      // If the event list of the listening type is not initialized, initialize it first
       if (!this.listeners[type]) {
         this.listeners[type] = [];
       }
 
-      // 添加监听的事件列表
+      // add event listeners
       this.listeners[type].push(listener);
 
-      // 事件 type 本质上就是 close、error、message、open 的别名
       const typeName = getNormalizeEventName(type);
       this.webSocketCallbacks[typeName] = this.listeners[type];
     }
   }
 }
 
-// 这里因为需要将hippy的websocket赋值给global，故进行ignore处理
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 global.WebSocket = WebSocket;

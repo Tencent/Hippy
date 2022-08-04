@@ -22,32 +22,31 @@ import { Native } from '../runtime/native';
 import { getHippyCachedInstance } from './instance';
 
 /**
- * 根据屏幕宽度对样式值中的rem值进行转换处理
+ * Convert the rem value in the style value according to the screen width
  *
- * @param styleValue - 待处理的样式值
+ * @param styleValue - style
  */
 export function parseRemStyle(styleValue: NeedToTyped): NeedToTyped {
   let value = styleValue;
 
-  // 如果是非 rem 的样式，直接返回，不处理
+  // If it is a non-rem style, return directly without processing
   if (typeof value !== 'string' || !value.endsWith('rem')) {
     return value;
   }
 
-  // 取出 rem 的数字值
+  // get the numeric value of rem
   value = parseFloat(value);
 
-  // 值不合法则返回原值
+  // If the value is invalid, return the original value
   if (Number.isNaN(value)) {
     return value;
   }
 
-  // 设计稿基准宽度
+  // base screen width
   const { ratioBaseWidth } = getHippyCachedInstance();
-  // 计算屏幕尺寸和设计稿的比例值
+  // calculate ratio
   const { width } = Native.dimensions.screen;
   const ratio = width / ratioBaseWidth;
 
-  // rem处理后的值
   return value * 100 * ratio;
 }
