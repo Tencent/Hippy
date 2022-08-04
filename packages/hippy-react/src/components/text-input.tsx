@@ -251,6 +251,17 @@ class TextInput extends React.Component<TextInputProps, {}> {
   }
 
   /**
+   * Get the focus status of `TextInput`
+   *
+   * @returns {Promise<boolean>}
+   */
+  public isFocused(): Promise<boolean> {
+    return new Promise((resolve) => {
+      callUIFunction(this.instance as Element, 'isFocused', (res: any) => resolve(res.value));
+    });
+  }
+
+  /**
    * Show input method selection dialog.
    * @deprecated
    */

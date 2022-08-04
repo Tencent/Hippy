@@ -569,6 +569,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     final HippyInstanceContext context = new HippyInstanceContext(loadParams.context, loadParams);
     context.setEngineContext(mEngineContext);
     final HippyRootView tempRootView = new HippyRootView(context, loadParams);
+    tempRootView.setTimeMonitor(new TimeMonitor(true));
+    tempRootView.getTimeMonitor().begine();
+    tempRootView.getTimeMonitor().startEvent(HippyEngineMonitorEvent.MODULE_LOAD_EVENT_RESTORE_INSTANCE_STATE);
     tempRootView.setOnSizeChangedListener(this);
     final int tempRootId = tempRootView.getId();
     renderManager.getControllerManager().addFakeRootView(tempRootView);

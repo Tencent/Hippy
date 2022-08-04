@@ -508,7 +508,7 @@ function parseCSS(css, options) {
         break;
       }
       case 'collapsable':
-        value = Boolean(value);
+        value = value !== 'false';
         break;
       default: {
         value = tryConvertNumber(value);

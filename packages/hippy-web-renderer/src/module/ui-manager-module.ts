@@ -2,7 +2,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2017-2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,8 +20,8 @@
 
 import { HippyWebEngineContext, HippyWebModule } from '../base';
 import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
-import { setElementStyle } from '../common';
-import { mergeDeep } from '../third-lib/loadsh.js';
+import { setElementStyle, warn, error } from '../common';
+
 
 export class UIManagerModule extends HippyWebModule {
   public name = 'UIManagerModule';
@@ -39,69 +39,37 @@ export class UIManagerModule extends HippyWebModule {
     stylePolyfill();
   }
 
-  public destroy() {
-
-  }
-
-  public startBatch() {
-
-  }
+  public startBatch() {}
 
   public async createNode(rootViewId: any, data: Array<NodeData>) {
-    if (!this.rootDom) {
-      const [root] = document.getElementsByTagName('body');
-      this.rootDom = root;
-    }
-
-    if (!this.contentDom) {
-      let position = 0;
-      if (!window.document.getElementById(rootViewId)) {
-        this.contentDom = createRoot(rootViewId);
-        this.rootDom?.appendChild(this.contentDom);
-        position = this.rootDom.childNodes.length - 1;
-      } else {
-        this.contentDom = window.document.getElementById(rootViewId)!;
-      }
-      this.contentDom.parentNode!.childNodes.forEach((item, index) => {
-        if (item === this.contentDom) {
-          position = index;
-        }
-      });
-      setRootDefaultStyle(this.contentDom);
-      this.viewDictionary[rootViewId] = {
-        id: rootViewId as number, pId: -1, index: position,
-        props: {}, dom: this.contentDom, tagName: 'View',
-      };
-    }
-
-    const theUpdateComponentIdSet = new Set;
+    this.createNodePreCheck(rootViewId);
+    const updateComponentIdSet = new Set();
     for (let c = 0; c < data.length; c++) {
       const nodeItemData = data[c];
-      const { id } = nodeItemData;
-      const { pId } = nodeItemData;
-      const { index } = nodeItemData;
-      const tagName = nodeItemData.name;
-      const { props } = nodeItemData;
+      const { id, pId, index, props, name: tagName } = nodeItemData;
       const component = mapComponent(this.context, tagName, id, pId);
       if (!component) {
-        throw `create component failed, can't find ${tagName}' constructor`;
+        warn(`create component failed, can't find ${tagName}' constructor`);
+        continue;
       }
-      if (theUpdateComponentIdSet.has(id)) {
+      if (updateComponentIdSet.has(id)) {
         continue;
       }
       if (tagName === InnerNodeTag.LIST) {
-        theUpdateComponentIdSet.add(id);
+        updateComponentIdSet.add(id);
       }
       if (this.findViewById(pId)?.tagName === InnerNodeTag.LIST) {
-        theUpdateComponentIdSet.add(pId);
+        updateComponentIdSet.add(pId);
       }
-      await this.componentInitProcess(component, props, index);
+      try {
+        await this.componentInitProcess(component, props, index);
+      } catch (e) {
+        console.error(e);
+      }
     }
-    for (const id of theUpdateComponentIdSet) {
+    for (const id of updateComponentIdSet) {
       const component = this.findViewById(id as number);
-      if (component) {
-        (component as any)?.endBatch();
-      }
+      (component as any)?.endBatch();
     }
     this.afterCreateAction.forEach(item => item());
     this.afterCreateAction = [];
@@ -123,13 +91,9 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
-  public flushBatch() {
+  public flushBatch() {}
 
-  }
-
-  public endBatch() {
-
-  }
+  public endBatch() {}
 
   public callUIFunction(params: Array<any>, callBack: HippyCallBack) {
     if (!params || params.length < 3) {
@@ -139,8 +103,7 @@ export class UIManagerModule extends HippyWebModule {
     if (!nodeId || !this.findViewById(nodeId)) {
       return;
     }
-
-    this.componentFunctionCallProcess(this.findViewById(nodeId), functionName, paramList, callBack);
+    componentFunctionCallProcess(this.findViewById(nodeId), functionName, paramList, callBack);
   }
 
   public measureInWindow(nodeId, callBack: HippyCallBack) {
@@ -189,7 +152,7 @@ export class UIManagerModule extends HippyWebModule {
     }
 
     for (const id of nodeList.reverse()) {
-      if (isNaN(Number(id)) || parseInt(id, 10) === childId) {
+      if (id === String(childId)) {
         continue;
       }
       const willRemoveComponent = this.findViewById(parseInt(id, 10));
@@ -210,16 +173,9 @@ export class UIManagerModule extends HippyWebModule {
 
   public defaultUpdateComponentProps(component: HippyBaseView, props: any) {
     if (!component.dom) {
-      throw Error(`component update props process failed ,component's dom must be exit ${component.tagName ?? ''}`);
+      error(`component update props process failed ,component's dom must be exited ${component.tagName ?? ''}`);
     }
 
-    if (!props) {
-      return;
-    }
-    mergeDeep(component.props, props);
-    if (!props) {
-      return;
-    }
     const keys = Object.keys(props);
     if (props.style) {
       setElementStyle(component.dom!, props.style, (key: string, value: any) => {
@@ -231,12 +187,10 @@ export class UIManagerModule extends HippyWebModule {
       if (props.style.position === 'absolute' && !props.style.width && !props.style.height && !props.style.overflow) {
         setElementStyle(component.dom!, { overflow: 'visible' });
       }
+      component.updateProperty?.('style', props.style);
     }
     for (const key of keys) {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
-        continue;
-      }
-      if (typeof component[key] === 'function') {
         continue;
       }
       component.updateProperty?.(key, props[key]);
@@ -245,6 +199,33 @@ export class UIManagerModule extends HippyWebModule {
 
   public addAfterCreateAction(callBack: () => void) {
     this.afterCreateAction.push(callBack);
+  }
+
+  private createNodePreCheck(rootViewId: any) {
+    if (!this.rootDom) {
+      [this.rootDom] = document.getElementsByTagName('body');
+    }
+
+    if (!this.contentDom) {
+      let position = 0;
+      if (!window.document.getElementById(rootViewId)) {
+        this.contentDom = createRoot(rootViewId);
+        this.rootDom.appendChild(this.contentDom);
+        position = this.rootDom.childNodes.length - 1;
+      } else {
+        this.contentDom = window.document.getElementById(rootViewId)!;
+      }
+      this.contentDom.parentNode!.childNodes.forEach((item, index) => {
+        if (item === this.contentDom) {
+          position = index;
+        }
+      });
+      setRootDefaultStyle(this.contentDom);
+      this.viewDictionary[rootViewId] = {
+        id: rootViewId as number, pId: -1, index: position,
+        props: {}, dom: this.contentDom, tagName: 'View',
+      };
+    }
   }
 
   private updateComponentProps(component: HippyBaseView, props: any) {
@@ -290,6 +271,8 @@ export class UIManagerModule extends HippyWebModule {
     if (!component.dom) {
       throw Error(`component init process failed ,component's dom must be exit after component create ${component.tagName ?? ''}`);
     }
+    const { dom } = component;
+    dom.id = String(component.id);
     this.updateComponentProps(component, props);
     const parent = this.findViewById(component.pId);
     if (!parent || !parent.dom) {
@@ -307,8 +290,6 @@ export class UIManagerModule extends HippyWebModule {
     } else {
       this.appendChild(parent, component, realIndex);
     }
-    const { dom } = component;
-    dom.id = String(component.id);
     component.mounted?.();
   }
 
@@ -329,26 +310,26 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   private componentUpdateProcess(component: HippyBaseView | undefined | null, props: UIProps) {
-    if (component) {
-      this.updateComponentProps(component, props);
-    }
-  }
-
-  private componentFunctionCallProcess(
-    component: HippyBaseView | undefined | null, callName: string,
-    params: Array<any>, callBack: HippyCallBack,
-  ) {
-    const executeParam = params ?? [];
-    if (callName && component?.[callName]) {
-      component?.[callName](...executeParam, callBack);
-      return;
-    }
-    throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;
+    component && this.updateComponentProps(component, props);
   }
 }
 
-function mapComponent(context: HippyWebEngineContext, tagName: string, id: number, pId: number):
-HippyBaseView | undefined {
+function componentFunctionCallProcess(
+  component: HippyBaseView | undefined | null, callName: string,
+  params: Array<any>, callBack: HippyCallBack,
+) {
+  const executeParam = params ?? [];
+  if (callName && component?.[callName]) {
+    component?.[callName](...executeParam, callBack);
+    return;
+  }
+  throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;
+}
+
+function mapComponent(
+  context: HippyWebEngineContext, tagName: string,
+  id: number, pId: number,
+): HippyBaseView | undefined {
   if (context.engine.components[tagName]) {
     return new context.engine.components[tagName](context, id, pId);
   }

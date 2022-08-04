@@ -18,7 +18,21 @@ If you want to experience it quickly, you can develop it directly based on our [
 
 1. Create an Android project
 
-2. Local integration
+2. Maven integration
+
+   - Check [Maven Central Hippy version](https://search.maven.org/search?q=com.tencent.hippy), where `hippy-common` is the `release` version (does not carry `inspector`) and `hippy-debug` is the `debug` version
+
+   - Configure build.gradle
+
+   ```java
+    // api 'com.tencent.hippy:hippy-debug:1.0.0'
+    api 'com.tencent.hippy:hippy-common:1.0.0'
+    // The glide and support-v4 are mainly for pulling image resources in the demo, but you can use your own third-party library to handle image requests.
+    api 'com.github.bumptech.glide:glide:3.6.1'
+    api 'com.android.support:support-v4:28.0.0'
+   ```
+
+3. Local integration (optional)
 
     - [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) Project run Gradle Task `other => assembleRelease` or `other => assembleDebug` will generate `release` or `debug` mode `android-sdk.aar` in the `android\sdk\build\outputs\aar` directory. Then  copy `android-sdk.aar` to your project's `libs` directory.
 
@@ -31,21 +45,8 @@ If you want to experience it quickly, you can develop it directly based on our [
     // The glide and support-v4 are mainly used to pull image resources in the demo, but you can also use your own triple library to handle image requests.
     api 'com.github.bumptech.glide:glide:3.6.1'
     api 'com.android.support:support-v4:28.0.0'
-
-3. Maven integration (optional)
-
-    - Check [Maven Central Hippy version](https://search.maven.org/search?q=com.tencent.hippy), where `hippy-common` is the `release` version (does not carry `inspector`) and `hippy-debug` is the `debug` version
-
-    - Configure build.gradle
-
-   ```java
-    // api 'com.tencent.hippy:hippy-debug:1.0.0'
-    api 'com.tencent.hippy:hippy-common:1.0.0'
-    // The glide and support-v4 are mainly for pulling image resources in the demo, but you can use your own third-party library to handle image requests.
-    api 'com.github.bumptech.glide:glide:3.6.1'
-    api 'com.android.support:support-v4:28.0.0'
    ```
 
-4. inherit `HippyImageLoader` and implement your own image loader, you can refer to [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) project in `MyImageLoader` implementation.
+4. Inherit `HippyImageLoader` and implement your own image loader, you can refer to [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) project in `MyImageLoader` implementation.
 
-5. add engine initialization and `hippyRootView` mounting logic in the host APP project, please refer to [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) project implementation of `MyActivity`.
+5. Add engine initialization and `hippyRootView` mounting logic in the host APP project, please refer to [Demo](//github.com/Tencent/Hippy/tree/master/examples/android-demo) project implementation of `MyActivity`.

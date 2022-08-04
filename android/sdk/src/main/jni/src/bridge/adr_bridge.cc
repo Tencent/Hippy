@@ -20,22 +20,15 @@
  *
  */
 
-#include "inspector/v8_channel_impl.h"
+#include "bridge/adr_bridge.h"
 
-#include <string>
-
-#include "core/core.h"
+#include "core/base/common.h"
 #include "jni/jni_env.h"
 
 namespace hippy {
-namespace inspector {
 
-V8ChannelImpl::V8ChannelImpl(std::shared_ptr<JavaRef> bridge)
-    : bridge_(std::move(bridge)) {}
-
-void V8ChannelImpl::sendResponse(
-    __unused int callId,
-    std::unique_ptr<v8_inspector::StringBuffer> message) {
+#ifndef V8_WITHOUT_INSPECTOR
+void ADRBridge::SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (message->string().is8Bit()) {
     return;
   }
@@ -50,8 +43,8 @@ void V8ChannelImpl::sendResponse(
       msg, 0, len,
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
-    j_env->CallVoidMethod(bridge_->GetObj(),
+  if (instance->GetMethods().j_inspector_channel_method_id && ref_) {
+    j_env->CallVoidMethod(ref_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
     JNIEnvironment::ClearJEnvException(j_env);
@@ -60,8 +53,7 @@ void V8ChannelImpl::sendResponse(
   j_env->DeleteLocalRef(msg);
 }
 
-void V8ChannelImpl::sendNotification(
-    std::unique_ptr<v8_inspector::StringBuffer> message) {
+void ADRBridge::SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) {
   if (message->string().is8Bit()) {
     return;
   }
@@ -76,8 +68,8 @@ void V8ChannelImpl::sendNotification(
       msg, 0, len,
       reinterpret_cast<const jbyte*>(reinterpret_cast<const char*>(source)));
 
-  if (instance->GetMethods().j_inspector_channel_method_id && bridge_) {
-    j_env->CallVoidMethod(bridge_->GetObj(),
+  if (instance->GetMethods().j_inspector_channel_method_id && ref_) {
+    j_env->CallVoidMethod(ref_->GetObj(),
                           instance->GetMethods().j_inspector_channel_method_id,
                           msg);
     JNIEnvironment::ClearJEnvException(j_env);
@@ -85,6 +77,6 @@ void V8ChannelImpl::sendNotification(
 
   j_env->DeleteLocalRef(msg);
 }
+#endif
 
-}  // namespace inspector
-}  // namespace hippy
+}

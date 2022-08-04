@@ -20,6 +20,7 @@
 
 import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
+import { error } from '../common';
 const enum EventType {
   ON_OPEN='onOpen',
   ON_CLOSE='onClose',
@@ -59,26 +60,26 @@ export class WebSocketModule extends HippyWebModule {
 
   public send(data: {id: string, data: any}) {
     if (!data || !data.id) {
-      console.log('hippy', 'send: ERROR: request is null or no socket id specified');
+      error('hippy', 'send: ERROR: request is null or no socket id specified');
       return;
     }
     if (!this.webSocketConnections[data.id] || !this.webSocketConnections[data.id].disconnected) {
-      console.log('hippy', 'send: ERROR: no socket id specified or disconnected');
+      error('hippy', 'send: ERROR: no socket id specified or disconnected');
       return;
     }
     if (!data.data || typeof  data.data !== 'string') {
-      console.log('hippy', 'send: ERROR: no data specified to be sent or data type error');
+      error('hippy', 'send: ERROR: no data specified to be sent or data type error');
     }
     this.webSocketConnections[data.id]!.send(data.data);
   }
 
   public close(data: { id: string, code: number, reason: string}) {
     if (!data || !data.id) {
-      console.log('hippy', 'close: ERROR: request is null');
+      error('hippy', 'close: ERROR: request is null');
       return;
     }
     if (!this.webSocketConnections[data.id] || this.webSocketConnections[data.id].disconnected) {
-      console.log('hippy', 'close: ERROR: no socket id specified, or not found, or not connected yet');
+      error('hippy', 'close: ERROR: no socket id specified, or not found, or not connected yet');
       return;
     }
     this.webSocketConnections[data.id].close(data.code, data.reason);
