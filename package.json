@@ -22,7 +22,8 @@
     "watch": "watch \"npm run build\" ./packages --ignoreDotFiles --ignoreUnreadable --ignoreDirectoryPattern '/dist/'",
     "publish": "npx lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs",
-    "prepare": "is-ci || husky install"
+    "prepare": "is-ci || husky install",
+    "test-unit": "jest --detectOpenHandles"
   },
   "devDependencies": {
     "@babel/core": "^7.16.7",
@@ -86,7 +87,11 @@
     "ttypescript": "^1.5.13",
     "typescript-transform-paths": "^3.3.1",
     "vue": "^2.6.14",
-    "watch": "^0.13.0"
+    "watch": "^0.13.0",
+    "jest": "^27.3.1",
+    "eslint-plugin-jest": "^24.4.0",
+    "ts-jest": "^27.1.2",
+    "@types/jest": "^27.4.1"
   },
   "_moduleAliases": {
     "vue": "node_modules/vue/src/core/index",
@@ -102,5 +107,10 @@
     "@native-components": "packages/hippy-vue-native-components/src",
     "@style-parser": "packages/hippy-style-parser/src",
     "@hippy-shared": "packages/hippy-shared/src"
+  },
+  "jest": {
+    "projects": [
+      "<rootDir>/packages/hippy-vue-next"
+    ]
   }
 }

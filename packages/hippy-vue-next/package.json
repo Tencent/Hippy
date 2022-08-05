@@ -30,5 +30,24 @@
     "@vue/runtime-core": "^3.2.21",
     "@vue/shared": "^3.2.21",
     "tiny-emitter": "2.1.0"
+  },
+  "jest": {
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "@style-parser/(.*)$": "<rootDir>/../hippy-style-parser/src/$1",
+      "@hippy-shared/(.*)$": "<rootDir>/../hippy-shared/src/$1"
+    },
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "preset": "ts-jest",
+    "setupFiles": [
+      "<rootDir>/__test__/setup.ts"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/*.test.ts"
+    ],
+    "verbose": true
   }
 }

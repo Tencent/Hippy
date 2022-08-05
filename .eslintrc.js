@@ -34,6 +34,10 @@ module.exports = {
   ],
   overrides: [
     {
+      files: ['*.test.ts'],
+      extends: ['plugin:jest/recommended'],
+    },
+    {
       files: ['**/*.ts', '**/*.tsx'],
       extends: ['eslint-config-tencent/ts'],
       rules: {
