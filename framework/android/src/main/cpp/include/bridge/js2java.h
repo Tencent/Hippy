@@ -24,7 +24,7 @@
 
 #include <jni.h>
 
-#include "driver/driver.h"
+#include "driver/napi/v8/js_native_api_v8.h"
 
 namespace hippy {
 namespace bridge {

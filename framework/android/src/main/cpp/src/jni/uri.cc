@@ -22,7 +22,7 @@
 
 #include "jni/uri.h"
 
-#include "driver/driver.h"
+#include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 

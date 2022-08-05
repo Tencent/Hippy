@@ -24,7 +24,12 @@
 
 #include <jni.h>
 
-#include "driver/driver.h"
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "driver/napi/js_native_api.h"
+#include "driver/napi/js_native_turbo.h"
 #include "jni/scoped_java_ref.h"
 
 struct JNIArgs {

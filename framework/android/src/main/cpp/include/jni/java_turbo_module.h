@@ -26,9 +26,8 @@
 
 #include <string>
 
-#include "driver/driver.h"
-
-#include "convert_utils.h"
+#include "driver/napi/js_native_turbo.h"
+#include "jni/convert_utils.h"
 #include "jni/scoped_java_ref.h"
 
 class JavaTurboModule : public hippy::napi::HippyTurboModule {

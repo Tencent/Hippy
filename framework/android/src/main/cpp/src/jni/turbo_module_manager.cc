@@ -26,6 +26,8 @@
 
 #include "driver/runtime/v8/runtime.h"
 #include "driver/napi/v8/js_native_api_v8.h"
+#include "driver/napi/v8/js_native_turbo_v8.h"
+#include "footstone/string_view_utils.h"
 #include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"

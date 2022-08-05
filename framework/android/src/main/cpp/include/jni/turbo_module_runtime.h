@@ -24,8 +24,6 @@
 
 #include <string>
 
-#include "driver/driver.h"
-
 #include "jni/jni_env.h"
 
 class TurboModuleRuntime {

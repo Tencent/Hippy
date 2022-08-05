@@ -22,10 +22,10 @@
 
 #include "jni/exception_handler.h"
 
-#include "driver/driver.h"
+#include "bridge/bridge.h"
+#include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
-#include "bridge/bridge.h"
 
 using StringViewUtils = hippy::base::StringViewUtils;
 

@@ -24,10 +24,12 @@
 
 #include <android/asset_manager.h>
 
-#include <map>
+#include <unordered_map>
 
-#include "driver/driver.h"
+#include "driver/base/uri_loader.h"
 #include "footstone/check.h"
+#include "footstone/string_view_utils.h"
+#include "footstone/task_runner.h"
 #include "jni/scoped_java_ref.h"
 
 template <typename CharType>
