@@ -1,3 +1,6 @@
+/**
+ * @public
+ */
 export type NeedToTyped = any;
 
 /**
@@ -22,9 +25,14 @@ export const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
  */
 export const HIPPY_STATIC_PROTOCOL = 'hpfile://';
 
+/**
+ * @public
+ */
 export type CallbackType = Function;
 
-// 通用的对象map式格式
+/**
+ * @public
+ */
 export interface CommonMapParams {
   [key: string]: NeedToTyped;
 }

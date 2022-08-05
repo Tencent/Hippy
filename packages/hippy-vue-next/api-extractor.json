@@ -13,5 +13,26 @@
   },
   "tsdocMetadata": {
     "enabled": false
+  },
+  "messages": {
+    "compilerMessageReporting": {
+      "TS2374": {
+        "logLevel": "none"
+      },
+      "TS2403": {
+        "logLevel": "none"
+      },
+      "TS6200": {
+        "logLevel": "none"
+      }
+    },
+    "extractorMessageReporting": {
+      "ae-forgotten-export": {
+        "logLevel": "none"
+      },
+      "ae-missing-release-tag": {
+        "logLevel": "none"
+      }
+    }
   }
 }

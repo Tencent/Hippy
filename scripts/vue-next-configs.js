@@ -125,6 +125,8 @@ function genConfig(name) {
             tsconfigFilePath: './tsconfig.json',
           },
         },
+        // set true will cause compilerMessageReporting config error
+        cleanUpRollup: false,
       }),
       nodeResolve({
         preferBuiltins: true,
