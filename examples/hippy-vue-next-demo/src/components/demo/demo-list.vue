@@ -179,7 +179,7 @@ export default defineComponent({
     const dataSource: Ref<any[]> = ref([]);
     // 列表引用
     const listRef = ref(null);
-    const horizontal = ref(undefined);
+    const horizontal = ref(false);
     // 删除文案
     const delText = 'Delete';
     // 当前是否正在请求数据
@@ -220,7 +220,7 @@ export default defineComponent({
        * 改变方向
        */
     const changeDirection = () => {
-      horizontal.value = horizontal.value === undefined ? true : undefined;
+      horizontal.value = !horizontal.value;
     };
 
     onMounted(() => {
