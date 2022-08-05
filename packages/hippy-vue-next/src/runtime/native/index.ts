@@ -743,7 +743,7 @@ export const Native: NativeApiType = {
    * @param options - parse options
    */
   parseColor(color: string, options = { platform: Native.platform }): number {
-    const cache =      CACHE.COLOR_PARSER ?? (CACHE.COLOR_PARSER = Object.create(null));
+    const cache = CACHE.COLOR_PARSER ?? (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
       // cache parse result
       cache[color] = translateColor(color, options);

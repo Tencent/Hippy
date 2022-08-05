@@ -17,6 +17,7 @@ import {
   setHippyCachedInstanceParams,
   setHippyCachedInstance,
 } from '../../../src/util/instance';
+import { preCacheNode } from '../../../src/util/node-cache';
 
 /**
  * @author birdguo
@@ -71,6 +72,9 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     setHippyCachedInstanceParams('instance', {
       $el: divElement,
     });
+
+    // pre cache node
+    preCacheNode(divElement, divElement.nodeId);
 
     // 元素监听事件，修改标记值
     divElement.addEventListener('click', () => {

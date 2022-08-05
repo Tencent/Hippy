@@ -514,7 +514,7 @@ export class HippyElement extends HippyNode {
         if (
           Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, styleProperty)
         ) {
-          styleProperty =            PROPERTIES_MAP[styleProperty as keyof PropertiesMapType];
+          styleProperty = PROPERTIES_MAP[styleProperty as keyof PropertiesMapType];
         }
         // Convert the value
         if (typeof styleValue === 'string') {

@@ -133,13 +133,13 @@ describe('runtime/native.ts', () => {
     expect(await Native.imageLoader.getSize('https://www.qq.com')).toEqual(100);
     expect(Native.imageLoader.prefetch('https://www.qq.com')).toBeUndefined();
   });
-  it('test native bridge calls: network', async () => {
+  it('test native bridge calls: netInfo', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
       value: async () => Promise.resolve({
         network_info: '4G',
       }),
     });
-    expect(await Native.network.getNetStatus()).toEqual('4G');
+    expect(await Native.netInfo.fetch()).toEqual('4G');
   });
   it('test parseColor', async () => {
     expect(Native.parseColor('#ffffff', { platform: 'ios' })).toEqual(4294967295);

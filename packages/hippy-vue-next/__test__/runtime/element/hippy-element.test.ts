@@ -18,6 +18,9 @@ describe('runtime/element/hippy-element', () => {
         $el: root,
       },
     });
+
+    // clear mocked platform
+    Native.platform = '';
   });
 
   it('should convert the tag name to lowercase.', () => {
@@ -216,9 +219,9 @@ describe('runtime/element/hippy-element', () => {
 
     it('should convert caretColor to caret-color.', () => {
       const hippyElement = new HippyElement('div');
-      hippyElement.setStyle('caretColor', 'black');
 
-      expect(hippyElement.hasAttribute('caret-color')).toBeTruthy();
+      hippyElement.setStyle('caretColor', '#abcdef');
+      expect(hippyElement.style.caretColor).toBe(4289449455);
     });
 
     it('should set the backgroundImage style.', () => {
@@ -369,7 +372,7 @@ describe('runtime/element/hippy-element', () => {
       element.setNativeProps({ style: { cde: {} } });
       expect(element.style.cde).toEqual({});
       element.setNativeProps({ style: { caretColor: '#abcdef' } });
-      expect(element.style['caret-color']).toEqual(4289449455);
+      expect(element.style.caretColor).toEqual(4289449455);
       element.setNativeProps({ style: { placeholderTextColor: '#abcdef' } });
       expect(element.style.placeholderTextColor).toEqual(4289449455);
       element.setNativeProps({ style: { underlineColorAndroid: '#abcdef' } });

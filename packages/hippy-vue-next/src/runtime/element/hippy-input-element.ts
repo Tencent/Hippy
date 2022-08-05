@@ -32,14 +32,14 @@ export class HippyInputElement extends HippyElement {
   /**
    * show input menu
    */
-  public static showInputMenu(): void {
+  public showInputMenu(): void {
     // noop
   }
 
   /**
    * hide input menu
    */
-  public static hideInputMenu(): void {
+  public hideInputMenu(): void {
     // noop
   }
 
