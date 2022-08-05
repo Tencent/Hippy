@@ -33,10 +33,6 @@ namespace hippy {
    public:
     ADRBridge(JNIEnv* j_env, jobject j_obj): ref_(std::make_shared<JavaRef>(j_env, j_obj)){}
     virtual ~ADRBridge() = default;
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-    virtual void SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) override;
-    virtual void SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) override;
-#endif
     inline jobject GetObj() {
       return ref_->GetObj();
     }

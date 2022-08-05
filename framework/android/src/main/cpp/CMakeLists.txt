@@ -86,7 +86,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)
 
 # region source set
 set(SOURCE_SET
-    src/bridge/bridge.cc
     src/bridge/entry.cc
     src/bridge/java2js.cc
     src/bridge/js2java.cc
