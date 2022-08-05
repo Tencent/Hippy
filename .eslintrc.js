@@ -45,6 +45,9 @@ module.exports = {
         '@typescript-eslint/naming-convention': 'off',
         '@typescript-eslint/prefer-for-of': 'off',
       },
+      parserOptions: {
+        project: ['./**/tsconfig.json'],
+      },
     },
   ],
   env: {
