@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 3.14)
 
 project("hippy")
 
-get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../.." REALPATH)
+get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../../../../.." REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
