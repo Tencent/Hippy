@@ -6,6 +6,7 @@
   * [布局与单位](guide/layout.md)
   * [网络请求](guide/network-request.md)
   * [定时器](guide/timer.md)
+  * [动画](guide/animation.md)
   * [日志](guide/console.md)
   * [异常捕获](guide/exception.md)
   * [自定义字体](guide/custom-font.md)
@@ -42,20 +43,21 @@
   * [模块](hippy-react/modules.md)
   * [样式](hippy-react/style.md)
   * [事件](hippy-react/native-event.md)
-  * [动画方案](hippy-react/animation.md)
   * [手势系统](hippy-react/gesture.md)
   * [自定义组件和模块](hippy-react/customize.md)
   * [转 Web](hippy-react/web.md)
-  * [从 React Native 迁移](hippy-react/migrate-from-rn.md)
 
 * Hippy-Vue
   * [介绍](hippy-vue/introduction.md)
   * [核心组件](hippy-vue/components.md)
   * [扩展组件](hippy-vue/external-components.md)
   * [模块](hippy-vue/vue-native.md)
+  * [样式](hippy-vue/style.md)
   * [事件](hippy-vue/native-event.md)
   * [自定义组件和模块](hippy-vue/customize.md)
   * [路由](hippy-vue/router.md)
+  * [转 Web](hippy-vue/web.md)
+  * [Vue 3.x](hippy-vue/vue3.md)
 
 * 样式
   * [布局](style/layout.md)

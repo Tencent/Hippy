@@ -2,7 +2,7 @@
 
 # 组件
 
-hippy-react 的组件接近终端，语法上接近 React Native。
+Hippy-React SDK 提供了常用的 UI 组件，语法上接近终端
 
 ---
 
@@ -12,8 +12,8 @@ hippy-react 的组件接近终端，语法上接近 React Native。
 
 图片组件，用于显示单张图片。
 
-> * 注意： 必须指定样式中的宽度和高度，否则无法工作。
-> * 注意： Android 端默认会带上灰底色用于图片占位，可以加上 `backgroundColor: transparent` 样式改为透明背景。
+> * 必须指定样式中的宽度和高度，否则无法工作。
+> * Android 端默认会带上灰底色用于图片占位，可以加上 `backgroundColor: transparent` 样式改为透明背景。(`2.14.1` 版本后 Image 默认背景色修改成 `transparent`)
 
 ## 基本用法
 
@@ -90,7 +90,7 @@ import icon from './qb_icon_new.png';
 
 可复用垂直列表功能，尤其适合大量条目的数据渲染。
 
-!> Android `2.14.0` 版本后会采用 `RecyclerView` 替换原有 `ListView`
+> Android `2.14.0` 版本后会采用 `RecyclerView` 替换原有 `ListView`
 
 ## 参数
 
@@ -422,13 +422,15 @@ import icon from './qb_icon_new.png';
 
 最基础的容器组件，它是一个支持Flexbox布局、样式、一些触摸处理、和一些无障碍功能的容器，并且它可以放到其它的视图里，也可以有任意多个任意类型的子视图。不论在什么平台上，`View` 都会直接对应一个平台的原生视图。
 
+!> Android 具有节点优化的特性，请注意 `collapsable` 属性的使用
+
 ## 属性
 
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。启用无障碍的其他属性时，必须优先设置 `accessible` 为 `true`。 | `boolean` | `Android、iOS、hippy-react-web` |
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `string`                               | `Android、iOS、hippy-react-web` |
-| collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失 `（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`(也可设置为 Style 属性)` | `boolean`                            | `Android` |
+| collapsable        | Android 里如果一个 `View` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失 `（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。 `（Android 2.14.1 版本后支持在 Attribute 设置，以前版本请在 Style 属性里设置)` | `boolean`                            | `Android` |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS、hippy-react-web` |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、hippy-react-web` |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、hippy-react-web` |

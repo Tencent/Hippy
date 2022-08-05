@@ -6,6 +6,7 @@
   * [Layout & Unit](guide/layout.md)
   * [Network](guide/network-request.md)
   * [Timer](guide/timer.md)
+  * [Animation](guide/animation.md)
   * [Log](guide/console.md)
   * [Exception Handler](guide/exception.md)
   * [Custom Font](guide/custom-font.md)
@@ -42,20 +43,21 @@
   * [Modules](hippy-react/modules.md)
   * [Styles](hippy-react/style.md)
   * [Events](hippy-react/native-event.md)
-  * [Animation](hippy-react/animation.md)
   * [Gesture System](hippy-react/gesture.md)
   * [Custom Components & Modules](hippy-react/customize.md)
   * [Web Isomorphic](hippy-react/web.md)
-  * [Migrate from React Native](hippy-react/migrate-from-rn.md)
 
 * Hippy-Vue
   * [Introduction](hippy-vue/introduction.md)
   * [Main Components](hippy-vue/components.md)
   * [Extended Components](hippy-vue/external-components.md)
   * [Modules](hippy-vue/vue-native.md)
+  * [Styles](hippy-vue/style.md)
   * [Events](hippy-vue/native-event.md)
   * [Custom Components & Modules](hippy-vue/customize.md)
   * [Router](hippy-vue/router.md)
+  * [Web Isomorphic](hippy-vue/web.md)
+  * [Vue 3.x](hippy-vue/vue3.md)
 
 * Style
   * [Layout](style/layout.md)

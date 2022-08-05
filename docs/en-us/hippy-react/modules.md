@@ -59,11 +59,11 @@
 
 ### start
 
-`() => void` Start the animation. Note: If the animation has not been assigned to the corresponding control through render before calling this method, or the animation has been destroy, then start will not take effect.
+`() => void` Start the animation. Note: If the animation has not been assigned to the corresponding control through render before calling this method, or the animation has been destroyed, then start will not take effect.
 
 ### updateAnimation
 
-`(options: Object) => void` Modify the configuration parameters of the animation. You only need to fill in the configuration items that need to be modified, no need to fill in all the animation parameters repeatedly
+`(options: Object) => void` Modify the configuration parameters of the animation. You only need to fill in the configuration items that need to be modified, no need to fill in all the animation parameters repeatedly. Pay attention, if animation has been started or destroyed, updateAnimation will not take effect.
 
 >- options: Object: Instantiation parameter
 
