@@ -304,6 +304,8 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
   layout_.paddingRight = layout_node_->GetPadding(Edge::EdgeRight);
   layout_.paddingBottom = layout_node_->GetPadding(Edge::EdgeBottom);
 
+  float old_absolute_left = render_layout_.left;
+  float old_absolute_top = render_layout_.top;
   render_layout_ = layout_;
 
   if (render_info_.pid != pid_) {
@@ -314,7 +316,10 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
       render_layout_.top += parent->layout_.top;
       parent = parent->GetParent();
     }
-    changed |= true;
+  }
+  // 层级优化后的结果是否改变
+  if (not_equal(render_layout_.left, old_absolute_left) || not_equal(render_layout_.top, old_absolute_top)) {
+    changed = true;
   }
 
   layout_node_->SetHasNewLayout(false);
