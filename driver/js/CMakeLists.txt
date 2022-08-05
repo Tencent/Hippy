@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project("driver")
+project("js_driver")
 
 get_filename_component(PROJECT_ROOT_DIR "${PROJECT_SOURCE_DIR}/../.." REALPATH)
 
@@ -72,8 +72,8 @@ endif ()
 # endregion
 
 # region dom
-add_subdirectory(${PROJECT_ROOT_DIR}/dom ${CMAKE_CURRENT_BINARY_DIR}/dom)
-target_link_libraries(${PROJECT_NAME} PUBLIC dom)
+GlobalPackages_Add(dom)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/dom/include)
 # endregion
 
 # region source set
