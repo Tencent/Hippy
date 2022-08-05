@@ -71,5 +71,5 @@
 
 * 语言
   * [中文](/)
-  * [英文](https://hippyjs.org/en-us)
+  * [英文](https://hippyjs.org/en-us/)
 

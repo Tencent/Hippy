@@ -70,7 +70,7 @@
   * [Release](https://github.com/Tencent/Hippy/releases)
 
 * Languages
-  * [Chinese](https://hippyjs.org)
+  * [Chinese](https://hippyjs.org/)
   * [English](/)
   
 
