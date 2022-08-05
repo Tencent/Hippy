@@ -27,7 +27,7 @@ const STYLE_5 = {
   },
 };
 
-// mock的数据
+// mock data
 const MOCK_DATA = [
   STYLE_5,
   STYLE_1,

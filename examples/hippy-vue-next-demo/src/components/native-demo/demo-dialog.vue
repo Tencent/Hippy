@@ -7,7 +7,7 @@
     >
       <span class="button-text">显示对话框</span>
     </button>
-    <!-- dialog 无法支持 v-show，只能使用 v-if 进行显式切换 -->
+    <!-- dialog can't support v-show, can only use v-if for explicit switching -->
     <dialog
       v-if="dialogIsVisible"
       animationType="slide"
@@ -16,7 +16,7 @@
       @show="onShow"
       @requestClose="onClose"
     >
-      <!-- iOS 平台上 dialog 必须只有一个子节点 -->
+      <!-- dialog on iOS platform can only have one child node -->
       <div class="dialog-demo-wrapper">
         <div
           class="fullscreen center row"
@@ -94,8 +94,11 @@ export default defineComponent({
 
     const onClose = (evt) => {
       evt.stopPropagation();
-      // Dialog 会响应硬件返回按钮，所以需要在这里关闭弹窗。
-      // 如果第二层弹窗是展开的，则只关闭二层弹窗，否则关闭一层弹窗
+      /**
+       * Dialog will respond to the hardware back button, so you need to close the popup here.
+       * If the second layer popup window is expanded,
+       * only the second layer popup window is closed, otherwise the first layer popup window is closed
+       */
       if (dialog2IsVisible.value) {
         dialog2IsVisible.value = false;
       } else {
@@ -108,9 +111,9 @@ export default defineComponent({
       evt.stopPropagation();
     };
 
-    // 路由离开前的 hook，无弹窗时可以返回
+    // The hook before the route leaves, you can return when there is no pop-up window
     onBeforeRouteLeave((to, from, next) => {
-      // 如果弹窗没开，就返回上一页。
+      // If the popup is not open, go back to the previous page
       if (!dialogIsVisible.value) {
         next();
       }

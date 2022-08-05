@@ -21,7 +21,7 @@ const backgroundColorAnimation = {
     {
       startValue: '#40b883',
       toValue: 'yellow',
-      valueType: 'color', // 颜色动画需显式指定valueType为color
+      valueType: 'color', // Color animation needs to explicitly specify valueType as color
       duration: 1000,
       delay: 0,
       mode: 'timing',
@@ -31,7 +31,7 @@ const backgroundColorAnimation = {
       startValue: 'yellow',
       toValue: '#40b883',
       duration: 1000,
-      valueType: 'color', // 颜色动画需显式指定valueType为color
+      valueType: 'color', // Color animation needs to explicitly specify valueType as color
       delay: 0,
       mode: 'timing',
       timingFunction: 'linear',

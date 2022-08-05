@@ -66,36 +66,33 @@ import { warn } from '../util';
 export default defineComponent({
   name: 'Menu',
   setup() {
-    // 当前支持的功能路由列表
+    // list of currently supported feature routes
     const featureList = Object.keys(Demos).map(demoId => ({
       id: demoId,
       name: (Demos as RouterList)[demoId].name,
     }));
 
-    // native 功能路由列表
+    // native function routing list
     const nativeFeatureList = Object.keys(NativeDemos).map(demoId => ({
       id: demoId,
       name: (NativeDemos as RouterList)[demoId].name,
     }));
 
-    // 验证 ref 数据格式
     const testData = ref({
       a: 1,
     });
 
     onMounted(() => {
-      // 有些场景比如传递数据给 Native 时，需要对 ref 对象转为原始对象，否则 native 的 js 代码没有
-      // 解 ref 的逻辑，会导致逻辑出错，例如：设置 native 节点的属性等，需要传入 js 原始对象，而非 proxy 对象
+      /**
+       * In some scenarios, for example, when passing data to Native,
+       * it is necessary to convert the ref object to the original object.
+       * Otherwise, the native js code does not have the logic to parse ref, which will cause logic errors.
+       */
       warn('data', testData, toRaw(testData));
     });
 
-    // 是否展示 demo 区域
     const isShowDemoWrap = ref(true);
-    /**
-       * 点击 demo 标题
-       */
     const onClickDemoTitle = () => {
-      // 切换展示和隐藏 demo 区域
       isShowDemoWrap.value = !isShowDemoWrap.value;
     };
 

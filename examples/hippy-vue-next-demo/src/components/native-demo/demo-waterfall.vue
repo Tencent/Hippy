@@ -80,20 +80,17 @@ import StyleFive from '../list-items/style5.vue';
 
 const STYLE_LOADING = 100;
 const MAX_FETCH_TIMES = 50;
-// 当前请求的次数
+// number of current requests
 let fetchTimes = 0;
-// 每列之前的水平间距
+// horizontal space between columns
 const columnSpacing = 6;
-// item 间的垂直间距
+// vertical spacing between items
 const interItemSpacing = 6;
-// 瀑布流列数量
+// the number of waterfall flow columns, the default is 2
 const numberOfColumns = 2;
-// 内容缩进
+// inner content padding
 const contentInset = { top: 0, left: 5, bottom: 0, right: 5 };
 
-/**
-   * mock fetch 数据
-   */
 const mockFetchData = async (): Promise<any> => new Promise((resolve) => {
   setTimeout(() => {
     fetchTimes += 1;
@@ -118,19 +115,13 @@ export default defineComponent({
       ...mockData,
       ...mockData,
     ]);
-      // 是否正在加载
+
     let isLoading = false;
-    // 是否正在刷新
     const isRefreshing = ref(false);
-    // 加载状态文案
     const loadingState = ref('正在加载...');
-    // 刷新文案
     const refreshText = computed(() => (isRefreshing.value ? '正在刷新' : '下拉刷新'));
-    // 瀑布流引用
     const waterfallRef = ref(null);
-    // header 引用
     const headerRef = ref(null);
-    // 元素宽度
     const itemWidth = computed(() => {
       const screenWidth = Native.dimensions.screen.width;
       const width = screenWidth - contentInset.left - contentInset.right;
@@ -139,27 +130,24 @@ export default defineComponent({
       );
     });
 
-    // 刷新事件回调
+    // refresh event callback
     const onRefresh = async () => {
-      // 重新获取数据
       isRefreshing.value = true;
       const data = await mockFetchData();
       isRefreshing.value = false;
-      // 赋值
       dataSource.value = data.reverse();
       if (headerRef.value) {
-        // 通知刷新完成
+        // Notify refresh completed
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         headerRef.value.refreshCompleted();
       }
     };
 
-    // 滑动到底部事件
+    // scroll to bottom callback
     const onEndReached = async () => {
       console.log('end Reached');
 
-      // 检查锁，如果在加载中，则直接返回，防止二次加载数据
       if (isLoading) {
         return;
       }
@@ -173,14 +161,11 @@ export default defineComponent({
         isLoading = false;
         return;
       }
-      // 附加更多数据
+
       dataSource.value = [...dataSource.value, ...newData];
       isLoading = false;
     };
 
-    /**
-       * 点击 item 元素事件
-       */
     const onClickItem = (index) => {
       if (waterfallRef.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -190,7 +175,7 @@ export default defineComponent({
     };
 
     /**
-       * 滚动监听事件
+       * scroll listener event
        *
        * @param evt
        */

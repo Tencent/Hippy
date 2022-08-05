@@ -95,24 +95,24 @@
 
 <script lang="ts">
 /**
-   * 动画参数以及默认参数，如果默认值不改就不用填
+   * Animation parameters and their default values
    *
-   * playing 参数：
-   *   true                      // 运行动画
-   *   false                     // 暂停动画
+   * playing：
+   *   true                      // play animation
+   *   false                     // stop animation
    *
-   * actions 参数：
-   *   valueType: undefined,     // 动画的开始和结束值的单位类型，默认为空，代表动画起止值的类型。可以不设，或者设为 rad、deg、color
-   *   delay: 0,                 // 动画延迟开始的时间，单位为毫秒
-   *   startValue: 0,            // 动画开始时的值
-   *   toValue: 0,               // 动画结束时候的值
-   *   duration: 0,              // 动画运行时间
-   *   direction: 'center',      // 动画运行方向
-   *   timingFunction: 'linear', // 动画插值器类型，
-   *   可选 linear、ease-in、ease-out、ease-in-out、ease_bezier、cubic-bezier(最低支持版本 2.9.0)
-   *   repeatCount: 0,           // 动画的重复次数，0为不重复，-1 为一直重复不停，如果在数组中，整个动画的重复次数以第一个动画的值为准
-   *
-   * actions替换后，需手动start动画
+   * actions：
+   *   valueType: undefined,     // unit type of startValue and toValue， can be set to rad, deg, color
+   *   delay: 0,                 // the time the animation delay starts, in milliseconds
+   *   startValue: 0,            // the value at the beginning of the animation
+   *   toValue: 0,               // the value at the end of the animation
+   *   duration: 0,              // animation runtime
+   *   direction: 'center',      // animation running direction
+   *   timingFunction: 'linear', // Optional values are: linear, ease-in, ease-out,
+   *                             // ease-in-out, ease_bezier, cubic-bezier(minimum supported version 2.9.0)
+   *   repeatCount: 0,           // number of repetitions of animation. 0: not repeating; -1: loop.
+   *                             // the number is based on the value of the first animation.
+   * After the actions are replaced, the animation needs to be started manually
    *
    */
 import { defineComponent, ref, type Ref } from '@vue/runtime-core';
@@ -167,7 +167,6 @@ export default defineComponent({
     const actionsDidUpdate = () => {
       warn('actions updated & startAnimation');
       if (animationRef.value) {
-        // 注意这里需要告诉终端刷新已经结束了，否则会一直卡着。
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         animationRef.value.start();

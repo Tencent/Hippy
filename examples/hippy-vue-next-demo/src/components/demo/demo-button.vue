@@ -50,9 +50,7 @@ export default defineComponent({
       warn(`${Date.now()}-button-Deactivated`);
     });
 
-    /**
-       * 点击视图更改状态
-       */
+    // click to change status
     const onClickView = () => {
       isClicked.value = !isClicked.value;
     };

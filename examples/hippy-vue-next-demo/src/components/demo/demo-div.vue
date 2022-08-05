@@ -173,10 +173,9 @@ export default defineComponent({
     const demo2 = ref(null);
 
     /**
-       * 外层滚动事件
-       *
-       * @param e - 滚动事件
-       */
+     * outer scroll event
+     * @param e
+     */
     const onOuterScroll = (e) => {
       offsetY.value = e.offsetY;
     };

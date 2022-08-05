@@ -150,7 +150,11 @@ export default defineComponent({
         warn('changed to face1');
         animations.value.face = face1;
       }
-      // actions切换后，手动启动动画，由于创建动画需要与终端通信，延迟10ms保证动画已创建
+      /**
+       * After the actions are switched, start the animation manually.
+       * Since the creation of animation requires communication with the terminal,
+       * delay 10ms to ensure that the animation has been created
+       */
       setTimeout(() => {
         if (animationRef.value) {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment

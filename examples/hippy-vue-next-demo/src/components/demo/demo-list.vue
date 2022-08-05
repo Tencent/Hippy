@@ -154,50 +154,44 @@ const mockFetchData = async () => new Promise((resolve) => {
   setTimeout(() => resolve(mockDataArray), 600);
 });
 
-// item 完全曝光
+// item fully exposed
 const onAppear = (index: number) => {
   warn('onAppear', index);
 };
-  // item 完全隐藏
+  // item is completely hidden
 const onDisappear = (index: number) => {
   warn('onDisappear', index);
 };
-  // item 至少一个像素曝光
+  // item at least one pixel exposure
 const onWillAppear = (index: number) => {
   warn('onWillAppear', index);
 };
-  // item 至少一个像素隐藏
+  // item is hidden by at least one pixel
 const onWillDisappear = (index: number) => {
   warn('onWillDisappear', index);
 };
 
 export default defineComponent({
   setup() {
-    // 当前加载状态
     const loadingState = ref('');
-    // 数据源
     const dataSource: Ref<any[]> = ref([]);
-    // 列表引用
     const listRef = ref(null);
     const horizontal = ref(false);
-    // 删除文案
     const delText = 'Delete';
-    // 当前是否正在请求数据
     let isLoading = false;
 
     /**
-       * 滑动到列表最后，触发事件，可以加载下一页了
+       * scroll to the end of the list, trigger the event, you can load the next page
        *
        * @param evt
        */
     const onEndReached = async (evt) => {
       warn('endReached', evt);
 
-      // 检查锁，如果在加载中，则直接返回，防止二次加载数据
       if (isLoading) {
         return;
       }
-      // 请求加锁
+
       isLoading = true;
       loadingState.value = '正在加载...';
       // 获取数据
@@ -208,7 +202,7 @@ export default defineComponent({
     };
 
     /**
-       * 删除数据
+       * delete data
        */
     const onDelete = (event: HippyEvent) => {
       if (typeof event.index !== 'undefined') {
@@ -217,16 +211,18 @@ export default defineComponent({
     };
 
     /**
-       * 改变方向
+       * change direction
        */
     const changeDirection = () => {
       horizontal.value = !horizontal.value;
     };
 
     onMounted(() => {
-      // *** isLoading 是加载锁，业务请照抄 ***
-      // 因为 onEndReach 位于屏幕底部时会多次触发，
-      // 所以需要加一个锁，当未加载完成时不进行二次加载
+      /**
+       * isLoading is a loading lock, just copy
+       * onEndReach fires multiple times when at the bottom of the screen,
+       * so a lock needs to be added, and secondary loading is not performed when the unloading is completed.
+       */
       isLoading = false;
       dataSource.value = [...mockDataArray];
     });

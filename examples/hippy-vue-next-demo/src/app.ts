@@ -19,18 +19,17 @@ global.Hippy.on('unhandledRejection', (reason) => {
   warn('unhandledRejection reason', reason);
 });
 
-// 创建 hippy app 实例
+// create hippy app instance
 const app: HippyApp = createApp(App, {
-  // hippy native module名
+  // hippy native module name
   appName: 'Demo',
   iPhone: {
-    // 状态栏配置
+    // config of statusBar
     statusBar: {
-      // 禁用状态栏自动填充
+      // disable status bar autofill
       // disabled: true,
 
-      // 状态栏背景色，如果不配的话，会用 4282431619，也就是 #40b883 - Vue 的绿色
-      // 因为运行时只支持样式和属性的实际转换，所以需要用下面的转换器将颜色值提前转换，可以在 Node 中直接运行。
+      // Status bar background color, if not set, it will use 4282431619
       // hippy-vue-css-loader/src/compiler/style/color-parser.js
       // backgroundColor: 4294309626,
       backgroundColor: 4282431619,
@@ -41,15 +40,13 @@ const app: HippyApp = createApp(App, {
   },
 });
 
-// 创建路由对象
+// create router
 const router = createHippyRouter();
-// 使用路由中间件
 app.use(router);
 
-// 监听屏幕尺寸变化事件，更新屏幕尺寸全局对象数据，使用方还是使用 Native 的属性
+// Monitor screen size and update size data
 EventBus.$on('onSizeChanged', (newScreenSize) => {
   if (newScreenSize.width && newScreenSize.height) {
-    // 拿到屏幕尺寸数据之后，更新屏幕尺寸
     setScreenSize({
       width: newScreenSize.width,
       height: newScreenSize.height,
@@ -57,23 +54,26 @@ EventBus.$on('onSizeChanged', (newScreenSize) => {
   }
 });
 
-// 启动 hippy，需要等hippy native 注册成功之后才能去调用vue的mount
+// You need to wait for hippy native to register successfully before calling vue mount
 app.$start().then(({ superProps, rootViewId }) => {
-  // 初始化参数
   warn(superProps);
   setGlobalInitProps({
     superProps,
     rootViewId,
   });
-  // 因为现在使用的是vue-router的memory history，因此需要手动推送初始位置，否则router将无法ready
-  // 浏览器上则是由vue-router根据location.href去匹配，默认推送根路径'/'
+  /**
+   * Because the memory history of vue-router is now used,
+   * the initial position needs to be pushed manually, otherwise the router will not be ready.
+   * On the browser, it is matched by vue-router according to location.href, and the default push root path '/'
+   */
   router.push('/');
-  // 先 mount app
+  // mount first
   app.mount('#root');
 
-  // 这里也可以先进行mount，因为可以把路由无关的组件先 mount
-  // 也可以在路由ready之后mount app。不过建议先 mount，因为能够尽快上屏，有些 native 的上报和 loading 等逻辑是跟
-  // 上屏时机有关，尽早上屏，尽早展示
+  /**
+   * You can also mount the app after the route is ready, However,
+   * it is recommended to mount first, because it can render content on the screen as soon as possible
+   */
   // router.isReady().then(() => {
   //   // mount app
   //   app.mount('#root');

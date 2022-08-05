@@ -28,7 +28,7 @@ const routes = [
 ];
 
 /**
- * 创建HippyRouter的实例
+ * create HippyRouter instance
  */
 export function createHippyRouter(): Router {
   return createRouter({

@@ -66,16 +66,21 @@ const max = 7;
 
 export default defineComponent({
   setup() {
-    // 当前状态
+    // current state
     const state = ref('idle');
-    // 当前展示的 slide 的索引
+    // the index of the currently displayed slide
     const currentSlide = ref(2);
-    // 因为 Android 终端的通讯性能限制，导致如果快速点击时 dropped 事件会发很多次，导致 swiper-slider 发生推拉抽屉的现象
-    // 所以这里单独做个变量，保存当前正在显示的值，跟 currentSlide 的值做个区分，避免推拉现象。
+    /**
+     * Because the communication performance of the Android is limited,
+     * if the dropped event is clicked quickly, it will be triggered multiple times,
+     * causes a push-pull effect similar to a drawer.
+     * So here is a separate variable to save the value currently being displayed,
+     * to distinguish it from the value of currentSlide
+     */
     const currentSlideNum = ref(2);
 
     /**
-       * 滚至下一页
+       * scroll to next page
        */
     const scrollToNextPage = () => {
       warn('scroll next', currentSlide.value, currentSlideNum.value);
@@ -87,7 +92,7 @@ export default defineComponent({
     };
 
     /**
-       * 滚至上一页
+       * scroll to previous page
        */
     const scrollToPrevPage = () => {
       warn('scroll prev', currentSlide.value, currentSlideNum.value);
@@ -99,12 +104,15 @@ export default defineComponent({
     };
 
     /**
-       * 拖动
+       * dragging
        *
        * @param evt
        */
     const onDragging = (evt) => {
-      // FIXME: Android 该事件存在 bug，往后翻 nextSlide 依然是当前的 index，往前翻正常。
+      /**
+       * FIXME: There is a bug in this event on Android,
+       * scrolling back nextSlide is still the current index, scrolling forward is normal
+       */
       /* eslint-disable-next-line no-console */
       warn(
         'Current offset is',
@@ -115,18 +123,20 @@ export default defineComponent({
     };
     const onDropped = (evt) => {
       warn('onDropped', evt);
-      // 更细当前页码
+      // update current page number
       currentSlideNum.value = evt.currentSlide;
     };
     const onStateChanged = (evt) => {
       warn('onStateChanged', evt);
-      // 更新当前滚屏状态
+      // update state
       state.value = evt.state;
     };
 
     return {
-      // 假数据，7 是页数，页数初始化成功后不可更改。
-      // 所以如果是动态加载的数据，建议再 <swiper> 上加上 v-if 判断数据加载完成之后再进行渲染。
+      /**
+       * If it is dynamically loaded data, it is recommended to add v-if to the <swiper>
+       *   to judge that the data is loaded before rendering.
+       */
       dataSource: new Array(max).fill(0)
         .map((n, i) => i),
       currentSlide,

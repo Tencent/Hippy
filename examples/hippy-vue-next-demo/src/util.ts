@@ -1,43 +1,42 @@
 let globalProps: NeedToTyped;
 
 /**
- * 保存 hippy 全局的初始化参数
+ * Save hippy global initialization parameters
  *
- * @param props - 需要设置的全局props属性
+ * @param props - superProps
  */
 export function setGlobalInitProps(props: NeedToTyped): void {
   globalProps = props;
 }
 
 /**
- * 返回缓存的全局 props
+ * Get hippy global initialization parameters
  */
 export function getGlobalInitProps(): NeedToTyped {
   return globalProps;
 }
 
 /**
- * 输出调试警告信息
+ * output debugging warnings
  *
- * @param context - 需要记录的上下文
+ * @param context - output content
  */
 export function warn(...context: NeedToTyped[]): void {
   if (process.env.NODE_ENV === 'production') {
     return;
   }
 
-  // console 输出统一处理
   // eslint-disable-next-line no-console
   console.warn(...context);
 }
 
-// 字符串转数字的正则规则
+// regular expression of number
 const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
 
 /**
- * 将字符串尽可能转为数字
+ * convert string to number
  *
- * @param str - 待转换的内容
+ * @param str - target string
  */
 export function tryConvertNumber(str: string | number): string | number {
   if (typeof str === 'number') {

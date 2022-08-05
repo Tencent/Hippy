@@ -5,11 +5,10 @@
     @layout="onLayout"
   >
     <div>
-      <!-- 操作系统平台 -->
       <div class="native-block">
         <label class="vue-native-title">Native能力使用示例：</label>
       </div>
-      <!-- 操作系统平台 -->
+      <!-- platform -->
       <div
         v-if="Native.platform"
         class="native-block"
@@ -28,13 +27,13 @@
         <p>{{ Native.isAndroid() }}</p>
       </div>
 
-      <!-- 设备名称 -->
+      <!-- device name -->
       <div class="native-block">
         <label class="vue-native-title">Native.device</label>
         <p>{{ Native.device }}</p>
       </div>
 
-      <!-- 是否是 iPhone X，仅限操作系统为 iOS 使用 -->
+      <!-- Is it an iPhone X -->
       <div
         v-if="Native.isIOS()"
         class="native-block"
@@ -43,7 +42,7 @@
         <p>{{ Native.isIphoneX }}</p>
       </div>
 
-      <!-- 操作系统版本，目前仅限 iOS 使用，其它平台返回 null -->
+      <!-- OS version, currently only available for iOS, other platforms return null -->
       <div
         v-if="Native.isIOS()"
         class="native-block"
@@ -52,7 +51,7 @@
         <p>{{ Native.osVersion || 'null' }}</p>
       </div>
 
-      <!-- 国际化相关信息 -->
+      <!-- Internationalization related information -->
       <div class="native-block">
         <label class="vue-native-title">Native.localization</label>
         <p>{{ `国际化相关信息` }}</p>
@@ -63,7 +62,7 @@
         </p>
       </div>
 
-      <!-- API 版本，目前仅限 Android 使用，其它平台返回 null -->
+      <!-- API version, currently only available for Android, other platforms return null -->
       <div
         v-if="Native.isAndroid()"
         class="native-block"
@@ -72,13 +71,13 @@
         <p>{{ Native.apiLevel || 'null' }}</p>
       </div>
 
-      <!-- 屏幕是否是垂直显示状态 -->
+      <!-- Whether the screen is vertically displayed -->
       <div class="native-block">
         <label class="vue-native-title">Native.isVerticalScreen</label>
         <p>{{ Native.isVerticalScreen }}</p>
       </div>
 
-      <!-- 窗口宽度 -->
+      <!-- width of window -->
       <div
         v-if="Native.dimensions.window.width"
         class="native-block"
@@ -87,7 +86,8 @@
         <p>{{ Native.dimensions.window.width }}</p>
       </div>
 
-      <!-- 窗口高度，需要注意的是双平台都是包含状态栏的，而 Android 会从状态栏下方第一个像素开始画 -->
+      <!-- The height of the window, it should be noted that both platforms include the status bar. -->
+      <!-- Android will start drawing from the first pixel below the status bar. -->
       <div
         v-if="Native.dimensions.window.height"
         class="native-block"
@@ -96,7 +96,7 @@
         <p>{{ Native.dimensions.window.height }}</p>
       </div>
 
-      <!-- 屏幕宽度 -->
+      <!-- width of screen -->
       <div
         v-if="Native.dimensions.screen.width"
         class="native-block"
@@ -105,7 +105,7 @@
         <p>{{ Native.dimensions.screen.width }}</p>
       </div>
 
-      <!-- 屏幕高度 -->
+      <!-- height of screen -->
       <div
         v-if="Native.dimensions.screen.height"
         class="native-block"
@@ -114,13 +114,13 @@
         <p>{{ Native.dimensions.screen.height }}</p>
       </div>
 
-      <!-- 一个像素的 pt 值 -->
+      <!-- the pt value of a pixel -->
       <div class="native-block">
         <label class="vue-native-title">Native.onePixel</label>
         <p>{{ Native.onePixel }}</p>
       </div>
 
-      <!-- Android底部导航栏高度 -->
+      <!-- Android Navigation Bar Height -->
       <div
         v-if="Native.dimensions.screen.navigatorBarHeight"
         class="native-block"
@@ -131,7 +131,7 @@
         <p>{{ Native.dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
-      <!-- 状态栏高度 -->
+      <!-- height of status bar -->
       <div
         v-if="Native.dimensions.screen.statusBarHeight"
         class="native-block"
@@ -142,7 +142,7 @@
         <p>{{ Native.dimensions.screen.statusBarHeight }}</p>
       </div>
 
-      <!-- android虚拟导航栏高度 -->
+      <!-- android virtual navigation bar height -->
       <div
         v-if="
           Native.isAndroid() &&
@@ -156,7 +156,7 @@
         <p>{{ Native.dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
-      <!-- 终端传递过来的启动参数 superProps -->
+      <!-- The startup parameters passed from the native -->
       <div
         v-if="superProps"
         class="native-block"
@@ -167,7 +167,7 @@
         <p>{{ superProps }}</p>
       </div>
 
-      <!-- 测量一个元素尺寸的范例，其实它是 measureInWindow 的封装 -->
+      <!-- example of measuring the size of an element -->
       <div
         ref="measure-block"
         class="native-block"
@@ -176,7 +176,7 @@
         <p>{{ rect }}</p>
       </div>
 
-      <!-- 本地存储使用 -->
+      <!-- local storage -->
       <div
         v-if="Native.asyncStorage"
         class="native-block"
@@ -211,7 +211,7 @@
         </div>
       </div>
 
-      <!-- ImageLoader使用 -->
+      <!-- ImageLoader -->
       <div
         v-if="Native.imageLoader"
         class="native-block"
@@ -228,7 +228,7 @@
         </div>
       </div>
 
-      <!-- Fetch使用 -->
+      <!-- Fetch -->
       <div class="native-block">
         <label class="vue-native-title">Fetch 使用</label>
         <div class="item-wrapper">
@@ -236,7 +236,7 @@
         </div>
       </div>
 
-      <!-- NetInfo使用 -->
+      <!-- network info -->
       <div
         v-if="Native.network"
         class="native-block"
@@ -247,7 +247,7 @@
         </div>
       </div>
 
-      <!-- Cookie 使用 -->
+      <!-- Cookie -->
       <div
         v-if="Native.cookie"
         class="native-block"
@@ -272,7 +272,7 @@
           <span>{{ cookiesValue }}</span>
         </div>
       </div>
-      <!-- Clipboard使用 -->
+      <!-- Clipboard -->
       <div
         v-if="Native.clipboard"
         class="native-block"
@@ -326,7 +326,7 @@ export default defineComponent({
     let hasLayout = false;
 
     /**
-       * 设置 item 内容
+       * set local storage
        */
     const setItem = () => {
       Native.asyncStorage.setItem('itemKey', 'hippy');
@@ -334,7 +334,7 @@ export default defineComponent({
     };
 
     /**
-       * 移除 item 内容
+       * remove local storage
        */
     const removeItem = () => {
       Native.asyncStorage.removeItem('itemKey');
@@ -342,7 +342,7 @@ export default defineComponent({
     };
 
     /**
-       * 获取 item 内容
+       * get local storage
        */
     const getItem = async () => {
       const cacheValue = await Native.asyncStorage.getItem('itemKey');
@@ -354,7 +354,7 @@ export default defineComponent({
     };
 
     /**
-       * 获取图片尺寸
+       * gei size of image
        */
     const getSize = async () => {
       const result = await Native.imageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
@@ -373,7 +373,7 @@ export default defineComponent({
     };
 
     /**
-       * 设置剪贴板内容
+       * set content to clipboard
        */
     const setString = () => {
       Native.clipboard.setString('hippy');
@@ -381,7 +381,7 @@ export default defineComponent({
     };
 
     /**
-       * 获取剪贴板内容
+       * get content of clipboard
        */
     const getString = async () => {
       const value = await Native.clipboard.getString();
@@ -406,10 +406,8 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // hippy 初始化参数
       superProps.value = JSON.stringify(getGlobalInitProps());
 
-      // netInfo
       Native.netInfo.fetch().then((netInfo) => {
         netInfoText.value = netInfo;
       });
@@ -428,7 +426,6 @@ export default defineComponent({
         });
     });
 
-    // 屏幕是否是竖屏
     return {
       Native,
       rect,

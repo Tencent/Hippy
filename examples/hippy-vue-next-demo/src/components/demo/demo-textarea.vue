@@ -32,13 +32,11 @@ import { warn } from '../../util';
 
 export default defineComponent({
   setup() {
-    // textarea 引用
     const textareaRef = ref(null);
-    // 文本框内容
     const content = ref('The quick brown fox jumps over the lazy dog，快灰狐狸跳过了懒 🐕。');
 
     /**
-       * 文本框尺寸变更后通知事件
+       * After listening to the size change of the text box, output event info
        *
        * @param evt
        */
@@ -46,14 +44,11 @@ export default defineComponent({
       warn(evt);
     };
 
-    /**
-       * 点击让所有输入框失焦
-       */
     const onClickBlurAllInput = () => {
       if (textareaRef.value) {
         const inputWrapper = textareaRef.value as HippyElement;
 
-        // 找出子节点中所有的文本框节点并调用失焦接口
+        // Find all text box nodes in child nodes and call the defocus interface
         if (inputWrapper.childNodes.length) {
           const elements: HippyElement[] =              inputWrapper.childNodes as HippyElement[];
 

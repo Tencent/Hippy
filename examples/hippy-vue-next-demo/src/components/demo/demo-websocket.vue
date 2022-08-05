@@ -50,24 +50,22 @@
 <script lang="ts">
 import { defineComponent, ref, type Ref } from '@vue/runtime-core';
 
-/** 数据类型 */
 export interface DemoWebsocketData {
     output: string[];
     ws: WebSocket | null;
   }
 
-  /** Hippy输入框类型 */
   interface HippyInput {
     getValue: () => Promise<string>;
   }
 
-// websocket 实例
+// websocket instance
 let wsInstance: WebSocket | null = null;
-// 输出内容
+// output content
 const output: Ref<string[]> = ref([]);
 
 /**
-   * 往输出区域添加内容
+   * Add content to the output area
    *
    * @param message
    */
@@ -76,24 +74,24 @@ const appendOutput = (message: string) => {
 };
 
 /**
-   * 断开 websocket 连接
+   * disconnect websocket connection
    */
 const disconnect = () => {
-  // 如果当前状态是已连接，则关闭连接
+  // If the current state is connected, close the connection
   if (wsInstance && wsInstance.readyState === 1) {
     wsInstance.close();
   }
 };
 
 /**
-   * 建立 websocket 连接
+   * Establish a websocket connection
    *
    * @param url
    */
 const connect = (url: string) => {
-  // 首先关闭已有连接
+  // First close the existing connection
   disconnect();
-  // 创建实例并绑定事件回调
+  // Create instance and bind event callback
   wsInstance = new WebSocket(url);
   wsInstance.onopen = () => appendOutput(`[Opened] ${wsInstance?.url}`);
   wsInstance.onclose = () => appendOutput(`[Closed] ${wsInstance?.url}`);
@@ -105,7 +103,7 @@ const connect = (url: string) => {
 };
 
 /**
-   * 发送 websocket 消息
+   * Send websocket message
    */
 const sendMessage = (message) => {
   appendOutput(`[Sent] ${message}`);
@@ -120,10 +118,10 @@ export default defineComponent({
     const messageRef = ref(null);
 
     /**
-       * 点击建立 websocket 连接
+       * Click to establish a websocket connection
        */
     const onClickConnect = () => {
-      // 获取输入框的 url 并建立 ws 连接
+      // Get the url of the input box and establish a websocket connection
       const wsUrlInput = wsUrlRef.value;
 
       if (wsUrlInput) {
@@ -134,17 +132,16 @@ export default defineComponent({
     };
 
     /**
-       * 点击关闭 ws 连接
+       * Click to close the websocket connection
        */
     const onClickDisconnect = () => {
       disconnect();
     };
 
     /**
-       * 点击发送输入框内容到 ws
+       * Click to send the content of the input box to websocket
        */
     const onClickSendMessage = () => {
-      // 获取输入框的消息内容发送消息
       const messageInput = messageRef.value;
 
       if (messageInput) {

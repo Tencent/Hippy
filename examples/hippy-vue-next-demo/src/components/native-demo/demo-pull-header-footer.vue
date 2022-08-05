@@ -88,16 +88,16 @@ import StyleOne from '../list-items/style1.vue';
 import StyleTwo from '../list-items/style2.vue';
 import StyleFive from '../list-items/style5.vue';
 
-// 视窗高度
+// Viewport height
 let $windowHeight = 0;
-// 当前滚动位置
+// current scroll position
 const scrollPos = ref({
   top: 0,
   left: 0,
 });
 
 /**
-   * mock fetch 数据
+   * mock fetch data
    */
 const mockFetchData = async (): Promise<any> => new Promise((resolve) => {
   setTimeout(() => resolve(mockData), 800);
@@ -110,20 +110,15 @@ export default defineComponent({
     StyleFive,
   },
   setup() {
-    // 列表引用
     const listRef = ref(null);
-    // pull header 引用
     const pullHeaderRef = ref(null);
-    // pull footer 引用
     const pullFooterRef = ref(null);
-    // 数据源
     const dataSource: Ref<any[]> = ref([...mockData]);
-    // 是否正在加载
+
     let loadMoreDataFlag = false;
     let fetchingDataFlag = false;
-    // 当前加载状态
     const loadingState = ref('');
-    // 刷新文案
+
     const headerRefreshText = ref('继续下拉触发刷新');
     const footerRefreshText = ref('正在加载...');
 
@@ -133,13 +128,17 @@ export default defineComponent({
       }
       fetchingDataFlag = true;
       warn('onHeaderReleased');
-      // 重新获取数据
+      // retrieve data
       headerRefreshText.value = '刷新数据中，请稍等';
       dataSource.value = await mockFetchData();
       dataSource.value = dataSource.value.reverse();
       fetchingDataFlag = false;
       headerRefreshText.value = '2秒后收起';
-      // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致released事件不能再次触发
+
+      /**
+       * You need to actively call collapsePullHeader to close the pullHeader,
+       * otherwise the released event may not be triggered again
+       */
       if (pullHeaderRef.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -148,20 +147,22 @@ export default defineComponent({
     };
 
     /**
-       * 滑动到列表最后，触发事件，可以加载下一页了
+       * Swipe to the end of the list, trigger the event, you can load the next page
        *
        * @param evt
        */
     const onEndReached = async (evt) => {
       warn('endReached', evt);
 
-      // 检查锁，如果在加载中，则直接返回，防止二次加载数据
+      /**
+       * Check the lock, if it is loading,
+       * return directly to prevent the data from being loaded twice
+       */
       if (loadMoreDataFlag) {
         return;
       }
       loadMoreDataFlag = true;
       footerRefreshText.value = '加载更多...';
-      // 获取数据
       const newData: any = await mockFetchData();
 
       if (newData.length === 0) {
@@ -170,7 +171,10 @@ export default defineComponent({
       dataSource.value = [...dataSource.value, ...newData];
       loadMoreDataFlag = false;
 
-      // 要主动调用collapsePullHeader关闭pullFooter，否则可能会导致released事件不能再次触发
+      /**
+       * You need to actively call collapsePullHeader to close pullFooter,
+       * otherwise the released event may not be triggered again
+       */
       if (pullFooterRef.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -196,7 +200,8 @@ export default defineComponent({
     };
 
     const onScroll = (evt) => {
-      evt.stopPropagation(); // 这个事件触发比较频繁，最好阻止一下冒泡。
+      // This event is triggered more frequently, and it is best to prevent bubbling.
+      evt.stopPropagation();
       scrollPos.value = {
         top: evt.offsetY,
         left: evt.offsetX,
@@ -204,10 +209,9 @@ export default defineComponent({
     };
 
     /**
-       * 翻到下一页
+       * scroll to next page
        */
     const scrollToNextPage = () => {
-      // 因为布局问题，浏览器内 flex: 1 后也会超出窗口尺寸高度，所以这么滚是不行的。
       if (!Native) {
         /* eslint-disable-next-line no-alert */
         alert('This method is only supported in Native environment.');
@@ -218,7 +222,7 @@ export default defineComponent({
 
         warn('scroll to next page', list, scrollPos.value, $windowHeight);
 
-        const top = scrollPos.value.top + $windowHeight - 200; // 偷懒假定内容区域为屏幕高度 - 200
+        const top = scrollPos.value.top + $windowHeight - 200;
         // CSSOM View standard - ScrollToOptions
         // https://www.w3.org/TR/cssom-view-1/#extensions-to-the-window-interface
         list.scrollTo({
@@ -226,12 +230,12 @@ export default defineComponent({
           top,
           behavior: 'auto',
           duration: 200,
-        }); // 其实 scrollPost.left 写 0 也可以。
+        });
       }
     };
 
     /**
-       * 滚动到底部
+       * scroll to bottom
        */
     const scrollToBottom = () => {
       if (!Native) {
@@ -247,19 +251,24 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // *** loadMoreDataFlag 是加载锁，业务请照抄 ***
-      // 因为 onEndReach 位于屏幕底部时会多次触发，
-      // 所以需要加一个锁，当未加载完成时不进行二次加载
+      /**
+       * loadMoreDataFlag is a load lock, please just copy.
+       * Because onEndReach fires multiple times when it is at the bottom of the screen,
+       * Therefore, a lock needs to be added, and secondary loading is not performed when the unloading is completed.
+       */
       loadMoreDataFlag = false;
       fetchingDataFlag = false;
       dataSource.value = [...mockData];
 
-      // 启动时保存一下屏幕高度，一会儿算曝光时会用到
+      // Save the screen height, it will be used later when calculating the exposure
       $windowHeight = Native?.dimensions
         ? Native.dimensions.window.height
         : window.innerHeight;
 
-      // 要主动调用collapsePullHeader关闭pullHeader，否则可能会导致released事件不能再次触发
+      /**
+       * You need to actively call collapsePullHeader to close the pullHeader,
+       * otherwise the released event may not be triggered again
+       */
       if (pullHeaderRef.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore

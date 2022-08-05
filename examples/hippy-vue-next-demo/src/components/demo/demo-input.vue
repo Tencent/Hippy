@@ -87,22 +87,21 @@ import { defineComponent, nextTick, ref, onMounted } from '@vue/runtime-core';
 import { warn } from '../../util';
 
 /**
-   * 点击输入框时，点击事件会冒泡到顶部 View 导致 focus 时又被 blur 了，所以这里需要阻止一下冒泡
+   * When the input box is clicked, the click event bubbles up to the top View, so stopPropagation here
    */
 const stopPropagation = (evt: HippyEvent) => {
   evt.stopPropagation();
 };
 
 /**
-   * 当文字改变时输出
+   * print content when text changes
    */
 const textChange = (evt: HippyKeyboardEvent) => {
-  // 输入框的内容通过 evt.value 传递回来
   warn(evt.value);
 };
 
 /**
-   * 输入事件内容
+   * keyboard event
    *
    * @param evt
    */
@@ -110,17 +109,14 @@ const onKeyboardWillShow = (evt: HippyEvent) => {
   warn(evt);
 };
 
-/**
-   * 这个 Demo 里有直接操作 DOM 的章节
-   */
+
 export default defineComponent({
   setup() {
-    // 输入框的引用
     const wrapperRef = ref(null);
     const inputRef = ref(null);
     const text = ref('这是默认值');
     /**
-       * 获取当前所有input element
+       * Get all current input elements
        */
     const getChildInputElements = (): HippyInputElement[] => {
       if (wrapperRef.value) {
@@ -139,7 +135,7 @@ export default defineComponent({
     };
 
     /**
-       * 点击让所有输入框失焦
+       * Click to make all input boxes out of focus
        */
     const onClickBlurAllInput = () => {
       const inputItems = getChildInputElements();
@@ -154,7 +150,7 @@ export default defineComponent({
     };
 
     /**
-       * 清空内容
+       * clear content
        */
     const clearTextContent = () => {
       text.value = '';
@@ -175,21 +171,18 @@ export default defineComponent({
     };
 
     onMounted(() => {
-      // mounted 后让第一个输入框获得焦点
       nextTick(() => {
-        // 让第一个input 获得焦点
+        // make the first input focus
         const inputItems = getChildInputElements();
 
         if (inputItems.length) {
-          // 默认让第一个input获得焦点
-
           inputItems[0].focus();
         }
       });
     });
 
     /**
-       * 输入框内容改变
+       * Change the content of the input box
        *
        * @param event
        */

@@ -27,26 +27,28 @@ import {
 export default defineComponent({
   components: {
     /**
-       *  在支持动态加载的终端版本，可添加 magic comment 'webpackMode: "lazy"'，也可以不加，默认采用lazy模式;
-       *
-       *  在不支持动态加载的终端版本，必须显示添加 'webpackMode: "eager"'，
-       *  或配置 LimitChunkCountPlugin 的 maxChunks 为 1 阻止分包;
-       *
-       *  目前动态加载同时支持本地和远程两种模式，参考如下：
-       */
+     *  In versions that support dynamic loading, you can add magic comment 'webpackMode: "lazy"'
+     *  It can also be omitted, the default mode is lazy.
+     *
+     *  In versions that do not support dynamic loading, 'webpackMode: "eager"' must be added explicitly.
+     *  Or configure the maxChunks of LimitChunkCountPlugin to 1 to prevent subcontracting.
+     *
+     *  Currently, dynamic loading supports both local and remote modes, refer to the following：
+     */
 
     /**
-       *  本地加载参考 AsyncComponentFromLocal,
-       *  webpackChunkName 可写可不写，当需要加载本地chunk时，不能配置全局 publicPath
-       *  import 出错时需在catch里做对应的降级方案
-       */
+     *  Local loading reference AsyncComponentFromLocal.
+     *  Writable or not, when local chunk needs to be loaded, global publicPath cannot be configured.
+     *  When an import error occurs, the corresponding downgrade plan needs to be done in the catch.
+     */
 
     AsyncComponentFromLocal: defineAsyncComponent(async () => import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromLocal" */ './dynamic-import/dynamic-import-local.vue')),
     /**
-       *  远程加载参考 AsyncComponentFromHttp，需显式指定chunk远程地址 customChunkPath，和chunk名称 webpackChunkName
-       *  customChunkPath 会在运行时替换全局配置的publicPath
-       *  import 出错时需在catch里做对应的降级方案
-       */
+     *  Remote Loading Reference AsyncComponentFromHttp,
+     *  need to explicitly specify the chunk remote address, customChunkPath, chunk name and webpackChunkName.
+     *  customChunkPath will replace the globally configured publicPath at runtime.
+     *  When an import error occurs, the corresponding downgrade plan needs to be done in the catch.
+     */
     AsyncComponentFromHttp: defineAsyncComponent(async () => (process.env.NODE_ENV === 'development'
       ? import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue')
       : import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/static/hippy-vue-next/", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue'))),
@@ -54,9 +56,6 @@ export default defineComponent({
   setup() {
     const loaded = ref(false);
 
-    /**
-       * 点击加载异步组件
-       */
     const onClickLoadAsyncComponent = () => {
       loaded.value = true;
     };
