@@ -47,7 +47,7 @@ if (${ANDROID_STL} STREQUAL "c++_static")
 endif ()
 # endregion
 
-## region v8
+# region v8
 if ("${JS_ENGINE}" STREQUAL "V8")
   GlobalPackages_Add(v8)
   target_link_libraries(${PROJECT_NAME} PRIVATE v8)
@@ -56,19 +56,25 @@ if ("${JS_ENGINE}" STREQUAL "V8")
     target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
   endif ()
 endif ()
-## endregion
+# endregion
 
 # region footstone
 GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region driver
-GlobalPackages_Add(driver)
-target_link_libraries(${PROJECT_NAME} PRIVATE driver)
+# region js_driver
+add_subdirectory(${PROJECT_ROOT_DIR}/driver/js ${CMAKE_CURRENT_BINARY_DIR}/driver/js)
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/include)
+target_link_libraries(${PROJECT_NAME} PRIVATE js_driver)
 # endregion
 
-# region common_jni
+# region js_driver
+GlobalPackages_Add(dom)
+target_link_libraries(${PROJECT_NAME} PRIVATE dom)
+# endregion
+
+# region jni
 GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
@@ -88,7 +94,6 @@ set(SOURCE_SET
     src/jni/exception_handler.cc
     src/jni/uri.cc
     src/loader/adr_loader.cc)
-# TODO: modify the conditions, when moving into the framework
 
 if (ENABLE_TURBO)
   list(APPEND SOURCE_SET
