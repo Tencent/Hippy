@@ -100,13 +100,13 @@ export default {
   >* Replace the actions => After a certain delay (e.g. SetTimeout) or in `actionsDidUpdate` (supported after 2.14.0), call `this.[animation ref].start()` (recommended).
   > * Set `playing = false`=> replace actions => delay after a certain time (such as setTimeout) or in `actionsDidUpdate` (supported after 2.14.0), set `playing = true`
    
-  > Version `2.12.2` and the above support parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
-   
   > Version `2.6.0` and the above support `backgroundColor` background color gradient animation, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
   >
   > * set `actions` to decorate `backgroundColor`
   > * set `valueType` to `color`
   > * set `startValue` and `toValue` to [color value](style/color.md)
+
+  > Version `2.12.2` and the above support parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
 
 ## Events
 

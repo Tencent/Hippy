@@ -6,6 +6,7 @@
 * [Layout & Unit](guide/layout.md)
 * [Network](guide/network-request.md)
 * [Timer](guide/timer.md)
+* [Animation](guide/animation.md)
 * [Log](guide/console.md)
 * [Exception Handler](guide/exception.md)
 * [Custom font](guide/custom-font.md)
