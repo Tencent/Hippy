@@ -6,18 +6,30 @@ This package implements the logic of core runtime based on the custom renderer `
 
 ### Usage
 
-```javascript
-import { defineComponent } from 'vue';
-import { createApp } from '@hippy/vue-next';
+```typescript
+// app.ts
+import { defineComponent, ref } from 'vue';
+import { type HippyApp, createApp } from '@hippy/vue-next';
 
-const app = createApp(defineComponent({
-  data() {
+// create hippy app instance
+const app: HippyApp = createApp(defineComponent({
+  setup() {
+    const counter = ref(0);
     return {
-      counter: 0,
+      counter,
     }
   }
 }), {
   appName: 'Demo',
 });
+
+// start hippy app
+app.$start().then(({ superProps, rootViewId }) => {
+  // mount hippy app and render to native 
+  app.mount('#mount');
+})
 ```
+> This is the simple usage. For more detail, please read the [doc](https://hippyjs.org) or
+> try [demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo).
+> 
 
