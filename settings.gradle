@@ -4,8 +4,8 @@ project(':renderer-native').projectDir = new File('renderer/native/android')
 include 'hippy-support'
 project(':hippy-support').projectDir = new File('modules/android/hippy_support')
 
-include 'hippy-driver'
-project(':hippy-driver').projectDir = new File('driver/js/android')
+include 'hippy-framework'
+project(':hippy-framework').projectDir = new File('framework/android')
 
 include 'serialization'
 project(':serialization').projectDir = new File('modules/android/serialization')
@@ -14,4 +14,4 @@ include 'link_supplier'
 project(':link_supplier').projectDir = new File('modules/android/link_supplier')
 
 include 'example'
-project(':example').projectDir = new File('driver/js/examples/android-demo')
+project(':example').projectDir = new File('framework/example/android-demo')
