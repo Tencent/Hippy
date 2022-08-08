@@ -1,5 +1,4 @@
 <!-- markdownlint-disable no-duplicate-header  -->
-<!-- markdownlint-disable no-blacks-blockquote -->
 
 # Module
 
