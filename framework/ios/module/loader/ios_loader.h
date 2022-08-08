@@ -22,7 +22,9 @@
 
 #pragma once
 
-#include "driver/driver.h"
+#import <CoreFoundation/CoreFoundation.h>
+#include "driver/base/uri_loader.h"
+#include "footstone/logging.h"
 
 namespace  {
 using unicode_string_view = footstone::stringview::unicode_string_view;
@@ -41,7 +43,7 @@ class IOSLoader : public hippy::base::UriLoader {
 
   virtual bool RequestUntrustedContent(const unicode_string_view& uri, u8string& content) {
     FOOTSTONE_UNIMPLEMENTED();
-    return "";
+    return false;
   };
 
  private:
