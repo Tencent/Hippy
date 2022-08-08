@@ -19,7 +19,7 @@
  */
 
 /**
- * node-ops  Vue自定义渲染器节点操作方法单测用例
+ * node-ops  Vue custom renderer node operations unit test
  */
 import { nodeOps } from '../src/node-ops';
 import { registerHippyTag } from '../src/runtime/component';
@@ -85,12 +85,12 @@ describe('node-ops.ts', () => {
     const child = nodeOps.createElement('div');
     const anchor = nodeOps.createElement('p');
 
-    // 先插入锚点
+    // first insert anchor
     nodeOps.insert(anchor, parent);
     expect(parent.childNodes.length).toEqual(1);
     expect(parent.childNodes[0]).toEqual(anchor);
 
-    // 插入子节点
+    // second insert child
     nodeOps.insert(child, parent, anchor);
     expect(parent.childNodes.length).toEqual(2);
     expect(parent.childNodes[0]).toEqual(child);
@@ -103,7 +103,7 @@ describe('node-ops.ts', () => {
     const textNode = nodeOps.createText(text);
 
     nodeOps.insert(textNode, parent);
-    // 文本节点在native中不存在，实际是parent节点的text属性
+    // text node not exists in hippy native, actually is the text property of parent node
     expect(parent.getAttribute('text')).toEqual(text);
   });
 

@@ -19,8 +19,7 @@
  */
 
 /**
- * runtime/style/parser 样式parser模块
- * 选择器parser测试
+ * runtime/style/parser unit test
  *
  */
 import { parseSelector } from '../../../src/runtime/style/parser';
@@ -31,7 +30,7 @@ import { parseSelector } from '../../../src/runtime/style/parser';
  * @casetype unit
  */
 describe('runtime/style/parser.ts', () => {
-  // id选择器parser
+  // id selector parser
   it('id selector should parser correctly', async () => {
     const parsedValue = {
       end: 5,
@@ -52,7 +51,7 @@ describe('runtime/style/parser.ts', () => {
     expect(parseSelector('#test', undefined)).toStrictEqual(parsedValue);
   });
 
-  // 类选择器parser
+  // class selector parser
   it('class selector should parser correctly', async () => {
     const parsedValue = {
       end: 4,
@@ -73,7 +72,7 @@ describe('runtime/style/parser.ts', () => {
     expect(parseSelector('.row', undefined)).toStrictEqual(parsedValue);
   });
 
-  // 联合选择器parser
+  // union combinator selector parser
   it('union combinator selector should parser correctly', async () => {
     const parsedValue = {
       end: 26,
@@ -98,7 +97,7 @@ describe('runtime/style/parser.ts', () => {
     expect(parseSelector('.button-demo-1.is-pressing', undefined)).toStrictEqual(parsedValue);
   });
 
-  // 空格选择器parser
+  // space selector parser
   it('space selector should parser correctly', async () => {
     const parsedValue = {
       end: 16,

@@ -19,10 +19,10 @@
  */
 
 /**
- * runtime/event/hippy-event-dispatcher hippy-event-dispatcher事件处理模块
- * 因为event-dispatcher是挂载在global.__GLOBAL__上，因此可以通过mock它来实现native
- * 事件的触发
+ * runtime/event/hippy-event-dispatcher unit test
+ * event-dispatcher is mounted on global.__GLOBAL__，which can be mocked to trigger native events
  */
+
 import '../../../src/runtime/event/hippy-event-dispatcher';
 import { createRenderer } from '@vue/runtime-core';
 
@@ -57,17 +57,11 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     const divElement = new HippyElement('div');
 
     const divComponent: TagComponent = {
-      // Native实际渲染的组件的类型，如View，TextView等
       name: 'div',
-      // 事件Map，比如我们Dom的touchStart，在native这边实际是onTouchDown事件
       eventNamesMap: new Map().set('click', 'onClick'),
-      // 组件默认都需要加上的样式
       defaultNativeStyle: {},
-      // 组件默认都需要加上的props
       defaultNativeProps: {},
-      // Native节点的属性，优先级最高
       nativeProps: {},
-      // 属性Map，对属性做map处理
       attributeMaps: {},
     };
 
@@ -86,7 +80,8 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
       }),
       ratioBaseWidth: 750,
     });
-    // 提前设置app的实例
+
+    // set app instance
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     setHippyCachedInstanceParams('instance', {
@@ -96,38 +91,29 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     // pre cache node
     preCacheNode(divElement, divElement.nodeId);
 
-    // 元素监听事件，修改标记值
+    // click event
     divElement.addEventListener('click', () => {
       sign = 1;
     });
-
-    // 模拟native事件
     const nativeEvent = {
       id: divElement.nodeId,
-      name: 'onClick', // native的手势事件基本都是onXxx
+      name: 'onClick',
     };
-    // 模拟native事件下发
     eventDispatcher.receiveNativeGesture(nativeEvent);
-    // 判断结果
     expect(sign).toEqual(1);
 
-    // 注册滑到底部事件
+    // endReached event
     divElement.addEventListener('endReached', () => {
       sign = 3;
     });
-
-    // 模拟native ui事件
     let nativeUIEvent: NeedToTyped = [divElement.nodeId, 'endReached'];
-
-    // 模拟native事件下发
     eventDispatcher.receiveUIComponentEvent(nativeUIEvent);
     expect(sign).toEqual(3);
 
-    // 注册layout事件
+    // layout event
     divElement.addEventListener('layout', (result) => {
       sign = result.top;
     });
-
     nativeUIEvent = [
       divElement.nodeId,
       'onLayout',
@@ -146,14 +132,10 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
 
     let sign = 0;
 
-    // 注册事件
     EventBus.$on('pageVisible', () => {
       sign = 1;
     });
-
-    // 模拟触发事件
     eventDispatcher.receiveNativeEvent(['pageVisible', null]);
-
     expect(sign).toEqual(1);
   });
 });

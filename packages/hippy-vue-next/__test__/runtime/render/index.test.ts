@@ -19,7 +19,7 @@
  */
 
 /**
- * runtime/native 终端接口模块
+ * runtime/native unit test
  */
 
 import { nextTick } from '@vue/runtime-core';

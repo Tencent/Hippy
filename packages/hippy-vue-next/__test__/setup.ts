@@ -45,7 +45,7 @@ global.Hippy = {
     },
   },
   document: {
-    // 终端的注入
+    //  simulate app injection
     createNode: () => {},
     updateNode: () => {},
     deleteNode: () => {},

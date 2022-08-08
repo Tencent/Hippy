@@ -19,8 +19,8 @@
  */
 
 /**
- * runtime/event/hippy-event-target hippy-event-target事件源模块
- * 因为事件源模块是抽象类，因此需要通过实例化子类来进行测试验证
+ * runtime/event/hippy-event-target unit test
+ * hippy-event-target is abstract class，which needs instantiation in unit test
  */
 import type { NeedToTyped } from '../../../src/config';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';

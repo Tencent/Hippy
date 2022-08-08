@@ -19,7 +19,7 @@
  */
 
 /**
- * runtime/native 终端接口模块
+ * runtime/native unit test
  */
 import type { NeedToTyped } from '../../../src/config';
 import { HippyListElement } from '../../../src/runtime/element/hippy-list-element';
@@ -74,7 +74,7 @@ describe('runtime/native.ts', () => {
     expect(Native.sdkVersion).toEqual('1.0.0.0');
   });
   it('android test native inject osversion, sdkversion and api level', async () => {
-    // after会重置defineProperty
+    // after will reset defineProperty
     expect(Native.apiLevel).toEqual('1.0.0.0');
     expect(Native.osVersion).toEqual(null);
     expect(Native.sdkVersion).toEqual(null);
@@ -97,7 +97,7 @@ describe('runtime/native.ts', () => {
   });
   it('test native output android device', async () => {
     expect(Native.device).toEqual('Android device');
-    // TODO: Native.device有side effect，跑完之后要还原，有没有更好的方法呢
+    // Native.device has side effect，which needs reset after test
     CACHE.Device = undefined;
   });
   it('test native output ios device', async () => {

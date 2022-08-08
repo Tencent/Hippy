@@ -96,7 +96,7 @@ describe('runtime/element/hippy-element', () => {
         parentHippyElement.appendChild(childHippyElementFirst);
         parentHippyElement.appendChild(childHippyElementMiddle);
         parentHippyElement.appendChild(childHippyElementLast);
-        // 把最后一个子节点移动到第一个子节点之前，就成为了第一个子节点
+        // remove last child to the front of first child
         parentHippyElement.moveChild(
           childHippyElementLast,
           childHippyElementFirst,

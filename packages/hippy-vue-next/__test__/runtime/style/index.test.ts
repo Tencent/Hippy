@@ -19,13 +19,13 @@
  */
 
 /**
- * runtime/style/index 样式综合处理模块单测
+ * runtime/style/index unit test
  *
  */
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { fromAstNodes, SelectorsMap } from '../../../src/runtime/style';
 
-// 测试用AST
+// AST used for test
 const testAst = [
   {
     hash: 'chunk-1',
@@ -140,7 +140,6 @@ const testAst = [
 describe('runtime/style/index.ts', () => {
   let cssMap;
 
-  // 每个用例执行前先
   beforeAll(() => {
     const rules = fromAstNodes(testAst);
     cssMap = new SelectorsMap(rules);

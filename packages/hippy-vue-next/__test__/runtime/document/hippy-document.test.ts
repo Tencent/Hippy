@@ -19,7 +19,7 @@
  */
 
 /**
- * runtime/document/hippy-document hippy-document类模块
+ * runtime/document/hippy-document unit test
  */
 import { HippyDocument } from '../../../src/runtime/document/hippy-document';
 

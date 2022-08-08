@@ -19,7 +19,7 @@
  */
 
 /**
- * util/index 工具类方法模块
+ * util/index unit test
  */
 import * as index from '../../src/util/index';
 
@@ -29,7 +29,6 @@ import * as index from '../../src/util/index';
  * @casetype unit
  */
 describe('util/index.ts', () => {
-  // 测试index工具类方法
   it('tryConvertNumber should return right value when params give', async () => {
     expect(index.tryConvertNumber('123')).toEqual(123);
 

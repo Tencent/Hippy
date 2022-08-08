@@ -19,7 +19,7 @@
  */
 
 /**
- * built-in-component  内置组件单测用例
+ * built-in-component unit test
  */
 
 import BuiltInComponent from '../src/built-in-component';
@@ -32,7 +32,6 @@ import { getTagComponent } from '../src/runtime/component';
  */
 describe('built-in-component', () => {
   beforeAll(() => {
-    // 注册全部内置组件
     BuiltInComponent.install();
   });
 
