@@ -60,13 +60,13 @@ body:
   - type: textarea
     attributes:
       label: Reproduce Condition
-      description: How often does the crash happen? Are there some reproducing steps?
+      description: How often does the crash happen? Are there some reproducing conditions?
       placeholder: |
         You can use the following template:
         ```
-        After the following operations, there is a N percent chance of crashing:
-        1. Step 1...
-        2. Step 2...
+        Meeting the following conditions, there is a N percent chance of crashing:
+        1. condition 1...
+        2. contision 2...
         ```
   - type: textarea
     attributes:
