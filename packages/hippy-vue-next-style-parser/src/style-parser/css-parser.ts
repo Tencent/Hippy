@@ -30,6 +30,9 @@ import { translateColor } from './color-parser';
 // eslint-disable-next-line
 type NeedToTyped = any;
 
+/**
+ * @public
+ */
 export interface PropertiesMapType {
   textDecoration: 'string';
   boxShadowOffset: 'string';
@@ -139,7 +142,7 @@ const DEGREE_UNIT = {
 };
 
 // regular expression of comment
-const commentRegexp = /\/\*.{0,500}?\*\//gms;
+const commentRegexp = /\/\*.{0,1000}?\*\//gms;
 
 /**
  * Output warning debug information to console
@@ -564,7 +567,7 @@ function parseCSS(
      * http://ostermiller.org/findcomment.html */
     return matched[0]
       .trim()
-      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
+      .replace(/\/\*([^*]|[\r\n]|(\*{1,10000}?([^*/]|[\r\n])))*\*\/+/g, '')
       .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, m => m.replace(/,/g, '\u200C'))
       .split(/\s*(?![^(]*\)),\s*/)
       .map(s => s.replace(/\u200C/g, ','));
