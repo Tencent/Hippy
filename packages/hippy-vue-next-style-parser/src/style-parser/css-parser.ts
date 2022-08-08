@@ -139,7 +139,7 @@ const DEGREE_UNIT = {
 };
 
 // regular expression of comment
-const commentRegexp = /\/\*(.*?)\*\//gms;
+const commentRegexp = /\/\*.{0,500}?\*\//gms;
 
 /**
  * Output warning debug information to console
@@ -599,7 +599,7 @@ function parseCSS(
       }
       return camelizeProperty;
     })();
-    const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};])+)/);
+    const val = match(/^((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]{0,500}?\)|[^};])+)/);
     let value = val ? val[0].trim().replace(commentRegexp, '') : '';
 
     switch (property) {
@@ -894,7 +894,7 @@ function parseCSS(
    */
   function atcustommedia() {
     const pos = position();
-    const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]+);/);
+    const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]{1,200}?);/);
     if (!m) {
       return null;
     }
