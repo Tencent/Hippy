@@ -567,7 +567,7 @@ function parseCSS(
      * http://ostermiller.org/findcomment.html */
     return matched[0]
       .trim()
-      .replace(/\/\*([^*]|[\r\n]|(\*{1,300}?([^*/]|[\r\n])))*\*\/+/g, '')
+      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n]))){0,300}?\*\/+/g, '')
       .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, m => m.replace(/,/g, '\u200C'))
       .split(/\s*(?![^(]*\)),\s*/)
       .map(s => s.replace(/\u200C/g, ','));
