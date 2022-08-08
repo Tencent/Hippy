@@ -24,6 +24,20 @@
       src="https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png"
       class="button-demo-1-image"
     >
+    <label class="button-label">仅执行一次事件(once)</label>
+    <button
+      class="button-demo-1"
+      @click.once="onClickViewOnce"
+    >
+      <span
+        v-if="isOnceClicked"
+        class="button-text"
+      >once 视图已被点击</span>
+      <span
+        v-else
+        class="button-text"
+      >once 视图尚未点击</span>
+    </button>
   </div>
 </template>
 
@@ -41,6 +55,7 @@ export default defineComponent({
   setup() {
     const isClicked = ref(false);
     const isPressing = ref(false);
+    const isOnceClicked = ref(false);
 
     onActivated(() => {
       warn(`${Date.now()}-button-activated`);
@@ -53,6 +68,10 @@ export default defineComponent({
     // click to change status
     const onClickView = () => {
       isClicked.value = !isClicked.value;
+    };
+    // click to change status
+    const onClickViewOnce = () => {
+      isOnceClicked.value = !isOnceClicked.value;
     };
     const onTouchBtnStart = (evt: Event) => {
       warn('onBtnTouchDown', evt);
@@ -67,10 +86,12 @@ export default defineComponent({
     return {
       isClicked,
       isPressing,
+      isOnceClicked,
       onClickView,
       onTouchBtnStart,
       onTouchBtnMove,
       onTouchBtnEnd,
+      onClickViewOnce,
     };
   },
 });
