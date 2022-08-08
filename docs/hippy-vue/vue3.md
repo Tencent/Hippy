@@ -140,7 +140,18 @@ app.$start().then(({ superProps, rootViewId }) => {
 
 # 额外说明
 
-目前 @hippy/vue-next 与 @hippy/vue 功能上基本对齐了，不过包本身还有些问题没有解决，这里做下说明，我们会尽快修复问题
+目前 @hippy/vue-next 与 @hippy/vue 功能上基本对齐了，不过API方面与 @hippy/vue 有稍许不同💰，以及还有一些问题没有解决，这里做下说明，未解决的问题我们会尽快修复
+
+- Vue.Native
+  在 @hippy/vue 中，Native 提供的能力是通过挂载在全局 Vue 上的 Native 属性来提供的，在 Vue 3.x 中这种实现方式不再科兴，因此现在 Native 属性通过 @hippy/vue-next 来提供使用了，可以通过
+
+  ```typescript
+  import { Native } from '@hippy/vue-next';
+  
+  Native.xxx
+  ```
+
+  来使用，还有一点需要注意的是，在 @hippy/vue 中 Native 的属性是首字母大写的方式，类似 Vue.Native.NetInfo, Vue.Native.Cookie，诸如此类。在 @hippy/vue-next 中则都改成了驼峰式。如 Native.netInfo，Native.cookie 等
 
 - v-model指令：
   因为 Vue 3.x 中内置指令的实现采用的是编译时插入代码的方式，目前v-model指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
