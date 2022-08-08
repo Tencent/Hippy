@@ -1,43 +1,73 @@
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
-/* eslint-disable-next-line import/no-extraneous-dependencies */
-const babel = require('@babel/core');
-
-/**
- * Babel configuration for iOS compiling
- */
-const iOSBabelConfig = {
-  presets: [
-    [
-      '@babel/env',
-      {
-        targets: {
-          safari: '8',
-        },
-      },
-    ],
-  ],
-};
-
-/**
- * Code header and content
- */
-const CodePieces = {
-  header(platform) {
-    return `/*
- *
+/*
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+const fs = require('fs');
+const path = require('path');
+const readline = require('readline');
+const babel = require('@babel/core');
+
+/**
+ * Babel configuration
+ */
+const babelConfig = {
+  flutter: {
+    comments: false,
+    compact: false,
+  },
+  android: {
+    comments: false,
+    compact: false,
+  },
+  ios: {
+    presets: [
+      [
+        '@babel/env',
+        {
+          targets: {
+            safari: '8',
+          },
+        },
+      ],
+    ],
+    comments: false,
+    compact: false,
+  },
+};
+
+/**
+ * Code header and content
+ */
+const CodePieces = {
+  header() {
+    return `/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-${new Date().getFullYear()} THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -48,8 +78,8 @@ const CodePieces = {
 
 #include <unordered_map>
 
-#include "core/napi/native_source_code.h"
-#include "core/base/macros.h"
+#include "driver/napi/native_source_code.h"
+#include "driver/base/macros.h"
 
 // clang-format off
 
@@ -109,7 +139,7 @@ namespace hippy {
 };
 
 /**
- * Initial the codegit st buffer header and footer.
+ * Initial the code git st buffer header and footer.
  */
 const wrapperBeginBuffer = Buffer.from('(function(exports, require, internalBinding) {');
 const wraperBeginByteArr = [];
@@ -139,18 +169,19 @@ function getAbsolutePath(relativePath) {
 function getAllRequiredFiles(platform) {
   return new Promise((resole) => {
     const rl = readline.createInterface({
-      input: fs.createReadStream(getAbsolutePath(`../core/js/entry/${platform}/hippy.js`)),
+      input: fs.createReadStream(getAbsolutePath(`../lib/entry/${platform}/hippy.js`)),
     });
     const filePaths = [
-      getAbsolutePath('../core/js/bootstrap.js'),
-      getAbsolutePath(`../core/js/entry/${platform}/hippy.js`),
-      getAbsolutePath('../core/js/modules/ExceptionHandle.js'),
+      getAbsolutePath('../lib/bootstrap.js'),
+      getAbsolutePath(`../lib/entry/${platform}/hippy.js`),
+      getAbsolutePath('../lib/modules/ExceptionHandle.js'),
     ];
 
     rl.on('line', (line) => {
-      if (line.split('//')[0].indexOf('require') > -1) {
+      const lineSlice = line.split('//')[0];
+      if (lineSlice.indexOf('require(\'') > -1 || lineSlice.indexOf('require("') > -1) {
         const entry = line.split('(\'')[1].split('\')')[0];
-        filePaths.push(getAbsolutePath(`../core/js/entry/${platform}/${entry}`));
+        filePaths.push(getAbsolutePath(`../lib/entry/${platform}/${entry}`));
       }
     });
     rl.on('close', () => {
@@ -167,16 +198,12 @@ function getAllRequiredFiles(platform) {
  */
 function readFileToBuffer(platform, filePath) {
   switch (platform) {
-    case 'android': {
-      return fs.readFileSync(filePath);
-    }
+    case 'flutter':
+    case 'android':
     case 'ios': {
       const code = fs.readFileSync(filePath).toString();
-      const compiled = babel.transform(code, iOSBabelConfig);
+      const compiled = babel.transform(code, babelConfig[platform]);
       return Buffer.from(compiled.code);
-    }
-    case 'flutter': {
-      return fs.readFileSync(filePath);
     }
     default:
       return null;
@@ -233,6 +260,6 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../ios/base'));
-generateCpp('android', getAbsolutePath('../android/src/main/jni/src/bridge/'));
+generateCpp('ios', getAbsolutePath('../../../framework/ios/base'));
+generateCpp('android', getAbsolutePath('../../../framework/android/src/main/cpp/src/bridge/'));
 generateCpp('flutter', getAbsolutePath('../flutter/core/src/bridge/'));

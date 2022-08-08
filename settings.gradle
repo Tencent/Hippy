@@ -14,4 +14,4 @@ include 'link_supplier'
 project(':link_supplier').projectDir = new File('modules/android/link_supplier')
 
 include 'example'
-project(':example').projectDir = new File('framework/example/android-demo')
+project(':example').projectDir = new File('framework/examples/android-demo')
