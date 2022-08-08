@@ -137,14 +137,38 @@ app.$start().then(({ superProps, rootViewId }) => {
 
 [示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)与 @hippy/vue 示例项目实现的功能基本一致，只是写法上采用的是 Vue 3.x 的组合式 API 的写法，以及部分 @hippy/vue-next 与 @hippy/vue 不同的写法。
 具体的请直接看示例项目的写法
- 
+
 # 额外说明
 
 目前 @hippy/vue-next 与 @hippy/vue 功能上基本对齐了，不过包本身还有些问题没有解决，这里做下说明，我们会尽快修复问题
 
 - v-model指令：
-因为 Vue 3.x 中内置指令的实现采用的是编译时插入代码的方式，目前v-model指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
+  因为 Vue 3.x 中内置指令的实现采用的是编译时插入代码的方式，目前v-model指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
+
+  ```typescript
+  // 具体的可以参考 demo 中的 demo-input.vue 中的示例
+  <template>
+    <input type="text" ref="inputRef" :value="textValue" @change="textValue = $event.value" />
+    <div>
+      <span>Input Value：{{ textValue }}</span>
+    </div>
+  </template>
+  <script lang="ts">
+  import { defineComponent, ref } from '@vue/runtime-core';
+  
+  export default defineComponent({
+    setup() {
+      const inputRef = ref(null);
+      const textValue = ref('This is default value.');
+      return {
+        inputRef,
+        textValue,
+      };
+    },
+  }); 
+  </script>
+  ```
 
 - Keep-Alive HMR问题：在示例代码中，我们的路由组件是包裹在 Keep-Alive 组件内的，但是目前使用 Keep-Alive 包裹的路由组件无法实现开发时热更新，需要刷新整个实例才能完成刷新。
-如果是不包裹在 Keep-Alive 中则没有这个问题。目前官方该问题也尚未解决。等待官方解决后升级 Vue 即可解决该问题
+  如果是不包裹在 Keep-Alive 中则没有这个问题。目前官方[该问题](https://github.com/vuejs/core/pull/5165)也尚未解决。等待官方解决后升级 Vue 即可解决该问题
 - 其他尚未发现的Bug...
