@@ -101,7 +101,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     private void initJSEngine(int groupId) {
         synchronized (HippyBridgeImpl.class) {
             try {
-                String localCachePath = mContext.getGlobalConfigs().getContext().getFilesDir().getAbsolutePath();
+                String localCachePath = mContext.getGlobalConfigs().getContext().getCacheDir().getAbsolutePath();
                 byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
                 mV8RuntimeId = initJSFramework(
                         globalConfig,

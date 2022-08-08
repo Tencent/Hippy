@@ -28,6 +28,7 @@
 #include "module/domain/dom_domain.h"
 #include "module/domain/network_domain.h"
 #include "module/domain/page_domain.h"
+#include "module/domain/tracing_domain.h"
 #include "module/domain/tdf_common_protocol_domain.h"
 #include "module/domain/tdf_inspector_domain.h"
 #include "module/domain/tdf_memory_domain.h"
@@ -49,9 +50,11 @@ void DomainDispatch::RegisterJSDebuggerDomainListener() {
   auto dom_domain = std::make_shared<DomDomain>(shared_from_this());
   auto css_domain = std::make_shared<CssDomain>(shared_from_this());
   auto page_domain = std::make_shared<PageDomain>(shared_from_this());
+  auto tracing_domain = std::make_shared<TracingDomain>(shared_from_this());
   RegisterDomainHandler(dom_domain);
   RegisterDomainHandler(css_domain);
   RegisterDomainHandler(page_domain);
+  RegisterDomainHandler(tracing_domain);
 }
 
 void DomainDispatch::RegisterDefaultDomainListener() {

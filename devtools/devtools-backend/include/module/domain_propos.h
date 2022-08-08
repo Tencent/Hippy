@@ -31,6 +31,7 @@ constexpr char kFrontendKeyDomainNameTDFInspector[] = "TDFInspector";
 constexpr char kFrontendKeyDomainNameTDFMemory[] = "TDFMemory";
 constexpr char kFrontendKeyDomainNameTDFPerformance[] = "TDFPerformance";
 constexpr char kFrontendKeyDomainNameTDFRuntime[] = "TDFRuntime";
+constexpr char kFrontendKeyDomainNameTracing[] = "Tracing";
 
 // Event
 constexpr char kLogEventName[] = "TDFLog.getLog";

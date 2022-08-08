@@ -26,6 +26,8 @@
 
 namespace hippy::devtools {
 
+constexpr char kParamsTraceEvent[] = "traceEvents";
+
 std::string TdfPerformanceDomain::GetDomainName() { return kFrontendKeyDomainNameTDFPerformance; }
 
 void TdfPerformanceDomain::RegisterMethods() {
@@ -69,7 +71,7 @@ void TdfPerformanceDomain::End(const BaseRequest& request) {
 void TdfPerformanceDomain::V8Tracing(const BaseRequest& request) {
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
-    tracing_adapter->StopTracing([request, WEAK_THIS](const std::string& result) {
+    tracing_adapter->StopTracing(kParamsTraceEvent, [request, WEAK_THIS](const std::string& result) {
       DEFINE_AND_CHECK_SELF(TdfPerformanceDomain)
       self->ResponseResultToFrontend(request.GetId(), result);
     });
