@@ -139,7 +139,7 @@ const DEGREE_UNIT = {
 };
 
 // regular expression of comment
-const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
+const commentRegexp = /\/\*(.*?)\*\//gms;
 
 /**
  * Output warning debug information to console
@@ -327,7 +327,7 @@ function parseBackgroundImage(
     });
     processedValue.colorStopList = colorStopList;
   } else {
-    const regexp = /(\(['"]?)(.*?)(['"]?\))/;
+    const regexp = /(?:\(['"]?)(.*?)(?:['"]?\))/;
     const executed = regexp.exec(value);
     if (executed && executed.length > 1) {
       [, processedValue] = executed;
