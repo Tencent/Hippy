@@ -62,6 +62,7 @@ class Animation {
             uint64_t duration,
             uint64_t exec_time,
             double start_value,
+            double current_value,
             AnimationStartCb on_start,
             AnimationEndCb on_end,
             AnimationCancelCb on_cancel,
@@ -78,6 +79,8 @@ class Animation {
   Animation(int32_t cnt);
   Animation();
   virtual ~Animation() = default;
+  Animation(const Animation& other) = default;
+  Animation& operator=(const Animation& other) = default;
 
   inline uint32_t GetId() {
     return id_;
@@ -121,6 +124,10 @@ class Animation {
 
   inline void SetStartValue(double start_value) {
     start_value_ = start_value;
+  }
+
+  inline double GetCurrentValue() {
+    return current_value_;
   }
 
   inline AnimationStartCb GetAnimationStartCb() {
@@ -197,6 +204,7 @@ class Animation {
   uint64_t duration_;
   uint64_t exec_time_; // Contains delay and actual running time
   double start_value_;
+  double current_value_;
   AnimationStartCb on_start_;
   AnimationEndCb on_end_;
   AnimationCancelCb on_cancel_;

@@ -217,9 +217,21 @@ function deepCopy(data, hash = new WeakMap()) {
   return newData;
 }
 
+/**
+ * Detect if the param is falsy or empty
+ * @param {any} any
+ */
+function isEmpty(any) {
+  if (!any || typeof any !== 'object') {
+    return true;
+  }
+  return Object.keys(any).length === 0;
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
+  isEmpty,
   setVue,
   getVue,
   setApp,

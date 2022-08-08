@@ -213,13 +213,13 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     [_scrollListeners removeAllObjects];
 }
 
-- (void)insertHippySubview:(UIView *)view atIndex:(NSInteger)atIndex {
+- (void)insertNativeRenderSubview:(UIView *)view atIndex:(NSInteger)atIndex {
     if (view == _contentView && 0 == atIndex) {
         return;
     }
     NSAssert(0 == atIndex, @"NativeRenderScrollView only contain one subview at index 0");
     if (_contentView) {
-        [self removeHippySubview:_contentView];
+        [self removeNativeRenderSubview:_contentView];
     }
     _contentView = view;
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
@@ -234,7 +234,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     /**
      * reset its contentOffset when subviews are ready
      */
-    NSString *offsetString = [_contentOffsetCache objectForKey:self.hippyTag];
+    NSString *offsetString = [_contentOffsetCache objectForKey:self.componentTag];
     if (offsetString) {
         CGPoint point = CGPointFromString(offsetString);
         if (CGRectContainsPoint(_contentView.frame, point)) {
@@ -246,7 +246,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     }
 }
 
-- (NSArray<UIView *> *)hippySubviews {
+- (NSArray<UIView *> *)nativeRenderSubviews {
     return _contentView ? [NSMutableArray arrayWithObject:_contentView] : nil;
 }
 
@@ -256,21 +256,21 @@ static inline BOOL CGPointIsNull(CGPoint point) {
                        context:(__unused void *)context {
     if ([keyPath isEqualToString:@"frame"]) {
         if (object == _contentView) {
-            [self hippyComponentDidFinishTransaction];
+            [self nativeRenderComponentDidFinishTransaction];
         }
     }
 }
 
-- (void)removeHippySubview:(UIView *)subview {
-    [super removeHippySubview:subview];
+- (void)removeNativeRenderSubview:(UIView *)subview {
+    [super removeNativeRenderSubview:subview];
     NSAssert(_contentView == subview, @"Attempted to remove non-existent subview");
     [_contentView removeObserver:self forKeyPath:@"frame"];
     _contentView = nil;
 }
 
-- (void)didUpdateHippySubviews
+- (void)didUpdateNativeRenderSubviews
 {
-    // Do nothing, as subviews are managed by `insertHippySubview:atIndex:`
+    // Do nothing, as subviews are managed by `insertNativeRenderSubview:atIndex:`
 }
 
 - (BOOL)centerContent {
@@ -610,15 +610,15 @@ static inline BOOL CGPointIsNull(CGPoint point) {
  * we need to cache scroll view's contentOffset.
  * if scroll view is reused in list view cell, we can save its contentOffset in every cells,
  * and set right contentOffset for each cell.
- * resetting hippyTag meas scroll view is in reusing.
+ * resetting componentTag meas scroll view is in reusing.
  */
-- (void)setHippyTag:(NSNumber *)hippyTag {
-    if (![self.hippyTag isEqualToNumber:hippyTag]) {
-        if (self.hippyTag) {
+- (void)setComponentTag:(NSNumber *)componentTag {
+    if (![self.componentTag isEqualToNumber:componentTag]) {
+        if (self.componentTag) {
             NSString *offsetString = NSStringFromCGPoint(self.scrollView.contentOffset);
-            [_contentOffsetCache setObject:offsetString forKey:self.hippyTag];
+            [_contentOffsetCache setObject:offsetString forKey:self.componentTag];
         }
-        [super setHippyTag:hippyTag];
+        [super setComponentTag:componentTag];
     }
 }
 
@@ -650,7 +650,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     }
 }
 
-- (void)hippyComponentDidFinishTransaction {
+- (void)nativeRenderComponentDidFinishTransaction {
     CGSize contentSize = self.contentSize;
     if (!CGSizeEqualToSize(_scrollView.contentSize, contentSize)) {
         // When contentSize is set manually, ScrollView internals will reset
@@ -711,33 +711,33 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 // setters here that will record the contentOffset beforehand, and
 // restore it after the property has been set.
 
-#define HIPPY_SET_AND_PRESERVE_OFFSET(setter, getter, type) \
-    -(void)setter : (type)value {                           \
-        CGPoint contentOffset = _scrollView.contentOffset;  \
-        [_scrollView setter:value];                         \
-        _scrollView.contentOffset = contentOffset;          \
-    }                                                       \
-    -(type)getter {                                         \
-        return [_scrollView getter];                        \
+#define NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setter, getter, type)     \
+    -(void)setter : (type)value {                                       \
+        CGPoint contentOffset = _scrollView.contentOffset;              \
+        [_scrollView setter:value];                                     \
+        _scrollView.contentOffset = contentOffset;                      \
+    }                                                                   \
+    -(type)getter {                                                     \
+        return [_scrollView getter];                                    \
     }
 
-HIPPY_SET_AND_PRESERVE_OFFSET(setAlwaysBounceHorizontal, alwaysBounceHorizontal, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setAlwaysBounceVertical, alwaysBounceVertical, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setBounces, bounces, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setBouncesZoom, bouncesZoom, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setCanCancelContentTouches, canCancelContentTouches, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setDecelerationRate, decelerationRate, CGFloat)
-HIPPY_SET_AND_PRESERVE_OFFSET(setDirectionalLockEnabled, isDirectionalLockEnabled, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setIndicatorStyle, indicatorStyle, UIScrollViewIndicatorStyle)
-HIPPY_SET_AND_PRESERVE_OFFSET(setKeyboardDismissMode, keyboardDismissMode, UIScrollViewKeyboardDismissMode)
-HIPPY_SET_AND_PRESERVE_OFFSET(setMaximumZoomScale, maximumZoomScale, CGFloat)
-HIPPY_SET_AND_PRESERVE_OFFSET(setMinimumZoomScale, minimumZoomScale, CGFloat)
-HIPPY_SET_AND_PRESERVE_OFFSET(setScrollEnabled, isScrollEnabled, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setPagingEnabled, isPagingEnabled, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setScrollsToTop, scrollsToTop, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setShowsHorizontalScrollIndicator, showsHorizontalScrollIndicator, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setShowsVerticalScrollIndicator, showsVerticalScrollIndicator, BOOL)
-HIPPY_SET_AND_PRESERVE_OFFSET(setZoomScale, zoomScale, CGFloat);
-HIPPY_SET_AND_PRESERVE_OFFSET(setScrollIndicatorInsets, scrollIndicatorInsets, UIEdgeInsets);
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setAlwaysBounceHorizontal, alwaysBounceHorizontal, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setAlwaysBounceVertical, alwaysBounceVertical, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setBounces, bounces, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setBouncesZoom, bouncesZoom, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setCanCancelContentTouches, canCancelContentTouches, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setDecelerationRate, decelerationRate, CGFloat)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setDirectionalLockEnabled, isDirectionalLockEnabled, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setIndicatorStyle, indicatorStyle, UIScrollViewIndicatorStyle)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setKeyboardDismissMode, keyboardDismissMode, UIScrollViewKeyboardDismissMode)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setMaximumZoomScale, maximumZoomScale, CGFloat)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setMinimumZoomScale, minimumZoomScale, CGFloat)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setScrollEnabled, isScrollEnabled, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setPagingEnabled, isPagingEnabled, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setScrollsToTop, scrollsToTop, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setShowsHorizontalScrollIndicator, showsHorizontalScrollIndicator, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setShowsVerticalScrollIndicator, showsVerticalScrollIndicator, BOOL)
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setZoomScale, zoomScale, CGFloat);
+NATIVE_RENDER_SET_AND_PRESERVE_OFFSET(setScrollIndicatorInsets, scrollIndicatorInsets, UIEdgeInsets);
 
 @end

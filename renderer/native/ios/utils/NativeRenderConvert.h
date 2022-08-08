@@ -175,12 +175,12 @@ NATIVE_RENDER_EXTERN SEL NativeRenderConvertSelectorForType(NSString *type);
  * This macro is used for creating simple converter functions that just call
  * the specified getter method on the json value.
  */
-#define HIPPY_CONVERTER(type, name, getter) HIPPY_CUSTOM_CONVERTER(type, name, [json getter])
+#define NATIVE_RENDER_CONVERTER(type, name, getter) NATIVE_RENDER_CUSTOM_CONVERTER(type, name, [json getter])
 
 /**
  * This macro is used for creating converter functions with arbitrary logic.
  */
-#define HIPPY_CUSTOM_CONVERTER(type, name, code)     \
+#define NATIVE_RENDER_CUSTOM_CONVERTER(type, name, code)     \
     +(type)name : (id)json {                         \
         if (!NATIVE_RENDER_DEBUG) {                          \
             return code;                             \
@@ -196,22 +196,23 @@ NATIVE_RENDER_EXTERN SEL NativeRenderConvertSelectorForType(NSString *type);
     }
 
 /**
- * This macro is similar to HIPPY_CONVERTER, but specifically geared towards
+ * This macro is similar to NATIVE_RENDER_CONVERTER, but specifically geared towards
  * numeric types. It will handle string input correctly, and provides more
  * detailed error reporting if an invalid value is passed in.
  */
-#define HIPPY_NUMBER_CONVERTER(type, getter) HIPPY_CUSTOM_CONVERTER(type, type, [NATIVE_RENDER_DEBUG ? [self NSNumber:json] : json getter])
+#define NATIVE_RENDER_NUMBER_CONVERTER(type, getter) \
+    NATIVE_RENDER_CUSTOM_CONVERTER(type, type, [NATIVE_RENDER_DEBUG ? [self NSNumber:json] : json getter])
 
 /**
  * This macro is used for creating converters for enum types.
  */
-#define HIPPY_ENUM_CONVERTER(type, values, default, getter)                            \
-    +(type)type : (id)json {                                                           \
-        static NSDictionary *mapping;                                                  \
-        static dispatch_once_t onceToken;                                              \
-        dispatch_once(&onceToken, ^{                                                   \
-            mapping = values;                                                          \
-        });                                                                            \
+#define NATIVE_RENDER_ENUM_CONVERTER(type, values, default, getter)                           \
+    +(type)type : (id)json {                                                                  \
+        static NSDictionary *mapping;                                                         \
+        static dispatch_once_t onceToken;                                                     \
+        dispatch_once(&onceToken, ^{                                                          \
+            mapping = values;                                                                 \
+        });                                                                                   \
         return (type)[NativeRenderConvertEnumValue(#type, mapping, @(default), json) getter]; \
     }
 
@@ -219,20 +220,20 @@ NATIVE_RENDER_EXTERN SEL NativeRenderConvertSelectorForType(NSString *type);
  * This macro is used for creating converters for enum types for
  * multiple enum values combined with | operator
  */
-#define HIPPY_MULTI_ENUM_CONVERTER(type, values, default, getter)                     \
-    +(type)type : (id)json {                                                          \
-        static NSDictionary *mapping;                                                 \
-        static dispatch_once_t onceToken;                                             \
-        dispatch_once(&onceToken, ^{                                                  \
-            mapping = values;                                                         \
-        });                                                                           \
-        return [NativeRenderConvertMultiEnumValue(#type, mapping, @(default), json) getter]; \
+#define NATIVE_RENDER_MULTI_ENUM_CONVERTER(type, values, default, getter)                     \
+    +(type)type : (id)json {                                                                  \
+        static NSDictionary *mapping;                                                         \
+        static dispatch_once_t onceToken;                                                     \
+        dispatch_once(&onceToken, ^{                                                          \
+            mapping = values;                                                                 \
+        });                                                                                   \
+        return [NativeRenderConvertMultiEnumValue(#type, mapping, @(default), json) getter];  \
     }
 
 /**
  * This macro is used for creating converter functions for typed arrays.
  */
-#define HIPPY_ARRAY_CONVERTER(type)                            \
-    +(NSArray<type *> *)type##Array : (id)json {               \
-        return NativeRenderConvertArrayValue(@selector(type:), json); \
+#define NATIVE_RENDER_ARRAY_CONVERTER(type)                             \
+    +(NSArray<type *> *)type##Array : (id)json {                        \
+        return NativeRenderConvertArrayValue(@selector(type:), json);   \
     }

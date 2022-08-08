@@ -24,9 +24,10 @@
 #import "NativeRenderObjectText.h"
 #import "NativeRenderUtils.h"
 #import "UIView+NativeRender.h"
+#import "NativeRenderLog.h"
 
 static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *nonTextDescendants) {
-    for (UIView *child in view.hippySubviews) {
+    for (UIView *child in view.nativeRenderSubviews) {
         if ([child isKindOfClass:[NativeRenderText class]]) {
             collectNonTextDescendants((NativeRenderText *)child, nonTextDescendants);
         } else {
@@ -51,26 +52,26 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
-    NSString *replacement = [NSString stringWithFormat:@"; hippyTag: %@; text: %@", self.hippyTag, self.textStorage.string];
+    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@; text: %@", self.componentTag, self.textStorage.string];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
 }
 
-- (void)hippySetFrame:(CGRect)frame {
+- (void)nativeRenderSetFrame:(CGRect)frame {
     // Text looks super weird if its frame is animated.
     // This disables the frame animation, without affecting opacity, etc.
     [UIView performWithoutAnimation:^{
-        [super hippySetFrame:frame];
+        [super nativeRenderSetFrame:frame];
     }];
 }
 
-- (void)removeHippySubview:(UIView *)subview {
-    if ([[self hippySubviews] containsObject:subview]) {
-        [super removeHippySubview:subview];
+- (void)removeNativeRenderSubview:(UIView *)subview {
+    if ([[self nativeRenderSubviews] containsObject:subview]) {
+        [super removeNativeRenderSubview:subview];
     }
     else {
-        NSArray<UIView *> *hippySubviews = [self hippySubviews];
+        NSArray<UIView *> *hippySubviews = [self nativeRenderSubviews];
         for (UIView *hippySubview in hippySubviews) {
-            [hippySubview removeHippySubview:subview];
+            [hippySubview removeNativeRenderSubview:subview];
         }
     }
 }
@@ -79,7 +80,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     return NO;
 }
 
-- (void)hippySetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
+- (void)nativeRenderSetInheritedBackgroundColor:(__unused UIColor *)inheritedBackgroundColor {
     // mttrn:
     //	UIColor *backgroundColor = [self rightBackgroundColorOfTheme];
     //
@@ -89,7 +90,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     //  	self.backgroundColor = inheritedBackgroundColor;
 }
 
-- (void)didUpdateHippySubviews {
+- (void)didUpdateNativeRenderSubviews {
     // Do nothing, as subviews are managed by `setTextStorage:` method
 }
 
@@ -164,8 +165,8 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     }
 }
 
-- (NSNumber *)hippyTagAtPoint:(CGPoint)point {
-    NSNumber *hippyTag = self.hippyTag;
+- (NSNumber *)componentTagAtPoint:(CGPoint)point {
+    NSNumber *componentTag = self.componentTag;
 
     CGFloat fraction;
     NSLayoutManager *layoutManager = _textStorage.layoutManagers.firstObject;
@@ -176,9 +177,9 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
     // If the point is not before (fraction == 0.0) the first character and not
     // after (fraction == 1.0) the last character, then the attribute is valid.
     if (_textStorage.length > 0 && (fraction > 0 || characterIndex > 0) && (fraction < 1 || characterIndex < _textStorage.length - 1)) {
-        hippyTag = [_textStorage attribute:NativeRenderHippyTagAttributeName atIndex:characterIndex effectiveRange:NULL];
+        componentTag = [_textStorage attribute:NativeRenderComponentTagAttributeName atIndex:characterIndex effectiveRange:NULL];
     }
-    return hippyTag;
+    return componentTag;
 }
 
 - (void)setBorderColor:(CGColorRef)color {
@@ -222,7 +223,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 }
 
 - (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
-    //NativeRenderLogWarn(@"Warning: backgroundImage is not available in NativeRenderText.");
+    NativeRenderLogWarn(@"Warning: backgroundImage is not available in NativeRenderText.");
 }
 
 @end

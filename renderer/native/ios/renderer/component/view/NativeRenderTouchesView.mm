@@ -191,7 +191,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchStart];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -208,7 +208,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchEnd];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -220,7 +220,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchMove];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -237,7 +237,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchCancel];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -248,7 +248,7 @@
 - (void)handleClickEvent {
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeClick];
     if (listener) {
-        CGPoint point = [_tapGestureRecognizer locationInView:[self hippyRootView]];
+        CGPoint point = [_tapGestureRecognizer locationInView:[self NativeRenderRootView]];
         listener(point);
     }
 }
@@ -257,7 +257,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeLongClick];
     if (listener) {
         if (_longGestureRecognizer.state == UIGestureRecognizerStateBegan) {
-            CGPoint point = [_longGestureRecognizer locationInView:[self hippyRootView]];
+            CGPoint point = [_longGestureRecognizer locationInView:[self NativeRenderRootView]];
             listener(point);
         }
     }

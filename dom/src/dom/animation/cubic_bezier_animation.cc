@@ -32,12 +32,12 @@
 namespace hippy {
 inline namespace animation {
 
-CubicBezier CubicBezierAnimation::ParseCubicBezierStr(std::string str) {
+CubicBezier CubicBezierAnimation::ParseCubicBezierStr(const std::string& str) {
   // "cubic-bezier(.45,2.84,.38,.5)"
   std::smatch match;
   if (std::regex_match(str, match, std::regex(kAnimationCubicBezierRegex))) {
     if (match.size() != 5) {
-      return CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
+      return {CubicBezier::kDefaultP1, CubicBezier::kDefaultP2};
     }
     auto point1_x = std::stod(match[1]);
     auto point1_y = std::stod(match[2]);
@@ -46,7 +46,7 @@ CubicBezier CubicBezierAnimation::ParseCubicBezierStr(std::string str) {
     return CubicBezier({point1_x, point1_y}, {point2_x, point2_y});
   }
 
-  return CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
+  return {CubicBezier::kDefaultP1, CubicBezier::kDefaultP2};
 }
 
 double CubicBezierAnimation::CalculateColor(double start_color, double to_color, double scale) {
@@ -82,14 +82,14 @@ CubicBezierAnimation::CubicBezierAnimation(Mode mode,
     : Animation(cnt, delay, duration, start_value),
       mode_(mode),
       to_value_(to_value),
-      current_value_(start_value),
       type_(type),
       func_(std::move(func)),
+      cubic_bezier_(),
       related_id_(related_id) {
   if (func_ == kAnimationTimingFunctionLinear) {
     cubic_bezier_ = CubicBezier(CubicBezier::kLinearP1, CubicBezier::kLinearP2);
   } else if (func_ == kAnimationTimingFunctionEaseIn) {
-    cubic_bezier_ = CubicBezier(CubicBezier::kEaseInP1, CubicBezier::kEaseInP2);;
+    cubic_bezier_ = CubicBezier(CubicBezier::kEaseInP1, CubicBezier::kEaseInP2);
   } else if (func_ == kAnimationTimingFunctionEaseOut) {
     cubic_bezier_ = CubicBezier(CubicBezier::kEaseOutP1, CubicBezier::kEaseOutP2);
   } else if (func_ == kAnimationTimingFunctionEaseInOut) {
@@ -97,7 +97,7 @@ CubicBezierAnimation::CubicBezierAnimation(Mode mode,
   } else if (func_ == kAnimationTimingFunctionCubicBezier) {
     cubic_bezier_ = CubicBezier(CubicBezier::kDefaultP1, CubicBezier::kDefaultP2);
   } else {
-    cubic_bezier_ = std::move(ParseCubicBezierStr(func_));
+    cubic_bezier_ = ParseCubicBezierStr(func_);
   }
 }
 
@@ -158,19 +158,6 @@ void CubicBezierAnimation::Update(Mode mode,
                                   std::string func,
                                   int32_t cnt,
                                   uint32_t related_id) {
-  mode_ = mode;
-  delay_ = delay;
-  start_value_ = start_value;
-  to_value_ = to_value;
-  type_ = type;
-  duration_ = duration;
-  func_ = std::move(func);
-  cubic_bezier_ = std::move(ParseCubicBezierStr(func_));
-  cnt_ = cnt;
-  related_id_ = related_id;
-  exec_time_ = 0;
-  status_ = Animation::Status::kCreated;
-
   auto animation_manager = animation_manager_.lock();
   if (!animation_manager) {
     return;
@@ -178,9 +165,23 @@ void CubicBezierAnimation::Update(Mode mode,
   if (animation_manager->IsActive(id_)) {
     return;
   }
+  
+  mode_ = mode;
+  delay_ = delay;
+  start_value_ = start_value;
+  to_value_ = to_value;
+  type_ = type;
+  duration_ = duration;
+  func_ = std::move(func);
+  cubic_bezier_ = ParseCubicBezierStr(func_);
+  cnt_ = cnt;
+  related_id_ = related_id;
+  exec_time_ = 0;
+
   animation_manager->RemoveActiveAnimation(id_);
   animation_manager->CancelDelayedAnimation(id_);
   animation_manager->RemoveDelayedAnimationRecord(id_);
+  status_ = Animation::Status::kCreated;
   Init();
 }
 

@@ -67,8 +67,6 @@ constexpr char kWorkerRunnerName[] = "hippy_worker";
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
-std::mutex inspector_mutex;
-std::shared_ptr<V8InspectorClientImpl> global_inspector = nullptr;
 #endif
 
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>> reuse_engine_map;
@@ -104,6 +102,13 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     v8::HandleScope handle_scope(isolate);
     isolate->AddMessageListener(V8BridgeUtils::HandleUncaughtJsError);
     isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+    std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+    if (runtime->IsDebug()) {
+      auto inspector = std::make_shared<V8InspectorClientImpl>(runtime->GetEngine()->GetJsTaskRunner());
+      runtime->GetEngine()->SetInspectorClient(inspector);
+    }
+#endif
   };
 
   std::unique_ptr<RegisterMap> engine_cb_map = std::make_unique<RegisterMap>();
@@ -130,14 +135,12 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     }
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
-      std::lock_guard<std::mutex> lock(inspector_mutex);
-      if (!global_inspector) {
-        global_inspector = std::make_shared<V8InspectorClientImpl>(scope, scope->GetTaskRunner());
-        global_inspector->Connect(runtime->GetDevtoolsDataSource());
-      } else {
-        global_inspector->Reset(scope, runtime->GetDevtoolsDataSource());
+      auto inspector_client = runtime->GetEngine()->GetInspectorClient();
+      if (inspector_client) {
+        inspector_client->CreateInspector(scope);
+        auto inspector_context = inspector_client->CreateInspectorContext(scope, runtime->GetDevtoolsDataSource());
+        runtime->SetInspectorContext(inspector_context);
       }
-      global_inspector->CreateContext();
     }
 #endif
     std::shared_ptr<Ctx> ctx = scope->GetContext();
@@ -206,12 +209,10 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
         FOOTSTONE_DLOG(FATAL) << "RunApp send_v8_func_ j_runtime_id invalid or not debugger";
         return;
       }
-      {
-        std::lock_guard<std::mutex> lock(inspector_mutex);
-        if (global_inspector) {
-          auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
-          global_inspector->SendMessageToV8(std::move(u16str));
-        }
+      auto inspector_client = runtime->GetEngine()->GetInspectorClient();
+      if (inspector_client) {
+        auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
+        inspector_client->SendMessageToV8(runtime->GetInspectorContext(), std::move(u16str));
       }
     });
   }
@@ -396,9 +397,11 @@ void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     FOOTSTONE_LOG(INFO) << "js destroy begin, runtime_id = " << runtime_id << ", is_reload = " << is_reload;
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     if (runtime->IsDebug()) {
-      std::lock_guard<std::mutex> lock(inspector_mutex);
-      global_inspector->DestroyContext();
-      global_inspector->Reset(nullptr, nullptr);
+      auto inspector_client = runtime->GetEngine()->GetInspectorClient();
+      if (inspector_client) {
+        auto inspector_context = runtime->GetInspectorContext();
+        inspector_client->DestroyInspectorContext(is_reload, inspector_context);
+      }
     } else {
       runtime->GetScope()->WillExit();
     }

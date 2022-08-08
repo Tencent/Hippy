@@ -109,10 +109,10 @@ NATIVE_RENDER_EXTERN BOOL NativeRenderForceTouchAvailable(void);
 NATIVE_RENDER_EXTERN NSError *NativeRenderErrorWithMessage(NSString *message);
 
 // Create an NSError in the NativeRenderErrorDomain
-NATIVE_RENDER_EXTERN NSError *NativeRenderErrorWithMessageAndModuleName(NSString *message, NSString *moduleName);
+NATIVE_RENDER_EXTERN NSError *NativeRenderErrorWithMessageAndModuleName(NSString *message, NSString *__nullable moduleName);
 
 // Create an NSError with NativeRenderFatalModuleName from another error
-NATIVE_RENDER_EXTERN NSError *NativeRenderErrorFromErrorAndModuleName(NSError *error, NSString *moduleName);
+NATIVE_RENDER_EXTERN NSError *NativeRenderErrorFromErrorAndModuleName(NSError *error, NSString *__nullable moduleName);
 
 // Convert nil values to NSNull, and vice-versa
 #define NativeRenderNullIfNil(value) (value ?: (id)kCFNull)

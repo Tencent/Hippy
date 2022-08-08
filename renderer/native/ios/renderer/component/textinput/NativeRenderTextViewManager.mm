@@ -71,12 +71,12 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(defaultValue, NSString)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)componentTag) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[hippyTag];
+         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-             //NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+             NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
          }
          [view focus];
      }];
@@ -84,12 +84,12 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)hippyTa
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[hippyTag];
+         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-             //NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+             NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
          }
          [view blur];
      }];
@@ -97,12 +97,12 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
-        NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[hippyTag];
+        NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-            //NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+            NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
         }
         [view clearText];
     }];
@@ -110,13 +110,13 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)hippyTag) {
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
                   text:(NSString *)text ) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
-        NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[hippyTag];
+        NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
-            //NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+            NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
         }
         [view setValue: text];
     }];
@@ -124,10 +124,10 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
                   callback:(RenderUIResponseSenderBlock)callback ) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
-        NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[hippyTag];
+        NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         NSString *stringValue = [view value];
         if (nil == stringValue) {
             stringValue = @"";
@@ -197,10 +197,10 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInp
 }
 
 - (NativeRenderRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {
-    NSNumber *hippyTag = nativeRenderObjectView.hippyTag;
+    NSNumber *componentTag = nativeRenderObjectView.componentTag;
     UIEdgeInsets padding = nativeRenderObjectView.paddingAsInsets;
     return ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {
-        viewRegistry[hippyTag].contentInset = padding;
+        viewRegistry[componentTag].contentInset = padding;
     };
 }
 @end

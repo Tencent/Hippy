@@ -265,8 +265,8 @@ static NSString *const kListViewItem = @"ListViewItem";
     [super setFrame:frame];
 }
 
-- (void)hippySetFrame:(CGRect)frame {
-    [super hippySetFrame:frame];
+- (void)nativeRenderSetFrame:(CGRect)frame {
+    [super nativeRenderSetFrame:frame];
     self.collectionView.frame = self.bounds;
 }
 
@@ -286,11 +286,11 @@ static NSString *const kListViewItem = @"ListViewItem";
     [self.collectionView reloadData];
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
 
 }
 
-- (void)didUpdateHippySubviews {
+- (void)didUpdateNativeRenderSubviews {
     [self refreshItemNodes];
     [self reloadData];
 }
@@ -315,8 +315,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.nativeRenderObjectView.hippySubviews containBannerView:NO];
-    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.nativeRenderObjectView.hippySubviews.count];
+    [self.dataSource setDataSource:self.nativeRenderObjectView.nativeRenderSubviews containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.nativeRenderObjectView.nativeRenderSubviews.count];
     [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 
@@ -358,7 +358,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         if (hpCell.cellView) {
             NSInteger cellIndex = _itemIndexArray[indexPath.row].integerValue;
             NSIndexPath *adjustIndexPath = [NSIndexPath indexPathForRow:cellIndex inSection:indexPath.section];
-            [_cachedItems setObject:[hpCell.cellView hippyTag] forKey:adjustIndexPath];
+            [_cachedItems setObject:[hpCell.cellView componentTag] forKey:adjustIndexPath];
             hpCell.cellView = nil;
         }
     }
@@ -372,7 +372,7 @@ static NSString *const kListViewItem = @"ListViewItem";
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     [renderObject recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObject.hippyTag onRootTag:renderObject.rootTag];
+    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObject.componentTag onRootTag:renderObject.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:adjustIndexPath];
     }
@@ -380,7 +380,7 @@ static NSString *const kListViewItem = @"ListViewItem";
         cellView = [self.renderContext createViewRecursivelyFromRenderObject:renderObject];
     }
     hpCell.cellView = cellView;
-    [_weakItemMap setObject:cellView forKey:[cellView hippyTag]];
+    [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
 }
 
 - (void)tableViewDidLayoutSubviews:(NativeRenderListTableView *)tableView {

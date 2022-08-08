@@ -48,16 +48,16 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(horizontal, BOOL)
 }
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componentTag
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(NSNumber *)yIndex
 									animation:(nonnull NSNumber *)animation) {
 	[self.renderContext addUIBlock:
 	 ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[hippyTag];
+		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
-			 //NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
+			 NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
 		 }
 		 [view scrollToIndex: yIndex.integerValue animated: [animation boolValue]];
 	 }];
@@ -65,16 +65,16 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)hippyTag
 // clang-format on
 
 // clang-format off
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)componentTag
                                x:(nonnull NSNumber *)x
                                y:(nonnull NSNumber *)y
                                animation:(nonnull NSNumber *)animation) {
 	[self.renderContext addUIBlock:
 	 ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
-		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[hippyTag];
+		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
-			 //NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
+			 NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseListView, got: %@", view);
 		 }
 		 [view scrollToContentOffset:CGPointMake([x floatValue], [y floatValue]) animated: [animation boolValue]];
 	 }];

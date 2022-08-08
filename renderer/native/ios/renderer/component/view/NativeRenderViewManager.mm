@@ -23,7 +23,6 @@
 #import "NativeRenderViewManager.h"
 #import "NativeRenderBorderStyle.h"
 #import "NativeRenderConvert.h"
-#import "HippyEventDispatcher.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderUtils.h"
 #import "NativeRenderView.h"
@@ -62,9 +61,9 @@
     return nil;
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        UIView *view = viewRegistry[hippyTag];
+        UIView *view = viewRegistry[componentTag];
         if (!view) {
             callback(@{});
             return;
@@ -82,9 +81,9 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)hippyTag callb
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)hippyTag callback:(RenderUIResponseSenderBlock)callback) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        UIView *view = viewRegistry[hippyTag];
+        UIView *view = viewRegistry[componentTag];
         if (!view) {
             callback(@{});
             return;
@@ -97,11 +96,11 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)hippyTag ca
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)hippyTag
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getScreenShot:(nonnull NSNumber *)componentTag
                                       params:(NSDictionary *__nonnull)params
                                     callback:(RenderUIResponseSenderBlock)callback) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
-        UIView *view = viewRegistry[hippyTag];
+        UIView *view = viewRegistry[componentTag];
         if (view == nil) {
             callback(@[]);
             return;
@@ -315,7 +314,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, Nat
             view.userInteractionEnabled = NO;
             break;
         default:
-            //NativeRenderLogError(@"UIView base class does not support pointerEvent value: %@", json);
+            NativeRenderLogError(@"UIView base class does not support pointerEvent value: %@", json);
             break;
     }
 }
@@ -348,41 +347,42 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderStyle, NativeRenderBorderStyle, NativeR
     }
 }
 
-#define HIPPY_VIEW_BORDER_PROPERTY(SIDE)                                                                     \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, NativeRenderView) {                                    \
-        if ([view respondsToSelector:@selector(setBorder##SIDE##Width:)]) {                                  \
+#define NATIVE_RENDER_VIEW_BORDER_PROPERTY(SIDE)                                                                    \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, NativeRenderView) {                            \
+        if ([view respondsToSelector:@selector(setBorder##SIDE##Width:)]) {                                         \
             view.border##SIDE##Width = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Width; \
-        }                                                                                                    \
-    }                                                                                                        \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, NativeRenderView) {                                    \
-        if ([view respondsToSelector:@selector(setBorder##SIDE##Color:)]) {                                  \
+        }                                                                                                           \
+    }                                                                                                               \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, NativeRenderView) {                            \
+        if ([view respondsToSelector:@selector(setBorder##SIDE##Color:)]) {                                         \
             view.border##SIDE##Color = json ? [NativeRenderConvert CGColor:json] : defaultView.border##SIDE##Color; \
-        }                                                                                                    \
+        }                                                                                                           \
     }
 
-HIPPY_VIEW_BORDER_PROPERTY(Top)
-HIPPY_VIEW_BORDER_PROPERTY(Right)
-HIPPY_VIEW_BORDER_PROPERTY(Bottom)
-HIPPY_VIEW_BORDER_PROPERTY(Left)
+NATIVE_RENDER_VIEW_BORDER_PROPERTY(Top)
+NATIVE_RENDER_VIEW_BORDER_PROPERTY(Right)
+NATIVE_RENDER_VIEW_BORDER_PROPERTY(Bottom)
+NATIVE_RENDER_VIEW_BORDER_PROPERTY(Left)
 
-#define HIPPY_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                \
-    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderView) {                                     \
-        if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                   \
-            view.border##SIDE##Radius = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Radius; \
-        }                                                                                                      \
+#define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
+    NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderView) {                               \
+        if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
+            view.border##SIDE##Radius = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
+        }                                                                                                               \
     }
 
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopLeft)
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
-HIPPY_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(TopLeft)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(TopRight)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomLeft)
+NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 
 NATIVE_RENDER_REMAP_VIEW_PROPERTY(zIndex, hippyZIndex, NSInteger)
 
-#pragma mark - ShadowView properties
+#pragma mark - native render object properties
 
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(backgroundColor, UIColor)
 
+//TODO remove layout codes
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(top, CGFloat)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(right, CGFloat)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(bottom, CGFloat)
@@ -423,7 +423,6 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexGrow, CGFloat)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexShrink, CGFloat)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexBasis, CGFloat)
 
-// hplayout
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexDirection, FlexDirection)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(flexWrap, FlexWrapMode)
 NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(justifyContent, FlexAlign)

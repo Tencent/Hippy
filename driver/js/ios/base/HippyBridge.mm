@@ -487,6 +487,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 #endif  // HIPPY_DEBUG
 }
 
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
+    return [self.batchedBridge turboModuleWithName:name];
+}
+
 #pragma mark NativeRenderFrameworkProxy Delegate Implementation
 - (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<NativeRenderContext>)renderContext {
     if ([HippyBridge isHippyLocalFileURLString:UrlString]) {

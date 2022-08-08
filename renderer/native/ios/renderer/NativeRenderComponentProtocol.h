@@ -36,7 +36,7 @@ typedef void (^NativeRenderDirectEventBlock)(NSDictionary *body);
  */
 @protocol NativeRenderComponentProtocol <NSObject>
 
-@property (nonatomic, copy) NSNumber *hippyTag;
+@property (nonatomic, copy) NSNumber *componentTag;
 @property (nonatomic, copy) NSNumber *rootTag;
 @property (nonatomic, copy) NSString *viewName;
 @property (nonatomic, copy) NSString *tagName;
@@ -44,16 +44,16 @@ typedef void (^NativeRenderDirectEventBlock)(NSDictionary *body);
 @property (nonatomic, assign) CGRect frame;
 @property (nonatomic, weak) id<NativeRenderComponentProtocol> parent;
 
-- (void)insertHippySubview:(id<NativeRenderComponentProtocol>)subview atIndex:(NSInteger)atIndex;
-- (void)removeHippySubview:(id<NativeRenderComponentProtocol>)subview;
-- (void)removeFromHippySuperview;
-- (void)hippySetFrame:(CGRect)frame;
-- (NSArray<id<NativeRenderComponentProtocol>> *)hippySubviews;
-- (id<NativeRenderComponentProtocol>)hippySuperview;
-- (NSNumber *)hippyTagAtPoint:(CGPoint)point;
+- (void)insertNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview atIndex:(NSInteger)atIndex;
+- (void)removeNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview;
+- (void)removeFromNativeRenderSuperview;
+- (void)nativeRenderSetFrame:(CGRect)frame;
+- (NSArray<id<NativeRenderComponentProtocol>> *)nativeRenderSubviews;
+- (id<NativeRenderComponentProtocol>)nativeRenderSuperview;
+- (NSNumber *)componentTagAtPoint:(CGPoint)point;
 
 // View/NativeRenderObjectView is a root view
-- (BOOL)isHippyRootView;
+- (BOOL)isNativeRenderRootView;
 
 @optional
 
@@ -67,13 +67,13 @@ typedef void (^NativeRenderDirectEventBlock)(NSDictionary *body);
 /**
  * Called each time subviews have been updated
  */
-- (void)didUpdateHippySubviews;
+- (void)didUpdateNativeRenderSubviews;
 
-- (void)hippyComponentDidFinishTransaction;
+- (void)nativeRenderComponentDidFinishTransaction;
 
 @end
 
 // hippy use multiple of 10 as tag of root view
-static inline BOOL NativeRenderIsHippyRootView(NSNumber *hippyTag) {
-    return hippyTag.integerValue % 10 == 0;
+static inline BOOL NativeRenderIsRootView(NSNumber *componentTag) {
+    return componentTag.integerValue % 10 == 0;
 }

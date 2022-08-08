@@ -146,7 +146,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
         case NativeRenderPointerEventsBoxNone:
             return hitSubview;
         default:
-            //NativeRenderLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
+            NativeRenderLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
             return hitSubview ?: hitView;
     }
 }
@@ -167,7 +167,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 - (NSString *)description {
     NSString *superDescription = super.description;
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
-    NSString *replacement = [NSString stringWithFormat:@"; hippyTag: %@;", self.hippyTag];
+    NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@;", self.componentTag];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
 }
 
@@ -205,7 +205,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 
 + (UIEdgeInsets)contentInsetsForView:(UIView *)view {
     while (view) {
-        UIViewController *controller = view.hippyViewController;
+        UIViewController *controller = view.nativeRenderViewController;
         if (controller) {
             return (UIEdgeInsets) { controller.topLayoutGuide.length, 0, controller.bottomLayoutGuide.length, 0 };
         }
@@ -269,12 +269,12 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     };
 }
 
-- (void)hippySetFrame:(CGRect)frame {
+- (void)nativeRenderSetFrame:(CGRect)frame {
     // If frame is zero, or below the threshold where the border radii can
     // be rendered as a stretchable image, we'll need to re-render.
     // TODO: detect up-front if re-rendering is necessary
     CGSize oldSize = self.bounds.size;
-    [super hippySetFrame:frame];
+    [super nativeRenderSetFrame:frame];
     if (!CGSizeEqualToSize(self.bounds.size, oldSize)) {
         [self.layer setNeedsDisplay];
     }
@@ -489,7 +489,7 @@ static BOOL NativeRenderLayerHasShadow(CALayer *layer) {
     return layer.shadowOpacity * CGColorGetAlpha(layer.shadowColor) > 0;
 }
 
-- (void)hippySetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor {
+- (void)nativeRenderSetInheritedBackgroundColor:(UIColor *)inheritedBackgroundColor {
     // Inherit background color if a shadow has been set, as an optimization
     if (NativeRenderLayerHasShadow(self.layer)) {
         self.backgroundColor = inheritedBackgroundColor;

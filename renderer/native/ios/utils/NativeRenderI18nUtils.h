@@ -25,7 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol hippyI18nProtocol <NSObject>
+@protocol NativeRenderI18nProtocol <NSObject>
 
 @optional
 
@@ -35,11 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/** I18n manager for hippy
+/** I18n manager for render
  */
 @interface NativeRenderI18nUtils : NSObject
 
-@property(nonatomic, weak) id<hippyI18nProtocol> delegate;
+@property(nonatomic, weak) id<NativeRenderI18nProtocol> delegate;
 
 + (instancetype)sharedInstance;
 

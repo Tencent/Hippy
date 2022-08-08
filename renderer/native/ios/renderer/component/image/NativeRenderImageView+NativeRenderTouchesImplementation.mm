@@ -181,7 +181,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchStart];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -197,7 +197,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchEnd];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -209,7 +209,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchMove];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -225,7 +225,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeTouchCancel];
     if (listener) {
         UITouch *touch = [touches anyObject];
-        CGPoint point = [touch locationInView:[self hippyRootView]];
+        CGPoint point = [touch locationInView:[self NativeRenderRootView]];
         listener(point);
     }
     else {
@@ -237,7 +237,7 @@
     OnTouchEventHandler listener = [self eventListenerForEventType:NativeRenderViewEventTypeClick];
     if (listener) {
         UITapGestureRecognizer *tap = objc_getAssociatedObject(self, @selector(tapGestureRecognizer));
-        CGPoint point = [tap locationInView:[self hippyRootView]];
+        CGPoint point = [tap locationInView:[self NativeRenderRootView]];
         listener(point);
     }
 }
@@ -247,7 +247,7 @@
     if (listener) {
         UILongPressGestureRecognizer *longPress = objc_getAssociatedObject(self, @selector(longGestureRecognizer));
         if (longPress.state == UIGestureRecognizerStateBegan) {
-            CGPoint point = [longPress locationInView:[self hippyRootView]];
+            CGPoint point = [longPress locationInView:[self NativeRenderRootView]];
             listener(point);
         }
     }

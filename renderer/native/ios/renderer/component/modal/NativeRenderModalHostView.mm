@@ -70,13 +70,13 @@
     _onOrientationChange(eventPayload);
 }
 
-- (void)insertHippySubview:(UIView *)subview atIndex:(NSInteger)atIndex {
-    [super insertHippySubview:subview atIndex:atIndex];
+- (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
+    [super insertNativeRenderSubview:subview atIndex:atIndex];
     [_modalViewController.view insertSubview:subview atIndex:atIndex];
     [subview sendAttachedToWindowEvent];
 }
 
-- (void)didUpdateHippySubviews {
+- (void)didUpdateNativeRenderSubviews {
     // Do nothing, as subview (singular) is managed by `insertHippySubview:atIndex:`
 }
 
@@ -92,7 +92,7 @@
     [super didMoveToWindow];
 
     if (!_isPresented && self.window) {
-        NSAssert(self.hippyViewController, @"Can't present modal view controller without a presenting view controller");
+        NSAssert(self.nativeRenderViewController, @"Can't present modal view controller without a presenting view controller");
         _modalViewController.supportedInterfaceOrientations = [self supportedOrientationsMask];
         if ([self.animationType isEqualToString:@"fade"]) {
             _modalViewController.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;

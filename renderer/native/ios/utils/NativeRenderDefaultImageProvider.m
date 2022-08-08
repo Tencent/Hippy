@@ -43,7 +43,7 @@
 }
 
 + (BOOL)isAnimatedImage:(NSData *)data {
-    BOOL ret = [data hippy_isAnimatedImage];
+    BOOL ret = [data datatype_isAnimatedImage];
     return ret;
 }
 
