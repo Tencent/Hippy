@@ -1,6 +1,6 @@
 name: '[gh] issue crash report'
 
-on: 
+on:
   issues:
     types:
       - opened
@@ -108,7 +108,7 @@ jobs:
           }
 
           const info = parse(process.env.issue_body);
-          ['Version', 'Platform', 'Architecture', 'Logs', 'Reproduce Condition', 'Additional information'].forEach(key => {
+          ['Version', 'Platform', 'Architecture', 'Logs', 'Reproduce Condition', 'Additional Information'].forEach(key => {
             let value = info[key];
             if (value) {
               if (['Version', 'Platform', 'Architecture'].includes(key)) {
@@ -128,7 +128,7 @@ jobs:
       needs.triage.outputs.platform == 'Android'
       && needs.triage.outputs.version
       && needs.triage.outputs.logs
-      && (needs.triage.outputs.architecture == 'arm' 
+      && (needs.triage.outputs.architecture == 'arm'
         || needs.triage.outputs.architecture == 'arm64'
         || needs.triage.outputs.architecture == 'x86'
         || needs.triage.outputs.architecture == 'x86_64')
@@ -139,7 +139,7 @@ jobs:
     - name: Backtrace
       id: backtrace_parsed
       uses: actions/github-script@v6.1.0
-      env: 
+      env:
         triage_logs: ${{ needs.triage.outputs.logs }}
       with:
         script: |
@@ -238,7 +238,7 @@ jobs:
                   source
                 }
               }
-              
+
               return stack;
             }).map(({ pc, func, file, source }, i) => {
               return `#${i} PC ${pc}  ${file} (${func})${source ? ` [${source}]` : ''}`;
