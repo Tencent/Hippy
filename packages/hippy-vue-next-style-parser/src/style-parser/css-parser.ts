@@ -237,7 +237,7 @@ function convertToDegree(value: string, unit = DEGREE_UNIT.DEG): string {
  */
 function getLinearGradientAngle(value: string): string {
   const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-  const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+  const reg = /^([+-]?\d{1,5}\.?\d{0,3})+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return '';
   // default direction is to bottom, i.e. 180degree
