@@ -11,12 +11,12 @@ body:
   - type: input
     attributes:
       label: Version
-      description: What version did you use?
-      placeholder: ex. 1.0.0
+      description: Which version of Hippy SDK are you using?
+      placeholder: e.g. 1.0.0
   - type: dropdown
     attributes:
       label: Platform
-      description: What platform did you run this on?
+      description: What platform are you running on?
       options:
         - Android
         - iOS
@@ -27,7 +27,7 @@ body:
   - type: dropdown
     attributes:
       label: Architecture
-      description: What architecture of your device?
+      description: What is your your device architecture?
       options:
         - arm
         - arm64
@@ -60,15 +60,15 @@ body:
   - type: textarea
     attributes:
       label: Reproduce Condition
-      description: How often does it reproduce? Is there a required condition?
+      description: How often does the crash happen? Are there some reproducing steps?
       placeholder: |
         You can use the following template:
         ```
         After the following operations, there is a N percent chance of crashing:
-        1. Do this
-        2. Do that
+        1. Step 1...
+        2. Step 2...
         ```
   - type: textarea
     attributes:
-      label: Additional information
+      label: Additional Information
       description: Tell us anything else you think we should know.
