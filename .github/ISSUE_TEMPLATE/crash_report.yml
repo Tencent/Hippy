@@ -1,0 +1,74 @@
+name: 🐛 Crash Report
+description: File a crash report
+title: "A crash occurred"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this crash report!
+
+        Please fill in as much of the following form as you're able.
+  - type: input
+    attributes:
+      label: Version
+      description: What version did you use?
+      placeholder: ex. 1.0.0
+  - type: dropdown
+    attributes:
+      label: Platform
+      description: What platform did you run this on?
+      options:
+        - Android
+        - iOS
+        - Windows
+        - macOS
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Architecture
+      description: What architecture of your device?
+      options:
+        - arm
+        - arm64
+        - x86
+        - x86_64
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Logs
+      description: Please copy and paste crash log output
+      placeholder: |
+        Crash log output like the following example:
+        ```
+        pid: 4637, tid: 4637, name: crasher  >>> crasher <<<
+        signal 6 (SIGABRT), code -6 (SI_TKILL), fault addr --------
+        Abort message: 'some_file.c:123: some_function: assertion "false" failed'
+            r0  00000000  r1  0000121d  r2  00000006  r3  00000008
+            r4  0000121d  r5  0000121d  r6  ffb44a1c  r7  0000010c
+            r8  00000000  r9  00000000  r10 00000000  r11 00000000
+            ip  ffb44c20  sp  ffb44a08  lr  eace2b0b  pc  eace2b16
+        backtrace:
+            #00 pc 0001cb16  /system/lib/libc.so (abort+57)
+            #01 pc 0001cd8f  /system/lib/libc.so (__assert2+22)
+            #02 pc 00001531  /system/bin/crasher (do_action+764)
+            #03 pc 00002301  /system/bin/crasher (main+68)
+            #04 pc 0008a809  /system/lib/libc.so (__libc_init+48)
+            #05 pc 00001097  /system/bin/crasher (_start_main+38)
+        ```
+  - type: textarea
+    attributes:
+      label: Reproduce Condition
+      description: How often does it reproduce? Is there a required condition?
+      placeholder: |
+        You can use the following template:
+        ```
+        After the following operations, there is a N percent chance of crashing:
+        1. Do this
+        2. Do that
+        ```
+  - type: textarea
+    attributes:
+      label: Additional information
+      description: Tell us anything else you think we should know.
