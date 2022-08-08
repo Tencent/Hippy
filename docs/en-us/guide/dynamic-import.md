@@ -1,6 +1,3 @@
-<! -- markdownlint-disable no-duplicate-header -->
-<! -- markdownlint-disable no-blacks-blockquote -->
-
 # Dynamic Load
 
 ## Introduction
