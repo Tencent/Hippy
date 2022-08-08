@@ -55,7 +55,6 @@ public class ContentDrawable extends BaseDrawable
 
 	private boolean						mNeedUpdateBorderPath;
 	private Path						mBorderPath;
-	private RectF						mTempRectForBorderRadius;
 
 	private int							mImagePositionX;
 	private int							mImagePositionY;
@@ -125,14 +124,10 @@ public class ContentDrawable extends BaseDrawable
       if (mBorderPath == null) {
         mBorderPath = new Path();
       } else {
-        mBorderPath.reset();
+        mBorderPath.rewind();
       }
 			mNeedUpdateBorderPath = false;
-			if (mTempRectForBorderRadius == null)
-			{
-				mTempRectForBorderRadius = new RectF();
-			}
-			mTempRectForBorderRadius.set(mRect);
+      RectF tempRectF = new RectF(mRect);
 			// calc scale here
 			int bitmapWidth = mContentBitmap.getWidth();
 			int bitmapHeight = mContentBitmap.getHeight();
@@ -157,17 +152,17 @@ public class ContentDrawable extends BaseDrawable
 					break;
 				case ORIGIN:
 					// 不拉伸，居左上
-					mTempRectForBorderRadius.top = 0;
-					mTempRectForBorderRadius.bottom = bitmapHeight;
-					mTempRectForBorderRadius.left = 0;
-					mTempRectForBorderRadius.right = bitmapWidth;
+					tempRectF.top = 0;
+					tempRectF.bottom = bitmapHeight;
+					tempRectF.left = 0;
+					tempRectF.right = bitmapWidth;
 					break;
 				case CENTER:
 					// 居中不拉伸
-					mTempRectForBorderRadius.top = (boundHeight - bitmapHeight) / 2;
-					mTempRectForBorderRadius.bottom = (boundHeight + bitmapHeight) / 2;
-					mTempRectForBorderRadius.left = (boundWidth - bitmapWidth) / 2;
-					mTempRectForBorderRadius.right = (boundWidth + bitmapWidth) / 2;
+					tempRectF.top = (boundHeight - bitmapHeight) / 2;
+					tempRectF.bottom = (boundHeight + bitmapHeight) / 2;
+					tempRectF.left = (boundWidth - bitmapWidth) / 2;
+					tempRectF.right = (boundWidth + bitmapWidth) / 2;
 					break;
 				case CENTER_INSIDE:
 					// 在保持图片宽高比的前提下缩放图片，直到宽度和高度都小于等于容器视图的尺寸
@@ -176,17 +171,17 @@ public class ContentDrawable extends BaseDrawable
 					{
 						if (xScale > yScale)
 						{ // y到顶
-							mTempRectForBorderRadius.top = 0;
-							mTempRectForBorderRadius.bottom = boundHeight;
-							mTempRectForBorderRadius.left = (int) ((boundWidth - bitmapWidth * yScale) / 2);
-							mTempRectForBorderRadius.right = (int) ((boundWidth + bitmapWidth * yScale) / 2);
+							tempRectF.top = 0;
+							tempRectF.bottom = boundHeight;
+							tempRectF.left = (int) ((boundWidth - bitmapWidth * yScale) / 2);
+							tempRectF.right = (int) ((boundWidth + bitmapWidth * yScale) / 2);
 						}
 						else
 						{ // x到顶
-							mTempRectForBorderRadius.top = (int) ((boundHeight - bitmapHeight * xScale) / 2);
-							mTempRectForBorderRadius.bottom = (int) ((boundHeight + bitmapHeight * xScale) / 2);
-							mTempRectForBorderRadius.left = 0;
-							mTempRectForBorderRadius.right = boundWidth;
+							tempRectF.top = (int) ((boundHeight - bitmapHeight * xScale) / 2);
+							tempRectF.bottom = (int) ((boundHeight + bitmapHeight * xScale) / 2);
+							tempRectF.left = 0;
+							tempRectF.right = boundWidth;
 						}
 					}
 					break;
@@ -196,51 +191,39 @@ public class ContentDrawable extends BaseDrawable
 					break;
 			}
 
-			mTempRectForBorderRadius.top += mImagePositionY;
-			mTempRectForBorderRadius.bottom += mImagePositionY;
-			mTempRectForBorderRadius.left += mImagePositionX;
-			mTempRectForBorderRadius.right += mImagePositionX;
+			tempRectF.top += mImagePositionY;
+			tempRectF.bottom += mImagePositionY;
+			tempRectF.left += mImagePositionX;
+			tempRectF.right += mImagePositionX;
 
 			float fullBorderWidth = mBorderWidthArray == null ? 0 : mBorderWidthArray[0];
-			if (fullBorderWidth > 1)
-			{
-				mTempRectForBorderRadius.inset(fullBorderWidth * 0.5f, fullBorderWidth * 0.5f);
+			if (fullBorderWidth != 0) {
+				tempRectF.inset(fullBorderWidth, fullBorderWidth);
 			}
 
-			if (CommonTool.hasPositiveItem(mBorderRadiusArray))
-			{
+      mBorderPath.addRect(tempRectF, Path.Direction.CW);
 
-				float topLeftRadius = mBorderRadiusArray[1];
-				if (topLeftRadius == 0 && mBorderRadiusArray[0] > 0)
-				{
-					topLeftRadius = mBorderRadiusArray[0];
-				}
-				float topRightRadius = mBorderRadiusArray[2];
-				if (topRightRadius == 0 && mBorderRadiusArray[0] > 0)
-				{
-					topRightRadius = mBorderRadiusArray[0];
-				}
-				float bottomRightRadius = mBorderRadiusArray[3];
-				if (bottomRightRadius == 0 && mBorderRadiusArray[0] > 0)
-				{
-					bottomRightRadius = mBorderRadiusArray[0];
-				}
-				float bottomLeftRadius = mBorderRadiusArray[4];
-				if (bottomLeftRadius == 0 && mBorderRadiusArray[0] > 0)
-				{
-					bottomLeftRadius = mBorderRadiusArray[0];
-				}
+      if (CommonTool.hasPositiveItem(mBorderRadiusArray)) {
+        Path tempPath = new Path();
 
-				mBorderPath.addRoundRect(mTempRectForBorderRadius, new float[] { topLeftRadius, topLeftRadius, topRightRadius, topRightRadius,
-						bottomRightRadius, bottomRightRadius, bottomLeftRadius, bottomLeftRadius }, Path.Direction.CW);
-			}
-			else
-			{
-				// no border radius
-				mBorderPath.addRect(mTempRectForBorderRadius, Path.Direction.CW);
+        float fullRadius = mBorderRadiusArray[0];
+				float topLeftRadius = calculateBorderRadius(mBorderRadiusArray[1], fullRadius, fullBorderWidth);
+				float topRightRadius = calculateBorderRadius(mBorderRadiusArray[2], fullRadius, fullBorderWidth);
+        float bottomRightRadius = calculateBorderRadius(mBorderRadiusArray[3], fullRadius, fullBorderWidth);
+				float bottomLeftRadius = calculateBorderRadius(mBorderRadiusArray[4], fullRadius, fullBorderWidth);
+
+        tempRectF.set(mRect);
+        tempRectF.inset(fullBorderWidth, fullBorderWidth);
+        tempPath.addRoundRect(tempRectF, new float[] { topLeftRadius, topLeftRadius, topRightRadius, topRightRadius,
+            bottomRightRadius, bottomRightRadius, bottomLeftRadius, bottomLeftRadius }, Path.Direction.CW);
+        mBorderPath.op(tempPath, Path.Op.INTERSECT);
 			}
 		}
 	}
+
+  private static float calculateBorderRadius(float value, float fullValue, float inset) {
+    return Math.max(0, (value != 0 ? value : fullValue) - inset * .5f);
+  }
 
 	@Override
 	protected void onBoundsChange(Rect bounds)
