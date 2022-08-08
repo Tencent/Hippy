@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "dom/dom_node.h"
 
 #include <algorithm>
@@ -304,6 +324,8 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
   layout_.paddingRight = layout_node_->GetPadding(Edge::EdgeRight);
   layout_.paddingBottom = layout_node_->GetPadding(Edge::EdgeBottom);
 
+  float old_absolute_left = render_layout_.left;
+  float old_absolute_top = render_layout_.top;
   render_layout_ = layout_;
 
   if (render_info_.pid != pid_) {
@@ -314,7 +336,10 @@ void DomNode::TransferLayoutOutputsRecursive(std::vector<std::shared_ptr<DomNode
       render_layout_.top += parent->layout_.top;
       parent = parent->GetParent();
     }
-    changed |= true;
+  }
+  // 层级优化后的结果是否改变
+  if (not_equal(render_layout_.left, old_absolute_left) || not_equal(render_layout_.top, old_absolute_top)) {
+    changed = true;
   }
 
   layout_node_->SetHasNewLayout(false);

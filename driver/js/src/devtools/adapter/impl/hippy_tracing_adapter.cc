@@ -30,15 +30,15 @@ void HippyTracingAdapter::StartTracing() {
 #endif
 }
 
-void HippyTracingAdapter::StopTracing(TracingDataCallback callback) {
+void HippyTracingAdapter::StopTracing(const std::string& params_key, TracingDataCallback callback) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   TraceControl::GetInstance().StopTracing();
   if (callback) {
-    callback(TraceControl::GetInstance().GetTracingContent());
+    callback(TraceControl::GetInstance().GetTracingContent(params_key));
   }
 #else
   if (callback) {
-    callback("");
+    callback("{}");
   }
 #endif
 }

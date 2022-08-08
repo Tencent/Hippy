@@ -37,7 +37,7 @@ class TraceControl {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   void SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control);
 #endif
-  std::string GetTracingContent();
+  std::string GetTracingContent(const std::string& params_key);
   inline void SetFileCacheDir(std::string file_cache_dir) { cache_file_dir_ = std::move(file_cache_dir); }
 
  private:
