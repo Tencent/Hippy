@@ -21,7 +21,7 @@
 /**
  * runtime/native 终端接口模块
  */
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../../../src/config';
 import { HippyListElement } from '../../../src/runtime/element/hippy-list-element';
 import { Native, CACHE } from '../../../src/runtime/native/index';
 

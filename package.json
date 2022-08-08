@@ -105,8 +105,7 @@
     "@router": "packages/hippy-vue-router/src",
     "@css-loader": "packages/hippy-vue-css-loader/src",
     "@native-components": "packages/hippy-vue-native-components/src",
-    "@style-parser": "packages/hippy-style-parser/src",
-    "@hippy-shared": "packages/hippy-shared/src"
+    "@hippy-vue-next-style-parser": "packages/hippy-vue-next-style-parser/src"
   },
   "jest": {
     "projects": [

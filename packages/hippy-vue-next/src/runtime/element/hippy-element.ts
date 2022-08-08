@@ -18,17 +18,16 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped, CallbackType } from '@hippy-shared/index';
 import {
   parseBackgroundImage,
   PROPERTIES_MAP,
   translateColor,
   type PropertiesMapType,
-} from '@style-parser/index';
+} from '@hippy-vue-next-style-parser/index';
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
 
-import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
+import { CallbackType, IS_PROD, NATIVE_COMPONENT_MAP, type NeedToTyped } from '../../config';
 import {
   capitalizeFirstLetter,
   convertImageLocalPath,

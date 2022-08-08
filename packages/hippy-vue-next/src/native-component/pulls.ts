@@ -21,7 +21,7 @@
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
-import type { CallbackType, CommonMapParams } from '@hippy-shared/index';
+import type { CallbackType, CommonMapParams } from '../config';
 import { registerHippyTag } from '../runtime/component';
 import type {
   HippyEvent,

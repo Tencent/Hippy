@@ -21,7 +21,7 @@
 import type { ComponentInternalInstance } from '@vue/runtime-core';
 import { callWithAsyncErrorHandling, ErrorCodes } from '@vue/runtime-core';
 
-import type { CallbackType } from '@hippy-shared/index';
+import type { CallbackType } from '../config';
 import type { HippyElement } from '../runtime/element/hippy-element';
 import { lowerFirstLetter } from '../util';
 

@@ -21,7 +21,7 @@
 import {
   HIPPY_GLOBAL_STYLE_NAME,
   HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
-} from '@hippy-shared/index';
+} from '../../config';
 
 import { SelectorsMap } from './css-selectors-match';
 

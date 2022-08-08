@@ -34,8 +34,7 @@
   "jest": {
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/src/$1",
-      "@style-parser/(.*)$": "<rootDir>/../hippy-style-parser/src/$1",
-      "@hippy-shared/(.*)$": "<rootDir>/../hippy-shared/src/$1"
+      "@hippy-vue-next-style-parser/(.*)$": "<rootDir>/../hippy-vue-next-style-parser/src/$1"
     },
     "modulePaths": [
       "<rootDir>"

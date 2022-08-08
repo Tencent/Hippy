@@ -21,9 +21,9 @@
 /**
  * Implement the patch props method required for Vue3 VNode mount
  */
-import type { NeedToTyped } from '@hippy-shared/index';
 import type { ComponentInternalInstance, VNode } from '@vue/runtime-core';
 import { isOn } from '@vue/shared';
+import type { NeedToTyped } from './config';
 
 import { patchAttr } from './modules/attrs';
 import { patchClass } from './modules/class';

@@ -18,8 +18,8 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped, CallbackType } from '@hippy-shared/index';
 import { isFunction } from '@vue/shared';
+import type { NeedToTyped, CallbackType } from '../../config';
 
 import { warn, getNormalizeEventName } from '../../util';
 import { EventBus } from '../event/event-bus';

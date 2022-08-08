@@ -21,9 +21,8 @@
 /**
  * Tags supported by Hippy built-in
  */
-import type { NeedToTyped } from '@hippy-shared/index';
 
-import { NATIVE_COMPONENT_MAP, HIPPY_DEBUG_ADDRESS } from './config';
+import { NATIVE_COMPONENT_MAP, HIPPY_DEBUG_ADDRESS, type NeedToTyped } from './config';
 import type { TagComponent } from './runtime/component';
 import { registerHippyTag } from './runtime/component';
 import type { EventsUnionType } from './runtime/event/hippy-event';

@@ -19,7 +19,7 @@
  */
 
 // eslint-disable-next-line max-classes-per-file
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../../config';
 import type { HippyEventTarget } from './hippy-event-target';
 
 /**

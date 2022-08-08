@@ -19,7 +19,7 @@
  */
 
 import type { ComponentPublicInstance, App } from '@vue/runtime-core';
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../config';
 
 /**
  * @public

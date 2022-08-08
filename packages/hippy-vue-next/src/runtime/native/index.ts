@@ -18,11 +18,10 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped, CallbackType } from '@hippy-shared/index';
-import { translateColor } from '@style-parser/index';
+import { translateColor } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
-import { NATIVE_COMPONENT_MAP } from '../../config';
+import { CallbackType, NATIVE_COMPONENT_MAP, type NeedToTyped } from '../../config';
 import { trace, warn } from '../../util';
 import { type HippyElement } from '../element/hippy-element';
 import { EventBus } from '../event/event-bus';

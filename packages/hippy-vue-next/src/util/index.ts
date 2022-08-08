@@ -20,7 +20,7 @@
 
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { capitalize } from '@vue/shared';
-import type { CallbackType, CommonMapParams, NeedToTyped } from '@hippy-shared/index';
+import type { CallbackType, CommonMapParams, NeedToTyped } from '../config';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
 
 let uniqueId = 0;

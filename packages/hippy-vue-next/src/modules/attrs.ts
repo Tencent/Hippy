@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../config';
 import type { HippyElement } from '../runtime/element/hippy-element';
 
 /**

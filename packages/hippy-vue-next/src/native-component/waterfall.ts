@@ -22,7 +22,7 @@
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
-import type { CommonMapParams } from '@hippy-shared/index';
+import type { CommonMapParams } from '../config';
 import { registerHippyTag } from '../runtime/component';
 import type { EventsUnionType } from '../runtime/event/hippy-event';
 import { Native } from '../runtime/native';

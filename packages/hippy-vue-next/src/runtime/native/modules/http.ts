@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../../../config';
 
 export interface HttpRequestParams {
   method: string;

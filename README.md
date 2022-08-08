@@ -143,8 +143,7 @@ Hippy
 ├── packages                          # npm packages.
 │   ├── hippy-react                   # React binding for Hippy.
 │   ├── hippy-react-web               # Web adapter for hippy-react.
-│   ├── hippy-shared                  # constant shared for different package.
-│   ├── hippy-style-parser            # style parser for Hippy.
+│   ├── hippy-vue-next-style-parser   # style parser for Hippy vue-next.
 │   ├── hippy-vue                     # Vue binding for Hippy.
 │   ├── hippy-vue-next                # Vue-next binding for Hippy.
 │   ├── hippy-vue-css-loader          # Webpack loader for convert CSS text to JS AST.

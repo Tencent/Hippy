@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import type { CallbackType } from '@hippy-shared/index';
+import type { CallbackType } from '../../config';
 import { getUniqueId, DEFAULT_ROOT_ID } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { preCacheNode } from '../../util/node-cache';

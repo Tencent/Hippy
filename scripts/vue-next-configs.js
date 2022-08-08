@@ -28,8 +28,7 @@ const { apiExtractor } = require('rollup-plugin-api-extractor');
 
 const VueVersion = require('../packages/hippy-vue-next/node_modules/@vue/runtime-core/package.json').version;
 const hippyVueNextPackage = require('../packages/hippy-vue-next/package.json');
-const hippyStyleParserPackage = require('../packages/hippy-style-parser/package.json');
-const hippySharedPackage = require('../packages/hippy-shared/package.json');
+const hippyStyleParserPackage = require('../packages/hippy-vue-next-style-parser/package.json');
 
 const andHippyVueNextString = ` and Hippy-Vue-Next v${hippyVueNextPackage.version}`;
 
@@ -72,19 +71,12 @@ function resolvePackage(src, extra = 'src') {
 }
 
 const builds = {
-  '@hippy/shared': {
-    entry: resolvePackage('hippy-shared', 'src/index.ts'),
-    dest: resolvePackage('hippy-shared', 'dist/index.js'),
+  '@hippy/hippy-vue-next-style-parser': {
+    entry: resolvePackage('hippy-vue-next-style-parser', 'src/index.ts'),
+    dest: resolvePackage('hippy-vue-next-style-parser', 'dist/index.js'),
     format: 'cjs',
-    moduleName: 'hippy-shared',
-    banner: banner('@hippy/shared', hippySharedPackage.version),
-  },
-  '@hippy/style-parser': {
-    entry: resolvePackage('hippy-style-parser', 'src/index.ts'),
-    dest: resolvePackage('hippy-style-parser', 'dist/index.js'),
-    format: 'cjs',
-    moduleName: 'hippy-style-parser',
-    banner: banner('@hippy/style-parser', hippyStyleParserPackage.version),
+    moduleName: 'hippy-vue-next-style-parser',
+    banner: banner('@hippy/hippy-vue-next-style-parser', hippyStyleParserPackage.version),
   },
   '@hippy/vue-next': {
     entry: resolvePackage('hippy-vue-next', 'src/index.ts'),

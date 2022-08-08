@@ -18,13 +18,12 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '@hippy-shared/index';
 import {
   type CssNodeType,
   type CssDeclarationType,
   parseCSS,
   translateColor,
-} from '@style-parser/index';
+} from '@hippy-vue-next-style-parser/index';
 import {
   type Component,
   type ComponentPublicInstance,
@@ -61,6 +60,7 @@ import {
   setHippyCachedInstanceParams,
 } from './util/instance';
 import { setScreenSize } from './util/screen';
+import type { NeedToTyped } from './config';
 
 /**
  * Hippy App type, override the mount method of Vue

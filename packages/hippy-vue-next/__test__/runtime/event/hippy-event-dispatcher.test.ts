@@ -26,7 +26,7 @@
 import '../../../src/runtime/event/hippy-event-dispatcher';
 import { createRenderer } from '@vue/runtime-core';
 
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../../../src/config';
 import { nodeOps } from '../../../src/node-ops';
 import { patchProp } from '../../../src/patch-prop';
 import type { TagComponent } from '../../../src/runtime/component/index';

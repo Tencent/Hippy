@@ -28,7 +28,7 @@
  *
  */
 
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../../config';
 import { normalizeTagName } from '../../util';
 import type { EventsUnionType, HippyEvent } from '../event/hippy-event';
 import type { NativeNodeProps } from '../native/native-node';

@@ -22,8 +22,8 @@
  * Hippy event bus, methods such as on off emit in Vue3 have been removed, and the event bus is implemented here
  */
 
-import type { NeedToTyped } from '@hippy-shared/index';
 import { TinyEmitter } from 'tiny-emitter';
+import type { NeedToTyped } from '../../config';
 
 const emitter = new TinyEmitter();
 

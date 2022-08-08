@@ -22,7 +22,7 @@
  * Hippy Native Node Props types, including properties, events, styles, and more
  */
 // type NativeNodeProps = NativeNodeNativeProps | NativeNodeEvent | NativeNodeStyle & NativeNodeDebugProps;
-import type { NeedToTyped } from '@hippy-shared/index';
+import type { NeedToTyped } from '../../config';
 
 export interface NativeNodeProps {
   [key: string]: NeedToTyped;

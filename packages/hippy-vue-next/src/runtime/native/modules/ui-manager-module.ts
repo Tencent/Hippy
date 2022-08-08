@@ -19,7 +19,7 @@
  */
 
 // The parameter lists of android and ios are inconsistent
-import type { NeedToTyped, CallbackType } from '@hippy-shared/index';
+import type { NeedToTyped, CallbackType } from '../../../config/index';
 
 type CallUIFunctionArgs =
   | [nodeId: number, funcName: string, args: NeedToTyped]

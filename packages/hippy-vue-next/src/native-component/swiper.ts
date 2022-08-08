@@ -19,9 +19,9 @@
  */
 
 /* eslint-disable no-param-reassign */
-import type { NeedToTyped } from '@hippy-shared/index';
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
+import type { NeedToTyped } from '../config';
 
 import { registerHippyTag } from '../runtime/component';
 import type { EventsUnionType } from '../runtime/event/hippy-event';

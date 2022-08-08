@@ -29,7 +29,7 @@
 /* eslint-disable no-continue */
 /* eslint-disable no-param-reassign */
 // eslint-disable-next-line max-classes-per-file
-import type { CssDeclarationType } from '@style-parser/index';
+import type { CssDeclarationType } from '@hippy-vue-next-style-parser/index';
 
 import type { HippyElement } from '../element/hippy-element';
 

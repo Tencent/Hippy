@@ -49,9 +49,47 @@ const NATIVE_COMPONENT_MAP = {
 // Hippy static file protocol address
 const HIPPY_STATIC_PROTOCOL = 'hpfile://';
 
+
+/**
+ * @public
+ */
+type NeedToTyped = any;
+
+/**
+  * 全局的样式存储标识名称
+  *
+  * @public
+  */
+const HIPPY_GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
+
+/**
+  * 全局待移除样式存储标识名称
+  * 当使用热更新时，过期的样式将会被添加到全局的dispose style中，即global[GLOBAL_DISPOSE_STYLE_NAME]
+  *
+  * @public
+  */
+const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
+
+/**
+  * @public
+  */
+type CallbackType = Function;
+
+/**
+  * @public
+  */
+interface CommonMapParams {
+  [key: string]: NeedToTyped;
+}
+
 export {
   HIPPY_DEBUG_ADDRESS,
   HIPPY_STATIC_PROTOCOL,
   NATIVE_COMPONENT_MAP,
   IS_PROD,
+  HIPPY_GLOBAL_STYLE_NAME,
+  HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
+  type CallbackType,
+  type CommonMapParams,
+  type NeedToTyped,
 };

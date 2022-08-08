@@ -53,8 +53,7 @@
       "shared/*": ["node_modules/vue/src/shared/*"],
       "sfc/*": ["node_modules/vue/src/sfc/*"],
       "he": ["packages/hippy-vue/src/util/entity-decoder"],
-      "@style-parser/*": ["packages/hippy-style-parser/src/*"],
-      "@hippy-shared/*": ["packages/hippy-shared/src/*"],
+      "@hippy-vue-next-style-parser/*": ["packages/hippy-vue-next-style-parser/src/*"],
     },
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
     // "typeRoots": [],                       /* List of folders to include type definitions from. */
