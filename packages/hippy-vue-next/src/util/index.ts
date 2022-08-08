@@ -97,7 +97,7 @@ export function capitalizeFirstLetter(str: string): string {
 }
 
 // regular expression of number format
-const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
+const numberRegEx = new RegExp('^(?=.+)[+-]?\\d{0,17}\\.?\\d{0,5}([Ee][+-]?\\d{1,5})?$');
 
 export function tryConvertNumber<T extends string | number>(
   str: T,
