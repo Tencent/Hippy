@@ -275,7 +275,7 @@ export interface NativeApiType {
 
   // convert the given color string to int32 recognized by Native
   parseColor: (color: string, { platform: string }?) => number;
-  // 获取指定元素的样式
+  // get the style of the specified element
   getElemCss: (element: HippyElement) => NeedToTyped;
 }
 

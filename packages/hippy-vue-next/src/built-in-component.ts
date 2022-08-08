@@ -107,7 +107,10 @@ const div: TagComponent = {
       case 'onScrollEndDrag':
         event.offsetX = nativeEventParams.contentOffset?.x;
         event.offsetY = nativeEventParams.contentOffset?.y;
-        // 如果是滚动事件并且事件响应中包含了滚动内容区域的尺寸，则将滚动内容区域的实际尺寸进行赋值
+        /**
+         * If it is a scroll event and the size of the scroll content area is included in the event response,
+         * the actual size of the scroll content area will be assigned
+         */
         if (nativeEventParams?.contentSize) {
           event.scrollHeight = nativeEventParams.contentSize.height;
           event.scrollWidth = nativeEventParams.contentSize.width;

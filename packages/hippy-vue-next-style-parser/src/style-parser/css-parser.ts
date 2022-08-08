@@ -30,11 +30,6 @@ import { translateColor } from './color-parser';
 // eslint-disable-next-line
 type NeedToTyped = any;
 
-/**
- * 属性map类型
- *
- * @public
- */
 export interface PropertiesMapType {
   textDecoration: 'string';
   boxShadowOffset: 'string';
@@ -47,19 +42,18 @@ export interface PropertiesMapType {
 }
 
 /**
- * css节点声明类型
+ * css node declaration type
  *
  * @public
  */
 export interface CssDeclarationType {
-  // 节点类型
   type: string;
   property: string;
   value: string | number;
 }
 
 /**
- * CSS AST 节点类型
+ * CSS AST type
  *
  * @public
  */
@@ -70,19 +64,19 @@ export interface CssNodeType {
 }
 
 /**
- * Color对象类型
+ * Color object
  *
  * @public
  */
 export interface ColorObject {
-  // 颜色数字值，native使用
+  // color value
   color: number;
-  // 颜色对比度
+  // color contrast
   ratio?: number | undefined;
 }
 
 /**
- * parse css的选项类型
+ * parse css options
  *
  * @public
  */
@@ -92,16 +86,15 @@ export interface CssParserOption {
 }
 
 /**
- * CSS节点对象类型
+ * CSS node
  *
  * @public
  */
 export interface CssNode {
-  // key为string，value可以是字符串，对象，数组等任意值
   [key: string]: NeedToTyped;
 }
 
-/** parse css 错误类型 */
+// parse css error type
 type NewError = Error & {
   reason: string;
   filename: number;
@@ -111,7 +104,7 @@ type NewError = Error & {
 };
 
 /**
- * 属性map
+ * properties map
  *
  * @public
  */
@@ -138,36 +131,36 @@ const LINEAR_GRADIENT_DIRECTION_MAP = {
   totopleft: 'totopleft',
 };
 
-// 角度单位
+// degree unit
 const DEGREE_UNIT = {
   TURN: 'turn',
   RAD: 'rad',
   DEG: 'deg',
 };
 
-// 评论的正则表达式
+// regular expression of comment
 const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
 
 /**
- * 将警告调试信息输出到console中
+ * Output warning debug information to console
  *
- * @param context - 待输出的上下文
+ * @param context - output content
  */
 function warn(...context: NeedToTyped[]): void {
-  // 生产环境不输出
   if (process.env.NODE_ENV === 'production') {
     return;
   }
 
-  // console统一封装处理
   // eslint-disable-next-line no-console
   console.warn(...context);
 }
 
-// 数字格式正则
+// regular expression of number
 const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
+
 /**
- * 将字符串尽可能转为数字
+ * convert to number
+ * @param str - target string or number
  */
 function tryConvertNumber(str: string | number): string | number {
   if (typeof str === 'number') {
@@ -186,9 +179,9 @@ function tryConvertNumber(str: string | number): string | number {
 }
 
 /**
- * 将px单位值转换为终端使用的pt单位值
+ * Convert the px unit value to the pt unit value used by the native
  *
- * @param value - 需要转换的单位值
+ * @param value - target px unit value
  */
 function convertPxUnitToPt(value) {
   // If value is number just ignore
@@ -206,10 +199,10 @@ function convertPxUnitToPt(value) {
 }
 
 /**
- * 将字符串的角度值转换为角度值
+ * Convert the angle value of a string to an angle value
  *
- * @param value - 需要转换的角度值
- * @param unit - 角度值的单位类型
+ * @param value - target value
+ * @param unit - unit type
  *
  * @public
  */
@@ -236,9 +229,9 @@ function convertToDegree(value: string, unit = DEGREE_UNIT.DEG): string {
 }
 
 /**
- * 获取linear gradient的角度值
+ * Get the angle value of the linear gradient
  *
- * @param value - 角度或方向值
+ * @param value - target value
  *
  * @public
  */
@@ -251,13 +244,13 @@ function getLinearGradientAngle(value: string): string {
   let angle = '180';
   const [direction, angleValue, angleUnit] = valueList;
   if (angleValue && angleUnit) {
-    // 处理角度类型的值
+    // handling values of type angular
     angle = convertToDegree(angleValue, angleUnit);
   } else if (
     direction
     && typeof LINEAR_GRADIENT_DIRECTION_MAP[direction] !== 'undefined'
   ) {
-    // 直接指明方向
+    // direct direction
     angle = LINEAR_GRADIENT_DIRECTION_MAP[direction];
   } else {
     warn('linear-gradient direction or angle is invalid, default value [to bottom] would be used');
@@ -266,9 +259,9 @@ function getLinearGradientAngle(value: string): string {
 }
 
 /**
- * 获取linear gradient的停止时的颜色值
+ * Get the color value of the linear gradient when it stops
  *
- * @param value - 颜色值
+ * @param value - color
  *
  * @public
  */
@@ -293,10 +286,10 @@ function getLinearGradientColorStop(value = ''): ColorObject | null {
 }
 
 /**
- * parse背景图样式属性，得到处理后的属性值
+ * parse background image style attribute
  *
- * @param property - 属性名
- * @param value - 值
+ * @param property - property name
+ * @param value - property value
  *
  * @public
  */
@@ -344,19 +337,16 @@ function parseBackgroundImage(
 }
 
 /**
- * 递归为每个添加non-enumerable的父节点
+ * Recursively add non-enumerable parent nodes
  *
- * @param obj - 需要添加父节点的对象
- * @param parent - 父节点
+ * @param obj - target object
+ * @param parent - parent node
  */
 function addParent(obj: CssNode, parent: CssNode | null) {
-  // 如果节点的type存在且类型为string，则节点属于Node
   const isNode = obj && typeof obj.type === 'string';
-  // 孩子节点的父节点，如果当前节点是节点类型，则孩子节点父节点设置为当前节点
-  // 否则使用更上层的父节点
   const childParent = isNode ? obj : parent;
 
-  // 取节点的所有key，并判断值，如果是数组和对象，则进行parent的添加
+  // Take all the keys of the node, and judge the value, if it is an array and an object, then recursively addParent
   Object.keys(obj).forEach((k) => {
     const value = obj[k];
     if (Array.isArray(value)) {
@@ -368,7 +358,7 @@ function addParent(obj: CssNode, parent: CssNode | null) {
     }
   });
 
-  // 如果是节点类型，则添加父节点，没有传入父节点则设为null
+  // If it is a node type, add a parent node, if no parent node is passed in, set it to null
   if (isNode) {
     Object.defineProperty(obj, 'parent', {
       configurable: true,
@@ -382,10 +372,10 @@ function addParent(obj: CssNode, parent: CssNode | null) {
 }
 
 /**
- * 将 css 代码 parse 为 AST 树
+ * parse css code into AST tree
  *
- * @param css - 待parse的css
- * @param options - parse选项
+ * @param css - css code
+ * @param options - parse options
  *
  * @public
  */
@@ -393,22 +383,17 @@ function parseCSS(
   css: string,
   options: CssParserOption = { source: 0 },
 ): CssNode {
-  /**
-   * Positional 位置信息
-   */
+  // position
   let lineno = 1;
   let column = 1;
 
   /**
-   * 基于 str 更新lineno 和 column的值
+   * update lineno and column
    */
   function updatePosition(str) {
-    // 读取有多少换行符，增加lineno的值
     const lines = str.match(/\n/g);
     if (lines) lineno += lines.length;
 
-    // 找到字符串最后一个换行符的位置，如果有，则
-    // 列数为字符串长度减去换行符位置，否则长度为字符串总长
     const i = str.lastIndexOf('\n');
     column = ~i ? str.length - i : column + str.length;
   }
@@ -416,7 +401,6 @@ function parseCSS(
   /**
    * Match `re` and return captures.
    */
-
   function match(re) {
     const m = re.exec(css);
     if (!m) {
@@ -429,14 +413,14 @@ function parseCSS(
   }
 
   /**
-   * 将css开头的空白去除，并更新位置信息
+   * Remove the whitespace at the beginning of css and update the location information
    */
   function whitespace() {
     match(/^\s*/);
   }
 
   /**
-   * 记录position并设置node.position的值
+   * Record the position and set the value of node.position
    */
   function position() {
     return (node) => {
@@ -450,10 +434,6 @@ function parseCSS(
       return node;
     };
   }
-
-  /**
-   * Error `msg`.
-   */
 
   const errorsList: NewError[] = [];
 
@@ -478,7 +458,6 @@ function parseCSS(
   /**
    * Parse comment.
    */
-
   function comment() {
     const pos = position();
     if (css.charAt(0) !== '/' || css.charAt(1) !== '*') {
@@ -513,7 +492,6 @@ function parseCSS(
   /**
    * Parse comments;
    */
-
   function comments(rawRules: CssNode[] = []) {
     let c;
     const commentRules = rawRules || [];
@@ -526,7 +504,7 @@ function parseCSS(
   }
 
   /**
-   * 生成规则集
+   * Generate rule set
    */
   function rules() {
     let node: CssNode | boolean;
@@ -534,7 +512,6 @@ function parseCSS(
     whitespace();
     comments(actualRules);
 
-    // 当css
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     while (css.length && css.charAt(0) !== '}' && (node = atrule() || rule())) {
       if (node) {
@@ -546,7 +523,7 @@ function parseCSS(
   }
 
   /**
-   * 处理样式表，得到rules列表
+   * Process the stylesheet and get a list of rules
    */
   function stylesheet() {
     const rulesList = rules();
@@ -562,14 +539,14 @@ function parseCSS(
   }
 
   /**
-   * 移除左大括号到内容间的空白
+   * Remove whitespace between opening brace and content
    */
   function open() {
     return match(/^{\s*/);
   }
 
   /**
-   * 移除右大括号到内容间的空白
+   * Remove whitespace between closing brace and content
    */
   function close() {
     return match(/^}/);
@@ -578,7 +555,6 @@ function parseCSS(
   /**
    * Parse selector.
    */
-
   function selector() {
     const matched = match(/^([^{]+)/);
     if (!matched) {
@@ -756,7 +732,6 @@ function parseCSS(
   /**
    * Parse rule.
    */
-
   function rule() {
     const pos = position();
     const sel = selector();
@@ -774,7 +749,6 @@ function parseCSS(
   /**
    * Parse keyframe.
    */
-
   function keyframe() {
     let m;
     const vals: string[] = [];
@@ -799,7 +773,6 @@ function parseCSS(
   /**
    * Parse keyframes.
    */
-
   function atkeyframes() {
     const pos = position();
     let m = match(/^@([-\w]+)?keyframes\s*/);
@@ -838,7 +811,6 @@ function parseCSS(
   /**
    * Parse supports.
    */
-
   function atsupports() {
     const pos = position();
     const m = match(/^@supports *([^{]+)/);
@@ -864,7 +836,6 @@ function parseCSS(
   /**
    * Parse host.
    */
-
   function athost() {
     const pos = position();
     const m = match(/^@host\s*/);
@@ -892,7 +863,6 @@ function parseCSS(
   /**
    * Parse media.
    */
-
   function atmedia() {
     const pos = position();
     const m = match(/^@media *([^{]+)/);
@@ -922,7 +892,6 @@ function parseCSS(
   /**
    * Parse custom-media.
    */
-
   function atcustommedia() {
     const pos = position();
     const m = match(/^@custom-media\s+(--[^\s]+)\s*([^{;]+);/);
@@ -940,7 +909,6 @@ function parseCSS(
   /**
    * Parse paged media.
    */
-
   function atpage() {
     const pos = position();
     const m = match(/^@page */);
@@ -976,7 +944,6 @@ function parseCSS(
   /**
    * Parse document.
    */
-
   function atdocument() {
     const pos = position();
     const m = match(/^@([-\w]+)?document *([^{]+)/);
@@ -1008,7 +975,6 @@ function parseCSS(
   /**
    * Parse font-face.
    */
-
   function atfontface() {
     const pos = position();
     const m = match(/^@font-face\s*/);
@@ -1041,7 +1007,6 @@ function parseCSS(
   /**
    * Parse non-block at-rules
    */
-
   function compileAtRule(name) {
     const re = new RegExp(`^@${name}\\s*([^;]+);`);
     return () => {
@@ -1059,25 +1024,21 @@ function parseCSS(
   /**
    * Parse import
    */
-
   const atimport = compileAtRule('import');
 
   /**
    * Parse charset
    */
-
   const atcharset = compileAtRule('charset');
 
   /**
    * Parse namespace
    */
-
   const atnamespace = compileAtRule('namespace');
 
   /**
    * Parse at rule.
    */
-
   // eslint-disable-next-line complexity
   function atrule() {
     if (css[0] !== '@') {

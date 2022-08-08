@@ -107,7 +107,7 @@ export function registerSwiper(vueApp: App): void {
       },
     },
     render() {
-      // 事件转发，对于dropped等给vue绑定的事件，同时也转发给pageSelected这种native的实际名称
+      // event forwarding, e.g. dropped event bound in vue is forwarded to the event whose native name is pageSelected
       const on = getEventRedirects.call(this, [
         ['dropped', 'pageSelected'],
         ['dragging', 'pageScroll'],

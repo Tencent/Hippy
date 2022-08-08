@@ -20,11 +20,6 @@
 
 /* eslint-disable no-bitwise */
 /* eslint-disable no-mixed-operators */
-/**
- * 样式颜色parser器
- */
-
-/** 颜色map类型 */
 export interface ColorType {
   [key: string]: number;
 }
@@ -381,10 +376,10 @@ function baseColor(color: string | number) {
 }
 
 /**
- * 将css的颜色数值或字符串描述转换为Native支持的颜色格式
+ * Convert css color value or string description to native supported color format
  *
- * @param color - 颜色值
- * @param options - 配置项
+ * @param color - color value or string description
+ * @param options - options
  *
  * @public
  */
@@ -400,7 +395,7 @@ export function translateColor(
 
   int32Color = ((int32Color << 24) | (int32Color >>> 8)) >>> 0;
 
-  // android平台颜色需要处理
+  // the android platform color needs to be processed
   if (options?.platform === 'android') {
     int32Color |= 0;
   }

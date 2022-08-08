@@ -474,7 +474,6 @@ export class HippyNode extends HippyEventTarget {
       // render the child node if the child node is not rendered
       renderInsertChildNativeNode(parentNode.convertToNativeNodes(true));
       // update the isMounted flag
-      // 打标记
       parentNode.eachNode((rawNode: HippyNode) => {
         const node = rawNode;
         if (!node.isMounted && node.isNeedInsertToNative) {

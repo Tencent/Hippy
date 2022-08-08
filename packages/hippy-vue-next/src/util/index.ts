@@ -255,7 +255,7 @@ export function getNormalizeEventName(name: string): string {
  * e.g. swiper, the event provided to the user defined on the vue is different from native event name
  * so it needs to be converted
  *
- * @param events - 事件列表
+ * @param events - event list
  */
 export function getEventRedirects(
   this: ComponentPublicInstance,
