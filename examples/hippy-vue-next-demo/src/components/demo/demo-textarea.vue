@@ -18,6 +18,34 @@
         输入的文本为：{{ content }}
       </p>
     </div>
+    <label v-if="isAndroid">break-strategy={{ breakStrategy }}</label>
+    <div v-if="isAndroid">
+      <textarea
+        class="textarea"
+        :defaultValue="longText"
+        :break-strategy="breakStrategy"
+      />
+      <div class="button-bar">
+        <button
+          class="button"
+          @click="() => changeBreakStrategy('simple')"
+        >
+          <span>simple</span>
+        </button>
+        <button
+          class="button"
+          @click="() => changeBreakStrategy('high_quality')"
+        >
+          <span>high_quality</span>
+        </button>
+        <button
+          class="button"
+          @click="() => changeBreakStrategy('balanced')"
+        >
+          <span>balanced</span>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -25,6 +53,7 @@
 import {
   type HippyElement,
   type HippyInputElement,
+  Native,
 } from '@hippy/vue-next';
 import { defineComponent, ref } from '@vue/runtime-core';
 
@@ -34,6 +63,7 @@ export default defineComponent({
   setup() {
     const textareaRef = ref(null);
     const content = ref('The quick brown fox jumps over the lazy dog，快灰狐狸跳过了懒 🐕。');
+    const breakStrategy = ref('simple');
 
     /**
        * After listening to the size change of the text box, output event info
@@ -61,11 +91,19 @@ export default defineComponent({
       }
     };
 
+    const changeBreakStrategy = (strategy: string) => {
+      breakStrategy.value = strategy;
+    };
+
     return {
       content,
       textareaRef,
+      breakStrategy,
+      isAndroid: Native.isAndroid(),
+      longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is the name of a town on Anglesey, an island of Wales.',
       contentSizeChange,
       onClickBlurAllInput,
+      changeBreakStrategy,
     };
   },
 });

@@ -157,12 +157,45 @@
           </button>
         </div>
       </div>
+      <label v-if="isAndroid">break-strategy={{ breakStrategy }}</label>
+      <div
+        v-if="isAndroid"
+        class="p-demo-content"
+      >
+        <p
+          :break-strategy="breakStrategy"
+          :style="{ borderWidth: 1, borderColor: 'gray' }"
+        >
+          {{ longText }}
+        </p>
+        <div class="button-bar">
+          <button
+            class="button"
+            @click.stop="() => changeBreakStrategy('simple')"
+          >
+            <span>simple</span>
+          </button>
+          <button
+            class="button"
+            @click.stop="() => changeBreakStrategy('high_quality')"
+          >
+            <span>high_quality</span>
+          </button>
+          <button
+            class="button"
+            @click.stop="() => changeBreakStrategy('balanced')"
+          >
+            <span>balanced</span>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from '@vue/runtime-core';
+import { Native } from '@hippy/vue-next';
 
 import { warn } from '../../util';
 
@@ -185,6 +218,7 @@ export default defineComponent({
       textShadowRadius: 3,
       textShadowColor: 'grey',
     });
+    const breakStrategy = ref('simple');
 
     // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
     const onTouchTextStart = (evt: Event) => {
@@ -227,6 +261,10 @@ export default defineComponent({
       textShadowIndex.value += 1;
     };
 
+    const changeBreakStrategy = (strategy: string) => {
+      breakStrategy.value = strategy;
+    };
+
     return {
       img1: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEXRSTlMA9QlZEMPc2Mmmj2VkLEJ4Rsx+pEgAAAChSURBVCjPjVLtEsMgCDOAdbbaNu//sttVPes+zvGD8wgQCLp/TORbUGMAQtQ3UBeSAMlF7/GV9Cmb5eTJ9R7H1t4bOqLE3rN2UCvvwpLfarhILfDjJL6WRKaXfzxc84nxAgLzCGSGiwKwsZUB8hPorZwUV1s1cnGKw+yAOrnI+7hatNIybl9Q3OkBfzopCw6SmDVJJiJ+yD451OS0/TNM7QnuAAbvCG0TSAAAAABJRU5ErkJggg==',
       img2: `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -234,10 +272,13 @@ export default defineComponent({
         SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
         w2QwqipkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefw
         eIFQU0EfnGDRoQAAAAASUVORK5CYII=`,
+      longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is the name of a town on Anglesey, an island of Wales.',
       labelTouchStatus,
       textMode,
       textShadow,
       textShadowIndex,
+      isAndroid: Native.isAndroid(),
+      breakStrategy,
       onTouchTextEnd,
       onTouchTextMove,
       onTouchTextStart,
@@ -245,6 +286,7 @@ export default defineComponent({
       incrementLine,
       changeMode,
       changeTextShadow,
+      changeBreakStrategy,
     };
   },
 });
