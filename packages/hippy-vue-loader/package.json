@@ -1,17 +1,17 @@
 {
   "name": "@hippy/vue-loader",
-  "version": "2.14.3",
+  "version": "unspecified",
   "description": "Vue single-file component loader for Webpack",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "scripts": {},
-  "author": "Evan You",
+  "author": "OpenHippy Team",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
   },
-  "homepage": "http://hippyjs.org",
-  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-loader",
+  "homepage": "https://hippyjs.org",
+  "repository": "https://github.com/Tencent/Hippy",
   "peerDependencies": {
     "cache-loader": "*",
     "css-loader": "<=5.0.1",

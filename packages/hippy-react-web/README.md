@@ -9,32 +9,6 @@
 `@hippy/react-web` is the web adapter for `hippy-react`, it keeps the same interface with `hippy-react`
 To make hippy-react app running in web browser.
 
-The project is still working progress, contributions are welcome.
-
 ## How to use
 
-Make a alias in webpack config for web building will be ok.
-
-```javascript
-// webpack-production.js
-module.exports = {
-  // ...
-  // Other configs
-  resolve: {
-    alias: {
-      // Make the the hippy-react-web alias to hippy-react
-      '@hippy/react': '@hippy/react-web',
-    },
-  },
-};
-```
-
-## Project progress
-
-| Not Working        |
-| --------------     |
-| Navigator          |
-| NetInfo            |
-| RippleViewAndorid  |
-| WaterFallView      |
-| VideoPlayer        |
+Please refer to [Hippy-React-Web](https://hippyjs.org/#/hippy-react/web).

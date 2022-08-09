@@ -1,11 +1,11 @@
 {
   "name": "@hippy/react",
-  "version": "2.14.3",
+  "version": "unspecified",
   "description": "Hippy react framework",
   "main": "dist/index.js",
-  "homepage": "http://hippyjs.org",
-  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-react",
-  "author": "XQ Kuang <x@kxq.io>",
+  "homepage": "https://hippyjs.org",
+  "repository": "https://github.com/Tencent/Hippy",
+  "author": "OpenHippy Team",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
