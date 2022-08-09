@@ -133,7 +133,7 @@ export default class NetInfoExample extends React.Component {
       </View>
     );
     return (
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView style={{ paddingHorizontal: 10 }}>
         {renderTitle('Fetch')}
         <View style={[styles.wrapper]}
         >

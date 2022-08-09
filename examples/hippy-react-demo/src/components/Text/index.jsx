@@ -140,7 +140,7 @@ export default class TextExpo extends React.Component {
       </View>
     );
     return (
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView style={{ paddingHorizontal: 10 }}>
         {renderTitle('shadow')}
         <View style={[styles.itemContent, { height: 60 }]} onClick={() => {
           let textShadowColor = 'red';
@@ -264,8 +264,8 @@ export default class TextExpo extends React.Component {
           <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
         </View>
         {renderTitle('Text Nested')}
-        <View style={[styles.itemContent, { height: 100 }]}>
-          <Text>
+        <View style={[styles.itemContent, { height: 150 }]}>
+          <Text style={{ height: 100, lineHeight: 50 }}>
             <Text numberOfLines={1} style={styles.normalText}>后面有张图片</Text>
             <Image style={{ width: 70, height: 35 }} source={{ uri: imgURL }} />
             <Text numberOfLines={1} style={styles.customFont}>前面有张图片</Text>
