@@ -69,26 +69,26 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     case 'callBack': {
-      if (callObj.result === 1) {
-        resp = 'error: native no modules';
-      } else if (callObj.callId && callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
+      if (callObj.callId && callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
+        if (callObj.result !== 0) {
+          resp = 'error: native no modules';
+          break;
+        }
         __GLOBAL__.canRequestAnimationFrame = true;
-
         if (__GLOBAL__.requestAnimationFrameQueue[callObj.callId]) {
           __GLOBAL__.requestAnimationFrameQueue[callObj.callId].forEach((cb) => {
             if (typeof cb === 'function') {
               cb(callObj.params);
             }
           });
-
           delete __GLOBAL__.requestAnimationFrameQueue[callObj.callId];
         }
       } else if (callObj.callId && __GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];
-        if (callObj.result !== 0 && typeof callbackObj.reject === 'function') {
-          callbackObj.reject(callObj.params);
+        if (callObj.result !== 0) {
+          typeof callbackObj.reject === 'function' && callbackObj.reject(callObj.params);
         } else {
-          callbackObj.cb(callObj.params);
+          typeof callbackObj.cb === 'function' && callbackObj.cb(callObj.params);
         }
         if (callbackObj.type === 0 || callbackObj.type === 1) {
           delete __GLOBAL__.moduleCallList[callObj.callId];
