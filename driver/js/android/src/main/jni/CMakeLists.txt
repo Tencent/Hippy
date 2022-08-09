@@ -37,8 +37,8 @@ add_library(${PROJECT_NAME} SHARED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 if (HIDDEN_LIBRARY_SYMBOL)
-  set_target_properties(${PROJECT_NAME}
-      PROPERTIES LINK_DEPENDS ${PROJECT_SOURCE_DIR}/minimum_exports.lst)
+  target_link_options(${PROJECT_NAME} PRIVATE
+      "-Wl,--version-script=${PROJECT_SOURCE_DIR}/minimum_exports.lst")
 endif ()
 if (${ANDROID_STL} STREQUAL "c++_static")
   target_link_options(${PROJECT_NAME} PRIVATE
