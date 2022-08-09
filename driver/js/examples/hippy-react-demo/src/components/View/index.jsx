@@ -49,7 +49,7 @@ export default function ViewExpo() {
     </View>
   );
   return (
-    <ScrollView style={{ padding: 10 }}>
+    <ScrollView style={{ paddingHorizontal: 10 }}>
       {renderTitle('backgroundColor')}
       <View style={[styles.rectangle, { backgroundColor: '#4c9afa' }]} />
       {renderTitle('backgroundImage')}
