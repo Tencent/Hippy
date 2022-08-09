@@ -26,7 +26,6 @@ on:
       - '**.cxx'
       - '**.mm?'
       - '**.swift'
-      - '**.podspec'
       - '**.cmake'
       - '**.java'
       - '**.txt'
