@@ -23,6 +23,7 @@ import java.io.InputStream;
 
 import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.renderer.utils.UrlUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -39,9 +40,9 @@ public class ImageDataHolder implements ImageDataSupplier {
     private static final String PREFIX_IMAGE_SOURCE_FILE = "file://";
     private static final String PREFIX_IMAGE_SOURCE_ASSETS = "assets://";
     private static final String PREFIX_IMAGE_SOURCE_BASE64 = ";base64,";
-
-    @Nullable
-    private String mSource;
+    private final String mSource;
+    private boolean mHasCached = false;
+    private boolean mHasAttached = false;
     @Nullable
     private Drawable mDrawable;
     @Nullable
@@ -51,21 +52,63 @@ public class ImageDataHolder implements ImageDataSupplier {
     @Nullable
     private String mImageType;
 
+    public ImageDataHolder(@NonNull String source) {
+        mSource = source;
+    }
+
     @Override
+    public void setCacheState(boolean hasCached) {
+        mHasCached = hasCached;
+    }
+
+    @Override
+    public void setAttachState(boolean hasAttached) {
+        mHasAttached = hasAttached;
+    }
+
+    @Override
+    public void clear() {
+        if (mHasCached || mHasAttached) {
+            return;
+        }
+        if (mBitmap != null) {
+            if (!UrlUtils.isWebUrl(mSource)) {
+                mBitmap.recycle();
+            }
+            mBitmap = null;
+        }
+        mGifMovie = null;
+        mDrawable = null;
+    }
+
+    @Override
+    @Nullable
     public Bitmap getBitmap() {
         return mBitmap;
     }
 
     @Override
+    @NonNull
     public String getSource() {
         return mSource;
     }
 
     @Override
+    @Nullable
     public Drawable getDrawable() {
         return mDrawable;
     }
 
+    @Override
+    @Nullable
+    public Movie getGifMovie() {
+        return mGifMovie;
+    }
+
+    @Override
+    public boolean checkImageData() {
+        return (mBitmap != null && !mBitmap.isRecycled()) || mGifMovie != null;
+    }
 
     @Override
     public int getImageWidth() {
@@ -143,19 +186,14 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     public void setData(@NonNull String source) {
-        mSource = source;
-        if (mSource.startsWith(PREFIX_IMAGE_SOURCE_DATA)) {
+        if (source.startsWith(PREFIX_IMAGE_SOURCE_DATA)) {
             handleBase64Data(source);
-        } else if (mSource.startsWith(PREFIX_IMAGE_SOURCE_FILE)) {
-            String filePath = mSource.substring(PREFIX_IMAGE_SOURCE_FILE.length());
+        } else if (source.startsWith(PREFIX_IMAGE_SOURCE_FILE)) {
+            String filePath = source.substring(PREFIX_IMAGE_SOURCE_FILE.length());
             setData(new File(filePath));
-        } else if (mSource.startsWith(PREFIX_IMAGE_SOURCE_ASSETS)) {
+        } else if (source.startsWith(PREFIX_IMAGE_SOURCE_ASSETS)) {
             handleAssetsFileData(source);
         }
-    }
-
-    public Movie getGIF() {
-        return mGifMovie;
     }
 
     public boolean isAnimated() {
@@ -174,7 +212,7 @@ public class ImageDataHolder implements ImageDataSupplier {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }  finally {
+        } finally {
             if (inputStream != null) {
                 try {
                     inputStream.close();

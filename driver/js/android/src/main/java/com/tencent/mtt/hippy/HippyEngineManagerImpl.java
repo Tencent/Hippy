@@ -907,6 +907,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         public void destroy(boolean onReLoad) {
+            if (onReLoad && mRootView != null) {
+                onInstanceDestroy(mRootView.getId());
+            }
             if (mBridgeManager != null) {
                 mBridgeManager.destroy();
             }

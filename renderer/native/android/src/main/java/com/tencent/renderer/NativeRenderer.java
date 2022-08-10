@@ -22,7 +22,6 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_Q
 
 import android.content.Context;
 import android.text.Layout;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -37,12 +36,9 @@ import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
-
-import com.tencent.renderer.utils.DisplayUtils;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
 
@@ -75,7 +71,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String LAYOUT_TOP = "top";
     private static final String LAYOUT_WIDTH = "width";
     private static final String LAYOUT_HEIGHT = "height";
-    private static final int MAX_UI_TASK_QUEUE_CAPACITY = 10000;
+    private static final int MAX_UI_TASK_QUEUE_CAPACITY = 1000;
     @Nullable
     private FrameworkProxy mFrameworkProxy;
     @Nullable
@@ -353,7 +349,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void createNode(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
-        final List<UITaskExecutor> taskList = new ArrayList<>();
+        final List<UITaskExecutor> createNodeTaskList = new ArrayList<>();
+        final List<UITaskExecutor> createViewTaskList = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -392,16 +389,34 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final int pid = nodePid;
             final int index = nodeIndex;
             final String name = className;
-            UITaskExecutor task = new UITaskExecutor() {
+            UITaskExecutor createNodeTask = new UITaskExecutor() {
                 @Override
                 public void exec() {
                     mRenderManager.createNode(rootId, id, pid, index, name, props);
                 }
             };
-            taskList.add(task);
+            createNodeTaskList.add(createNodeTask);
+            UITaskExecutor createViewTask = new UITaskExecutor() {
+                @Override
+                public void exec() {
+                    mRenderManager.preCreateView(rootId, id, pid, name, props);
+                }
+            };
+            createViewTaskList.add(createViewTask);
         }
-        if (!taskList.isEmpty()) {
-            addUITask(getMassTaskExecutor(taskList));
+        if (!createNodeTaskList.isEmpty()) {
+            addUITask(getMassTaskExecutor(createNodeTaskList));
+        }
+        if (!createViewTaskList.isEmpty()) {
+            // The task of creating render nodes will not be executed until batch end,
+            // so we can pre create view, reduce render time by creating in parallel.
+            final UITaskExecutor task = getMassTaskExecutor(createViewTaskList);
+            UIThreadUtils.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    task.exec();
+                }
+            });
         }
     }
 
@@ -671,8 +686,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     @Nullable
     public VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
-            @NonNull String className,
-            @Nullable Map<String, Object> props) {
+            @NonNull String className, @Nullable Map<String, Object> props) {
         return mRenderManager.createVirtualNode(rootId, id, pid, index, className, props);
     }
 

@@ -25,30 +25,15 @@ import com.tencent.renderer.NativeRendererManager;
 import android.content.Context;
 import android.view.View;
 
-import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_HAS_DTEB_ID;
-
 @SuppressWarnings("rawtypes")
 @HippyController(name = HippyCustomPropsController.CLASS_NAME)
 public class HippyCustomPropsController extends HippyViewController {
 
     public static final String CLASS_NAME = "CustomProps";
-    public static final String DT_EBLID = "dt_elementBizLeafIdentifier";
 
     @Override
     protected View createViewImpl(Context context) {
         return null;
     }
 
-    protected void onSetDTElementBizLeafIdentifier(View view) {
-        if (view == null) {
-            return;
-        }
-        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
-        if (nativeRenderer != null) {
-            RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view);
-            if (node != null) {
-                node.setNodeFlag(FLAG_HAS_DTEB_ID);
-            }
-        }
-    }
 }

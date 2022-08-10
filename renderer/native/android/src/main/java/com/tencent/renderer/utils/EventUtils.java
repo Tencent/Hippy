@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
@@ -141,6 +142,12 @@ public class EventUtils {
         send(view, view.getId(), eventName, params, false, false, EventType.EVENT_TYPE_COMPONENT);
     }
 
+    @MainThread
+    public static void sendComponentEvent(@NonNull RenderNode node, @NonNull String eventName,
+            @Nullable Object params) {
+        send(node, eventName, params, false, false, EventType.EVENT_TYPE_COMPONENT);
+    }
+
     /**
      * Dispatch gesture event, such as onClick, onLongClick, onPressIn, onPressOut, onTouchDown,
      * onTouchMove, onTouchEnd, onTouchCancel.
@@ -232,5 +239,12 @@ public class EventUtils {
                         useCapture, useBubble, eventType);
             }
         }
+    }
+
+    private static void send(@NonNull RenderNode node, @NonNull String eventName,
+            @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType) {
+        NativeRender nativeRenderer = node.getNativeRender();
+        nativeRenderer.dispatchEvent(node.getRootId(), node.getId(), eventName, params, useCapture,
+                useBubble, eventType);
     }
 }

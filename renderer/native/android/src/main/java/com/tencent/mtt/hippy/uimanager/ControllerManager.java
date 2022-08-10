@@ -16,8 +16,10 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_ALREADY_UPDATED;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
 
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,14 +31,10 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.utils.DimensionsUtil;
-import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.list.HippyListItemViewController;
-import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.hippy.views.modal.HippyModalHostManager;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterViewController;
 import com.tencent.mtt.hippy.views.refresh.HippyPullHeaderViewController;
@@ -56,6 +54,7 @@ import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.component.text.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,7 +70,9 @@ public class ControllerManager {
     @NonNull
     private final ControllerRegistry mControllerRegistry;
     @NonNull
-    final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
+    private final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
+    @Nullable
+    private Map<Integer, SparseArray<View>> mPreViews;
 
     public ControllerManager(@NonNull Renderer renderer) {
         mRenderer = renderer;
@@ -87,6 +88,11 @@ public class ControllerManager {
 
     public RenderManager getRenderManager() {
         return ((NativeRender) mRenderer).getRenderManager();
+    }
+
+    @NonNull
+    public NativeRender getNativeRender() {
+        return (NativeRender) mRenderer;
     }
 
     @NonNull
@@ -164,7 +170,31 @@ public class ControllerManager {
         return findView(rootId, id) != null;
     }
 
-    public View createView(int rootId, int id, @NonNull String className,
+    private void addPreView(@NonNull View view, int rootId, int id) {
+        if (mPreViews == null) {
+            mPreViews = new HashMap<>();
+        }
+        SparseArray<View> views = mPreViews.get(rootId);
+        if (views == null) {
+            views = new SparseArray<>();
+            mPreViews.put(rootId, views);
+        }
+        views.put(id, view);
+    }
+
+    @Nullable
+    public View getPreView(int rootId, int id) {
+        if (mPreViews == null) {
+            return null;
+        }
+        SparseArray<View> views = mPreViews.get(rootId);
+        if (views == null) {
+            return null;
+        }
+        return views.get(id);
+    }
+
+    public void preCreateView(int rootId, int id, @NonNull String className,
             @Nullable Map<String, Object> props) {
         View view = mControllerRegistry.getView(rootId, id);
         if (view == null) {
@@ -173,17 +203,40 @@ public class ControllerManager {
                 HippyViewController controller = mControllerRegistry.getViewController(className);
                 view = controller.createView(rootView, id, mRenderer, className, props);
                 if (view != null) {
-                    mControllerRegistry.addView(view);
+                    addPreView(view, rootId, id);
                 }
+            }
+        }
+    }
+
+    @Nullable
+    public View createView(int rootId, int id, @NonNull String className,
+            @Nullable Map<String, Object> props) {
+        View view = mControllerRegistry.getView(rootId, id);
+        if (view == null) {
+            view = getPreView(rootId, id);
+            if (view == null) {
+                View rootView = mControllerRegistry.getRootView(rootId);
+                if (rootView == null) {
+                    return null;
+                }
+                HippyViewController controller = mControllerRegistry.getViewController(className);
+                if (controller == null) {
+                    return null;
+                }
+                view = controller.createView(rootView, id, mRenderer, className, props);
+            }
+            if (view != null) {
+                mControllerRegistry.addView(view, rootId, id);
             }
         }
         return view;
     }
 
-    public void updateView(int rootId, int id, @NonNull String name, @Nullable Map<String, Object> newProps,
+    public void updateView(@NonNull RenderNode node, @Nullable Map<String, Object> newProps,
             @Nullable Map<String, Object> events) {
-        View view = mControllerRegistry.getView(rootId, id);
-        HippyViewController controller = mControllerRegistry.getViewController(name);
+        View view = mControllerRegistry.getView(node.getRootId(), node.getId());
+        HippyViewController controller = mControllerRegistry.getViewController(node.getClassName());
         if (view == null || controller == null) {
             return;
         }
@@ -199,8 +252,9 @@ public class ControllerManager {
             // If merge props and events failed, just use empty map
         }
         if (!total.isEmpty()) {
-            mControllerUpdateManger.updateProps(controller, view, total);
+            mControllerUpdateManger.updateProps(node, controller, view, total);
             controller.onAfterUpdateProps(view);
+            node.setNodeFlag(FLAG_ALREADY_UPDATED);
         }
     }
 
@@ -224,7 +278,9 @@ public class ControllerManager {
         HippyViewController controller = mControllerRegistry.getViewController(name);
         if (controller != null) {
             View view = mControllerRegistry.getView(rootId, id);
-            controller.updateExtra(view, extra);
+            if (view != null) {
+                controller.updateExtra(view, extra);
+            }
         }
     }
 
@@ -250,24 +306,28 @@ public class ControllerManager {
         }
     }
 
-    public boolean isControllerLazy(String className) {
+    public boolean checkComponentProperty(@NonNull String key) {
+        return mControllerUpdateManger.checkComponentProperty(key);
+    }
+
+    public boolean checkLazy(String className) {
         return mControllerRegistry.getControllerHolder(className).isLazy();
     }
 
-    public void replaceID(int rootId, int oldId, int newId) {
+    public void replaceId(int rootId, int oldId, int newId) {
         View view = mControllerRegistry.getView(rootId, oldId);
         mControllerRegistry.removeView(rootId, oldId);
         if (view == null) {
             return;
         }
-        view.setId(newId);
-        if (view instanceof HippyRecycler) {
-            ((HippyRecycler) view).clear();
+        if (view instanceof FlatViewGroup) {
+            ((FlatViewGroup) view).onReplaceId(rootId, oldId, newId);
         }
         if (view instanceof HippyHorizontalScrollView) {
             ((HippyHorizontalScrollView) view).setContentOffset4Reuse();
         }
-        mControllerRegistry.addView(view);
+        view.setId(newId);
+        mControllerRegistry.addView(view, rootId, newId);
     }
 
     public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {
@@ -305,16 +365,16 @@ public class ControllerManager {
             return;
         }
         HippyController controllerAnnotation = controller.getClass().getAnnotation(HippyController.class);
-        boolean useSystemStandardType =
-                controllerAnnotation != null ? controllerAnnotation.useSystemStandardType() : false;
+        boolean dispatchWithStandardType =
+                controllerAnnotation != null ? controllerAnnotation.dispatchWithStandardType() : false;
         if (promise == null) {
-            if (useSystemStandardType) {
+            if (dispatchWithStandardType) {
                 controller.dispatchFunction(view, functionName, params);
             } else {
                 controller.dispatchFunction(view, functionName, new HippyArray(params));
             }
         } else {
-            if (useSystemStandardType) {
+            if (dispatchWithStandardType) {
                 controller.dispatchFunction(view, functionName, params, promise);
             } else {
                 controller.dispatchFunction(view, functionName, new HippyArray(params), promise);
@@ -330,10 +390,16 @@ public class ControllerManager {
         }
     }
 
+    public void onBatchEnd() {
+        if (mPreViews != null) {
+            mPreViews.clear();
+        }
+    }
+
     public void onBatchComplete(int rootId, int id, String className) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(rootId, id);
-        if (view != null && controller != null) {
+        if (view != null && controller != null && !className.equals(NodeProps.ROOT_NODE)) {
             controller.onBatchComplete(view);
         }
     }

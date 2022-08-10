@@ -360,7 +360,7 @@ public class TextVirtualNode extends VirtualNode {
             return;
         }
         ops.add(new SpanOperation(start, end, createForegroundColorSpan()));
-        if (mLetterSpacing != 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (mLetterSpacing != 0) {
             ops.add(new SpanOperation(start, end,
                     new TextLetterSpacingSpan(mLetterSpacing)));
         }

@@ -33,7 +33,7 @@ import com.tencent.renderer.utils.ArrayUtils;
 import java.util.List;
 
 @SuppressWarnings({"deprecation", "unused"})
-@HippyController(name = HippyWebViewController.CLASS_NAME, useSystemStandardType = true)
+@HippyController(name = HippyWebViewController.CLASS_NAME, dispatchWithStandardType = true)
 public class HippyWebViewController extends HippyViewController<HippyWebView> {
 
     public static final String CLASS_NAME = "WebView";

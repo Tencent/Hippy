@@ -17,8 +17,10 @@
 package com.tencent.link_supplier.proxy.framework;
 
 import android.graphics.Bitmap;
+import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 public interface ImageDataSupplier {
@@ -30,9 +32,20 @@ public interface ImageDataSupplier {
     Bitmap getBitmap();
 
     @Nullable
+    Movie getGifMovie();
+
+    boolean checkImageData();
+
+    @NonNull
     String getSource();
 
     int getImageWidth();
 
     int getImageHeight();
+
+    void clear();
+
+    void setCacheState(boolean hasCached);
+
+    void setAttachState(boolean hasAttached);
 }

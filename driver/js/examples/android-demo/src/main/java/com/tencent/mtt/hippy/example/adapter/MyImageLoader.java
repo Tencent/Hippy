@@ -1,3 +1,19 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.tencent.mtt.hippy.example.adapter;
 
 import android.content.Context;
@@ -16,14 +32,17 @@ import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.image.HippyImageView;
 import com.tencent.renderer.component.image.ImageDataHolder;
 import com.tencent.renderer.component.image.ImageLoader;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings({"unused", "deprecation"})
 public class MyImageLoader extends ImageLoader {
@@ -31,6 +50,7 @@ public class MyImageLoader extends ImageLoader {
     private Timer mTimer = new Timer("MyImageLoader", true);
     private Handler mHandler = new Handler(Looper.getMainLooper());
     private Context myContext;
+    private HashMap<String, Long> monitor = new HashMap<>();
 
     public MyImageLoader(Context context) {
         myContext = context;
@@ -49,7 +69,7 @@ public class MyImageLoader extends ImageLoader {
         Object propsObj;
         if (paramsObj instanceof Map) {
             //noinspection rawtypes
-            propsObj = ((Map) paramsObj).get(HippyImageView.IMAGE_PROPS);
+            propsObj = ((Map) paramsObj).get("props");
         } else {
             propsObj = paramsObj;
         }
@@ -80,7 +100,7 @@ public class MyImageLoader extends ImageLoader {
         Glide.with(myContext).load(url).into(new SimpleTarget() {
             @Override
             public void onResourceReady(final Object object, GlideAnimation glideAnimation) {
-                final ImageDataHolder supplier = new ImageDataHolder();
+                final ImageDataHolder supplier = new ImageDataHolder(url);
                 if (object instanceof GifDrawable) {
                     mTimer.schedule(new TimerTask() {
                         @Override
@@ -96,25 +116,14 @@ public class MyImageLoader extends ImageLoader {
                         }
                     }, 0);
                 } else if (object instanceof GlideBitmapDrawable) {
-                    mTimer.schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            // 这里setData会解码，耗时，所以在子线程做
-							supplier.setData(((GlideBitmapDrawable) object).getBitmap());
-                            mHandler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    requestCallback.onRequestSuccess(supplier);
-                                }
-                            });
-                        }
-                    }, 0);
+                    supplier.setData(((GlideBitmapDrawable) object).getBitmap());
+                    requestCallback.onRequestSuccess(supplier);
                 }
             }
 
             @Override
             public void onLoadFailed(Exception e, Drawable errorDrawable) {
-                requestCallback.onRequestFail(e, null);
+                requestCallback.onRequestFail(null);
             }
         });
     }

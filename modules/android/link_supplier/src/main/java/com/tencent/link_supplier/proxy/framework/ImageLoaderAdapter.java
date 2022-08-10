@@ -26,8 +26,17 @@ public interface ImageLoaderAdapter {
 
     void getLocalImage(@NonNull String source, @NonNull ImageRequestListener listener);
 
-    @NonNull
+    @Nullable
     ImageDataSupplier getLocalImage(@NonNull String source);
 
+    void saveImageToCache(@NonNull ImageDataSupplier data);
+
+    @Nullable
+    ImageDataSupplier getImageFromCache(@NonNull String source);
+
+    void onEntryEvicted(@NonNull ImageDataSupplier data);
+
     void destroyIfNeed();
+
+    void clear();
 }

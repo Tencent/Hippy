@@ -228,6 +228,16 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         }
     }
 
+    public void onLayoutOrientationChanged() {
+        if (headerRefreshHelper != null) {
+            headerRefreshHelper.onLayoutOrientationChanged();
+        }
+        if (footerRefreshHelper != null) {
+            footerRefreshHelper.onLayoutOrientationChanged();
+        }
+        hippyRecyclerView.enableOverPullIfNeeded();
+    }
+
     private void initHeaderRefreshHelper(View itemView, RenderNode node) {
         if (headerRefreshHelper == null) {
             headerRefreshHelper = new PullHeaderRefreshHelper(hippyRecyclerView, node);

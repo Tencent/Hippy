@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_ALREADY_UPDATED;
+
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -23,13 +25,11 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
+import com.tencent.renderer.component.Component;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_HAS_DTEB_ID;
-import static com.tencent.mtt.hippy.views.custom.HippyCustomPropsController.DT_EBLID;
 
 public class DiffUtils {
 
@@ -51,14 +51,13 @@ public class DiffUtils {
             return;
         }
         Map<PatchType, ArrayList<Patch>> patches = new HashMap<>();
-        diffFromNode(fromNode, toNode, patches);
+        diffFromNode(fromNode, toNode, patches, controllerManager);
         diffToNode(fromNode, toNode, patches);
         handleDeleteViewPatches(controllerManager, patches);
         handleReplaceIdPatches(controllerManager, patches);
         handleCreateViewPatches(patches);
         handleUpdatePropsPatches(controllerManager, patches);
         handleUpdateLayoutPatches(controllerManager, patches);
-        handleUpdateExtraPatches(controllerManager, patches);
     }
 
     private static void addPatch(PatchType type, @NonNull Patch patch,
@@ -71,15 +70,20 @@ public class DiffUtils {
         patchArray.add(patch);
     }
 
+    private static boolean checkComponentProperty(@NonNull String key,
+            @Nullable ControllerManager controllerManager) {
+        if (controllerManager != null) {
+            return controllerManager.checkComponentProperty(key);
+        }
+        return false;
+    }
+
     private static void diffToNode(@NonNull RenderNode fromNode, @NonNull RenderNode toNode,
             @NonNull Map<PatchType, ArrayList<Patch>> patches) {
         for (int i = 0; i < toNode.getChildCount(); i++) {
             if (i >= fromNode.getChildCount()) {
                 RenderNode toChild = toNode.getChildAt(i);
                 addPatch(PatchType.TYPE_CREATE_VIEW, new Patch(toChild), patches);
-                if (TextUtils.equals(toChild.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
-                    addPatch(PatchType.TYPE_UPDATE_EXTRA, new Patch(toChild), patches);
-                }
                 addPatch(PatchType.TYPE_UPDATE_LAYOUT, new Patch(toChild), patches);
             } else {
                 diffToNode(fromNode.getChildAt(i), toNode.getChildAt(i), patches);
@@ -88,19 +92,21 @@ public class DiffUtils {
     }
 
     private static void diffFromNode(@NonNull RenderNode fromNode, @NonNull RenderNode toNode,
-            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
+            @NonNull Map<PatchType, ArrayList<Patch>> patches,
+            @Nullable ControllerManager controllerManager) {
         if (TextUtils.equals(fromNode.getClassName(), toNode.getClassName())) {
             addPatch(PatchType.TYPE_REPLACE_ID, new Patch(toNode, fromNode.getId()), patches);
+            Map<String, Object> componentProps = new HashMap<>();
             Map<String, Object> updateProps = diffMapProps(fromNode.getProps(),
-                    toNode.getProps(), 0);
+                    toNode.getProps(), 0, controllerManager, componentProps);
+            if (toNode.getComponent() == null || !toNode.checkNodeFlag(FLAG_ALREADY_UPDATED)) {
+                updateProps.putAll(componentProps);
+            }
             if (!updateProps.isEmpty()) {
                 addPatch(PatchType.TYPE_UPDATE_PROPS, new Patch(toNode, updateProps), patches);
             }
             if (diffLayout(fromNode, toNode)) {
                 addPatch(PatchType.TYPE_UPDATE_LAYOUT, new Patch(toNode), patches);
-            }
-            if (TextUtils.equals(toNode.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
-                addPatch(PatchType.TYPE_UPDATE_EXTRA, new Patch(toNode), patches);
             }
         }
 
@@ -112,12 +118,9 @@ public class DiffUtils {
                 continue;
             }
             if (TextUtils.equals(fromChild.getClassName(), toChild.getClassName())) {
-                diffFromNode(fromChild, toChild, patches);
+                diffFromNode(fromChild, toChild, patches, controllerManager);
             } else {
                 addPatch(PatchType.TYPE_CREATE_VIEW, new Patch(toChild), patches);
-                if (TextUtils.equals(toChild.getClassName(), NodeProps.TEXT_CLASS_NAME)) {
-                    addPatch(PatchType.TYPE_UPDATE_EXTRA, new Patch(toChild), patches);
-                }
                 addPatch(PatchType.TYPE_UPDATE_LAYOUT, new Patch(toChild), patches);
                 addPatch(PatchType.TYPE_DELETE_VIEW, new Patch(fromChild), patches);
             }
@@ -133,7 +136,9 @@ public class DiffUtils {
 
     @SuppressWarnings("rawtypes")
     private static void diffProps(@NonNull String fromKey, @Nullable Object fromValue,
-            @Nullable Object toValue, @NonNull Map<String, Object> updateProps, int diffLevel) {
+            @Nullable Object toValue, @NonNull Map<String, Object> updateProps, int diffLevel,
+            @Nullable ControllerManager controllerManager,
+            @NonNull Map<String, Object> componentProps) {
         if (fromValue instanceof Boolean) {
             if (!(toValue instanceof Boolean) || ((boolean) fromValue != (boolean) toValue)) {
                 updateProps.put(fromKey, toValue);
@@ -150,7 +155,7 @@ public class DiffUtils {
         } else if (fromValue instanceof ArrayList) {
             if (toValue instanceof ArrayList) {
                 boolean hasDifferent = diffArrayProps((ArrayList) fromValue,
-                        (ArrayList) toValue, diffLevel + 1);
+                        (ArrayList) toValue, diffLevel + 1, controllerManager, componentProps);
                 if (hasDifferent || fromKey.equals(TINT_COLORS) || fromKey.equals(TINT_COLOR)) {
                     updateProps.put(fromKey, toValue);
                 }
@@ -161,13 +166,13 @@ public class DiffUtils {
             Map diffResult = null;
             if (toValue instanceof Map) {
                 diffResult = diffMapProps((Map) fromValue, (Map) toValue,
-                        diffLevel + 1);
+                        diffLevel + 1, controllerManager, componentProps);
                 if (diffResult.isEmpty()) {
                     return;
                 }
             } else if (diffLevel == 0 && fromKey.equals(NodeProps.STYLE)) {
                 diffResult = diffMapProps((Map) fromValue, new HashMap<String, Object>(),
-                        diffLevel + 1);
+                        diffLevel + 1, controllerManager, componentProps);
             }
             updateProps.put(fromKey, diffResult);
         }
@@ -175,11 +180,13 @@ public class DiffUtils {
 
     @NonNull
     public static Map<String, Object> diffMapProps(@NonNull Map<String, Object> fromMap,
-            @NonNull Map<String, Object> toMap, int diffLevel) {
+            @NonNull Map<String, Object> toMap, int diffLevel,
+            @Nullable ControllerManager controllerManager,
+            @Nullable Map<String, Object> componentProps) {
         Map<String, Object> updateProps = new HashMap<>();
         Set<String> fromKeys = fromMap.keySet();
         for (String fromKey : fromKeys) {
-            if (fromKey.equals(DT_EBLID)) {
+            if (checkComponentProperty(fromKey, controllerManager)) {
                 continue;
             }
             Object fromValue = fromMap.get(fromKey);
@@ -187,16 +194,21 @@ public class DiffUtils {
             if (fromValue == null) {
                 updateProps.put(fromKey, toValue);
             } else {
-                diffProps(fromKey, fromValue, toValue, updateProps, diffLevel);
+                diffProps(fromKey, fromValue, toValue, updateProps, diffLevel, controllerManager,
+                        componentProps);
             }
         }
         // Check to map whether there are properties that did not exist in from map.
         Set<String> toKeys = toMap.keySet();
         for (String toKey : toKeys) {
-            if (fromMap.get(toKey) != null || toKey.equals(DT_EBLID)) {
+            boolean isComponentProperty = checkComponentProperty(toKey, controllerManager);
+            Object toValue = toMap.get(toKey);
+            if (isComponentProperty && componentProps != null) {
+                componentProps.put(toKey, toValue);
+            }
+            if (fromMap.get(toKey) != null || isComponentProperty) {
                 continue;
             }
-            Object toValue = toMap.get(toKey);
             updateProps.put(toKey, toValue);
         }
         return updateProps;
@@ -204,7 +216,9 @@ public class DiffUtils {
 
     @SuppressWarnings("rawtypes")
     private static boolean diffArrayProps(@NonNull ArrayList<Object> fromArray,
-            @NonNull ArrayList<Object> toArray, int diffLevel) {
+            @NonNull ArrayList<Object> toArray, int diffLevel,
+            @Nullable ControllerManager controllerManager,
+            @Nullable Map<String, Object> componentProps) {
         if (fromArray.size() != toArray.size()) {
             return true;
         }
@@ -227,10 +241,10 @@ public class DiffUtils {
                 }
             } else if (fromValue instanceof ArrayList && toValue instanceof ArrayList) {
                 return diffArrayProps((ArrayList) fromValue, (ArrayList) toValue,
-                        diffLevel);
+                        diffLevel, controllerManager, componentProps);
             } else if (fromValue instanceof Map && toValue instanceof Map) {
                 Map diffResult = diffMapProps((Map) fromValue,
-                        (Map) toValue, diffLevel);
+                        (Map) toValue, diffLevel, controllerManager, componentProps);
                 if (!diffResult.isEmpty()) {
                     return true;
                 }
@@ -284,7 +298,7 @@ public class DiffUtils {
             return;
         }
         for (Patch patch : patchArray) {
-            controllerManager.replaceID(patch.node.getRootId(), patch.oldId, patch.node.getId());
+            controllerManager.replaceId(patch.node.getRootId(), patch.oldId, patch.node.getId());
         }
     }
 
@@ -313,16 +327,8 @@ public class DiffUtils {
             if (patch.updateProps == null) {
                 continue;
             }
-            Map<String, Object> props = patch.node.getProps();
-            if (patch.node.checkNodeFlag(FLAG_HAS_DTEB_ID)) {
-                patch.updateProps.remove(DT_EBLID);
-            } else if (props != null && props.get(DT_EBLID) instanceof String) {
-                patch.updateProps.put(DT_EBLID, props.get(DT_EBLID));
-            }
             controllerManager
-                    .updateView(patch.node.getRootId(), patch.node.getId(),
-                            patch.node.getClassName(), patch.updateProps,
-                            patch.node.getEvents());
+                    .updateView(patch.node, patch.updateProps, patch.node.getEvents());
         }
     }
 
@@ -341,18 +347,6 @@ public class DiffUtils {
                             patch.node.getY(),
                             patch.node.getWidth(),
                             patch.node.getHeight());
-        }
-    }
-
-    private static void handleUpdateExtraPatches(@NonNull ControllerManager controllerManager,
-            @NonNull Map<PatchType, ArrayList<Patch>> patches) {
-        ArrayList<Patch> patchArray = patches.get(PatchType.TYPE_UPDATE_EXTRA);
-        if (patchArray == null) {
-            return;
-        }
-        for (Patch patch : patchArray) {
-            controllerManager.updateExtra(patch.node.getRootId(), patch.node.getId(),
-                    patch.node.getClassName(), patch.node.getExtra());
         }
     }
 }

@@ -19,7 +19,6 @@ package com.tencent.mtt.hippy.uimanager;
 import android.content.Context;
 import android.util.SparseArray;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -93,20 +92,24 @@ public class ControllerRegistry {
         return mRootViews.get(id);
     }
 
+    public void addView(@NonNull View view, int rootId, int id) {
+        SparseArray<View> views = mViews.get(rootId);
+        if (views == null) {
+            views = new SparseArray<>();
+            views.put(id, view);
+            mViews.put(rootId, views);
+        } else {
+            views.put(id, view);
+        }
+    }
+
     public void addView(@NonNull View view) {
         Context context = view.getContext();
         if (!(context instanceof NativeRenderContext)) {
             return;
         }
         int rootId = ((NativeRenderContext) context).getRootId();
-        SparseArray<View> views = mViews.get(rootId);
-        if (views == null) {
-            views = new SparseArray<>();
-            views.put(view.getId(), view);
-            mViews.put(rootId, views);
-        } else {
-            views.put(view.getId(), view);
-        }
+        addView(view, rootId, view.getId());
     }
 
     public void removeView(int rootId, int id) {

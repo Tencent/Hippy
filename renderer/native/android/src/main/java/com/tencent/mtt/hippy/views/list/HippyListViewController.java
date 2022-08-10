@@ -41,7 +41,7 @@ import androidx.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-@HippyController(name = HippyListViewController.CLASS_NAME, useSystemStandardType = true)
+@HippyController(name = HippyListViewController.CLASS_NAME, dispatchWithStandardType = true)
 public class HippyListViewController extends HippyViewController<HippyListView> {
 
     public static final String CLASS_NAME = "ListView";

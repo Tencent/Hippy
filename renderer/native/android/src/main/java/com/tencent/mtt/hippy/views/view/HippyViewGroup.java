@@ -17,27 +17,26 @@ package com.tencent.mtt.hippy.views.view;
 
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.IHippyZIndexViewGroup;
+import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.ViewGroupDrawingOrderHelper;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.image.HippyImageView;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Path;
 import android.graphics.RectF;
-import android.os.Build;
-import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import com.tencent.renderer.component.FlatViewGroup;
 
-@SuppressWarnings({"unused"})
-public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGroup {
+public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHippyZIndexViewGroup {
 
     private static final String TAG = "HippyViewGroup";
-    private static final int LAYER_TYPE_NOT_SET = -1;
     private final ViewGroupDrawingOrderHelper mDrawingOrderHelper;
     float mDownX = 0;
     float mDownY = 0;
@@ -45,85 +44,38 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     private String mOverflow;
     private Path mOverflowPath;
     private RectF mOverflowRect;
-    private int mOldLayerType;
     private ViewConfiguration mViewConfiguration;
+    @Nullable
+    protected NativeGestureDispatcher mGestureDispatcher;
 
     public HippyViewGroup(Context context) {
         super(context);
         mDrawingOrderHelper = new ViewGroupDrawingOrderHelper(this);
-        mOldLayerType = LAYER_TYPE_NOT_SET;
-        setScaleType(ScaleType.ORIGIN);
         setClipChildren(false);
     }
 
-    @SuppressWarnings("SuspiciousNameCombination")
     @Override
-    protected void dispatchDraw(Canvas canvas) {
-        if (mOverflow != null) {
-            switch (mOverflow) {
-                case "visible":
-                    if (mOverflowPath != null) {
-                        mOverflowPath.rewind();
-                    }
-                    restoreLayerType();
-                    break;
-                case "hidden":
-                    if (mBGDrawable != null) {
-                        float left = 0f;
-                        float top = 0f;
-                        float right = getWidth();
-                        float bottom = getHeight();
-                        float borderWidth;
-                        if (mBGDrawable.getBorderWidthArray() != null
-                                && mBGDrawable.getBorderWidthArray()[0] != 0f) {
-                            borderWidth = mBGDrawable.getBorderWidthArray()[0];
-                            left += borderWidth;
-                            top += borderWidth;
-                            right -= borderWidth;
-                            bottom -= borderWidth;
-                        }
-                        float radius =
-                                mBGDrawable.getBorderRadiusArray() != null
-                                        ? mBGDrawable.getBorderRadiusArray()[0]
-                                        : 0f;
-
-                        if (radius > 0f) {
-                            if (mOverflowPath == null) {
-                                mOverflowPath = new Path();
-                            }
-                            mOverflowPath.rewind();
-                            if (mOverflowRect == null) {
-                                mOverflowRect = new RectF();
-                            }
-                            mOverflowRect.set(left, top, right, bottom);
-                            mOverflowPath.addRoundRect(mOverflowRect, radius, radius,
-                                    Path.Direction.CW);
-                            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                                if (mOldLayerType == LAYER_TYPE_NOT_SET) {
-                                    mOldLayerType = this.getLayerType();
-                                }
-                                this.setLayerType(LAYER_TYPE_SOFTWARE, null);
-                            }
-                            try {
-                                canvas.clipPath(mOverflowPath);
-                            } catch (Throwable throwable) {
-                                restoreLayerType();
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    restoreLayerType();
-                    break;
-            }
+    public boolean onTouchEvent(MotionEvent event) {
+        boolean result = super.onTouchEvent(event);
+        if (mGestureDispatcher != null) {
+            result |= mGestureDispatcher.handleTouchEvent(event);
         }
-        super.dispatchDraw(canvas);
+        return result;
     }
 
-    private void restoreLayerType() {
-        if (mOldLayerType > LAYER_TYPE_NOT_SET) {
-            this.setLayerType(mOldLayerType, null);
-        }
+    @Override
+    public NativeGestureDispatcher getGestureDispatcher() {
+        return mGestureDispatcher;
+    }
+
+    @Override
+    public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
+        mGestureDispatcher = dispatcher;
+    }
+
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        super.dispatchDraw(canvas);
     }
 
     public void setOverflow(String overflow) {
@@ -206,7 +158,6 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     @Override
     public void updateDrawingOrder() {
         mDrawingOrderHelper.update();
-        setChildrenDrawingOrderEnabled(mDrawingOrderHelper.shouldEnableCustomDrawingOrder());
         invalidate();
     }
 
@@ -214,32 +165,11 @@ public class HippyViewGroup extends HippyImageView implements IHippyZIndexViewGr
     public void addView(View child, int index) {
         super.addView(child, index);
         mDrawingOrderHelper.handleAddView(child);
-        setChildrenDrawingOrderEnabled(mDrawingOrderHelper.shouldEnableCustomDrawingOrder());
     }
 
     @Override
     public void removeView(View view) {
         super.removeView(view);
         mDrawingOrderHelper.handleRemoveView(view);
-        setChildrenDrawingOrderEnabled(mDrawingOrderHelper.shouldEnableCustomDrawingOrder());
     }
-
-    @Override
-    public void resetProps() {
-        //		HippyViewController.resetTransform(this);
-
-        HippyViewGroupController.removeViewZIndex(this);
-
-        //		mBGDrawable = null;
-        //		super.setBackgroundDrawable(null);
-        mOverflow = null;
-        setClipChildren(true); //默认值是false
-        //		setAlpha(1.0f);
-    }
-
-    //	@Override
-    //	public void clear()
-    //	{
-    //
-    //	}
 }

@@ -24,8 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.modules.Promise;
 
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.component.Component;
+import com.tencent.renderer.component.ComponentController;
+import com.tencent.renderer.component.image.ImageComponent;
+import com.tencent.renderer.component.image.ImageComponentController;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,8 +43,8 @@ public class RenderNode {
     public static final int FLAG_UPDATE_EVENT = 0x00000004;
     public static final int FLAG_UPDATE_TOTAL_PROPS = 0x00000008;
     public static final int FLAG_ALREADY_DELETED = 0x00000010;
-    public static final int FLAG_LAZY_LOAD = 0x00000020;
-    public static final int FLAG_HAS_DTEB_ID = 0x00000040;
+    public static final int FLAG_ALREADY_UPDATED = 0x00000020;
+    public static final int FLAG_LAZY_LOAD = 0x00000040;
     private int mNodeFlags = 0;
     protected int mX;
     protected int mY;
@@ -67,6 +71,8 @@ public class RenderNode {
     protected List<RenderNode> mMoveNodes;
     @Nullable
     protected SparseIntArray mDeletedChildren;
+    @Nullable
+    protected Component mComponent;
 
     public RenderNode(int rootId, int id, @NonNull String className,
             @NonNull ControllerManager controllerManager) {
@@ -96,6 +102,32 @@ public class RenderNode {
 
     public int getId() {
         return mId;
+    }
+
+    @Nullable
+    public Component getComponent() {
+        return mComponent;
+    }
+
+    @NonNull
+    public NativeRender getNativeRender() {
+        return mControllerManager.getNativeRender();
+    }
+
+    @Nullable
+    public Component ensureComponentIfNeeded(Class<?> cls) {
+        if (cls == ComponentController.class) {
+            if (mComponent == null) {
+                mComponent = new Component(this);
+            }
+        } else if (cls == ImageComponentController.class) {
+            if (mComponent == null) {
+                mComponent = new ImageComponent(this);
+            } else if (!(mComponent instanceof ImageComponent)) {
+                mComponent = new ImageComponent(this, mComponent);
+            }
+        }
+        return mComponent;
     }
 
     @Nullable
@@ -152,7 +184,7 @@ public class RenderNode {
 
     public View createViewRecursive() {
         View view = createView();
-        setNodeFlag(FLAG_UPDATE_LAYOUT | FLAG_UPDATE_EVENT | FLAG_UPDATE_EXTRA);
+        setNodeFlag(FLAG_UPDATE_LAYOUT | FLAG_UPDATE_EVENT);
         for (RenderNode renderNode : mChildren) {
             renderNode.createViewRecursive();
         }
@@ -307,7 +339,7 @@ public class RenderNode {
             events = mEvents;
             resetNodeFlag(FLAG_UPDATE_EVENT);
         }
-        mControllerManager.updateView(mRootId, mId, mClassName, mPropsToUpdate, events);
+        mControllerManager.updateView(this, mPropsToUpdate, events);
         mPropsToUpdate = null;
         resetNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
         if (mMoveNodes != null && !mMoveNodes.isEmpty()) {
@@ -336,7 +368,7 @@ public class RenderNode {
 
     public void updateProps(@NonNull Map<String, Object> newProps) {
         if (mProps != null && !checkNodeFlag(FLAG_UPDATE_TOTAL_PROPS)) {
-            mPropsToUpdate = DiffUtils.diffMapProps(mProps, newProps, 0);
+            mPropsToUpdate = DiffUtils.diffMapProps(mProps, newProps, 0, null, null);
         } else {
             mPropsToUpdate = newProps;
         }
@@ -363,9 +395,12 @@ public class RenderNode {
         mMoveNodes.addAll(moveNodes);
     }
 
-    public void updateExtra(Object object) {
-        mExtra = object;
-        setNodeFlag(FLAG_UPDATE_EXTRA);
+    public void updateExtra(@Nullable Object object) {
+        Component component = ensureComponentIfNeeded(ComponentController.class);
+        if (component != null && object != null) {
+            component.setTextLayout(object);
+            setNodeFlag(FLAG_UPDATE_EXTRA);
+        }
     }
 
     public boolean isDeleted() {
@@ -395,6 +430,29 @@ public class RenderNode {
     protected void batchComplete() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchComplete(mRootId, mId, mClassName);
+        }
+    }
+
+    @Nullable
+    private View getHostView() {
+        View view = mControllerManager.findView(mRootId, mId);
+        if (view == null && mParent != null) {
+            view = mControllerManager.findView(mParent.getRootId(), mParent.getId());
+        }
+        return view;
+    }
+
+    public void postInvalidateDelayed(long delayMilliseconds) {
+        View view = getHostView();
+        if (view != null) {
+            view.postInvalidateDelayed(delayMilliseconds);
+        }
+    }
+
+    public void invalidate() {
+        View view = getHostView();
+        if (view != null) {
+            view.invalidate();
         }
     }
 }

@@ -21,17 +21,17 @@ public interface ImageRequestListener {
     /**
      * Notify image request start
      */
-    void onRequestStart(ImageDataSupplier imageDataSupplier);
+    void onRequestStart(ImageDataSupplier imageData);
 
     /**
      * Notify image request success
      */
-    void onRequestSuccess(ImageDataSupplier imageDataSupplier);
+    void onRequestSuccess(ImageDataSupplier imageData);
 
     /**
      * Notify image request failed
      */
-    void onRequestFail(Throwable cause, String source);
+    void onRequestFail(Throwable throwable);
 
     /**
      * Notify image request on progress
