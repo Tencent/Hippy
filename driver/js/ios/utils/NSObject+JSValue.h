@@ -20,45 +20,40 @@
  * limitations under the License.
  */
 
+#ifdef JS_USE_JSC
+
 #import <Foundation/Foundation.h>
-#import "core/napi/js_native_api_types.h"
+#import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-using CtxValuePtr = std::shared_ptr<hippy::napi::CtxValue>;
-using CtxPtr = std::shared_ptr<hippy::napi::Ctx>;
+@interface NSObject (JSValue)
 
-@interface NSObject (ToJSCtxValue)
-
-- (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context;
+- (JSValue *)toJSValueInContext:(JSContext *)context;
 
 @end
 
-@interface NSString (ToJSCtxValue)
+@interface NSArray (JSValue)
+
+- (JSValue *)toJSValueInContext:(JSContext *)context;
 
 @end
 
-@interface NSNumber (ToJSCtxValue)
+@interface NSDictionary (JSValue)
+
+- (JSValue *)toJSValueInContext:(JSContext *)context;
 
 @end
 
-@interface NSArray (ToJSCtxValue)
+@interface NSData (JSValue)
+
+- (JSValue *)toJSValueInContext:(JSContext *)context;
 
 @end
 
-@interface NSDictionary (ToJSCtxValue)
-
-@end
-
-@interface NSData (ToJSCtxValue)
-
-@end
-
-@interface NSNull (ToJSCtxValue)
-
-@end
-
-HIPPY_EXTERN id ObjectFromJSValue(CtxPtr context, CtxValuePtr value);
+HIPPY_EXTERN id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value);
 
 NS_ASSUME_NONNULL_END
+
+#endif //JS_USE_JSC

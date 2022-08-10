@@ -20,13 +20,14 @@
  * limitations under the License.
  */
 
-#import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyDefines.h"
 #import "HippyBridgeModule.h"
 #import "NativeRenderInvalidating.h"
 #import "js_native_api_types.h"
 #import <memory>
-
+#ifdef JS_USE_JSC
+#import <JavaScriptCore/JavaScriptCore.h>
+#endif //JS_USE_JSC
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
 
@@ -49,6 +50,10 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
 @property (nonatomic, copy) NSString *executorkey;
+
+#ifdef JS_USE_JSC
+@property (nonatomic, strong)JSContext *jsc_context;
+#endif
 /*
  *hippy-core js engine
  */
