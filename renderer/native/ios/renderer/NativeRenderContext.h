@@ -45,6 +45,8 @@ typedef void (^NativeRenderRenderUIBlock)(id<NativeRenderContext> renderContext,
 
 - (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
+- (void)unregisterRootViewFromTag:(NSNumber *)rootTag;
+
 - (__kindof NativeRenderViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
 - (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;

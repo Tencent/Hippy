@@ -106,8 +106,20 @@ void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
     }
 }
 
-void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)> callback) {
-    CallFunction(runtime_id, u"destroyInstance", "", std::move(callback));
+void BridgeImpl::UnloadInstance(int64_t runtime_id, std::string&& params) {
+    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+    NSString *paramsStr = [NSString stringWithCString:params.c_str()
+                                             encoding:[NSString defaultCStringEncoding]];
+    NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSError *jsonError;
+    NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
+                                                              options:NSJSONReadingMutableContainers
+                                                                error:&jsonError];
+    if (jsonError == nil) {
+        tdf::base::DomValue value = OCTypeToDomValue(paramDict);
+        std::shared_ptr<tdf::base::DomValue> domValue = std::make_shared<tdf::base::DomValue>(value);
+        bridge.jscExecutor.pScope->UnLoadInstance(domValue);
+    }
 }
 
 int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platform_runtime,

@@ -129,10 +129,10 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
     LoadInstance)
 
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
-    "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
-    "destroyInstance",
-    "(J[BII)V",
-    UnloadInstance)
+        "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
+        "destroyInstance",
+        "(J[BII)V",
+        UnloadInstance)
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using TaskRunner = footstone::runner::TaskRunner;
