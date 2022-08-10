@@ -670,7 +670,7 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, byte_string&& buffer_data) 
   runner->PostTask(std::move(callback));
 }
 
-void V8BridgeUtils::UnloadInstance(int32_t runtime_id, bytes&& buffer_data) {
+void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data) {
     FOOTSTONE_DLOG(INFO) << "UnloadInstance runtime_id = " << runtime_id;
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (!runtime) {
