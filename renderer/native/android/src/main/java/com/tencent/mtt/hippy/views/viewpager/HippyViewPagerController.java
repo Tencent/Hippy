@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 
-@HippyController(name = HippyViewPagerController.CLASS_NAME, useSystemStandardType = true)
+@HippyController(name = HippyViewPagerController.CLASS_NAME, dispatchWithStandardType = true)
 public class HippyViewPagerController extends HippyViewController<HippyViewPager> {
 
     public static final String CLASS_NAME = "ViewPager";

@@ -26,12 +26,14 @@ import java.util.Map;
 
 public class NativeViewTag {
 
-    public static final String TAG_CLASS_NAME = "className";
+    private static final String TAG_CLASS_NAME = "className";
+    private static final String TAG_ROOT_ID = "rootId";
 
     @NonNull
-    public static Map<String, Object> createViewTag(@NonNull String className) {
+    public static Map<String, Object> createViewTag(@NonNull String className, int rootId) {
         Map<String, Object> tagMap = new HashMap<>();
         tagMap.put(TAG_CLASS_NAME, className);
+        tagMap.put(TAG_ROOT_ID, rootId);
         return tagMap;
     }
 
@@ -47,5 +49,17 @@ public class NativeViewTag {
             }
         }
         return null;
+    }
+
+    public static int getRootId(@NonNull View view) {
+        Object tagObj = view.getTag();
+        if (tagObj instanceof Map) {
+            Map<String, Object> tagMap = (Map) tagObj;
+            Object value = tagMap.get(TAG_ROOT_ID);
+            if (value instanceof Integer) {
+                return (Integer) value;
+            }
+        }
+        return -1;
     }
 }

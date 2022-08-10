@@ -29,8 +29,8 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
-import com.tencent.mtt.hippy.utils.UrlUtils;
 
+import com.tencent.renderer.utils.UrlUtils;
 import java.net.URLDecoder;
 
 @SuppressWarnings("ALL")
@@ -84,10 +84,7 @@ public class HippyWebView extends FrameLayout implements HippyViewBase {
       }
 
       public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-          return shouldOverrideUrlLoading(view, request.getUrl().toString());
-        }
-        return super.shouldOverrideUrlLoading(view, request);
+        return shouldOverrideUrlLoading(view, request.getUrl().toString());
       }
 
       @Override

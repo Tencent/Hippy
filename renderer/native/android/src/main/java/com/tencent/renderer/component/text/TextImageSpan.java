@@ -44,13 +44,13 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.mtt.hippy.utils.UrlUtils;
 
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.image.ImageDataHolder;
-import com.tencent.renderer.utils.EventUtils;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
+import com.tencent.renderer.utils.UrlUtils;
+
 import java.lang.reflect.Field;
 
 public class TextImageSpan extends ImageSpan {
@@ -264,7 +264,7 @@ public class TextImageSpan extends ImageSpan {
             }
             mImageLoadState = STATE_LOADED;
         } else if (supplier.isAnimated()) {
-            mGifMovie = supplier.getGIF();
+            mGifMovie = supplier.getGifMovie();
             mImageLoadState = STATE_LOADED;
         } else {
             mImageLoadState = STATE_UNLOAD;
@@ -291,7 +291,7 @@ public class TextImageSpan extends ImageSpan {
         mImageLoadState = STATE_LOADING;
         adapter.fetchImage(url, new ImageRequestListener() {
             @Override
-            public void onRequestStart(ImageDataSupplier supplier) {
+            public void onRequestStart(ImageDataSupplier imageData) {
             }
 
             @Override
@@ -299,21 +299,21 @@ public class TextImageSpan extends ImageSpan {
             }
 
             @Override
-            public void onRequestSuccess(final ImageDataSupplier supplier) {
+            public void onRequestSuccess(final ImageDataSupplier imageData) {
                 if (UIThreadUtils.isOnUiThread()) {
-                    handleFetchImageResult(supplier);
+                    handleFetchImageResult(imageData);
                 } else {
                     UIThreadUtils.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            handleFetchImageResult(supplier);
+                            handleFetchImageResult(imageData);
                         }
                     });
                 }
             }
 
             @Override
-            public void onRequestFail(Throwable throwable, String source) {
+            public void onRequestFail(Throwable throwable) {
                 if (UIThreadUtils.isOnUiThread()) {
                     handleFetchImageResult(null);
                 } else {

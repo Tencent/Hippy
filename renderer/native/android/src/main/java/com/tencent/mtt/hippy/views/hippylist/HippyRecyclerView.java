@@ -39,7 +39,7 @@ import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHe
 public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends HippyRecyclerViewBase
         implements IHeaderAttachListener, IHippyViewAboundListener {
 
-    private static int DEFAULT_ITEM_VIEW_CACHE_SIZE = 8;
+    private static int DEFAULT_ITEM_VIEW_CACHE_SIZE = 4;
     protected ADP listAdapter;
     protected boolean isEnableScroll = true;    //使能ListView的滚动功能
     protected StickyHeaderHelper stickyHeaderHelper;        //支持吸顶

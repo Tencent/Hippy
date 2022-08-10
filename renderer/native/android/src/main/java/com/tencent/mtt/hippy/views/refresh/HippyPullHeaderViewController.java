@@ -40,7 +40,7 @@ import com.tencent.renderer.utils.MapUtils;
 import java.util.List;
 import java.util.Map;
 
-@HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true, useSystemStandardType = true)
+@HippyController(name = HippyPullHeaderViewController.CLASS_NAME, isLazyLoad = true, dispatchWithStandardType = true)
 public class HippyPullHeaderViewController extends HippyViewController<HippyPullHeaderView> {
 
     private static final String TAG = "HippyPullHeaderViewController";

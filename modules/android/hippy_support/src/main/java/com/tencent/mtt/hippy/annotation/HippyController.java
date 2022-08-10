@@ -31,5 +31,5 @@ public @interface HippyController {
 
     boolean isLazyLoad() default false;
 
-    boolean useSystemStandardType() default false;
+    boolean dispatchWithStandardType() default false;
 }

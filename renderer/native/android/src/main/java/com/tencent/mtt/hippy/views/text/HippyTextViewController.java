@@ -21,14 +21,16 @@ import android.text.Layout;
 import android.text.Spannable;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 
-@HippyController(name = HippyTextViewController.CLASS_NAME, useSystemStandardType = true)
+@HippyController(name = HippyTextViewController.CLASS_NAME, dispatchWithStandardType = true)
 public class HippyTextViewController extends HippyViewController<HippyTextView> {
 
     public static final String CLASS_NAME = "Text";
@@ -39,34 +41,21 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
     }
 
     @Override
-    protected void updateExtra(View view, @Nullable Object object) {
-        TextRenderSupplier supplier = null;
-        Layout layout;
-        if (object instanceof TextRenderSupplier) {
-            supplier = (TextRenderSupplier) object;
-            layout = supplier.layout;
-        } else if (object instanceof Layout) {
-            layout = (Layout) object;
-        } else {
+    public void onBatchComplete(@NonNull HippyTextView view) {
+        super.onBatchComplete(view);
+        Component component = view.getComponent(view);
+        if (component == null) {
             return;
         }
-        if (layout != null && view instanceof HippyTextView) {
-            HippyTextView textView = (HippyTextView) view;
+        Layout layout = component.getTextLayout();
+        if (layout != null) {
             CharSequence textSequence = layout.getText();
             if (textSequence instanceof Spannable) {
                 Spannable spannable = (Spannable) textSequence;
                 TextGestureSpan[] spans = spannable
                         .getSpans(0, spannable.length(), TextGestureSpan.class);
-                textView.setGestureEnable(spans != null && spans.length > 0);
+                view.setGestureEnable(spans != null && spans.length > 0);
             }
-            if (supplier != null) {
-                textView.setPadding((int) Math.floor(supplier.leftPadding),
-                        (int) Math.floor(supplier.topPadding),
-                        (int) Math.floor(supplier.rightPadding),
-                        (int) Math.floor(supplier.bottomPadding));
-            }
-            textView.setLayout(layout);
-            textView.postInvalidate();
         }
     }
 

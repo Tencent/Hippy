@@ -22,7 +22,6 @@ import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.mtt.hippy.utils.UrlUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -316,13 +315,22 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         }
     }
 
+    private boolean isWebUrl(String url) {
+        if (TextUtils.isEmpty(url)) {
+            return false;
+        }
+        return ((url.length() > 6) && url.substring(0, 7)
+                .equalsIgnoreCase("http://")) || ((url.length() > 7) && url.substring(0, 8)
+                .equalsIgnoreCase("https://"));
+    }
+
     @SuppressWarnings("unused")
     public void fetchResourceWithUri(final String uri, final long resId) {
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 DevSupportManager devManager = mContext.getDevSupportManager();
-                if (TextUtils.isEmpty(uri) || !UrlUtils.isWebUrl(uri) || devManager == null) {
+                if (TextUtils.isEmpty(uri) || !isWebUrl(uri) || devManager == null) {
                     LogUtils.e("HippyBridgeImpl",
                             "fetchResourceWithUri: can not call loadRemoteResource with " + uri);
                     return;

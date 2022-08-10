@@ -25,15 +25,12 @@ import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
-import com.tencent.mtt.hippy.views.common.CommonBorder;
 
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Canvas;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -52,21 +49,17 @@ import android.widget.TextView;
 
 import androidx.appcompat.widget.AppCompatEditText;
 
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRenderContext;
-import com.tencent.renderer.NativeRendererManager;
-
-import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
+import com.tencent.renderer.component.Component;
+import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.utils.EventUtils;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused"})
-public class HippyTextInput extends AppCompatEditText implements HippyViewBase, CommonBorder,
+public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         TextView.OnEditorActionListener, View.OnFocusChangeListener {
 
-    private CommonBackgroundDrawable mReactBackgroundDrawable;
     boolean mHasAddWatcher = false;
     private String mPreviousText;
     TextWatcher mTextWatcher = null;
@@ -135,18 +128,15 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        //监听RootView的布局变化,来判断键盘是否弹起
-        if (getRootView() != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (getRootView() != null) {
             getRootView().getViewTreeObserver().addOnGlobalLayoutListener(globaListener);
         }
-
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        //监听RootView的布局变化,Listern去掉
-        if (getRootView() != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (getRootView() != null) {
             getRootView().getViewTreeObserver().removeOnGlobalLayoutListener(globaListener);
         }
     }
@@ -164,6 +154,16 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
             gravityVertical = mDefaultGravityVertical;
         }
         setGravity((getGravity() & ~Gravity.VERTICAL_GRAVITY_MASK) | gravityVertical);
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        Component component = FlatViewGroup.getComponent(this);
+        if (component != null) {
+            Rect bounds = new Rect(0, 0, getRight() - getLeft(), getBottom() - getTop());
+            component.onDraw(canvas, bounds);
+        }
+        super.onDraw(canvas);
     }
 
     @Override
@@ -464,59 +464,8 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase, 
         int paddingTop = getPaddingTop();
         int paddingLeft = getPaddingLeft();
         int paddingRight = getPaddingRight();
-
-        if (color == Color.TRANSPARENT && mReactBackgroundDrawable == null) {
-            // don't do anything, no need to allocate ReactBackgroundDrawable for transparent background
-            LogUtils.d("HippyTextInput",
-                    "don't do anything, no need to allocate ReactBackgroundDrawable for transparent background");
-        } else {
-            getOrCreateReactViewBackground().setBackgroundColor(color);
-        }
         // Android这个EditText控件默认带有内边距，设置背景时系统也可能会再把它默认的内边距给加上去。这里强制去掉内边距
         setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom);
-    }
-
-    public void setBorderColor(int color, int position) {
-        getOrCreateReactViewBackground().setBorderColor(color, position);
-    }
-
-    public void setBorderRadius(float borderRadius, int position) {
-        getOrCreateReactViewBackground().setBorderRadius(borderRadius, position);
-    }
-
-    @Override
-    public void setBorderStyle(BorderStyle borderStyle) {
-    }
-
-    @Override
-    public void setBorderWidth(float width, int position) {
-        getOrCreateReactViewBackground().setBorderWidth(width, position);
-    }
-
-    public void setUnderlineColor(int underlineColor) {
-        if (underlineColor == 0) {
-            getOrCreateReactViewBackground().clearColorFilter();
-        } else {
-            getOrCreateReactViewBackground().setColorFilter(underlineColor, PorterDuff.Mode.SRC_IN);
-        }
-    }
-
-    private CommonBackgroundDrawable getOrCreateReactViewBackground() {
-        if (mReactBackgroundDrawable == null) {
-            mReactBackgroundDrawable = new CommonBackgroundDrawable();
-            Drawable backgroundDrawable = getBackground();
-            super.setBackgroundDrawable(
-                    null); // required so that drawable callback is cleared before we add the
-            // drawable back as a part of LayerDrawable
-            if (backgroundDrawable == null) {
-                super.setBackgroundDrawable(mReactBackgroundDrawable);
-            } else {
-                LayerDrawable layerDrawable = new LayerDrawable(
-                        new Drawable[]{mReactBackgroundDrawable, backgroundDrawable});
-                super.setBackgroundDrawable(layerDrawable);
-            }
-        }
-        return mReactBackgroundDrawable;
     }
 
     @Override

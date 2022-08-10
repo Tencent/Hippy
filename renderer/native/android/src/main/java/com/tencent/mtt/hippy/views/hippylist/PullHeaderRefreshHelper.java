@@ -18,7 +18,6 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.view.MotionEvent;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.utils.EventUtils;
 import java.util.HashMap;
@@ -48,12 +47,19 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
 
     @Override
     protected void handleTouchMoveEvent(MotionEvent event) {
-        if (((isVertical() && mRecyclerView.canScrollVertically(-1)) ||
-                (!isVertical() && mRecyclerView.canScrollHorizontally(1))) &&
-                (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED)) {
+        boolean isVertical = isVertical();
+        if (isVertical && mRecyclerView.canScrollVertically(-1)
+                && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
             return;
         }
-        float current = isVertical() ? event.getRawY() : event.getRawX();
+        if (!isVertical) {
+            int scrollOffset = mRecyclerView.computeHorizontalScrollOffset();
+            int scrollExtent = mRecyclerView.computeHorizontalScrollExtent();
+            if (scrollOffset - scrollExtent > 0 && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
+                return;
+            }
+        }
+        float current = isVertical ? event.getRawY() : event.getRawX();
         if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
             boolean isOnMove = Math.abs(current - mStartPosition - getTouchSlop()) > 0;
             if (!isOnMove) {
@@ -62,7 +68,7 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
             mRefreshStatus = PullRefreshStatus.PULL_STATUS_DRAGGING;
         }
         endAnimation();
-        int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
+        int nodeSize = isVertical ? mRenderNode.getHeight() : mRenderNode.getWidth();
         int distance = ((int) ((current - mLastPosition) / PULL_RATIO)) + getVisibleSize();
         if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
             setVisibleSize(Math.max(distance, nodeSize));

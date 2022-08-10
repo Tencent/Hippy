@@ -63,8 +63,9 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
             }
 
             @Override
-            public void onRequestFail(Throwable throwable, String source) {
-                promise.reject("Fetch image failed, source=" + source);
+            public void onRequestFail(Throwable throwable) {
+                String message = throwable != null ? throwable.getMessage() : "";
+                promise.reject("Fetch image failed, url=" + url + ", msg=" + message);
             }
         }, null);
     }
@@ -85,7 +86,7 @@ public class ImageLoaderModule extends HippyNativeModuleBase {
             }
 
             @Override
-            public void onRequestFail(Throwable throwable, String source) {
+            public void onRequestFail(Throwable throwable) {
             }
         }, null);
     }

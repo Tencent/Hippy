@@ -40,6 +40,7 @@ public class PropertyUtils {
         public String defaultString;
         public double defaultNumber;
         public boolean defaultBoolean;
+        public Class<?> hostClass;
         public Type[] paramTypes;
     }
 

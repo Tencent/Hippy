@@ -18,163 +18,46 @@ package com.tencent.mtt.hippy.views.text;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.AbsoluteSizeSpan;
 import android.view.MotionEvent;
-import android.view.View;
 
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
-import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
-import com.tencent.mtt.hippy.views.common.CommonBorder;
-import com.tencent.mtt.hippy.views.list.HippyRecycler;
-import com.tencent.renderer.component.drawable.BorderDrawable.BorderStyle;
+import com.tencent.renderer.component.Component;
+import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.component.text.TextForegroundColorSpan;
 import com.tencent.renderer.component.text.TextGestureSpan;
 
-public class HippyTextView extends View implements CommonBorder, HippyViewBase, HippyRecycler {
+public class HippyTextView extends FlatViewGroup implements HippyViewBase {
 
-    private static final String TAG = "HippyTextView";
-    @Nullable
-    private CommonBackgroundDrawable mBackgroundDrawable;
-    @Nullable
-    protected Layout mLayout;
     @Nullable
     private TextGestureSpan mGestureSpan;
     @Nullable
     private NativeGestureDispatcher mGestureDispatcher;
     private boolean mGestureEnable = false;
-    private boolean mTextBold = false;
-    private int mCustomTextColor = 0;
-
-
-    @Override
-    public void resetProps() {
-        setPadding(0, 0, 0, 0);
-        mBackgroundDrawable = null;
-        setBackground(null);
-        mGestureDispatcher = null;
-        mGestureSpan = null;
-        mLayout = null;
-        mTextBold = false;
-        mGestureEnable = false;
-        mCustomTextColor = 0;
-    }
-
-    @Override
-    public void clear() {
-        mLayout = null;
-    }
 
     public HippyTextView(Context context) {
         super(context);
     }
 
-    @MainThread
-    public void setTextBold(boolean bold) {
-        mTextBold = bold;
-        invalidate();
-    }
-
-    @MainThread
-    public void setCustomColor(int color) {
-        mCustomTextColor = color;
-        setTextColor(color);
-        invalidate();
-    }
-
-    @MainThread
-    public void setLayout(@NonNull Layout layout) {
-        mLayout = layout;
-        if (mCustomTextColor != 0) {
-            setTextColor(mCustomTextColor);
-        }
-        invalidate();
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        try {
-            super.onDraw(canvas);
-            if (mLayout == null) {
-                LogUtils.w(TAG, "mLayout == null, id=" + getId());
-            }
-            canvas.save();
-            switch (mLayout.getAlignment()) {
-                case ALIGN_CENTER:
-                    int totalHeight =
-                            getHeight() + getPaddingTop() + getPaddingBottom() - mLayout
-                                    .getHeight();
-                    int width = (getWidth() - mLayout.getWidth()) / 2;
-                    canvas.translate((float) width, totalHeight / 2.0f);
-                    break;
-                case ALIGN_OPPOSITE:
-                    int x = getWidth() - getPaddingRight() - mLayout.getWidth();
-                    canvas.translate(x, 0);
-                    break;
-                default:
-                    canvas.translate(getPaddingLeft(), getPaddingTop());
-            }
-            Paint paint = mLayout.getPaint();
-            if (paint != null) {
-                paint.setFakeBoldText(mTextBold);
-            }
-            mLayout.draw(canvas);
-            canvas.restore();
-        } catch (Throwable e) {
-            LogUtils.e(TAG, e.getMessage() + " onDraw: id=" + getId());
-        }
-    }
-
-    @Override
-    protected void dispatchDraw(Canvas canvas) {
-        super.dispatchDraw(canvas);
-    }
-
-    @Override
-    public void setBorderRadius(float radius, int position) {
-        getBackGround().setBorderRadius(radius, position);
-    }
-
-    @Override
-    public void setBorderWidth(float width, int position) {
-        getBackGround().setBorderWidth(width, position);
-    }
-
-    @Override
-    public void setBorderColor(int color, int position) {
-        getBackGround().setBorderColor(color, position);
-    }
-
-    @Override
-    public void setBorderStyle(BorderStyle borderStyle) {
-        getBackGround().setBorderStyle(borderStyle);
-    }
-
-    @Override
-    public void setBackgroundColor(int color) {
-        getBackGround().setBackgroundColor(color);
-    }
-
     protected void setTextColor(int textColor) {
-        if (mLayout == null || !(mLayout.getText() instanceof SpannableStringBuilder)) {
+        Layout layout = null;
+        Component component = getComponent(this);
+        if (component != null) {
+            layout = component.getTextLayout();
+        }
+        if (layout == null || !(layout.getText() instanceof SpannableStringBuilder)) {
             return;
         }
-        SpannableStringBuilder textSpan = (SpannableStringBuilder) mLayout.getText();
+        SpannableStringBuilder textSpan = (SpannableStringBuilder) layout.getText();
         TextForegroundColorSpan[] spans = textSpan
-                .getSpans(0, mLayout.getText().length(), TextForegroundColorSpan.class);
+                .getSpans(0, layout.getText().length(), TextForegroundColorSpan.class);
         if (spans == null || spans.length == 0) {
             textSpan.setSpan(new TextForegroundColorSpan(textColor), 0,
                     textSpan.toString().length(), Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
@@ -209,7 +92,10 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
         }
         int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
-            mGestureSpan = findGestureSpan(event);
+            Component component = getComponent(this);
+            if (component != null) {
+                mGestureSpan = findGestureSpan(event, component.getTextLayout());
+            }
         }
         if (mGestureSpan != null) {
             boolean flag = mGestureSpan.handleDispatchTouchEvent(this, event);
@@ -235,35 +121,19 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
         this.mGestureEnable = gestureEnable;
     }
 
-    private CommonBackgroundDrawable getBackGround() {
-        if (mBackgroundDrawable == null) {
-            mBackgroundDrawable = new CommonBackgroundDrawable();
-            Drawable background = getBackground();
-            super.setBackground(null);
-            if (background == null) {
-                super.setBackground(mBackgroundDrawable);
-            } else {
-                LayerDrawable layerDrawable = new LayerDrawable(
-                        new Drawable[]{mBackgroundDrawable, background});
-                super.setBackground(layerDrawable);
-            }
-        }
-        return mBackgroundDrawable;
-    }
-
     @Nullable
-    private TextGestureSpan findGestureSpan(int x, int y) {
-        if (mLayout == null) {
+    private TextGestureSpan findGestureSpan(int x, int y, @Nullable Layout layout) {
+        if (layout == null) {
             return null;
         }
         TextGestureSpan result = null;
-        int line = mLayout.getLineForVertical(y);
-        int lineStartX = (int) mLayout.getLineLeft(line);
-        int lineEndX = (int) mLayout.getLineRight(line);
-        CharSequence charSequence = mLayout.getText();
+        int line = layout.getLineForVertical(y);
+        int lineStartX = (int) layout.getLineLeft(line);
+        int lineEndX = (int) layout.getLineRight(line);
+        CharSequence charSequence = layout.getText();
         if (charSequence instanceof Spanned && x >= lineStartX && x <= lineEndX) {
             Spanned spannedText = (Spanned) charSequence;
-            int index = mLayout.getOffsetForHorizontal(line, x);
+            int index = layout.getOffsetForHorizontal(line, x);
             TextGestureSpan[] spans = spannedText
                     .getSpans(index, index, TextGestureSpan.class);
             if (spans != null && spans.length > 0) {
@@ -296,29 +166,28 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
     }
 
     @Nullable
-    private TextGestureSpan findGestureSpan(MotionEvent event) {
-        if (mLayout == null) {
+    private TextGestureSpan findGestureSpan(MotionEvent event, @Nullable Layout layout) {
+        if (layout == null) {
             return null;
         }
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-        int width;
-        switch (mLayout.getAlignment()) {
+        float x = event.getX();
+        float y = event.getY();
+        float dx;
+        float dy;
+        switch (layout.getAlignment()) {
             case ALIGN_CENTER:
-                int totalHeight =
-                        getHeight() + getPaddingTop() + getPaddingBottom() - mLayout.getHeight();
-                width = (getWidth() - mLayout.getWidth()) / 2;
-                x -= width;
-                y -= totalHeight / 2;
+                dy = (getHeight() - layout.getHeight()) / 2.0f;
+                dx = (getWidth() - layout.getWidth()) / 2.0f;
+                x -= dx;
+                y -= dy;
                 break;
             case ALIGN_OPPOSITE:
-                width = getWidth() - getPaddingRight() - mLayout.getWidth();
-                x -= width;
+                dx = getWidth() - getPaddingRight() - layout.getWidth();
+                x -= dx;
                 break;
             default:
                 // Just need to handle center and opposite alignment.
-
         }
-        return findGestureSpan(x, y);
+        return findGestureSpan((int) x, (int) y, layout);
     }
 }

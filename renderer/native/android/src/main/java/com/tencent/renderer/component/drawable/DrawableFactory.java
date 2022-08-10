@@ -46,9 +46,7 @@ public class DrawableFactory {
         Drawable drawable = null;
         switch (type) {
             case DRAWABLE_TYPE_RIPPLE:
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    drawable = createRippleDrawable(params);
-                }
+                drawable = createRippleDrawable(params);
                 break;
             default:
         }
@@ -56,7 +54,6 @@ public class DrawableFactory {
         return drawable;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @NonNull
     private static Drawable createRippleDrawable(@Nullable Map params) {
         int color = Color.BLUE;

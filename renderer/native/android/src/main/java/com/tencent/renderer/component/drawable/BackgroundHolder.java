@@ -16,20 +16,25 @@
 
 package com.tencent.renderer.component.drawable;
 
-public interface BorderDrawable
-{
-	enum BorderStyle {
-		NONE,
-		SOLID,
-		DOTTED,
-		DASHED
-	}
+import android.graphics.Path;
+import android.graphics.RectF;
+import androidx.annotation.Nullable;
+import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderRadius;
 
-	void setBorderRadius(float radius, int position);
+public interface BackgroundHolder {
 
-	void setBorderWidth(float width, int position);
+    @Nullable
+    BorderRadius getBorderRadii();
 
-	void setBorderColor(int color, int position);
+    float getBorderRadius();
 
-	void setBorderStyle(int style);
+    @Nullable
+    RectF getContentRectF();
+
+    @Nullable
+    Path getBorderRadiusPath();
+
+    int getBorderWidth();
+
+    boolean hasBorderRadius();
 }
