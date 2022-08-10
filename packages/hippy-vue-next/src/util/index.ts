@@ -32,6 +32,7 @@ export function getUniqueId(): number {
   uniqueId += 1;
 
   // The id does not use numbers that are multiples of 10
+  // because id multiples of 10 is used by native
   if (uniqueId % 10 === 0) {
     uniqueId += 1;
   }
@@ -104,7 +105,7 @@ export function tryConvertNumber<T extends string | number>(
 ): T extends number ? number : string | number;
 
 /**
- * Convert strings to numbers as much as possible
+ * Convert strings to number as much as possible
  */
 export function tryConvertNumber(str: string | number): string | number {
   if (typeof str === 'number') {
