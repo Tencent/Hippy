@@ -297,6 +297,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     return [_textView becomeFirstResponder];
 }
 
+- (BOOL)isFirstResponder {
+    return [_textView isFirstResponder];
+}
+
 - (void)textview_becomeFirstResponder {
     if (_onFocus) {
         _onFocus(@{});
