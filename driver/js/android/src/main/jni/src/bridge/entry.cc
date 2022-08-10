@@ -130,7 +130,7 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
 
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
         "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
-        "unloadInstance",
+        "destroyInstance",
         "(J[BII)V",
         UnloadInstance)
 
