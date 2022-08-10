@@ -59,7 +59,8 @@
 }
 
 - (void)refreshFinish {
-    [self refreshFinishWithOption:@{@"time": @(2000)}];
+    self.status = NativeRenderRefreshStatusFinishLoading;
+    [self setRefreshStatusToIdle];
 }
 
 - (void)setRefreshStatusToIdle {
