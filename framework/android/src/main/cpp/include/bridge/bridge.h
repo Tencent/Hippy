@@ -22,17 +22,14 @@
 
 #pragma once
 
-#include "driver/runtime/v8/bridge.h"
-
 #include <memory>
 
 #include "jni/scoped_java_ref.h"
 
 namespace hippy {
-  class ADRBridge: public Bridge {
+  class ADRBridge {
    public:
     ADRBridge(JNIEnv* j_env, jobject j_obj): ref_(std::make_shared<JavaRef>(j_env, j_obj)){}
-    virtual ~ADRBridge() = default;
     inline jobject GetObj() {
       return ref_->GetObj();
     }

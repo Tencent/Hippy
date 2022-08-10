@@ -68,9 +68,8 @@ void CallNative(hippy::napi::CBDataTuple* data) {
       j_method = instance->GetMethods().j_call_natives_method_id;
     }
 
-    auto bridge = std::static_pointer_cast<ADRBridge>(runtime->GetBridge());
-    j_env->CallVoidMethod(bridge->GetObj(), j_method, j_module,
-                          j_func, j_cb_id, j_buffer);
+    auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(runtime->GetData(Runtime::kBridgeSlot));
+    j_env->CallVoidMethod(bridge->GetObj(), j_method, j_module, j_func, j_cb_id, j_buffer);
     JNIEnvironment::ClearJEnvException(j_env);
 
     // delete local ref

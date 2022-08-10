@@ -22,6 +22,7 @@
 
 #include <sys/stat.h>
 
+#include <any>
 #include <functional>
 #include <future>
 #include <utility>
@@ -86,14 +87,14 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const std::shared_ptr<WorkerManager>& worker_manager,
                                     const std::shared_ptr<TaskRunner>& task_runner,
                                     const std::shared_ptr<V8VMInitParam>& param,
-                                    std::shared_ptr<Bridge> bridge,
+                                    std::any bridge,
                                     const RegisterFunction& scope_cb,
                                     const RegisterFunction& call_native_cb,
                                     const unicode_string_view& data_dir,
                                     const unicode_string_view& ws_url) {
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
                                                                is_dev_module);
-  runtime->SetBridge(std::move(bridge));
+  runtime->SetData(Runtime::kBridgeSlot, std::move(bridge));
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
   RegisterFunction vm_cb = [runtime_id](void* vm) {

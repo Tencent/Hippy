@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "driver//napi/js_native_api.h"
+#include "driver/napi/js_native_api.h"
 #include "driver/napi/js_native_api_types.h"
 
 namespace hippy {

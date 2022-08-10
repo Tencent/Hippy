@@ -20,9 +20,8 @@
  *
  */
 
-
-#include <driver/napi/js_native_turbo.h>
-#include <driver/napi/jsc/js_native_api_jsc.h>
+#include "driver/napi/js_native_turbo.h"
+#include "driver/napi/jsc/js_native_api_jsc.h"
 
 namespace hippy {
 namespace napi {

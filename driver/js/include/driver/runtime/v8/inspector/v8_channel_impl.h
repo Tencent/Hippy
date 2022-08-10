@@ -24,7 +24,6 @@
 
 #include <memory>
 
-#include "driver/runtime/v8/bridge.h"
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #endif
@@ -38,14 +37,8 @@ namespace inspector {
 
 class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  public:
-  using Bridge = hippy::Bridge;
-
   V8ChannelImpl() = default;
   ~V8ChannelImpl() override = default;
-
-  inline std::shared_ptr<Bridge> GetBridge() { return bridge_; }
-
-  inline void SetBridge(std::shared_ptr<Bridge> bridge) { bridge_ = bridge; }
 
 #ifdef ENABLE_INSPECTOR
   inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
@@ -62,7 +55,6 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
 
  private:
   friend class V8InspectorClientImpl;
-  std::shared_ptr<Bridge> bridge_;
 #ifdef ENABLE_INSPECTOR
   std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
 #endif

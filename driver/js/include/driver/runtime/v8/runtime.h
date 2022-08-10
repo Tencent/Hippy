@@ -24,23 +24,20 @@
 
 #include <cstdint>
 
+#include <any>
 #include <memory>
-
-#ifdef ENABLE_TURBO
-class TurboModuleRuntime;
-#endif
 
 #include "driver/engine.h"
 #include "driver/napi/js_native_api.h"
 #include "driver/napi/v8/js_native_api_v8.h"
 #include "driver/napi/js_native_api_types.h"
-#include "driver/runtime/v8/bridge.h"
 #include "v8/v8.h"
 
 class Runtime {
  public:
+  static constexpr uint32_t kBridgeSlot = 1;
+  static constexpr uint32_t kTurboSlot = 2;
   using CtxValue = hippy::napi::CtxValue;
-  using Bridge = hippy::Bridge;
 
   Runtime(bool enable_v8_serialization, bool is_dev);
 
@@ -62,14 +59,15 @@ class Runtime {
   inline void SetEngine(std::shared_ptr<Engine> engine) { engine_ = engine; }
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
 
-
-  std::shared_ptr<Bridge> GetBridge();
-  // TODO(polly): fix inline crash for GetBridge()
-//  inline std::shared_ptr<Bridge> GetBridge() {
-//    return bridge_;
-//  }
-  inline void SetBridge(std::shared_ptr<Bridge> bridge) {
-    bridge_ = bridge;
+  inline std::any GetData(uint32_t slot) {
+    const auto& it = slot_.find(slot);
+    if (it != slot_.end()) {
+      return it->second;
+    }
+    return std::any();
+  }
+  inline void SetData(uint32_t slot, std::any data) {
+    slot_[slot] = data;
   }
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   inline void SetInspectorContext(std::shared_ptr<hippy::inspector::V8InspectorContext> inspector_context) {
@@ -85,16 +83,6 @@ class Runtime {
     return devtools_data_source_;
   }
 #endif
-#ifdef ENABLE_TURBO
-  inline std::shared_ptr<TurboModuleRuntime> GetTurboModuleRuntime() {
-    return turbo_module_runtime_;
-  }
-  inline void SetTurboModuleRuntime(
-      std::shared_ptr<TurboModuleRuntime> turbo_module_runtime) {
-    turbo_module_runtime_ = turbo_module_runtime;
-  }
-#endif
-
   static void Insert(const std::shared_ptr<Runtime>& runtime);
   static std::shared_ptr<Runtime> Find(int32_t id);
   static std::shared_ptr<Runtime> Find(v8::Isolate* isolate);
@@ -110,14 +98,10 @@ class Runtime {
   std::shared_ptr<Scope> scope_;
   std::shared_ptr<CtxValue> bridge_func_;
   int32_t id_;
-#ifdef ENABLE_TURBO
-  std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
-#endif
+  std::unordered_map<uint32_t, std::any> slot_;
 #ifdef ENABLE_INSPECTOR
   std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
 #endif
-
-  std::shared_ptr<Bridge> bridge_;
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   std::shared_ptr<hippy::inspector::V8InspectorContext> inspector_context_;
 #endif

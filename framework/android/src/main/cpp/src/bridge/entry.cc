@@ -378,7 +378,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   });
 
   std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
-  auto bridge = std::static_pointer_cast<ADRBridge>(runtime->GetBridge());
+  auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(runtime->GetData(Runtime::kBridgeSlot));
   auto ref = bridge->GetRef();
   loader->SetBridge(ref);
   loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
@@ -467,7 +467,6 @@ jlong InitInstance(JNIEnv* j_env,
                                     const unicode_string_view& stack) {
     ExceptionHandler::ReportJsException(runtime, desc, stack);
   });
-  std::shared_ptr<ADRBridge> bridge = std::make_shared<ADRBridge>(j_env, j_object);
   const unicode_string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
   const unicode_string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
   std::shared_ptr<WorkerManager> worker_manager;
@@ -485,7 +484,7 @@ jlong InitInstance(JNIEnv* j_env,
       worker_manager,
       dom_task_runner,
       param,
-      bridge,
+      std::make_shared<ADRBridge>(j_env, j_object),
       scope_cb,
       call_native_cb,
       data_dir,

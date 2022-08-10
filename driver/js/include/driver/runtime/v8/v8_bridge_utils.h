@@ -26,7 +26,6 @@
 #include <memory>
 
 #include "driver/base/common.h"
-#include "driver/runtime/v8/bridge.h"
 #include "footstone/unicode_string_view.h"
 #include "runtime.h"
 #include "v8/v8.h"
@@ -47,7 +46,6 @@ class V8BridgeUtils {
   using u8string = unicode_string_view::u8string;
   using V8VMInitParam = hippy::napi::V8VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
-  using Bridge = hippy::Bridge;
 
   using ReportJsException = std::function<void(const std::shared_ptr<Runtime>& runtime,
                                                const unicode_string_view& desc,
@@ -60,7 +58,7 @@ class V8BridgeUtils {
                               const std::shared_ptr<footstone::WorkerManager>& worker_manager,
                               const std::shared_ptr<footstone::TaskRunner>& task_runner,
                               const std::shared_ptr<V8VMInitParam>& param,
-                              std::shared_ptr<Bridge> bridge,
+                              std::any bridge,
                               const RegisterFunction& scope_cb,
                               const RegisterFunction& call_native_cb,
                               const unicode_string_view& data_dir,

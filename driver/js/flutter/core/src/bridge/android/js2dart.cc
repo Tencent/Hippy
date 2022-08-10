@@ -42,7 +42,7 @@ void CallDart(hippy::napi::CBDataTuple *data) {
     std::u16string module_name = StringViewUtils::CovertToUtf16(module, module.encoding()).utf16_value();
     std::u16string module_func = StringViewUtils::CovertToUtf16(func, func.encoding()).utf16_value();
     std::u16string call_id = StringViewUtils::CovertToUtf16(cb_id, cb_id.encoding()).utf16_value();
-    auto bridge = std::static_pointer_cast<VoltronBridge>(runtime->GetBridge());
+    auto bridge = std::any_cast<VoltronBridge>(runtime->GetData(Runtime::kBridgeSlot));
 
     if (bridge) {
       bridge->GetPlatformRuntime()->CallDart(module_name,

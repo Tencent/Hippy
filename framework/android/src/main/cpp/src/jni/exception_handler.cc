@@ -38,12 +38,11 @@ void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime
   jstring j_exception = JniUtils::StrViewToJString(j_env, desc);
   jstring j_stack_trace = JniUtils::StrViewToJString(j_env, stack);
 
-  if (runtime->GetBridge()) {
-    auto bridge = std::static_pointer_cast<hippy::ADRBridge>(runtime->GetBridge());
+  auto slot = runtime->GetData(Runtime::kBridgeSlot);
+  if (slot.has_value()) {
+    auto bridge = std::any_cast<std::shared_ptr<hippy::ADRBridge>>(slot);
     j_env->CallVoidMethod(bridge->GetObj(),
-                          JNIEnvironment::GetInstance()
-                              ->GetMethods()
-                              .j_report_exception_method_id,
+                          JNIEnvironment::GetInstance()->GetMethods().j_report_exception_method_id,
                           j_exception, j_stack_trace);
     JNIEnvironment::ClearJEnvException(j_env);
   }
