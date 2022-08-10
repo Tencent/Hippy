@@ -38,7 +38,7 @@ import com.tencent.mtt.hippy.views.list.HippyListView;
 import java.util.List;
 import java.util.Map;
 
-@HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true, useSystemStandardType = true)
+@HippyController(name = HippyPullFooterViewController.CLASS_NAME, isLazyLoad = true, dispatchWithStandardType = true)
 public class HippyPullFooterViewController extends HippyViewController<HippyPullFooterView> {
 
     public static final String CLASS_NAME = "PullFooterView";

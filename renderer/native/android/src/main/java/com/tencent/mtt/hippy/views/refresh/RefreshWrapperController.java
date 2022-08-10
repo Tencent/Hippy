@@ -30,7 +30,7 @@ import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import java.util.List;
 
 @SuppressWarnings({"unused"})
-@HippyController(name = "RefreshWrapper", useSystemStandardType = true)
+@HippyController(name = "RefreshWrapper", dispatchWithStandardType = true)
 public class RefreshWrapperController extends HippyGroupController<RefreshWrapper> {
 
     private static final String REFRESH_COMPLECTED = "refreshComplected";

@@ -49,12 +49,20 @@ class PullFooterRefreshHelper extends PullRefreshHelper {
 
     @Override
     protected void handleTouchMoveEvent(MotionEvent event) {
-        if (((isVertical() && mRecyclerView.canScrollVertically(1)) ||
-                (!isVertical() && mRecyclerView.canScrollHorizontally(-1))) &&
-                (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED)) {
+        boolean isVertical = isVertical();
+        if (isVertical && mRecyclerView.canScrollVertically(1)
+                && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
             return;
         }
-        float current = isVertical() ? event.getRawY() : event.getRawX();
+        if (!isVertical) {
+            int offset = mRecyclerView.computeHorizontalScrollOffset();
+            int extent = mRecyclerView.computeHorizontalScrollExtent();
+            int range = mRecyclerView.computeHorizontalScrollRange();
+            if ((offset + extent < range - extent) && mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
+                return;
+            }
+        }
+        float current = isVertical ? event.getRawY() : event.getRawX();
         if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
             boolean isOnMove = Math.abs(current - mStartPosition - getTouchSlop()) > 0;
             if (!isOnMove) {
@@ -63,7 +71,7 @@ class PullFooterRefreshHelper extends PullRefreshHelper {
             mRefreshStatus = PullRefreshStatus.PULL_STATUS_DRAGGING;
         }
         endAnimation();
-        int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
+        int nodeSize = isVertical ? mRenderNode.getHeight() : mRenderNode.getWidth();
         int distance = getVisibleSize() - ((int) ((current - mLastPosition) / PULL_RATIO));
         if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
             setVisibleSize(Math.max(distance, nodeSize));

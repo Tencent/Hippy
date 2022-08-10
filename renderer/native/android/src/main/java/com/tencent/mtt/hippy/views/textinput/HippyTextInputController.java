@@ -56,7 +56,7 @@ import java.util.List;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CALL_UI_FUNCTION_ERR;
 
-@HippyController(name = HippyTextInputController.CLASS_NAME, useSystemStandardType = true)
+@HippyController(name = HippyTextInputController.CLASS_NAME, dispatchWithStandardType = true)
 public class HippyTextInputController extends HippyViewController<HippyTextInput> {
 
     public static final String CLASS_NAME = "TextInput";
@@ -312,11 +312,9 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
         hippyTextInput.setOnSelectListener(change);
     }
 
-    @HippyControllerProps(name = "letterSpacing", defaultType = HippyControllerProps.NUMBER, defaultNumber = -1)
-    public void letterSpacing(HippyTextInput view, float letterSpacing) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && letterSpacing != -1) {
-            view.setLetterSpacing(PixelUtil.dp2px(letterSpacing));
-        }
+    @HippyControllerProps(name = "letterSpacing", defaultType = HippyControllerProps.NUMBER)
+    public void setLetterSpacing(HippyTextInput view, float letterSpacing) {
+        view.setLetterSpacing(PixelUtil.dp2px(letterSpacing));
     }
 
     @HippyControllerProps(name = "value", defaultType = HippyControllerProps.STRING)
@@ -379,7 +377,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
     @HippyControllerProps(name = "underlineColorAndroid", defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
     public void setUnderlineColor(HippyTextInput hippyTextInput, int underlineColor) {
-        hippyTextInput.setUnderlineColor(underlineColor);
+        //hippyTextInput.setUnderlineColor(underlineColor);
     }
 
     @HippyControllerProps(name = "changetext", defaultType = HippyControllerProps.BOOLEAN)

@@ -44,7 +44,7 @@ import java.util.Map;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.HANDLE_CALL_UI_FUNCTION_ERR;
 
-@HippyController(name = WaterFallComponentName.CONTAINER, useSystemStandardType = true)
+@HippyController(name = WaterFallComponentName.CONTAINER, dispatchWithStandardType = true)
 public class HippyWaterfallViewController extends HippyViewController<HippyWaterfallView> {
 
     private static final String TAG = "HippyWaterfallViewController";

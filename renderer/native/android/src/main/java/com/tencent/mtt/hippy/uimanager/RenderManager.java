@@ -87,9 +87,23 @@ public class RenderManager {
         mControllerManager.destroy();
     }
 
+    public void preCreateView(int rootId, int id, int pid, @NonNull String className,
+            @Nullable Map<String, Object> props) {
+        boolean isLazy = mControllerManager.checkLazy(className);
+        if (pid != rootId) {
+            View view = mControllerManager.getPreView(rootId, pid);
+            if (view == null) {
+                isLazy = true;
+            }
+        }
+        if (!isLazy) {
+            mControllerManager.preCreateView(rootId, id, className, props);
+        }
+    }
+
     public void createNode(int rootId, int id, int pid, int index,
             @NonNull String className, @NonNull Map<String, Object> props) {
-        boolean isLazy = mControllerManager.isControllerLazy(className);
+        boolean isLazy = mControllerManager.checkLazy(className);
         RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
         RenderNode parentNode = getRenderNode(rootId, pid);
         if (rootNode == null || parentNode == null) {
@@ -210,6 +224,7 @@ public class RenderManager {
             node.updateView();
             node.batchComplete();
         }
+        mControllerManager.onBatchEnd();
         updateNodes.clear();
     }
 
@@ -269,7 +284,7 @@ public class RenderManager {
     }
 
     public void replaceID(int rootId, int oldId, int newId) {
-        mControllerManager.replaceID(rootId, oldId, newId);
+        mControllerManager.replaceId(rootId, oldId, newId);
     }
 
     public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {

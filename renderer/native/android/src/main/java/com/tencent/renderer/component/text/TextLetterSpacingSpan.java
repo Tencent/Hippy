@@ -23,7 +23,6 @@ import android.text.style.MetricAffectingSpan;
 
 import androidx.annotation.NonNull;
 
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class TextLetterSpacingSpan extends MetricAffectingSpan {
 
     private final float mSpace;

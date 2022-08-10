@@ -24,7 +24,7 @@ import java.util.List;
 public final class NativeRenderContext extends ContextWrapper {
 
     private int mInstanceId;
-    private int mRootId;
+    private final int mRootId;
 
     public NativeRenderContext(Context context, int instanceId, int rootId) {
         super(context);

@@ -17,13 +17,13 @@ if (propFile.exists()) {
 }
 
 android {
-    compileSdkVersion COMPILE_SDK_VERSION as int
+    compileSdkVersion COMPILE_VERSION as int
     defaultConfig {
         applicationId "com.tencent.mtt.hippy.example"
-        minSdkVersion MIN_SDK_VERSION as int
+        minSdkVersion MIN_VERSION as int
         // noinspection ExpiredTargetSdkVersion
         //noinspection OldTargetApi
-        targetSdkVersion TARGET_SDK_VERSION as int
+        targetSdkVersion TARGET_VERSION as int
         ndk  {
             if (include_abi_armeabi_v7a.toBoolean()) {
                 abiFilters 'armeabi-v7a'
@@ -68,7 +68,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:$VERSION_AGP"
+        classpath "com.android.tools.build:gradle:$AGP_VERSION"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }

@@ -69,7 +69,7 @@ public class NativeRendererManager {
         return sRootNodeMap.get(rootId);
     }
 
-    @Nullable
+    @NonNull
     public static Set<Integer> getRoots() {
         return sRootNodeMap.keySet();
     }
