@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.scroll;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Build;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -63,6 +64,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
+  private boolean hasUnsentScrollEvent;
 
   protected int mScrollMinOffset = 0;
   private int startScrollX = 0;
@@ -158,6 +160,9 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         requestDisallowInterceptTouchEvent(true);
       }
     } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
+      if (hasUnsentScrollEvent) {
+        sendOnScrollEvent();
+      }
       if (mScrollEndDragEventEnable) {
         LogUtils.d("HippyHorizontalScrollView", "emitScrollEndDragEvent");
         HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
@@ -225,32 +230,35 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
     if (mHippyOnScrollHelper.onScrollChanged(x, y)) {
       if (mScrollEventEnable) {
-        long currTime = System.currentTimeMillis();
+        long currTime;
         int offsetX = Math.abs(x - mLastX);
         if (mScrollMinOffset > 0 && offsetX >= mScrollMinOffset) {
           mLastX = x;
-          HippyScrollViewEventHelper.emitScrollEvent(this);
-        } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
-            >= mScrollEventThrottle)) {
+          sendOnScrollEvent();
+        } else if ((mScrollMinOffset == 0) && ((currTime = SystemClock.elapsedRealtime()) - mLastScrollEventTimeStamp >= mScrollEventThrottle)) {
           mLastScrollEventTimeStamp = currTime;
-          HippyScrollViewEventHelper.emitScrollEvent(this);
+          sendOnScrollEvent();
+        } else {
+          hasUnsentScrollEvent = true;
         }
       }
       mDoneFlinging = false;
     }
   }
 
-  protected void doPageScroll() {
-    if (mMomentumScrollBeginEventEnable) {
-      HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
-    }
+  private void sendOnScrollEvent() {
+    hasUnsentScrollEvent = false;
+    HippyScrollViewEventHelper.emitScrollEvent(this);
+  }
 
-    smoothScrollToPage();
-
+  private void scheduleScrollEnd() {
     Runnable runnable = new Runnable() {
       @Override
       public void run() {
         if (mDoneFlinging) {
+          if (hasUnsentScrollEvent) {
+            sendOnScrollEvent();
+          }
           if (mMomentumScrollEndEventEnable) {
             HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
           }
@@ -260,8 +268,17 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         }
       }
     };
-
     postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+  }
+
+  protected void doPageScroll() {
+    if (mMomentumScrollBeginEventEnable) {
+      HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
+    }
+
+    smoothScrollToPage();
+
+    scheduleScrollEnd();
   }
 
   @Override
@@ -275,21 +292,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     if (mMomentumScrollBeginEventEnable) {
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
-    Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        if (mDoneFlinging) {
-          if (mMomentumScrollEndEventEnable) {
-            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyHorizontalScrollView.this);
-          }
-        } else {
-          mDoneFlinging = true;
-          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-        }
-      }
-    };
-
-    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+    scheduleScrollEnd();
   }
 
   private void smoothScrollToPage() {

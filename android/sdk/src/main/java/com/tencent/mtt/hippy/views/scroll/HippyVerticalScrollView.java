@@ -19,6 +19,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -60,6 +61,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
   protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
+  private boolean hasUnsentScrollEvent;
 
   protected int mScrollMinOffset = 0;
   private int startScrollY = 0;
@@ -138,6 +140,9 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       // 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
       setParentScrollableIfNeed(false);
     } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
+      if (hasUnsentScrollEvent) {
+        sendOnScrollEvent();
+      }
       if (mScrollEndDragEventEnable) {
         HippyScrollViewEventHelper.emitScrollEndDragEvent(this);
       }
@@ -211,32 +216,35 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     super.onScrollChanged(x, y, oldX, oldY);
     if (mHippyOnScrollHelper.onScrollChanged(x, y)) {
       if (mScrollEventEnable) {
-        long currTime = System.currentTimeMillis();
+        long currTime;
         int offsetY = Math.abs(y - mLastY);
         if (mScrollMinOffset > 0 && offsetY >= mScrollMinOffset) {
           mLastY = y;
-          HippyScrollViewEventHelper.emitScrollEvent(this);
-        } else if ((mScrollMinOffset == 0) && (currTime - mLastScrollEventTimeStamp
-            >= mScrollEventThrottle)) {
+          sendOnScrollEvent();
+        } else if ((mScrollMinOffset == 0) && ((currTime = SystemClock.elapsedRealtime()) - mLastScrollEventTimeStamp >= mScrollEventThrottle)) {
           mLastScrollEventTimeStamp = currTime;
-          HippyScrollViewEventHelper.emitScrollEvent(this);
+          sendOnScrollEvent();
+        } else {
+          hasUnsentScrollEvent = true;
         }
       }
       mDoneFlinging = false;
     }
   }
 
-  protected void doPageScroll() {
-    if (mMomentumScrollBeginEventEnable) {
-      HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
-    }
+  private void sendOnScrollEvent() {
+    hasUnsentScrollEvent = false;
+    HippyScrollViewEventHelper.emitScrollEvent(this);
+  }
 
-    smoothScrollToPage();
-
+  private void scheduleScrollEnd() {
     Runnable runnable = new Runnable() {
       @Override
       public void run() {
         if (mDoneFlinging) {
+          if (hasUnsentScrollEvent) {
+            sendOnScrollEvent();
+          }
           if (mMomentumScrollEndEventEnable) {
             HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
           }
@@ -248,6 +256,16 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     };
 
     postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+  }
+
+  protected void doPageScroll() {
+    if (mMomentumScrollBeginEventEnable) {
+      HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
+    }
+
+    smoothScrollToPage();
+
+    scheduleScrollEnd();
   }
 
   @Override
@@ -261,21 +279,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     if (mMomentumScrollBeginEventEnable) {
       HippyScrollViewEventHelper.emitScrollMomentumBeginEvent(this);
     }
-    Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        if (mDoneFlinging) {
-          if (mMomentumScrollEndEventEnable) {
-            HippyScrollViewEventHelper.emitScrollMomentumEndEvent(HippyVerticalScrollView.this);
-          }
-        } else {
-          mDoneFlinging = true;
-          postOnAnimationDelayed(this, HippyScrollViewEventHelper.MOMENTUM_DELAY);
-        }
-      }
-    };
-
-    postOnAnimationDelayed(runnable, HippyScrollViewEventHelper.MOMENTUM_DELAY);
+    scheduleScrollEnd();
   }
 
   private void smoothScrollToPage() {
