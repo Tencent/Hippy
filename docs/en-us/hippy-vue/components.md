@@ -46,13 +46,15 @@ This component is mapped to the View component, and the container can be used to
 
 > div component container. By default, scrolling is not allowed. `overflow-y: scroll` style attribute can be added to make it switch to vertical scroll container, `overflow-x: scroll` style attribute can be added to make it switch to horizontal scroll container. On the native side this will be mapped to [ScrollView](hippy-react/components.md?id=ScrollView), so it has the same capabilities as [ScrollView](hippy-react/components.md?id=ScrollView).
 
+!> Android has node optimization, please pay attention to `collapsable` attribute.
+
 ## Attributes
 
 | Props               | Description                                                         | Type                                 | Supported Platforms  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | accessibilityLabel | Set the text read by a "screen reader" (an assistive function for people with visual impairment) when the user interacts with this element. By default, the literal is constructed by iterating through all the child elements and adding up all the text tags. | `string`                               | `Android、iOS`     |
 | accessible         | When this property is `true`, it indicates that the view enables an accessibility element. By default, all touchable elements are accessibility elements.| `boolean`                            | `Android、iOS`     |
-| collapsable        | If a `div` is used only to lay out its children, it may be removed from the native layout tree for optimization, so references to the node's DOM will be lost `(e.g., a call to measureInAppWindow fails to get size and position information)`. Setting this property to `false` disables this optimization to ensure that the corresponding view exists in the native trees. `(can also be set to the Style property)`| `boolean`                            | `Android` |
+| collapsable        | If a `div` is used only to lay out its children, it may be removed from the native layout tree for optimization, so references to the node's DOM will be lost `(e.g., a call to measureInAppWindow fails to get size and position information)`. Setting this property to `false` disables this optimization to ensure that the corresponding view exists in the native trees. `(Android supports to set collapsable in Attribute after 2.14.1, older versions need to be set in static Style property)`| `boolean`                            | `Android` |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS、Web-Renderer`     |
 | opacity            | Configures the transparency of `View`, also affects the transparency of child nodes at the same time      | `number`                             | `Android、iOS、Web-Renderer`     |
 | overflow           | Specifies whether to clip content when the child overflows its parent `View` container | `enum(visible, hidden)`         | `Android、iOS、Web-Renderer`     |
@@ -271,6 +273,7 @@ Please refer to the Android development documentation for details.
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | Called when the text box is blurred. | `Function`                                                   | `Android、iOS、Web-Renderer`     |
+| focus | Called when the text box is focused. | `Function` | `Android、iOS` |
 | change          | Called when the contents of the text box change. The changed text is passed as a parameter. | `Function`                                                   | `Android、iOS、Web-Renderer`     |
 | keyboardWillShow    | Called when the input keyboard pops-up, the return value contains the keyboard height `keyboardHeight`, style such as `{keyboardHeight: 260 }`| `Function`                                                   | `Android、iOS`     |
 | keyboardWillHide     | Called when hiding input keyboard.| `Function`                                                   | `Android`     |

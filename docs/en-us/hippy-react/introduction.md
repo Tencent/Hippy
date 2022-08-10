@@ -1,8 +1,6 @@
 # Introduction To Hippy-react
 
-hippy-react is a React-to-native rendering layer redeveloped based on Facebook React's official custom renderer [react-reconciler](//www.npmjs.com/package/react-reconciler), which can use all of React's features.
-
-In terms of syntax, hippy-react is closer to the underlying native, using a syntax similar to [React Native](//facebook.github.io/react-native/).
+hippy-react is a React-to-native rendering layer redeveloped based on React's official custom renderer [react-reconciler](//www.npmjs.com/package/react-reconciler), which can use all of React's features. Now `React17` is used.
 
 # Architecture Diagram
 

@@ -8,7 +8,7 @@
     "**/*.{css,less,scss}",
     "**/*.{h,hpp,hh,h++,hxx}",
     "**/*.{c,cc,c++,cpp,C,cxx}",
-    "**/*.{m,mm,swift,podspec}",
+    "**/*.{m,mm,swift}",
     "**/*.cmake",
     "**/*.java",
     "**/*.txt",
@@ -34,6 +34,7 @@
     ".github/**",
     ".husky/**",
     "docs/**",
+    "static/**",
     "examples/android-demo/res/**",
     "examples/ios-demo/res/**",
     "examples/hippy-**-demo/**"

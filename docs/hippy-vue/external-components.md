@@ -101,13 +101,13 @@ export default {
   > * 替换 actions => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，调用 `this.[animation ref].start()`（推荐）
   > * 设置 `playing = false` =>  替换 actions  => 延迟一定时间（如setTimeout）后 或者在 `actionsDidUpdate` 勾子内 `(2.14.0 版本后支持)`，设置 `playing = true`
 
-  > `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
-
   > `2.6.0` 及以上版本支持 `backgroundColor` 背景色渐变动画，参考 [渐变色动画DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
   > 
   > * 设置 `actions` 对 `backgroundColor` 进行修饰
   > * 设置 `valueType` 为 `color`
   > * 设置 `startValue` 和 `toValue` 为 [color值](style/color.md)
+
+  > `2.12.2` 及以上版本支持循环播放参数 `repeatCount: 'loop'` 写法，低版本请使用 `repeatCount: -1`
 
 ## 事件
 

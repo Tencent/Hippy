@@ -2,7 +2,6 @@
   "name": "hippy-vue-demo",
   "version": "2.0.0",
   "private": true,
-  "main": "./src/main.js",
   "webMain": "./src/main-web.js",
   "nativeMain": "./src/main-native.js",
   "author": "XQ Kuang <x@kxq.io>",
@@ -10,8 +9,6 @@
   "description": "Demo app for hippy-vue",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo",
   "scripts": {
-    "serve": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
-    "build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
     "lint": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider vue-cli-service lint",
     "hippy:debug": "hippy-debug",
     "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js",

@@ -186,7 +186,7 @@ Specific procedure:
 
 Hippy implements node and property mapping from front-end to native, allowing visual inspection of Elements on Chrome DevTools.
 
-<video width="80%" controls>
+<video width="80%" controls preload="none">
   <source src="../assets/img/elements-inspect.webm" type="video/webm">
   Elements Visualization Inspection example
 </video>
@@ -379,8 +379,8 @@ After the developer has modified the front-end code, we can refresh the componen
 
 Support for debugging Vue component trees, component state, routes, store, and event performance
 
-<video width="80%" controls>
-  <source src="../assets/img/hippy-vue-devtools-x2.mp4" type="video/mp4">
+<video width="80%" controls preload="none">
+  <source src="../assets/img/hippy-vue-devtools.webm" type="video/webm">
   Vue Devtools example
 </video>
 
@@ -415,8 +415,8 @@ Support for debugging Vue component trees, component state, routes, store, and e
 
 Support for debugging React component tree, component state, route, performance, etc.
 
-<video width="80%" controls>
-  <source src=".. /assets/img/hippy-react-devtools.mp4" type="video/mp4">
+<video width="80%" controls preload="none">
+  <source src="../assets/img/hippy-react-devtools.webm" type="video/webm">
   React Devtools Demo
 </video>
 
@@ -506,7 +506,7 @@ Local debugging has two pain points.
 
 Then we can consider using remote debugging for these scenarios, with the following preview.
 
-<video width="80%" controls>
+<video width="80%" controls preload="none">
   <source src="../assets/img/remote-debug-demo.webm" type="video/webm">
   Remote debug example
 </video>

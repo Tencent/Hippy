@@ -46,13 +46,15 @@
 
 > div 组件容器，默认不可以滚动。可以通过增加样式参数 `overflow-y: scroll` 切换为可以纵向滚动容器，或者增加样式参数 `overflow-x: scroll` 切换为水平滚动容器。在终端侧会被映射成 [ScrollView](hippy-react/components.md?id=ScrollView)，因此具备 [ScrollView](hippy-react/components.md?id=ScrollView) 通用的能力。
 
+!> Android 具有节点优化的特性，请注意 `collapsable` 属性的使用
+
 ## 参数
 
 | 参数               | 描述                                                         | 类型                                 | 支持平台  |
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `string`                               | `Android、iOS`     |
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `Android、iOS`     |
-| collapsable        | 如果一个 `div` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失`（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`(也可设置为 Style 属性)` | `boolean`                            | `Android` |
+| collapsable        | 如果一个 `div` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失`（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`（Android 2.14.1 版本后支持在 Attribute 设置，以前版本请在静态 Style 属性里设置)` | `boolean`                            | `Android` |                           | `Android` |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS、Web-Renderer`     |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、Web-Renderer`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、Web-Renderer`     |
@@ -258,6 +260,7 @@
 | underline-color-android  | `input` 下底线的颜色。 可以设置为 'transparent' 来去掉下底线。（也可设置为 Style 属性）  `最低支持版本2.13.4`      | [`color`](style/color.md)                                                      | `Android` |
 | returnKeyType         | 指定软键盘的回车键显示的样式。                               | `enum(done, go, next, search, send)`              | `Android、iOS、Web-Renderer`     |
 | value                 | 指定 `input` 组件的值。                                  | `string`                                                     | `Android、iOS、Web-Renderer`     |
+| break-strategy* | 设置Android API 23及以上系统的文本换行策略。`default: simple` | `enum(simple, high_quality, balanced)` | `Android(版本 2.14.2以上)` |
 
 * break-strategy 的参数含义：
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
@@ -269,7 +272,8 @@
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | blur                | 当文本框失去焦点的时候调用此回调函数。                       | `Function`                                                   | `Android、iOS、Web-Renderer`     |
-| change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS、Web-Renderer`     |
+| focus | 当文本框获得焦点的时候调用此回调函数。 | `Function` | `Android、iOS` |
+| change          | 当文本框内容变化时调用此回调函数。改变后的文字内容会作为参数传递。 | `Function`                                                   | `Android、iOS`     |
 | keyboardWillShow    | 在弹出输入法键盘时候会触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`。                                     | `Function`                                                   | `Android、iOS`     |
 | keyboardWillHide     | 在隐藏输入法键盘时候会触发此回调函数 | `Function`                                                   | `Android`     |
 | keyboardHeightChanged | 在输入法键盘高度改变时触发此回调函数，返回值包含键盘高度 `keyboardHeight`，样式如 `{ keyboardHeight: 260 }`, `最低支持版本2.14.0`。 | `Function` | `iOS` |                                 
