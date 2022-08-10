@@ -2,7 +2,7 @@
 
 ## Principle
 
-The parameters of the animation in Hippy are completely passed in by the front end, and then the native controls the calculation and typesetting update of each frame, which reduces the number of communications between the front end and the native, and thus greatly reduces animation freezes.
+The parameters of the animation in Hippy are completely passed in by the front end, and then the native controls the calculation and typesetting update of each frame, which reduces the number of communications between the front-end and the native, and thus greatly reduces animation freezes.
 
 ## Cool Effect
 
