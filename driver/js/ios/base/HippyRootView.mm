@@ -58,7 +58,7 @@ NSNumber *AllocRootViewTag() {
 
 - (instancetype)initWithFrame:(CGRect)frame
                        bridge:(HippyBridge *)bridge
-                     hippyTag:(NSNumber *)hippyTag NS_DESIGNATED_INITIALIZER;
+                 componentTag:(NSNumber *)componentTag NS_DESIGNATED_INITIALIZER;
 
 - (void)removeAllSubviews;
 
@@ -96,7 +96,7 @@ NSNumber *AllocRootViewTag() {
         _loadingViewFadeDelay = 0.25;
         _loadingViewFadeDuration = 0.25;
         _delegate = delegate;
-        _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge hippyTag:self.componentTag];
+        _contentView = [[HippyRootContentView alloc] initWithFrame:self.bounds bridge:bridge componentTag:self.componentTag];
         _contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
 
@@ -400,10 +400,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 - (instancetype)initWithFrame:(CGRect)frame
                        bridge:(HippyBridge *)bridge
-                     hippyTag:(NSNumber *)hippyTag {
+                 componentTag:(NSNumber *)componentTag {
     if ((self = [super initWithFrame:frame])) {
         _bridge = bridge;
-        self.componentTag = hippyTag;
+        self.componentTag = componentTag;
         self.layer.backgroundColor = NULL;
         _startTimpStamp = CACurrentMediaTime() * 1000;
     }
@@ -455,7 +455,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (nonnull NSCoder *)aDecoder
     if (self.userInteractionEnabled) {
         self.userInteractionEnabled = NO;
         [(HippyRootView *)self.superview contentViewInvalidated];
-        NSDictionary *param = @{@"id": self.hippyTag};
+        NSDictionary *param = @{@"id": self.componentTag};
         footstone::value::HippyValue value = OCTypeToDomValue(param);
         std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
         _bridge.batchedBridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
