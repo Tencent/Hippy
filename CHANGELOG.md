@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.4](https://github.com/Tencent/Hippy/compare/2.14.3...2.14.4) (2022-08-10)
+
+
+### Bug Fixes
+
+* **android:** fix LLVM linker version script not taking effect ([5c535c9](https://github.com/Tencent/Hippy/commit/5c535c92ebd1a037137e69ce5affc439d304cf4e))
+* **core:** add android native2js promsie reject condition ([daa484b](https://github.com/Tencent/Hippy/commit/daa484bd5f97d8c47ec7b003808687c24703787e))
+* **ios:** set thread priority explictly to avoid priority revertion ([d38105f](https://github.com/Tencent/Hippy/commit/d38105f7e3620ddcbdc42185d829ad3f8a5cf3b9))
+* **workflows:** CodeQL analysis checkout using LFS ([c004cc0](https://github.com/Tencent/Hippy/commit/c004cc062a9c9201e081b28c6a0714bc8dfe9ecb))
+
+
+### Features
+
+* **hippy-vue:** support once modifier ([58f4d10](https://github.com/Tencent/Hippy/commit/58f4d10ba04adfc150690b6c9201599b72ccc4df))
+* **workflows:** add github actions for project artifact release ([40dbc91](https://github.com/Tencent/Hippy/commit/40dbc9192ace48c8f28817fcfdbe3599f27b75c5))
+* **workflows:** artifact release action always compress symbols ([66852f5](https://github.com/Tencent/Hippy/commit/66852f5a8cdb8f2ec61d93cbf3788115b692e9cd))
+* **workflows:** CodeQL analysis runs at every night ([55cd140](https://github.com/Tencent/Hippy/commit/55cd14015d56fbca157f26ac71260ae1a7d378cd))
+
+
+
+
+
 ## [2.14.3](https://github.com/Tencent/Hippy/compare/2.14.2...2.14.3) (2022-08-03)
 
 

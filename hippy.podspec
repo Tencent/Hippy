@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   puts 'hippy.podspec read begins'
   s.name             = 'hippy'
-  s.version          = 'unspecified'
+  s.version          = '2.14.4'
   s.summary          = 'Hippy Cross Platform Framework'
 
 # This description is used to generate tags and improve search results.
@@ -40,5 +40,5 @@ Pod::Spec.new do |s|
     # cores.header_mappings_dir = 'core/include/'
     cores.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/'}
     puts 'hippy subspec \'core\' read end'
-  end 
+  end
 end

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.4](https://github.com/Tencent/Hippy/compare/2.14.3...2.14.4) (2022-08-10)
+
+
+### Features
+
+* **hippy-vue:** support once modifier ([58f4d10](https://github.com/Tencent/Hippy/commit/58f4d10ba04adfc150690b6c9201599b72ccc4df))
+
+
+
+
+
 ## [2.14.3](https://github.com/Tencent/Hippy/compare/2.14.2...2.14.3) (2022-08-03)
 
 
