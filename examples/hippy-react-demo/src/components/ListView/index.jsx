@@ -148,6 +148,11 @@ export default class ListExample extends React.Component {
   onAppear(index) {
     console.log('onAppear', index);
   }
+
+  onScroll = (obj) => {
+    console.log('onScroll', obj);
+  }
+
   // item完全隐藏
   onDisappear(index) {
     console.log('onDisappear', index);
@@ -276,6 +281,8 @@ export default class ListExample extends React.Component {
           onDisappear={this.onDisappear}
           onWillAppear={this.onWillAppear}
           onWillDisappear={this.onWillDisappear}
+          onScroll={this.onScroll}
+          scrollEventThrottle={1000} // 1s
         />
         {Platform.OS === 'android'
           ? <View
