@@ -45,7 +45,6 @@ if (NOT DEFINED LAYOUT_ENGINE)
   set(LAYOUT_ENGINE "Taitank")
 endif ()
 
-message("LAYOUT_ENGINE: ${LAYOUT_ENGINE}")
 if ("${LAYOUT_ENGINE}" STREQUAL "Yoga")
   InfraPackage_Add(yoga
       REMOTE "dom/third_party/yoga/1.19.0/git-repo.tgz"
