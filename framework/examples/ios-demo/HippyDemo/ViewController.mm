@@ -191,10 +191,10 @@ std::string mock;
 }
 
 - (void)initRenderContextWithRootView:(UIView *)rootView {
-    int hippyTag = [[rootView componentTag] intValue];
-    HippyAssert(0 != hippyTag && 0 == hippyTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
-    if (rootView && hippyTag) {
-        _rootNode = std::make_shared<hippy::RootNode>(hippyTag);
+    int componentTag = [[rootView componentTag] intValue];
+    HippyAssert(0 != componentTag && 0 == componentTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
+    if (rootView && componentTag) {
+        _rootNode = std::make_shared<hippy::RootNode>(componentTag);
         _rootNode->GetAnimationManager()->SetRootNode(_rootNode);
         _domManager = std::make_shared<hippy::DomManager>();
         _rootNode->SetDomManager(_domManager);

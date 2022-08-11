@@ -672,32 +672,32 @@ void V8BridgeUtils::LoadInstance(int32_t runtime_id, byte_string&& buffer_data) 
 }
 
 void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data) {
-  FOOTSTONE_DLOG(INFO) << "UnloadInstance instance runtime_id = " << runtime_id;
-  std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
-  if (!runtime) {
-    FOOTSTONE_DLOG(WARNING) << "UnloadInstance instance failed runtime_id invalid";
-    return;
-  }
-  auto runner = runtime->GetEngine()->GetJsTaskRunner();
-  std::weak_ptr<Scope> weak_scope = runtime->GetScope();
-  auto callback = [weak_scope, buffer_data_ = std::move(buffer_data)] {
-    std::shared_ptr<Scope> scope = weak_scope.lock();
-    if (!scope) {
-      return;
+    FOOTSTONE_DLOG(INFO) << "UnloadInstance runtime_id = " << runtime_id;
+    std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
+    if (!runtime) {
+        return;
     }
-    Deserializer deserializer(
-        reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
-        buffer_data_.length());
-    HippyValue value;
-    deserializer.ReadHeader();
-    auto ret = deserializer.ReadValue(value);
-    if (ret) {
-      scope->UnloadInstance(std::make_shared<HippyValue>(std::move(value)));
-    } else {
-      scope->GetContext()->ThrowException("LoadInstance param error");
-    }
-  };
-  runner->PostTask(std::move(callback));
+
+    auto runner = runtime->GetEngine()->GetJsTaskRunner();
+    std::weak_ptr<Scope> weak_scope = runtime->GetScope();
+    auto callback = [weak_scope, buffer_data_ = std::move(buffer_data)] {
+        std::shared_ptr<Scope> scope = weak_scope.lock();
+        if (!scope) {
+            return;
+        }
+        Deserializer deserializer(
+                reinterpret_cast<const uint8_t*>(buffer_data_.c_str()),
+                buffer_data_.length());
+        HippyValue value;
+        deserializer.ReadHeader();
+        auto ret = deserializer.ReadValue(value);
+        if (ret) {
+            scope->UnloadInstance(std::make_shared<HippyValue>(std::move(value)));
+        } else {
+            scope->GetContext()->ThrowException("UnloadInstance param error");
+        }
+    };
+    runner->PostTask(std::move(callback));
 }
 
 }

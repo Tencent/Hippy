@@ -40,7 +40,6 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
     private TextGestureSpan mGestureSpan;
     @Nullable
     private NativeGestureDispatcher mGestureDispatcher;
-    private boolean mGestureEnable = false;
 
     public HippyTextView(Context context) {
         super(context);
@@ -87,15 +86,13 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        if (!mGestureEnable) {
+        Component component = getComponent(this);
+        if (component == null || !component.getGestureEnable()) {
             return super.dispatchTouchEvent(event);
         }
         int action = event.getAction();
         if (action == MotionEvent.ACTION_DOWN) {
-            Component component = getComponent(this);
-            if (component != null) {
-                mGestureSpan = findGestureSpan(event, component.getTextLayout());
-            }
+            mGestureSpan = findGestureSpan(event, component.getTextLayout());
         }
         if (mGestureSpan != null) {
             boolean flag = mGestureSpan.handleDispatchTouchEvent(this, event);
@@ -115,10 +112,6 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
             result |= mGestureSpan.handleTouchEvent(this, event);
         }
         return result;
-    }
-
-    public void setGestureEnable(boolean gestureEnable) {
-        this.mGestureEnable = gestureEnable;
     }
 
     @Nullable

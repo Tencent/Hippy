@@ -27,7 +27,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
 import android.text.Layout;
-import android.view.ViewGroup;
+import android.text.Spannable;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +40,8 @@ import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderSide;
 import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderStyle;
 import com.tencent.renderer.component.drawable.ContentDrawable;
 import com.tencent.renderer.component.drawable.TextDrawable;
+import com.tencent.renderer.component.text.TextGestureSpan;
+
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +65,7 @@ public class Component implements Drawable.Callback {
     protected Rect mBounds = new Rect();
     protected final WeakReference<RenderNode> mHostRef;
     private boolean mHasDrawableEnsured = false;
+    private boolean mGestureEnable = false;
 
     public Component(RenderNode node) {
         mHostRef = new WeakReference<>(node);
@@ -179,6 +182,7 @@ public class Component implements Drawable.Callback {
         return mRippleDrawable;
     }
 
+    @SuppressWarnings("rawtypes")
     public void ensureRippleDrawable(@Nullable Map params) {
         if (params == null || params.isEmpty()) {
             mRippleDrawable = null;
@@ -261,6 +265,14 @@ public class Component implements Drawable.Callback {
         return mTextDrawable;
     }
 
+    public void setGestureEnable(boolean enable) {
+        mGestureEnable = enable;
+    }
+
+    public boolean getGestureEnable() {
+        return mGestureEnable;
+    }
+
     @Nullable
     public Layout getTextLayout() {
         return mTextDrawable != null ? mTextDrawable.getTextLayout() : null;
@@ -268,6 +280,16 @@ public class Component implements Drawable.Callback {
 
     public void setTextLayout(@NonNull Object layout) {
         ensureTextDrawable().setTextLayout(layout);
+        assert mTextDrawable != null;
+        if (mTextDrawable.getTextLayout() != null) {
+            CharSequence textSequence = mTextDrawable.getTextLayout().getText();
+            if (textSequence instanceof Spannable) {
+                Spannable spannable = (Spannable) textSequence;
+                TextGestureSpan[] spans = spannable
+                        .getSpans(0, spannable.length(), TextGestureSpan.class);
+                mGestureEnable = (spans != null && spans.length > 0);
+            }
+        }
     }
 
     public void setBackgroundColor(@ColorInt int color) {

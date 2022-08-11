@@ -41,25 +41,6 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
     }
 
     @Override
-    public void onBatchComplete(@NonNull HippyTextView view) {
-        super.onBatchComplete(view);
-        Component component = view.getComponent(view);
-        if (component == null) {
-            return;
-        }
-        Layout layout = component.getTextLayout();
-        if (layout != null) {
-            CharSequence textSequence = layout.getText();
-            if (textSequence instanceof Spannable) {
-                Spannable spannable = (Spannable) textSequence;
-                TextGestureSpan[] spans = spannable
-                        .getSpans(0, spannable.length(), TextGestureSpan.class);
-                view.setGestureEnable(spans != null && spans.length > 0);
-            }
-        }
-    }
-
-    @Override
     protected boolean handleGestureBySelf() {
         return true;
     }

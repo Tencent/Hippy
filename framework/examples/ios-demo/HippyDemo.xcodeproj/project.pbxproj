@@ -42,6 +42,7 @@
 		F438B757281250CD0078435B /* NativeRenderParserUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F438B753281250CD0078435B /* NativeRenderParserUtils.m */; };
 		F438B75A281283550078435B /* NativeRenderErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = F438B759281283550078435B /* NativeRenderErrorHandler.m */; };
 		F43A2D09275882650056F36C /* diff_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43A2D08275882650056F36C /* diff_utils.cc */; };
+		F441DFB12872903700FD5205 /* HippyRootViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F441DFB02872903700FD5205 /* HippyRootViewManager.mm */; };
 		F45D265328067B6900CAB185 /* NativeRenderScrollView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25AD28067B6900CAB185 /* NativeRenderScrollView.mm */; };
 		F45D265428067B6900CAB185 /* NativeRenderScrollViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25B028067B6900CAB185 /* NativeRenderScrollViewManager.mm */; };
 		F45D265528067B6900CAB185 /* NativeRenderRefreshWrapperItemView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25B328067B6900CAB185 /* NativeRenderRefreshWrapperItemView.mm */; };
@@ -329,6 +330,8 @@
 		F438B758281283550078435B /* NativeRenderErrorHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderErrorHandler.h; sourceTree = "<group>"; };
 		F438B759281283550078435B /* NativeRenderErrorHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NativeRenderErrorHandler.m; sourceTree = "<group>"; };
 		F43A2D08275882650056F36C /* diff_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = diff_utils.cc; sourceTree = "<group>"; };
+		F441DFAF2872903700FD5205 /* HippyRootViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyRootViewManager.h; sourceTree = "<group>"; };
+		F441DFB02872903700FD5205 /* HippyRootViewManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyRootViewManager.mm; sourceTree = "<group>"; };
 		F459C45827D4F355009A7441 /* UIView+Render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Render.h"; sourceTree = "<group>"; };
 		F459C45927D4F355009A7441 /* UIView+Render.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIView+Render.mm"; sourceTree = "<group>"; };
 		F45D25AC28067B6900CAB185 /* NativeRenderScrollableProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderScrollableProtocol.h; sourceTree = "<group>"; };
@@ -958,6 +961,15 @@
 			path = turbomodule;
 			sourceTree = "<group>";
 		};
+		F441DFAE28728FFC00FD5205 /* rootview */ = {
+			isa = PBXGroup;
+			children = (
+				F441DFAF2872903700FD5205 /* HippyRootViewManager.h */,
+				F441DFB02872903700FD5205 /* HippyRootViewManager.mm */,
+			);
+			path = rootview;
+			sourceTree = "<group>";
+		};
 		F45D25AA28067B6900CAB185 /* component */ = {
 			isa = PBXGroup;
 			children = (
@@ -1260,6 +1272,7 @@
 		F468DDB82812A95100319196 /* module */ = {
 			isa = PBXGroup;
 			children = (
+				F441DFAE28728FFC00FD5205 /* rootview */,
 				F468DDB92812A95100319196 /* turbo */,
 				F468DDC22812A95100319196 /* network */,
 				F468DDCA2812A95100319196 /* netinfo */,
@@ -2103,6 +2116,7 @@
 				F48D3871289BA6A1007BD6FE /* unicode_string_view.cc in Sources */,
 				F468DE9D2812ACEA00319196 /* NativeRenderComponentData.mm in Sources */,
 				F45D269828067B6A00CAB185 /* NativeRenderModalCustomAnimationTransition.m in Sources */,
+				F441DFB12872903700FD5205 /* HippyRootViewManager.mm in Sources */,
 				F45D267028067B6900CAB185 /* NativeRenderAnimatedImageView.m in Sources */,
 				F48D386A289BA6A1007BD6FE /* logging.cc in Sources */,
 				F45D265B28067B6900CAB185 /* NativeRenderViewPagerManager.mm in Sources */,
