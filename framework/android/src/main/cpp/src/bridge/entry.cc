@@ -143,7 +143,7 @@ using u8string = unicode_string_view::u8string;
 using StringViewUtils = hippy::base::StringViewUtils;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using Ctx = hippy::napi::Ctx;
-using ADRBridge = hippy::Bridge;
+using Bridge = hippy::Bridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
 
@@ -376,7 +376,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
 
   std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
   FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
-  auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(runtime->GetData(kBridgeSlot));
+  auto bridge = std::any_cast<std::shared_ptr<Bridge>>(runtime->GetData(kBridgeSlot));
   auto ref = bridge->GetRef();
   loader->SetBridge(ref);
   loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());

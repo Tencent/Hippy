@@ -84,8 +84,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
     v8::String::Utf8Value module_name(info.GetIsolate(), info[0]);
     std::string name = module_name.operator*();
 
-    auto flag = runtime->HasData(kTurboSlot);
-    if (!flag) {
+    if (!runtime->HasData(kTurboSlot)) {
       FOOTSTONE_LOG(ERROR) << "getTurboModule but turboModuleRuntime is null";
       info.GetReturnValue().SetUndefined();
       return;

@@ -615,7 +615,7 @@ bool V8Ctx::SetGlobalJsonVar(const unicode_string_view& name,
 
 bool V8Ctx::SetGlobalStrVar(const unicode_string_view& name,
                             const unicode_string_view& str) {
-  // FOOTSTONE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
+  FOOTSTONE_DLOG(INFO) << "SetGlobalStrVar name = " << name << ", str = " << str;
   if (StringViewUtils::IsEmpty(name)) {
     return false;
   }
@@ -1028,8 +1028,6 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     const std::shared_ptr<CtxValue>& function,
     size_t argument_count,
     const std::shared_ptr<CtxValue> arguments[]) {
-  FOOTSTONE_DLOG(INFO) << "V8Ctx CallJs begin";
-
   if (!function) {
     FOOTSTONE_LOG(ERROR) << "function is nullptr";
     return nullptr;
@@ -1065,10 +1063,8 @@ std::shared_ptr<CtxValue> V8Ctx::CallFunction(
     }
   }
 
-  FOOTSTONE_DLOG(INFO) << "v8 CallJs call begin";
   v8::MaybeLocal<v8::Value> maybe_result = v8_fn->Call(
       context, context->Global(), static_cast<int>(argument_count), args);
-  FOOTSTONE_DLOG(INFO) << "v8 CallJs call end";
 
   if (maybe_result.IsEmpty()) {
     FOOTSTONE_DLOG(INFO) << "maybe_result is empty";

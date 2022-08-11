@@ -65,7 +65,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 
 # region js_driver
 add_subdirectory(${PROJECT_ROOT_DIR}/driver/js ${CMAKE_CURRENT_BINARY_DIR}/driver/js)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/include)
 target_link_libraries(${PROJECT_NAME} PRIVATE js_driver)
 # endregion
 
