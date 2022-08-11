@@ -46,16 +46,13 @@
 #include "footstone/string_view_utils.h"
 #include "footstone/worker_manager.h"
 #include "jni/exception_handler.h"
+#include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
-#include "jni/uri.h"
 #include "jni/jni_utils.h"
-#include "loader/adr_loader.h"
-
-#ifdef ENABLE_TURBO
-#include "jni/java_turbo_module.h"
 #include "jni/turbo_module_manager.h"
-#endif
+#include "jni/uri.h"
+#include "loader/adr_loader.h"
 
 #ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
@@ -146,7 +143,7 @@ using u8string = unicode_string_view::u8string;
 using StringViewUtils = hippy::base::StringViewUtils;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using Ctx = hippy::napi::Ctx;
-using ADRBridge = hippy::ADRBridge;
+using ADRBridge = hippy::Bridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
 
@@ -378,8 +375,8 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   });
 
   std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
-  FOOTSTONE_DCHECK(runtime->HasData(Runtime::kBridgeSlot));
-  auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(runtime->GetData(Runtime::kBridgeSlot));
+  FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
+  auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(runtime->GetData(kBridgeSlot));
   auto ref = bridge->GetRef();
   loader->SetBridge(ref);
   loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
@@ -554,12 +551,9 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
   Uri::Init();
-
-#ifdef  ENABLE_TURBO
   ConvertUtils::Init();
   JavaTurboModule::Init();
   TurboModuleManager::Init();
-#endif
 
 #ifdef ANDROID_NATIVE_RENDER
   NativeRenderJni::Init();
@@ -572,12 +566,9 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   hippy::napi::V8VM::PlatformDestroy();
 
   Uri::Destroy();
-
-#ifdef ENABLE_TURBO
   ConvertUtils::Destroy();
   JavaTurboModule::Destroy();
   TurboModuleManager::Destroy();
-#endif
 
 #ifdef ANDROID_NATIVE_RENDER
   NativeRenderJni::Destroy();

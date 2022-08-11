@@ -60,6 +60,7 @@ using V8VM = hippy::napi::V8VM;
 constexpr int64_t kDefaultGroupId = -1;
 constexpr int64_t kDebuggerGroupId = -9999;
 constexpr uint32_t kRuntimeSlotIndex = 0;
+constexpr uint8_t kBridgeSlot = 1;
 
 constexpr char kHippyBridgeName[] = "hippyBridge";
 constexpr char kHippyNativeGlobalKey[] = "__HIPPYNATIVEGLOBAL__";
@@ -87,14 +88,14 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const std::shared_ptr<WorkerManager>& worker_manager,
                                     const std::shared_ptr<TaskRunner>& task_runner,
                                     const std::shared_ptr<V8VMInitParam>& param,
-                                    std::any bridge,
+                                    const std::any& bridge,
                                     const RegisterFunction& scope_cb,
                                     const RegisterFunction& call_native_cb,
                                     const unicode_string_view& data_dir,
                                     const unicode_string_view& ws_url) {
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
                                                                is_dev_module);
-  runtime->SetData(Runtime::kBridgeSlot, std::move(bridge));
+  runtime->SetData(kBridgeSlot, std::move(bridge));
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);
   RegisterFunction vm_cb = [runtime_id](void* vm) {

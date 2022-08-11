@@ -92,14 +92,10 @@ set(SOURCE_SET
     src/bridge/native_source_code_android.cc
     src/jni/exception_handler.cc
     src/jni/uri.cc
-    src/loader/adr_loader.cc)
-
-if (ENABLE_TURBO)
-  list(APPEND SOURCE_SET
-      src/jni/convert_utils.cc
-      src/jni/turbo_module_manager.cc
-      src/jni/java_turbo_module.cc)
-endif ()
+    src/loader/adr_loader.cc
+    src/jni/convert_utils.cc
+    src/jni/turbo_module_manager.cc
+    src/jni/java_turbo_module.cc)
 
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE

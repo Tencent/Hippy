@@ -35,8 +35,6 @@
 
 class Runtime {
  public:
-  static constexpr uint32_t kBridgeSlot = 1;
-  static constexpr uint32_t kTurboSlot = 2;
   using CtxValue = hippy::napi::CtxValue;
 
   Runtime(bool enable_v8_serialization, bool is_dev);
@@ -59,17 +57,13 @@ class Runtime {
   inline void SetEngine(std::shared_ptr<Engine> engine) { engine_ = engine; }
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
 
-  inline std::any GetData(uint32_t slot) {
+  inline std::any GetData(uint8_t slot) {
     return slot_[slot];
   }
-  inline bool HasData(uint32_t slot) {
-    const auto& it = slot_.find(slot);
-    if (it != slot_.end()) {
-      return true;
-    }
-    return false;
+  inline bool HasData(uint8_t slot) {
+    return slot_.find(slot) != slot_.end();
   }
-  inline void SetData(uint32_t slot, std::any data) {
+  inline void SetData(uint8_t slot, std::any data) {
     slot_[slot] = data;
   }
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)

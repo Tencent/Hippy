@@ -43,7 +43,6 @@ class IOSLoader : public hippy::base::UriLoader {
 
   virtual bool RequestUntrustedContent(const unicode_string_view& uri, u8string& content) {
     FOOTSTONE_UNIMPLEMENTED();
-    return false;
   };
 
  private:

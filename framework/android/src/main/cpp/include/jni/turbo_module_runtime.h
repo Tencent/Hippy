@@ -26,6 +26,8 @@
 
 #include "jni/jni_env.h"
 
+constexpr uint8_t kTurboSlot = 2;
+
 class TurboModuleRuntime {
  public:
   jobject turbo_module_manager_obj_;

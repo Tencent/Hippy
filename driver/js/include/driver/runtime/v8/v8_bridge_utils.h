@@ -58,7 +58,7 @@ class V8BridgeUtils {
                               const std::shared_ptr<footstone::WorkerManager>& worker_manager,
                               const std::shared_ptr<footstone::TaskRunner>& task_runner,
                               const std::shared_ptr<V8VMInitParam>& param,
-                              std::any bridge,
+                              const std::any& bridge,
                               const RegisterFunction& scope_cb,
                               const RegisterFunction& call_native_cb,
                               const unicode_string_view& data_dir,

@@ -26,10 +26,12 @@
 
 #include "jni/scoped_java_ref.h"
 
+constexpr uint8_t kBridgeSlot = 1;
+
 namespace hippy {
-  class ADRBridge {
+  class Bridge {
    public:
-    ADRBridge(JNIEnv* j_env, jobject j_obj): ref_(std::make_shared<JavaRef>(j_env, j_obj)){}
+    Bridge(JNIEnv* j_env, jobject j_obj): ref_(std::make_shared<JavaRef>(j_env, j_obj)){}
     inline jobject GetObj() {
       return ref_->GetObj();
     }

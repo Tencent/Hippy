@@ -68,7 +68,7 @@ void CallNative(hippy::napi::CBDataTuple* data) {
       j_method = instance->GetMethods().j_call_natives_method_id;
     }
 
-    auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(runtime->GetData(Runtime::kBridgeSlot));
+    auto bridge = std::any_cast<std::shared_ptr<Bridge>>(runtime->GetData(kBridgeSlot));
     j_env->CallVoidMethod(bridge->GetObj(), j_method, j_module, j_func, j_cb_id, j_buffer);
     JNIEnvironment::ClearJEnvException(j_env);
 
