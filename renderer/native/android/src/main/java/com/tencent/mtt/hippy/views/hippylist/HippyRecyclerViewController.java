@@ -86,13 +86,13 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @Override
-    public void onBatchStart(HRW view) {
+    public void onBatchStart(@NonNull HRW view) {
         super.onBatchStart(view);
         view.onBatchStart();
     }
 
     @Override
-    public void onBatchComplete(HRW view) {
+    public void onBatchComplete(@NonNull HRW view) {
         super.onBatchComplete(view);
         view.onBatchComplete();
         view.setListData();
@@ -245,13 +245,13 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
     }
 
     @Override
-    public void onAfterUpdateProps(HRW viewWrapper) {
+    public void onAfterUpdateProps(@NonNull HRW viewWrapper) {
         super.onAfterUpdateProps(viewWrapper);
         viewWrapper.getRecyclerView().onAfterUpdateProps();
     }
 
     @Override
-    public void dispatchFunction(HRW view, String functionName, HippyArray dataArray) {
+    public void dispatchFunction(@NonNull HRW view, @NonNull String functionName, @NonNull HippyArray dataArray) {
         super.dispatchFunction(view, functionName, dataArray);
         switch (functionName) {
             case SCROLL_TO_INDEX: {

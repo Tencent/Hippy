@@ -22,7 +22,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import android.content.Context;
 import android.view.View;
 
-@HippyController(name = HippyImageViewController.CLASS_NAME, dispatchWithStandardType = true)
+@HippyController(name = HippyImageViewController.CLASS_NAME, dispatchWithStandardType = true, supportFlatten = true)
 public class HippyImageViewController extends HippyViewController<HippyImageView> {
 
     public static final String CLASS_NAME = "Image";

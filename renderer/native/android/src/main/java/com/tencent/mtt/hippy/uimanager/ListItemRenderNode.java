@@ -13,31 +13,102 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.ON_BIND_VIEW_HOLDER_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.ON_CREATE_VIEW_HOLDER_ERR;
+
+import android.text.TextUtils;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
+import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.utils.MapUtils;
 import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unused"})
 public class ListItemRenderNode extends RenderNode {
 
     public static final String ITEM_VIEW_TYPE = "type";
     public static final String ITEM_STICKY = "sticky";
     public static final String ITEM_VIEW_TYPE_NEW = "itemViewType";
-
     private boolean mShouldSticky;
     private IRecycleItemTypeChange mRecycleItemTypeChangeListener;
 
-    public ListItemRenderNode(int rootId, int id, @Nullable Map<String, Object> props, @NonNull String className,
-            @NonNull ControllerManager componentManager, boolean isLazyLoad) {
+    public ListItemRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager componentManager,
+            boolean isLazyLoad) {
         super(rootId, id, props, className, componentManager, isLazyLoad);
-        if (props.get(ITEM_STICKY) instanceof Boolean) {
-            mShouldSticky = (boolean) mProps.get(ITEM_STICKY);
+        if (props != null) {
+            mShouldSticky = MapUtils.getBooleanValue(props, ITEM_STICKY);
         }
+    }
+
+    private void removeChildrenView(RenderNode node) {
+        for (int i = 0; i < node.getChildCount(); i++) {
+            RenderNode child = node.getChildAt(i);
+            if (child != null) {
+                mControllerManager.deleteChild(child.getRootId(), node.getId(), child.getId(),
+                        true);
+            }
+        }
+    }
+
+    private void removeView() {
+        RenderNode parentNode = getParent();
+        if (parentNode != null) {
+            mControllerManager.deleteChild(mRootId, parentNode.getId(), mId, true);
+        } else {
+            removeChildrenView(this);
+        }
+    }
+
+    @Nullable
+    public View onCreateViewHolder() throws NativeRenderException {
+        View view;
+        if (mShouldSticky) {
+            view = mControllerManager.findView(mRootId, mId);
+            if (view != null && view.getParent() != null) {
+                return null;
+            }
+        }
+        setLazy(false);
+        view = prepareHostViewRecursive();
+        mountHostViewRecursive();
+        if (view == null) {
+            throw new NativeRenderException(
+                    ON_CREATE_VIEW_HOLDER_ERR, "View creation failed!");
+        }
+        return view;
+    }
+
+    public void onViewHolderAbandoned() {
+        setLazy(true);
+        removeView();
+    }
+
+    public void onBindViewHolder(@NonNull RenderNode fromNode, @NonNull View itemView) {
+        if (!TextUtils.equals(fromNode.getClassName(), mClassName)
+                || fromNode.getId() != itemView.getId()) {
+            NativeRenderException exception = new NativeRenderException(
+                    ON_BIND_VIEW_HOLDER_ERR,
+                    "Cannot complete binding with from class name: " + fromNode.getClassName()
+                            + ", to class name: " + mClassName + ", from id " + fromNode.getId()
+                            + ", item view id " + itemView.getId());
+            mControllerManager.getNativeRender().handleRenderException(exception);
+            return;
+        }
+        removeChildrenView(fromNode);
+        fromNode.setLazy(true);
+        setLazy(false);
+        mControllerManager.replaceId(mRootId, itemView, mId, true);
+        prepareHostViewRecursive();
+        setHostView(itemView);
+        Map<String, Object> diffProps = checkPropsShouldReset(fromNode);
+        mControllerManager.updateProps(this, null, null, diffProps, true);
+        mountHostViewRecursive();
     }
 
     /**
@@ -48,10 +119,9 @@ public class ListItemRenderNode extends RenderNode {
     @Override
     public void updateLayout(int x, int y, int w, int h) {
         super.updateLayout(x, y, w, h);
-        View renderView = mControllerManager.findView(mRootId, mId);
-        mY = renderView != null ? renderView.getTop() : 0;
-        if (getParent() != null && mControllerManager != null && mControllerManager.getRenderManager()
-                != null) { // 若屏幕内node更新引起了item整体变化，需要通知ListView发起dispatchLayout重排版
+        View view = mControllerManager.findView(mRootId, mId);
+        mY = view != null ? view.getTop() : 0;
+        if (getParent() != null) {
             RenderManager renderManager = mControllerManager.getRenderManager();
             if (renderManager != null) {
                 renderManager.addUpdateNodeIfNeeded(mRootId, getParent());
@@ -60,24 +130,24 @@ public class ListItemRenderNode extends RenderNode {
     }
 
     @Override
-    public void updateProps(@NonNull Map<String, Object> newProps) {
-        int oldType = getTypeFromMap(mProps);
-        int newType = getTypeFromMap(newProps);
+    public void checkPropsDifference(@NonNull Map<String, Object> newProps) {
+        int oldType = mProps != null ? getItemViewType(mProps) : 0;
+        int newType = getItemViewType(newProps);
         if (mRecycleItemTypeChangeListener != null && oldType != newType) {
             mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
         }
-        super.updateProps(newProps);
-        Object stickyObj = mProps.get(ITEM_STICKY);
+        Object stickyObj = newProps.get(ITEM_STICKY);
         if (stickyObj instanceof Boolean) {
             mShouldSticky = (Boolean) stickyObj;
         }
+        super.checkPropsDifference(newProps);
     }
 
     public int getItemViewType() {
-        return getTypeFromMap(mProps);
+        return mProps != null ? getItemViewType(mProps) : 0;
     }
 
-    private int getTypeFromMap(@NonNull Map<String, Object> props) {
+    private int getItemViewType(@NonNull Map<String, Object> props) {
         int viewType = 0;
         Object viewTypeObj = props.get(ITEM_VIEW_TYPE);
         if (viewTypeObj instanceof Number) {
@@ -95,7 +165,7 @@ public class ListItemRenderNode extends RenderNode {
                 viewType = ((Number) viewTypeObj).intValue();
             }
         }
-        return viewType < 0 ? 0 : viewType;
+        return Math.max(viewType, 0);
     }
 
     @Override
@@ -116,25 +186,8 @@ public class ListItemRenderNode extends RenderNode {
         return false;
     }
 
+    @Override
     public boolean shouldSticky() {
         return mShouldSticky;
-    }
-
-    /**
-     * 异常情况下，如果view已经存在，需要删除它，前提是view没有parent的情况， 有parent的情况出现在sticky属性的view，当前可能是正在置顶的view，这种是不能调用删除的，是正常情况，
-     * hasView为true，通过createView是拿到已经存在的view。
-     *
-     * @return 是否需要删除view
-     */
-    public boolean needDeleteExistRenderView() {
-        if (mControllerManager.hasView(mRootId, mId)) {
-            return mControllerManager.createView(mRootId, mId, mClassName, mProps).getParent()
-                    == null;
-        }
-        return false;
-    }
-
-    public boolean isViewExist() {
-        return mControllerManager.hasView(mRootId, mId);
     }
 }

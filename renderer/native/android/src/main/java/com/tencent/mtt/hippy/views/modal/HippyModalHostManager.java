@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.uimanager.HippyGroupController;
@@ -85,7 +86,7 @@ public class HippyModalHostManager extends HippyGroupController<HippyModalHostVi
     }
 
     @Override
-    public void onAfterUpdateProps(HippyModalHostView v) {
+    public void onAfterUpdateProps(@NonNull HippyModalHostView v) {
         super.onAfterUpdateProps(v);
         v.showOrUpdate();
     }

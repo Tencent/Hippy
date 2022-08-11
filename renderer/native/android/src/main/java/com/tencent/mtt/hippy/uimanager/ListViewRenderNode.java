@@ -19,7 +19,6 @@ import androidx.annotation.Nullable;
 
 import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unused"})
 public class ListViewRenderNode extends RenderNode {
 
     public ListViewRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
@@ -27,10 +26,10 @@ public class ListViewRenderNode extends RenderNode {
         super(rootId, id, props, className, componentManager, isLazyLoad);
     }
 
-
     @Override
     protected void addChildToPendingList(RenderNode renderNode) {
-        //		super.addPendChild(renderNode);
+        // Since the recycler view of the system will automatically complete add sub views,
+        // we don't need to deal with it in this function
     }
 
     @Override

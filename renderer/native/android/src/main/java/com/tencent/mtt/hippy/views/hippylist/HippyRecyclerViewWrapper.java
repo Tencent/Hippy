@@ -52,7 +52,7 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
         recyclerView.setHeaderHost(this);
         HippyRecyclerPool pool = new HippyRecyclerPool(this, cacheExtension,
                 recyclerView.getNodePositionHelper());
-        pool.setViewAboundListener(recyclerView);
+        pool.setViewHolderAbandonListener(recyclerView);
         recyclerView.setRecycledViewPool(pool);
 
     }

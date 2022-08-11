@@ -52,6 +52,7 @@ public class DisplayUtils {
         return metrics.heightPixels;
     }
 
+    @SuppressWarnings("unused")
     public static int getScreenWidth() {
         DisplayMetrics metrics = getMetrics(true);
         if (metrics == null) {

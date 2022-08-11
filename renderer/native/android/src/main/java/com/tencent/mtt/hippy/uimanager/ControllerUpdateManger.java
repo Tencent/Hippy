@@ -171,12 +171,12 @@ public class ControllerUpdateManger<T, G> {
         }
     }
 
-    public void updateProps(@NonNull RenderNode node, T t, G g,
-            @Nullable Map<String, Object> props) {
+    protected void updateProps(@NonNull RenderNode node, @NonNull T controller, @Nullable G view,
+            @Nullable Map<String, Object> props, boolean skipComponentProps) {
         if (props == null || props.isEmpty()) {
             return;
         }
-        Class<?> cls = t.getClass();
+        Class<?> cls = controller.getClass();
         Map<String, PropertyMethodHolder> methodHolderMap = sViewPropsMethodMap.get(cls);
         if (methodHolderMap == null) {
             methodHolderMap = new HashMap<>();
@@ -186,12 +186,15 @@ public class ControllerUpdateManger<T, G> {
         for (String key : keySet) {
             PropertyMethodHolder methodHolder = methodHolderMap.get(key);
             if (methodHolder != null) {
-                invokePropMethod(t, g, props, key, methodHolder);
+                Object arg = (view == null) ? node.createView(true) : view;
+                if (arg != null) {
+                    invokePropMethod(controller, arg, props, key, methodHolder);
+                }
             } else {
                 if (key.equals(NodeProps.STYLE) && props.get(key) instanceof Map) {
-                    updateProps(node, t, g, (Map) props.get(key));
-                } else if (!handleComponentProps(node, key, props)) {
-                    handleCustomProps(t, g, key, props);
+                    updateProps(node, controller, view, (Map) props.get(key), skipComponentProps);
+                } else if (!handleComponentProps(node, key, props, skipComponentProps)) {
+                    handleCustomProps(controller, view, key, props);
                 }
             }
         }
@@ -215,15 +218,17 @@ public class ControllerUpdateManger<T, G> {
     }
 
     private boolean handleComponentProps(@NonNull RenderNode node, @NonNull String key,
-            @NonNull Map<String, Object> props) {
+            @NonNull Map<String, Object> props, boolean skipComponentProps) {
         PropertyMethodHolder methodHolder = sComponentPropsMethodMap.get(key);
         if (methodHolder != null) {
-            Object controller = getComponentController(methodHolder.hostClass);
-            Component component = node.ensureComponentIfNeeded(methodHolder.hostClass);
-            if (controller == null || component == null) {
-                return false;
+            if (!skipComponentProps) {
+                Object controller = getComponentController(methodHolder.hostClass);
+                Component component = node.ensureComponentIfNeeded(methodHolder.hostClass);
+                if (controller == null || component == null) {
+                    return false;
+                }
+                invokePropMethod(controller, component, props, key, methodHolder);
             }
-            invokePropMethod(controller, component, props, key, methodHolder);
             return true;
         }
         return false;

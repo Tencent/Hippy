@@ -56,7 +56,7 @@ public class HippyWaterfallItemRenderNode extends RenderNode {
     }
 
     @Override
-    public void updateProps(@NonNull Map<String, Object> props) {
+    public void checkPropsDifference(@NonNull Map<String, Object> props) {
         int oldType = 0;
         int newType = 0;
         Object valueObj = null;
@@ -75,7 +75,7 @@ public class HippyWaterfallItemRenderNode extends RenderNode {
         if (mRecycleItemTypeChangeListener != null && oldType != newType) {
             mRecycleItemTypeChangeListener.onRecycleItemTypeChanged(oldType, newType, this);
         }
-        super.updateProps(props);
+        super.checkPropsDifference(props);
     }
 
     public void setRecycleItemTypeChangeListener(

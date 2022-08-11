@@ -29,6 +29,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
+
 /**
  * Created on 2020/12/29. Description 一个RecyclerView的StickyHeader控制器，
  * 通过recyclerView的onScroll事件，1、从列表中选择吸顶的View，2、挂载到顶部，3、设置吸顶View的OffSet
@@ -60,6 +62,10 @@ public class StickyHeaderHelper extends OnScrollListener implements
         stickyViewFactory = new StickyViewFactory(recyclerView);
         this.headerHost = headerHost;
         orientation = recyclerView.getLayoutManager().canScrollVertically() ? VERTICAL : HORIZONTAL;
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
     }
 
     /**
@@ -234,7 +240,8 @@ public class StickyHeaderHelper extends OnScrollListener implements
         int positionToSticky = INVALID_POSITION;
         int startPosition = recyclerView.getFirstChildPosition();
         View firstView = recyclerView.getChildAt(0);
-        if (firstView.getY() >= 0) {
+        float position = (orientation == VERTICAL) ? firstView.getY() : firstView.getX();
+        if (position >= 0) {
             startPosition--;//当前view已经完全露出，需要往从前面一个开始寻找
         }
         for (int i = startPosition; i >= 0; i--) {

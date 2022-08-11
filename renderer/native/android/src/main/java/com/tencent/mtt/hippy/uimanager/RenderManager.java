@@ -24,16 +24,18 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.tencent.link_supplier.proxy.renderer.Renderer;
+import com.tencent.mtt.hippy.views.image.HippyImageViewController;
+import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.RenderRootNode;
 import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.pool.NativeRenderPool.PoolType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import android.text.TextUtils;
-import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -90,6 +92,9 @@ public class RenderManager {
     public void preCreateView(int rootId, int id, int pid, @NonNull String className,
             @Nullable Map<String, Object> props) {
         boolean isLazy = mControllerManager.checkLazy(className);
+        if (isLazy) {
+            return;
+        }
         if (pid != rootId) {
             View view = mControllerManager.getPreView(rootId, pid);
             if (view == null) {
@@ -152,7 +157,7 @@ public class RenderManager {
     public void updateNode(int rootId, int nodeId, Map<String, Object> props) {
         RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
-            node.updateProps(props);
+            node.checkPropsDifference(props);
             addUpdateNodeIfNeeded(rootId, node);
         }
     }
@@ -217,14 +222,14 @@ public class RenderManager {
         // Should create all views at first
         for (RenderNode node : updateNodes) {
             node.batchStart();
-            node.createView();
+            node.prepareHostView(false, PoolType.PRE_CREATE_VIEW);
         }
         // Should do update after all views created
         for (RenderNode node : updateNodes) {
-            node.updateView();
+            node.mountHostView();
             node.batchComplete();
         }
-        mControllerManager.onBatchEnd();
+        mControllerManager.onBatchEnd(rootId);
         updateNodes.clear();
     }
 
@@ -254,7 +259,7 @@ public class RenderManager {
     }
 
     @Nullable
-    public RenderNode getRenderNode(@NonNull View view) {
+    public static RenderNode getRenderNode(@NonNull View view) {
         Context context = view.getContext();
         if (!(context instanceof NativeRenderContext)) {
             return null;
@@ -264,7 +269,7 @@ public class RenderManager {
     }
 
     @Nullable
-    public RenderNode getRenderNode(int rootId, int id) {
+    public static RenderNode getRenderNode(int rootId, int id) {
         RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootId == id) {
             return rootNode;
@@ -281,10 +286,6 @@ public class RenderManager {
             return node.checkRegisteredEvent(eventName);
         }
         return false;
-    }
-
-    public void replaceID(int rootId, int oldId, int newId) {
-        mControllerManager.replaceId(rootId, oldId, newId);
     }
 
     public void postInvalidateDelayed(int rootId, int id, long delayMilliseconds) {

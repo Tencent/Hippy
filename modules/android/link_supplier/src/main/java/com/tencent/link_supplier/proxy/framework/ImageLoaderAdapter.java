@@ -34,8 +34,6 @@ public interface ImageLoaderAdapter {
     @Nullable
     ImageDataSupplier getImageFromCache(@NonNull String source);
 
-    void onEntryEvicted(@NonNull ImageDataSupplier data);
-
     void destroyIfNeed();
 
     void clear();

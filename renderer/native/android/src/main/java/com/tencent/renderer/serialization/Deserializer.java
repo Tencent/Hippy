@@ -144,7 +144,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
         if (totalLength < 0) {
             throw new DataCloneOutOfRangeException(totalLength);
         }
-        List<Object> array = new ArrayList(totalLength);
+        List<Object> array = new ArrayList<>(totalLength);
         assignId(array);
         for (int i = 0; i < totalLength; i++) {
             SerializationTag tag = readTag();

@@ -29,6 +29,8 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.component.text.TextForegroundColorSpan;
@@ -47,9 +49,12 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
 
     protected void setTextColor(int textColor) {
         Layout layout = null;
-        Component component = getComponent(this);
-        if (component != null) {
-            layout = component.getTextLayout();
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null) {
+            Component component = node.getComponent();
+            if (component != null) {
+                layout = component.getTextLayout();
+            }
         }
         if (layout == null || !(layout.getText() instanceof SpannableStringBuilder)) {
             return;
@@ -86,7 +91,11 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        Component component = getComponent(this);
+        Component component = null;
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null) {
+            component = node.getComponent();
+        }
         if (component == null || !component.getGestureEnable()) {
             return super.dispatchTouchEvent(event);
         }

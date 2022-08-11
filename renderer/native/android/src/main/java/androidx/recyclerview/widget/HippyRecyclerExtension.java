@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView.Recycler;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
@@ -105,8 +106,7 @@ public class HippyRecyclerExtension extends RecyclerView.ViewCacheExtension {
         if (scrapHolder.getItemViewType() == type && scrapHolder instanceof HippyRecyclerViewHolder) {
             NativeRender nativeRender = NativeRendererManager.getNativeRenderer(recyclerView.getContext());
             if (nativeRender != null) {
-                RenderNode nodeOfPosition = nativeRender.getRenderManager()
-                        .getRenderNode(recyclerView)
+                RenderNode nodeOfPosition = RenderManager.getRenderNode(recyclerView)
                         .getChildAt(nodePositionHelper.getRenderNodePosition(position));
                 return isNodeEquals(((HippyRecyclerViewHolder) scrapHolder).bindNode,
                         (ListItemRenderNode) nodeOfPosition);

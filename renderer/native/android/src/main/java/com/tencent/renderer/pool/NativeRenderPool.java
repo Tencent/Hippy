@@ -14,42 +14,15 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.framework;
+package com.tencent.renderer.pool;
 
-import android.graphics.Bitmap;
-import android.graphics.Movie;
-import android.graphics.drawable.Drawable;
+public abstract class NativeRenderPool<K, V> implements Pool<K, V> {
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+    public enum PoolType {
+        RECYCLE_VIEW,
+        PRE_CREATE_VIEW,
+        IMAGE_DATA,
+        NONE
+    }
 
-public interface ImageDataSupplier {
-
-    @Nullable
-    Drawable getDrawable();
-
-    @Nullable
-    Bitmap getBitmap();
-
-    @Nullable
-    Movie getGifMovie();
-
-    boolean checkImageData();
-
-    @NonNull
-    String getSource();
-
-    int getImageWidth();
-
-    int getImageHeight();
-
-    void clear();
-
-    void attached();
-
-    void detached();
-
-    void cached();
-
-    void evicted();
 }

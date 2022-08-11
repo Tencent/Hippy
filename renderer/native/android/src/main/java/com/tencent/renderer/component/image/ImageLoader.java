@@ -19,69 +19,31 @@ package com.tencent.renderer.component.image;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import androidx.collection.LruCache;
-
 import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
-import com.tencent.renderer.utils.UrlUtils;
+import com.tencent.renderer.pool.ImageDataPool;
+import com.tencent.renderer.pool.Pool;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public abstract class ImageLoader implements ImageLoaderAdapter {
 
-    private static final int MAX_SOURCE_KEY_LEN = 32;
-    @Nullable
-    private LruCache<Integer, ImageDataSupplier> mLocalImageCache;
-    @Nullable
-    private LruCache<Integer, ImageDataSupplier> mRemoteImageCache;
+    @NonNull
+    private final Pool<Integer, ImageDataSupplier> mImagePool = new ImageDataPool();
     @Nullable
     private ExecutorService mExecutorService;
 
-    public static int generateSourceKey(@NonNull String source) {
-        if (source.length() > MAX_SOURCE_KEY_LEN) {
-            source = source.substring(source.length() - MAX_SOURCE_KEY_LEN);
-        }
-        return source.hashCode();
-    }
-
     @Override
     public void saveImageToCache(@NonNull ImageDataSupplier data) {
-        if (data.getSource() == null) {
-            return;
-        }
-        boolean isRemote = UrlUtils.isWebUrl(data.getSource());
-        LruCache<Integer, ImageDataSupplier> cache =
-                isRemote ? ensureRemoteImageCache() : ensureLocalImageCache();
-        cache.put(generateSourceKey(data.getSource()), data);
-        data.setCacheState(true);
+        mImagePool.release(data);
     }
 
     @Nullable
     public ImageDataSupplier getImageFromCache(@NonNull String source) {
-        boolean isRemote = UrlUtils.isWebUrl(source);
-        LruCache<Integer, ImageDataSupplier> cache =
-                isRemote ? mRemoteImageCache : mLocalImageCache;
-        if (cache == null) {
-            return null;
-        }
-        int key = generateSourceKey(source);
-        ImageDataSupplier data = cache.get(key);
-        if (data == null || !data.checkImageData()) {
-            // Bitmap may have been recycled, must be removed from the cache and not
-            // returned to the component.
-            cache.remove(key);
-            return null;
-        }
-        return data;
-    }
-
-    @Override
-    public void onEntryEvicted(@NonNull ImageDataSupplier data) {
-        data.setCacheState(false);
-        data.clear();
+        return mImagePool.acquire(ImageDataHolder.generateSourceKey(source));
     }
 
     @Override
@@ -136,14 +98,7 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
     }
 
     public void clear() {
-        if (mLocalImageCache != null) {
-            mLocalImageCache.evictAll();
-            mLocalImageCache = null;
-        }
-        if (mRemoteImageCache != null) {
-            mRemoteImageCache.evictAll();
-            mRemoteImageCache = null;
-        }
+        mImagePool.clear();
     }
 
     public void destroyIfNeed() {
@@ -152,35 +107,5 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
             mExecutorService.shutdown();
             mExecutorService = null;
         }
-    }
-
-    private LruCache<Integer, ImageDataSupplier> ensureLocalImageCache() {
-        if (mLocalImageCache == null) {
-            mLocalImageCache = new LruCache<Integer, ImageDataSupplier>(6) {
-                @Override
-                protected void entryRemoved(boolean evicted, @NonNull Integer key,
-                        @NonNull ImageDataSupplier oldValue, @Nullable ImageDataSupplier newValue) {
-                    if (evicted) {
-                        onEntryEvicted(oldValue);
-                    }
-                }
-            };
-        }
-        return mLocalImageCache;
-    }
-
-    private LruCache<Integer, ImageDataSupplier> ensureRemoteImageCache() {
-        if (mRemoteImageCache == null) {
-            mRemoteImageCache = new LruCache<Integer, ImageDataSupplier>(8) {
-                @Override
-                protected void entryRemoved(boolean evicted, @NonNull Integer key,
-                        @NonNull ImageDataSupplier oldValue, @Nullable ImageDataSupplier newValue) {
-                    if (evicted) {
-                        onEntryEvicted(oldValue);
-                    }
-                }
-            };
-        }
-        return mRemoteImageCache;
     }
 }

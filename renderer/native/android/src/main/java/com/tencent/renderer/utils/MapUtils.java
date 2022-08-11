@@ -31,6 +31,7 @@ public class MapUtils {
         return 0;
     }
 
+    @SuppressWarnings("unused")
     public static float getFloatValue(@NonNull Map<String, Object> params, String key) {
         Object element = params.get(key);
         if (element instanceof Number) {
@@ -39,6 +40,7 @@ public class MapUtils {
         return 0;
     }
 
+    @SuppressWarnings("unused")
     public static double getDoubleValue(@NonNull Map<String, Object> params, String key) {
         Object element = params.get(key);
         if (element instanceof Number) {
@@ -47,6 +49,7 @@ public class MapUtils {
         return 0;
     }
 
+    @SuppressWarnings("unused")
     @Nullable
     public static String getStringValue(@NonNull Map<String, Object> params, String key) {
         Object element = params.get(key);

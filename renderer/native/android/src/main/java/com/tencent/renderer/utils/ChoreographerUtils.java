@@ -18,7 +18,6 @@ package com.tencent.renderer.utils;
 
 import android.view.Choreographer;
 import androidx.annotation.MainThread;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;

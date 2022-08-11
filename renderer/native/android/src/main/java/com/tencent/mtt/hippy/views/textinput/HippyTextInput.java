@@ -22,6 +22,8 @@ import android.graphics.BlendModeColorFilter;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -158,10 +160,12 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Component component = FlatViewGroup.getComponent(this);
-        if (component != null) {
-            Rect bounds = new Rect(0, 0, getRight() - getLeft(), getBottom() - getTop());
-            component.onDraw(canvas, bounds);
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null) {
+            Component component = node.getComponent();
+            if (component != null) {
+                component.onDraw(canvas, 0, 0, getRight() - getLeft(), getBottom() - getTop());
+            }
         }
         super.onDraw(canvas);
     }

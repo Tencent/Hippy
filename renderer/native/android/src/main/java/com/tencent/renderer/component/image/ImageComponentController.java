@@ -139,7 +139,7 @@ public class ImageComponentController {
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "deprecation"})
     @HippyControllerProps(name = "capInsets", defaultType = HippyControllerProps.MAP)
     public void setCapInsets(@NonNull Component component, HippyMap capInsets) {
         // TODO: support 9-Patch image draw.

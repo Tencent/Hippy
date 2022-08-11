@@ -18,61 +18,27 @@ package com.tencent.renderer.component;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Rect;
-import android.graphics.drawable.LayerDrawable;
-import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
-import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.NativeRendererManager;
 
 public class FlatViewGroup extends ViewGroup {
+
+    private final DispatchDrawHelper mDispatchDrawHelper = new DispatchDrawHelper();
 
     public FlatViewGroup(Context context) {
         super(context);
         setWillNotDraw(false);
         setChildrenDrawingOrderEnabled(true);
-        //setClipChildren(false);
+        setClipChildren(false);
     }
 
     public void onBatchComplete() {
-        Component component = getComponent(this);
-        if (component != null) {
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null && node.getComponent() != null) {
             // If show the ripple effect, should set layer drawable to background.
-            setBackground(component.getBackground());
-        }
-    }
-
-    /**
-     * Replace view id when recycler view item reuse.
-     *
-     * @param rootId the root node id
-     * @param oldId previously bound node id
-     * @param oldId the node id to be bound
-     */
-    public void onReplaceId(int rootId, int oldId, int newId) {
-        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(getContext());
-        if (nativeRenderer == null) {
-            return;
-        }
-        RenderNode node = nativeRenderer.getRenderManager().getRenderNode(rootId, oldId);
-        if (node != null) {
-            Component component = node.getComponent();
-            if (component != null) {
-                // Notify component the node has been detached from host view.
-                component.onDetachedFromHostView();
-            }
-        }
-        node = nativeRenderer.getRenderManager().getRenderNode(rootId, newId);
-        if (node != null) {
-            Component component = node.getComponent();
-            if (component != null) {
-                // Notify component the node will attached to host view.
-                component.onAttachedToHostView();
-            }
+            setBackground(node.getComponent().getBackground());
         }
     }
 
@@ -82,11 +48,20 @@ public class FlatViewGroup extends ViewGroup {
     }
 
     @Override
+    public void setClipChildren(boolean clipChildren) {
+        super.setClipChildren(clipChildren);
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null && node.getComponent() != null) {
+            node.getComponent().setClipChildren(clipChildren);
+        }
+    }
+
+    @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        Component component = getComponent(this);
-        if (component != null) {
-            component.onHostViewAttachedToWindow();
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null) {
+            node.onHostViewAttachedToWindow();
         }
     }
 
@@ -96,8 +71,37 @@ public class FlatViewGroup extends ViewGroup {
     }
 
     @Override
+    protected int getChildDrawingOrder(int childCount, int i) {
+        if (mDispatchDrawHelper.isActive()) {
+            mDispatchDrawHelper.drawNext();
+        }
+        return i;
+    }
+
+    @Override
     protected void dispatchDraw(Canvas canvas) {
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node == null) {
+            super.dispatchDraw(canvas);
+            return;
+        }
+        boolean clipChildren = getClipChildren();
+        canvas.save();
+        if (clipChildren) {
+            Component component = node.getComponent();
+            if (component != null && component.getContentRegionPath() != null) {
+                canvas.clipPath(component.getContentRegionPath());
+            } else {
+                canvas.clipRect(0, 0, getRight() - getLeft(), getBottom() - getTop());
+            }
+        }
+        mDispatchDrawHelper.onDispatchDrawStart(canvas, node);
         super.dispatchDraw(canvas);
+        if (mDispatchDrawHelper.isActive()) {
+            mDispatchDrawHelper.drawNext();
+        }
+        mDispatchDrawHelper.onDispatchDrawEnd();
+        canvas.restore();
     }
 
     @Override
@@ -107,22 +111,12 @@ public class FlatViewGroup extends ViewGroup {
         if (getBackground() != null) {
             return;
         }
-        Component component = getComponent(this);
-        if (component != null) {
-            Rect bounds = new Rect(0, 0, getRight() - getLeft(), getBottom() - getTop());
-            component.onDraw(canvas, bounds);
-        }
-    }
-
-    @Nullable
-    public static Component getComponent(@NonNull View view) {
-        NativeRender nativeRenderer = NativeRendererManager.getNativeRenderer(view.getContext());
-        if (nativeRenderer != null) {
-            RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view);
-            if (node != null) {
-                return node.getComponent();
+        RenderNode node = RenderManager.getRenderNode(this);
+        if (node != null) {
+            Component component = node.getComponent();
+            if (component != null) {
+                component.onDraw(canvas, 0, 0, getRight() - getLeft(), getBottom() - getTop());
             }
         }
-        return null;
     }
 }

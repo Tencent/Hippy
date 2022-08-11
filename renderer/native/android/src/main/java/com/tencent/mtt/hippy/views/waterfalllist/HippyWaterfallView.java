@@ -24,12 +24,13 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
-import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
+import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
 import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
@@ -48,6 +49,7 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 
+import com.tencent.renderer.utils.DiffUtils;
 import com.tencent.renderer.utils.EventUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -473,11 +475,10 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     public ContentHolder onCreateContentViewWithPos(ViewGroup parent, int position,
       int viewType) {
       NodeHolder contentHolder = new NodeHolder();
-      RenderNode contentViewRenderNode = nativeRenderer.getRenderManager()
-        .getRenderNode(mParentRecyclerView).getChildAt(position);
+      RenderNode contentViewRenderNode = getRenderNode().getChildAt(position);
       contentViewRenderNode.setLazy(false);
 
-      contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
+      contentHolder.mContentView = contentViewRenderNode.prepareHostViewRecursive();
       FooterUtil.checkFooterBinding(mParentRecyclerView, contentHolder.mContentView);
 
       contentHolder.mBindNode = contentViewRenderNode;
@@ -496,7 +497,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       if (nodeHolder.mBindNode != null) {
         nodeHolder.mBindNode.setLazy(true);
         nativeRenderer.getRenderManager().getControllerManager()
-          .deleteChild(nodeHolder.mBindNode.getRootId(), mParentRecyclerView.getId(), nodeHolder.mBindNode.getId());
+          .deleteChild(nodeHolder.mBindNode.getRootId(), mParentRecyclerView.getId(), nodeHolder.mBindNode.getId(), true);
       }
 
       if (nodeHolder.mBindNode instanceof HippyWaterfallItemRenderNode) {
@@ -513,7 +514,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
 
       if (contentHolder.isCreated) {
         try {
-          contentHolder.mBindNode.updateViewRecursive();
+          contentHolder.mBindNode.mountHostViewRecursive();
           contentHolder.isCreated = false;
         } catch (Throwable t) {
           Log.e(TAG, "onBindContentView #" + position, t);
@@ -524,12 +525,11 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
           contentHolder.mBindNode.setLazy(true);
         }
         try {
-          RenderNode toNode = nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView)
-            .getChildAt(position);
-          toNode.setLazy(false);
-          DiffUtils.doDiffAndPatch(nativeRenderer.getRenderManager().getControllerManager(),
-                  contentHolder.mBindNode, toNode);
-          contentHolder.mBindNode = toNode;
+          RenderNode toNode = getRenderNode().getChildAt(position);
+          if (toNode instanceof ListItemRenderNode) {
+            ((ListItemRenderNode) toNode).onBindViewHolder(contentHolder.mBindNode, contentHolder.mContentView);
+            contentHolder.mBindNode = toNode;
+          }
         } catch (Throwable t) {
         }
 
@@ -581,7 +581,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     }
 
     RenderNode getRenderNode() {
-      return nativeRenderer.getRenderManager().getRenderNode(mParentRecyclerView);
+      return RenderManager.getRenderNode(mParentRecyclerView);
     }
 
     RenderNode getItemNode(int index) {
@@ -595,8 +595,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
     @Override
     public int getItemHeight(int index) {
       int itemHeight = 0;
-      RenderNode listNode = nativeRenderer.getRenderManager()
-        .getRenderNode(mParentRecyclerView);
+      RenderNode listNode = getRenderNode();
       if (listNode != null && listNode.getChildCount() > index && index >= 0) {
         RenderNode listItemNode = listNode.getChildAt(index);
         if (listItemNode != null) {
@@ -883,8 +882,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
           if (holder.getItemViewType() == type
             && holder.mContentHolder instanceof NodeHolder) {
             RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
-            RenderNode toNode = nativeRenderer.getRenderManager()
-              .getRenderNode(mParentRecyclerView).getChildAt(position);
+            RenderNode toNode = getRenderNode().getChildAt(position);
             if (holderNode == toNode) {
               recycler.mAttachedScrap.remove(i);
               holder.setScrapContainer(null);
@@ -901,8 +899,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
         if (holder.getPosition() == position && holder.getItemId() == type && !holder
           .isInvalid() && holder.mContentHolder instanceof NodeHolder) {
           RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
-          RenderNode toNode = nativeRenderer.getRenderManager()
-            .getRenderNode(mParentRecyclerView).getChildAt(position);
+          RenderNode toNode = getRenderNode().getChildAt(position);
           if (holderNode == toNode) {
             recycler.mCachedViews.remove(i);
             return holder;
@@ -923,9 +920,7 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
             if (holder.getItemViewType() == viewType
               && holder.mContentHolder instanceof NodeHolder) {
               RenderNode holderNode = ((NodeHolder) holder.mContentHolder).mBindNode;
-              RenderNode toNode = nativeRenderer.getRenderManager()
-                .getRenderNode(mParentRecyclerView)
-                .getChildAt(position);
+              RenderNode toNode = getRenderNode().getChildAt(position);
               if (holderNode == toNode) {
                 scrapHeap.remove(holder);
                 return holder;

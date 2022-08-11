@@ -62,6 +62,8 @@ public class ContentDrawable extends Drawable {
     private int mImagePositionY;
     private ScaleType mScaleType = ScaleType.FIT_XY;
     private PorterDuff.Mode mTintColorBlendMode = Mode.SRC_ATOP;
+    private final RectF mContentRegion = new RectF();
+    private final Matrix mBitmapMatrix = new Matrix();
     @Nullable
     private Paint mPaint;
     @Nullable
@@ -89,6 +91,7 @@ public class ContentDrawable extends Drawable {
     @Override
     protected void onBoundsChange(Rect bounds) {
         super.onBoundsChange(bounds);
+        mContentRegion.set(bounds);
         if (mGifMovieState != null) {
             mGifMovieState.updateRequired = true;
         }
@@ -129,16 +132,14 @@ public class ContentDrawable extends Drawable {
         mGifMovie = gifMovie;
     }
 
-    private RectF getContentRegion() {
-        final RectF contentRegion = new RectF(getBounds());
+    private void updateContentRegionIfNeeded() {
         if (mBackgroundHolder != null) {
-            contentRegion.set(mBackgroundHolder.getContentRectF());
+            mContentRegion.set(mBackgroundHolder.getContentRectF());
             float borderWidth = mBackgroundHolder.getBorderWidth();
             if (borderWidth > 1.0f) {
-                contentRegion.inset(borderWidth - 0.5f, borderWidth - 0.5f);
+                mContentRegion.inset(borderWidth - 0.5f, borderWidth - 0.5f);
             }
         }
-        return contentRegion;
     }
 
     @Override
@@ -146,14 +147,14 @@ public class ContentDrawable extends Drawable {
         if (getBounds().width() == 0 || getBounds().height() == 0) {
             return;
         }
-        final RectF contentRegion = getContentRegion();
+        updateContentRegionIfNeeded();
         final Path borderRadiusPath =
                 (mBackgroundHolder != null) ? mBackgroundHolder.getBorderRadiusPath() : null;
         canvas.save();
         if (borderRadiusPath != null) {
             canvas.clipPath(borderRadiusPath);
         } else {
-            canvas.clipRect(contentRegion);
+            canvas.clipRect(mContentRegion);
         }
         if (mContentBitmap != null && !mContentBitmap.isRecycled()) {
             if (mPaint == null) {
@@ -163,17 +164,16 @@ public class ContentDrawable extends Drawable {
             if (mTintColor != Color.TRANSPARENT) {
                 mPaint.setColorFilter(new PorterDuffColorFilter(mTintColor, mTintColorBlendMode));
             }
-            RectF dst = calculateDstRect(contentRegion);
-            drawBitmap(canvas, makeBitmapDrawMatrix(dst));
+            drawBitmap(canvas);
         } else if (mGifMovie != null) {
-            drawGif(canvas, contentRegion);
+            drawGif(canvas);
         }
         canvas.restore();
     }
 
-    @NonNull
-    private RectF calculateDstRect(RectF dst) {
+    private void updateBitmapMatrix() {
         assert mContentBitmap != null;
+        final RectF dst = new RectF(mContentRegion);
         final float bitmapWidth = mContentBitmap.getWidth();
         final float bitmapHeight = mContentBitmap.getHeight();
         final float width = dst.width();
@@ -216,35 +216,29 @@ public class ContentDrawable extends Drawable {
         dst.bottom += mImagePositionY;
         dst.left += mImagePositionX;
         dst.right += mImagePositionX;
-        return dst;
-    }
-
-    @NonNull
-    private Matrix makeBitmapDrawMatrix(RectF dst) {
-        assert mContentBitmap != null;
-        Matrix matrix = new Matrix();
-        matrix.setRectToRect(new RectF(0, 0, mContentBitmap.getWidth(), mContentBitmap.getHeight()),
+        mBitmapMatrix.setRectToRect(
+                new RectF(0, 0, mContentBitmap.getWidth(), mContentBitmap.getHeight()),
                 dst, Matrix.ScaleToFit.FILL);
-        return matrix;
     }
 
-    private void drawBitmap(@NonNull Canvas canvas, @NonNull Matrix matrix) {
+    private void drawBitmap(@NonNull Canvas canvas) {
         assert mContentBitmap != null;
         assert mPaint != null;
+        updateBitmapMatrix();
         if (mScaleType == ScaleType.REPEAT) {
             BitmapShader bitmapShader = new BitmapShader(mContentBitmap, Shader.TileMode.REPEAT,
                     Shader.TileMode.REPEAT);
             mPaint.setShader(bitmapShader);
         }
         mPaint.setFilterBitmap(true);
-        canvas.drawBitmap(mContentBitmap, matrix, mPaint);
+        canvas.drawBitmap(mContentBitmap, mBitmapMatrix, mPaint);
     }
 
-    private void drawGif(@NonNull Canvas canvas, @NonNull RectF dst) {
+    private void drawGif(@NonNull Canvas canvas) {
         if (mGifMovieState == null) {
             mGifMovieState = new GifMovieState();
         }
-        mGifMovieState.update(dst);
+        mGifMovieState.update(mContentRegion);
         assert mGifMovie != null;
         int duration = mGifMovie.duration();
         if (duration == 0) {
