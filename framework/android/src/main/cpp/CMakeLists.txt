@@ -68,7 +68,7 @@ add_subdirectory(${PROJECT_ROOT_DIR}/driver/js ${CMAKE_CURRENT_BINARY_DIR}/drive
 target_link_libraries(${PROJECT_NAME} PRIVATE js_driver)
 # endregion
 
-# region js_driver
+# region dom
 GlobalPackages_Add(dom)
 target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # endregion
