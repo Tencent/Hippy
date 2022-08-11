@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.views.list;
 
 import android.graphics.Rect;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -87,6 +88,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   protected int mLastOffsetX = Integer.MIN_VALUE;
   protected int mLastOffsetY = Integer.MIN_VALUE;
   protected long mLastScrollEventTimeStamp = -1;
+  protected boolean mHasUnsentScrollEvent;
 
   private boolean mHasRemovePreDraw = false;
   private ViewTreeObserver.OnPreDrawListener mPreDrawListener = null;
@@ -508,9 +510,17 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   @Override
   public void onScrolled(int x, int y) {
     super.onScrolled(x, y);
-    sendOnScrollEvent();
+    checkSendOnScrollEvent();
     if (mExposureEventEnable) {
       dispatchExposureEvent();
+    }
+  }
+
+  @Override
+  public void onScrollStateChanged(int oldState, int newState) {
+    super.onScrollStateChanged(oldState, newState);
+    if (mHasUnsentScrollEvent) {
+      sendOnScrollEvent();
     }
   }
 
@@ -696,16 +706,21 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
     }
   }
 
-  protected void sendOnScrollEvent() {
+  protected void checkSendOnScrollEvent() {
     if (mScrollEventEnable) {
-      long currTime = System.currentTimeMillis();
-      if (currTime - mLastScrollEventTimeStamp < mScrollEventThrottle) {
-        return;
+      long currTime = SystemClock.elapsedRealtime();
+      if (currTime - mLastScrollEventTimeStamp >= mScrollEventThrottle) {
+        mLastScrollEventTimeStamp = currTime;
+        sendOnScrollEvent();
+      } else {
+        mHasUnsentScrollEvent = true;
       }
-
-      mLastScrollEventTimeStamp = currTime;
-      getOnScrollEvent().send(this, generateScrollEvent());
     }
+  }
+
+  protected void sendOnScrollEvent() {
+    mHasUnsentScrollEvent = false;
+    getOnScrollEvent().send(this, generateScrollEvent());
   }
 
   // start drag event
