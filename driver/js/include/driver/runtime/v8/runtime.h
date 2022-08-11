@@ -60,11 +60,14 @@ class Runtime {
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = scope; }
 
   inline std::any GetData(uint32_t slot) {
+    return slot_[slot];
+  }
+  inline bool HasData(uint32_t slot) {
     const auto& it = slot_.find(slot);
     if (it != slot_.end()) {
-      return it->second;
+      return true;
     }
-    return std::any();
+    return false;
   }
   inline void SetData(uint32_t slot, std::any data) {
     slot_[slot] = data;

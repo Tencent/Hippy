@@ -378,6 +378,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   });
 
   std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
+  FOOTSTONE_DCHECK(runtime->HasData(Runtime::kBridgeSlot));
   auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(runtime->GetData(Runtime::kBridgeSlot));
   auto ref = bridge->GetRef();
   loader->SetBridge(ref);

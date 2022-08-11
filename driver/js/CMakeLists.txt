@@ -38,9 +38,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE android log)
 if (ENABLE_INSPECTOR)
   target_compile_definitions(${PROJECT_NAME} PUBLIC "ENABLE_INSPECTOR")
 endif ()
-if (ENABLE_TURBO)
-  target_compile_definitions(${PROJECT_NAME} PUBLIC "ENABLE_TURBO")
-endif ()
 # endregion
 
 # region vm

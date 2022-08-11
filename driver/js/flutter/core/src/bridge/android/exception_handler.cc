@@ -27,9 +27,10 @@ namespace voltron {
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime, const unicode_string_view& desc,
                                          const unicode_string_view& stack) {
   FOOTSTONE_DLOG(INFO) << "ReportJsException begin";
-  auto slot = runtime->GetData(Runtime::kBridgeSlot);
-  if (slot.has_value()) {
-    auto bridge = std::any_cast<std::shared_ptr<ADRBridge>>(slot);
+  auto flag = runtime->HasData(Runtime::kBridgeSlot);
+  if (flag) {
+    auto slot = runtime->GetData(Runtime::kBridgeSlot);
+    auto bridge = std::any_cast<VoltronBridge>(slot);
     auto platform_runtime = bridge->GetPlatformRuntime();
     if (platform_runtime) {
       std::u16string exception = StringViewUtils::CovertToUtf16(desc, desc.encoding()).utf16_value();

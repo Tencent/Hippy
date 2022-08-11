@@ -54,6 +54,7 @@ std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime> &runtime,
   FOOTSTONE_DLOG(INFO) << "enter QueryTurboModuleImpl " << module_name.c_str();
   JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_name = j_env->NewStringUTF(module_name.c_str());
+  FOOTSTONE_DCHECK(runtime->HasData(Runtime::kTurboSlot));
   auto turbo_runtime = std::any_cast<std::shared_ptr<TurboModuleRuntime>>(runtime->GetData(Runtime::kTurboSlot));
   jobject module_impl = j_env->CallObjectMethod(
       turbo_runtime->turbo_module_manager_obj_,
@@ -83,12 +84,13 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
     v8::String::Utf8Value module_name(info.GetIsolate(), info[0]);
     std::string name = module_name.operator*();
 
-    auto slot = runtime->GetData(Runtime::kTurboSlot);
-    if (!slot.has_value()) {
+    auto flag = runtime->HasData(Runtime::kTurboSlot);
+    if (!flag) {
       FOOTSTONE_LOG(ERROR) << "getTurboModule but turboModuleRuntime is null";
       info.GetReturnValue().SetUndefined();
       return;
     }
+    auto slot = runtime->GetData(Runtime::kTurboSlot);
     auto turbo_module_runtime = std::any_cast<std::shared_ptr<TurboModuleRuntime>>(slot);
     std::shared_ptr<CtxValue> result = turbo_module_runtime->module_cache_[name];
     if (!result) {
