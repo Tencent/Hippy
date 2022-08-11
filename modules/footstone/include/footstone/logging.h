@@ -175,10 +175,10 @@ bool ShouldCreateLogMessage(LogSeverity severity);
     abort();                    \
   } while (0)
 
-#define FOOTSTONE_UNIMPLEMENTED()                                         \
-  do {                                                                    \
-    FOOTSTONE_LOG(ERROR) << "Not implemented in: " << __PRETTY_FUNCTION__ \
-    abort();                                                              \
+#define FOOTSTONE_UNIMPLEMENTED()                                             \
+  do {                                                                        \
+    FOOTSTONE_LOG(ERROR) << "Not implemented in: " << __PRETTY_FUNCTION__;    \
+    abort();                                                                  \
   } while (0)
   
 
