@@ -122,6 +122,7 @@ export default class ListExample extends React.Component {
     this.onWillAppear = this.onWillAppear.bind(this);
     this.onWillDisappear = this.onWillDisappear.bind(this);
     this.rowShouldSticky = this.rowShouldSticky.bind(this);
+    this.onScroll = this.onScroll.bind(this);
   }
 
   onDelete({ index }) {
@@ -149,7 +150,7 @@ export default class ListExample extends React.Component {
     console.log('onAppear', index);
   }
 
-  onScroll = (obj) => {
+  onScroll(obj) {
     console.log('onScroll', obj.contentOffset.y);
     if (obj.contentOffset.y <= 0) {
       if (!this.topReached) {
