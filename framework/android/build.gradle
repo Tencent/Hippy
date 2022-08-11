@@ -163,6 +163,7 @@ android {
   if (!SKIP_CMAKE_AND_NINJA.toBoolean() && !skipCmakeAndNinja) {
     externalNativeBuild {
       cmake {
+        version CMAKE_VERSION
         path CMAKE_PATH
       }
     }
