@@ -39,7 +39,7 @@ export function parseRemStyle(styleValue: NeedToTyped): NeedToTyped {
 
   // If the value is invalid, return the original value
   if (Number.isNaN(value)) {
-    return value;
+    return styleValue;
   }
 
   // base screen width

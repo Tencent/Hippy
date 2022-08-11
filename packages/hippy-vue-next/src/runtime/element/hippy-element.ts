@@ -534,10 +534,7 @@ export class HippyElement extends HippyNode {
     }
 
     // If the style value does not exist or is equal to the original value, return directly
-    if (
-      styleValue === undefined
-      || styleValue === null
-      || this.style[styleProperty] === styleValue
+    if (styleValue === null || this.style[styleProperty] === styleValue
     ) {
       return;
     }
@@ -612,10 +609,7 @@ export class HippyElement extends HippyNode {
       eventName === 'scroll'
       && !(this.getAttribute('scrollEventThrottle') > 0)
     ) {
-      const scrollEventThrottle = 200;
-      if (scrollEventThrottle) {
-        this.attributes.scrollEventThrottle = scrollEventThrottle;
-      }
+      this.attributes.scrollEventThrottle = 200;
     }
 
     // If there is an event polyfill, bind the corresponding event callback to the event that needs polyfill
@@ -687,6 +681,11 @@ export class HippyElement extends HippyNode {
     }
   }
 
+  /**
+   * convert hippy vue node to Native Node
+   *
+   * @param isIncludeChild - should or no convert child node recursive
+   */
   public convertToNativeNodes(isIncludeChild: boolean): NativeNode[] {
     // If the node does not need to be inserted into native, return directly
     if (!this.isNeedInsertToNative) {

@@ -23,11 +23,6 @@
  */
 import { type HippyNode } from '../runtime/node/hippy-node';
 
-import {
-  type HippyCachedInstanceType,
-  getHippyCachedInstance,
-} from './instance';
-
 /**
  * the map that cached hippy-node to increase node select performance
  */
@@ -127,22 +122,4 @@ export function unCacheNodeOnIdle(node: HippyNode | number): void {
     },
     { timeout: 50 },
   ); // 50ms to avoid blocking user operation
-}
-
-/**
- * find target node by nodeId with Vue Node Tree.
- * This function is the lower performance funtion, do not recommend to use.
- *
- * @param targetNodeId - id of target node
- */
-export function findTargetNode(targetNodeId: number): HippyNode | null {
-  const vueInstance: Partial<HippyCachedInstanceType> = getHippyCachedInstance();
-
-  if (vueInstance.instance) {
-    const { $el: rootNode } = vueInstance.instance;
-
-    return rootNode.findChild((node: HippyNode) => node.nodeId === targetNodeId);
-  }
-
-  return null;
 }

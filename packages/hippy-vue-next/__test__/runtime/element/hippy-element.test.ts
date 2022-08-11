@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { registerHippyTag } from '../../../src/runtime/component';
+import { registerHippyTag, TagComponent } from '../../../src/runtime/component';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { Native } from '../../../src/runtime/native/index';
 import * as Render from '../../../src/runtime/render';
@@ -200,6 +200,9 @@ describe('runtime/element/hippy-element', () => {
 
       expect(hippyElement.hasAttribute('caretColor')).toBeFalsy();
       expect(hippyElement.hasAttribute('caret-color')).toBeTruthy();
+      expect(hippyElement.getAttribute('caret-color')).toEqual(4278190080);
+      hippyElement.setAttribute('caret-color', 'white');
+      expect(hippyElement.getAttribute('caret-color')).toEqual(4294967295);
     });
 
     it('color string value should be convert to native number', () => {
@@ -218,6 +221,36 @@ describe('runtime/element/hippy-element', () => {
       expect(element.attributes.underlineColorAndroid).toEqual(4289379276);
       element.setAttribute('underline-color-android', '#abc');
       expect(element.attributes.underlineColorAndroid).toEqual(4289379276);
+    });
+
+    it('element text attribute should be string', () => {
+      let element = new HippyElement('p');
+      // non string will convert to string if value has toString method
+      element.setAttribute('text', 123);
+      expect(element.getAttribute('text')).toEqual('123');
+      element.setAttribute('value', 123);
+      expect(element.getAttribute('value')).toEqual('123');
+      element.setAttribute('defaultValue', 123);
+      expect(element.getAttribute('defaultValue')).toEqual('123');
+      element.setAttribute('placeholder', 123);
+      expect(element.getAttribute('placeholder')).toEqual('123');
+
+      // string still string
+      element = new HippyElement('span');
+      element.setAttribute('text', '123', { textUpdate: true });
+      expect(element.getAttribute('text')).toEqual('123');
+      element.setAttribute('value', '123', { textUpdate: false });
+      expect(element.getAttribute('value')).toEqual('123');
+      element.setAttribute('defaultValue', '123', { notToNative: true });
+      expect(element.getAttribute('defaultValue')).toEqual('123');
+      element.setAttribute('placeholder', '123');
+      expect(element.getAttribute('placeholder')).toEqual('123');
+
+      // can not convert to string will throw error
+      expect(() => element.setAttribute('text', undefined)).toThrow(TypeError);
+      expect(() => element.setAttribute('value', undefined)).toThrow(TypeError);
+      expect(() => element.setAttribute('defaultValue', undefined)).toThrow(TypeError);
+      expect(() => element.setAttribute('placeholder', undefined)).toThrow(TypeError);
     });
   });
 
@@ -306,6 +339,39 @@ describe('runtime/element/hippy-element', () => {
       hippyElement.setStyle('boxShadowColor', 'black', true);
 
       expect(updateChildSpy).not.toBeCalled();
+    });
+
+    it('removeStyle should clear all style attribute', () => {
+      const hippyElement = new HippyElement('div');
+      hippyElement.setStyle('boxShadowOpacity', '0');
+      expect(hippyElement.style.shadowOpacity).toBe(0);
+      hippyElement.removeStyle();
+      expect(hippyElement.style).toEqual({});
+    });
+
+    it('set style value to undefined should delete property', () => {
+      const hippyElement = new HippyElement('div');
+      hippyElement.setStyle('flex', 1);
+      expect(hippyElement.style.flex).toBeDefined();
+      // remove property
+      hippyElement.setStyle('flex', undefined);
+      expect(hippyElement.style.flex).toBeUndefined();
+    });
+
+    it('default branch of set style should work correct', () => {
+      const hippyElement = new HippyElement('div');
+      hippyElement.setStyle('width', '100px');
+      expect(hippyElement.style.width).toEqual(100);
+      hippyElement.setStyle('width', '101.123');
+      expect(hippyElement.style.width).toEqual(101.123);
+    });
+
+    it('null or value same should not change value', () => {
+      const hippyElement = new HippyElement('div');
+      hippyElement.setStyle('width', '101.1');
+      expect(hippyElement.style.width).toEqual(101.1);
+      hippyElement.setStyle('width', '101.1px');
+      expect(hippyElement.style.width).toEqual(101.1);
     });
   });
 
@@ -397,6 +463,81 @@ describe('runtime/element/hippy-element', () => {
       expect(element.style.placeholderTextColor).toEqual(4289449455);
       element.setNativeProps({ style: { underlineColorAndroid: '#abcdef' } });
       expect(element.style.underlineColorAndroid).toEqual(4289449455);
+    });
+  });
+
+  describe('ui function should exist', () => {
+    const element = new HippyElement('p');
+
+    it('setHotspot method should exist', () => {
+      const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
+      element.setHotspot(10, 100);
+      expect(callUIFunctionSpy).toBeCalled();
+    });
+    it('setPressed method should exist', () => {
+      const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
+      element.setPressed(true);
+      expect(callUIFunctionSpy).toBeCalled();
+    });
+  });
+
+  describe('repaintWithChildren function should exist', () => {
+    it('repaintWithChildren method should exist', () => {
+      const element = new HippyElement('p');
+      const callUIFunctionSpy = jest.spyOn(element, 'updateNativeNode');
+      element.repaintWithChildren();
+      expect(callUIFunctionSpy).toBeCalled();
+    });
+  });
+
+  describe('convertToNativeNodes method should return correct native node', () => {
+    it('no registered tag should throw error', () => {
+      const element = new HippyElement('vue-next-tag');
+      expect(() => element.convertToNativeNodes(false)).toThrow(Error);
+    });
+
+    it('no need insert node should return empty array', () => {
+      // span component
+      const p: TagComponent = {
+        name: 'Text',
+      };
+      registerHippyTag('p', p);
+      const element = new HippyElement('p');
+      element.isNeedInsertToNative = false;
+      expect(element.convertToNativeNodes(false)).toEqual([]);
+    });
+
+    it('registered tag should return correct native node', () => {
+      // span component
+      const span: TagComponent = {
+        name: 'Text',
+        attributeMaps: {},
+        eventNamesMap: new Map(),
+        defaultNativeProps: {
+          text: '',
+        },
+      };
+      registerHippyTag('span', span);
+      const element = new HippyElement('span');
+      const childElement = new HippyElement('span');
+      element.appendChild(childElement);
+      const [nativeNode] = element.convertToNativeNodes(false);
+      expect(nativeNode).toEqual(expect.objectContaining({
+        pId: 1,
+        index: 0,
+        name: 'Text',
+        props: {
+          text: '',
+          style: {},
+          attributes: {
+            id: '',
+            class: '',
+          },
+        },
+        tagName: 'span',
+      }));
+      const nativeNodeList = element.convertToNativeNodes(true);
+      expect(nativeNodeList.length).toEqual(2);
     });
   });
 });

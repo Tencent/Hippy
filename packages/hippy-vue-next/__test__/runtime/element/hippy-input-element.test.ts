@@ -72,4 +72,20 @@ describe('runtime/element/hippy-input-element', () => {
     hippyInputElement.hideInputMenu();
     expect(callUIFunctionSpy).toBeCalled();
   });
+
+  it('setText method should work correct.', () => {
+    const hippyInputElement = new HippyInputElement('input');
+    hippyInputElement.setText('hello');
+    expect(hippyInputElement.attributes.text).toEqual('hello');
+    const hippyTextareaElement = new HippyInputElement('textarea');
+    hippyTextareaElement.setText('hello');
+    expect(hippyTextareaElement.attributes.value).toEqual('hello');
+  });
+
+  it('should invoke callUIFunction when call isFocused function of the input element.', () => {
+    const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
+    const hippyInputElement = new HippyInputElement('input');
+    hippyInputElement.isFocused();
+    expect(callUIFunctionSpy).toBeCalled();
+  });
 });

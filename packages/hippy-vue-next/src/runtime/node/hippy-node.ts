@@ -513,7 +513,7 @@ export class HippyNode extends HippyEventTarget {
     }
 
     // get native nodes
-    const updateNodes: NativeNode[] =      this.convertToNativeNodes(isIncludeChildren);
+    const updateNodes: NativeNode[] = this.convertToNativeNodes(isIncludeChildren);
     renderUpdateChildNativeNode(updateNodes);
   }
 
