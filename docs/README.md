@@ -94,6 +94,10 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://im.qq.com/mobileqq/" title="手机QQ">手机QQ</a></p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_5613_1660103898/96" width="50" alt="腾讯新闻" />
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://news.qq.com/mobile/" title="腾讯新闻">腾讯新闻</a></p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
   <img src="//pp.myapp.com/ma_icon/0/icon_10966186_1533019715/128" alt="全民K歌" width="50" />
   <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kg.qq.com/html/contest/kg-intro.html" title="全民K歌">全民K歌</a>
@@ -106,9 +110,29 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_10237_1659521178/256" width="50" alt="腾讯地图" />
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://map.qq.com/mobile/index.html" title="腾讯地图">腾讯地图</a></p>
+</span>
+<span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_42287337_1659540466/96" width="50" alt="王者营地" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.gamehelper.smoba" title="王者营地">王者营地</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_54036620_1658836879/96" width="50" alt="闪现" />
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://shanxian.qq.com/" title="闪现">闪现</a></p>
+</span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
   <img src="assets/img/tv.png" width="50" alt="云视听极光" />
   <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://tv.qq.com/" title="云视听极光">云视听极光</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_54136949_1658385381/256" width="50" alt="Start云游戏(TV)" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://start.qq.com/download.html?terminal=tv" title="Start云游戏(TV)">Start云游戏(TV)</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
@@ -124,39 +148,9 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_42270933_1551941158/128" width="50" alt="NOW直播" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_52775028_1660135770/256" width="50" alt="理财通" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://now.qq.com/" title="NOW直播">NOW直播</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="assets/img/voov.png" width="50" alt="VOOV直播" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.voovlive.com/" title="VOOV直播">VOOV直播</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_52445834_1548053409/128" width="50" alt="心悦俱乐部" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://xinyue.qq.com" title="心悦俱乐部">心悦俱乐部</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_42287337_1556173463/128" width="50" alt="王者营地" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.gamehelper.smoba" title="王者营地">王者营地</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_12082013_1545355964/128" width="50" alt="天天快报" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kuaibao.qq.com/download.html" title="天天快报">天天快报</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_12259403_1545708417/128" width="50" alt="WiFi管家" />
-   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://wifi.qq.com/" title="WiFi管家">WiFi管家</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://a.app.qq.com/o/simple.jsp?pkgname=com.tencent.fortuneplat" title="理财通">理财通</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
@@ -166,9 +160,27 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_42270933_1551941158/128" width="50" alt="NOW直播" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://now.qq.com/" title="NOW直播">NOW直播</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_52445834_1548053409/128" width="50" alt="心悦俱乐部" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://xinyue.qq.com" title="心悦俱乐部">心悦俱乐部</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_12259403_1545708417/128" width="50" alt="WiFi管家" />
+   <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://wifi.qq.com/" title="WiFi管家">WiFi管家</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
   <img src="//pp.myapp.com/ma_icon/0/icon_52754761_1557837008/128" width="50" alt="大丰满满" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.taifung.broker" title="大丰满满">大丰满满</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.dafenghk.com/hk_web/download.shtml" title="大丰满满">大丰满满</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
@@ -178,9 +190,9 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_52802703_1546489662/128" width="50" alt="马克思主义" />
+  <img src="assets/img/voov.png" width="50" alt="VOOV直播" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.rmlt.marxism" title="马克思主义">马克思主义</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.voovlive.com/" title="VOOV直播">VOOV直播</a>
   </p>
  </span>
  </div>
