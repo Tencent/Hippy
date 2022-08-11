@@ -80,7 +80,7 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
 
         __GLOBAL__.appRegister[callObj.name].run(callObj.params);
       } else {
-        throw Error(`error: ${callObj.name} is not regist in js`);
+        throw Error(`native2js error: native ${callObj.name} is not registered in js`);
       }
     } else if (method === 'unmountApplicationComponentAtRootTag') {
       const rootViewId = args[0];
@@ -91,8 +91,7 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
     }
   } else if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];
-    if (!targetModule || !targetModule[method] || typeof targetModule[method] !== 'function') {
-    } else {
+    if (targetModule && typeof targetModule[method] === 'function') {
       targetModule[method].call(targetModule, args[1].params);
     }
   } else if (module === 'JSTimersExecution') {

@@ -63,15 +63,15 @@ global.hippyBridge = (_action, _callObj) => {
 
         __GLOBAL__.appRegister[callObj.name].run(callObj.params);
       } else {
-        resp = `error: ${callObj.name} is not regist in js`;
+        resp = `native2js error: ${callObj.name} is not registered in js`;
         throw Error(resp);
       }
       break;
     }
     case 'callBack': {
-      if (callObj.callId && callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
+      if (callObj.moduleName === 'AnimationFrameModule' && callObj.moduleFunc === 'requestAnimationFrame') {
         if (callObj.result !== 0) {
-          resp = 'error: native no modules';
+          resp = 'native2js error: native failed to call AnimationFrameModule requestAnimationFrame()';
           break;
         }
         __GLOBAL__.canRequestAnimationFrame = true;
@@ -83,7 +83,7 @@ global.hippyBridge = (_action, _callObj) => {
           });
           delete __GLOBAL__.requestAnimationFrameQueue[callObj.callId];
         }
-      } else if (callObj.callId && __GLOBAL__.moduleCallList[callObj.callId]) {
+      } else if (__GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];
         if (callObj.result !== 0) {
           typeof callbackObj.reject === 'function' && callbackObj.reject(callObj.params);
@@ -94,17 +94,17 @@ global.hippyBridge = (_action, _callObj) => {
           delete __GLOBAL__.moduleCallList[callObj.callId];
         }
       } else {
-        resp = 'error: calljs id is not registered in js';
+        resp = 'native2js error: native callback id is not registered in js';
       }
       break;
     }
     case 'callJsModule': {
       if (!callObj || !callObj.moduleName || !callObj.methodName) {
-        resp = 'error: callJsModule param invalid';
+        resp = 'native2js error: callJsModule param is invalid';
       } else {
         const targetModule = __GLOBAL__.jsModuleList[callObj.moduleName];
         if (!targetModule || typeof targetModule[callObj.methodName] !== 'function') {
-          resp = 'error: callJsModule targeting an undefined module or method';
+          resp = 'native2js error: callJsModule is targeting an undefined module or method';
         } else {
           targetModule[callObj.methodName](callObj.params);
         }
@@ -120,7 +120,7 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     default: {
-      resp = 'error: action not define';
+      resp = 'native2js error: native2js action is not defined';
       break;
     }
   }
