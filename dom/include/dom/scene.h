@@ -29,7 +29,6 @@ inline namespace dom {
 class Scene {
  public:
   Scene(std::vector<std::function<void()>>&& ops);
-  ~Scene() = default;
 
   void Build() const;
 

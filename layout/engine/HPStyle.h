@@ -26,6 +26,8 @@
 class HPStyle {
  public:
   HPStyle();
+  HPStyle& operator=(const HPStyle&) = default;
+  HPStyle(const HPStyle&) = default;
   virtual ~HPStyle() = default;
   std::string toString();
   void setDirection(HPDirection direction_) { direction = direction_; }
