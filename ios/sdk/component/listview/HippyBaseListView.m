@@ -41,6 +41,7 @@
     NSHashTable *_scrollListeners;
     BOOL _isInitialListReady;
     NSUInteger _preNumberOfRows;
+    BOOL _allowNextScrollNoMatterWhat;
     NSTimeInterval _lastScrollDispatchTime;
     NSArray<HippyVirtualNode *> *_subNodes;
     HippyHeaderRefresh *_headerRefreshView;
@@ -201,12 +202,16 @@
 }
 
 - (void)scrollToContentOffset:(CGPoint)offset animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
     [self.tableView setContentOffset:offset animated:animated];
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
     NSIndexPath *indexPath = [self.dataSource indexPathForFlatIndex:index];
     if (indexPath != nil) {
+        _allowNextScrollNoMatterWhat = YES;
         [self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:animated];
     }
 }
@@ -358,12 +363,13 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (self.onScroll) {
-        double ti = CACurrentMediaTime();
-        double timeDiff = (ti - _lastScrollDispatchTime) * 1000.f;
-        if (timeDiff > self.scrollEventThrottle) {
+        CFTimeInterval now = CACurrentMediaTime();
+        CFTimeInterval ti = (now - _lastScrollDispatchTime) * 1000.f;
+        if (ti > _scrollEventThrottle || _allowNextScrollNoMatterWhat) {
             NSDictionary *eventData = [self scrollBodyData];
-            _lastScrollDispatchTime = ti;
+            _lastScrollDispatchTime = now;
             self.onScroll(eventData);
+            _allowNextScrollNoMatterWhat = NO;
         }
     }
 
@@ -378,6 +384,8 @@
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    // Ensure next scroll event is recorded, regardless of throttle
+    _allowNextScrollNoMatterWhat = YES;
     if (self.onScrollBeginDrag) {
         self.onScrollBeginDrag([self scrollBodyData]);
     }
@@ -404,6 +412,10 @@
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
     if (!decelerate) {
         _manualScroll = NO;
+        
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
@@ -434,6 +446,10 @@
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         self->_manualScroll = NO;
     });
@@ -474,6 +490,10 @@
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndScrollingAnimation:)]) {
             [scrollViewListener scrollViewDidEndScrollingAnimation:scrollView];
