@@ -9,8 +9,8 @@ on:
       - 'packages/**'
       - 'package*.json'
       - 'examples/hippy-*-demo/**'
-      - 'scripts/**/*.js'
-      - 'core/js/**/*.js'
+      - 'scripts/**'
+      - 'core/js/**'
 
 jobs:
   frontend_build_tests:
