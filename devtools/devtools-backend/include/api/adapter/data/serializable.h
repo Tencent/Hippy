@@ -28,11 +28,15 @@ namespace hippy::devtools {
  */
 class Serializable {
  public:
+  Serializable() = default;
+  Serializable(const Serializable&) = default;
+  Serializable& operator=(const Serializable&) = default;
+  virtual ~Serializable() = default;
+
   /**
    * @brief serialization interface
    * @return string data organized in a regular way
    */
   virtual std::string Serialize() const = 0;
-  virtual ~Serializable() = default;
 };
 }  // namespace hippy::devtools
