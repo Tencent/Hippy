@@ -70,7 +70,7 @@ endif ()
 
 # region dom
 GlobalPackages_Add(dom)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/dom/include)
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:dom,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region source set
