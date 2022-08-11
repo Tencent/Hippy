@@ -108,13 +108,13 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         return mBorderRadiusPath;
     }
 
-    @Override
+    @SuppressWarnings("unused")
     @Nullable
     public BorderRadius getBorderRadii() {
         return mBorderRadii;
     }
 
-    @Override
+    @SuppressWarnings("unused")
     public float getBorderRadius() {
         return mBorderRadius;
     }
@@ -159,7 +159,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         if (mBorderRadiusPath == null) {
             mBorderRadiusPath = new Path();
         } else {
-            mBorderRadiusPath.reset();
+            mBorderRadiusPath.rewind();
         }
         final RectF rect = new RectF(mRect);
         if (mBorderWidth > 1) {
@@ -220,8 +220,11 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         RectF shadowRect = mShadowPaint.initialize(getBounds());
         if (shadowRect != null) {
+            canvas.save();
+            canvas.clipRect(getBounds());
             float maxRadius = getMaxBorderRadius();
             canvas.drawRoundRect(shadowRect, maxRadius, maxRadius, mShadowPaint);
+            canvas.restore();
         }
     }
 
@@ -250,7 +253,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         assert mPaint != null;
         if (leftWidth > 0 && leftColor != Color.TRANSPARENT) {
             mPaint.setColor(leftColor);
-            mBorderPath.reset();
+            mBorderPath.rewind();
             mBorderPath.moveTo(left, top);
             mBorderPath.lineTo(left + leftWidth, top + topWidth);
             mBorderPath.lineTo(left + leftWidth, top + height - bottomWidth);
@@ -260,7 +263,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         if (topWidth > 0 && topColor != Color.TRANSPARENT) {
             mPaint.setColor(topColor);
-            mBorderPath.reset();
+            mBorderPath.rewind();
             mBorderPath.moveTo(left, top);
             mBorderPath.lineTo(left + leftWidth, top + topWidth);
             mBorderPath.lineTo(left + width - rightWidth, top + topWidth);
@@ -270,7 +273,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         if (rightWidth > 0 && rightColor != Color.TRANSPARENT) {
             mPaint.setColor(rightColor);
-            mBorderPath.reset();
+            mBorderPath.rewind();
             mBorderPath.moveTo(left + width, top);
             mBorderPath.lineTo(left + width, top + height);
             mBorderPath.lineTo(left + width - rightWidth, top + height - bottomWidth);
@@ -280,7 +283,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         if (bottomWidth > 0 && bottomColor != Color.TRANSPARENT) {
             mPaint.setColor(bottomColor);
-            mBorderPath.reset();
+            mBorderPath.rewind();
             mBorderPath.moveTo(left, top + height);
             mBorderPath.lineTo(left + width, top + height);
             mBorderPath.lineTo(left + width - rightWidth, top + height - bottomWidth);
@@ -297,7 +300,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
-        mBorderPath.reset();
+        mBorderPath.rewind();
         mBorderPath.moveTo(mRect.left + halfWidth, mRect.top + topLeft);
         mBorderPath.lineTo(mRect.left + halfWidth, mRect.bottom - bottomLeft);
         mBorderPath.addArc(
@@ -322,7 +325,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
-        mBorderPath.reset();
+        mBorderPath.rewind();
         mBorderPath.moveTo(mRect.left + topLeft, mRect.top + halfWidth);
         mBorderPath.lineTo(mRect.right - topRight, mRect.top + halfWidth);
         mBorderPath.addArc(
@@ -347,7 +350,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
-        mBorderPath.reset();
+        mBorderPath.rewind();
         mBorderPath.moveTo(mRect.right - halfWidth, mRect.top + topRight);
         mBorderPath.lineTo(mRect.right - halfWidth, mRect.bottom - bottomRight);
         mBorderPath.addArc(
@@ -372,7 +375,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
-        mBorderPath.reset();
+        mBorderPath.rewind();
         mBorderPath.moveTo(mRect.left + bottomLeft, mRect.bottom - halfWidth);
         mBorderPath.lineTo(mRect.right - bottomRight, mRect.bottom - halfWidth);
         mBorderPath.addArc(

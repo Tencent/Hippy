@@ -64,11 +64,12 @@ public class HippyListViewController extends HippyViewController<HippyListView> 
     }
 
     @Override
-    protected void deleteChild(ViewGroup parentView, View childView, int childIndex) {
+    protected void deleteChild(ViewGroup parentView, View childView) {
         // List的childView是RecyclerViewItem类型，不是由Hippy构建的，所以这里需要提前删除RecyclerViewItem的child
         if (childView instanceof RecyclerViewItem) {
             ((RecyclerViewItem) childView).removeAllViews();
         }
+        int childIndex = parentView.indexOfChild(childView);
         // list里，删掉某个条目后，它后面的条目的位置都要减1
         if (childIndex >= 0 && parentView instanceof HippyListView) {
             HippyListView listView = (HippyListView) parentView;

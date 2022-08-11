@@ -81,7 +81,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     }
 
     @Override
-    protected void updateExtra(View view, Object object) {
+    protected void updateExtra(@NonNull View view, Object object) {
         super.updateExtra(view, object);
 
 //        if (object instanceof TextExtra) {

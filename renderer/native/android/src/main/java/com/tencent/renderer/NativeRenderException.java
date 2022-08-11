@@ -16,10 +16,13 @@
 
 package com.tencent.renderer;
 
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInput;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 
@@ -102,9 +105,16 @@ public class NativeRenderException extends RuntimeException {
         /**
          * If fail to add child view to parent
          *
-         * @see com.tencent.mtt.hippy.uimanager.ControllerManager#addChild(int, int, int)
+         * @see com.tencent.mtt.hippy.uimanager.ControllerManager#addChild(int, int, int, int)
          */
         ADD_CHILD_VIEW_FAILED_ERR,
+
+        /**
+         * If fail to remove child view
+         *
+         * @see com.tencent.mtt.hippy.uimanager.ControllerManager#deleteChild(int, int, int, boolean) 
+         */
+        REMOVE_CHILD_VIEW_FAILED_ERR,
 
         /**
          * If fail to update props of view, such as unknown type or convert failed
@@ -112,6 +122,28 @@ public class NativeRenderException extends RuntimeException {
          * @see com.tencent.renderer.utils.PropertyUtils#convertProperty(Type, Object)
          */
         UPDATE_VIEW_PROPS_ERR,
+
+        /**
+         * On bind view holder, the class name of the from node is different with to node,
+         * or from node id unequal to item view id
+         *
+         * @see ListItemRenderNode#onBindViewHolder(RenderNode, View)
+         */
+        ON_BIND_VIEW_HOLDER_ERR,
+
+        /**
+         * On create view holder, the host view already exists
+         *
+         * @see ListItemRenderNode#onCreateViewHolder()
+         */
+        ON_CREATE_VIEW_HOLDER_ERR,
+
+        /**
+         * If the corresponding node of the reused view is abandoned
+         *
+         * @see RenderNode#checkHostViewReused()
+         */
+        REUSE_VIEW_HAS_ABANDONED_NODE_ERR,
     }
 
     public ExceptionCode mCode;

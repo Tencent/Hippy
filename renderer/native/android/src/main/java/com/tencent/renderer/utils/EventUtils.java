@@ -156,6 +156,7 @@ public class EventUtils {
      * @param eventName target event name
      * @param params event extra params object
      */
+    @SuppressWarnings("unused")
     @MainThread
     public static void sendGestureEvent(@NonNull View view, @NonNull String eventName,
             @Nullable Object params) {
@@ -179,6 +180,7 @@ public class EventUtils {
      * @param useCapture enable event capture
      * @param useBubble enable event bubble
      */
+    @SuppressWarnings("unused")
     @MainThread
     public static void sendCustomEvent(@NonNull View view, @NonNull String eventName,
             @Nullable Object params, boolean useCapture, boolean useBubble) {

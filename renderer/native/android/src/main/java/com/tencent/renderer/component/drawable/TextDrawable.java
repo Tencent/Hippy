@@ -35,7 +35,10 @@ package com.tencent.renderer.component.drawable;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 
 import android.text.Layout;
@@ -52,6 +55,7 @@ public class TextDrawable extends Drawable {
     private float mRightPadding;
     private float mBottomPadding;
     private float mTopPadding;
+    private final RectF mContentRegion = new RectF();
     @Nullable
     private Layout mLayout;
     @Nullable
@@ -73,9 +77,25 @@ public class TextDrawable extends Drawable {
         mBackgroundHolder = holder;
     }
 
+    @Override
+    protected void onBoundsChange(Rect bounds) {
+        super.onBoundsChange(bounds);
+        mContentRegion.set(bounds);
+    }
+
     @Nullable
     public Layout getTextLayout() {
         return mLayout;
+    }
+
+    private void updateContentRegionIfNeeded() {
+        if (mBackgroundHolder != null) {
+            mContentRegion.set(mBackgroundHolder.getContentRectF());
+            float borderWidth = mBackgroundHolder.getBorderWidth();
+            if (borderWidth > 1.0f) {
+                mContentRegion.inset(borderWidth, borderWidth);
+            }
+        }
     }
 
     @Override
@@ -85,14 +105,24 @@ public class TextDrawable extends Drawable {
         if (width == 0 || height == 0 || mLayout == null) {
             return;
         }
+        updateContentRegionIfNeeded();
+        final Path borderRadiusPath =
+                (mBackgroundHolder != null) ? mBackgroundHolder.getBorderRadiusPath() : null;
         canvas.save();
+        if (borderRadiusPath != null) {
+            canvas.clipPath(borderRadiusPath);
+        } else {
+            canvas.clipRect(mContentRegion);
+        }
         float borderWidth = (mBackgroundHolder != null) ? mBackgroundHolder.getBorderWidth() : 0.0f;
         float dx = mLeftPadding + borderWidth;
         float dy = mTopPadding + borderWidth;
         switch (mLayout.getAlignment()) {
             case ALIGN_CENTER:
-                dy = (height - mLayout.getHeight()) / 2.0f;
-                dx = (width - mLayout.getWidth()) / 2.0f;
+                float contentW = width - mLeftPadding - mRightPadding - 2 * borderWidth;
+                float contentH = height - mTopPadding - mBottomPadding - 2 * borderWidth;
+                dy = (contentH - mLayout.getHeight()) / 2.0f;
+                dx = (contentW - mLayout.getWidth()) / 2.0f;
                 canvas.translate(dx, dy);
                 break;
             case ALIGN_OPPOSITE:

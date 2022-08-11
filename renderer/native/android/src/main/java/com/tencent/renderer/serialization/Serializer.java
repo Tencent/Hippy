@@ -66,7 +66,7 @@ public class Serializer extends PrimitiveValueSerializer {
         return null;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "deprecation"})
     @Override
     public boolean writeValue(@Nullable Object object) throws NativeRenderException {
         if (object == null) {

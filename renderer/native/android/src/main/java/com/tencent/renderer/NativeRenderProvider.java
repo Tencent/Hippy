@@ -310,8 +310,7 @@ public class NativeRenderProvider {
     }
 
     public void dispatchEvent(int rootId, int nodeId, @NonNull String eventName,
-            @Nullable Object params,
-            boolean useCapture, boolean useBubble) {
+            @Nullable Object params, boolean useCapture, boolean useBubble) {
         byte[] bytes = null;
         int offset = 0;
         int length = 0;

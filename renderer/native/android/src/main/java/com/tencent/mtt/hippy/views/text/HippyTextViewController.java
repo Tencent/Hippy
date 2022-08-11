@@ -26,11 +26,13 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 
-@HippyController(name = HippyTextViewController.CLASS_NAME, dispatchWithStandardType = true)
+@HippyController(name = HippyTextViewController.CLASS_NAME, dispatchWithStandardType = true, supportFlatten = true)
 public class HippyTextViewController extends HippyViewController<HippyTextView> {
 
     public static final String CLASS_NAME = "Text";
@@ -43,5 +45,10 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
     @Override
     protected boolean handleGestureBySelf() {
         return true;
+    }
+
+    @Override
+    protected void setGestureType(HippyTextView view, String type, boolean flag) {
+
     }
 }

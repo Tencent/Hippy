@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.REUSE_VIEW_HAS_ABANDONED_NODE_ERR;
+
 import android.text.TextUtils;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -25,19 +27,27 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.image.ImageComponent;
 import com.tencent.renderer.component.image.ImageComponentController;
+import com.tencent.renderer.pool.NativeRenderPool.PoolType;
+import com.tencent.renderer.utils.DiffUtils;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class RenderNode {
 
+    private static final String TAG = "RenderNode";
     public static final int FLAG_UPDATE_LAYOUT = 0x00000001;
     public static final int FLAG_UPDATE_EXTRA = 0x00000002;
     public static final int FLAG_UPDATE_EVENT = 0x00000004;
@@ -45,14 +55,15 @@ public class RenderNode {
     public static final int FLAG_ALREADY_DELETED = 0x00000010;
     public static final int FLAG_ALREADY_UPDATED = 0x00000020;
     public static final int FLAG_LAZY_LOAD = 0x00000040;
+    public static final int FLAG_HAS_ATTACHED = 0x00000080;
     private int mNodeFlags = 0;
+    private PoolType mPoolInUse = PoolType.NONE;
     protected int mX;
     protected int mY;
     protected int mWidth;
     protected int mHeight;
     protected final int mId;
     protected final int mRootId;
-    @NonNull
     protected final String mClassName;
     protected final List<RenderNode> mChildren = new ArrayList<>();
     protected final List<RenderNode> mChildrenUnattached = new ArrayList<>();
@@ -73,6 +84,8 @@ public class RenderNode {
     protected SparseIntArray mDeletedChildren;
     @Nullable
     protected Component mComponent;
+    @Nullable
+    protected WeakReference<View> mHostViewRef;
 
     public RenderNode(int rootId, int id, @NonNull String className,
             @NonNull ControllerManager controllerManager) {
@@ -82,8 +95,8 @@ public class RenderNode {
         mControllerManager = controllerManager;
     }
 
-    public RenderNode(int rootId, int id, @Nullable Map<String, Object> props, @NonNull String className,
-            @NonNull ControllerManager componentManager,
+    public RenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager componentManager,
             boolean isLazyLoad) {
         mId = id;
         mClassName = className;
@@ -182,22 +195,6 @@ public class RenderNode {
         return false;
     }
 
-    public View createViewRecursive() {
-        View view = createView();
-        setNodeFlag(FLAG_UPDATE_LAYOUT | FLAG_UPDATE_EVENT);
-        for (RenderNode renderNode : mChildren) {
-            renderNode.createViewRecursive();
-        }
-        return view;
-    }
-
-    public void updateViewRecursive() {
-        updateView();
-        for (RenderNode renderNode : mChildren) {
-            renderNode.updateViewRecursive();
-        }
-    }
-
     public void removeChild(int index) {
         try {
             removeChild(mChildren.get(index));
@@ -269,26 +266,170 @@ public class RenderNode {
             return;
         }
         for (int i = 0; i < mDeletedChildren.size(); i++) {
-            int key = mDeletedChildren.keyAt(i);
             mControllerManager
-                    .deleteChild(mRootId, mId, mDeletedChildren.keyAt(i), mDeletedChildren.get(key));
+                    .deleteChild(mRootId, mId, mDeletedChildren.keyAt(i), false);
         }
         mDeletedChildren.clear();
     }
 
+    public void setHostView(@Nullable View view) {
+        if (view == null) {
+            mHostViewRef = null;
+        } else {
+            View current = getHostView();
+            if (current != view) {
+                mHostViewRef = new WeakReference<>(view);
+            }
+        }
+    }
+
     @Nullable
-    public View createView() {
+    public View getHostView() {
+        return (mHostViewRef != null) ? mHostViewRef.get() : null;
+    }
+
+    public void onHostViewAttachedToWindow() {
+        for (int i = 0; i < getChildCount(); i++) {
+            RenderNode child = getChildAt(i);
+            if (child != null && child.getHostView() == null) {
+                child.onHostViewAttachedToWindow();
+            }
+        }
+        if (mComponent != null) {
+            mComponent.onHostViewAttachedToWindow();
+        }
+    }
+
+    public void onHostViewRemoved() {
+        for (int i = 0; i < getChildCount(); i++) {
+            RenderNode child = getChildAt(i);
+            if (child != null && child.getHostView() == null) {
+                child.onHostViewRemoved();
+            }
+        }
+        setHostView(null);
+        if (mComponent != null) {
+            mComponent.onHostViewRemoved();
+        }
+    }
+
+    protected void checkHostViewReused() throws NativeRenderException {
+        View view = getHostView();
+        if (view == null) {
+            return;
+        }
+        final int oldId = view.getId();
+        if (oldId == mId) {
+            return;
+        }
+        mControllerManager.replaceId(mRootId, view, mId, false);
+        RenderNode fromNode = RenderManager.getRenderNode(mRootId, oldId);
+        if (fromNode == null || fromNode.isDeleted()) {
+            throw new NativeRenderException(REUSE_VIEW_HAS_ABANDONED_NODE_ERR,
+                    "Reuse view has invalid node id=" + oldId);
+        }
+        Map<String, Object> diffProps = checkPropsShouldReset(fromNode);
+        mControllerManager.updateProps(this, null, null, diffProps, true);
+    }
+
+    @Nullable
+    public View prepareHostView(boolean skipComponentProps, PoolType poolType) {
+        if (isLazyLoad()) {
+            return null;
+        }
+        mPoolInUse = poolType;
+        createView(false);
+        updateProps(skipComponentProps);
+        if (poolType == PoolType.RECYCLE_VIEW) {
+            try {
+                checkHostViewReused();
+            } catch (NativeRenderException e) {
+                mControllerManager.getNativeRender().handleRenderException(e);
+            }
+        }
+        mPoolInUse = PoolType.NONE;
+        return getHostView();
+    }
+
+    @Nullable
+    protected View createView(boolean createNow) {
         deleteSubviewIfNeeded();
         if (shouldCreateView() && !TextUtils.equals(NodeProps.ROOT_NODE, mClassName)
                 && mParent != null) {
-            mPropsToUpdate = getProps();
+            if (mPropsToUpdate == null) {
+                mPropsToUpdate = getProps();
+            }
             // New created view should use total props, therefore set this flag for
             // update node not need to diff props in this batch cycle.
             setNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
-            mParent.addChildToPendingList(this);
-            return mControllerManager.createView(mRootId, mId, mClassName, getProps());
+            // Do not need to create a view if both self and parent node support flattening
+            // and no child nodes.
+            if (createNow || !mControllerManager.checkFlatten(mClassName)
+                    || !mControllerManager.checkFlatten(mParent.getClassName())
+                    || getChildCount() > 0) {
+                mParent.addChildToPendingList(this);
+                View view = mControllerManager.createView(this, mPoolInUse);
+                setHostView(view);
+                return view;
+            }
         }
         return null;
+    }
+
+    @Nullable
+    public View prepareHostViewRecursive() {
+        boolean skipComponentProps = checkNodeFlag(FLAG_ALREADY_UPDATED);
+        mPropsToUpdate = getProps();
+        setNodeFlag(FLAG_UPDATE_LAYOUT | FLAG_UPDATE_EVENT);
+        View view = prepareHostView(skipComponentProps, PoolType.RECYCLE_VIEW);
+        for (RenderNode renderNode : mChildren) {
+            renderNode.prepareHostViewRecursive();
+        }
+        return view;
+    }
+
+    public void mountHostViewRecursive() {
+        mountHostView();
+        for (RenderNode renderNode : mChildren) {
+            renderNode.mountHostViewRecursive();
+        }
+    }
+
+    public boolean shouldSticky() {
+        return false;
+    }
+
+    @Nullable
+    protected Map<String, Object> checkPropsShouldReset(@NonNull RenderNode fromNode) {
+        Map<String, Object> total = null;
+        Map<String, Object> resetProps = DiffUtils.findResetProps(fromNode.getProps(), mProps);
+        Map<String, Object> resetEvents = DiffUtils.findResetProps(fromNode.getEvents(), mEvents);
+        try {
+            if (resetProps != null) {
+                total = new HashMap<>(resetProps);
+            }
+            if (resetEvents != null) {
+                if (total == null) {
+                    total = new HashMap<>(resetEvents);
+                } else {
+                    total.putAll(resetEvents);
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.w(TAG, "checkNonExistentProps: " + e.getMessage());
+        }
+        return total;
+    }
+
+    public void updateProps(boolean skipComponentProps) {
+        Map<String, Object> events = null;
+        if (mEvents != null && checkNodeFlag(FLAG_UPDATE_EVENT)) {
+            events = mEvents;
+            resetNodeFlag(FLAG_UPDATE_EVENT);
+        }
+        mControllerManager.updateProps(this, mPropsToUpdate, events, null, skipComponentProps);
+        mPropsToUpdate = null;
+        resetNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
     }
 
     private boolean shouldCreateView() {
@@ -315,11 +456,7 @@ public class RenderNode {
         mNodeFlags |= flag;
     }
 
-    public void updateView() {
-        // Must create before updating
-        if (!hasView()) {
-            return;
-        }
+    public void mountHostView() {
         if (!mChildrenUnattached.isEmpty()) {
             Collections.sort(mChildrenUnattached, new Comparator<RenderNode>() {
                 @Override
@@ -331,17 +468,10 @@ public class RenderNode {
                 RenderNode renderNode = mChildrenUnattached.get(i);
                 mControllerManager
                         .addChild(mRootId, mId, renderNode.getId(), renderNode.indexFromParent());
+                renderNode.setNodeFlag(FLAG_HAS_ATTACHED);
             }
             mChildrenUnattached.clear();
         }
-        Map<String, Object> events = null;
-        if (mEvents != null && checkNodeFlag(FLAG_UPDATE_EVENT)) {
-            events = mEvents;
-            resetNodeFlag(FLAG_UPDATE_EVENT);
-        }
-        mControllerManager.updateView(this, mPropsToUpdate, events);
-        mPropsToUpdate = null;
-        resetNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
         if (mMoveNodes != null && !mMoveNodes.isEmpty()) {
             Collections.sort(mMoveNodes, new Comparator<RenderNode>() {
                 @Override
@@ -366,9 +496,9 @@ public class RenderNode {
         }
     }
 
-    public void updateProps(@NonNull Map<String, Object> newProps) {
+    public void checkPropsDifference(@NonNull Map<String, Object> newProps) {
         if (mProps != null && !checkNodeFlag(FLAG_UPDATE_TOTAL_PROPS)) {
-            mPropsToUpdate = DiffUtils.diffMapProps(mProps, newProps, 0, null, null);
+            mPropsToUpdate = DiffUtils.diffMap(mProps, newProps);
         } else {
             mPropsToUpdate = newProps;
         }
@@ -430,11 +560,14 @@ public class RenderNode {
     protected void batchComplete() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchComplete(mRootId, mId, mClassName);
+            if (mHostViewRef == null || mHostViewRef.get() == null) {
+                invalidate();
+            }
         }
     }
 
     @Nullable
-    private View getHostView() {
+    private View findNearestHostView() {
         View view = mControllerManager.findView(mRootId, mId);
         if (view == null && mParent != null) {
             view = mControllerManager.findView(mParent.getRootId(), mParent.getId());
@@ -443,14 +576,14 @@ public class RenderNode {
     }
 
     public void postInvalidateDelayed(long delayMilliseconds) {
-        View view = getHostView();
+        View view = findNearestHostView();
         if (view != null) {
             view.postInvalidateDelayed(delayMilliseconds);
         }
     }
 
     public void invalidate() {
-        View view = getHostView();
+        View view = findNearestHostView();
         if (view != null) {
             view.invalidate();
         }

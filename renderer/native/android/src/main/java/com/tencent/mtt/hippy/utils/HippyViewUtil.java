@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.utils;
 import android.content.Context;
 import android.view.View;
 
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
 import com.tencent.renderer.NativeRender;
@@ -39,9 +40,9 @@ public class HippyViewUtil {
         if (child == null) {
           return null;
         }
-        return nativeRenderer.getRenderManager().getRenderNode(child);
+        return RenderManager.getRenderNode(child);
       }
-      return nativeRenderer.getRenderManager().getRenderNode(view);
+      return RenderManager.getRenderNode(view);
     }
 
     return null;

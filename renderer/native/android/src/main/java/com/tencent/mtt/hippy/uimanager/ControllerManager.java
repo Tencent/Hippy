@@ -18,8 +18,8 @@ package com.tencent.mtt.hippy.uimanager;
 
 import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_ALREADY_UPDATED;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
+import static com.tencent.renderer.NativeRenderException.ExceptionCode.REMOVE_CHILD_VIEW_FAILED_ERR;
 
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
@@ -54,25 +55,29 @@ import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 
 import com.tencent.renderer.NativeRenderException;
-import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.pool.NativeRenderPool.PoolType;
+import com.tencent.renderer.pool.Pool;
+import com.tencent.renderer.pool.PreCreateViewPool;
+import com.tencent.renderer.pool.RecycleViewPool;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("rawtypes")
 public class ControllerManager {
 
-    private static final String TAG = "ControllerManager";
     @NonNull
     private final Renderer mRenderer;
     @NonNull
     private final ControllerRegistry mControllerRegistry;
     @NonNull
-    private final ControllerUpdateManger<HippyViewController, View> mControllerUpdateManger;
-    @Nullable
-    private Map<Integer, SparseArray<View>> mPreViews;
+    private final ControllerUpdateManger<HippyViewController<?>, View> mControllerUpdateManger;
+    @NonNull
+    private final Map<Integer, Pool<Integer, View>> mPreCreateViewPools = new HashMap<>();
+    @NonNull
+    private final Map<Integer, Pool<String, View>> mRecycleViewPools = new HashMap<>();
 
     public ControllerManager(@NonNull Renderer renderer) {
         mRenderer = renderer;
@@ -119,6 +124,7 @@ public class ControllerManager {
         return controllers;
     }
 
+    @SuppressWarnings("rawtypes")
     private void processControllers(@Nullable List<Class<?>> controllers) {
         List<Class<?>> defaultControllers = getDefaultControllers();
         if (controllers != null) {
@@ -132,12 +138,16 @@ public class ControllerManager {
             }
             HippyController controllerAnnotation = (HippyController) cls
                     .getAnnotation(HippyController.class);
+            if (controllerAnnotation == null) {
+                continue;
+            }
             String name = controllerAnnotation.name();
             String[] names = controllerAnnotation.names();
             boolean lazy = controllerAnnotation.isLazyLoad();
+            boolean supportFlatten = controllerAnnotation.supportFlatten();
             try {
                 ControllerHolder holder = new ControllerHolder(
-                        (HippyViewController) cls.newInstance(), lazy);
+                        (HippyViewController) cls.newInstance(), lazy, supportFlatten);
                 mControllerRegistry.addControllerHolder(name, holder);
                 if (names.length > 0) {
                     for (String s : names) {
@@ -149,10 +159,18 @@ public class ControllerManager {
             }
         }
         mControllerRegistry.addControllerHolder(NodeProps.ROOT_NODE,
-                new ControllerHolder(new HippyViewGroupController(), false));
+                new ControllerHolder(new HippyViewGroupController(), false, false));
     }
 
     public void destroy() {
+        for (Pool<Integer, View> pool : mPreCreateViewPools.values()) {
+            pool.clear();
+        }
+        mPreCreateViewPools.clear();
+        for (Pool<String, View> pool : mRecycleViewPools.values()) {
+            pool.clear();
+        }
+        mRecycleViewPools.clear();
         int count = mControllerRegistry.getRootViewCount();
         if (count > 0) {
             for (int i = 0; i < count; i++) {
@@ -170,51 +188,79 @@ public class ControllerManager {
         return findView(rootId, id) != null;
     }
 
-    private void addPreView(@NonNull View view, int rootId, int id) {
-        if (mPreViews == null) {
-            mPreViews = new HashMap<>();
+    private void addPreView(@NonNull View view, int rootId) {
+        Pool<Integer, View> pool = mPreCreateViewPools.get(rootId);
+        if (pool == null) {
+            pool = new PreCreateViewPool();
+            mPreCreateViewPools.put(rootId, pool);
         }
-        SparseArray<View> views = mPreViews.get(rootId);
-        if (views == null) {
-            views = new SparseArray<>();
-            mPreViews.put(rootId, views);
-        }
-        views.put(id, view);
+        pool.release(view);
     }
 
     @Nullable
-    public View getPreView(int rootId, int id) {
-        if (mPreViews == null) {
-            return null;
-        }
-        SparseArray<View> views = mPreViews.get(rootId);
-        if (views == null) {
-            return null;
-        }
-        return views.get(id);
+    public View getPreView(int rootId, Integer id) {
+        Pool<Integer, View> pool = mPreCreateViewPools.get(rootId);
+        return (pool == null) ? null : pool.acquire(id);
     }
 
     public void preCreateView(int rootId, int id, @NonNull String className,
             @Nullable Map<String, Object> props) {
         View view = mControllerRegistry.getView(rootId, id);
-        if (view == null) {
-            View rootView = mControllerRegistry.getRootView(rootId);
-            if (rootView != null) {
-                HippyViewController controller = mControllerRegistry.getViewController(className);
-                view = controller.createView(rootView, id, mRenderer, className, props);
-                if (view != null) {
-                    addPreView(view, rootId, id);
-                }
-            }
+        View rootView = mControllerRegistry.getRootView(rootId);
+        HippyViewController<?> controller = mControllerRegistry.getViewController(
+                className);
+        if (view != null || rootView == null || controller == null) {
+            return;
+        }
+        view = controller.createView(rootView, id, mRenderer, className, props);
+        if (view != null) {
+            addPreView(view, rootId);
         }
     }
 
     @Nullable
-    public View createView(int rootId, int id, @NonNull String className,
-            @Nullable Map<String, Object> props) {
+    private View findViewFromRecyclePool(int rootId, String className) {
+        Pool<String, View> pool = mRecycleViewPools.get(rootId);
+        if (pool == null) {
+            return null;
+        }
+        View view = pool.acquire(className);
+        if (view != null) {
+            RenderNode node = RenderManager.getRenderNode(view);
+            // If the corresponding node non-existent or is deleted, cached views cannot be reused,
+            // since the previously node props is lost, we have no way to reset the attributes that don't
+            // exist in the new node.
+            if (node == null || node.isDeleted()) {
+                return null;
+            }
+        }
+        return view;
+    }
+
+    @Nullable
+    private View findViewFromPool(int rootId, int id, String className, PoolType poolType) {
+        switch (poolType) {
+            case RECYCLE_VIEW:
+                return findViewFromRecyclePool(rootId, className);
+            case PRE_CREATE_VIEW:
+                Pool<Integer, View> preCreatePool = mPreCreateViewPools.get(rootId);
+                return (preCreatePool == null) ? null : preCreatePool.acquire(id);
+            default:
+                return null;
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Nullable
+    public View createView(@NonNull RenderNode node, PoolType cachePoolType) {
+        final int rootId = node.getRootId();
+        final int id = node.getId();
+        final String className = node.getClassName();
         View view = mControllerRegistry.getView(rootId, id);
         if (view == null) {
-            view = getPreView(rootId, id);
+            if (cachePoolType != PoolType.NONE) {
+                view = findViewFromPool(rootId, id, className, cachePoolType);
+            }
             if (view == null) {
                 View rootView = mControllerRegistry.getRootView(rootId);
                 if (rootView == null) {
@@ -224,7 +270,7 @@ public class ControllerManager {
                 if (controller == null) {
                     return null;
                 }
-                view = controller.createView(rootView, id, mRenderer, className, props);
+                view = controller.createView(rootView, id, mRenderer, className, node.getProps());
             }
             if (view != null) {
                 mControllerRegistry.addView(view, rootId, id);
@@ -233,31 +279,43 @@ public class ControllerManager {
         return view;
     }
 
-    public void updateView(@NonNull RenderNode node, @Nullable Map<String, Object> newProps,
-            @Nullable Map<String, Object> events) {
+    public void updateProps(@NonNull RenderNode node, @Nullable Map<String, Object> newProps,
+            @Nullable Map<String, Object> events, @Nullable Map<String, Object> diffProps,
+            boolean skipComponentProps) {
         View view = mControllerRegistry.getView(node.getRootId(), node.getId());
         HippyViewController controller = mControllerRegistry.getViewController(node.getClassName());
-        if (view == null || controller == null) {
+        if (controller == null) {
             return;
         }
-        Map<String, Object> total = new HashMap<>();
+        Map<String, Object> total = null;
         try {
             if (newProps != null) {
-                total.putAll(newProps);
+                total = new HashMap<>(newProps);
             }
             if (events != null) {
-                total.putAll(events);
+                if (total == null) {
+                    total = new HashMap<>(events);
+                } else {
+                    total.putAll(events);
+                }
             }
         } catch (Exception ignored) {
             // If merge props and events failed, just use empty map
         }
-        if (!total.isEmpty()) {
-            mControllerUpdateManger.updateProps(node, controller, view, total);
-            controller.onAfterUpdateProps(view);
+        if (total != null) {
+            mControllerUpdateManger.updateProps(node, controller, view, total, skipComponentProps);
+            if (view != null) {
+                controller.onAfterUpdateProps(view);
+            }
             node.setNodeFlag(FLAG_ALREADY_UPDATED);
+        }
+        if (diffProps != null && node.getHostView() != null) {
+            mControllerUpdateManger.updateProps(node, controller, node.getHostView(), diffProps,
+                    skipComponentProps);
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public void updateLayout(String name, int rootId, int id, int x, int y, int width, int height) {
         HippyViewController controller = mControllerRegistry.getViewController(name);
         if (controller != null) {
@@ -275,7 +333,7 @@ public class ControllerManager {
     }
 
     public void updateExtra(int rootId, int id, String name, @Nullable Object extra) {
-        HippyViewController controller = mControllerRegistry.getViewController(name);
+        HippyViewController<?> controller = mControllerRegistry.getViewController(name);
         if (controller != null) {
             View view = mControllerRegistry.getView(rootId, id);
             if (view != null) {
@@ -296,7 +354,7 @@ public class ControllerManager {
         ViewGroup newParent = (ViewGroup) mControllerRegistry.getView(rootId, newPid);
         if (newParent != null) {
             String className = NativeViewTag.getClassName(newParent);
-            HippyViewController controller = null;
+            HippyViewController<?> controller = null;
             if (className != null) {
                 controller = mControllerRegistry.getViewController(className);
             }
@@ -310,18 +368,23 @@ public class ControllerManager {
         return mControllerUpdateManger.checkComponentProperty(key);
     }
 
-    public boolean checkLazy(String className) {
-        return mControllerRegistry.getControllerHolder(className).isLazy();
+    public boolean checkLazy(@NonNull String className) {
+        ControllerHolder holder = mControllerRegistry.getControllerHolder(className);
+        return holder != null ? holder.isLazy() : false;
     }
 
-    public void replaceId(int rootId, int oldId, int newId) {
-        View view = mControllerRegistry.getView(rootId, oldId);
-        mControllerRegistry.removeView(rootId, oldId);
-        if (view == null) {
+    public boolean checkFlatten(@NonNull String className) {
+        ControllerHolder holder = mControllerRegistry.getControllerHolder(className);
+        return holder != null ? holder.supportFlatten() : false;
+    }
+
+    public void replaceId(int rootId, @NonNull View view, int newId, boolean shouldRemove) {
+        int oldId = view.getId();
+        if (oldId == newId) {
             return;
         }
-        if (view instanceof FlatViewGroup) {
-            ((FlatViewGroup) view).onReplaceId(rootId, oldId, newId);
+        if (shouldRemove) {
+            mControllerRegistry.removeView(rootId, oldId);
         }
         if (view instanceof HippyHorizontalScrollView) {
             ((HippyHorizontalScrollView) view).setContentOffset4Reuse();
@@ -340,7 +403,7 @@ public class ControllerManager {
     @Nullable
     public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
             String className, boolean isLazy) {
-        HippyViewController controller = mControllerRegistry.getViewController(className);
+        HippyViewController<?> controller = mControllerRegistry.getViewController(className);
         if (controller != null) {
             return controller.createRenderNode(rootId, id, props, className, this, isLazy);
         }
@@ -348,25 +411,29 @@ public class ControllerManager {
     }
 
     @Nullable
-    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index, @NonNull String className,
+    public VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
+            @NonNull String className,
             @Nullable Map<String, Object> props) {
-        HippyViewController controller = mControllerRegistry.getViewController(className);
+        HippyViewController<?> controller = mControllerRegistry.getViewController(className);
         if (controller != null) {
             return controller.createVirtualNode(rootId, id, pid, index, props);
         }
         return null;
     }
 
-    public void dispatchUIFunction(int rootId, int id, @NonNull String className, @NonNull String functionName,
+    @SuppressWarnings({"rawtypes", "unchecked", "deprecation"})
+    public void dispatchUIFunction(int rootId, int id, @NonNull String className,
+            @NonNull String functionName,
             @NonNull List<Object> params, @Nullable Promise promise) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(rootId, id);
         if (view == null || controller == null) {
             return;
         }
-        HippyController controllerAnnotation = controller.getClass().getAnnotation(HippyController.class);
+        HippyController controllerAnnotation = controller.getClass()
+                .getAnnotation(HippyController.class);
         boolean dispatchWithStandardType =
-                controllerAnnotation != null ? controllerAnnotation.dispatchWithStandardType() : false;
+                controllerAnnotation != null && controllerAnnotation.dispatchWithStandardType();
         if (promise == null) {
             if (dispatchWithStandardType) {
                 controller.dispatchFunction(view, functionName, params);
@@ -382,6 +449,7 @@ public class ControllerManager {
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public void onBatchStart(int rootId, int id, String className) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(rootId, id);
@@ -390,12 +458,14 @@ public class ControllerManager {
         }
     }
 
-    public void onBatchEnd() {
-        if (mPreViews != null) {
-            mPreViews.clear();
+    public void onBatchEnd(int rootId) {
+        Pool<Integer, View> pool = mPreCreateViewPools.get(rootId);
+        if (pool != null) {
+            pool.clear();
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public void onBatchComplete(int rootId, int id, String className) {
         HippyViewController controller = mControllerRegistry.getViewController(className);
         View view = mControllerRegistry.getView(rootId, id);
@@ -404,7 +474,8 @@ public class ControllerManager {
         }
     }
 
-    public void deleteChildRecursive(ViewGroup parent, View child, int childIndex) {
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public void deleteChildRecursive(int rootId, ViewGroup parent, View child, boolean recyclable) {
         if (parent == null || child == null) {
             return;
         }
@@ -423,13 +494,13 @@ public class ControllerManager {
                 count = childController.getChildCount(child);
                 for (int i = count - 1; i >= 0; i--) {
                     grandson = childController.getChildAt(child, i);
-                    deleteChildRecursive((ViewGroup) child, grandson, -1);
+                    deleteChildRecursive(rootId, (ViewGroup) child, grandson, recyclable);
                 }
             } else {
                 count = ((ViewGroup) child).getChildCount();
                 for (int i = count - 1; i >= 0; i--) {
                     grandson = ((ViewGroup) child).getChildAt(i);
-                    deleteChildRecursive((ViewGroup) child, grandson, -1);
+                    deleteChildRecursive(rootId, (ViewGroup) child, grandson, recyclable);
                 }
             }
         }
@@ -438,23 +509,29 @@ public class ControllerManager {
             HippyViewController parentController = mControllerRegistry.getViewController(
                     parentTag);
             if (parentController != null) {
-                parentController.deleteChild(parent, child, childIndex);
+                parentController.deleteChild(parent, child);
             }
         } else {
             parent.removeView(child);
         }
-        mControllerRegistry.removeView(child);
+        mControllerRegistry.removeView(rootId, child.getId());
+        if (recyclable && childTag != null) {
+            Pool<String, View> pool = mRecycleViewPools.get(rootId);
+            if (pool == null) {
+                pool = new RecycleViewPool();
+                mRecycleViewPools.put(rootId, pool);
+            }
+            pool.release(childTag, child);
+        }
     }
 
-    public void deleteChild(int rootId, int pId, int childId) {
-        deleteChild(rootId, pId, childId, -1);
-    }
-
-    public void deleteChild(int rootId, int pId, int childId, int childIndex) {
+    public void deleteChild(int rootId, int pId, int childId, boolean recyclable) {
         View parent = mControllerRegistry.getView(rootId, pId);
         View child = mControllerRegistry.getView(rootId, childId);
         if (parent instanceof ViewGroup && child != null) {
-            deleteChildRecursive((ViewGroup) parent, child, childIndex);
+            deleteChildRecursive(rootId, (ViewGroup) parent, child, recyclable);
+        } else {
+            reportRemoveViewException(pId, parent, childId, child);
         }
     }
 
@@ -463,7 +540,7 @@ public class ControllerManager {
         View parent = mControllerRegistry.getView(rootId, pid);
         if (child != null && parent instanceof ViewGroup && child.getParent() == null) {
             String parentClassName = NativeViewTag.getClassName(parent);
-            HippyViewController controller = null;
+            HippyViewController<?> controller = null;
             if (parentClassName != null) {
                 controller = mControllerRegistry.getViewController(parentClassName);
             }
@@ -471,7 +548,7 @@ public class ControllerManager {
                 controller.addView((ViewGroup) parent, child, index);
             }
         } else {
-            reportAddChildException(pid, parent, id, child);
+            reportAddViewException(pid, parent, id, child);
         }
     }
 
@@ -481,13 +558,14 @@ public class ControllerManager {
             ViewGroup hippyRootView = (ViewGroup) view;
             int count = hippyRootView.getChildCount();
             for (int i = count - 1; i >= 0; i--) {
-                deleteChild(rootId, rootId, hippyRootView.getChildAt(i).getId());
+                deleteChild(rootId, rootId, hippyRootView.getChildAt(i).getId(), false);
             }
         }
         mControllerRegistry.removeRootView(rootId);
     }
 
-    private void reportAddChildException(int pid, View parent, int id, View child) {
+    private String getViewOperationExceptionMessage(int pid, View parent, int id, View child,
+            String prefix) {
         String parentTag = "";
         String parentClass = "";
         String childTag = "";
@@ -500,29 +578,23 @@ public class ControllerManager {
             childTag = NativeViewTag.getClassName(child);
             childClass = child.getClass().getName();
         }
-        String message = "Add child to parent failed: id=" + id
+        return prefix + " id=" + id
                 + ", childTag=" + childTag
                 + ", childClass=" + childClass
                 + ", pid=" + pid
                 + ", parentTag=" + parentTag
                 + ", parentClass=" + parentClass;
-        NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
-                message);
+    }
+
+    private void reportRemoveViewException(int pid, View parent, int id, View child) {
+        NativeRenderException exception = new NativeRenderException(REMOVE_CHILD_VIEW_FAILED_ERR,
+                getViewOperationExceptionMessage(pid, parent, id, child, "Remove view failed:"));
         mRenderer.handleRenderException(exception);
     }
 
-    public void removeViewFromRegistry(int rootId, int id) {
-        View view = mControllerRegistry.getView(rootId, id);
-        if (view instanceof ViewGroup) {
-            for (int i = ((ViewGroup) view).getChildCount() - 1; i >= 0; i--) {
-                View child = ((ViewGroup) view).getChildAt(i);
-                if (child != null) {
-                    removeViewFromRegistry(rootId, child.getId());
-                }
-            }
-        }
-        if (view != null) {
-            mControllerRegistry.removeView(rootId, view.getId());
-        }
+    private void reportAddViewException(int pid, View parent, int id, View child) {
+        NativeRenderException exception = new NativeRenderException(ADD_CHILD_VIEW_FAILED_ERR,
+                getViewOperationExceptionMessage(pid, parent, id, child, "Add child to parent failed:"));
+        mRenderer.handleRenderException(exception);
     }
 }

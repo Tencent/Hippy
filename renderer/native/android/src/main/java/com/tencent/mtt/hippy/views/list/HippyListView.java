@@ -31,6 +31,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
@@ -520,7 +521,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
         if (nativeRenderer == null) {
             return null;
         }
-        RenderNode node = nativeRenderer.getRenderManager().getRenderNode(view);
+        RenderNode node = RenderManager.getRenderNode(view);
         if (node == null) {
             return null;
         }

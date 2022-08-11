@@ -29,6 +29,7 @@ import com.tencent.renderer.NativeRenderException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.GET_VIEW_CONTROLLER_FAILED_ERR;
 
@@ -51,8 +52,14 @@ public class ControllerRegistry {
         mControllers.put(name, controllerHolder);
     }
 
+    @Nullable
     public ControllerHolder getControllerHolder(String className) {
         return mControllers.get(className);
+    }
+
+    public boolean checkFlattening (@NonNull String className) {
+        ControllerHolder holder = mControllers.get(className);
+        return holder != null ? holder.supportFlatten() : false;
     }
 
     @SuppressWarnings({"rawtypes"})
@@ -116,6 +123,10 @@ public class ControllerRegistry {
         SparseArray<View> views = mViews.get(rootId);
         if (views != null) {
             views.remove(id);
+            RenderNode node = RenderManager.getRenderNode(rootId, id);
+            if (node != null) {
+                node.onHostViewRemoved();
+            }
         }
     }
 

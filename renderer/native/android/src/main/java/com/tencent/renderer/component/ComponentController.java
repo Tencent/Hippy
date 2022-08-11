@@ -109,7 +109,7 @@ public class ComponentController {
         component.setBorderStyle(borderStyle);
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "deprecation"})
     @HippyControllerProps(name = NodeProps.LINEAR_GRADIENT, defaultType = HippyControllerProps.MAP)
     public void setLinearGradient(@NonNull Component component, @Nullable HippyMap linearGradient) {
         if (linearGradient != null) {
@@ -142,11 +142,11 @@ public class ComponentController {
         }
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "deprecation"})
     @HippyControllerProps(name = NodeProps.SHADOW_OFFSET, defaultType = HippyControllerProps.MAP)
     public void setShadowOffset(@NonNull Component component, @Nullable HippyMap shadowOffset) {
-        float shadowOffsetX = shadowOffset.getInt("x");
-        float shadowOffsetY = shadowOffset.getInt("y");
+        float shadowOffsetX = (shadowOffset != null) ? shadowOffset.getInt("x") : 0.0f;
+        float shadowOffsetY = (shadowOffset != null) ? shadowOffset.getInt("y") : 0.0f;
         component.setShadowOffsetX(PixelUtil.dp2px(shadowOffsetX));
         component.setShadowOffsetY(PixelUtil.dp2px(shadowOffsetY));
     }

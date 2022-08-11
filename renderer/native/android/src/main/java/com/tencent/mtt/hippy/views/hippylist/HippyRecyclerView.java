@@ -21,7 +21,7 @@ import android.graphics.Rect;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.HippyRecyclerViewBase;
-import androidx.recyclerview.widget.IHippyViewAboundListener;
+import androidx.recyclerview.widget.HippyViewHolderAbandonListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -37,7 +37,7 @@ import com.tencent.mtt.hippy.views.hippylist.recyclerview.helper.skikcy.StickyHe
  * Created  on 2020/12/22. Description
  */
 public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends HippyRecyclerViewBase
-        implements IHeaderAttachListener, IHippyViewAboundListener {
+        implements IHeaderAttachListener, HippyViewHolderAbandonListener {
 
     private static int DEFAULT_ITEM_VIEW_CACHE_SIZE = 4;
     protected ADP listAdapter;
@@ -354,13 +354,23 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         }
     }
 
+    public void onLayoutOrientationChanged() {
+        if (stickyHeaderHelper != null) {
+            LayoutManager layoutManager = getLayoutManager();
+            if (layoutManager instanceof LinearLayoutManager) {
+                stickyHeaderHelper.setOrientation(((LinearLayoutManager) layoutManager).getOrientation());
+            }
+        }
+    }
+
     /**
      * 同步删除RenderNode对应注册的View，deleteChild是递归删除RenderNode创建的所有的view
      */
     @Override
-    public void onViewAbound(HippyRecyclerViewHolder viewHolder) {
+    public void onViewHolderAbandoned(HippyRecyclerViewHolder viewHolder) {
         if (viewHolder.bindNode != null) {
-            getAdapter().deleteExistRenderView(viewHolder.bindNode);
+            viewHolder.bindNode.onViewHolderAbandoned();
+            viewHolder.bindNode.setRecycleItemTypeChangeListener(null);
         }
     }
 
@@ -385,7 +395,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         }
         //当header无处安放，抛弃view都同时，需要同步给Hippy进行View都删除，不然后续无法创建对应都View
         if (!findHostViewHolder) {
-            onViewAbound((HippyRecyclerViewHolder) aboundHeader);
+            onViewHolderAbandoned((HippyRecyclerViewHolder) aboundHeader);
         }
     }
 

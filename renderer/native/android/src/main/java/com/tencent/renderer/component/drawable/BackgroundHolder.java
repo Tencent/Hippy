@@ -19,14 +19,8 @@ package com.tencent.renderer.component.drawable;
 import android.graphics.Path;
 import android.graphics.RectF;
 import androidx.annotation.Nullable;
-import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderRadius;
 
 public interface BackgroundHolder {
-
-    @Nullable
-    BorderRadius getBorderRadii();
-
-    float getBorderRadius();
 
     @Nullable
     RectF getContentRectF();

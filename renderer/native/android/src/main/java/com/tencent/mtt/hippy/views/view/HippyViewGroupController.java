@@ -35,7 +35,7 @@ import com.tencent.renderer.utils.ArrayUtils;
 import java.util.List;
 import java.util.WeakHashMap;
 
-@HippyController(name = HippyViewGroupController.CLASS_NAME, dispatchWithStandardType = true)
+@HippyController(name = HippyViewGroupController.CLASS_NAME, dispatchWithStandardType = true, supportFlatten = true)
 public class HippyViewGroupController extends HippyGroupController<HippyViewGroup> {
 
     private static final String TAG = "HippyViewGroupController";

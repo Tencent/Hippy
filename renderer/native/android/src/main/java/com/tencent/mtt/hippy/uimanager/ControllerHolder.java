@@ -18,24 +18,30 @@ package com.tencent.mtt.hippy.uimanager;
 
 import androidx.annotation.NonNull;
 
-@SuppressWarnings("rawtypes")
 public class ControllerHolder {
 
     @NonNull
-    private final HippyViewController mHippyViewController;
+    private final HippyViewController<?> mHippyViewController;
     private final boolean mIsLazy;
+    private final boolean mSupportFlatten;
 
-    public ControllerHolder(@NonNull HippyViewController viewController, boolean isLazy) {
+    public ControllerHolder(@NonNull HippyViewController<?> viewController, boolean isLazy,
+            boolean supportFlatten) {
         mHippyViewController = viewController;
         mIsLazy = isLazy;
+        mSupportFlatten = supportFlatten;
     }
 
     @NonNull
-    public HippyViewController getViewController() {
+    public HippyViewController<?> getViewController() {
         return mHippyViewController;
     }
 
     public boolean isLazy() {
         return mIsLazy;
+    }
+
+    public boolean supportFlatten() {
+        return mSupportFlatten;
     }
 }

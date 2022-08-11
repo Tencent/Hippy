@@ -19,6 +19,7 @@ package androidx.recyclerview.widget;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
@@ -37,7 +38,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
     private final View recyclerView;
     private final HippyRecyclerExtension viewCacheExtension;
     private final NodePositionHelper nodePositionHelper;
-    private IHippyViewAboundListener viewAboundListener;
+    private HippyViewHolderAbandonListener viewHolderListener;
 
     public HippyRecyclerPool(View recyclerView, HippyRecyclerExtension viewCacheExtension, NodePositionHelper nodePositionHelper) {
         this.nodePositionHelper = nodePositionHelper;
@@ -45,8 +46,8 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         this.viewCacheExtension = viewCacheExtension;
     }
 
-    public void setViewAboundListener(IHippyViewAboundListener viewAboundListener) {
-        this.viewAboundListener = viewAboundListener;
+    public void setViewHolderAbandonListener(HippyViewHolderAbandonListener viewHolderListener) {
+        this.viewHolderListener = viewHolderListener;
     }
 
     /**
@@ -80,25 +81,17 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         return delegateHolder;
     }
 
-    /**
-     * putRecycledView 可能出现缓存已经超过最大值，会发生ViewHolder被抛弃， 抛弃需要后，需要同步修改 renderManager内部创建对应的view，这样
-     * {@link com.tencent.mtt.hippy.views.hippylist.HippyRecyclerListAdapter#onCreateViewHolder(
-     *ViewGroup, int)}，才能通过 {@link RenderNode#createViewRecursive()} 创建新的view,
-     * 否则createViewRecursive会返回null。
-     *
-     * @param scrap
-     */
     @Override
     public void putRecycledView(ViewHolder scrap) {
-        notifyAboundIfNeed(scrap);
+        checkViewHolderAbandoned(scrap);
         super.putRecycledView(scrap);
     }
 
-    private void notifyAboundIfNeed(ViewHolder scrap) {
+    private void checkViewHolderAbandoned(ViewHolder scrap) {
         int viewType = scrap.getItemViewType();
         ScrapData scrapData = this.mScrap.get(viewType);
         if (scrapData != null && scrapData.mScrapHeap.size() >= scrapData.mMaxScrap) {
-            viewAboundListener.onViewAbound((HippyRecyclerViewHolder) scrap);
+            viewHolderListener.onViewHolderAbandoned((HippyRecyclerViewHolder) scrap);
         }
     }
 
@@ -112,7 +105,7 @@ public class HippyRecyclerPool extends RecyclerView.RecycledViewPool {
         if (scrapHolder.bindNode == null || nativeRender == null) {
             return false;
         }
-        RenderNode nodeForCurrent = nativeRender.getRenderManager().getRenderNode(recyclerView)
+        RenderNode nodeForCurrent = RenderManager.getRenderNode(recyclerView)
                 .getChildAt(nodePositionHelper.getRenderNodePosition(viewCacheExtension.getCurrentPosition()));
         return scrapHolder.bindNode.equals(nodeForCurrent);
     }

@@ -104,25 +104,20 @@ public class ImageComponent extends Component {
     }
 
     @Override
-    protected void onHostViewAttachedToWindow() {
+    public void onHostViewAttachedToWindow() {
         fetchImageIfNeeded();
     }
 
     @Override
-    public void onAttachedToHostView() {
-        fetchImageIfNeeded();
-    }
-
-    @Override
-    public void onDetachedFromHostView() {
-        super.onDetachedFromHostView();
+    public void onHostViewRemoved() {
+        super.onHostViewRemoved();
         if (mImageData != null) {
-            mImageData.setAttachState(false);
+            mImageData.detached();
             mImageData.clear();
             mImageData = null;
         }
         if (mDefaultImageData != null) {
-            mDefaultImageData.setAttachState(false);
+            mDefaultImageData.detached();
             mDefaultImageData.clear();
             mDefaultImageData = null;
         }
@@ -209,9 +204,10 @@ public class ImageComponent extends Component {
             }
         }
         if (!loadFromCache) {
+            assert mImageLoaderAdapter != null;
             mImageLoaderAdapter.saveImageToCache(imageData);
         }
-        imageData.setAttachState(true);
+        imageData.attached();
         postInvalidateDelayed(0);
     }
 

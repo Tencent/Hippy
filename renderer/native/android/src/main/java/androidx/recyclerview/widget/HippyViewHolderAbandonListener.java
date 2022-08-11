@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.recyclerview.widget;
 
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 
-/**
- * Created  on 2021/1/12.
- * Description
- */
-public interface IHippyViewAboundListener {
+public interface HippyViewHolderAbandonListener {
 
-    void onViewAbound(HippyRecyclerViewHolder viewHolder);
+    void onViewHolderAbandoned(HippyRecyclerViewHolder viewHolder);
 }

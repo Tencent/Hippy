@@ -23,7 +23,6 @@ import java.io.InputStream;
 
 import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.mtt.hippy.utils.ContextHolder;
-import com.tencent.renderer.utils.UrlUtils;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -36,13 +35,16 @@ import androidx.annotation.Nullable;
 
 public class ImageDataHolder implements ImageDataSupplier {
 
+    private static final int MAX_SOURCE_KEY_LEN = 32;
+    private static final int FLAG_CACHED = 0x00000001;
+    private static final int FLAG_ATTACHED = 0x00000002;
+    private static final int FLAG_RECYCLABLE = 0x00000004;
     private static final String PREFIX_IMAGE_SOURCE_DATA = "data:";
     private static final String PREFIX_IMAGE_SOURCE_FILE = "file://";
     private static final String PREFIX_IMAGE_SOURCE_ASSETS = "assets://";
     private static final String PREFIX_IMAGE_SOURCE_BASE64 = ";base64,";
+    private int mStateFlags = 0;
     private final String mSource;
-    private boolean mHasCached = false;
-    private boolean mHasAttached = false;
     @Nullable
     private Drawable mDrawable;
     @Nullable
@@ -56,23 +58,53 @@ public class ImageDataHolder implements ImageDataSupplier {
         mSource = source;
     }
 
-    @Override
-    public void setCacheState(boolean hasCached) {
-        mHasCached = hasCached;
+    public static int generateSourceKey(@NonNull String source) {
+        if (source.length() > MAX_SOURCE_KEY_LEN) {
+            source = source.substring(source.length() - MAX_SOURCE_KEY_LEN);
+        }
+        return source.hashCode();
+    }
+
+    private boolean checkStateFlag(int flag) {
+        return (mStateFlags & flag) == flag;
+    }
+
+    private void resetStateFlag(int flag) {
+        mStateFlags &= ~flag;
+    }
+
+    private void setStateFlag(int flag) {
+        mStateFlags |= flag;
     }
 
     @Override
-    public void setAttachState(boolean hasAttached) {
-        mHasAttached = hasAttached;
+    public void attached() {
+        setStateFlag(FLAG_ATTACHED);
+    }
+
+    @Override
+    public void detached() {
+        resetStateFlag(FLAG_ATTACHED);
+    }
+
+    @Override
+    public void cached() {
+        setStateFlag(FLAG_CACHED);
+    }
+
+    @Override
+    public void evicted() {
+        resetStateFlag(FLAG_CACHED);
     }
 
     @Override
     public void clear() {
-        if (mHasCached || mHasAttached) {
+        if (checkStateFlag(FLAG_CACHED) || checkStateFlag(FLAG_ATTACHED)) {
             return;
         }
         if (mBitmap != null) {
-            if (!UrlUtils.isWebUrl(mSource)) {
+            if (checkStateFlag(FLAG_RECYCLABLE)) {
+                // If the bitmap is created locally, we need to manage its life cycle ourselves.
                 mBitmap.recycle();
             }
             mBitmap = null;
@@ -151,6 +183,8 @@ public class ImageDataHolder implements ImageDataSupplier {
                 mBitmap = null;
             } else {
                 mBitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
+                // Mark bitmap is created internally.
+                setStateFlag(FLAG_RECYCLABLE);
                 mGifMovie = null;
             }
         } catch (OutOfMemoryError | Exception e) {
@@ -183,6 +217,7 @@ public class ImageDataHolder implements ImageDataSupplier {
     public void setData(Bitmap bitmap) {
         mBitmap = bitmap;
         mGifMovie = null;
+        resetStateFlag(FLAG_RECYCLABLE);
     }
 
     public void setData(@NonNull String source) {

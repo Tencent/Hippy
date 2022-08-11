@@ -37,15 +37,12 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import com.tencent.renderer.NativeRender;
-import com.tencent.renderer.component.Component;
-import com.tencent.renderer.component.FlatViewGroup;
 import com.tencent.renderer.component.text.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings({"deprecation", "unused"})
 public abstract class HippyViewController<T extends View & HippyViewBase> implements
         View.OnFocusChangeListener {
 
@@ -54,8 +51,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
     private boolean bUserChangeFocus = false;
-    @Nullable
-    private NativeRender mNativeRenderer;
 
     public View createView(@NonNull View rootView, int id, @NonNull Renderer renderer,
             @NonNull String className, @Nullable Map<String, Object> props) {
@@ -78,7 +73,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         return view;
     }
 
-    public void onAfterUpdateProps(T view) {
+    public void onAfterUpdateProps(@NonNull T view) {
         view.invalidate();
     }
 
@@ -307,7 +302,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setLayerType(useHWTexture ? View.LAYER_TYPE_HARDWARE : View.LAYER_TYPE_NONE, null);
     }
 
-    @SuppressWarnings("EmptyMethod")
+    @SuppressWarnings({"EmptyMethod", "unused"})
     @HippyControllerProps(name = NodeProps.CUSTOM_PROP)
     public void setCustomProp(T view, String methodName, Object props) {
 
@@ -332,6 +327,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         return new RenderNode(rootId, id, props, className, controllerManager, isLazy);
     }
 
+    @SuppressWarnings("unused")
     @Nullable
     public VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
             @Nullable Map<String, Object> props) {
@@ -362,20 +358,24 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setScaleY(1);
     }
 
+    @SuppressWarnings("deprecation")
     @Deprecated
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull HippyArray params) {
     }
 
+    @SuppressWarnings("deprecation")
     @Deprecated
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull HippyArray params, @NonNull Promise promise) {
     }
 
+    @SuppressWarnings("rawtypes")
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params) {
     }
 
+    @SuppressWarnings("rawtypes")
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params, @NonNull Promise promise) {
         switch (functionName) {
@@ -406,20 +406,10 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     public void onViewDestroy(T t) {
         // Stub method.
-        if (t instanceof FlatViewGroup) {
-            Component component = FlatViewGroup.getComponent(t);
-            if (component != null) {
-                component.onDetachedFromHostView();
-            }
-        }
     }
 
     protected void deleteChild(ViewGroup parentView, View childView) {
         parentView.removeView(childView);
-    }
-
-    protected void deleteChild(ViewGroup parentView, View childView, int childIndex) {
-        deleteChild(parentView, childView);
     }
 
     protected void addView(ViewGroup parentView, View view, int index) {

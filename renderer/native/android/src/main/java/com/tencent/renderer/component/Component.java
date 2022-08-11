@@ -19,7 +19,7 @@ package com.tencent.renderer.component;
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Rect;
+import android.graphics.Path;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -28,11 +28,14 @@ import android.graphics.drawable.RippleDrawable;
 import android.os.Build;
 import android.text.Layout;
 import android.text.Spannable;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.drawable.BackgroundDrawable;
 import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderArc;
@@ -48,10 +51,13 @@ import java.util.Map;
 
 public class Component implements Drawable.Callback {
 
+    private static final int FLAG_CLIP_BOUNDS = 0x00000001;
+    private static final int FLAG_GESTURE_ENABLE = 0x00000002;
+    private static final int FLAG_UPDATE_LAYER = 0x00000004;
     private static final String PROPERTY_RIPPLE_COLOR = "color";
     private static final String PROPERTY_RIPPLE_RADIUS = "rippleRadius";
     private static final String PROPERTY_RIPPLE_BORDERLESS = "borderless";
-
+    private int mComponentFlags = 0;
     @Nullable
     protected BackgroundDrawable mBackgroundDrawable;
     @Nullable
@@ -62,39 +68,56 @@ public class Component implements Drawable.Callback {
     protected TextDrawable mTextDrawable;
     @Nullable
     protected LayerDrawable mLayerDrawable;
-    protected Rect mBounds = new Rect();
     protected final WeakReference<RenderNode> mHostRef;
-    private boolean mHasDrawableEnsured = false;
-    private boolean mGestureEnable = false;
 
     public Component(RenderNode node) {
         mHostRef = new WeakReference<>(node);
     }
 
-    public void onDraw(@NonNull Canvas canvas, Rect bounds) {
-        boolean isPathChanged = false;
-        canvas.save();
-        canvas.clipRect(bounds);
+    protected boolean checkComponentFlag(int flag) {
+        return (mComponentFlags & flag) == flag;
+    }
+
+    protected void resetComponentFlag(int flag) {
+        mComponentFlags &= ~flag;
+    }
+
+    protected void setComponentFlag(int flag) {
+        mComponentFlags |= flag;
+    }
+
+    public void setClipChildren(boolean clipChildren) {
+        if (clipChildren) {
+            setComponentFlag(FLAG_CLIP_BOUNDS);
+        } else {
+            resetComponentFlag(FLAG_CLIP_BOUNDS);
+        }
+    }
+
+    public void onDraw(@NonNull Canvas canvas, int left, int top, int right, int bottom) {
+        if (mHostRef.get() == null) {
+            return;
+        }
+        boolean pathChanged = false;
         // Draw background
         if (mBackgroundDrawable != null) {
             // Should get the status of whether the path needs to be updated before draw background,
             // it will be reset after the background has been drawn.
-            isPathChanged = mBackgroundDrawable.shouldUpdatePath();
-            mBackgroundDrawable.setBounds(bounds);
+            pathChanged = mBackgroundDrawable.shouldUpdatePath();
+            mBackgroundDrawable.setBounds(left, top, right, bottom);
             mBackgroundDrawable.draw(canvas);
         }
         // Draw content of image
         if (mContentDrawable != null) {
-            mContentDrawable.setBounds(bounds);
-            mContentDrawable.onPathChanged(isPathChanged);
+            mContentDrawable.setBounds(left, top, right, bottom);
+            mContentDrawable.onPathChanged(pathChanged);
             mContentDrawable.draw(canvas);
         }
         // Draw text
         if (mTextDrawable != null) {
-            mTextDrawable.setBounds(bounds);
+            mTextDrawable.setBounds(left, top, right, bottom);
             mTextDrawable.draw(canvas);
         }
-        canvas.restore();
     }
 
     protected void invalidate() {
@@ -115,8 +138,8 @@ public class Component implements Drawable.Callback {
     }
 
     /**
-     * A Drawable can call this to schedule the next frame of its animation.
-     * this method is currently used to trigger the rendering of GIF images.
+     * A Drawable can call this to schedule the next frame of its animation. this method is
+     * currently used to trigger the rendering of GIF images.
      */
     @Override
     public void scheduleDrawable(@NonNull Drawable who, @NonNull Runnable what, long when) {
@@ -128,30 +151,22 @@ public class Component implements Drawable.Callback {
 
     }
 
-    protected void onHostViewAttachedToWindow() {
+    public void onHostViewAttachedToWindow() {
         // Stub method.
     }
 
     /**
-     * On render node detached from host view
-     *
-     * <p>When the recycler view scrolls, this method is called when the ID is reused.
-     * @see com.tencent.renderer.component.FlatViewGroup#onReplaceId(int, int, int)
+     * On host view remove from {@link com.tencent.mtt.hippy.uimanager.ControllerRegistry}
      */
-    public void onDetachedFromHostView() {
+    public void onHostViewRemoved() {
         if (mContentDrawable != null) {
             mContentDrawable.reset();
         }
     }
 
-    /**
-     * On render node attached to new host view
-     *
-     * <p>When the recycler view scrolls, this method is called when the ID is reused.
-     * @see com.tencent.renderer.component.FlatViewGroup#onReplaceId(int, int, int)
-     */
-    public void onAttachedToHostView() {
-        // Stub method.
+    @Nullable
+    public Path getContentRegionPath() {
+        return (mBackgroundDrawable != null) ? mBackgroundDrawable.getBorderRadiusPath() : null;
     }
 
     /**
@@ -168,12 +183,12 @@ public class Component implements Drawable.Callback {
             mLayerDrawable = null;
             return null;
         }
-        if (mLayerDrawable == null || mHasDrawableEnsured) {
+        if (mLayerDrawable == null || checkComponentFlag(FLAG_UPDATE_LAYER)) {
             Drawable[] drawables = new Drawable[]{mBackgroundDrawable, mContentDrawable,
                     mRippleDrawable};
             mLayerDrawable = new LayerDrawable(drawables);
+            resetComponentFlag(FLAG_UPDATE_LAYER);
         }
-        mHasDrawableEnsured = false;
         return mLayerDrawable;
     }
 
@@ -211,7 +226,7 @@ public class Component implements Drawable.Callback {
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && radius > 0) {
             mRippleDrawable.setRadius(radius);
         }
-        mHasDrawableEnsured = true;
+        setComponentFlag(FLAG_UPDATE_LAYER);
     }
 
     @Nullable
@@ -229,7 +244,7 @@ public class Component implements Drawable.Callback {
             if (mTextDrawable != null) {
                 mTextDrawable.setBackgroundHolder(mBackgroundDrawable);
             }
-            mHasDrawableEnsured = true;
+            setComponentFlag(FLAG_UPDATE_LAYER);
         }
         return mBackgroundDrawable;
     }
@@ -245,7 +260,7 @@ public class Component implements Drawable.Callback {
             mContentDrawable = new ContentDrawable();
             mContentDrawable.setCallback(this);
             mContentDrawable.setBackgroundHolder(mBackgroundDrawable);
-            mHasDrawableEnsured = true;
+            setComponentFlag(FLAG_UPDATE_LAYER);
         }
         return mContentDrawable;
     }
@@ -260,17 +275,21 @@ public class Component implements Drawable.Callback {
         if (mTextDrawable == null) {
             mTextDrawable = new TextDrawable();
             mTextDrawable.setBackgroundHolder(mBackgroundDrawable);
-            mHasDrawableEnsured = true;
+            setComponentFlag(FLAG_UPDATE_LAYER);
         }
         return mTextDrawable;
     }
 
     public void setGestureEnable(boolean enable) {
-        mGestureEnable = enable;
+        if (enable) {
+            setComponentFlag(FLAG_GESTURE_ENABLE);
+        } else {
+            resetComponentFlag(FLAG_GESTURE_ENABLE);
+        }
     }
 
     public boolean getGestureEnable() {
-        return mGestureEnable;
+        return checkComponentFlag(FLAG_GESTURE_ENABLE);
     }
 
     @Nullable
@@ -287,7 +306,7 @@ public class Component implements Drawable.Callback {
                 Spannable spannable = (Spannable) textSequence;
                 TextGestureSpan[] spans = spannable
                         .getSpans(0, spannable.length(), TextGestureSpan.class);
-                mGestureEnable = (spans != null && spans.length > 0);
+                setGestureEnable((spans != null && spans.length > 0));
             }
         }
     }

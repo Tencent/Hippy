@@ -27,8 +27,6 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Path;
-import android.graphics.RectF;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -41,9 +39,6 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHip
     float mDownX = 0;
     float mDownY = 0;
     boolean isHandlePullUp = false;
-    private String mOverflow;
-    private Path mOverflowPath;
-    private RectF mOverflowRect;
     private ViewConfiguration mViewConfiguration;
     @Nullable
     protected NativeGestureDispatcher mGestureDispatcher;
@@ -79,7 +74,6 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHip
     }
 
     public void setOverflow(String overflow) {
-        mOverflow = overflow;
         setOverflow(overflow, this);
     }
 
@@ -87,11 +81,9 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHip
         switch (overflow) {
             case "visible":
                 viewGroup.setClipChildren(false);
-                viewGroup.invalidate();
                 break;
             case "hidden": {
                 viewGroup.setClipChildren(true);
-                viewGroup.invalidate();
                 break;
             }
             default:
@@ -139,11 +131,6 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHip
             result = isHandlePullUp;
         }
         return result;
-    }
-
-    @Override
-    protected int getChildDrawingOrder(int childCount, int index) {
-        return mDrawingOrderHelper.getChildDrawingOrder(childCount, index);
     }
 
     @Override

@@ -14,42 +14,44 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.framework;
-
-import android.graphics.Bitmap;
-import android.graphics.Movie;
-import android.graphics.drawable.Drawable;
+package com.tencent.renderer.pool;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public interface ImageDataSupplier {
+public interface Pool<K, V> {
 
+    /**
+     * Get an instance from the pool if such, null otherwise.
+     *
+     * @param key the specified cache key
+     * @return the cache instance associated with key
+     */
     @Nullable
-    Drawable getDrawable();
+    V acquire(@NonNull K key);
 
-    @Nullable
-    Bitmap getBitmap();
+    /**
+     * Release an instance to the pool.
+     *
+     * @param instance the instance to release
+     */
+    void release(@NonNull V instance);
 
-    @Nullable
-    Movie getGifMovie();
+    /**
+     * Release an instance to the pool.
+     *
+     * @param key the specified cache key
+     * @param instance the instance to release
+     */
+    void release(@NonNull K key, @NonNull V instance);
 
-    boolean checkImageData();
-
-    @NonNull
-    String getSource();
-
-    int getImageWidth();
-
-    int getImageHeight();
-
+    /**
+     * Clear the cache pool.
+     */
     void clear();
 
-    void attached();
-
-    void detached();
-
-    void cached();
-
-    void evicted();
+    /**
+     * Remove the instance from cache pool.
+     */
+    void remove(@NonNull K key);
 }

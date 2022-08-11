@@ -16,8 +16,6 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
-import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 

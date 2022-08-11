@@ -36,6 +36,8 @@ import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.views.image.HippyImageViewController;
+import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.component.text.VirtualNodeManager;
@@ -281,8 +283,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         // Because the native(C++) DOM use lowercase names, convert to lowercase here before call JNI.
         String lowerCaseEventName = eventName.toLowerCase();
         if (eventType != EventType.EVENT_TYPE_GESTURE && !mRenderManager.checkRegisteredEvent(
-                rootId,
-                nodeId, lowerCaseEventName)) {
+                rootId, nodeId, lowerCaseEventName)) {
             return;
         }
         mRenderProvider.dispatchEvent(rootId, nodeId, lowerCaseEventName, params, useCapture,
@@ -345,12 +346,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         };
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void createNode(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
-        final List<UITaskExecutor> createNodeTaskList = new ArrayList<>();
-        final List<UITaskExecutor> createViewTaskList = new ArrayList<>();
+        final List<UITaskExecutor> createNodeTaskList = new ArrayList<>(nodeList.size());
+        final List<UITaskExecutor> createViewTaskList = new ArrayList<>(nodeList.size());
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -396,13 +397,16 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 }
             };
             createNodeTaskList.add(createNodeTask);
-            UITaskExecutor createViewTask = new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.preCreateView(rootId, id, pid, name, props);
-                }
-            };
-            createViewTaskList.add(createViewTask);
+            if (!className.equals(HippyImageViewController.CLASS_NAME) && !className.equals(
+                    HippyTextViewController.CLASS_NAME)) {
+                UITaskExecutor createViewTask = new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.preCreateView(rootId, id, pid, name, props);
+                    }
+                };
+                createViewTaskList.add(createViewTask);
+            }
         }
         if (!createNodeTaskList.isEmpty()) {
             addUITask(getMassTaskExecutor(createNodeTaskList));
@@ -420,11 +424,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void updateNode(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
-        final List<UITaskExecutor> taskList = new ArrayList<>();
+        final List<UITaskExecutor> taskList = new ArrayList<>(nodeList.size());
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -468,7 +472,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void deleteNode(final int rootId, @NonNull int[] ids) throws NativeRenderException {
-        final List<UITaskExecutor> taskList = new ArrayList<>();
+        final List<UITaskExecutor> taskList = new ArrayList<>(ids.length);
         for (final int nodeId : ids) {
             // The node id should not be negative number.
             if (nodeId < 0) {
@@ -507,11 +511,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         addUITask(task);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void updateLayout(final int rootId, @NonNull List<Object> nodeList)
             throws NativeRenderException {
-        final List<UITaskExecutor> taskList = new ArrayList<>();
+        final List<UITaskExecutor> taskList = new ArrayList<>(nodeList.size());
         for (int i = 0; i < nodeList.size(); i++) {
             Object element = nodeList.get(i);
             if (!(element instanceof Map)) {
@@ -570,11 +574,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void updateEventListener(final int rootId, @NonNull List<Object> eventList)
             throws NativeRenderException {
-        final List<UITaskExecutor> taskList = new ArrayList<>();
+        final List<UITaskExecutor> taskList = new ArrayList<>(eventList.size());
         for (int i = 0; i < eventList.size(); i++) {
             Object element = eventList.get(i);
             if (!(element instanceof Map)) {
@@ -595,12 +599,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateEventListener: invalid negative id=" + nodeId);
             }
-            boolean hasUpdate = mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
-            if (hasUpdate) {
-                // Virtual node gesture event listener add by itself, no need to
-                // update render node.
-                continue;
-            }
+            mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
             final int id = nodeId;
             final Map<String, Object> props = eventProps;
             UITaskExecutor task = new UITaskExecutor() {
