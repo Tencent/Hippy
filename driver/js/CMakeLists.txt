@@ -70,7 +70,7 @@ endif ()
 
 # region dom
 GlobalPackages_Add(dom)
-target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:dom,INTERFACE_INCLUDE_DIRECTORIES>)
+target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # endregion
 
 # region source set
