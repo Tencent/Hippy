@@ -8,8 +8,11 @@ on:
       - v3.0-dev
       - v3.0
     paths:
-      - 'driver/js/ios/**'
-      - 'driver/js/core/**'
+      - 'framework/ios/**'
+      - 'driver/js/lib/**'
+      - 'driver/js/src/**'
+      - 'driver/js/include/**'
+      - 'driver/js/CMakeLists.txt'
       - 'dom/**'
       - 'layout/engine/**'
       - 'modules/ios/**'
@@ -28,4 +31,4 @@ jobs:
           lfs: true
       - name: Build
         run: |
-          pushd driver/js/examples/ios-demo && pod install && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' -workspace 'HippyDemo.xcworkspace' && popd
+          pushd framework/examples/ios-demo && pod install && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' -workspace 'HippyDemo.xcworkspace' && popd

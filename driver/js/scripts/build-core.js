@@ -78,8 +78,8 @@ const CodePieces = {
 
 #include <unordered_map>
 
-#include "core/napi/native_source_code.h"
-#include "core/base/macros.h"
+#include "driver/napi/native_source_code.h"
+#include "driver/base/macros.h"
 
 // clang-format off
 
@@ -169,19 +169,19 @@ function getAbsolutePath(relativePath) {
 function getAllRequiredFiles(platform) {
   return new Promise((resole) => {
     const rl = readline.createInterface({
-      input: fs.createReadStream(getAbsolutePath(`../core/js/entry/${platform}/hippy.js`)),
+      input: fs.createReadStream(getAbsolutePath(`../lib/entry/${platform}/hippy.js`)),
     });
     const filePaths = [
-      getAbsolutePath('../core/js/bootstrap.js'),
-      getAbsolutePath(`../core/js/entry/${platform}/hippy.js`),
-      getAbsolutePath('../core/js/modules/ExceptionHandle.js'),
+      getAbsolutePath('../lib/bootstrap.js'),
+      getAbsolutePath(`../lib/entry/${platform}/hippy.js`),
+      getAbsolutePath('../lib/modules/ExceptionHandle.js'),
     ];
 
     rl.on('line', (line) => {
       const lineSlice = line.split('//')[0];
       if (lineSlice.indexOf('require(\'') > -1 || lineSlice.indexOf('require("') > -1) {
         const entry = line.split('(\'')[1].split('\')')[0];
-        filePaths.push(getAbsolutePath(`../core/js/entry/${platform}/${entry}`));
+        filePaths.push(getAbsolutePath(`../lib/entry/${platform}/${entry}`));
       }
     });
     rl.on('close', () => {
@@ -260,6 +260,6 @@ function generateCpp(platform, buildDirPath) {
 }
 
 // Start to work
-generateCpp('ios', getAbsolutePath('../ios/base'));
-generateCpp('android', getAbsolutePath('../android/src/main/jni/src/bridge/'));
+generateCpp('ios', getAbsolutePath('../../../framework/ios/base'));
+generateCpp('android', getAbsolutePath('../../../framework/android/src/main/cpp/src/bridge/'));
 generateCpp('flutter', getAbsolutePath('../flutter/core/src/bridge/'));

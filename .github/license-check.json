@@ -34,8 +34,9 @@
     ".github/**",
     ".husky/**",
     "docs/**",
-    "driver/js/examples/android-demo/res/**",
-    "driver/js/examples/ios-demo/res/**",
+    "static/**",
+    "framework/examples/android-demo/res/**",
+    "framework/examples/ios-demo/res/**",
     "driver/js/examples/hippy-**-demo/**",
     "driver/js/flutter/example/**"
   ]
