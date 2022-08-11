@@ -150,7 +150,15 @@ export default class ListExample extends React.Component {
   }
 
   onScroll = (obj) => {
-    console.log('onScroll', obj);
+    console.log('onScroll', obj.contentOffset.y);
+    if (obj.contentOffset.y <= 0) {
+      if (!this.topReached) {
+        this.topReached = true;
+        console.log('onTopReached');
+      }
+    } else {
+      this.topReached = false;
+    }
   }
 
   // item完全隐藏

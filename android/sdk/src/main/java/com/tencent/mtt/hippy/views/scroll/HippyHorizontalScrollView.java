@@ -17,9 +17,7 @@ package com.tencent.mtt.hippy.views.scroll;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.os.Build;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
@@ -64,7 +62,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
-  private boolean hasUnsentScrollEvent;
+  private boolean mHasUnsentScrollEvent;
 
   protected int mScrollMinOffset = 0;
   private int startScrollX = 0;
@@ -160,7 +158,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         requestDisallowInterceptTouchEvent(true);
       }
     } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
-      if (hasUnsentScrollEvent) {
+      if (mHasUnsentScrollEvent) {
         sendOnScrollEvent();
       }
       if (mScrollEndDragEventEnable) {
@@ -239,7 +237,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
           mLastScrollEventTimeStamp = currTime;
           sendOnScrollEvent();
         } else {
-          hasUnsentScrollEvent = true;
+          mHasUnsentScrollEvent = true;
         }
       }
       mDoneFlinging = false;
@@ -247,7 +245,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   }
 
   private void sendOnScrollEvent() {
-    hasUnsentScrollEvent = false;
+    mHasUnsentScrollEvent = false;
     HippyScrollViewEventHelper.emitScrollEvent(this);
   }
 
@@ -256,7 +254,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       @Override
       public void run() {
         if (mDoneFlinging) {
-          if (hasUnsentScrollEvent) {
+          if (mHasUnsentScrollEvent) {
             sendOnScrollEvent();
           }
           if (mMomentumScrollEndEventEnable) {

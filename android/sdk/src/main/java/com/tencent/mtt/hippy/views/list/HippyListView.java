@@ -88,7 +88,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   protected int mLastOffsetX = Integer.MIN_VALUE;
   protected int mLastOffsetY = Integer.MIN_VALUE;
   protected long mLastScrollEventTimeStamp = -1;
-  protected boolean hasUnsentScrollEvent;
+  protected boolean mHasUnsentScrollEvent;
 
   private boolean mHasRemovePreDraw = false;
   private ViewTreeObserver.OnPreDrawListener mPreDrawListener = null;
@@ -519,7 +519,7 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
   @Override
   public void onScrollStateChanged(int oldState, int newState) {
     super.onScrollStateChanged(oldState, newState);
-    if (hasUnsentScrollEvent) {
+    if (mHasUnsentScrollEvent) {
       sendOnScrollEvent();
     }
   }
@@ -713,13 +713,13 @@ public class HippyListView extends RecyclerView implements HippyViewBase {
         mLastScrollEventTimeStamp = currTime;
         sendOnScrollEvent();
       } else {
-        hasUnsentScrollEvent = true;
+        mHasUnsentScrollEvent = true;
       }
     }
   }
 
   protected void sendOnScrollEvent() {
-    hasUnsentScrollEvent = false;
+    mHasUnsentScrollEvent = false;
     getOnScrollEvent().send(this, generateScrollEvent());
   }
 

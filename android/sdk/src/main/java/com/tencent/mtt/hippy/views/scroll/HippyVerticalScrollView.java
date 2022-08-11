@@ -18,11 +18,9 @@ package com.tencent.mtt.hippy.views.scroll;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ScrollView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
@@ -61,7 +59,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
   protected int mScrollEventThrottle = 10;
   private long mLastScrollEventTimeStamp = -1;
-  private boolean hasUnsentScrollEvent;
+  private boolean mHasUnsentScrollEvent;
 
   protected int mScrollMinOffset = 0;
   private int startScrollY = 0;
@@ -140,7 +138,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       // 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
       setParentScrollableIfNeed(false);
     } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
-      if (hasUnsentScrollEvent) {
+      if (mHasUnsentScrollEvent) {
         sendOnScrollEvent();
       }
       if (mScrollEndDragEventEnable) {
@@ -225,7 +223,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
           mLastScrollEventTimeStamp = currTime;
           sendOnScrollEvent();
         } else {
-          hasUnsentScrollEvent = true;
+          mHasUnsentScrollEvent = true;
         }
       }
       mDoneFlinging = false;
@@ -233,7 +231,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
   }
 
   private void sendOnScrollEvent() {
-    hasUnsentScrollEvent = false;
+    mHasUnsentScrollEvent = false;
     HippyScrollViewEventHelper.emitScrollEvent(this);
   }
 
@@ -242,7 +240,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
       @Override
       public void run() {
         if (mDoneFlinging) {
-          if (hasUnsentScrollEvent) {
+          if (mHasUnsentScrollEvent) {
             sendOnScrollEvent();
           }
           if (mMomentumScrollEndEventEnable) {

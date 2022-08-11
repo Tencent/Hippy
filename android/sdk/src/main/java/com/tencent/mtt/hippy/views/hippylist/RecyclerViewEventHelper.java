@@ -62,7 +62,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     private HippyViewEvent onScrollEvent;
     private long lastScrollEventTimeStamp;
     private int scrollEventThrottle;
-    private boolean hasUnsentScrollEvent;
+    private boolean mHasUnsentScrollEvent;
     private boolean exposureEventEnable;
     private HippyViewEvent onScrollDragStartedEvent;
 
@@ -174,7 +174,7 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
     public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
         int oldState = currentState;
         currentState = newState;
-        if (hasUnsentScrollEvent) {
+        if (mHasUnsentScrollEvent) {
             sendOnScrollEvent();
         }
         sendDragEvent(newState);
@@ -240,13 +240,13 @@ public class RecyclerViewEventHelper extends OnScrollListener implements OnLayou
                 lastScrollEventTimeStamp = currTime;
                 sendOnScrollEvent();
             } else {
-                hasUnsentScrollEvent = true;
+                mHasUnsentScrollEvent = true;
             }
         }
     }
 
     public void sendOnScrollEvent() {
-        hasUnsentScrollEvent = false;
+        mHasUnsentScrollEvent = false;
         getOnScrollEvent().send(getParentView(), generateScrollEvent());
     }
 
