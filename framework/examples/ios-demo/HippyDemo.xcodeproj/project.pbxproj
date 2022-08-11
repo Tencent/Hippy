@@ -42,7 +42,6 @@
 		F438B757281250CD0078435B /* NativeRenderParserUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = F438B753281250CD0078435B /* NativeRenderParserUtils.m */; };
 		F438B75A281283550078435B /* NativeRenderErrorHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = F438B759281283550078435B /* NativeRenderErrorHandler.m */; };
 		F43A2D09275882650056F36C /* diff_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = F43A2D08275882650056F36C /* diff_utils.cc */; };
-		F441DFB12872903700FD5205 /* HippyRootViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F441DFB02872903700FD5205 /* HippyRootViewManager.mm */; };
 		F45D265328067B6900CAB185 /* NativeRenderScrollView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25AD28067B6900CAB185 /* NativeRenderScrollView.mm */; };
 		F45D265428067B6900CAB185 /* NativeRenderScrollViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25B028067B6900CAB185 /* NativeRenderScrollViewManager.mm */; };
 		F45D265528067B6900CAB185 /* NativeRenderRefreshWrapperItemView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F45D25B328067B6900CAB185 /* NativeRenderRefreshWrapperItemView.mm */; };
@@ -248,7 +247,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = AD867BD370724FCD891FFAF2;
+			remoteGlobalIDString = 185776207AB448DF87CC6D5F;
 			remoteInfo = devtools_backend;
 		};
 /* End PBXContainerItemProxy section */
@@ -2116,7 +2115,6 @@
 				F48D3871289BA6A1007BD6FE /* unicode_string_view.cc in Sources */,
 				F468DE9D2812ACEA00319196 /* NativeRenderComponentData.mm in Sources */,
 				F45D269828067B6A00CAB185 /* NativeRenderModalCustomAnimationTransition.m in Sources */,
-				F441DFB12872903700FD5205 /* HippyRootViewManager.mm in Sources */,
 				F45D267028067B6900CAB185 /* NativeRenderAnimatedImageView.m in Sources */,
 				F48D386A289BA6A1007BD6FE /* logging.cc in Sources */,
 				F45D265B28067B6900CAB185 /* NativeRenderViewPagerManager.mm in Sources */,
