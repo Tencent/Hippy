@@ -20,8 +20,8 @@
  *
  */
 
-#include "core/runtime/v8/runtime.h"
-#include "core/runtime/v8/v8_bridge_utils.h"
+#include "driver/runtime/v8/runtime.h"
+#include "driver/runtime/v8/v8_bridge_utils.h"
 #include "js2dart.h"
 #include "voltron_bridge.h"
 
@@ -42,8 +42,8 @@ void CallDart(hippy::napi::CBDataTuple *data) {
     std::u16string module_name = StringViewUtils::CovertToUtf16(module, module.encoding()).utf16_value();
     std::u16string module_func = StringViewUtils::CovertToUtf16(func, func.encoding()).utf16_value();
     std::u16string call_id = StringViewUtils::CovertToUtf16(cb_id, cb_id.encoding()).utf16_value();
-    auto bridge = std::static_pointer_cast<VoltronBridge>(runtime->GetBridge());
-
+    FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
+    auto bridge = std::any_cast<VoltronBridge>(runtime->GetData(kBridgeSlot));
     if (bridge) {
       bridge->GetPlatformRuntime()->CallDart(module_name,
                                              module_func,

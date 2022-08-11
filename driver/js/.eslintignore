@@ -1,5 +1,4 @@
 node_modules*
-docs/
 dist/
 coverage
 packages/hippy-vue/types

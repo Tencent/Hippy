@@ -36,15 +36,15 @@ CMakeLists.txt @medns
 # dom related
 /dom/ @churchill-zhang @ilikethese @medns
 
-# js core related
-/driver/js/core/ @churchill-zhang @ilikethese
-/driver/js/core/js/ @zoomchan-cxj
+# driver related
+/driver/js/ @churchill-zhang @ilikethese
+/driver/js/lib/ @zoomchan-cxj
 
 # examples related
-/driver/js/examples/android-demo/ @siguangli
-/driver/js/examples/android-demo/res/ @zoomchan-cxj
-/driver/js/examples/ios-demo/ @ozonelmy
-/driver/js/examples/ios-demo/res/ @zoomchan-cxj
+/framework/examples/android-demo/ @siguangli
+/framework/examples/ios-demo/ @ozonelmy
+/framework/examples/android-demo/res/ @zoomchan-cxj
+/framework/examples/ios-demo/res/ @zoomchan-cxj
 /driver/js/examples/hippy-react-demo/ @zoomchan-cxj
 /driver/js/examples/hippy-vue-demo/ @zoomchan-cxj
 
@@ -64,7 +64,7 @@ CMakeLists.txt @medns
 /layout/ @ilikethese @churchill-zhang
 
 # android related
-/driver/js/android/ @siguangli
+/framework/android/ @siguangli
 /renderer/native/android/ @siguangli
 /gradle/ @siguangli
 /gradle.properties @siguangli
@@ -74,7 +74,7 @@ CMakeLists.txt @medns
 /setting.gradle @siguangli
 
 # ios related
-/driver/js/ios/ @ozonelmy
+/framework/ios/ @ozonelmy
 /renderer/native/ios/ @ozonelmy
 /hippy.podspec @ozonelmy
 

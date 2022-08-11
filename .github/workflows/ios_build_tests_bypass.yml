@@ -8,8 +8,11 @@ on:
       - v3.0-dev
       - v3.0
     paths-ignore:
-      - 'driver/js/ios/**'
-      - 'driver/js/core/**'
+      - 'framework/ios/**'
+      - 'driver/js/lib/**'
+      - 'driver/js/src/**'
+      - 'driver/js/include/**'
+      - 'driver/js/CMakeLists.txt'
       - 'dom/**'
       - 'layout/engine/**'
       - 'modules/ios/**'

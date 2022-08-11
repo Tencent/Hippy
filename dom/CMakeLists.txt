@@ -40,11 +40,6 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region core base
-# TODO: will be removed when the JNI library is complete
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_ROOT_DIR}/driver/js/core/include)
-# endregion
-
 # region layout engine
 if (NOT DEFINED LAYOUT_ENGINE)
   set(LAYOUT_ENGINE "Taitank")
