@@ -444,15 +444,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self updateClippedSubviews];
 
-    NSTimeInterval now = CACurrentMediaTime();
-
     /**
      * TODO: this logic looks wrong, and it may be because it is. Currently, if _scrollEventThrottle
      * is set to zero (the default), the "didScroll" event is only sent once per scroll, instead of repeatedly
      * while scrolling as expected. However, if you "fix" that bug, ScrollView will generate repeated
      * warnings, and behave strangely (ListView works fine however), so don't fix it unless you fix that too!
      */
-    NSTimeInterval ti = now - _lastScrollDispatchTime;
+    CFTimeInterval now = CACurrentMediaTime();
+    CFTimeInterval ti = now - _lastScrollDispatchTime;
     BOOL flag = (_scrollEventThrottle > 0 && _scrollEventThrottle < ti);
     if (_allowNextScrollNoMatterWhat || flag) {
         if (self.onScroll) {
@@ -546,6 +545,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if (!decelerate) {
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
+    }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
             [scrollViewListener scrollViewDidEndDragging:scrollView willDecelerate:decelerate];

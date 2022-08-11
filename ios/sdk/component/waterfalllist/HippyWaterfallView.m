@@ -81,6 +81,7 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 @implementation HippyWaterfallView {
     UIColor *_backgroundColor;
+    BOOL _allowNextScrollNoMatterWhat;
     double _lastOnScrollEventTimeInterval;
 }
 
@@ -431,12 +432,13 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (_onScroll) {
-        double ti = CACurrentMediaTime();
-        double timeDiff = (ti - _lastOnScrollEventTimeInterval) * 1000.f;
-        if (timeDiff > _scrollEventThrottle) {
+        CFTimeInterval now = CACurrentMediaTime();
+        CFTimeInterval ti = (now - _lastOnScrollEventTimeInterval) * 1000.f;
+        if (ti > _scrollEventThrottle || _allowNextScrollNoMatterWhat) {
             NSDictionary *eventData = [self scrollEventDataWithState:ScrollStateScrolling];
-            _lastOnScrollEventTimeInterval = ti;
+            _lastOnScrollEventTimeInterval = now;
             _onScroll(eventData);
+            _allowNextScrollNoMatterWhat = NO;
         }
     }
 
@@ -504,6 +506,9 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
             NSDictionary *exposureInfo = [self scrollEventDataWithState:state];
             self.onExposureReport(exposureInfo);
         }
+        // Fire a final scroll event
+        _allowNextScrollNoMatterWhat = YES;
+        [self scrollViewDidScroll:scrollView];
     }
     for (NSObject<UIScrollViewDelegate> *scrollViewListener in _scrollListeners) {
         if ([scrollViewListener respondsToSelector:@selector(scrollViewDidEndDragging:willDecelerate:)]) {
@@ -519,15 +524,15 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 
 }
 
-- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView;
-{
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView {
+    _allowNextScrollNoMatterWhat = YES; // Ensure next scroll event is recorded, regardless of throttle
+    
     [self cancelTouch];
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
                      withVelocity:(CGPoint)velocity
-              targetContentOffset:(inout CGPoint *)targetContentOffset NS_AVAILABLE_IOS(5_0);
-{
+              targetContentOffset:(inout CGPoint *)targetContentOffset {
     if (velocity.y > 0) {
         if (self.onExposureReport) {
             NSDictionary *exposureInfo = [self scrollEventDataWithState:ScrollStateScrolling];
@@ -536,8 +541,11 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
     }
 }
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView;
-{
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
+    
     if (self.onExposureReport) {
         NSDictionary *exposureInfo = [self scrollEventDataWithState:ScrollStateStop];
         self.onExposureReport(exposureInfo);
@@ -545,6 +553,9 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+    // Fire a final scroll event
+    _allowNextScrollNoMatterWhat = YES;
+    [self scrollViewDidScroll:scrollView];
 }
 
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView;
@@ -589,10 +600,16 @@ typedef NS_ENUM(NSInteger, HippyScrollState) { ScrollStateStop, ScrollStateDragi
 }
 
 - (void)scrollToOffset:(CGPoint)point animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
     [self.collectionView setContentOffset:point animated:animated];
 }
 
 - (void)scrollToIndex:(NSInteger)index animated:(BOOL)animated {
+    // Ensure at least one scroll event will fire
+    _allowNextScrollNoMatterWhat = YES;
+    
     NSInteger section = _containBannerView ? 1 : 0;
     [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForRow:index inSection:section]
                                 atScrollPosition:UICollectionViewScrollPositionTop
