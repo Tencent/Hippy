@@ -31,6 +31,7 @@ describe('runtime/element/hippy-element', () => {
     root.id = 'testRoot';
     setHippyCachedInstance({
       rootView: 'testRoot',
+      rootContainer: 'root',
       rootViewId: 1,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -538,6 +539,15 @@ describe('runtime/element/hippy-element', () => {
       }));
       const nativeNodeList = element.convertToNativeNodes(true);
       expect(nativeNodeList.length).toEqual(2);
+    });
+  });
+
+  describe('root node id check', () => {
+    it('return is or not root node', () => {
+      const node = new HippyElement('div');
+      expect(node.isRootNode()).toBeFalsy();
+      node.id = 'root';
+      expect(node.isRootNode()).toBeTruthy();
     });
   });
 });

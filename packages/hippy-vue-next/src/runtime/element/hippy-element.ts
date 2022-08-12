@@ -257,7 +257,7 @@ export class HippyElement extends HippyNode {
    * @param child - node to be added
    * @param anchor - anchor node
    */
-  public insertBefore(child: HippyNode, anchor: HippyNode): void {
+  public insertBefore(child: HippyNode, anchor: HippyNode | null): void {
     // If the node type is text node, call setText method to set the text property
     if (child instanceof HippyText) {
       this.setText(child.text, { notToNative: true });
