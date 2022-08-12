@@ -23,6 +23,14 @@ on:
         type: string
         default: 'global_packages'
         require: true
+      writing_mode:
+        description: 'The mode of writing'
+        type: choice
+        options:
+        - preserve
+        - overwrite
+        default: 'preserve'
+        required: true
       is_build_for_android:
         description: 'Build for Android platform'
         type: boolean
@@ -43,6 +51,84 @@ on:
         description: 'Build for Linux platform'
         type: boolean
         default: false
+
+env:
+  publish_package_script: |
+    from qcloud_cos import CosS3Client, CosConfig
+    import hashlib
+    import os
+    try:
+        from urllib.parse import urlencode
+    except ImportError:
+        from urllib import urlencode
+
+    metadata = {}
+    metadata["ci-name"] = "Github Action"
+    metadata["ci-id"] = "${{ github.run_id }}"
+    metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+    metadata["v8-builder"] = "${{ github.event.sender.login }}"
+    with open(os.environ["local_file"], "rb") as artifact_file:
+      metadata["v8-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
+    metadata["v8-revision"] = "${{ github.event.inputs.v8_revision }}"
+    metadata["v8-head"] = os.environ["v8_head"]
+
+    config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
+    client = CosS3Client(config)
+    if "${{ github.event.inputs.writing_mode }}" == "preserve" and client.object_exists(
+      Bucket="${{ secrets.COS_BUCKET }}",
+      Key=os.environ["cos_key"]
+    ):
+      raise Exception("Package already exists")
+
+    response = client.upload_file(
+      Bucket="${{ secrets.COS_BUCKET }}",
+      Key=os.environ["cos_key"],
+      LocalFilePath=os.environ["local_file"],
+      EnableMD5=True,
+      ContentMD5=metadata["v8-md5"],
+      Metadata={"x-cos-tagging": urlencode(metadata)}
+    )
+    print("ETag: " + response["ETag"])
+
+  cmakelists_template: |
+    #
+    # Tencent is pleased to support the open source community by making
+    # Hippy available.
+    #
+    # Copyright (C) 2022 THL A29 Limited, a Tencent company.
+    # All rights reserved.
+    #
+    # Licensed under the Apache License, Version 2.0 (the "License");
+    # you may not use this file except in compliance with the License.
+    # You may obtain a copy of the License at
+    #
+    #     http://www.apache.org/licenses/LICENSE-2.0
+    #
+    # Unless required by applicable law or agreed to in writing, software
+    # distributed under the License is distributed on an "AS IS" BASIS,
+    # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    # See the License for the specific language governing permissions and
+    # limitations under the License.
+    #
+    cmake_minimum_required(VERSION 3.0)
+
+    project(v8)
+
+    add_library(${{ '${{PROJECT_NAME}}' }} INTERFACE)
+    target_include_directories(${{ '${{PROJECT_NAME}}' }}
+        INTERFACE "include"
+        INTERFACE "include/v8")
+
+    target_compile_definitions(${{ '${{PROJECT_NAME}}' }}
+        INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
+        INTERFACE "-DV8_DEPRECATION_WARNINGS"
+        {0})
+
+    add_library(${{ '${{PROJECT_NAME}}' }}_library STATIC IMPORTED)
+    set_property(TARGET ${{ '${{PROJECT_NAME}}' }}_library PROPERTY
+        IMPORTED_LOCATION "{1}")
+    target_link_libraries(${{ '${{PROJECT_NAME}}' }}
+        INTERFACE ${{ '${{PROJECT_NAME}}' }}_library)
 
 jobs:
   context_in_lowercase:
@@ -137,47 +223,8 @@ jobs:
       uses: DamianReeves/write-file-action@v1.0
       with:
         path: ./v8/out/artifact/CMakeLists.txt
-        contents: |
-              #
-              # Tencent is pleased to support the open source community by making
-              # Hippy available.
-              #
-              # Copyright (C) 2022 THL A29 Limited, a Tencent company.
-              # All rights reserved.
-              #
-              # Licensed under the Apache License, Version 2.0 (the "License");
-              # you may not use this file except in compliance with the License.
-              # You may obtain a copy of the License at
-              #
-              #     http://www.apache.org/licenses/LICENSE-2.0
-              #
-              # Unless required by applicable law or agreed to in writing, software
-              # distributed under the License is distributed on an "AS IS" BASIS,
-              # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-              # See the License for the specific language governing permissions and
-              # limitations under the License.
-              #
-              cmake_minimum_required(VERSION 3.0)
-
-              project(v8)
-
-              add_library(${PROJECT_NAME} INTERFACE)
-              target_include_directories(${PROJECT_NAME}
-                  INTERFACE "include"
-                  INTERFACE "include/v8")
-
-              target_compile_definitions(${PROJECT_NAME}
-                  INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
-                  INTERFACE "-DV8_DEPRECATION_WARNINGS"
-                  ${{ (!startsWith(github.event.inputs.v8_revision, '7.7') && endsWith(matrix.arch, '64')) && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
-
-              add_library(${PROJECT_NAME}_library STATIC IMPORTED)
-              set_property(TARGET ${PROJECT_NAME}_library PROPERTY
-                  IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a")
-              target_link_libraries(${PROJECT_NAME}
-                  INTERFACE ${PROJECT_NAME}_library)
-
         write-mode: overwrite
+        contents: ${{ format(env.cmakelists_template, (!startsWith(github.event.inputs.v8_revision, '7.7') && endsWith(matrix.arch, '64')) && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || '', '${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a') }}
     - name: Release package
       id: release_package
       working-directory: ./v8
@@ -188,42 +235,14 @@ jobs:
     - name: Install Requirement
       shell: bash
       run: |
-        pip install -U cos-python-sdk-v5
+        pip3 install -U cos-python-sdk-v5
     - name: Publish package
-      shell: python
-      run: |
-        from qcloud_cos import CosConfig
-        from qcloud_cos import CosS3Client
-        import hashlib
-        import os
-        try:
-            from urllib.parse import urlencode
-        except ImportError:
-            from urllib import urlencode
-
-        artifact = "./v8/out/android-${{ matrix.arch }}.tgz"
-
-        metadata = {}
-        metadata["ci-name"] = "Github Action"
-        metadata["ci-id"] = "${{ github.run_id }}"
-        metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        metadata["v8-builder"] = "${{ github.event.sender.login }}"
-        with open(artifact, "rb") as artifact_file:
-          metadata["v8-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
-        metadata["v8-revision"] = "${{ github.event.inputs.v8_revision }}"
-        metadata["v8-head"] = "${{ steps.release_package.outputs.head_full }}"
-
-        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
-        client = CosS3Client(config)
-        response = client.upload_file(
-            Bucket="${{ secrets.COS_BUCKET }}",
-            Key="hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/android-${{ matrix.arch }}.tgz",
-            LocalFilePath=artifact,
-            EnableMD5=True,
-            ContentMD5=metadata["v8-md5"],
-            Metadata={"x-cos-tagging": urlencode(metadata)}
-        )
-        print("ETag: " + response["ETag"])
+      shell: python3 {0}
+      env:
+        local_file: ./v8/out/android-${{ matrix.arch }}.tgz
+        cos_key: hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/android-${{ matrix.arch }}.tgz
+        v8_head: ${{ steps.release_package.outputs.head_full }}
+      run: ${{ env.publish_package_script }}
 
   windows_prebuilt:
     if: github.event.inputs.is_build_for_windows == 'true'
@@ -268,47 +287,8 @@ jobs:
       uses: DamianReeves/write-file-action@v1.0
       with:
         path: ./v8/out/artifact/CMakeLists.txt
-        contents: |
-              #
-              # Tencent is pleased to support the open source community by making
-              # Hippy available.
-              #
-              # Copyright (C) 2022 THL A29 Limited, a Tencent company.
-              # All rights reserved.
-              #
-              # Licensed under the Apache License, Version 2.0 (the "License");
-              # you may not use this file except in compliance with the License.
-              # You may obtain a copy of the License at
-              #
-              #     http://www.apache.org/licenses/LICENSE-2.0
-              #
-              # Unless required by applicable law or agreed to in writing, software
-              # distributed under the License is distributed on an "AS IS" BASIS,
-              # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-              # See the License for the specific language governing permissions and
-              # limitations under the License.
-              #
-              cmake_minimum_required(VERSION 3.0)
-
-              project(v8)
-
-              add_library(${PROJECT_NAME} INTERFACE)
-              target_include_directories(${PROJECT_NAME}
-                  INTERFACE "include"
-                  INTERFACE "include/v8")
-
-              target_compile_definitions(${PROJECT_NAME}
-                  INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
-                  INTERFACE "-DV8_DEPRECATION_WARNINGS"
-                  ${{ endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
-
-              add_library(${PROJECT_NAME}_library STATIC IMPORTED)
-              set_property(TARGET ${PROJECT_NAME}_library PROPERTY
-                  IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/v8_monolith.lib")
-              target_link_libraries(${PROJECT_NAME}
-                  INTERFACE ${PROJECT_NAME}_library)
-
         write-mode: overwrite
+        contents: ${{ format(env.cmakelists_template, endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || '', '${CMAKE_CURRENT_SOURCE_DIR}/lib/v8_monolith.lib') }}
     - name: Release package
       id: release_package
       working-directory: ./v8
@@ -322,36 +302,11 @@ jobs:
         pip install -U cos-python-sdk-v5
     - name: Publish package
       shell: python
-      run: |
-        from qcloud_cos import CosConfig
-        from qcloud_cos import CosS3Client
-        from urllib.parse import urlencode
-        import hashlib
-        import os
-
-        artifact = "./v8/out/windows-${{ matrix.arch }}.zip"
-
-        metadata = {}
-        metadata["ci-name"] = "Github Action"
-        metadata["ci-id"] = "${{ github.run_id }}"
-        metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        metadata["v8-builder"] = "${{ github.event.sender.login }}"
-        with open(artifact, "rb") as artifact_file:
-          metadata["v8-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
-        metadata["v8-revision"] = "${{ github.event.inputs.v8_revision }}"
-        metadata["v8-head"] = "${{ steps.release_package.outputs.head_full }}"
-
-        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
-        client = CosS3Client(config)
-        response = client.upload_file(
-            Bucket="${{ secrets.COS_BUCKET }}",
-            Key="hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/windows-${{ matrix.arch }}.zip",
-            LocalFilePath=artifact,
-            EnableMD5=True,
-            ContentMD5=metadata["v8-md5"],
-            Metadata={"x-cos-tagging": urlencode(metadata)}
-        )
-        print("ETag: " + response["ETag"])
+      env:
+        local_file: ./v8/out/windows-${{ matrix.arch }}.zip
+        cos_key: hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/windows-${{ matrix.arch }}.zip
+        v8_head: ${{ steps.release_package.outputs.head_full
+      run: ${{ env.publish_package_script }}
 
   macos_prebuilt:
     if: github.event.inputs.is_build_for_macos == 'true'
@@ -393,47 +348,8 @@ jobs:
       uses: DamianReeves/write-file-action@v1.0
       with:
         path: ./v8/out/artifact/CMakeLists.txt
-        contents: |
-              #
-              # Tencent is pleased to support the open source community by making
-              # Hippy available.
-              #
-              # Copyright (C) 2022 THL A29 Limited, a Tencent company.
-              # All rights reserved.
-              #
-              # Licensed under the Apache License, Version 2.0 (the "License");
-              # you may not use this file except in compliance with the License.
-              # You may obtain a copy of the License at
-              #
-              #     http://www.apache.org/licenses/LICENSE-2.0
-              #
-              # Unless required by applicable law or agreed to in writing, software
-              # distributed under the License is distributed on an "AS IS" BASIS,
-              # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-              # See the License for the specific language governing permissions and
-              # limitations under the License.
-              #
-              cmake_minimum_required(VERSION 3.0)
-
-              project(v8)
-
-              add_library(${PROJECT_NAME} INTERFACE)
-              target_include_directories(${PROJECT_NAME}
-                  INTERFACE "include"
-                  INTERFACE "include/v8")
-
-              target_compile_definitions(${PROJECT_NAME}
-                  INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
-                  INTERFACE "-DV8_DEPRECATION_WARNINGS"
-                  ${{ endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
-
-              add_library(${PROJECT_NAME}_library STATIC IMPORTED)
-              set_property(TARGET ${PROJECT_NAME}_library PROPERTY
-                  IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a")
-              target_link_libraries(${PROJECT_NAME}
-                  INTERFACE ${PROJECT_NAME}_library)
-
         write-mode: overwrite
+        contents: ${{ format(env.cmakelists_template, endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || '', '${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a') }}
     - name: Release package
       id: release_package
       working-directory: ./v8
@@ -447,39 +363,11 @@ jobs:
         pip install -U cos-python-sdk-v5
     - name: Publish package
       shell: python
-      run: |
-        from qcloud_cos import CosConfig
-        from qcloud_cos import CosS3Client
-        import hashlib
-        import os
-        try:
-            from urllib.parse import urlencode
-        except ImportError:
-            from urllib import urlencode
-
-        artifact = "./v8/out/macos-${{ matrix.arch }}.tgz"
-
-        metadata = {}
-        metadata["ci-name"] = "Github Action"
-        metadata["ci-id"] = "${{ github.run_id }}"
-        metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        metadata["v8-builder"] = "${{ github.event.sender.login }}"
-        with open(artifact, "rb") as artifact_file:
-          metadata["v8-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
-        metadata["v8-revision"] = "${{ github.event.inputs.v8_revision }}"
-        metadata["v8-head"] = "${{ steps.release_package.outputs.head_full }}"
-
-        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
-        client = CosS3Client(config)
-        response = client.upload_file(
-            Bucket="${{ secrets.COS_BUCKET }}",
-            Key="hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/macos-${{ matrix.arch }}.tgz",
-            LocalFilePath=artifact,
-            EnableMD5=True,
-            ContentMD5=metadata["v8-md5"],
-            Metadata={"x-cos-tagging": urlencode(metadata)}
-        )
-        print("ETag: " + response["ETag"])
+      env:
+        local_file: ./v8/out/macos-${{ matrix.arch }}.tgz
+        cos_key: hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/macos-${{ matrix.arch }}.tgz
+        v8_head: ${{ steps.release_package.outputs.head_full }}
+      run: ${{ env.publish_package_script }}
 
   linux_prebuilt:
     if: github.event.inputs.is_build_for_linux == 'true'
@@ -522,47 +410,8 @@ jobs:
       uses: DamianReeves/write-file-action@v1.0
       with:
         path: ./v8/out/artifact/CMakeLists.txt
-        contents: |
-              #
-              # Tencent is pleased to support the open source community by making
-              # Hippy available.
-              #
-              # Copyright (C) 2022 THL A29 Limited, a Tencent company.
-              # All rights reserved.
-              #
-              # Licensed under the Apache License, Version 2.0 (the "License");
-              # you may not use this file except in compliance with the License.
-              # You may obtain a copy of the License at
-              #
-              #     http://www.apache.org/licenses/LICENSE-2.0
-              #
-              # Unless required by applicable law or agreed to in writing, software
-              # distributed under the License is distributed on an "AS IS" BASIS,
-              # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-              # See the License for the specific language governing permissions and
-              # limitations under the License.
-              #
-              cmake_minimum_required(VERSION 3.0)
-
-              project(v8)
-
-              add_library(${PROJECT_NAME} INTERFACE)
-              target_include_directories(${PROJECT_NAME}
-                  INTERFACE "include"
-                  INTERFACE "include/v8")
-
-              target_compile_definitions(${PROJECT_NAME}
-                  INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
-                  INTERFACE "-DV8_DEPRECATION_WARNINGS"
-                  ${{ endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || ''}})
-
-              add_library(${PROJECT_NAME}_library STATIC IMPORTED)
-              set_property(TARGET ${PROJECT_NAME}_library PROPERTY
-                  IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a")
-              target_link_libraries(${PROJECT_NAME}
-                  INTERFACE ${PROJECT_NAME}_library)
-
         write-mode: overwrite
+        contents: ${{ format(env.cmakelists_template, endsWith(matrix.arch, '64') && 'INTERFACE "-DV8_COMPRESS_POINTERS"' || '', '${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a') }}
     - name: Release package
       id: release_package
       working-directory: ./v8
@@ -573,42 +422,14 @@ jobs:
     - name: Install Requirement
       shell: bash
       run: |
-        pip install -U cos-python-sdk-v5
+        pip3 install -U cos-python-sdk-v5
     - name: Publish package
-      shell: python
-      run: |
-        from qcloud_cos import CosConfig
-        from qcloud_cos import CosS3Client
-        import hashlib
-        import os
-        try:
-            from urllib.parse import urlencode
-        except ImportError:
-            from urllib import urlencode
-
-        artifact = "./v8/out/linux-${{ matrix.arch }}.tgz"
-
-        metadata = {}
-        metadata["ci-name"] = "Github Action"
-        metadata["ci-id"] = "${{ github.run_id }}"
-        metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        metadata["v8-builder"] = "${{ github.event.sender.login }}"
-        with open(artifact, "rb") as artifact_file:
-          metadata["v8-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
-        metadata["v8-revision"] = "${{ github.event.inputs.v8_revision }}"
-        metadata["v8-head"] = "${{ steps.release_package.outputs.head_full }}"
-
-        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
-        client = CosS3Client(config)
-        response = client.upload_file(
-            Bucket="${{ secrets.COS_BUCKET }}",
-            Key="hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/linux-${{ matrix.arch }}.tgz",
-            LocalFilePath=artifact,
-            EnableMD5=True,
-            ContentMD5=metadata["v8-md5"],
-            Metadata={"x-cos-tagging": urlencode(metadata)}
-        )
-        print("ETag: " + response["ETag"])
+      shell: python3 {0}
+      env:
+        local_file: ./v8/out/linux-${{ matrix.arch }}.tgz
+        cos_key: hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/linux-${{ matrix.arch }}.tgz
+        v8_head: ${{ steps.release_package.outputs.head_full }}
+      run: ${{ env.publish_package_script }}
 
   ios_prebuilt:
     if: github.event.inputs.is_build_for_ios == 'true'
@@ -661,46 +482,8 @@ jobs:
       uses: DamianReeves/write-file-action@v1.0
       with:
         path: ./v8/out/artifact/CMakeLists.txt
-        contents: |
-              #
-              # Tencent is pleased to support the open source community by making
-              # Hippy available.
-              #
-              # Copyright (C) 2022 THL A29 Limited, a Tencent company.
-              # All rights reserved.
-              #
-              # Licensed under the Apache License, Version 2.0 (the "License");
-              # you may not use this file except in compliance with the License.
-              # You may obtain a copy of the License at
-              #
-              #     http://www.apache.org/licenses/LICENSE-2.0
-              #
-              # Unless required by applicable law or agreed to in writing, software
-              # distributed under the License is distributed on an "AS IS" BASIS,
-              # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-              # See the License for the specific language governing permissions and
-              # limitations under the License.
-              #
-              cmake_minimum_required(VERSION 3.0)
-
-              project(v8)
-
-              add_library(${PROJECT_NAME} INTERFACE)
-              target_include_directories(${PROJECT_NAME}
-                  INTERFACE "include"
-                  INTERFACE "include/v8")
-
-              target_compile_definitions(${PROJECT_NAME}
-                  INTERFACE "-DV8_IMMINENT_DEPRECATION_WARNINGS"
-                  INTERFACE "-DV8_DEPRECATION_WARNINGS")
-
-              add_library(${PROJECT_NAME}_library STATIC IMPORTED)
-              set_property(TARGET ${PROJECT_NAME}_library PROPERTY
-                  IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a")
-              target_link_libraries(${PROJECT_NAME}
-                  INTERFACE ${PROJECT_NAME}_library)
-
         write-mode: overwrite
+        contents: ${{ format(env.cmakelists_template, '', '${CMAKE_CURRENT_SOURCE_DIR}/lib/libv8_monolith.a') }}
     - name: Release package
       id: release_package
       working-directory: ./v8
@@ -714,36 +497,8 @@ jobs:
         pip install -U cos-python-sdk-v5
     - name: Publish package
       shell: python
-      run: |
-        from qcloud_cos import CosConfig
-        from qcloud_cos import CosS3Client
-        import hashlib
-        import os
-        try:
-            from urllib.parse import urlencode
-        except ImportError:
-            from urllib import urlencode
-
-        artifact = "./v8/out/ios-${{ matrix.arch }}.tgz"
-
-        metadata = {}
-        metadata["ci-name"] = "Github Action"
-        metadata["ci-id"] = "${{ github.run_id }}"
-        metadata["ci-url"] = "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        metadata["v8-builder"] = "${{ github.event.sender.login }}"
-        with open(artifact, "rb") as artifact_file:
-          metadata["v8-md5"] = hashlib.md5(artifact_file.read()).hexdigest()
-        metadata["v8-revision"] = "${{ github.event.inputs.v8_revision }}"
-        metadata["v8-head"] = "${{ steps.release_package.outputs.head_full }}"
-
-        config = CosConfig(Region="${{ secrets.COS_REGION }}", SecretId="${{ secrets.TC_SECRET_ID }}", SecretKey="${{ secrets.TC_SECRET_KEY }}")
-        client = CosS3Client(config)
-        response = client.upload_file(
-            Bucket="${{ secrets.COS_BUCKET }}",
-            Key="hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/ios-${{ matrix.arch }}.tgz",
-            LocalFilePath=artifact,
-            EnableMD5=True,
-            ContentMD5=metadata["v8-md5"],
-            Metadata={"x-cos-tagging": urlencode(metadata)}
-        )
-        print("ETag: " + response["ETag"])
+      env:
+        local_file: ./v8/out/ios-${{ matrix.arch }}.tgz
+        cos_key: hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/ios-${{ matrix.arch }}.tgz
+        v8_head: ${{ steps.release_package.outputs.head_full }}
+      run: ${{ env.publish_package_script }}
