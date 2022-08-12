@@ -275,39 +275,40 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                     String info =
                                             "initJSBridge error: result=" + result + ", reason="
                                                     + reason;
-                                    reportException(new Throwable(info));
+                                    RuntimeException exception = new RuntimeException(info);
+                                    if (callback != null) {
+                                        callback.callback(false, exception);
+                                    }
+                                    return;
                                 }
-
                                 if (enableTurbo()) {
                                     mTurboModuleManager = new TurboModuleManager(mContext);
                                     mTurboModuleManager.install(mHippyBridge.getV8RuntimeId());
                                 }
-
                                 if (mThirdPartyAdapter != null) {
                                     mThirdPartyAdapter.onRuntimeInit(mHippyBridge.getV8RuntimeId());
                                 }
                                 mContext.getStartTimeMonitor()
                                         .startEvent(
                                                 HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
-
+                                mIsInit = true;
                                 if (mCoreBundleLoader != null) {
                                     mCoreBundleLoader
                                             .load(mHippyBridge, new NativeCallback(mHandler) {
                                                 @Override
                                                 public void Call(long result, Message message,
                                                         String action, String reason) {
-                                                    mIsInit = result == 0;
                                                     RuntimeException exception = null;
-                                                    if (!mIsInit) {
+                                                    boolean ret = (result == 0);
+                                                    if (!ret) {
                                                         exception = new RuntimeException(
                                                                 "load coreJsBundle failed, check your core jsBundle:"
                                                                         + reason);
                                                     }
-                                                    callback.callback(mIsInit, exception);
+                                                    callback.callback(ret, exception);
                                                 }
                                             });
                                 } else {
-                                    mIsInit = true;
                                     callback.callback(mIsInit, null);
                                 }
                             }

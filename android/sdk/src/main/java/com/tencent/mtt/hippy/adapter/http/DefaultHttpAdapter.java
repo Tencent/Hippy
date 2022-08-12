@@ -229,10 +229,12 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
     protected void handleRequestCookie(HippyHttpRequest httpRequest) {
         String url = httpRequest.getUrl();
         HippyArray requestCookies = httpRequest.getRequestCookies();
-        if (url == null || requestCookies == null) {
+        if (url == null) {
             return;
         }
-        saveCookie2Manager(url, requestCookies);
+        if (requestCookies != null) {
+            saveCookie2Manager(url, requestCookies);
+        }
         CookieManager cookieManager = getCookieManager();
         if (cookieManager != null) {
             String cookie = cookieManager.getCookie(url);
