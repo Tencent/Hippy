@@ -21,13 +21,15 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyBridgeModule.h"
+#import "HippyContextWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN NSDictionary *HippyExportedDimensions(void);
+@class JSContext;
 
-@interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
+@interface HippyJSCContextWrapper : NSObject<HippyContextWrapper>
+
+@property(nonatomic, readonly)JSContext *context;
 
 @end
 
