@@ -23,7 +23,6 @@
 import ResizeObserver from 'resize-observer-polyfill';
 import * as Hammer from 'hammerjs';
 import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps, HippyTransferData } from '../types';
-import { warn } from '../common';
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
@@ -58,9 +57,6 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     if (key in this && this[key] !== value) {
       this[key] = value;
       return;
-    }
-    if (!(key in this)) {
-      warn(`${this.tagName} is unsupported ${key}`);
     }
   }
   public initHammer() {

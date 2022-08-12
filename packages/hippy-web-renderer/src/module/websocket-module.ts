@@ -149,7 +149,7 @@ class WebsocketObject {
   }
 
   public handleSocketMessage(event: any) {
-    this.dispatchEvent!(this.id, EventType.ON_MESSAGE, { data: event.data });
+    this.dispatchEvent!(this.id, EventType.ON_MESSAGE, { data: event });
   }
 
   public handleSocketError(event: any) {
