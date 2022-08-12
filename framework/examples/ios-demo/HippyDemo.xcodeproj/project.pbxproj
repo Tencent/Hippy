@@ -216,6 +216,7 @@
 		F4A8424327D38CF900AEFC88 /* NativeRenderImpl.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4A8424127D38CF900AEFC88 /* NativeRenderImpl.mm */; };
 		F4B938F82840B58C00187AFA /* NativeRenderWaterfallViewCell.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4B938F72840B58C00187AFA /* NativeRenderWaterfallViewCell.mm */; };
 		F4B938FB2840C93C00187AFA /* NativeRenderObjectWatefallItem.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4B938FA2840C93C00187AFA /* NativeRenderObjectWatefallItem.mm */; };
+		F4B94C0B28A6847200235339 /* HippyRootViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4B94C0A28A6847200235339 /* HippyRootViewManager.mm */; };
 		F4BD045827D5AE2500339A2C /* UIView+Render.mm in Sources */ = {isa = PBXBuildFile; fileRef = F459C45927D4F355009A7441 /* UIView+Render.mm */; };
 		F4C1CE23281131EC00CED4C4 /* NSData+DataType.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1CE22281131EC00CED4C4 /* NSData+DataType.m */; };
 		F4C1CE262811439A00CED4C4 /* UIView+Sequence.m in Sources */ = {isa = PBXBuildFile; fileRef = F4C1CE252811439A00CED4C4 /* UIView+Sequence.m */; };
@@ -247,7 +248,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 185776207AB448DF87CC6D5F;
+			remoteGlobalIDString = 9C5C914EADC94BB6B5569321;
 			remoteInfo = devtools_backend;
 		};
 /* End PBXContainerItemProxy section */
@@ -329,8 +330,6 @@
 		F438B758281283550078435B /* NativeRenderErrorHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderErrorHandler.h; sourceTree = "<group>"; };
 		F438B759281283550078435B /* NativeRenderErrorHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NativeRenderErrorHandler.m; sourceTree = "<group>"; };
 		F43A2D08275882650056F36C /* diff_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = diff_utils.cc; sourceTree = "<group>"; };
-		F441DFAF2872903700FD5205 /* HippyRootViewManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyRootViewManager.h; sourceTree = "<group>"; };
-		F441DFB02872903700FD5205 /* HippyRootViewManager.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyRootViewManager.mm; sourceTree = "<group>"; };
 		F459C45827D4F355009A7441 /* UIView+Render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+Render.h"; sourceTree = "<group>"; };
 		F459C45927D4F355009A7441 /* UIView+Render.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "UIView+Render.mm"; sourceTree = "<group>"; };
 		F45D25AC28067B6900CAB185 /* NativeRenderScrollableProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderScrollableProtocol.h; sourceTree = "<group>"; };
@@ -721,6 +720,8 @@
 		F4B938F72840B58C00187AFA /* NativeRenderWaterfallViewCell.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderWaterfallViewCell.mm; sourceTree = "<group>"; };
 		F4B938F92840C93C00187AFA /* NativeRenderObjectWatefallItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderObjectWatefallItem.h; sourceTree = "<group>"; };
 		F4B938FA2840C93C00187AFA /* NativeRenderObjectWatefallItem.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderObjectWatefallItem.mm; sourceTree = "<group>"; };
+		F4B94C0928A6847200235339 /* HippyRootViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyRootViewManager.h; sourceTree = "<group>"; };
+		F4B94C0A28A6847200235339 /* HippyRootViewManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyRootViewManager.mm; sourceTree = "<group>"; };
 		F4BD045927D5E39F00339A2C /* NativeRenderFrameworkProxy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderFrameworkProxy.h; sourceTree = "<group>"; };
 		F4C1CE21281131EB00CED4C4 /* NSData+DataType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+DataType.h"; sourceTree = "<group>"; };
 		F4C1CE22281131EC00CED4C4 /* NSData+DataType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+DataType.m"; sourceTree = "<group>"; };
@@ -958,15 +959,6 @@
 				F42EA799277C354C007874A2 /* TurboBaseModule.mm */,
 			);
 			path = turbomodule;
-			sourceTree = "<group>";
-		};
-		F441DFAE28728FFC00FD5205 /* rootview */ = {
-			isa = PBXGroup;
-			children = (
-				F441DFAF2872903700FD5205 /* HippyRootViewManager.h */,
-				F441DFB02872903700FD5205 /* HippyRootViewManager.mm */,
-			);
-			path = rootview;
 			sourceTree = "<group>";
 		};
 		F45D25AA28067B6900CAB185 /* component */ = {
@@ -1271,7 +1263,7 @@
 		F468DDB82812A95100319196 /* module */ = {
 			isa = PBXGroup;
 			children = (
-				F441DFAE28728FFC00FD5205 /* rootview */,
+				F4B94C0828A6847200235339 /* rootview */,
 				F468DDB92812A95100319196 /* turbo */,
 				F468DDC22812A95100319196 /* network */,
 				F468DDCA2812A95100319196 /* netinfo */,
@@ -1880,6 +1872,15 @@
 			path = ../../../renderer/native/ios/renderer;
 			sourceTree = "<group>";
 		};
+		F4B94C0828A6847200235339 /* rootview */ = {
+			isa = PBXGroup;
+			children = (
+				F4B94C0928A6847200235339 /* HippyRootViewManager.h */,
+				F4B94C0A28A6847200235339 /* HippyRootViewManager.mm */,
+			);
+			path = rootview;
+			sourceTree = "<group>";
+		};
 		F4CEDF9227D8587900583C9E /* utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -2185,6 +2186,7 @@
 				F4A8424327D38CF900AEFC88 /* NativeRenderImpl.mm in Sources */,
 				F45D266B28067B6900CAB185 /* NativeRenderWaterfallItemView.mm in Sources */,
 				F45D266028067B6900CAB185 /* NativeRenderTextViewManager.mm in Sources */,
+				F4B94C0B28A6847200235339 /* HippyRootViewManager.mm in Sources */,
 				F45D269328067B6900CAB185 /* NativeRenderText.mm in Sources */,
 				F438B755281250CD0078435B /* NativeRenderUtils.m in Sources */,
 				F48D3809289BA662007BD6FE /* trace_control.cc in Sources */,
