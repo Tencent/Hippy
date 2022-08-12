@@ -57,10 +57,11 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     }
     if (key in this && this[key] !== value) {
       this[key] = value;
+      return;
     }
-    if (!(key in this)) {
-      warn(`${this.tagName} is unsupported ${key}`);
-    }
+    // if (!(key in this)) {
+    //   warn(`${this.tagName} is unsupported ${key}`);
+    // }
   }
   public initHammer() {
     if (!this.hammer) {

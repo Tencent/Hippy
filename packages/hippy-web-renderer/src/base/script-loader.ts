@@ -24,7 +24,6 @@ export function scriptLoader(scripts: string[]) {
 
     function urlCallback() {
       return function () {
-        // console.log(url + ' was loaded (' + --count + ' more scripts remaining).');
         count = count - 1;
         if (count < 1) {
           resolve();

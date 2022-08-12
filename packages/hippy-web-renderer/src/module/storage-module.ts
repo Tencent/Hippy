@@ -20,11 +20,12 @@
 
 import { HippyWebModule } from '../base';
 import { HippyCallBack } from '../types';
+import {warn} from "../common";
 
 export class StorageModule extends HippyWebModule {
   public static preCheck() {
     if (!window.__localStorage) {
-      console.warn('not support localStorage');
+      warn('not support localStorage');
       return false;
     }
     return true;

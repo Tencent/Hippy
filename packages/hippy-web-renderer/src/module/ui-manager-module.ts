@@ -49,7 +49,7 @@ export class UIManagerModule extends HippyWebModule {
       const { id, pId, index, props, name: tagName } = nodeItemData;
       const component = mapComponent(this.context, tagName, id, pId);
       if (!component) {
-        warn(`create component failed, can't find ${tagName}' constructor`);
+        warn(`create component failed, not support the component ${tagName}`);
         continue;
       }
       if (updateComponentIdSet.has(id)) {
@@ -64,7 +64,7 @@ export class UIManagerModule extends HippyWebModule {
       try {
         await this.componentInitProcess(component, props, index);
       } catch (e) {
-        console.error(e);
+        error(e);
       }
     }
     for (const id of updateComponentIdSet) {
@@ -276,7 +276,8 @@ export class UIManagerModule extends HippyWebModule {
     this.updateComponentProps(component, props);
     const parent = this.findViewById(component.pId);
     if (!parent || !parent.dom) {
-      throw Error(`component init process failed ,component's parent not exist or dom not exist, pid: ${component.pId}`);
+      warn(`component init process failed ,component's parent not exist or dom not exist, pid: ${component.pId}`);
+      return;
     }
     let realIndex = index;
     if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {

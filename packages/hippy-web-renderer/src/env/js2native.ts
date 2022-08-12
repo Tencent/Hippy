@@ -34,7 +34,6 @@ const callNative = (...callArguments) => {
   if (callArguments.length < 2) {
     throw new TypeError('Arguments length must be larger than 2');
   }
-  // console.log('[js call native]', callArguments);
 
   const currentCallId = __GLOBAL__.moduleCallId;
   __GLOBAL__.moduleCallId += 1;
