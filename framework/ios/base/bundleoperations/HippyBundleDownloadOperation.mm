@@ -145,6 +145,7 @@
 }
 
 - (BOOL)isFinished {
+    std::lock_guard<std::mutex> lock(_statusMutex);
     return _finished;
 }
 

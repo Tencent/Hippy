@@ -30,6 +30,7 @@
 #import "HippyEventDispatcher.h"
 #import "HippyInstanceLoadBlock.h"
 #import "HippyKeyCommands.h"
+#import "HippyContextWrapper.h"
 #import "HippyBundleDownloadOperation.h"
 #import "HippyBundleExecutionOperation.h"
 #import "HippyBundleOperationQueue.h"
@@ -73,7 +74,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyModulesSetup *_moduleSetup;
     __weak NSOperation *_lastOperation;
     BOOL _wasBatchActive;
-    NSDictionary *_dimDic;
     HippyDisplayLink *_displayLink;
     HippyBridgeModuleProviderBlock _moduleProvider;
     NSString *_engineKey;
@@ -87,6 +87,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 
 @property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
 @property(readwrite, assign) NSUInteger loadingCount;
+@property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
 
 @end
 
@@ -136,7 +137,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         [self setUp];
         NativeRenderExecuteOnMainQueue(^{
             [self bindKeys];
-            self->_dimDic = hippyExportedDimensions();
         });
         NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
@@ -230,9 +230,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         for (dispatch_block_t block in setupBlocks) {
             block();
         }
-        [strongSelf beginLoadingBundles:bundleURLs completion:^{
-            
-        }];
+        [strongSelf beginLoadingBundles:bundleURLs];
         if (dir) {
             [strongSelf.javaScriptExecutor setSandboxDirectory:[dir absoluteString]];
         }
@@ -255,16 +253,26 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _valid = YES;
     self.loadingCount = 0;
     self.currentIndexOfBundleExecuted = NSNotFound;
+    self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
+        __weak HippyBridge *weakSelf = self;
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
         _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
+        _javaScriptExecutor.contextCreatedBlock = ^(id<HippyContextWrapper> ctxWrapper){
+            HippyBridge *strongSelf = weakSelf;
+            if (strongSelf) {
+                dispatch_semaphore_wait(strongSelf.moduleSemaphore, DISPATCH_TIME_FOREVER);
+                NSString *moduleConfig = [strongSelf moduleConfig];
+                [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
+            }
+        };
+        [_javaScriptExecutor setup];
         _displayLink = [[HippyDisplayLink alloc] init];
-        __weak HippyBridge *weakSelf = self;
         dispatch_async(HippyBridgeQueue(), ^{
             [self initWithModulesCompletion:^{
                 HippyBridge *strongSelf = weakSelf;
                 if (strongSelf) {
-                    [strongSelf->_javaScriptExecutor notifyModulesSetupComplete];
+                    dispatch_semaphore_signal(strongSelf.moduleSemaphore);
                 }
             }];
         });
@@ -276,16 +284,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 }
 
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs completion:(dispatch_block_t)completion {
+- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs {
     if (!bundleURLs) {
-        if (completion) {
-            completion();
-        }
         return;
     }
     [_bundleURLs addObjectsFromArray:bundleURLs];
     dispatch_async(HippyBridgeQueue(), ^{
-        [self beginLoadingBundles:bundleURLs completion:completion];
+        [self beginLoadingBundles:bundleURLs];
     });
 }
 
@@ -295,10 +300,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [_moduleSetup setupModulesCompletion:completion];
 }
 
-- (void)beginLoadingBundles:(NSArray<NSURL *> *)bundleURLs completion:(dispatch_block_t)completion {
+- (void)beginLoadingBundles:(NSArray<NSURL *> *)bundleURLs {
     dispatch_group_t group = dispatch_group_create();
     self.loadingCount++;
     for (NSURL *bundleURL in bundleURLs) {
+        if ([self.delegate respondsToSelector:@selector(bridge:willLoadBundle:)]) {
+            [self.delegate bridge:self willLoadBundle:bundleURL];
+        }
         __weak HippyBridge *weakSelf = self;
         __block NSString *script = nil;
         dispatch_group_enter(group);
@@ -325,6 +333,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 if (!strongSelf || !strongSelf.valid) {
                     dispatch_group_leave(group);
                     return;
+                }
+                if ([strongSelf.delegate respondsToSelector:@selector(bridge:endLoadingBundle:)]) {
+                    [strongSelf.delegate bridge:strongSelf endLoadingBundle:bundleURL];
                 }
                 if (error) {
                     HippyFatal(error, weakSelf);
@@ -364,9 +375,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         HippyBridge *strongSelf = weakSelf;
         if (strongSelf) {
             strongSelf.loadingCount--;
-        }
-        if (completion) {
-            completion();
         }
     };
     dispatch_group_notify(group, HippyBridgeQueue(), completionBlock);
@@ -833,6 +841,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _displayLink = nil;
     _javaScriptExecutor = nil;
     _moduleSetup = nil;
+    self.moduleSemaphore = nil;
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
             [displayLink invalidate];
@@ -840,6 +849,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             [moduleSetup invalidate];
         }];
     });
+}
+
+- (void)addPropertiesToUserGlobalObject:(NSDictionary *)props {
+    [_javaScriptExecutor addInfoToGlobalObject:props];
 }
 
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args {
@@ -877,9 +890,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [deviceInfo setValue:iosVersion forKey:@"OSVersion"];
     [deviceInfo setValue:deviceModel forKey:@"Device"];
     [deviceInfo setValue:HippySDKVersion forKey:@"SDKVersion"];
-    if (_dimDic) {
-        [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
-    }
+    [deviceInfo setValue:HippyExportedDimensions() forKey:@"Dimensions"];
     NSString *countryCode = [[NativeRenderI18nUtils sharedInstance] currentCountryCode];
     NSString *lanCode = [[NativeRenderI18nUtils sharedInstance] currentAppLanguageCode];
     NSWritingDirection direction = [[NativeRenderI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];

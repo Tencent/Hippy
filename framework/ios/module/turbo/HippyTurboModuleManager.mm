@@ -25,9 +25,9 @@
 #import "HippyTurboModuleManager.h"
 #import "HippyModuleData.h"
 #import "HippyAssert.h"
-
 #include "objc/runtime.h"
 #include <unordered_map>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 static NSMutableDictionary<NSString *, Class> *HippyTurboModuleMap;
 

@@ -20,15 +20,40 @@
  * limitations under the License.
  */
 
+#ifdef JS_USE_JSC
+
 #import <Foundation/Foundation.h>
-#import "HippyBridgeModule.h"
+#import <JavaScriptCore/JavaScriptCore.h>
+#import "HippyDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN NSDictionary *HippyExportedDimensions(void);
+@interface NSObject (JSValue)
 
-@interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
+- (JSValue *)toJSValueInContext:(JSContext *)context;
 
 @end
 
+@interface NSArray (JSValue)
+
+- (JSValue *)toJSValueInContext:(JSContext *)context;
+
+@end
+
+@interface NSDictionary (JSValue)
+
+- (JSValue *)toJSValueInContext:(JSContext *)context;
+
+@end
+
+@interface NSData (JSValue)
+
+- (JSValue *)toJSValueInContext:(JSContext *)context;
+
+@end
+
+HIPPY_EXTERN id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value, JSValueRef _Nonnull * _Nonnull exception);
+
 NS_ASSUME_NONNULL_END
+
+#endif //JS_USE_JSC
