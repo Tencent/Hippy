@@ -235,11 +235,13 @@ function singleUpdateBorderStyle(el: HTMLElement, style: { [key: string]: any })
     styleUpdateWithCheck(el, 'borderBottomStyle', 'solid');
   }
 }
+const WarnLimit: Array<any> = [];
 export function warn(...context: any[]) {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' || WarnLimit.findIndex(item => item === context[0]) !== -1) {
     return;
   }
   console.warn(...context);
+  WarnLimit.push(context[0]);
 }
 
 export const error = (...context: any[]) => {

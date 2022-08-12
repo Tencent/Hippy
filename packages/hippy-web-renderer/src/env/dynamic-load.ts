@@ -18,8 +18,10 @@
  * limitations under the License.
  */
 
+import { warn } from '../common';
+
 export const dynamicLoad = (/* path, encode, cb */) => {
-  console.warn('dynamicLoad is unsupported');
+  warn('dynamicLoad is unsupported');
   // let requestPath = path || '';
   // const isSchema = ['https://', 'http://', '//'].some(schema => requestPath.indexOf(schema) === 0);
   // if (!isSchema) {

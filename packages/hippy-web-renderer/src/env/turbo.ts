@@ -18,13 +18,14 @@
  * limitations under the License.
  */
 
-import { HippyWebModule } from '../base/base-unit';
+import { HippyWebModule } from '../base';
+import { warn } from '../common';
 
 export const getTurboModule = <T extends HippyWebModule>(moduleName): T | undefined => {
   const { engine } = Hippy.web;
   const mod = engine.modules[moduleName];
   if (mod === null || mod === undefined) {
-    console.warn(`Turbo module: ${moduleName} is not found`);
+    warn(`Turbo module: ${moduleName} is not found`);
   }
   return mod as T;
 };
