@@ -20,31 +20,35 @@
  * limitations under the License.
  */
 
-#import "NSObject+ToJSCtxValue.h"
+#import "NSObject+CtxValue.h"
 #import "HippyAssert.h"
 #import "footstone/unicode_string_view.h"
 #import "footstone/string_view_utils.h"
 
-@implementation NSObject (ToJSCtxValue)
+@implementation NSObject (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
-    HippyAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
-    std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
-    return context->CreateObject(valueMap);
+    @autoreleasepool {
+        HippyAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
+        std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
+        return context->CreateObject(valueMap);
+    }
 }
 
 @end
 
-@implementation NSString (ToJSCtxValue)
+@implementation NSString (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    footstone::unicode_string_view string_view([self UTF8String]);
-    return context->CreateString(string_view);
+    @autoreleasepool {
+        footstone::unicode_string_view string_view([self UTF8String]);
+        return context->CreateString(string_view);
+    }
 }
 
 @end
 
-@implementation NSNumber (ToJSCtxValue)
+@implementation NSNumber (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     return context->CreateNumber([self doubleValue]);
@@ -52,24 +56,26 @@
 
 @end
 
-@implementation NSArray (ToJSCtxValue)
+@implementation NSArray (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    if (0 == [self count]) {
-        return context->CreateArray(0, nullptr);
+    @autoreleasepool {
+        if (0 == [self count]) {
+            return context->CreateArray(0, nullptr);
+        }
+        CtxValuePtr value[[self count]];
+        size_t index = 0;
+        for (id obj in self) {
+            auto item = [obj convertToCtxValue:context];
+            value[index++] = std::move(item);
+        }
+        return context->CreateArray([self count], value);
     }
-    CtxValuePtr value[[self count]];
-    size_t index = 0;
-    for (id obj in self) {
-        auto item = [obj convertToCtxValue:context];
-        value[index++] = std::move(item);
-    }
-    return context->CreateArray([self count], value);
 }
 
 @end
 
-@implementation NSDictionary (ToJSCtxValue)
+@implementation NSDictionary (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
@@ -84,7 +90,7 @@
 
 @end
 
-@implementation NSData (ToJSCtxValue)
+@implementation NSData (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     size_t bufferLength = [self length];
@@ -93,7 +99,7 @@
 
 @end
 
-@implementation NSNull (ToJSCtxValue)
+@implementation NSNull (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     return context->CreateNull();
@@ -101,8 +107,11 @@
 
 @end
 
-id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
+id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value) {
     @autoreleasepool {
+        if (!context || !value) {
+            return [NSNull null];
+        }
         if (context->IsString(value)) {
             footstone::unicode_string_view string_view;
             if (context->GetValueString(value, &string_view)) {
@@ -124,7 +133,7 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
             NSMutableArray *array = [NSMutableArray arrayWithCapacity:length];
             for (uint32_t index = 0; index < length; index++) {
                 auto element = context->CopyArrayElement(value, index);
-                id obj = ObjectFromJSValue(context, element);
+                id obj = ObjectFromCtxValue(context, element);
                 [array addObject:obj];
             }
             return [array copy];
@@ -148,7 +157,7 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
                     NSString *string =
                         [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
                     auto &value = it.second;
-                    id obj = ObjectFromJSValue(context, value);
+                    id obj = ObjectFromCtxValue(context, value);
                     [dictionary setObject:obj forKey:string];
                 }
                 return [dictionary copy];

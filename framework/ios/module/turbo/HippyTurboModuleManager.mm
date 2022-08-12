@@ -27,6 +27,8 @@
 #import "HippyBridge+Private.h"
 #import "HippyAssert.h"
 #import "objc/runtime.h"
+#import <JavaScriptCore/JavaScriptCore.h>
+
 static NSMutableDictionary<NSString *, Class> *HippyTurboModuleMap;
 
 HIPPY_EXTERN void HippyRegisterTurboModule(NSString *, Class);

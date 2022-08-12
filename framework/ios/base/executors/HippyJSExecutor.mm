@@ -53,10 +53,8 @@
 #import "HippyTurboModuleManager.h"
 #import "HippyDevInfo.h"
 #import "HippyBundleURLProvider.h"
-#import "NSObject+ToJSCtxValue.h"
-#ifdef JS_USE_JSC
-#import "driver/napi/jsc/js_native_api_jsc.h"
-#endif //JS_USE_JSC
+#import "NSObject+CtxValue.h"
+#import "HippyJSCContextWrapper.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
@@ -114,6 +112,7 @@ static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
+    id<HippyContextWrapper> _contextWrapper;
 }
 
 @end
@@ -164,44 +163,6 @@ HIPPY_EXPORT_MODULE(JSCExecutor)
     self.pScope->SetUriLoader(loader);
 }
 
-static unicode_string_view NSStringToU8StringView(NSString* str) {
-  std::string u8 = [str UTF8String];
-  return unicode_string_view(reinterpret_cast<const unicode_string_view::char8_t_*>(u8.c_str()), u8.length());
-}
-
-static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_view) {
-    unicode_string_view::Encoding encode = string_view.encoding();
-    NSString *result = nil;
-    switch (encode) {
-        case unicode_string_view::Encoding::Latin1:
-            result = [NSString stringWithUTF8String:string_view.latin1_value().c_str()];
-            break;
-        case unicode_string_view::Encoding::Utf8:
-        {
-            result = [[NSString alloc] initWithBytes:string_view.utf8_value().c_str()
-                                              length:string_view.utf8_value().length()
-                                            encoding:NSUTF8StringEncoding];
-            break;
-        }
-        case unicode_string_view::Encoding::Utf16:
-        {
-            const unicode_string_view::u16string &u16String =string_view.utf16_value();
-            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-        }
-            break;
-        case unicode_string_view::Encoding::Utf32:
-        {
-            unicode_string_view convertedString = StringViewUtils::Convert(string_view, unicode_string_view::Encoding::Utf16);
-            const unicode_string_view::u16string &u16String =convertedString.utf16_value();
-            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-        }
-            break;
-        default:
-            break;
-    }
-    return result;
-}
-
 - (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {
     __weak HippyJSExecutor *weakSelf = self;
     __weak id<HippyBridgeDelegate> weakBridgeDelegate = self.bridge.delegate;
@@ -213,6 +174,7 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
             }
         }
     };
+    
     hippy::base::RegisterFunction ctxCreateCB = [weakSelf, weakBridgeDelegate](void *p) {
         @autoreleasepool {
             HippyJSExecutor *strongSelf = weakSelf;
@@ -223,9 +185,11 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
             hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
             std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
             if (scope) {
-                std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
+                auto context = scope->GetContext();
                 context->RegisterGlobalInJs();
                 context->RegisterClasses(scope);
+                id<HippyContextWrapper> contextWrapper = [[HippyJSCContextWrapper alloc] initWithContext:context];
+                strongSelf->_contextWrapper = contextWrapper;
                 NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[strongSelf.bridge deviceInfo]];
                 if ([strongBridgeDelegate respondsToSelector:@selector(objectsBeforeExecuteCode)]) {
                     NSDictionary *customObjects = [strongBridgeDelegate objectsBeforeExecuteCode];
@@ -249,59 +213,38 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
                     HippyFatal(error);
                 }
                 NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                context->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", NSStringToU8StringView(string));
-                context->SetGlobalJsonVar("__fbBatchedBridgeConfig", NSStringToU8StringView([strongSelf.bridge moduleConfig]));
                 NSString *workFolder = [strongSelf.bridge sandboxDirectory];
-                if (workFolder) {
-                    context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8StringView(workFolder));
-                }
-                else {
-                    context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8StringView(@""));
-                }
-                hippy::napi::Ctx::NativeFunction nativeRequireModuleConfigFunc = [weakSelf](void *data) {
-                    @autoreleasepool {
+                
+                [contextWrapper createGlobalObject:@"__HIPPYNATIVEGLOBAL__" withJsonValue:string];
+                
+                [contextWrapper createGlobalObject:@"__fbBatchedBridgeConfig" withJsonValue:[strongSelf.bridge moduleConfig]];
+                
+                [contextWrapper createGlobalObject:@"__HIPPYCURDIR__" withValue:workFolder];
+                
+                [contextWrapper registerFunction:@"nativeRequireModuleConfig" implementation:^id _Nullable(NSArray * _Nonnull arguments) {
+                    NSString *moduleName = [arguments firstObject];
+                    if (moduleName) {
                         HippyJSExecutor *strongSelf = weakSelf;
-                        if (!strongSelf.valid || !data) {
-                            return strongSelf.pScope->GetContext()->CreateNull();
+                        if (!strongSelf.valid) {
+                            return nil;
                         }
-                        auto tuple_ptr = static_cast<hippy::napi::CBCtxValueTuple *>(data);
-                        NSCAssert(1 == tuple_ptr->count_, @"nativeRequireModuleConfig should only contain 1 element");
-                        auto ctxValue = tuple_ptr->arguments_[0];
-                        const auto &context = strongSelf.pScope->GetContext();
-                        if (context->IsString(ctxValue)) {
-                            unicode_string_view string;
-                            if (context->GetValueString(ctxValue, &string)) {
-                                NSString *moduleName = UnicodeStringViewToNSString(string);
-                                NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
-                                auto ret = [NativeRenderNullIfNil(result) convertToCtxValue:context];
-                                return ret;
-                            }
-                        }
-                        return strongSelf.pScope->GetContext()->CreateNull();
-                    }
-                };
-                context->RegisterNativeBinding("nativeRequireModuleConfig", nativeRequireModuleConfigFunc, nullptr);
 
-                hippy::napi::Ctx::NativeFunction nativeFlushQueueImmediateFunc = [weakSelf](void *data) {
-                    @autoreleasepool {
-                        HippyJSExecutor *strongSelf = weakSelf;
-                        if (!strongSelf.valid || !data) {
-                            return strongSelf.pScope->GetContext()->CreateNull();
-                        }
-                        auto tuple_ptr = static_cast<hippy::napi::CBCtxValueTuple *>(data);
-                        NSCAssert(1 == tuple_ptr->count_, @"nativeRequireModuleConfig should only contain 1 element");
-                        auto ctxValue = tuple_ptr->arguments_[0];
-                        const auto &context = strongSelf.pScope->GetContext();
-                        if (context->IsArray(ctxValue)) {
-                            id object = ObjectFromJSValue(context, ctxValue);
-                            [strongSelf->_bridge handleBuffer:object batchEnded:YES];
-                        }
-                        
-                        return strongSelf.pScope->GetContext()->CreateNull();
+                        NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
+                        return NativeRenderNullIfNil(result);
                     }
-                };
-                context->RegisterNativeBinding("nativeFlushQueueImmediate", nativeFlushQueueImmediateFunc, nullptr);
+                    return nil;
+                }];
 
+                [contextWrapper registerFunction:@"nativeFlushQueueImmediate" implementation:^id _Nullable(NSArray * _Nonnull arguments) {
+                    NSArray<NSArray *> *calls = [arguments firstObject];
+                    HippyJSExecutor *strongSelf = weakSelf;
+                    if (!strongSelf.valid || !calls) {
+                        return nil;
+                    }
+                    [strongSelf->_bridge handleBuffer:calls batchEnded:NO];
+                    return nil;
+                }];
+                                
                 strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
                 hippy::napi::Ctx::NativeFunction getTurboModuleFunc = [weakSelf](void *data) {
                     @autoreleasepool {
@@ -314,7 +257,7 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
                         auto nameValue = tuple_ptr->arguments_[0];
                         const auto &context = strongSelf.pScope->GetContext();
                         if (context->IsString(nameValue)) {
-                            NSString *name = ObjectFromJSValue(context, nameValue);
+                            NSString *name = ObjectFromCtxValue(context, nameValue);
                             auto value = [strongSelf JSTurboObjectWithName:name];
                             return value;
                         }
@@ -322,9 +265,7 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
                     }
                 };
                 context->RegisterNativeBinding("getTurboModule", getTurboModuleFunc, nullptr);
-
             }
-
         }
     };
 
@@ -375,13 +316,7 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
 #endif
     NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
-#ifdef JS_USE_JSC
-    auto scope = self.pScope;
-    if (scope) {
-        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
-        jsc_context->SetName("HippyJSContext(delete)");
-    }
-#endif //JS_USE_JSC
+    [_contextWrapper setContextName:@"HippyJSContext(delete)"];
     self.pScope->WillExit();
     NSString *executorKey = [self executorkey];
     if (!executorKey) {
@@ -399,21 +334,13 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
 
 // clang-format off
 HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
-#ifdef JS_USE_JSC
-    WeakCtxPtr weak_ctx = self.pScope->GetContext();
+    __weak id<HippyContextWrapper> weakWrapper = _contextWrapper;
     [self executeBlockOnJavaScriptQueue:^{
-        SharedCtxPtr context = weak_ctx.lock();
-        if (!context) {
-            return;
-        }
-        auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-        auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
-        jsc_context->SetName([contextName UTF8String]);
-        if (tryCatch->HasCaught()) {
-            NativeRenderLogWarn(@"set context throw exception");
+        id<HippyContextWrapper> strongWrapper = weakWrapper;
+        if (strongWrapper) {
+            [strongWrapper setContextName:@"HippyJSContext(delete)"];
         }
     }];
-#endif //JS_USE_JSC
 }
 // clang-format on
 
@@ -423,23 +350,8 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
-    std::shared_ptr<hippy::Scope> scope = self.pScope;
-    if (!scope) {
-        return;
-    }
-    std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
-    HippyAssert(context != nullptr, @"secondBundleLoadCompleted get null context");
-    if (nullptr == context) {
-        return;
-    }
-    NSString *workFolder = [self.bridge sandboxDirectory];
-    HippyAssert(workFolder, @"work folder path should not be null");
-    if (workFolder) {
-        context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8StringView(workFolder));
-    }
-    else {
-        context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8StringView(@""));
-    }
+    NSString *workFolder = [self.bridge sandboxDirectory]?:@"";
+    [_contextWrapper createGlobalObject:@"__HIPPYCURDIR__" withValue:workFolder];
 }
 
 - (void)updateGlobalObjectBeforeExcuteSecondary{
@@ -456,28 +368,12 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
         if (!strongSelf || !strongSelf.isValid || nullptr == strongSelf.pScope) {
             return;
         }
-        auto tryCatch = hippy::napi::CreateTryCatchScope(true, strongSelf.pScope->GetContext());
         [strongSelf addInfoToGlobalObject:[secondaryGlobal copy]];
-        if (tryCatch->HasCaught()) {
-            unicode_string_view errorMsg = tryCatch->GetExceptionMsg();
-            NativeRenderLogError(@"update global object failed:%@", UnicodeStringViewToNSString(errorMsg));
-        }
     }];
 }
 
 -(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict{
-    unicode_string_view string_view("__HIPPYNATIVEGLOBAL__");
-    const SharedCtxPtr &napi_context = self.pScope->GetContext();
-    SharedCtxValuePtr hippyNativeGlobalObj = napi_context->GetGlobalObjVar(string_view);
-    HippyAssert(hippyNativeGlobalObj, @"__HIPPYNATIVEGLOBAL__ must not be null");
-    if (hippyNativeGlobalObj) {
-        for (NSString *key in addInfoDict) {
-            id value = addInfoDict[key];
-            unicode_string_view key_string = NSStringToU8StringView(key);
-            SharedCtxValuePtr ctx_value = [value convertToCtxValue:napi_context];
-            napi_context->SetProperty(hippyNativeGlobalObj, key_string, ctx_value, hippy::napi::PropertyAttribute::None);
-        }
-    }
+    [_contextWrapper setProperties:addInfoDict toGlobalObject:@"__HIPPYNATIVEGLOBAL__"];
 }
 
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete {
@@ -515,47 +411,11 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
                 return;
             }
             @try {
-                HippyBridge *bridge = [strongSelf bridge];
-                NSString *moduleName = [bridge moduleName];
                 NSError *executeError = nil;
-                id objcValue = nil;
-                SharedCtxPtr context = strongSelf.pScope->GetContext();
-                SharedCtxValuePtr batchedbridge_value = context->GetGlobalObjVar("__fbBatchedBridge");
-                SharedCtxValuePtr resultValue = nullptr;
-                unicode_string_view exception;
-                if (batchedbridge_value) {
-                    unicode_string_view methodName = NSStringToU8StringView(method);
-                    SharedCtxValuePtr method_value = context->GetProperty(batchedbridge_value, methodName);
-                    if (method_value) {
-                        if (context->IsFunction(method_value)) {
-                            SharedCtxValuePtr function_params[arguments.count];
-                            for (NSUInteger i = 0; i < arguments.count; i++) {
-                                id obj = arguments[i];
-                                function_params[i] = [obj convertToCtxValue:context];
-                            }
-                            auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-                            resultValue = context->CallFunction(method_value, arguments.count, function_params);
-                            if (tryCatch->HasCaught()) {
-                                exception = tryCatch->GetExceptionMsg();
-                            }
-                        } else {
-                            executeError
-                                = NativeRenderErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
-                        }
-                    } else {
-                        executeError = NativeRenderErrorWithMessageAndModuleName(
-                            [NSString stringWithFormat:@"property/function %@ not found in __fbBatchedBridge", method], moduleName);
-                    }
-                } else {
-                    executeError = NativeRenderErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
-                }
-                if (!StringViewUtils::IsEmpty(exception) || executeError) {
-                    if (!StringViewUtils::IsEmpty(exception)) {
-                        NSString *string = UnicodeStringViewToNSString(exception);
-                        executeError = NativeRenderErrorWithMessageAndModuleName(string, moduleName);
-                    }
-                } else if (resultValue) {
-                    objcValue = ObjectFromJSValue(context, resultValue);
+                id<HippyContextWrapper> contextWrapper = strongSelf->_contextWrapper;
+                id objcValue = [contextWrapper callFunction:method arguments:arguments];
+                if (contextWrapper.exception) {
+                    executeError = NativeRenderErrorWithMessageAndModuleName(contextWrapper.exception, [strongSelf->_bridge moduleName]);
                 }
                 onComplete(objcValue, executeError);
             } @catch (NSException *exception) {
@@ -573,40 +433,17 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 - (void)executeApplicationScript:(NSData *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCompleteBlock)onComplete {
     HippyAssertParam(script);
     HippyAssertParam(sourceURL);
-    {
-        NSError *error;
-        script = loadPossiblyBundledApplicationScript(script, sourceURL, _performanceLogger, &error);
-        if (script == nil) {
-            if (onComplete) {
-                onComplete(error);
-            }
-            return;
-        }
-    }
-
-    // HippyProfileBeginFlowEvent();
+    __weak HippyJSExecutor *weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
-        // HippyProfileEndFlowEvent();
-        if (!self.isValid) {
+        HippyJSExecutor *strongSelf = weakSelf;
+        if (!strongSelf || !strongSelf.isValid) {
             return;
         }
-        NSError *error = executeApplicationScript(script, sourceURL, self->_performanceLogger, self.pScope->GetContext());
+        NSError *error = executeApplicationScript(script, sourceURL, strongSelf->_performanceLogger, strongSelf->_contextWrapper);
         if (onComplete) {
             onComplete(error);
         }
     }];
-}
-
-static NSData *loadPossiblyBundledApplicationScript(NSData *script, __unused NSURL *sourceURL, __unused HippyPerformanceLogger *performanceLogger, __unused NSError **error) {
-    // JSStringCreateWithUTF8CString expects a null terminated C string.
-    // RAM Bundling already provides a null terminated one.
-    @autoreleasepool {
-        NSMutableData *nullTerminatedScript = [NSMutableData dataWithCapacity:script.length + 1];
-        [nullTerminatedScript appendData:script];
-        [nullTerminatedScript appendBytes:"" length:1];
-        script = nullTerminatedScript;
-        return script;
-    }
 }
 
 static NSLock *jslock() {
@@ -618,28 +455,23 @@ static NSLock *jslock() {
     return lock;
 }
 
-static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, SharedCtxPtr context) {
+static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, HippyPerformanceLogger *performanceLogger, id<HippyContextWrapper> contextWrapper) {
     @autoreleasepool {
         [performanceLogger markStartForTag:HippyPLScriptExecution];
-        const unicode_string_view::char8_t_ *string = static_cast<const unicode_string_view::char8_t_ *>([script bytes]);
-        unicode_string_view string_view(string, [script length]);
-        unicode_string_view fileName = NSStringToU8StringView([sourceURL absoluteString]);
-        unicode_string_view errorMsg;
+        NSString *scriptString = [[NSString alloc] initWithData:script encoding:NSUTF8StringEncoding];
         NSLock *lock = jslock();
+        NSString *errorMsg = nil;
         BOOL lockSuccess = [lock lockBeforeDate:[NSDate dateWithTimeIntervalSinceNow:1]];
         {
-            auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-            SharedCtxValuePtr result = context->RunScript(string_view, fileName);
-            if (tryCatch->HasCaught()) {
-                errorMsg = std::move(tryCatch->GetExceptionMsg());
-            }
+            [contextWrapper runScript:scriptString sourceURL:sourceURL];
+            errorMsg = [contextWrapper exception];
         }
         if (lockSuccess) {
             [lock unlock];
         }
         [performanceLogger markStopForTag:HippyPLScriptExecution];
-        NSError *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
-            NSLocalizedDescriptionKey: UnicodeStringViewToNSString(errorMsg)}]
+        NSError *error = errorMsg ? [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
+            NSLocalizedDescriptionKey: errorMsg}]
         : nil;
         return error;
     }
@@ -684,15 +516,11 @@ static NSError *executeApplicationScript(NSData *script, NSURL *sourceURL, Hippy
         if (!strongSelf || !strongSelf.isValid) {
             return;
         }
-        unicode_string_view json_view = NSStringToU8StringView(script);
-        unicode_string_view name_view = NSStringToU8StringView(objectName);
-        auto context = strongSelf.pScope->GetContext();
-        auto tryCatch = hippy::napi::CreateTryCatchScope(true, context);
-        context->SetGlobalJsonVar(name_view, json_view);
-        if (tryCatch->HasCaught()) {
-            unicode_string_view errorMsg = tryCatch->GetExceptionMsg();
+        id<HippyContextWrapper> contextWrapper = strongSelf->_contextWrapper;
+        [contextWrapper createGlobalObject:objectName withJsonValue:script];
+        if ([contextWrapper exception]) {
             NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
-                NSLocalizedDescriptionKey: UnicodeStringViewToNSString(errorMsg)}];
+                NSLocalizedDescriptionKey: [contextWrapper exception]}];
             onComplete(error);
         }
         else {

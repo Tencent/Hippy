@@ -20,7 +20,6 @@
  * limitations under the License.
  */
 
-#import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyDefines.h"
 #import "HippyBridgeModule.h"
 #import "NativeRenderInvalidating.h"
@@ -56,12 +55,11 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 @property (nonatomic, readonly, getter=isValid) BOOL valid;
 
 @property (nonatomic, copy) NSString *executorkey;
+
 /*
  *hippy-core js engine
  */
 @property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
-
-@property (nonatomic, copy) NSString *contextName;
 
 - (instancetype)initWithExecurotKey:(NSString *)execurotkey bridge:(HippyBridge *)bridge;
 
@@ -70,6 +68,8 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  * Do any expensive setup in this method instead of `-init`.
  */
 - (void)setUp;
+
+- (void)setContextName:(NSString *)contextName;
 
 - (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 

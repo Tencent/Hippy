@@ -484,12 +484,6 @@ void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
   auto native_func_callback =
     [](JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
        size_t cnt, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
-      if (exception && JSValueIsString(ctx, *exception)) {
-        JSStringRef stringRef = (JSStringRef)(*exception);
-        size_t size = JSStringGetMaximumUTF8CStringSize(stringRef) + 1;
-        char buffer[size];
-        JSStringGetUTF8CString(stringRef, buffer, size);
-      }
       CBTuple *tuple_ptr = static_cast<CBTuple *>(JSObjectGetPrivate(function));
       std::shared_ptr<CtxValue> args[cnt];
       for (int index = 0; index < cnt; index++) {
