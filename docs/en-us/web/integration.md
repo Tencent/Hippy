@@ -2,7 +2,7 @@
 
 This tutorial shows how to integrate Hippy into a Web page.
 
-> Different from @hippy/react-web and @hippy/vue-Web, this solution (Web Renderer) will not replace @hippy/react and @hippy/vue. Instead, the bundle running in the native environment will run intact on the Web, which has advantages and disadvantages with Web translation solution. Application can adopt appropriate solution according to specific scenarios
+> Different from @hippy/react-web and @hippy/vue-Web, this solution (Web Renderer) will not replace @hippy/react and @hippy/vue. Instead, the bundle running in the native environment will run intactly on the Web, which has advantages and disadvantages with Web translation solution. Application can adopt appropriate solution according to specific scenarios
 
 ## Preparation
 
@@ -11,7 +11,7 @@ This tutorial shows how to integrate Hippy into a Web page.
 
 ## Experience the demo
 
-For A quick experience, you can base it directly on our [HippyReact Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) and
+For a quick experience, you can base it directly on our [HippyReact Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) and
 [HippyVue Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)
 
 ### npm script
@@ -31,7 +31,7 @@ Run `npm run web:dev` to start WebRenderer debugging. According to the Webpack c
 
 ## Quick access
 
-The execution of WebRenderer shall comply with the following process:
+The execution of WebRenderer should comply with the following process:
 
 1. Import the WebRenderer: This stage will initialize the environment for the Hippy code to run
 2. Load the application bundle: This bundle is consistent with the bundle package running on the native side
@@ -41,7 +41,7 @@ The execution of WebRenderer shall comply with the following process:
 
 #### Use in CDN mode
 
-Add to the template file:
+Add these code to the template file:
 
 ```html
 <!DOCTYPE html>
@@ -107,7 +107,7 @@ const engine = HippyWebEngine.create();
 });
 ```
 
-#### Application source code direct reference
+#### Import from source code
 
 ```javascript
 import { HippyCallBack, HippyWebEngine, HippyWebModule, View } from '@hippy/web-renderer';

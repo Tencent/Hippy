@@ -39,6 +39,6 @@ engine.context.sendEvent(eventName, param);
 
 # Front-end application listening events
 
-[hippy-react listening events](hippy-react/native-event.md?id=EventListener)
+[hippy-react listening events](hippy-react/native-event.md?id=event-listener)
 
-[hippy-vue listening events](hippy-vue/native-event.md?id=EventListener)
+[hippy-vue listening events](hippy-vue/native-event.md?id=event-listener)
