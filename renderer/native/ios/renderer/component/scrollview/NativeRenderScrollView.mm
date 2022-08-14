@@ -671,12 +671,12 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
 - (void)applyLayoutDirectionIfNeeded {
     if ([self isLayoutSubviewsRTL]) {
-        _scrollView.transform = CGAffineTransformMakeRotation(M_PI);
+        _scrollView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
         _showScrollIndicator[0] = _scrollView.showsHorizontalScrollIndicator;
         _showScrollIndicator[1] = _scrollView.showsVerticalScrollIndicator;
         _scrollView.showsVerticalScrollIndicator = NO;
         _scrollView.showsHorizontalScrollIndicator = NO;
-        _contentView.transform = CGAffineTransformMakeRotation(M_PI);
+        _contentView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
     }
     else {
         _scrollView.transform = CGAffineTransformIdentity;
