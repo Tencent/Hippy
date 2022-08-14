@@ -234,6 +234,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         [self removeHippySubview:_contentView];
     }
     _contentView = view;
+    if ([self needsLayoutForRTL]) {
+        _contentView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
+    }
     [_contentView addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew context:nil];
     [view onAttachedToWindow];
     [_scrollView addSubview:view];
@@ -269,7 +272,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         if (object == _contentView) {
             [self hippyBridgeDidFinishTransaction];
             if ([self needsLayoutForRTL]) {
-                _contentView.transform = CGAffineTransformMakeRotation(M_PI);
+                _contentView.transform = CGAffineTransformRotate(CGAffineTransformIdentity, M_PI);
             }
         }
     }
