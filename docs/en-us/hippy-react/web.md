@@ -1,4 +1,5 @@
 <!-- markdownlint-disable no-duplicate-header -->
+
 # Adapt To The Web
 
 Hippy apps react translates and runs hippy applications in browsers through the [@hippy/React apps web library](//www.npmjs.com/package/@hippy/react-web).
