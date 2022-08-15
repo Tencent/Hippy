@@ -9,10 +9,10 @@ on:
       - v3.0
     paths:
       - 'driver/js/packages/**'
-      - 'driver/js/examples/hippy-*-demo/**'
-      - 'driver/js/lib/**/*.js'
-      - 'driver/js/scripts/**/*.js'
       - 'package*.json'
+      - 'driver/js/examples/hippy-*-demo/**'
+      - 'driver/js/lib/**'
+      - 'driver/js/scripts/**'
 defaults:
   run:
     working-directory: driver/js
@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 14.x, 17.x ]
+        node: [ 16.x, 17.x ]
     steps:
       - uses: actions/checkout@v3
       - name: setup-node
@@ -38,5 +38,5 @@ jobs:
       - name: test
         run: npm run coverage
       - name: coverage
-        if: matrix.node == '14.x'
+        if: matrix.node == '16.x'
         uses: codecov/codecov-action@v2

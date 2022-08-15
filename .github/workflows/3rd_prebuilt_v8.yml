@@ -22,7 +22,7 @@ on:
         description: 'HIP V8 root path'
         type: string
         default: 'global_packages'
-        require: true
+        required: true
       writing_mode:
         description: 'The mode of writing'
         type: choice
@@ -35,22 +35,27 @@ on:
         description: 'Build for Android platform'
         type: boolean
         default: true
+        required: false
       is_build_for_ios:
         description: 'Build for iOS platform'
         type: boolean
         default: false
+        required: false
       is_build_for_windows:
         description: 'Build for Windows platform'
         type: boolean
         default: false
+        required: false
       is_build_for_macos:
         description: 'Build for MacOS platform'
         type: boolean
         default: false
+        required: false
       is_build_for_linux:
         description: 'Build for Linux platform'
         type: boolean
         default: false
+        required: false
 
 env:
   publish_package_script: |
