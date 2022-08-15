@@ -24,6 +24,7 @@ on:
         description: 'Release for Android'
         type: boolean
         default: true
+        required: false
 
 jobs:
   context_in_lowercase:
