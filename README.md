@@ -66,7 +66,7 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
 
 5. Start the Xcode and build the iOS app with `open framework/examples/ios-demo/HippyDemo.xcworkspace`.
 
-> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install` to install demo dependencies first.
 >
 > More details for [iOS SDK integration](https://hippyjs.org/#/ios/integration?id=ios-%e9%9b%86%e6%88%90).
 
@@ -93,7 +93,7 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 5. Connect Android phone with USB cable and make sure USB debugging mode is enabled(Run `adb devices` on the computer terminal to check cellphone connection status).
 6. Open the project with Android Studio, run and install the apk.
 
-> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
+> If `Step 2` throw error, you can `cd` to `driver/js/examples` hippy-react-demo or hippy-vue-demo, and run `npm install` to install demo dependencies first.
 >
 > If you encounter the issue of `No toolchains found in the NDK toolchains folder for ABI with prefix: mips64el-linux-android`, here is the [solution](https://github.com/google/filament/issues/15#issuecomment-415423557).
 >
@@ -133,31 +133,37 @@ Detailed changes for each release version are documented in the [project release
 
 ```text
 Hippy
-├── examples                          # Demo code for frontend or native developer.
-│   ├── hippy-react-demo              # hippy-react js demo code.
-│   ├── hippy-vue-demo                # hippy-vue js demo code.
-│   ├── ios-demo                      # iOS native demo code.
-│   └── android-demo                  # Android native demo code.
-├── packages                          # npm packages.
-│   ├── hippy-debug-server            # Debug the Hippy with native.
-│   ├── hippy-react                   # React binding for Hippy.
-│   ├── hippy-react-web               # Web adapter for hippy-react.
-│   ├── hippy-vue                     # Vue binding for Hippy.
-│   ├── hippy-vue-css-loader          # Webpack loader for convert CSS text to JS AST.
-│   ├── hippy-vue-loader              # Forked from vue-loader to do some hippy customization.
-│   ├── hippy-vue-native-components   # Native components extensions for hippy-vue.
-│   ├── hippy-vue-router              # Vue router for hippy-vue.
-│   └── types                         # Global type definition.
-├── ios
-│   └── sdk                           # iOS SDK
-├── android
-│   ├── support_ui                    # Android native components.
-│   └── sdk                           # Android SDK.
-├── core                              # JS modules implemented by C++, binding to JS engine.
-├── docker                            # Native release docker image and build scripts.
-├── layout                            # Hippy layout engine.
-├── static                            # Global static resources stored directory.
-└── scripts                           # Project build script.
+├── devtools                                                      # Devtools for Hippy.
+├── dom                                                           # DOM Layer for Hippy.
+├── driver                                                        # Different UI Driver Layers for Hippy.
+│   └── js                                                     # JS Driver Layer for Hippy.
+│       ├── examples                                                # Related examples for JS Driver.
+│       ├── include
+│       ├── packages                                                # Related JS Packages for JS Driver.
+│       │   ├── hippy-react
+│       │   ├── hippy-react-web
+│       │   ├── hippy-vue
+│       │   ├── hippy-vue-css-loader
+│       │   ├── hippy-vue-loader
+│       │   ├── hippy-vue-native-components
+│       │   └── hippy-vue-router
+│       └── src
+├── framework
+│   ├── android
+│   ├── examples
+│   │   ├── android-demo
+│   │   └── ios-demo
+│   └── ios
+├── layout                                                      # Layout engine for Hippy.
+├── modules
+│   ├── android
+│   └── footstone
+├── renderer                                                    # Different Renderers for Hippy.
+│   ├── flutter
+│   └── native
+│       ├── android
+│       └── ios
+└── static
 ```
 
 ## 🤝 Contribution

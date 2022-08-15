@@ -1,5 +1,5 @@
 android:
-  - 'driver/js/android/**/*'
+  - 'framework/android/**/*'
   - 'renderer/native/android/**/*'
   - 'modules/android/**/*'
   - 'layout/android/**'
@@ -10,13 +10,15 @@ android:
   - 'build.gradle'
   - 'gradle.properties'
   - 'settings.gradle'
+  - '**/*.java'
 ios:
-  - 'driver/js/ios/**/*'
+  - 'framework/ios/**/*'
   - 'renderer/native/ios/**/*'
   - 'modules/ios/**/*'
   - 'layout/ios/**/*'
   - 'renderer/native/ios/**/*'
   - 'hippy.podspec'
+  - '**/*.mm'
 flutter:
   - 'driver/js/flutter/**/*'
   - 'renderer/flutter/**/*'
@@ -28,21 +30,26 @@ js:
   - 'driver/js/lerna.json'
   - 'static/**/*'
   - '**/*.js'
+  - '**/*.vue'
   - '**/*.jsx'
   - '**/*.ts'
   - '**/*.tsx'
+  - '**/*.css'
+  - '**/*.less'
+  - '**/*.scss'
 driver:
   - 'driver/**/*'
+framework:
+  - 'framework/**/*'
 dom:
   - 'dom/**/*'
 renderer:
   - 'renderer/**/*'
-core:
-  - 'driver/js/core/**/*'
 layout:
   - 'layout/**/*'
 demo:
   - 'driver/js/examples/**/*'
+  - 'framework/examples/**/*'
 documentation:
   - 'docs/**/*'
   - '**/*.md'

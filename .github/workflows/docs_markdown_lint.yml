@@ -19,12 +19,12 @@ jobs:
       - name: setup-node
         uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: 16.x
           cache: 'npm'
           cache-dependency-path: package-lock.json
       - name: Install
         run: |
-          npm ci
+          npm install markdown-it@12.3.2 markdownlint-cli@0.31.1
       - name: markdownlint
         run: |
           npm run markdownlint
