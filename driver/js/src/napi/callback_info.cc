@@ -24,7 +24,9 @@
 
 #include "driver/napi/js_native_api.h"
 
-namespace hippy::napi {
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
 
 CallbackInfo::CallbackInfo(std::shared_ptr<Scope> scope) : scope_(std::move(scope)) {
   ret_value_ = std::make_unique<ReturnValue>();
@@ -50,4 +52,6 @@ void ExceptionValue::Set(const std::shared_ptr<Ctx>& context,
   value_ = context->CreateString(str);
 }
 
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

@@ -33,7 +33,9 @@
 #pragma clang diagnostic pop
 
 namespace hippy {
-namespace inspector {
+inline namespace driver {
+inline namespace runtime {
+inline namespace inspector {
 
 class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
  public:
@@ -60,5 +62,7 @@ class V8ChannelImpl : public v8_inspector::V8Inspector::Channel {
 #endif
 };
 
-}  // namespace inspector
-}  // namespace hippy
+} // namespace inspector
+} // namespace runtime
+} // namespace driver
+} // namespace hippy

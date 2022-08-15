@@ -26,7 +26,11 @@
 #include <sys/stat.h>
 #include <iostream>
 
-namespace hippy::base {
+namespace hippy {
+inline namespace driver {
+inline namespace base {
+
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 bool HippyFile::SaveFile(const unicode_string_view& file_path,
                          const std::string& content,
@@ -84,7 +88,7 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
   }
   if (rmdir(path) == -1) {
     FOOTSTONE_DLOG(INFO) << "RmFullPath delete dir_full_path fail, path = "
-                        << dir_full_path;
+                         << dir_full_path;
     closedir(dir_parent);
     return -1;
   }
@@ -125,4 +129,7 @@ uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
   fclose(fp);
   return modify_time;
 }
-}  // namespace hippy
+
+} // namespace base
+} // namespace driver
+} // namespace hippy

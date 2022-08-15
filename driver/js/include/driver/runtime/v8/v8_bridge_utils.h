@@ -31,6 +31,7 @@
 #include "v8/v8.h"
 
 namespace hippy {
+inline namespace driver {
 inline namespace runtime {
 
 enum class CALL_FUNCTION_CB_STATE {
@@ -103,5 +104,6 @@ class V8BridgeUtils {
                             unicode_string_view)> on_throw_exception_to_js_;
 };
 
-}
-}
+} // namespace runtime
+} // namespace driver
+} // namespace hippy

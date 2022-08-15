@@ -37,21 +37,26 @@
 #include "driver/napi/v8/js_native_api_v8.h"
 #endif
 
-REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
-
 using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using u8string = unicode_string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
 using TryCatch = hippy::napi::TryCatch;
 using UriLoader = hippy::base::UriLoader;
-using StringViewUtils = hippy::base::StringViewUtils;
 
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 
-void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
+
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
+REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
+
+void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) { // NOLINT(readability-convert-member-functions-to-static)
 #ifdef JS_V8
   auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(info.GetScope()->GetContext());
 #else
@@ -67,8 +72,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
   }
 
   FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
-  const auto& source_code =
-      hippy::GetNativeSourceCode(StringViewUtils::ToU8StdStr(key));
+  const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToU8StdStr(key));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
   unicode_string_view str_view(source_code.data_, source_code.length_);
 #ifdef JS_V8
@@ -78,7 +82,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
 #endif
   if (try_catch->HasCaught()) {
     FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = "
-                         << try_catch->GetExceptionMsg();
+                          << try_catch->GetExceptionMsg();
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
     info.GetReturnValue()->Set(ret);
@@ -125,7 +129,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
   std::function<void(u8string)> cb = [this, weak_scope, weak_function, encode,
-                                      uri](u8string code) {
+      uri](u8string code) {
     std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
       return;
@@ -147,12 +151,12 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       FOOTSTONE_DLOG(WARNING) << "Load uri = " << uri << ", code empty";
     } else {
       FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << code.length()
-                          << ", encode = " << encode
-                          << ", code = " << unicode_string_view(code);
+                           << ", encode = " << encode
+                           << ", code = " << unicode_string_view(code);
     }
     auto callback = [this, weak_scope, weak_function,
-                         move_code = std::move(code), cur_dir, file_name,
-                         uri]() {
+        move_code = std::move(code), cur_dir, file_name,
+        uri]() {
       std::shared_ptr<Scope> scope = weak_scope.lock();
       if (!scope) {
         return;
@@ -174,7 +178,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
           FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = "
-                               << try_catch->GetExceptionMsg();
+                                << try_catch->GetExceptionMsg();
         }
       } else {
         unicode_string_view err_msg = uri + " not found";
@@ -203,3 +207,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
 
   info.GetReturnValue()->SetUndefined();
 }
+
+}
+}
+}
+

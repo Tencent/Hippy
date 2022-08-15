@@ -37,7 +37,8 @@
 #include "footstone/string_view_utils.h"
 
 namespace hippy {
-namespace base {
+inline namespace driver {
+inline namespace base {
 
 class HippyFile {
  public:
@@ -57,7 +58,7 @@ class HippyFile {
                        std::basic_string<CharType>& bytes,
                        bool is_auto_fill) {
     unicode_string_view owner(""_u8s);
-    const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
+    const char* path = footstone::stringview::StringViewUtils::ToConstCharPointer(file_path, owner);
     std::ifstream file(path);
     if (!file.fail()) {
       file.ignore(std::numeric_limits<std::streamsize>::max());
@@ -73,22 +74,23 @@ class HippyFile {
       auto read_size =
           file.read(reinterpret_cast<char *>(&bytes[0]), size).gcount();
       if (size != read_size) {
-        FOOTSTONE_DLOG(WARNING)
-            << "ReadFile file_path = " << file_path << ", size = " << size
-            << ", read_size = " << read_size;
+        FOOTSTONE_DLOG(WARNING) << "ReadFile file_path = " << file_path << ", size = " << size
+                                << ", read_size = " << read_size;
       }
       if (is_auto_fill) {
         bytes.back() = '\0';
       }
       file.close();
       FOOTSTONE_DLOG(INFO) << "ReadFile succ, file_path = " << file_path
-                          << ", size = " << size
-                          << ", read_size = " << read_size;
+                           << ", size = " << size
+                           << ", read_size = " << read_size;
       return true;
     }
     FOOTSTONE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
     return false;
   }
 };
-}  // namespace base
-}  // namespace hippy
+
+} // namespace base
+} // namespace driver
+} // namespace hippy

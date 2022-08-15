@@ -27,6 +27,8 @@
 #include "driver/napi/js_native_api_types.h"
 
 namespace hippy {
+inline namespace driver {
+inline namespace module {
 
 std::shared_ptr<hippy::napi::InstanceDefine<CubicBezierAnimation>>
 RegisterAnimation(const std::weak_ptr<Scope>& weak_scope);
@@ -35,4 +37,5 @@ std::shared_ptr<hippy::napi::InstanceDefine<AnimationSet>>
 RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope);
 
 }
-
+}
+}

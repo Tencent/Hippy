@@ -31,7 +31,8 @@
 #include "footstone/logging.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 std::string JsStrToUTF8(JSStringRef str) {
   size_t max_size = JSStringGetMaximumUTF8CStringSize(str);
@@ -59,5 +60,6 @@ void ExceptionDescription(JSContextRef ctx, JSValueRef exception) {
   delete[] buf;
 }
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

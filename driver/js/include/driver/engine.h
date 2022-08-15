@@ -35,6 +35,10 @@
 #include "driver/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 
+
+namespace hippy {
+inline namespace driver {
+
 class Scope;
 
 class Engine {
@@ -87,3 +91,6 @@ class Engine {
   std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client_;
 #endif
 };
+
+}
+}

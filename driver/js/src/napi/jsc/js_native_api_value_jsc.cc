@@ -31,10 +31,11 @@
 #include "footstone/string_view_utils.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) {
   if (!value) {
@@ -138,7 +139,7 @@ uint32_t JSCCtx::GetArrayLength(const std::shared_ptr<CtxValue>& value) {
   }
   // to do
   JSStringRef prop_name = JSStringCreateWithCharacters(
-      reinterpret_cast<const JSChar*>(kLengthStr), arraysize(kLengthStr) - 1);
+    reinterpret_cast<const JSChar*>(kLengthStr), ARRAY_SIZE(kLengthStr) - 1);
   exception = nullptr;
   JSValueRef val = JSObjectGetProperty(context_, array, prop_name, &exception);
   if (exception) {
@@ -267,7 +268,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateBoolean(bool b) {
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateString(
-    const unicode_string_view& str_view) {
+    const unicode_string_view &str_view) {
   JSStringRef str_ref = CreateJSCString(str_view);
   JSValueRef value = JSValueMakeString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -528,7 +529,7 @@ unicode_string_view JSCCtx::GetExceptionMsg(
   }
 
   std::shared_ptr<CtxValue> msg_obj = CopyNamedProperty(
-      exception, unicode_string_view(kMessageStr, arraysize(kMessageStr) - 1));
+    exception, unicode_string_view(kMessageStr, ARRAY_SIZE(kMessageStr) - 1));
   unicode_string_view msg_view;
   GetValueString(msg_obj, &msg_view);
   std::u16string u16_msg;
@@ -536,7 +537,7 @@ unicode_string_view JSCCtx::GetExceptionMsg(
     u16_msg = msg_view.utf16_value();
   }
   std::shared_ptr<CtxValue> stack_obj = CopyNamedProperty(
-      exception, unicode_string_view(kStackStr, arraysize(kStackStr) - 1));
+    exception, unicode_string_view(kStackStr, ARRAY_SIZE(kStackStr) - 1));
   unicode_string_view stack_view;
   GetValueString(stack_obj, &stack_view);
   std::u16string u16_stack;
@@ -623,5 +624,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
   return ret;
 }
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy
+

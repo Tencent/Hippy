@@ -29,6 +29,10 @@
 
 class Scope;
 
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
 class ContextifyModule : public ModuleBase {
  public:
   using unicode_string_view = footstone::stringview::unicode_string_view;
@@ -43,3 +47,7 @@ class ContextifyModule : public ModuleBase {
   std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
       cb_func_map_;
 };
+
+}
+}
+}

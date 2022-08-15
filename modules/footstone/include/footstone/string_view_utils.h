@@ -30,8 +30,8 @@
 
 #define EXTEND_LITERAL(ch) ch, ch, u##ch, U##ch
 
-namespace hippy {
-namespace base {
+namespace footstone {
+inline namespace stringview {
 
 constexpr char kCharConversionFailedPrompt[] = "<string conversion failed>";
 constexpr char16_t kU16CharConversionFailedPrompt[] = u"<u16string conversion failed>";
@@ -39,7 +39,7 @@ constexpr char32_t kU32CharConversionFailedPrompt[] = U"<u32string conversion fa
 
 class StringViewUtils {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using unicode_string_view = footstone::unicode_string_view;
   using u8string = unicode_string_view::u8string;
   using char8_t_ = unicode_string_view::char8_t_;
 
@@ -410,7 +410,7 @@ inline namespace stringview {
 
 inline unicode_string_view operator+(const unicode_string_view &lhs,
                                      const unicode_string_view &rhs) {
-  using StringViewUtils = hippy::base::StringViewUtils;
+  using StringViewUtils = footstone::stringview::StringViewUtils;
   unicode_string_view::unicode_string_view::Encoding lhs_encoding =
       lhs.encoding();
   unicode_string_view::Encoding rhs_encoding = rhs.encoding();

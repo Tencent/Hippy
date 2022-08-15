@@ -26,8 +26,12 @@
 #include "driver/scope.h"
 
 namespace hippy {
+inline namespace driver {
+inline namespace module {
 
 std::shared_ptr<hippy::napi::InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     const std::weak_ptr<Scope>& weak_scope, std::shared_ptr<DomEvent>& dom_event);
 
+} // namespace module
+} // namespace driver
 } // namespace hippy

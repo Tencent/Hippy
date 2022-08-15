@@ -23,6 +23,7 @@
 #include "driver/runtime/v8/interrupt_queue.h"
 
 namespace hippy {
+inline namespace driver {
 inline namespace runtime {
 
 std::atomic<uint32_t> InterruptQueue::g_id = 1;
@@ -78,6 +79,4 @@ void InterruptQueue::Run() {
 
 }
 }
-
-
-
+}

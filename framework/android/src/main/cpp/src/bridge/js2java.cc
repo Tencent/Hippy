@@ -36,7 +36,7 @@
 namespace hippy::bridge {
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using byte_string = std::string;
 

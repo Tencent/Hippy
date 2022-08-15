@@ -30,9 +30,11 @@
 #include "driver/napi/jsc/js_native_api_jsc.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 std::string JsStrToUTF8(JSStringRef str);
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

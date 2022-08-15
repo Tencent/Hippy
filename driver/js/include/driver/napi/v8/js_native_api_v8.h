@@ -32,7 +32,6 @@
 #include "dom/scene_builder.h"
 #include "driver/base/common.h"
 #include "driver/base/js_value_wrapper.h"
-#include "driver/base/macros.h"
 #include "driver/modules/animation_module.h"
 #include "driver/modules/event_module.h"
 #include "driver/modules/module_base.h"
@@ -51,7 +50,8 @@
 #pragma clang diagnostic pop
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 constexpr char kHippyKey[] = "Hippy";
 constexpr char kGlobalKey[] = "global";
@@ -410,7 +410,7 @@ v8::Local<v8::FunctionTemplate> V8Ctx::NewConstructor(const std::shared_ptr<Inst
 
   v8::Local<v8::Object> data = v8::Object::New(isolate_);
   auto ret = data->Set(context, 0, v8::External::New(isolate_, instance_define.get()));
-  HIPPY_USE(ret);
+  FOOTSTONE_USE(ret);
   auto function = v8::FunctionTemplate::New(
       isolate_,
       [](const v8::FunctionCallbackInfo<v8::Value>& info) {
@@ -476,10 +476,11 @@ void V8Ctx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_d
       auto hippy_obj = v8::Object::Cast(*handle_value);
       auto ret = hippy_obj->Set(context,  CreateV8String(instance_define->name),
                                 func.ToLocalChecked());
-      HIPPY_USE(ret);
+      FOOTSTONE_USE(ret);
     }
   }
 }
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

@@ -31,6 +31,9 @@
 using TaskRunner = footstone::TaskRunner;
 using Task = footstone::Task;
 
+namespace hippy {
+inline namespace driver {
+
 Engine::Engine(std::shared_ptr<TaskRunner> js,
                std::shared_ptr<TaskRunner> worker,
                std::unique_ptr<RegisterMap> map,
@@ -93,4 +96,7 @@ void Engine::Exit() {
   FOOTSTONE_DLOG(INFO) << "Engine Exit, scope_cnt_ = " << scope_cnt_;
   std::lock_guard<std::mutex> lock(cnt_mutex_);
   --scope_cnt_;
+}
+
+}
 }

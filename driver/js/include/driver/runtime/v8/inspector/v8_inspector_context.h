@@ -23,10 +23,13 @@
 
 #include "driver/runtime/v8/inspector/v8_channel_impl.h"
 
+namespace hippy {
+inline namespace driver {
+
 class Scope;
 
-namespace hippy {
-namespace inspector {
+inline namespace runtime {
+inline namespace inspector {
 
 class V8InspectorContext {
  public:
@@ -57,5 +60,8 @@ class V8InspectorContext {
   std::unique_ptr<v8_inspector::V8InspectorSession> session_;
   std::shared_ptr<Scope> scope_;
 };
-}  // namespace inspector
-}  // namespace hippy
+
+} // namespace inspector
+} // namespace runtime
+} // namespace driver
+} // namespace hippy

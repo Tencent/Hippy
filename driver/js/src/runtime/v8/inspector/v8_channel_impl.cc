@@ -24,7 +24,10 @@
 
 #include <string>
 
-namespace hippy::inspector {
+namespace hippy {
+inline namespace driver {
+inline namespace runtime {
+inline namespace inspector {
 
 void V8ChannelImpl::sendResponse(
     int callId,
@@ -45,4 +48,7 @@ void V8ChannelImpl::sendNotification(
 #endif
 }
 
-}  // namespace hippy
+} // namespace inspector
+} // namespace runtime
+} // namespace driver
+} // namespace hippy

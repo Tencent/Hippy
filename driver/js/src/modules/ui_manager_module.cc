@@ -32,8 +32,6 @@
 #include "dom/node_props.h"
 #include "footstone/task.h"
 
-REGISTER_MODULE(UIManagerModule, CallUIFunction)
-
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
 using unicode_string_view = footstone::stringview::unicode_string_view;
@@ -43,9 +41,11 @@ using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
 
-UIManagerModule::UIManagerModule() = default;
+namespace hippy {
+inline namespace driver {
+inline namespace module {
 
-UIManagerModule::~UIManagerModule() = default;
+REGISTER_MODULE(UIManagerModule, CallUIFunction)
 
 void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
   std::shared_ptr<Scope> scope = info.GetScope();
@@ -111,5 +111,9 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
   if (dom_manager) {
     dom_manager->CallFunction(scope->GetRootNode(), static_cast<uint32_t>(id), name, param_value, cb);
   }
+}
 
 }
+}
+}
+

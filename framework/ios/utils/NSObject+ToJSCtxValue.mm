@@ -106,7 +106,7 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
         if (context->IsString(value)) {
             footstone::unicode_string_view string_view;
             if (context->GetValueString(value, &string_view)) {
-                string_view = hippy::base::StringViewUtils::Convert(string_view, footstone::unicode_string_view::Encoding::Utf16);
+                string_view = footstone::StringViewUtils::Convert(string_view, footstone::unicode_string_view::Encoding::Utf16);
                 footstone::unicode_string_view::u16string &u16String = string_view.utf16_value();
                 NSString *string =
                     [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];

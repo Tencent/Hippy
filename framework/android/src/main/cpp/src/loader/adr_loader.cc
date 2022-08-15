@@ -33,7 +33,9 @@
 #include "jni/uri.h"
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
+using Runtime = hippy::Runtime;
+using Scope = hippy::Scope;
 using HippyFile = hippy::base::HippyFile;
 using u8string = unicode_string_view::u8string;
 using char8_t_ = unicode_string_view::char8_t_;

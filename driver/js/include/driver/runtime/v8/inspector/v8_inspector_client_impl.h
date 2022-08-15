@@ -31,7 +31,9 @@
 #include "driver/runtime/v8/interrupt_queue.h"
 
 namespace hippy {
-namespace inspector {
+inline namespace driver {
+inline namespace runtime {
+inline namespace inspector {
 
 class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
  public std::enable_shared_from_this<V8InspectorClientImpl> {
@@ -73,5 +75,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   std::mutex inspector_context_mutex_;
 };
 
-}  // namespace inspector
-}  // namespace hippy
+} // namespace inspector
+} // namespace runtime
+} // namespace driver
+} // namespace hippy

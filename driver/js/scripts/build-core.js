@@ -79,7 +79,7 @@ const CodePieces = {
 #include <unordered_map>
 
 #include "driver/napi/native_source_code.h"
-#include "driver/base/macros.h"
+#include "footstone/macros.h"
 
 // clang-format off
 
@@ -90,16 +90,21 @@ namespace {`;
 }  // namespace
 
 namespace hippy {
-  static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
-    {"bootstrap.js", {k_bootstrap, arraysize(k_bootstrap) - 1}},  // NOLINT
-    {"hippy.js", {k_hippy, arraysize(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
-  };
-  const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
-    const auto it = global_base_js_source_map.find(filename);
-    return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
-  }
-}  // namespace hippy
+inline namespace driver {
+
+static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
+  {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
+  {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
+  piece2: `
+};
+
+const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+} // namespace driver
+} // namespace hippy
 `,
   },
   ios: {
@@ -107,16 +112,20 @@ namespace hippy {
 }  // namespace
 
 namespace hippy {
-  const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
-    const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
-      {"bootstrap.js", {k_bootstrap, arraysize(k_bootstrap) - 1}},  // NOLINT
-      {"hippy.js", {k_hippy, arraysize(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
-    };
-    const auto it = global_base_js_source_map.find(filename);
-    return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
-  }
-}  // namespace hippy
+inline namespace driver {
+
+const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+  const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
+    {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
+    {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
+  piece2: `
+  };
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+} // namespace driver
+} // namespace hippy
 `,
   },
   flutter: {
@@ -124,16 +133,21 @@ namespace hippy {
 }  // namespace
 
 namespace hippy {
-  static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
-    {"bootstrap.js", {k_bootstrap, arraysize(k_bootstrap) - 1}},  // NOLINT
-    {"hippy.js", {k_hippy, arraysize(k_hippy) - 1}},  // NOLINT`,
-    piece2: `
-  };
-  const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
-    const auto it = global_base_js_source_map.find(filename);
-    return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
-  }
-}  // namespace hippy
+inline namespace driver {
+
+static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
+  {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
+  {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
+  piece2: `
+};
+
+const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
+  const auto it = global_base_js_source_map.find(filename);
+  return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
+}
+
+} // namespace driver
+} // namespace hippy
 `,
   },
 };
@@ -241,7 +255,7 @@ function generateCpp(platform, buildDirPath) {
     for (let i = 2; i < filesArr.length; i += 1) {
       const fileName = path.basename(filesArr[i], '.js');
       code += `
-      {"${fileName}.js", {k_${fileName}, arraysize(k_${fileName}) - 1}},  // NOLINT`;
+      {"${fileName}.js", {k_${fileName}, ARRAY_SIZE(k_${fileName}) - 1}},  // NOLINT`;
     }
 
     code += CodePieces[platform].piece2;

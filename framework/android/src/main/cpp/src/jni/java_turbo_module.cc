@@ -29,7 +29,7 @@
 
 using namespace hippy::napi;
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 static jclass argument_utils_clazz;
 static jmethodID get_methods_signature;

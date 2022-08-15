@@ -26,7 +26,9 @@
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
 
-namespace hippy::napi {
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
 
 V8TurboEnv::V8TurboEnv(const std::shared_ptr<Ctx> &context)
     : TurboEnv(context) {
@@ -167,4 +169,7 @@ std::shared_ptr<HostObject> V8TurboEnv::GetHostObject(
   }
   return nullptr;
 }
-}  // namespace hippy
+
+} // namespace napi
+} // namespace driver
+} // namespace hippy

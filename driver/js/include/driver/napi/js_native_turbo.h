@@ -26,7 +26,8 @@
 #include "driver/napi/js_native_api_types.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 class TurboEnv;
 class HostObject;
@@ -85,5 +86,6 @@ class HippyTurboModule : public HostObject {
       TurboEnv &) override;
 };
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

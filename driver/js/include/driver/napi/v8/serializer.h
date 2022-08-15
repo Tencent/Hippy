@@ -29,6 +29,10 @@
 #include "v8/v8.h"
 #pragma clang diagnostic pop
 
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
+
 class Serializer : public v8::ValueSerializer::Delegate {
  public:
   Serializer(v8::Isolate* isolate,
@@ -56,3 +60,7 @@ class Serializer : public v8::ValueSerializer::Delegate {
   v8::ValueSerializer serializer_;
   std::string& reused_buffer_;
 };
+
+}
+}
+}

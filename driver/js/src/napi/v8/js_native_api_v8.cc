@@ -37,11 +37,12 @@
 #include "v8/v8.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using HippyValue = footstone::value::HippyValue;
-using StringViewUtils = hippy::base::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 
 std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
@@ -2210,5 +2211,6 @@ void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_
   }
 }
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

@@ -34,13 +34,13 @@
 #include "footstone/string_view_utils.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 using HippyValue = footstone::value::HippyValue;
-
 
 JSValueRef JsCallbackFunc(JSContextRef ctx,
                           JSObjectRef function,
@@ -579,7 +579,7 @@ std::shared_ptr<JSValueWrapper> JSCCtx::ToJsValueWrapper(
   } else if (JSValueIsArray(context_, value_ref)) {
     JSObjectRef array_ref = JSValueToObject(context_, value_ref, nullptr);
     JSStringRef prop_name = JSStringCreateWithCharacters(
-        reinterpret_cast<const JSChar*>(kLengthStr), arraysize(kLengthStr) - 1);
+      reinterpret_cast<const JSChar*>(kLengthStr), ARRAY_SIZE(kLengthStr) - 1);
     JSValueRef val =
         JSObjectGetProperty(context_, array_ref, prop_name, nullptr);
     JSStringRelease(prop_name);
@@ -713,7 +713,7 @@ std::shared_ptr<HippyValue> JSCCtx::ToDomValue(const std::shared_ptr<CtxValue>& 
   } else if (JSValueIsArray(context_, value_ref)) {
     JSObjectRef array_ref = JSValueToObject(context_, value_ref, nullptr);
     JSStringRef prop_name = JSStringCreateWithCharacters(
-      reinterpret_cast<const JSChar*>(kLengthStr), arraysize(kLengthStr) - 1);
+      reinterpret_cast<const JSChar*>(kLengthStr), ARRAY_SIZE(kLengthStr) - 1);
     JSValueRef val = JSObjectGetProperty(context_, array_ref, prop_name, nullptr);
     JSStringRelease(prop_name);
     uint32_t count = JSValueToNumber(context_, val, nullptr);
@@ -779,7 +779,7 @@ std::shared_ptr<DomArgument> JSCCtx::ToDomArgument(const std::shared_ptr<CtxValu
     } else if (JSValueIsArray(context_, value_ref)) {
       JSObjectRef array_ref = JSValueToObject(context_, value_ref, nullptr);
       JSStringRef prop_name = JSStringCreateWithCharacters(
-        reinterpret_cast<const JSChar*>(kLengthStr), arraysize(kLengthStr) - 1);
+        reinterpret_cast<const JSChar*>(kLengthStr), ARRAY_SIZE(kLengthStr) - 1);
       JSValueRef val = JSObjectGetProperty(context_, array_ref, prop_name, nullptr);
       JSStringRelease(prop_name);
       uint32_t count = JSValueToNumber(context_, val, nullptr);
@@ -910,7 +910,7 @@ bool JSCCtx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
     return false;
   }
   JSValueRef value_ref = ctx_value->value_;
-  if (!JSValueIsObject(context_, value_ref)){
+  if (!JSValueIsObject(context_, value_ref)) {
     return false;
   }
   JSValueRef exception = nullptr;
@@ -927,7 +927,7 @@ void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<DomEvent>();
-  auto name = hippy::base::StringViewUtils::ToU8StdStr(instance_define->name);
+  auto name = StringViewUtils::ToU8StdStr(instance_define->name);
   cls_def.className = name.c_str();
   auto cls_ref = JSClassCreate(&cls_def);
   auto* data = new PrivateData<DomEvent>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};
@@ -949,6 +949,6 @@ void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<
   CallFunction(callback, 1, argv);
 }
 
-
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

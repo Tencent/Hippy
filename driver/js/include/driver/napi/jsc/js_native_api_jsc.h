@@ -30,13 +30,13 @@
 
 #include "dom/dom_event.h"
 #include "dom/scene_builder.h"
-#include "driver/base/macros.h"
 #include "driver/modules/animation_module.h"
 #include "driver/modules/event_module.h"
 #include "driver/modules/scene_builder.h"
 #include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
 #include "footstone/logging.h"
+#include "footstone/macros.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/unicode_string_view.h"
 
@@ -46,7 +46,8 @@ constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
 }
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 constexpr char16_t kLengthStr[] = u"length";
 constexpr char16_t kMessageStr[] = u"message";
@@ -329,16 +330,18 @@ template <typename T>
 std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<InstanceDefine<T>> instance_define) {
   auto prototype = JSObjectMake(context_, nullptr, nullptr);
   JSValueRef exception;
-  JSStringRef get_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kGetStr),
-                                                          arraysize(kGetStr) - 1);
-  JSStringRef set_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kSetStr),
-                                                          arraysize(kSetStr) - 1);
-  JSStringRef define_property_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kDefinePropertyStr),
-                                                          arraysize(kDefinePropertyStr) - 1);
-  JSStringRef object_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar*>(kObjectStr),
-                                                          arraysize(kObjectStr) - 1);
+  JSStringRef get_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kGetStr),
+                                                          ARRAY_SIZE(kGetStr) - 1);
+  JSStringRef set_key_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kSetStr),
+                                                          ARRAY_SIZE(kSetStr) - 1);
+  JSStringRef define_property_name =
+      JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kDefinePropertyStr),
+                                   ARRAY_SIZE(kDefinePropertyStr) - 1);
+  JSStringRef
+      object_name = JSStringCreateWithCharacters(reinterpret_cast<const JSChar *>(kObjectStr),
+                                                 ARRAY_SIZE(kObjectStr) - 1);
 
-  for (auto& prop : instance_define->properties) {
+  for (auto& prop: instance_define->properties) {
     auto prop_obj = JSObjectMake(context_, nullptr, nullptr);
 
     JSValueRef getter;
@@ -388,7 +391,7 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
     if (prop.getter || prop.setter) {
       JSValueRef values[3];
       values[0] = prototype;
-      auto name = hippy::base::StringViewUtils::ToU8StdStr(prop.name);
+      auto name = footstone::StringViewUtils::ToU8StdStr(prop.name);
       JSStringRef prop_name_ref = JSStringCreateWithUTF8CString(name.c_str());
       JSValueRef prop_name = JSValueMakeString(context_, prop_name_ref);
       JSStringRelease(prop_name_ref);
@@ -406,7 +409,7 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
 
   for (auto& func : instance_define->functions) {
     JSClassDefinition func_def = kJSClassDefinitionEmpty;
-    std::string func_name = hippy::base::StringViewUtils::ToU8StdStr(func.name);
+    std::string func_name = footstone::StringViewUtils::ToU8StdStr(func.name);
     func_def.className = func_name.c_str();
     func_def.callAsFunction = [](JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
                                  size_t argc, const JSValueRef argv[],
@@ -447,7 +450,7 @@ struct PrivateData {
   std::shared_ptr<JSCCtxValue> prototype;
 };
 
-template <typename T>
+template<typename T>
 JSObjectCallAsConstructorCallback JSCCtx::NewConstructor() {
   return [](JSContextRef ctx, JSObjectRef constructor_ref, size_t argc,
             const JSValueRef argv[], JSValueRef* exception) {
@@ -462,7 +465,7 @@ JSObjectCallAsConstructorCallback JSCCtx::NewConstructor() {
       param[i] = std::static_pointer_cast<CtxValue>(p);
     }
     std::shared_ptr<T> ret = constructor(argc, param);
-    instance_define->holder.insert({ ret.get(), ret });
+    instance_define->holder.insert({ret.get(), ret});
     JSObjectRef obj_ref = JSObjectMake(ctx, cls_ref, nullptr);
     JSObjectSetPrivate(obj_ref, ret.get());
     JSObjectSetPrototype(ctx, obj_ref, prototype->value_);
@@ -487,7 +490,7 @@ void JSCCtx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<T>();
-  auto name = hippy::base::StringViewUtils::ToU8StdStr(instance_define->name);
+  auto name = footstone::StringViewUtils::ToU8StdStr(instance_define->name);
   cls_def.className = name.c_str();
   auto cls_ref = JSClassCreate(&cls_def);
   auto* data = new PrivateData<T>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};
@@ -504,6 +507,6 @@ void JSCCtx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_
   };
 }
 
-
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace drvier
+} // namespace hippy

@@ -37,6 +37,7 @@
 #pragma clang diagnostic pop
 
 namespace hippy {
+inline namespace driver {
 inline namespace runtime {
 
 class InterruptQueue: public std::enable_shared_from_this<InterruptQueue> {
@@ -79,5 +80,7 @@ class InterruptQueue: public std::enable_shared_from_this<InterruptQueue> {
   static PersistentObjectMap persistent_map_;
 };
 
-}
-}
+} // namespace runtime
+} // namespace driver
+} // namespace hippy
+

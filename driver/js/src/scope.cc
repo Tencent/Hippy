@@ -40,14 +40,14 @@
 #endif
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
-using RegisterMap = hippy::base::RegisterMap;
-using RegisterFunction = hippy::base::RegisterFunction;
-using ModuleClassMap = hippy::napi::ModuleClassMap;
-using CtxValue = hippy::napi::CtxValue;
-using TryCatch = hippy::napi::TryCatch;
-using DomEvent = hippy::dom::DomEvent;
-using DomNode = hippy::dom::DomNode;
+using RegisterMap = hippy::RegisterMap;
+using RegisterFunction = hippy::RegisterFunction;
+using ModuleClassMap = hippy::ModuleClassMap;
+using CtxValue = hippy::CtxValue;
+using DomEvent = hippy::DomEvent;
+using DomNode = hippy::DomNode;
 
 
 constexpr char kDeallocFuncName[] = "HippyDealloc";
@@ -58,6 +58,9 @@ constexpr char kHippyBootstrapJSName[] = "bootstrap.js";
 constexpr char kHippyModuleName[] = "name";
 #endif
 constexpr uint64_t kInvalidListenerId = hippy::dom::EventListenerInfo::kInvalidListenerId;
+
+namespace hippy {
+inline namespace driver {
 
 Scope::Scope(Engine* engine, std::string name, std::unique_ptr<RegisterMap> map)
     : engine_(engine),
@@ -138,12 +141,7 @@ void Scope::Initialized() {
 
   bool is_func = context_->IsFunction(function);
   FOOTSTONE_CHECK(is_func) << "bootstrap return not function, len = "
-                          << source_code.length_;
-  // TODO(super): The following statement will be removed when FOOTSTONE_CHECK
-  // will be cause abort
-  if (!is_func) {
-    return;
-  }
+                           << source_code.length_;
 
   std::shared_ptr<CtxValue> internal_binding_fn =
       hippy::napi::GetInternalBindingFn(self);
@@ -390,7 +388,7 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
           unicode_string_view module_name;
           bool flag = context->GetValueString(module_name_value, &module_name);
           if (flag) {
-            std::string u8_module_name = hippy::base::StringViewUtils::ToU8StdStr(module_name);
+            std::string u8_module_name = StringViewUtils::ToU8StdStr(module_name);
             devtools_data_source->SetContextName(u8_module_name);
           } else {
             FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
@@ -435,7 +433,7 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
                     unicode_string_view module_name;
                     bool flag = context->GetValueString(module_name_value, &module_name);
                     if (flag) {
-                        std::string u8_module_name = hippy::base::StringViewUtils::ToU8StdStr(module_name);
+                        std::string u8_module_name = StringViewUtils::ToU8StdStr(module_name);
                         devtools_data_source->SetContextName(u8_module_name);
                     } else {
                         FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
@@ -455,4 +453,8 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
     } else {
         runner->PostTask(std::move(cb));
     }
+
+}
+
+}
 }

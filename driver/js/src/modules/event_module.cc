@@ -42,6 +42,8 @@ using PropertyDefine = hippy::napi::PropertyDefine<T>;
 using CtxValue = hippy::napi::CtxValue;
 
 namespace hippy {
+inline namespace driver {
+inline namespace module {
 
 std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
     const std::weak_ptr<Scope>& weak_scope, std::shared_ptr<DomEvent>& dom_event) {
@@ -49,14 +51,15 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   InstanceDefine<DomEvent> def;
   def.name = "Event";
   def.constructor = [dom_event](size_t argument_count,
-                       const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<DomEvent> { return dom_event; };
+                                const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<
+      DomEvent> { return dom_event; };
 
   // function
   FunctionDefine<DomEvent> stop_propagation;
   stop_propagation.name = "stopPropagation";
   stop_propagation.cb = [weak_scope](
-                            DomEvent* event, size_t argument_count,
-                            const std::shared_ptr<CtxValue> arguments[])
+      DomEvent* event, size_t argument_count,
+      const std::shared_ptr<CtxValue> arguments[])
       -> std::shared_ptr<CtxValue> {
     event->StopPropagation();
     FOOTSTONE_LOG(INFO) << "stop propagation" << std::endl;
@@ -228,4 +231,6 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   return event;
 }
 
-}  // namespace hippy
+} // namespace module
+} // namespace driver
+} // namespace hippy

@@ -33,7 +33,8 @@
 #pragma clang diagnostic pop
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 class V8TurboEnv : public TurboEnv {
  public:
@@ -204,5 +205,7 @@ class V8TurboEnv : public TurboEnv {
   std::shared_ptr<HostObject> GetHostObject(
       const std::shared_ptr<CtxValue>& value) override;
 };
-}  // namespace napi
-}  // namespace hippy
+
+} // namespace napi
+} // namespace driver
+} // namespace hippy

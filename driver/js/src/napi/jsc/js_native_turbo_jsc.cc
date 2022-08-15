@@ -25,7 +25,8 @@
 #include "driver/napi/jsc/js_native_api_jsc.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 struct HostObjectProxy {
   HostObjectProxy(
@@ -249,6 +250,7 @@ std::shared_ptr <CtxValue> ObjcTurboEnv::CreateFunction(const std::shared_ptr <C
   return jscValue;
 }
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy
 

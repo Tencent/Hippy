@@ -24,7 +24,8 @@
 #include "driver/napi/jsc/js_native_api_jsc.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 class ObjcTurboEnv : public TurboEnv {
  public:
@@ -37,5 +38,6 @@ class ObjcTurboEnv : public TurboEnv {
                                             HostFunctionType func) override;
 };
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

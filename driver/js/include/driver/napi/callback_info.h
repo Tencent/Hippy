@@ -25,13 +25,13 @@
 #include <memory>
 #include <vector>
 
-#include "driver/base/macros.h"
 #include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
 #include "footstone/unicode_string_view.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 class ReturnValue {
  public:
@@ -84,5 +84,6 @@ class CallbackInfo {
   std::unique_ptr<ExceptionValue> exception_value_;
 };
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

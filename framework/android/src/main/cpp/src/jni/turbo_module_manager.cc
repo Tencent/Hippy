@@ -41,7 +41,8 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(ce
 
 using namespace hippy::napi;
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
+using Runtime = hippy::Runtime;
 
 jclass turbo_module_manager_clazz;
 jmethodID j_method_id;

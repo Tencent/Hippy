@@ -33,10 +33,17 @@
 #include "footstone/task.h"
 #include "footstone/base_timer.h"
 
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
 class TimerModule : public ModuleBase {
  public:
-  TimerModule();
-  ~TimerModule();
+  using BaseTimer = footstone::BaseTimer;
+  using CtxValue = hippy::napi::CtxValue;
+  using Ctx = hippy::napi::Ctx;
+
+  TimerModule() = default;
 
   void SetTimeout(const hippy::napi::CallbackInfo& info);
   void ClearTimeout(const hippy::napi::CallbackInfo& info);
@@ -44,10 +51,6 @@ class TimerModule : public ModuleBase {
   void ClearInterval(const hippy::napi::CallbackInfo& info);
 
  private:
-  using CtxValue = hippy::napi::CtxValue;
-  using Ctx = hippy::napi::Ctx;
-  using BaseTimer = footstone::BaseTimer;
-
   std::shared_ptr<CtxValue> Start(const hippy::napi::CallbackInfo& info,
                                   bool repeat);
   void Cancel(uint32_t task_id);
@@ -62,8 +65,13 @@ class TimerModule : public ModuleBase {
       std::shared_ptr<CtxValue> func;
       std::shared_ptr<BaseTimer> timer;
     };
+  };
 
-  std::shared_ptr<std::unordered_map<uint32_t , std::shared_ptr<BaseTimer>>> timer_map_;
-
+  std::shared_ptr<std::unordered_map<uint32_t , std::shared_ptr<footstone::BaseTimer>>> timer_map_ = std::make_shared<
+      std::unordered_map<uint32_t , std::shared_ptr<footstone::BaseTimer>>>();
   static const int kTimerInvalidId = 0;
-};
+}
+
+}
+}
+

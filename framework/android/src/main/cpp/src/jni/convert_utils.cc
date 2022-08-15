@@ -34,7 +34,7 @@
 
 using namespace hippy::napi;
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 bool IsBasicNumberType(const std::string &type) {
   return type == kInt || type == kDouble || type == kFloat || type == kLong;

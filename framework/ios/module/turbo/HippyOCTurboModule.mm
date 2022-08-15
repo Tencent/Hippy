@@ -43,7 +43,7 @@ using namespace hippy;
 using namespace napi;
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 @interface HippyOCTurboModule () {
     std::shared_ptr<HippyTurboModule> _turboModule;
