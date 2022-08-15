@@ -56,25 +56,25 @@ const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
   const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
     {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
     {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT
-    {"ExceptionHandle.js", {k_ExceptionHandle, ARRAY_SIZE(k_ExceptionHandle) - 1}},  // NOLINT
-    {"Others.js", {k_Others, ARRAY_SIZE(k_Others) - 1}},  // NOLINT
-    {"DynamicLoad.js", {k_DynamicLoad, ARRAY_SIZE(k_DynamicLoad) - 1}},  // NOLINT
-    {"Platform.js", {k_Platform, ARRAY_SIZE(k_Platform) - 1}},  // NOLINT
-    {"UIManagerModule.js", {k_UIManagerModule, ARRAY_SIZE(k_UIManagerModule) - 1}},  // NOLINT
-    {"js2native.js", {k_js2native, ARRAY_SIZE(k_js2native) - 1}},  // NOLINT
-    {"TimerModule.js", {k_TimerModule, ARRAY_SIZE(k_TimerModule) - 1}},  // NOLINT
-    {"promise.js", {k_promise, ARRAY_SIZE(k_promise) - 1}},  // NOLINT
-    {"ConsoleModule.js", {k_ConsoleModule, ARRAY_SIZE(k_ConsoleModule) - 1}},  // NOLINT
-    {"Network.js", {k_Network, ARRAY_SIZE(k_Network) - 1}},  // NOLINT
-    {"Storage.js", {k_Storage, ARRAY_SIZE(k_Storage) - 1}},  // NOLINT
-    {"Dimensions.js", {k_Dimensions, ARRAY_SIZE(k_Dimensions) - 1}},  // NOLINT
-    {"UtilsModule.js", {k_UtilsModule, ARRAY_SIZE(k_UtilsModule) - 1}},  // NOLINT
-    {"global.js", {k_global, ARRAY_SIZE(k_global) - 1}},  // NOLINT
-    {"jsTimersExecution.js", {k_jsTimersExecution, ARRAY_SIZE(k_jsTimersExecution) - 1}},  // NOLINT
-    {"native2js.js", {k_native2js, ARRAY_SIZE(k_native2js) - 1}},  // NOLINT
-    {"Event.js", {k_Event, ARRAY_SIZE(k_Event) - 1}},  // NOLINT
-    {"requestAnimationFrame.js", {k_requestAnimationFrame, ARRAY_SIZE(k_requestAnimationFrame) - 1}},  // NOLINT
-    {"Turbo.js", {k_Turbo, ARRAY_SIZE(k_Turbo) - 1}},  // NOLINT
+      {"ExceptionHandle.js", {k_ExceptionHandle, ARRAY_SIZE(k_ExceptionHandle) - 1}},  // NOLINT
+      {"Others.js", {k_Others, ARRAY_SIZE(k_Others) - 1}},  // NOLINT
+      {"DynamicLoad.js", {k_DynamicLoad, ARRAY_SIZE(k_DynamicLoad) - 1}},  // NOLINT
+      {"Platform.js", {k_Platform, ARRAY_SIZE(k_Platform) - 1}},  // NOLINT
+      {"UIManagerModule.js", {k_UIManagerModule, ARRAY_SIZE(k_UIManagerModule) - 1}},  // NOLINT
+      {"js2native.js", {k_js2native, ARRAY_SIZE(k_js2native) - 1}},  // NOLINT
+      {"TimerModule.js", {k_TimerModule, ARRAY_SIZE(k_TimerModule) - 1}},  // NOLINT
+      {"promise.js", {k_promise, ARRAY_SIZE(k_promise) - 1}},  // NOLINT
+      {"ConsoleModule.js", {k_ConsoleModule, ARRAY_SIZE(k_ConsoleModule) - 1}},  // NOLINT
+      {"Network.js", {k_Network, ARRAY_SIZE(k_Network) - 1}},  // NOLINT
+      {"Storage.js", {k_Storage, ARRAY_SIZE(k_Storage) - 1}},  // NOLINT
+      {"Dimensions.js", {k_Dimensions, ARRAY_SIZE(k_Dimensions) - 1}},  // NOLINT
+      {"UtilsModule.js", {k_UtilsModule, ARRAY_SIZE(k_UtilsModule) - 1}},  // NOLINT
+      {"global.js", {k_global, ARRAY_SIZE(k_global) - 1}},  // NOLINT
+      {"jsTimersExecution.js", {k_jsTimersExecution, ARRAY_SIZE(k_jsTimersExecution) - 1}},  // NOLINT
+      {"native2js.js", {k_native2js, ARRAY_SIZE(k_native2js) - 1}},  // NOLINT
+      {"Event.js", {k_Event, ARRAY_SIZE(k_Event) - 1}},  // NOLINT
+      {"requestAnimationFrame.js", {k_requestAnimationFrame, ARRAY_SIZE(k_requestAnimationFrame) - 1}},  // NOLINT
+      {"Turbo.js", {k_Turbo, ARRAY_SIZE(k_Turbo) - 1}},  // NOLINT
   };
   const auto it = global_base_js_source_map.find(filename);
   return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
