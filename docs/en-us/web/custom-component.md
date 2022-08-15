@@ -1,58 +1,61 @@
-# 自定义界面组件
+# Custom UI Components
 
-使用 Hippy 开发过程中，当前的能力可能无法满足一些特定场景，这时候就需要对 UI 组件进行封装或者引入一些第三方的功能来完成需求。
+In the development of using Hippy, it is possible that the builtin components won't meet the need of certain circumstances. In this case, you can augment the UI components by encapsulation or importing some third-party functionalities inside the components.
 
-# 组件扩展
+# Components Extension
 
-扩展组件主要包括：
+Component extension mainly including:
 
-1. 扩展 `HippyView`
-2. 实现构造方法
-3. 实现设置自定义组件的 `tagName`
-4. 实现构造自定义组件的 `dom`
-5. 实现自定义组件的 `API 能力`
-6. 实现自定义组件的属性
+1. Extend the custom component from `HippyView` 
+2. Implement the class constuctor method
+3. Set `tagName` for the custom component
+4. Construct `dom` for the custom component
+5. Implement `API` for the custom component
+6. Implement the properties for the custom component
 
-其中 `HippyView` 类，实现了一些 HippyBaseView 的接口和属性定义，在一个自定义组件中有几个比较重要的属性：
 
-* id: 每一个实例化 component 的唯一标识，默认会赋值给组件 dom 的 id 属性
-* pId: 每一个实例化 component 的父组件标识
-* tagName: 是用来区分组件的类型，也是业务侧代码使用该组件时在 `nativeName` 属性上填写的值，用来关联自定义组件的 key
-* dom: 真正挂载到document上的节点
-* props: 承载了从业务侧传递过来的属性和style的记录
+The HippyView class implements some interfaces and properties of HippyBaseView's interface. There are several essential properties in a custom component:
 
-## 例子
+* id: the unique identifier for every component's instance. This id will be assigned to the id property of component's dom by default.
+* pId: the unique identifier for the parent of every component's instance.
+* tagName: this is used to distinguish the type of components, as well as the value that needs to be passed into `nativeName` property when application uses this component, where `nativeName` will be used to map the key of the custom component.
+* dom: the node that really mounts on the document.
+* props: it carries the properties and styles passed from application.
 
-下面这个例子中，我们创建了 `CustomView` 的自定义组件，用来显示一个视频
 
-* 第一步，进行初始化
+## Example
 
+In the following example, we create a custom componet, called `CustomView`, to display a video.
+
+* First, initialize the component:
+  
 ```javascript
 
 import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 
-// 继承自 `HippyView`
+// Extends from HippyView
 class CustomView extends HippyView {
-  // 实现构造方法
+  // Implement the class constuctor method
   constructor(context,id,pId) {
     super(context,id,pId);
-    // 设置自定义组件的 `tagName` 为 `CustomView`，
-    // 这样 JS 业务使用的时候就可以设置 `nativeName="CustomView"` 进行关联。
+    // Set the tagName as 'CustomView'
+    // Such that the JS application can set `nativeName="CustomView"` to create a mapping from application to this component.
     this.tagName = 'CustomView';
-    // 构造自定义组件的 dom，我们创建了一个 video 节点并赋值给 dom 成员变量。注意 dom 成员变量在构造方法结束前一定要设置上
+    // Contruct the dom for the custom component. We create a video element and assign it to the class member 'dom'. Notice that the class member 'dom' needs to be set before the end of constructor method. 
     this.dom = document.createElement('video'); 
   }
 }
 
 ```
 
-* 第二步，实现自定义组件的 API 能力和相关属性
+* Second, implement the API and related properties for the custom component:
 
-    我们为 `CustomView` 实现了一个属性 `src`，当 JS 业务侧修改 src 属性时就会触发 `set src()` 方法并且获取到变更后的 value。 
-  
-    我们还实现了组件的两个方法 `play` 和 `pause`，当 JS 业务侧使用 `callUIFunction(this.instance, 'play'/'pause', []);` 的时就会调用到这两个方法。
+We implement the getter and setter for property `src`. When JS application modifies the property `src`, the setter `set src()` will be triggered and retrive the new `src` value. 
 
-    在 `pause()` 方法中，我们使用 `sendUiEvent` 向 JS 业务侧发送了一个 `onPause` 事件，属性上设置的回调就会被触发。
+We also implement `play` and `pause` class methods. When JS application uses `callUIFunction(this.instance, 'play'/'pause', []);`, these two methods will be called respectively.
+
+In the `pasue()` method, we use `sendUiEvent` to emit a `onPause` event to JS application, those callbacks that subcribe to `onPause` event will be triggered.
+
 
 ```javascript
 
@@ -80,33 +83,35 @@ class CustomView extends HippyView {
 
 ```
 
-> 关于 `props`: `HippyWebRenderer` 底层默认会将业务侧传递过来的原始 `props` 存储到组件的 `props` 属性上，然后针对更新的 `prop` 项逐个调用与之对应 key 的 set 方法，让组件获得一个更新时机，从而执行一些行为。 `props` 里面有一个对象 `style`，承载了所有业务侧设置的样式。默认也是由 `HippyWebRenderer` 设置到自定义组件的 `dom` 上，中间会有一层转换，因为`style` 中的有一些值是 `hippy` 特有的，需要进行一次翻译才可以设置到 `dom` 的 `style` 上。
+> About `props`: By default, the low-level implementation of `HippyWebRenderer` will store `props` that passed from application into the custom component's `props`, then triggering the setter for updated `props`, and the components will have timing for updating its states, such that executing some desired behaviors. 
+There is a `style` object inside the `props`, which will carry the styles passed from application. By default, this `style` object will also be assigned to the dom's style of custom component by `HippyWebRenderer`. However, since certain properties in `style` object from `props` are hippy-only, the `style` object needs to be translated before assigning it to the `dom`'s `style` property.
 
-> 关于 `context`: 自定义组件被构造的时候会传入一个 `context`，它提供了一些关键的方法:
+> About `context`: A `context` object will be passed into the custom component when the custom component is constructing. It provides some key methods:
 
 ```javascript
 export interface ComponentContext {
-     sendEvent: (type: string, params: any) => void; // 向业务侧发送全局事件
-     sendUiEvent: (id: number, type: string, params: any) => void; // 向某个组件实例发送事件
-     sendGestureEvent: (e: HippyTransferData.NativeGestureEvent) => void; // 发送手势事件
-     subscribe: (evt: string, callback: Function) => void; // 订阅某个事件
-     getModuleByName: (moduleName: string) => any; // 获取模块实例，通过模块名
+     sendEvent: (type: string, params: any) => void; // dispatch global event to the the application
+     sendUiEvent: (id: number, type: string, params: any) => void; // dispatch event to certain component's instance
+     sendGestureEvent: (e: HippyTransferData.NativeGestureEvent) => void; // dispatch gesture event
+     subscribe: (evt: string, callback: Function) => void; // subcribe to particular event
+     getModuleByName: (moduleName: string) => any; // retrieve module instance by module's name
 }
 ```
 
 
-# 复杂组件
+# Complicated Components
 
-有的时候我们可能需要提供一个容器，用来装载一些已有的组件。而这个容器有一些特殊的形态或者行为，比如需要自己管理子节点插入和移除，或者修改样式和拦截属性等。那么这个时候就需要使用一些复杂的组件实现方式。
+Sometime we may want to provide a container to wrap the existing components. This container will have some particular forms or behaviors, such as managing its own node insertion and deleteion, modifying style or intercepting properties. In this kind of cases, we need to use more complicated ways to implement these custom components.
 
-* 关于组件自己实现子节点的 dom 插入和删除，`HippyWebRender` 默认的组件 `dom` 插入和删除，是使用 Web 的方法：
+
+* As for the dom of child nodes or the default HippyWebRender components inserted and deleted, we will use the same methods as the web:
 
 ```javascript
 Node.insertBefore<T extends Node>(node: T, child: Node | null): T;
 Node.removeChild<T extends Node>(child: T): T;
 ```
 
-* 如果组件不希望以这种默认的形式来实现，可以自行通过 `insertChild` 和 `removeChild` 方法管理节点的插入和移除逻辑。
+* If you don't want the default implementation, you can manage node insertion and deletion through insertChild and removeChild methods
 
 ```javascript
 class CustomView extends HippyView{
@@ -119,9 +124,10 @@ class CustomView extends HippyView{
 }
 ```
 
-* 关于组件 `props` 更新的拦截，需要实现组件的 `updateProps` 方法。
+* To intercept the update of `props`, you need to implement the custom component's `updateProps` method.
 
-> 例子中，`data` 是组件本次更新的 `props` 数据信息，`defaultProcess()` 是 `HippyWebRenderer` 默认处理 `props` 更新的方法，开发者可以在这里拦截修改更新的数据后，依然使用默认的 `props` 进行更新，也可以不用默认的方法自行进行属性更新的遍历操作。
+> In the example below, `data` parameter is the real data of updated `props`, and `defaultProcess()` is `HippyWebRenderer`'s default method to update the `props`. After intercepting the updating process, developers can update the property with default value, or use some custom methods to update it.
+
 
 ```javascript
 class CustomView extends HippyView{
