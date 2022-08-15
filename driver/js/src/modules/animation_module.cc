@@ -43,6 +43,7 @@ using FunctionDefine = hippy::napi::FunctionDefine<T>;
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
 using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 using AnimationSetChild = hippy::AnimationSet::AnimationSetChild;
 using Ctx = hippy::napi::Ctx;
@@ -54,11 +55,12 @@ using DomManager = hippy::dom::DomManager;
 using DomNode = hippy::dom::DomNode;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
-using StringViewUtils = hippy::base::StringViewUtils;
 
 using CtxValue = hippy::napi::CtxValue;
 
 namespace hippy {
+inline namespace driver {
+inline namespace module {
 
 constexpr uint32_t kAnimationUpdateArgc = 1;
 
@@ -848,5 +850,5 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
 }
 
 }
-
-
+}
+}

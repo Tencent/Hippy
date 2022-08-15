@@ -32,28 +32,26 @@
 #include "footstone/repeating_timer.h"
 #include "footstone/string_view_utils.h"
 
-REGISTER_MODULE(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
-REGISTER_MODULE(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
-
-namespace napi = ::hippy::napi;
-
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
+using BaseTimer = footstone::BaseTimer;
 using Task = footstone::runner::Task;
 using TaskRunner = footstone::runner::TaskRunner;
 using RepeatingTimer = footstone::timer::RepeatingTimer;
 using OneShotTimer = footstone::timer::OneShotTimer;
 using TimeDelta = footstone::time::TimeDelta;
 
-TimerModule::TimerModule() : timer_map_(
-    std::make_shared<std::unordered_map<uint32_t, std::shared_ptr<BaseTimer>>>()) {}
+namespace hippy {
+inline namespace driver {
+inline namespace module {
 
-TimerModule::~TimerModule() = default;
+REGISTER_MODULE(TimerModule, SetTimeout) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(TimerModule, ClearTimeout) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(TimerModule, SetInterval) // NOLINT(cert-err58-cpp)
+REGISTER_MODULE(TimerModule, ClearInterval) // NOLINT(cert-err58-cpp)
 
 void TimerModule::SetTimeout(const napi::CallbackInfo& info) {
   info.GetReturnValue()->Set(Start(info, false));
@@ -151,4 +149,8 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
 
 void TimerModule::Cancel(uint32_t task_id) {
   timer_map_->erase(task_id);
+}
+
+}
+}
 }

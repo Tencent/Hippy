@@ -136,7 +136,7 @@ void DevtoolsDataSource::SendVmNotification(std::unique_ptr<v8_inspector::String
 void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
   FOOTSTONE_DCHECK(!string_view.is8Bit());
   auto data_chars = reinterpret_cast<const char16_t*>(string_view.characters16());
-  auto result = base::StringViewUtils::ToU8StdStr(footstone::stringview::unicode_string_view(data_chars, string_view.length()));
+  auto result = footstone::stringview::StringViewUtils::ToU8StdStr(footstone::stringview::unicode_string_view(data_chars, string_view.length()));
   devtools_service_->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
 }
 #endif

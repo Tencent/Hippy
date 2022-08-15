@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,7 +39,7 @@ using FunctionDefine = hippy::napi::FunctionDefine<T>;
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
 using unicode_string_view = footstone::stringview::unicode_string_view;
-
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
@@ -50,8 +50,6 @@ using RefInfo = hippy::dom::RefInfo;
 using DomInfo = hippy::dom::DomInfo;
 using RegisterFunction = hippy::base::RegisterFunction;
 using RegisterMap = hippy::base::RegisterMap;
-using StringViewUtils = hippy::base::StringViewUtils;
-
 
 constexpr char kNodePropertyPid[] = "pId";
 constexpr char kNodePropertyIndex[] = "index";
@@ -68,6 +66,8 @@ const int32_t kInvalidValue = -1;
 using CtxValue = hippy::napi::CtxValue;
 
 namespace hippy {
+inline namespace driver {
+inline namespace module {
 
 std::tuple<bool, std::string, int32_t> GetNodeId(const std::shared_ptr<Ctx> &context,
                                                  const std::shared_ptr<CtxValue> &node) {
@@ -371,7 +371,7 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
 
   footstone::stringview::unicode_string_view str_view;
   ret = context->GetValueString(arguments[1], &str_view);
-  std::string event_name = hippy::base::StringViewUtils::ToU8StdStr(str_view);
+  std::string event_name = StringViewUtils::ToU8StdStr(str_view);
   FOOTSTONE_DCHECK(ret) << "get event name failed";
 
   listener_info.dom_id = static_cast<uint32_t>(dom_id);
@@ -579,5 +579,5 @@ std::shared_ptr<InstanceDefine<SceneBuilder>> RegisterSceneBuilder(const std::we
 }
 
 }
-
-
+}
+}

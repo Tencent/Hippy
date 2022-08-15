@@ -27,7 +27,8 @@
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
+using Runtime = hippy::Runtime;
 
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime,
                                          const unicode_string_view& desc,

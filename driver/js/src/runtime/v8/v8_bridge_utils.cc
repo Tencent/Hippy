@@ -40,10 +40,12 @@
 #include "footstone/worker_impl.h"
 
 namespace hippy {
+inline namespace driver {
 inline namespace runtime {
 
 using byte_string = std::string;
 using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using TaskRunner = footstone::runner::TaskRunner;
 using WorkerManager = footstone::runner::WorkerManager;
 using u8string = unicode_string_view::u8string;
@@ -52,7 +54,6 @@ using CtxValue = hippy::napi::CtxValue;
 using Deserializer = footstone::value::Deserializer;
 using HippyValue = footstone::value::HippyValue;
 using HippyFile = hippy::base::HippyFile;
-using StringViewUtils = hippy::base::StringViewUtils;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using V8VM = hippy::napi::V8VM;
@@ -256,10 +257,10 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
                                            bool is_local_file,
                                            std::function<unicode_string_view()> content_cb) {
   FOOTSTONE_LOG(INFO) << "RunScript begin, file_name = " << file_name
-                     << ", is_use_code_cache = " << is_use_code_cache
-                     << ", code_cache_dir = " << code_cache_dir
-                     << ", uri = " << uri
-                     << ", is_local_file = " << is_local_file;
+                      << ", is_use_code_cache = " << is_use_code_cache
+                      << ", code_cache_dir = " << code_cache_dir
+                      << ", uri = " << uri
+                      << ", is_local_file = " << is_local_file;
   unicode_string_view script_content;
   bool read_script_flag = false;
   unicode_string_view code_cache_content;
@@ -286,7 +287,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
             FOOTSTONE_DLOG(INFO) << "Read code cache failed";
             int ret = HippyFile::RmFullPath(code_cache_dir);
             FOOTSTONE_DLOG(INFO) << "RmFullPath ret = " << ret;
-            HIPPY_USE(ret);
+            FOOTSTONE_USE(ret);
           } else {
             FOOTSTONE_DLOG(INFO) << "Read code cache succ";
           }
@@ -309,12 +310,12 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
   }
 
   FOOTSTONE_DLOG(INFO) << "uri = " << uri
-                      << "read_script_flag = " << read_script_flag
-                      << ", script content = " << script_content;
+                       << "read_script_flag = " << read_script_flag
+                       << ", script content = " << script_content;
 
   if (!read_script_flag || StringViewUtils::IsEmpty(script_content)) {
     FOOTSTONE_LOG(WARNING) << "read_script_flag = " << read_script_flag
-                          << ", script content empty, uri = " << uri;
+                           << ", script content empty, uri = " << uri;
     return false;
   }
 
@@ -330,23 +331,18 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
           HippyFile::CreateDir(code_cache_dir, S_IRWXU);
         }
 
-        size_t pos =
-            StringViewUtils::FindLastOf(code_cache_path, EXTEND_LITERAL('/'));
-        unicode_string_view code_cache_parent_dir =
-            StringViewUtils::SubStr(code_cache_path, 0, pos);
-        int check_parent_dir_ret =
-            HippyFile::CheckDir(code_cache_parent_dir, F_OK);
+        size_t pos = StringViewUtils::FindLastOf(code_cache_path, EXTEND_LITERAL('/'));
+        unicode_string_view code_cache_parent_dir = StringViewUtils::SubStr(code_cache_path, 0, pos);
+        int check_parent_dir_ret = HippyFile::CheckDir(code_cache_parent_dir, F_OK);
         FOOTSTONE_DLOG(INFO) << "check_parent_dir_ret = " << check_parent_dir_ret;
         if (check_parent_dir_ret) {
           HippyFile::CreateDir(code_cache_parent_dir, S_IRWXU);
         }
 
-        std::string u8_code_cache_content =
-            StringViewUtils::ToU8StdStr(code_cache_content);
-        bool save_file_ret =
-            HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
+        std::string u8_code_cache_content = StringViewUtils::ToU8StdStr(code_cache_content);
+        bool save_file_ret = HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         FOOTSTONE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
-        HIPPY_USE(save_file_ret);
+        FOOTSTONE_USE(save_file_ret);
       };
       worker_runner->PostTask(std::move(func));
     }
@@ -701,5 +697,6 @@ void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data
     runner->PostTask(std::move(callback));
 }
 
+}
 }
 }

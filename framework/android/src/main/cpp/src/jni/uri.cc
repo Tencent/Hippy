@@ -34,7 +34,7 @@ static jmethodID j_get_scheme_method_id;
 static jmethodID j_get_path_method_id;
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 std::shared_ptr<Uri> Uri::Create(const unicode_string_view& uri) {
   auto ret = std::make_shared<Uri>(uri);

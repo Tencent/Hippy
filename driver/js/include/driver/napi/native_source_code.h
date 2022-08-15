@@ -28,6 +28,7 @@
 #include <string>
 
 namespace hippy {
+inline namespace driver {
 
 struct NativeSourceCode {
   const uint8_t* data_;
@@ -36,4 +37,5 @@ struct NativeSourceCode {
 
 const NativeSourceCode GetNativeSourceCode(const std::string& filename);
 
-}  // namespace hippy
+} // namespace driver
+} // namespace hippy

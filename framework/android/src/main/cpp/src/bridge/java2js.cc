@@ -63,7 +63,7 @@ using unicode_string_view = footstone::stringview::unicode_string_view;
 using byte_string = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using CALLFUNCTION_CB_STATE = hippy::runtime::CALL_FUNCTION_CB_STATE;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 

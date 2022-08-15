@@ -29,7 +29,8 @@
 #include "footstone/unicode_string_view.h"
 
 namespace hippy {
-namespace base {
+inline namespace driver {
+inline namespace base {
 
 class UriLoader {
  public:
@@ -46,5 +47,7 @@ class UriLoader {
       const unicode_string_view& uri,
       u8string& content) = 0;
 };
-}  // namespace base
-}  // namespace hippy
+
+} // namespace base
+} // namespace driver
+} // namespace hippy

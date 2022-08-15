@@ -28,9 +28,12 @@
 using V8Ctx = hippy::napi::V8Ctx;
 using WorkerManager = footstone::WorkerManager;
 
+namespace hippy {
+inline namespace driver {
+inline namespace runtime {
+
 static std::unordered_map<int32_t, std::shared_ptr<Runtime>> runtime_map;
 static std::mutex mutex;
-
 static std::atomic<int32_t> global_runtime_key{0};
 
 Runtime::Runtime(bool enable_v8_serialization, bool is_dev)
@@ -89,4 +92,8 @@ bool Runtime::Erase(int32_t id) {
 
 bool Runtime::Erase(const std::shared_ptr<Runtime>& runtime) {
   return Runtime::Erase(runtime->id_);
+}
+
+}
+}
 }

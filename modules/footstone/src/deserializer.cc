@@ -32,6 +32,7 @@ namespace footstone {
 inline namespace value {
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 
 Deserializer::Deserializer(const std::vector<const uint8_t>& data)
     : position_(&data[0]), end_(&data[0] + data.size()) {}
@@ -125,7 +126,7 @@ bool Deserializer::ReadUtf8String(std::string& value) {
   const uint8_t* start = const_cast<uint8_t*>(position_);
   position_ += utf8_length;
   unicode_string_view string_view(start, utf8_length);
-  value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
+  value = StringViewUtils::ToU8StdStr(string_view);
   return true;
 }
 
@@ -137,7 +138,7 @@ bool Deserializer::ReadUtf8String(HippyValue& dom_value) {
   const uint8_t* start = position_;
   position_ += utf8_length;
   unicode_string_view string_view(start, utf8_length);
-  dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
+  dom_value = StringViewUtils::ToU8StdStr(string_view);
   return true;
 }
 
@@ -149,7 +150,7 @@ bool Deserializer::ReadOneByteString(std::string& value) {
   const char* start = reinterpret_cast<char*>(const_cast<uint8_t*>(position_));
   position_ += one_byte_length;
   unicode_string_view string_view(start, one_byte_length);
-  value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
+  value = StringViewUtils::ToU8StdStr(string_view);
   return true;
 }
 
@@ -161,7 +162,7 @@ bool Deserializer::ReadOneByteString(HippyValue& dom_value) {
   const char* start = reinterpret_cast<char*>(const_cast<uint8_t*>(position_));
   position_ += one_byte_length;
   unicode_string_view string_view(start, one_byte_length);
-  dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
+  dom_value = StringViewUtils::ToU8StdStr(string_view);
   return true;
 }
 
@@ -173,7 +174,7 @@ bool Deserializer::ReadTwoByteString(std::string& value) {
   const char16_t* start = reinterpret_cast<char16_t*>(const_cast<uint8_t*>(position_));
   position_ += two_byte_length;
   unicode_string_view string_view(start, two_byte_length);
-  value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
+  value = StringViewUtils::ToU8StdStr(string_view);
   return true;
 }
 
@@ -185,7 +186,7 @@ bool Deserializer::ReadTwoByteString(HippyValue& dom_value) {
   const char16_t* start = reinterpret_cast<char16_t*>(const_cast<uint8_t*>(position_));
   position_ += two_byte_length;
   unicode_string_view string_view(start, two_byte_length / sizeof(char16_t));
-  dom_value = hippy::base::StringViewUtils::ToU8StdStr(string_view);
+  dom_value = StringViewUtils::ToU8StdStr(string_view);
   return true;
 }
 

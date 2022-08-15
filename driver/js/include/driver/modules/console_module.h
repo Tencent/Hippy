@@ -27,8 +27,16 @@
 
 class Scope;
 
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
 class ConsoleModule : public ModuleBase {
  public:
   ConsoleModule() {}
   void Log(const hippy::napi::CallbackInfo& info);
 };
+
+}
+}
+}

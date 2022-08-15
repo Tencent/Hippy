@@ -26,7 +26,8 @@
 #include <vector>
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 TurboEnv::TurboEnv(std::shared_ptr<Ctx> context)
     : context_(std::move(context)) {}
@@ -79,5 +80,6 @@ std::vector<std::shared_ptr<CtxValue>> HippyTurboModule::GetPropertyNames(TurboE
   return values;
 }
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

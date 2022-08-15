@@ -26,7 +26,10 @@
 
 #include "driver/napi/v8/js_native_api_v8.h"
 
-namespace hippy::inspector {
+namespace hippy {
+inline namespace driver {
+inline namespace runtime {
+inline namespace inspector {
 
 constexpr uint8_t kProjectName[] = "Hippy";
 
@@ -95,7 +98,7 @@ void V8InspectorClientImpl::CreateContext(const std::shared_ptr<V8InspectorConte
       v8::Local<v8::Context>::New(isolate, ctx->context_persistent_);
   v8::Context::Scope context_scope(context);
   inspector_->contextCreated(v8_inspector::V8ContextInfo(
-      context, inspector_context->GetContextGroupId(), v8_inspector::StringView(kProjectName, arraysize(kProjectName))));
+      context, inspector_context->GetContextGroupId(), v8_inspector::StringView(kProjectName, ARRAY_SIZE(kProjectName))));
 }
 
 void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context_ref, unicode_string_view&& params) {
@@ -220,4 +223,7 @@ void V8InspectorClientImpl::runIfWaitingForDebugger(int contextGroupId) {
   quitMessageLoopOnPause();
 }
 
-}  // namespace hippy
+} // namespace inspector
+} // namespace runtime
+} // namespace driver
+} // namespace hippy

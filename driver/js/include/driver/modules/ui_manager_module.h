@@ -35,15 +35,22 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
 class UIManagerModule : public ModuleBase {
  public:
   using CallbackInfo = hippy::napi::CallbackInfo;
   using CtxValue = hippy::napi::CtxValue;
   using DomNode = hippy::dom::DomNode;
 
-  UIManagerModule();
-  ~UIManagerModule();
+  UIManagerModule() = default;
 
   void EndBatch(const CallbackInfo& info);
   void CallUIFunction(const CallbackInfo& info);
 };
+
+}
+}
+}

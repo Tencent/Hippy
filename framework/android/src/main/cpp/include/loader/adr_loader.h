@@ -38,7 +38,7 @@ bool ReadAsset(const footstone::stringview::unicode_string_view& path,
                std::basic_string<CharType>& bytes,
                bool is_auto_fill) {
   footstone::stringview::unicode_string_view owner(""_u8s);
-  const char* asset_path = hippy::base::StringViewUtils::ToConstCharPointer(path, owner);
+  const char* asset_path = footstone::stringview::StringViewUtils::ToConstCharPointer(path, owner);
   std::string file_path = std::string(asset_path);
   if (file_path.length() > 0 && file_path[0] == '/') {
     file_path = file_path.substr(1);

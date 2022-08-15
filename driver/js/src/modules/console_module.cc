@@ -31,10 +31,8 @@
 #include "footstone/string_view_utils.h"
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using Ctx = hippy::napi::Ctx;
-using StringViewUtils = hippy::base::StringViewUtils;
-
-REGISTER_MODULE(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
 
 namespace {
 
@@ -55,7 +53,13 @@ unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
 
 }  // namespace
 
-void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(readability-convert-member-functions-to-static)
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
+REGISTER_MODULE(ConsoleModule, Log) // NOLINT(cert-err58-cpp)
+
+void ConsoleModule::Log(const hippy::napi::CallbackInfo &info) { // NOLINT(readability-convert-member-functions-to-static)
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<Ctx> context = scope->GetContext();
   FOOTSTONE_CHECK(context);
@@ -94,4 +98,8 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo& info) { // NOLINT(reada
   }
 
   info.GetReturnValue()->SetUndefined();
+}
+
+}
+}
 }

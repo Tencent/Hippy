@@ -61,7 +61,7 @@
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::stringview::StringViewUtils;
 using SharedCtxPtr = std::shared_ptr<hippy::napi::Ctx>;
 using WeakCtxPtr = std::weak_ptr<hippy::napi::Ctx>;
 using SharedCtxValuePtr = std::shared_ptr<hippy::napi::CtxValue>;
@@ -140,9 +140,9 @@ HIPPY_EXPORT_MODULE(JSCExecutor)
         [self.bridge setUpDomWorkerManager: workerManager];
         
         auto engine = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:self.executorkey];
-        std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
+        std::unique_ptr<hippy::Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String] ?: "";
-        std::shared_ptr<Scope> scope = engine->GetEngine()->CreateScope(pName, std::move(map));
+        std::shared_ptr<hippy::Scope> scope = engine->GetEngine()->CreateScope(pName, std::move(map));
         self.pScope = scope;
         [self initURILoader];
         NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
@@ -202,7 +202,7 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
     return result;
 }
 
-- (std::unique_ptr<Engine::RegisterMap>)registerMap {
+- (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {
     __weak HippyJSExecutor *weakSelf = self;
     __weak id<HippyBridgeDelegate> weakBridgeDelegate = self.bridge.delegate;
     hippy::base::RegisterFunction taskEndCB = [weakSelf](void *) {
@@ -220,8 +220,8 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
                 return;
             }
             id<HippyBridgeDelegate> strongBridgeDelegate = weakBridgeDelegate;
-            ScopeWrapper *wrapper = reinterpret_cast<ScopeWrapper *>(p);
-            std::shared_ptr<Scope> scope = wrapper->scope_.lock();
+            hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
+            std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
             if (scope) {
                 std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
                 context->RegisterGlobalInJs();
@@ -334,11 +334,11 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
             if (!strongSelf) {
                 return;
             }
-            ScopeWrapper *wrapper = reinterpret_cast<ScopeWrapper *>(p);
-            std::shared_ptr<Scope> scope = wrapper->scope_.lock();
+            hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
+            std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
         }
     };
-    std::unique_ptr<Engine::RegisterMap> ptr = std::make_unique<Engine::RegisterMap>();
+    std::unique_ptr<hippy::Engine::RegisterMap> ptr = std::make_unique<hippy::Engine::RegisterMap>();
     ptr->insert(std::make_pair("ASYNC_TASK_END", taskEndCB));
     ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
     ptr->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scopeInitializedCB));
@@ -423,7 +423,7 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
 }
 
 - (void)secondBundleLoadCompleted:(BOOL)success {
-    std::shared_ptr<Scope> scope = self.pScope;
+    std::shared_ptr<hippy::Scope> scope = self.pScope;
     if (!scope) {
         return;
     }

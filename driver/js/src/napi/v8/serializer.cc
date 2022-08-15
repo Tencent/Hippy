@@ -24,6 +24,10 @@
 
 const int kMaxReusedBuffersSize = 128 * 1024;  // 128k
 
+namespace hippy {
+inline namespace driver {
+inline namespace napi {
+
 Serializer::Serializer(v8::Isolate* isolate,
                        v8::Local<v8::Context> context,
                        std::string& reused_buffer)
@@ -68,4 +72,8 @@ void Serializer::FreeBufferMemory(void* buffer) {
     reused_buffer_.resize(0);
     reused_buffer_.shrink_to_fit();
   }
+}
+
+}
+}
 }

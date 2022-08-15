@@ -27,7 +27,8 @@
 #include "footstone/logging.h"
 
 namespace hippy {
-namespace base {
+inline namespace driver {
+inline namespace base {
 
 constexpr char kVMCreateCBKey[] = "VM_CREATED";
 constexpr char kContextCreatedCBKey[] = "CONTEXT_CREATED";
@@ -51,5 +52,6 @@ auto MakeCopyable(F&& f) {
   };
 }
 
-}  // namespace base
-}  // namespace hippy
+} // namespace base
+} // namespace driver
+} // namespace hippy

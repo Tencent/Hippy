@@ -55,7 +55,8 @@ std::size_t std::hash<JSValueWrapper>::operator()(
 }
 
 namespace hippy {
-namespace base {
+inline namespace driver {
+inline namespace base {
 
 JSValueWrapper JSValueWrapper::Undefined() {
   JSValueWrapper Undefined;
@@ -348,5 +349,6 @@ const JSValueWrapper::JSArrayType& JSValueWrapper::ArrayValue() const {
   return array_value_;
 }
 
-}  // namespace base
-}  // namespace hippy
+} // namespace base
+} // namespace driver
+} // namespace hippy

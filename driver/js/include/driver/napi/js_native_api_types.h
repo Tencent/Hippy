@@ -35,11 +35,12 @@
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
 
+namespace hippy {
+inline namespace driver {
 
 class Scope;
 
-namespace hippy {
-namespace napi {
+inline namespace napi {
 
 constexpr char kErrorHandlerJSName[] = "ExceptionHandle.js";
 constexpr char kHippyErrorHandlerName[] = "HippyExceptionHandler";
@@ -327,5 +328,6 @@ class FunctionData {
       : scope_(scope), callback_(callback) {}
 };
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

@@ -20,6 +20,12 @@
 
 #pragma once
 
+// Calculate size of array
+#define ARRAY_SIZE(array) (sizeof(ARRAY_SIZE_HELPER(array)))
+
+template <typename CharType, size_t N>
+char (&ARRAY_SIZE_HELPER(CharType (&array)[N]))[N];
+
 #define WEAK_THIS weak_this = weak_from_this()
 #define SHARED_THIS self = this->shared_from_this()
 // 表明该lambda不会被存储，可以安全使用this

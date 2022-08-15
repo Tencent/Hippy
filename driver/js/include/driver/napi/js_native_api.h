@@ -30,7 +30,8 @@
 #include "driver/napi/js_native_api_types.h"
 
 namespace hippy {
-namespace napi {
+inline namespace driver {
+inline namespace napi {
 
 std::shared_ptr<CtxValue> GetInternalBindingFn(const std::shared_ptr<Scope>& scope);
 
@@ -39,5 +40,6 @@ std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param);
 std::shared_ptr<TryCatch> CreateTryCatchScope(bool enable,
                                               std::shared_ptr<Ctx> ctx);
 
-}  // namespace napi
-}  // namespace hippy
+} // namespace napi
+} // namespace driver
+} // namespace hippy

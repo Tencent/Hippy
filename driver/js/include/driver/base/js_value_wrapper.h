@@ -28,7 +28,8 @@
 #include <vector>
 
 namespace hippy {
-namespace base {
+inline namespace driver {
+inline namespace base {
 
 class JSValueWrapper final {
  public:
@@ -147,11 +148,12 @@ class JSValueWrapper final {
   friend std::hash<JSValueWrapper>;
 };
 
-}  // namespace base
-}  // namespace hippy
+} // namespace base
+} // namespace driver
+} // namespace hippy
 
 template <>
-struct std::hash<hippy::base::JSValueWrapper> {
+struct std::hash<hippy::driver::base::JSValueWrapper> {
   std::size_t operator()(
       const hippy::base::JSValueWrapper& value) const noexcept;
 

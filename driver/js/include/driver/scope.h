@@ -46,7 +46,13 @@
 #include "devtools/devtools_data_source.h"
 #endif
 
+namespace hippy {
+inline namespace driver {
+
+inline namespace module {
 class ModuleBase;
+}
+
 class Scope;
 
 class ScopeWrapper {
@@ -60,7 +66,6 @@ class ScopeWrapper {
 class Scope : public std::enable_shared_from_this<Scope> {
  public:
   using unicode_string_view = footstone::stringview::unicode_string_view;
-  using AnimationManager = hippy::dom::AnimationManager;
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
@@ -221,3 +226,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source_;
 #endif
 };
+
+}
+}

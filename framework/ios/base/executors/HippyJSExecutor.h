@@ -30,7 +30,14 @@
 typedef void (^HippyJavaScriptCompleteBlock)(NSError *error);
 typedef void (^HippyJavaScriptCallback)(id result, NSError *error);
 
+namespace hippy {
+inline namespace driver {
+
 class Scope;
+
+}
+}
+
 @class HippyBridge;
 /**
  * Default name for the JS thread
@@ -52,7 +59,7 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 /*
  *hippy-core js engine
  */
-@property (atomic, assign) std::shared_ptr<Scope> pScope;
+@property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
 
 @property (nonatomic, copy) NSString *contextName;
 

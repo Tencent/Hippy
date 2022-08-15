@@ -27,12 +27,15 @@
 #include <memory>
 #include <string>
 
-#include "driver/base/macros.h"
 #include "driver/modules/module_base.h"
 #include "driver/napi/callback_info.h"
 #include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
 #include "footstone/unicode_string_view.h"
+
+namespace hippy {
+inline namespace driver {
+inline namespace module {
 
 #define REGISTER_MODULE(Module, Function)                                   \
   auto __##Module##Function##__ = [] {                                      \
@@ -107,6 +110,11 @@ class ModuleRegister {
     };
   }
 
-  hippy::napi::ModuleClassMap internal_modules_;
-  hippy::napi::ModuleClassMap global_modules_;
+  hippy::ModuleClassMap internal_modules_;
+  hippy::ModuleClassMap global_modules_;
 };
+
+}
+}
+}
+

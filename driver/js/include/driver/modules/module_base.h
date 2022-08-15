@@ -22,8 +22,16 @@
 
 #pragma once
 
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
 class ModuleBase {
  public:
   ModuleBase() = default;
   virtual ~ModuleBase() = default;
 };
+
+}
+}
+}

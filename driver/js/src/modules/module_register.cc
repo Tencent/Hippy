@@ -28,11 +28,19 @@
 
 namespace napi = ::hippy::napi;
 
-ModuleRegister* ModuleRegister::instance() {
-  static ModuleRegister* _in = nullptr;
+namespace hippy {
+inline namespace driver {
+inline namespace module {
+
+ModuleRegister *ModuleRegister::instance() {
+  static ModuleRegister *_in = nullptr;
   static std::once_flag flag;
 
   std::call_once(flag, [] { _in = new ModuleRegister(); });
 
   return _in;
+}
+
+}
+}
 }

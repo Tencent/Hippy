@@ -33,6 +33,10 @@
 #include "driver/napi/js_native_api_types.h"
 #include "v8/v8.h"
 
+namespace hippy {
+inline namespace driver {
+inline namespace runtime {
+
 class Runtime {
  public:
   using CtxValue = hippy::napi::CtxValue;
@@ -103,3 +107,7 @@ class Runtime {
   std::shared_ptr<hippy::inspector::V8InspectorContext> inspector_context_;
 #endif
 };
+
+} // namespace runtime
+} // namespace driver
+} // namespace hippy
