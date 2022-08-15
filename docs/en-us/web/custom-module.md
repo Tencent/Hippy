@@ -1,19 +1,19 @@
 # Custom Modules
 
-In the development of using Hippy, it is possible that the builtin module won't meet the need of certain circumstances. In this case, you can augment the module by encapsulation or including some third-party functionalities inside the module.
+In the development of using Hippy, it is possible that the builtin module won't meet the need of certain circumstances. In this case, you can augment the module by encapsulation or importing some third-party functionalities inside the module.
 
-# Modules' Extensions
+# Module Extension
 
-Modules' extensions can be achieved by:
+Module extension mainly including:
 
 1. Extend from `HippyWebModule` class
 2. Set the `name` property of the custom `Module`
-3. Implement the `API` that exposed to Front-end for custom `Module` 
+3. Implement the `Module API` that needs to be exposed to Front-end
 
 The `HippyWebModule` class standardizes the useable modules of HippyWebRenderer, providing context of HippyWebRenderer. There are some important properties in a custom module:
 
 * name: define the name of the custom module, which is corresponding to the `moduleName` when JS application call `callNative(moduleName，methodName)`.
-* context: provide a series of method:
+* context: provide a series of methods:
   
 ```javascript
 sendEvent(type: string, params: any); // dispatch an event
