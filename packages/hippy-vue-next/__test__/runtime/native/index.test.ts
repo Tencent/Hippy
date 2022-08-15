@@ -150,18 +150,18 @@ describe('runtime/native.ts', () => {
 
   it('test native bridge calls: cookie', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
-      value: async () => Promise.resolve('https://www.qq.com'),
+      value: async () => Promise.resolve('https://hippyjs.org'),
     });
-    Native.cookie.set('https://www.qq.com', 'uin', new Date());
-    expect(await Native.cookie.getAll('https://www.qq.com')).toEqual('https://www.qq.com');
+    Native.cookie.set('https://hippyjs.org', 'uin', new Date());
+    expect(await Native.cookie.getAll('https://hippyjs.org')).toEqual('https://hippyjs.org');
   });
 
   it('test native bridge calls: imageLoader', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
       value: async () => Promise.resolve(100),
     });
-    Native.imageLoader.prefetch('https://www.qq.com');
-    expect(await Native.imageLoader.getSize('https://www.qq.com')).toEqual(100);
+    Native.imageLoader.prefetch('https://hippyjs.org');
+    expect(await Native.imageLoader.getSize('https://hippyjs.org')).toEqual(100);
   });
   it('test native bridge calls: netInfo', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {

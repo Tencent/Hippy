@@ -33,6 +33,7 @@ describe('runtime/element/hippy-element', () => {
       rootView: 'testRoot',
       rootContainer: 'root',
       rootViewId: 1,
+      ratioBaseWidth: 750,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       instance: {
@@ -549,5 +550,13 @@ describe('runtime/element/hippy-element', () => {
       node.id = 'root';
       expect(node.isRootNode()).toBeTruthy();
     });
+  });
+
+  it('parseRem method check', () => {
+    const resultStyle = HippyElement.parseRem({
+      width: '1.2rem',
+      height: '120px',
+    });
+    expect(resultStyle).toEqual({ width: 60, height: '120px' });
   });
 });

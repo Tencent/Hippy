@@ -39,7 +39,7 @@ export function patchProp(
   nextValue: NeedToTyped,
   isSVG: boolean,
   prevChildren: VNode<HippyNode, HippyElement>[] | undefined,
-  parentComponent: ComponentInternalInstance,
+  parentComponent: ComponentInternalInstance | null,
 ): void {
   // It should be noted that the values contained in prop here will have strings, numbers, arrays, objects, etc.
   switch (key) {
