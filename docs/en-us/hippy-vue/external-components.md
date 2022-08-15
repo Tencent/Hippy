@@ -18,8 +18,8 @@ It should note is that an animation itself is a View, it will drive all the chil
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| playing        | Controls whether the animation plays | boolean                                | `Android、iOS`    |
-| actions*        | Animation scheme, it is actually a style value followed by its animation scheme, please refer to the example for details. | Object                                | `Android、iOS`    |
+| playing        | Controls whether the animation plays | boolean                                | `Android、iOS、Web-Renderer`    |
+| actions*        | Animation scheme, it is actually a style value followed by its animation scheme, please refer to the example for details. | Object                                | `Android、iOS、Web-Renderer`    |
 
 * actions detailed explanation
   
@@ -100,20 +100,20 @@ export default {
   >* Replace the actions => After a certain delay (e.g. SetTimeout) or in `actionsDidUpdate` (supported after 2.14.0), call `this.[animation ref].start()` (recommended).
   > * Set `playing = false`=> replace actions => delay after a certain time (such as setTimeout) or in `actionsDidUpdate` (supported after 2.14.0), set `playing = true`
    
-  > Version `2.12.2` and the above support parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
-   
   > Version `2.6.0` and the above support `backgroundColor` background color gradient animation, reference [gradient animation DEMO](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/animations/color-change.vue)
   >
   > * set `actions` to decorate `backgroundColor`
   > * set `valueType` to `color`
   > * set `startValue` and `toValue` to [color value](style/color.md)
 
+  > Version `2.12.2` and the above support parameters `repeatCount: 'loop'`, use `repeatCount: -1` for lower version.
+
 ## Events
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| start              | Called when animation starts                                  | `Function`                                                    | `Android、iOS`    |
-| end         | Called when animation ends                                   | `Function`| `Android、iOS`    |
+| start              | Called when animation starts                                  | `Function`                                                    | `Android、iOS、Web-Renderer`    |
+| end         | Called when animation ends                                   | `Function`| `Android、iOS、Web-Renderer`    |
 | repeat | Called each time the loop is played                                | `Function` | `Android`   |
 
 ## Methods
@@ -156,17 +156,17 @@ Used for modal pop-up window, the default background is transparent, needs to ad
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| animationType         | Animation effects                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS`    |
+| animationType         | Animation effects                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS、Web-Renderer`    |
 | supportedOrientations | Supports screen orientation reversal                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
 | immersionStatusBar    | Whether it is an immersive status bar. `default: true`                                         | `boolean`                                                    | `Android`    |
 | darkStatusBarText     | Whether main body text is bright color, the default font color is black. The Modal background will be dark after changing it to true, the font color will be changed to white. | `boolean`                                                    | `Android、iOS`    |
-| transparent | Whether the background is transparent. `default: true` | `boolean`                                                    | `Android、iOS`    |
+| transparent | Whether the background is transparent. `default: true` | `boolean`                                                    | `Android、iOS、Web-Renderer`    |
 
 ## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| show                | This callback function is called when `Modal` is displayed.                            | `Function`                                                   | `Android、iOS`    |
+| show                | This callback function is called when `Modal` is displayed.                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
 | orientationChange   | Screen rotation direction changes                                           | `Function`                                                   | `Android、iOS`    |
 | requestClose        | Called when the `Modal` requires to close, generally called in the Android system hardware when the return button is triggered, generally to close the popup window inside processing. | `Function`                                                   | `Android`    |
 
@@ -183,19 +183,19 @@ A container that supports paging, its each child container component will be reg
 | Props                     | Description                                                         | Type                                         | Supported Platforms |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
 | bounces | Whether to open the springback effect, the default is `true` | `boolean`                                                  | `iOS`    |
-| current              | Change the current page number in real time | `number`                                     | `Android、iOS`    |
-| initialPage              | Specify a number, it will be used to determine the default display page index after initialization, the default is 0 when it is not specified | `number`                                     | `Android、iOS`    |
+| current              | Change the current page number in real time | `number`                                     | `Android、iOS、Web-Renderer`    |
+| initialPage              | Specify a number, it will be used to determine the default display page index after initialization, the default is 0 when it is not specified | `number`                                     | `Android、iOS、Web-Renderer`    |
 | needAnimation            | Whether animation is required when switching pages.                    | `boolean`                                    | `Android、iOS`    |
-| scrollEnabled            | Specify whether ViewPager can slide, the default is true                        | `boolean`                                    | `Android、iOS`    |
+| scrollEnabled            | Specify whether ViewPager can slide, the default is true                        | `boolean`                                    | `Android、iOS、Web-Renderer`    |
 | direction            | Set viewPager scroll direction, the default is horizontal scroll, use `vertical` for vertical scroll                       | `string`                                    | `Android`    |
 
 ## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| dragging                | Called when dragged.                            | `Function`                                                   | `Android、iOS`    |
-| dropped   | Called when the drag is done. Called when a scrolling page action is detected.                                            | `Function`                                                   | `Android、iOS`    |
-| stateChanged*   | Called when finger behavior changes, including idle, dragging and settling states, returned through state parameter                       | `Function`                                                   | `Android、iOS`    |
+| dragging                | Called when dragged.                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| dropped   | Called when the drag is done. Called when a scrolling page action is detected.                                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| stateChanged*   | Called when finger behavior changes, including idle, dragging and settling states, returned through state parameter                       | `Function`                                                   | `Android、iOS、Web-Renderer`    |
 
 * stateChanged The meaning of the three values:
   * idle idle state
