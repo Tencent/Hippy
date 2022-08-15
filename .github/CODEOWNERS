@@ -11,10 +11,13 @@
 * @ilikethese @churchill-zhang @zoomchan-cxj @siguangli @ozonelmy @medns
 
 *.js @zoomchan-cxj
+*.jsx @zoomchan-cxj
+*.vue @zoomchan-cxj
 *.ts @zoomchan-cxj
+*.tsx @zoomchan-cxj
 *.java @siguangli @medns
 *.cc @churchill-zhang @medns @ilikethese
-*.h @ozonelmy
+*.h @ozonelmy @churchill-zhang
 *.m @ozonelmy
 *.mm @ozonelmy
 
@@ -24,17 +27,17 @@ CMakeLists.txt @medns
 # ci, build & doc related
 /.github/ @zoomchan-cxj
 /.gitattributes @zoomchan-cxj
+/.gitignore @zoomchan-cxj
 /.husky/ @zoomchan-cxj
 /docker/ @medns
 /buildconfig/ @medns
 /docker/ @medns
 /.editorconfig @zoomchan-cxj
-/.gitignore @zoomchan-cxj
 /.markdownlintrc.json @zoomchan-cxj
 /docs/ @zoomchan-cxj
 
 # dom related
-/dom/ @churchill-zhang @ilikethese @medns
+/dom/ @ilikethese @churchill-zhang
 
 # driver related
 /driver/js/ @churchill-zhang @ilikethese
@@ -61,11 +64,12 @@ CMakeLists.txt @medns
 /package-lock.json @zoomchan-cxj
 
 # layout related
-/layout/ @ilikethese @churchill-zhang
+/layout/ @ilikethese
 
 # android related
 /framework/android/ @siguangli
 /renderer/native/android/ @siguangli
+/renderer/native/android/src/main/jni @churchill-zhang
 /gradle/ @siguangli
 /gradle.properties @siguangli
 /gradlew @siguangli
@@ -88,6 +92,6 @@ CMakeLists.txt @medns
 
 # modules related
 /modules/footstone @churchill-zhang
-/modules/android/jni @churchill-zhang
 /modules/android/ @siguangli
+/modules/android/jni @churchill-zhang
 /modules/ios/ @ozonelmy
