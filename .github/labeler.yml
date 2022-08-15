@@ -24,9 +24,13 @@ js:
   - '.nycrc'
   - 'lerna.json'
   - '**/*.js'
+  - '**/*.vue'
   - '**/*.jsx'
   - '**/*.ts'
   - '**/*.tsx'
+  - '**/*.css'
+  - '**/*.less'
+  - '**/*.scss'
 documentation:
   - 'docs/**/*'
   - '**/*.md'
