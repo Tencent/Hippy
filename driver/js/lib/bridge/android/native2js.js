@@ -44,30 +44,28 @@ global.hippyBridge = (_action, _callObj) => {
 
   switch (action) {
     case 'callBack': {
-      if (callObj.result === 1) {
-        resp = 'error: native no modules';
-      } else if (callObj.callId && __GLOBAL__.moduleCallList[callObj.callId]) {
+      if (__GLOBAL__.moduleCallList[callObj.callId]) {
         const callbackObj = __GLOBAL__.moduleCallList[callObj.callId];
-        if (callObj.result !== 0 && typeof callbackObj.reject === 'function') {
-          callbackObj.reject(callObj.params);
+        if (callObj.result !== 0) {
+          typeof callbackObj.reject === 'function' && callbackObj.reject(callObj.params);
         } else {
-          callbackObj.cb(callObj.params);
+          typeof callbackObj.cb === 'function' && callbackObj.cb(callObj.params);
         }
         if (callbackObj.type === 0 || callbackObj.type === 1) {
           delete __GLOBAL__.moduleCallList[callObj.callId];
         }
-      } else {
-        resp = 'error: calljs id is not registered in js';
+      }  else {
+        resp = 'native2js error: native callback id is not registered in js';
       }
       break;
     }
     case 'callJsModule': {
       if (!callObj || !callObj.moduleName || !callObj.methodName) {
-        resp = 'error: callJsModule param invalid';
+        resp = 'native2js error: callJsModule param is invalid';
       } else {
         const targetModule = __GLOBAL__.jsModuleList[callObj.moduleName];
         if (!targetModule || typeof targetModule[callObj.methodName] !== 'function') {
-          resp = 'error: callJsModule targeting an undefined module or method';
+          resp = 'native2js error: callJsModule is targeting an undefined module or method';
         } else {
           targetModule[callObj.methodName](callObj.params);
         }
@@ -75,7 +73,7 @@ global.hippyBridge = (_action, _callObj) => {
       break;
     }
     default: {
-      resp = 'error: action not define';
+      resp = 'native2js error: native2js action is not defined';
       break;
     }
   }
