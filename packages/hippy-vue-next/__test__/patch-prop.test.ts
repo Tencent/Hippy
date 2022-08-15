@@ -23,6 +23,9 @@
  */
 import { patchProp } from '../src/patch-prop';
 import { nodeOps } from '../src/node-ops';
+import '../src/runtime/event/hippy-event-dispatcher';
+import { preCacheNode } from '../src/util/node-cache';
+import { registerHippyTag, TagComponent } from '../src/runtime/component';
 
 /**
  * @author birdguo
@@ -55,10 +58,34 @@ describe('patch-prop.ts', () => {
     expect(element.style).toEqual({
       display: undefined,
     });
+
+    patchProp(element, 'style', {}, undefined, false, undefined, null);
+    expect(element.style).toEqual({});
+
+    // style could not be string
+    expect(() => patchProp(element, 'style', {}, 'new style', false, undefined, null)).toThrow(Error);
+
+    patchProp(element, 'style', { width: 100 }, { height: 100 }, false, undefined, null);
+    expect(element.style).toEqual({
+      height: 100,
+    });
+
+    patchProp(element, 'style', { width: 100 }, { height: 100, width: null }, false, undefined, null);
+    expect(element.style).toEqual({
+      height: 100,
+      width: '',
+    });
   });
 
   it('patch event prop', () => {
+    const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
+    // div component
+    const div: TagComponent = {
+      name: 'View',
+    };
+    registerHippyTag('div', div);
     const element = nodeOps.createElement('div');
+    preCacheNode(element, element.nodeId);
     const noop = () => {};
     patchProp(element, 'onClick', null, noop, false, undefined, null);
     let listeners = element.getEventListenerList();
@@ -66,6 +93,21 @@ describe('patch-prop.ts', () => {
     patchProp(element, 'onClick', null, null, false, undefined, null);
     listeners = element.getEventListenerList();
     expect(listeners?.click).toBeUndefined();
+
+    let sign = 0;
+    patchProp(element, 'onClickOnce', null, () => {
+      sign += 1;
+    }, false, undefined, null);
+    listeners = element.getEventListenerList();
+    expect(listeners?.click?.[0].callback).toBeDefined();
+    const clickEvent = {
+      id: element.nodeId,
+      name: 'onClick',
+    };
+    eventDispatcher.receiveNativeGesture(clickEvent);
+    expect(sign).toEqual(1);
+    eventDispatcher.receiveNativeGesture(clickEvent);
+    expect(sign).toEqual(1);
   });
 
   it('patch attribute prop', () => {
