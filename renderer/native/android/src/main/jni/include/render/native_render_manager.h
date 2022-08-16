@@ -11,8 +11,8 @@
 #include "jni/scoped_java_ref.h"
 
 namespace hippy {
-inline namespace dom {
-
+inline namespace render {
+inline namespace native {
 class NativeRenderManager : public RenderManager, public std::enable_shared_from_this<NativeRenderManager> {
  public:
   NativeRenderManager(std::shared_ptr<JavaRef> render_delegate);
@@ -97,5 +97,6 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
   static std::atomic<uint32_t> unique_native_render_manager_id_;
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<NativeRenderManager>> persistent_map_;
 };
-}  // namespace dom
+}  // namespace native
+}  // namespace render
 }  // namespace hippy

@@ -68,7 +68,8 @@ constexpr char kNumberOfLines[] = "numberOfLines";
   } while (0)
 
 namespace hippy {
-inline namespace dom {
+inline namespace render {
+inline namespace native {
 
 std::atomic<uint32_t> NativeRenderManager::unique_native_render_manager_id_{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
@@ -572,5 +573,6 @@ void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, 
   }
 }
 
-}  // namespace dom
+}  // namespace native
+}  // namespace render
 }  // namespace hippy

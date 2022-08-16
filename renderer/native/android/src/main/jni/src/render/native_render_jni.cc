@@ -34,10 +34,14 @@ using DomArgument = hippy::dom::DomArgument;
 using DomEvent = hippy::dom::DomEvent;
 using DomManager = hippy::dom::DomManager;
 using HippyValue = footstone::value::HippyValue;
-using NativeRenderManager = hippy::dom::NativeRenderManager;
+using NativeRenderManager = hippy::render::native::NativeRenderManager;
 using RenderManager = hippy::dom::RenderManager;
 using RootNode = hippy::dom::RootNode;
 using Scene = hippy::dom::Scene;
+
+namespace hippy {
+inline namespace render {
+inline namespace native {
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "onCreateNativeRenderProvider",
@@ -281,3 +285,7 @@ void OnReceivedEvent(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, 
 
   render_manager->ReceivedEvent(root_node, dom_id, event_name, params, capture, bubble);
 }
+
+} // namespace native
+} // namespace render
+} // namespace hippy

@@ -559,7 +559,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   hippy::TurboModuleManager::Init();
 
 #ifdef ANDROID_NATIVE_RENDER
-  NativeRenderJni::Init();
+  hippy::NativeRenderJni::Init();
 #endif
 
   return JNI_VERSION_1_4;
@@ -574,7 +574,7 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   hippy::TurboModuleManager::Destroy();
 
 #ifdef ANDROID_NATIVE_RENDER
-  NativeRenderJni::Destroy();
+  hippy::NativeRenderJni::Destroy();
 #endif
   hippy::JNIEnvironment::DestroyInstance();
 }
