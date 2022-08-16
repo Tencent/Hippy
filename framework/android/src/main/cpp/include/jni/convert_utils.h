@@ -32,6 +32,10 @@
 #include "driver/napi/js_native_turbo.h"
 #include "jni/scoped_java_ref.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace turbo {
+
 struct JNIArgs {
   JNIArgs(size_t count) : args_(count) {}
 
@@ -173,3 +177,7 @@ constexpr char kHippyArray[] = "Lcom/tencent/mtt/hippy/common/HippyArray;";
 constexpr char kHippyMap[] = "Lcom/tencent/mtt/hippy/common/HippyMap;";
 constexpr char kPromise[] = "Lcom/tencent/mtt/hippy/modules/Promise;";
 constexpr char kUnSupportedType[] = "Lcom/invalid;";
+
+}
+}
+}

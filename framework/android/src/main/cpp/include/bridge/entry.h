@@ -25,7 +25,8 @@
 #include <jni.h>
 
 namespace hippy {
-namespace bridge {
+inline namespace framework {
+inline namespace bridge {
 
 void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
 
@@ -70,19 +71,19 @@ void DoBind(JNIEnv* j_env,
             jint j_framework_id);
 
 void AddRoot(JNIEnv* j_env,
-            __unused jobject j_obj,
-            jint j_dom_id,
-            jint j_root_id);
-
-void RemoveRoot(JNIEnv* j_env,
              __unused jobject j_obj,
              jint j_dom_id,
              jint j_root_id);
 
-void DoConnect(JNIEnv* j_env,
+void RemoveRoot(JNIEnv* j_env,
                 __unused jobject j_obj,
-                jint j_runtime_id,
+                jint j_dom_id,
                 jint j_root_id);
+
+void DoConnect(JNIEnv* j_env,
+               __unused jobject j_obj,
+               jint j_runtime_id,
+               jint j_root_id);
 
 void UpdateAnimationNode(JNIEnv* j_env,
                          __unused jobject j_obj,
@@ -95,7 +96,10 @@ jint CreateDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_mana
 
 jint CreateAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id);
 
-void DestroyDomInstance(JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id, jint j_dom_id);
+void DestroyDomInstance(JNIEnv* j_env,
+                        __unused jobject j_obj,
+                        jint j_worker_manager_id,
+                        jint j_dom_id);
 
 void DestroyAnimationManager(JNIEnv* j_env, __unused jobject j_obj, jint j_ani_id);
 
@@ -107,17 +111,19 @@ void LoadInstance(JNIEnv* j_env,
                   jint j_length);
 
 void UnloadInstance(JNIEnv* j_env,
-                     __unused jobject j_obj,
-                     jlong j_runtime_id,
-                     jbyteArray j_byte_array,
-                     jint j_offset,
-                     jint j_length);
+                    __unused jobject j_obj,
+                    jlong j_runtime_id,
+                    jbyteArray j_byte_array,
+                    jint j_offset,
+                    jint j_length);
 
 void UnloadInstance(JNIEnv* j_env,
-                  __unused jobject j_obj,
-                  jlong j_runtime_id,
-                  jbyteArray j_byte_array,
-                  jint j_offset,
-                  jint j_length);
-}  // namespace bridge
-}  // namespace hippy
+                    __unused jobject j_obj,
+                    jlong j_runtime_id,
+                    jbyteArray j_byte_array,
+                    jint j_offset,
+                    jint j_length);
+
+} // namespace bridge
+} // namespace framework
+} // namespace hippy

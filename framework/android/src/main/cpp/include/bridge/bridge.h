@@ -29,16 +29,22 @@
 constexpr uint8_t kBridgeSlot = 1;
 
 namespace hippy {
-  class Bridge {
-   public:
-    Bridge(JNIEnv* j_env, jobject j_obj): ref_(std::make_shared<JavaRef>(j_env, j_obj)){}
-    inline jobject GetObj() {
-      return ref_->GetObj();
-    }
-    inline std::shared_ptr<JavaRef> GetRef() {
-      return ref_;
-    }
-   private:
-    std::shared_ptr<JavaRef> ref_;
-  };
+inline namespace framework {
+inline namespace bridge {
+
+class Bridge {
+ public:
+  Bridge(JNIEnv* j_env, jobject j_obj) : ref_(std::make_shared<JavaRef>(j_env, j_obj)) {}
+  inline jobject GetObj() {
+    return ref_->GetObj();
+  }
+  inline std::shared_ptr<JavaRef> GetRef() {
+    return ref_;
+  }
+ private:
+  std::shared_ptr<JavaRef> ref_;
+};
+
+}
+}
 }

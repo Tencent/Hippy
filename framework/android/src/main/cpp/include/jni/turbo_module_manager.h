@@ -24,6 +24,10 @@
 
 #include <jni.h>
 
+namespace hippy {
+inline namespace framework {
+inline namespace turbo {
+
 class TurboModuleManager {
  public:
   static void Init();
@@ -32,3 +36,7 @@ class TurboModuleManager {
 };
 
 int Install(JNIEnv *, jobject, jlong);
+
+}
+}
+}

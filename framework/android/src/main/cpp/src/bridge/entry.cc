@@ -59,7 +59,9 @@
 #include "render/native_render_jni.h"
 #endif
 
-namespace hippy::bridge {
+namespace hippy {
+inline namespace framework {
+inline namespace bridge {
 
 REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cpp)
                     "initNativeLogHandler",
@@ -529,8 +531,9 @@ void UnloadInstance(JNIEnv* j_env,
                               std::move(buffer_data));
 }
 
-
-}  // namespace hippy
+} // namespace bridge
+} // namespace framework
+} // namespace hippy
 
 jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   JNIEnv* j_env;
@@ -550,10 +553,10 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
 
   JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
-  Uri::Init();
-  ConvertUtils::Init();
-  JavaTurboModule::Init();
-  TurboModuleManager::Init();
+  hippy::Uri::Init();
+  hippy::ConvertUtils::Init();
+  hippy::JavaTurboModule::Init();
+  hippy::TurboModuleManager::Init();
 
 #ifdef ANDROID_NATIVE_RENDER
   NativeRenderJni::Init();
@@ -565,10 +568,10 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
 void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   hippy::napi::V8VM::PlatformDestroy();
 
-  Uri::Destroy();
-  ConvertUtils::Destroy();
-  JavaTurboModule::Destroy();
-  TurboModuleManager::Destroy();
+  hippy::Uri::Destroy();
+  hippy::ConvertUtils::Destroy();
+  hippy::JavaTurboModule::Destroy();
+  hippy::TurboModuleManager::Destroy();
 
 #ifdef ANDROID_NATIVE_RENDER
   NativeRenderJni::Destroy();

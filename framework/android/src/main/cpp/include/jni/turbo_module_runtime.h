@@ -26,6 +26,10 @@
 
 #include "jni/jni_env.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace turbo {
+
 constexpr uint8_t kTurboSlot = 2;
 
 class TurboModuleRuntime {
@@ -36,16 +40,16 @@ class TurboModuleRuntime {
       module_cache_;
 
   explicit TurboModuleRuntime(jobject obj) {
-    JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-    turbo_module_manager_obj_ = env->NewGlobalRef(obj);
-    env->DeleteLocalRef(obj);
+    JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    turbo_module_manager_obj_ = j_env->NewGlobalRef(obj);
+    j_env->DeleteLocalRef(obj);
   }
 
   ~TurboModuleRuntime() {
     FOOTSTONE_DLOG(INFO) << "~TurboModuleRuntime()";
-    JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     if (turbo_module_manager_obj_) {
-      env->DeleteGlobalRef(turbo_module_manager_obj_);
+      j_env->DeleteGlobalRef(turbo_module_manager_obj_);
     }
 
     if (turbo_env_) {
@@ -57,3 +61,7 @@ class TurboModuleRuntime {
     }
   }
 };
+
+}
+}
+}

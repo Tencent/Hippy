@@ -25,7 +25,8 @@
 #include <jni.h>
 
 namespace hippy {
-namespace bridge {
+inline namespace framework {
+inline namespace bridge {
 
 void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg = nullptr);
 
@@ -47,5 +48,6 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
                                 jint j_offset,
                                 jint j_length);
 
-}  // namespace bridge
-}  // namespace hippy
+} // namespace bridge
+} // namespace framework
+} // namespace hippy

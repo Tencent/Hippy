@@ -27,9 +27,11 @@
 #include "driver/napi/v8/js_native_api_v8.h"
 
 namespace hippy {
-namespace bridge {
+inline namespace framework {
+inline namespace bridge {
 
 void CallNative(hippy::napi::CBDataTuple* data);
 
-}  // namespace bridge
-}  // namespace hippy
+} // namespace bridge
+} // namespace framework
+} // namespace hippy

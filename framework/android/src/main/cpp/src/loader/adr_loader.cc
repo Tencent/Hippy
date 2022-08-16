@@ -32,6 +32,10 @@
 #include "jni/jni_utils.h"
 #include "jni/uri.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace loader {
+
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using Runtime = hippy::Runtime;
@@ -68,8 +72,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
     return LoadByFile(path, cb);
-  } else if (schema_str == u"http" || schema_str == u"https" ||
-             schema_str == u"debug") {
+  } else if (schema_str == u"http" || schema_str == u"https" || schema_str == u"debug") {
     return LoadByHttp(uri, cb);
   } else if (schema_str == u"asset") {
     if (aasset_manager_) {
@@ -106,8 +109,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
     return HippyFile::ReadFile(path, content, false);
-  } else if (schema_str == u"http" || schema_str == u"https" ||
-             schema_str == u"debug") {
+  } else if (schema_str == u"http" || schema_str == u"https" || schema_str == u"debug") {
     std::promise<u8string> promise;
     std::future<u8string> read_file_future = promise.get_future();
     std::function<void(u8string)> cb = hippy::base::MakeCopyable(
@@ -190,10 +192,10 @@ void OnResourceReady(JNIEnv* j_env,
                      jlong j_runtime_id,
                      jlong j_request_id) {
   FOOTSTONE_DLOG(INFO) << "HippyBridgeImpl onResourceReady j_runtime_id = " << j_runtime_id;
-  auto runtime = Runtime::Find(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  auto
+      runtime = Runtime::Find(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {
-    FOOTSTONE_DLOG(WARNING)
-        << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
+    FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl onResourceReady, j_runtime_id invalid";
     return;
   }
   std::shared_ptr<Scope> scope = runtime->GetScope();
@@ -219,8 +221,7 @@ void OnResourceReady(JNIEnv* j_env,
   int64_t len = (j_env)->GetDirectBufferCapacity(j_byte_buffer);
   FOOTSTONE_DLOG(INFO) << "len = " << len;
   if (len == -1) {
-    FOOTSTONE_DLOG(ERROR)
-        << "HippyBridgeImpl onResourceReady, BufferCapacity error";
+    FOOTSTONE_DLOG(ERROR) << "HippyBridgeImpl onResourceReady, BufferCapacity error";
     cb(u8string());
     return;
   }
@@ -250,4 +251,8 @@ int64_t ADRLoader::SetRequestCB(const std::function<void(u8string)>& cb) {
   int64_t id = global_request_id.fetch_add(1);
   request_map_.insert({id, cb});
   return id;
+}
+
+}
+}
 }
