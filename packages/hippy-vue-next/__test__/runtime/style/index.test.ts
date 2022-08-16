@@ -26,6 +26,8 @@ import { HIPPY_GLOBAL_DISPOSE_STYLE_NAME, HIPPY_GLOBAL_STYLE_NAME } from '../../
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { fromAstNodes } from '../../../src/runtime/style';
 import { getCssMap } from '../../../src/runtime/style/css-map';
+import { registerHippyTag } from '../../../src/runtime/component';
+import { setHippyCachedInstance } from '../../../src/util/instance';
 
 // AST used for test
 const testAst = [
@@ -59,6 +61,39 @@ const testAst = [
   {
     hash: 'chunk-1',
     selectors: ['tag'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'TypeSelector',
+        value: 'TypeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['div > tag'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'TypeSelector',
+        value: 'TypeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['div tag'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'TypeSelector',
+        value: 'TypeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['div > tag+newtag'],
     declarations: [
       {
         type: 'declaration',
@@ -146,6 +181,17 @@ const testAst = [
   },
   {
     hash: 'chunk-1',
+    selectors: ['#id[attr|="ortest"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
     selectors: ['#id', '*'],
     declarations: [
       {
@@ -207,6 +253,20 @@ describe('runtime/style/index.ts', () => {
   beforeAll(() => {
     global[HIPPY_GLOBAL_STYLE_NAME] = testAst;
     cssMap = getCssMap();
+    registerHippyTag('div', { name: 'View' });
+    const root = new HippyElement('div');
+    root.id = 'testRoot';
+    setHippyCachedInstance({
+      rootView: 'testRoot',
+      rootContainer: 'root',
+      rootViewId: 1,
+      ratioBaseWidth: 750,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      instance: {
+        $el: root,
+      },
+    });
   });
 
   it('id selector should match element correctly', async () => {
@@ -215,7 +275,7 @@ describe('runtime/style/index.ts', () => {
 
     const matchedCss = cssMap.query(divElement);
 
-    expect(matchedCss.selectors.length).toEqual(12);
+    expect(matchedCss.selectors.length).toEqual(13);
   });
 
   it('class selector should match element correctly', async () => {
@@ -230,8 +290,19 @@ describe('runtime/style/index.ts', () => {
     const tagElement = new HippyElement('tag');
     tagElement.setStyle('color', 'red');
 
-    const matchedCss = cssMap.query(tagElement);
+    let matchedCss = cssMap.query(tagElement);
     expect(matchedCss.selectors.length).toEqual(5);
+
+    const divElement = new HippyElement('div');
+    divElement.appendChild(tagElement);
+    matchedCss = cssMap.query(tagElement);
+    expect(matchedCss.selectors.length).toEqual(7);
+
+    const newTagElement = new HippyElement('newtag');
+    newTagElement.setStyle('color', 'red');
+    divElement.appendChild(newTagElement);
+    matchedCss = cssMap.query(tagElement);
+    expect(matchedCss.selectors.length).toEqual(7);
   });
 
   it('append selector should match element correctly', async () => {
@@ -261,7 +332,7 @@ describe('runtime/style/index.ts', () => {
     divElement.setAttribute('id', 'id');
 
     const matchedCss = cssMap.query(divElement);
-    expect(matchedCss.selectors.length).toEqual(14);
+    expect(matchedCss.selectors.length).toEqual(15);
   });
 
   it('global style dispose should work correctly', () => {
@@ -274,6 +345,6 @@ describe('runtime/style/index.ts', () => {
 
     const matchedCss = cssMap.query(divElement);
     // chunk-2 removed, two selectors removed
-    expect(matchedCss.selectors.length).toEqual(12);
+    expect(matchedCss.selectors.length).toEqual(13);
   });
 });
