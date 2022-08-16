@@ -58,8 +58,11 @@ function updateStyle(oldVNode, vNode) {
   const batchedStyles = {};
   // Remove the removed styles at first
   Object.keys(oldStyle).forEach((name) => {
+    const oldStyleValue = oldStyle[name];
     const newStyleValue = style[name];
-    if (newStyleValue === undefined || newStyleValue === null) {
+    if (
+      (oldStyleValue !== undefined && oldStyleValue !== null)
+      && (newStyleValue === undefined || newStyleValue === null)) {
       batchedStyles[normalize(name)] = undefined;
     }
   });

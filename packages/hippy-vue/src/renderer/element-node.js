@@ -245,18 +245,20 @@ class ElementNode extends ViewNode {
 
   setAttribute(key, value, options = {}) {
     try {
+      let propKey = key;
+      let propValue = value;
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
-      if (typeof (this.attributes[key]) === 'boolean' && value === '') {
-        value = true;
+      if (typeof (this.attributes[propKey]) === 'boolean' && propValue === '') {
+        propValue = true;
       }
-      if (key === undefined) {
+      if (propKey === undefined) {
         !options.notToNative && updateChild(this);
         return;
       }
-      switch (key) {
+      switch (propKey) {
         case 'class': {
-          const newClassList = new Set(value.split(' ').filter(x => x.trim()));
+          const newClassList = new Set(propValue.split(' ').filter(x => x.trim()));
           if (setsAreEqual(this.classList, newClassList)) {
             return;
           }
@@ -266,10 +268,10 @@ class ElementNode extends ViewNode {
           return;
         }
         case 'id':
-          if (value === this.id) {
+          if (propValue === this.id) {
             return;
           }
-          this.id = value;
+          this.id = propValue;
           // update current node and child nodes
           !options.notToNative && updateWithChildren(this);
           return;
@@ -278,51 +280,55 @@ class ElementNode extends ViewNode {
         case 'value':
         case 'defaultValue':
         case 'placeholder': {
-          if (typeof value !== 'string') {
+          if (typeof propValue !== 'string') {
             try {
-              value = value.toString();
+              propValue = propValue.toString();
             } catch (err) {
-              throw new TypeError(`Property ${key} must be string：${err.message}`);
+              throw new TypeError(`Property ${propKey} must be string：${err.message}`);
             }
           }
           if (!options || !options.textUpdate) {
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            propValue = propValue.trim().replace(/(&nbsp;|Â)/g, ' ');
           }
-          this.attributes[key] = unicodeToChar(value);
+          propValue = unicodeToChar(propValue);
           break;
         }
         case 'numberOfRows':
-          this.attributes[key] = value;
           if (Native.Platform !== 'ios') {
             return;
           }
           break;
         case 'caretColor':
         case 'caret-color':
-          this.attributes['caret-color'] = Native.parseColor(value);
+          propKey = 'caret-color';
+          propValue = Native.parseColor(propValue);
           break;
         case 'break-strategy':
-          this.attributes.breakStrategy = value;
+          propKey = 'breakStrategy';
           break;
         case 'placeholderTextColor':
         case 'placeholder-text-color':
-          this.attributes.placeholderTextColor = Native.parseColor(value);
+          propKey = 'placeholderTextColor';
+          propValue = Native.parseColor(propValue);
           break;
         case 'underlineColorAndroid':
         case 'underline-color-android':
-          this.attributes.underlineColorAndroid = Native.parseColor(value);
+          propKey = 'underlineColorAndroid';
+          propValue = Native.parseColor(propValue);
           break;
         case 'nativeBackgroundAndroid': {
-          const nativeBackgroundAndroid = value;
+          const nativeBackgroundAndroid = propValue;
           if (typeof nativeBackgroundAndroid.color !== 'undefined') {
             nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
           }
-          this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
+          propKey = 'nativeBackgroundAndroid';
+          propValue = nativeBackgroundAndroid;
           break;
         }
         default:
-          this.attributes[key] = value;
       }
+      if (this.attributes[propKey] === propValue) return;
+      this.attributes[propKey] = propValue;
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
       }
