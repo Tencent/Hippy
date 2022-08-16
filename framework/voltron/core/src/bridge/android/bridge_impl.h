@@ -23,7 +23,7 @@
 #pragma once
 
 #include "bridge/bridge_runtime.h"
-#include "core/runtime/v8/v8_bridge_utils.h"
+#include "driver/scope.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,7 +39,7 @@ class BridgeImpl {
   ~BridgeImpl() = default;
 
  public:
-  using byte_string = hippy::V8BridgeUtils::byte_string;
+  using byte_string = std::string;
 
   static int64_t InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platform_runtime,
                               bool single_thread_mode,

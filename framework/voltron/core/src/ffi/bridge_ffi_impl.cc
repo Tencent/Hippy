@@ -23,6 +23,7 @@
 #include <memory>
 
 #include "footstone/string_view_utils.h"
+#include "footstone/persistent_object_map.h"
 #include "dom/dom_manager.h"
 #include "ffi/bridge_ffi_impl.h"
 #include "ffi/ffi_bridge_runtime.h"

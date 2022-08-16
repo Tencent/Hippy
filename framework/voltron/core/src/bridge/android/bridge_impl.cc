@@ -25,6 +25,7 @@
 #include <future>
 #include <utility>
 
+#include "driver/base/file.h"
 #include "driver/runtime/v8/runtime.h"
 #include "driver/runtime/v8/v8_bridge_utils.h"
 #include "bridge_impl.h"

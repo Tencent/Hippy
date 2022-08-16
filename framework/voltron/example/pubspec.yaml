@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  tencent_voltron_render:
+  voltron_render:
     # When depending on this package from a real application you should use:
     #   flutter_render: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints

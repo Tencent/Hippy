@@ -25,8 +25,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "core/napi/v8/js_native_api_v8.h"
 #include "driver/runtime/v8/runtime.h"
+#include "footstone/string_view_utils.h"
 #include "voltron_bridge.h"
 
 namespace voltron {

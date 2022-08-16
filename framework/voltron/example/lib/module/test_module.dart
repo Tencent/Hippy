@@ -19,8 +19,8 @@
 //
 
 import 'package:flutter/material.dart';
-import 'package:tencent_voltron_render/engine.dart';
-import 'package:tencent_voltron_render/module.dart';
+import 'package:voltron_render/engine.dart';
+import 'package:voltron_render/module.dart';
 
 import '../page_test.dart';
 

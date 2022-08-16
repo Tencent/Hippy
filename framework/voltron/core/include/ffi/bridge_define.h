@@ -25,7 +25,6 @@
 #include <cstdint>
 
 #include "render/ffi/common_header.h"
-#include "core/core.h"
 
 enum FFIRegisterFuncType {
   kCallNative = 3,

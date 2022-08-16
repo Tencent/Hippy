@@ -10,7 +10,7 @@ PODS:
   - sqflite (0.0.2):
     - FlutterMacOS
     - FMDB (>= 2.7.5)
-  - tencent_voltron_render (0.0.1):
+  - voltron_render (0.0.1):
     - FlutterMacOS
 
 DEPENDENCIES:
@@ -18,7 +18,7 @@ DEPENDENCIES:
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
-  - tencent_voltron_render (from `Flutter/ephemeral/.symlinks/plugins/tencent_voltron_render/macos`)
+  - voltron_render (from `Flutter/ephemeral/.symlinks/plugins/voltron_render/macos`)
 
 SPEC REPOS:
   trunk:
@@ -33,8 +33,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
   sqflite:
     :path: Flutter/ephemeral/.symlinks/plugins/sqflite/macos
-  tencent_voltron_render:
-    :path: Flutter/ephemeral/.symlinks/plugins/tencent_voltron_render/macos
+  voltron_render:
+    :path: Flutter/ephemeral/.symlinks/plugins/voltron_render/macos
 
 SPEC CHECKSUMS:
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424

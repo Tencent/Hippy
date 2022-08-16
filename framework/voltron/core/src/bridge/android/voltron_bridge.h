@@ -23,19 +23,14 @@
 #pragma once
 
 #include "bridge/bridge_runtime.h"
-#include "driver/runtime/v8/bridge.h"
+
+constexpr uint8_t kBridgeSlot = 1;
 
 namespace voltron {
-using hippy::Bridge;
-class VoltronBridge : public Bridge {
+class VoltronBridge {
  public:
   VoltronBridge(std::shared_ptr<JSBridgeRuntime> runtime);
   ~VoltronBridge();
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  void SendResponse(std::unique_ptr<v8_inspector::StringBuffer> message) override;
-  void SendNotification(std::unique_ptr<v8_inspector::StringBuffer> message) override;
-#endif
-
   std::shared_ptr<JSBridgeRuntime> GetPlatformRuntime();
  private:
   std::shared_ptr<JSBridgeRuntime> runtime_;

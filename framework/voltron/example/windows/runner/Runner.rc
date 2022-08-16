@@ -89,7 +89,7 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example.tencent_voltron_render" "\0"
+            VALUE "CompanyName", "com.example.voltron_render" "\0"
             VALUE "FileDescription", "Demonstrates how to use the tencent_voltron_render plugin." "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "tencent_voltron_render_example" "\0"

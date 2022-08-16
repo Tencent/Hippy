@@ -20,7 +20,7 @@
       android:name="flutterEmbedding"
       android:value="2" />
     <activity
-      android:name="com.example.tencent_voltron_render.tencent_voltron_render_example.MainActivity"
+      android:name="com.example.voltron_render.voltron_render_example.MainActivity"
       android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
       android:hardwareAccelerated="true"
       android:launchMode="singleTop"

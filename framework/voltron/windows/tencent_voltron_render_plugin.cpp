@@ -1,4 +1,4 @@
-#include "include/tencent_voltron_render/tencent_voltron_render_plugin.h"
+#include "include/voltron_render/voltron_render_plugin.h"
 
 // This must be included before many other Windows headers.
 #include <windows.h>

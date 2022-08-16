@@ -25,7 +25,6 @@
 #include <functional>
 
 #include "render/ffi/bridge_manager.h"
-#include "core/core.h"
 
 namespace voltron {
 class EXPORT JSBridgeRuntime : public BridgeRuntime {

@@ -145,6 +145,18 @@ typedef CallNativeEventFfiDartType = void Function(int engineId, int rootId,
 
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
+typedef CreateWorkerFfiNativeType = Uint32 Function();
+typedef CreateWorkerFfiDartType = int Function();
+
+typedef DestroyWorkerFfiNativeType = Void Function(Uint32 workerId);
+typedef DestroyWorkerFfiDartType = void Function(int workerId);
+
+typedef CreateDomFfiNativeType = Uint32 Function(Uint32 workerId);
+typedef CreateDomFfiDartType = int Function(int workerId);
+
+typedef DestroyDomFfiNativeType = Void Function(Uint32 domId);
+typedef DestroyDomFfiDartType = void Function(int domId);
+
 typedef DestroyFfiNativeType = Void Function(
     Int32 engineId, Int32 callbackId, Int32 isReload);
 typedef DestroyFfiDartType = void Function(

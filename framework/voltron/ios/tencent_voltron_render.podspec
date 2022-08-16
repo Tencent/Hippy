@@ -3,9 +3,9 @@
 # Run `pod lib lint flutter_render.podspec' to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'tencent_voltron_render'
+  s.name             = 'voltron_render'
   s.version          = '0.0.1'
-  s.summary          = 'tencent_voltron_render ios plugin project.'
+  s.summary          = 'voltron_render ios plugin project.'
   s.description      = <<-DESC
 The ios flutter plugin for voltron loader.
                        DESC
@@ -28,5 +28,5 @@ The ios flutter plugin for voltron loader.
   #   sub.source_files = "RenderCore/**/*"
   #   sub.libraries = 'c++'
   # end
-  
+
 end

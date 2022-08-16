@@ -1,11 +1,11 @@
 #
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
-# Run `pod lib lint tencent_voltron_render.podspec` to validate before publishing.
+# Run `pod lib lint voltron_render.podspec` to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'tencent_voltron_render'
+  s.name             = 'voltron_render'
   s.version          = '0.0.1'
-  s.summary          = 'tencent_voltron_render macos plugin project.'
+  s.summary          = 'voltron_render macos plugin project.'
   s.description      = <<-DESC
 The macos flutter plugin for voltron loader.
                        DESC

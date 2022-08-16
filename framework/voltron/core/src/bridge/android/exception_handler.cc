@@ -21,6 +21,7 @@
  */
 
 #include "exception_handler.h"
+#include "voltron_bridge.h"
 
 namespace voltron {
 
@@ -30,7 +31,7 @@ void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime
   if (runtime->HasData(kBridgeSlot)) {
     auto slot = runtime->GetData(kBridgeSlot);
     auto bridge = std::any_cast<VoltronBridge>(slot);
-    auto platform_runtime = bridge->GetPlatformRuntime();
+    auto platform_runtime = bridge.GetPlatformRuntime();
     if (platform_runtime) {
       std::u16string exception = StringViewUtils::CovertToUtf16(desc, desc.encoding()).utf16_value();
       std::u16string stack_trace = StringViewUtils::CovertToUtf16(stack, stack.encoding()).utf16_value();

@@ -24,7 +24,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tencent_voltron_render/voltron_render.dart';
+import 'package:voltron_render/voltron_render.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import 'page_test.dart';

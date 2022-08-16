@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(tencent_voltron_render_example LANGUAGES CXX)
+project(voltron_render_example LANGUAGES CXX)
 
-set(BINARY_NAME "tencent_voltron_render_example")
+set(BINARY_NAME "voltron_render_example")
 
 cmake_policy(SET CMP0063 NEW)
 

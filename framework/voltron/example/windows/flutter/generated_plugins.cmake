@@ -4,7 +4,6 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus_windows
-  tencent_voltron_render
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST

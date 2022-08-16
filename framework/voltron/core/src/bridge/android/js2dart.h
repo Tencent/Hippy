@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "core/core.h"
 namespace voltron::bridge {
 
 void CallDart(hippy::napi::CBDataTuple *data);

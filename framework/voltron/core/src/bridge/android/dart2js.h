@@ -22,7 +22,6 @@
 
 #pragma once
 
-#include "core/core.h"
 #include "driver/runtime/v8/v8_bridge_utils.h"
 
 namespace voltron {

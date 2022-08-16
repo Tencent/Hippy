@@ -22,6 +22,7 @@
 
 #include "driver/runtime/v8/runtime.h"
 #include "driver/runtime/v8/v8_bridge_utils.h"
+#include "footstone/string_view_utils.h"
 #include "js2dart.h"
 #include "voltron_bridge.h"
 
@@ -38,20 +39,20 @@ void CallDart(hippy::napi::CBDataTuple *data) {
                const unicode_string_view &func,
                const unicode_string_view &cb_id,
                bool is_heap_buffer,
-               bytes&& buffer) {
-    std::u16string module_name = StringViewUtils::CovertToUtf16(module, module.encoding()).utf16_value();
-    std::u16string module_func = StringViewUtils::CovertToUtf16(func, func.encoding()).utf16_value();
+               bytes &&buffer) {
+    std::u16string
+        module_name = StringViewUtils::CovertToUtf16(module, module.encoding()).utf16_value();
+    std::u16string
+        module_func = StringViewUtils::CovertToUtf16(func, func.encoding()).utf16_value();
     std::u16string call_id = StringViewUtils::CovertToUtf16(cb_id, cb_id.encoding()).utf16_value();
     FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
     auto bridge = std::any_cast<VoltronBridge>(runtime->GetData(kBridgeSlot));
-    if (bridge) {
-      bridge->GetPlatformRuntime()->CallDart(module_name,
-                                             module_func,
-                                             call_id,
-                                             std::move(buffer),
-                                             !runtime->IsEnableV8Serialization(),
-                                             nullptr);
-    }
+    bridge.GetPlatformRuntime()->CallDart(module_name,
+                                          module_func,
+                                          call_id,
+                                          std::move(buffer),
+                                          !runtime->IsEnableV8Serialization(),
+                                          nullptr);
   };
   V8BridgeUtils::CallNative(data, cb);
 
