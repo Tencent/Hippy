@@ -151,8 +151,8 @@ void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
 void TextViewNode::SetText(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kText); iter != dom_style.end()) {
     auto utf8_string = footstone::unicode_string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
-    auto utf16_string =
-        hippy::base::StringViewUtils::CovertToUtf16(utf8_string, footstone::unicode_string_view::Encoding::Utf8);
+    auto utf16_string = footstone::stringview::StringViewUtils::CovertToUtf16(
+        utf8_string, footstone::unicode_string_view::Encoding::Utf8);
     GetTextView()->GetTextSpan()->SetText(utf16_string.utf16_value());
   }
 }

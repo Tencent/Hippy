@@ -27,7 +27,6 @@
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
-#include "renderer/tdf/tdf_render_context.h"
 
 #define TDF_RENDER_CHECK_ATTACH \
   if (!IsAttached()) {          \
@@ -138,6 +137,7 @@ using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::H
 
 using RenderInfo = hippy::dom::DomNode::RenderInfo;
 class ViewNode;
+class RootViewNode;
 using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo)>;
 using Point = tdfcore::TPoint;
 
@@ -188,7 +188,10 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual void CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) {}
 
-  void SetRenderContext(std::weak_ptr<TDFRenderContext> context) { render_context_ = context; }
+  void SetRootNode(std::weak_ptr<RootViewNode> root_node) {
+    root_node_ = root_node;
+    auto root = root_node.lock();
+  }
 
   static tdfcore::Color ParseToColor(const std::shared_ptr<footstone::HippyValue>& value);
 
@@ -239,7 +242,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   int32_t GetCorrectedIndex() const { return corrected_index_; }
 
-  std::shared_ptr<TDFRenderContext> GetRenderContext() const;
+  std::shared_ptr<RootViewNode> GetRootNode() const;
 
   virtual void HandleStyleUpdate(const DomStyleMap& dom_style);
 
@@ -294,9 +297,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   std::set<std::string> GetSupportedEvents() { return supported_events_; }
 
- protected:
   // set as protected for root node
   bool is_attached_ = false;
+  std::weak_ptr<tdfcore::View> attached_view_;
 
   virtual void HandleEventInfoUpdate();
 
@@ -306,14 +309,12 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   void RegisterTapEvent(std::string& event_type);
   void RemoveTapEvent(std::string& event_type);
 
-  std::weak_ptr<tdfcore::View> attached_view_;
-
   /**
    * @brief DomNode's RenderInfo.index is not always the related View's index, it may need to be corrected.
    */
   int32_t corrected_index_;
 
-  std::weak_ptr<TDFRenderContext> render_context_;
+  std::weak_ptr<RootViewNode> root_node_;
 
   tdfcore::Listener<tdfcore::TRect> layout_listener_;
 

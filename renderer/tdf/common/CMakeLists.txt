@@ -74,7 +74,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC tdfcore)
 
 # region source set
 set(SRC_SET
-        src/renderer/tdf/tdf_render_context.cc
         src/renderer/tdf/tdf_render_manager.cc
         src/renderer/tdf/viewnode/net_image_loader.cc
         src/renderer/tdf/viewnode/scroll_view_node.cc

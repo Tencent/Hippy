@@ -21,7 +21,6 @@
 #pragma once
 
 #include "footstone/persistent_object_map.h"
-#include "renderer/tdf/tdf_render_context.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
 #include "jni/scoped_java_ref.h"
@@ -32,6 +31,7 @@
 
 #include "core/platform/android/tdf_engine_android.h"
 #include "core/tdfi/view/view_context.h"
+#include "renderer/tdf/viewnode/root_view_node.h"
 
 namespace hippy {
 inline namespace dom {
@@ -80,7 +80,7 @@ class TDFRenderManager : public RenderManager, public std::enable_shared_from_th
   std::shared_ptr<DomManager> GetDomManager() const { return dom_manager_.lock(); }
 
  private:
-  footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<tdfrender::TDFRenderContext>> render_context_repo_;
+  footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<tdfrender::RootViewNode>> root_view_nodes_map_;
   int32_t id_;
   std::weak_ptr<DomManager> dom_manager_;
   static inline footstone::utils::PersistentObjectMap<int32_t, std::shared_ptr<TDFRenderManager>> persistent_map_;

@@ -21,15 +21,52 @@
 #pragma once
 
 #include "core/tdfi/view/view.h"
+#include "dom/root_node.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
 namespace tdfrender {
+
+using StringView = footstone::stringview::unicode_string_view;
+using DataCb = std::function<void(StringView::u8string)>;
+using UriDataGetter = std::function<bool(const StringView& uri, DataCb cb)>;
+
 class RootViewNode : public ViewNode {
  public:
-  RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::View>& root_view) : ViewNode(info, root_view) {
-    is_attached_ = true;
-  }
+  RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
+               const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter);
+  ~RootViewNode() override = default;
+
+  void Init() override;
 
   std::shared_ptr<tdfcore::View> CreateView() override;
+
+  void RegisterViewNode(uint32_t id, const std::shared_ptr<ViewNode>& view_node);
+  void UnregisterViewNode(uint32_t id);
+  std::shared_ptr<ViewNode> FindViewNode(uint32_t id) const;
+
+  std::shared_ptr<hippy::DomNode> FindDomNode(uint32_t id);
+  std::shared_ptr<hippy::DomManager> GetDomManager();
+
+  uint64_t AddEndBatchListener(const std::function<void()>& listener);
+  void RemoveEndBatchListener(uint64_t id);
+
+  void EndBatch();
+  void SetEnableUpdateAnimation(bool enable);
+
+  std::shared_ptr<tdfcore::Shell> GetShell() { return shell_.lock(); }
+
+ private:
+  void AttachView(std::shared_ptr<tdfcore::View> view);
+  void UpdateDomeRootNodeSize(tdfcore::ViewportMetrics viewport_metrics);
+  void PostAnimationUpdateTask() const;
+
+  std::unordered_map<uint32_t, std::shared_ptr<ViewNode>> nodes_query_table_;
+  tdfcore::NoArgListener end_batch_listener_;
+  std::weak_ptr<tdfcore::Shell> shell_;
+  std::weak_ptr<hippy::DomManager> dom_manager_;
+  std::shared_ptr<tdfcore::ViewContext> view_context_;
+  UriDataGetter getter_;
+  std::atomic<bool> is_enable_update_animation_ = false;
 };
+
 }  // namespace tdfrender

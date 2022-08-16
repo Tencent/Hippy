@@ -92,9 +92,9 @@ tdfrender::node_creator GetNodeCreator(const std::string& view_name) {
 TDFRenderManager::TDFRenderManager() { id_ = global_tdf_render_manager_key.fetch_add(1); }
 
 void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdfcore::Shell>& shell) {
-  auto render_context =
-      TDF_MAKE_SHARED(tdfrender::TDFRenderContext, root_id, shell, GetDomManager(), GetUriDataGetter());
-  render_context_repo_.Insert(root_id, render_context);
+  auto root_node = TDF_MAKE_SHARED(tdfrender::RootViewNode, hippy::DomNode::RenderInfo{root_id, 0, 0}, shell,
+                                   GetDomManager(), GetUriDataGetter());
+  root_view_nodes_map_.Insert(root_id, root_node);
 }
 
 void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
@@ -104,13 +104,13 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
-  auto shell = render_context->GetShell();
+  auto shell = root_view_node->GetShell();
 
   std::promise<void> view_create;
-  shell->GetUITaskRunner()->PostTask([nodes, shell, render_context, &view_create] {
+  shell->GetUITaskRunner()->PostTask([nodes, shell, root_view_node, &view_create] {
     TDF_RUNNER_CHECK_UI;
     FOOTSTONE_LOG(INFO) << "CreateNode: BEGIN";
     for (auto const& node : nodes) {
@@ -123,7 +123,7 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
         node->SetLayoutSize(metrics.width / device_pixel_ratio, metrics.height / device_pixel_ratio);
       }
       // 可以移进去，但是要注意赋值顺序
-      render_context->Register(node->GetId(), view_node);
+      root_view_node->RegisterViewNode(node->GetId(), view_node);
       view_node->OnCreate();
     }
     FOOTSTONE_LOG(INFO) << "CreateNode: END";
@@ -139,15 +139,15 @@ void TDFRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
-  auto shell = render_context->GetShell();
-  shell->GetUITaskRunner()->PostTask([nodes, render_context] {
+  auto shell = root_view_node->GetShell();
+  shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     FOOTSTONE_LOG(INFO) << "UpdateRenderNode: BEGIN";
     for (auto const& node : nodes) {
       FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
-      auto view_node = render_context->Find(node->GetId());
+      auto view_node = root_view_node->FindViewNode(node->GetId());
       view_node->OnUpdate(*node);
     }
     FOOTSTONE_LOG(INFO) << "UpdateRenderNode: END";
@@ -162,16 +162,16 @@ void TDFRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
-  auto shell = render_context->GetShell();
-  shell->GetUITaskRunner()->PostTask([nodes, render_context] {
+  auto shell = root_view_node->GetShell();
+  shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     for (auto const& node : nodes) {
       // 目前Hippy自身还有Bug，无法保证RenderInfo的100%可用(RenderInfo的id在这里为0)无法通过断言，临时屏蔽，直接使用DomNode的
       FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
       auto id = node->GetRenderInfo().id;
-      render_context->Find(id)->OnDelete();
+      root_view_node->FindViewNode(id)->OnDelete();
     }
   });
 }
@@ -182,15 +182,15 @@ void TDFRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
-  auto shell = render_context->GetShell();
-  shell->GetUITaskRunner()->PostTask([nodes, render_context] {
+  auto shell = root_view_node->GetShell();
+  shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     FOOTSTONE_LOG(INFO) << "UpdateLayout: BEGIN";
     for (auto const& node : nodes) {
       //      FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
-      render_context->Find(node->GetRenderInfo().id)->HandleLayoutUpdate(node->GetRenderLayoutResult());
+      root_view_node->FindViewNode(node->GetRenderInfo().id)->HandleLayoutUpdate(node->GetRenderLayoutResult());
     }
     FOOTSTONE_LOG(INFO) << "UpdateLayout: END";
   });
@@ -207,11 +207,11 @@ void TDFRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
-  auto shell = render_context->GetShell();
-  shell->GetUITaskRunner()->PostTask([render_context] { render_context->NotifyEndBatch(); });
+  auto shell = root_view_node->GetShell();
+  shell->GetUITaskRunner()->PostTask([root_view_node] { root_view_node->EndBatch(); });
 }
 
 void TDFRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {
@@ -228,17 +228,17 @@ void TDFRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node, std::
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
-  auto shell = render_context->GetShell();
+  auto shell = root_view_node->GetShell();
   if (name == kUpdateFrame) {
-    render_context->SetEnableUpdateAnimation(true);
+    root_view_node->SetEnableUpdateAnimation(true);
   }
-  shell->GetUITaskRunner()->PostTask([dom_node, render_context, name] {
+  shell->GetUITaskRunner()->PostTask([dom_node, root_view_node, name] {
     if (auto node = dom_node.lock(); node != nullptr) {
       auto id = node->GetId();
-      render_context->Find(id)->OnAddEventListener(id, name);
+      root_view_node->FindViewNode(id)->OnAddEventListener(id, name);
       return;
     }
 
@@ -255,11 +255,11 @@ void TDFRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node, st
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
   if (name == kUpdateFrame) {
-    render_context->SetEnableUpdateAnimation(false);
+    root_view_node->SetEnableUpdateAnimation(false);
   }
 }
 
@@ -269,13 +269,13 @@ void TDFRenderManager::CallFunction(std::weak_ptr<RootNode> root_node, std::weak
   if (!root) {
     return;
   }
-  std::shared_ptr<tdfrender::TDFRenderContext> render_context = nullptr;
-  auto result = render_context_repo_.Find(static_cast<uint32_t>(root->GetId()), render_context);
+  std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr;
+  auto result = root_view_nodes_map_.Find(static_cast<uint32_t>(root->GetId()), root_view_node);
   FOOTSTONE_CHECK(result);
-  auto shell = render_context->GetShell();
-  shell->GetUITaskRunner()->PostTask([dom_node, render_context, name, param, cb_id] {
+  auto shell = root_view_node->GetShell();
+  shell->GetUITaskRunner()->PostTask([dom_node, root_view_node, name, param, cb_id] {
     if (auto dom_node_ptr = dom_node.lock()) {
-      auto view_node = render_context->Find(dom_node_ptr->GetId());
+      auto view_node = root_view_node->FindViewNode(dom_node_ptr->GetId());
       if (view_node) {
         view_node->CallFunction(name, param, cb_id);
       }

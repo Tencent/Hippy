@@ -43,7 +43,7 @@ using tdfcore::ViewContext;
 using tdfcore::ViewportEvent;
 using tdfcore::textlayout::TextAlign;
 using unicode_string_view = footstone::stringview::unicode_string_view;
-using hippy::base::StringViewUtils;
+using footstone::stringview::StringViewUtils;
 
 TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
   text_shadow_.fColor = tdfcore::Color::Transparent();

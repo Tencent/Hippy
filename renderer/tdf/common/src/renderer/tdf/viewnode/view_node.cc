@@ -32,6 +32,7 @@
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
+#include "renderer/tdf/viewnode/root_view_node.h"
 
 namespace tdfrender {
 
@@ -56,7 +57,7 @@ DomStyleMap ViewNode::GenerateStyleInfo() {
 }
 
 void ViewNode::OnCreate() {
-  auto parent = GetRenderContext()->Find(GetRenderInfo().pid);
+  auto parent = GetRootNode()->FindViewNode(GetRenderInfo().pid);
   parent->AddChildAt(shared_from_this(), render_info_.index);
 }
 
@@ -235,7 +236,7 @@ void ViewNode::OnDelete() {
   }
   FOOTSTONE_DCHECK(!parent_.expired());
   parent_.lock()->RemoveChild(shared_from_this());
-  GetRenderContext()->Unregister(render_info_.id);
+  GetRootNode()->UnregisterViewNode(render_info_.id);
 }
 
 void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
@@ -306,9 +307,7 @@ void ViewNode::RemoveTapEvent(std::string& event_type) {
   }
 }
 
-std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const {
-  return GetRenderContext()->FindDomNode(render_info_.id);
-}
+std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const { return GetRootNode()->FindDomNode(render_info_.id); }
 
 void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   // inherited from parent
@@ -327,19 +326,19 @@ void ViewNode::SendGestureDomEvent(std::string type, const std::shared_ptr<foots
 
 void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value, bool can_capture,
                               bool can_bubble) {
-  auto dom_node = GetRenderContext()->FindDomNode(GetRenderInfo().id);
+  auto dom_node = GetRootNode()->FindDomNode(GetRenderInfo().id);
   if (!dom_node) {
     return;
   }
   std::transform(type.begin(), type.end(), type.begin(), ::tolower);
   auto event = std::make_shared<hippy::DomEvent>(type, dom_node, can_capture, can_bubble, value);
   std::vector<std::function<void()>> ops = {[dom_node, event] { dom_node->HandleEvent(event); }};
-  GetRenderContext()->GetDomManager()->PostTask(hippy::Scene(std::move(ops)));
+  GetRootNode()->GetDomManager()->PostTask(hippy::Scene(std::move(ops)));
 }
 
-std::shared_ptr<TDFRenderContext> ViewNode::GetRenderContext() const {
-  FOOTSTONE_DCHECK(!render_context_.expired());
-  return render_context_.lock();
+std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
+  FOOTSTONE_DCHECK(!root_node_.expired());
+  return root_node_.lock();
 }
 
 void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index) {

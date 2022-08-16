@@ -26,7 +26,7 @@
 void TDFRenderBridge::Init(JavaVM* j_vm, __unused void* reserved) {
   // Init TDF Core: TDF Core was a static library for Hippy, so we need to do initialization manually.
   tdfcore::InitWithJavaVM(j_vm);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
   FOOTSTONE_DCHECK(j_env);
   bool result = tdfcore::Register(j_env);
   FOOTSTONE_DCHECK(result);
@@ -35,7 +35,8 @@ void TDFRenderBridge::Init(JavaVM* j_vm, __unused void* reserved) {
   hippy::dom::InitNodeCreator();
 }
 
-void TDFRenderBridge::RegisterScopeForUriLoader(uint32_t render_id, const std::shared_ptr<Scope>& scope) {
+void TDFRenderBridge::RegisterScopeForUriLoader(uint32_t render_id,
+                                                const std::shared_ptr<hippy::driver::Scope>& scope) {
   hippy::TDFRenderManager::SetUriDataGetter(render_id, [scope](tdfrender::StringView uri, tdfrender::DataCb cb) {
     FOOTSTONE_DCHECK(scope->GetUriLoader());
     return scope->GetUriLoader()->RequestUntrustedContent(uri, cb);

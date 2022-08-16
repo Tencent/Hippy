@@ -19,13 +19,153 @@
  */
 
 #include "renderer/tdf/viewnode/root_view_node.h"
+#include "renderer/tdf/viewnode/base64_image_loader.h"
+#include "renderer/tdf/viewnode/net_image_loader.h"
 
 namespace tdfrender {
+
+constexpr const char kUpdateFrame[] = "frameupdate";
+
+RootViewNode::RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
+                           const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter)
+    : shell_(shell), dom_manager_(manager), getter_(getter), ViewNode(info) {}
+
+void RootViewNode::Init() {
+  RegisterViewNode(render_info_.id, shared_from_this());
+  shell_.lock()->GetUITaskRunner()->PostTask([WEAK_THIS] {
+    DEFINE_AND_CHECK_SELF(RootViewNode)
+    self->view_context_ = TDF_MAKE_SHARED(tdfcore::ViewContext, self->shell_.lock());
+    self->view_context_->SetCurrent();
+    self->view_context_->SetupDefaultBuildFunction();
+    self->AttachView(self->view_context_->GetRootView());
+    if (auto shell = self->shell_.lock()) {
+      shell->GetEventCenter()->AddListener(tdfcore::PostRunLoopEvent::ClassType(),
+                                           [weak_this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
+                                             if (auto self = std::static_pointer_cast<RootViewNode>(weak_this.lock())) {
+                                               if (self->is_enable_update_animation_.load()) {
+                                                 self->PostAnimationUpdateTask();
+                                               }
+                                             }
+                                             return tdfcore::EventDispatchBehavior::kContinue;
+                                           });
+    }
+    self->UpdateDomeRootNodeSize(self->shell_.lock()->GetViewportMetrics());
+    self->GetShell()->GetEventCenter()->AddListener(
+        tdfcore::ViewportEvent::ClassType(), [weak_this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
+          auto self = std::static_pointer_cast<RootViewNode>(weak_this.lock());
+          if (!self) {
+            return tdfcore::EventDispatchBehavior::kContinue;
+          }
+          self->GetShell()->GetUITaskRunner()->PostTask([event, weak_this] {
+            DEFINE_AND_CHECK_SELF(RootViewNode)
+            auto viewport_event = std::static_pointer_cast<tdfcore::ViewportEvent>(event);
+            self->UpdateDomeRootNodeSize(viewport_event->GetViewportMetrics());
+          });
+          return tdfcore::EventDispatchBehavior::kContinue;
+        });
+
+    // TODO: provide a FrameworkProxy Binding
+    // register custom image loader
+    auto https_scheme = "https";
+    auto https_net_image_loader = TDF_MAKE_SHARED(tdfrender::NetImageLoader, https_scheme, self->getter_);
+    self->view_context_->GetImageManager()->GetImageLoadManager()->RegisterImageLoader(https_scheme,
+                                                                                       https_net_image_loader);
+
+    auto http_scheme = "http";
+    auto http_net_image_loader = TDF_MAKE_SHARED(tdfrender::NetImageLoader, http_scheme, self->getter_);
+    self->view_context_->GetImageManager()->GetImageLoadManager()->RegisterImageLoader(http_scheme,
+                                                                                       http_net_image_loader);
+
+    auto base64_image_loader = TDF_MAKE_SHARED(tdfrender::Base64ImageLoader);
+    self->view_context_->GetImageManager()->GetImageLoadManager()->RegisterImageLoader(
+        tdfrender::Base64ImageLoader::GetScheme(), base64_image_loader);
+  });
+}
+
+void RootViewNode::AttachView(std::shared_ptr<tdfcore::View> view) {
+  is_attached_ = true;
+  attached_view_ = view;
+}
 
 std::shared_ptr<tdfcore::View> RootViewNode::CreateView() {
   // Should never be called.
   FOOTSTONE_DCHECK(false);
   return nullptr;
+}
+
+void RootViewNode::RegisterViewNode(uint32_t id, const std::shared_ptr<ViewNode>& view_node) {
+  view_node->SetRootNode(static_pointer_cast<RootViewNode>(ViewNode::shared_from_this()));
+  nodes_query_table_.insert(std::make_pair(id, view_node));
+}
+
+void RootViewNode::UnregisterViewNode(uint32_t id) {
+  FOOTSTONE_DCHECK(nodes_query_table_.find(id) != nodes_query_table_.end());
+  nodes_query_table_.erase(id);
+}
+
+std::shared_ptr<ViewNode> RootViewNode::FindViewNode(uint32_t id) const {
+  FOOTSTONE_DCHECK(nodes_query_table_.find(id) != nodes_query_table_.end());
+  return nodes_query_table_.find(id)->second;
+}
+
+std::shared_ptr<hippy::DomNode> RootViewNode::FindDomNode(uint32_t id) {
+  auto& root_map = hippy::dom::RootNode::PersistentMap();
+  std::shared_ptr<hippy::RootNode> root_node;
+  root_map.Find(render_info_.id, root_node);
+  if (auto manager = dom_manager_.lock(); manager != nullptr) {
+    auto dom_node = manager->GetNode(root_node, id);
+    return dom_node;
+  }
+  FOOTSTONE_DCHECK(false);
+}
+
+std::shared_ptr<hippy::DomManager> RootViewNode::GetDomManager() {
+  FOOTSTONE_DCHECK(!dom_manager_.expired());
+  return dom_manager_.lock();
+}
+
+uint64_t RootViewNode::AddEndBatchListener(const std::function<void()>& listener) {
+  return end_batch_listener_.Add(listener);
+}
+
+void RootViewNode::RemoveEndBatchListener(uint64_t id) { end_batch_listener_.Remove(id); }
+
+void RootViewNode::EndBatch() {
+  end_batch_listener_.Notify();
+  view_context_->MarkNeedsBuild();
+}
+
+void RootViewNode::SetEnableUpdateAnimation(bool enable) { is_enable_update_animation_ = enable; }
+
+void RootViewNode::PostAnimationUpdateTask() const {
+  auto& root_map = hippy::dom::RootNode::PersistentMap();
+  std::shared_ptr<hippy::RootNode> root_node;
+  root_map.Find(render_info_.id, root_node);
+  std::__ndk1::vector<std::function<void()>> ops = {[node = std::move(root_node)] {
+    auto event = std::__ndk1::make_shared<hippy::DomEvent>(kUpdateFrame, node);
+    node->HandleEvent(event);
+  }};
+  if (auto dom_manager = dom_manager_.lock()) {
+    dom_manager->PostTask(hippy::Scene(std::move(ops)));
+  }
+}
+
+void RootViewNode::UpdateDomeRootNodeSize(tdfcore::ViewportMetrics viewport_metrics) {
+  auto device_pixel_ratio = viewport_metrics.device_pixel_ratio;
+  auto width = viewport_metrics.width / device_pixel_ratio;
+  auto height = viewport_metrics.height / device_pixel_ratio;
+  std::vector<std::function<void()>> ops;
+  ops.emplace_back([WEAK_THIS, width, height, device_pixel_ratio] {
+    DEFINE_AND_CHECK_SELF(RootViewNode)
+    auto& root_map = hippy::dom::RootNode::PersistentMap();
+    std::shared_ptr<hippy::RootNode> root_node;
+    root_map.Find(self->render_info_.id, root_node);
+    root_node->GetLayoutNode()->SetScaleFactor(device_pixel_ratio);
+    self->dom_manager_.lock()->SetRootSize(root_node, static_cast<float>(width), static_cast<float>(height));
+    self->dom_manager_.lock()->DoLayout(root_node);
+    self->dom_manager_.lock()->EndBatch(root_node);
+  });
+  dom_manager_.lock()->PostTask(hippy::Scene(std::move(ops)));
 }
 
 }  // namespace tdfrender

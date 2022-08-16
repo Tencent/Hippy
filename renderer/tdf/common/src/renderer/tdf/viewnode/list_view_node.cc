@@ -22,6 +22,7 @@
 
 #include <cassert>
 #include "dom/node_props.h"
+#include "renderer/tdf/viewnode/root_view_node.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
 namespace tdfrender {
@@ -53,7 +54,7 @@ void ListViewNode::OnAttach() {
           self->GetChildren()[index]->Detach(false);
         }
       });
-  batch_end_listener_id_ = GetRenderContext()->AddEndBatchListener([WEAK_THIS]() {
+  batch_end_listener_id_ = GetRootNode()->AddEndBatchListener([WEAK_THIS]() {
     DEFINE_AND_CHECK_SELF(ListViewNode)
     if (self->should_reload_) {
       self->GetView<tdfcore::CustomLayoutView>()->Reload();
@@ -84,7 +85,7 @@ void ListViewNode::OnAttach() {
 void ListViewNode::OnDetach() {
   auto list_view = GetView<tdfcore::CustomLayoutView>();
   list_view->SetItemChangeCallback(nullptr);
-  GetRenderContext()->RemoveEndBatchListener(batch_end_listener_id_);
+  GetRootNode()->RemoveEndBatchListener(batch_end_listener_id_);
   list_view->RemoveScrollUpdateListener(on_reach_end_listener_id_);
 }
 
