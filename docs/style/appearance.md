@@ -320,5 +320,5 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| enum('visible'[default]， 'hidden') | 否 | iOS（2.9.0）
+| enum('visible'[default]， 'hidden') | 否 | Android(2.14.5)、iOS（2.9.0）
 

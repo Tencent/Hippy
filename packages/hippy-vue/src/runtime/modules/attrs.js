@@ -37,8 +37,10 @@ function updateAttrs(oldVNode, vNode) {
     vNode.data.attrs = attrs;
   }
   Object.keys(oldAttrs).forEach((key) => {
+    const oldPropValue = oldAttrs[key];
     const newPropValue = attrs[key];
-    if (newPropValue === null || newPropValue === undefined) {
+    if ((oldPropValue !== null && oldPropValue !== undefined)
+    && (newPropValue === null || newPropValue === undefined)) {
       updatePayload[key] = undefined;
     }
   });
