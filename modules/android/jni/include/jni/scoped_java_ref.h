@@ -24,6 +24,10 @@
 
 #include <jni.h>
 
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
+
 class JavaRef {
  public:
   JavaRef(JNIEnv* env, jobject obj);
@@ -36,3 +40,7 @@ class JavaRef {
  private:
   jobject obj_;
 };
+
+}
+}
+}

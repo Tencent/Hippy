@@ -24,7 +24,12 @@
 
 #include <jni.h>
 #include <string>
+
 #include "footstone/unicode_string_view.h"
+
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
 
 class JniUtils {
   using unicode_string_view = footstone::stringview::unicode_string_view;
@@ -51,3 +56,7 @@ class JniUtils {
 
   static unicode_string_view ToStrView(JNIEnv* j_env, jstring j_str);
 };
+
+}
+}
+}
