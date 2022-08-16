@@ -28,6 +28,10 @@
 #include <unordered_map>
 #include <vector>
 
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
+
 class JNIRegisterData {
  public:
   JNIRegisterData(const char *name,
@@ -76,9 +80,13 @@ class JNIRegister {
   std::unordered_map<std::string, std::vector<JNIRegisterData>> jni_modules_;
 };
 
+}
+}
+}
+
 #define REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, is_static, key) \
   auto __REGISTER_JNI_##key = []() {                                           \
-    JNIRegister::GetInstance()->RegisterJNIModule(                             \
+    hippy::JNIRegister::GetInstance()->RegisterJNIModule(                             \
         clazz, name, signature, reinterpret_cast<void *>(pointer), is_static); \
     return 0;                                                                  \
   }();

@@ -27,6 +27,10 @@
 #include <memory>
 #include <mutex>
 
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
+
 class JNIEnvironment {
  public:
   struct JNIWrapper {
@@ -56,3 +60,7 @@ class JNIEnvironment {
   JavaVM* j_vm_;
   JNIWrapper wrapper_;
 };
+
+}
+}
+}

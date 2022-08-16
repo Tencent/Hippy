@@ -26,6 +26,10 @@
 
 #include "footstone/logging.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
+
 std::shared_ptr<JNIEnvironment> JNIEnvironment::instance_ = nullptr;
 std::mutex JNIEnvironment::mutex_;
 
@@ -43,8 +47,7 @@ struct JNIEnvAutoRelease {
 void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
   j_vm_ = j_vm;
 
-  jclass j_hippy_bridge_cls =
-      j_env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
+  jclass j_hippy_bridge_cls = j_env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
   wrapper_.j_call_natives_direct_method_id =
       j_env->GetMethodID(j_hippy_bridge_cls, "callNatives",
                          "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/"
@@ -58,8 +61,8 @@ void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
   wrapper_.j_inspector_channel_method_id =
       j_env->GetMethodID(j_hippy_bridge_cls, "InspectorChannel", "([B)V");
 
-  wrapper_.j_fetch_resource_method_id = j_env->GetMethodID(
-      j_hippy_bridge_cls, "fetchResourceWithUri", "(Ljava/lang/String;J)V");
+  wrapper_.j_fetch_resource_method_id = j_env->GetMethodID(j_hippy_bridge_cls, "fetchResourceWithUri",
+                                                           "(Ljava/lang/String;J)V");
   j_env->DeleteLocalRef(j_hippy_bridge_cls);
 
   if (j_env->ExceptionCheck()) {
@@ -121,3 +124,8 @@ JNIEnv* JNIEnvironment::AttachCurrentThread() {
 
   return j_env;
 }
+
+}
+}
+}
+

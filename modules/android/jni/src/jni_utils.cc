@@ -28,6 +28,10 @@
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
+
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
@@ -118,4 +122,8 @@ unicode_string_view JniUtils::ToStrView(JNIEnv* j_env, jstring j_str) {
                           footstone::check::checked_numeric_cast<jsize, size_t>(len));
   j_env->ReleaseStringChars(j_str, j_char);
   return ret;
+}
+
+}
+}
 }

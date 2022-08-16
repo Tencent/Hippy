@@ -546,12 +546,12 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
     return onLoad_err;
   }
 
-  bool ret = JNIRegister::RegisterMethods(j_env);
+  bool ret = hippy::JNIRegister::RegisterMethods(j_env);
   if (!ret) {
     return onLoad_err;
   }
 
-  JNIEnvironment::GetInstance()->init(j_vm, j_env);
+  hippy::JNIEnvironment::GetInstance()->init(j_vm, j_env);
 
   hippy::Uri::Init();
   hippy::ConvertUtils::Init();
@@ -576,5 +576,5 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
 #ifdef ANDROID_NATIVE_RENDER
   NativeRenderJni::Destroy();
 #endif
-  JNIEnvironment::DestroyInstance();
+  hippy::JNIEnvironment::DestroyInstance();
 }

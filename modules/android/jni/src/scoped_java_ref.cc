@@ -25,8 +25,11 @@
 #include "footstone/logging.h"
 #include "include/jni/jni_env.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
+
 JavaRef::JavaRef(JNIEnv* j_env, jobject j_obj) : obj_(nullptr) {
-  // FOOTSTONE_DLOG(INFO) <<  "JavaRef create";
   if (!j_env) {
     j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   } else {
@@ -39,8 +42,11 @@ JavaRef::JavaRef(JNIEnv* j_env, jobject j_obj) : obj_(nullptr) {
 }
 
 JavaRef::~JavaRef() {
-  // FOOTSTONE_DLOG(INFO) <<  "~JavaRef release";
   if (obj_) {
     JNIEnvironment::GetInstance()->AttachCurrentThread()->DeleteGlobalRef(obj_);
   }
+}
+
+}
+}
 }

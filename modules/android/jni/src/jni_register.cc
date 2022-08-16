@@ -26,6 +26,10 @@
 #include "footstone/logging.h"
 #include "include/jni/jni_env.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace jni {
+
 std::unique_ptr<JNIRegister>& JNIRegister::GetInstance() {
   static std::unique_ptr<JNIRegister> instance = nullptr;
   static std::once_flag flag;
@@ -90,4 +94,8 @@ JNIRegisterData::JNIRegisterData(const char* name,
 
 JNINativeMethod JNIRegisterData::ToJNINativeMethod() {
   return {name_.c_str(), sign_.c_str(), pointer_};
+}
+
+}
+}
 }
