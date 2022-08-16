@@ -2,7 +2,7 @@
 
 In the development of using Hippy, it is possible that the builtin components won't meet the need of certain circumstances. In this case, you can augment the UI components by encapsulation or importing some third-party functionalities inside the components.
 
-# Components Extension
+# Component Extension
 
 Component extension mainly including:
 
@@ -25,10 +25,10 @@ The HippyView class implements some interfaces and properties of HippyBaseView's
 
 ## Example
 
-In the following example, we create a custom componet, called `CustomView`, to display a video.
+In the following example, we create a custom component, called `CustomView`, to display a video.
 
 * First, initialize the component:
-  
+
 ```javascript
 
 import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
@@ -36,8 +36,8 @@ import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 // Extends from HippyView
 class CustomView extends HippyView {
   // Implement the class constuctor method
-  constructor(context,id,pId) {
-    super(context,id,pId);
+  constructor(context, id, pId) {
+    super(context, id, pId);
     // Set the tagName as 'CustomView'
     // Such that the JS application can set `nativeName="CustomView"` to create a mapping from application to this component.
     this.tagName = 'CustomView';
@@ -45,16 +45,15 @@ class CustomView extends HippyView {
     this.dom = document.createElement('video'); 
   }
 }
-
 ```
 
 * Second, implement the API and related properties for the custom component:
 
-We implement the getter and setter for property `src`. When JS application modifies the property `src`, the setter `set src()` will be triggered and retrive the new `src` value. 
+    We implement the getter and setter for property `src`. When JS application modifies the property `src`, the setter `set src()` will be triggered and retrieve the new `src` value. 
 
-We also implement `play` and `pause` class methods. When JS application uses `callUIFunction(this.instance, 'play'/'pause', []);`, these two methods will be called respectively.
+    We also implement `play` and `pause` class methods. When JS application uses `callUIFunction(this.instance, 'play'/'pause', []);`, these two methods will be called respectively.
 
-In the `pasue()` method, we use `sendUiEvent` to emit a `onPause` event to JS application, those callbacks that subcribe to `onPause` event will be triggered.
+    In the `pasue()` method, we use `sendUiEvent` to emit a `onPause` event to JS application, those callbacks that subscribe to `onPause` event will be triggered.
 
 
 ```javascript
@@ -116,10 +115,10 @@ Node.removeChild<T extends Node>(child: T): T;
 ```javascript
 class CustomView extends HippyView{
     insertChild (child: HippyBaseView, childPosition: number) {
-        ...
+        // ...
     }
-    removeChild (child: HippyBaseView){
-        ...
+    removeChild (child: HippyBaseView) {
+        // ...
    }
 }
 ```
@@ -133,7 +132,7 @@ class CustomView extends HippyView{
 class CustomView extends HippyView{
     
     updateProps (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
-      ...
+      // ...
     }
 }
 ```
