@@ -102,6 +102,50 @@ const testAst = [
   },
   {
     hash: 'chunk-1',
+    selectors: ['#id[attr^="tes"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr$="est"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr*="es"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr^="atestb"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
     selectors: ['#id', '*'],
     declarations: [
       {
@@ -171,7 +215,7 @@ describe('runtime/style/index.ts', () => {
 
     const matchedCss = cssMap.query(divElement);
 
-    expect(matchedCss.selectors.length).toEqual(8);
+    expect(matchedCss.selectors.length).toEqual(12);
   });
 
   it('class selector should match element correctly', async () => {
@@ -217,7 +261,7 @@ describe('runtime/style/index.ts', () => {
     divElement.setAttribute('id', 'id');
 
     const matchedCss = cssMap.query(divElement);
-    expect(matchedCss.selectors.length).toEqual(10);
+    expect(matchedCss.selectors.length).toEqual(14);
   });
 
   it('global style dispose should work correctly', () => {
@@ -230,6 +274,6 @@ describe('runtime/style/index.ts', () => {
 
     const matchedCss = cssMap.query(divElement);
     // chunk-2 removed, two selectors removed
-    expect(matchedCss.selectors.length).toEqual(8);
+    expect(matchedCss.selectors.length).toEqual(12);
   });
 });
