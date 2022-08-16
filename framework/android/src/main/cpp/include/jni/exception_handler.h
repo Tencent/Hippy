@@ -27,7 +27,8 @@
 
 #include "driver/runtime/v8/runtime.h"
 
-class JNIEnvironment;
+namespace hippy {
+inline namespace framework {
 
 class ExceptionHandler {
  public:
@@ -39,3 +40,6 @@ class ExceptionHandler {
                                 const unicode_string_view& desc,
                                 const unicode_string_view& stack);
 };
+
+}
+}

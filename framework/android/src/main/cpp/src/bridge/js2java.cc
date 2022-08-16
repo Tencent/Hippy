@@ -33,7 +33,9 @@
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 
-namespace hippy::bridge {
+namespace hippy {
+inline namespace framework {
+inline namespace bridge {
 
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
@@ -82,4 +84,6 @@ void CallNative(hippy::napi::CBDataTuple* data) {
   V8BridgeUtils::CallNative(data, cb);
 }
 
-}  // namespace hippy
+} // namespace bridge
+} // namespace framework
+} // namespace hippy

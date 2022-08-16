@@ -44,7 +44,9 @@ extern std::shared_ptr<V8InspectorClientImpl> global_inspector;
 }
 }
 
-namespace hippy::bridge {
+namespace hippy {
+inline namespace framework {
+inline namespace bridge {
 
 REGISTER_JNI( // NOLINT(cert-err58-cpp)
     "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
@@ -76,13 +78,15 @@ void CallFunction(JNIEnv* j_env,
                   std::shared_ptr<JavaRef> buffer_owner) {
   unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
-  V8BridgeUtils::CallJs(action_name, footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
+  V8BridgeUtils::CallJs(action_name,
+                        footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
                         [cb](CALLFUNCTION_CB_STATE state, const unicode_string_view& msg) {
-                  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-                  jstring j_msg = JniUtils::StrViewToJString(j_env, msg);
-                  CallJavaMethod(cb->GetObj(), static_cast<jlong>(state), j_msg);
-                  j_env->DeleteLocalRef(j_msg);
-                }, std::move(buffer_data),
+                          JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+                          jstring j_msg = JniUtils::StrViewToJString(j_env, msg);
+                          CallJavaMethod(cb->GetObj(), static_cast<jlong>(state), j_msg);
+                          j_env->DeleteLocalRef(j_msg);
+                        },
+                        std::move(buffer_data),
                         [buffer_owner = std::move(buffer_owner)]() {});
 }
 
@@ -111,7 +115,7 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
   FOOTSTONE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                byte_string(buffer_address + j_offset,
-                     footstone::check::checked_numeric_cast<jint, unsigned long>(j_length)),
+                           footstone::check::checked_numeric_cast<jint, unsigned long>(j_length)),
                std::make_shared<JavaRef>(j_env, j_buffer));
 }
 
@@ -139,4 +143,6 @@ void CallJavaMethod(jobject j_obj, jlong j_value, jstring j_msg) {
   j_env->DeleteLocalRef(j_class);
 }
 
-}  // namespace hippy
+} // namespace bridge
+} // namespace framework
+} // namespace hippy

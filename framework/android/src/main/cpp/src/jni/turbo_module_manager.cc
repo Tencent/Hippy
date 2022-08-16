@@ -34,6 +34,11 @@
 #include "jni/jni_utils.h"
 #include "jni/turbo_module_runtime.h"
 
+
+namespace hippy {
+inline namespace framework {
+inline namespace turbo {
+
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(cert-err58-cpp)
              "install",
              "(J)I",
@@ -57,9 +62,7 @@ std::shared_ptr<JavaRef> QueryTurboModuleImpl(std::shared_ptr<Runtime> &runtime,
   jstring j_name = j_env->NewStringUTF(module_name.c_str());
   FOOTSTONE_DCHECK(runtime->HasData(kTurboSlot));
   auto turbo_runtime = std::any_cast<std::shared_ptr<TurboModuleRuntime>>(runtime->GetData(kTurboSlot));
-  jobject module_impl = j_env->CallObjectMethod(
-      turbo_runtime->turbo_module_manager_obj_,
-      j_method_id, j_name);
+  jobject module_impl = j_env->CallObjectMethod(turbo_runtime->turbo_module_manager_obj_, j_method_id, j_name);
   auto result = std::make_shared<JavaRef>(j_env, module_impl);
   j_env->DeleteLocalRef(j_name);
   j_env->DeleteLocalRef(module_impl);
@@ -200,4 +203,8 @@ int Install(JNIEnv *, jobject j_obj, jlong j_runtime_id) {
   };
   runner->PostTask(std::move(callback));
   return 0;
+}
+
+}
+}
 }

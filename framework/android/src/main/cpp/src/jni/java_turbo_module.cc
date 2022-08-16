@@ -27,7 +27,10 @@
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
 
-using namespace hippy::napi;
+namespace hippy {
+inline namespace framework {
+inline namespace turbo {
+
 using unicode_string_view = footstone::stringview::unicode_string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
@@ -174,23 +177,26 @@ std::shared_ptr<CtxValue> JavaTurboModule::Get(
 }
 
 void JavaTurboModule::Init() {
-  JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  jclass argument_utils_clazz_local =
-      env->FindClass("com/tencent/mtt/hippy/utils/ArgumentUtils");
+  JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  jclass argument_utils_clazz_local = j_env->FindClass("com/tencent/mtt/hippy/utils/ArgumentUtils");
   argument_utils_clazz =
-      (jclass) (env->NewGlobalRef(argument_utils_clazz_local));
+      (jclass) (j_env->NewGlobalRef(argument_utils_clazz_local));
   get_methods_signature =
-      env->GetStaticMethodID(argument_utils_clazz, "getMethodsSignature",
-                             "(Ljava/lang/Object;)Ljava/lang/String;");
-  env->DeleteLocalRef(argument_utils_clazz_local);
+      j_env->GetStaticMethodID(argument_utils_clazz, "getMethodsSignature",
+                               "(Ljava/lang/Object;)Ljava/lang/String;");
+  j_env->DeleteLocalRef(argument_utils_clazz_local);
 }
 
 void JavaTurboModule::Destroy() {
-  JNIEnv *env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   if (argument_utils_clazz) {
-    env->DeleteGlobalRef(argument_utils_clazz);
+    j_env->DeleteGlobalRef(argument_utils_clazz);
   }
 
   get_methods_signature = nullptr;
+}
+
+}
+}
 }

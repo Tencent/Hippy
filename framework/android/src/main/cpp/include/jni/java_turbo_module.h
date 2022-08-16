@@ -30,6 +30,10 @@
 #include "jni/convert_utils.h"
 #include "jni/scoped_java_ref.h"
 
+namespace hippy {
+inline namespace framework {
+inline namespace turbo {
+
 class JavaTurboModule : public hippy::napi::HippyTurboModule {
  public:
   JavaTurboModule(const std::string &name, std::shared_ptr<JavaRef> &impl);
@@ -60,3 +64,7 @@ class JavaTurboModule : public hippy::napi::HippyTurboModule {
 
   static void Destroy();
 };
+
+}
+}
+}

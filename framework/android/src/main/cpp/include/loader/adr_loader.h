@@ -32,7 +32,11 @@
 #include "footstone/task_runner.h"
 #include "jni/scoped_java_ref.h"
 
-template <typename CharType>
+namespace hippy {
+inline namespace framework {
+inline namespace loader {
+
+template<typename CharType>
 bool ReadAsset(const footstone::stringview::unicode_string_view& path,
                AAssetManager* aasset_manager,
                std::basic_string<CharType>& bytes,
@@ -50,8 +54,9 @@ bool ReadAsset(const footstone::stringview::unicode_string_view& path,
       AAssetManager_open(aasset_manager, asset_path, AASSET_MODE_STREAMING);
   if (asset) {
     size_t size;
-    if (!footstone::check::numeric_cast<off_t, size_t>(AAsset_getLength(asset) + (is_auto_fill ? 1:0),
-                                                  size)) {
+    if (!footstone::check::numeric_cast<off_t, size_t>(
+        AAsset_getLength(asset) + (is_auto_fill ? 1 : 0),
+        size)) {
       AAsset_close(asset);
       return false;
     }
@@ -67,8 +72,8 @@ bool ReadAsset(const footstone::stringview::unicode_string_view& path,
     }
     AAsset_close(asset);
     FOOTSTONE_DLOG(INFO) << "path = " << path << ", len = " << bytes.length()
-                        << ", file_data = "
-                        << reinterpret_cast<const char*>(bytes.c_str());
+                         << ", file_data = "
+                         << reinterpret_cast<const char*>(bytes.c_str());
     return true;
   }
   FOOTSTONE_DLOG(INFO) << "ReadFile fail, file_path = " << file_path;
@@ -113,3 +118,7 @@ class ADRLoader : public hippy::base::UriLoader {
   std::weak_ptr<TaskRunner> runner_;
   std::unordered_map<int64_t, std::function<void(u8string)>> request_map_;
 };
+
+}
+}
+}
