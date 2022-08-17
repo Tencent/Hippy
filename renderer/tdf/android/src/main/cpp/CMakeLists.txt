@@ -34,10 +34,10 @@ add_subdirectory(${TDF_RENDER_COMMON} tdf_renderer_common/build)
 target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer_common)
 
 # region source set
-set(SOURCE_SET )
+# set(SOURCE_SET )
 set(SOURCE_SET_STANDALONE
         src/render/tdf_render_bridge.cc)
-target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET})
+# target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.
 #   * `.o` files in the linker always go inside, referenced or not.

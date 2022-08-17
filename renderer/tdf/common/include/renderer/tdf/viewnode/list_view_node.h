@@ -113,7 +113,6 @@ class ListViewNode : public ScrollViewNode {
   bool should_reload_ = false;
   uint64_t on_reach_end_listener_id_;
   uint64_t batch_end_listener_id_;
-  // TODO use bit operator
   bool has_reached_end_ = false;
 };
 

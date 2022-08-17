@@ -89,7 +89,9 @@ void ListViewNode::OnDetach() {
   list_view->RemoveScrollUpdateListener(on_reach_end_listener_id_);
 }
 
-void ListViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) { ViewNode::HandleStyleUpdate(dom_style); }
+void ListViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
+  ScrollViewNode::HandleStyleUpdate(dom_style);
+}
 
 void ListViewNode::HandleEndReachedEvent() {
   ViewNode::SendUIDomEvent(kEndreached);

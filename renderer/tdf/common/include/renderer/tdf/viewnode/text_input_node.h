@@ -122,7 +122,6 @@ class TextInputNode : public ViewNode {
 
     OnBlur on_blur;
     OnChangeText on_change_text;
-    // 监听键盘高度变化
     OnKeyboardHeightChange on_keyboard_height_change;
     OnEndEditing on_end_editing;
     OnSelectionChange on_selection_change;
@@ -162,7 +161,7 @@ class TextInputNode : public ViewNode {
   void SetTextShadowRadius(const DomStyleMap& dom_style);
   void SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle& text_style);
 
-  // TODO(kloudwang): underlineColorAndroid/validator/value 属性
+  // TODO(kloudwang): underlineColorAndroid/validator/value
 
   void UpdateBlurAttr(const DomStyleMap& dom_style);
   void UpdateChangeTextAttr(const DomStyleMap& dom_style);

@@ -149,9 +149,12 @@ void ScrollViewNode::InitDragEndListener() {
     listener##id_ = scroll_view->Add##Event##Listener(listener);                                                  \
   }
 
-RegisterListener(ScrollStart, scroll_start_listener_) RegisterListener(ScrollUpdate, scroll_update_listener_)
-    RegisterListener(ScrollEnd, scroll_end_listener_) RegisterListener(DragStart, drag_start_listener_)
-        RegisterListener(DragEnd, drag_end_listener_)
+// Called by CreateView
+RegisterListener(ScrollStart, scroll_start_listener_)
+RegisterListener(ScrollUpdate, scroll_update_listener_)
+RegisterListener(ScrollEnd, scroll_end_listener_)
+RegisterListener(DragStart, drag_start_listener_)
+RegisterListener(DragEnd, drag_end_listener_)
 #undef RegisterListener
 
 void ScrollViewNode::HandleInnerEvent(std::string type) {

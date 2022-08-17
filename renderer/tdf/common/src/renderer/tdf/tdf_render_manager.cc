@@ -168,7 +168,6 @@ void TDFRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
   auto shell = root_view_node->GetShell();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     for (auto const& node : nodes) {
-      // 目前Hippy自身还有Bug，无法保证RenderInfo的100%可用(RenderInfo的id在这里为0)无法通过断言，临时屏蔽，直接使用DomNode的
       FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
       auto id = node->GetRenderInfo().id;
       root_view_node->FindViewNode(id)->OnDelete();
@@ -189,7 +188,7 @@ void TDFRenderManager::UpdateLayout(std::weak_ptr<RootNode> root_node,
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     FOOTSTONE_LOG(INFO) << "UpdateLayout: BEGIN";
     for (auto const& node : nodes) {
-      //      FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
+      FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
       root_view_node->FindViewNode(node->GetRenderInfo().id)->HandleLayoutUpdate(node->GetRenderLayoutResult());
     }
     FOOTSTONE_LOG(INFO) << "UpdateLayout: END";
