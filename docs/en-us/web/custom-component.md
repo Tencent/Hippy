@@ -2,6 +2,8 @@
 
 In the development of using Hippy, it is possible that the builtin components won't meet the need of certain circumstances. In this case, you can augment the UI components by encapsulation or importing some third-party functionalities inside the components.
 
+---
+
 # Component Extension
 
 Component extension mainly including:

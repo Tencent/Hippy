@@ -1,6 +1,8 @@
-# Native event
+# Events
 
 Some events are not sent to a single UI, but to the entire business, such as screen flips, network changes, etc., we call it `native events`.
+
+---
 
 # Event Listener
 

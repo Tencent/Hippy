@@ -2,6 +2,8 @@
 
 包含了前景、背景、边框、透明度、字体等外观样式
 
+---
+
 # borderColor
 
 > Android 默认值为 `transparent`，iOS 默认值为 `black`

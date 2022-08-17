@@ -1,6 +1,6 @@
 <!-- markdownlint-disable no-duplicate-header  -->
 
-# Module
+# Modules
 
 ---
 

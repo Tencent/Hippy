@@ -4,7 +4,9 @@
 
 Hippy 端定时器用法与 Web 端 Javascript 用法一致，可以直接使用。
 
-## 方法
+---
+
+# 方法
 
 * [setTimeout](//developer.mozilla.org/zh-CN/docs/Web/API/Window/setTimeout)
 * [clearTimeout](//developer.mozilla.org/zh-CN/docs/Web/API/WindowTimers/clearTimeout)

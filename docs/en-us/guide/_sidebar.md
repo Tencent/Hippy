@@ -9,7 +9,7 @@
 * [Animation](guide/animation.md)
 * [Log](guide/console.md)
 * [Exception Handler](guide/exception.md)
-* [Custom font](guide/custom-font.md)
+* [Custom Font](guide/custom-font.md)
 * [Dynamic Load](guide/dynamic-import.md)
 * [JSI](guide/jsi.md)
 * [Tech Support](guide/support.md)
