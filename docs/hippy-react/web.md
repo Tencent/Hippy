@@ -6,6 +6,8 @@ hippy-react 通过 [@hippy/react-web](//www.npmjs.com/package/@hippy/react-web) 
 
 > @hippy/react-web 2.14.0 开始支持较为完整的转 Web 能力
 
+---
+
 # 安装运行时依赖
 
 请使用 `npm i` 安装以下 npm 包，保证转 Web 运行时正常。

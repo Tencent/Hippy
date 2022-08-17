@@ -1,5 +1,7 @@
 # Debug
 
+---
+
 # Hippy Debugging Principles
 
 Hippy runs directly in real device's JS engine, using WebSocket on Android to communicate with Chrome on the computer via [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) debugging, while iOS uses the built-in [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) to connect with [Safari](//www.apple.com.cn/cn/safari/) for debugging, and in the newer Hippy versions of iOS, it can also be debugged using Chrome DevTools.

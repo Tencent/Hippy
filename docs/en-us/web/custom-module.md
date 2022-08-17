@@ -2,6 +2,8 @@
 
 In the development of using Hippy, it is possible that the builtin module won't meet the need of certain circumstances. In this case, you can augment the module by encapsulation or importing some third-party functionalities inside the module.
 
+---
+
 # Module Extension
 
 Module extension mainly including:

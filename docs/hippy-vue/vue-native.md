@@ -6,6 +6,8 @@ hippy-vue 通过在 Vue 上绑定了一个 `Native` 属性，实现获取终端�
 
 > 对应 Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
 
+---
+
 # 获取终端信息
 
 它无需任何方法，直接取值即可。

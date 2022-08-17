@@ -4,6 +4,8 @@
 
 Hippy directly supports the `fetch` and `WebSocket` interfaces of the W3C standard, and can access the server through these two methods.
 
+---
+
 # fetch
 
 Hippy provides a [fetch](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API) method that is basically consistent with the W3C standard. You can directly refer to [MDN](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API).

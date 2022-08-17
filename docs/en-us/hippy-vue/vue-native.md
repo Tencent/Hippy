@@ -1,10 +1,12 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# Module
+# Modules
 
 hippy-vue binds a `Native` prop on Vue to obtain native device information and call native module. It can also be used to monitor if it is running in a Hippy environment.
 
 > Corresponding Demo: [demo-vue-native.vue](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/native-demos/demo-vue-native.vue)
+
+---
 
 # Get native information
 

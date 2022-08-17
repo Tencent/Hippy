@@ -1,12 +1,12 @@
 <div id='custom-homepage'>
-    <div><img alt="logo" data-origin="_media/logo.svg" src="/_media/logo.svg" style="max-width: 100%;"></div>
+    <div><img alt="logo" data-origin="_media/hippy-logo.png" src="/_media/hippy-logo.png" style="min-width: 165px;min-height: 165px;max-height: 22vh;max-width: 22vw"></div>
     <div class="custom-homepage-container">
         <h1 id="hippy">
             <a class="anchor" data-id="hippy" href="#/?id=hippy">
                 <span>Hippy</span>
             </a>
         </h1>
-        <div class="sub-title"><span>Cross-Platform Framework for Front-End Developers</span></div>
+        <div class="sub-title"><span>Cross-Platform Framework for Developers</span></div>
         <a href="https://github.com/Tencent/Hippy/stargazers" rel="noopener" target="_blank"><img
                 alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Tencent/Hippy?color=50c52a"></a>
         <a href="https://github.com/Tencent/Hippy/releases"
