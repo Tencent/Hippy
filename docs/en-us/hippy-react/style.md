@@ -1,6 +1,8 @@
-# Style
+# Styles
 
-All style support of Hippy is directly provided by the native, which is basically the same as that of the browser. It does not support percentage layout, but the latest Flex flexible layout can be used.
+All styles support of Hippy is directly provided by the native, which is basically the same as that of the browser. It does not support percentage layout, but the latest Flex flexible layout can be used.
+
+---
 
 # Inline Style
 

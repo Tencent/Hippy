@@ -2,6 +2,8 @@
 
 Includes foreground, background, border, opacity, font and other appearance styles.
 
+---
+
 # borderColor
 
 > Android default value is `transparent`，iOS default value is `black`

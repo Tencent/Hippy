@@ -2,6 +2,8 @@
 
 When the browser finishes loading or uses some third-party libraries to complete some functions, it needs to throw events to the application side.
 
+---
+
 # Send event
 
 The WebRenderer calls the following code where the event needs to be sent:

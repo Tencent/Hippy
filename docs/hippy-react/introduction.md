@@ -2,6 +2,8 @@
 
 hippy-react 是基于 React 的官方自定义渲染器 [react-reconciler](//www.npmjs.com/package/react-reconciler) 重新开发的 React 到终端的渲染层，可以使用 React 的全部特性，当前采用 `React17`。
 
+---
+
 # 架构图
 
 <img src="assets/img/hippy-react.png" alt="hippy-react 架构图" width="70%"/>

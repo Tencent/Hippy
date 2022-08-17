@@ -4,17 +4,19 @@ This tutorial shows how to integrate Hippy into a Web page.
 
 > Different from @hippy/react-web and @hippy/vue-Web, this solution (Web Renderer) will not replace @hippy/react and @hippy/vue. Instead, the bundle running in the native environment will run intactly on the Web, which has advantages and disadvantages with Web translation solution. Application can adopt appropriate solution according to specific scenarios
 
-## Preparation
+---
+
+# Preparation
 
 - Template file: An HTML file is required as an entry for web working
 - Entry file: WebRenderer is a running environment of the Hippy bundle, so it does not share the JS entry file, and should create an independent entry file for it
 
-## Experience the demo
+# Experience the demo
 
 For a quick experience, you can base it directly on our [HippyReact Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) and
 [HippyVue Web Demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)
 
-### npm script
+## npm script
 
 In the Demo project, run the `web:dev` command to start the WebRenderer debugging service, and run the `web:build` to package.
 
@@ -25,11 +27,11 @@ In the Demo project, run the `web:dev` command to start the WebRenderer debuggin
   }
 ```
 
-### Start debugging
+## Start debugging
 
 Run `npm run web:dev` to start WebRenderer debugging. According to the Webpack configuration of the demo, the WebRenderer web service runs on port `3000`, the browser accesses the page through `http://localhost:3000`.
 
-## Quick access
+# Quick integration
 
 The execution of WebRenderer should comply with the following process:
 
@@ -37,9 +39,9 @@ The execution of WebRenderer should comply with the following process:
 2. Load the application bundle: This bundle is consistent with the bundle package running on the native side
 3. Start WebRenderer: This stage will load hippy built-in components and modules, or custom components and modules
 
-### Import WebRenderer
+## Import WebRenderer
 
-#### Use in CDN mode
+### Use in CDN mode
 
 Add these code to the template file:
 
@@ -61,7 +63,7 @@ Add these code to the template file:
 </html>
 ```
 
-#### Use in NPM package mode
+### Use in NPM package mode
 
 ```shell
 npm install -S @hippy/web-renderer
@@ -78,11 +80,11 @@ import { HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 // 3. Create the web engine. If there are application custom modules and components, pass them in from here
 ```
 
-### Load application bundle
+## Load application bundle
 
 There are multiple ways to load the bundle package, which can be flexibly selected according to application needs. Just ensure that the import order is after the WebRenderer
 
-#### Reference and load in the template file
+### Reference and load in the template file
 
 ```html
 <script src="//xxx.com/lib/hippy-web-renderer/0.1.1/hippy-web-renderer.js"></script>
@@ -92,7 +94,7 @@ There are multiple ways to load the bundle package, which can be flexibly select
 <script src="src/index.ts"></script>
 ```
 
-#### Load dynamically in the entry file
+### Load dynamically in the entry file
 
 ```javascript
 import { HippyWebEngine } from '@hippy/web-renderer';
@@ -107,7 +109,7 @@ const engine = HippyWebEngine.create();
 });
 ```
 
-#### Import from source code
+### Import from source code
 
 ```javascript
 import { HippyCallBack, HippyWebEngine, HippyWebModule, View } from '@hippy/web-renderer';
@@ -118,7 +120,7 @@ import './main';
 const engine = HippyWebEngine.create();
 ```
 
-### Start the WebRenderer
+## Start the WebRenderer
 
 After the application bundle is loaded, the relevant API is invoked to create and start the WebRenderer
 

@@ -2,6 +2,8 @@
 
 hippy-react is a React-to-native rendering layer redeveloped based on React's official custom renderer [react-reconciler](//www.npmjs.com/package/react-reconciler), which can use all of React's features. Now `React17` is used.
 
+---
+
 # Architecture Diagram
 
 <img src="assets/img/hippy-react.png" alt="hippy-react 架构图" width="70%"/>

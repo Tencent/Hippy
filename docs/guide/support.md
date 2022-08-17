@@ -1,5 +1,7 @@
 # 技术支持
 
+---
+
 # Github
 
 我们鼓励在 [Issue](//github.com/Tencent/Hippy/issues) 里汇报使用问题。

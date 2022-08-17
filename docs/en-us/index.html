@@ -11,11 +11,16 @@
   <meta property="og:type" content="article">
   <meta property="og:title" content="Hippy">
   <meta property="og:description" content="Hippy - A Cross-Platform Development Framework">
-  <meta property="og:image" content="assets/img/hippy-logo.svg">
+  <meta property="og:image" content="assets/img/hippy-logo.png">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Hippy">
   <meta name="twitter:description" content="Hippy - A Cross-Platform Development Framework">
-  <meta name="twitter:image" content="assets/img/hippy-logo.svg">
+  <meta name="twitter:image" content="assets/img/hippy-logo.png">
+  <script>
+    if (window.location.href.indexOf('cn.hippyjs.org/en-us') >= 0) {
+      window.location.replace("https://hippyjs.org/en-us/" + window.location.hash);
+    }
+  </script>
   <link rel="icon" href="../assets/img/hippy-logo.ico">
   <link rel="stylesheet" href="../assets/css/vue.css" title="vue">
   <style>

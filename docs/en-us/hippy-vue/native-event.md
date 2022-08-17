@@ -4,6 +4,8 @@ Some events are not sent to a single UI, but to the whole business, such as the 
 
 In hippy-vue, all native events are distributed to the instance of vue (named `app` in the example) through Vue's internal event mechanism.
 
+---
+
 # Event Listener
 
 Listen for the rotate event here, which has the callback parameter result.
