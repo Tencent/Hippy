@@ -30,6 +30,9 @@ import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+
 @SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "NetInfo")
 public class NetInfoModule extends HippyNativeModuleBase {
@@ -155,24 +158,29 @@ public class NetInfoModule extends HippyNativeModuleBase {
     @Override
     public void onReceive(Context context, Intent intent) {
       if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-        mContext.getGlobalConfigs().getExecutorSupplierAdapter().getBackgroundTaskExecutor()
-            .execute(new Runnable() {
-              @Override
-              public void run() {
-                String currentConnectivity = getCurrentConnectionType();
-                if (!currentConnectivity.equalsIgnoreCase(mCurrentConnectivity)) {
-                  try {
-                    mCurrentConnectivity = currentConnectivity;
-                    HippyMap data = new HippyMap();
-                    data.pushString("network_info", mCurrentConnectivity);
-                    mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
-                        .receiveNativeEvent(EVENT_NAME, data);
-                  } catch (Throwable e) {
-                    LogUtils.d("ConnectivityReceiver", "onReceive: " + e.getMessage());
-                  }
-                }
+        Executor executor = mContext.getGlobalConfigs()
+          .getExecutorSupplierAdapter().getBackgroundTaskExecutor();
+        if (executor == null) {
+          return;
+        }
+        try {
+          executor.execute(() -> {
+            String currentConnectivity = getCurrentConnectionType();
+            if (!currentConnectivity.equalsIgnoreCase(mCurrentConnectivity)) {
+              try {
+                mCurrentConnectivity = currentConnectivity;
+                HippyMap data = new HippyMap();
+                data.pushString("network_info", mCurrentConnectivity);
+                mContext.getModuleManager().getJavaScriptModule(EventDispatcher.class)
+                  .receiveNativeEvent(EVENT_NAME, data);
+              } catch (Throwable e) {
+                LogUtils.d("NetInfoModule", "onReceive sendEvent: ", e);
               }
-            });
+            }
+          });
+        } catch (RejectedExecutionException e) {
+          LogUtils.d("NetInfoModule", "onReceive execute: ", e);
+        }
       }
     }
   }
