@@ -175,7 +175,8 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
     return nullptr;
   }
 
-  auto u8_mode = StringViewUtils::ToU8StdStr(mode);
+  auto u8_mode = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      mode, unicode_string_view::Encoding::Utf8).utf8_value());
   if (u8_mode != kAnimationMode) {
     context->ThrowException("animation mode value error");
     return nullptr;
@@ -229,7 +230,8 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
       context->ThrowException("animation value_type error");
       return nullptr;
     }
-    auto u8_value_type = StringViewUtils::ToU8StdStr(value_type);
+    auto u8_value_type = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        value_type, unicode_string_view::Encoding::Utf8).utf8_value());
     if (u8_value_type == kAnimationValueTypeRad) {
       type = CubicBezierAnimation::ValueType::kRad;
     } else if (u8_value_type == kAnimationValueTypeDeg) {
@@ -259,7 +261,8 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
     return nullptr;
   }
 
-  auto u8_timing_func = StringViewUtils::ToU8StdStr(timing_func);
+  auto u8_timing_func = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      timing_func, unicode_string_view::Encoding::Utf8).utf8_value());
   int32_t cnt;
   auto cnt_obj = context->GetProperty(animation_obj, kAnimationRepeatCountKey);
   flag = context->GetValueNumber(cnt_obj, &cnt);
@@ -528,7 +531,8 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       auto context = scope->GetContext();
       context->CallFunction(func, 0, nullptr);
     };
-    animation->AddEventListener(StringViewUtils::ToU8StdStr(event_name), std::move(cb));
+    animation->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        event_name, unicode_string_view::Encoding::Utf8).utf8_value()), std::move(cb));
     return nullptr;
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
@@ -567,7 +571,8 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("event_name error");
       return nullptr;
     }
-    animation->RemoveEventListener(StringViewUtils::ToU8StdStr(event_name));
+    animation->RemoveEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        event_name, unicode_string_view::Encoding::Utf8).utf8_value()));
     return nullptr;
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));
@@ -794,7 +799,8 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       auto context = scope->GetContext();
       context->CallFunction(func, 0, nullptr);
     };
-    animation_set->AddEventListener(StringViewUtils::ToU8StdStr(event_name), std::move(cb));
+    animation_set->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        event_name, unicode_string_view::Encoding::Utf8).utf8_value()), std::move(cb));
     return nullptr;
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
@@ -834,7 +840,8 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("event_name error");
       return nullptr;
     }
-    animation_set->RemoveEventListener(StringViewUtils::ToU8StdStr(event_name));
+    animation_set->RemoveEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        event_name, unicode_string_view::Encoding::Utf8).utf8_value()));
     return nullptr;
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));

@@ -40,6 +40,11 @@ namespace hippy::devtools {
 
 constexpr char kDomTreeUpdated[] = "DomTreeUpdated";
 
+#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+using unicode_string_view = footstone::stringview::unicode_string_view;
+using StringViewUtils = footstone::stringview::StringViewUtils;
+#endif
+
 DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
@@ -136,7 +141,8 @@ void DevtoolsDataSource::SendVmNotification(std::unique_ptr<v8_inspector::String
 void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
   FOOTSTONE_DCHECK(!string_view.is8Bit());
   auto data_chars = reinterpret_cast<const char16_t*>(string_view.characters16());
-  auto result = footstone::stringview::StringViewUtils::ToU8StdStr(footstone::stringview::unicode_string_view(data_chars, string_view.length()));
+  auto result = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      unicode_string_view(data_chars, string_view.length()), unicode_string_view::Encoding::Utf8).utf8_value());
   devtools_service_->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
 }
 #endif

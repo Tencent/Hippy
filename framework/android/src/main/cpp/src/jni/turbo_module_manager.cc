@@ -139,8 +139,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
 void BindNativeFunction(const std::shared_ptr<Runtime>& runtime,
                         const unicode_string_view &name,
                         v8::FunctionCallback function_callback) {
-  FOOTSTONE_DLOG(INFO) << "enter bindNativeFunction name "
-                      << StringViewUtils::ToU8StdStr(name);
+  FOOTSTONE_DLOG(INFO) << "enter bindNativeFunction name " << name;
   std::shared_ptr<V8Ctx> v8_ctx =
       std::static_pointer_cast<V8Ctx>(runtime->GetScope()->GetContext());
   v8::HandleScope handle_scope(v8_ctx->isolate_);
@@ -157,8 +156,7 @@ void BindNativeFunction(const std::shared_ptr<Runtime>& runtime,
   v8::Local<v8::Function> function =
       function_template->GetFunction(context).ToLocalChecked();
   context->Global()->Set(context, function_name, function).ToChecked();
-  FOOTSTONE_DLOG(INFO) << "exit bindNativeFunction name "
-                      << StringViewUtils::ToU8StdStr(name);
+  FOOTSTONE_DLOG(INFO) << "exit bindNativeFunction name " << name;
 }
 
 void TurboModuleManager::Init() {

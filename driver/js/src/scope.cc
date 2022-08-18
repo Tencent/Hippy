@@ -388,7 +388,8 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
           unicode_string_view module_name;
           bool flag = context->GetValueString(module_name_value, &module_name);
           if (flag) {
-            std::string u8_module_name = StringViewUtils::ToU8StdStr(module_name);
+            std::string u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+                module_name, unicode_string_view::Encoding::Utf8).utf8_value());
             devtools_data_source->SetContextName(u8_module_name);
           } else {
             FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
@@ -433,7 +434,8 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
                     unicode_string_view module_name;
                     bool flag = context->GetValueString(module_name_value, &module_name);
                     if (flag) {
-                        std::string u8_module_name = StringViewUtils::ToU8StdStr(module_name);
+                        std::string u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+                            module_name, unicode_string_view::Encoding::Utf8).utf8_value());
                         devtools_data_source->SetContextName(u8_module_name);
                     } else {
                         FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";

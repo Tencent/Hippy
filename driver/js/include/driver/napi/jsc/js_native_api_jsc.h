@@ -391,7 +391,7 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
     if (prop.getter || prop.setter) {
       JSValueRef values[3];
       values[0] = prototype;
-      auto name = footstone::StringViewUtils::ToU8StdStr(prop.name);
+      auto name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(prop.name, unicode_string_view::Encoding::Utf8).utf8_value());
       JSStringRef prop_name_ref = JSStringCreateWithUTF8CString(name.c_str());
       JSValueRef prop_name = JSValueMakeString(context_, prop_name_ref);
       JSStringRelease(prop_name_ref);
@@ -409,7 +409,7 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
 
   for (auto& func : instance_define->functions) {
     JSClassDefinition func_def = kJSClassDefinitionEmpty;
-    std::string func_name = footstone::StringViewUtils::ToU8StdStr(func.name);
+    std::string func_name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(func.name, unicode_string_view::Encoding::Utf8).utf8_value());
     func_def.className = func_name.c_str();
     func_def.callAsFunction = [](JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
                                  size_t argc, const JSValueRef argv[],
@@ -490,7 +490,7 @@ void JSCCtx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<T>();
-  auto name = footstone::StringViewUtils::ToU8StdStr(instance_define->name);
+  auto name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(instance_define->name, unicode_string_view::Encoding::Utf8).utf8_value());
   cls_def.className = name.c_str();
   auto cls_ref = JSClassCreate(&cls_def);
   auto* data = new PrivateData<T>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};

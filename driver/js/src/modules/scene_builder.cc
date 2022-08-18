@@ -274,8 +274,12 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   auto props_tuple = GetNodeProps(context, node);
 
   // create node
-  std::string u8_tag_name = StringViewUtils::ToU8StdStr(std::get<2>(tag_name_tuple));
-  std::string u8_view_name = StringViewUtils::ToU8StdStr(std::get<2>(view_name_tuple));
+  std::string u8_tag_name = StringViewUtils::ToStdString(
+      StringViewUtils::ConvertEncoding(std::get<2>(tag_name_tuple),
+          unicode_string_view::Encoding::Utf8).utf8_value());
+  std::string u8_view_name = StringViewUtils::ToStdString(
+      StringViewUtils::ConvertEncoding(std::get<2>(view_name_tuple),
+          unicode_string_view::Encoding::Utf8).utf8_value());
   auto style = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(
       std::move(std::get<2>(props_tuple)));
   auto ext = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(
@@ -371,7 +375,8 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
 
   footstone::stringview::unicode_string_view str_view;
   ret = context->GetValueString(arguments[1], &str_view);
-  std::string event_name = StringViewUtils::ToU8StdStr(str_view);
+  std::string event_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      str_view, unicode_string_view::Encoding::Utf8).utf8_value());
   FOOTSTONE_DCHECK(ret) << "get event name failed";
 
   listener_info.dom_id = static_cast<uint32_t>(dom_id);
