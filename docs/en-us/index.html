@@ -17,7 +17,12 @@
   <meta name="twitter:description" content="Hippy - A Cross-Platform Development Framework">
   <meta name="twitter:image" content="assets/img/hippy-logo.png">
   <script>
-    if (window.location.href.indexOf('cn.hippyjs.org/en-us') >= 0) {
+    const needRedirectHosts = [
+      'cn.hippyjs.org',
+    ];
+    if (needRedirectHosts.includes(window.location.host)
+      && window.location.href.indexOf(window.location.host + '/en-us') >= 0)
+    {
       window.location.replace("https://hippyjs.org/en-us/" + window.location.hash);
     }
   </script>
