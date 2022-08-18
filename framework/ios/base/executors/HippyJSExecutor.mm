@@ -68,7 +68,7 @@ using SharedCtxValuePtr = std::shared_ptr<hippy::napi::CtxValue>;
 using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
 static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::function<void(u8string)> cb) {
-    std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
+    std::u16string u16Uri = StringViewUtils::ConvertEncoding(uri, unicode_string_view::Encoding::Utf16).utf16_value();
     NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], to default dynamic load action:%S", (const unichar*)u16Uri.c_str());
     NSString *URIString = [NSString stringWithCharacters:(const unichar*)u16Uri.c_str() length:(u16Uri.length())];
     NSURL *url = NativeRenderURLWithString(URIString, NULL);
@@ -94,7 +94,7 @@ static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::functi
 }
 
 static bool loadFunc(const unicode_string_view& uri, std::function<void(u8string)> cb, CFTypeRef userData) {
-    std::u16string u16Uri = StringViewUtils::Convert(uri, unicode_string_view::Encoding::Utf16).utf16_value();
+    std::u16string u16Uri = StringViewUtils::ConvertEncoding(uri, unicode_string_view::Encoding::Utf16).utf16_value();
     NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], start load function:%S", (const unichar*)u16Uri.c_str());
     HippyBridge *strongBridge = (__bridge HippyBridge *)userData;
     if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
@@ -191,7 +191,7 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
             break;
         case unicode_string_view::Encoding::Utf32:
         {
-            unicode_string_view convertedString = StringViewUtils::Convert(string_view, unicode_string_view::Encoding::Utf16);
+            unicode_string_view convertedString = StringViewUtils::ConvertEncoding(string_view, unicode_string_view::Encoding::Utf16);
             const unicode_string_view::u16string &u16String =convertedString.utf16_value();
             result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
         }

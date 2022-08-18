@@ -609,10 +609,7 @@ JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
       break;
     }
     case unicode_string_view::Encoding::Utf32: {
-      std::u16string u16_str =
-          StringViewUtils::Convert(str_view,
-                                   unicode_string_view::Encoding::Utf16)
-              .utf16_value();
+      std::u16string u16_str = StringViewUtils::ConvertEncoding(str_view, unicode_string_view::Encoding::Utf16).utf16_value();
       ret = JSStringCreateWithCharacters(
           reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;

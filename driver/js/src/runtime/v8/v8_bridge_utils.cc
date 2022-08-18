@@ -119,7 +119,9 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   if (is_dev_module) {
-    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(StringViewUtils::ToU8StdStr(ws_url), worker_manager);
+    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(
+        StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+            ws_url, unicode_string_view::Encoding::Utf8).utf8_value()), worker_manager);
     devtools_data_source->SetRuntimeDebugMode(is_dev_module);
     runtime->SetDevtoolsDataSource(devtools_data_source);
   }
@@ -203,7 +205,8 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #ifdef ENABLE_INSPECTOR
   if (is_dev_module) {
-    DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToU8StdStr(data_dir));
+    DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        data_dir, unicode_string_view::Encoding::Utf8).utf8_value()));
     scope->SetDevtoolsDataSource(runtime->GetDevtoolsDataSource());
 #ifndef V8_WITHOUT_INSPECTOR
     scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
@@ -214,7 +217,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       }
       auto inspector_client = runtime->GetEngine()->GetInspectorClient();
       if (inspector_client) {
-        auto u16str = StringViewUtils::Convert(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
+        auto u16str = StringViewUtils::ConvertEncoding(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
         inspector_client->SendMessageToV8(runtime->GetInspectorContext(), std::move(u16str));
       }
     });
@@ -270,7 +273,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
   unicode_string_view code_cache_path;
   if (is_use_code_cache) {
     if (is_local_file) {
-      modify_time = hippy::base::HippyFile::GetFileModifytime(uri);
+      modify_time = hippy::base::HippyFile::GetFileModifyTime(uri);
     }
 
     code_cache_path = code_cache_dir + file_name + unicode_string_view("_") +
@@ -339,7 +342,8 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
           HippyFile::CreateDir(code_cache_parent_dir, S_IRWXU);
         }
 
-        std::string u8_code_cache_content = StringViewUtils::ToU8StdStr(code_cache_content);
+        std::string u8_code_cache_content = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+            code_cache_content, unicode_string_view::Encoding::Utf8).utf8_value());
         bool save_file_ret = HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         FOOTSTONE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         FOOTSTONE_USE(save_file_ret);
@@ -627,7 +631,8 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
       auto flag = v8_ctx->GetValueJson(obj, &json);
       FOOTSTONE_DCHECK(flag);
       FOOTSTONE_DLOG(INFO) << "CallNative json = " << json;
-      buffer = StringViewUtils::ToU8StdStr(json);
+      buffer = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+          json, unicode_string_view::Encoding::Utf8).utf8_value());
     }
   }
 

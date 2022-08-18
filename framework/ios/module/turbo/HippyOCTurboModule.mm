@@ -78,8 +78,7 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
             if (!context->GetValueString(thisVal, &name)) {
                 return context->CreateNull();
             }
-            std::string methodName = StringViewUtils::ToU8StdStr(name);
-
+            std::string methodName = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(name, unicode_string_view::Encoding::Utf8).utf8_value());
             // get argument
             NSInteger argumentCount = static_cast<long>(count);
             NSMutableArray *argumentArray = @[].mutableCopy;
@@ -289,8 +288,7 @@ static id convertCtxValueToObjcObject(const std::shared_ptr<napi::Ctx> &context,
     } else if (context->GetValueBoolean(value, &boolResult)) {
         objcObject = @(boolResult);
     } else if (context->GetValueString(value, &result)) {
-        std::string resultStr = StringViewUtils::ToU8StdStr(result);
-        objcObject = [NSString stringWithUTF8String:resultStr.c_str()];
+      std::string resultStr = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(result, unicode_string_view::Encoding::Utf8).utf8_value());
     } else if (JSValueIsObject(jscCtx->context_, jscValue->value_)) {
         if (context->IsArray(value)) {
             objcObject = convertJSIArrayToNSArray(jscCtx, jscValue, module);
@@ -326,7 +324,7 @@ static id convertJSIObjectToNSObject(const std::shared_ptr<napi::JSCCtx> &contex
     if (!context->GetValueJson(value, &result)) {
         return nil;
     }
-    std::string resultStr = StringViewUtils::ToU8StdStr(result);
+    std::string resultStr = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(result, unicode_string_view::Encoding::Utf8).utf8_value());
     NSString *jsonString = [NSString stringWithCString:resultStr.c_str() encoding:[NSString defaultCStringEncoding]];
     NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSError *error;

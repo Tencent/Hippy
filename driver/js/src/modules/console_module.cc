@@ -37,7 +37,8 @@ using Ctx = hippy::napi::Ctx;
 namespace {
 
 unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
-  std::string u8_str = StringViewUtils::ToU8StdStr(str_view);
+  std::string u8_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      str_view, unicode_string_view::Encoding::Utf8).utf8_value());
   size_t len = u8_str.length();
   std::string ret;
   for (size_t i = 0; i < len; i++) {
@@ -83,7 +84,8 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo &info) { // NOLINT(reada
       return;
     }
 
-    std::string u8_type = StringViewUtils::ToU8StdStr(view_type);
+    std::string u8_type = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        view_type, unicode_string_view::Encoding::Utf8).utf8_value());
     if (u8_type == "info") {
       FOOTSTONE_LOG(INFO) << view_msg;
     } else if (u8_type == "warn") {

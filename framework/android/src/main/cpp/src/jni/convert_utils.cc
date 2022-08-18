@@ -189,7 +189,8 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
     unicode_string_view str_view;
     std::string str;
     if (turbo_env.context_->GetValueString(value, &str_view)) {
-      str = StringViewUtils::ToU8StdStr(str_view);
+      str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+          str_view, unicode_string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "value must be string", false);
     }
@@ -258,7 +259,8 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
     unicode_string_view str_view;
     std::string str;
     if (turbo_env.context_->GetValueString(value, &str_view)) {
-      str = StringViewUtils::ToU8StdStr(str_view);
+      str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+          str_view, unicode_string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "value must be string", false);
     }
@@ -338,7 +340,8 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv& turbo_
     unicode_string_view str_view;
     std::string key_str;
     if (turbo_env.context_->GetValueString(key, &str_view)) {
-      key_str = StringViewUtils::ToU8StdStr(str_view);
+      key_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+          str_view, unicode_string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "key must be string in map", static_cast<jobject>(nullptr));
     }
@@ -397,7 +400,8 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(TurboEnv& turbo_e
   if (context->GetValueNumber(value, &num)) {
     result = env->NewObject(double_clazz, double_constructor, num);
   } else if (context->GetValueString(value, &str_view)) {
-    str = StringViewUtils::ToU8StdStr(str_view);
+    str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        str_view, unicode_string_view::Encoding::Utf8).utf8_value());
     result = env->NewStringUTF(str.c_str());
   } else if (context->GetValueBoolean(value, &b)) {
     result = env->NewObject(boolean_clazz, boolean_constructor, b);
@@ -605,7 +609,8 @@ std::tuple<bool,
   }
 
   unicode_string_view str_view = JniUtils::ToStrView(j_env, sig);
-  std::string signature = StringViewUtils::ToU8StdStr(str_view);
+  std::string signature = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      str_view, unicode_string_view::Encoding::Utf8).utf8_value());
   j_env->DeleteLocalRef(sig);
   FOOTSTONE_DLOG(INFO) << "toJsValueInArray " << signature.c_str();
 
