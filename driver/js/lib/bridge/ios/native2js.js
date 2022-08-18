@@ -23,22 +23,22 @@
 
 const { JSTimersExecution } = require('../../modules/ios/jsTimersExecution.js');
 
-global.__fbBatchedBridge = {};
+global.__hpBatchedBridge = {};
 
-__fbBatchedBridge.flushedQueue = () => {
+__hpBatchedBridge.flushedQueue = () => {
   JSTimersExecution.callImmediates();
   const queue = __GLOBAL__._queue;
   __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
   return queue[0].length ? queue : null;
 };
 
-__fbBatchedBridge.invokeCallbackAndReturnFlushedQueue = (cbID, args) => {
-  __fbBatchedBridge.__invokeCallback(cbID, args);
+__hpBatchedBridge.invokeCallbackAndReturnFlushedQueue = (cbID, args) => {
+  __hpBatchedBridge.__invokeCallback(cbID, args);
   JSTimersExecution.callImmediates();
-  return __fbBatchedBridge.flushedQueue();
+  return __hpBatchedBridge.flushedQueue();
 };
 
-__fbBatchedBridge.__invokeCallback = (cbID, args) => {
+__hpBatchedBridge.__invokeCallback = (cbID, args) => {
   const callback = __GLOBAL__._callbacks[cbID];
   if (!callback) return;
   if (!__GLOBAL__._notDeleteCallbackIds[cbID & ~1]
@@ -52,7 +52,7 @@ __fbBatchedBridge.__invokeCallback = (cbID, args) => {
   callback(...args);
 };
 
-__fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
+__hpBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
   if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];
     if (!targetModule || !targetModule[method] || typeof targetModule[method] !== 'function') {
@@ -76,5 +76,5 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
     }
   }
   JSTimersExecution.callImmediates();
-  return __fbBatchedBridge.flushedQueue();
+  return __hpBatchedBridge.flushedQueue();
 };

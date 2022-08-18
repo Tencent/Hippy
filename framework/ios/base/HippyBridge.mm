@@ -94,7 +94,6 @@ NSString *HippyBridgeModuleNameForClass(Class cls) {
         name = NSStringFromClass(cls);
     }
     if ([name hasPrefix:@"Hippy"] || [name hasPrefix:@"hippy"]) {
-        // an exception,QB uses it
         if ([name isEqualToString:@"HippyIFrame"]) {
         } else {
             name = [name substringFromIndex:5];

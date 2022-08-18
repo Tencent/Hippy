@@ -250,7 +250,7 @@ static NSString *UnicodeStringViewToNSString(const unicode_string_view &string_v
                 }
                 NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                 context->SetGlobalJsonVar("__HIPPYNATIVEGLOBAL__", NSStringToU8StringView(string));
-                context->SetGlobalJsonVar("__fbBatchedBridgeConfig", NSStringToU8StringView([strongSelf.bridge moduleConfig]));
+                context->SetGlobalJsonVar("__hpBatchedBridgeConfig", NSStringToU8StringView([strongSelf.bridge moduleConfig]));
                 NSString *workFolder = [strongSelf.bridge sandboxDirectory];
                 if (workFolder) {
                     context->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8StringView(workFolder));
@@ -520,7 +520,7 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
                 NSError *executeError = nil;
                 id objcValue = nil;
                 SharedCtxPtr context = strongSelf.pScope->GetContext();
-                SharedCtxValuePtr batchedbridge_value = context->GetGlobalObjVar("__fbBatchedBridge");
+                SharedCtxValuePtr batchedbridge_value = context->GetGlobalObjVar("__hpBatchedBridge");
                 SharedCtxValuePtr resultValue = nullptr;
                 unicode_string_view exception;
                 if (batchedbridge_value) {
@@ -544,10 +544,10 @@ HIPPY_EXPORT_METHOD(setContextName:(NSString *)contextName) {
                         }
                     } else {
                         executeError = NativeRenderErrorWithMessageAndModuleName(
-                            [NSString stringWithFormat:@"property/function %@ not found in __fbBatchedBridge", method], moduleName);
+                            [NSString stringWithFormat:@"property/function %@ not found in __hpBatchedBridge", method], moduleName);
                     }
                 } else {
-                    executeError = NativeRenderErrorWithMessageAndModuleName(@"__fbBatchedBridge not found", moduleName);
+                    executeError = NativeRenderErrorWithMessageAndModuleName(@"__hpBatchedBridge not found", moduleName);
                 }
                 if (!StringViewUtils::IsEmpty(exception) || executeError) {
                     if (!StringViewUtils::IsEmpty(exception)) {

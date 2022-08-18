@@ -520,7 +520,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
         return;
     }
 
-    [_javaScriptExecutor injectJSONText:configJSON asGlobalObjectNamed:@"__fbBatchedBridgeConfig" callback:onComplete];
+    [_javaScriptExecutor injectJSONText:configJSON asGlobalObjectNamed:@"__hpBatchedBridgeConfig" callback:onComplete];
 }
 
 - (void)executeSourceCode:(NSData *)sourceCode {
