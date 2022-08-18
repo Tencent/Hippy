@@ -115,7 +115,7 @@
    * After the actions are replaced, the animation needs to be started manually
    *
    */
-import { defineComponent, ref, type Ref } from '@vue/runtime-core';
+import { defineComponent, ref, type Ref, shallowRef } from '@vue/runtime-core';
 
 import { warn } from '../../util';
 
@@ -138,7 +138,7 @@ export default defineComponent({
     const direction = ref('horizon');
     const isChanged = ref(true);
     const animationRef = ref(null);
-    const voteComponent: Ref = ref(VoteUp);
+    const voteComponent: Ref = shallowRef(VoteUp);
 
     const onRef = (eleRef) => {
       animationRef.value = eleRef;
