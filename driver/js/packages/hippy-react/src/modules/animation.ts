@@ -67,10 +67,6 @@ class Animation implements HippyTypes.Animation {
   animationEndListener?: Function | undefined;
   animationCancelListener?: Function | undefined;
   animationRepeatListener?: Function | undefined;
-  onRNfqbAnimationStart?: Function | undefined;
-  onRNfqbAnimationEnd?: Function | undefined;
-  onRNfqbAnimationCancel?: Function | undefined;
-  onRNfqbAnimationRepeat?: Function | undefined;
   onHippyAnimationStart?: Function | undefined;
   onHippyAnimationEnd?: Function | undefined;
   onHippyAnimationCancel?: Function | undefined;
@@ -111,11 +107,6 @@ class Animation implements HippyTypes.Animation {
     this.animationId = this.animation.getId();
     this.destroy = this.destroy.bind(this);
 
-    // TODO: Deprecated compatible, will remove soon.
-    this.onRNfqbAnimationStart = this.onAnimationStart.bind(this);
-    this.onRNfqbAnimationEnd = this.onAnimationEnd.bind(this);
-    this.onRNfqbAnimationCancel = this.onAnimationCancel.bind(this);
-    this.onRNfqbAnimationRepeat = this.onAnimationRepeat.bind(this);
     this.onHippyAnimationStart = this.onAnimationStart.bind(this);
     this.onHippyAnimationEnd = this.onAnimationEnd.bind(this);
     this.onHippyAnimationCancel = this.onAnimationCancel.bind(this);
