@@ -78,13 +78,7 @@ const TimerModule = null;
 const ConsoleModule = global.ConsoleModule || global.console;
 const Platform = Device.platform;
 const Hippy = HippyReact;
-const RNfqb = HippyReact;
 const ImageBackground = Image;
-
-// Forward compatibilities
-const RNfqbRegister = HippyRegister;
-const RNfqbEventEmitter = HippyEventEmitter;
-const RNfqbEventListener = HippyEventListener;
 
 const Dimensions = {
   get(name: 'window' | 'screen') {
@@ -105,9 +99,6 @@ export {
   callNativeWithPromise,
   callNativeWithCallbackId,
   removeNativeCallback,
-  RNfqbRegister,
-  RNfqbEventEmitter,
-  RNfqbEventListener,
   HippyRegister,
   HippyEventEmitter,
   HippyEventListener,
@@ -130,7 +121,6 @@ export {
   Animation,
   AnimationSet,
   Hippy,
-  RNfqb,
   View,
   Text,
   Image,

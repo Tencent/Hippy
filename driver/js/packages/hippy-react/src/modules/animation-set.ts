@@ -38,10 +38,6 @@ class AnimationSet implements HippyTypes.AnimationSet {
   animationId: number;
   animation?: HippyTypes.AnimationSetInstance;
   animationList: HippyTypes.AnimationList;
-  onRNfqbAnimationStart?: Function | undefined;
-  onRNfqbAnimationEnd?: Function | undefined;
-  onRNfqbAnimationCancel?: Function | undefined;
-  onRNfqbAnimationRepeat?: Function | undefined;
   onHippyAnimationStart?: Function | undefined;
   onHippyAnimationEnd?: Function | undefined;
   onHippyAnimationCancel?: Function | undefined;
@@ -69,10 +65,6 @@ class AnimationSet implements HippyTypes.AnimationSet {
     });
     this.animationId = this.animation.getId();
     // TODO: Deprecated compatible, will remove soon.
-    this.onRNfqbAnimationStart = this.onAnimationStart.bind(this);
-    this.onRNfqbAnimationEnd = this.onAnimationEnd.bind(this);
-    this.onRNfqbAnimationCancel = this.onAnimationCancel.bind(this);
-    this.onRNfqbAnimationRepeat = this.onAnimationRepeat.bind(this);
     this.onHippyAnimationStart = this.onAnimationStart.bind(this);
     this.onHippyAnimationEnd = this.onAnimationEnd.bind(this);
     this.onHippyAnimationCancel = this.onAnimationCancel.bind(this);
