@@ -30,15 +30,15 @@
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using Ctx = hippy::napi::Ctx;
 
 namespace {
 
-unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
+string_view EscapeMessage(const string_view& str_view) {
   std::string u8_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      str_view, string_view::Encoding::Utf8).utf8_value());
   size_t len = u8_str.length();
   std::string ret;
   for (size_t i = 0; i < len; i++) {
@@ -49,7 +49,7 @@ unicode_string_view EscapeMessage(const unicode_string_view& str_view) {
     }
   }
 
-  return unicode_string_view(ret);
+  return string_view(ret);
 }
 
 }  // namespace
@@ -65,18 +65,18 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo &info) { // NOLINT(reada
   std::shared_ptr<Ctx> context = scope->GetContext();
   FOOTSTONE_CHECK(context);
 
-  unicode_string_view message;
+  string_view message;
   if (!context->GetValueString(info[0], &message)) {
     info.GetExceptionValue()->Set(context,
                                   "The first argument must be string.");
     return;
   }
 
-  unicode_string_view view_msg = EscapeMessage(message);
+  string_view view_msg = EscapeMessage(message);
   if (info.Length() == 1) {
     FOOTSTONE_LOG(INFO) << view_msg;
   } else {
-    unicode_string_view view_type;
+    string_view view_type;
     if (!context->GetValueString(info[1], &view_type) ||
         StringViewUtils::IsEmpty(view_type)) {
       info.GetExceptionValue()->Set(
@@ -85,7 +85,7 @@ void ConsoleModule::Log(const hippy::napi::CallbackInfo &info) { // NOLINT(reada
     }
 
     std::string u8_type = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        view_type, unicode_string_view::Encoding::Utf8).utf8_value());
+        view_type, string_view::Encoding::Utf8).utf8_value());
     if (u8_type == "info") {
       FOOTSTONE_LOG(INFO) << view_msg;
     } else if (u8_type == "warn") {

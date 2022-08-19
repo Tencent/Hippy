@@ -27,7 +27,7 @@
 
 #include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 namespace hippy {
 inline namespace driver {
@@ -49,14 +49,14 @@ class ReturnValue {
 
 class ExceptionValue {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
 
   ExceptionValue() = default;
   ExceptionValue(const ExceptionValue &) = delete;
   ExceptionValue &operator=(const ExceptionValue &) = delete;
 
   void Set(std::shared_ptr<CtxValue> value) { value_ = value; }
-  void Set(const std::shared_ptr<Ctx>& context, const unicode_string_view& str);
+  void Set(const std::shared_ptr<Ctx>& context, const string_view& str);
   std::shared_ptr<CtxValue> Get() const { return value_; }
 
  private:

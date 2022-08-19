@@ -25,14 +25,14 @@
 #include <jni.h>
 #include <string>
 
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 namespace hippy {
 inline namespace framework {
 inline namespace jni {
 
 class JniUtils {
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
   using byte_string = std::string;
 
  public:
@@ -40,21 +40,21 @@ class JniUtils {
   ~JniUtils() = default;
 
  public:
-  static unicode_string_view JByteArrayToStrView(JNIEnv* j_env,
-                                                 jbyteArray j_byte_array,
-                                                 jsize j_offset = 0,
-                                                 jsize j_length = -1);
+  static string_view JByteArrayToStrView(JNIEnv* j_env,
+                                         jbyteArray j_byte_array,
+                                         jsize j_offset = 0,
+                                         jsize j_length = -1);
 
   static jstring StrViewToJString(JNIEnv* j_env,
-                                  const unicode_string_view& str_view);
+                                  const string_view& str_view);
   static byte_string AppendJavaByteArrayToBytes(JNIEnv* j_env,
                                                  jbyteArray byte_array,
                                                  jsize j_offset = 0,
                                                  jsize j_length = -1);
 
-  static unicode_string_view::u8string ToU8String(JNIEnv* j_env, jstring j_str);
+  static string_view::u8string ToU8String(JNIEnv* j_env, jstring j_str);
 
-  static unicode_string_view ToStrView(JNIEnv* j_env, jstring j_str);
+  static string_view ToStrView(JNIEnv* j_env, jstring j_str);
 };
 
 }

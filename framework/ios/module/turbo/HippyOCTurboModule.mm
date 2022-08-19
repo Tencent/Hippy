@@ -42,7 +42,7 @@
 using namespace hippy;
 using namespace napi;
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 @interface HippyOCTurboModule () {
@@ -74,11 +74,11 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
             std::shared_ptr<napi::Ctx> context = env.context_;
 
             // get method name
-            unicode_string_view name;
+            string_view name;
             if (!context->GetValueString(thisVal, &name)) {
                 return context->CreateNull();
             }
-            std::string methodName = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(name, unicode_string_view::Encoding::Utf8).utf8_value());
+            std::string methodName = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(name, string_view::Encoding::Utf8).utf8_value());
             // get argument
             NSInteger argumentCount = static_cast<long>(count);
             NSMutableArray *argumentArray = @[].mutableCopy;
@@ -247,7 +247,7 @@ static std::shared_ptr<napi::CtxValue> convertNSObjectToCtxValue(const std::shar
         NSString *name = [[objcObject class] turoboModuleName];
         std::shared_ptr<hippy::napi::CtxValue> value = [jsExecutor JSTurboObjectWithName:name];
         auto jscValue = std::static_pointer_cast<hippy::napi::JSCCtxValue>(value);
-        
+
         JSObjectRef jsValueObj = JSValueToObject(jscCtx->context_, jscValue->value_, NULL);
         JSGlobalContextRef globalContextRef = JSContextGetGlobalContext(jscCtx->context_);
         JSContext *ctx = [JSContext contextWithJSGlobalContextRef:globalContextRef];
@@ -279,7 +279,7 @@ static id convertCtxValueToObjcObject(const std::shared_ptr<napi::Ctx> &context,
     id objcObject;
     double numberResult;
     bool boolResult;
-    unicode_string_view result;
+    string_view result;
 
     if (context->IsNullOrUndefined(value)) {
         objcObject = nil;
@@ -288,7 +288,8 @@ static id convertCtxValueToObjcObject(const std::shared_ptr<napi::Ctx> &context,
     } else if (context->GetValueBoolean(value, &boolResult)) {
         objcObject = @(boolResult);
     } else if (context->GetValueString(value, &result)) {
-      std::string resultStr = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(result, unicode_string_view::Encoding::Utf8).utf8_value());
+        std::string resultStr = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(result, string_view::Encoding::Utf8).utf8_value());
+        objcObject = [NSString stringWithUTF8String:resultStr.c_str()];
     } else if (JSValueIsObject(jscCtx->context_, jscValue->value_)) {
         if (context->IsArray(value)) {
             objcObject = convertJSIArrayToNSArray(jscCtx, jscValue, module);
@@ -320,11 +321,11 @@ static id convertCtxValueToObjcObject(const std::shared_ptr<napi::Ctx> &context,
 
 static id convertJSIObjectToNSObject(const std::shared_ptr<napi::JSCCtx> &context,
                                      const std::shared_ptr<napi::JSCCtxValue> &value) {
-    unicode_string_view result;
+    string_view result;
     if (!context->GetValueJson(value, &result)) {
         return nil;
     }
-    std::string resultStr = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(result, unicode_string_view::Encoding::Utf8).utf8_value());
+    std::string resultStr = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(result, string_view::Encoding::Utf8).utf8_value());
     NSString *jsonString = [NSString stringWithCString:resultStr.c_str() encoding:[NSString defaultCStringEncoding]];
     NSData *data = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
     NSError *error;

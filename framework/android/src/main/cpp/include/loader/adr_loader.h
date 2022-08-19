@@ -37,13 +37,13 @@ inline namespace framework {
 inline namespace loader {
 
 template<typename CharType>
-bool ReadAsset(const footstone::stringview::unicode_string_view& path,
+bool ReadAsset(const footstone::stringview::string_view& path,
                AAssetManager* aasset_manager,
                std::basic_string<CharType>& bytes,
                bool is_auto_fill) {
   auto asset_path_str = footstone::StringViewUtils::ToStdString(
       footstone::StringViewUtils::ConvertEncoding(
-      path, footstone::unicode_string_view::Encoding::Utf8).utf8_value());
+      path, footstone::string_view::Encoding::Utf8).utf8_value());
   auto asset_path = reinterpret_cast<const char*>(asset_path_str.c_str());
   std::string file_path = std::string(asset_path);
   if (file_path.length() > 0 && file_path[0] == '/') {
@@ -84,16 +84,16 @@ bool ReadAsset(const footstone::stringview::unicode_string_view& path,
 
 class ADRLoader : public hippy::base::UriLoader {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
-  using u8string = unicode_string_view::u8string;
+  using string_view = footstone::stringview::string_view;
+  using u8string = string_view::u8string;
   using TaskRunner = footstone::TaskRunner;
 
   ADRLoader();
   virtual ~ADRLoader() {}
 
-  virtual bool RequestUntrustedContent(const unicode_string_view& uri,
+  virtual bool RequestUntrustedContent(const string_view& uri,
                                        std::function<void(u8string)> cb);
-  virtual bool RequestUntrustedContent(const unicode_string_view& uri,
+  virtual bool RequestUntrustedContent(const string_view& uri,
                                        u8string& str);
 
   inline void SetBridge(std::shared_ptr<JavaRef> bridge) { bridge_ = bridge; }
@@ -107,12 +107,12 @@ class ADRLoader : public hippy::base::UriLoader {
   int64_t SetRequestCB(const std::function<void(u8string)>& cb);
 
  private:
-  bool LoadByFile(const unicode_string_view& path,
+  bool LoadByFile(const string_view& path,
                   const std::function<void(u8string)>& cb);
-  bool LoadByAsset(const unicode_string_view& file_path,
+  bool LoadByAsset(const string_view& file_path,
                    const std::function<void(u8string)>& cb,
                    bool is_auto_fill = false);
-  bool LoadByHttp(const unicode_string_view& uri,
+  bool LoadByHttp(const string_view& uri,
                   const std::function<void(u8string)>& cb);
 
   std::shared_ptr<JavaRef> bridge_;

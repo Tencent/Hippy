@@ -33,8 +33,8 @@
 #include "exception_handler.h"
 #include "js2dart.h"
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
-using u8string = unicode_string_view::u8string;
+using string_view = footstone::stringview::string_view;
+using u8string = string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
@@ -81,14 +81,14 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
     voltron::bridge::CallDart(data);
   };
   V8BridgeUtils::SetOnThrowExceptionToJS([](const std::shared_ptr<Runtime>& runtime,
-                                            const unicode_string_view& desc,
-                                            const unicode_string_view& stack) {
+                                            const string_view& desc,
+                                            const string_view& stack) {
     voltron::ExceptionHandler::ReportJsException(runtime, desc, stack);
   });
   std::shared_ptr<VoltronBridge> bridge = std::make_shared<VoltronBridge>(platform_runtime);
-  unicode_string_view global_config = unicode_string_view(char_globalConfig);
-  unicode_string_view data_dir = unicode_string_view(char_data_dir);
-  unicode_string_view ws_url = unicode_string_view(char_ws_url);
+  string_view global_config = string_view(char_globalConfig);
+  string_view data_dir = string_view(char_data_dir);
+  string_view ws_url = string_view(char_ws_url);
   runtime_id = V8BridgeUtils::InitInstance(
       true,
       static_cast<bool>(is_dev_module),
@@ -126,11 +126,11 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
     FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
     return false;
   }
-  unicode_string_view script_path = unicode_string_view(script_path_str);
-  unicode_string_view script_name = unicode_string_view(script_name_str);
-  unicode_string_view code_cache_dir = unicode_string_view(code_cache_dir_str);
+  string_view script_path = string_view(script_path_str);
+  string_view script_name = string_view(script_name_str);
+  string_view code_cache_dir = string_view(code_cache_dir_str);
   auto pos = StringViewUtils::FindLastOf(script_path, EXTEND_LITERAL('/'));
-  unicode_string_view base_path = StringViewUtils::SubStr(script_path, 0, pos + 1);
+  string_view base_path = StringViewUtils::SubStr(script_path, 0, pos + 1);
 
   FOOTSTONE_DLOG(INFO) << "RunScriptFromFile path = " << script_path
                       << ", script_name = " << script_name
@@ -164,9 +164,9 @@ bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
                                                                             content,
                                                                             false);
                                                         if (!content.empty()) {
-                                                          return unicode_string_view(std::move(content));
+                                                          return string_view(std::move(content));
                                                         } else {
-                                                          return unicode_string_view{};
+                                                          return string_view{};
                                                         }
                                                       });
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
@@ -204,9 +204,9 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
       std::chrono::system_clock::now())
       .time_since_epoch()
       .count();
-  unicode_string_view asset_name = unicode_string_view(asset_name_str);
-  unicode_string_view code_cache_dir = unicode_string_view(code_cache_dir_str);
-  unicode_string_view asset_content = unicode_string_view(asset_content_str);
+  string_view asset_name = string_view(asset_name_str);
+  string_view code_cache_dir = string_view(code_cache_dir_str);
+  string_view asset_content = string_view(asset_content_str);
 
   FOOTSTONE_DLOG(INFO) << "RunScriptFromAssets asset_name = " << asset_name_str
                       << ", code_cache_dir = " << code_cache_dir;
@@ -250,7 +250,7 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id,
 void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, std::string params,
                               std::function<void(int64_t)> callback) {
   voltron::bridge::CallJSFunction(runtime_id,
-                                  unicode_string_view(action),
+                                  string_view(action),
                                   std::move(params),
                                   std::move(callback));
 }
@@ -282,7 +282,7 @@ void BridgeImpl::UnloadInstance(int64_t runtime_id, std::function<void(int64_t)>
     V8BridgeUtils::UnloadInstance(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id),
                                   [callback = std::move(callback)](
                                           hippy::runtime::CALL_FUNCTION_CB_STATE state,
-                                          const unicode_string_view &msg) {
+                                          const string_view &msg) {
                                       callback(static_cast<int64_t>(state));
                                   });
 }

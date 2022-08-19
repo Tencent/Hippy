@@ -39,7 +39,7 @@
 #include "driver/napi/v8/js_native_api_v8.h"
 #endif
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 using RegisterMap = hippy::RegisterMap;
@@ -135,7 +135,7 @@ void Scope::Initialized() {
 
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
   FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
-  unicode_string_view str_view(source_code.data_, source_code.length_);
+  string_view str_view(source_code.data_, source_code.length_);
   std::shared_ptr<CtxValue> function =
       context_->RunScript(str_view, kHippyBootstrapJSName);
 
@@ -160,23 +160,23 @@ void Scope::Initialized() {
   }
 }
 
-ModuleBase* Scope::GetModuleClass(const unicode_string_view& moduleName) {
+ModuleBase* Scope::GetModuleClass(const string_view& moduleName) {
   auto it = module_class_map_.find(moduleName);
   return it != module_class_map_.end() ? it->second.get() : nullptr;
 }
 
-void Scope::AddModuleClass(const unicode_string_view& name,
+void Scope::AddModuleClass(const string_view& name,
                            std::unique_ptr<ModuleBase> module) {
   module_class_map_.insert({name, std::move(module)});
 }
 
 std::shared_ptr<hippy::napi::CtxValue> Scope::GetModuleValue(
-    const unicode_string_view& module_name) {
+    const string_view& module_name) {
   auto it = module_value_map_.find(module_name);
   return it != module_value_map_.end() ? it->second : nullptr;
 }
 
-void Scope::AddModuleValue(const unicode_string_view& name,
+void Scope::AddModuleValue(const string_view& name,
                            const std::shared_ptr<CtxValue>& value) {
   module_value_map_.insert({name, value});
 }
@@ -305,8 +305,8 @@ uint64_t Scope::GetListenerId(const EventListenerInfo& event_listener_info) {
   return kInvalidListenerId;
 }
 
-void Scope::RunJS(const unicode_string_view& data,
-                  const unicode_string_view& name,
+void Scope::RunJS(const string_view& data,
+                  const string_view& name,
                   bool is_copy) {
   std::weak_ptr<Ctx> weak_context = context_;
   auto callback = [data, name, is_copy, weak_context] {
@@ -332,8 +332,8 @@ void Scope::RunJS(const unicode_string_view& data,
   }
 }
 
-std::shared_ptr<CtxValue> Scope::RunJSSync(const unicode_string_view& data,
-                                           const unicode_string_view& name,
+std::shared_ptr<CtxValue> Scope::RunJSSync(const string_view& data,
+                                           const string_view& name,
                                            bool is_copy) {
   std::promise<std::shared_ptr<CtxValue>> promise;
   std::future<std::shared_ptr<CtxValue>> future = promise.get_future();
@@ -385,11 +385,11 @@ void Scope::LoadInstance(const std::shared_ptr<HippyValue>& value) {
         std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
         auto devtools_data_source = weak_data_source.lock();
         if (module_name_value && devtools_data_source != nullptr) {
-          unicode_string_view module_name;
+          string_view module_name;
           bool flag = context->GetValueString(module_name_value, &module_name);
           if (flag) {
             std::string u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-                module_name, unicode_string_view::Encoding::Utf8).utf8_value());
+                module_name, string_view::Encoding::Utf8).utf8_value());
             devtools_data_source->SetContextName(u8_module_name);
           } else {
             FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";
@@ -431,11 +431,11 @@ void Scope::UnloadInstance(const std::shared_ptr<HippyValue>& value) {
                 std::shared_ptr<CtxValue> module_name_value = context->GetProperty(param, kHippyModuleName);
                 auto devtools_data_source = weak_data_source.lock();
                 if (module_name_value && devtools_data_source != nullptr) {
-                    unicode_string_view module_name;
+                    string_view module_name;
                     bool flag = context->GetValueString(module_name_value, &module_name);
                     if (flag) {
                         std::string u8_module_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-                            module_name, unicode_string_view::Encoding::Utf8).utf8_value());
+                            module_name, string_view::Encoding::Utf8).utf8_value());
                         devtools_data_source->SetContextName(u8_module_name);
                     } else {
                         FOOTSTONE_DLOG(ERROR) << "module name get error. GetValueString return false";

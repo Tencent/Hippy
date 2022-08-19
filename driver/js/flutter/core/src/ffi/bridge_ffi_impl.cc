@@ -200,11 +200,11 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
   // change char16_t* to std::string
   std::string request_string;
   if (request_id) {
-    request_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(request_id));
+    request_string = hippy::base::StringViewUtils::ToU8StdStr(string_view(request_id));
   }
   std::string content_string;
   if (content) {
-    content_string = hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(content));
+    content_string = hippy::base::StringViewUtils::ToU8StdStr(string_view(content));
   }
 
   // dispatch network event
@@ -214,7 +214,7 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
   } else if (event_type == static_cast<int32_t> (NetworkEventType::kResponseReceived)) {
     // create response request body
     hippy::devtools::DevtoolsHttpResponse response = hippy::devtools::DevtoolsHttpResponse(content_string);
-    response.SetBodyData(hippy::base::StringViewUtils::ToU8StdStr(unicode_string_view(extra)));
+    response.SetBodyData(hippy::base::StringViewUtils::ToU8StdStr(string_view(extra)));
     auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
     notification_center->network_notification->ResponseReceived(request_string, response);
   } else if (event_type == static_cast<int32_t> (NetworkEventType::kLoadingFinished)) {

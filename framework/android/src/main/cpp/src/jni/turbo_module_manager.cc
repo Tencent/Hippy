@@ -45,7 +45,7 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/jsi/TurboModuleManager", // NOLINT(ce
              Install)
 
 using namespace hippy::napi;
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using Runtime = hippy::Runtime;
 
@@ -103,7 +103,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
       if (!module_impl->GetObj()) {
         std::string exception_info = std::string("Cannot find TurboModule: ").append(name);
         FOOTSTONE_LOG(ERROR) << "cannot find TurboModule = " << name.c_str();
-        v8_ctx->ThrowException(unicode_string_view(exception_info));
+        v8_ctx->ThrowException(string_view(exception_info));
         return info.GetReturnValue().SetUndefined();
       }
 
@@ -137,7 +137,7 @@ void GetTurboModule(const v8::FunctionCallbackInfo<v8::Value> &info) {
 }
 
 void BindNativeFunction(const std::shared_ptr<Runtime>& runtime,
-                        const unicode_string_view &name,
+                        const string_view &name,
                         v8::FunctionCallback function_callback) {
   FOOTSTONE_DLOG(INFO) << "enter bindNativeFunction name " << name;
   std::shared_ptr<V8Ctx> v8_ctx =

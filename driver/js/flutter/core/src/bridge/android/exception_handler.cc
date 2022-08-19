@@ -24,8 +24,8 @@
 
 namespace voltron {
 
-void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime, const unicode_string_view& desc,
-                                         const unicode_string_view& stack) {
+void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime, const string_view& desc,
+                                         const string_view& stack) {
   FOOTSTONE_DLOG(INFO) << "ReportJsException begin";
   if (runtime->HasData(kBridgeSlot)) {
     auto slot = runtime->GetData(kBridgeSlot);

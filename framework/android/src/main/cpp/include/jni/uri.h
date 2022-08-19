@@ -26,21 +26,21 @@
 
 #include <string>
 
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 namespace hippy {
 inline namespace framework {
 
 class Uri {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
 
-  static std::shared_ptr<Uri> Create(const unicode_string_view &uri);
-  explicit Uri(const unicode_string_view &uri);
+  static std::shared_ptr<Uri> Create(const string_view &uri);
+  explicit Uri(const string_view &uri);
   ~Uri();
-  unicode_string_view GetPath();
-  unicode_string_view GetScheme();
-  unicode_string_view Normalize();
+  string_view GetPath();
+  string_view GetScheme();
+  string_view Normalize();
   static bool Init();
   static bool Destroy();
 

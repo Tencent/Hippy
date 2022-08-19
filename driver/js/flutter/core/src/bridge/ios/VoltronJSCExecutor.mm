@@ -73,7 +73,7 @@ struct __attribute__((packed)) ModuleData {
 
 using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
 using memory_ptr = std::unique_ptr<void, decltype(&free)>;
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = hippy::base::StringViewUtils;
 
 
@@ -134,9 +134,9 @@ struct RandomAccessBundleData {
     return self;
 }
 
-static unicode_string_view NSStringToU8(NSString* str) {
+static string_view NSStringToU8(NSString* str) {
   std::string u8 = [str UTF8String];
-  return unicode_string_view(reinterpret_cast<const unicode_string_view::char8_t_*>(u8.c_str()), u8.length());
+  return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
 }
 
 - (std::unique_ptr<Engine::RegisterMap>)registerMap {
@@ -233,7 +233,7 @@ static BOOL handleJsExcepiton(std::shared_ptr<Scope> scope) {
     if (!context->IsExceptionHandled()) {
       context->ThrowException(exception);
     }
-    std::u16string exceptionStr = StringViewUtils::Convert(context->GetExceptionMsg(exception), unicode_string_view::Encoding::Utf16).utf16_value();
+    std::u16string exceptionStr = StringViewUtils::Convert(context->GetExceptionMsg(exception), string_view::Encoding::Utf16).utf16_value();
     NSString *err = [NSString stringWithCharacters:(const unichar *)exceptionStr.c_str() length:(exceptionStr.length())];
     NSError *error = VoltronErrorWithMessage(err);
 

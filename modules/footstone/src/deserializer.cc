@@ -26,12 +26,12 @@
 #include "include/footstone/logging.h"
 #include "include/footstone/string_view_utils.h"
 #include "include/footstone/serializer.h"
-#include "include/footstone/unicode_string_view.h"
+#include "include/footstone/string_view.h"
 
 namespace footstone {
 inline namespace value {
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 Deserializer::Deserializer(const std::vector<const uint8_t>& data)
@@ -125,9 +125,9 @@ bool Deserializer::ReadUtf8String(std::string& value) {
 
   const uint8_t* start = const_cast<uint8_t*>(position_);
   position_ += utf8_length;
-  unicode_string_view string_view(start, utf8_length);
+  string_view string_view(start, utf8_length);
   value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      string_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
 
@@ -138,9 +138,9 @@ bool Deserializer::ReadUtf8String(HippyValue& dom_value) {
 
   const uint8_t* start = position_;
   position_ += utf8_length;
-  unicode_string_view string_view(start, utf8_length);
+  string_view string_view(start, utf8_length);
   dom_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      string_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
 
@@ -151,9 +151,9 @@ bool Deserializer::ReadOneByteString(std::string& value) {
 
   const char* start = reinterpret_cast<char*>(const_cast<uint8_t*>(position_));
   position_ += one_byte_length;
-  unicode_string_view string_view(start, one_byte_length);
+  string_view string_view(start, one_byte_length);
   value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      string_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
 
@@ -164,9 +164,9 @@ bool Deserializer::ReadOneByteString(HippyValue& dom_value) {
 
   const char* start = reinterpret_cast<char*>(const_cast<uint8_t*>(position_));
   position_ += one_byte_length;
-  unicode_string_view string_view(start, one_byte_length);
+  string_view string_view(start, one_byte_length);
   dom_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      string_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
 
@@ -177,9 +177,9 @@ bool Deserializer::ReadTwoByteString(std::string& value) {
 
   const char16_t* start = reinterpret_cast<char16_t*>(const_cast<uint8_t*>(position_));
   position_ += two_byte_length;
-  unicode_string_view string_view(start, two_byte_length);
+  string_view string_view(start, two_byte_length);
   value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      string_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
 
@@ -190,9 +190,9 @@ bool Deserializer::ReadTwoByteString(HippyValue& dom_value) {
 
   const char16_t* start = reinterpret_cast<char16_t*>(const_cast<uint8_t*>(position_));
   position_ += two_byte_length;
-  unicode_string_view string_view(start, two_byte_length / sizeof(char16_t));
+  string_view string_view(start, two_byte_length / sizeof(char16_t));
   dom_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      string_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
 }
 
