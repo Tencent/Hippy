@@ -30,7 +30,7 @@
 #include "driver/modules/ui_manager_module.h"
 #include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/task.h"
 
@@ -42,7 +42,7 @@ using FunctionDefine = hippy::napi::FunctionDefine<T>;
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 using AnimationSetChild = hippy::AnimationSet::AnimationSetChild;
@@ -167,7 +167,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   }
 
   auto animation_obj = arguments[0];
-  unicode_string_view mode;
+  string_view mode;
   auto mode_obj = context->GetProperty(animation_obj, kAnimationModeKey);
   auto flag = context->GetValueString(mode_obj, &mode);
   if (!flag) {
@@ -176,7 +176,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   }
 
   auto u8_mode = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      mode, unicode_string_view::Encoding::Utf8).utf8_value());
+      mode, string_view::Encoding::Utf8).utf8_value());
   if (u8_mode != kAnimationMode) {
     context->ThrowException("animation mode value error");
     return nullptr;
@@ -221,7 +221,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
     return nullptr;
   }
 
-  unicode_string_view value_type;
+  string_view value_type;
   auto value_type_obj = context->GetProperty(animation_obj, kAnimationValueTypeKey);
   CubicBezierAnimation::ValueType type = CubicBezierAnimation::ValueType::kUndefined;
   if (!context->IsNullOrUndefined(value_type_obj)) {
@@ -231,7 +231,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
       return nullptr;
     }
     auto u8_value_type = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        value_type, unicode_string_view::Encoding::Utf8).utf8_value());
+        value_type, string_view::Encoding::Utf8).utf8_value());
     if (u8_value_type == kAnimationValueTypeRad) {
       type = CubicBezierAnimation::ValueType::kRad;
     } else if (u8_value_type == kAnimationValueTypeDeg) {
@@ -253,7 +253,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
     return nullptr;
   }
 
-  unicode_string_view timing_func;
+  string_view timing_func;
   auto timing_func_obj = context->GetProperty(animation_obj, kAnimationTimingFunctionKey);
   flag = context->GetValueString(timing_func_obj, &timing_func);
   if (!flag) {
@@ -262,7 +262,7 @@ std::shared_ptr<ParseAnimationResult> ParseAnimation(const std::shared_ptr<Ctx>&
   }
 
   auto u8_timing_func = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      timing_func, unicode_string_view::Encoding::Utf8).utf8_value());
+      timing_func, string_view::Encoding::Utf8).utf8_value());
   int32_t cnt;
   auto cnt_obj = context->GetProperty(animation_obj, kAnimationRepeatCountKey);
   flag = context->GetValueNumber(cnt_obj, &cnt);
@@ -512,7 +512,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("argc error");
       return nullptr;
     }
-    unicode_string_view event_name;
+    string_view event_name;
     auto flag = context->GetValueString(arguments[kAddEventListenerEventNameIndex], &event_name);
     if (!flag) {
       context->ThrowException("event_name error");
@@ -532,7 +532,7 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       context->CallFunction(func, 0, nullptr);
     };
     animation->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        event_name, unicode_string_view::Encoding::Utf8).utf8_value()), std::move(cb));
+        event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
     return nullptr;
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
@@ -565,14 +565,14 @@ RegisterAnimation(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("argc error");
       return nullptr;
     }
-    unicode_string_view event_name;
+    string_view event_name;
     auto flag = context->GetValueString(arguments[kRemoveEventListenerEventNameIndex], &event_name);
     if (!flag) {
       context->ThrowException("event_name error");
       return nullptr;
     }
     animation->RemoveEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        event_name, unicode_string_view::Encoding::Utf8).utf8_value()));
+        event_name, string_view::Encoding::Utf8).utf8_value()));
     return nullptr;
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));
@@ -780,7 +780,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("argc error");
       return nullptr;
     }
-    unicode_string_view event_name;
+    string_view event_name;
     auto flag = context->GetValueString(arguments[kAddEventListenerEventNameIndex], &event_name);
     if (!flag) {
       context->ThrowException("event_name error");
@@ -800,7 +800,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       context->CallFunction(func, 0, nullptr);
     };
     animation_set->AddEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        event_name, unicode_string_view::Encoding::Utf8).utf8_value()), std::move(cb));
+        event_name, string_view::Encoding::Utf8).utf8_value()), std::move(cb));
     return nullptr;
   };
   def.functions.emplace_back(std::move(add_event_listener_func_def));
@@ -833,7 +833,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       context->ThrowException("argc error");
       return nullptr;
     }
-    unicode_string_view event_name;
+    string_view event_name;
     auto flag = context->GetValueString(arguments[kRemoveEventListenerEventNameIndex],
                                         &event_name);
     if (!flag) {
@@ -841,7 +841,7 @@ RegisterAnimationSet(const std::weak_ptr<Scope>& weak_scope) {
       return nullptr;
     }
     animation_set->RemoveEventListener(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        event_name, unicode_string_view::Encoding::Utf8).utf8_value()));
+        event_name, string_view::Encoding::Utf8).utf8_value()));
     return nullptr;
   };
   def.functions.emplace_back(std::move(remove_listener_func_def));

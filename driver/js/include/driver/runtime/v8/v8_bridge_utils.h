@@ -26,7 +26,7 @@
 #include <memory>
 
 #include "driver/base/common.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 #include "runtime.h"
 #include "v8/v8.h"
 
@@ -43,18 +43,18 @@ enum class CALL_FUNCTION_CB_STATE {
 class V8BridgeUtils {
  public:
   using byte_string = std::string;
-  using unicode_string_view = footstone::stringview::unicode_string_view;
-  using u8string = unicode_string_view::u8string;
+  using string_view = footstone::stringview::string_view;
+  using u8string = string_view::u8string;
   using V8VMInitParam = hippy::napi::V8VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
 
   using ReportJsException = std::function<void(const std::shared_ptr<Runtime>& runtime,
-                                               const unicode_string_view& desc,
-                                               const unicode_string_view& stack)>;
+                                               const string_view& desc,
+                                               const string_view& stack)>;
 
   static int64_t InitInstance(bool enable_v8_serialization,
                               bool is_dev_module,
-                              const unicode_string_view& global_config,
+                              const string_view& global_config,
                               int64_t group,
                               const std::shared_ptr<footstone::WorkerManager>& worker_manager,
                               const std::shared_ptr<footstone::TaskRunner>& task_runner,
@@ -62,46 +62,46 @@ class V8BridgeUtils {
                               const std::any& bridge,
                               const RegisterFunction& scope_cb,
                               const RegisterFunction& call_native_cb,
-                              const unicode_string_view& data_dir,
-                              const unicode_string_view& ws_url);
+                              const string_view& data_dir,
+                              const string_view& ws_url);
   static void DestroyInstance(int64_t runtime_id,  const std::function<void(bool)>& callback, bool is_reload);
   static bool RunScript(const std::shared_ptr<Runtime>& runtime,
-                        const unicode_string_view& file_name,
+                        const string_view& file_name,
                         bool is_use_code_cache,
-                        const unicode_string_view& code_cache_dir,
-                        const unicode_string_view& uri,
+                        const string_view& code_cache_dir,
+                        const string_view& uri,
                         bool is_local_file);
   static bool RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runtime,
-                                     const unicode_string_view& file_name,
+                                     const string_view& file_name,
                                      bool is_use_code_cache,
-                                     const unicode_string_view& code_cache_dir,
-                                     const unicode_string_view& uri,
+                                     const string_view& code_cache_dir,
+                                     const string_view& uri,
                                      bool is_local_file,
-                                     std::function<unicode_string_view()> content_cb);
+                                     std::function<string_view()> content_cb);
   static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::Value> error);
   static inline void SetOnThrowExceptionToJS(std::function<void(std::shared_ptr<Runtime>,
-                                                                unicode_string_view,
-                                                                unicode_string_view)> on_throw_exception_to_js) {
+                                                                string_view,
+                                                                string_view)> on_throw_exception_to_js) {
     on_throw_exception_to_js_ = on_throw_exception_to_js;
   }
-  static void CallJs(const unicode_string_view& action,
+  static void CallJs(const string_view& action,
                      int32_t runtime_id,
-                     std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb,
+                     std::function<void(CALL_FUNCTION_CB_STATE, string_view)> cb,
                      byte_string buffer_data,
                      std::function<void()> on_js_runner);
   static void CallNative(hippy::napi::CBDataTuple* data,
                          const std::function<void(std::shared_ptr<Runtime>,
-                                                  unicode_string_view,
-                                                  unicode_string_view,
-                                                  unicode_string_view,
+                                                  string_view,
+                                                  string_view,
+                                                  string_view,
                                                   bool,
                                                   byte_string)>& cb);
   static void LoadInstance(int32_t runtime_id, byte_string&& buffer_data);
   static void UnloadInstance(int32_t runtime_id, byte_string&& buffer_data);
  private:
   static std::function<void(std::shared_ptr<Runtime>,
-                            unicode_string_view,
-                            unicode_string_view)> on_throw_exception_to_js_;
+                            string_view,
+                            string_view)> on_throw_exception_to_js_;
 };
 
 } // namespace runtime

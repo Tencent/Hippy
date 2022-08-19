@@ -37,7 +37,7 @@ namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using JSValueWrapper = hippy::base::JSValueWrapper;
 using HippyValue = footstone::value::HippyValue;
@@ -86,11 +86,11 @@ JSValueRef JsCallbackFunc(JSContextRef ctx,
 
 JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,
                            JSContextRef ctx,
-                           const unicode_string_view& module_name,
+                           const string_view& module_name,
                            ModuleClass module) {
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   FOOTSTONE_DCHECK(module_name.encoding() ==
-                  unicode_string_view::Encoding::Latin1);
+                  string_view::Encoding::Latin1);
   cls_def.className = module_name.latin1_value().c_str();
   JSClassRef cls_ref = JSClassCreate(&cls_def);
   JSObjectRef module_obj = JSObjectMake(ctx, cls_ref, nullptr);
@@ -98,7 +98,7 @@ JSObjectRef RegisterModule(std::shared_ptr<Scope> scope,
   for (auto fn : module) {
     JSClassDefinition fn_def = kJSClassDefinitionEmpty;
     FOOTSTONE_DCHECK(fn.first.encoding() ==
-                    unicode_string_view::Encoding::Latin1);
+                    string_view::Encoding::Latin1);
     fn_def.className = fn.first.latin1_value().c_str();
     fn_def.callAsFunction = JsCallbackFunc;
     std::unique_ptr<FunctionData> fn_data =
@@ -187,7 +187,7 @@ std::shared_ptr<CtxValue> JSCTryCatch::Exception() {
   return exception_;
 }
 
-unicode_string_view JSCTryCatch::GetExceptionMsg() {
+string_view JSCTryCatch::GetExceptionMsg() {
   if (enable_) {
     std::shared_ptr<JSCCtx> ctx = std::static_pointer_cast<JSCCtx>(ctx_);
     return ctx->GetExceptionMsg(exception_);
@@ -224,11 +224,11 @@ JSValueRef GetInternalBinding(JSContextRef ctx,
   }
 
   JSStringRef name_str_ref = JSValueToStringCopy(ctx, name_ref, nullptr);
-  unicode_string_view module_name = ToStrView(name_str_ref);
+  string_view module_name = ToStrView(name_str_ref);
   JSStringRelease(name_str_ref);
 
-  std::string module_name_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(module_name, unicode_string_view::Encoding::Utf8).utf8_value());
-  module_name = unicode_string_view(module_name_str);  // content is latin
+  std::string module_name_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(module_name, string_view::Encoding::Utf8).utf8_value());
+  module_name = string_view(module_name_str);  // content is latin
 
   std::shared_ptr<JSCCtxValue> module_value =
       std::static_pointer_cast<JSCCtxValue>(scope->GetModuleValue(module_name));
@@ -284,8 +284,8 @@ bool JSCCtx::RegisterGlobalInJs() {
   return true;
 }
 
-bool JSCCtx::SetGlobalJsonVar(const unicode_string_view& name,
-                              const unicode_string_view& json) {
+bool JSCCtx::SetGlobalJsonVar(const string_view& name,
+                              const string_view& json) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = CreateJSCString(name);
   JSStringRef json_ref = CreateJSCString(json);
@@ -302,8 +302,8 @@ bool JSCCtx::SetGlobalJsonVar(const unicode_string_view& name,
   return true;
 }
 
-bool JSCCtx::SetGlobalStrVar(const unicode_string_view& name,
-                             const unicode_string_view& str) {
+bool JSCCtx::SetGlobalStrVar(const string_view& name,
+                             const string_view& str) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = CreateJSCString(name);
   JSStringRef str_ref = CreateJSCString(str);
@@ -340,7 +340,7 @@ JSPropertyAttributes ConvertPropertyAttribute(PropertyAttribute attr) {
   }
 }
 
-bool JSCCtx::SetGlobalObjVar(const unicode_string_view& name,
+bool JSCCtx::SetGlobalObjVar(const string_view& name,
                              const std::shared_ptr<CtxValue>& obj,
                              const PropertyAttribute& attr) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
@@ -361,7 +361,7 @@ bool JSCCtx::SetGlobalObjVar(const unicode_string_view& name,
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetGlobalStrVar(
-    const unicode_string_view& name) {
+    const string_view& name) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = CreateJSCString(name);
   JSValueRef js_error = nullptr;
@@ -379,7 +379,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalStrVar(
 }
 
 std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(
-    const unicode_string_view& name) {
+    const string_view& name) {
   JSObjectRef global_obj = JSContextGetGlobalObject(context_);
   JSStringRef name_ref = CreateJSCString(name);
   JSValueRef js_error = nullptr;
@@ -397,7 +397,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetGlobalObjVar(
 }
 
 bool JSCCtx::SetProperty(const std::shared_ptr<CtxValue>& object,
-                                 const unicode_string_view& prop_key,
+                                 const string_view& prop_key,
                                  const std::shared_ptr<CtxValue>& value,
                                  const PropertyAttribute& attr) {
   std::shared_ptr<JSCCtxValue> ctx_object = std::static_pointer_cast<JSCCtxValue>(object);
@@ -419,7 +419,7 @@ bool JSCCtx::SetProperty(const std::shared_ptr<CtxValue>& object,
 }
 std::shared_ptr<CtxValue> JSCCtx::GetProperty(
     const std::shared_ptr<CtxValue>& obj,
-    const unicode_string_view& name) {
+    const string_view& name) {
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(obj);
   JSValueRef value_ref = ctx_value->value_;
@@ -443,7 +443,7 @@ std::shared_ptr<CtxValue> JSCCtx::GetProperty(
 }
 
 bool JSCCtx::DeleteProperty(const std::shared_ptr<CtxValue>& obj,
-                            const unicode_string_view& name) {
+                            const string_view& name) {
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(obj);
   JSValueRef value_ref = ctx_value->value_;
@@ -471,13 +471,13 @@ void JSCCtx::RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
   }
 }
 
-void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
+void JSCCtx::RegisterNativeBinding(const string_view& name,
                                    hippy::base::RegisterFunction fn,
                                    void* data) {
   FOOTSTONE_UNIMPLEMENTED();
 }
 
-void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
+void JSCCtx::RegisterNativeBinding(const string_view& name,
                                    Ctx::NativeFunction fn,
                                    void* data) {
   JSStringRef native_func_name = CreateJSCString(name);
@@ -515,13 +515,13 @@ void JSCCtx::RegisterNativeBinding(const unicode_string_view& name,
   JSStringRelease(native_func_name);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const unicode_string_view& name) {
+std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const string_view& name) {
   return GetGlobalObjVar(name);
 }
 
 std::shared_ptr<CtxValue> JSCCtx::RunScript(
-    const unicode_string_view& data,
-    const unicode_string_view& file_name) {
+    const string_view& data,
+    const string_view& file_name) {
   if (StringViewUtils::IsEmpty(data)) {
     return nullptr;
   }
@@ -632,7 +632,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
     return CreateNull();
   } else if (wrapper->IsString()) {
     std::string str = wrapper->StringValue();
-    unicode_string_view str_view(reinterpret_cast<const unicode_string_view::char8_t_*>(str.c_str()), str.length());
+    string_view str_view(reinterpret_cast<const string_view::char8_t_*>(str.c_str()), str.length());
     return CreateString(str_view);
   } else if (wrapper->IsInt32()) {
     return CreateNumber(wrapper->Int32Value());
@@ -828,7 +828,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<HippyValu
     return CreateNull();
   } else if (wrapper->IsString()) {
     std::string str = wrapper->ToStringChecked();
-    unicode_string_view str_view(reinterpret_cast<const unicode_string_view::char8_t_*>(str.c_str()), str.length());
+    string_view str_view(reinterpret_cast<const string_view::char8_t_*>(str.c_str()), str.length());
     return CreateString(str_view);
   } else if (wrapper->IsNumber()) {
     return CreateNumber(wrapper->ToDoubleChecked());
@@ -926,7 +926,7 @@ void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<DomEvent>();
-  auto name = StringViewUtils::ConvertEncoding(instance_define->name, unicode_string_view::Encoding::Utf8).utf8_value();
+  auto name = StringViewUtils::ConvertEncoding(instance_define->name, string_view::Encoding::Utf8).utf8_value();
   cls_def.className = reinterpret_cast<const char*>(name.c_str());
   auto cls_ref = JSClassCreate(&cls_def);
   auto* data = new PrivateData<DomEvent>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};

@@ -195,7 +195,7 @@
 		F48D386E289BA6A1007BD6FE /* hippy_value.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D3856289BA6A1007BD6FE /* hippy_value.cc */; };
 		F48D386F289BA6A1007BD6FE /* base_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D3857289BA6A1007BD6FE /* base_timer.cc */; };
 		F48D3870289BA6A1007BD6FE /* serializer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D3858289BA6A1007BD6FE /* serializer.cc */; };
-		F48D3871289BA6A1007BD6FE /* unicode_string_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D3859289BA6A1007BD6FE /* unicode_string_view.cc */; };
+		F48D3871289BA6A1007BD6FE /* string_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D3859289BA6A1007BD6FE /* string_view.cc */; };
 		F48D3872289BA6A1007BD6FE /* idle_task.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D385A289BA6A1007BD6FE /* idle_task.cc */; };
 		F48D3873289BA6A1007BD6FE /* cv_driver.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D385B289BA6A1007BD6FE /* cv_driver.cc */; };
 		F48D3874289BA6A1007BD6FE /* repeating_timer.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D385C289BA6A1007BD6FE /* repeating_timer.cc */; };
@@ -248,7 +248,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 9C5C914EADC94BB6B5569321;
+			remoteGlobalIDString = 95315588258B440EB23B0341;
 			remoteInfo = devtools_backend;
 		};
 /* End PBXContainerItemProxy section */
@@ -483,7 +483,7 @@
 		F468DDBC2812A95100319196 /* HippyTurboModuleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyTurboModuleManager.h; sourceTree = "<group>"; };
 		F468DDBD2812A95100319196 /* NSObject+HippyTurbo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+HippyTurbo.h"; sourceTree = "<group>"; };
 		F468DDBE2812A95100319196 /* HippyOCTurboModule+Inner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "HippyOCTurboModule+Inner.h"; sourceTree = "<group>"; };
-		F468DDBF2812A95100319196 /* HippyOCTurboModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyOCTurboModule.mm; sourceTree = "<group>"; };
+		F468DDBF2812A95100319196 /* HippyOCTurboModule.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyOCTurboModule.mm; sourceTree = "<group>"; tabWidth = 4; };
 		F468DDC02812A95100319196 /* HippyTurboModuleManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyTurboModuleManager.mm; sourceTree = "<group>"; };
 		F468DDC12812A95100319196 /* NSObject+HippyTurbo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = "NSObject+HippyTurbo.mm"; sourceTree = "<group>"; };
 		F468DDC32812A95100319196 /* HippyNetWork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyNetWork.m; sourceTree = "<group>"; };
@@ -671,7 +671,7 @@
 		F48D3841289BA6A1007BD6FE /* time_delta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = time_delta.h; sourceTree = "<group>"; };
 		F48D3842289BA6A1007BD6FE /* idle_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = idle_timer.h; sourceTree = "<group>"; };
 		F48D3843289BA6A1007BD6FE /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
-		F48D3844289BA6A1007BD6FE /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
+		F48D3844289BA6A1007BD6FE /* string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_view.h; sourceTree = "<group>"; };
 		F48D3845289BA6A1007BD6FE /* base_timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_timer.h; sourceTree = "<group>"; };
 		F48D3846289BA6A1007BD6FE /* worker_manager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worker_manager.h; sourceTree = "<group>"; };
 		F48D3848289BA6A1007BD6FE /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
@@ -685,7 +685,7 @@
 		F48D3856289BA6A1007BD6FE /* hippy_value.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_value.cc; sourceTree = "<group>"; };
 		F48D3857289BA6A1007BD6FE /* base_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_timer.cc; sourceTree = "<group>"; };
 		F48D3858289BA6A1007BD6FE /* serializer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer.cc; sourceTree = "<group>"; };
-		F48D3859289BA6A1007BD6FE /* unicode_string_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unicode_string_view.cc; sourceTree = "<group>"; };
+		F48D3859289BA6A1007BD6FE /* string_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_view.cc; sourceTree = "<group>"; };
 		F48D385A289BA6A1007BD6FE /* idle_task.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = idle_task.cc; sourceTree = "<group>"; };
 		F48D385B289BA6A1007BD6FE /* cv_driver.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cv_driver.cc; sourceTree = "<group>"; };
 		F48D385C289BA6A1007BD6FE /* repeating_timer.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = repeating_timer.cc; sourceTree = "<group>"; };
@@ -1741,7 +1741,7 @@
 				F48D3841289BA6A1007BD6FE /* time_delta.h */,
 				F48D3842289BA6A1007BD6FE /* idle_timer.h */,
 				F48D3843289BA6A1007BD6FE /* hash.h */,
-				F48D3844289BA6A1007BD6FE /* unicode_string_view.h */,
+				F48D3844289BA6A1007BD6FE /* string_view.h */,
 				F48D3845289BA6A1007BD6FE /* base_timer.h */,
 				F48D3846289BA6A1007BD6FE /* worker_manager.h */,
 			);
@@ -1776,7 +1776,7 @@
 				F48D3856289BA6A1007BD6FE /* hippy_value.cc */,
 				F48D3857289BA6A1007BD6FE /* base_timer.cc */,
 				F48D3858289BA6A1007BD6FE /* serializer.cc */,
-				F48D3859289BA6A1007BD6FE /* unicode_string_view.cc */,
+				F48D3859289BA6A1007BD6FE /* string_view.cc */,
 				F48D385A289BA6A1007BD6FE /* idle_task.cc */,
 				F48D385B289BA6A1007BD6FE /* cv_driver.cc */,
 				F48D385C289BA6A1007BD6FE /* repeating_timer.cc */,
@@ -2113,7 +2113,7 @@
 				F468DE582812A95200319196 /* NSObject+HippyTurbo.mm in Sources */,
 				F438B744281248010078435B /* NativeRenderGradientObject.m in Sources */,
 				F468DE9E2812ACEA00319196 /* NativeRenderObjectRootView.mm in Sources */,
-				F48D3871289BA6A1007BD6FE /* unicode_string_view.cc in Sources */,
+				F48D3871289BA6A1007BD6FE /* string_view.cc in Sources */,
 				F468DE9D2812ACEA00319196 /* NativeRenderComponentData.mm in Sources */,
 				F45D269828067B6A00CAB185 /* NativeRenderModalCustomAnimationTransition.m in Sources */,
 				F45D267028067B6900CAB185 /* NativeRenderAnimatedImageView.m in Sources */,

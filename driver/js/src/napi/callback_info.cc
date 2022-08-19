@@ -48,7 +48,7 @@ std::shared_ptr<CtxValue> CallbackInfo::operator[](size_t index) const {
 }
 
 void ExceptionValue::Set(const std::shared_ptr<Ctx>& context,
-                         const unicode_string_view& str) {
+                         const string_view& str) {
   value_ = context->CreateString(str);
 }
 

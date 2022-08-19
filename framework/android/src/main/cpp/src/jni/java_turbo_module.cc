@@ -31,7 +31,7 @@ namespace hippy {
 inline namespace framework {
 inline namespace turbo {
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 static jclass argument_utils_clazz;
@@ -53,17 +53,17 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   v8::Context::Scope context_scope(context);
 
   // methodName & signature
-  unicode_string_view str_view;
+  string_view str_view;
   std::string method;
   if (v8_ctx->GetValueString(prop_name, &str_view)) {
     method = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+        str_view, string_view::Encoding::Utf8).utf8_value());
   }
 
   MethodInfo method_info = method_map_[method];
   if (method_info.signature_.empty()) {
     std::string exception_info = "MethodUnsupportedException: " + name_ +  "." + method;
-    v8_ctx->ThrowException(unicode_string_view((std::move(exception_info))));
+    v8_ctx->ThrowException(string_view((std::move(exception_info))));
     return v8_ctx->CreateUndefined();
   }
   FOOTSTONE_DLOG(INFO) << "invokeJavaMethod, method = " << method.c_str();
@@ -83,7 +83,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
     std::string exception_info = "ArgCountException: " +
         call_info + ": ExpectedArgCount=" + std::to_string(expected_count) +
         ", ActualArgCount = " + std::to_string(actual_count);
-    v8_ctx->ThrowException(unicode_string_view((std::move(exception_info))));
+    v8_ctx->ThrowException(string_view((std::move(exception_info))));
     return v8_ctx->CreateUndefined();
   }
 
@@ -98,7 +98,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
       JNIEnvironment::ClearJEnvException(env);
       std::string exception_info = "NullMethodIdException: " + call_info +
           ": Signature=" + method_info.signature_;
-      v8_ctx->ThrowException(unicode_string_view((std::move(exception_info))));
+      v8_ctx->ThrowException(string_view((std::move(exception_info))));
       return v8_ctx->CreateUndefined();
     }
 
@@ -114,7 +114,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
       turbo_env, name_, method, method_arg_types, arg_values);
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit convertJSIArgsToJNIArgs";
   if (!std::get<0>(jni_tuple)) {
-    v8_ctx->ThrowException(unicode_string_view(std::get<1>(jni_tuple)));
+    v8_ctx->ThrowException(string_view(std::get<1>(jni_tuple)));
     return v8_ctx->CreateUndefined();
   }
   jni_args = std::get<2>(jni_tuple);
@@ -125,7 +125,7 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
       turbo_env, impl_->GetObj(), method_info, jni_args->args_.data());
   FOOTSTONE_DLOG(INFO) << "[turbo-perf] exit convertMethodResultToJSValue";
   if (!std::get<0>(js_tuple)) {
-    v8_ctx->ThrowException(unicode_string_view(std::get<1>(js_tuple)));
+    v8_ctx->ThrowException(string_view(std::get<1>(js_tuple)));
     return v8_ctx->CreateUndefined();
   }
 
@@ -147,9 +147,9 @@ void JavaTurboModule::InitPropertyMap() {
   auto methods_sig = (jstring) j_env->CallStaticObjectMethod(
       argument_utils_clazz, get_methods_signature, impl_->GetObj());
   if (methods_sig) {
-    unicode_string_view str_view = JniUtils::ToStrView(j_env, methods_sig);
+    string_view str_view = JniUtils::ToStrView(j_env, methods_sig);
     std::string method_map_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+        str_view, string_view::Encoding::Utf8).utf8_value());
     method_map_ = ConvertUtils::GetMethodMap(method_map_str);
     j_env->DeleteLocalRef(methods_sig);
   }

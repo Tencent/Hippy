@@ -36,19 +36,19 @@ namespace hippy {
 inline namespace framework {
 inline namespace loader {
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using Runtime = hippy::Runtime;
 using Scope = hippy::Scope;
 using HippyFile = hippy::base::HippyFile;
-using u8string = unicode_string_view::u8string;
-using char8_t_ = unicode_string_view::char8_t_;
+using u8string = string_view::u8string;
+using char8_t_ = string_view::char8_t_;
 
 static std::atomic<int64_t> global_request_id{0};
 
 ADRLoader::ADRLoader() : aasset_manager_(nullptr) {}
 
-bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
+bool ADRLoader::RequestUntrustedContent(const string_view& uri,
                                         std::function<void(u8string)> cb) {
   std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
   if (!uri_obj) {
@@ -56,19 +56,19 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
     cb(u8string());
     return false;
   }
-  unicode_string_view schema = uri_obj->GetScheme();
+  string_view schema = uri_obj->GetScheme();
   if (StringViewUtils::IsEmpty(schema)) {
     FOOTSTONE_DLOG(ERROR) << "schema error, uri = " << uri;
     cb(u8string());
     return false;
   }
-  unicode_string_view path = uri_obj->GetPath();
+  string_view path = uri_obj->GetPath();
   if (StringViewUtils::IsEmpty(path)) {
     FOOTSTONE_DLOG(ERROR) << "path error, uri = " << uri;
     cb(u8string());
     return false;
   }
-  FOOTSTONE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
+  FOOTSTONE_DCHECK(schema.encoding() == string_view::Encoding::Utf16);
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
     return LoadByFile(path, cb);
@@ -88,24 +88,24 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   }
 }
 
-bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
+bool ADRLoader::RequestUntrustedContent(const string_view& uri,
                                         u8string& content) {
   std::shared_ptr<Uri> uri_obj = Uri::Create(uri);
   if (!uri_obj) {
     FOOTSTONE_DLOG(ERROR) << "uri error, uri = " << uri;
     return false;
   }
-  unicode_string_view schema = uri_obj->GetScheme();
+  string_view schema = uri_obj->GetScheme();
   if (StringViewUtils::IsEmpty(schema)) {
     FOOTSTONE_DLOG(ERROR) << "schema error, uri = " << uri;
     return false;
   }
-  unicode_string_view path = uri_obj->GetPath();
+  string_view path = uri_obj->GetPath();
   if (StringViewUtils::IsEmpty(path)) {
     FOOTSTONE_DLOG(ERROR) << "path error, uri = " << uri;
     return false;
   }
-  FOOTSTONE_DCHECK(schema.encoding() == unicode_string_view::Encoding::Utf16);
+  FOOTSTONE_DCHECK(schema.encoding() == string_view::Encoding::Utf16);
   std::u16string schema_str = schema.utf16_value();
   if (schema_str == u"file") {
     return HippyFile::ReadFile(path, content, false);
@@ -132,7 +132,7 @@ bool ADRLoader::RequestUntrustedContent(const unicode_string_view& uri,
   }
 }
 
-bool ADRLoader::LoadByFile(const unicode_string_view& path,
+bool ADRLoader::LoadByFile(const string_view& path,
                            const std::function<void(u8string)>& cb) {
   auto runner = runner_.lock();
   if (!runner) {
@@ -148,7 +148,7 @@ bool ADRLoader::LoadByFile(const unicode_string_view& path,
   return true;
 }
 
-bool ADRLoader::LoadByAsset(const unicode_string_view& path,
+bool ADRLoader::LoadByAsset(const string_view& path,
                             const std::function<void(u8string)>& cb,
                             bool is_auto_fill) {
   FOOTSTONE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
@@ -166,7 +166,7 @@ bool ADRLoader::LoadByAsset(const unicode_string_view& path,
   return true;
 }
 
-bool ADRLoader::LoadByHttp(const unicode_string_view& uri,
+bool ADRLoader::LoadByHttp(const string_view& uri,
                            const std::function<void(u8string)>& cb) {
   std::shared_ptr<JNIEnvironment> instance = JNIEnvironment::GetInstance();
   JNIEnv* j_env = instance->AttachCurrentThread();

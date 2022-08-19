@@ -101,7 +101,7 @@ void V8InspectorClientImpl::CreateContext(const std::shared_ptr<V8InspectorConte
       context, inspector_context->GetContextGroupId(), v8_inspector::StringView(kProjectName, ARRAY_SIZE(kProjectName))));
 }
 
-void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context_ref, unicode_string_view&& params) {
+void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context_ref, string_view&& params) {
   std::shared_ptr<TaskRunner> msg_runner;
   {
     std::unique_lock<std::mutex> lock(mutex_);
@@ -129,10 +129,10 @@ void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorCon
       return;
     }
     const auto& inspector = self->GetInspector();
-    unicode_string_view::Encoding encoding = params.encoding();
+    string_view::Encoding encoding = params.encoding();
     v8_inspector::StringView message_view;
     switch (encoding) {
-      case unicode_string_view::Encoding::Latin1: {
+      case string_view::Encoding::Latin1: {
         std::string str = params.latin1_value();
         if (!str.compare("chrome_socket_closed")) {
           auto session = inspector->connect(inspector_context->GetContextGroupId(), inspector_context->GetV8Channel(), v8_inspector::StringView());
@@ -143,7 +143,7 @@ void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorCon
             reinterpret_cast<const uint8_t*>(str.c_str()), str.length());
         break;
       }
-      case unicode_string_view::Encoding::Utf16: {
+      case string_view::Encoding::Utf16: {
         std::u16string str = params.utf16_value();
         if (!str.compare(u"chrome_socket_closed")) {
           auto session = inspector->connect(inspector_context->GetContextGroupId(), inspector_context->GetV8Channel(), v8_inspector::StringView());

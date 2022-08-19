@@ -27,7 +27,7 @@
 #include "driver/modules/ui_manager_module.h"
 #include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 #include "footstone/string_view_utils.h"
 
 template <typename T>
@@ -38,7 +38,7 @@ using FunctionDefine = hippy::napi::FunctionDefine<T>;
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -114,7 +114,7 @@ std::tuple<bool, std::string, int32_t> GetNodeIndex(const std::shared_ptr<Ctx> &
   return std::make_tuple(true, "", index);
 }
 
-std::tuple<bool, std::string, unicode_string_view>
+std::tuple<bool, std::string, string_view>
 GetNodeViewName(const std::shared_ptr<Ctx> &context,
                 const std::shared_ptr<CtxValue> &node) {
   // parse view_name
@@ -122,7 +122,7 @@ GetNodeViewName(const std::shared_ptr<Ctx> &context,
   if (!view_name_value) {
     return std::make_tuple(false, "Get property view name failed", "");
   }
-  unicode_string_view view_name;
+  string_view view_name;
   bool flag = context->GetValueString(view_name_value, &view_name);
   if (!flag) {
     return std::make_tuple(false, "Get view name value failed", "");
@@ -130,7 +130,7 @@ GetNodeViewName(const std::shared_ptr<Ctx> &context,
   return std::make_tuple(true, "", std::move(view_name));
 }
 
-std::tuple<bool, std::string, unicode_string_view>
+std::tuple<bool, std::string, string_view>
 GetNodeTagName(const std::shared_ptr<Ctx> &context,
                const std::shared_ptr<CtxValue> &node) {
   // parse tag_name
@@ -138,7 +138,7 @@ GetNodeTagName(const std::shared_ptr<Ctx> &context,
   if (!tag_name_value) {
     return std::make_tuple(false, "Get property tag name failed", "");
   }
-  unicode_string_view tag_name;
+  string_view tag_name;
   bool flag = context->GetValueString(tag_name_value, &tag_name);
   if (!flag) {
     return std::make_tuple(false, "Get tag name value failed", "");
@@ -276,10 +276,10 @@ CreateNode(const std::shared_ptr<Ctx> &context,
   // create node
   std::string u8_tag_name = StringViewUtils::ToStdString(
       StringViewUtils::ConvertEncoding(std::get<2>(tag_name_tuple),
-          unicode_string_view::Encoding::Utf8).utf8_value());
+          string_view::Encoding::Utf8).utf8_value());
   std::string u8_view_name = StringViewUtils::ToStdString(
       StringViewUtils::ConvertEncoding(std::get<2>(view_name_tuple),
-          unicode_string_view::Encoding::Utf8).utf8_value());
+          string_view::Encoding::Utf8).utf8_value());
   auto style = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(
       std::move(std::get<2>(props_tuple)));
   auto ext = std::make_shared<std::unordered_map<std::string, std::shared_ptr<HippyValue>>>(
@@ -373,10 +373,10 @@ void HandleEventListenerInfo(const std::shared_ptr<hippy::napi::Ctx> &context,
   bool ret = context->GetValueNumber(arguments[0], &dom_id);
   FOOTSTONE_CHECK(ret) << "get dom id failed";
 
-  footstone::stringview::unicode_string_view str_view;
+  footstone::stringview::string_view str_view;
   ret = context->GetValueString(arguments[1], &str_view);
   std::string event_name = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      str_view, string_view::Encoding::Utf8).utf8_value());
   FOOTSTONE_DCHECK(ret) << "get event name failed";
 
   listener_info.dom_id = static_cast<uint32_t>(dom_id);

@@ -36,7 +36,7 @@ namespace hippy {
 inline namespace framework {
 inline namespace turbo {
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 bool IsBasicNumberType(const std::string& type) {
@@ -186,11 +186,11 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
 
   // Promise
   if (type == kPromise) {
-    unicode_string_view str_view;
+    string_view str_view;
     std::string str;
     if (turbo_env.context_->GetValueString(value, &str_view)) {
       str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+          str_view, string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "value must be string", false);
     }
@@ -256,11 +256,11 @@ ConvertUtils::HandleObjectType(TurboEnv& turbo_env,
 
   // String
   if (type == kString) {
-    unicode_string_view str_view;
+    string_view str_view;
     std::string str;
     if (turbo_env.context_->GetValueString(value, &str_view)) {
       str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+          str_view, string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "value must be string", false);
     }
@@ -337,11 +337,11 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToHippyMap(TurboEnv& turbo_
   for (uint32_t i = 0; i < array_len; i = i + 2) {
     // key
     std::shared_ptr<CtxValue> key = context->CopyArrayElement(array, i);
-    unicode_string_view str_view;
+    string_view str_view;
     std::string key_str;
     if (turbo_env.context_->GetValueString(key, &str_view)) {
       key_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+          str_view, string_view::Encoding::Utf8).utf8_value());
     } else {
       return std::make_tuple(false, "key must be string in map", static_cast<jobject>(nullptr));
     }
@@ -395,13 +395,13 @@ std::tuple<bool, std::string, jobject> ConvertUtils::ToJObject(TurboEnv& turbo_e
   std::shared_ptr<Ctx> ctx = turbo_env.context_;
   std::shared_ptr<V8Ctx> context = std::static_pointer_cast<V8Ctx>(ctx);
   JNIEnv* env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-  unicode_string_view str_view;
+  string_view str_view;
 
   if (context->GetValueNumber(value, &num)) {
     result = env->NewObject(double_clazz, double_constructor, num);
   } else if (context->GetValueString(value, &str_view)) {
     str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+        str_view, string_view::Encoding::Utf8).utf8_value());
     result = env->NewStringUTF(str.c_str());
   } else if (context->GetValueBoolean(value, &b)) {
     result = env->NewObject(boolean_clazz, boolean_constructor, b);
@@ -556,7 +556,7 @@ std::tuple<bool, std::string, std::shared_ptr<CtxValue>> ConvertUtils::ConvertMe
     if (!result_str) {
       ret = ctx->CreateNull();
     } else {
-      unicode_string_view str_view = JniUtils::ToStrView(j_env, result_str);
+      string_view str_view = JniUtils::ToStrView(j_env, result_str);
       j_env->DeleteLocalRef(result_str);
       ret = ctx->CreateString(str_view);
     }
@@ -608,9 +608,9 @@ std::tuple<bool,
     return std::make_tuple(true, "", result);
   }
 
-  unicode_string_view str_view = JniUtils::ToStrView(j_env, sig);
+  string_view str_view = JniUtils::ToStrView(j_env, sig);
   std::string signature = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      str_view, unicode_string_view::Encoding::Utf8).utf8_value());
+      str_view, string_view::Encoding::Utf8).utf8_value());
   j_env->DeleteLocalRef(sig);
   FOOTSTONE_DLOG(INFO) << "toJsValueInArray " << signature.c_str();
 
@@ -635,7 +635,7 @@ std::tuple<bool,
     }
     result = ctx->CreateNumber(d);
   } else if (kString == signature) {
-    unicode_string_view obj_str_view = JniUtils::ToStrView(j_env, reinterpret_cast<jstring>(obj));
+    string_view obj_str_view = JniUtils::ToStrView(j_env, reinterpret_cast<jstring>(obj));
     result = ctx->CreateString(obj_str_view);
   } else if (kBooleanObject == signature) {
     jboolean b = j_env->CallBooleanMethod(reinterpret_cast<jclass>(obj), boolean_value);

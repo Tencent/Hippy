@@ -155,12 +155,12 @@
 		ADC132A226DCF3B000442DD5 /* log_level.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321B26DCF3AF00442DD5 /* log_level.h */; };
 		ADC132A326DCF3B000442DD5 /* macros.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321C26DCF3AF00442DD5 /* macros.h */; };
 		ADC132A426DCF3B000442DD5 /* log_settings.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321D26DCF3AF00442DD5 /* log_settings.h */; };
-		ADC132A526DCF3B000442DD5 /* unicode_string_view.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321E26DCF3AF00442DD5 /* unicode_string_view.h */; };
+		ADC132A526DCF3B000442DD5 /* string_view.h in Headers */ = {isa = PBXBuildFile; fileRef = ADC1321E26DCF3AF00442DD5 /* string_view.h */; };
 		ADC132A726DCF3B000442DD5 /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = ADC1322026DCF3AF00442DD5 /* .clang-format */; };
 		ADC132AC26DCF3B000442DD5 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322926DCF3B000442DD5 /* logging.cc */; };
 		ADC132AD26DCF3B000442DD5 /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322B26DCF3B000442DD5 /* log_settings_state.cc */; };
 		ADC132AF26DCF3B000442DD5 /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322D26DCF3B000442DD5 /* log_settings.cc */; };
-		ADC132B026DCF3B000442DD5 /* unicode_string_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322E26DCF3B000442DD5 /* unicode_string_view.cc */; };
+		ADC132B026DCF3B000442DD5 /* string_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = ADC1322E26DCF3B000442DD5 /* string_view.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -338,7 +338,7 @@
 		ADC1321B26DCF3AF00442DD5 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
 		ADC1321C26DCF3AF00442DD5 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		ADC1321D26DCF3AF00442DD5 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
-		ADC1321E26DCF3AF00442DD5 /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
+		ADC1321E26DCF3AF00442DD5 /* string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_view.h; sourceTree = "<group>"; };
 		ADC1321F26DCF3AF00442DD5 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		ADC1322026DCF3AF00442DD5 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
 		ADC1322226DCF3AF00442DD5 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
@@ -347,7 +347,7 @@
 		ADC1322B26DCF3B000442DD5 /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
 		ADC1322C26DCF3B000442DD5 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		ADC1322D26DCF3B000442DD5 /* log_settings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings.cc; sourceTree = "<group>"; };
-		ADC1322E26DCF3B000442DD5 /* unicode_string_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unicode_string_view.cc; sourceTree = "<group>"; };
+		ADC1322E26DCF3B000442DD5 /* string_view.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_view.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -856,7 +856,7 @@
 				ADC1321B26DCF3AF00442DD5 /* log_level.h */,
 				ADC1321C26DCF3AF00442DD5 /* macros.h */,
 				ADC1321D26DCF3AF00442DD5 /* log_settings.h */,
-				ADC1321E26DCF3AF00442DD5 /* unicode_string_view.h */,
+				ADC1321E26DCF3AF00442DD5 /* string_view.h */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -894,7 +894,7 @@
 				ADC1322B26DCF3B000442DD5 /* log_settings_state.cc */,
 				ADC1322C26DCF3B000442DD5 /* CMakeLists.txt */,
 				ADC1322D26DCF3B000442DD5 /* log_settings.cc */,
-				ADC1322E26DCF3B000442DD5 /* unicode_string_view.cc */,
+				ADC1322E26DCF3B000442DD5 /* string_view.cc */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -924,7 +924,7 @@
 				ADC1325126DCF3B000442DD5 /* FlexLine.h in Headers */,
 				ADC1325B26DCF3B000442DD5 /* HPUtil.h in Headers */,
 				ADC1326E26DCF3B000442DD5 /* common_task.h in Headers */,
-				ADC132A526DCF3B000442DD5 /* unicode_string_view.h in Headers */,
+				ADC132A526DCF3B000442DD5 /* string_view.h in Headers */,
 				ADC1326126DCF3B000442DD5 /* taitank.h in Headers */,
 				ADC1317126DCF3A300442DD5 /* VoltronJavaScriptExecutor.h in Headers */,
 				ADC1316226DCF3A300442DD5 /* VoltronJSCWrapper.h in Headers */,
@@ -1089,7 +1089,7 @@
 				ADC1317B26DCF3A300442DD5 /* logging-impl.cc in Sources */,
 				ADC1324C26DCF3B000442DD5 /* FlexNodeFfiBridge.cpp in Sources */,
 				ADC1329326DCF3B000442DD5 /* js_value_wrapper.cc in Sources */,
-				ADC132B026DCF3B000442DD5 /* unicode_string_view.cc in Sources */,
+				ADC132B026DCF3B000442DD5 /* string_view.cc in Sources */,
 				ADC1325226DCF3B000442DD5 /* HPUtil.cpp in Sources */,
 				ADC1316C26DCF3A300442DD5 /* VoltronJSStackFrame.m in Sources */,
 				ADC1316126DCF3A300442DD5 /* VoltronFlutterBridge.mm in Sources */,

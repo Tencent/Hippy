@@ -40,7 +40,7 @@
 #include "driver/napi/js_native_api_types.h"
 #include "footstone/hippy_value.h"
 #include "footstone/task.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
@@ -65,7 +65,7 @@ class ScopeWrapper {
 
 class Scope : public std::enable_shared_from_this<Scope> {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
   using RegisterMap = hippy::base::RegisterMap;
   using CtxValue = hippy::napi::CtxValue;
   using Ctx = hippy::napi::Ctx;
@@ -96,12 +96,12 @@ class Scope : public std::enable_shared_from_this<Scope> {
   inline std::shared_ptr<Ctx> GetContext() { return context_; }
   inline std::unique_ptr<RegisterMap>& GetRegisterMap() { return map_; }
 
-  ModuleBase* GetModuleClass(const unicode_string_view& moduleName);
-  void AddModuleClass(const unicode_string_view& name,
+  ModuleBase* GetModuleClass(const string_view& moduleName);
+  void AddModuleClass(const string_view& name,
                       std::unique_ptr<ModuleBase> module);
   std::shared_ptr<CtxValue> GetModuleValue(
-      const unicode_string_view& module_name);
-  void AddModuleValue(const unicode_string_view& name,
+      const string_view& module_name);
+  void AddModuleValue(const string_view& name,
                       const std::shared_ptr<CtxValue>& value);
 
   void SaveFunctionData(std::unique_ptr<FunctionData> data);
@@ -134,12 +134,12 @@ class Scope : public std::enable_shared_from_this<Scope> {
   bool HasListener(const EventListenerInfo& event_listener_info);
   uint64_t GetListenerId(const EventListenerInfo& event_listener_info);
 
-  void RunJS(const unicode_string_view& js,
-             const unicode_string_view& name,
+  void RunJS(const string_view& js,
+             const string_view& name,
              bool is_copy = true);
 
-  std::shared_ptr<CtxValue> RunJSSync(const unicode_string_view& data,
-                                      const unicode_string_view& name,
+  std::shared_ptr<CtxValue> RunJSSync(const string_view& data,
+                                      const string_view& name,
                                       bool is_copy = true);
 
   void LoadInstance(const std::shared_ptr<HippyValue>& value);
@@ -206,9 +206,9 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::shared_ptr<Ctx> context_;
   std::string name_;
   std::unique_ptr<RegisterMap> map_;
-  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
+  std::unordered_map<string_view, std::shared_ptr<CtxValue>>
       module_value_map_;
-  std::unordered_map<unicode_string_view, std::unique_ptr<ModuleBase>>
+  std::unordered_map<string_view, std::unique_ptr<ModuleBase>>
       module_class_map_;
   std::unordered_map<uint32_t, std::unordered_map<std::string, std::unordered_map<uint64_t, std::shared_ptr<CtxValue>>>>
       bind_listener_map_; // bind js function and dom event listener id

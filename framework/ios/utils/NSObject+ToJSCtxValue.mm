@@ -22,7 +22,7 @@
 
 #import "NSObject+ToJSCtxValue.h"
 #import "HippyAssert.h"
-#import "footstone/unicode_string_view.h"
+#import "footstone/string_view.h"
 #import "footstone/string_view_utils.h"
 
 @implementation NSObject (ToJSCtxValue)
@@ -38,8 +38,8 @@
 @implementation NSString (ToJSCtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
-    footstone::unicode_string_view string_view([self UTF8String]);
-    return context->CreateString(string_view);
+    footstone::string_view view([self UTF8String]);
+    return context->CreateString(view);
 }
 
 @end
@@ -104,10 +104,10 @@
 id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
     @autoreleasepool {
         if (context->IsString(value)) {
-            footstone::unicode_string_view string_view;
-            if (context->GetValueString(value, &string_view)) {
-                string_view = footstone::StringViewUtils::ConvertEncoding(string_view, footstone::unicode_string_view::Encoding::Utf16);
-                footstone::unicode_string_view::u16string &u16String = string_view.utf16_value();
+            footstone::string_view view;
+            if (context->GetValueString(value, &view)) {
+                view = footstone::StringViewUtils::ConvertEncoding(view, footstone::string_view::Encoding::Utf16);
+                footstone::string_view::u16string &u16String = view.utf16_value();
                 NSString *string =
                     [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
                 return string;
@@ -139,7 +139,7 @@ id ObjectFromJSValue(CtxPtr context, CtxValuePtr value) {
             }
         }
         else if (context->IsObject(value)) {
-            std::unordered_map<footstone::unicode_string_view, CtxValuePtr> map;
+            std::unordered_map<footstone::string_view, CtxValuePtr> map;
             if (context->GetEntriesFromObject(value, map)) {
                 NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
                 for (auto &it : map) {

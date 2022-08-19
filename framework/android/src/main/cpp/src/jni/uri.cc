@@ -36,10 +36,10 @@ static jmethodID j_to_string_method_id;
 static jmethodID j_get_scheme_method_id;
 static jmethodID j_get_path_method_id;
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
-std::shared_ptr<Uri> Uri::Create(const unicode_string_view& uri) {
+std::shared_ptr<Uri> Uri::Create(const string_view& uri) {
   auto ret = std::make_shared<Uri>(uri);
   if (!ret->j_obj_uri_) {
     return nullptr;
@@ -73,8 +73,8 @@ bool Uri::Destroy() {
   return true;
 }
 
-Uri::Uri(const unicode_string_view& uri) {
-  FOOTSTONE_DCHECK(uri.encoding() != unicode_string_view::Encoding::Unkown);
+Uri::Uri(const string_view& uri) {
+  FOOTSTONE_DCHECK(uri.encoding() != string_view::Encoding::Unknown);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jstring j_str_uri = JniUtils::StrViewToJString(j_env, uri);
   j_obj_uri_ = j_env->CallStaticObjectMethod(j_clazz, j_create_method_id, j_str_uri);
@@ -92,7 +92,7 @@ Uri::~Uri() {
   }
 }
 
-unicode_string_view Uri::Normalize() {
+string_view Uri::Normalize() {
   FOOTSTONE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jobject j_normalize_uri = reinterpret_cast<jstring>(j_env->CallObjectMethod(j_obj_uri_, j_normalize_method_id));
@@ -100,32 +100,32 @@ unicode_string_view Uri::Normalize() {
   if (!j_parsed_uri)  {
     return u"";
   }
-  unicode_string_view ret = JniUtils::ToStrView(j_env, j_parsed_uri);
+  string_view ret = JniUtils::ToStrView(j_env, j_parsed_uri);
   j_env->DeleteLocalRef(j_parsed_uri);
   j_env->DeleteLocalRef(j_normalize_uri);
   return ret;
 }
 
-unicode_string_view Uri::GetScheme() {
+string_view Uri::GetScheme() {
   FOOTSTONE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_scheme = reinterpret_cast<jstring>(j_env->CallObjectMethod(j_obj_uri_, j_get_scheme_method_id));
   if (!j_scheme) {
     return u"";
   }
-  unicode_string_view ret = JniUtils::ToStrView(j_env, j_scheme);
+  string_view ret = JniUtils::ToStrView(j_env, j_scheme);
   j_env->DeleteLocalRef(j_scheme);
   return ret;
 }
 
-unicode_string_view Uri::GetPath() {
+string_view Uri::GetPath() {
   FOOTSTONE_DCHECK(j_obj_uri_);
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_path = reinterpret_cast<jstring>(j_env->CallObjectMethod(j_obj_uri_, j_get_path_method_id));
   if (!j_path) {
     return u"";
   }
-  unicode_string_view ret = JniUtils::ToStrView(j_env, j_path);
+  string_view ret = JniUtils::ToStrView(j_env, j_path);
   j_env->DeleteLocalRef(j_path);
   return ret;
 }

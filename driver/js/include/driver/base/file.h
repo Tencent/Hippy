@@ -32,7 +32,7 @@
 
 #include "driver/base/common.h"
 #include "footstone/logging.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 #include "footstone/check.h"
 #include "footstone/string_view_utils.h"
 
@@ -42,23 +42,23 @@ inline namespace base {
 
 class HippyFile {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
-  static bool SaveFile(const unicode_string_view& file_name,
+  using string_view = footstone::stringview::string_view;
+  static bool SaveFile(const string_view& file_name,
                        const std::string& content,
                        std::ios::openmode mode = std::ios::out |
                                                  std::ios::binary |
                                                  std::ios::trunc);
-  static int RmFullPath(const unicode_string_view& dir_full_path);
-  static int CreateDir(const unicode_string_view& dir_path, mode_t mode);
-  static int CheckDir(const unicode_string_view& dir_path, int mode);
-  static uint64_t GetFileModifyTime(const unicode_string_view& file_path);
+  static int RmFullPath(const string_view& dir_full_path);
+  static int CreateDir(const string_view& dir_path, mode_t mode);
+  static int CheckDir(const string_view& dir_path, int mode);
+  static uint64_t GetFileModifyTime(const string_view& file_path);
 
   template <typename CharType>
-  static bool ReadFile(const unicode_string_view& file_path,
+  static bool ReadFile(const string_view& file_path,
                        std::basic_string<CharType>& bytes,
                        bool is_auto_fill) {
     auto file_path_str = footstone::StringViewUtils::ConvertEncoding(file_path,
-                                                                     unicode_string_view::Encoding::Utf8).utf8_value();
+                                                                     string_view::Encoding::Utf8).utf8_value();
     std::ifstream file(reinterpret_cast<const char*>(file_path_str.c_str()));
     if (!file.fail()) {
       file.ignore(std::numeric_limits<std::streamsize>::max());

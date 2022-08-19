@@ -61,7 +61,7 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
     "NativeCallback;Ljava/nio/ByteBuffer;II)V",
     CallFunctionByDirectBuffer)
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using byte_string = std::string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
@@ -76,11 +76,11 @@ void CallFunction(JNIEnv* j_env,
                   jobject j_callback,
                   byte_string buffer_data,
                   std::shared_ptr<JavaRef> buffer_owner) {
-  unicode_string_view action_name = JniUtils::ToStrView(j_env, j_action);
+  string_view action_name = JniUtils::ToStrView(j_env, j_action);
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
   V8BridgeUtils::CallJs(action_name,
                         footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
-                        [cb](CALLFUNCTION_CB_STATE state, const unicode_string_view& msg) {
+                        [cb](CALLFUNCTION_CB_STATE state, const string_view& msg) {
                           JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
                           jstring j_msg = JniUtils::StrViewToJString(j_env, msg);
                           CallJavaMethod(cb->GetObj(), static_cast<jlong>(state), j_msg);

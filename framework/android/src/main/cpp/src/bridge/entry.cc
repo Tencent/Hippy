@@ -137,11 +137,11 @@ REGISTER_JNI( // NOLINT(cert-err58-cpp)
         "(J[BII)V",
         UnloadInstance)
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using TaskRunner = footstone::runner::TaskRunner;
 using Task = footstone::runner::Task;
 using WorkerManager = footstone::WorkerManager;
-using u8string = unicode_string_view::u8string;
+using u8string = string_view::u8string;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;
 using Ctx = hippy::napi::Ctx;
@@ -358,13 +358,13 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     FOOTSTONE_DLOG(WARNING) << "HippyBridgeImpl runScriptFromUri, j_uri invalid";
     return false;
   }
-  const unicode_string_view uri = JniUtils::ToStrView(j_env, j_uri);
-  const unicode_string_view code_cache_dir =
+  const string_view uri = JniUtils::ToStrView(j_env, j_uri);
+  const string_view code_cache_dir =
       JniUtils::ToStrView(j_env, j_code_cache_dir);
   auto pos = StringViewUtils::FindLastOf(uri, EXTEND_LITERAL('/'));
   size_t len = StringViewUtils::GetLength(uri);
-  unicode_string_view script_name = StringViewUtils::SubStr(uri, pos + 1, len);
-  unicode_string_view base_path = StringViewUtils::SubStr(uri, 0, pos + 1);
+  string_view script_name = StringViewUtils::SubStr(uri, pos + 1, len);
+  string_view base_path = StringViewUtils::SubStr(uri, 0, pos + 1);
   FOOTSTONE_DLOG(INFO) << "runScriptFromUri uri = " << uri
                       << ", script_name = " << script_name
                       << ", base_path = " << base_path
@@ -438,7 +438,7 @@ jlong InitInstance(JNIEnv* j_env,
                      << ", j_is_dev_module = "
                      << static_cast<uint32_t>(j_is_dev_module)
                      << ", j_group_id = " << j_group_id;
-  unicode_string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
+  string_view global_config = JniUtils::JByteArrayToStrView(j_env, j_global_config);
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_callback);
 
   std::shared_ptr<V8VMInitParam> param = std::make_shared<V8VMInitParam>();
@@ -463,12 +463,12 @@ jlong InitInstance(JNIEnv* j_env,
     hippy::bridge::CallNative(data);
   };
   V8BridgeUtils::SetOnThrowExceptionToJS([](const std::shared_ptr<Runtime>& runtime,
-                                    const unicode_string_view& desc,
-                                    const unicode_string_view& stack) {
+                                    const string_view& desc,
+                                    const string_view& stack) {
     ExceptionHandler::ReportJsException(runtime, desc, stack);
   });
-  const unicode_string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
-  const unicode_string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
+  const string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
+  const string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
   std::shared_ptr<WorkerManager> worker_manager;
   auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
   FOOTSTONE_DCHECK(flag);

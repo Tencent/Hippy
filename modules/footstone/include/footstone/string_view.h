@@ -35,9 +35,9 @@
 namespace footstone {
 inline namespace stringview {
 
-class unicode_string_view final {
+class string_view final {
  public:
-  enum class Encoding { Unkown, Latin1, Utf8, Utf16, Utf32 };
+  enum class Encoding { Unknown, Latin1, Utf8, Utf16, Utf32 };
   using string = std::string;
 #ifdef __cpp_char8_t
   using u8string = std::u8string;
@@ -50,74 +50,74 @@ class unicode_string_view final {
   using u32string = std::u32string;
 
  public:
-  inline static unicode_string_view new_from_utf8(const u8_type* utf8_string, size_t length) {
-    return unicode_string_view(reinterpret_cast<const char8_t_*>(utf8_string), length);
+  inline static string_view new_from_utf8(const u8_type* utf8_string, size_t length) {
+    return string_view(reinterpret_cast<const char8_t_*>(utf8_string), length);
   }
-  inline static unicode_string_view new_from_utf8(const u8_type* utf8_string) {
-    return unicode_string_view(reinterpret_cast<const char8_t_*>(utf8_string));
+  inline static string_view new_from_utf8(const u8_type* utf8_string) {
+    return string_view(reinterpret_cast<const char8_t_*>(utf8_string));
   }
-  unicode_string_view() {}
-  unicode_string_view(const unicode_string_view& source); // NOLINT
+  string_view() {}
+  string_view(const string_view& source); // NOLINT
 #pragma region Latin - 1
-  unicode_string_view(const char* latin1_string)  // NOLINT
+  string_view(const char* latin1_string)  // NOLINT
       : encoding_(Encoding::Latin1), latin1_string_(string(latin1_string)) {}
-  unicode_string_view(const char* latin1_string, size_t length)
+  string_view(const char* latin1_string, size_t length)
       : encoding_(Encoding::Latin1), latin1_string_(string(latin1_string, length)) {}
-  explicit unicode_string_view(const string& latin1_string)
+  explicit string_view(const string& latin1_string)
       : encoding_(Encoding::Latin1), latin1_string_(latin1_string) {}
-  explicit unicode_string_view(string&& latin1_string)
+  explicit string_view(string&& latin1_string)
       : encoding_(Encoding::Latin1), latin1_string_(std::move(latin1_string)) {}
 #pragma endregion
 #pragma region UTF - 8
-  unicode_string_view(const char8_t_* utf8_string)  // NOLINT
+  string_view(const char8_t_* utf8_string)  // NOLINT
       : encoding_(Encoding::Utf8), u8_string_(u8string(utf8_string)) {}
-  unicode_string_view(const char8_t_* utf8_string, size_t length)
+  string_view(const char8_t_* utf8_string, size_t length)
       : encoding_(Encoding::Utf8), u8_string_(u8string(utf8_string, length)) {}
-  explicit unicode_string_view(const u8string& utf8_string)
+  explicit string_view(const u8string& utf8_string)
       : encoding_(Encoding::Utf8), u8_string_(utf8_string) {}
-  explicit unicode_string_view(u8string&& utf8_string)
+  explicit string_view(u8string&& utf8_string)
       : encoding_(Encoding::Utf8), u8_string_(std::move(utf8_string)) {}
 #pragma endregion
 #pragma region UTF - 16
-  unicode_string_view(const char16_t* utf16_string)  // NOLINT
+  string_view(const char16_t* utf16_string)  // NOLINT
       : encoding_(Encoding::Utf16), u16_string_(u16string(utf16_string)) {}
-  unicode_string_view(const char16_t* utf16_string, size_t length)
+  string_view(const char16_t* utf16_string, size_t length)
       : encoding_(Encoding::Utf16), u16_string_(u16string(utf16_string, length)) {}
-  explicit unicode_string_view(const u16string& utf16_string)
+  explicit string_view(const u16string& utf16_string)
       : encoding_(Encoding::Utf16), u16_string_(utf16_string) {}
-  explicit unicode_string_view(u16string&& utf16_string)
+  explicit string_view(u16string&& utf16_string)
       : encoding_(Encoding::Utf16), u16_string_(std::move(utf16_string)) {}
 #pragma endregion
 #pragma region UTF - 32
-  unicode_string_view(const char32_t* utf32_string)  // NOLINT
+  string_view(const char32_t* utf32_string)  // NOLINT
       : encoding_(Encoding::Utf32), u32_string_(u32string(utf32_string)) {}
-  unicode_string_view(const char32_t* utf32_string, size_t length)
+  string_view(const char32_t* utf32_string, size_t length)
       : encoding_(Encoding::Utf32), u32_string_(u32string(utf32_string, length)) {}
-  explicit unicode_string_view(const u32string& utf32_string)
+  explicit string_view(const u32string& utf32_string)
       : encoding_(Encoding::Utf32), u32_string_(utf32_string) {}
-  explicit unicode_string_view(u32string&& utf32_string)
+  explicit string_view(u32string&& utf32_string)
       : encoding_(Encoding::Utf32), u32_string_(std::move(utf32_string)) {}
 #pragma endregion
-  ~unicode_string_view();
+  ~string_view();
 
  public:
-  unicode_string_view& operator=(const unicode_string_view& rhs) noexcept;
-  unicode_string_view& operator=(const string& rhs) noexcept;
-  unicode_string_view& operator=(const char* rhs) noexcept;
-  unicode_string_view& operator=(const u8string& rhs) noexcept;
-  unicode_string_view& operator=(const char8_t_* rhs) noexcept;
-  unicode_string_view& operator=(const u16string& rhs) noexcept;
-  unicode_string_view& operator=(const char16_t* rhs) noexcept;
-  unicode_string_view& operator=(const u32string& rhs) noexcept;
-  unicode_string_view& operator=(const char32_t* rhs) noexcept;
+  string_view& operator=(const string_view& rhs) noexcept;
+  string_view& operator=(const string& rhs) noexcept;
+  string_view& operator=(const char* rhs) noexcept;
+  string_view& operator=(const u8string& rhs) noexcept;
+  string_view& operator=(const char8_t_* rhs) noexcept;
+  string_view& operator=(const u16string& rhs) noexcept;
+  string_view& operator=(const char16_t* rhs) noexcept;
+  string_view& operator=(const u32string& rhs) noexcept;
+  string_view& operator=(const char32_t* rhs) noexcept;
 
  public:
-  bool operator==(const unicode_string_view& rhs) const noexcept;
-  bool operator!=(const unicode_string_view& rhs) const noexcept;
-  bool operator<(const unicode_string_view& rhs) const noexcept;
-  bool operator<=(const unicode_string_view& rhs) const noexcept;
-  bool operator>(const unicode_string_view& rhs) const noexcept;
-  bool operator>=(const unicode_string_view& rhs) const noexcept;
+  bool operator==(const string_view& rhs) const noexcept;
+  bool operator!=(const string_view& rhs) const noexcept;
+  bool operator<(const string_view& rhs) const noexcept;
+  bool operator<=(const string_view& rhs) const noexcept;
+  bool operator>(const string_view& rhs) const noexcept;
+  bool operator>=(const string_view& rhs) const noexcept;
 
  public:
   inline Encoding encoding() noexcept { return encoding_; }
@@ -143,7 +143,7 @@ class unicode_string_view final {
   inline void deallocate();
 
  private:
-  Encoding encoding_ = Encoding::Unkown;
+  Encoding encoding_ = Encoding::Unknown;
   union {
     string latin1_string_;
     u8string u8_string_;
@@ -151,27 +151,27 @@ class unicode_string_view final {
     u32string u32_string_;
   };
 
-  friend std::hash<unicode_string_view>;
+  friend std::hash<string_view>;
 };
 
 }  // namespace stringview
 }  // namespace footstone
 
 template<>
-struct std::hash<footstone::stringview::unicode_string_view> {
-  std::size_t operator()(const footstone::stringview::unicode_string_view& value) const noexcept;
+struct std::hash<footstone::stringview::string_view> {
+  std::size_t operator()(const footstone::stringview::string_view& value) const noexcept;
 };
 
 inline namespace literals {
 inline namespace string_literals {
-[[nodiscard]] inline constexpr const footstone::stringview::unicode_string_view::char8_t_* operator "" _u8_ptr(
+[[nodiscard]] inline constexpr const footstone::stringview::string_view::char8_t_* operator "" _u8_ptr(
     const u8_type* u8, size_t) {
-  return (footstone::stringview::unicode_string_view::char8_t_*) u8;
+  return (footstone::stringview::string_view::char8_t_*) u8;
 }
 
-[[nodiscard]] inline const footstone::stringview::unicode_string_view operator "" _u8s(const u8_type* u8,
+[[nodiscard]] inline const footstone::stringview::string_view operator "" _u8s(const u8_type* u8,
                                                                                        size_t length) {
-  return footstone::stringview::unicode_string_view::new_from_utf8(u8, length);
+  return footstone::stringview::string_view(u8, length);
 }
 }  // namespace string_literals
 }  // namespace literals

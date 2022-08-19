@@ -25,12 +25,12 @@
 namespace voltron {
 namespace bridge {
 
-void CallJSFunction(int64_t runtime_id, const unicode_string_view& action_name, bytes params_data,
+void CallJSFunction(int64_t runtime_id, const string_view& action_name, bytes params_data,
                     std::function<void(int64_t)> callback) {
   FOOTSTONE_DCHECK(runtime_id <= std::numeric_limits<std::int32_t>::max()
                       && runtime_id >= std::numeric_limits<std::int32_t>::min());
   V8BridgeUtils::CallJs(action_name, static_cast<int32_t>(runtime_id),
-                        [callback](CALLFUNCTION_CB_STATE state, const unicode_string_view& msg) {
+                        [callback](CALLFUNCTION_CB_STATE state, const string_view& msg) {
                           callback(static_cast<int64_t>(state));
                         }, std::move(params_data),
                         []() {});

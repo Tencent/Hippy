@@ -30,6 +30,6 @@ IOSLoader::~IOSLoader() {
   userData_ = nullptr;
 }
 
-bool IOSLoader::RequestUntrustedContent(const unicode_string_view& uri, std::function<void(u8string)> cb) {
+bool IOSLoader::RequestUntrustedContent(const string_view& uri, std::function<void(u8string)> cb) {
   return loader_(uri, cb, userData_);
 }

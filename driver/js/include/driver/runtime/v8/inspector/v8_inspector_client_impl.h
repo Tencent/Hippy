@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 #include "footstone/task_runner.h"
 #include "driver/runtime/v8/inspector/v8_channel_impl.h"
 #include "driver/runtime/v8/inspector/v8_inspector_context.h"
@@ -38,7 +38,7 @@ inline namespace inspector {
 class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
  public std::enable_shared_from_this<V8InspectorClientImpl> {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
   using TaskRunner = footstone::TaskRunner;
 
   explicit V8InspectorClientImpl(std::weak_ptr<TaskRunner> runner): js_runner_(std::move(runner)) {}
@@ -49,7 +49,7 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
   std::shared_ptr<V8InspectorContext> CreateInspectorContext(const std::shared_ptr<Scope> scope, std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
   void DestroyInspectorContext(bool is_reload, const std::shared_ptr<V8InspectorContext> &inspector_context);
 #endif
-  void SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context, unicode_string_view&& params);
+  void SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context, string_view&& params);
 
   inline std::unique_ptr<v8_inspector::V8Inspector>& GetInspector() {
     return inspector_;
