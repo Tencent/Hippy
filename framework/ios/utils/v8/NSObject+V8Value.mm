@@ -146,8 +146,19 @@ id ObjectFromV8Value(v8::Local<v8::Value> value, v8::Isolate *isolate, v8::Local
     else if (value->IsString()) {
         HippyAssert(isolate, @"isolate must not be null for string value");
         v8::Local<v8::String> string = value.As<v8::String>();
-        v8::String::Utf8Value utf8Value(isolate, string);
-        return [NSString stringWithUTF8String:*utf8Value];
+        int len = string->Length();
+        if (string->IsOneByte()) {
+            void *buffer = malloc(len);
+            string->WriteOneByte(isolate, reinterpret_cast<uint8_t *>(buffer));
+            NSString *result = [[NSString alloc] initWithBytesNoCopy:buffer length:len encoding:NSUTF8StringEncoding freeWhenDone:YES];
+            return result;
+        }
+        else {
+            void *buffer = malloc(len * 2);
+            string->Write(isolate, reinterpret_cast<uint16_t *>(buffer));
+            NSString *result = [[NSString alloc] initWithBytesNoCopy:buffer length:len * 2 encoding:NSUTF16LittleEndianStringEncoding freeWhenDone:YES];
+            return result;
+        }
     }
     else if (value->IsStringObject()) {
         HippyAssert(isolate, @"isolate must not be null for string value");
