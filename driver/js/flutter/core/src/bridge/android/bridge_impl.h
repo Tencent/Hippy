@@ -27,7 +27,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using hippy::DomManager;
 using voltron::JSBridgeRuntime;
 

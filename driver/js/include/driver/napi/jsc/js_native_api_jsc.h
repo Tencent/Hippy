@@ -38,7 +38,7 @@
 #include "footstone/logging.h"
 #include "footstone/macros.h"
 #include "footstone/string_view_utils.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 template <std::size_t N>
 constexpr JSStringRef CreateWithCharacters(const char16_t (&u16)[N]) noexcept {
@@ -89,7 +89,7 @@ class JSCCtxValue;
 
 class JSCCtx : public Ctx {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
   using JSValueWrapper = hippy::base::JSValueWrapper;
   using HippyValue = footstone::value::HippyValue;
 
@@ -127,45 +127,45 @@ class JSCCtx : public Ctx {
   virtual bool RegisterGlobalInJs() override;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) override;
   virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) override;
-  virtual bool SetGlobalJsonVar(const unicode_string_view& name,
-                                const unicode_string_view& json) override;
-  virtual bool SetGlobalStrVar(const unicode_string_view& name,
-                               const unicode_string_view& str) override;
-  virtual bool SetGlobalObjVar(const unicode_string_view& name,
+  virtual bool SetGlobalJsonVar(const string_view& name,
+                                const string_view& json) override;
+  virtual bool SetGlobalStrVar(const string_view& name,
+                               const string_view& str) override;
+  virtual bool SetGlobalObjVar(const string_view& name,
                                const std::shared_ptr<CtxValue>& obj,
                                const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetGlobalStrVar(
-      const unicode_string_view& name) override;
+      const string_view& name) override;
   virtual std::shared_ptr<CtxValue> GetGlobalObjVar(
-      const unicode_string_view& name) override;
+      const string_view& name) override;
   virtual bool SetProperty(const std::shared_ptr<CtxValue>& object,
-                           const unicode_string_view& prop_key,
+                           const string_view& prop_key,
                            const std::shared_ptr<CtxValue>& value,
                            const PropertyAttribute& attr) override;
   virtual std::shared_ptr<CtxValue> GetProperty(
       const std::shared_ptr<CtxValue>& obj,
-      const unicode_string_view& name) override;
+      const string_view& name) override;
   virtual bool DeleteProperty(const std::shared_ptr<CtxValue>& obj,
-                              const unicode_string_view& name) override;
+                              const string_view& name) override;
 
   virtual void RegisterGlobalModule(const std::shared_ptr<Scope>& scope,
                                     const ModuleClassMap& modules) override;
-  virtual void RegisterNativeBinding(const unicode_string_view& name,
+  virtual void RegisterNativeBinding(const string_view& name,
                                      hippy::base::RegisterFunction fn,
                                      void* data) override;
-  virtual void RegisterNativeBinding(const unicode_string_view& name,
+  virtual void RegisterNativeBinding(const string_view& name,
                                      NativeFunction fn,
                                      void* data) override;
 
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) override;
   virtual std::shared_ptr<CtxValue> CreateString(
-      const unicode_string_view& string) override;
+      const string_view& string) override;
   virtual std::shared_ptr<CtxValue> CreateUndefined() override;
   virtual std::shared_ptr<CtxValue> CreateNull() override;
-  virtual std::shared_ptr<CtxValue> ParseJson(const unicode_string_view& json) override;
+  virtual std::shared_ptr<CtxValue> ParseJson(const string_view& json) override;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
-      unicode_string_view,
+      string_view,
       std::shared_ptr<CtxValue>>& object) override;
   virtual std::shared_ptr<CtxValue> CreateObject(const std::unordered_map<
       std::shared_ptr<CtxValue>,
@@ -180,7 +180,7 @@ class JSCCtx : public Ctx {
     return nullptr;
   }
   virtual std::shared_ptr<CtxValue> CreateError(
-      const unicode_string_view& msg) override;
+      const string_view& msg) override;
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(const void* buffer, size_t length) override;
 
   // Get From Value
@@ -193,9 +193,9 @@ class JSCCtx : public Ctx {
   virtual bool GetValueNumber(const std::shared_ptr<CtxValue>& value, int32_t* result) override;
   virtual bool GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* result) override;
   virtual bool GetValueString(const std::shared_ptr<CtxValue>& value,
-                              unicode_string_view* result) override;
+                              string_view* result) override;
   virtual bool GetValueJson(const std::shared_ptr<CtxValue>& value,
-                            unicode_string_view* result) override;
+                            string_view* result) override;
   virtual bool IsMap(const std::shared_ptr<CtxValue>& value) override {
     FOOTSTONE_UNIMPLEMENTED();
     return false;
@@ -224,24 +224,24 @@ class JSCCtx : public Ctx {
   // Object Helpers
   virtual bool IsObject(const std::shared_ptr<CtxValue>& value) override;
   virtual bool GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
-                                    std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> &map) override;
+                                    std::unordered_map<string_view, std::shared_ptr<CtxValue>> &map) override;
   virtual bool HasNamedProperty(const std::shared_ptr<CtxValue>& value,
-                                const unicode_string_view& name) override;
+                                const string_view& name) override;
   virtual std::shared_ptr<CtxValue> CopyNamedProperty(
       const std::shared_ptr<CtxValue>& value,
-      const unicode_string_view& name) override;
+      const string_view& name) override;
   // Function Helpers
 
   virtual bool IsFunction(const std::shared_ptr<CtxValue>& value) override;
-  virtual unicode_string_view CopyFunctionName(const std::shared_ptr<CtxValue>& value) override;
+  virtual string_view CopyFunctionName(const std::shared_ptr<CtxValue>& value) override;
 
   virtual std::shared_ptr<CtxValue> RunScript(
-      const unicode_string_view& data,
-      const unicode_string_view& file_name) override;
-  virtual std::shared_ptr<CtxValue> GetJsFn(const unicode_string_view& name) override;
+      const string_view& data,
+      const string_view& file_name) override;
+  virtual std::shared_ptr<CtxValue> GetJsFn(const string_view& name) override;
 
   virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) override;
-  virtual void ThrowException(const unicode_string_view& exception) override;
+  virtual void ThrowException(const string_view& exception) override;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
@@ -267,8 +267,8 @@ class JSCCtx : public Ctx {
   template <typename T>
   void RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_define);
 
-  unicode_string_view GetExceptionMsg(const std::shared_ptr<CtxValue>& exception);
-  JSStringRef CreateJSCString(const unicode_string_view& str_view);
+  string_view GetExceptionMsg(const std::shared_ptr<CtxValue>& exception);
+  JSStringRef CreateJSCString(const string_view& str_view);
 
   JSGlobalContextRef context_;
   std::shared_ptr<JSCCtxValue> exception_;
@@ -276,8 +276,8 @@ class JSCCtx : public Ctx {
   std::vector<std::unique_ptr<CBTuple>> function_private_data_container_;
 };
 
-inline footstone::stringview::unicode_string_view ToStrView(JSStringRef str) {
-  return footstone::stringview::unicode_string_view(
+inline footstone::stringview::string_view ToStrView(JSStringRef str) {
+  return footstone::stringview::string_view(
       reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str)),
       JSStringGetLength(str));
 }
@@ -308,7 +308,7 @@ class JSCTryCatch : public TryCatch {
   virtual bool IsVerbose();
   virtual void SetVerbose(bool verbose);
   virtual std::shared_ptr<CtxValue> Exception();
-  virtual footstone::stringview::unicode_string_view GetExceptionMsg();
+  virtual footstone::stringview::string_view GetExceptionMsg();
 
  private:
   std::shared_ptr<JSCCtxValue> exception_;
@@ -391,7 +391,7 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
     if (prop.getter || prop.setter) {
       JSValueRef values[3];
       values[0] = prototype;
-      auto name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(prop.name, unicode_string_view::Encoding::Utf8).utf8_value());
+      auto name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(prop.name, string_view::Encoding::Utf8).utf8_value());
       JSStringRef prop_name_ref = JSStringCreateWithUTF8CString(name.c_str());
       JSValueRef prop_name = JSValueMakeString(context_, prop_name_ref);
       JSStringRelease(prop_name_ref);
@@ -409,7 +409,7 @@ std::shared_ptr<JSCCtxValue> JSCCtx::RegisterPrototype(const std::shared_ptr<Ins
 
   for (auto& func : instance_define->functions) {
     JSClassDefinition func_def = kJSClassDefinitionEmpty;
-    std::string func_name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(func.name, unicode_string_view::Encoding::Utf8).utf8_value());
+    std::string func_name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(func.name, string_view::Encoding::Utf8).utf8_value());
     func_def.className = func_name.c_str();
     func_def.callAsFunction = [](JSContextRef ctx, JSObjectRef function, JSObjectRef this_object,
                                  size_t argc, const JSValueRef argv[],
@@ -490,7 +490,7 @@ void JSCCtx::RegisterJsClass(const std::shared_ptr<InstanceDefine<T>>& instance_
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<T>();
-  auto name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(instance_define->name, unicode_string_view::Encoding::Utf8).utf8_value());
+  auto name = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(instance_define->name, string_view::Encoding::Utf8).utf8_value());
   cls_def.className = name.c_str();
   auto cls_ref = JSClassCreate(&cls_def);
   auto* data = new PrivateData<T>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};

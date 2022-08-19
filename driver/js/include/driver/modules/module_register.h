@@ -31,7 +31,7 @@
 #include "driver/napi/callback_info.h"
 #include "driver/napi/js_native_api_types.h"
 #include "driver/scope.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 namespace hippy {
 inline namespace driver {
@@ -53,7 +53,7 @@ inline namespace module {
 
 class ModuleRegister {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
 
   static ModuleRegister* instance();
 
@@ -62,16 +62,16 @@ class ModuleRegister {
 
   template <typename Module, typename Function>
   void RegisterInternalModule(Function Module::*member_fn,
-                              const unicode_string_view& module_name,
-                              const unicode_string_view& function_name) {
+                              const string_view& module_name,
+                              const string_view& function_name) {
     internal_modules_[module_name][function_name] =
         GenerateCallback(member_fn, module_name);
   }
 
   template <typename Module, typename Function>
   void RegisterGlobalModule(Function Module::*member_fn,
-                            const unicode_string_view& module_name,
-                            const unicode_string_view& function_name) {
+                            const string_view& module_name,
+                            const string_view& function_name) {
     global_modules_[module_name][function_name] =
         GenerateCallback(member_fn, module_name);
   }
@@ -88,7 +88,7 @@ class ModuleRegister {
 
   template <typename Module, typename Function>
   hippy::napi::JsCallback GenerateCallback(Function Module::*member_fn,
-      const unicode_string_view& module_name) {
+      const string_view& module_name) {
     return [member_fn, module_name](const hippy::napi::CallbackInfo& info) {
       std::shared_ptr<Scope> scope = info.GetScope();
       if (!scope) {

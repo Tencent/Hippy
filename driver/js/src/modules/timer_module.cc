@@ -32,7 +32,7 @@
 #include "footstone/repeating_timer.h"
 #include "footstone/string_view_utils.h"
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using RegisterFunction = hippy::base::RegisterFunction;

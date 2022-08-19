@@ -34,8 +34,8 @@ using StringViewUtils = footstone::stringview::StringViewUtils;
 using Runtime = hippy::Runtime;
 
 void ExceptionHandler::ReportJsException(const std::shared_ptr<Runtime>& runtime,
-                                         const unicode_string_view& desc,
-                                         const unicode_string_view& stack) {
+                                         const string_view& desc,
+                                         const string_view& stack) {
   FOOTSTONE_DLOG(INFO) << "ReportJsException begin";
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();

@@ -27,7 +27,7 @@
 
 #include "footstone/log_level.h"
 #include "footstone/macros.h"
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 namespace footstone {
 inline namespace log {
@@ -36,10 +36,10 @@ constexpr char kCharConversionFailedPrompt[] = "<string conversion failed>";
 constexpr char16_t kU16CharConversionFailedPrompt[] = u"<u16string conversion failed>";
 constexpr char32_t kU32CharConversionFailedPrompt[] = U"<u32string conversion failed>";
 
-inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view& str_view) {
-  unicode_string_view::Encoding encoding = str_view.encoding();
+inline std::ostream& operator<<(std::ostream& stream, const string_view& str_view) {
+  string_view::Encoding encoding = str_view.encoding();
   switch (encoding) {
-    case unicode_string_view::Encoding::Latin1: {
+    case string_view::Encoding::Latin1: {
       std::string u8;
       for (const auto& ch: str_view.latin1_value()) {
         if (static_cast<uint8_t>(ch) < 0x80) {
@@ -52,22 +52,22 @@ inline std::ostream& operator<<(std::ostream& stream, const unicode_string_view&
       stream << u8;
       break;
     }
-    case unicode_string_view::Encoding::Utf16: {
+    case string_view::Encoding::Utf16: {
       const std::u16string& str = str_view.utf16_value();
       std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert(
           kCharConversionFailedPrompt, kU16CharConversionFailedPrompt);
       stream << convert.to_bytes(str);
       break;
     }
-    case unicode_string_view::Encoding::Utf32: {
+    case string_view::Encoding::Utf32: {
       const std::u32string& str = str_view.utf32_value();
       std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert(
           kCharConversionFailedPrompt, kU32CharConversionFailedPrompt);
       stream << convert.to_bytes(str);
       break;
     }
-    case unicode_string_view::Encoding::Utf8: {
-      const unicode_string_view::u8string& str = str_view.utf8_value();
+    case string_view::Encoding::Utf8: {
+      const string_view::u8string& str = str_view.utf8_value();
       stream << std::string(reinterpret_cast<const char*>(str.c_str()), str.length());
       break;
     }
@@ -180,7 +180,7 @@ bool ShouldCreateLogMessage(LogSeverity severity);
     FOOTSTONE_LOG(ERROR) << "Not implemented in: " << __PRETTY_FUNCTION__;    \
     abort();                                                                  \
   } while (0)
-  
+
 
 #define FOOTSTONE_USE(expr) \
   do {                      \

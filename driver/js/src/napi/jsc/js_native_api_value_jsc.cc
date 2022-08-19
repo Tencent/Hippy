@@ -34,7 +34,7 @@ namespace hippy {
 inline namespace driver {
 inline namespace napi {
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
 bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) {
@@ -91,7 +91,7 @@ bool JSCCtx::GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* resul
 }
 
 bool JSCCtx::GetValueString(const std::shared_ptr<CtxValue>& value,
-                            unicode_string_view* result) {
+                            string_view* result) {
   if (!value) {
     return false;
   }
@@ -105,7 +105,7 @@ bool JSCCtx::GetValueString(const std::shared_ptr<CtxValue>& value,
       SetException(std::make_shared<JSCCtxValue>(context_, exception));
       return false;
     }
-    *result = unicode_string_view(
+    *result = string_view(
         reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str_ref)),
         JSStringGetLength(str_ref));
     return true;
@@ -157,7 +157,7 @@ uint32_t JSCCtx::GetArrayLength(const std::shared_ptr<CtxValue>& value) {
 }
 
 bool JSCCtx::GetValueJson(const std::shared_ptr<CtxValue>& value,
-                          unicode_string_view* result) {
+                          string_view* result) {
   if (!value) {
     return false;
   }
@@ -171,7 +171,7 @@ bool JSCCtx::GetValueJson(const std::shared_ptr<CtxValue>& value,
     SetException(std::make_shared<JSCCtxValue>(context_, exception));
     return false;
   }
-  *result = unicode_string_view(
+  *result = string_view(
       reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(str_ref)),
       JSStringGetLength(str_ref));
   JSStringRelease(str_ref);
@@ -179,7 +179,7 @@ bool JSCCtx::GetValueJson(const std::shared_ptr<CtxValue>& value,
 }
 
 bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
-                                  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>> &map) {
+                                  std::unordered_map<string_view, std::shared_ptr<CtxValue>> &map) {
   if (!value) {
     return false;
   }
@@ -202,7 +202,7 @@ bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
     JSValueRef props_value = JSObjectGetProperty(context_, obj_value, props_key, nullptr);
     const char16_t* utf16_string = reinterpret_cast<const char16_t*>(JSStringGetCharactersPtr(props_key));
     size_t str_length = JSStringGetLength(props_key);
-    unicode_string_view string_view(utf16_string, str_length);
+    string_view string_view(utf16_string, str_length);
     auto value = std::make_shared<JSCCtxValue>(context_, props_value);
     map[string_view] = value;
   }
@@ -212,7 +212,7 @@ bool JSCCtx::GetEntriesFromObject(const std::shared_ptr<CtxValue>& value,
 }
 
 bool JSCCtx::HasNamedProperty(const std::shared_ptr<CtxValue>& value,
-                              const unicode_string_view& name) {
+                              const string_view& name) {
   if (!value) {
     return false;
   }
@@ -251,7 +251,7 @@ bool JSCCtx::IsFunction(const std::shared_ptr<CtxValue>& value) {
   return JSObjectIsFunction(context_, object);
 }
 
-unicode_string_view JSCCtx::CopyFunctionName(
+string_view JSCCtx::CopyFunctionName(
     const std::shared_ptr<CtxValue>& function) {
   FOOTSTONE_UNIMPLEMENTED();
   return "";
@@ -268,7 +268,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateBoolean(bool b) {
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateString(
-    const unicode_string_view &str_view) {
+    const string_view &str_view) {
   JSStringRef str_ref = CreateJSCString(str_view);
   JSValueRef value = JSValueMakeString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -285,7 +285,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateNull() {
   return std::make_shared<JSCCtxValue>(context_, value);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::ParseJson(const unicode_string_view& json) {
+std::shared_ptr<CtxValue> JSCCtx::ParseJson(const string_view& json) {
   JSStringRef str_ref = CreateJSCString(json);
   JSValueRef value = JSValueMakeFromJSONString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -293,7 +293,7 @@ std::shared_ptr<CtxValue> JSCCtx::ParseJson(const unicode_string_view& json) {
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<
-    unicode_string_view,
+    string_view,
     std::shared_ptr<CtxValue>>& object) {
   std::unordered_map<std::shared_ptr<CtxValue>,std::shared_ptr<CtxValue>> obj;
   for (const auto& it : object) {
@@ -307,7 +307,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateObject(const std::unordered_map<std::sha
   JSObjectRef obj = JSObjectMake(context_, nullptr, nullptr);
   JSValueRef exception = nullptr;
   for (const auto& it : object) {
-    unicode_string_view key;
+    string_view key;
     auto flag = GetValueString(it.first, &key);
     FOOTSTONE_DCHECK(flag);
     if (!flag) {
@@ -413,7 +413,7 @@ bool JSCCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,
 
 
 std::shared_ptr<CtxValue> JSCCtx::CreateError(
-    const unicode_string_view& msg) {
+    const string_view& msg) {
   JSStringRef str_ref = CreateJSCString(msg);
   JSValueRef value = JSValueMakeString(context_, str_ref);
   JSStringRelease(str_ref);
@@ -451,7 +451,7 @@ std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(
 
 std::shared_ptr<CtxValue> JSCCtx::CopyNamedProperty(
     const std::shared_ptr<CtxValue>& value,
-    const unicode_string_view& name) {
+    const string_view& name) {
   std::shared_ptr<JSCCtxValue> ctx_value =
       std::static_pointer_cast<JSCCtxValue>(value);
   JSValueRef value_ref = ctx_value->value_;
@@ -522,30 +522,30 @@ std::shared_ptr<CtxValue> JSCCtx::CallFunction(
   return std::make_shared<JSCCtxValue>(context_, ret_value_ref);
 }
 
-unicode_string_view JSCCtx::GetExceptionMsg(
+string_view JSCCtx::GetExceptionMsg(
     const std::shared_ptr<CtxValue>& exception) {
   if (!exception) {
-    return unicode_string_view();
+    return string_view();
   }
 
   std::shared_ptr<CtxValue> msg_obj = CopyNamedProperty(
-    exception, unicode_string_view(kMessageStr, ARRAY_SIZE(kMessageStr) - 1));
-  unicode_string_view msg_view;
+    exception, string_view(kMessageStr, ARRAY_SIZE(kMessageStr) - 1));
+  string_view msg_view;
   GetValueString(msg_obj, &msg_view);
   std::u16string u16_msg;
   if (!StringViewUtils::IsEmpty(msg_view)) {
     u16_msg = msg_view.utf16_value();
   }
   std::shared_ptr<CtxValue> stack_obj = CopyNamedProperty(
-    exception, unicode_string_view(kStackStr, ARRAY_SIZE(kStackStr) - 1));
-  unicode_string_view stack_view;
+    exception, string_view(kStackStr, ARRAY_SIZE(kStackStr) - 1));
+  string_view stack_view;
   GetValueString(stack_obj, &stack_view);
   std::u16string u16_stack;
   if (!StringViewUtils::IsEmpty(stack_view)) {
     u16_stack = stack_view.utf16_value();
   }
   std::u16string str = u"message: " + u16_msg + u", stack: " + u16_stack;
-  unicode_string_view ret(str.c_str(), str.length());
+  string_view ret(str.c_str(), str.length());
   FOOTSTONE_DLOG(ERROR) << "GetExceptionMsg msg = " << ret;
   return ret;
 }
@@ -554,7 +554,7 @@ void JSCCtx::ThrowException(const std::shared_ptr<CtxValue> &exception) {
   SetException(std::static_pointer_cast<JSCCtxValue>(exception));
 }
 
-void JSCCtx::ThrowException(const unicode_string_view& exception) {
+void JSCCtx::ThrowException(const string_view& exception) {
   ThrowException(CreateError(exception));
 }
 
@@ -568,7 +568,7 @@ void JSCCtx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception)
   if (!IsFunction(exception_handler)) {
     const auto& source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
     FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
-    unicode_string_view content(source_code.data_, source_code.length_);
+    string_view content(source_code.data_, source_code.length_);
     exception_handler = RunScript(content, kErrorHandlerJSName);
     bool is_func = IsFunction(exception_handler);
     FOOTSTONE_CHECK(is_func)
@@ -583,33 +583,33 @@ void JSCCtx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception)
   CallFunction(exception_handler, 2, args);
 }
 
-JSStringRef JSCCtx::CreateJSCString(const unicode_string_view& str_view) {
-  unicode_string_view::Encoding encoding = str_view.encoding();
+JSStringRef JSCCtx::CreateJSCString(const string_view& str_view) {
+  string_view::Encoding encoding = str_view.encoding();
   JSStringRef ret;
   switch (encoding) {
-    case unicode_string_view::Encoding::Unkown: {
+    case string_view::Encoding::Unknown: {
       FOOTSTONE_UNREACHABLE();
       break;
     }
-    case unicode_string_view::Encoding::Latin1: {
+    case string_view::Encoding::Latin1: {
       ret = JSStringCreateWithUTF8CString(str_view.latin1_value().c_str());
       break;
     }
-    case unicode_string_view::Encoding::Utf8: {
+    case string_view::Encoding::Utf8: {
       std::string u8_str(
           reinterpret_cast<const char*>(str_view.utf8_value().c_str()),
           str_view.utf8_value().length());
       ret = JSStringCreateWithUTF8CString(u8_str.c_str());
       break;
     }
-    case unicode_string_view::Encoding::Utf16: {
+    case string_view::Encoding::Utf16: {
       std::u16string u16_str = str_view.utf16_value();
       ret = JSStringCreateWithCharacters(
           reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;
     }
-    case unicode_string_view::Encoding::Utf32: {
-      std::u16string u16_str = StringViewUtils::ConvertEncoding(str_view, unicode_string_view::Encoding::Utf16).utf16_value();
+    case string_view::Encoding::Utf32: {
+      std::u16string u16_str = StringViewUtils::ConvertEncoding(str_view, string_view::Encoding::Utf16).utf16_value();
       ret = JSStringCreateWithCharacters(
           reinterpret_cast<const JSChar*>(u16_str.c_str()), u16_str.length());
       break;

@@ -34,7 +34,7 @@
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using TaskRunner = footstone::runner::TaskRunner;
 
 using Ctx = hippy::napi::Ctx;
@@ -100,7 +100,7 @@ void UIManagerModule::CallUIFunction(const CallbackInfo &info) {
             }
             return;
           } else {
-            context->ThrowException(unicode_string_view("param ToObject failed"));
+            context->ThrowException(string_view("param ToObject failed"));
           }
         };
         runner->PostTask(std::move(cb));

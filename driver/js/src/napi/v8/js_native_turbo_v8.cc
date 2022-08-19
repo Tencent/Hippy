@@ -24,7 +24,7 @@
 
 #include "footstone/string_view_utils.h"
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 
 namespace hippy {
 inline namespace driver {
@@ -89,7 +89,7 @@ std::shared_ptr<CtxValue> V8TurboEnv::CreateObject(
   if (!host_object_constructor_.Get(isolate)
            ->NewInstance(context)
            .ToLocal(&new_object)) {
-    v8_ctx->ThrowException(unicode_string_view("CreateObject Fail."));
+    v8_ctx->ThrowException(string_view("CreateObject Fail."));
     return v8_ctx->CreateUndefined();
   }
 
@@ -123,11 +123,11 @@ std::shared_ptr<napi::CtxValue> V8TurboEnv::CreateFunction(
                isolate, v8::External::New(isolate, host_function_proxy)),
            param_count)
            .ToLocal(&new_function)) {
-    v8_ctx->ThrowException(unicode_string_view("CreateFunction Fail."));
+    v8_ctx->ThrowException(string_view("CreateFunction Fail."));
     return v8_ctx->CreateUndefined();
   }
 
-  unicode_string_view str_view;
+  string_view str_view;
   if (!v8_ctx->GetValueString(name, &str_view)) {
     return v8_ctx->CreateUndefined();
   }

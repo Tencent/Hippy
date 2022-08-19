@@ -27,11 +27,11 @@
 #include "footstone/logging.h"
 
 namespace  {
-using unicode_string_view = footstone::stringview::unicode_string_view;
-using u8string = footstone::unicode_string_view::u8string;
+using string_view = footstone::stringview::string_view;
+using u8string = footstone::string_view::u8string;
 }
 
-typedef bool (*RequestUntrustedContentPtr)(const unicode_string_view& uri, std::function<void(u8string)> cb, CFTypeRef userData);
+typedef bool (*RequestUntrustedContentPtr)(const string_view& uri, std::function<void(u8string)> cb, CFTypeRef userData);
 
 class IOSLoader : public hippy::base::UriLoader {
  public:
@@ -39,9 +39,9 @@ class IOSLoader : public hippy::base::UriLoader {
 
   virtual ~IOSLoader();
 
-  virtual bool RequestUntrustedContent(const unicode_string_view& uri, std::function<void(u8string)> cb);
+  virtual bool RequestUntrustedContent(const string_view& uri, std::function<void(u8string)> cb);
 
-  virtual bool RequestUntrustedContent(const unicode_string_view& uri, u8string& content) {
+  virtual bool RequestUntrustedContent(const string_view& uri, u8string& content) {
     FOOTSTONE_UNIMPLEMENTED();
   }
 

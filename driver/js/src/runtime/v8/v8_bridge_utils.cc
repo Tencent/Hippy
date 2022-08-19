@@ -44,11 +44,11 @@ inline namespace driver {
 inline namespace runtime {
 
 using byte_string = std::string;
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using TaskRunner = footstone::runner::TaskRunner;
 using WorkerManager = footstone::runner::WorkerManager;
-using u8string = unicode_string_view::u8string;
+using u8string = string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using Deserializer = footstone::value::Deserializer;
@@ -76,15 +76,15 @@ static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
 static std::mutex engine_mutex;
 
 std::function<void(std::shared_ptr<Runtime>,
-                   unicode_string_view,
-                   unicode_string_view)> V8BridgeUtils::on_throw_exception_to_js_ = [](
+                   string_view,
+                   string_view)> V8BridgeUtils::on_throw_exception_to_js_ = [](
     const std::shared_ptr<Runtime>&,
-    const unicode_string_view&,
-    const unicode_string_view&) {};
+    const string_view&,
+    const string_view&) {};
 
 int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     bool is_dev_module,
-                                    const unicode_string_view& global_config,
+                                    const string_view& global_config,
                                     int64_t group,
                                     const std::shared_ptr<WorkerManager>& worker_manager,
                                     const std::shared_ptr<TaskRunner>& task_runner,
@@ -92,8 +92,8 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const std::any& bridge,
                                     const RegisterFunction& scope_cb,
                                     const RegisterFunction& call_native_cb,
-                                    const unicode_string_view& data_dir,
-                                    const unicode_string_view& ws_url) {
+                                    const string_view& data_dir,
+                                    const string_view& ws_url) {
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
                                                                is_dev_module);
   runtime->SetData(kBridgeSlot, std::move(bridge));
@@ -121,7 +121,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
   if (is_dev_module) {
     auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(
         StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-            ws_url, unicode_string_view::Encoding::Utf8).utf8_value()), worker_manager);
+            ws_url, string_view::Encoding::Utf8).utf8_value()), worker_manager);
     devtools_data_source->SetRuntimeDebugMode(is_dev_module);
     runtime->SetDevtoolsDataSource(devtools_data_source);
   }
@@ -206,7 +206,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 #ifdef ENABLE_INSPECTOR
   if (is_dev_module) {
     DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        data_dir, unicode_string_view::Encoding::Utf8).utf8_value()));
+        data_dir, string_view::Encoding::Utf8).utf8_value()));
     scope->SetDevtoolsDataSource(runtime->GetDevtoolsDataSource());
 #ifndef V8_WITHOUT_INSPECTOR
     scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
@@ -217,7 +217,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
       }
       auto inspector_client = runtime->GetEngine()->GetInspectorClient();
       if (inspector_client) {
-        auto u16str = StringViewUtils::ConvertEncoding(unicode_string_view(data), unicode_string_view::Encoding::Utf16);
+        auto u16str = StringViewUtils::ConvertEncoding(string_view(data), string_view::Encoding::Utf16);
         inspector_client->SendMessageToV8(runtime->GetInspectorContext(), std::move(u16str));
       }
     });
@@ -229,10 +229,10 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 }
 
 bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
-                              const unicode_string_view& file_name,
+                              const string_view& file_name,
                               bool is_use_code_cache,
-                              const unicode_string_view& code_cache_dir,
-                              const unicode_string_view& uri,
+                              const string_view& code_cache_dir,
+                              const string_view& uri,
                               bool is_local_file) {
   return RunScriptWithoutLoader(
       runtime, file_name, is_use_code_cache, code_cache_dir, uri, is_local_file,
@@ -244,40 +244,40 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
               loader->RequestUntrustedContent(
                   uri_, content);
           if (flag) {
-            return unicode_string_view(std::move(content));
+            return string_view(std::move(content));
           }
         }
 
-        return unicode_string_view{};
+        return string_view{};
       });
 }
 
 bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runtime,
-                                           const unicode_string_view& file_name,
+                                           const string_view& file_name,
                                            bool is_use_code_cache,
-                                           const unicode_string_view& code_cache_dir,
-                                           const unicode_string_view& uri,
+                                           const string_view& code_cache_dir,
+                                           const string_view& uri,
                                            bool is_local_file,
-                                           std::function<unicode_string_view()> content_cb) {
+                                           std::function<string_view()> content_cb) {
   FOOTSTONE_LOG(INFO) << "RunScript begin, file_name = " << file_name
                       << ", is_use_code_cache = " << is_use_code_cache
                       << ", code_cache_dir = " << code_cache_dir
                       << ", uri = " << uri
                       << ", is_local_file = " << is_local_file;
-  unicode_string_view script_content;
+  string_view script_content;
   bool read_script_flag = false;
-  unicode_string_view code_cache_content;
+  string_view code_cache_content;
   uint64_t modify_time = 0;
 
   std::shared_ptr<TaskRunner> worker_runner;
-  unicode_string_view code_cache_path;
+  string_view code_cache_path;
   if (is_use_code_cache) {
     if (is_local_file) {
       modify_time = hippy::base::HippyFile::GetFileModifyTime(uri);
     }
 
-    code_cache_path = code_cache_dir + file_name + unicode_string_view("_") +
-        unicode_string_view(std::to_string(modify_time));
+    code_cache_path = code_cache_dir + file_name + string_view("_") +
+        string_view(std::to_string(modify_time));
 
     std::promise<u8string> read_file_promise;
     std::future<u8string> read_file_future = read_file_promise.get_future();
@@ -335,7 +335,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
         }
 
         size_t pos = StringViewUtils::FindLastOf(code_cache_path, EXTEND_LITERAL('/'));
-        unicode_string_view code_cache_parent_dir = StringViewUtils::SubStr(code_cache_path, 0, pos);
+        string_view code_cache_parent_dir = StringViewUtils::SubStr(code_cache_path, 0, pos);
         int check_parent_dir_ret = HippyFile::CheckDir(code_cache_parent_dir, F_OK);
         FOOTSTONE_DLOG(INFO) << "check_parent_dir_ret = " << check_parent_dir_ret;
         if (check_parent_dir_ret) {
@@ -343,7 +343,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
         }
 
         std::string u8_code_cache_content = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-            code_cache_content, unicode_string_view::Encoding::Utf8).utf8_value());
+            code_cache_content, string_view::Encoding::Utf8).utf8_value());
         bool save_file_ret = HippyFile::SaveFile(code_cache_path, u8_code_cache_content);
         FOOTSTONE_LOG(INFO) << "code cache save_file_ret = " << save_file_ret;
         FOOTSTONE_USE(save_file_ret);
@@ -449,9 +449,9 @@ void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
   FOOTSTONE_DLOG(INFO) << "destroy end";
 }
 
-void V8BridgeUtils::CallJs(const unicode_string_view& action,
+void V8BridgeUtils::CallJs(const string_view& action,
                            int32_t runtime_id,
-                           std::function<void(CALL_FUNCTION_CB_STATE, unicode_string_view)> cb,
+                           std::function<void(CALL_FUNCTION_CB_STATE, string_view)> cb,
                            byte_string buffer_data,
                            std::function<void()> on_js_runner) {
   FOOTSTONE_DLOG(INFO) << "CallJs runtime_id = " << runtime_id;
@@ -473,7 +473,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
     std::shared_ptr<Ctx> context = scope->GetContext();
     if (!runtime->GetBridgeFunc()) {
       FOOTSTONE_DLOG(INFO) << "init bridge func";
-      unicode_string_view name(kHippyBridgeName);
+      string_view name(kHippyBridgeName);
       std::shared_ptr<CtxValue> fn = context->GetJsFn(name);
       bool is_fn = context->IsFunction(fn);
       FOOTSTONE_DLOG(INFO) << "is_fn = " << is_fn;
@@ -485,7 +485,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
         runtime->SetBridgeFunc(fn);
       }
     }
-    FOOTSTONE_DCHECK(action.encoding() == unicode_string_view::Encoding::Utf16);
+    FOOTSTONE_DCHECK(action.encoding() == string_view::Encoding::Utf16);
     std::shared_ptr<CtxValue> action_value = context->CreateString(action);
     std::shared_ptr<CtxValue> params;
     if (runtime->IsEnableV8Serialization()) {
@@ -504,7 +504,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
         params = std::make_shared<hippy::napi::V8CtxValue>(
             isolate, ret.ToLocalChecked());
       } else {
-        unicode_string_view msg;
+        string_view msg;
         if (try_catch.HasCaught()) {
           msg = try_catch.GetExceptionMsg();
         } else {
@@ -516,7 +516,7 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
     } else {
       std::u16string str(reinterpret_cast<const char16_t*>(&buffer_data_[0]),
                          buffer_data_.length() / sizeof(char16_t));
-      unicode_string_view buf_str(std::move(str));
+      string_view buf_str(std::move(str));
       FOOTSTONE_DLOG(INFO) << "action = " << action
                           << ", buf_str = " << buf_str;
       params = context->ParseJson(buf_str);
@@ -534,9 +534,9 @@ void V8BridgeUtils::CallJs(const unicode_string_view& action,
 
 void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::function<void(
     std::shared_ptr<Runtime>,
-    unicode_string_view,
-    unicode_string_view,
-    unicode_string_view,
+    string_view,
+    string_view,
+    string_view,
     bool,
     byte_string)>& cb) {
   FOOTSTONE_DLOG(INFO) << "CallNative";
@@ -563,7 +563,7 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     return;
   }
 
-  unicode_string_view module;
+  string_view module;
   if (info.Length() >= 1 && !info[0].IsEmpty()) {
     v8::MaybeLocal<v8::String> module_maybe_str = info[0]->ToString(context);
     if (module_maybe_str.IsEmpty()) {
@@ -585,7 +585,7 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     return;
   }
 
-  unicode_string_view func;
+  string_view func;
   if (info.Length() >= 2 && !info[1].IsEmpty()) {
     v8::MaybeLocal<v8::String> func_maybe_str = info[1]->ToString(context);
     if (func_maybe_str.IsEmpty()) {
@@ -607,7 +607,7 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     return;
   }
 
-  unicode_string_view cb_id;
+  string_view cb_id;
   if (info.Length() >= 3 && !info[2].IsEmpty()) {
     v8::MaybeLocal<v8::String> cb_id_maybe_str = info[2]->ToString(context);
     if (!cb_id_maybe_str.IsEmpty()) {
@@ -627,12 +627,12 @@ void V8BridgeUtils::CallNative(hippy::napi::CBDataTuple* data, const std::functi
     } else {
       std::shared_ptr<hippy::napi::V8CtxValue> obj =
           std::make_shared<hippy::napi::V8CtxValue>(isolate, info[3]);
-      unicode_string_view json;
+      string_view json;
       auto flag = v8_ctx->GetValueJson(obj, &json);
       FOOTSTONE_DCHECK(flag);
       FOOTSTONE_DLOG(INFO) << "CallNative json = " << json;
       buffer = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          json, unicode_string_view::Encoding::Utf8).utf8_value());
+          json, string_view::Encoding::Utf8).utf8_value());
     }
   }
 

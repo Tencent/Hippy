@@ -52,7 +52,7 @@ set(SOURCE_SET
     src/string_utils.cc
     src/task.cc
     src/task_runner.cc
-    src/unicode_string_view.cc
+    src/string_view.cc
     src/worker.cc
     src/worker_manager.cc)
 if (ANDROID)
@@ -96,7 +96,7 @@ set(PUBLIC_HEADER_SET
     include/footstone/time_delta.h
     include/footstone/idle_timer.h
     include/footstone/hash.h
-    include/footstone/unicode_string_view.h
+    include/footstone/string_view.h
     include/footstone/base_timer.h
     include/footstone/worker_manager.h)
 

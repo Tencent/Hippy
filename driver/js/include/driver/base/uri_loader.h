@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include "footstone/unicode_string_view.h"
+#include "footstone/string_view.h"
 
 namespace hippy {
 inline namespace driver {
@@ -34,17 +34,17 @@ inline namespace base {
 
 class UriLoader {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
-  using u8string = unicode_string_view::u8string;
+  using string_view = footstone::stringview::string_view;
+  using u8string = string_view::u8string;
 
   UriLoader() {}
   virtual ~UriLoader() {}
 
-  virtual bool RequestUntrustedContent(const unicode_string_view& uri,
+  virtual bool RequestUntrustedContent(const string_view& uri,
                                        std::function<void(u8string)> cb) = 0;
 
   virtual bool RequestUntrustedContent(
-      const unicode_string_view& uri,
+      const string_view& uri,
       u8string& content) = 0;
 };
 

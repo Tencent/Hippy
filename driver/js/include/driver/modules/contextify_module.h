@@ -35,16 +35,16 @@ inline namespace module {
 
 class ContextifyModule : public ModuleBase {
  public:
-  using unicode_string_view = footstone::stringview::unicode_string_view;
+  using string_view = footstone::stringview::string_view;
   using CtxValue = hippy::napi::CtxValue;
 
   ContextifyModule() {}
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
   void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
-  void RemoveCBFunc(const unicode_string_view& uri);
+  void RemoveCBFunc(const string_view& uri);
 
  private:
-  std::unordered_map<unicode_string_view, std::shared_ptr<CtxValue>>
+  std::unordered_map<string_view, std::shared_ptr<CtxValue>>
       cb_func_map_;
 };
 

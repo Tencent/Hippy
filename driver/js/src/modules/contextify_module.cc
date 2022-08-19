@@ -37,9 +37,9 @@
 #include "driver/napi/v8/js_native_api_v8.h"
 #endif
 
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
-using u8string = unicode_string_view::u8string;
+using u8string = string_view::u8string;
 using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
@@ -63,7 +63,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
 #endif
   FOOTSTONE_CHECK(context);
 
-  unicode_string_view key;
+  string_view key;
   if (!context->GetValueString(info[0], &key)) {
     info.GetExceptionValue()->Set(
         context, "The first argument must be non-empty string.");
@@ -72,9 +72,9 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
 
   FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
   const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      key, unicode_string_view::Encoding::Utf8).utf8_value()));
+      key, string_view::Encoding::Utf8).utf8_value()));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
-  unicode_string_view str_view(source_code.data_, source_code.length_);
+  string_view str_view(source_code.data_, source_code.length_);
 #ifdef JS_V8
   auto ret = context->RunScript(str_view, key, false, nullptr, false);
 #else
@@ -89,7 +89,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
   }
 }
 
-void ContextifyModule::RemoveCBFunc(const unicode_string_view& uri) {
+void ContextifyModule::RemoveCBFunc(const string_view& uri) {
   cb_func_map_.erase(uri);
 }
 
@@ -97,7 +97,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::shared_ptr<Scope> scope = info.GetScope();
   std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
   FOOTSTONE_CHECK(context);
-  unicode_string_view uri;
+  string_view uri;
   if (!context->GetValueString(info[0], &uri)) {
     info.GetExceptionValue()->Set(
         context, "The first argument must be non-empty string.");
@@ -135,8 +135,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       return;
     }
 
-    unicode_string_view cur_dir;
-    unicode_string_view file_name;
+    string_view cur_dir;
+    string_view file_name;
     size_t pos = StringViewUtils::FindLastOf(uri, '/', '/', u'/', U'/');
     if (pos != static_cast<size_t>(-1)) {
       cur_dir = StringViewUtils::SubStr(uri, 0, pos + 1);
@@ -152,7 +152,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
     } else {
       FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << code.length()
                            << ", encode = " << encode
-                           << ", code = " << unicode_string_view(code);
+                           << ", code = " << string_view(code);
     }
     auto callback = [this, weak_scope, weak_function,
         move_code = std::move(code), cur_dir, file_name,
@@ -171,7 +171,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         std::shared_ptr<TryCatch> try_catch =
             CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
-        unicode_string_view view_code(move_code);
+        string_view view_code(move_code);
         scope->RunJS(view_code, file_name);
         ctx->SetGlobalObjVar(kHippyCurDirKey, last_dir_str_obj,
                              hippy::napi::PropertyAttribute::None);
@@ -181,8 +181,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
                                 << try_catch->GetExceptionMsg();
         }
       } else {
-        unicode_string_view err_msg = uri + " not found";
-        error = ctx->CreateError(unicode_string_view(err_msg));
+        string_view err_msg = uri + " not found";
+        error = ctx->CreateError(string_view(err_msg));
       }
 
       std::shared_ptr<CtxValue> function = weak_function.lock();

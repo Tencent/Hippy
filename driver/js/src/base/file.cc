@@ -32,12 +32,12 @@ inline namespace base {
 
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
-bool HippyFile::SaveFile(const unicode_string_view& file_path,
+bool HippyFile::SaveFile(const string_view& file_path,
                          const std::string& content,
                          std::ios::openmode mode) {
   FOOTSTONE_DLOG(INFO) << "SaveFile file_path = " << file_path;
   auto path_str = StringViewUtils::ConvertEncoding(file_path,
-                                                   unicode_string_view::Encoding::Utf8).utf8_value();
+                                                   string_view::Encoding::Utf8).utf8_value();
   std::ofstream file(reinterpret_cast<const char*>(path_str.c_str()), mode);
   if (file.is_open()) {
     std::streamsize len;
@@ -52,10 +52,10 @@ bool HippyFile::SaveFile(const unicode_string_view& file_path,
   }
 }
 
-int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
+int HippyFile::RmFullPath(const string_view& dir_full_path) {
   FOOTSTONE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
   auto path_str = StringViewUtils::ConvertEncoding(dir_full_path,
-                                                   unicode_string_view::Encoding::Utf8).utf8_value();
+                                                   string_view::Encoding::Utf8).utf8_value();
   auto path = reinterpret_cast<const char*>(path_str.c_str());
   DIR* dir_parent = opendir(path);
   if (!dir_parent) {
@@ -69,7 +69,7 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
       continue;
     }
     std::string sub_path = std::string(path) + '/' + std::string(dir->d_name);
-    unicode_string_view view_sub_path(reinterpret_cast<const unicode_string_view::char8_t_*>(
+    string_view view_sub_path(reinterpret_cast<const string_view::char8_t_*>(
         sub_path.c_str()), sub_path.length());
     FOOTSTONE_DLOG(INFO) << "RmFullPath sub_path = " << sub_path;
     if (lstat(sub_path.c_str(), &st) == -1) {
@@ -97,24 +97,24 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
   return 0;
 }
 
-int HippyFile::CreateDir(const unicode_string_view& dir_path, mode_t mode) {
+int HippyFile::CreateDir(const string_view& dir_path, mode_t mode) {
   FOOTSTONE_DLOG(INFO) << "CreateDir path = " << dir_path;
   auto path_str = StringViewUtils::ConvertEncoding(dir_path,
-                                                   unicode_string_view::Encoding::Utf8).utf8_value();
+                                                   string_view::Encoding::Utf8).utf8_value();
   return mkdir(reinterpret_cast<const char*>(path_str.c_str()), mode);
 }
 
-int HippyFile::CheckDir(const unicode_string_view& dir_path, int mode) {
+int HippyFile::CheckDir(const string_view& dir_path, int mode) {
   FOOTSTONE_DLOG(INFO) << "CheckDir path = " << dir_path;
   auto path_str = StringViewUtils::ConvertEncoding(dir_path,
-                                                   unicode_string_view::Encoding::Utf8).utf8_value();
+                                                   string_view::Encoding::Utf8).utf8_value();
   return access(reinterpret_cast<const char*>(path_str.c_str()), mode);
 }
 
-uint64_t HippyFile::GetFileModifyTime(const unicode_string_view& file_path) {
+uint64_t HippyFile::GetFileModifyTime(const string_view& file_path) {
   FOOTSTONE_DLOG(INFO) << "GetFileModifyTime file_path = " << file_path;
   auto path_str = StringViewUtils::ConvertEncoding(file_path,
-                                                   unicode_string_view::Encoding::Utf8).utf8_value();
+                                                   string_view::Encoding::Utf8).utf8_value();
   auto path =  reinterpret_cast<const char*>(path_str.c_str());
   struct stat statInfo{};
   FILE* fp = fopen(path, "r");
