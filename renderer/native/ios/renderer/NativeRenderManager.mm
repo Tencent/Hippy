@@ -36,7 +36,7 @@ using LayoutResult = hippy::LayoutResult;
 using CallFunctionCallback = hippy::CallFunctionCallback;
 using RootNode = hippy::RootNode;
 
-NativeRenderManager::NativeRenderManager() {
+NativeRenderManager::NativeRenderManager(): hippy::RenderManager("NativeRenderManager") {
     renderImpl_ = [[NativeRenderImpl alloc] init];
 }
 

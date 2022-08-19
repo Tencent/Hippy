@@ -30,7 +30,8 @@ namespace voltron {
 using hippy::TouchEventInfo;
 
 VoltronRenderManager::VoltronRenderManager(int32_t root_id, int32_t engine_id)
-    : VoltronRenderTaskRunner(engine_id, root_id), root_id_(root_id) {}
+    : RenderManager("VoltronRenderManager"),
+      VoltronRenderTaskRunner(engine_id, root_id), root_id_(root_id) {}
 
 VoltronRenderManager::~VoltronRenderManager() = default;
 

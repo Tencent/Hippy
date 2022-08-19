@@ -7,9 +7,8 @@
 namespace hippy {
 inline namespace dom {
 
-LayerOptimizedRenderManager::LayerOptimizedRenderManager(
-        std::shared_ptr<RenderManager> render_manager)
-        : render_manager_(std::move(render_manager)) {}
+LayerOptimizedRenderManager::LayerOptimizedRenderManager(std::shared_ptr<RenderManager> render_manager)
+    : RenderManager("LayerOptimizedRenderManager"), render_manager_(std::move(render_manager)) {}
 
 void LayerOptimizedRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
                                                    std::vector<std::shared_ptr<DomNode>>&& nodes) {

@@ -75,7 +75,8 @@ std::atomic<uint32_t> NativeRenderManager::unique_native_render_manager_id_{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<hippy::NativeRenderManager>> NativeRenderManager::persistent_map_;
 
 NativeRenderManager::NativeRenderManager(std::shared_ptr<JavaRef> render_delegate)
-    : render_delegate_(std::move(render_delegate)),
+    : RenderManager("NativeRenderManager"),
+      render_delegate_(std::move(render_delegate)),
       serializer_(std::make_shared<footstone::value::Serializer>()) {
   id_ = NativeRenderManager::unique_native_render_manager_id_.fetch_add(1);
 }

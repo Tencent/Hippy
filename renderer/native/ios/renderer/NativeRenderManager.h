@@ -39,7 +39,7 @@ class NativeRenderManager : public hippy::RenderManager {
     
 public:
     NativeRenderManager();
-    NativeRenderManager(NativeRenderImpl *uiManager):renderImpl_(uiManager){}
+    NativeRenderManager(NativeRenderImpl *uiManager): hippy::RenderManager("NativeRenderManager"), renderImpl_(uiManager){}
     
     ~NativeRenderManager();
 
