@@ -70,9 +70,6 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
   void ReceivedEvent(std::weak_ptr<RootNode> root_node, uint32_t dom_id, const std::string& event_name,
                      const std::shared_ptr<HippyValue>& params, bool capture, bool bubble);
 
-  void SetDensity(float density) { density_ = density; }
-  float GetDensity() { return density_; }
-
   void SetDomManager(std::weak_ptr<DomManager> dom_manager) { dom_manager_ = dom_manager; }
   std::shared_ptr<DomManager> GetDomManager() const { return dom_manager_.lock(); }
 
@@ -112,7 +109,6 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
   uint32_t id_;
   std::shared_ptr<JavaRef> render_delegate_;
   std::shared_ptr<footstone::value::Serializer> serializer_;
-  float density_ = 1.0f;
   std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 
   std::weak_ptr<DomManager> dom_manager_;

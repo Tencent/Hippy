@@ -36,6 +36,8 @@ class DomNode;
 
 class RenderManager {
  public:
+  RenderManager(const std::string& name): density_(1.0f), name_(name){}
+
   virtual ~RenderManager() = default;
 
   virtual void CreateRenderNode(std::weak_ptr<RootNode> root_node,
@@ -69,6 +71,15 @@ class RenderManager {
                             const std::string& name,
                             const DomArgument& param,
                             uint32_t cb_id) = 0;
+
+  void SetDensity(float density) { density_ = density; }
+  float GetDensity() { return density_; }
+  void SetName(const std::string& name) { name_ = name; }
+  std::string GetName() { return name_; }
+
+protected:
+  float density_;
+  std::string name_;
 };
 
 }  // namespace dom
