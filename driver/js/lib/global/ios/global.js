@@ -190,7 +190,7 @@ __GLOBAL__.NativeModules = {
 if (typeof nativeModuleProxy !== 'undefined') {
   __GLOBAL__.NativeModules = nativeModuleProxy;
 } else {
-  const bridgeConfig = __fbBatchedBridgeConfig;
+  const bridgeConfig = __hpBatchedBridgeConfig;
   ((bridgeConfig && bridgeConfig.remoteModuleConfig) || []).forEach((config, moduleID) => {
     const info = __GLOBAL__.genModule(config, moduleID);
     if (!info) {
