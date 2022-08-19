@@ -146,7 +146,7 @@ void ViewPager::ScrollTo(int32_t target_page, bool animated) {
   }
 
   const TScalar x = IsHorizontal() ? to : GetOffset().x;
-  const TScalar y = IsHorizontal() ? GetOffset().y : to;
+  const TScalar y = IsVertical() ? to : GetOffset().y;
   SetOffset(TPoint::Make(x, y), animated);
 }
 

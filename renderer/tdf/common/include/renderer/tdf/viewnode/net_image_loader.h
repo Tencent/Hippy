@@ -24,11 +24,11 @@
 #include "core/engine/schedule/task_runner.h"
 #include "core/engine/schedule/thread_task_driver.h"
 #include "core/support/image/image_load_manager.h"
-#include "footstone//unicode_string_view.h"
+#include "footstone//string_view_utils.h"
 
 namespace tdfrender {
 
-using StringView = footstone::unicode_string_view;
+using StringView = footstone::string_view;
 using DataCb = std::function<void(StringView::u8string)>;
 using UriDataGetter = std::function<bool(const StringView &uri, DataCb cb)>;
 

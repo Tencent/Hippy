@@ -49,10 +49,15 @@ void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     if (iterator->second->ToBooleanChecked()) {
       GetView()->SetBackgroundColor(tdfcore::Color::Transparent());
     } else {
-      // todo(kloudwang) : user define background color
       GetView()->SetBackgroundColor(tdfcore::Color::ARGB(100, 99, 99, 99));
     }
   }
+}
+
+void ModalViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
+    ViewNode::HandleLayoutUpdate(layout_result);
+    auto root_view_frame = tdfcore::ViewContext::GetCurrent()->GetRootView()->GetFrame();
+    GetView()->SetFrame(TRect::MakeXYWH(0, 0, root_view_frame.Width(), root_view_frame.Height()));
 }
 
 std::shared_ptr<View> ModalViewNode::CreateView() {
@@ -73,8 +78,6 @@ std::shared_ptr<View> ModalViewNode::CreateView() {
     DEFINE_AND_CHECK_SELF(ModalViewNode)
     self->OnOrientationChange();
   });
-  auto root_view_frame = tdfcore::ViewContext::GetCurrent()->GetRootView()->GetFrame();
-  modal_view->SetFrame(TRect::MakeXYWH(0, 0, root_view_frame.Width(), root_view_frame.Height()));
   return modal_view;
 }
 

@@ -26,12 +26,12 @@
 
 namespace tdfrender {
 
-using StringView = footstone::stringview::unicode_string_view;
-using DataCb = std::function<void(StringView::u8string)>;
-using UriDataGetter = std::function<bool(const StringView& uri, DataCb cb)>;
-
 class RootViewNode : public ViewNode {
  public:
+  using StringView = footstone::stringview::string_view;
+  using DataCb = std::function<void(StringView::u8string)>;
+  using UriDataGetter = std::function<bool(const StringView& uri, DataCb cb)>;
+
   RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
                const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter);
   ~RootViewNode() override = default;

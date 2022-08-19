@@ -131,21 +131,21 @@ constexpr const float kDefaultLineHeight = 16.0;
 constexpr const tdfcore::Color kDefaultTextColor = tdfcore::Color::Black();
 }  // namespace defaultvalue
 
-using DomValueObjectType = footstone::HippyValue::HippyValueObjectType;
-using hippy::dom::DomArgument;
-using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
-
-using RenderInfo = hippy::dom::DomNode::RenderInfo;
 class ViewNode;
 class RootViewNode;
-using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo)>;
-using Point = tdfcore::TPoint;
 
 /*
  * Binding a tdfcore::View with  a hippy::DomNode.
  */
 class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<ViewNode> {
  public:
+  using DomValueObjectType = footstone::HippyValue::HippyValueObjectType;
+  using DomArgument = hippy::dom::DomArgument;
+  using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
+  using RenderInfo = hippy::dom::DomNode::RenderInfo;
+  using node_creator = std::function<std::shared_ptr<ViewNode>(RenderInfo)>;
+  using Point = tdfcore::TPoint;
+
   ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view = nullptr);
   virtual ~ViewNode() = default;
 
@@ -188,10 +188,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual void CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) {}
 
-  void SetRootNode(std::weak_ptr<RootViewNode> root_node) {
-    root_node_ = root_node;
-    auto root = root_node.lock();
-  }
+  void SetRootNode(std::weak_ptr<RootViewNode> root_node) { root_node_ = root_node; }
 
   static tdfcore::Color ParseToColor(const std::shared_ptr<footstone::HippyValue>& value);
 
@@ -251,7 +248,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
    */
   virtual std::shared_ptr<tdfcore::View> CreateView();
 
-  void SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr);
+  void SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr) {
+    SendUIDomEvent(type, value, true, true);
+  }
 
   void SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr,
                       bool can_capture = false, bool can_bubble = false);
@@ -303,11 +302,11 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual void HandleEventInfoUpdate();
 
-  tdfcore::TM33 GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view);
+  tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view);
 
  private:
-  void RegisterTapEvent(std::string& event_type);
-  void RemoveTapEvent(std::string& event_type);
+  void RegisterTapEvent(std::string&& event_type);
+  void RemoveTapEvent(std::string&& event_type);
 
   /**
    * @brief DomNode's RenderInfo.index is not always the related View's index, it may need to be corrected.

@@ -35,8 +35,6 @@ ModalView::~ModalView() noexcept {
 
 ModalView::ModalView() : tdfcore::View() {
   modal_view_ = TDF_MAKE_SHARED(View);
-  auto root_view_frame = tdfcore::ViewContext::GetCurrent()->GetRootView()->GetFrame();
-  modal_view_->SetFrame(TRect::MakeXYWH(0, 0, root_view_frame.Width(), root_view_frame.Height()));
   root_view_ = tdfcore::ViewContext::GetCurrent()->GetRootView();
 }
 

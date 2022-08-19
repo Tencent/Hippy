@@ -27,6 +27,7 @@
 
 namespace tdfrender {
 
+using hippy::LayoutMeasureMode;
 using tdfcore::TextAttributes;
 
 TextViewNode::TextViewNode(RenderInfo info) : ViewNode(info) {
@@ -37,7 +38,7 @@ void TextViewNode::OnCreate() {
   ViewNode::OnCreate();
   auto shell = tdfcore::ViewContext::GetCurrent()->GetShell();
   // set the related DomNode's measure function immediately after create.
-  /// TODO(kloudwang) sync measure
+  // TODO(kloudwang) sync measure
   GetDomNode()->GetLayoutNode()->SetMeasureFunction([this, shell](float width, LayoutMeasureMode width_measure_mode,
                                                                   float height, LayoutMeasureMode height_measure_mode,
                                                                   void* layoutContext) {
@@ -124,7 +125,7 @@ void TextViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
 void TextViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   ViewNode::OnChildAdd(child, index);
   FOOTSTONE_DCHECK(child->IsAttached());
-  // 不能嵌套非Text的节点。Hippy也可以嵌套Image，这里暂时不支持
+  // TODO(kloudwang) 不能嵌套非Text的节点。Hippy也可以嵌套Image，这里暂时不支持
   if (child->GetViewName() != kTextViewName) {
     return;
   }
@@ -150,9 +151,9 @@ void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
 
 void TextViewNode::SetText(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kText); iter != dom_style.end()) {
-    auto utf8_string = footstone::unicode_string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
-    auto utf16_string = footstone::stringview::StringViewUtils::CovertToUtf16(
-        utf8_string, footstone::unicode_string_view::Encoding::Utf8);
+    auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
+    auto utf16_string =
+        footstone::stringview::StringViewUtils::ConvertEncoding(unicode_str, footstone::string_view::Encoding::Utf16);
     GetTextView()->GetTextSpan()->SetText(utf16_string.utf16_value());
   }
 }

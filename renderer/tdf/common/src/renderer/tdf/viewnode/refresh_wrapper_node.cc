@@ -20,7 +20,6 @@
 
 #include "renderer/tdf/viewnode/refresh_wrapper_node.h"
 
-#include <cassert>
 #include "renderer/tdf/viewnode/view_names.h"
 
 namespace tdfrender {

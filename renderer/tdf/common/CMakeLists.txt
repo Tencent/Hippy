@@ -93,11 +93,4 @@ set(SRC_SET
         src/renderer/tdf/view/view_pager.cc
         )
 target_sources(${PROJECT_NAME} PRIVATE ${SRC_SET})
-# The linker treats `.a` and `.o` files are different:
-#   * `.o` files from `.a` file only referenced `.o` object files are linked.
-#   * `.o` files in the linker always go inside, referenced or not.
-#
-# The `SOURCE_SET_STANDALONE` including static initializers,
-# so its visibility must be PUBLIC.
-#target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
-# endregion
+

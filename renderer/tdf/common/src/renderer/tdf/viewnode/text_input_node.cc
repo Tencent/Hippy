@@ -42,7 +42,7 @@ using tdfcore::CupertinoTextSelectionControl;
 using tdfcore::ViewContext;
 using tdfcore::ViewportEvent;
 using tdfcore::textlayout::TextAlign;
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using unicode_string_view = footstone::stringview::string_view;
 using footstone::stringview::StringViewUtils;
 
 TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
@@ -97,8 +97,8 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (has_shadow_) {
     text_style.addShadow(text_shadow_);
   }
-  auto utf16_string =
-      StringViewUtils::CovertToUtf16(place_holder_.c_str(), unicode_string_view::Encoding::Latin1).utf16_value();
+  auto unicode_str = unicode_string_view::new_from_utf8(place_holder_.c_str());
+  auto utf16_string = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
   text_input_view->SetPlaceholder(utf16_string, place_holder_color_);
   text_input_view->SetTextStyle(text_style);
   text_input_view->SetKeyboardAction(keyboard_action_);
@@ -126,18 +126,35 @@ std::shared_ptr<View> TextInputNode::CreateView() {
 }
 
 void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event) {
-  static std::map<KeyboardAction, const char*> action_name_map = {
-      {KeyboardAction::kDone, kKeyboardAction_Done},        {KeyboardAction::kGo, kKeyboardAction_Go},
-      {KeyboardAction::kNext, kKeyboardAction_Next},        {KeyboardAction::kSearch, kKeyboardAction_Search},
-      {KeyboardAction::kSend, kKeyboardAction_Send},        {KeyboardAction::kNone, kKeyboardAction_None},
-      {KeyboardAction::kPrevious, kKeyboardAction_Previous}};
   auto keyboard_action_event = std::static_pointer_cast<tdfcore::KeyboardActionEvent>(event);
   auto key_action = keyboard_action_event->GetKeyboardAction();
-  auto action_name = kKeyboardAction_Unknown;
-  if (action_name_map.find(key_action) != action_name_map.end()) {
-    action_name = action_name_map.find(key_action)->second;
+  std::string action_name;
+  switch (key_action) {
+    case KeyboardAction::kDone:
+      action_name = kKeyboardAction_Done;
+      break;
+    case KeyboardAction::kGo:
+      action_name = kKeyboardAction_Go;
+      break;
+    case KeyboardAction::kNext:
+      action_name = kKeyboardAction_Next;
+      break;
+    case KeyboardAction::kSearch:
+      action_name = kKeyboardAction_Search;
+      break;
+    case KeyboardAction::kSend:
+      action_name = kKeyboardAction_Send;
+      break;
+    case KeyboardAction::kNone:
+      action_name = kKeyboardAction_None;
+      break;
+    case KeyboardAction::kPrevious:
+      action_name = kKeyboardAction_Previous;
+      break;
+    default:
+      action_name = kKeyboardAction_Unknown;
+      break;
   }
-
   DomValueObjectType param;
   param[kKeyActionName] = action_name;
   SendUIDomEvent(kOnEditorAction, std::make_shared<footstone::HippyValue>(param));
@@ -148,8 +165,9 @@ void TextInputNode::DidChangeTextEditingValue(std::shared_ptr<TextInputView> tex
   if (edit_controller_->GetText() != text_u16) {
     text_input_view->SetText(text_u16);
     if (event_callback_.on_change_text_flag) {
-      event_callback_.on_change_text(
-          StringViewUtils::CovertToUtf8(text_u16.c_str(), unicode_string_view::Encoding::Utf16).latin1_value());
+      auto unicode_str =
+          StringViewUtils::ConvertEncoding(text_u16.c_str(), unicode_string_view::Encoding::Utf8).utf8_value();
+      event_callback_.on_change_text(StringViewUtils::ToStdString(unicode_str));
     }
   }
   auto selection = edit_controller_->GetSelection();
@@ -222,22 +240,23 @@ void TextInputNode::InitCallback() {
     DEFINE_AND_CHECK_SELF(TextInputNode)
     DomValueObjectType param;
     param[kText] =
-        StringViewUtils::CovertToUtf8(final_text.c_str(), unicode_string_view::Encoding::Utf16).latin1_value();
+        StringViewUtils::ConvertEncoding(final_text.c_str(), unicode_string_view::Encoding::Utf8).utf8_value().c_str();
     self->SendUIDomEvent(textinput::kOnEndEditing, std::make_shared<footstone::HippyValue>(param));
   };
   event_callback_.on_selection_change = [WEAK_THIS](size_t start, size_t end) {
     DEFINE_AND_CHECK_SELF(TextInputNode)
     DomValueObjectType param;
     DomValueObjectType selection_param;
-    selection_param["start"] = footstone::HippyValue(static_cast<uint32_t>(start));
-    selection_param["end"] = footstone::HippyValue(static_cast<uint32_t>(end));
+    selection_param["start"] = footstone::checked_numeric_cast<size_t, uint32_t>(start);
+    ;
+    selection_param["end"] = footstone::checked_numeric_cast<size_t, uint32_t>(end);
     param["selection"] = footstone::HippyValue(selection_param);
     self->SendUIDomEvent(textinput::kOnSelectionChange, std::make_shared<footstone::HippyValue>(param));
   };
 }
 
 void TextInputNode::RegisterViewportListener() {
-  if (viewport_listener_id_ == kViewportListenerNotAddID) {
+  if (viewport_listener_id_ == kViewportListenerInvalidID) {
     auto listener = [this](const std::shared_ptr<tdfcore::Event>& event, uint64_t id) {
       auto viewport_event = std::static_pointer_cast<tdfcore::ViewportEvent>(event);
       event_callback_.on_keyboard_height_change(
@@ -250,7 +269,7 @@ void TextInputNode::RegisterViewportListener() {
 }
 
 void TextInputNode::UnregisterViewportListener() {
-  if (viewport_listener_id_ != kViewportListenerNotAddID) {
+  if (viewport_listener_id_ != kViewportListenerInvalidID) {
     ViewContext::GetCurrent()->GetShell()->GetEventCenter()->RemoveListener(ViewportEvent::ClassType(),
                                                                             viewport_listener_id_);
   }
@@ -273,9 +292,8 @@ void TextInputNode::SetColor(const DomStyleMap& dom_style, TextStyle& text_style
 void TextInputNode::SetDefaultValue(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
   if (auto iter = dom_style.find(textinput::kDefaultValue); iter != dom_style.end()) {
     FOOTSTONE_LOG(INFO) << "TextInputNode::SetDefaultValue value = " << iter->second->ToStringChecked();
-    auto text_u16 =
-        StringViewUtils::CovertToUtf16(iter->second->ToStringChecked().c_str(), unicode_string_view::Encoding::Latin1)
-            .utf16_value();
+    auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
+    auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
     text_input_view->SetText(text_u16);
   }
 }
@@ -449,30 +467,46 @@ void TextInputNode::SetPlaceHolderTextColor(const DomStyleMap& dom_style) {
 }
 
 void TextInputNode::SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  static std::map<std::string, KeyboardAction> name_action_map = {
-      {kKeyboardAction_Done, KeyboardAction::kDone},         {kKeyboardAction_Go, KeyboardAction::kGo},
-      {kKeyboardAction_Next, KeyboardAction::kNext},         {kKeyboardAction_Search, KeyboardAction::kSearch},
-      {kKeyboardAction_Send, KeyboardAction::kSend},         {kKeyboardAction_None, KeyboardAction::kNone},
-      {kKeyboardAction_Previous, KeyboardAction::kPrevious}, {kKeyboardAction_Send, KeyboardAction::kSend}};
   if (auto iter = dom_style.find(textinput::kReturnKeyType); iter != dom_style.end()) {
-    auto action = iter->second->ToStringChecked();
-    auto action_iterator = name_action_map.find(action);
-    if (action_iterator != name_action_map.end()) {
-      text_input_view->SetKeyboardAction(action_iterator->second);
+    auto action_name = iter->second->ToStringChecked();
+    if (action_name == kKeyboardAction_Done) {
+      text_input_view->SetKeyboardAction(KeyboardAction::kDone);
+    } else if (action_name == kKeyboardAction_Go) {
+      text_input_view->SetKeyboardAction(KeyboardAction::kGo);
+    } else if (action_name == kKeyboardAction_Next) {
+      text_input_view->SetKeyboardAction(KeyboardAction::kNext);
+    } else if (action_name == kKeyboardAction_Search) {
+      text_input_view->SetKeyboardAction(KeyboardAction::kSearch);
+    } else if (action_name == kKeyboardAction_Send) {
+      text_input_view->SetKeyboardAction(KeyboardAction::kSend);
+    } else if (action_name == kKeyboardAction_None) {
+      text_input_view->SetKeyboardAction(KeyboardAction::kNone);
+    } else if (action_name == kKeyboardAction_Previous) {
+      text_input_view->SetKeyboardAction(KeyboardAction::kPrevious);
+    } else {
+      FOOTSTONE_LOG(INFO) << "TextInputNode::SetKeyBoardAction action_name = " << action_name;
     }
   }
 }
 
 void TextInputNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
-  static std::map<std::string, TextAlign> align_map = {{"auto", TextAlign::kLeft},
-                                                       {"left", TextAlign::kLeft},
-                                                       {"right", TextAlign::kRight},
-                                                       {"center", TextAlign::kCenter},
-                                                       {"justify", TextAlign::kJustify}};
   if (auto iter = dom_style.find(textinput::kTextAlign); iter != dom_style.end()) {
-    auto text_align = iter->second->ToStringChecked();
-    if (align_map.find(text_align) != align_map.end()) {
-      text_input_view->SetTextAlign(align_map.at(text_align));
+    std::string text_align;
+    auto result = iter->second->ToString(text_align);
+    FOOTSTONE_CHECK(result);
+    if (!result) {
+      return;
+    }
+    if (text_align == kAlignAuto || text_align == kAlignLeft) {
+      text_input_view->SetTextAlign(TextAlign::kLeft);
+    } else if (text_align == kAlignRight) {
+      text_input_view->SetTextAlign(TextAlign::kRight);
+    } else if (text_align == kAlignCenter) {
+      text_input_view->SetTextAlign(TextAlign::kCenter);
+    } else if (text_align == kAlignJustify) {
+      text_input_view->SetTextAlign(TextAlign::kJustify);
+    } else {
+      FOOTSTONE_UNREACHABLE();
     }
   }
 }

@@ -21,7 +21,6 @@
 #include "renderer/tdf/viewnode/view_node.h"
 
 #include <algorithm>
-#include <cassert>
 #include <utility>
 
 #include "core/common/color.h"
@@ -36,12 +35,15 @@
 
 namespace tdfrender {
 
+using footstone::check::checked_numeric_cast;
+using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
+
 ViewNode::ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view)
     : render_info_(info), attached_view_(std::move(view)), corrected_index_(info.index) {
   SetId(info.id);
 }
 
-DomStyleMap ViewNode::GenerateStyleInfo() {
+ViewNode::DomStyleMap ViewNode::GenerateStyleInfo() {
   auto dom_node = GetDomNode();
   DomStyleMap dom_style_map;
   auto style_map = dom_node->GetStyleMap();
@@ -136,7 +138,7 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   util::ParseShadowInfo(*view, dom_style);
 
   // animation
-  view->SetTransform(GenerateAnimationTransform(dom_style, view));
+  view->SetTransform(GenerateAnimationTransform(dom_style, view).asM33());
 
   // kTouchdown / kTouchend / kTouchmove / kTransform will will handled in ViewNode::OnAddEventListener
 
@@ -145,85 +147,112 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   }
 }
 
-tdfcore::TM33 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
-  auto transform = tdfcore::TM33();
-
+tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
+  auto transform = tdfcore::TM44();
   if (auto it = dom_style.find(kMatrix); it != dom_style.end()) {
-    /// TODO(kloudwang) 确定下格式
+    FOOTSTONE_CHECK(it->second->IsArray());
+    DomValueArrayType matrix_array;
+    auto result = it->second->ToArray(matrix_array);
+    if (!result) {
+      return transform;
+    }
+    FOOTSTONE_CHECK(matrix_array.size() == 16);
+    for (int i = 0; i < 4; ++i) {
+      auto tv4 = tdfcore::TV4();
+      tv4.x = i + 0;
+      tv4.y = i + 4;
+      tv4.z = i + 8;
+      tv4.w = i + 12;
+      transform.setRow(i, tv4);
+    }
   }
 
   if (auto it = dom_style.find(kPerspective); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    transform.Set(tdfcore::TM33::PERSP_2, static_cast<float>(it->second->ToDoubleChecked()));
+    // M44中 2x3对应的位置就是perspective属性
+    transform.setRC(2, 3, checked_numeric_cast<float, double>(it->second->ToDoubleChecked()));
   }
 
-  auto rotate_x = 0.0f;
+  auto tv3 = tdfcore::TV3();
   if (auto it = dom_style.find(kRotateX); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    rotate_x = static_cast<float>(it->second->ToDoubleChecked());
-    /// TODO(kloudwang)
+    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    tv3.x = 1;
+    transform.setRotateUnit(tv3, radians);
   }
 
-  auto rotate_y = 0.0f;
   if (auto it = dom_style.find(kRotateY); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    rotate_y = static_cast<float>(it->second->ToDoubleChecked());
-    /// TODO(kloudwang)
+    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    tv3.y = 1;
+    transform.setRotateUnit(tv3, radians);
   }
 
-  /// TODO(kloudwang) transform.SetRotate(rotate_x, rotate_y, )
-
   if (auto it = dom_style.find(kRotate); it != dom_style.end()) {
-    /// TODO(kloudwang)
+    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    tv3.z = 1;
+    transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kRotateZ); it != dom_style.end()) {
-    /// TODO(kloudwang)
+    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    tv3.z = 1;
+    // TODO(kloudwang) TM44 Rotate没有提供设置旋转中心坐标接口，默认是围绕(0,0)旋转
+    transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kScale); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
-    auto width = view->GetFrame().Width();
-    auto height = view->GetFrame().Height();
-    transform.SetScale(scale, scale, width / 2, height / 2);
+    auto scale = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    transform.setScale(scale, scale);
   }
 
   if (auto it = dom_style.find(kScaleX); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = static_cast<float>(it->second->ToDoubleChecked());
-    transform.SetScaleX(scale);
+    auto scale = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    transform.setScale(scale, 0);
   }
 
   if (auto it = dom_style.find(kScaleY); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    transform.SetScaleY(static_cast<float>(it->second->ToDoubleChecked()));
+    auto scale = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    transform.setScale(0, scale);
   }
 
   if (auto it = dom_style.find(kTranslate); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto translate = static_cast<float>(it->second->ToDoubleChecked());
-    transform.SetTranslate(translate, translate);
+    DomValueArrayType translation_array;
+    auto result = it->second->ToArray(translation_array);
+    if (!result) {
+      return transform;
+    }
+    FOOTSTONE_CHECK(translation_array.size() == 3);
+    auto translate_x = translation_array.at(0).ToDoubleChecked();
+    auto translate_y = translation_array.at(1).ToDoubleChecked();
+    auto translate_z = translation_array.at(2).ToDoubleChecked();
+    transform.setTranslate(translate_x, translate_y, translate_z);
   }
 
   if (auto it = dom_style.find(kTranslateX); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto translate_x = static_cast<float>(it->second->ToDoubleChecked());
-    transform.SetTranslateX(translate_x);
+    transform.setTranslate(translate_x, 0);
   }
 
   if (auto it = dom_style.find(kTranslateY); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     auto translate_y = static_cast<float>(it->second->ToDoubleChecked());
-    transform.SetTranslateY(translate_y);
+    transform.setTranslate(0, translate_y);
   }
 
   if (auto it = dom_style.find(kSkewX); it != dom_style.end()) {
-    /// TODO(kloudwang)
+    auto skew_x = static_cast<float>(it->second->ToDoubleChecked());
+    transform.setRC(0,1, skew_x);
   }
 
   if (auto it = dom_style.find(kSkewY); it != dom_style.end()) {
-    /// TODO(kloudwang)
+    auto skew_y = static_cast<float>(it->second->ToDoubleChecked());
+    transform.setRC(1,0,skew_y);
   }
   return transform;
 }
@@ -245,7 +274,8 @@ void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
       tdfcore::TRect::MakeXYWH(layout_result.left, layout_result.top, layout_result.width, layout_result.height);
   GetView()->SetFrame(new_frame);
   FOOTSTONE_LOG(INFO) << "ViewNode::HandleLayoutUpdate: " << render_info_.id << " |" << new_frame.X() << " | "
-                      << new_frame.Y() << " | " << new_frame.Width() << " | " << new_frame.Height();
+                      << new_frame.Y() << " | " << new_frame.Width() << " | " << new_frame.Height() << " |  "
+                      << render_info_.pid << " | " << GetViewName();
   layout_listener_.Notify(new_frame);
 }
 
@@ -269,29 +299,26 @@ void ViewNode::OnRemoveEventListener(uint32_t id, const std::string& name) {
 }
 
 void ViewNode::HandleEventInfoUpdate() {
-  std::string click_event(hippy::kClickEvent);
-  if (supported_events_.find(click_event) != supported_events_.end()) {
-    RegisterTapEvent(click_event);
+  if (supported_events_.find(hippy::kClickEvent) != supported_events_.end()) {
+    RegisterTapEvent(hippy::kClickEvent);
   } else {
-    RemoveTapEvent(click_event);
+    RemoveTapEvent(hippy::kClickEvent);
   }
 
-  std::string touch_start_event(hippy::kTouchStartEvent);
-  if (supported_events_.find(touch_start_event) != supported_events_.end()) {
-    RegisterTapEvent(touch_start_event);
+  if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end()) {
+    RegisterTapEvent(hippy::kTouchStartEvent);
   } else {
-    RemoveTapEvent(touch_start_event);
+    RemoveTapEvent(hippy::kTouchStartEvent);
   }
 
-  std::string touch_end_event(hippy::kTouchEndEvent);
-  if (supported_events_.find(touch_end_event) != supported_events_.end()) {
-    RegisterTapEvent(touch_end_event);
+  if (supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end()) {
+    RegisterTapEvent(hippy::kTouchEndEvent);
   } else {
-    RemoveTapEvent(touch_end_event);
+    RemoveTapEvent(hippy::kTouchEndEvent);
   }
 }
 
-void ViewNode::RegisterTapEvent(std::string& event_type) {
+void ViewNode::RegisterTapEvent(std::string&& event_type) {
   auto tap_gesture_recognizer = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
   tap_gesture_recognizer->SetTapUp([WEAK_THIS, event_type](const tdfcore::TapDetails& detail) {
     DEFINE_AND_CHECK_SELF(ViewNode)
@@ -301,7 +328,7 @@ void ViewNode::RegisterTapEvent(std::string& event_type) {
   GetView()->AddGesture(tap_gesture_recognizer);
 }
 
-void ViewNode::RemoveTapEvent(std::string& event_type) {
+void ViewNode::RemoveTapEvent(std::string&& event_type) {
   if (gestures_map_.find(event_type) != gestures_map_.end()) {
     GetView()->RemoveGesture(gestures_map_.find(event_type)->second);
   }
@@ -319,10 +346,6 @@ void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index)
 }
 
 void ViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { child->Detach(); }
-
-void ViewNode::SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value) {
-  SendUIDomEvent(type, value, true, true);
-}
 
 void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value, bool can_capture,
                               bool can_bubble) {

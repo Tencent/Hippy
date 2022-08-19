@@ -37,10 +37,11 @@ void TDFRenderBridge::Init(JavaVM* j_vm, __unused void* reserved) {
 
 void TDFRenderBridge::RegisterScopeForUriLoader(uint32_t render_id,
                                                 const std::shared_ptr<hippy::driver::Scope>& scope) {
-  hippy::TDFRenderManager::SetUriDataGetter(render_id, [scope](tdfrender::StringView uri, tdfrender::DataCb cb) {
-    FOOTSTONE_DCHECK(scope->GetUriLoader());
-    return scope->GetUriLoader()->RequestUntrustedContent(uri, cb);
-  });
+  hippy::TDFRenderManager::SetUriDataGetter(
+      render_id, [scope](tdfrender::RootViewNode::StringView uri, tdfrender::RootViewNode::DataCb cb) {
+        FOOTSTONE_DCHECK(scope->GetUriLoader());
+        return scope->GetUriLoader()->RequestUntrustedContent(uri, cb);
+      });
 }
 
 void TDFRenderBridge::Destroy() {}
@@ -58,7 +59,7 @@ jint OnCreateTDFRender(JNIEnv* j_env, jobject j_obj, jfloat j_density) {
 void RegisterTDFEngine(JNIEnv* j_env, jobject j_obj, jint render_id, jlong engine_id, jint root_view_id) {
   auto& map = hippy::TDFRenderManager::PersistentMap();
   std::shared_ptr<hippy::TDFRenderManager> render_manager;
-  bool ret = map.Find(static_cast<int32_t>(render_id), render_manager);
+  bool ret = map.Find(static_cast<uint32_t>(render_id), render_manager);
   if (!ret) {
     FOOTSTONE_DLOG(FATAL) << "BindTDFEngine engine_id invalid";
     return;

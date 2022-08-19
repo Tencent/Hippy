@@ -55,39 +55,29 @@ std::shared_ptr<tdfcore::View> ViewPagerNode::CreateView() {
 
 void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgument& param,
                                  const uint32_t call_back_id) {
-  static std::map<std::string, FunctionType> function_map = {
-      {kSetPage, FunctionType::kFunctionSetPage},
-      {kSetPageWithoutAnimation, FunctionType::kFunctionSetPageWithoutAnimation},
-      {kSetIndex, FunctionType::kFunctionSetIndex},
-      {kNext, FunctionType::kFunctionNextPage},
-      {kPrev, FunctionType::kFunctionPrevPage},
-  };
   auto view_pager = GetView<ViewPager>();
   footstone::HippyValue value;
   param.ToObject(value);
-  auto index = value.ToArrayChecked().at(0).ToDoubleChecked();
+  footstone::value::HippyValue::DomValueArrayType dom_value_array;
+  auto result = value.ToArray(dom_value_array);
+  FOOTSTONE_CHECK(result);
+  if (!result) {
+    return;
+  }
+  auto index = dom_value_array.at(0).ToDoubleChecked();
   FOOTSTONE_LOG(INFO) << "CallFunction index = " << index;
-  if (function_map.find(function_name) != function_map.end() && view_pager) {
-    auto type = function_map.at(function_name);
-    switch (type) {
-      case FunctionType::kFunctionSetPage:
-        view_pager->SwitchToPage(index, true);
-        break;
-      case FunctionType::kFunctionSetPageWithoutAnimation:
-        view_pager->SwitchToPage(index, false);
-        break;
-      case FunctionType::kFunctionSetIndex:
-        view_pager->SetCurrentPage(index);
-        break;
-      case FunctionType::kFunctionNextPage:
-        view_pager->SwitchNextPage();
-        break;
-      case FunctionType::kFunctionPrevPage:
-        view_pager->SwitchPrevPage();
-        break;
-      default:
-        break;
-    }
+  if (function_name == kSetPage) {
+    view_pager->SwitchToPage(index, true);
+  } else if (function_name == kSetPageWithoutAnimation) {
+    view_pager->SwitchToPage(index, false);
+  } else if (function_name == kSetIndex) {
+    view_pager->SetCurrentPage(index);
+  } else if (function_name == kNext) {
+    view_pager->SwitchNextPage();
+  } else if (function_name == kPrev) {
+    view_pager->SwitchPrevPage();
+  } else {
+    FOOTSTONE_UNREACHABLE();
   }
 }
 

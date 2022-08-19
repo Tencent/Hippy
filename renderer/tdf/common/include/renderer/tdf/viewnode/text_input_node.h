@@ -40,7 +40,7 @@ using OnChangeText = std::function<void(std::string)>;
 using OnKeyboardHeightChange = std::function<void(float)>;
 using OnEndEditing = std::function<void(std::u16string)>;
 using OnSelectionChange = std::function<void(size_t, size_t)>;
-using InputEventCallBack = std::function<void(const uint32_t callback_id, const DomArgument& dom_value)>;
+using InputEventCallBack = std::function<void(const uint32_t callback_id, const ViewNode::DomArgument& dom_value)>;
 
 inline namespace textinput {
 constexpr const char kTextInput[] = "TextInput";
@@ -103,9 +103,15 @@ constexpr const char kOnKeyBoardWillShow[] = "onKeyboardWillShow";
 constexpr const char kOnKeyBoardWillHide[] = "keyboardWillHide";
 constexpr const char kFontBold[] = "bold";
 constexpr const char kFontItalic[] = "italic";
+
+constexpr const char kAlignAuto[] = "auto";
+constexpr const char kAlignLeft[] = "left";
+constexpr const char kAlignRight[] = "right";
+constexpr const char kAlignCenter[] = "center";
+constexpr const char kAlignJustify[] = "justify";
 }  // namespace textinput
 
-constexpr const int64_t kViewportListenerNotAddID = 0;
+constexpr const int64_t kViewportListenerInvalidID = 0;
 
 class TextInputNode : public ViewNode {
  public:
@@ -189,7 +195,7 @@ class TextInputNode : public ViewNode {
   std::string place_holder_;
   Color place_holder_color_ = kDefaultTextColor;
   tdfcore::KeyboardAction keyboard_action_ = tdfcore::KeyboardAction::kDone;
-  uint64_t viewport_listener_id_ = kViewportListenerNotAddID;
+  uint64_t viewport_listener_id_ = kViewportListenerInvalidID;
   EventCallback event_callback_;
 };
 

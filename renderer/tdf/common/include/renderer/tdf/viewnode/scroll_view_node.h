@@ -61,24 +61,25 @@ class ScrollViewNode : public ViewNode {
 
  private:
   void InitScrollStartListener();
-
-  void RegisterScrollStartListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RegisterScrollStartListener( std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RemoveScrollStartListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitScrollUpdateListener();
+  void RegisterScrollUpdateListener( std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RemoveScrollUpdateListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
-  void RegisterScrollUpdateListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitScrollEndListener();
-
-  void RegisterScrollEndListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RegisterScrollEndListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RemoveScrollEndListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitDragStartListener();
-
-  void RegisterDragStartListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RegisterDragStartListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RemoveDragStartListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitDragEndListener();
-
-  void RegisterDragEndListener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RegisterDragEndListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RemoveDragEndListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void HandleInnerEvent(std::string type);
 

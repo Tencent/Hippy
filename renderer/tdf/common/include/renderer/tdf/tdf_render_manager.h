@@ -36,23 +36,23 @@
 namespace hippy {
 inline namespace dom {
 
-static std::map<std::string, tdfrender::node_creator> node_creator_tables_;
-static std::unordered_map<uint32_t, tdfrender::UriDataGetter> uri_data_getter_map_;
+static std::map<std::string, tdfrender::ViewNode::node_creator> node_creator_tables_;
+static std::unordered_map<uint32_t, tdfrender::RootViewNode::UriDataGetter> uri_data_getter_map_;
 
 void InitNodeCreator();
-void RegisterNodeCreator(const std::string&, const tdfrender::node_creator&);
-tdfrender::node_creator GetNodeCreator(const std::string&);
+void RegisterNodeCreator(const std::string&, const tdfrender::ViewNode::node_creator&);
+tdfrender::ViewNode::node_creator GetNodeCreator(const std::string&);
 
 class TDFRenderManager : public RenderManager, public std::enable_shared_from_this<TDFRenderManager> {
  public:
-  static footstone::utils::PersistentObjectMap<int32_t, std::shared_ptr<TDFRenderManager>>& PersistentMap() {
+  static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TDFRenderManager>>& PersistentMap() {
     return persistent_map_;
   }
 
   TDFRenderManager();
 
-  static void SetUriDataGetter(uint32_t render_id, tdfrender::UriDataGetter uriDataGetter);
-  tdfrender::UriDataGetter GetUriDataGetter();
+  static void SetUriDataGetter(uint32_t render_id, tdfrender::RootViewNode::UriDataGetter uriDataGetter);
+  tdfrender::RootViewNode::UriDataGetter GetUriDataGetter();
 
   int32_t GetId() { return id_; }
 
@@ -83,7 +83,7 @@ class TDFRenderManager : public RenderManager, public std::enable_shared_from_th
   footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<tdfrender::RootViewNode>> root_view_nodes_map_;
   int32_t id_;
   std::weak_ptr<DomManager> dom_manager_;
-  static inline footstone::utils::PersistentObjectMap<int32_t, std::shared_ptr<TDFRenderManager>> persistent_map_;
+  static inline footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TDFRenderManager>> persistent_map_;
 };
 
 }  // namespace dom

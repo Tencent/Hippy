@@ -29,11 +29,11 @@ namespace tdfrender {
 std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView() {
   auto scroll_view = TDF_MAKE_SHARED(tdfcore::ScrollView);
   scroll_view->SetVerticalOverscrollEnabled(true);  // defaultValue
-  RegisterScrollStartListener(true, scroll_view);
-  RegisterScrollEndListener(true, scroll_view);
-  RegisterScrollUpdateListener(true, scroll_view);
-  RegisterDragStartListener(true, scroll_view);
-  RegisterDragEndListener(true, scroll_view);
+  RegisterScrollStartListener(scroll_view);
+  RegisterScrollEndListener(scroll_view);
+  RegisterScrollUpdateListener(scroll_view);
+  RegisterDragStartListener(scroll_view);
+  RegisterDragEndListener(scroll_view);
   return scroll_view;
 }
 
@@ -137,16 +137,13 @@ void ScrollViewNode::InitDragEndListener() {
   };
 }
 
-#define RegisterListener(Event, listener)                                                                         \
-  void ScrollViewNode::Register##Event##Listener(bool listen, std::shared_ptr<tdfcore::ScrollView> scroll_view) { \
-    if (!listen && listener##id_ != kUninitializedId) {                                                           \
-      scroll_view->Remove##Event##Listener(listener##id_);                                                        \
-      return;                                                                                                     \
-    }                                                                                                             \
-    if (listener == nullptr) {                                                                                    \
-      Init##Event##Listener();                                                                                    \
-    }                                                                                                             \
-    listener##id_ = scroll_view->Add##Event##Listener(listener);                                                  \
+
+#define RegisterListener(Event, listener)                                                            \
+  void ScrollViewNode::Register##Event##Listener(std::shared_ptr<tdfcore::ScrollView> scroll_view) { \
+    if (listener == nullptr) {                                                                       \
+      Init##Event##Listener();                                                                       \
+    }                                                                                                \
+    listener##id_ = scroll_view->Add##Event##Listener(listener);                                     \
   }
 
 // Called by CreateView
@@ -156,6 +153,20 @@ RegisterListener(ScrollEnd, scroll_end_listener_)
 RegisterListener(DragStart, drag_start_listener_)
 RegisterListener(DragEnd, drag_end_listener_)
 #undef RegisterListener
+
+#define RemoveListener(Event, listener)                                                            \
+  void ScrollViewNode::Remove##Event##Listener(std::shared_ptr<tdfcore::ScrollView> scroll_view) { \
+    if (listener##id_ != kUninitializedId) {                                                       \
+      scroll_view->Remove##Event##Listener(listener##id_);                                         \
+    }                                                                                              \
+  }
+
+RemoveListener(ScrollStart, scroll_start_listener_)
+RemoveListener(ScrollUpdate, scroll_update_listener_)
+RemoveListener(ScrollEnd, scroll_end_listener_)
+RemoveListener(DragStart, drag_start_listener_)
+RemoveListener(DragEnd, drag_end_listener_)
+#undef RemoveListener
 
 void ScrollViewNode::HandleInnerEvent(std::string type) {
   DomValueObjectType param;

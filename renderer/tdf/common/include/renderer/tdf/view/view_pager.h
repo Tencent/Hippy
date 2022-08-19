@@ -112,6 +112,8 @@ class ViewPager : public ScrollView {
 
   constexpr inline bool IsHorizontal() const { return axis_ == ScrollAxis::kHorizontal; }
 
+  constexpr inline bool IsVertical() const { return axis_ == ScrollAxis::kVertical; }
+
   /**
    * @brief set scroll offset listener
    * @param offsetListener

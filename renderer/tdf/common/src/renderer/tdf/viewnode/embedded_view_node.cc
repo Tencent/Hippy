@@ -79,7 +79,7 @@ static json ParseSharedDomValueToJson(const std::shared_ptr<footstone::HippyValu
   }
 }
 
-static std::string GetJSONStringWithProps(const DomStyleMap &dom_style) {
+static std::string GetJSONStringWithProps(const ViewNode::DomStyleMap &dom_style) {
   json root;
   for (auto iterator : dom_style) {
     root[iterator.first] = ParseSharedDomValueToJson(iterator.second);

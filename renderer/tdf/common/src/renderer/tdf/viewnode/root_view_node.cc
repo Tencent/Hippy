@@ -89,8 +89,7 @@ void RootViewNode::AttachView(std::shared_ptr<tdfcore::View> view) {
 
 std::shared_ptr<tdfcore::View> RootViewNode::CreateView() {
   // Should never be called.
-  FOOTSTONE_DCHECK(false);
-  return nullptr;
+  FOOTSTONE_UNREACHABLE();
 }
 
 void RootViewNode::RegisterViewNode(uint32_t id, const std::shared_ptr<ViewNode>& view_node) {
@@ -116,7 +115,7 @@ std::shared_ptr<hippy::DomNode> RootViewNode::FindDomNode(uint32_t id) {
     auto dom_node = manager->GetNode(root_node, id);
     return dom_node;
   }
-  FOOTSTONE_DCHECK(false);
+  FOOTSTONE_UNREACHABLE();
 }
 
 std::shared_ptr<hippy::DomManager> RootViewNode::GetDomManager() {
@@ -141,8 +140,8 @@ void RootViewNode::PostAnimationUpdateTask() const {
   auto& root_map = hippy::dom::RootNode::PersistentMap();
   std::shared_ptr<hippy::RootNode> root_node;
   root_map.Find(render_info_.id, root_node);
-  std::__ndk1::vector<std::function<void()>> ops = {[node = std::move(root_node)] {
-    auto event = std::__ndk1::make_shared<hippy::DomEvent>(kUpdateFrame, node);
+  std::vector<std::function<void()>> ops = {[node = std::move(root_node)] {
+    auto event = std::make_shared<hippy::DomEvent>(kUpdateFrame, node);
     node->HandleEvent(event);
   }};
   if (auto dom_manager = dom_manager_.lock()) {

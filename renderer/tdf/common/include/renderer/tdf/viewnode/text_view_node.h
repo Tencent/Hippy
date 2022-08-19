@@ -47,14 +47,13 @@ constexpr const char kTextShadowOffset[] = "textShadowOffset";            // Has
 constexpr const char kTextShadowRadius[] = "textShadowRadius";            // float
 }  // namespace text
 
-using hippy::LayoutMeasureMode;
-using tdfcore::TextView;
-using tdfcore::textlayout::TextAlign;
-using tdfcore::textlayout::TextDecoration;
-using tdfcore::textlayout::TextShadow;
-using tdfcore::textlayout::TextStyle;
-
 class TextViewNode : public ViewNode {
+  using TextView = tdfcore::TextView;
+  using TextAlign = tdfcore::textlayout::TextAlign;
+  using TextDecoration = tdfcore::textlayout::TextDecoration;
+  using TextShadow = tdfcore::textlayout::TextShadow;
+  using TextStyle = tdfcore::textlayout::TextStyle;
+
  public:
   explicit TextViewNode(const RenderInfo info);
 
