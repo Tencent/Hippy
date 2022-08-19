@@ -41,8 +41,10 @@ bool ReadAsset(const footstone::stringview::unicode_string_view& path,
                AAssetManager* aasset_manager,
                std::basic_string<CharType>& bytes,
                bool is_auto_fill) {
-  footstone::stringview::unicode_string_view owner(""_u8s);
-  const char* asset_path = footstone::stringview::StringViewUtils::ToConstCharPointer(path, owner);
+  auto asset_path_str = footstone::StringViewUtils::ToStdString(
+      footstone::StringViewUtils::ConvertEncoding(
+      path, footstone::unicode_string_view::Encoding::Utf8).utf8_value());
+  auto asset_path = reinterpret_cast<const char*>(asset_path_str.c_str());
   std::string file_path = std::string(asset_path);
   if (file_path.length() > 0 && file_path[0] == '/') {
     file_path = file_path.substr(1);

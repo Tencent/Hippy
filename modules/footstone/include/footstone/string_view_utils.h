@@ -167,7 +167,7 @@ class StringViewUtils {
     FOOTSTONE_UNREACHABLE();
   }
 
-  static unicode_string_view Convert(
+  static unicode_string_view ConvertEncoding(
       const unicode_string_view &str_view,
       unicode_string_view::Encoding dst_encoding) {
     unicode_string_view::Encoding src_encoding = str_view.encoding();
@@ -191,59 +191,8 @@ class StringViewUtils {
     FOOTSTONE_UNREACHABLE();
   }
 
-  inline static const char *U8ToConstCharPointer(
-      const unicode_string_view::char8_t_ *p) {
-    return reinterpret_cast<const char *>(p);
-  }
-
-  inline static const unicode_string_view::char8_t_ *ToU8Pointer(
-      const char *p) {
-    return reinterpret_cast<const unicode_string_view::char8_t_ *>(p);
-  }
-
-  inline static const char *ToConstCharPointer(
-      const unicode_string_view &str_view,
-      unicode_string_view &view_owner) {
-    FOOTSTONE_DCHECK(view_owner.encoding() ==
-        unicode_string_view::Encoding::Utf8);
-    unicode_string_view::Encoding encoding = str_view.encoding();
-    switch (encoding) {
-      case unicode_string_view::Encoding::Latin1: {
-        return str_view.latin1_value().c_str();
-      }
-      case unicode_string_view::Encoding::Utf8: {
-        return U8ToConstCharPointer(str_view.utf8_value().c_str());
-      }
-      case unicode_string_view::Encoding::Utf16:
-      case unicode_string_view::Encoding::Utf32: {
-        unicode_string_view::u8string &ref = view_owner.utf8_value();
-        ref =
-            Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
-        return U8ToConstCharPointer(ref.c_str());
-      }
-      default: {
-        FOOTSTONE_UNREACHABLE();
-      }
-    }
-    FOOTSTONE_UNREACHABLE();
-  }
-
-  inline static unicode_string_view ConstCharPointerToStrView(const char *p,
-                                                              size_t len = static_cast<size_t>(-1)) {
-    size_t length;
-    if (len == static_cast<size_t>(-1)) {
-      length = strlen(p);
-    } else {
-      length = len;
-    }
-    return unicode_string_view(
-        reinterpret_cast<const unicode_string_view::char8_t_ *>(p), length);
-  }
-
-  inline static std::string ToU8StdStr(const unicode_string_view &str_view) {
-    unicode_string_view::u8string str =
-        Convert(str_view, unicode_string_view::Encoding::Utf8).utf8_value();
-    return std::string(U8ToConstCharPointer(str.c_str()), str.length());
+  inline static std::string ToStdString(const unicode_string_view::u8string& u8string) {
+    return std::string(reinterpret_cast<const char*>(u8string.c_str()), u8string.length());
   }
 
   static const size_t npos = static_cast<size_t>(-1);
@@ -418,22 +367,22 @@ inline unicode_string_view operator+(const unicode_string_view &lhs,
     switch (rhs_encoding) {
       case unicode_string_view::Encoding::Latin1: {
         return unicode_string_view(
-            StringViewUtils::Convert(lhs, rhs_encoding).latin1_value() +
+            StringViewUtils::ConvertEncoding(lhs, rhs_encoding).latin1_value() +
                 rhs.latin1_value());
       }
       case unicode_string_view::Encoding::Utf16: {
         return unicode_string_view(
-            StringViewUtils::Convert(lhs, rhs_encoding).utf16_value() +
+            StringViewUtils::ConvertEncoding(lhs, rhs_encoding).utf16_value() +
                 rhs.utf16_value());
       }
       case unicode_string_view::Encoding::Utf32: {
         return unicode_string_view(
-            StringViewUtils::Convert(lhs, rhs_encoding).utf32_value() +
+            StringViewUtils::ConvertEncoding(lhs, rhs_encoding).utf32_value() +
                 rhs.utf32_value());
       }
       case unicode_string_view::Encoding::Utf8: {
         return unicode_string_view(
-            StringViewUtils::Convert(lhs, rhs_encoding).utf8_value() +
+            StringViewUtils::ConvertEncoding(lhs, rhs_encoding).utf8_value() +
                 rhs.utf8_value());
       }
       default: {
@@ -446,22 +395,22 @@ inline unicode_string_view operator+(const unicode_string_view &lhs,
     case unicode_string_view::Encoding::Latin1: {
       return unicode_string_view(
           lhs.latin1_value() +
-              StringViewUtils::Convert(rhs, lhs_encoding).latin1_value());
+              StringViewUtils::ConvertEncoding(rhs, lhs_encoding).latin1_value());
     }
     case unicode_string_view::Encoding::Utf16: {
       return unicode_string_view(
           lhs.utf16_value() +
-              StringViewUtils::Convert(rhs, lhs_encoding).utf16_value());
+              StringViewUtils::ConvertEncoding(rhs, lhs_encoding).utf16_value());
     }
     case unicode_string_view::Encoding::Utf32: {
       return unicode_string_view(
           lhs.utf32_value() +
-              StringViewUtils::Convert(rhs, lhs_encoding).utf32_value());
+              StringViewUtils::ConvertEncoding(rhs, lhs_encoding).utf32_value());
     }
     case unicode_string_view::Encoding::Utf8: {
       return unicode_string_view(
           lhs.utf8_value() +
-              StringViewUtils::Convert(rhs, lhs_encoding).utf8_value());
+              StringViewUtils::ConvertEncoding(rhs, lhs_encoding).utf8_value());
     }
     default: {
       FOOTSTONE_UNREACHABLE();

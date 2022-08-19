@@ -227,7 +227,7 @@ JSValueRef GetInternalBinding(JSContextRef ctx,
   unicode_string_view module_name = ToStrView(name_str_ref);
   JSStringRelease(name_str_ref);
 
-  std::string module_name_str = StringViewUtils::ToU8StdStr(module_name);
+  std::string module_name_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(module_name, unicode_string_view::Encoding::Utf8).utf8_value());
   module_name = unicode_string_view(module_name_str);  // content is latin
 
   std::shared_ptr<JSCCtxValue> module_value =
@@ -632,8 +632,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(
     return CreateNull();
   } else if (wrapper->IsString()) {
     std::string str = wrapper->StringValue();
-    unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()),
-                                 str.length());
+    unicode_string_view str_view(reinterpret_cast<const unicode_string_view::char8_t_*>(str.c_str()), str.length());
     return CreateString(str_view);
   } else if (wrapper->IsInt32()) {
     return CreateNumber(wrapper->Int32Value());
@@ -829,7 +828,7 @@ std::shared_ptr<CtxValue> JSCCtx::CreateCtxValue(const std::shared_ptr<HippyValu
     return CreateNull();
   } else if (wrapper->IsString()) {
     std::string str = wrapper->ToStringChecked();
-    unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()), str.length());
+    unicode_string_view str_view(reinterpret_cast<const unicode_string_view::char8_t_*>(str.c_str()), str.length());
     return CreateString(str_view);
   } else if (wrapper->IsNumber()) {
     return CreateNumber(wrapper->ToDoubleChecked());
@@ -927,8 +926,8 @@ void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<DomEvent>();
-  auto name = StringViewUtils::ToU8StdStr(instance_define->name);
-  cls_def.className = name.c_str();
+  auto name = StringViewUtils::ConvertEncoding(instance_define->name, unicode_string_view::Encoding::Utf8).utf8_value();
+  cls_def.className = reinterpret_cast<const char*>(name.c_str());
   auto cls_ref = JSClassCreate(&cls_def);
   auto* data = new PrivateData<DomEvent>{instance_define.get(), cls_ref, RegisterPrototype(instance_define)};
   JSObjectRef obj = JSObjectMake(context_, cls_ref, data);

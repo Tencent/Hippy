@@ -49,17 +49,17 @@ class HippyFile {
                                                  std::ios::binary |
                                                  std::ios::trunc);
   static int RmFullPath(const unicode_string_view& dir_full_path);
-  static int CreateDir(const unicode_string_view& path, mode_t mode);
-  static int CheckDir(const unicode_string_view& path, int mode);
-  static uint64_t GetFileModifytime(const unicode_string_view& file_path);
+  static int CreateDir(const unicode_string_view& dir_path, mode_t mode);
+  static int CheckDir(const unicode_string_view& dir_path, int mode);
+  static uint64_t GetFileModifyTime(const unicode_string_view& file_path);
 
   template <typename CharType>
   static bool ReadFile(const unicode_string_view& file_path,
                        std::basic_string<CharType>& bytes,
                        bool is_auto_fill) {
-    unicode_string_view owner(""_u8s);
-    const char* path = footstone::stringview::StringViewUtils::ToConstCharPointer(file_path, owner);
-    std::ifstream file(path);
+    auto file_path_str = footstone::StringViewUtils::ConvertEncoding(file_path,
+                                                                     unicode_string_view::Encoding::Utf8).utf8_value();
+    std::ifstream file(reinterpret_cast<const char*>(file_path_str.c_str()));
     if (!file.fail()) {
       file.ignore(std::numeric_limits<std::streamsize>::max());
       std::streamsize size = file.gcount();

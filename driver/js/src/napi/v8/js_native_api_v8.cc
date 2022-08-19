@@ -1338,8 +1338,8 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return CreateNull();
   } else if (wrapper->IsString()) {
     std::string str = wrapper->StringValue();
-    unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()),
-                                 str.length());
+    unicode_string_view str_view(
+        reinterpret_cast<const unicode_string_view::char8_t_*>(str.c_str()), str.length());
     return CreateString(str_view);
   } else if (wrapper->IsInt32()) {
     return CreateNumber(wrapper->Int32Value());
@@ -1368,7 +1368,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
       auto obj_key = p.first;
       auto obj_value = p.second;
       unicode_string_view obj_key_view(
-          StringViewUtils::ToU8Pointer(obj_key.c_str()), obj_key.length());
+          reinterpret_cast<const unicode_string_view::char8_t_*>(obj_key.c_str()), obj_key.length());
       v8::Local<v8::String> key = CreateV8String(obj_key_view);
       std::shared_ptr<V8CtxValue> ctx_value =
           std::static_pointer_cast<V8CtxValue>(
@@ -1397,7 +1397,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
     return CreateNull();
   } else if (value->IsString()) {
     std::string str = value->ToStringChecked();
-    unicode_string_view str_view(StringViewUtils::ToU8Pointer(str.c_str()),
+    unicode_string_view str_view(reinterpret_cast<const unicode_string_view::char8_t_*>(str.c_str()),
                                  str.length());
     return CreateString(str_view);
   } else if (value->IsNumber()) {
@@ -1424,7 +1424,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateCtxValue(
       auto obj_key = p.first;
       auto obj_value = p.second;
       unicode_string_view obj_key_view(
-          StringViewUtils::ToU8Pointer(obj_key.c_str()), obj_key.length());
+          reinterpret_cast<const unicode_string_view::char8_t_*>(obj_key.c_str()), obj_key.length());
       v8::Local<v8::String> key = CreateV8String(obj_key_view);
       std::shared_ptr<V8CtxValue> ctx_value =
           std::static_pointer_cast<V8CtxValue>(

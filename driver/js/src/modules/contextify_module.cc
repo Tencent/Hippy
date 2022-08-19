@@ -44,7 +44,6 @@ using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using CallbackInfo = hippy::napi::CallbackInfo;
 using TryCatch = hippy::napi::TryCatch;
-using UriLoader = hippy::base::UriLoader;
 
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 
@@ -72,7 +71,8 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
   }
 
   FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
-  const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToU8StdStr(key));
+  const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      key, unicode_string_view::Encoding::Utf8).utf8_value()));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
   unicode_string_view str_view(source_code.data_, source_code.length_);
 #ifdef JS_V8
@@ -105,7 +105,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   }
   FOOTSTONE_DLOG(INFO) << "uri = " << uri;
 
-  std::shared_ptr<UriLoader> loader = scope->GetUriLoader();
+  auto loader = scope->GetUriLoader();
   std::shared_ptr<hippy::napi::CtxValue> param = info[1];
   std::shared_ptr<hippy::napi::CtxValue> function;
   hippy::napi::Encoding encode = hippy::napi::UNKNOWN_ENCODING;

@@ -95,7 +95,7 @@ unicode_string_view JniUtils::JByteArrayToStrView(JNIEnv* j_env,
 
 jstring JniUtils::StrViewToJString(JNIEnv* j_env,
                                    const unicode_string_view& str_view) {
-  std::u16string str = StringViewUtils::Convert(str_view, unicode_string_view::Encoding::Utf16).utf16_value();
+  std::u16string str = StringViewUtils::ConvertEncoding(str_view, unicode_string_view::Encoding::Utf16).utf16_value();
   return j_env->NewString(reinterpret_cast<const jchar*>(str.c_str()),
                           footstone::check::checked_numeric_cast<size_t, jsize>(str.length()));
 }

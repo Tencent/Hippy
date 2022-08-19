@@ -56,7 +56,8 @@ std::shared_ptr<CtxValue> JavaTurboModule::InvokeJavaMethod(
   unicode_string_view str_view;
   std::string method;
   if (v8_ctx->GetValueString(prop_name, &str_view)) {
-    method = StringViewUtils::ToU8StdStr(str_view);
+    method = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        str_view, unicode_string_view::Encoding::Utf8).utf8_value());
   }
 
   MethodInfo method_info = method_map_[method];
@@ -147,7 +148,8 @@ void JavaTurboModule::InitPropertyMap() {
       argument_utils_clazz, get_methods_signature, impl_->GetObj());
   if (methods_sig) {
     unicode_string_view str_view = JniUtils::ToStrView(j_env, methods_sig);
-    std::string method_map_str = StringViewUtils::ToU8StdStr(str_view);
+    std::string method_map_str = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+        str_view, unicode_string_view::Encoding::Utf8).utf8_value());
     method_map_ = ConvertUtils::GetMethodMap(method_map_str);
     j_env->DeleteLocalRef(methods_sig);
   }
