@@ -4,6 +4,8 @@
 
 For the value of color attribute, you can query [color configuration of CSS](//developer.mozilla.org/en-US/docs/Web/CSS/color_value).
 
+---
+
 # RGB
 
 Hippy supports`rgb()` and`rgba()`.

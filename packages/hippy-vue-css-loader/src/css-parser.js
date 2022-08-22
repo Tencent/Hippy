@@ -61,7 +61,7 @@ const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
  * Trim `str`.
  */
 function trim(str) {
-  return str ? str.replace(/^\s+|\s+$/g, '') : '';
+  return str ? str.trim() : '';
 }
 
 
@@ -335,7 +335,7 @@ function parseCSS(css, options) {
    */
   function getLinearGradientAngle(value) {
     const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-    const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+    const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
     const valueList = reg.exec(processedValue);
     if (!Array.isArray(valueList)) return;
     // default direction is to bottom, i.e. 180degree

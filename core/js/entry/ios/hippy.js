@@ -39,6 +39,7 @@ require('../../modules/ios/jsTimersExecution.js'); // ios module for .h build
 require('../../bridge/ios/native2js.js');
 require('../../global/ios/requestAnimationFrame.js'); // requestAnimationFrame cancelAnimationFrame
 require('../../global/ios/Turbo.js'); // turbo
+require('../../global/MemoryModule.js'); // performance.memory
 // alias
 global.localStorage = Hippy.asyncStorage;
 global.turboPromise = Hippy.turboPromise;

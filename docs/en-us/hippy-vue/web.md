@@ -1,4 +1,4 @@
-# Switch to Web
+# Web Isomorphic
 
 ## WebRenderer Scheme
 

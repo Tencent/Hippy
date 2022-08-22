@@ -1,5 +1,7 @@
 # 调试
 
+---
+
 # Hippy 调试原理
 
 Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSocket 通过 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 与电脑上的 Chrome 进行通讯调试，而 iOS 上使用内置 的 [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) 与 [Safari](//www.apple.com.cn/cn/safari/) 连接进行调试，在较新的 Hippy 版本 iOS 也可以使用 Chrome DevTools 进行调试。

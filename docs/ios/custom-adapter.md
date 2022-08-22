@@ -1,5 +1,7 @@
 # 定制适配器
 
+---
+
 # HippyImageViewCustomLoader
 
 在Hippy SDK中, 前端 `<Image>` 组件默认对应的 HippyImageView 会根据 source 属性使用默认行为下载图片数据并显示。但是某些情况下，业务方希望使用自定义的图片加载逻辑（比如业务使用了缓存，或者拦截特定URL的数据），为此 SDK 提供了`HippyImageViewCustomLoader` 协议。

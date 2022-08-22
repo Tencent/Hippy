@@ -1,8 +1,8 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# Core Components
+# Main Components
 
-The definition of core components is consistent with the browser and Vue. It can be directly across the browser if only uses these components.
+The definition of main components is consistent with the browser and Vue. It can be directly across the browser if only uses these components.
 
 ---
 

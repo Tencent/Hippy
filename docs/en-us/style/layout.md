@@ -399,6 +399,16 @@ It behaves like `right` on CSS, but note that only logical pixel values (numeric
 | --------------- | -------- |
 | number |No       |
 
+# textAlign
+
+[[MDN 文档]](//developer.mozilla.org/en-US/docs/Web/CSS/text-align)
+
+`textAlign` sets the horizontal alignment of the inline-level text inside a block element or table-cell box，default value is `left`.
+
+| Type            | Required |
+| --------------- | -------- |
+| enum('left', 'center', 'right') | No     |
+
 # top
 
 [[MDN Docs]](//developer.mozilla.org/en-US/docs/Web/CSS/top)
