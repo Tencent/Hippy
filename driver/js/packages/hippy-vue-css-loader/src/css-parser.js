@@ -297,7 +297,7 @@ function parseCSS(css, options) {
     /* @fix Remove all comments from selectors
      * http://ostermiller.org/findcomment.html */
     return trim(m[0])
-      .replace(/\/\*(?=(?<digit1>([^*]|[\r\n]|((?=(?<digit2>\*+))\k<digit2>([^*/]|[\r\n])))*))\k<digit1>\*\/+/g, '')
+      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
       .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, m => m.replace(/,/g, '\u200C'))
       .split(/\s*(?![^(]*\)),\s*/)
       .map(s => s.replace(/\u200C/g, ','));
