@@ -419,6 +419,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
     _valid = NO;
     self.pScope->WillExit();
     self.pScope = nullptr;
+    _turboRuntime = nullptr;
     _JSContext.name = @"HippyJSContext(delete)";
     _JSContext = nil;
     _JSGlobalContextRef = NULL;
