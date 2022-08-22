@@ -4,6 +4,8 @@
 
 这篇教程，讲述了如何将 Hippy 集成到 iOS 工程。
 
+---
+
 # 使用 pod 集成
 
 1. 安装 [CocoaPods](https://cocoapods.org/)，Hippy iOS SDK [版本查询](https://cocoapods.org/pods/hippy)

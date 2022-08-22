@@ -2,6 +2,8 @@
 
 使用 Hippy 开发过程中，当前的能力可能无法满足一些特定场景，这时候就需要对 UI 组件进行封装或者引入一些第三方的功能来完成需求。
 
+---
+
 # 组件扩展
 
 扩展组件主要包括：
@@ -34,8 +36,8 @@ import { HippyView, HippyWebEngine, HippyWebModule } from '@hippy/web-renderer';
 // 继承自 `HippyView`
 class CustomView extends HippyView {
   // 实现构造方法
-  constructor(context,id,pId) {
-    super(context,id,pId);
+  constructor(context, id, pId) {
+    super(context, id, pId);
     // 设置自定义组件的 `tagName` 为 `CustomView`，
     // 这样 JS 业务使用的时候就可以设置 `nativeName="CustomView"` 进行关联。
     this.tagName = 'CustomView';
@@ -111,10 +113,10 @@ Node.removeChild<T extends Node>(child: T): T;
 ```javascript
 class CustomView extends HippyView{
     insertChild (child: HippyBaseView, childPosition: number) {
-        ...
+      // ...
     }
     removeChild (child: HippyBaseView){
-        ...
+      // ...
    }
 }
 ```
@@ -127,7 +129,7 @@ class CustomView extends HippyView{
 class CustomView extends HippyView{
     
     updateProps (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
-      ...
+      // ...
     }
 }
 ```

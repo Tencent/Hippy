@@ -18,6 +18,7 @@ on:
       git_revision:
         description: 'Git <tag>|<branch>|<commit>, Git available'
         type: string
+        required: false
       hip_domain:
         description: 'HIP <domain>'
         type: choice

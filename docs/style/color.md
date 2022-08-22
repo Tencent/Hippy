@@ -4,6 +4,8 @@
 
 颜色属性取值具体可以查询[CSS的颜色配置](//developer.mozilla.org/zh-CN/docs/Web/CSS/color_value).
 
+---
+
 # RGB
 
 Hippy 支持 `rgb()` and `rgba()`。

@@ -1,6 +1,8 @@
 # 异常捕获
 
-## uncaughtException
+---
+
+# uncaughtException
 
 Hippy 对于 JS 代码里没有处理的异常错误，可以通过监听 `uncaughtException` 事件进行捕获。
 
@@ -11,13 +13,13 @@ Hippy 对于 JS 代码里没有处理的异常错误，可以通过监听 `uncau
     });
 ```
 
-## unhandledRejection
+# unhandledRejection
 
 当 Promise 被 reject 且没有 reject 处理器的时候，会触发 `unhandledRejection` 事件
 
 !> 当前只能通过 js polyfill 的方式捕获 iOS(JSCore) Promise 的 `unhandledRejection` 错误，Android(V8) 暂不支持。
 
-### iOS
+## iOS
 
 iOS 的 Promise 目前是采用 polyfill 的方式实现的，因此可以对 `unhandledRejection` 异常直接进行捕获。
 

@@ -1,5 +1,7 @@
 # Customized Components and Modules
 
+---
+
 # Vue.registerElement
 
 hippy-vue provides a `registerElement` method to register components, mapping tags in the template to native components.

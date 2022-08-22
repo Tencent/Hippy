@@ -3,6 +3,8 @@
 A large number of UI components are used in App development, and the Hippy SDK already contains some basic UI, such as View, Text, Image, etc.
 Also, it's easy for users to customize their own components.
 
+---
+
 # Component Extension
 
 Let's take the creation of MyView as an example to show you how to extend a component from scratch.
