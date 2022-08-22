@@ -384,6 +384,7 @@ static NSString *UnicodeStringViewToNSString(const string_view &view) {
     }
 #endif //JS_USE_JSC
     self.pScope->WillExit();
+    _turboRuntime = nullptr;
     NSString *executorKey = [self executorkey];
     if (!executorKey) {
         return;
