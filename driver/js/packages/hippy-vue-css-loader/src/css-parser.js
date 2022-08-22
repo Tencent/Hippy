@@ -61,7 +61,7 @@ const commentRegexp = /\/\*[^*]*\*+([^/*][^*]*\*+)*\//g;
  * Trim `str`.
  */
 function trim(str) {
-  return str ? str.replace(/^\s+|\s+$/g, '') : '';
+  return str ? str.trim() : '';
 }
 
 
@@ -297,7 +297,7 @@ function parseCSS(css, options) {
     /* @fix Remove all comments from selectors
      * http://ostermiller.org/findcomment.html */
     return trim(m[0])
-      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
+      .replace(/\/\*(?=(?<digit1>([^*]|[\r\n]|((?=(?<digit2>\*+))\k<digit2>([^*/]|[\r\n])))*))\k<digit1>\*\/+/g, '')
       .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, m => m.replace(/,/g, '\u200C'))
       .split(/\s*(?![^(]*\)),\s*/)
       .map(s => s.replace(/\u200C/g, ','));
@@ -335,7 +335,7 @@ function parseCSS(css, options) {
    */
   function getLinearGradientAngle(value) {
     const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-    const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+    const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
     const valueList = reg.exec(processedValue);
     if (!Array.isArray(valueList)) return;
     // default direction is to bottom, i.e. 180degree
