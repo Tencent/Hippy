@@ -37,7 +37,6 @@ NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
 NSString *const HippyHippyTagAttributeName = @"HippyTagAttributeName";
 
-// CGFloat const HippyTextAutoSizeDefaultMinimumFontScale       = 0.5f;
 CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const HippyTextAutoSizeGranularity = 0.001f;
@@ -244,8 +243,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
              absolutePosition:(CGPoint)absolutePosition {
     @try {
         // Run layout on subviews.
-        // MTTlayout
-        NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:MeasureModeExactly];
+        UIEdgeInsets padding = self.paddingAsInsets;
+        CGFloat width = self.frame.size.width - (padding.left + padding.right);
+        NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:MeasureModeExactly];
+        CGRect textFrame = [self calculateTextFrame:textStorage];
+        
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
@@ -270,7 +272,8 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 CGFloat roundedHeight = x5RoundPixelValue(height);
                 CGFloat roundedWidth = x5RoundPixelValue(width);
                 CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
-                CGRect childFrame = CGRectMake(location.x, positionY, roundedWidth, roundedHeight);
+                CGRect childFrame = CGRectMake(textFrame.origin.x + location.x, textFrame.origin.y + positionY,
+                                               roundedWidth, roundedHeight);
                 NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
                 BOOL childIsTruncated = NSIntersectionRange(range, truncatedGlyphRange).length != 0;
 
