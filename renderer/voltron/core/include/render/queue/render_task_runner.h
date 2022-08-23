@@ -38,36 +38,47 @@ public:
   using LayoutSize = hippy::LayoutSize;
   using LayoutMeasureMode = hippy::LayoutMeasureMode;
 
-  explicit VoltronRenderTaskRunner(int32_t engine_id, int32_t root_id);
+  explicit VoltronRenderTaskRunner(uint32_t id);
   virtual ~VoltronRenderTaskRunner();
-  void RunCreateDomNode(const Sp<DomNode> &node);
-  void RunDeleteDomNode(const Sp<DomNode> &node);
-  void RunUpdateDomNode(const Sp<DomNode> &node);
-  void RunUpdateLayout(const SpList<DomNode> &nodes);
-  void RunMoveDomNode(std::vector<int32_t> &&ids, int32_t pid, int32_t id);
-  void RunBatch();
-  void RunLayoutBefore();
-  void RunLayoutFinish();
-  void RunCallFunction(const std::weak_ptr<DomNode> &dom_node,
+  void RunCreateDomNode(uint32_t root_id, const Sp<DomNode> &node);
+  void RunDeleteDomNode(uint32_t root_id, const Sp<DomNode> &node);
+  void RunUpdateDomNode(uint32_t root_id, const Sp<DomNode> &node);
+  void RunUpdateLayout(uint32_t root_id, const SpList<DomNode> &nodes);
+  void RunMoveDomNode(uint32_t root_id, std::vector<int32_t> &&ids, int32_t pid, int32_t id);
+  void RunBatch(uint32_t root_id);
+  void RunLayoutBefore(uint32_t root_id);
+  void RunLayoutFinish(uint32_t root_id);
+  void RunCallFunction(uint32_t root_id, const std::weak_ptr<DomNode> &dom_node,
                        const std::string &name, const DomArgument &param,
                        uint32_t cb_id);
   static void RunCallEvent(const std::weak_ptr<DomNode> &dom_node,
                     const std::string &name,
                     const std::unique_ptr<EncodableValue> &params);
-  void RunAddEventListener(const int32_t &node_id, const String &event_name);
-  void RunRemoveEventListener(const int32_t &node_id, const String &event_name);
-  Sp<DomManager> GetDomManager() const;
 
-private:
-  void ConsumeQueue();
+  void RunAddEventListener(uint32_t root_id, const uint32_t &node_id, const String &event_name);
+  void RunRemoveEventListener(uint32_t root_id, const uint32_t &node_id, const String &event_name);
+
+  void Lock(uint32_t root_id);
+  void UnlockAll();
+
+  void SetDomManager(const Sp<DomManager>& dom_manager);
+  Sp<DomManager> GetDomManager();
+
+  uint32_t GetId() { return render_manager_id_; }
+  void BindBridgeId(int32_t bridge_id) { engine_id_ = bridge_id; }
+
+ private:
+  void ConsumeQueue(uint32_t root_id);
   static EncodableValue DecodeDomValueMap(const SpMap<HippyValue> &value_map);
   static EncodableValue DecodeDomValue(const HippyValue &value);
   static HippyValue EncodeDomValue(const EncodableValue &value);
-  void SetNodeCustomMeasure(const Sp<DomNode> &dom_node) const;
-  Sp<VoltronRenderQueue> queue_;
+  void SetNodeCustomMeasure(uint32_t root_id, const Sp<DomNode> &dom_node) const;
+  Sp<VoltronRenderQueue> queue(uint32_t root_id);
+  std::map<uint32_t, Sp<VoltronRenderQueue>> queue_map_;
 
+  uint32_t render_manager_id_;
   int32_t engine_id_;
-  int32_t root_id_;
+  std::weak_ptr<DomManager> dom_manager_;
 };
 
 } // namespace voltron

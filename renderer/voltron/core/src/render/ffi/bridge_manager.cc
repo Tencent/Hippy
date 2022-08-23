@@ -20,15 +20,25 @@
  *
  */
 
+#include "render/ffi/bridge_manager.h"
+
 #include <iterator>
 
-#include "render/ffi/bridge_manager.h"
 #include "dom/dom_manager.h"
 
 namespace voltron {
 
-static Map<int32_t, Sp<BridgeManager>> bridge_map_;
-static std::mutex bridge_mutex_;
+using BridgeManagerMap = footstone::utils::PersistentObjectMap<int32_t, Sp<BridgeManager>>;
+static BridgeManagerMap bridge_map_;
+
+using WorkManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<footstone::WorkerManager>>;
+constexpr uint32_t kDefaultNumberOfThreads = 2;
+static WorkManagerMap worker_manager_map_;
+static std::atomic<uint32_t> global_worker_manager_key_{1};
+
+using RenderManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<VoltronRenderManager>>;
+static std::atomic<uint32_t> global_render_manager_key_{1};
+static RenderManagerMap render_manager_map_;
 
 int64_t BridgeRuntime::CalculateNodeLayout(int32_t instance_id, int32_t node_id, double width, int32_t width_mode, double height, int32_t height_mode) {
     std::mutex mutex;
@@ -64,112 +74,94 @@ BridgeRuntime::BridgeRuntime(int32_t engine_id) : engine_id_(engine_id) {
 
 }
 
-std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, Sp<BridgeRuntime> runtime) {
-  std::unique_lock<std::mutex> lock(bridge_mutex_);
-  auto bridge_manager_iter = bridge_map_.find(engine_id);
-  if (bridge_manager_iter == bridge_map_.end()) {
+std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp<BridgeRuntime> runtime) {
+  Sp<BridgeManager> bridge_manager;
+  auto flag = bridge_map_.Find(engine_id, bridge_manager);
+  if (flag) {
+    bridge_manager->BindRuntime(runtime);
+    return bridge_manager;
+  } else {
     auto new_bridge_manager = std::make_shared<BridgeManager>(engine_id);
-    bridge_map_[engine_id] = new_bridge_manager;
+    bridge_map_.Insert(engine_id, new_bridge_manager);
     new_bridge_manager->BindRuntime(runtime);
     return new_bridge_manager;
-  } else {
-    bridge_manager_iter->second->BindRuntime(runtime);
-    return bridge_manager_iter->second;
   }
 }
 
 Sp<BridgeManager> BridgeManager::Find(int32_t engine_id) {
-  std::unique_lock<std::mutex> lock(bridge_mutex_);
-  auto bridge_manager_iter = bridge_map_.find(engine_id);
-  if (bridge_manager_iter == bridge_map_.end()) {
-    return nullptr;
+  Sp<BridgeManager> bridge_manager;
+  auto flag = bridge_map_.Find(engine_id, bridge_manager);
+  if (flag) {
+    return bridge_manager;
   } else {
-    return bridge_manager_iter->second;
+    return nullptr;
   }
 }
 
-void BridgeManager::Destroy(int32_t root_id) {
-  std::unique_lock<std::mutex> lock(bridge_mutex_);
-  if (bridge_map_.find(root_id) != bridge_map_.end()) {
-    bridge_map_.erase(root_id);
+void BridgeManager::Destroy(int32_t engine_id) {
+  bridge_map_.Erase(engine_id);
+}
+
+uint32_t BridgeManager::CreateWorkerManager() {
+  auto worker_manager = std::make_shared<footstone::WorkerManager>(kDefaultNumberOfThreads);
+  auto id = global_worker_manager_key_.fetch_add(1);
+  worker_manager_map_.Insert(id, worker_manager);
+  return id;
+}
+
+void BridgeManager::DestroyWorkerManager(uint32_t worker_manager_id) {
+  std::shared_ptr<footstone::WorkerManager> worker_manager;
+  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
+  if (flag && worker_manager) {
+    worker_manager->Terminate();
+    worker_manager_map_.Erase(worker_manager_id);
   }
 }
 
-void BridgeManager::ReverseTraversal(int32_t engine_id, const std::function<void(Sp<hippy::RenderManager>)>& call) {
-  auto bridge_manager = BridgeManager::Find(engine_id);
-  if (bridge_manager) {
-    auto render_manager_map = bridge_manager->render_manager_map_;
-    if (!render_manager_map.empty()) {
-      auto end = render_manager_map.rbegin();
-      auto begin = render_manager_map.rend();
-      while (end != begin) {
-        auto render_manager = end->second;
-        call(render_manager);
-        end++;
-      }
-    }
+Sp<footstone::WorkerManager> BridgeManager::FindWorkerManager(uint32_t worker_manager_id) {
+  std::shared_ptr<footstone::WorkerManager> worker_manager;
+  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
+  if (flag && worker_manager) {
+    return worker_manager;
+  }
+  return nullptr;
+}
+
+Sp<VoltronRenderManager> BridgeManager::CreateRenderManager() {
+  auto id = global_render_manager_key_.fetch_add(1);
+  auto render_manager = std::make_shared<VoltronRenderManager>(id);
+  render_manager_map_.Insert(id, render_manager);
+  return render_manager;
+}
+
+void BridgeManager::DestroyRenderManager(uint32_t render_manager_id) {
+  std::shared_ptr<VoltronRenderManager> render_manager;
+  auto flag = render_manager_map_.Find(render_manager_id, render_manager);
+  if (flag && render_manager) {
+    render_manager_map_.Erase(render_manager_id);
   }
 }
 
-void BridgeManager::InitInstance(int32_t engine_id, int32_t root_id, Sp<hippy::RenderManager> render_manager) {
-  Sp<DomManager> dom_manager = std::make_shared<DomManager>();
-//  dom_manager->Init(root_id);
-  DomManager::Insert(dom_manager);
-  dom_manager->SetRenderManager(render_manager);
-//  dom_manager->GetAnimationManager()->SetDomManager(dom_manager);
-  BindDomManager(root_id, dom_manager);
-  BindRenderManager(root_id, render_manager);
-}
+Sp<VoltronRenderManager> BridgeManager::FindRenderManager(uint32_t render_manager_id) {
+  std::shared_ptr<VoltronRenderManager> render_manager;
+  auto flag = render_manager_map_.Find(render_manager_id, render_manager);
+  if (flag && render_manager) {
+    return render_manager;
+  }
 
-void BridgeManager::DestroyInstance(int32_t engine_id, int32_t root_id) {
-  if (render_manager_map_.find(root_id) != render_manager_map_.end()) {
-    render_manager_map_.erase(root_id);
-  }
-  auto dom_manager = dom_manager_map_.find(root_id);
-  if (dom_manager != dom_manager_map_.end()) {
-//    dom_manager->second->TerminateTaskRunner();
-    dom_manager_map_.erase(root_id);
-    DomManager::Erase(dom_manager->second);
-  }
+  return nullptr;
 }
 
 BridgeManager::~BridgeManager() {
-  dom_manager_map_.clear();
-  render_manager_map_.clear();
   native_callback_map_.clear();
 }
 
 BridgeManager::BridgeManager(int32_t engine_id) : engine_id_(engine_id) {}
 
-std::weak_ptr<BridgeRuntime> BridgeManager::GetRuntime() { return runtime_; }
-
-std::shared_ptr<hippy::RenderManager> BridgeManager::GetRenderManager(int32_t root_id) {
-  auto render_manager = render_manager_map_.find(root_id);
-  if (render_manager != render_manager_map_.end()) {
-    return render_manager->second;
-  }
-  return {};
-}
-
-Sp<DomManager> BridgeManager::GetDomManager(int32_t root_id) {
-  auto dom_manager = dom_manager_map_.find(root_id);
-  if (dom_manager != dom_manager_map_.end()) {
-    return dom_manager->second;
-  }
-  return nullptr;
-}
-
-void BridgeManager::BindDomManager(int32_t root_id, const Sp<DomManager>& dom_manager) {
-  dom_manager_map_[root_id] = dom_manager;
-}
+std::shared_ptr<BridgeRuntime> BridgeManager::GetRuntime() { return runtime_.lock(); }
 
 void BridgeManager::BindRuntime(const voltron::Sp<BridgeRuntime>& runtime) {
   runtime_ = std::weak_ptr<BridgeRuntime>(runtime);
-}
-
-void BridgeManager::BindRenderManager(int32_t root_id,
-                                      const voltron::Sp<hippy::RenderManager>& render_manager) {
-  render_manager_map_[root_id] = render_manager;
 }
 
 String BridgeManager::AddNativeCallback(const String& tag, const NativeCallback& callback) {

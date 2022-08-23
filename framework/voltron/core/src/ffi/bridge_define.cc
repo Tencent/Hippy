@@ -40,12 +40,6 @@ int32_t RegisterCallFuncEx(int32_t type, void *func) {
   } else if (type == FFIRegisterFuncType::kReportJsException) {
     report_js_exception_func = reinterpret_cast<report_js_exception>(func);
     return true;
-  } else if (type == FFIRegisterFuncType::kSendResponse) {
-    send_response_func = reinterpret_cast<send_response>(func);
-    return true;
-  } else if (type == FFIRegisterFuncType::kSendNotification) {
-    send_notification_func = reinterpret_cast<send_notification>(func);
-    return true;
   } else if (type == FFIRegisterFuncType::kDestroy) {
     destroy_func = reinterpret_cast<destroy_function>(func);
     return true;

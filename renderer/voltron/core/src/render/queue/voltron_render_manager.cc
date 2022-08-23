@@ -29,28 +29,38 @@ namespace voltron {
 
 using hippy::TouchEventInfo;
 
-VoltronRenderManager::VoltronRenderManager(int32_t root_id, int32_t engine_id)
-    : RenderManager("VoltronRenderManager"),
-      VoltronRenderTaskRunner(engine_id, root_id), root_id_(root_id) {}
+VoltronRenderManager::VoltronRenderManager(uint32_t id)
+    : RenderManager("VoltronRenderManager"), VoltronRenderTaskRunner(id){}
 
 VoltronRenderManager::~VoltronRenderManager() = default;
 
 void voltron::VoltronRenderManager::CreateRenderNode(
-    std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>> &&nodes) {
-  for (const auto &node: nodes) {
-    RunCreateDomNode(node);
+    std::weak_ptr<hippy::RootNode> root_node, std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
   }
+  auto root_id = root_node_ptr->GetId();
+  for (const auto &node: nodes) {
+    RunCreateDomNode(root_id, node);
+  }
+
 }
 
 void VoltronRenderManager::UpdateRenderNode(
     std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
   for (const auto &n: nodes) {
     if (n->GetTagName() == "Text") {
       MarkTextDirty(root_node, n->GetId());
     }
   }
   for (const auto &node: nodes) {
-    RunUpdateDomNode(node);
+    RunUpdateDomNode(root_id, node);
   }
 }
 
@@ -97,8 +107,13 @@ void VoltronRenderManager::MarkDirtyProperty(std::shared_ptr<std::unordered_map<
 
 void VoltronRenderManager::DeleteRenderNode(
     std::weak_ptr<RootNode> root_node, std::vector<std::shared_ptr<DomNode>> &&nodes) {
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
   for (const auto &node: nodes) {
-    RunDeleteDomNode(node);
+    RunDeleteDomNode(root_id, node);
   }
 }
 
@@ -106,35 +121,52 @@ void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
                                           std::vector<int32_t> &&ids,
                                           int32_t pid,
                                           int32_t id) {
-  RunMoveDomNode(std::move(ids), pid, id);
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
+  RunMoveDomNode(root_id, std::move(ids), pid, id);
 }
 
 void VoltronRenderManager::UpdateLayout(
     std::weak_ptr<RootNode> root_node, const std::vector<std::shared_ptr<DomNode>> &nodes) {
-  RunUpdateLayout(nodes);
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
+  RunUpdateLayout(root_id, nodes);
 }
 
 void VoltronRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
   FOOTSTONE_DLOG(INFO) << "RunEndBatch";
-  RunBatch();
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
+  RunBatch(root_id);
 }
 
 void VoltronRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {
-  RunLayoutBefore();
-  FOOTSTONE_DLOG(INFO) << "RunLayoutBefore";
-
-  // 在dom的css layout开始前，要保证dom
-  // op全部执行完成，否则自定义测量的节点测量数据会不准确
-  notified_ = false;
-  std::unique_lock<std::mutex> lock(mutex_);
-  while (!notified_) {
-    FOOTSTONE_DLOG(INFO) << "RunLayoutWait";
-    cv_.wait(lock);
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
   }
+  auto root_id = root_node_ptr->GetId();
+  RunLayoutBefore(root_id);
+  FOOTSTONE_DLOG(INFO) << "RunLayoutBefore";
+  Lock(root_id);
 }
 
 void VoltronRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
-  RunLayoutFinish();
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
+  RunLayoutFinish(root_id);
   FOOTSTONE_DLOG(INFO) << "RunLayoutFinish";
 }
 
@@ -143,7 +175,12 @@ void VoltronRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
                                         const std::string &name,
                                         const DomArgument &param,
                                         uint32_t cb_id) {
-  RunCallFunction(dom_node, name, param, cb_id);
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
+  RunCallFunction(root_id, dom_node, name, param, cb_id);
 }
 
 void VoltronRenderManager::CallEvent(
@@ -155,27 +192,33 @@ void VoltronRenderManager::CallEvent(
 void VoltronRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,
                                             std::weak_ptr<DomNode> dom_node,
                                             const std::string &name) {
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
   auto dom_node_p = dom_node.lock();
   if (dom_node_p) {
-    RunAddEventListener(dom_node_p->GetId(), name);
+    RunAddEventListener(root_id, dom_node_p->GetId(), name);
   }
 }
 
 void VoltronRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node,
                                                std::weak_ptr<DomNode> dom_node,
                                                const std::string &name) {
+  auto root_node_ptr = root_node.lock();
+  if (!root_node_ptr) {
+    return;
+  }
+  auto root_id = root_node_ptr->GetId();
   auto dom_node_p = dom_node.lock();
   if (dom_node_p) {
-    RunRemoveEventListener(dom_node_p->GetId(), name);
+    RunRemoveEventListener(root_id, dom_node_p->GetId(), name);
   }
 }
 
 void VoltronRenderManager::Notify() {
-  if (!notified_) {
-    notified_ = true;
-    cv_.notify_one();
-    FOOTSTONE_DLOG(INFO) << "RunLayoutNotify";
-  }
+  UnlockAll();
 }
 
 void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,

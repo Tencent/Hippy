@@ -207,13 +207,16 @@ class RenderManager
 
   final ControllerManager _controllerManager;
   final RenderContext context;
+  final int _nativeRenderManagerId;
 
   ControllerManager get controllerManager => _controllerManager;
 
   RenderManager(
     this.context,
     List<ViewControllerGenerator>? generators,
-  ) : _controllerManager = ControllerManager(context, generators) {
+  )   : _controllerManager = ControllerManager(context, generators),
+        _nativeRenderManagerId =
+            context.bridgeManager.createNativeRenderManager() {
     context.addEngineLifecycleEventListener(this);
     context.addInstanceLifecycleEventListener(this);
   }
@@ -222,6 +225,10 @@ class RenderManager
   void onInstanceLoad(final int instanceId) {
     createRootNode(instanceId);
     createInstance(instanceId);
+  }
+
+  int getNativeId() {
+    return _nativeRenderManagerId;
   }
 
   @override
@@ -296,7 +303,7 @@ class RenderManager
   void notifyDom() {
     if (!_isDestroyed) {
       _layoutBeforeFlag = false;
-      context.bridgeManager.notifyDom();
+      context.bridgeManager.notifyRender(_nativeRenderManagerId);
     }
   }
 

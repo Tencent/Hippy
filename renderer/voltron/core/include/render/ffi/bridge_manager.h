@@ -28,6 +28,9 @@
 #include "render/ffi/bridge_define.h"
 #include "render/ffi/callback_manager.h"
 #include "render/ffi/common_header.h"
+#include "render/queue/voltron_render_manager.h"
+#include "footstone/worker_manager.h"
+#include "footstone/persistent_object_map.h"
 
 namespace voltron {
 using hippy::DomManager;
@@ -49,19 +52,20 @@ protected:
 
 class BridgeManager {
 public:
-  static Sp<BridgeManager> Create(int32_t engine_id, Sp<BridgeRuntime> runtime);
+  static Sp<BridgeManager> Create(int32_t engine_id, const Sp<BridgeRuntime> runtime);
   static Sp<BridgeManager> Find(int32_t engine_id);
   static void Destroy(int32_t engine_id);
-  static void
-  ReverseTraversal(int32_t engine_id,
-                   const std::function<void(Sp<hippy::RenderManager>)> &call);
 
-  void InitInstance(int32_t engine_id, int32_t root_id,
-                    Sp<hippy::RenderManager> render_manager);
-  void DestroyInstance(int32_t engine_id, int32_t root_id);
-  std::weak_ptr<BridgeRuntime> GetRuntime();
-  std::shared_ptr<hippy::RenderManager> GetRenderManager(int32_t root_id);
-  Sp<DomManager> GetDomManager(int32_t root_id);
+  static uint32_t CreateWorkerManager();
+  static void DestroyWorkerManager(uint32_t worker_manager_id);
+  static Sp<footstone::WorkerManager> FindWorkerManager(uint32_t worker_manager_id);
+
+  static Sp<VoltronRenderManager> CreateRenderManager();
+  static void DestroyRenderManager(uint32_t render_manager_id);
+  static Sp<VoltronRenderManager> FindRenderManager(uint32_t render_manager_id);
+
+  std::shared_ptr<BridgeRuntime> GetRuntime();
+  void BindRuntime(const Sp<BridgeRuntime> &runtime);
 
   String AddNativeCallback(const String &tag, const NativeCallback &callback);
   void RemoveNativeCallback(const String &callback_id);
@@ -72,14 +76,7 @@ public:
   explicit BridgeManager(int32_t engine_id);
 
 private:
-  void BindRuntime(const Sp<BridgeRuntime> &runtime);
-  void BindRenderManager(int32_t root_id,
-                         const Sp<hippy::RenderManager> &render_manager);
-  void BindDomManager(int32_t root_id, const Sp<DomManager> &dom_manager);
-
   std::weak_ptr<BridgeRuntime> runtime_;
-  std::map<int, Sp<hippy::RenderManager>> render_manager_map_;
-  Map<int, Sp<DomManager>> dom_manager_map_;
   Map<String, NativeCallback> native_callback_map_;
 
   int32_t engine_id_;

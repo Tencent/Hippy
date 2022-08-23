@@ -28,11 +28,13 @@ import '../gesture.dart';
 import '../render.dart';
 import '../style.dart';
 import '../widget.dart';
+import 'dom_holder.dart';
 
 abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   late VoltronRenderBridgeManager _bridgeManager;
   late RenderManager _renderManager;
   late VirtualNodeManager _virtualNodeManager;
+  late DomHolder _domHolder;
   final EngineMonitor _engineMonitor;
   final HashMap<int, RootWidgetViewModel> _instanceMap = HashMap();
   final HashMap<int, T> _loadContextMap = HashMap();
@@ -40,6 +42,10 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   UIComponentEventHandler get eventHandler;
   double get fontScale;
   DimensionChecker get dimensionChecker;
+
+  int get workerId => _bridgeManager.workerId;
+  int get domId => _domHolder.id;
+  int get renderId => renderManager.getNativeId();
 
   // UI Manager
   VirtualNodeManager get virtualNodeManager => _virtualNodeManager;
@@ -62,6 +68,7 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   RenderContext(int id, List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor)
       : _engineMonitor = engineMonitor {
     _bridgeManager = VoltronRenderBridgeManager(id, this);
+    _domHolder = DomHolder(this);
     _renderManager = RenderManager(this, generators);
     _virtualNodeManager = VirtualNodeManager(this);
   }
@@ -83,18 +90,24 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   }
 
   void destroyInstance(int id) {
-    _instanceMap.remove(id);
-    _loadContextMap.remove(id);
+    var removeViewModel = _instanceMap[id];
+    if (removeViewModel != null) {
+      _instanceMap.remove(id);
+      _loadContextMap.remove(id);
+      _bridgeManager.removeRoot(_domHolder.id, id);
+    }
   }
 
-  void createInstance(int id, T loadContext, RootWidgetViewModel viewModel) {
+  void createInstance(T loadContext, RootWidgetViewModel viewModel) {
     _instanceMap[viewModel.id] = viewModel;
-    _loadContextMap[id] = loadContext;
+    _loadContextMap[viewModel.id] = loadContext;
+    _bridgeManager.addRoot(_domHolder.id, viewModel.id);
   }
 
   @override
   void destroy() {
     _renderManager.destroy();
+    _domHolder.destroy();
     _bridgeManager.destroy();
     _instanceMap.clear();
   }

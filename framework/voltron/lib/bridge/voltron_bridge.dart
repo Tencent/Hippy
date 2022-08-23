@@ -89,6 +89,7 @@ class VoltronBridgeManager implements Destroyable {
         _debugServerHost = debugServerHost,
         _thirdPartyAdapter = thirdPartyAdapter,
         _isSingleThread = bridgeType == kBridgeTypeSingleThread {
+
     initCodeCacheDir();
     _context.renderContext.bridgeManager.init();
   }
@@ -103,20 +104,36 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
+  void bindDomAndRender(
+      {required int domInstanceId,
+      required int engineId,
+      required int renderManagerId}) {
+    VoltronApi.bindDomAndRender(domInstanceId, engineId, renderManagerId);
+  }
+
+  void connectRootViewAndRuntime(int engineId, int rootId) {
+    VoltronApi.connectRootViewAndRuntime(engineId, rootId);
+  }
+
   Future<dynamic> initBridge(Callback callback) async {
     try {
       _handleVoltronInspectorInit();
       _context.startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitBridge);
       var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
-        getGlobalConfigs(),
-        _isSingleThread,
-        _isDevModule,
-        _groupId,
-        _engineId,
-        (value) async {
+        globalConfig: getGlobalConfigs(),
+        singleThreadMode: _isSingleThread,
+        isDevModule: _isDevModule,
+        groupId: _groupId,
+        engineId: _engineId,
+        workerManagerId: _context.renderContext.workerId,
+        domId: _context.renderContext.domId,
+        callback: (value) async {
           _isFrameWorkInit = true;
           _thirdPartyAdapter?.setVoltronBridgeId(value);
+
+          _context.onRuntimeInitialized(_v8RuntimeId);
+
           _context.startTimeMonitor.startEvent(
             EngineMonitorEventKey.engineLoadEventLoadCommonJs,
           );
@@ -147,8 +164,8 @@ class VoltronBridgeManager implements Destroyable {
             bridgeMap[_engineId] = this;
           }
         },
-        tracingDataDir,
-        _getDebugWsUrl(),
+        dataDir: tracingDataDir,
+        wsUrl: _getDebugWsUrl(),
       );
     } catch (e) {
       _isFrameWorkInit = false;
@@ -248,28 +265,14 @@ class VoltronBridgeManager implements Destroyable {
       return;
     }
 
-    LogUtils.i(_kTag, "loadInstance start");
+    LogUtils.i(_kTag, "loadInstance($id) start");
 
     var map = VoltronMap();
     map.push("name", name);
     map.push("id", id);
     map.push("params", params);
 
-    var rootView = _context.getInstance(id);
-    var rootSize = Size.zero;
-    if (rootView != null) {
-      rootSize = getSizeFromKey(rootView.rootKey);
-      if (rootView.timeMonitor != null) {
-        rootView.timeMonitor?.startEvent(EngineMonitorEventKey.moduleLoadEventRunBundle);
-      }
-    }
-
-    await VoltronApi.createInstance(_engineId, id, rootSize, map, (value) {
-      var curRootView = _context.getInstance(id);
-      if (curRootView != null && curRootView.timeMonitor != null) {
-        curRootView.timeMonitor?.startEvent(EngineMonitorEventKey.moduleLoadEventCreateView);
-      }
-    });
+    await VoltronApi.loadInstance(_engineId, map);
   }
 
   Future<dynamic> resumeInstance(int id) async {
@@ -282,11 +285,16 @@ class VoltronBridgeManager implements Destroyable {
     await callJsFunction(id, action);
   }
 
-  Future<dynamic> destroyInstance(int id) async {
+  Future<dynamic> unloadInstance(int id) async {
     if (!_isFrameWorkInit) {
       return;
     }
-    await VoltronApi.destroyInstance(_engineId, id, (value) {});
+
+    LogUtils.i(_kTag, "unloadInstance($id) start");
+    var map = VoltronMap();
+    map.push("id", id);
+
+    await VoltronApi.unloadInstance(_engineId, map);
   }
 
   Future<dynamic> destroyBridge(DestoryBridgeCallback<bool> callback, bool isReload) async {
@@ -315,8 +323,6 @@ class VoltronBridgeManager implements Destroyable {
     var action = "callBack";
     await callJsFunction(params, action);
   }
-
-  void sendWebSocketMessage(dynamic msg) {}
 
   @override
   void destroy() {

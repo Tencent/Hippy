@@ -23,7 +23,6 @@
 #pragma once
 
 #include "common_header.h"
-#include "render/ffi/render_bridge_ffi_impl.h"
 #include "render/ffi/callback_manager.h"
 #include "render/ffi/bridge_define.h"
 #include "render/ffi/bridge_manager.h"
@@ -33,12 +32,38 @@
 extern "C" {
 #endif
 
+
 EXTERN_C int32_t RegisterCallFunc(int32_t type, void *func);
 
-EXTERN_C void UpdateNodeSize(int32_t engine_id, int32_t root_id,
+EXTERN_C uint32_t CreateVoltronRenderProvider();
+
+EXTERN_C void DestroyVoltronRenderProvider(uint32_t render_manager_id);
+
+EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, uint32_t render_manager_id,
+                                    const char16_t *call_id,
+                                    const uint8_t *params, int32_t params_len,
+                                    int32_t keep);
+
+EXTERN_C void CallNativeEventFFI(uint32_t render_manager_id, uint32_t root_id,
+                                 int32_t node_id, const char16_t *event,
+                                 const uint8_t *params, int32_t params_len);
+
+EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
                              int32_t node_id, double width, double height);
 
-EXTERN_C void NotifyRenderManager(int32_t engine_id);
+EXTERN_C void Notify(int32_t engine_id, uint32_t render_manager_id);
+
+EXTERN_C uint32_t CreateWorkerManager();
+
+EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id);
+
+EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id);
+
+EXTERN_C void DestroyDomInstance(uint32_t dom_manager_id);
+
+EXTERN_C void AddRoot(uint32_t dom_manager_id, uint32_t root_id);
+
+EXTERN_C void RemoveRoot(uint32_t dom_manager_id, uint32_t root_id);
 
 bool CallGlobalCallback(int32_t callback_id, int64_t value);
 

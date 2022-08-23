@@ -52,7 +52,23 @@ class _RenderBridgeFFIManager {
   // 更新节点宽高
   late UpdateNodeSizeFfiDartType updateNodeSize;
 
-  late NotifyDomDartType notifyDom;
+  // 通知native的renderManager text layout完成
+  late NotifyRenderDartType notifyRender;
+
+  // 创建voltron native render manager
+  late CreateVoltronRenderDartType createNativeRender;
+
+  // 销毁voltron native render manager
+  late DestroyVoltronRenderDartType destroyNativeRender;
+
+  // 向native注册或者删除rootView
+  late AddRootFfiDartType addRoot;
+  late RemoveRootFfiDartType removeRoot;
+
+  late CreateDomFfiDartType createDom;
+  late DestroyDomFfiDartType destroyDom;
+  late CreateWorkerFfiDartType createWorker;
+  late DestroyWorkerFfiDartType destroyWorker;
 
   // 向c侧注册dart方法
   late RegisterCallbackFfiDartType registerCallback;
@@ -79,6 +95,29 @@ class _RenderBridgeFFIManager {
     executeCallback = _library.lookupFunction<ExecuteCallbackNativeType,
         ExecuteCallbackDartType>('VoltronExecuteCallback');
 
+    createNativeRender = _library.lookupFunction<CreateVoltronRenderNativeType,
+        CreateVoltronRenderDartType>('CreateVoltronRenderProvider');
+
+    destroyNativeRender = _library.lookupFunction<
+        DestroyVoltronRenderNativeType,
+        DestroyVoltronRenderDartType>('DestroyVoltronRenderProvider');
+
+    createDom = _library
+        .lookupFunction<CreateDomFfiNativeType, CreateDomFfiDartType>('CreateDomInstance');
+
+    destroyDom =
+        _library.lookupFunction<DestroyDomFfiNativeType, DestroyDomFfiDartType>(
+            'DestroyDomInstance');
+
+    createWorker = _library.lookupFunction<CreateWorkerFfiNativeType,
+        CreateWorkerFfiDartType>('CreateWorkerManager');
+
+    destroyWorker = _library.lookupFunction<DestroyWorkerFfiNativeType,
+        DestroyWorkerFfiDartType>('DestroyWorkerManager');
+
+    addRoot = _library.lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>('AddRoot');
+    removeRoot = _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>('RemoveRoot');
+
     callNativeFunction = _library.lookupFunction<
         CallNativeFunctionFfiNativeType,
         CallNativeFunctionFfiDartType>("CallNativeFunctionFFI");
@@ -89,8 +128,8 @@ class _RenderBridgeFFIManager {
     updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
         UpdateNodeSizeFfiDartType>('UpdateNodeSize');
 
-    notifyDom = _library.lookupFunction<NotifyDomNativeType, NotifyDomDartType>(
-        'NotifyRenderManager');
+    notifyRender = _library.lookupFunction<NotifyRenderNativeType, NotifyRenderDartType>(
+        'Notify');
 
     registerCallback = _library.lookupFunction<RegisterCallbackFfiNativeType,
         RegisterCallbackFfiDartType>("RegisterCallFunc");
@@ -110,13 +149,45 @@ class VoltronRenderApi {
     await initBridge();
   }
 
+  static int createNativeRender() {
+    return _RenderBridgeFFIManager.instance.createNativeRender();
+  }
+
+  static Future destroyNativeRender(int nativeRenderId) async {
+    _RenderBridgeFFIManager.instance.destroyNativeRender(nativeRenderId);
+  }
+
+  static int createDomInstance(int workManagerId) {
+    return _RenderBridgeFFIManager.instance.createDom(workManagerId);
+  }
+
+  static void destroyDomInstance(int domInstanceId) {
+    _RenderBridgeFFIManager.instance.destroyDom(domInstanceId);
+  }
+
+  static int createWorkerManager() {
+    return _RenderBridgeFFIManager.instance.createWorker();
+  }
+
+  static void destroyWorkerManager(int workerManagerId) {
+    _RenderBridgeFFIManager.instance.destroyWorker(workerManagerId);
+  }
+
+  static void addRoot(int domInstanceId, int rootId) {
+    _RenderBridgeFFIManager.instance.addRoot(domInstanceId, rootId);
+  }
+
+  static void removeRoot(int domInstanceId, int rootId) {
+    _RenderBridgeFFIManager.instance.removeRoot(domInstanceId, rootId);
+  }
+
   static Future updateNodeSize(
-      int engineId, int rootId, int nodeId, double width, double height) async {
+      int renderManagerId, int rootId, int nodeId, double width, double height) async {
     var stopwatch = Stopwatch();
 
     stopwatch.start();
     _RenderBridgeFFIManager.instance
-        .updateNodeSize(engineId, rootId, nodeId, width, height);
+        .updateNodeSize(renderManagerId, rootId, nodeId, width, height);
     stopwatch.stop();
     LogUtils.profile("update node size cost", stopwatch.elapsedMilliseconds);
   }
@@ -127,12 +198,12 @@ class VoltronRenderApi {
     return result.toNativeUtf16();
   }
 
-  static Future notifyDom(int engineId) async {
-    _RenderBridgeFFIManager.instance.notifyDom(engineId);
+  static Future notifyRender(int engineId, int renderManagerId) async {
+    _RenderBridgeFFIManager.instance.notifyRender(engineId, renderManagerId);
   }
 
   static Future<dynamic> callNativeFunction(
-      int engineId, int rootId, String callId, Object params, bool keep) async {
+      int engineId, int renderManagerId, String callId, Object params, bool keep) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var callIdU16 = callId.toNativeUtf16();
@@ -145,7 +216,7 @@ class VoltronRenderApi {
       nativeParams.setRange(
           0, length, encodeParamsByteData.buffer.asUint8List());
       _RenderBridgeFFIManager.instance.callNativeFunction(
-          engineId, rootId, callIdU16, result, length, keep ? 1 : 0);
+          engineId, renderManagerId, callIdU16, result, length, keep ? 1 : 0);
       free(result);
       stopwatch.stop();
       LogUtils.profile("callNativeFunction", stopwatch.elapsedMilliseconds);
@@ -157,7 +228,7 @@ class VoltronRenderApi {
     free(callIdU16);
   }
 
-  static Future callNativeEvent(int engineId, int rootId, int nodeId,
+  static Future callNativeEvent(int renderManagerId, int rootId, int nodeId,
       String eventName, Object params) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
@@ -172,7 +243,7 @@ class VoltronRenderApi {
       nativeParams.setRange(
           0, length, encodeParamsByteData.buffer.asUint8List());
       _RenderBridgeFFIManager.instance
-          .callNativeEvent(engineId, rootId, nodeId, eventU16, result, length);
+          .callNativeEvent(renderManagerId, rootId, nodeId, eventU16, result, length);
       free(result);
       stopwatch.stop();
       LogUtils.profile("callNativeEvent", stopwatch.elapsedMilliseconds);

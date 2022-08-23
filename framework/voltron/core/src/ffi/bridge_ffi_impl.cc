@@ -23,7 +23,6 @@
 #include <memory>
 
 #include "footstone/string_view_utils.h"
-#include "footstone/persistent_object_map.h"
 #include "dom/dom_manager.h"
 #include "ffi/bridge_ffi_impl.h"
 #include "ffi/ffi_bridge_runtime.h"
@@ -54,55 +53,45 @@ using voltron::StandardMessageCodec;
 using voltron::VoltronRenderManager;
 using footstone::WorkerManager;
 
-using WorkManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<WorkerManager>>;
-
-static WorkManagerMap worker_manager_map;
-static std::atomic<uint32_t> global_worker_manager_key{1};
-
-constexpr uint32_t kDefaultNumberOfThreads = 2;
-constexpr char kDomRunnerName[] = "hippy_dom";
-
-
-EXTERN_C void CreateInstanceFFI(int32_t engine_id, int32_t root_id, double width, double height,
-                                const char* params, int32_t params_length) {
+EXTERN_C void LoadInstanceFFI(int32_t engine_id, const char* params, int32_t params_length) {
   auto bridge_manager = BridgeManager::Find(engine_id);
-  if (bridge_manager) {
-    auto render_manager = std::make_shared<VoltronRenderManager>(engine_id, root_id);
-    bridge_manager->InitInstance(engine_id, root_id, render_manager);
-    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
-    auto dom_manager = bridge_manager->GetDomManager(root_id);
-    if (runtime && dom_manager) {
-      auto runtime_id = runtime->GetRuntimeId();
-      BridgeImpl::BindDomManager(runtime_id, dom_manager);
-#if ENABLE_INSPECTOR
-      auto scope = BridgeImpl::GetScope(runtime_id);
-      if (scope) {
-        scope->GetDevtoolsDataSource()->Bind(static_cast<int32_t>(runtime_id), dom_manager->GetId(), 0);
-      }
-#endif
-      std::vector<std::function<void()>> ops = {[dom_manager, width, height]() {
-          dom_manager->SetRootSize(std::weak_ptr<hippy::dom::RootNode>(), (float) width, (float) height);
-      }};
-      dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
-      if (params_length > 0) {
-          std::string param_str(params, static_cast<unsigned int>(params_length));
-          BridgeImpl::LoadInstance(runtime_id, std::move(param_str));
-      }
-    }
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "LoadInstanceFFI engine_id invalid";
+    return;
   }
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "LoadInstanceFFI runtime unbind";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  if (params_length <= 0) {
+    FOOTSTONE_DLOG(WARNING) << "LoadInstanceFFI params length error";
+    return;
+  }
+
+  std::string param_str(params, static_cast<unsigned int>(params_length));
+  BridgeImpl::LoadInstance(runtime_id, std::move(param_str));
 }
 
-EXTERN_C void DestroyInstanceFFI(int32_t engine_id, int32_t root_id, const char* params, int32_t params_length) {
+EXTERN_C void UnloadInstanceFFI(int32_t engine_id, const char* params, int32_t params_length) {
   auto bridge_manager = BridgeManager::Find(engine_id);
-  if (bridge_manager) {
-    bridge_manager->DestroyInstance(engine_id, root_id);
-    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
-    if (runtime) {
-      auto runtime_id = runtime->GetRuntimeId();
-      std::string param_str(params, static_cast<unsigned int>(params_length));
-      BridgeImpl::UnloadInstance(runtime_id, std::move(param_str));
-    }
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "UnloadInstanceFFI engine_id invalid";
+    return;
   }
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "UnloadInstanceFFI runtime unbind";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  std::string param_str(params, static_cast<unsigned int>(params_length));
+  BridgeImpl::UnloadInstance(runtime_id, std::move(param_str));
 }
 
 EXTERN_C void InitBridge() {
@@ -119,9 +108,9 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
   BridgeManager::Create(engine_id, ffi_runtime);
 
-  std::shared_ptr<WorkerManager> worker_manager;
-  auto flag = worker_manager_map.Find(work_manager_id, worker_manager);
-  FOOTSTONE_DCHECK(flag);
+  std::shared_ptr<WorkerManager>
+      worker_manager = voltron::BridgeManager::FindWorkerManager(work_manager_id);
+  FOOTSTONE_DCHECK(worker_manager != nullptr);
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
                                          worker_manager, dom_manager_id, global_config, 0, 0,
@@ -134,31 +123,48 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
 EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_path, const char16_t* script_name,
                                       const char16_t* code_cache_dir, int32_t can_use_code_cache, int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
-  if (bridge_manager) {
-    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
-    if (runtime) {
-      auto runtime_id = runtime->GetRuntimeId();
-      return BridgeImpl::RunScriptFromFile(runtime_id, file_path, script_name, code_cache_dir, can_use_code_cache,
-                                           [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
-    }
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "RunScriptFromFileFFI engine_id invalid";
+    return 0;
   }
-  return 0;
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "RunScriptFromFileFFI runtime unbind";
+    return 0;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  return BridgeImpl::RunScriptFromFile(runtime_id,
+                                       file_path,
+                                       script_name,
+                                       code_cache_dir,
+                                       can_use_code_cache,
+                                       [callback_id](int64_t value) {
+                                         CallGlobalCallback(callback_id,
+                                                            value);
+                                       });
 }
 
 EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset_name, const char16_t* code_cache_dir,
                                         int32_t can_use_code_cache, const char16_t* asset_str_char,
                                         int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
-  bool result = false;
-  if (bridge_manager) {
-    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
-    if (runtime) {
-      auto runtime_id = runtime->GetRuntimeId();
-      result = BridgeImpl::RunScriptFromAssets(
-          runtime_id, can_use_code_cache, asset_name, code_cache_dir,
-          [callback_id](int value) { CallGlobalCallback(callback_id, value); }, asset_str_char);
-    }
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "RunScriptFromAssetsFFI engine_id invalid";
+    return false;
   }
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "RunScriptFromAssetsFFI runtime unbind";
+    return false;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  bool result = BridgeImpl::RunScriptFromAssets(
+      runtime_id, can_use_code_cache, asset_name, code_cache_dir,
+      [callback_id](int value) { CallGlobalCallback(callback_id, value); }, asset_str_char);
   if (!result) {
     delete asset_str_char;
   }
@@ -168,20 +174,33 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset
 EXTERN_C void CallFunctionFFI(int32_t engine_id, const char16_t* action, const char* params, int32_t params_length,
                               int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
-  if (bridge_manager) {
-    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
-    if (runtime) {
-      auto runtime_id = runtime->GetRuntimeId();
-      if (params == nullptr && params_length <= 0) {
-        BridgeImpl::CallFunction(runtime_id, action, std::string{},
-                                 [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); });
-      } else {
-        std::string params_str(params, static_cast<unsigned int>(params_length));
-        BridgeImpl::CallFunction(runtime_id, action, std::move(params_str), [callback_id](int64_t value) {
-          CallGlobalCallback(callback_id, value);
-        });
-      }
-    }
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "CallFunctionFFI engine_id invalid";
+    return;
+  }
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "CallFunctionFFI runtime unbind";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  if (params == nullptr && params_length <= 0) {
+    BridgeImpl::CallFunction(runtime_id, action, std::string{},
+                             [callback_id](int64_t value) {
+                               CallGlobalCallback(callback_id,
+                                                  value);
+                             });
+  } else {
+    std::string params_str(params, static_cast<unsigned int>(params_length));
+    BridgeImpl::CallFunction(runtime_id,
+                             action,
+                             std::move(params_str),
+                             [callback_id](int64_t value) {
+                               CallGlobalCallback(callback_id, value);
+                             });
+
   }
 }
 
@@ -189,14 +208,23 @@ EXTERN_C const char* GetCrashMessageFFI() { return "lucas_crash_report_test"; }
 
 EXTERN_C void DestroyFFI(int32_t engine_id, int32_t callback_id, int32_t is_reload) {
   auto bridge_manager = BridgeManager::Find(engine_id);
-  if (bridge_manager) {
-    auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
-    BridgeManager::Destroy(engine_id);
-    if (runtime) {
-      auto runtime_id = runtime->GetRuntimeId();
-      BridgeImpl::Destroy(runtime_id, [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, is_reload);
-    }
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "DestroyFFI engine_id invalid";
+    return;
   }
+
+  BridgeManager::Destroy(engine_id);
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "DestroyFFI runtime unbind";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  BridgeImpl::Destroy(runtime_id,
+                      [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); },
+                      is_reload);
 }
 
 EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, int32_t event_type, const char16_t* content, const char16_t* extra) {
@@ -241,38 +269,95 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
 #endif
 }
 
-EXTERN_C uint32_t CreateWorkerManager() {
-  auto worker_manager = std::make_shared<WorkerManager>(kDefaultNumberOfThreads);
-  auto id = global_worker_manager_key.fetch_add(1);
-  worker_manager_map.Insert(id, worker_manager);
-  return id;
-}
-
-EXTERN_C void DestroyWorkerManager(uint32_t worker_manager_id) {
-  std::shared_ptr<WorkerManager> worker_manager;
-  auto flag = worker_manager_map.Find(worker_manager_id, worker_manager);
-  if (flag && worker_manager) {
-    worker_manager->Terminate();
-    worker_manager_map.Erase(worker_manager_id);
+EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uint32_t render_id) {
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender engine_id invalid";
+    return;
   }
-}
 
-EXTERN_C uint32_t CreateDomInstance(uint32_t worker_manager_id) {
-  auto dom_manager = std::make_shared<DomManager>();
-  DomManager::Insert(dom_manager);
-  std::shared_ptr<WorkerManager> worker_manager;
-  auto flag = worker_manager_map.Find(worker_manager_id, worker_manager);
-  FOOTSTONE_DCHECK(flag);
-  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
-  dom_manager->SetTaskRunner(runner);
-  return dom_manager->GetId();
-}
-
-EXTERN_C void DestroyDomInstance(uint32_t dom_id) {
-  auto dom_manager = DomManager::Find(dom_id);
-  if (dom_manager) {
-    DomManager::Erase(dom_id);
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender engine runtime unbind";
+    return;
   }
+
+  std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
+  if (!dom_manager) {
+    FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender dom_id invalid";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  auto scope = BridgeImpl::GetScope(runtime_id);
+  if (!scope) {
+    FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender runtime_id invalid";
+    return;
+  }
+
+  auto render_manager = voltron::BridgeManager::FindRenderManager(render_id);
+  if (!render_manager) {
+    FOOTSTONE_DLOG(WARNING) << "DoBindDomAndRender render_id invalid";
+    return;
+  }
+
+  scope->SetDomManager(dom_manager);
+  scope->SetRenderManager(render_manager);
+  dom_manager->SetRenderManager(render_manager);
+  render_manager->SetDomManager(dom_manager);
+  render_manager->BindBridgeId(engine_id);
+
+#ifdef ENABLE_INSPECTOR
+  auto devtools_data_source = scope->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+    devtools_data_source->Bind(runtime_id, dom_manager_id, j_render_id);
+  }
+#endif
+}
+
+EXTERN_C void DoConnectRootViewAndRuntime(int32_t engine_id, uint32_t root_id) {
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "DoConnectRootViewAndRuntime engine_id invalid";
+    return;
+  }
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "DoConnectRootViewAndRuntime engine runtime unbind";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  auto scope = BridgeImpl::GetScope(runtime_id);
+  if (!scope) {
+    FOOTSTONE_DLOG(WARNING) << "DoConnectRootViewAndRuntime runtime_id invalid";
+    return;
+  }
+
+  auto& root_map = hippy::RootNode::PersistentMap();
+  std::shared_ptr<hippy::RootNode> root_node;
+  bool ret = root_map.Find(root_id, root_node);
+  if (!ret) {
+    FOOTSTONE_DLOG(WARNING) << "DoConnect root_node is nullptr";
+    return;
+  }
+
+  scope->SetRootNode(root_node);
+#ifdef ENABLE_INSPECTOR
+  auto devtools_data_source = scope->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+    devtools_data_source->SetRootNode(root_node);
+  }
+#endif
+
+  std::shared_ptr<voltron::VoltronRenderManager> render_manager =
+      std::static_pointer_cast<voltron::VoltronRenderManager>(scope->GetRenderManager().lock());
+
+  // todo 合入renderManager density后修改为render_manager.density
+  float density = 1.0;
+  auto layout_node = root_node->GetLayoutNode();
+  layout_node->SetScaleFactor(density);
 }
 
 #ifdef __cplusplus

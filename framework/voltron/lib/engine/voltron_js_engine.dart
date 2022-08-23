@@ -327,17 +327,22 @@ class VoltronJSEngine
   }
 
   Future<dynamic> _loadJSInstance(RootWidgetViewModel rootWidgetViewModel) async {
-    var loadContext = JSLoadInstanceContext(_moduleLoadParamsMap[rootWidgetViewModel.id]!);
+    var loadContext =
+        JSLoadInstanceContext(_moduleLoadParamsMap[rootWidgetViewModel.id]!);
     _engineContext?.renderContext.createInstance(
-      rootWidgetViewModel.id,
       loadContext,
       rootWidgetViewModel,
     );
+    _engineContext?.bridgeManager.connectRootViewAndRuntime(
+        _engineContext?.engineId ?? 0, rootWidgetViewModel.id);
+
     LogUtils.d(_kTag, "in internalLoadInstance");
     for (var listener in _engineContext!.instanceLifecycleEventListener) {
       listener.onInstanceLoad(rootWidgetViewModel.id);
     }
     rootWidgetViewModel.attachToEngine(_engineContext!.renderContext);
+
+    rootWidgetViewModel.updateRootSize();
     var loadInstanceContext = _engineContext!.renderContext.getLoadContext(
       rootWidgetViewModel.id,
     );
@@ -488,7 +493,7 @@ class VoltronJSEngine
     rootWidget.onSizeChangedListener = null;
     _devSupportManager.detachFromHost(rootWidget);
 
-    _engineContext?.bridgeManager.destroyInstance(rootWidget.id);
+    _engineContext?.bridgeManager.unloadInstance(rootWidget.id);
     var listeners = engineContext?.instanceLifecycleEventListener;
     listeners?.forEach((element) {
       element.onInstanceDestroy(rootWidget.id);

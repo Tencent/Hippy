@@ -33,13 +33,15 @@ class VoltronRenderBridgeManager implements Destroyable {
   final RenderOperatorRunner _operatorRunner;
 
   bool _isBridgeInit = false;
-
+  int _workerManagerId = 0;
+  int get workerId => _workerManagerId;
   static HashMap<int, VoltronRenderBridgeManager> bridgeMap = HashMap();
 
   VoltronRenderBridgeManager(
     this._engineId,
     this._context,
-  ) : _operatorRunner = RenderOperatorRunner(_context);
+  )   : _operatorRunner = RenderOperatorRunner(_context),
+        _workerManagerId = VoltronRenderApi.createWorkerManager();
 
   void init() {
     VoltronRenderApi.init();
@@ -47,29 +49,55 @@ class VoltronRenderBridgeManager implements Destroyable {
     bridgeMap[_engineId] = this;
   }
 
-  Future updateNodeSize(int instanceId,
+  int createDomInstance() {
+    if (_workerManagerId == 0) {
+      return 0;
+    }
+    return VoltronRenderApi.createDomInstance(_workerManagerId);
+  }
+
+  void destroyDomInstance(int domInstanceId) {
+    VoltronRenderApi.destroyDomInstance(domInstanceId);
+  }
+
+  void addRoot(int domInstanceId, int rootId) {
+    VoltronRenderApi.addRoot(domInstanceId, rootId);
+  }
+
+  void removeRoot(int domInstanceId, int rootId) {
+    VoltronRenderApi.removeRoot(domInstanceId, rootId);
+  }
+
+  int createNativeRenderManager() {
+    return VoltronRenderApi.createNativeRender();
+  }
+
+  Future destroyNativeRenderManager() async {
+    await VoltronRenderApi.destroyNativeRender(_context.renderManager.getNativeId());
+  }
+
+  Future updateNodeSize(int rootId,
       {int nodeId = 0, double width = 0, double height = 0}) async {
     if (!_isBridgeInit) {
       return false;
     }
     await VoltronRenderApi.updateNodeSize(
-      _engineId,
-      instanceId,
+      _context.renderManager.getNativeId(),
+      rootId,
       nodeId,
       width,
       height,
     );
   }
 
-  Future notifyDom() async {
+  Future notifyRender(int renderManagerId) async {
     if (!_isBridgeInit) {
       return;
     }
-    await VoltronRenderApi.notifyDom(_engineId);
+    await VoltronRenderApi.notifyRender(_engineId, renderManagerId);
   }
 
   Future<dynamic> callNativeFunction(
-    int rootId,
     String callbackId,
     Object params,
   ) async {
@@ -78,7 +106,7 @@ class VoltronRenderBridgeManager implements Destroyable {
     }
     VoltronRenderApi.callNativeFunction(
       _engineId,
-      rootId,
+      _context.renderManager.getNativeId(),
       callbackId,
       params,
       true,
@@ -86,7 +114,6 @@ class VoltronRenderBridgeManager implements Destroyable {
   }
 
   Future<dynamic> execNativeCallback(
-    int rootId,
     String callbackId,
     Object params,
   ) async {
@@ -100,7 +127,6 @@ class VoltronRenderBridgeManager implements Destroyable {
       convertParams = params.toList();
     }
     await callNativeFunction(
-      rootId,
       callbackId,
       convertParams,
     );
@@ -110,11 +136,15 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    await VoltronRenderApi.callNativeEvent(_engineId, rootId, id, event, params);
+    await VoltronRenderApi.callNativeEvent(_context.renderManager.getNativeId(), rootId, id, event, params);
   }
 
   @override
   void destroy() {
+    if (_workerManagerId != 0) {
+      VoltronRenderApi.destroyWorkerManager(_workerManagerId);
+      _workerManagerId = 0;
+    }
     _isBridgeInit = false;
     bridgeMap.remove(_engineId);
   }

@@ -250,15 +250,6 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::s
     }];
 }
 
-void BridgeImpl::BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager) {
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    auto scope = bridge.jscExecutor.pScope;
-    if (scope) {
-        scope->SetDomManager(dom_manager);
-        //dom_manager->SetDelegateTaskRunner(scope->GetTaskRunner());
-    }
-}
-
 std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
   VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
   return bridge.jscExecutor.pScope;

@@ -62,6 +62,7 @@ apply plugin: 'kotlin-android'
 android {
   compileSdkVersion 28
   ndkVersion "23.1.7779620"
+  publishNonDefault true
 
   defaultConfig {
     minSdkVersion 21

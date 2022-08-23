@@ -18,6 +18,8 @@
 // limitations under the License.
 //
 
+import 'package:path/path.dart';
+
 import '../render.dart';
 
 abstract class Promise {
@@ -36,11 +38,10 @@ abstract class Promise {
 
 class NativePromise extends Promise {
   bool keep = true;
-  final int _rootId;
   final RenderContext _context;
 
-  NativePromise(RenderContext context, {required String callId, required int rootId})
-      : _context = context, _rootId = rootId, super(callId);
+  NativePromise(RenderContext context, {required String callId})
+      : _context = context, super(callId);
 
   @override
   void resolve(Object? value) {
@@ -48,6 +49,6 @@ class NativePromise extends Promise {
       return;
     }
 
-    _context.bridgeManager.execNativeCallback(_rootId, _callId, value ?? 'unknown');
+    _context.bridgeManager.execNativeCallback(_callId, value ?? 'unknown');
   }
 }

@@ -32,20 +32,20 @@
 
 namespace voltron {
 
-VoltronRenderTaskRunner::~VoltronRenderTaskRunner() { queue_ = nullptr; }
-
-VoltronRenderTaskRunner::VoltronRenderTaskRunner(int32_t engine_id,
-                                                 int32_t root_id)
-    : engine_id_(engine_id), root_id_(root_id) {
-  queue_ = std::make_shared<VoltronRenderQueue>();
+VoltronRenderTaskRunner::~VoltronRenderTaskRunner() {
+  queue_map_.clear();
 }
 
-void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode> &node) {
+VoltronRenderTaskRunner::VoltronRenderTaskRunner(uint32_t id)
+    : render_manager_id_(id){
+}
+
+void VoltronRenderTaskRunner::RunCreateDomNode(uint32_t root_id, const Sp<DomNode> &node) {
   FOOTSTONE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId() << " pid"
                       << node->GetPid();
   auto view_name = node->GetViewName();
   if (view_name == "Text") {
-    SetNodeCustomMeasure(node);
+    SetNodeCustomMeasure(root_id, node);
   }
   auto args_map = EncodableMap();
   auto render_info = node->GetRenderInfo();
@@ -69,30 +69,30 @@ void VoltronRenderTaskRunner::RunCreateDomNode(const Sp<DomNode> &node) {
 
   auto create_task = std::make_shared<RenderTask>(VoltronRenderOpType::ADD_NODE,
                                                   node->GetId(), args_map);
-  queue_->ProduceRenderOp(create_task);
+  queue(root_id)->ProduceRenderOp(create_task);
 }
 
-void VoltronRenderTaskRunner::RunDeleteDomNode(const Sp<DomNode> &node) {
+void VoltronRenderTaskRunner::RunDeleteDomNode(uint32_t root_id, const Sp<DomNode> &node) {
   FOOTSTONE_DLOG(INFO) << "RunDeleteDomNode id" << node->GetId();
   auto delete_task = std::make_shared<RenderTask>(
       VoltronRenderOpType::DELETE_NODE, node->GetId());
-  queue_->ProduceRenderOp(delete_task);
+  queue(root_id)->ProduceRenderOp(delete_task);
 }
 
-void VoltronRenderTaskRunner::RunUpdateDomNode(const Sp<DomNode> &node) {
+void VoltronRenderTaskRunner::RunUpdateDomNode(uint32_t root_id, const Sp<DomNode> &node) {
   FOOTSTONE_DLOG(INFO) << "RunUpdateDomNode id" << node->GetId();
   auto args_map = EncodableMap();
   auto diff_style = node->GetDiffStyle();
   if (diff_style && !diff_style->empty()) {
-      args_map[EncodableValue(kPropsKey)] =
-              DecodeDomValueMap(*diff_style);
-      auto update_task = std::make_shared<RenderTask>(
-              VoltronRenderOpType::UPDATE_NODE, node->GetId(), args_map);
-      queue_->ProduceRenderOp(update_task);
+    args_map[EncodableValue(kPropsKey)] =
+        DecodeDomValueMap(*diff_style);
+    auto update_task = std::make_shared<RenderTask>(
+        VoltronRenderOpType::UPDATE_NODE, node->GetId(), args_map);
+    queue(root_id)->ProduceRenderOp(update_task);
   }
 }
 
-void VoltronRenderTaskRunner::RunUpdateLayout(const SpList<DomNode> &nodes) {
+void VoltronRenderTaskRunner::RunUpdateLayout(uint32_t root_id, const SpList<DomNode> &nodes) {
   if (!nodes.empty()) {
     auto args_map = EncodableMap();
     auto render_node_list = EncodableList();
@@ -122,12 +122,12 @@ void VoltronRenderTaskRunner::RunUpdateLayout(const SpList<DomNode> &nodes) {
           EncodableValue(std::move(render_node_list));
       auto update_task = std::make_shared<RenderTask>(
           VoltronRenderOpType::UPDATE_LAYOUT, 0, args_map);
-      queue_->ProduceRenderOp(update_task);
+      queue(root_id)->ProduceRenderOp(update_task);
     }
   }
 }
 
-void VoltronRenderTaskRunner::RunMoveDomNode(std::vector<int32_t> &&ids,
+void VoltronRenderTaskRunner::RunMoveDomNode(uint32_t root_id, std::vector<int32_t> &&ids,
                                              int32_t pid, int32_t id) {
   auto args_map = EncodableMap();
   if (!ids.empty()) {
@@ -140,26 +140,26 @@ void VoltronRenderTaskRunner::RunMoveDomNode(std::vector<int32_t> &&ids,
   args_map[EncodableValue(kMovePidKey)] = EncodableValue(pid);
   auto update_task = std::make_shared<RenderTask>(
       VoltronRenderOpType::MOVE_NODE, id, args_map);
-  queue_->ProduceRenderOp(update_task);
+  queue(root_id)->ProduceRenderOp(update_task);
 }
 
-void VoltronRenderTaskRunner::RunBatch() {
+void VoltronRenderTaskRunner::RunBatch(uint32_t root_id) {
   auto batch_task = std::make_shared<RenderTask>(VoltronRenderOpType::BATCH, 0);
-  queue_->ProduceRenderOp(batch_task);
-  ConsumeQueue();
+  queue(root_id)->ProduceRenderOp(batch_task);
+  ConsumeQueue(root_id);
 }
 
-void VoltronRenderTaskRunner::RunLayoutBefore() {
+void VoltronRenderTaskRunner::RunLayoutBefore(uint32_t root_id) {
   auto batch_task =
       std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_BEFORE, 0);
-  queue_->ProduceRenderOp(batch_task);
-  ConsumeQueue();
+  queue(root_id)->ProduceRenderOp(batch_task);
+  ConsumeQueue(root_id);
 }
 
-void VoltronRenderTaskRunner::RunLayoutFinish() {
+void VoltronRenderTaskRunner::RunLayoutFinish(uint32_t root_id) {
   auto batch_task =
       std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_FINISH, 0);
-  queue_->ProduceRenderOp(batch_task);
+  queue(root_id)->ProduceRenderOp(batch_task);
 }
 
 EncodableValue VoltronRenderTaskRunner::DecodeDomValue(const HippyValue &value) {
@@ -271,12 +271,11 @@ VoltronRenderTaskRunner::DecodeDomValueMap(const SpMap<HippyValue> &value_map) {
   return EncodableValue(std::move(encode_map));
 }
 
-void VoltronRenderTaskRunner::ConsumeQueue() {
+void VoltronRenderTaskRunner::ConsumeQueue(uint32_t root_id) {
   if (post_render_op_func) {
-    auto render_op_buffer = queue_->ConsumeRenderOp().release();
+    auto render_op_buffer = queue(root_id)->ConsumeRenderOp().release();
     if (render_op_buffer) {
       auto engine_id = engine_id_;
-      auto root_id = root_id_;
       const Work work = [engine_id, root_id, render_op_buffer]() {
         auto op_buffer =
             std::unique_ptr<std::vector<uint8_t>>(render_op_buffer);
@@ -292,7 +291,7 @@ void VoltronRenderTaskRunner::ConsumeQueue() {
   }
 }
 
-void VoltronRenderTaskRunner::RunCallFunction(
+void VoltronRenderTaskRunner::RunCallFunction(uint32_t root_id,
     const std::weak_ptr<DomNode> &dom_node, const std::string &name,
     const DomArgument &param, uint32_t cb_id) {
   auto node = dom_node.lock();
@@ -320,8 +319,8 @@ void VoltronRenderTaskRunner::RunCallFunction(
     args_map[EncodableValue(kFuncIdKey)] = EncodableValue(callback_id);
     auto update_task = std::make_shared<RenderTask>(
         VoltronRenderOpType::DISPATCH_UI_FUNC, node->GetId(), args_map);
-    queue_->ProduceRenderOp(update_task);
-    ConsumeQueue();
+    queue(root_id)->ProduceRenderOp(update_task);
+    ConsumeQueue(root_id);
   }
 }
 
@@ -343,20 +342,17 @@ void VoltronRenderTaskRunner::RunCallEvent(
   }
 }
 
-void VoltronRenderTaskRunner::RunAddEventListener(const int32_t &node_id,
+void VoltronRenderTaskRunner::RunAddEventListener(uint32_t root_id, const uint32_t &node_id,
                                                   const String &event_name) {
-  auto bridge_manager = BridgeManager::Find(engine_id_);
-  if (bridge_manager) {
-    auto args_map = EncodableMap();
-    args_map[EncodableValue(kFuncNameKey)] = event_name;
+  auto args_map = EncodableMap();
+  args_map[EncodableValue(kFuncNameKey)] = event_name;
 
-    auto update_task = std::make_shared<RenderTask>(
-        VoltronRenderOpType::ADD_EVENT, node_id, args_map);
-    queue_->ProduceRenderOp(update_task);
-  }
+  auto update_task = std::make_shared<RenderTask>(
+      VoltronRenderOpType::ADD_EVENT, node_id, args_map);
+  queue(root_id)->ProduceRenderOp(update_task);
 }
 
-void VoltronRenderTaskRunner::RunRemoveEventListener(const int32_t &node_id,
+void VoltronRenderTaskRunner::RunRemoveEventListener(uint32_t root_id, const uint32_t &node_id,
                                                      const String &event_name) {
   auto bridge_manager = BridgeManager::Find(engine_id_);
   if (bridge_manager) {
@@ -364,16 +360,15 @@ void VoltronRenderTaskRunner::RunRemoveEventListener(const int32_t &node_id,
     args_map[EncodableValue(kFuncNameKey)] = event_name;
     auto update_task = std::make_shared<RenderTask>(
         VoltronRenderOpType::REMOVE_EVENT, node_id, args_map);
-    queue_->ProduceRenderOp(update_task);
+    queue(root_id)->ProduceRenderOp(update_task);
   }
 }
 
-void VoltronRenderTaskRunner::SetNodeCustomMeasure(
+void VoltronRenderTaskRunner::SetNodeCustomMeasure(uint32_t root_id,
     const Sp<DomNode> &dom_node) const {
   if (dom_node) {
     auto layout_node = dom_node->GetLayoutNode();
     if (layout_node) {
-      auto root_id = root_id_;
       auto engine_id = engine_id_;
       auto node_id = dom_node->GetId();
       layout_node->SetMeasureFunction(
@@ -382,7 +377,7 @@ void VoltronRenderTaskRunner::SetNodeCustomMeasure(
               LayoutMeasureMode heightMeasureMode, void *layoutContext) {
             auto bridge_manager = BridgeManager::Find(engine_id);
             if (bridge_manager) {
-              auto runtime = bridge_manager->GetRuntime().lock();
+              auto runtime = bridge_manager->GetRuntime();
               if (runtime) {
                 auto measure_result = runtime->CalculateNodeLayout(
                     root_id, node_id, width, widthMeasureMode, height,
@@ -398,12 +393,40 @@ void VoltronRenderTaskRunner::SetNodeCustomMeasure(
   }
 }
 
-Sp<DomManager> VoltronRenderTaskRunner::GetDomManager() const {
-  auto bridge_manager = BridgeManager::Find(engine_id_);
-  if (bridge_manager) {
-    return bridge_manager->GetDomManager(root_id_);
+Sp<DomManager> VoltronRenderTaskRunner::GetDomManager() {
+  return dom_manager_.lock();
+}
+
+void VoltronRenderTaskRunner::SetDomManager(const Sp<DomManager>& dom_manager) {
+  dom_manager_ = dom_manager;
+}
+
+Sp<VoltronRenderQueue> VoltronRenderTaskRunner::queue(uint32_t root_id) {
+  auto queue_iter = queue_map_.find(root_id);
+  if (queue_iter != queue_map_.end()) {
+    return queue_iter->second;
+  } else {
+    auto queue = std::make_shared<VoltronRenderQueue>();
+    queue_map_.emplace(root_id, queue);
+    return queue;
   }
-  return nullptr;
+}
+
+void VoltronRenderTaskRunner::Lock(uint32_t root_id) {
+  auto queue_iter = queue_map_.find(root_id);
+  if (queue_iter != queue_map_.end()) {
+    queue_iter->second->Lock();
+  }
+}
+
+void VoltronRenderTaskRunner::UnlockAll() {
+  auto end = queue_map_.rbegin();
+  auto begin = queue_map_.rend();
+  while (end != begin) {
+    auto queue = end->second;
+    queue->Unlock();
+    end++;
+  }
 }
 
 } // namespace voltron

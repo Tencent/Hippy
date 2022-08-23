@@ -159,6 +159,13 @@ class EngineContext implements Destroyable {
     }
   }
 
+  void onRuntimeInitialized(int runtimeId) {
+    _bridgeManager.bindDomAndRender(
+        domInstanceId: renderContext.domId,
+        engineId: _id,
+        renderManagerId: renderContext.renderId);
+  }
+
   int get engineId => _id;
 
   void destroyBridge(DestoryBridgeCallback<bool> callback, bool isReload) {

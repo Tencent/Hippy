@@ -54,8 +54,6 @@ class BridgeImpl {
   static void CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
                              std::function<void(int64_t)> callback);
 
-  static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
-
   static void LoadInstance(int64_t runtime_id, std::string&& params);
   static void UnLoadInstance(int64_t runtime_id, std::string&& params);
 

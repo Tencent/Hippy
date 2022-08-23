@@ -30,8 +30,6 @@ enum FFIRegisterFuncType {
   kCallNative = 3,
   kReportJsonException,
   kReportJsException,
-  kSendResponse,
-  kSendNotification,
   kDestroy
 };
 

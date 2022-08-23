@@ -62,7 +62,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
                                  const std::function<void(int64_t)> &callback,
                                  const char16_t *char_data_dir,
                                  const char16_t *char_ws_url) {
-  FOOTSTONE_LOG(INFO) << "InitInstance begin, single_thread_mode = "
+  FOOTSTONE_LOG(INFO) << "LoadInstance begin, single_thread_mode = "
                       << single_thread_mode
                       << ", bridge_param_json = "
                       << bridge_param_json
@@ -267,18 +267,6 @@ void BridgeImpl::Destroy(int64_t runtimeId,
                          const std::function<void(int64_t)> &callback, bool is_reload) {
   V8BridgeUtils::DestroyInstance(runtimeId, [](bool ret) {}, is_reload);
   callback(1);
-}
-
-void BridgeImpl::BindDomManager(int64_t runtime_id,
-                                const std::shared_ptr<DomManager> &dom_manager) {
-  std::shared_ptr<Runtime>
-      runtime = Runtime::Find(footstone::check::checked_numeric_cast<int64_t, int32_t>(runtime_id));
-  if (!runtime) {
-    FOOTSTONE_DLOG(WARNING) << "Bind dom Manager failed, runtime_id invalid";
-    return;
-  }
-  runtime->GetScope()->SetDomManager(dom_manager);
-//  dom_manager->SetDelegateTaskRunner(runtime->GetScope()->GetTaskRunner());
 }
 
 void BridgeImpl::LoadInstance(int64_t runtime_id,

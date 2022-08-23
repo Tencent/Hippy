@@ -30,14 +30,14 @@
 namespace voltron {
 class RenderTask {
 public:
-  RenderTask(VoltronRenderOpType type, int32_t node_id);
-  RenderTask(VoltronRenderOpType type, int32_t node_id, EncodableMap args);
+  RenderTask(VoltronRenderOpType type, uint32_t node_id);
+  RenderTask(VoltronRenderOpType type, uint32_t node_id, EncodableMap args);
 
   EncodableValue Encode();
 
 private:
   VoltronRenderOpType type_;
-  int32_t node_id_;
+  uint32_t node_id_;
   EncodableMap args_;
 };
 } // namespace voltron

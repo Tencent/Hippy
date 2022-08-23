@@ -72,8 +72,6 @@ class BridgeImpl {
 
   static void UnloadInstance(int64_t runtime_id, byte_string&& buffer_data);
 
-  static void BindDomManager(int64_t runtime_id, const std::shared_ptr<DomManager>& dom_manager);
-
   static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
 };
 

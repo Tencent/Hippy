@@ -176,6 +176,12 @@ class RootWidgetViewModel extends ChangeNotifier {
     }
   }
 
+  void updateRootSize() {
+    var rootSize = Size.zero;
+    rootSize = getSizeFromKey(rootKey);
+    _context?.bridgeManager.updateNodeSize(id, width: rootSize.width, height: rootSize.height);
+  }
+
   void onGlobalLayout() {
     var uiContext = currentContext;
     if (_loadCompleted) {

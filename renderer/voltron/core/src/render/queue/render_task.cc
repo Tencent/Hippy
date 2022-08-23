@@ -27,9 +27,9 @@
 
 namespace voltron {
 
-RenderTask::RenderTask(VoltronRenderOpType type, int32_t node_id) : type_(type), node_id_(node_id) {}
+RenderTask::RenderTask(VoltronRenderOpType type, uint32_t node_id) : type_(type), node_id_(node_id) {}
 
-RenderTask::RenderTask(VoltronRenderOpType type, int32_t node_id, EncodableMap args)
+RenderTask::RenderTask(VoltronRenderOpType type, uint32_t node_id, EncodableMap args)
     : type_(type), node_id_(node_id), args_(std::move(args)) {}
 
 EncodableValue RenderTask::Encode() {

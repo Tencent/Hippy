@@ -149,7 +149,8 @@ class _AddNodeOpTask extends _NodeOpTask {
       var width = ScreenUtil.getInstance().screenWidth;
       var height = ScreenUtil.getInstance().screenHeight;
       if (width > 0 && height > 0) {
-        bridgeManager.updateNodeSize(_instanceId, nodeId: _nodeId, width: width, height: height);
+        bridgeManager.updateNodeSize(_instanceId,
+            nodeId: _nodeId, width: width, height: height);
       }
     }
   }
@@ -295,7 +296,7 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
       Uint8List funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? [];
       var realParams = funcParams.decodeType<VoltronArray>() ?? VoltronArray();
       String callbackId = _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
-      var promise = NativePromise(_renderContext, callId: callbackId, rootId: _instanceId);
+      var promise = NativePromise(_renderContext, callId: callbackId);
       renderManager.addNulUITask(() {
         renderManager.dispatchUIFunction(_instanceId, _nodeId, funcName, realParams, promise);
       });

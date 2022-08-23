@@ -24,24 +24,23 @@
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 #include "dom/layout_node.h"
-#include "dom/dom_node.h"
+#include "dom/root_node.h"
 #include "render/ffi/common_header.h"
 #include "render_task_runner.h"
-
 
 namespace voltron {
 
 constexpr char kEnableScale[] = "enableScale";
 
 class VoltronRenderManager : public hippy::RenderManager,
-                             private VoltronRenderTaskRunner {
+                             public VoltronRenderTaskRunner {
  public:
   using LayoutNode = hippy::LayoutNode;
   using DomArgument = hippy::DomArgument;
-  using RootNode = hippy::dom::RootNode;
+  using RootNode = hippy::RootNode;
   using HippyValue = footstone::value::HippyValue;
 
-  explicit VoltronRenderManager(int32_t root_id, int32_t engine_id);
+  explicit VoltronRenderManager(uint32_t id);
   ~VoltronRenderManager() override;
   void CreateRenderNode(std::weak_ptr<RootNode> root_node,
                         std::vector<std::shared_ptr<DomNode>> &&nodes) override;
@@ -72,8 +71,6 @@ class VoltronRenderManager : public hippy::RenderManager,
                  const std::unique_ptr<EncodableValue> &params);
   void Notify();
 
-  int32_t GetRootId() const { return root_id_; }
-
  private:
   void MarkTextDirty(const std::weak_ptr<RootNode> &root_node, uint32_t node_id);
   static void MarkDirtyProperty(std::shared_ptr<std::unordered_map<std::string,
@@ -81,11 +78,6 @@ class VoltronRenderManager : public hippy::RenderManager,
                                 const char *prop_name,
                                 std::shared_ptr<LayoutNode> layout_node);
 
-  int32_t root_id_;
-
-  std::mutex mutex_;
-  std::condition_variable cv_;
-  bool notified_ = false;
 };
 
 } // namespace voltron
