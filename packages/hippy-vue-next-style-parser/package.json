@@ -1,9 +1,9 @@
 {
   "name": "@hippy/hippy-vue-next-style-parser",
-  "version": "2.2.1",
-  "description": "> TODO: description",
-  "author": "mitnickliu <mitnickliu@tencent.com>",
-  "homepage": "http://hippyjs.org",
+  "version": "unspecified",
+  "description": "A css subset parser for hippy-vue-next",
+  "author": "OpenHippy Team",
+  "homepage": "https://hippyjs.org",
   "license": "Apache-2.0",
   "main": "dist/index.js",
   "keywords": [
@@ -16,7 +16,7 @@
     "dist/index.d.ts",
     "README.md"
   ],
-  "repository": "https://github.com/Tencent/Hippy/tree/master/packages/hippy-vue-next-style-parser",
+  "repository": "https://github.com/Tencent/Hippy",
   "bugs": {
     "url": "https://github.com/Tencent/Hippy/issues"
   },

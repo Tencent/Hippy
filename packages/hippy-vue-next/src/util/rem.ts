@@ -45,7 +45,7 @@ export function parseRemStyle(styleValue: NeedToTyped): NeedToTyped {
   // base screen width
   const { ratioBaseWidth } = getHippyCachedInstance();
   // calculate ratio
-  const { width } = Native.dimensions.screen;
+  const { width } = Native.Dimensions.screen;
   const ratio = width / ratioBaseWidth;
 
   return value * 100 * ratio;

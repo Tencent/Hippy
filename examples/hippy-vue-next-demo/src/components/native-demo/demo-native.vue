@@ -10,11 +10,11 @@
       </div>
       <!-- platform -->
       <div
-        v-if="Native.platform"
+        v-if="Native.Platform"
         class="native-block"
       >
-        <label class="vue-native-title">Native.platform</label>
-        <p>{{ Native.platform }}</p>
+        <label class="vue-native-title">Native.Platform</label>
+        <p>{{ Native.Platform }}</p>
       </div>
 
       <div class="native-block">
@@ -29,8 +29,8 @@
 
       <!-- device name -->
       <div class="native-block">
-        <label class="vue-native-title">Native.device</label>
-        <p>{{ Native.device }}</p>
+        <label class="vue-native-title">Native.Device</label>
+        <p>{{ Native.Device }}</p>
       </div>
 
       <!-- Is it an iPhone X -->
@@ -38,8 +38,8 @@
         v-if="Native.isIOS()"
         class="native-block"
       >
-        <label class="vue-native-title">Native.isIphoneX</label>
-        <p>{{ Native.isIphoneX }}</p>
+        <label class="vue-native-title">Native.isIPhoneX</label>
+        <p>{{ Native.isIPhoneX }}</p>
       </div>
 
       <!-- OS version, currently only available for iOS, other platforms return null -->
@@ -47,18 +47,18 @@
         v-if="Native.isIOS()"
         class="native-block"
       >
-        <label class="vue-native-title">Native.osVersion</label>
-        <p>{{ Native.osVersion || 'null' }}</p>
+        <label class="vue-native-title">Native.OSVersion</label>
+        <p>{{ Native.OSVersion || 'null' }}</p>
       </div>
 
       <!-- Internationalization related information -->
       <div class="native-block">
-        <label class="vue-native-title">Native.localization</label>
+        <label class="vue-native-title">Native.Localization</label>
         <p>{{ `国际化相关信息` }}</p>
-        <p>{{ `国家 ${Native.localization?.country}` }}</p>
-        <p>{{ `语言 ${Native.localization?.language}` }}</p>
+        <p>{{ `国家 ${Native.Localization?.country}` }}</p>
+        <p>{{ `语言 ${Native.Localization?.language}` }}</p>
         <p>
-          {{ `方向 ${Native.localization.direction === 1 ? 'RTL' : 'LTR'}` }}
+          {{ `方向 ${Native.Localization.direction === 1 ? 'RTL' : 'LTR'}` }}
         </p>
       </div>
 
@@ -67,93 +67,93 @@
         v-if="Native.isAndroid()"
         class="native-block"
       >
-        <label class="vue-native-title">Native.apiLevel</label>
-        <p>{{ Native.apiLevel || 'null' }}</p>
+        <label class="vue-native-title">Native.APILevel</label>
+        <p>{{ Native.APILevel || 'null' }}</p>
       </div>
 
       <!-- Whether the screen is vertically displayed -->
       <div class="native-block">
-        <label class="vue-native-title">Native.isVerticalScreen</label>
-        <p>{{ Native.isVerticalScreen }}</p>
+        <label class="vue-native-title">Native.screenIsVertical</label>
+        <p>{{ Native.screenIsVertical }}</p>
       </div>
 
       <!-- width of window -->
       <div
-        v-if="Native.dimensions.window.width"
+        v-if="Native.Dimensions.window.width"
         class="native-block"
       >
-        <label class="vue-native-title">Native.dimensions.window.width</label>
-        <p>{{ Native.dimensions.window.width }}</p>
+        <label class="vue-native-title">Native.Dimensions.window.width</label>
+        <p>{{ Native.Dimensions.window.width }}</p>
       </div>
 
       <!-- The height of the window, it should be noted that both platforms include the status bar. -->
       <!-- Android will start drawing from the first pixel below the status bar. -->
       <div
-        v-if="Native.dimensions.window.height"
+        v-if="Native.Dimensions.window.height"
         class="native-block"
       >
-        <label class="vue-native-title">Native.dimensions.window.height</label>
-        <p>{{ Native.dimensions.window.height }}</p>
+        <label class="vue-native-title">Native.Dimensions.window.height</label>
+        <p>{{ Native.Dimensions.window.height }}</p>
       </div>
 
       <!-- width of screen -->
       <div
-        v-if="Native.dimensions.screen.width"
+        v-if="Native.Dimensions.screen.width"
         class="native-block"
       >
-        <label class="vue-native-title">Native.dimensions.screen.width</label>
-        <p>{{ Native.dimensions.screen.width }}</p>
+        <label class="vue-native-title">Native.Dimensions.screen.width</label>
+        <p>{{ Native.Dimensions.screen.width }}</p>
       </div>
 
       <!-- height of screen -->
       <div
-        v-if="Native.dimensions.screen.height"
+        v-if="Native.Dimensions.screen.height"
         class="native-block"
       >
-        <label class="vue-native-title">Native.dimensions.screen.height</label>
-        <p>{{ Native.dimensions.screen.height }}</p>
+        <label class="vue-native-title">Native.Dimensions.screen.height</label>
+        <p>{{ Native.Dimensions.screen.height }}</p>
       </div>
 
       <!-- the pt value of a pixel -->
       <div class="native-block">
-        <label class="vue-native-title">Native.onePixel</label>
-        <p>{{ Native.onePixel }}</p>
+        <label class="vue-native-title">Native.OnePixel</label>
+        <p>{{ Native.OnePixel }}</p>
       </div>
 
       <!-- Android Navigation Bar Height -->
       <div
-        v-if="Native.dimensions.screen.navigatorBarHeight"
+        v-if="Native.Dimensions.screen.navigatorBarHeight"
         class="native-block"
       >
         <label
           class="vue-native-title"
-        >Native.dimensions.screen.navigatorBarHeight</label>
-        <p>{{ Native.dimensions.screen.navigatorBarHeight }}</p>
+        >Native.Dimensions.screen.navigatorBarHeight</label>
+        <p>{{ Native.Dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
       <!-- height of status bar -->
       <div
-        v-if="Native.dimensions.screen.statusBarHeight"
+        v-if="Native.Dimensions.screen.statusBarHeight"
         class="native-block"
       >
         <label
           class="vue-native-title"
-        >Native.dimensions.screen.statusBarHeight</label>
-        <p>{{ Native.dimensions.screen.statusBarHeight }}</p>
+        >Native.Dimensions.screen.statusBarHeight</label>
+        <p>{{ Native.Dimensions.screen.statusBarHeight }}</p>
       </div>
 
       <!-- android virtual navigation bar height -->
       <div
         v-if="
           Native.isAndroid() &&
-            Native.dimensions.screen.navigatorBarHeight !== undefined
+            Native.Dimensions.screen.navigatorBarHeight !== undefined
         "
         class="native-block"
       >
         <label
           class="vue-native-title"
-        >Native.dimensions.screen.navigatorBarHeight(Android only)</label>
-        <p>{{ Native.dimensions.screen.navigatorBarHeight }}</p>
+        >Native.Dimensions.screen.navigatorBarHeight(Android only)</label>
+        <p>{{ Native.Dimensions.screen.navigatorBarHeight }}</p>
       </div>
 
       <!-- The startup parameters passed from the native -->
@@ -178,7 +178,7 @@
 
       <!-- local storage -->
       <div
-        v-if="Native.asyncStorage"
+        v-if="Native.AsyncStorage"
         class="native-block"
       >
         <label class="vue-native-title">AsyncStorage 使用</label>
@@ -213,7 +213,7 @@
 
       <!-- ImageLoader -->
       <div
-        v-if="Native.imageLoader"
+        v-if="Native.ImageLoader"
         class="native-block"
       >
         <label class="vue-native-title">ImageLoader 使用</label>
@@ -238,7 +238,7 @@
 
       <!-- network info -->
       <div
-        v-if="Native.network"
+        v-if="Native.NetInfo"
         class="native-block"
       >
         <label class="vue-native-title">NetInfo 使用</label>
@@ -249,7 +249,7 @@
 
       <!-- Cookie -->
       <div
-        v-if="Native.cookie"
+        v-if="Native.Cookie"
         class="native-block"
       >
         <label class="vue-native-title">Cookie 使用</label>
@@ -274,7 +274,7 @@
       </div>
       <!-- Clipboard -->
       <div
-        v-if="Native.clipboard"
+        v-if="Native.Clipboard"
         class="native-block"
       >
         <label class="vue-native-title">Clipboard 使用</label>
@@ -329,7 +329,7 @@ export default defineComponent({
        * set local storage
        */
     const setItem = () => {
-      Native.asyncStorage.setItem('itemKey', 'hippy');
+      Native.AsyncStorage.setItem('itemKey', 'hippy');
       storageSetStatus.value = 'set "hippy" value succeed';
     };
 
@@ -337,7 +337,7 @@ export default defineComponent({
        * remove local storage
        */
     const removeItem = () => {
-      Native.asyncStorage.removeItem('itemKey');
+      Native.AsyncStorage.removeItem('itemKey');
       storageSetStatus.value = 'remove "hippy" value succeed';
     };
 
@@ -345,7 +345,7 @@ export default defineComponent({
        * get local storage
        */
     const getItem = async () => {
-      const cacheValue = await Native.asyncStorage.getItem('itemKey');
+      const cacheValue = await Native.AsyncStorage.getItem('itemKey');
       if (cacheValue) {
         storageValue.value = cacheValue;
       } else {
@@ -357,17 +357,17 @@ export default defineComponent({
        * gei size of image
        */
     const getSize = async () => {
-      const result = await Native.imageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
+      const result = await Native.ImageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
       warn('ImageLoader getSize', result);
       imageSize.value = `${result.width}x${result.height}`;
     };
 
     const setCookie = () => {
-      Native.cookie.set('https://hippyjs.org', 'name=hippy;network=mobile');
+      Native.Cookie.set('https://hippyjs.org', 'name=hippy;network=mobile');
       cookieString.value = '\'name=hippy;network=mobile\' is set';
     };
     const getCookie = () => {
-      Native.cookie.getAll('https://hippyjs.org').then((cookies) => {
+      Native.Cookie.getAll('https://hippyjs.org').then((cookies) => {
         cookiesValue.value = cookies;
       });
     };
@@ -376,7 +376,7 @@ export default defineComponent({
        * set content to clipboard
        */
     const setString = () => {
-      Native.clipboard.setString('hippy');
+      Native.Clipboard.setString('hippy');
       clipboardString.value = 'clipboard set "hippy" value succeed';
     };
 
@@ -384,7 +384,7 @@ export default defineComponent({
        * get content of clipboard
        */
     const getString = async () => {
-      const value = await Native.clipboard.getString();
+      const value = await Native.Clipboard.getString();
       if (value) {
         clipboardValue.value = value;
       } else {
@@ -408,10 +408,10 @@ export default defineComponent({
     onMounted(() => {
       superProps.value = JSON.stringify(getGlobalInitProps());
 
-      Native.netInfo.fetch().then((netInfo) => {
+      Native.NetInfo.fetch().then((netInfo) => {
         netInfoText.value = netInfo;
       });
-      networkListener = Native.netInfo.addEventListener('change', (info) => {
+      networkListener = Native.NetInfo.addEventListener('change', (info) => {
         netInfoText.value = `收到通知: ${info.network_info}`;
       });
 
@@ -453,7 +453,7 @@ export default defineComponent({
   },
   beforeDestroy() {
     if (networkListener) {
-      Native.netInfo.removeEventListener('change', networkListener);
+      Native.NetInfo.removeEventListener('change', networkListener);
     }
   },
 });

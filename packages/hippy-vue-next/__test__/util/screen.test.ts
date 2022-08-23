@@ -31,23 +31,23 @@ import { Native } from '../../src/runtime/native';
  */
 describe('src/util/i18n', () => {
   it('setScreenSize should work correct', () => {
-    expect(Native.dimensions.screen.width).toEqual(375);
-    expect(Native.dimensions.screen.height).toEqual(667);
+    expect(Native.Dimensions.screen.width).toEqual(375);
+    expect(Native.Dimensions.screen.height).toEqual(667);
 
     setScreenSize({
       width: 100,
       height: 0,
     });
 
-    expect(Native.dimensions.screen.width).toEqual(375);
-    expect(Native.dimensions.screen.height).toEqual(667);
+    expect(Native.Dimensions.screen.width).toEqual(375);
+    expect(Native.Dimensions.screen.height).toEqual(667);
 
     setScreenSize({
       width: 100,
       height: 100,
     });
 
-    expect(Native.dimensions.screen.width).toEqual(100);
-    expect(Native.dimensions.screen.height).toEqual(100);
+    expect(Native.Dimensions.screen.width).toEqual(100);
+    expect(Native.Dimensions.screen.height).toEqual(100);
   });
 });

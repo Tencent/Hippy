@@ -351,7 +351,7 @@ const input: TagComponent = {
       case 'onKeyboardWillShow':
         event.keyboardHeight = nativeEventParams.keyboardHeight;
         if (Native.isAndroid() && event.keyboardHeight) {
-          event.keyboardHeight /= Native.pixelRatio;
+          event.keyboardHeight /= Native.PixelRatio;
         }
         break;
       case 'onContentSizeChange':

@@ -1,56 +1,62 @@
 <template>
-  <div class="wrapper">
-    <ul class="feature-list">
-      <li>
-        <div id="version-info">
-          <p class="feature-title">
-            Vue版本: 3.2.21
-          </p>
-        </div>
-      </li>
-      <li>
+  <ul class="feature-list">
+    <li>
+      <div
+        v-show="isShowDemoWrap"
+        id="version-info"
+      >
+        <p class="feature-title">
+          Vue: {{ version }}
+        </p>
         <p
           class="feature-title"
-          @click.stop="onClickDemoTitle"
         >
-          组件 Demos
+          Hippy-Vue-Next: {{ Native.version !== 'unspecified' ? Native.version : 'master' }}
         </p>
-      </li>
-      <li
-        v-for="feature in featureList"
-        v-show="isShowDemoWrap"
-        :key="feature.id"
-        class="feature-item"
+      </div>
+    </li>
+    <li>
+      <p
+        class="feature-title"
+        @click.stop="onClickDemoTitle"
       >
-        <router-link
-          :to="{ path: `/demo/${feature.id}` }"
-          class="button"
-        >
-          {{ feature.name }}
-        </router-link>
-      </li>
-      <li>
-        <p class="feature-title">
-          Native组件 Demos
-        </p>
-      </li>
-      <li
-        v-for="feature in nativeFeatureList"
-        :key="feature.id"
-        class="feature-item"
+        浏览器组件 Demos
+      </p>
+    </li>
+    <li
+      v-for="feature in featureList"
+      :key="feature.id"
+      class="feature-item"
+    >
+      <router-link
+        :to="{ path: `/demo/${feature.id}` }"
+        class="button"
       >
-        <router-link
-          :to="{ path: `/demo/${feature.id}` }"
-          class="button"
-        >
-          {{ feature.name }}
-        </router-link>
-      </li>
-    </ul>
-  </div>
+        {{ feature.name }}
+      </router-link>
+    </li>
+    <li>
+      <p class="feature-title">
+        Native组件 Demos
+      </p>
+    </li>
+    <li
+      v-for="feature in nativeFeatureList"
+      :key="feature.id"
+      class="feature-item"
+    >
+      <router-link
+        :to="{ path: `/demo/${feature.id}` }"
+        class="button"
+      >
+        {{ feature.name }}
+      </router-link>
+    </li>
+  </ul>
 </template>
 <script lang="ts">
-import { toRaw, defineComponent, ref, onMounted } from '@vue/runtime-core';
+import { toRaw, defineComponent, ref, onMounted, version } from '@vue/runtime-core';
+import { Native } from '@hippy/vue-next';
 
 import Demos from '../components/demo';
 import NativeDemos from '../components/native-demo';
@@ -101,20 +107,13 @@ export default defineComponent({
       isShowDemoWrap,
       nativeFeatureList,
       onClickDemoTitle,
+      version,
+      Native,
     };
   },
 });
 </script>
 <style>
-  .wrapper {
-    flex: 1;
-  }
-
-  .wrapper p,
-  span {
-    font-size: 24px;
-  }
-
   .feature-list {
     display: flex;
     flex: 1;

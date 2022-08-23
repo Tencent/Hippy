@@ -31,7 +31,7 @@
             </p>
             <button
               class="dialog-demo-button-2"
-              @click="clickOpenSecond"
+              @click.stop="clickOpenSecond"
             >
               <span class="button-text">点击打开二级全屏弹窗</span>
             </button>
@@ -44,7 +44,7 @@
           >
             <div
               class="dialog-2-demo-wrapper center column row"
-              @click="clickOpenSecond"
+              @click.stop="clickOpenSecond"
             >
               <p
                 class="dialog-demo-close-btn-text"

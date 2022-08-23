@@ -38,10 +38,10 @@ export function drawIphoneStatusBar(appOptions: HippyAppOptions): HippyElement |
     return null;
   }
   const statusBar = new HippyElement('div');
-  const { statusBarHeight } = Native.dimensions.screen;
+  const { statusBarHeight } = Native.Dimensions.screen;
 
   // Initialize the iOS status bar
-  if (Native.isVerticalScreen) {
+  if (Native.screenIsVertical) {
     statusBar.setStyle('height', statusBarHeight);
   } else {
     statusBar.setStyle('height', 0);
@@ -58,7 +58,7 @@ export function drawIphoneStatusBar(appOptions: HippyAppOptions): HippyElement |
   // Set safe area background image if defined
   if (typeof statusBarOpts.backgroundImage === 'string') {
     const statusBarImage = new HippyElement('img');
-    statusBarImage.setStyle('width', Native.dimensions.screen.width);
+    statusBarImage.setStyle('width', Native.Dimensions.screen.width);
     statusBarImage.setStyle('height', statusBarHeight);
     statusBarImage.setAttribute(
       'src',
@@ -69,7 +69,7 @@ export function drawIphoneStatusBar(appOptions: HippyAppOptions): HippyElement |
 
   // Listen the screen rotate event
   statusBar.addEventListener('layout', () => {
-    if (Native.isVerticalScreen) {
+    if (Native.screenIsVertical) {
       statusBar.setStyle('height', statusBarHeight);
     } else {
       statusBar.setStyle('height', 0);

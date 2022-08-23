@@ -521,7 +521,7 @@ export class HippyElement extends HippyNode {
           // Convert inline color style to int
           if (styleProperty.toLowerCase().indexOf('color') >= 0) {
             styleValue = translateColor(styleValue, {
-              platform: Native.platform,
+              platform: Native.Platform,
             });
             // Convert inline length style, drop the px unit
           } else if (styleValue.endsWith('px')) {

@@ -159,7 +159,7 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     // pre cache node
     preCacheNode(listItemElement, listItemElement.nodeId);
     // android will convert disappear to disAppear
-    Native.platform = 'android';
+    Native.Platform = 'android';
     const listCb = () => {
       sign = 5;
     };
@@ -173,7 +173,7 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     expect(sign).toEqual(5);
     listItemElement.removeEventListener('disappear', listCb);
     // ios still use disappear
-    Native.platform = 'ios';
+    Native.Platform = 'ios';
     listItemElement.addEventListener('disappear', listCb);
     disappearEvent = [
       listItemElement.nodeId,

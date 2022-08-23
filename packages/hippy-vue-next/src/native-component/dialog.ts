@@ -29,6 +29,10 @@ export function registerDialog(): void {
     defaultNativeProps: {
       transparent: true,
       immersionStatusBar: true,
+      collapsable: false,
+    },
+    defaultNativeStyle: {
+      position: 'absolute',
     },
   });
 }

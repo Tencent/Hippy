@@ -70,6 +70,10 @@ const HIPPY_GLOBAL_STYLE_NAME = '__HIPPY_VUE_STYLES__';
   */
 const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
 
+// hippy vue next package version
+// eslint-disable-next-line
+const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
+
 /**
   * @public
   */
@@ -89,6 +93,7 @@ export {
   IS_PROD,
   HIPPY_GLOBAL_STYLE_NAME,
   HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
+  HIPPY_VUE_VERSION,
   type CallbackType,
   type CommonMapParams,
   type NeedToTyped,

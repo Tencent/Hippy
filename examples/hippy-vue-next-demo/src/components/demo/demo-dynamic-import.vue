@@ -13,7 +13,6 @@
       <AsyncComponentFromLocal />
       <AsyncComponentFromHttp />
     </div>
-    <router-view class="feature-content" />
   </div>
 </template>
 
@@ -69,34 +68,30 @@ export default defineComponent({
 </script>
 
 <style>
-  #demo-dynamicimport {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    background-color: white;
-  }
-  .import-btn {
-    margin-top: 20px;
-    width: 130px;
-    height: 40px;
-    text-align: center;
-    background-color: #40b883;
-    flex-direction: row;
-    border-radius: 5px;
-    justify-content: center;
-  }
-  .import-btn p {
-    color: black;
-    text-align: center;
-    height: 40px;
-    line-height: 40px;
-  }
-  .async-com-wrapper {
-    margintop: 20px;
-  }
-
-  .feature-content {
-    background-color: #fff;
-  }
+#demo-dynamicimport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  background-color: white;
+}
+.import-btn {
+  margin-top: 20px;
+  width: 130px;
+  height: 40px;
+  text-align: center;
+  background-color: #40b883;
+  flex-direction: row;
+  border-radius: 5px;
+  justify-content: center;
+}
+.import-btn p{
+  color: black;
+  text-align: center;
+  height: 40px;
+  line-height: 40px;
+}
+.async-com-wrapper {
+  margin-top: 20px
+}
 </style>

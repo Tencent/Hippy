@@ -123,7 +123,7 @@ export default defineComponent({
     const waterfallRef = ref(null);
     const headerRef = ref(null);
     const itemWidth = computed(() => {
-      const screenWidth = Native.dimensions.screen.width;
+      const screenWidth = Native.Dimensions.screen.width;
       const width = screenWidth - contentInset.left - contentInset.right;
       return (
         (width - (numberOfColumns - 1) * columnSpacing) / numberOfColumns

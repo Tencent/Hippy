@@ -396,7 +396,7 @@ describe('built-in-component', () => {
       });
 
       let keyboardHeight = 0;
-      Native.platform = 'android';
+      Native.Platform = 'android';
       inputElement.addEventListener('keyboardWillShow', (event) => {
         keyboardHeight = event.keyboardHeight;
       });

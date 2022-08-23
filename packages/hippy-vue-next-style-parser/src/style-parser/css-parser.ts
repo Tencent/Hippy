@@ -240,7 +240,7 @@ function convertToDegree(value: string, unit = DEGREE_UNIT.DEG): string {
  */
 function getLinearGradientAngle(value: string): string {
   const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-  const reg = /^([+-]?\d{1,5}\.?\d{0,3})+(deg|turn|rad)|(to\w+)$/g;
+  const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return '';
   // default direction is to bottom, i.e. 180degree
@@ -567,7 +567,7 @@ function parseCSS(
      * http://ostermiller.org/findcomment.html */
     return matched[0]
       .trim()
-      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n]))){0,300}?\*\/+/g, '')
+      .replace(/\/\*(?=(?<digit1>([^*]|[\r\n]|((?=(?<digit2>\*+))\k<digit2>([^*/]|[\r\n])))*))\k<digit1>\*\/+/g, '')
       .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, m => m.replace(/,/g, '\u200C'))
       .split(/\s*(?![^(]*\)),\s*/)
       .map(s => s.replace(/\u200C/g, ','));

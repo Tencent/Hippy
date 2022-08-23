@@ -134,70 +134,70 @@ export default defineComponent({
 </script>
 
 <style>
-  #dialog-demo {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    flex: 1;
-    margin: 7px;
-  }
+#dialog-demo {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  flex: 1;
+  margin: 7px;
+}
 
-  .dialog-demo-button-1 {
-    height: 64px;
-    width: 200px;
-    border-style: solid;
-    border-color: #40b883;
-    border-width: 2px;
-    border-radius: 10px;
-    align-items: center;
-    margin-top: 10px;
-  }
+.dialog-demo-button-1 {
+  height: 64px;
+  width: 200px;
+  border-style: solid;
+  border-color: #40b883;
+  border-width: 2px;
+  border-radius: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
 
-  .dialog-demo-button-1 .button-text {
-    line-height: 56px;
-    text-align: center;
-  }
+.dialog-demo-button-1 .button-text {
+  line-height: 56px;
+  text-align: center;
+}
 
-  .dialog-demo-button-2 {
-    height: 64px;
-    width: 200px;
-    border-style: solid;
-    border-color: white;
-    border-width: 2px;
-    border-radius: 10px;
-    align-items: center;
-    margin-top: 10px;
-  }
+.dialog-demo-button-2 {
+  height: 64px;
+  width: 200px;
+  border-style: solid;
+  border-color: white;
+  border-width: 2px;
+  border-radius: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
 
-  .dialog-demo-button-2 .button-text {
-    line-height: 56px;
-    text-align: center;
-  }
+.dialog-demo-button-2 .button-text {
+  line-height: 56px;
+  text-align: center;
+}
 
-  .dialog-demo-wrapper {
-    background-color: #40b88377;
-  }
+.dialog-demo-wrapper {
+  background-color: #40b88377;
+}
 
-  .dialog-2-demo-wrapper {
-    background-color: #444444ee;
-    justify-content: center;
-    align-items: center;
-  }
+.dialog-2-demo-wrapper {
+  background-color: #444444ee;
+  justify-content: center;
+  align-items: center;
+}
 
-  .dialog-demo-close-btn {
-    width: 210px;
-    height: 200px;
-    margin-top: 300px;
-    background-color: #40b883;
-    justify-content: center;
-    align-items: center;
-  }
+.dialog-demo-close-btn {
+  width: 210px;
+  height: 200px;
+  margin-top: 300px;
+  background-color: #40b883;
+  justify-content: center;
+  align-items: center;
+}
 
-  .dialog-demo-close-btn-text {
-    width: 200px;
-    font-size: 22px;
-    line-height: 40px;
-    flex-direction: column;
-    text-align: center;
-  }
+.dialog-demo-close-btn-text {
+  width: 200px;
+  font-size: 22px;
+  line-height: 40px;
+  flex-direction: column;
+  text-align: center;
+}
 </style>

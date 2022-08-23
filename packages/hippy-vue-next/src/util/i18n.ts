@@ -24,7 +24,7 @@ import { Native } from '../runtime/native';
  * Determine if it is a right-to-left device
  */
 export function isRTL(): boolean {
-  const { localization } = Native;
+  const { Localization: localization } = Native;
   if (localization) {
     return localization.direction === 1;
   }

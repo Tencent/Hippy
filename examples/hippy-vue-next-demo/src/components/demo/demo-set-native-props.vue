@@ -41,7 +41,7 @@ export default defineComponent({
     const screenWidth = ref(0);
 
     onMounted(() => {
-      screenWidth.value = Native.dimensions.screen.width;
+      screenWidth.value = Native.Dimensions.screen.width;
     });
 
     const onTouchDown1 = (evt) => {

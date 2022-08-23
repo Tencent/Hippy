@@ -261,8 +261,8 @@ export default defineComponent({
       dataSource.value = [...mockData];
 
       // Save the screen height, it will be used later when calculating the exposure
-      $windowHeight = Native?.dimensions
-        ? Native.dimensions.window.height
+      $windowHeight = Native?.Dimensions
+        ? Native.Dimensions.window.height
         : window.innerHeight;
 
       /**

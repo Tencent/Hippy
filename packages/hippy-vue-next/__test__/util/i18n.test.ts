@@ -35,7 +35,7 @@ describe('src/util/i18n', () => {
     expect(isRtl).toBeFalsy();
 
     // set Native localization
-    Native.localization.direction = 1;
+    Native.Localization.direction = 1;
     isRtl = i18n.isRTL();
     expect(isRtl).toBeTruthy();
   });

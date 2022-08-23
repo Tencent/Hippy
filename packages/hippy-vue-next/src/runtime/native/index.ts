@@ -21,7 +21,7 @@
 import { translateColor } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
-import { CallbackType, NATIVE_COMPONENT_MAP, type NeedToTyped } from '../../config';
+import { CallbackType, NATIVE_COMPONENT_MAP, type NeedToTyped, HIPPY_VUE_VERSION } from '../../config';
 import { trace, warn } from '../../util';
 import { type HippyElement } from '../element/hippy-element';
 import { EventBus } from '../event/event-bus';
@@ -176,24 +176,24 @@ export interface NativeApiType {
   };
 
   // localized information for the current platform
-  localization: {
+  Localization: {
     direction: number;
   };
   // platform
-  platform: string;
+  Platform: string;
   // current screen pixel ratio
-  pixelRatio: number;
+  PixelRatio: number;
   // async localstorage
-  asyncStorage: AsyncStorage;
+  AsyncStorage: AsyncStorage;
 
-  clipboard: {
+  Clipboard: {
     // get clipboard content
     getString: () => Promise<string>;
     // set clipboard content
     setString: (content: string) => void;
   };
 
-  cookie: {
+  Cookie: {
     // get all cookies of the specified url
     getAll: (url: string) => Promise<string>;
     // set cookies
@@ -201,28 +201,28 @@ export interface NativeApiType {
   };
 
   // get API version, only callable for Android
-  apiLevel: string | null;
+  APILevel: string | null;
 
   // device info
-  device: string | undefined;
+  Device: string | undefined;
 
   // whether the device is iPhoneX
-  isIphoneX: boolean;
+  isIPhoneX: boolean;
 
   // 1px size on device
-  onePixel: number;
+  OnePixel: number;
 
   // get the current system version, only available for iOS
-  osVersion: string | null;
+  OSVersion: string | null;
 
   // get sdk version, only available for iOS
-  sdkVersion: string | null;
+  SDKVersion: string | null;
 
   // whether the screen is currently vertical
-  isVerticalScreen: boolean;
+  screenIsVertical: boolean;
 
   // network info
-  netInfo: {
+  NetInfo: {
     // fetch network info
     fetch: () => Promise<string>;
     addEventListener: (
@@ -235,13 +235,13 @@ export interface NativeApiType {
     ) => void;
   };
 
-  imageLoader: {
+  ImageLoader: {
     getSize: (url: string) => Promise<ImageSize>;
     prefetch: (url: string) => void;
   };
 
   // include window and screen info
-  dimensions: Dimensions;
+  Dimensions: Dimensions;
 
   // call native interface, no return value
   callNative: CallNativeFunctionType;
@@ -277,6 +277,9 @@ export interface NativeApiType {
   parseColor: (color: string, { platform: string }?) => number;
   // get the style of the specified element
   getElemCss: (element: HippyElement) => NeedToTyped;
+
+  // hippy vue next package version
+  version?: string;
 }
 
 // cached data type
@@ -297,7 +300,7 @@ export const CACHE: CacheType = {};
 export const {
   bridge: { callNative, callNativeWithPromise, callNativeWithCallbackId },
   device: {
-    platform: { OS: platform, localization = {} },
+    platform: { OS: platform, Localization = {} },
     screen: { scale: pixelRatio },
   },
   device,
@@ -370,15 +373,15 @@ const networkSubscriptions = new Map();
  * @public
  */
 export const Native: NativeApiType = {
-  localization,
+  Localization,
 
   hippyNativeDocument,
 
   hippyNativeRegister,
 
-  platform,
+  Platform: platform,
 
-  pixelRatio,
+  PixelRatio: pixelRatio,
 
   callNative,
 
@@ -388,7 +391,7 @@ export const Native: NativeApiType = {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  asyncStorage: global.localStorage,
+  AsyncStorage: global.localStorage,
 
   callUIFunction(...args) {
     const [el, funcName, ...options] = args;
@@ -442,7 +445,7 @@ export const Native: NativeApiType = {
     }
   },
 
-  clipboard: {
+  Clipboard: {
     /**
      * get clipboard content
      */
@@ -464,7 +467,7 @@ export const Native: NativeApiType = {
     },
   },
 
-  cookie: {
+  Cookie: {
     /**
      * Get all cookies by url
      *
@@ -472,7 +475,7 @@ export const Native: NativeApiType = {
      */
     async getAll(url: string) {
       if (!url) {
-        throw new TypeError('Native.cookie.getAll() must have url argument');
+        throw new TypeError('Native.Cookie.getAll() must have url argument');
       }
       return Native.callNativeWithPromise.call(
         this,
@@ -489,7 +492,7 @@ export const Native: NativeApiType = {
      */
     set(url: string, keyValue: string, expireDate?: Date) {
       if (!url) {
-        throw new TypeError('Native.cookie.set() must have url argument');
+        throw new TypeError('Native.Cookie.set() must have url argument');
       }
 
       let expireStr = '';
@@ -507,7 +510,7 @@ export const Native: NativeApiType = {
     },
   },
 
-  imageLoader: {
+  ImageLoader: {
     /**
      * get image size before image rendering
      *
@@ -536,14 +539,14 @@ export const Native: NativeApiType = {
   /**
    * Get the screen or view size.
    */
-  get dimensions(): Dimensions {
+  get Dimensions(): Dimensions {
     const { screen } = device;
     // Convert statusBarHeight to dp unit for android platform
     // Here's a base issue: statusBarHeight for iOS is dp, but for statusBarHeight is pixel.
     // So make them be same to hippy-vue.
     let { statusBarHeight } = screen;
     if (Native.isAndroid()) {
-      statusBarHeight /= Native.pixelRatio;
+      statusBarHeight /= Native.PixelRatio;
     }
     return {
       window: device.window,
@@ -557,7 +560,7 @@ export const Native: NativeApiType = {
   /**
    * get device type
    */
-  get device(): string | undefined {
+  get Device(): string | undefined {
     if (typeof CACHE.Device === 'undefined') {
       if (Native.isIOS()) {
         if (global?.__HIPPYNATIVEGLOBAL__?.Device) {
@@ -579,16 +582,16 @@ export const Native: NativeApiType = {
   /**
    * Whether the current screen is vertical
    */
-  get isVerticalScreen(): boolean {
-    return Native.dimensions.window.width < Native.dimensions.window.height;
+  get screenIsVertical(): boolean {
+    return Native.Dimensions.window.width < Native.Dimensions.window.height;
   },
 
   isAndroid(): boolean {
-    return Native.platform === 'android';
+    return Native.Platform === 'android';
   },
 
   isIOS(): boolean {
-    return Native.platform === 'ios';
+    return Native.Platform === 'ios';
   },
 
   /**
@@ -600,7 +603,7 @@ export const Native: NativeApiType = {
     }
     return measureInWindowByMethod(el, 'measureInAppWindow');
   },
-  netInfo: {
+  NetInfo: {
     /**
      * get current network status, return with promise
      */
@@ -631,7 +634,7 @@ export const Native: NativeApiType = {
           if (!this.eventName || !this.listener) {
             return;
           }
-          Native.netInfo.removeEventListener(this.eventName, this.listener);
+          Native.NetInfo.removeEventListener(this.eventName, this.listener);
           this.listener = undefined;
         },
       };
@@ -661,12 +664,12 @@ export const Native: NativeApiType = {
     },
   },
 
-  get isIphoneX(): boolean {
+  get isIPhoneX(): boolean {
     if (typeof CACHE.isIPhoneX === 'undefined') {
       let isIPhoneX = false;
       if (Native.isIOS()) {
         // iOS12 - iPhone11: 48 Phone12/12 pro/12 pro max: 47 other: 44
-        isIPhoneX = Native.dimensions.screen.statusBarHeight !== 20;
+        isIPhoneX = Native.Dimensions.screen.statusBarHeight !== 20;
       }
       CACHE.isIPhoneX = isIPhoneX;
     }
@@ -677,9 +680,9 @@ export const Native: NativeApiType = {
   /**
    * Get the one pixel size of device
    */
-  get onePixel(): number {
+  get OnePixel(): number {
     if (typeof CACHE.OnePixel === 'undefined') {
-      const ratio = Native.pixelRatio;
+      const ratio = Native.PixelRatio;
       let onePixel = Math.round(0.4 * ratio) / ratio;
       if (!onePixel) {
         // Assume 0 is false
@@ -693,7 +696,7 @@ export const Native: NativeApiType = {
   /**
    * Get the API version, the API is only for Android so far.
    */
-  get apiLevel(): string | null {
+  get APILevel(): string | null {
     if (!Native.isAndroid()) {
       return null;
     }
@@ -709,7 +712,7 @@ export const Native: NativeApiType = {
    * Get the OS version, the API is only for ios so far.
    *
    */
-  get osVersion(): string | null {
+  get OSVersion(): string | null {
     if (!Native.isIOS()) {
       return null;
     }
@@ -723,7 +726,7 @@ export const Native: NativeApiType = {
   /**
    * Get the SDK version, the API is only for ios so far.
    */
-  get sdkVersion(): string | null {
+  get SDKVersion(): string | null {
     if (!Native.isIOS()) {
       return null;
     }
@@ -741,7 +744,7 @@ export const Native: NativeApiType = {
    * @param color - color string
    * @param options - parse options
    */
-  parseColor(color: string, options = { platform: Native.platform }): number {
+  parseColor(color: string, options = { platform: Native.Platform }): number {
     const cache = CACHE.COLOR_PARSER ?? (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
       // cache parse result
@@ -765,4 +768,6 @@ export const Native: NativeApiType = {
     }
     return style;
   },
+
+  version: HIPPY_VUE_VERSION,
 };

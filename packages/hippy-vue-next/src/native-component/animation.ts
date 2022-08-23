@@ -212,10 +212,14 @@ export function registerAnimation(vueApp: App): void {
         }
       },
       actions() {
-        // FIXME: Should diff the props and use updateAnimation method to update the animation.
-        //        Hard restart the animation is no correct.
         this.destroy();
         this.create();
+        // trigger actionsDidUpdate in setTimeout callback to make sure node style updated
+        // setTimeout(() => {
+        //   if (typeof this.$listeners.actionsDidUpdate === 'function') {
+        //     this.$listeners.actionsDidUpdate();
+        //   }
+        // });
       },
     },
     created() {
@@ -331,6 +335,9 @@ export function registerAnimation(vueApp: App): void {
         {
           useAnimation: true,
           style: this.style,
+          tag: this.$props.tag,
+          playing: this.$props.playing,
+          actions: this.$props.actions,
           ...this.$props.props,
         },
         this.$slots.default ? this.$slots.default() : null,

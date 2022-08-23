@@ -7,7 +7,7 @@
         :src="backButtonImg"
         @click="goBack"
       >
-      <label class="title">Hippy Vue Next Demo</label>
+      <label class="title">Hippy Vue Next</label>
       <label class="title">{{ subTitle }}</label>
     </div>
     <div
@@ -95,6 +95,15 @@ export default defineComponent({
       goBack,
       navigateTo,
     };
+  },
+  watch: {
+    $route(to) {
+      if (to.name === undefined) {
+        this.subTitle = '';
+        return;
+      }
+      this.subTitle = to.name;
+    },
   },
 });
 </script>

@@ -42,7 +42,7 @@ describe('runtime/element/hippy-element', () => {
     });
 
     // clear mocked platform
-    Native.platform = '';
+    Native.Platform = '';
   });
 
   it('should convert the tag name to lowercase.', () => {

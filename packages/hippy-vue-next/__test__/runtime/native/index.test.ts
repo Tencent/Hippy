@@ -34,7 +34,7 @@ import { EventBus } from '../../../src/runtime/event/event-bus';
 describe('runtime/native.ts', () => {
   const nativePlatformOrigin = Object.getOwnPropertyDescriptor(
     Native,
-    'platform',
+    'Platform',
   );
   const callNativeWithPromiseOrigin = Object.getOwnPropertyDescriptor(
     Native,
@@ -49,7 +49,7 @@ describe('runtime/native.ts', () => {
     jest.clearAllMocks();
   });
   afterEach(() => {
-    Object.defineProperty(Native, 'platform', nativePlatformOrigin ?? {});
+    Object.defineProperty(Native, 'Platform', nativePlatformOrigin ?? {});
     Object.defineProperty(
       Native,
       'callNativeWithPromise',
@@ -63,57 +63,57 @@ describe('runtime/native.ts', () => {
     expect(Native.isAndroid()).toEqual(true);
   });
   it('ios test native inject osversion, sdkversion and api level', async () => {
-    Object.defineProperty(Native, 'platform', {
+    Object.defineProperty(Native, 'Platform', {
       get() {
-        return Native.platform;
+        return Native.Platform;
       },
     });
-    const deviceSpy = jest.spyOn(Native, 'platform', 'get');
+    const deviceSpy = jest.spyOn(Native, 'Platform', 'get');
     deviceSpy.mockImplementation(() => 'ios');
-    expect(Native.apiLevel).toEqual(null);
-    expect(Native.osVersion).toEqual('1.0.0.0');
-    expect(Native.sdkVersion).toEqual('1.0.0.0');
+    expect(Native.APILevel).toEqual(null);
+    expect(Native.OSVersion).toEqual('1.0.0.0');
+    expect(Native.SDKVersion).toEqual('1.0.0.0');
   });
   it('android test native inject osversion, sdkversion and api level', async () => {
     // after will reset defineProperty
-    expect(Native.apiLevel).toEqual('1.0.0.0');
-    expect(Native.osVersion).toEqual(null);
-    expect(Native.sdkVersion).toEqual(null);
+    expect(Native.APILevel).toEqual('1.0.0.0');
+    expect(Native.OSVersion).toEqual(null);
+    expect(Native.SDKVersion).toEqual(null);
   });
   it('test native cal onePixel', async () => {
-    expect(Native.onePixel).toEqual(1);
+    expect(Native.OnePixel).toEqual(1);
   });
   it('test native isIphoneX', async () => {
-    Object.defineProperty(Native, 'platform', {
+    Object.defineProperty(Native, 'Platform', {
       get() {
-        return Native.platform;
+        return Native.Platform;
       },
     });
-    const deviceSpy = jest.spyOn(Native, 'platform', 'get');
+    const deviceSpy = jest.spyOn(Native, 'Platform', 'get');
     deviceSpy.mockImplementation(() => 'ios');
-    expect(Native.isIphoneX).toEqual(false);
+    expect(Native.isIPhoneX).toEqual(false);
   });
-  it('test native isVerticalScreen', async () => {
-    expect(Native.isVerticalScreen).toEqual(true);
+  it('test native screenIsVertical', async () => {
+    expect(Native.screenIsVertical).toEqual(true);
   });
   it('test native output android device', async () => {
-    expect(Native.device).toEqual('Android device');
-    // Native.device has side effect，which needs reset after test
+    expect(Native.Device).toEqual('Android device');
+    // Native.device has side effect，which need reset after test
     CACHE.Device = undefined;
   });
   it('test native output ios device', async () => {
-    Object.defineProperty(Native, 'platform', {
+    Object.defineProperty(Native, 'Platform', {
       get() {
-        return Native.platform;
+        return Native.Platform;
       },
     });
-    const deviceSpy = jest.spyOn(Native, 'platform', 'get');
+    const deviceSpy = jest.spyOn(Native, 'Platform', 'get');
     deviceSpy.mockImplementation(() => 'ios');
-    expect(Native.device).toEqual('iPhone 12');
+    expect(Native.Device).toEqual('iPhone 12');
     CACHE.Device = undefined;
   });
   it('test native output dimensions', async () => {
-    expect(Native.dimensions).toEqual({
+    expect(Native.Dimensions).toEqual({
       screen: {
         width: 375,
         height: 667,
@@ -137,31 +137,31 @@ describe('runtime/native.ts', () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
       value: async () => '123',
     });
-    Native.clipboard.setString('123');
-    expect(await Native.clipboard.getString()).toEqual('123');
+    Native.Clipboard.setString('123');
+    expect(await Native.Clipboard.getString()).toEqual('123');
   });
   it('test native bridge calls: cookie.getAll invalid', async () => {
-    await expect(() => Native.cookie.getAll('')).rejects.toEqual(new Error('Native.cookie.getAll() must have url argument'));
+    await expect(() => Native.Cookie.getAll('')).rejects.toEqual(new Error('Native.Cookie.getAll() must have url argument'));
   });
 
   it('test native bridge calls: cookie.set invalid', async () => {
-    expect(() => Native.cookie.set('', '')).toThrow(new Error('Native.cookie.set() must have url argument'));
+    expect(() => Native.Cookie.set('', '')).toThrow(new Error('Native.Cookie.set() must have url argument'));
   });
 
   it('test native bridge calls: cookie', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
       value: async () => Promise.resolve('https://hippyjs.org'),
     });
-    Native.cookie.set('https://hippyjs.org', 'uin', new Date());
-    expect(await Native.cookie.getAll('https://hippyjs.org')).toEqual('https://hippyjs.org');
+    Native.Cookie.set('https://hippyjs.org', 'uin', new Date());
+    expect(await Native.Cookie.getAll('https://hippyjs.org')).toEqual('https://hippyjs.org');
   });
 
   it('test native bridge calls: imageLoader', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
       value: async () => Promise.resolve(100),
     });
-    Native.imageLoader.prefetch('https://hippyjs.org');
-    expect(await Native.imageLoader.getSize('https://hippyjs.org')).toEqual(100);
+    Native.ImageLoader.prefetch('https://hippyjs.org');
+    expect(await Native.ImageLoader.getSize('https://hippyjs.org')).toEqual(100);
   });
   it('test native bridge calls: netInfo', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
@@ -169,16 +169,16 @@ describe('runtime/native.ts', () => {
         network_info: '4G',
       }),
     });
-    expect(await Native.netInfo.fetch()).toEqual('4G');
+    expect(await Native.NetInfo.fetch()).toEqual('4G');
 
     let network = '4G';
     const networkCb = (realNetwork) => {
       network = realNetwork;
     };
-    Native.netInfo.addEventListener('change', networkCb);
+    Native.NetInfo.addEventListener('change', networkCb);
     EventBus.$emit('networkStatusDidChange', 'WiFi');
     expect(network).toEqual('WiFi');
-    Native.netInfo.removeEventListener('change', networkCb);
+    Native.NetInfo.removeEventListener('change', networkCb);
     EventBus.$emit('networkStatusDidChange', '5G');
     expect(network).toEqual('WiFi');
   });
