@@ -182,4 +182,6 @@ app.$start().then(({ superProps, rootViewId }) => {
 
 - Keep-Alive HMR问题：在示例代码中，我们的路由组件是包裹在 Keep-Alive 组件内的，但是目前使用 Keep-Alive 包裹的路由组件无法实现开发时热更新，需要刷新整个实例才能完成刷新。
   如果是不包裹在 Keep-Alive 中则没有这个问题。目前官方[该问题](https://github.com/vuejs/core/pull/5165)也尚未解决。等待官方解决后升级 Vue 即可解决该问题
+- Vue 3.x 变量 Proxy 问题，因为3.x的响应式是通过 Proxy 代理对象来实现的，所以我们得到的对象其实是 Proxy 的实例而非原始对象，因此调用终端接口时需要注意，终端并不认识 Proxy 对象，
+  需要使用 Vue 提供的 toRaw 方法来拿到原始的对象并传递给终端接口
 - 其他尚未发现的Bug...
