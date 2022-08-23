@@ -3,6 +3,39 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.5](https://github.com/Tencent/Hippy/compare/2.14.4...2.14.5) (2022-08-23)
+
+
+### Bug Fixes
+
+* **android, ios:** the final `onScroll` may be dropped ([#2377](https://github.com/Tencent/Hippy/issues/2377)) ([963992b](https://github.com/Tencent/Hippy/commit/963992b1d20647c64561e89fb42a6e5997889563))
+* **android:** add try-catch for NetInfoModule ([258f9ac](https://github.com/Tencent/Hippy/commit/258f9acf75875855b37d52d09ac873a6c2637b6e))
+* **android:** gif borderRadius not working and radius scale issue ([bb84fcd](https://github.com/Tencent/Hippy/commit/bb84fcdc3e179bd1123c849d8b587faa86c00fc6))
+* **android:** handleRequestCookie error ([2ff9388](https://github.com/Tencent/Hippy/commit/2ff938899d7e7624b19d0a6a8de1a718282757bf))
+* **android:** set init complete after bridge ready ([04c8bdc](https://github.com/Tencent/Hippy/commit/04c8bdc8af8fa2009504d64ffc50776c9e029470))
+* **core:** fix code lint warnings ([7f60759](https://github.com/Tencent/Hippy/commit/7f60759796616d9b9a356a7d4b534565ffef33fc))
+* **devtools:** remove v8 inspector flag for ios ([f431ab5](https://github.com/Tencent/Hippy/commit/f431ab5c6a36a77b32ad4ce4a33e72bb8f7e619c))
+* **homepage:** fix secure problem for homepage redirect ([a7b552f](https://github.com/Tencent/Hippy/commit/a7b552f143b58192a23624600c3f2e0bdeebb942))
+* **ios:** fix refresh component bug ([36559b1](https://github.com/Tencent/Hippy/commit/36559b15289d7baed76eb50a22adb5d56a114ead))
+* **ios:** fix scroll rtl for content view ([2c7da42](https://github.com/Tencent/Hippy/commit/2c7da4267f8c8d08521c9d86d48d3d04d76d32e8))
+* **ios:** hippy-vue textInput isFocused not working ([623b117](https://github.com/Tencent/Hippy/commit/623b117c2908962a5179875ce3062d1892856a03))
+* **ios:** padding not working on text's subview ([65676f0](https://github.com/Tencent/Hippy/commit/65676f0a61d3a00608d35836f8113014e5061afc))
+* **ios:** turbo runtime must release in js thread ([5f96fae](https://github.com/Tencent/Hippy/commit/5f96fae74d18b455c6aaa3ae2abff20ffc0d8d2f))
+* **vue:** fix regular expressions catastrophic backtracking ([510a587](https://github.com/Tencent/Hippy/commit/510a587cd646005041a80f3ff0f4bf36c5824b4e))
+* **vue:** revert a catastrophic backtracking fix ([2fbb0d9](https://github.com/Tencent/Hippy/commit/2fbb0d9d31d60afab9248b2e3acc9e83f30ce77c))
+
+
+### Features
+
+* **android:** add `visibility` style ([8b7a81e](https://github.com/Tencent/Hippy/commit/8b7a81e23797913c804d3e55d9bb9f992b83b326))
+* **android:** update AGP version to 7.2.2 ([d9b6ccd](https://github.com/Tencent/Hippy/commit/d9b6ccdcb9f82ef4fad90930f7a53ff199630d8a))
+* **android:** update NDK and CMake versions ([2b7282f](https://github.com/Tencent/Hippy/commit/2b7282f34d32f8adec4c7319a5aa233d009e91bd))
+* **hippy-vue:** perf attribute update ([e5c181f](https://github.com/Tencent/Hippy/commit/e5c181fcb49d6cdb4edc4a962f561dfdba0c4711))
+
+
+
+
+
 ## [2.14.4](https://github.com/Tencent/Hippy/compare/2.14.3...2.14.4) (2022-08-10)
 
 

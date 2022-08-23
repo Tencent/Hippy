@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.5](https://github.com/Tencent/Hippy/compare/2.14.4...2.14.5) (2022-08-23)
+
+
+### Bug Fixes
+
+* **vue:** fix regular expressions catastrophic backtracking ([510a587](https://github.com/Tencent/Hippy/commit/510a587cd646005041a80f3ff0f4bf36c5824b4e))
+
+
+
+
+
 ## [2.14.4](https://github.com/Tencent/Hippy/compare/2.14.3...2.14.4) (2022-08-10)
 
 **Note:** Version bump only for package @hippy/react

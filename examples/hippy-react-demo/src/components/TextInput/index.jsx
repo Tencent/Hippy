@@ -12,7 +12,7 @@ const DEFAULT_VALUE = 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwl
 
 const styles = StyleSheet.create({
   container_style: {
-    padding: 10,
+    paddingHorizontal: 10,
   },
   input_style: {
     width: 300,
