@@ -15,6 +15,10 @@
       @endReached="onEndReached"
       @delete="onDelete"
       @scroll="onScroll"
+      @momentumScrollBegin="onMomentumScrollBegin"
+      @momentumScrollEnd="onMomentumScrollEnd"
+      @scrollBeginDrag="onScrollBeginDrag"
+      @scrollEndDrag="onScrollEndDrag"
     >
       <li
         v-for="(ui, index) in dataSource"
@@ -210,6 +214,18 @@ export default {
       } else {
         this.topReached = false;
       }
+    },
+    onMomentumScrollBegin(event) {
+      console.log('momentumScrollBegin', event);
+    },
+    onMomentumScrollEnd(event) {
+      console.log('momentumScrollEnd', event);
+    },
+    onScrollBeginDrag(event) {
+      console.log('onScrollBeginDrag', event);
+    },
+    onScrollEndDrag(event) {
+      console.log('onScrollEndDrag', event);
     },
   },
 };
