@@ -375,6 +375,18 @@ describe('runtime/element/hippy-element', () => {
       hippyElement.setStyle('width', '101.1px');
       expect(hippyElement.style.width).toEqual(101.1);
     });
+
+    it('setStyles method should work correct', () => {
+      const hippyElement = new HippyElement('div');
+      hippyElement.setStyles({
+        width: '101.1',
+        flex: 1,
+        textShadowOffset: { x: 20, y: 30 },
+      });
+      expect(hippyElement.style.width).toEqual(101.1);
+      expect(hippyElement.style.flex).toEqual(1);
+      expect(hippyElement.style.textShadowOffset).toEqual({ width: 20, height: 30 });
+    });
   });
 
   describe('test scroll methods of hippy-element.', () => {

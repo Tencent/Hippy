@@ -116,7 +116,7 @@ describe('patch-prop.ts', () => {
     expect(element.attributes.source).toEqual('inner');
     patchProp(element, 'source', 'inner', '', false, undefined, null);
     expect(element.attributes.source).toEqual('');
-    patchProp(element, 'source', 'inner', undefined, false, undefined, null);
+    patchProp(element, 'source', 'inner', null, false, undefined, null);
     expect(element.attributes.source).toBeUndefined();
   });
 });

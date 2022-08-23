@@ -148,4 +148,12 @@ describe('util/index.ts', () => {
     expect(index.unicodeToChar('hello')).toEqual('hello');
     expect(index.unicodeToChar('\u0065\u0066')).toEqual('ef');
   });
+
+  it('isEmpty should work correct', () => {
+    expect(index.isEmpty(undefined)).toBeTruthy();
+    expect(index.isEmpty(123)).toBeTruthy();
+    expect(index.isEmpty('')).toBeTruthy();
+    expect(index.isEmpty({})).toBeTruthy();
+    expect(index.isEmpty({ test: 'test' })).toBeFalsy();
+  });
 });

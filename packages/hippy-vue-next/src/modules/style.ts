@@ -21,7 +21,8 @@
 import { camelize } from '@vue/runtime-core';
 import { isString } from '@vue/shared';
 
-import type { HippyElement } from '../runtime/element/hippy-element';
+import { type HippyElement } from '../runtime/element/hippy-element';
+import { type NeedToTyped } from '../config';
 
 // type of style
 type Style = string | Record<string, string | string[]> | null;
@@ -39,6 +40,7 @@ export function patchStyle(
   next: Style,
 ): void {
   const el = rawEl;
+  const batchedStyles: NeedToTyped = {};
 
   if (!next) {
     // clear style
@@ -50,18 +52,18 @@ export function patchStyle(
     // the new style is an array or Object, apply the new style to all
     // style is an array, so we do not update native instantly, we will update at the end
     Object.keys(next).forEach((key) => {
-      el.setStyle(camelize(key), next[key], true);
+      batchedStyles[camelize(key)] = next[key];
     });
 
     // old style if exists and is an array, traverse to remove
     if (prev && !isString(prev)) {
       Object.keys(prev).forEach((key) => {
         if (next[key] === null) {
-          el.setStyle(camelize(key), '', true);
+          batchedStyles[camelize(key)] = '';
         }
       });
     }
     // update native node
-    el.updateNativeNode();
+    el.setStyles(batchedStyles);
   }
 }

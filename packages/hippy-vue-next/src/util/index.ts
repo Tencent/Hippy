@@ -288,3 +288,15 @@ export function getEventRedirects(
 
   return on;
 }
+
+/**
+ * Detect if the param is falsy or empty
+ * @param {any} any
+ */
+export function isEmpty(any: NeedToTyped) {
+  if (!any || typeof any !== 'object') {
+    return true;
+  }
+  return Object.keys(any).length === 0;
+}
+

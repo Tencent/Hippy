@@ -35,7 +35,9 @@ export function patchAttr(
   nextValue: NeedToTyped,
 ): void {
   // set attr when next value is not equal before value
-  if (prevValue !== nextValue) {
+  if (nextValue === null) {
+    el.removeAttribute(key);
+  } else if (prevValue !== nextValue) {
     el.setAttribute(key, nextValue);
   }
 }

@@ -35,6 +35,7 @@ import {
   tryConvertNumber,
   unicodeToChar,
   warn,
+  isEmpty,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { getHippyCachedInstance } from '../../util/instance';
@@ -322,17 +323,18 @@ export class HippyElement extends HippyNode {
   /**
    * set attribute
    *
-   * @param key - attribute name
+   * @param rawKey - attribute name
    * @param rawValue - attribute value
    * @param options - options
    */
   // eslint-disable-next-line complexity
   public setAttribute(
-    key: string,
+    rawKey: string,
     rawValue: NeedToTyped,
     options: NeedToTyped = {},
   ): void {
     let value = rawValue;
+    let key = rawKey;
 
     try {
       // detect expandable attrs for boolean values
@@ -384,43 +386,51 @@ export class HippyElement extends HippyNode {
             value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
           }
 
-          this.attributes[key] = unicodeToChar(value);
+          value = unicodeToChar(value);
           break;
         }
         // FIXME: UpdateNode numberOfRows will makes Image flicker on Android.
         //        So make it working on iOS only.
         case 'numberOfRows':
-          this.attributes[key] = value;
           if (!Native.isIOS()) {
             return;
           }
           break;
         case 'caretColor':
         case 'caret-color':
-          this.attributes['caret-color'] = Native.parseColor(value);
+          key = 'caret-color';
+          value = Native.parseColor(value);
           break;
         case 'break-strategy':
-          this.attributes.breakStrategy = value;
+          key = 'breakStrategy';
           break;
         case 'placeholderTextColor':
         case 'placeholder-text-color':
-          this.attributes.placeholderTextColor = Native.parseColor(value);
+          key = 'placeholderTextColor';
+          value = Native.parseColor(value);
           break;
         case 'underlineColorAndroid':
         case 'underline-color-android':
-          this.attributes.underlineColorAndroid = Native.parseColor(value);
+          key = 'underlineColorAndroid';
+          value = Native.parseColor(value);
           break;
         case 'nativeBackgroundAndroid': {
           const nativeBackgroundAndroid = value;
           if (typeof nativeBackgroundAndroid.color !== 'undefined') {
             nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
           }
-          this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
+          key = 'nativeBackgroundAndroid';
+          value = nativeBackgroundAndroid;
           break;
         }
         default:
-          this.attributes[key] = value;
+          break;
       }
+
+      if (this.attributes[key] === value) {
+        return;
+      }
+      this.attributes[key] = value;
 
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
@@ -452,6 +462,20 @@ export class HippyElement extends HippyNode {
   public removeStyle(): void {
     // remove all style
     this.style = {};
+    this.updateNativeNode();
+  }
+
+  /**
+   * set styles batch
+   *
+   * @param batchStyles
+   */
+  public setStyles(batchStyles) {
+    if (isEmpty(batchStyles)) return;
+    Object.keys(batchStyles).forEach((styleKey) => {
+      const styleValue = batchStyles[styleKey];
+      this.setStyle(styleKey, styleValue, true);
+    });
     this.updateNativeNode();
   }
 
@@ -741,13 +765,7 @@ export class HippyElement extends HippyNode {
   public setNativeProps(nativeProps: NeedToTyped): void {
     if (nativeProps) {
       const { style } = nativeProps;
-      if (style) {
-        Object.keys(style).forEach((key) => {
-          this.setStyle(key, style[key], true);
-        });
-        // update native node
-        this.updateNativeNode();
-      }
+      this.setStyles(style);
     }
   }
 
