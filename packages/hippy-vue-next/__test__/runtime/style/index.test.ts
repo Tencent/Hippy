@@ -22,8 +22,12 @@
  * runtime/style/index unit test
  *
  */
+import { HIPPY_GLOBAL_DISPOSE_STYLE_NAME, HIPPY_GLOBAL_STYLE_NAME } from '../../../src/config';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
-import { fromAstNodes, SelectorsMap } from '../../../src/runtime/style';
+import { fromAstNodes } from '../../../src/runtime/style';
+import { getCssMap } from '../../../src/runtime/style/css-map';
+import { registerHippyTag } from '../../../src/runtime/component';
+import { setHippyCachedInstance } from '../../../src/util/instance';
 
 // AST used for test
 const testAst = [
@@ -67,6 +71,39 @@ const testAst = [
   },
   {
     hash: 'chunk-1',
+    selectors: ['div > tag'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'TypeSelector',
+        value: 'TypeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['div tag'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'TypeSelector',
+        value: 'TypeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['div > tag+newtag'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'TypeSelector',
+        value: 'TypeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
     selectors: ['.class'],
     declarations: [
       {
@@ -90,6 +127,61 @@ const testAst = [
   {
     hash: 'chunk-1',
     selectors: ['#id[attr="test"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr^="tes"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr$="est"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr*="es"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr^="atestb"]'],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'AttributeSelector',
+        value: 'AttributeSelector',
+      },
+    ],
+  },
+  {
+    hash: 'chunk-1',
+    selectors: ['#id[attr|="ortest"]'],
     declarations: [
       {
         type: 'declaration',
@@ -130,6 +222,24 @@ const testAst = [
       },
     ],
   },
+  {
+    hash: 'chunk-2',
+    selectors: [],
+    declarations: [],
+  },
+  {
+    hash: 'chunk-2',
+    selectors: [
+      '*',
+    ],
+    declarations: [
+      {
+        type: 'declaration',
+        property: 'UniversalSelector-chunk-2',
+        value: 'UniversalSelector-chunk-2',
+      },
+    ],
+  },
 ];
 
 /**
@@ -141,8 +251,22 @@ describe('runtime/style/index.ts', () => {
   let cssMap;
 
   beforeAll(() => {
-    const rules = fromAstNodes(testAst);
-    cssMap = new SelectorsMap(rules);
+    global[HIPPY_GLOBAL_STYLE_NAME] = testAst;
+    cssMap = getCssMap();
+    registerHippyTag('div', { name: 'View' });
+    const root = new HippyElement('div');
+    root.id = 'testRoot';
+    setHippyCachedInstance({
+      rootView: 'testRoot',
+      rootContainer: 'root',
+      rootViewId: 1,
+      ratioBaseWidth: 750,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      instance: {
+        $el: root,
+      },
+    });
   });
 
   it('id selector should match element correctly', async () => {
@@ -151,7 +275,7 @@ describe('runtime/style/index.ts', () => {
 
     const matchedCss = cssMap.query(divElement);
 
-    expect(matchedCss.selectors.length).toEqual(7);
+    expect(matchedCss.selectors.length).toEqual(13);
   });
 
   it('class selector should match element correctly', async () => {
@@ -159,15 +283,26 @@ describe('runtime/style/index.ts', () => {
     divElement.setAttribute('class', 'class');
 
     const matchedCss = cssMap.query(divElement);
-    expect(matchedCss.selectors.length).toEqual(5);
+    expect(matchedCss.selectors.length).toEqual(6);
   });
 
   it('type selector should match element correctly', async () => {
     const tagElement = new HippyElement('tag');
     tagElement.setStyle('color', 'red');
 
-    const matchedCss = cssMap.query(tagElement);
-    expect(matchedCss.selectors.length).toEqual(4);
+    let matchedCss = cssMap.query(tagElement);
+    expect(matchedCss.selectors.length).toEqual(5);
+
+    const divElement = new HippyElement('div');
+    divElement.appendChild(tagElement);
+    matchedCss = cssMap.query(tagElement);
+    expect(matchedCss.selectors.length).toEqual(7);
+
+    const newTagElement = new HippyElement('newtag');
+    newTagElement.setStyle('color', 'red');
+    divElement.appendChild(newTagElement);
+    matchedCss = cssMap.query(tagElement);
+    expect(matchedCss.selectors.length).toEqual(7);
   });
 
   it('append selector should match element correctly', async () => {
@@ -197,6 +332,19 @@ describe('runtime/style/index.ts', () => {
     divElement.setAttribute('id', 'id');
 
     const matchedCss = cssMap.query(divElement);
-    expect(matchedCss.selectors.length).toEqual(9);
+    expect(matchedCss.selectors.length).toEqual(15);
+  });
+
+  it('global style dispose should work correctly', () => {
+    // set need dispose hash for style ast
+    global[HIPPY_GLOBAL_DISPOSE_STYLE_NAME] = ['chunk-2'];
+    cssMap = getCssMap();
+
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('id', 'id');
+
+    const matchedCss = cssMap.query(divElement);
+    // chunk-2 removed, two selectors removed
+    expect(matchedCss.selectors.length).toEqual(13);
   });
 });

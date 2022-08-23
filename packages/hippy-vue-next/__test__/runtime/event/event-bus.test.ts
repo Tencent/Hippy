@@ -19,35 +19,39 @@
  */
 
 /**
- * runtime/event/hippy-event unit test
+ * runtime/event/event-bus unit test
  */
-import { HippyEvent } from '../../../src/runtime/event/hippy-event';
+import { EventBus } from '../../../src/runtime/event/event-bus';
 
 /**
  * @author birdguo
  * @priority P0
  * @casetype unit
  */
-describe('runtime/event/hippy-event.ts', () => {
-  it('HippyEvent instance should have required function', async () => {
-    const now = Date.now();
-    const event = new HippyEvent('click');
+describe('runtime/event/event-bus.ts', () => {
+  it('event bus on & off function should work correctly', () => {
+    let sign = 1;
+    EventBus.$on('change', () => {
+      sign += 1;
+    });
+    EventBus.$emit('change');
+    expect(sign).toEqual(2);
+    EventBus.$emit('change');
+    expect(sign).toEqual(3);
+    EventBus.$off('change');
+    EventBus.$emit('change');
+    EventBus.$emit('change');
+    EventBus.$emit('change');
+    expect(sign).toEqual(3);
 
-    expect(event.type).toEqual('click');
-    expect(event.timeStamp >= now).toBeTruthy();
-  });
-
-  it('when stopPropagation, bubbles will be false', async () => {
-    const event = new HippyEvent('click');
-
-    event.stopPropagation();
-    expect(event.bubbles).toBeFalsy();
-  });
-
-  it('when preventDefault, event canceled props is true', () => {
-    const event = new HippyEvent('click');
-    expect(event.canceled).toBeFalsy();
-    event.preventDefault();
-    expect(event.canceled).toBeTruthy();
+    EventBus.$once('change', () => {
+      sign += 1;
+    });
+    EventBus.$emit('change');
+    expect(sign).toEqual(4);
+    EventBus.$emit('change');
+    EventBus.$emit('change');
+    EventBus.$emit('change');
+    expect(sign).toEqual(4);
   });
 });

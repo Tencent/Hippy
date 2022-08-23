@@ -21,7 +21,10 @@
 /**
  * util/index unit test
  */
+import type { ComponentPublicInstance } from '@vue/runtime-core';
 import * as index from '../../src/util/index';
+import {  HIPPY_DEBUG_ADDRESS } from '../../src/config';
+import { getEventRedirects } from '../../src/util/index';
 
 /**
  * @author birdguo
@@ -61,10 +64,16 @@ describe('util/index.ts', () => {
 
   it('getUniqueId should return the unique id, auto increment one', async () => {
     expect(index.getUniqueId()).toEqual(1);
-
     expect(index.getUniqueId()).toEqual(2);
-
     expect(index.getUniqueId()).toEqual(3);
+    expect(index.getUniqueId()).toEqual(4);
+    expect(index.getUniqueId()).toEqual(5);
+    expect(index.getUniqueId()).toEqual(6);
+    expect(index.getUniqueId()).toEqual(7);
+    expect(index.getUniqueId()).toEqual(8);
+    expect(index.getUniqueId()).toEqual(9);
+    // should not equal 10, id multiples of 10 is used by native
+    expect(index.getUniqueId()).toEqual(11);
   });
 
   it('unicodeToChar', async () => {
@@ -73,21 +82,70 @@ describe('util/index.ts', () => {
   });
 
   it('setsAreEqual', async () => {
-    const setA = new Set();
-    const setB = new Set();
-
-    expect(index.setsAreEqual(setA, setB)).toBeTruthy();
-
-    setA.add('123');
-    expect(index.setsAreEqual(setA, setB)).toBeFalsy();
-
-    setB.add('123');
-    expect(index.setsAreEqual(setA, setB)).toBeTruthy();
+    expect(index.setsAreEqual(new Set([1, 2, 3]), new Set([1, 2, 3]))).toBeTruthy();
+    expect(index.setsAreEqual(new Set(['a', 'b', 'c']), new Set(['a', 'b', 'c']))).toBeTruthy();
+    expect(index.setsAreEqual(new Set([1, 2]), new Set([1, 2, 3]))).toBeFalsy();
+    expect(index.setsAreEqual(new Set([1, 2, 3]), new Set([1, 2]))).toBeFalsy();
+    expect(index.setsAreEqual(new Set([1, 2, 3]), new Set([1, 2, 4]))).toBeFalsy();
   });
 
   it('getNormalizeEventName should return right event Name, start with on and capitalize first letter', async () => {
     expect(index.getNormalizeEventName('click')).toEqual('onClick');
     expect(index.getNormalizeEventName('change')).toEqual('onChange');
     expect(index.getNormalizeEventName('keyup')).toEqual('onKeyup');
+  });
+
+  it('mapEvent should return correct map with given event or event list', () => {
+    expect(index.mapHippyEvent('listReady', 'initialListReady')).toEqual(new Map().set('listReady', 'initialListReady')
+      .set('initialListReady', 'listReady'));
+    const eventMap = new Map();
+    eventMap.set('change', 'onChangeText');
+    eventMap.set('onChangeText', 'change');
+    eventMap.set('select', 'onSelectionChange');
+    eventMap.set('onSelectionChange', 'select');
+    expect(index.mapHippyEvent([
+      ['change', 'onChangeText'],
+      ['select', 'onSelectionChange'],
+    ])).toEqual(eventMap);
+  });
+
+  it('arrayCount should return correct count', () => {
+    expect(index.arrayCount([], () => {})).toEqual(0);
+    expect(index.arrayCount([1, 2, 3], () => {})).toEqual(0);
+    expect(index.arrayCount([1, 2, 3], (val: number) => val > 1)).toEqual(2);
+  });
+
+  it('convertImageLocalPath should return correct local path', () => {
+    expect(index.convertImageLocalPath('https://hippjs.org/image/index.png')).toEqual('https://hippjs.org/image/index.png');
+    expect(index.convertImageLocalPath('assets/index.png')).toEqual(`${HIPPY_DEBUG_ADDRESS}assets/index.png`);
+  });
+
+  it('getEventRedirects should return correct event listener object', () => {
+    expect(getEventRedirects.call({ $attrs: {
+      dropped: true,
+    } } as unknown as ComponentPublicInstance, [
+      ['dropped', 'pageSelected'],
+    ])).toEqual({});
+    expect(getEventRedirects.call({ $attrs: {
+      onDropped: true,
+    } } as unknown as ComponentPublicInstance, [
+      ['dropped', 'pageSelected'],
+    ])).toEqual({
+      onPageSelected: true,
+    });
+    expect(getEventRedirects.call({ $attrs: {} } as unknown as ComponentPublicInstance, [
+      'headerReleased',
+    ])).toEqual({});
+  });
+
+  it('setBeforeLoadStyle & getBeforeLoadStyle should work fine', () => {
+    const hook = () => {};
+    index.setBeforeLoadStyle(hook);
+    expect(index.getBeforeLoadStyle()).toEqual(hook);
+  });
+
+  it('unicodeToChar should work correct', () => {
+    expect(index.unicodeToChar('hello')).toEqual('hello');
+    expect(index.unicodeToChar('\u0065\u0066')).toEqual('ef');
   });
 });

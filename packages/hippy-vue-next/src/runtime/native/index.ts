@@ -472,7 +472,7 @@ export const Native: NativeApiType = {
      */
     async getAll(url: string) {
       if (!url) {
-        throw new TypeError('Vue.Native.Cookie.getAll() must have url argument');
+        throw new TypeError('Native.cookie.getAll() must have url argument');
       }
       return Native.callNativeWithPromise.call(
         this,

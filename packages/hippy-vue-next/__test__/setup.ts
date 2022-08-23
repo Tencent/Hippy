@@ -76,3 +76,5 @@ global.__HIPPYNATIVEGLOBAL__ = {
   },
   Device: 'iPhone 12',
 };
+
+process.env.PORT = '38989';

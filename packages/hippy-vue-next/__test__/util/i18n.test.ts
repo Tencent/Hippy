@@ -19,35 +19,24 @@
  */
 
 /**
- * runtime/event/hippy-event unit test
+ * util/index unit test
  */
-import { HippyEvent } from '../../../src/runtime/event/hippy-event';
+import * as i18n from '../../src/util/i18n';
+import { Native } from '../../src/runtime/native';
 
 /**
  * @author birdguo
  * @priority P0
  * @casetype unit
  */
-describe('runtime/event/hippy-event.ts', () => {
-  it('HippyEvent instance should have required function', async () => {
-    const now = Date.now();
-    const event = new HippyEvent('click');
+describe('src/util/i18n', () => {
+  it('isRTL should return right value', () => {
+    let isRtl = i18n.isRTL();
+    expect(isRtl).toBeFalsy();
 
-    expect(event.type).toEqual('click');
-    expect(event.timeStamp >= now).toBeTruthy();
-  });
-
-  it('when stopPropagation, bubbles will be false', async () => {
-    const event = new HippyEvent('click');
-
-    event.stopPropagation();
-    expect(event.bubbles).toBeFalsy();
-  });
-
-  it('when preventDefault, event canceled props is true', () => {
-    const event = new HippyEvent('click');
-    expect(event.canceled).toBeFalsy();
-    event.preventDefault();
-    expect(event.canceled).toBeTruthy();
+    // set Native localization
+    Native.localization.direction = 1;
+    isRtl = i18n.isRTL();
+    expect(isRtl).toBeTruthy();
   });
 });

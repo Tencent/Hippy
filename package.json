@@ -23,7 +23,7 @@
     "publish": "npx lerna version patch --conventional-commits --sign-git-commit",
     "doc": "docsify serve docs",
     "prepare": "is-ci || husky install",
-    "test-unit": "jest --detectOpenHandles"
+    "test-unit": "jest --detectOpenHandles --coverage"
   },
   "devDependencies": {
     "@babel/core": "^7.16.7",

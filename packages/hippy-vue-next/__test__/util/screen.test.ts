@@ -19,35 +19,35 @@
  */
 
 /**
- * runtime/event/hippy-event unit test
+ * util/screen unit test
  */
-import { HippyEvent } from '../../../src/runtime/event/hippy-event';
+import { setScreenSize } from '../../src/util/screen';
+import { Native } from '../../src/runtime/native';
 
 /**
  * @author birdguo
  * @priority P0
  * @casetype unit
  */
-describe('runtime/event/hippy-event.ts', () => {
-  it('HippyEvent instance should have required function', async () => {
-    const now = Date.now();
-    const event = new HippyEvent('click');
+describe('src/util/i18n', () => {
+  it('setScreenSize should work correct', () => {
+    expect(Native.dimensions.screen.width).toEqual(375);
+    expect(Native.dimensions.screen.height).toEqual(667);
 
-    expect(event.type).toEqual('click');
-    expect(event.timeStamp >= now).toBeTruthy();
-  });
+    setScreenSize({
+      width: 100,
+      height: 0,
+    });
 
-  it('when stopPropagation, bubbles will be false', async () => {
-    const event = new HippyEvent('click');
+    expect(Native.dimensions.screen.width).toEqual(375);
+    expect(Native.dimensions.screen.height).toEqual(667);
 
-    event.stopPropagation();
-    expect(event.bubbles).toBeFalsy();
-  });
+    setScreenSize({
+      width: 100,
+      height: 100,
+    });
 
-  it('when preventDefault, event canceled props is true', () => {
-    const event = new HippyEvent('click');
-    expect(event.canceled).toBeFalsy();
-    event.preventDefault();
-    expect(event.canceled).toBeTruthy();
+    expect(Native.dimensions.screen.width).toEqual(100);
+    expect(Native.dimensions.screen.height).toEqual(100);
   });
 });

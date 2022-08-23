@@ -19,35 +19,34 @@
  */
 
 /**
- * runtime/event/hippy-event unit test
+ * util/rem unit test
  */
-import { HippyEvent } from '../../../src/runtime/event/hippy-event';
+import * as rem from '../../src/util/rem';
+import { setHippyCachedInstance } from '../../src/util/instance';
+import { HippyElement } from '../../src/runtime/element/hippy-element';
 
 /**
  * @author birdguo
  * @priority P0
  * @casetype unit
  */
-describe('runtime/event/hippy-event.ts', () => {
-  it('HippyEvent instance should have required function', async () => {
-    const now = Date.now();
-    const event = new HippyEvent('click');
-
-    expect(event.type).toEqual('click');
-    expect(event.timeStamp >= now).toBeTruthy();
-  });
-
-  it('when stopPropagation, bubbles will be false', async () => {
-    const event = new HippyEvent('click');
-
-    event.stopPropagation();
-    expect(event.bubbles).toBeFalsy();
-  });
-
-  it('when preventDefault, event canceled props is true', () => {
-    const event = new HippyEvent('click');
-    expect(event.canceled).toBeFalsy();
-    event.preventDefault();
-    expect(event.canceled).toBeTruthy();
+describe('src/util/rem', () => {
+  it('non rem value should return old value', () => {
+    const root = new HippyElement('div');
+    root.id = 'testRoot';
+    setHippyCachedInstance({
+      rootView: 'testRoot',
+      rootViewId: 1,
+      ratioBaseWidth: 750,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      instance: {
+        $el: root,
+      },
+    });
+    expect(rem.parseRemStyle('100px')).toEqual('100px');
+    expect(rem.parseRemStyle(100)).toEqual(100);
+    expect(rem.parseRemStyle('rem')).toEqual('rem');
+    expect(rem.parseRemStyle('1.2rem')).toEqual(60);
   });
 });

@@ -25,6 +25,7 @@ import {
   cancelIdleCallback,
   preCacheNode,
   getNodeById,
+  unCacheNodeOnIdle,
 } from '../../src/util/node-cache';
 
 /**
@@ -33,6 +34,7 @@ import {
  * @casetype unit
  */
 describe('util/index.ts', () => {
+  jest.useFakeTimers();
   it('check node cache operation', async () => {
     const node = new HippyElement('div');
     const childNode = new HippyElement('div');
@@ -56,5 +58,16 @@ describe('util/index.ts', () => {
 
     const id = requestIdleCallback(() => {});
     cancelIdleCallback(id);
+
+    const otherNode = new HippyElement('div');
+    otherNode.nodeId = 14;
+    preCacheNode(otherNode, 14);
+    cachedNode = getNodeById(14);
+    expect(otherNode).toEqual(cachedNode);
+    unCacheNodeOnIdle(otherNode);
+    // Fast-forward until all timers have been executed
+    jest.runAllTimers();
+    cachedNode = getNodeById(14);
+    expect(cachedNode).toEqual(null);
   });
 });

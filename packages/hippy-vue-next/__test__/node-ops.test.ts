@@ -84,6 +84,7 @@ describe('node-ops.ts', () => {
     const parent = nodeOps.createElement('div');
     const child = nodeOps.createElement('div');
     const anchor = nodeOps.createElement('p');
+    const another = nodeOps.createElement('p');
 
     // first insert anchor
     nodeOps.insert(anchor, parent);
@@ -95,6 +96,11 @@ describe('node-ops.ts', () => {
     expect(parent.childNodes.length).toEqual(2);
     expect(parent.childNodes[0]).toEqual(child);
     expect(parent.childNodes[1]).toEqual(anchor);
+
+    // null anchor
+    nodeOps.insert(another, parent, null);
+    expect(parent.childNodes.length).toEqual(3);
+    expect(parent.lastChild).toEqual(another);
   });
 
   it('insert a text node', async () => {

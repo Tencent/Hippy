@@ -267,9 +267,9 @@ export class HippyNode extends HippyEventTarget {
       return;
     }
 
-    if (child.parentNode !== null && child.parentNode !== this) {
+    if (anchor.parentNode && anchor.parentNode !== this) {
       // The child node to be inserted already has a parent node and will not be moved
-      throw new Error('Can not move child, because the child node is already has a different parent');
+      throw new Error('Can not move child, because the anchor node is already has a different parent');
     }
 
     if (child.parentNode && child.parentNode !== this) {
@@ -513,7 +513,7 @@ export class HippyNode extends HippyEventTarget {
     }
 
     // get native nodes
-    const updateNodes: NativeNode[] =      this.convertToNativeNodes(isIncludeChildren);
+    const updateNodes: NativeNode[] = this.convertToNativeNodes(isIncludeChildren);
     renderUpdateChildNativeNode(updateNodes);
   }
 

@@ -24,6 +24,7 @@
 import type { NeedToTyped } from '../../../src/config';
 import { HippyListElement } from '../../../src/runtime/element/hippy-list-element';
 import { Native, CACHE } from '../../../src/runtime/native/index';
+import { EventBus } from '../../../src/runtime/event/event-bus';
 
 /**
  * @author mitnickliu
@@ -136,22 +137,31 @@ describe('runtime/native.ts', () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
       value: async () => '123',
     });
+    Native.clipboard.setString('123');
     expect(await Native.clipboard.getString()).toEqual('123');
-    expect(Native.clipboard.setString('123')).toBeUndefined();
   });
+  it('test native bridge calls: cookie.getAll invalid', async () => {
+    await expect(() => Native.cookie.getAll('')).rejects.toEqual(new Error('Native.cookie.getAll() must have url argument'));
+  });
+
+  it('test native bridge calls: cookie.set invalid', async () => {
+    expect(() => Native.cookie.set('', '')).toThrow(new Error('Native.cookie.set() must have url argument'));
+  });
+
   it('test native bridge calls: cookie', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
-      value: async () => Promise.resolve('https://www.qq.com'),
+      value: async () => Promise.resolve('https://hippyjs.org'),
     });
-    expect(await Native.cookie.getAll('https://www.qq.com')).toEqual('https://www.qq.com');
-    expect(Native.cookie.set('https://www.qq.com', 'uin', new Date())).toBeUndefined();
+    Native.cookie.set('https://hippyjs.org', 'uin', new Date());
+    expect(await Native.cookie.getAll('https://hippyjs.org')).toEqual('https://hippyjs.org');
   });
+
   it('test native bridge calls: imageLoader', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
       value: async () => Promise.resolve(100),
     });
-    expect(await Native.imageLoader.getSize('https://www.qq.com')).toEqual(100);
-    expect(Native.imageLoader.prefetch('https://www.qq.com')).toBeUndefined();
+    Native.imageLoader.prefetch('https://hippyjs.org');
+    expect(await Native.imageLoader.getSize('https://hippyjs.org')).toEqual(100);
   });
   it('test native bridge calls: netInfo', async () => {
     Object.defineProperty(Native, 'callNativeWithPromise', {
@@ -160,6 +170,17 @@ describe('runtime/native.ts', () => {
       }),
     });
     expect(await Native.netInfo.fetch()).toEqual('4G');
+
+    let network = '4G';
+    const networkCb = (realNetwork) => {
+      network = realNetwork;
+    };
+    Native.netInfo.addEventListener('change', networkCb);
+    EventBus.$emit('networkStatusDidChange', 'WiFi');
+    expect(network).toEqual('WiFi');
+    Native.netInfo.removeEventListener('change', networkCb);
+    EventBus.$emit('networkStatusDidChange', '5G');
+    expect(network).toEqual('WiFi');
   });
   it('test parseColor', async () => {
     expect(Native.parseColor('#ffffff', { platform: 'ios' })).toEqual(4294967295);
@@ -230,5 +251,10 @@ describe('runtime/native.ts', () => {
       width: 375,
       height: 667,
     });
+  });
+
+  it('get element css should work correct', () => {
+    expect(Native.getElemCss(new HippyListElement('ul'))).toEqual({});
+    // todo, add has css case
   });
 });

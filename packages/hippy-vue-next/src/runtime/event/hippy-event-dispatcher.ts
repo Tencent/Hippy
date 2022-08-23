@@ -64,7 +64,7 @@ function getVueEventName(eventName: string, targetNode: HippyNode): string {
     return eventNamesMap.get(eventName) as string;
   }
 
-  // events that do not start with on may be custom events, and return the event name directly
+  // events that do not start with on maybe custom events, and return the event name directly
   if (eventName.indexOf('on') !== 0) {
     return eventName;
   }

@@ -37,7 +37,7 @@ interface InputValueMapType {
   [key: string]: string;
 }
 
-const INPUT_VALUE_MAP: InputValueMapType = {
+export const INPUT_VALUE_MAP: InputValueMapType = {
   number: 'numeric',
   text: 'default',
   search: 'web-search',
