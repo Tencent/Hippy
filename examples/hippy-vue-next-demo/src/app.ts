@@ -54,8 +54,8 @@ EventBus.$on('onSizeChanged', (newScreenSize) => {
   }
 });
 
-// You need to wait for hippy native to register successfully before calling vue mount
-app.$start().then(({ superProps, rootViewId }) => {
+// init callback
+const initCallback = ({ superProps, rootViewId }) => {
   warn(superProps);
   setGlobalInitProps({
     superProps,
@@ -67,7 +67,7 @@ app.$start().then(({ superProps, rootViewId }) => {
    * On the browser, it is matched by vue-router according to location.href, and the default push root path '/'
    */
   router.push('/');
-  // mount first
+  // mount first， you can do something before mount
   app.mount('#root');
 
   /**
@@ -85,4 +85,10 @@ app.$start().then(({ superProps, rootViewId }) => {
     // set true interrupts native back
     // return true;
   });
-});
+};
+
+// start hippy app
+app.$start().then(initCallback);
+
+// you can also use callback to start app like @hippy/vue before
+// app.$start(initCallback);

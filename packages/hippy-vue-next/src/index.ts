@@ -30,6 +30,7 @@ import {
   type App,
   createRenderer,
 } from '@vue/runtime-core';
+import { isFunction } from '@vue/shared';
 
 import { BackAndroid } from './android-back';
 import BuiltInComponent from './built-in-component';
@@ -60,7 +61,7 @@ import {
   setHippyCachedInstanceParams,
 } from './util/instance';
 import { setScreenSize } from './util/screen';
-import type { NeedToTyped } from './config';
+import type { CallbackType, NeedToTyped } from './config';
 
 /**
  * Hippy App type, override the mount method of Vue
@@ -68,7 +69,9 @@ import type { NeedToTyped } from './config';
  * @public
  */
 export type HippyApp = App & {
-  $start: () => Promise<{ superProps: NeedToTyped; rootViewId?: number }>;
+  $start: (
+    afterCallback?: CallbackType
+  ) => Promise<{ superProps: NeedToTyped; rootViewId: number }>;
 };
 
 /**
@@ -209,7 +212,7 @@ export const createApp = (
   };
 
   // return instance of HippyApp instance
-  hippyApp.$start = async () => new Promise((resolve) => {
+  hippyApp.$start = async (afterCallback?: CallbackType) => new Promise((resolve) => {
     // call the interface provided by Native to register hippy
     Native.hippyNativeRegister.regist(
       options.appName,
@@ -232,11 +235,18 @@ export const createApp = (
               options?.styleOptions?.ratioBaseWidth ?? defaultRatioBaseWidth, // base screen width
         });
 
-        // the initialization is complete, and return the initialization parameters returned by native
-        resolve({
+        const globalInitParams = {
           superProps,
           rootViewId,
-        });
+        };
+
+        // support callback && promise
+        if (isFunction(afterCallback)) {
+          afterCallback(globalInitParams);
+        }
+
+        // the initialization is complete, and return the initialization parameters returned by native
+        resolve(globalInitParams);
       },
     );
   });
