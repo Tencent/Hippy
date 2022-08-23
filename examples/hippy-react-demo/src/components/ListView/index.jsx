@@ -279,6 +279,10 @@ export default class ListExample extends React.Component {
           onEndReached={this.onEndReached}
           getRowType={this.getRowType}
           onDelete={this.onDelete}
+          onMomentumScrollBegin={params => console.log('onMomentumScrollBegin', params)}
+          onMomentumScrollEnd={params => console.log('onMomentumScrollEnd', params)}
+          onScrollBeginDrag={params => console.log('onScrollBeginDrag', params)}
+          onScrollEndDrag={params => console.log('onScrollEndDrag', params)}
           delText={this.delText}
           editable={true}
           // configure listItem style if horizontal listview is set
