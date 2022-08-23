@@ -38,23 +38,21 @@ import {
 
 export default defineComponent({
   setup() {
-    const config = ref(null);
+    let config = null;
     const result = ref('');
 
-    const onTurboFunc = (funcName) => {
+    const onTurboFunc = async (funcName) => {
       if (funcName === 'nativeWithPromise') {
-        nativeWithPromise('aaa').then((promiseValue) => {
-          result.value = promiseValue;
-        });
+        result.value = await nativeWithPromise('aaa');
       } else if (funcName === 'getTurboConfig') {
-        config.value = getTurboConfig();
+        config = getTurboConfig();
         result.value = '获取到config对象';
       } else if (funcName === 'printTurboConfig') {
-        result.value = printTurboConfig(config.value ?? getTurboConfig());
+        result.value = printTurboConfig(config ?? getTurboConfig());
       } else if (funcName === 'getInfo') {
-        result.value = (config.value ?? getTurboConfig()).getInfo();
+        result.value = (config ?? getTurboConfig()).getInfo();
       } else if (funcName === 'setInfo') {
-        (config.value ?? getTurboConfig()).setInfo('Hello World');
+        (config ?? getTurboConfig()).setInfo('Hello World');
         result.value = '设置config信息成功';
       } else {
         const basicFuncs = {
@@ -73,7 +71,6 @@ export default defineComponent({
     };
 
     return {
-      config,
       result,
       funList: [
         'getString',
