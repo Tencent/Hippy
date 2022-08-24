@@ -117,3 +117,8 @@ typedef void (^HippyPromiseResolveBlock)(id result);
  * precise error messages.
  */
 typedef void (^HippyPromiseRejectBlock)(NSString *code, NSString *message, NSError *error);
+
+/**
+ * Block that when js script execution completion
+ */
+typedef void (^HippyJavaScriptCallback)(id result, NSError *error);

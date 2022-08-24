@@ -38,9 +38,6 @@ global.__GLOBAL__ = {
  */
 function hippyRegister(appName, entryFunc) {
   // Call the iOS native for rename the context to appName.
-  if (global.__HIPPYNATIVEGLOBAL__.OS === 'ios') {
-    Hippy.bridge.callNative('JSCExecutor', 'setContextName', `HippyContext: ${appName}`);
-  }
   __GLOBAL__.appRegister[appName] = {
     run: entryFunc,
   };

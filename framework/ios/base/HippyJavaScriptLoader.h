@@ -47,6 +47,6 @@ typedef void (^HippySourceLoadBlock)(NSError *error, NSData *source, int64_t sou
 
 @interface HippyJavaScriptLoader : NSObject
 
-+ (void)loadBundleAtURL:(NSURL *)scriptURL onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)onComplete;
++ (void)downloadBundleAtURL:(NSURL *)scriptURL onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)onComplete;
 
 @end

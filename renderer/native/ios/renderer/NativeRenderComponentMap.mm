@@ -76,6 +76,10 @@ using RootNode = hippy::RootNode;
     return nil != rootComponent;
 }
 
+- (NSArray<id<NativeRenderComponentProtocol>> *)rootComponents {
+    return [_rootComponentsMap allValues];
+}
+
 - (__kindof id<NativeRenderComponentProtocol>)rootComponentForTag:(NSNumber *)tag {
     NSAssert(tag, @"tag must not be null in method %@", NSStringFromSelector(_cmd));
     NSAssert([self threadCheck], @"%@ method needs run in main thread", NSStringFromSelector(_cmd));

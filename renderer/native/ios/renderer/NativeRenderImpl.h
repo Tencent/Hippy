@@ -68,7 +68,7 @@ NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotificatio
  * Gets the view associated with a componentTag.
  */
 - (UIView *)viewForComponentTag:(NSNumber *)componentTag
-                  onRootTag:(NSNumber *)rootTag;
+                      onRootTag:(NSNumber *)rootTag;
 
 
 /**

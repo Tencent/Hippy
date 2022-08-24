@@ -24,7 +24,6 @@
 
 #import "HippyAssert.h"
 #import "HippyBridge.h"
-#import "HippyBridge+Private.h"
 #import "NativeRenderLog.h"
 #import "NativeRenderUtils.h"
 
@@ -250,7 +249,7 @@ HIPPY_EXPORT_METHOD(createTimer:(nonnull NSNumber *)callbackID
                     repeats:(BOOL)repeats) {
     if (jsDuration == 0 && repeats == NO) {
         // For super fast, one-off timers, just enqueue them immediately rather than waiting a frame.
-        [_bridge _immediatelyCallTimer:callbackID];
+        [_bridge immediatelyCallTimer:callbackID];
         return;
     }
     

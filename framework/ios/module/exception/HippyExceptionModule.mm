@@ -65,7 +65,7 @@ HIPPY_EXPORT_METHOD(handleException:(NSString *)title detail:(NSString *)detail
                                 };
 
     NSError *error = [NSError errorWithDomain:HippyErrorDomain code:1 userInfo:errorInfo];
-    HippyFatal(error);
+    HippyFatal(error, self.bridge);
 }
 // clang-format on
 

@@ -25,7 +25,6 @@
 #import <objc/runtime.h>
 
 #import "HippyAssert.h"
-#import "HippyBridge+Private.h"
 #import "HippyDefines.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
@@ -113,16 +112,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 @end
 
-@interface HippyDevMenu () <HippyBridgeModule, NativeRenderInvalidating>
-
-@property (nonatomic, strong) Class executorClass;
-
-@end
-
-@implementation HippyDevMenu {
+@interface HippyDevMenu () <HippyBridgeModule, NativeRenderInvalidating> {
     __weak UIAlertController *_actionSheet;
     NSUserDefaults *_defaults;
 }
+
+@end
+
+@implementation HippyDevMenu
 
 @synthesize bridge = _bridge;
 

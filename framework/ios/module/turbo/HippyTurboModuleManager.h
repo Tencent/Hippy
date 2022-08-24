@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#include <JavaScriptCore/JSValue.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyBridge.h"
 #import "HippyOCTurboModule.h"
 

@@ -26,7 +26,6 @@
 
 #import "HippyAssert.h"
 #import "HippyBridge.h"
-#import "HippyBridge+Private.h"
 #import "NativeRenderConvert.h"
 #import "NativeRenderLog.h"
 #import "NativeRenderParserUtils.h"
