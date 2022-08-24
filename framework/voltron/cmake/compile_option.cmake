@@ -2,6 +2,7 @@
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
   add_definitions("-DJS_V8")
   set(JS_ENGINE "V8")
+  set(FRAMEWORK_ANDROID_DEPS android log)
   set(ABI_COMPILE_OPTIONS
           -fomit-frame-pointer
           -fno-threadsafe-statics
@@ -50,9 +51,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
   else ()
     message(FATAL_ERROR "${ANDROID_ABI} is not supported")
   endif ()
+  add_definitions("-DOS_ANDROID")
+  add_definitions("-DANDROID")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  set(JS_ENGINE "JSC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++ -fprofile-instr-generate -fcoverage-mapping -std=c++17")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(JS_ENGINE "JSC")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++ -fprofile-instr-generate -fcoverage-mapping -std=c++17")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(JS_ENGINE "V8")
 endif (CMAKE_SYSTEM_NAME STREQUAL "Android")

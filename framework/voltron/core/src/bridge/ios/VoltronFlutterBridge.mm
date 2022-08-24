@@ -47,19 +47,19 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     [self initCommonVars];
 }
 
-- (void)initJSFramework:(NSString *)globalConfig wsURL:(NSString *)wsURL debugMode:(BOOL)debugMode completion:(void (^)(BOOL))completion {
+- (void)initJSFramework:(NSString *)globalConfig execurotKey:(NSString *)execurotKey, wsURL:(NSString *)wsURL debugMode:(BOOL)debugMode completion:(void (^)(BOOL))completion {
     if (self.jscExecutor) {
         NSAssert(0, @"initJSFramework has called");
         return;
     }
 
-    __weak typeof(self) weakSelf = self;
+    __weak VoltronFlutterBridge* weakSelf = self;
     VoltronFrameworkInitCallback callback = [weakSelf, completion](BOOL result) {
       NSError *error;
       if (!result) {
         error = [NSError errorWithDomain:VoltronErrorDomain code:2 userInfo:@{NSLocalizedDescriptionKey: @"cannot initJSFramework"}];
       }
-      typeof(self) strongSelf = weakSelf;
+      VoltronFlutterBridge* strongSelf = weakSelf;
       [strongSelf dealWithError:error];
       if (!strongSelf || error) {
           if (completion) {
@@ -73,7 +73,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
       }
     };
 
-    self.jscExecutor = [[VoltronJSCExecutor alloc] initWithExecurotKey:@"VoltronExecutor"
+    self.jscExecutor = [[VoltronJSCExecutor alloc] initWithExecurotKey:execurotKey
                                                           globalConfig:globalConfig
                                                                  wsURL:wsURL
                                                              debugMode:debugMode
@@ -94,9 +94,9 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
 }
 
 - (void)executeScript:(NSData *)script url:(NSURL *)url completion:(void (^)(NSError * _Nonnull))completion {
-    __weak typeof(self) weakSelf = self;
+    __weak VoltronFlutterBridge* weakSelf = self;
     [self.jscExecutor executeApplicationScript:script sourceURL:url onComplete:^(NSError *error) {
-        typeof(self) strongSelf = weakSelf;
+        VoltronFlutterBridge* strongSelf = weakSelf;
         [strongSelf dealWithError:error];
 
         if (completion) {
@@ -107,10 +107,10 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
 
 // dart2js
 - (void)callFunctionOnAction:(NSString *)action arguments:(NSDictionary *)args callback:(VoltronFlutterCallback)onComplete {
-    __weak typeof(self) weakSelf = self;
+    __weak VoltronFlutterBridge* weakSelf = self;
     [self.jscExecutor callFunctionOnAction:action arguments:args callback:^(id result, NSError *error) {
         VoltronLog(@"callFunctionOnAction:%@ arg:%@ result:%@ error:%@", action, args, result, error);
-        typeof(self) strongSelf = weakSelf;
+        VoltronFlutterBridge* strongSelf = weakSelf;
         [strongSelf dealWithError:error];
 
         if (onComplete) {

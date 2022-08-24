@@ -34,7 +34,11 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-target_link_libraries(${PROJECT_NAME} PRIVATE android log)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Android")
+  target_link_libraries(${PROJECT_NAME} PRIVATE android log)
+endif()
+
 if (ENABLE_INSPECTOR)
   target_compile_definitions(${PROJECT_NAME} PUBLIC "ENABLE_INSPECTOR")
 endif ()

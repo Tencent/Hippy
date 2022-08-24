@@ -21,7 +21,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "core/engine.h"
+#import "driver/engine.h"
 
 @interface VoltronJSEnginesMapper : NSObject
 

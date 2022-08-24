@@ -24,6 +24,8 @@
 #import "VoltronJSEnginesMapper.h"
 #import "utils/VoltronLog.h"
 #import "VoltronJavaScriptExecutor.h"
+#import "footstone/looper_driver.h"
+#import "footstone/worker_impl.h"
 
 using EngineRef = std::pair<std::shared_ptr<Engine>, NSUInteger>;
 using EngineMapper = std::unordered_map<std::string, EngineRef>;
@@ -55,7 +57,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-      std::shared_ptr<Engine> engine = std::make_shared<Engine>(nullptr, nullptr);
+        std::shared_ptr<Engine> engine = std::make_shared<Engine>(nullptr, nullptr);
         [self setEngine:engine forKey:key];
         return engine;
     }

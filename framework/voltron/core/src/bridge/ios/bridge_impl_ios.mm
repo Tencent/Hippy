@@ -22,8 +22,8 @@
 
 #import "bridge_impl_ios.h"
 #import "VoltronFlutterBridge.h"
-#import "core/scope.h"
-
+#import "VoltronJSEnginesMapper.h"
+#import "footstone/task_runner.h"
 
 #define Addr2Str(addr) (addr?[NSString stringWithFormat:@"%ld", (long)addr]:@"0")
 
@@ -116,9 +116,9 @@ void BridgeImpl::UnloadInstance(int64_t runtime_id, std::string&& params) {
                                                               options:NSJSONReadingMutableContainers
                                                                 error:&jsonError];
     if (jsonError == nil) {
-        tdf::base::DomValue value = OCTypeToDomValue(paramDict);
-        std::shared_ptr<tdf::base::DomValue> domValue = std::make_shared<tdf::base::DomValue>(value);
-        bridge.jscExecutor.pScope->UnLoadInstance(domValue);
+        footstone::value::HippyValue value = OCTypeToDomValue(paramDict);
+        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
+        bridge.jscExecutor.pScope->UnloadInstance(domValue);
     }
 }
 
@@ -141,11 +141,20 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     NSString *globalConfig = U16ToNSString(char_globalConfig);
     NSString *wsURL = U16ToNSString(char_ws_url);
     BOOL debugMode = is_dev_module ? YES : NO;
-    [bridge initJSFramework:globalConfig wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
+    int64_t bridge_id = (int64_t)bridge;
+    NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%d", bridge_id];
+    
+    std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
+    FOOTSTONE_DCHECK(dom_manager);
+    std::shared_ptr<TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
+    std::shared_ptr<Engine> engine = std::make_shared<Engine>(task_runner, nullptr);
+    [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
+    
+    [bridge initJSFramework:globalConfig execurotKey: executorKey, wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
         callback(succ ? 1 : 0);
     }];
 
-    return (int64_t)bridge;
+    return bridge_id;
 }
 
 bool BridgeImpl::RunScript(int64_t runtime_id,

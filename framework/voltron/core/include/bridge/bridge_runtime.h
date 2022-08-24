@@ -24,7 +24,6 @@
 
 #include <functional>
 
-#include "driver/runtime/v8/runtime.h"
 #include "render/ffi/bridge_manager.h"
 
 namespace voltron {

@@ -25,6 +25,7 @@
 
 #include "bridge/bridge_runtime.h"
 #include "dom/dom_manager.h"
+#include "driver/scope.h"
 
 using hippy::DomManager;
 using footstone::WorkerManager;
@@ -55,7 +56,7 @@ class BridgeImpl {
                              std::function<void(int64_t)> callback);
 
   static void LoadInstance(int64_t runtime_id, std::string&& params);
-  static void UnLoadInstance(int64_t runtime_id, std::string&& params);
+  static void UnloadInstance(int64_t runtime_id, std::string&& params);
 
   static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
 
