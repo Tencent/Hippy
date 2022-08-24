@@ -20,27 +20,20 @@
  * limitations under the License.
  */
 
-#import "HippyBridge.h"
+#import <Foundation/Foundation.h>
+#import "HippyJavaScriptLoader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSErrorDomain const HippyLocalFileReadErrorDomain;
-extern NSInteger HippyLocalFileNOFilExist;
+@class HippyBridge;
 
-@interface HippyBridge (LocalFileSource)
+@interface HippyBundleDownloadOperation : NSOperation
 
-/**
- * property to path of sandbox directory
- */
-@property (nonatomic, copy) NSString *sandboxDirectory;
+@property(nonatomic, copy) HippySourceLoadProgressBlock onProgress;
+@property(nonatomic, copy) HippySourceLoadBlock onLoad;
 
-+ (BOOL)isHippyLocalFileURLString:(NSString *)string;
+- (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL;
 
-/**
- * get absolute url string relative to param 'string'
- * @param string a relative url path to secondary bundle path
- */
-- (NSString *)absoluteStringFromHippyLocalFileURLString:(NSString *)string;
 @end
 
 NS_ASSUME_NONNULL_END

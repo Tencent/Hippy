@@ -227,7 +227,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)registerKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    NativeRenderAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -245,7 +245,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)unregisterKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    NativeRenderAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -256,7 +256,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (BOOL)isKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    NativeRenderAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {
@@ -267,7 +267,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)registerDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags action:(void (^)(UIKeyCommand *))block {
-    NativeRenderAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (input.length && flags && HippyIsIOS8OrEarlier()) {
         // Workaround around the first cmd not working: http://openradar.appspot.com/19613391
@@ -285,7 +285,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (void)unregisterDoublePressKeyCommandWithInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    NativeRenderAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {
         if ([command matchesInput:input flags:flags]) {
@@ -296,7 +296,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 - (BOOL)isDoublePressKeyCommandRegisteredForInput:(NSString *)input modifierFlags:(UIKeyModifierFlags)flags {
-    NativeRenderAssertMainQueue();
+    HippyAssertMainQueue();
 
     for (HippyKeyCommand *command in _commands.allObjects) {  // add by stockGroup
         if ([command matchesInput:input flags:flags]) {

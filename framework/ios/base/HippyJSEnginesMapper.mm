@@ -27,8 +27,12 @@
 #include "footstone/platform/ios/looper_driver.h"
 
 EngineResource::EngineResource() {
+    Setup("Hippy Dom Thread");
+}
+
+void EngineResource::Setup(const std::string name) {
     auto driver = std::make_unique<footstone::LooperDriver>();
-    dom_worker_ = std::make_shared<footstone::WorkerImpl>("hippy_dom", false, std::move(driver));
+    dom_worker_ = std::make_shared<footstone::WorkerImpl>(name, false, std::move(driver));
     dom_worker_->Start();
     auto task_runner = std::make_shared<footstone::TaskRunner>();
     dom_worker_->Bind({task_runner});
@@ -36,6 +40,17 @@ EngineResource::EngineResource() {
     dom_manager_ = std::make_shared<hippy::DomManager>();
     dom_manager_->SetTaskRunner(task_runner);
     engine_ = std::make_shared<hippy::Engine>(task_runner, nullptr);
+}
+
+EngineResource::EngineResource(const std::string name) {
+    std::ostringstream stream;
+    if (name.length()) {
+        stream << "Hippy Dom " << name << " Thread";
+    }
+    else {
+        stream << "Hippy Dom Thread";
+    }
+    Setup(stream.str());
 }
 
 EngineResource::~EngineResource() {
@@ -72,7 +87,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-        std::shared_ptr<EngineResource> engineSource = std::make_shared<EngineResource>();
+        std::shared_ptr<EngineResource> engineSource = std::make_shared<EngineResource>([key UTF8String]);
         [self setEngine:engineSource forKey:key];
         return engineSource;
     }

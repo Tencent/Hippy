@@ -39,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)containRootComponentWithTag:(NSNumber *)tag;
 
+- (NSArray<id<NativeRenderComponentProtocol>> *)rootComponents;
+
 - (__kindof id<NativeRenderComponentProtocol>)rootComponentForTag:(NSNumber *)tag;
 
 - (std::weak_ptr<hippy::RootNode>)rootNodeForTag:(NSNumber *)tag;

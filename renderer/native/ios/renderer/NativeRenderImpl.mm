@@ -364,8 +364,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     for (id<NativeRenderComponentProtocol> child in children) {
         NativeRenderTraverseViewNodes(registry[child.componentTag], ^(id<NativeRenderComponentProtocol> subview) {
             NSAssert(![subview isNativeRenderRootView], @"Root views should not be unregistered");
-            if ([subview conformsToProtocol:@protocol(NativeRenderInvalidating)]) {
-                [(id<NativeRenderInvalidating>)subview invalidate];
+            if ([subview respondsToSelector:@selector(invalidate)]) {
+                [subview performSelector:@selector(invalidate)];
             }
             [registry removeObjectForKey:subview.componentTag];
             if (registry == (NSMutableDictionary<NSNumber *, id<NativeRenderComponentProtocol>> *)self->_viewRegistry) {
@@ -390,9 +390,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     for (id<NativeRenderComponentProtocol> child in children) {
         NativeRenderTraverseViewNodes(registry[child.componentTag], ^(id<NativeRenderComponentProtocol> subview) {
             NSAssert(![subview isNativeRenderRootView], @"Root views should not be unregistered");
-            if ([subview conformsToProtocol:@protocol(NativeRenderInvalidating)]) {
-                //TODO NativeRenderInvalidating belong to hippy, remove it
-                [(id<NativeRenderInvalidating>)subview invalidate];
+            if ([subview respondsToSelector:@selector(invalidate)]) {
+                [subview performSelector:@selector(invalidate)];
             }
             [registry removeObjectForKey:subview.componentTag];
             if (registry == (NSMutableDictionary<NSNumber *, id<NativeRenderComponentProtocol>> *)self->_viewRegistry) {
@@ -592,6 +591,10 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         object = viewManager;
     }
     return object;
+}
+
+- (NSArray<__kindof UIView *> *)rootViews {
+    return (NSArray<__kindof UIView *> *)[_viewRegistry rootComponents];
 }
 
 #pragma mark Schedule Block

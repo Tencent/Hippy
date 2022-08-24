@@ -29,10 +29,12 @@
 class EngineResource {
 public:
     EngineResource();
+    EngineResource(const std::string name);
     ~EngineResource();
     std::shared_ptr<hippy::Engine> GetEngine() {return engine_;};
     std::shared_ptr<hippy::DomManager> GetDomManager() {return dom_manager_;};
-  
+private:
+    void Setup(const std::string name);
 private:
     std::shared_ptr<hippy::Engine> engine_;
     std::shared_ptr<footstone::Worker> dom_worker_;

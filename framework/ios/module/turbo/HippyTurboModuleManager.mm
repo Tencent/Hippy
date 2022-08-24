@@ -21,12 +21,14 @@
  */
 
 
-#include <unordered_map>
+#import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyTurboModuleManager.h"
 #import "HippyModuleData.h"
-#import "HippyBridge+Private.h"
 #import "HippyAssert.h"
-#import "objc/runtime.h"
+
+#include "objc/runtime.h"
+#include <unordered_map>
+
 static NSMutableDictionary<NSString *, Class> *HippyTurboModuleMap;
 
 HIPPY_EXTERN void HippyRegisterTurboModule(NSString *, Class);

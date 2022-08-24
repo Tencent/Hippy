@@ -36,9 +36,6 @@ NSString *const HippyJavaScriptLoaderErrorDomain = @"HippyJavaScriptLoaderErrorD
 - (NSString *)description {
     NSMutableString *desc = [NSMutableString new];
     [desc appendString:_status ?: @"Loading"];
-
-    // MttRN: 解决Xcode警告
-    //  if(_total > 0) {
     if (_total.integerValue > 0) {
         [desc appendFormat:@" %ld%% (%@/%@)", (long)(100 * [_done integerValue] / [_total integerValue]), _done, _total];
     }
@@ -52,7 +49,7 @@ NSString *const HippyJavaScriptLoaderErrorDomain = @"HippyJavaScriptLoaderErrorD
 
 HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
-+ (void)loadBundleAtURL:(NSURL *)scriptURL onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)onComplete {
++ (void)downloadBundleAtURL:(NSURL *)scriptURL onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)onComplete {
     attemptAsynchronousLoadOfBundleAtURL(scriptURL, onProgress, onComplete);
 }
 

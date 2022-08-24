@@ -27,11 +27,10 @@
 #include <mutex>
 
 #import "HippyBridge.h"
-#import "HippyBridge+Private.h"
-#import "HippyModuleMethod.h"
-#import "NativeRenderLog.h"
-#import "NativeRenderUtils.h"
 #import "HippyAssert.h"
+#import "HippyModuleMethod.h"
+#import "HippyLog.h"
+#import "NativeRenderUtils.h"
 
 @implementation HippyModuleData {
     NSDictionary<NSString *, id> *_constantsToExport;
@@ -99,7 +98,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
         if (!_setupComplete) {
             if (!_instance) {
                 if (HIPPY_DEBUG && _requiresMainQueueSetup) {
-                    NativeRenderAssertMainQueue();
+                    HippyAssertMainQueue();
                 }
                 // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData setUpInstanceAndBridge] [_moduleClass new]",  @{
                 // @"moduleClass": NSStringFromClass(_moduleClass) });
@@ -110,7 +109,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
                     // of the module is not supported, and it is supposed to be passed in to
                     // the bridge constructor. Mark setup complete to avoid doing more work.
                     _setupComplete = YES;
-                    NativeRenderLogWarn(@"The module %@ is returning nil from its constructor. You "
+                    HippyLogWarn(@"The module %@ is returning nil from its constructor. You "
                                   "may need to instantiate it yourself and pass it into the "
                                   "bridge.",
                         _moduleClass);
@@ -152,7 +151,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
         @try {
             [(id)_instance setValue:_bridge forKey:@"bridge"];
         } @catch (NSException *exception) {
-            NativeRenderLogError(@"%@ has no setter or ivar for its bridge, which is not "
+            HippyLogError(@"%@ has no setter or ivar for its bridge, which is not "
                            "permitted. You must either @synthesize the bridge property, "
                            "or provide your own setter method.",
                 self.name);
@@ -163,12 +162,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 
 - (void)finishSetupForInstance {
     if (!_setupComplete && _instance) {
-        // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData finishSetupForInstance]", nil);
         _setupComplete = YES;
         [_bridge registerModuleForFrameUpdates:_instance withModuleData:self];
-        [[NSNotificationCenter defaultCenter] postNotificationName:HippyDidInitializeModuleNotification object:_bridge
-                                                          userInfo:@{ @"module": _instance }];
-        // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
+        NSDictionary *useInfo = @{@"bridge": _bridge, @"module": _instance};
+        [[NSNotificationCenter defaultCenter] postNotificationName:HippyDidInitializeModuleNotification
+                                                            object:nil
+                                                          userInfo:useInfo];
     }
 }
 
@@ -192,7 +191,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
                 @try {
                     [(id)_instance setValue:[self methodQueueWithoutInstance] forKey:@"methodQueue"];
                 } @catch (NSException *exception) {
-                    NativeRenderLogError(@"%@ is returning nil for its methodQueue, which is not "
+                    HippyLogError(@"%@ is returning nil for its methodQueue, which is not "
                                    "permitted. You must either return a pre-initialized "
                                    "queue, or @synthesize the methodQueue to let the bridge "
                                    "create a queue for you.",
@@ -220,17 +219,12 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
             // get accessed by client code during bridge setup, and a very low risk of
             // deadlock is better than a fairly high risk of an assertion being thrown.
             // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData instance] main thread setup", nil);
-
             if (!NativeRenderIsMainQueue()) {
-                NativeRenderLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
+                HippyLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
             }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            NativeRenderExecuteOnMainThread(
-                ^{
-                    [self setUpInstanceAndBridge];
-                }, YES);
-#pragma clang diagnostic pop
+            NativeRenderExecuteOnMainQueue(^{
+                [self setUpInstanceAndBridge];
+            });
             // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
         } else {
             [self setUpInstanceAndBridge];
@@ -247,43 +241,36 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 - (NSArray<id<HippyBridgeMethod>> *)methods {
     if (!_methods) {
         NSMutableArray<id<HippyBridgeMethod>> *moduleMethods = [NSMutableArray new];
-        NSMutableDictionary<NSString *, id<HippyBridgeMethod>> *methodsDic = [NSMutableDictionary dictionary];
+
         if ([_moduleClass instancesRespondToSelector:@selector(methodsToExport)]) {
             [moduleMethods addObjectsFromArray:[self.instance methodsToExport]];
         }
+
         unsigned int methodCount;
         Class cls = _moduleClass;
         while (cls && cls != [NSObject class] && cls != [NSProxy class]) {
             Method *methods = class_copyMethodList(object_getClass(cls), &methodCount);
+
             for (unsigned int i = 0; i < methodCount; i++) {
                 Method method = methods[i];
                 SEL selector = method_getName(method);
                 if ([NSStringFromSelector(selector) hasPrefix:@"__hippy_export__"]) {
                     IMP imp = method_getImplementation(method);
                     NSArray<NSString *> *entries = ((NSArray<NSString *> * (*)(id, SEL)) imp)(_moduleClass, selector);
-                    id<HippyBridgeMethod> moduleMethod =
-                        [[HippyModuleMethod alloc] initWithMethodSignature:entries[1]
-                                                              JSMethodName:entries[0]
-                                                               moduleClass:_moduleClass];
+                    id<HippyBridgeMethod> moduleMethod = [[HippyModuleMethod alloc] initWithMethodSignature:entries[1] JSMethodName:entries[0]
+                                                                                                moduleClass:_moduleClass];
+
                     [moduleMethods addObject:moduleMethod];
-                    [methodsDic setObject:moduleMethod forKey:moduleMethod.JSMethodName];
                 }
             }
 
             free(methods);
             cls = class_getSuperclass(cls);
         }
+
         _methods = [moduleMethods copy];
-        _methodsByName = [methodsDic copy];
     }
     return _methods;
-}
-
-- (NSDictionary<NSString *, id<HippyBridgeMethod>> *)methodsByName {
-    if (!_methodsByName) {
-        [self methods];
-    }
-    return [_methodsByName copy];
 }
 
 - (void)gatherConstants {
@@ -291,15 +278,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
         // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, ([NSString stringWithFormat:@"[HippyModuleData gatherConstants] %@", _moduleClass]), nil);
         (void)[self instance];
         if (!NativeRenderIsMainQueue()) {
-            NativeRenderLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
+            HippyLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
         }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        NativeRenderExecuteOnMainThread(
-            ^{
-                self->_constantsToExport = [self->_instance constantsToExport] ?: @ {};
-            }, YES);
-#pragma clang diagnostic pop
+        NativeRenderExecuteOnMainQueue(^{
+            self->_constantsToExport = [self->_instance constantsToExport] ?: @ {};
+        });
         // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
     }
 }

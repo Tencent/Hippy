@@ -26,8 +26,12 @@
 #import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
 #import "UIView+NativeRender.h"
+#import "HippyBridgeDelegate.h"
+#import "HippyBridge.h"
 
-@interface TestModule ()<HippyBridgeDelegate>
+@interface TestModule ()<HippyBridgeDelegate> {
+    HippyBridge *_bridge;
+}
 
 @end
 
@@ -35,45 +39,17 @@
 
 HIPPY_EXPORT_MODULE()
 
-- (dispatch_queue_t)methodQueue
-{
+- (dispatch_queue_t)methodQueue {
 	return dispatch_get_main_queue();
 }
 
-HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId)
-{
-	AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-	UIViewController *nav = delegate.window.rootViewController;
-	UIViewController *vc = [[UIViewController alloc] init];
-	BOOL isSimulator = NO;
-#if TARGET_IPHONE_SIMULATOR
-	isSimulator = YES;
-#endif
-
-
-//#define REMOTEDEBUG
-    
-#ifdef REMOTEDEBUG
-    NSURL *url = [NSURL URLWithString:@"your server ip address"];
-#else
-    NSURL *url = [NSURL URLWithString:[HippyBundleURLProvider sharedInstance].bundleURLString];
-#endif
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
-    HippyBridge *bridge = [[HippyBridge alloc] initWithBundleURL:url moduleProvider:nil launchOptions:launchOptions executorKey:@"testmodule"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} delegate:nil];
-    rootView.bridge.enableTurbo = YES;  // keep the same logic with Android
-	rootView.backgroundColor = [UIColor whiteColor];
-	rootView.frame = vc.view.bounds;
-    [bridge setUpWithRootTag:rootView.componentTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView screenScale:[UIScreen mainScreen].scale];
-	[vc.view addSubview:rootView];
-    vc.modalPresentationStyle = UIModalPresentationFullScreen;
-    [nav presentViewController:vc animated:YES completion:NULL];
+HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId) {
 }
 
 HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnull NSString *)bundleUrl)
 {
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    UIViewController *nav = delegate.window.rootViewController;
+    UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = [[UIViewController alloc] init];
     BOOL isSimulator = NO;
 #if TARGET_IPHONE_SIMULATOR
@@ -83,17 +59,30 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     if (bundleUrl.length > 0) {
         urlString = bundleUrl;
     }
-
-    NSURL *url = [NSURL URLWithString:urlString];
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
-    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self bundleURL:url moduleProvider:nil launchOptions:launchOptions executorKey:@"Demo"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} delegate:nil];
-    rootView.backgroundColor = [UIColor whiteColor];
-    rootView.frame = vc.view.bounds;
-    [bridge setUpWithRootTag:rootView.componentTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView screenScale:[UIScreen mainScreen].scale];
+    NSURL *url = [NSURL URLWithString:bundleUrl];
+    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:rootViewController.view.bounds];
+    NSNumber *rootTag = rootView.componentTag;
+    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};;
+    NSArray<NSURL *> *bundleURLs = @[url];
+    NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
+    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
+                                                 moduleProvider:nil
+                                                  launchOptions:launchOptions
+                                                    engineKey:@"Demo"];
+    [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
+          frameworkProxy:bridge rootView:rootView.contentView
+             screenScale:[UIScreen mainScreen].scale];
+    [bridge loadBundleURLs:bundleURLs completion:^{
+    }];
+    [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
+    bridge.sandboxDirectory = sandboxDirectory;
+    bridge.contextName = @"Demo";
+    bridge.moduleName = @"Demo";
+    _bridge = bridge;
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [vc.view addSubview:rootView];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
-    [nav presentViewController:vc animated:YES completion:NULL];
+    [rootViewController presentViewController:vc animated:YES completion:NULL];
 }
 
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
