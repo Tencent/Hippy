@@ -343,7 +343,7 @@ HIPPY_EXPORT_MODULE()
 
 // WARNING: Should only be called from the main thread/dispatch queue.
 - (HippyErrorInfo *)_customizeError:(HippyErrorInfo *)error {
-    NativeRenderAssertMainQueue();
+    HippyAssertMainQueue();
 
     if (!self->_errorCustomizers) {
         return error;

@@ -63,9 +63,9 @@ HIPPY_EXPORT_MODULE()
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hide) name:HippyJavaScriptDidLoadNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(hide) name:HippyJavaScriptDidFailToLoadNotification object:nil];
 
-    if (bridge.loading) {
-        [self showWithURL:bridge.bundleURL];
-    }
+//    if (bridge.loading) {
+//        [self showWithURL:bridge.bundleURL];
+//    }
 }
 
 // clang-format off

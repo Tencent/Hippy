@@ -22,7 +22,6 @@
 
 #import "ViewController.h"
 #import "HippyRootView.h"
-#import "HippyBridge+LocalFileSource.h"
 #import "HippyBundleURLProvider.h"
 #import "UIView+NativeRender.h"
 #include "dom/dom_manager.h"
@@ -30,13 +29,13 @@
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
 #import "DemoConfigs.h"
-#import "HippyBridge+Private.h"
 #import "NativeRenderFrameworkProxy.h"
 #import "NativeRenderDomNodeUtils.h"
 #import "NativeRenderImageDataLoader.h"
 #import "NativeRenderDefaultImageProvider.h"
 #import "HippyRedBox.h"
 #import "HippyAssert.h"
+#import "HippyLog.h"
 #import "MyViewManager.h"
 
 @interface ViewController ()<HippyBridgeDelegate, NativeRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
@@ -53,11 +52,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    NativeRenderSetLogFunction(^(NativeRenderLogLevel level, NSString *fileName, NSNumber *lineNumber,
-                                 NSString *message, NSArray<NSDictionary *> *stack) {
-        if (NativeRenderLogLevelError <= level) {
+    HippySetLogFunction(^(HippyLogLevel level, NSString *fileName, NSNumber *lineNumber,
+                                 NSString *message, NSArray<NSDictionary *> *stack, __weak HippyBridge *bridge) {
+        if (HippyLogLevelError <= level && bridge) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[HippyBridge currentBridge].redBox showErrorMessage:message withStack:stack];
+                HippyBridge *strongBridge = bridge;
+                if (strongBridge) {
+                    [strongBridge.redBox showErrorMessage:message withStack:stack];
+                }
             });
         }
         NSLog(@"hippy says:%@ in file %@ at line %@", message, fileName, lineNumber);
@@ -73,39 +75,39 @@
     #endif
 //release macro below if use debug mode
 //#define HIPPYDEBUG
-
+    
+    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:self.view.bounds];
+    NSNumber *rootTag = [rootView componentTag];
+    NSDictionary *launchOptions = nil;
+    NSArray<NSURL *> *bundleURLs = nil;
+    NSURL *sandboxDirectory = nil;
 #ifdef HIPPYDEBUG
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
-    HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
-                                                      bundleURL:bundleUrl
-                                                 moduleProvider:nil
-                                                  launchOptions:launchOptions
-                                                    executorKey:@"Demo"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge moduleName:@"Demo" initialProperties:@{@"isSimulator": @(isSimulator)} delegate:nil];
+    bundleURLs = @[bundleUrl];
+    sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
 #else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO)};
+    bundleURLs = @[[NSURL fileURLWithPath:commonBundlePath], [NSURL fileURLWithPath:businessBundlePath]];
+    sandboxDirectory = [[NSURL fileURLWithPath:businessBundlePath] URLByDeletingLastPathComponent];
+#endif
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
-                                                      bundleURL:[NSURL fileURLWithPath:commonBundlePath]
                                                  moduleProvider:nil
                                                   launchOptions:launchOptions
-                                                    executorKey:@"Demo"];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithBridge:bridge businessURL:[NSURL fileURLWithPath:businessBundlePath]
-                                                         moduleName:@"Demo" initialProperties:  @{@"isSimulator": @(isSimulator)}
-                                                      launchOptions:nil delegate:nil];
-#endif
+                                                    engineKey:@"Demo"];
+    [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
+          frameworkProxy:bridge rootView:rootView.contentView
+             screenScale:[UIScreen mainScreen].scale];
+    [bridge loadBundleURLs:bundleURLs completion:^{
+    }];
+    [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
+    bridge.sandboxDirectory = sandboxDirectory;
+    bridge.contextName = @"Demo";
+    bridge.moduleName = @"Demo";
     bridge.methodInterceptor = self;
-
-    rootView.frame = self.view.bounds;
-
-    [bridge setUpWithRootTag:rootView.componentTag rootSize:rootView.bounds.size frameworkProxy:bridge rootView:rootView.contentView screenScale:[UIScreen mainScreen].scale];
-
-    //4.set frameworkProxy for bridge.If bridge cannot handle frameworkProxy protocol, it will forward to {self}
-    bridge.frameworkProxy = self;
-    bridge.renderManager->RegisterExtraComponent(@{@"MyView": [MyViewManager class]});
     _bridge = bridge;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
@@ -115,7 +117,6 @@
 #define btnHeight 100
 
 - (void)runDemoWithoutRuntime {
-
     UIButton *saveButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
     saveButton.frame = CGRectMake(0, StatusBarOffset, self.view.frame.size.width / 2, btnHeight);
     [saveButton addTarget:self action:@selector(saveBtnClick) forControlEvents:UIControlEventTouchUpInside];

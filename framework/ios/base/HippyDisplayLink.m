@@ -48,7 +48,8 @@
 }
 
 - (void)registerModuleForFrameUpdates:(id<HippyBridgeModule>)module withModuleData:(HippyModuleData *)moduleData {
-    if (![moduleData.moduleClass conformsToProtocol:@protocol(HippyFrameUpdateObserver)] || [_frameUpdateObservers containsObject:moduleData]) {
+    if (![moduleData.moduleClass conformsToProtocol:@protocol(HippyFrameUpdateObserver)] ||
+        [_frameUpdateObservers containsObject:moduleData]) {
         return;
     }
 

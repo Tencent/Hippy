@@ -21,7 +21,7 @@
  */
 
 #import "HippyAssert.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 #import "HippyJSStackFrame.h"
 
 NSString *const HippyErrorDomain = @"HippyErrorDomain";
@@ -34,7 +34,7 @@ static NSString *const HippyAssertFunctionStack = @"HippyAssertFunctionStack";
 
 HippyAssertFunction HippyCurrentAssertFunction = nil;
 HippyFatalHandler HippyCurrentFatalHandler = nil;
-MttHippyExceptionHandler MttHippyCurrentExceptionHandler = nil;
+HippyExceptionHandler MttHippyCurrentExceptionHandler = nil;
 
 NSException *_HippyNotImplementedException(SEL, Class);
 NSException *_HippyNotImplementedException(SEL cmd, Class cls) {
@@ -92,7 +92,7 @@ void HippyPerformBlockWithAssertFunction(void (^block)(void), HippyAssertFunctio
 
 NSString *HippyCurrentThreadName(void) {
     NSThread *thread = [NSThread currentThread];
-    NSString *threadName = NativeRenderIsMainQueue() || thread.isMainThread ? @"main" : thread.name;
+    NSString *threadName = [NSThread isMainThread] || thread.isMainThread ? @"main" : thread.name;
     if (threadName.length == 0) {
         const char *label = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
         if (label && strlen(label) > 0) {
@@ -116,7 +116,7 @@ void _HippyAssertFormat(const char *condition, const char *fileName, int lineNum
     }
 }
 
-void HippyFatal(NSError *error) {
+void HippyFatal(NSError *error, __weak HippyBridge *bridge) {
     NSString *failReason = error.localizedFailureReason;
     if (failReason && failReason.length >= 100) {
         failReason = [[failReason substringToIndex:100] stringByAppendingString:@"(...Description Too Long)"];
@@ -128,11 +128,11 @@ void HippyFatal(NSError *error) {
     } else {
         fatalMessage = [NSString stringWithFormat:@"%@,%@", moduleDescription, error.localizedDescription];
     }
-    NativeRenderLogNativeInternal(NativeRenderLogLevelFatal, NULL, 0, @"%@", fatalMessage);
+    HippyLogNativeInternal(HippyLogLevelFatal, bridge, NULL, 0, @"%@", fatalMessage);
 
     HippyFatalHandler fatalHandler = HippyGetFatalHandler();
     if (fatalHandler) {
-        fatalHandler(error);
+        fatalHandler(error, bridge);
     } else {
 #ifdef DEBUG
         @try {
@@ -148,9 +148,9 @@ void HippyFatal(NSError *error) {
     }
 }
 
-void MttHippyException(NSException *exception) {
-    NativeRenderLogNativeInternal(NativeRenderLogLevelFatal, NULL, 0, @"%@", exception.description);
-    MttHippyExceptionHandler exceptionHandler = MttHippyGetExceptionHandler();
+void HippyHandleException(NSException *exception, __weak HippyBridge *bridge) {
+    HippyLogNativeInternal(HippyLogLevelFatal, bridge, NULL, 0, @"%@", exception.description);
+    HippyExceptionHandler exceptionHandler = HippyGetExceptionHandler();
     if (exceptionHandler) {
         exceptionHandler(exception);
     }
@@ -164,11 +164,11 @@ HippyFatalHandler HippyGetFatalHandler(void) {
     return HippyCurrentFatalHandler;
 }
 
-void MttHippySetExceptionHandler(MttHippyExceptionHandler exceptionhandler) {
+void HippySetExceptionHandler(HippyExceptionHandler exceptionhandler) {
     MttHippyCurrentExceptionHandler = exceptionhandler;
 }
 
-MttHippyExceptionHandler MttHippyGetExceptionHandler(void) {
+HippyExceptionHandler HippyGetExceptionHandler(void) {
     return MttHippyCurrentExceptionHandler;
 }
 

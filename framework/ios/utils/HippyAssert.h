@@ -24,6 +24,7 @@
 #import "HippyDefines.h"
 
 @class HippyJSStackFrame;
+@class HippyBridge;
 /*
  * Defined in HippyUtils.m
  */
@@ -52,14 +53,20 @@ HIPPY_EXTERN BOOL NativeRenderIsMainQueue(void);
 #endif
 HIPPY_EXTERN void _HippyAssertFormat(const char *, const char *, int, const char *, NSString *, ...) NS_FORMAT_FUNCTION(5, 6);
 
+#define HippyAssertUnimplemented()                                            \
+  do {                                                                        \
+    NativeRenderLogError(@"Not implemented in: %s", __FUNCTION__)             \
+    abort();                                                                  \
+  } while (0)
+
 /**
  * Report a fatal condition when executing. These calls will _NOT_ be compiled out
  * in production, and crash the app by default. You can customize the fatal behaviour
  * by setting a custom fatal handler through `HippySetFatalHandler`.
  */
-HIPPY_EXTERN void HippyFatal(NSError *error);
+HIPPY_EXTERN void HippyFatal(NSError *error, __weak HippyBridge *bridge);
 
-HIPPY_EXTERN void MttHippyException(NSException *exception);
+HIPPY_EXTERN void HippyHandleException(NSException *exception, __weak HippyBridge *bridge);
 
 /**
  * The default error domain to be used for Hippy errors.
@@ -91,9 +98,9 @@ HIPPY_EXTERN NSString *const HippyFatalModuleName;
  */
 typedef void (^HippyAssertFunction)(NSString *condition, NSString *fileName, NSNumber *lineNumber, NSString *function, NSString *message);
 
-typedef void (^HippyFatalHandler)(NSError *error);
+typedef void (^HippyFatalHandler)(NSError *error, __weak HippyBridge *bridge);
 
-typedef void (^MttHippyExceptionHandler)(NSException *e);
+typedef void (^HippyExceptionHandler)(NSException *e);
 
 /**
  * Convenience macro for asserting that a parameter is non-nil/non-zero.
@@ -103,7 +110,7 @@ typedef void (^MttHippyExceptionHandler)(NSException *e);
 /**
  * Convenience macro for asserting that we're running on main queue.
  */
-#define NativeRenderAssertMainQueue() HippyAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread")
+#define HippyAssertMainQueue() HippyAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread")
 
 /**
  * Convenience macro for asserting that we're running off the main queue.
@@ -113,7 +120,7 @@ typedef void (^MttHippyExceptionHandler)(NSException *e);
 /**
  * Deprecated, do not use
  */
-#define HippyAssertMainThread() NativeRenderAssertMainQueue()
+#define HippyAssertMainThread() HippyAssertMainQueue()
 #define HippyAssertNotMainThread() HippyAssertNotMainQueue()
 
 /**
@@ -144,8 +151,8 @@ HIPPY_EXTERN void HippyPerformBlockWithAssertFunction(void (^block)(void), Hippy
 HIPPY_EXTERN void HippySetFatalHandler(HippyFatalHandler fatalHandler);
 HIPPY_EXTERN HippyFatalHandler HippyGetFatalHandler(void);
 
-HIPPY_EXTERN void MttHippySetExceptionHandler(MttHippyExceptionHandler exceptionhandler);
-HIPPY_EXTERN MttHippyExceptionHandler MttHippyGetExceptionHandler(void);
+HIPPY_EXTERN void HippySetExceptionHandler(HippyExceptionHandler exceptionhandler);
+HIPPY_EXTERN HippyExceptionHandler HippyGetExceptionHandler(void);
 /**
  * Get the current thread's name (or the current queue, if in debug mode)
  */

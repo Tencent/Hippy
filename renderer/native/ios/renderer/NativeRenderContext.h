@@ -49,6 +49,8 @@ typedef void (^NativeRenderRenderUIBlock)(id<NativeRenderContext> renderContext,
 
 - (__kindof NativeRenderViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
+- (NSArray<__kindof UIView *> *)rootViews;
+
 - (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
 
 - (__kindof UIView *)createViewRecursivelyFromRenderObject:(NativeRenderObjectView *)renderObject;
