@@ -25,13 +25,17 @@
 #include <jni.h>
 #include <sys/stat.h>
 #include "core/base/file.h"
+
+#ifndef V8_WITHOUT_INSPECTOR
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #include "v8/v8-profiler.h"
 #pragma clang diagnostic pop
+#endif
 
 namespace hippy {
 namespace bridge {
+
 // [Heap] GetHeapStatistics
 jboolean GetHeapStatistics(JNIEnv *j_env,
                            jobject j_object,
@@ -55,5 +59,6 @@ jboolean WriteHeapSnapshot(JNIEnv *j_env,
                            jlong j_runtime_id,
                            jstring j_heap_snapshot_path,
                            jobject j_callback);
+
 }  // namespace bridge
 }  // namespace hippy

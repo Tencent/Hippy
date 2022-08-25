@@ -28,6 +28,7 @@
 
 namespace hippy {
 namespace bridge {
+
 // [Heap]
 REGISTER_JNI("com/tencent/mtt/hippy/v8/V8", // NOLINT(cert-err58-cpp)
              "getHeapStatistics",
@@ -45,6 +46,14 @@ REGISTER_JNI("com/tencent/mtt/hippy/v8/V8", // NOLINT(cert-err58-cpp)
              "writeHeapSnapshot",
              "(JLjava/lang/String;Lcom/tencent/mtt/hippy/common/Callback;)Z",
              WriteHeapSnapshot)
+
+jint ThrowNoSuchMethodError(JNIEnv* j_env, const char* msg){
+  auto j_class = j_env->FindClass("java/lang/NoSuchMethodException" );
+  TDF_BASE_CHECK(j_class);
+  return j_env->ThrowNew(j_class, msg);
+}
+
+#ifndef V8_X5_LITE
 
 using unicode_string_view = tdf::base::unicode_string_view;
 using V8VM = hippy::napi::V8VM;
@@ -115,12 +124,14 @@ class HeapSnapshotOutputStreamAdapter : public v8::OutputStream {
     return result_code;
   }
 };
+#endif
 
 // [Heap] GetHeapStatistics
 jboolean GetHeapStatistics(__unused JNIEnv *j_env,
                            __unused jobject j_object,
                            jlong j_runtime_id,
                            jobject j_callback) {
+#ifndef V8_X5_LITE
   TDF_BASE_DLOG(INFO) << "GetHeapStatistics begin, j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   // callback
@@ -154,17 +165,24 @@ jboolean GetHeapStatistics(__unused JNIEnv *j_env,
     isolate->GetHeapStatistics(heap_statistics.get());
     // set data
     jmethodID j_hs_constructor =
-        j_env->GetMethodID(static_cast<jclass>(hs_class->GetObj()), "<init>", "(JJJJJJJJJJJJJ)V");
+        j_env->GetMethodID(reinterpret_cast<jclass>(hs_class->GetObj()), "<init>", "(JJJJJJJJJJJJJ)V");
     std::shared_ptr<JavaRef> hs_obj = std::make_shared<JavaRef>(j_env,
                                                                 j_env->NewObject(
-                                                                    static_cast<jclass>(hs_class->GetObj()),
+                                                                    reinterpret_cast<jclass>(hs_class->GetObj()),
                                                                     j_hs_constructor,
                                                                     heap_statistics->total_heap_size(),
                                                                     heap_statistics->total_heap_size_executable(),
                                                                     heap_statistics->total_physical_size(),
                                                                     heap_statistics->total_available_size(),
+#endif
+#if (V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION == 8 && V8_BUILD_NUMBER >= 124) || (V8_MAJOR_VERSION == 9 && V8_MINOR_VERSION > 8) || (V8_MAJOR_VERSION > 9)
                                                                     heap_statistics->total_global_handles_size(),
                                                                     heap_statistics->used_global_handles_size(),
+#elifndef V8_X5_LITE
+                                                                    -1,
+                                                                    -1,
+#endif
+#ifndef V8_X5_LITE
                                                                     heap_statistics->used_heap_size(),
                                                                     heap_statistics->heap_size_limit(),
                                                                     heap_statistics->malloced_memory(),
@@ -179,12 +197,17 @@ jboolean GetHeapStatistics(__unused JNIEnv *j_env,
   task_runner->PostTask(std::move(task));
   TDF_BASE_DLOG(INFO) << "GetHeapStatistics end";
   return JNI_TRUE;
+#else
+  ThrowNoSuchMethodError(j_env, "X5 lite has no GetHeapStatistics method");
+  return JNI_FALSE;
+#endif
 }
 // [Heap] GetHeapCodeStatistics
 jboolean GetHeapCodeStatistics(__unused JNIEnv *j_env,
                                __unused jobject j_object,
                                jlong j_runtime_id,
                                jobject j_callback) {
+#ifndef V8_X5_LITE
   TDF_BASE_DLOG(INFO) << "GetHeapCodeStatistics begin, j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   // callback
@@ -218,10 +241,10 @@ jboolean GetHeapCodeStatistics(__unused JNIEnv *j_env,
     isolate->GetHeapCodeAndMetadataStatistics(heap_code_statistics.get());
     // set data
     jmethodID j_hcs_constructor =
-        j_env->GetMethodID(static_cast<jclass>(hcs_class->GetObj()), "<init>", "(JJJ)V");
+        j_env->GetMethodID(reinterpret_cast<jclass>(hcs_class->GetObj()), "<init>", "(JJJ)V");
     std::shared_ptr<JavaRef> hcs_obj = std::make_shared<JavaRef>(j_env,
                                                                  j_env->NewObject(
-                                                                     static_cast<jclass>(hcs_class->GetObj()),
+                                                                     reinterpret_cast<jclass>(hcs_class->GetObj()),
                                                                      j_hcs_constructor,
                                                                      heap_code_statistics->code_and_metadata_size(),
                                                                      heap_code_statistics->bytecode_and_metadata_size(),
@@ -233,12 +256,17 @@ jboolean GetHeapCodeStatistics(__unused JNIEnv *j_env,
   task_runner->PostTask(std::move(task));
   TDF_BASE_DLOG(INFO) << "GetHeapCodeStatistics end";
   return JNI_TRUE;
+#else
+  ThrowNoSuchMethodError(j_env, "X5 lite has no GetHeapCodeStatistics method");
+  return JNI_FALSE;
+#endif
 }
 // [Heap] GetHeapSpaceStatistics
 jboolean GetHeapSpaceStatistics(__unused JNIEnv *j_env,
                                 __unused jobject j_object,
                                 jlong j_runtime_id,
                                 jobject j_callback) {
+#ifndef V8_X5_LITE
   TDF_BASE_DLOG(INFO) << "GetHeapSpaceStatistics begin, j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   // callback
@@ -270,15 +298,15 @@ jboolean GetHeapSpaceStatistics(__unused JNIEnv *j_env,
     // init ArrayList<HeapSpaceStatistics>
     JNIEnv *j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     jmethodID j_list_constructor =
-        j_env->GetMethodID(static_cast<jclass>(list_class->GetObj()), "<init>", "()V");
+        j_env->GetMethodID(reinterpret_cast<jclass>(list_class->GetObj()), "<init>", "()V");
     std::shared_ptr<JavaRef> list_obj = std::make_shared<JavaRef>(j_env,
                                                                   j_env->NewObject(
-                                                                      static_cast<jclass>(list_class->GetObj()),
+                                                                      reinterpret_cast<jclass>(list_class->GetObj()),
                                                                       j_list_constructor));
-    jmethodID j_list_add = j_env->GetMethodID(static_cast<jclass>(list_class->GetObj()),
+    jmethodID j_list_add = j_env->GetMethodID(reinterpret_cast<jclass>(list_class->GetObj()),
                                               "add",
                                               "(Ljava/lang/Object;)Z");
-    jmethodID j_hss_constructor = j_env->GetMethodID(static_cast<jclass>(hss_class->GetObj()),
+    jmethodID j_hss_constructor = j_env->GetMethodID(reinterpret_cast<jclass>(hss_class->GetObj()),
                                                      "<init>",
                                                      "(Ljava/lang/String;JJJJ)V");
     // v8 NumberOfHeapSpaces
@@ -296,7 +324,7 @@ jboolean GetHeapSpaceStatistics(__unused JNIEnv *j_env,
       jstring j_space_name = j_env->NewStringUTF(heap_space_statistics->space_name());
       std::shared_ptr<JavaRef> hss_obj = std::make_shared<JavaRef>(j_env,
                                                                    j_env->NewObject(
-                                                                       static_cast<jclass>(hss_class->GetObj()),
+                                                                       reinterpret_cast<jclass>(hss_class->GetObj()),
                                                                        j_hss_constructor,
                                                                        j_space_name,
                                                                        heap_space_statistics->space_size(),
@@ -314,6 +342,10 @@ jboolean GetHeapSpaceStatistics(__unused JNIEnv *j_env,
   task_runner->PostTask(std::move(task));
   TDF_BASE_DLOG(INFO) << "GetHeapSpaceStatistics end";
   return JNI_TRUE;
+#else
+  ThrowNoSuchMethodError(j_env, "X5 lite has no GetHeapSpaceStatistics method");
+  return JNI_FALSE;
+#endif
 }
 // [Heap] WriteHeapSnapshot
 jboolean WriteHeapSnapshot(__unused JNIEnv *j_env,
@@ -321,6 +353,7 @@ jboolean WriteHeapSnapshot(__unused JNIEnv *j_env,
                            jlong j_runtime_id,
                            jstring j_heap_snapshot_path,
                            jobject j_callback) {
+#ifndef V8_X5_LITE
   TDF_BASE_DLOG(INFO) << "WriteHeapSnapshot begin, j_runtime_id = " << j_runtime_id;
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   // callback
@@ -396,7 +429,13 @@ jboolean WriteHeapSnapshot(__unused JNIEnv *j_env,
   task_runner->PostTask(std::move(task));
   TDF_BASE_DLOG(INFO) << "WriteHeapSnapshot end";
   return JNI_TRUE;
+#else
+  ThrowNoSuchMethodError(j_env, "X5 lite has no WriteHeapSnapshot method");
+  return JNI_FALSE;
+#endif
 }
+
+//#endif
 
 }  // namespace bridge
 }  // namespace hippy
