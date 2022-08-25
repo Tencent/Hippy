@@ -23,8 +23,8 @@ import com.tencent.mtt.hippy.common.Callback;
 import java.util.ArrayList;
 
 public interface V8Memory {
-  public abstract boolean getHeapStatistics(@NonNull Callback<V8HeapStatistics> callback);
-  public abstract boolean getHeapCodeStatistics(@NonNull Callback<V8HeapCodeStatistics> callback);
-  public abstract boolean getHeapSpaceStatistics(@NonNull Callback<ArrayList<V8HeapSpaceStatistics>> callback);
-  public abstract boolean writeHeapSnapshot(@NonNull String filePath, @NonNull Callback<Integer> callback);
+  public abstract boolean getHeapStatistics(@NonNull Callback<V8HeapStatistics> callback) throws Exception;
+  public abstract boolean getHeapCodeStatistics(@NonNull Callback<V8HeapCodeStatistics> callback) throws Exception;
+  public abstract boolean getHeapSpaceStatistics(@NonNull Callback<ArrayList<V8HeapSpaceStatistics>> callback) throws Exception;
+  public abstract boolean writeHeapSnapshot(@NonNull String filePath, @NonNull Callback<Integer> callback) throws Exception;
 }
