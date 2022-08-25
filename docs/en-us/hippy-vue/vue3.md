@@ -154,7 +154,7 @@ For details, please see the writing method of the [example project](https://gith
   Native.xxx
   ```
 
-- v-model directive：
+- v-model directive
 
   Because the built-in instructions in Vue 3.x are implemented by inserting code at compile time, the v-model instruction has not yet found a good way to deal with it. Here, a temporary solution can be used to implement the corresponding function:
 
@@ -182,11 +182,21 @@ For details, please see the writing method of the [example project](https://gith
   </script>
   ```
 
-- HMR for Keep-Alive：
+- HMR for Keep-Alive
 
   In the sample code, our routing component is wrapped in the Keep-Alive component, but currently, the routing component wrapped with Keep-Alive cannot achieve hot update during development, and the entire instance needs to be refreshed to complete the refresh.
   There is no such problem if it is not wrapped in Keep-Alive. At present, the [official problem](https://github.com/vuejs/core/pull/5165) has not been resolved. The problem can be solved by upgrading Vue after waiting for the official solution.
 - Vue 3.x Proxy
+
   Because the reactivity of Vue 3.x is implemented through the "Proxy", so the object we get is actually an instance of Proxy instead of the original object, so we need to pay attention when calling the native interface, the native does not Know the Proxy object,
   You need to use the "toRaw" method provided by Vue 3.x to get the original object and pass it to the native API.
+- registerElement
+
+  In @hippy/vue, method registerElement used by Vue.registerElement，But with the same reason with Vue.Native. registerElement method in @hippy/vue-next provide single.
+
+  ```typescript
+  import { registerElement } from '@hippy/vue-next';
+  ```
+  
+  > You can use it like above
 - Other undiscovered bugs...
