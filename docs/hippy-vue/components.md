@@ -54,7 +54,7 @@
 | ------------------ | ------------------------------------------------------------ | ------------------------------------ | --------- |
 | accessibilityLabel | 设置当用户与此元素交互时，“读屏器”（对视力障碍人士的辅助功能）阅读的文字。默认情况下，这个文字会通过遍历所有的子元素并累加所有的文本标签来构建。 | `string`                               | `Android、iOS`     |
 | accessible         | 当此属性为 `true` 时，表示此视图时一个启用了无障碍功能的元素。默认情况下，所有可触摸操作的元素都是无障碍功能元素。 | `boolean`                            | `Android、iOS`     |
-| collapsable        | 如果一个 `div` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失`（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`（Android 2.14.1 版本后支持在 Attribute 设置，以前版本请在静态 Style 属性里设置)` | `boolean`                            | `Android` |                           | `Android` |
+| collapsable        | 如果一个 `div` 只用于布局它的子组件，则它可能会为了优化而从原生布局树中移除，因此该节点 DOM 的引用会丢失`（比如调用 measureInAppWindow 无法获取到大小和位置信息）`。 把此属性设为 `false` 可以禁用这个优化，以确保对应视图在原生结构中存在。`（Android 2.14.1 版本后支持在 Attribute 设置，以前版本请在静态 Style 属性里设置)` | `boolean`                            | `Android` |
 | style              | -                                                            | [`View Styles`](style/layout.md) | `Android、iOS、Web-Renderer`     |
 | opacity            | 配置 `View` 的透明度，同时会影响子节点的透明度               | `number`                             | `Android、iOS、Web-Renderer`     |
 | overflow           | 指定当子节点内容溢出其父级 `View` 容器时, 是否剪辑内容       | `enum(visible, hidden)`         | `Android、iOS、Web-Renderer`     |
@@ -65,8 +65,17 @@
 | scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true` `（仅在 overflow-y/x: scroll 时适用）` | `boolean`                                                    | `Android、iOS、Web-Renderer`    |
 | showScrollIndicator            | 是否显示滚动条。 `default: false`（仅在 overflow-y/x: scroll 时适用） | `boolean`  | `Android`    |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`                                                    | `iOS`    |
-| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS`   | 
+| showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS`   |
 | nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
+| nestedScrollPriority* | 嵌套滚动事件处理优先级，支持分别设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `default:self` | `enum(self,parent,none)` | `Android(版本 2.14.7以上)` |
+
+* nestedScrollPriority 的参数含义：
+
+  *`self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+
+  *`parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+
+  *`none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
 
 ---
 
@@ -346,15 +355,24 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | initialContentOffset  | 初始位移值。在列表初始化时即可指定滚动距离，避免初始化后再通过 scrollTo 系列方法产生的闪动。Android 在 `2.8.0` 版本后支持    | `number`  | `Android、iOS、Web-Renderer` |
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
 | overScrollEnabled | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `Android`    |
-| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `Android、iOS、Web-Renderer`
+| rowShouldSticky  | 设置 `ul` 是否需要开启悬停效果能力，与 `li` 的 `sticky` 配合使用。 `default: false` | `boolean`  | `Android、iOS、Web-Renderer`|
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、Web-Renderer` |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件，默认 200ms | `number`                                                    | `Android、iOS、Web-Renderer`    |
 | showScrollIndicator   | 是否显示滚动条。`default: true` | `boolean`                                                   | `iOS`    |
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `endReached` 回调。 | `number` | `Android、iOS、Web-Renderer` |
-| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android`
+| exposureEventEnabled | Android 曝光能力启用开关，如果要使用 `appear`、`disappear` 相关事件，Android 需要设置该开关（iOS无需设置）, `default: true` | `boolean` | `Android`|
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer`    |
 | editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
 | delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
+| nestedScrollPriority* | 嵌套滚动事件处理优先级，支持分别设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `default:self` | `enum(self,parent,none)` | `Android(版本 2.14.7以上)` |
+
+* nestedScrollPriority 的参数含义：
+
+  *`self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+
+  *`parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+
+  *`none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
 
 ## 事件
 

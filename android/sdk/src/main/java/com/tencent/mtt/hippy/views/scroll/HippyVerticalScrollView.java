@@ -21,17 +21,24 @@ import android.graphics.Rect;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ScrollView;
+
+import androidx.annotation.NonNull;
+import androidx.core.widget.NestedScrollView;
+
+import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.PixelUtil;
-import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.HippyInstanceContext;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget2;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
+
 import java.util.ArrayList;
 
 @SuppressWarnings("deprecation")
-public class HippyVerticalScrollView extends ScrollView implements HippyViewBase, HippyScrollView {
+public class HippyVerticalScrollView extends NestedScrollView implements HippyViewBase,
+  HippyScrollView, HippyNestedScrollTarget2 {
 
   private NativeGestureDispatcher mGestureDispatcher;
 
@@ -68,6 +75,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
   private boolean hasCompleteFirstBatch = false;
   private HippyVerticalScrollViewFocusHelper mFocusHelper = null;
   private final boolean isTvPlatform;
+  private final Priority[] mNestedScrollPriority = { Priority.SELF, Priority.SELF, Priority.SELF, Priority.SELF };
 
   public HippyVerticalScrollView(Context context) {
     super(context);
@@ -136,7 +144,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
         HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
       }
       // 当手指触摸listview时，让父控件交出ontouch权限,不能滚动
-      setParentScrollableIfNeed(false);
+//      setParentScrollableIfNeed(false);
     } else if ((action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL) && mDragging) {
       if (mHasUnsentScrollEvent) {
         sendOnScrollEvent();
@@ -155,7 +163,7 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
         );
       }
       // 当手指松开时，让父控件重新获取onTouch权限
-      setParentScrollableIfNeed(true);
+//      setParentScrollableIfNeed(true);
       mDragging = false;
     }
 
@@ -191,13 +199,13 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     return false;
   }
 
-  // 设置父控件是否可以获取到触摸处理权限
-  private void setParentScrollableIfNeed(boolean flag) {
-    // 若自己能上下滚动
-    if (canScrollVertically(-1) || canScrollVertically(1)) {
-      getParent().requestDisallowInterceptTouchEvent(!flag);
-    }
-  }
+//  // 设置父控件是否可以获取到触摸处理权限
+//  private void setParentScrollableIfNeed(boolean flag) {
+//    // 若自己能上下滚动
+//    if (canScrollVertically(-1) || canScrollVertically(1)) {
+//      getParent().requestDisallowInterceptTouchEvent(!flag);
+//    }
+//  }
 
   @Override
   public NativeGestureDispatcher getGestureDispatcher() {
@@ -404,6 +412,73 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
     super.requestChildFocus(child, focused);
     if (isTvPlatform) {
       mFocusHelper.scrollToFocusChild(focused);
+    }
+  }
+
+  @Override
+  public void setNestedScrollPriority(int direction, Priority priority) {
+    mNestedScrollPriority[direction] = priority;
+  }
+
+  @Override
+  public Priority getNestedScrollPriority(int direction) {
+    return mNestedScrollPriority[direction];
+  }
+
+  @Override
+  public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+                             int type) {
+    // 先给当前节点处理
+    if (HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
+      final int oldScrollY = getScrollY();
+      scrollBy(0, dyUnconsumed);
+      final int myConsumed = getScrollY() - oldScrollY;
+      dyConsumed += myConsumed;
+      dyUnconsumed -= myConsumed;
+    }
+    // 再分发给父级处理
+    int parentDx = HippyNestedScrollHelper.priorityOfX(this, dxUnconsumed) == Priority.NONE ? 0 : dxUnconsumed;
+    int parentDy = HippyNestedScrollHelper.priorityOfY(this, dyUnconsumed) == Priority.NONE ? 0 : dyUnconsumed;
+    if (parentDx != 0 || parentDy != 0) {
+      dispatchNestedScroll(dxConsumed, dyConsumed, parentDx, parentDy, null, type);
+    }
+  }
+
+  @Override
+  public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
+    // 先分发给父级处理
+    int parentDx = HippyNestedScrollHelper.priorityOfX(this, dx) == Priority.NONE ? 0 : dx;
+    int parentDy = HippyNestedScrollHelper.priorityOfY(this, dy) == Priority.NONE ? 0 : dy;
+    if (parentDx != 0 || parentDy != 0) {
+      // 把consumed暂存下来，以复用数组
+      int consumedX = consumed[0];
+      int consumedY = consumed[1];
+      consumed[0] = 0;
+      consumed[1] = 0;
+      dispatchNestedPreScroll(parentDx, parentDy, consumed, null, type);
+      dy -= consumed[1];
+      consumed[0] += consumedX;
+      consumed[1] += consumedY;
+    }
+    // 再给当前节点处理
+    if (HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT) {
+      final int oldScrollY = getScrollY();
+      scrollBy(0, dy);
+      final int myConsumed = getScrollY() - oldScrollY;
+      consumed[1] += myConsumed;
+    }
+  }
+
+  @Override
+  public void onStopNestedScroll(@NonNull View target, int type) {
+    super.onStopNestedScroll(target, type);
+    if (mPagingEnabled) {
+      post(new Runnable() {
+        @Override
+        public void run() {
+          doPageScroll();
+        }
+      });
     }
   }
 }

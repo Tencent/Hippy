@@ -15,20 +15,24 @@
  */
 package com.tencent.mtt.hippy.views.viewpager;
 
+import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.MotionEvent;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
+import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
-
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.TextUtils;
-import android.view.MotionEvent;
-import android.view.View;
 
 @SuppressWarnings({"unused"})
 public class HippyViewPager extends ViewPager implements HippyViewBase {
@@ -51,8 +55,10 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   private ViewPagerPageChangeListener mPageListener;
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private Promise mCallBackPromise;
+  private int mAxes;
+  private boolean mCaptured = false;
 
-  private void init(Context context) {
+  private void init(Context context, boolean isVertical) {
     setCallPageChangedOnFirstLayout(true);
     setEnableReLayoutOnAttachToWindow(false);
 
@@ -61,6 +67,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     setAdapter(createAdapter(context));
     setLeftDragOutSizeEnabled(false);
     setRightDragOutSizeEnabled(false);
+    mAxes = isVertical ? SCROLL_AXIS_VERTICAL : SCROLL_AXIS_HORIZONTAL;
 
     if (I18nUtil.isRTL()) {
       setRotationY(180f);
@@ -77,12 +84,12 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
 
   public HippyViewPager(Context context, boolean isVertical) {
     super(context, isVertical);
-    init(context);
+    init(context, isVertical);
   }
 
   public HippyViewPager(Context context) {
     super(context);
-    init(context);
+    init(context, false);
   }
 
   public void setCallBackPromise(Promise promise) {
@@ -242,5 +249,74 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
 
   public void triggerRequestLayout() {
     mHandler.post(mMeasureAndLayout);
+  }
+
+  @Override
+  public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes) {
+    if (!isScrollEnabled()) {
+      return false;
+    }
+    return (axes & mAxes) != 0;
+  }
+
+  @Override
+  public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
+    super.onNestedScrollAccepted(child, target, axes);
+    requestDisallowInterceptTouchEvent(true);
+    beginFakeDrag();
+  }
+
+  @Override
+  public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
+    // viewpager不支持嵌套滚动，不会继续派发事件，但可以响应子节点的嵌套滚动事件
+    if (!mCaptured) {
+      if (mAxes == SCROLL_AXIS_HORIZONTAL && dx != 0) {
+        if (HippyNestedScrollHelper.priorityOfX(target, dx) == Priority.PARENT) {
+          mCaptured = canScrollHorizontally(dx);
+        }
+      } else if (mAxes == SCROLL_AXIS_VERTICAL && dy != 0) {
+        if (HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT) {
+          mCaptured = canScrollVertically(dy);
+        }
+      }
+    }
+    if (mCaptured) {
+      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
+        fakeDragBy(-dx);
+        consumed[0] += dx;
+      } else {
+        fakeDragBy(-dy);
+        consumed[1] += dy;
+      }
+    }
+  }
+
+  @Override
+  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+    // viewpager不支持嵌套滚动，不会继续派发事件，但可以响应子节点的嵌套滚动事件
+    HippyNestedScrollTarget cc = (HippyNestedScrollTarget) target;
+    if (mAxes == SCROLL_AXIS_HORIZONTAL && dxUnconsumed != 0) {
+      if (HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF) {
+        fakeDragBy(-dxUnconsumed);
+        mCaptured = true;
+      }
+    } else if (mAxes == SCROLL_AXIS_VERTICAL && dyUnconsumed != 0) {
+      if (HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
+        fakeDragBy(-dyUnconsumed);
+        mCaptured = true;
+      }
+    }
+  }
+
+  @Override
+  public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+    // 消费子节点的fling事件，防止endDrag时子节点同时触发惯性滚动
+    return mCaptured;
+  }
+
+  @Override
+  public void onStopNestedScroll(View child) {
+    endFakeDrag();
+    mCaptured = false;
   }
 }
