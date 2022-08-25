@@ -70,6 +70,13 @@ export function registerAnimation(vueApp: App): void {
     return value;
   }
 
+  function repeatCountDict(repeatCount: string | number): string | number {
+    if (repeatCount === 'loop') {
+      return -1;
+    }
+    return repeatCount;
+  }
+
   /**
    * Create the standalone animation
    *
@@ -92,6 +99,7 @@ export function registerAnimation(vueApp: App): void {
     }
     fullOption.startValue = parseValue(fullOption.valueType, startValue);
     fullOption.toValue = parseValue(fullOption.valueType, toValue);
+    fullOption.repeatCount = repeatCountDict(fullOption.repeatCount);
     const animationId = Native.callNativeWithCallbackId(
       MODULE_NAME,
       'createAnimation',
@@ -107,7 +115,7 @@ export function registerAnimation(vueApp: App): void {
   /**
    * Create the animationSet
    */
-  function createAnimationSet(children, repeatCount = 0) {
+  function createAnimationSet(children, repeatCount: string | number = 0) {
     return Native.callNativeWithCallbackId(
       MODULE_NAME,
       'createAnimationSet',
@@ -122,7 +130,7 @@ export function registerAnimation(vueApp: App): void {
   /**
    * Generate the styles from animation and animationSet Ids.
    */
-  function getStyle(actions, childAnimationIdList: number[] = []): NodeStyle {
+  function createStyle(actions, childAnimationIdList: number[] = []): NodeStyle {
     const style = {};
     Object.keys(actions).forEach((key) => {
       if (Array.isArray(actions[key])) {
@@ -137,7 +145,7 @@ export function registerAnimation(vueApp: App): void {
         });
         const animationSetId = createAnimationSet(
           animationSetActions,
-          repeatCount,
+          repeatCountDict(repeatCount),
         );
         style[key] = {
           animationId: animationSetId,
@@ -215,11 +223,11 @@ export function registerAnimation(vueApp: App): void {
         this.destroy();
         this.create();
         // trigger actionsDidUpdate in setTimeout callback to make sure node style updated
-        // setTimeout(() => {
-        //   if (typeof this.$listeners.actionsDidUpdate === 'function') {
-        //     this.$listeners.actionsDidUpdate();
-        //   }
-        // });
+        setTimeout(() => {
+          if (typeof this.$attrs.onActionsDidUpdate === 'function') {
+            this.$attrs.onActionsDidUpdate();
+          }
+        });
       },
     },
     created() {
@@ -253,9 +261,9 @@ export function registerAnimation(vueApp: App): void {
         const {
           actions: { transform, ...actions },
         } = this.$props;
-        const style = getStyle(actions, this.childAnimationIdList);
+        const style = createStyle(actions, this.childAnimationIdList);
         if (transform) {
-          const transformAnimations = getStyle(
+          const transformAnimations = createStyle(
             transform,
             this.childAnimationIdList,
           );

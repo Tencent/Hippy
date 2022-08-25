@@ -240,13 +240,13 @@ export const createApp = (
           rootViewId,
         };
 
-        // support callback && promise
+        // the initialization is complete, and return the initialization parameters returned
+        // by native. support callback && promise
         if (isFunction(afterCallback)) {
           afterCallback(globalInitParams);
+        } else {
+          resolve(globalInitParams);
         }
-
-        // the initialization is complete, and return the initialization parameters returned by native
-        resolve(globalInitParams);
       },
     );
   });

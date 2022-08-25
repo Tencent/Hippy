@@ -115,7 +115,7 @@
    * After the actions are replaced, the animation needs to be started manually
    *
    */
-import { defineComponent, ref, type Ref, shallowRef } from '@vue/runtime-core';
+import { defineComponent, ref, type Ref, shallowRef, nextTick } from '@vue/runtime-core';
 
 import { warn } from '../../util';
 
@@ -162,15 +162,19 @@ export default defineComponent({
       cubicPlaying.value = !cubicPlaying.value;
     };
     const toggleDirection = () => {
-      direction.value =          direction.value === 'horizon' ? 'vertical' : 'horizon';
+      direction.value = direction.value === 'horizon' ? 'vertical' : 'horizon';
     };
     const actionsDidUpdate = () => {
-      warn('actions updated & startAnimation');
-      if (animationRef.value) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        animationRef.value.start();
-      }
+      // pay attention pls, animate operate should execute
+      // after dom render finished
+      nextTick().then(() => {
+        warn('actions updated & startAnimation');
+        if (animationRef.value) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          animationRef.value.start();
+        }
+      });
     };
 
     return {

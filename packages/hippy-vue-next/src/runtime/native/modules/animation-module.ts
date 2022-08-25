@@ -22,7 +22,7 @@ import type { NeedToTyped } from '../../../config';
 import type { AnimationStyle } from '../../../native-component/animation';
 
 interface CreateAnimationSetOptions {
-  repeatCount: number;
+  repeatCount: string | number;
   children: AnimationStyle[];
 }
 
