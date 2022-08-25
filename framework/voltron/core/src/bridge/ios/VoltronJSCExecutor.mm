@@ -68,8 +68,8 @@ struct __attribute__((packed)) ModuleData {
 
 using file_ptr = std::unique_ptr<FILE, decltype(&fclose)>;
 using memory_ptr = std::unique_ptr<void, decltype(&free)>;
-using unicode_string_view = footstone::stringview::unicode_string_view;
-using StringViewUtils = hippy::base::StringViewUtils;
+using string_view = footstone::stringview::string_view;
+using StringViewUtils = footstone::StringViewUtils;
 
 
 struct RandomAccessBundleData {
@@ -110,12 +110,12 @@ struct RandomAccessBundleData {
         // JSContextRef held by JSContextGroupRef cannot be deallocated,
         // unless JSContextGroupRef is deallocated
         self.executorkey = execurotkey;
-        std::shared_ptr<Engine> engine = [[VoltronJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
+        std::shared_ptr<hippy::Engine> engine = [[VoltronJSEnginesMapper defaultInstance] createJSEngineForKey:self.executorkey];
         self->_globalConfig = globalConfig;
         self->_completion = completion;
-        std::unique_ptr<Engine::RegisterMap> map = [self registerMap];
+        std::unique_ptr<hippy::Engine::RegisterMap> map = [self registerMap];
         const char *pName = [execurotkey UTF8String] ?: "";
-        std::shared_ptr<Scope> scope = engine->CreateScope(pName, std::move(map));
+        std::shared_ptr<hippy::Scope> scope = engine->CreateScope(pName, std::move(map));
         self.pScope = scope;
     #if ENABLE_INSPECTOR
         // create devtools
@@ -129,12 +129,12 @@ struct RandomAccessBundleData {
     return self;
 }
 
-static unicode_string_view NSStringToU8(NSString* str) {
+static string_view NSStringToU8(NSString* str) {
   std::string u8 = [str UTF8String];
-  return unicode_string_view(reinterpret_cast<const unicode_string_view::char8_t_*>(u8.c_str()), u8.length());
+  return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
 }
 
-- (std::unique_ptr<Engine::RegisterMap>)registerMap {
+- (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {
     __weak VoltronJSCExecutor *weakSelf = self;
     __weak NSString *weakGlobalConfig = self->_globalConfig;
     hippy::base::RegisterFunction taskEndCB = [weakSelf](void *) {
@@ -151,8 +151,8 @@ static unicode_string_view NSStringToU8(NSString* str) {
       }
 
       NSString *strongGlobalConfig = weakGlobalConfig;
-      ScopeWrapper *wrapper = reinterpret_cast<ScopeWrapper *>(p);
-      std::shared_ptr<Scope> scope = wrapper->scope_.lock();
+      hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
+      std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
       if (scope) {
         std::shared_ptr<hippy::napi::JSCCtx> context = std::static_pointer_cast<hippy::napi::JSCCtx>(scope->GetContext());
         JSContext *jsContext = [JSContext contextWithJSGlobalContextRef:context->GetCtxRef()];
@@ -203,22 +203,22 @@ static unicode_string_view NSStringToU8(NSString* str) {
       if (!strongSelf) {
           return;
       }
-      ScopeWrapper *wrapper = reinterpret_cast<ScopeWrapper *>(p);
-      std::shared_ptr<Scope> scope = wrapper->scope_.lock();
+      hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
+      std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
       if(handleJsExcepiton(scope)) {
         strongSelf->_completion(TRUE);
       } else {
         strongSelf->_completion(FALSE);
       };
     };
-    std::unique_ptr<Engine::RegisterMap> ptr = std::make_unique<Engine::RegisterMap>();
+    std::unique_ptr<hippy::Engine::RegisterMap> ptr = std::make_unique<hippy::Engine::RegisterMap>();
     ptr->insert(std::make_pair("ASYNC_TASK_END", taskEndCB));
     ptr->insert(std::make_pair(hippy::base::kContextCreatedCBKey, ctxCreateCB));
     ptr->insert(std::make_pair(hippy::base::KScopeInitializedCBKey, scopeInitializedCB));
     return ptr;
 }
 
-static BOOL handleJsExcepiton(std::shared_ptr<Scope> scope) {
+static BOOL handleJsExcepiton(std::shared_ptr<hippy::Scope> scope) {
   if (!scope) {
     return FALSE;
   }
@@ -228,7 +228,7 @@ static BOOL handleJsExcepiton(std::shared_ptr<Scope> scope) {
     if (!context->IsExceptionHandled()) {
       context->ThrowException(exception);
     }
-    std::u16string exceptionStr = StringViewUtils::Convert(context->GetExceptionMsg(exception), unicode_string_view::Encoding::Utf16).utf16_value();
+    std::u16string exceptionStr = StringViewUtils::CovertToUtf16(context->GetExceptionMsg(exception), string_view::Encoding::Utf16).utf16_value();
     NSString *err = [NSString stringWithCharacters:(const unichar *)exceptionStr.c_str() length:(exceptionStr.length())];
     NSError *error = VoltronErrorWithMessage(err);
 
@@ -257,7 +257,7 @@ static BOOL handleJsExcepiton(std::shared_ptr<Scope> scope) {
 
 - (JSGlobalContextRef)JSGlobalContextRef {
     if (nil == _JSGlobalContextRef) {
-        std::shared_ptr<Scope> scope = self.pScope;
+        std::shared_ptr<hippy::Scope> scope = self.pScope;
         if (scope) {
             std::shared_ptr<hippy::napi::Ctx> napiCtx = scope->GetContext();
             std::shared_ptr<hippy::napi::JSCCtx> jscContext = std::static_pointer_cast<hippy::napi::JSCCtx>(napiCtx);
@@ -726,7 +726,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 }
 
 - (void)executeBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    Engine *engine = [[VoltronJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
+    hippy::Engine *engine = [[VoltronJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
     if (engine) {
         auto runner = engine->GetJsTaskRunner();
         if (footstone::Worker::IsTaskRunning() && runner == footstone::runner::TaskRunner::GetCurrentTaskRunner()) {
@@ -738,7 +738,7 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
 }
 
 - (void)executeAsyncBlockOnJavaScriptQueue:(dispatch_block_t)block {
-    Engine *engine = [[VoltronJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
+    hippy::Engine *engine = [[VoltronJSEnginesMapper defaultInstance] JSEngineForKey:self.executorkey].get();
     if (engine) {
         engine->GetJsTaskRunner()->PostTask(block);
     }

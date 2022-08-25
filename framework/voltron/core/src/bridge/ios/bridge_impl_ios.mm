@@ -143,14 +143,14 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     BOOL debugMode = is_dev_module ? YES : NO;
     int64_t bridge_id = (int64_t)bridge;
     NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%lld", bridge_id];
-    
+
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
     FOOTSTONE_DCHECK(dom_manager);
     std::shared_ptr<footstone::TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
     FOOTSTONE_DCHECK(dom_task_runner);
-    std::shared_ptr<Engine> engine = std::make_shared<Engine>(dom_task_runner, nullptr);
+    std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(dom_task_runner, nullptr);
     [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
-    
+
     [bridge initJSFramework:globalConfig execurotKey:executorKey wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
         callback(succ ? 1 : 0);
     }];
@@ -260,7 +260,7 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::s
     }];
 }
 
-std::shared_ptr<Scope> BridgeImpl::GetScope(int64_t runtime_id) {
+std::shared_ptr<hippy::Scope> BridgeImpl::GetScope(int64_t runtime_id) {
   VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
   return bridge.jscExecutor.pScope;
 }

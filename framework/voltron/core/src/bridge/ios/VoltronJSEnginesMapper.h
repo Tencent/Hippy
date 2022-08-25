@@ -27,11 +27,11 @@
 
 + (instancetype)defaultInstance;
 
-- (std::shared_ptr<Engine>)JSEngineForKey:(NSString *)key;
+- (std::shared_ptr<hippy::Engine>)JSEngineForKey:(NSString *)key;
 
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key;
+- (std::shared_ptr<hippy::Engine>)createJSEngineForKey:(NSString *)key;
 
-- (void)setEngine:(std::shared_ptr<Engine>)engine forKey:(NSString *)key;
+- (void)setEngine:(std::shared_ptr<hippy::Engine>)engine forKey:(NSString *)key;
 
 - (void)removeEngineForKey:(NSString *)key;
 

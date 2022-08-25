@@ -58,7 +58,7 @@ class BridgeImpl {
   static void LoadInstance(int64_t runtime_id, std::string&& params);
   static void UnloadInstance(int64_t runtime_id, std::string&& params);
 
-  static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
+  static std::shared_ptr<hippy::Scope> GetScope(int64_t runtime_id);
 
  private:
   static bool RunScript(int64_t runtime_id, const char16_t* script, const char16_t* script_name,

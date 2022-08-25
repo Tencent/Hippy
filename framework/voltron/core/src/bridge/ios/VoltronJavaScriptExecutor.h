@@ -23,6 +23,7 @@
 #import <objc/runtime.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 #import "VoltronInvalidating.h"
+#import "driver/scope.h"
 #include <memory>
 
 typedef void (^VoltronJavaScriptCompleteBlock)(NSError *error);
@@ -53,7 +54,7 @@ class Scope;
 /*
  *hippy-core js engine
  */
-@property (atomic, assign) std::shared_ptr<Scope> pScope;
+@property (atomic, assign) std::shared_ptr<hippy::Scope> pScope;
 @property (readonly) JSGlobalContextRef JSGlobalContextRef;
 /**
  * Executes BatchedBridge.flushedQueue on JS thread and calls the given callback

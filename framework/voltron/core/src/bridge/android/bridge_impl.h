@@ -28,7 +28,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-using unicode_string_view = footstone::stringview::unicode_string_view;
+using stringview = footstone::stringview::string_view;
 using hippy::DomManager;
 using voltron::JSBridgeRuntime;
 using footstone::WorkerManager;
@@ -72,7 +72,7 @@ class BridgeImpl {
 
   static void UnloadInstance(int64_t runtime_id, byte_string&& buffer_data);
 
-  static std::shared_ptr<Scope> GetScope(int64_t runtime_id);
+  static std::shared_ptr<hippy::Scope> GetScope(int64_t runtime_id);
 };
 
 #ifdef __cplusplus

@@ -33,7 +33,7 @@
 #import "utils/VoltronUtils.h"
 #include "footstone/string_view_utils.h"
 
-using StringViewUtils = hippy::base::StringViewUtils;
+using StringViewUtils = footstone::StringViewUtils;
 
 static NSString *const _VoltronSDKVersion = @"1.0.0";
 

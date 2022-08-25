@@ -25,7 +25,7 @@
 #import "utils/VoltronLog.h"
 #import "VoltronJavaScriptExecutor.h"
 
-using EngineRef = std::pair<std::shared_ptr<Engine>, NSUInteger>;
+using EngineRef = std::pair<std::shared_ptr<hippy::Engine>, NSUInteger>;
 using EngineMapper = std::unordered_map<std::string, EngineRef>;
 
 @interface VoltronJSEnginesMapper () {
@@ -46,7 +46,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
     return instance;
 }
 
-- (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key {
+- (std::shared_ptr<hippy::Engine>)createJSEngineForKey:(NSString *)key {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
     const auto it = _engineMapper.find([key UTF8String]);
     bool findIT = (_engineMapper.end() != it);
@@ -55,13 +55,13 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second++;
         return ref.first;
     } else {
-        std::shared_ptr<Engine> engine = std::make_shared<Engine>(nullptr, nullptr);
+        std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(nullptr, nullptr);
         [self setEngine:engine forKey:key];
         return engine;
     }
 }
 
-- (std::shared_ptr<Engine>)JSEngineForKey:(NSString *)key {
+- (std::shared_ptr<hippy::Engine>)JSEngineForKey:(NSString *)key {
     std::lock_guard<std::recursive_mutex> lock(_mutex);
     const auto it = _engineMapper.find([key UTF8String]);
     bool findIT = (_engineMapper.end() != it);
@@ -73,7 +73,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
     }
 }
 
-- (void)setEngine:(std::shared_ptr<Engine>)engine forKey:(NSString *)key {
+- (void)setEngine:(std::shared_ptr<hippy::Engine>)engine forKey:(NSString *)key {
     EngineRef ref { engine, 1 };
     std::pair<std::string, EngineRef> enginePair { [key UTF8String], ref };
     std::lock_guard<std::recursive_mutex> lock(_mutex);
@@ -89,7 +89,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         ref.second--;
         if (0 == ref.second) {
             VoltronLogInfo(@"[Voltron_OC_Log][Life_Circle],VoltronJSCExecutor destroy engine %@", key);
-            std::shared_ptr<Engine> engine = ref.first;
+            std::shared_ptr<hippy::Engine> engine = ref.first;
             //engine->TerminateRunner();
             _engineMapper.erase(it);
         }
