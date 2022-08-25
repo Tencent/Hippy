@@ -83,8 +83,8 @@ CMakeLists.txt @medns
 /hippy.podspec @ozonelmy
 
 # voltron related
-/renderer/voltron/ @lvfen @battleAgain
-/framework/voltron/ @lvfen @battleAgain
+/renderer/voltron/ @lvfen @skindhu
+/framework/voltron/ @lvfen @skindhu
 
 # devtools related
 /devtools/ @churchill-zhang @medns
