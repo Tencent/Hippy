@@ -61,11 +61,9 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/
-    - jsbundle/
-    - jsbundle/hippy-vue-demo/android/
-    - jsbundle/hippy-vue-demo/android/assets/
-    - jsbundle/hippy-react-demo/android/
-    - jsbundle/hippy-react-demo/android/assets/
+    - assets/jsbundle/
+    - assets/jsbundle/
+    - assets/jsbundle/assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
@@ -81,7 +79,7 @@ flutter:
   fonts:
     - family: TTTGB
       fonts:
-        - asset: jsbundle/fonts/TTTGB.otf
+        - asset: assets/fonts/TTTGB.otf
 
   #
   # For details regarding fonts from package dependencies,

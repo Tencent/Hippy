@@ -27,14 +27,9 @@ import 'package:voltron_renderer/voltron_renderer.dart';
 
 import 'my_api_provider.dart';
 
-const bool kUseHippyVueDemo = false;
-
-const String kHippyVueBundleDir = 'hippy-vue-demo';
-const String kHippyReactBundleDir = 'hippy-react-demo';
-const String kBundleDir = kUseHippyVueDemo ? kHippyVueBundleDir : kHippyReactBundleDir;
-const String kPlatform = 'android'; // ios and android use same bundle
-const String kVendorPath = "jsbundle/$kBundleDir/$kPlatform/vendor.$kPlatform.js";
-const String kIndexPath = "jsbundle/$kBundleDir/$kPlatform/index.$kPlatform.js";
+// ios and android use same bundle
+const String kVendorPath = "assets/jsbundle/vendor.android.js";
+const String kIndexPath = "assets/jsbundle/index.android.js";
 
 enum PageStatus {
   init,
