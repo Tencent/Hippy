@@ -29,34 +29,37 @@ import java.util.ArrayList;
 public class V8 implements V8Memory {
   private long mV8RuntimeId;
 
-  public V8(long mV8RuntimeId){
+  public V8(long mV8RuntimeId) {
     this.mV8RuntimeId = mV8RuntimeId;
   }
 
   @Override
-  public boolean getHeapStatistics(@NonNull Callback<V8HeapStatistics> callback) {
+  public boolean getHeapStatistics(@NonNull Callback<V8HeapStatistics> callback) throws NoSuchMethodException {
     return getHeapStatistics(mV8RuntimeId, callback);
   }
 
   @Override
-  public boolean getHeapCodeStatistics(@NonNull Callback<V8HeapCodeStatistics> callback) {
+  public boolean getHeapCodeStatistics(@NonNull Callback<V8HeapCodeStatistics> callback) throws NoSuchMethodException {
     return getHeapCodeStatistics(mV8RuntimeId, callback);
   }
 
   @Override
-  public boolean getHeapSpaceStatistics(@NonNull Callback<ArrayList<V8HeapSpaceStatistics>> callback) {
+  public boolean getHeapSpaceStatistics(@NonNull Callback<ArrayList<V8HeapSpaceStatistics>> callback) throws NoSuchMethodException {
     return getHeapSpaceStatistics(mV8RuntimeId, callback);
   }
 
   @Override
-  public boolean writeHeapSnapshot(@NonNull String filePath, @NonNull Callback<Integer> callback) {
+  public boolean writeHeapSnapshot(@NonNull String filePath, @NonNull Callback<Integer> callback) throws NoSuchMethodException {
     return writeHeapSnapshot(mV8RuntimeId, filePath, callback);
   }
 
   // [memory]
-  private native boolean getHeapStatistics(long runtimeId, Callback<V8HeapStatistics> callback);
-  private native boolean getHeapCodeStatistics(long runtimeId, Callback<V8HeapCodeStatistics> callback);
-  private native boolean getHeapSpaceStatistics(long runtimeId, Callback<ArrayList<V8HeapSpaceStatistics>> callback);
-  private native boolean writeHeapSnapshot(long runtimeId, String filePath, Callback<Integer> callback);
+  private native boolean getHeapStatistics(long runtimeId, Callback<V8HeapStatistics> callback) throws NoSuchMethodException;
+
+  private native boolean getHeapCodeStatistics(long runtimeId, Callback<V8HeapCodeStatistics> callback) throws NoSuchMethodException;
+
+  private native boolean getHeapSpaceStatistics(long runtimeId, Callback<ArrayList<V8HeapSpaceStatistics>> callback) throws NoSuchMethodException;
+
+  private native boolean writeHeapSnapshot(long runtimeId, String filePath, Callback<Integer> callback) throws NoSuchMethodException;
 
 }
