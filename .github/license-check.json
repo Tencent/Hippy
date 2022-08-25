@@ -38,7 +38,7 @@
     "framework/examples/android-demo/res/**",
     "framework/examples/ios-demo/res/**",
     "driver/js/examples/hippy-**-demo/**",
-    "framework/voltron/example/assets/",
+    "framework/voltron/example/assets/**",
     "framework/voltron/example/android/gradlew.bat"
   ]
 }
