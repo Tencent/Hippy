@@ -199,4 +199,21 @@ For details, please see the writing method of the [example project](https://gith
   ```
   
   > You can use it like above
+- Global Event
+  In @hippy/vue，global event used Vue.$on or Vue.$off，Now in @hippy/vue-next，we provide single EventBus API to do that.
+
+  ```typescript
+  import { EventBus } from '@hippy/vue-next';
+  
+  // Listen container size change event(Only Android)
+  EventBus.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
+    // oldWidth: old widht；oldHeight: old height；width: new width; height: new height
+    console.log('size', oldWidth, oldHeight, width, height);
+  });
+  // trigger global event
+  EventBus.$emit('eventName', {
+    ...args, // event params
+  });
+  ```
+
 - Other undiscovered bugs...

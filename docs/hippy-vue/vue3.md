@@ -191,4 +191,21 @@ app.$start().then(({ superProps, rootViewId }) => {
   ```
   
   > 通过包单独提供的 API 来进行引用
+- 全局事件：
+  在 @hippy/vue 中，全局事件也是挂载在 Vue 上的，在 @hippy/vue-next 中，提供了单独的事件总线来处理该问题
+  
+  ```typescript
+  import { EventBus } from '@hippy/vue-next';
+  
+  // 监听容器大小改变事件(仅 Android)
+  EventBus.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
+    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
+    console.log('size', oldWidth, oldHeight, width, height);
+  });
+  // 触发全局事件
+  EventBus.$emit('eventName', {
+    ...args, // 事件参数
+  });
+  ```
+
 - 其他尚未发现的Bug...
