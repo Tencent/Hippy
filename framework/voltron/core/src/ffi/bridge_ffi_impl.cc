@@ -354,8 +354,7 @@ EXTERN_C void DoConnectRootViewAndRuntime(int32_t engine_id, uint32_t root_id) {
   std::shared_ptr<voltron::VoltronRenderManager> render_manager =
       std::static_pointer_cast<voltron::VoltronRenderManager>(scope->GetRenderManager().lock());
 
-  // todo 合入renderManager density后修改为render_manager.density
-  float density = 1.0;
+  float density = render_manager->GetDensity();
   auto layout_node = root_node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
 }
