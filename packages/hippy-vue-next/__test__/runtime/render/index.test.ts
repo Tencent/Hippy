@@ -24,7 +24,7 @@
 
 import { nextTick } from '@vue/runtime-core';
 
-import { registerHippyTag } from '../../../src/runtime/component';
+import { registerElement } from '../../../src/runtime/component';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { Native } from '../../../src/runtime/native/index';
 import {
@@ -44,7 +44,7 @@ describe('runtime/render.ts', () => {
     jest.clearAllMocks();
     jest.resetModules();
 
-    registerHippyTag('div', { name: 'View' });
+    registerElement('div', { component: { name: 'View' } });
     const root = new HippyElement('div');
     root.id = 'testRoot';
 

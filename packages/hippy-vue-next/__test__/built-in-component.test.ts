@@ -25,7 +25,7 @@
 import { NATIVE_COMPONENT_MAP, HIPPY_DEBUG_ADDRESS, NeedToTyped } from '../src/config';
 import { Native } from '../src/runtime/native';
 import BuiltInComponent from '../src/built-in-component';
-import { getTagComponent, registerHippyTag } from '../src/runtime/component';
+import { getTagComponent, registerElement } from '../src/runtime/component';
 import { HippyElement } from '../src/runtime/element/hippy-element';
 import { HippyListElement } from '../src/runtime/element/hippy-list-element';
 import { HippyListItemElement } from '../src/runtime/element/hippy-list-item-element';
@@ -44,7 +44,7 @@ describe('built-in-component', () => {
   const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
   beforeAll(() => {
     BuiltInComponent.install();
-    registerHippyTag('div', { name: 'View' });
+    registerElement('div', { component: { name: 'View' } });
     const root = new HippyElement('div');
     root.id = 'testRoot';
     setHippyCachedInstance({

@@ -25,7 +25,7 @@ import { patchProp } from '../src/patch-prop';
 import { nodeOps } from '../src/node-ops';
 import '../src/runtime/event/hippy-event-dispatcher';
 import { preCacheNode } from '../src/util/node-cache';
-import { registerHippyTag, TagComponent } from '../src/runtime/component';
+import { registerElement, type ElementComponent } from '../src/runtime/component';
 
 /**
  * @author birdguo
@@ -80,10 +80,12 @@ describe('patch-prop.ts', () => {
   it('patch event prop', () => {
     const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
     // div component
-    const div: TagComponent = {
-      name: 'View',
+    const div: ElementComponent = {
+      component: {
+        name: 'View',
+      },
     };
-    registerHippyTag('div', div);
+    registerElement('div', div);
     const element = nodeOps.createElement('div');
     preCacheNode(element, element.nodeId);
     const noop = () => {};

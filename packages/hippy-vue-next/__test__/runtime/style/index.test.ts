@@ -26,7 +26,7 @@ import { HIPPY_GLOBAL_DISPOSE_STYLE_NAME, HIPPY_GLOBAL_STYLE_NAME } from '../../
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { fromAstNodes } from '../../../src/runtime/style';
 import { getCssMap } from '../../../src/runtime/style/css-map';
-import { registerHippyTag } from '../../../src/runtime/component';
+import { registerElement } from '../../../src/runtime/component';
 import { setHippyCachedInstance } from '../../../src/util/instance';
 
 // AST used for test
@@ -253,7 +253,7 @@ describe('runtime/style/index.ts', () => {
   beforeAll(() => {
     global[HIPPY_GLOBAL_STYLE_NAME] = testAst;
     cssMap = getCssMap();
-    registerHippyTag('div', { name: 'View' });
+    registerElement('div', { component: { name: 'View' } });
     const root = new HippyElement('div');
     root.id = 'testRoot';
     setHippyCachedInstance({

@@ -30,8 +30,8 @@ import { Native } from '../../../src/runtime/native';
 import type { NeedToTyped } from '../../../src/config';
 import { nodeOps } from '../../../src/node-ops';
 import { patchProp } from '../../../src/patch-prop';
-import type { TagComponent } from '../../../src/runtime/component/index';
-import { registerHippyTag } from '../../../src/runtime/component/index';
+import type { ElementComponent } from '../../../src/runtime/component/index';
+import { registerElement } from '../../../src/runtime/component/index';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { HippyListItemElement } from '../../../src/runtime/element/hippy-list-item-element';
 import { EventBus } from '../../../src/runtime/event/event-bus';
@@ -59,16 +59,18 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
     const divElement = new HippyElement('div');
 
-    const divComponent: TagComponent = {
-      name: 'div',
-      eventNamesMap: new Map().set('click', 'onClick'),
-      defaultNativeStyle: {},
-      defaultNativeProps: {},
-      nativeProps: {},
-      attributeMaps: {},
+    const divComponent: ElementComponent = {
+      component: {
+        name: 'div',
+        eventNamesMap: new Map().set('click', 'onClick'),
+        defaultNativeStyle: {},
+        defaultNativeProps: {},
+        nativeProps: {},
+        attributeMaps: {},
+      },
     };
 
-    registerHippyTag('div', divComponent);
+    registerElement('div', divComponent);
 
     let sign = 0;
 
@@ -151,10 +153,12 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
     expect(sign).toEqual(10);
 
     // span component
-    const li: TagComponent = {
-      name: 'ListViewItem',
+    const li: ElementComponent = {
+      component: {
+        name: 'ListViewItem',
+      },
     };
-    registerHippyTag('li', li);
+    registerElement('li', li);
     const listItemElement = new HippyListItemElement('li');
     // pre cache node
     preCacheNode(listItemElement, listItemElement.nodeId);
@@ -243,24 +247,26 @@ describe('runtime/event/hippy-event-dispatcher.ts', () => {
 
   it('processEventData can process event before dispatch', () => {
     const { EventDispatcher: eventDispatcher } = global.__GLOBAL__.jsModuleList;
-    const div: TagComponent = {
-      name: 'View',
-      processEventData(evtData: EventsUnionType, nativeEventParams: NeedToTyped) {
-        const { handler: event, __evt: nativeEventName } = evtData;
+    const div: ElementComponent = {
+      component: {
+        name: 'View',
+        processEventData(evtData: EventsUnionType, nativeEventParams: NeedToTyped) {
+          const { handler: event, __evt: nativeEventName } = evtData;
 
-        switch (nativeEventName) {
-          case 'onScroll':
-            event.offsetX = nativeEventParams.contentOffset?.x;
-            event.offsetY = nativeEventParams.contentOffset?.y;
-            break;
-          default:
-            break;
-        }
-        return event;
+          switch (nativeEventName) {
+            case 'onScroll':
+              event.offsetX = nativeEventParams.contentOffset?.x;
+              event.offsetY = nativeEventParams.contentOffset?.y;
+              break;
+            default:
+              break;
+          }
+          return event;
+        },
       },
     };
     let sign = 0;
-    registerHippyTag('list', div);
+    registerElement('list', div);
 
     const divElement = new HippyElement('list');
     preCacheNode(divElement, divElement.nodeId);

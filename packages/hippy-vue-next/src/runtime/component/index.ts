@@ -53,6 +53,10 @@ export interface TagComponent {
   attributeMaps?: NativeNodeProps;
 }
 
+export interface ElementComponent {
+  component: TagComponent;
+}
+
 // the mapping between Hippy tag and native tag
 const tagMap = new Map();
 
@@ -60,11 +64,11 @@ const tagMap = new Map();
  * register component information for the specified tag
  *
  * @param tagName - tag name
- * @param component - component
+ * @param tagComponent - tag component
  */
-export function registerHippyTag(
+export function registerElement(
   tagName: string,
-  component: TagComponent,
+  elementComponent: ElementComponent,
 ): void {
   if (!tagName) {
     throw new Error('tagName can not be empty');
@@ -78,7 +82,7 @@ export function registerHippyTag(
     // TODO merge component default information
 
     // save the component with tag
-    tagMap.set(normalizedTagName, component);
+    tagMap.set(normalizedTagName, elementComponent.component);
   }
 }
 
@@ -88,5 +92,7 @@ export function registerHippyTag(
  * @param tagName - tag name
  */
 export function getTagComponent(tagName: string): TagComponent {
-  return tagMap.get(tagName);
+  // normalize tag name
+  const normalizedTagName = normalizeTagName(tagName);
+  return tagMap.get(normalizedTagName);
 }

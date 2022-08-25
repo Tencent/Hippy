@@ -21,7 +21,7 @@
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
-import { registerHippyTag } from '../runtime/component';
+import { registerElement } from '../runtime/component';
 import { Native } from '../runtime/native';
 
 /**
@@ -33,12 +33,16 @@ export function registerUlRefresh(vueApp: App): void {
   const hippyRefreshWrapperTag = 'hi-ul-refresh-wrapper';
   const hippyRefreshItemTag = 'hi-refresh-wrapper-item';
 
-  registerHippyTag(hippyRefreshWrapperTag, {
-    name: 'RefreshWrapper',
+  registerElement(hippyRefreshWrapperTag, {
+    component: {
+      name: 'RefreshWrapper',
+    },
   });
 
-  registerHippyTag(hippyRefreshItemTag, {
-    name: 'RefreshWrapperItemView',
+  registerElement(hippyRefreshItemTag, {
+    component: {
+      name: 'RefreshWrapperItemView',
+    },
   });
 
   // register UlRefreshWrapper component

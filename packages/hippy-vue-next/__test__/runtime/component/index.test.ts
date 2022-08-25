@@ -21,7 +21,7 @@
 /**
  * runtime/component/index.ts hippyNative unit test
  */
-import type { TagComponent } from '../../../src/runtime/component';
+import type { ElementComponent } from '../../../src/runtime/component';
 import * as index from '../../../src/runtime/component';
 
 /**
@@ -35,16 +35,18 @@ describe('runtime/component/index.ts', () => {
   });
 
   it('getTagComponent should return right component when registered', async () => {
-    const swiper: TagComponent = {
-      name: 'Swiper',
-      eventNamesMap: new Map().set('click', 'onClick'),
-      defaultNativeStyle: {},
-      defaultNativeProps: {},
-      nativeProps: {},
-      attributeMaps: {},
+    const swiper: ElementComponent = {
+      component: {
+        name: 'Swiper',
+        eventNamesMap: new Map().set('click', 'onClick'),
+        defaultNativeStyle: {},
+        defaultNativeProps: {},
+        nativeProps: {},
+        attributeMaps: {},
+      },
     };
 
-    index.registerHippyTag('swiper', swiper);
-    expect(index.getTagComponent('swiper')).toEqual(swiper);
+    index.registerElement('swiper', swiper);
+    expect(index.getTagComponent('swiper')).toEqual(swiper.component);
   });
 });

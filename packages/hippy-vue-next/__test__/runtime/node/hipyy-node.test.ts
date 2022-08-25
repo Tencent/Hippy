@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { registerHippyTag } from '../../../src/runtime/component';
+import { registerElement } from '../../../src/runtime/component';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { HippyNode, NodeType } from '../../../src/runtime/node/hippy-node';
 import { setHippyCachedInstance } from '../../../src/util/instance';
@@ -53,7 +53,7 @@ describe('runtime/node/hippy-node', () => {
 
   describe('test the node operation methods.', () => {
     beforeAll(() => {
-      registerHippyTag('div', { name: 'View' });
+      registerElement('div', { component: { name: 'View' } });
       const root = new HippyElement('div');
       root.id = 'testRoot';
       setHippyCachedInstance({

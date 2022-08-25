@@ -23,7 +23,7 @@ import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 import type { NeedToTyped } from '../config';
 
-import { registerHippyTag } from '../runtime/component';
+import { registerElement } from '../runtime/component';
 import type { EventsUnionType } from '../runtime/event/hippy-event';
 import { Native } from '../runtime/native';
 import { getEventRedirects } from '../util';
@@ -35,40 +35,44 @@ import { getEventRedirects } from '../util';
  */
 export function registerSwiper(vueApp: App): void {
   // register swiper tag
-  registerHippyTag('hi-swiper', {
-    name: 'ViewPager',
-    processEventData(
-      evtData: EventsUnionType,
-      nativeEventParams: { [key: string]: NeedToTyped },
-    ) {
-      const { handler: event, __evt: nativeEventName } = evtData;
+  registerElement('hi-swiper', {
+    component: {
+      name: 'ViewPager',
+      processEventData(
+        evtData: EventsUnionType,
+        nativeEventParams: { [key: string]: NeedToTyped },
+      ) {
+        const { handler: event, __evt: nativeEventName } = evtData;
 
-      switch (nativeEventName) {
-        case 'onPageSelected':
-          event.currentSlide = nativeEventParams.position;
-          break;
-        case 'onPageScroll':
-          event.nextSlide = nativeEventParams.position;
-          event.offset = nativeEventParams.offset;
-          break;
-        case 'onPageScrollStateChanged':
-          event.state = nativeEventParams.pageScrollState;
-          break;
-        default:
-      }
-      return event;
+        switch (nativeEventName) {
+          case 'onPageSelected':
+            event.currentSlide = nativeEventParams.position;
+            break;
+          case 'onPageScroll':
+            event.nextSlide = nativeEventParams.position;
+            event.offset = nativeEventParams.offset;
+            break;
+          case 'onPageScrollStateChanged':
+            event.state = nativeEventParams.pageScrollState;
+            break;
+          default:
+        }
+        return event;
+      },
     },
   });
 
   // register swiper item tag
-  registerHippyTag('swiper-slide', {
-    name: 'ViewPagerItem',
-    defaultNativeStyle: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
+  registerElement('swiper-slide', {
+    component: {
+      name: 'ViewPagerItem',
+      defaultNativeStyle: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+      },
     },
   });
 

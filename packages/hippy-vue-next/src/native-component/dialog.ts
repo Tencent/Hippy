@@ -18,21 +18,23 @@
  * limitations under the License.
  */
 
-import { registerHippyTag } from '../runtime/component';
+import { registerElement } from '../runtime/component';
 
 /**
  * register the modal dialog component
  */
 export function registerDialog(): void {
-  registerHippyTag('dialog', {
-    name: 'Modal',
-    defaultNativeProps: {
-      transparent: true,
-      immersionStatusBar: true,
-      collapsable: false,
-    },
-    defaultNativeStyle: {
-      position: 'absolute',
+  registerElement('dialog', {
+    component: {
+      name: 'Modal',
+      defaultNativeProps: {
+        transparent: true,
+        immersionStatusBar: true,
+        collapsable: false,
+      },
+      defaultNativeStyle: {
+        position: 'absolute',
+      },
     },
   });
 }

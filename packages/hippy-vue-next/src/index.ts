@@ -38,6 +38,7 @@ import { drawIphoneStatusBar } from './iphone';
 import HippyNativeComponents from './native-component';
 import { nodeOps } from './node-ops';
 import { patchProp } from './patch-prop';
+import { getTagComponent, registerElement, type TagComponent, type ElementComponent } from './runtime/component';
 import { HippyDocument } from './runtime/document/hippy-document';
 import type { HippyElement } from './runtime/element/hippy-element';
 import type { HippyInputElement } from './runtime/element/hippy-input-element';
@@ -264,6 +265,8 @@ export type {
   HippyInputElement,
   HippyListElement,
   CssNodeType,
+  TagComponent,
+  ElementComponent,
 };
 
 export * from './config';
@@ -277,4 +280,6 @@ export {
   NativeInterfaceMap,
   setScreenSize,
   HippyKeyboardEvent,
+  getTagComponent,
+  registerElement,
 };

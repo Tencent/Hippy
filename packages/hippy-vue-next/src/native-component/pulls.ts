@@ -22,7 +22,7 @@ import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
 import type { CallbackType, CommonMapParams } from '../config';
-import { registerHippyTag } from '../runtime/component';
+import { registerElement } from '../runtime/component';
 import type {
   HippyEvent,
   EventsUnionType,
@@ -57,22 +57,24 @@ export function registerPull(vueApp: App): void {
      * onReleased - Trigger when release the finger after pulling gap larger than the content height
      * onPulling - Trigger when pulling, will use it to trigger idle and pulling method
      */
-    registerHippyTag(`hi-pull-${lowerCase}`, {
-      name: `Pull${capitalCase}View`,
-      processEventData(
-        evtData: EventsUnionType,
-        nativeEventParams: CommonMapParams,
-      ) {
-        const { handler: event, __evt: nativeEventName } = evtData;
+    registerElement(`hi-pull-${lowerCase}`, {
+      component: {
+        name: `Pull${capitalCase}View`,
+        processEventData(
+          evtData: EventsUnionType,
+          nativeEventParams: CommonMapParams,
+        ) {
+          const { handler: event, __evt: nativeEventName } = evtData;
 
-        switch (nativeEventName) {
-          case `on${capitalCase}Released`:
-          case `on${capitalCase}Pulling`:
-            Object.assign(event, nativeEventParams);
-            break;
-          default:
-        }
-        return event;
+          switch (nativeEventName) {
+            case `on${capitalCase}Released`:
+            case `on${capitalCase}Pulling`:
+              Object.assign(event, nativeEventParams);
+              break;
+            default:
+          }
+          return event;
+        },
       },
     });
 

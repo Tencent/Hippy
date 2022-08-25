@@ -22,7 +22,7 @@
  * node-ops  Vue custom renderer node operations unit test
  */
 import { nodeOps } from '../src/node-ops';
-import { registerHippyTag } from '../src/runtime/component';
+import { registerElement } from '../src/runtime/component';
 import { setHippyCachedInstance } from '../src/util/instance';
 
 /**
@@ -149,8 +149,10 @@ describe('node-ops.ts', () => {
   });
 
   it('remove child should work correctly', async () => {
-    registerHippyTag('div', {
-      name: 'View',
+    registerElement('div', {
+      component: {
+        name: 'View',
+      },
     });
 
     const parent = nodeOps.createElement('div');

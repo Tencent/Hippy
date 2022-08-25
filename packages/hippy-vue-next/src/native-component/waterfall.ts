@@ -23,7 +23,7 @@ import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
 import type { CommonMapParams } from '../config';
-import { registerHippyTag } from '../runtime/component';
+import { registerElement } from '../runtime/component';
 import type { EventsUnionType } from '../runtime/event/hippy-event';
 import { Native } from '../runtime/native';
 import { getEventRedirects } from '../util';
@@ -37,56 +37,60 @@ export function registerWaterfall(vueApp: App): void {
   const hippyWaterfallTag = 'hi-waterfall';
   const hippyWaterfallItemTag = 'hi-waterfall-item';
 
-  registerHippyTag(hippyWaterfallTag, {
-    name: 'WaterfallView',
-    processEventData(
-      evtData: EventsUnionType,
-      nativeEventParams: CommonMapParams,
-    ) {
-      const { handler: event, __evt: nativeEventName } = evtData;
+  registerElement(hippyWaterfallTag, {
+    component: {
+      name: 'WaterfallView',
+      processEventData(
+        evtData: EventsUnionType,
+        nativeEventParams: CommonMapParams,
+      ) {
+        const { handler: event, __evt: nativeEventName } = evtData;
 
-      switch (nativeEventName) {
-        case 'onExposureReport':
-          event.exposureInfo = nativeEventParams.exposureInfo;
-          break;
-        case 'onScroll': {
-          /**
-           * scroll event parameters
-           *
-           * @param startEdgePos - Scrolled offset of List top edge
-           * @param endEdgePos - Scrolled offset of List end edge
-           * @param firstVisibleRowIndex - Index of the first list item at current visible screen
-           * @param lastVisibleRowIndex - Index of the last list item at current visible screen
-           * @param visibleRowFrames - Frame info of current screen visible items
-           *        visibleRowFrames[].x - Current item's horizontal offset relative to ListView
-           *        visibleRowFrames[].y - Current item's vertical offset relative to ListView
-           *        visibleRowFrames[].width - Current item's width
-           *        visibleRowFrames[].height - Current item's height
-           */
-          const {
-            startEdgePos,
-            endEdgePos,
-            firstVisibleRowIndex,
-            lastVisibleRowIndex,
-            visibleRowFrames,
-          } = nativeEventParams;
-          Object.assign(event, {
-            startEdgePos,
-            endEdgePos,
-            firstVisibleRowIndex,
-            lastVisibleRowIndex,
-            visibleRowFrames,
-          });
-          break;
+        switch (nativeEventName) {
+          case 'onExposureReport':
+            event.exposureInfo = nativeEventParams.exposureInfo;
+            break;
+          case 'onScroll': {
+            /**
+             * scroll event parameters
+             *
+             * @param startEdgePos - Scrolled offset of List top edge
+             * @param endEdgePos - Scrolled offset of List end edge
+             * @param firstVisibleRowIndex - Index of the first list item at current visible screen
+             * @param lastVisibleRowIndex - Index of the last list item at current visible screen
+             * @param visibleRowFrames - Frame info of current screen visible items
+             *        visibleRowFrames[].x - Current item's horizontal offset relative to ListView
+             *        visibleRowFrames[].y - Current item's vertical offset relative to ListView
+             *        visibleRowFrames[].width - Current item's width
+             *        visibleRowFrames[].height - Current item's height
+             */
+            const {
+              startEdgePos,
+              endEdgePos,
+              firstVisibleRowIndex,
+              lastVisibleRowIndex,
+              visibleRowFrames,
+            } = nativeEventParams;
+            Object.assign(event, {
+              startEdgePos,
+              endEdgePos,
+              firstVisibleRowIndex,
+              lastVisibleRowIndex,
+              visibleRowFrames,
+            });
+            break;
+          }
+          default:
         }
-        default:
-      }
-      return event;
+        return event;
+      },
     },
   });
 
-  registerHippyTag(hippyWaterfallItemTag, {
-    name: 'WaterfallItem',
+  registerElement(hippyWaterfallItemTag, {
+    component: {
+      name: 'WaterfallItem',
+    },
   });
 
   vueApp.component('Waterfall', {

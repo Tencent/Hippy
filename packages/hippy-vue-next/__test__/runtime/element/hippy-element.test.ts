@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { registerHippyTag, TagComponent } from '../../../src/runtime/component';
+import { registerElement, type ElementComponent } from '../../../src/runtime/component';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { Native } from '../../../src/runtime/native/index';
 import * as Render from '../../../src/runtime/render';
@@ -26,7 +26,7 @@ import { setHippyCachedInstance } from '../../../src/util/instance';
 
 describe('runtime/element/hippy-element', () => {
   beforeAll(() => {
-    registerHippyTag('div', { name: 'View' });
+    registerElement('div', { component: { name: 'View' } });
     const root = new HippyElement('div');
     root.id = 'testRoot';
     setHippyCachedInstance({
@@ -512,10 +512,12 @@ describe('runtime/element/hippy-element', () => {
 
     it('no need insert node should return empty array', () => {
       // span component
-      const p: TagComponent = {
-        name: 'Text',
+      const p: ElementComponent = {
+        component: {
+          name: 'Text',
+        },
       };
-      registerHippyTag('p', p);
+      registerElement('p', p);
       const element = new HippyElement('p');
       element.isNeedInsertToNative = false;
       expect(element.convertToNativeNodes(false)).toEqual([]);
@@ -523,15 +525,17 @@ describe('runtime/element/hippy-element', () => {
 
     it('registered tag should return correct native node', () => {
       // span component
-      const span: TagComponent = {
-        name: 'Text',
-        attributeMaps: {},
-        eventNamesMap: new Map(),
-        defaultNativeProps: {
-          text: '',
+      const span: ElementComponent = {
+        component: {
+          name: 'Text',
+          attributeMaps: {},
+          eventNamesMap: new Map(),
+          defaultNativeProps: {
+            text: '',
+          },
         },
       };
-      registerHippyTag('span', span);
+      registerElement('span', span);
       const element = new HippyElement('span');
       const childElement = new HippyElement('span');
       element.appendChild(childElement);
