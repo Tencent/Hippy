@@ -142,15 +142,16 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     NSString *wsURL = U16ToNSString(char_ws_url);
     BOOL debugMode = is_dev_module ? YES : NO;
     int64_t bridge_id = (int64_t)bridge;
-    NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%d", bridge_id];
+    NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%lld", bridge_id];
     
     std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
     FOOTSTONE_DCHECK(dom_manager);
-    std::shared_ptr<TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
-    std::shared_ptr<Engine> engine = std::make_shared<Engine>(task_runner, nullptr);
+    std::shared_ptr<footstone::TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
+    FOOTSTONE_DCHECK(dom_task_runner);
+    std::shared_ptr<Engine> engine = std::make_shared<Engine>(dom_task_runner, nullptr);
     [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
     
-    [bridge initJSFramework:globalConfig execurotKey: executorKey, wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
+    [bridge initJSFramework:globalConfig execurotKey:executorKey wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
         callback(succ ? 1 : 0);
     }];
 

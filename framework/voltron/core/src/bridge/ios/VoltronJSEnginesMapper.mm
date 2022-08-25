@@ -24,8 +24,6 @@
 #import "VoltronJSEnginesMapper.h"
 #import "utils/VoltronLog.h"
 #import "VoltronJavaScriptExecutor.h"
-#import "footstone/looper_driver.h"
-#import "footstone/worker_impl.h"
 
 using EngineRef = std::pair<std::shared_ptr<Engine>, NSUInteger>;
 using EngineMapper = std::unordered_map<std::string, EngineRef>;

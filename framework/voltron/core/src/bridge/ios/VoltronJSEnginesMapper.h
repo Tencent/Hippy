@@ -31,6 +31,8 @@
 
 - (std::shared_ptr<Engine>)createJSEngineForKey:(NSString *)key;
 
+- (void)setEngine:(std::shared_ptr<Engine>)engine forKey:(NSString *)key;
+
 - (void)removeEngineForKey:(NSString *)key;
 
 @end

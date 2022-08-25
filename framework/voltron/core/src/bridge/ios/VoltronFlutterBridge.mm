@@ -47,7 +47,7 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
     [self initCommonVars];
 }
 
-- (void)initJSFramework:(NSString *)globalConfig execurotKey:(NSString *)execurotKey, wsURL:(NSString *)wsURL debugMode:(BOOL)debugMode completion:(void (^)(BOOL))completion {
+- (void)initJSFramework:(NSString *)globalConfig execurotKey:(NSString *)execurotKey wsURL:(NSString *)wsURL debugMode:(BOOL)debugMode completion:(void (^)(BOOL))completion {
     if (self.jscExecutor) {
         NSAssert(0, @"initJSFramework has called");
         return;
