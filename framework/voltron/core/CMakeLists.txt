@@ -127,26 +127,13 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
           ${VOLTRON_CORE_SRC_FILES}
           ${DARWIN_HEADERS})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++ -fprofile-instr-generate -fcoverage-mapping -std=c++17")
-  add_library(
-          # Sets the name of the library.
-          ${PROJECT_NAME}
-
-          # Sets the library as a shared library.
-          SHARED
-
-          # Provides a relative path to your source file(s).
-          # Associated headers in the same location as their source
-          # file are automatically included.
-          ${SRC_FILES}
-          ${DARWIN_HEADERS}
-  )
   set_target_properties(${PROJECT_NAME} PROPERTIES
           FRAMEWORK TRUE
           MACOSX_FRAMEWORK_IDENTIFIER com.tencent.RenderCore
           MACOSX_FRAMEWORK_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/../VoltronCore/VoltronCore/Info.plist
           PUBLIC_HEADER "${DARWIN_HEADERS}"
           )
+  set(LINKED_LIBS ${FRAMEWORK_CORE_DEPS})
   find_library(
           ${LINKED_LIBS}
   )
@@ -167,9 +154,18 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   list(APPEND LINKED_LIBS -lbsm)
   target_link_libraries( # Specifies the target library.
           ${PROJECT_NAME}
+          PRIVATE
           ${LINKED_LIBS}
           ${JSCORE_LIBRARY}
           )
+
+  # region voltron renderer
+  target_link_libraries(${PROJECT_NAME} PUBLIC render_core)
+  # endregion
+
+  set(SOURCE_SET
+          ${VOLTRON_CORE_SRC_FILES}
+          ${DARWIN_HEADERS})
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 

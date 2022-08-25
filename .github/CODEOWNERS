@@ -82,10 +82,9 @@ CMakeLists.txt @medns
 /renderer/native/ios/ @ozonelmy
 /hippy.podspec @ozonelmy
 
-# flutter related
-/renderer/flutter/ @lvfen @battleAgain
-/driver/js/flutter/ @lvfen @battleAgain
-/driver/js/flutter/example/jsbundle/
+# voltron related
+/renderer/voltron/ @lvfen @battleAgain
+/framework/voltron/ @lvfen @battleAgain
 
 # devtools related
 /devtools/ @churchill-zhang @medns

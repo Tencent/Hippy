@@ -50,3 +50,5 @@ android/libs
 # iOS
 xcuserdata/
 ios/voltron_core.xcframework
+
+core/lib/
