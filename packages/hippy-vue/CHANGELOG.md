@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.6](https://github.com/Tencent/Hippy/compare/2.14.5...2.14.6) (2022-08-26)
+
+
+### Features
+
+* **vue:** support ScrollView & ListView scroll related event params ([9d77ec6](https://github.com/Tencent/Hippy/commit/9d77ec6c99c2354cfc273c3f9b085369324cd84b))
+
+
+
+
+
 ## [2.14.5](https://github.com/Tencent/Hippy/compare/2.14.4...2.14.5) (2022-08-23)
 
 

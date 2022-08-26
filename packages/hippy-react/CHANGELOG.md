@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.6](https://github.com/Tencent/Hippy/compare/2.14.5...2.14.6) (2022-08-26)
+
+
+### Bug Fixes
+
+* **hippy-react:** add overflow scroll to fix listview unable to scroll ([96c670a](https://github.com/Tencent/Hippy/commit/96c670a8f0af373d055a7ec81fc92afc89f4fe5a))
+
+
+
+
+
 ## [2.14.5](https://github.com/Tencent/Hippy/compare/2.14.4...2.14.5) (2022-08-23)
 
 
