@@ -18,18 +18,17 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.HippyRecyclerViewBase;
 import androidx.recyclerview.widget.IHippyViewAboundListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import android.util.AttributeSet;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -59,6 +58,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private int mInitialContentOffset;
     private boolean isTvPlatform = false;
     private HippyRecycleViewFocusHelper mFocusHelper = null;
+    private Throwable mModifyStackTrace;
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -521,4 +521,25 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
                 + getStateInfo()
                 + "}";
     }
+
+  String getModifyStackTrace() {
+    if (mModifyStackTrace == null) {
+      return "";
+    }
+    StringBuilder sb = new StringBuilder().append(mModifyStackTrace.getMessage()).append(' ');
+    StackTraceElement[] stack = mModifyStackTrace.getStackTrace();
+    for (int i = 1; i < 6 && i < stack.length; ++i) {
+      sb.append("at ").append(stack[i]);
+    }
+    return sb.toString();
+  }
+
+  public void setModifyStackTrace(Throwable t) {
+    mModifyStackTrace = t;
+  }
+
+  @Override
+  public String getStateInfo() {
+    return super.getStateInfo() + ", modify:" + getModifyStackTrace();
+  }
 }

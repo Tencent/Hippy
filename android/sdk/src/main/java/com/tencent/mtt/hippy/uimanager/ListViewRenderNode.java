@@ -15,8 +15,11 @@
  */
 package com.tencent.mtt.hippy.uimanager;
 
+import android.view.View;
+
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewWrapper;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class ListViewRenderNode extends RenderNode {
@@ -39,6 +42,27 @@ public class ListViewRenderNode extends RenderNode {
       ListItemRenderNode listItemRenderNode = (ListItemRenderNode) uiNode;
       listItemRenderNode.setRecycleItemTypeChangeListener(null);
     }
+    generateDebugInfo(uiNode, -1);
     return super.removeChild(uiNode);
+  }
+
+  @Override
+  public void remove(int index) {
+    generateDebugInfo(null, index);
+    super.remove(index);
+  }
+
+  @Override
+  void addChild(RenderNode uiNode, int index) {
+    generateDebugInfo(uiNode, index);
+    super.addChild(uiNode, index);
+  }
+
+  private void generateDebugInfo(RenderNode child, int index) {
+    View view = mComponentManager.findView(mId);
+    if (view instanceof HippyRecyclerViewWrapper) {
+      String msg = "child:" + child + "index:" + index;
+      ((HippyRecyclerViewWrapper<?>) view).setModifyStackTrace(new Throwable(msg));
+    }
   }
 }
