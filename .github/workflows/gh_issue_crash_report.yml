@@ -13,18 +13,18 @@ env:
 
     If you have any additional information, you can add a new comment in this issue.
   translates_addresses_message: |
-    🤖: "I will try to translates addresses to human readable format, please wait a moment."
+    I will try to translate addresses to human readable format, please wait a moment.
   fetch_symbol_failed_message: |
-    🤖: "I have searched the artifacts store database, but found no artifacts with version %s and %s architecture."
+    I have searched the artifacts store database, but found no artifacts with version %s and %s architecture.
   no_backtrace_message: |
-    🤖: "It looks like there is no backtrace addresses in the crash log that needs to be translated."
+    It looks like there is no backtrace addresses in the crash log that needs to be translated.
   translate_success_message: |
-    🤖: "After my translation, the result is as follows."
+    After my translation, the result is as follows.
     ```
     %s
     ```
   translate_failed_message: |
-    🤖: "Sorry, the addresses translation encountered an error."
+    Sorry, the addresses translation encountered an error.
 
 jobs:
   triage:
@@ -54,10 +54,10 @@ jobs:
             issue_number: ${{ github.event.issue.number }},
             body: process.env.greetings_message
           });
-          await reactions.createForIssueComment({
+          await reactions.createForIssue({
             owner,
             repo,
-            comment_id: id,
+            issue_number: ${{ github.event.issue.number }},
             content: '+1'
           });
     - run: npm install markdown-it
@@ -136,12 +136,19 @@ jobs:
     container:
       image: ghcr.io/${{ needs.triage.outputs.repository_owner }}/android-release:latest
     steps:
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
     - name: Backtrace
       id: backtrace_parsed
       uses: actions/github-script@v6.1.0
       env:
         triage_logs: ${{ needs.triage.outputs.logs }}
       with:
+        github-token: ${{ steps.get-token.outputs.token }}
         script: |
           const { owner, repo } = context.repo;
           const { issues } = github.rest;
@@ -191,6 +198,7 @@ jobs:
     - uses: actions/github-script@v6.1.0
       if: ${{ !steps.symbols_fetched.outputs.success }}
       with:
+        github-token: ${{ steps.get-token.outputs.token }}
         script: |
           const { owner, repo } = context.repo;
           const { issues } = github.rest;
@@ -206,6 +214,7 @@ jobs:
       if: steps.symbols_fetched.outputs.success
       uses: actions/github-script@v6.1.0
       with:
+        github-token: ${{ steps.get-token.outputs.token }}
         script: |
           const { owner, repo } = context.repo;
           const { issues, reactions } = github.rest;
