@@ -53,6 +53,11 @@ export default function ScrollExpo() {
             bounces={true}
             showsHorizontalScrollIndicator={false} // only iOS support
             showScrollIndicator={false} // only Android support
+            onScroll={params => console.log('onScroll', params)}
+            onMomentumScrollBegin={params => console.log('onMomentumScrollBegin', params)}
+            onMomentumScrollEnd={params => console.log('onMomentumScrollEnd', params)}
+            onScrollBeginDrag={params => console.log('onScrollBeginDrag', params)}
+            onScrollEndDrag={params => console.log('onScrollEndDrag', params)}
         >
           <Text style={styles.itemStyle}>A</Text>
           <Text style={styles.itemStyle}>B</Text>

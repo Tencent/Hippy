@@ -586,7 +586,7 @@ void DestroyInstance(__unused JNIEnv* j_env,
   std::shared_ptr<JavaRef> cb = std::make_shared<JavaRef>(j_env, j_callback);
   auto is_reload = static_cast<bool>(j_is_reload);
   task->callback = [runtime, runtime_id, cb, is_reload] {
-    TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id " << runtime_id;
+    TDF_BASE_LOG(INFO) << "js destroy begin, runtime_id = " << runtime_id << ", is_reload = " << is_reload;
 #ifndef V8_WITHOUT_INSPECTOR
     if (runtime->IsDebug()) {
         auto inspector_client = runtime->GetEngine()->GetInspectorClient();

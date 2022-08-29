@@ -1,12 +1,13 @@
 # V8 API
 
-Get V8 instance and operate it。
+Get V8 JS engine instance and operate it。
 
 ---
 
 # GetHeapStatistics
 
 Get statistics about the V8 heap.
+
 > Minimum supported version `2.15.0`
 
 ``` java

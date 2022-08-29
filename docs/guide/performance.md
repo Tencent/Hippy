@@ -1,10 +1,12 @@
-# Performance
+# 性能监控
 
 提供全局 `performance` 对象，用于获取性能数据。
 
+---
+
 # memory
 
-`performance.memory` 返回 js 引擎中内存的统计数据（仅 Android 支持，iOS将返回`undefined`）。
+`performance.memory` 返回 js 引擎中内存的统计数据（仅 Android 支持，iOS 将返回 `undefined` ）。
 > 最低支持版本 `2.15.0`
 
 ```javascript
