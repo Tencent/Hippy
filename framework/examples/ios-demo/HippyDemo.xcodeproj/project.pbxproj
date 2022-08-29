@@ -16,6 +16,7 @@
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
+		D42142FC28B5C919002C5FD4 /* js2native.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42142FB28B5C919002C5FD4 /* js2native.cc */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
 		D4B5A081281663F400ABBD9C /* scene.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07F281663F400ABBD9C /* scene.cc */; };
@@ -248,7 +249,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 95315588258B440EB23B0341;
+			remoteGlobalIDString = 48E49E0E9C3947A5A1A8C785;
 			remoteInfo = devtools_backend;
 		};
 /* End PBXContainerItemProxy section */
@@ -275,6 +276,8 @@
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		C98B5A3CF5267599CFCFF48A /* libPods-HippyDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HippyDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D42142F628B5C919002C5FD4 /* js2native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js2native.h; sourceTree = "<group>"; };
+		D42142FB28B5C919002C5FD4 /* js2native.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js2native.cc; sourceTree = "<group>"; };
 		D42D2C7A2833C84D0079B47B /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
 		D4B5A07E281663F400ABBD9C /* scene_builder.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene_builder.cc; sourceTree = "<group>"; };
 		D4B5A07F281663F400ABBD9C /* scene.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cc; sourceTree = "<group>"; };
@@ -608,7 +611,7 @@
 		F48D37C3289BA661007BD6FE /* js_native_turbo.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo.cc; sourceTree = "<group>"; };
 		F48D37C5289BA661007BD6FE /* js_native_jsc_helper.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_jsc_helper.cc; sourceTree = "<group>"; };
 		F48D37C6289BA661007BD6FE /* js_native_turbo_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_turbo_jsc.cc; sourceTree = "<group>"; };
-		F48D37C7289BA661007BD6FE /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; };
+		F48D37C7289BA661007BD6FE /* js_native_api_value_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_value_jsc.cc; sourceTree = "<group>"; tabWidth = 2; };
 		F48D37C8289BA661007BD6FE /* js_native_api_jsc.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = js_native_api_jsc.cc; sourceTree = "<group>"; };
 		F48D37CB289BA661007BD6FE /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
 		F48D37D6289BA661007BD6FE /* driver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = driver.h; sourceTree = "<group>"; };
@@ -1413,6 +1416,8 @@
 		F468DDF72812A95100319196 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				D42142FB28B5C919002C5FD4 /* js2native.cc */,
+				D42142F628B5C919002C5FD4 /* js2native.h */,
 				F468DE182812A95200319196 /* executors */,
 				F468DDF82812A95100319196 /* HippyJSEnginesMapper.h */,
 				F468DDF92812A95100319196 /* HippyEventDispatcher.mm */,
@@ -2155,6 +2160,7 @@
 				F45D266628067B6900CAB185 /* NativeRenderHeaderRefreshManager.mm in Sources */,
 				F468DE702812A95200319196 /* HippyModuleMethod.mm in Sources */,
 				F438B757281250CD0078435B /* NativeRenderParserUtils.m in Sources */,
+				D42142FC28B5C919002C5FD4 /* js2native.cc in Sources */,
 				F48D380D289BA662007BD6FE /* hippy_tracing_adapter.cc in Sources */,
 				F48D386D289BA6A1007BD6FE /* worker_manager.cc in Sources */,
 				F48D381C289BA662007BD6FE /* callback_info.cc in Sources */,

@@ -50,6 +50,7 @@
 #include "driver/napi/js_native_api.h"
 #include "driver/scope.h"
 #include "driver/engine.h"
+#include "driver/modules/contextify_module.h"
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyTurboModuleManager.h"
 #import "HippyDevInfo.h"
@@ -58,6 +59,8 @@
 #ifdef JS_USE_JSC
 #import "driver/napi/jsc/js_native_api_jsc.h"
 #endif //JS_USE_JSC
+
+#include "js2native.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
@@ -324,6 +327,7 @@ static NSString *UnicodeStringViewToNSString(const string_view &view) {
                 };
                 context->RegisterNativeBinding("getTurboModule", getTurboModuleFunc, nullptr);
 
+                hippy::driver::module::ContextifyModule::SetJs2NativeFunction(hippy::framework::bridge::Js2Native::Run);
             }
 
         }

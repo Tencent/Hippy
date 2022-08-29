@@ -88,6 +88,7 @@ set(SOURCE_SET
     src/bridge/entry.cc
     src/bridge/java2js.cc
     src/bridge/js2java.cc
+    src/bridge/js2native.cc
     src/bridge/native_source_code_android.cc
     src/jni/exception_handler.cc
     src/jni/uri.cc

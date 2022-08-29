@@ -24,6 +24,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <atomic>
+#include <utility>
 
 #include "driver/base/common.h"
 #include "driver/modules/ui_manager_module.h"
@@ -47,6 +49,7 @@ using JSValueWrapper = hippy::base::JSValueWrapper;
 
 std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
+static std::atomic<uint32_t> global_resolver_id{1};
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   FOOTSTONE_DLOG(INFO) << "JsCallbackFunc begin";
@@ -127,6 +130,26 @@ void NativeCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   CBDataTuple data_tuple(*cb_tuple, info);
   FOOTSTONE_DLOG(INFO) << "run native cb begin";
   cb_tuple->fn_(static_cast<void*>(&data_tuple));
+  FOOTSTONE_DLOG(INFO) << "run native cb end";
+}
+
+void NativeCallbackFuncValueTuple(const v8::FunctionCallbackInfo<v8::Value>& info) {
+  FOOTSTONE_DLOG(INFO) << "NativeCallbackFuncValueTuple";
+  auto data = info.Data().As<v8::External>();
+  if (data.IsEmpty()) {
+    FOOTSTONE_LOG(ERROR) << "NativeCallbackFuncValueTuple data is empty";
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+  auto* cb_tuple = reinterpret_cast<CBTuple*>(data->Value());
+  int cnt = info.Length();
+  std::shared_ptr<CtxValue> args[cnt];
+  for (int index = 0; index < cnt; index++) {
+    args[index] = std::make_shared<V8CtxValue>(info.GetIsolate(), info[index]);
+  }
+  CBCtxValueTuple value_tuple(cb_tuple->data_, args, static_cast<size_t>(cnt));
+  FOOTSTONE_DLOG(INFO) << "run native cb begin";
+  cb_tuple->fn_(static_cast<void*>(&value_tuple));
   FOOTSTONE_DLOG(INFO) << "run native cb end";
 }
 
@@ -257,6 +280,108 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
   info.GetReturnValue().Set(function);
 
   FOOTSTONE_DLOG(INFO) << "v8 GetInternalBinding end";
+}
+
+void ResolveFunction(const v8::FunctionCallbackInfo<v8::Value>& info) {
+  FOOTSTONE_DLOG(INFO) << "v8 ResolveFunction begin";
+  auto data = info.Data().As<v8::External>();
+  if (data.IsEmpty()) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  if (info.Length() < 0 || info.Length() > 1) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  auto* resolver_data = reinterpret_cast<ResolverData*>(data->Value());
+  if (!resolver_data) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  v8::Context::Scope context_scope(context);
+
+  auto resolver_vec = reinterpret_cast<std::vector<std::unique_ptr<ResolverData>>*>(resolver_data->container_);
+  if (resolver_vec == nullptr) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  uint32_t resolve_id = resolver_data->resolver_id_;
+  auto iter = resolver_vec->begin();
+  for (; iter != resolver_vec->end(); iter++) {
+    if (iter->get()->resolver_id_ == resolve_id) {
+      v8::Local<v8::Promise::Resolver> resolver =
+          v8::Local<v8::Promise::Resolver>::New(isolate, iter->get()->resolver_);
+      bool ret = true;
+      if (info.Length() != 0) {
+        ret = resolver->Resolve(context, info[0]).ToChecked();
+      } else {
+        ret = resolver->Resolve(context, v8::Undefined(isolate)).ToChecked();
+      }
+      if (!ret) info.GetReturnValue().SetUndefined();
+      break;
+    }
+  }
+  resolver_vec->erase(iter);
+  FOOTSTONE_DLOG(INFO) << "v8 ResolveFunction end";
+  return;
+}
+
+void RejectFunction(const v8::FunctionCallbackInfo<v8::Value>& info) {
+  FOOTSTONE_DLOG(INFO) << "v8 RejectFunction begin";
+  auto data = info.Data().As<v8::External>();
+  if (data.IsEmpty()) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  if (info.Length() < 0 || info.Length() > 1) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  auto* resolver_data = reinterpret_cast<ResolverData*>(data->Value());
+  if (!resolver_data) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  v8::Isolate* isolate = info.GetIsolate();
+  v8::HandleScope handle_scope(isolate);
+  v8::Local<v8::Context> context = isolate->GetCurrentContext();
+  v8::Context::Scope context_scope(context);
+
+  auto resolver_vec = reinterpret_cast<std::vector<std::unique_ptr<ResolverData>>*>(resolver_data->container_);
+  if (resolver_vec == nullptr) {
+    info.GetReturnValue().SetUndefined();
+    return;
+  }
+
+  uint32_t resolve_id = resolver_data->resolver_id_;
+  auto iter = resolver_vec->begin();
+  for (; iter != resolver_vec->end(); iter++) {
+    if (iter->get()->resolver_id_ == resolve_id) {
+      v8::Local<v8::Promise::Resolver> resolver =
+          v8::Local<v8::Promise::Resolver>::New(isolate, iter->get()->resolver_);
+      bool ret = true;
+      if (info.Length() != 0) {
+        ret = resolver->Reject(context, info[0]).ToChecked();
+      } else {
+        ret = resolver->Reject(context, v8::Undefined(isolate)).ToChecked();
+      }
+      if (!ret) info.GetReturnValue().SetUndefined();
+      break;
+    }
+  }
+  resolver_vec->erase(iter);
+  FOOTSTONE_DLOG(INFO) << "v8 RejectFunction end";
+  return;
 }
 
 std::shared_ptr<VM> CreateVM(const std::shared_ptr<VMInitParam>& param) {
@@ -818,6 +943,56 @@ void V8Ctx::RegisterNativeBinding(const string_view& name,
       ->Set(context, v8_name,
             fn_template->GetFunction(context).ToLocalChecked())
       .ToChecked();
+}
+
+void V8Ctx::RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                             const string_view& name,
+                             hippy::base::RegisterFunction fn,
+                             void* data) {
+  FOOTSTONE_DLOG(INFO) << "RegisterFunction name = " << name;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  function_private_data_container_.emplace_back(
+      std::make_unique<CBTuple>(fn, data));
+  void* tuple_data = function_private_data_container_.back().get();
+  v8::Local<v8::FunctionTemplate> fn_template =
+      v8::FunctionTemplate::New(isolate_, NativeCallbackFuncValueTuple,
+                                v8::External::New(isolate_, tuple_data));
+  fn_template->RemovePrototype();
+  v8::Local<v8::String> v8_name = CreateV8String(name);
+
+  auto v8_object = std::static_pointer_cast<V8CtxValue>(object);
+  auto local_object = v8_object->global_value_.Get(isolate_);
+  v8::Object *obj = v8::Object::Cast(*local_object);
+  auto ret = obj->Set(context, v8_name, fn_template->GetFunction(context).ToLocalChecked());
+  FOOTSTONE_USE(ret);
+  return;
+}
+
+void V8Ctx::RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                             const string_view& name,
+                             NativeFunction fn,
+                             void* data) {
+  FOOTSTONE_DLOG(INFO) << "RegisterFunction name = " << name;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  function_private_data_container_.emplace_back(
+      std::make_unique<CBTuple>(fn, data));
+  void* tuple_data = function_private_data_container_.back().get();
+  v8::Local<v8::FunctionTemplate> fn_template =
+      v8::FunctionTemplate::New(isolate_, NativeCallbackFuncWithValue,
+                                v8::External::New(isolate_, tuple_data));
+  fn_template->RemovePrototype();
+  v8::Local<v8::String> v8_name = CreateV8String(name);
+
+  auto v8_object = std::static_pointer_cast<V8CtxValue>(object);
+  auto local_object = v8_object->global_value_.Get(isolate_);
+  v8::Object *obj = v8::Object::Cast(*local_object);
+  auto ret = obj->Set(context, v8_name, fn_template->GetFunction(context).ToLocalChecked());
+  FOOTSTONE_USE(ret);
+  return;
 }
 
 std::shared_ptr<CtxValue> V8Ctx::RunScript(const string_view& str_view,
@@ -1588,6 +1763,68 @@ std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(const void* buffer, size_t len
   return std::make_shared<V8CtxValue>(isolate_, array_buffer);
 }
 
+std::shared_ptr<CtxValue> V8Ctx::CreatePromise() {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  auto resolver = v8::Promise::Resolver::New(context);
+  v8::Local<v8::Promise> promise = resolver.ToLocalChecked()->GetPromise();
+  return std::make_shared<V8CtxValue>(isolate_, promise);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateResolvePromise(const std::shared_ptr<CtxValue>& value) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  auto resolver = v8::Promise::Resolver::New(context);
+  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  auto result = resolver.ToLocalChecked()->Resolve(context, handle_value);
+  if(result.ToChecked()) return nullptr;
+  v8::Local<v8::Promise> promise = resolver.ToLocalChecked()->GetPromise();
+  return std::make_shared<V8CtxValue>(isolate_, promise);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateRejectPromise(const std::shared_ptr<CtxValue>& value) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  auto resolver = v8::Promise::Resolver::New(context);
+  std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(value);
+  v8::Local<v8::Value> handle_value = v8::Local<v8::Value>::New(isolate_, ctx_value->global_value_);
+  auto result = resolver.ToLocalChecked()->Reject(context, handle_value);
+  if(result.ToChecked()) return nullptr;
+  v8::Local<v8::Promise> promise = resolver.ToLocalChecked()->GetPromise();
+  return std::make_shared<V8CtxValue>(isolate_, promise);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreatePromiseWithCallback(PromiseCallback callback) {
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+  auto resolver = v8::Promise::Resolver::New(context).ToLocalChecked();
+  v8::Local<v8::Promise> promise = resolver->GetPromise();
+  uint32_t resolver_id = global_resolver_id.fetch_add(1);
+  auto global_resolver = v8::Global<v8::Promise::Resolver>(isolate_, resolver);
+  if (promise_resolver_map_ == nullptr) {
+    promise_resolver_map_ = std::make_unique<std::vector<std::unique_ptr<ResolverData>>>();
+  }
+  std::unique_ptr<ResolverData> resolve_data = std::make_unique<ResolverData>(resolver_id, global_resolver, static_cast<void*>(promise_resolver_map_.get()));
+  promise_resolver_map_->push_back(std::move(resolve_data));
+  v8::Local<v8::FunctionTemplate> resolve_fn_template =
+      v8::FunctionTemplate::New(isolate_, ResolveFunction, v8::External::New(isolate_, static_cast<void*>(promise_resolver_map_->back().get())));
+  v8::Local<v8::Function> resolve_function = resolve_fn_template->GetFunction(context).ToLocalChecked();
+  auto resolve = std::make_shared<V8CtxValue>(isolate_, resolve_function);
+
+  v8::Local<v8::FunctionTemplate> reject_fn_template =
+      v8::FunctionTemplate::New(isolate_, RejectFunction, v8::External::New(isolate_, static_cast<void*>(promise_resolver_map_->back().get())));
+  v8::Local<v8::Function> reject_function = reject_fn_template->GetFunction(context).ToLocalChecked();
+  auto reject = std::make_shared<V8CtxValue>(isolate_, reject_function);
+
+  callback(resolve, reject);
+  return std::make_shared<V8CtxValue>(isolate_, promise);
+}
+
 bool V8Ctx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
@@ -1657,6 +1894,34 @@ std::shared_ptr<CtxValue> V8Ctx::CreateError(const string_view& msg) {
   v8::Context::Scope context_scope(context);
 
   v8::Local<v8::Value> error = v8::Exception::Error(CreateV8String(msg));
+  if (error.IsEmpty()) {
+    FOOTSTONE_LOG(INFO) << "error is empty";
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, error);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateReferenceError(const string_view& msg) {
+  FOOTSTONE_DLOG(INFO) << "V8Ctx::CreateReferenceError msg = " << msg;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  v8::Local<v8::Value> error = v8::Exception::ReferenceError(CreateV8String(msg));
+  if (error.IsEmpty()) {
+    FOOTSTONE_LOG(INFO) << "error is empty";
+    return nullptr;
+  }
+  return std::make_shared<V8CtxValue>(isolate_, error);
+}
+
+std::shared_ptr<CtxValue> V8Ctx::CreateTypeError(const string_view& msg) {
+  FOOTSTONE_DLOG(INFO) << "V8Ctx::CreateTypeError msg = " << msg;
+  v8::HandleScope handle_scope(isolate_);
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  v8::Context::Scope context_scope(context);
+
+  v8::Local<v8::Value> error = v8::Exception::TypeError(CreateV8String(msg));
   if (error.IsEmpty()) {
     FOOTSTONE_LOG(INFO) << "error is empty";
     return nullptr;

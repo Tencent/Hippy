@@ -92,6 +92,9 @@ class CtxValue {
   virtual ~CtxValue() {}
 };
 
+using PromiseCallback =
+    std::function<void(const std::shared_ptr<CtxValue>& resolve, const std::shared_ptr<CtxValue>& reject)>;
+
 template <typename T>
 using GetterCallback = std::function<std::shared_ptr<CtxValue>(T* thiz)>;
 
@@ -178,6 +181,15 @@ class Ctx {
                                      NativeFunction fn,
                                      void* data) = 0;
 
+  virtual void RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                                const string_view& name,
+                                hippy::base::RegisterFunction fn,
+                                void* data) = 0;
+  virtual void RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                                const string_view& name,
+                                NativeFunction fn,
+                                void* data) = 0;
+
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) = 0;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) = 0;
   virtual std::shared_ptr<CtxValue> CreateString(
@@ -199,8 +211,19 @@ class Ctx {
       std::shared_ptr<CtxValue> value[]) = 0;
   virtual std::shared_ptr<CtxValue> CreateError(
       const string_view& msg) = 0;
+  virtual std::shared_ptr<CtxValue> CreateReferenceError(
+      const string_view& msg) = 0;
+  virtual std::shared_ptr<CtxValue> CreateTypeError(
+      const string_view& msg) = 0;
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(
       const void* buffer, size_t length) = 0;
+  virtual std::shared_ptr<CtxValue> CreatePromise() = 0;
+  virtual std::shared_ptr<CtxValue> CreateResolvePromise(
+      const std::shared_ptr<CtxValue>& value) = 0;
+  virtual std::shared_ptr<CtxValue> CreateRejectPromise(
+      const std::shared_ptr<CtxValue>& value) = 0;
+  virtual std::shared_ptr<CtxValue> CreatePromiseWithCallback(
+      PromiseCallback callback) = 0;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(

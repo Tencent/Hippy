@@ -53,6 +53,8 @@
 #include "jni/turbo_module_manager.h"
 #include "jni/uri.h"
 #include "loader/adr_loader.h"
+#include "bridge/js2native.h"
+#include "driver/modules/contextify_module.h"
 
 #ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
@@ -476,6 +478,10 @@ jlong InitInstance(JNIEnv* j_env,
   auto dom_manager = DomManager::Find(dom_manager_id);
   FOOTSTONE_DCHECK(dom_manager);
   auto dom_task_runner = dom_manager->GetTaskRunner();
+
+  // Register C++ Module run function
+  ContextifyModule::SetJs2NativeFunction(Js2Native::Run);
+
   auto runtime_id = V8BridgeUtils::InitInstance(
       static_cast<bool>(j_enable_v8_serialization),
       static_cast<bool>(j_is_dev_module),

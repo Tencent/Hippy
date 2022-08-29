@@ -37,6 +37,8 @@ inline namespace napi {
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
+//static std::atomic<uint32_t> global_promise_id{1};
+
 bool JSCCtx::GetValueNumber(const std::shared_ptr<CtxValue>& value, double* result) {
   if (!value) {
     return false;
@@ -372,6 +374,163 @@ std::shared_ptr<CtxValue> JSCCtx::CreateByteBuffer(const void* buffer, size_t le
   return std::make_shared<hippy::napi::JSCCtxValue>(context_, value_ref);
 }
 
+// TODO: create promise for jsc
+std::shared_ptr<CtxValue> JSCCtx::CreatePromise() {
+  FOOTSTONE_UNIMPLEMENTED();
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateResolvePromise(const std::shared_ptr<CtxValue>& value) {
+  JSObjectRef global = JSContextGetGlobalObject(context_);
+  JSStringRef name = JSStringCreateWithUTF8CString("Promise");
+  JSValueRef exception = nullptr;
+  JSValueRef value_ref = JSObjectGetProperty(context_, global, name, &exception);
+  if (exception) {
+    SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+  JSStringRelease(name);
+
+  JSObjectRef promise_constructor = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+
+  PromiseCallback promise_callback = [value](const std::shared_ptr<CtxValue>& resolve, const std::shared_ptr<CtxValue>& reject) {
+    std::shared_ptr<JSCCtxValue> jsc_value = std::static_pointer_cast<JSCCtxValue>(value);
+    JSGlobalContextRef context = jsc_value->context_;
+    JSValueRef exception = nullptr;
+
+    std::shared_ptr<JSCCtxValue> jsc_resolve = std::static_pointer_cast<JSCCtxValue>(resolve);
+    JSObjectRef resolve_function_ref = JSValueToObject(context, jsc_resolve->value_, &exception);
+    JSValueRef parameters[1];
+    parameters[0] = jsc_value->value_;
+    JSObjectCallAsFunction(context, resolve_function_ref, nullptr, 1, parameters, &exception);
+    return;
+  };
+  auto promise_data = std::make_unique<PromiseData>(promise_callback, nullptr);
+  promise_map_.push_back(std::move(promise_data));
+  auto native_func_callback =
+    [](JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+       size_t cnt, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
+      PromiseData *promise_data = static_cast<PromiseData *>(JSObjectGetPrivate(function));
+      JSGlobalContextRef contextRef = (JSGlobalContextRef)ctx;
+      std::shared_ptr<CtxValue> resolve = std::make_shared<JSCCtxValue>(contextRef, arguments[0]);
+      std::shared_ptr<CtxValue> reject = std::make_shared<JSCCtxValue>(contextRef, arguments[1]);
+      promise_data->callback_(resolve, reject);
+      return JSValueMakeUndefined(ctx);
+  };
+
+  void *private_data = static_cast<void *>(promise_map_.back().get());
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.callAsFunction = native_func_callback;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef func_object = JSObjectMake(context_, cls_ref, private_data);
+
+  JSValueRef values[1];
+  values[0] = func_object;
+  JSValueRef resolve_promise = JSObjectCallAsConstructor(context_, promise_constructor, 1, values, &exception);
+  return std::make_shared<hippy::napi::JSCCtxValue>(context_, resolve_promise);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateRejectPromise(
+  const std::shared_ptr<CtxValue>& value)  {
+  JSObjectRef global = JSContextGetGlobalObject(context_);
+  JSStringRef name = JSStringCreateWithUTF8CString("Promise");
+  JSValueRef exception = nullptr;
+  JSValueRef value_ref = JSObjectGetProperty(context_, global, name, &exception);
+  if (exception) {
+    SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+  JSStringRelease(name);
+
+  JSObjectRef promise_constructor = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+
+  PromiseCallback promise_callback = [value](const std::shared_ptr<CtxValue>& resolve, const std::shared_ptr<CtxValue>& reject) {
+    std::shared_ptr<JSCCtxValue> jsc_value = std::static_pointer_cast<JSCCtxValue>(value);
+    JSGlobalContextRef context = jsc_value->context_;
+    JSValueRef exception = nullptr;
+
+    std::shared_ptr<JSCCtxValue> jsc_reject = std::static_pointer_cast<JSCCtxValue>(reject);
+    JSObjectRef reject_function_ref = JSValueToObject(context, jsc_reject->value_, &exception);
+    JSValueRef parameters[1];
+    parameters[0] = jsc_value->value_;
+
+    JSObjectCallAsFunction(context, reject_function_ref, nullptr, 1, parameters, &exception);
+  };
+  auto promise_data = std::make_unique<PromiseData>(promise_callback, nullptr);
+  promise_map_.push_back(std::move(promise_data));
+  auto native_func_callback =
+    [](JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+       size_t cnt, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
+      PromiseData *promise_data = static_cast<PromiseData *>(JSObjectGetPrivate(function));
+      JSGlobalContextRef contextRef = (JSGlobalContextRef)ctx;
+      std::shared_ptr<CtxValue> resolve = std::make_shared<JSCCtxValue>(contextRef, arguments[0]);
+      std::shared_ptr<CtxValue> reject = std::make_shared<JSCCtxValue>(contextRef, arguments[1]);
+      promise_data->callback_(resolve, reject);
+      return JSValueMakeUndefined(ctx);
+  };
+
+  void *private_data = static_cast<void *>(promise_map_.back().get());
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.callAsFunction = native_func_callback;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef func_object = JSObjectMake(context_, cls_ref, private_data);
+
+  JSValueRef values[1];
+  values[0] = func_object;
+  JSValueRef resolve_promise = JSObjectCallAsConstructor(context_, promise_constructor, 1, values, &exception);
+  return std::make_shared<hippy::napi::JSCCtxValue>(context_, resolve_promise);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreatePromiseWithCallback(
+  PromiseCallback callback) {
+  JSObjectRef global = JSContextGetGlobalObject(context_);
+  JSStringRef name = JSStringCreateWithUTF8CString("Promise");
+  JSValueRef exception = nullptr;
+  JSValueRef value_ref = JSObjectGetProperty(context_, global, name, &exception);
+  if (exception) {
+    SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+  JSStringRelease(name);
+
+  JSObjectRef promise_constructor = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+
+  auto promise_data = std::make_unique<PromiseData>(callback, nullptr);
+  promise_map_.push_back(std::move(promise_data));
+  auto native_func_callback =
+    [](JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+       size_t cnt, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
+      PromiseData *promise_data = static_cast<PromiseData *>(JSObjectGetPrivate(function));
+      JSGlobalContextRef contextRef = (JSGlobalContextRef)ctx;
+      std::shared_ptr<CtxValue> resolve = std::make_shared<JSCCtxValue>(contextRef, arguments[0]);
+      std::shared_ptr<CtxValue> reject = std::make_shared<JSCCtxValue>(contextRef, arguments[1]);
+      promise_data->callback_(resolve, reject);
+      return JSValueMakeUndefined(ctx);
+  };
+
+  void *private_data = static_cast<void *>(promise_map_.back().get());
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.callAsFunction = native_func_callback;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef func_object = JSObjectMake(context_, cls_ref, private_data);
+
+  JSValueRef values[1];
+  values[0] = func_object;
+  JSValueRef resolve_promise = JSObjectCallAsConstructor(context_, promise_constructor, 1, values, &exception);
+  return std::make_shared<hippy::napi::JSCCtxValue>(context_, resolve_promise);
+}
+
 bool JSCCtx::GetByteBuffer(const std::shared_ptr<CtxValue>& value,
                            void** out_data,
                            size_t& out_length,
@@ -420,6 +579,56 @@ std::shared_ptr<CtxValue> JSCCtx::CreateError(
   JSValueRef values[] = {value};
   JSObjectRef error = JSObjectMakeError(context_, 1, values, nullptr);
   return std::make_shared<JSCCtxValue>(context_, error);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateReferenceError(const string_view& msg) {
+  JSObjectRef global = JSContextGetGlobalObject(context_);
+  JSStringRef name = JSStringCreateWithUTF8CString("ReferenceError");
+  JSValueRef exception = nullptr;
+  JSValueRef value_ref = JSObjectGetProperty(context_, global, name, &exception);
+  if (exception) {
+    SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+  JSStringRelease(name);
+
+  JSObjectRef reference_error_constructor = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+
+  JSValueRef values[1];
+  JSStringRef error_message = CreateJSCString(msg);
+  values[0] = JSValueMakeString(context_, error_message);
+  JSValueRef type_error_object = JSObjectCallAsFunction(context_, reference_error_constructor, nullptr, 1, values, &exception);
+  JSStringRelease(error_message);
+  return std::make_shared<hippy::napi::JSCCtxValue>(context_, type_error_object);
+}
+
+std::shared_ptr<CtxValue> JSCCtx::CreateTypeError(const string_view& msg) {
+  JSObjectRef global = JSContextGetGlobalObject(context_);
+  JSStringRef name = JSStringCreateWithUTF8CString("TypeError");
+  JSValueRef exception = nullptr;
+  JSValueRef value_ref = JSObjectGetProperty(context_, global, name, &exception);
+  if (exception) {
+    SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+  JSStringRelease(name);
+
+  JSObjectRef type_error_constructor = JSValueToObject(context_, value_ref, &exception);
+  if (exception) {
+    SetException(std::make_shared<JSCCtxValue>(context_, exception));
+    return nullptr;
+  }
+
+  JSValueRef values[1];
+  JSStringRef error_message = CreateJSCString(msg);
+  values[0] = JSValueMakeString(context_, error_message);
+  JSValueRef type_error_object = JSObjectCallAsFunction(context_, type_error_constructor, nullptr, 1, values, &exception);
+  JSStringRelease(error_message);
+  return std::make_shared<hippy::napi::JSCCtxValue>(context_, type_error_object);
 }
 
 std::shared_ptr<CtxValue> JSCCtx::CopyArrayElement(

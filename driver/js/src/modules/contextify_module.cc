@@ -46,7 +46,8 @@ using CallbackInfo = hippy::napi::CallbackInfo;
 using TryCatch = hippy::napi::TryCatch;
 
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
-
+constexpr char kJsToNativeModule[] = "js2native.js";
+constexpr char16_t kU16JsToNativeModule[] = u"js2native.js";
 
 namespace hippy {
 inline namespace driver {
@@ -54,6 +55,18 @@ inline namespace module {
 
 REGISTER_MODULE(ContextifyModule, RunInThisContext) // NOLINT(cert-err58-cpp)
 REGISTER_MODULE(ContextifyModule, LoadUntrustedContent) // NOLINT(cert-err58-cpp)
+
+RunJsFunction ContextifyModule::js_to_native_function_;
+
+bool IsJsModule(const string_view& module_name) {
+  if(module_name.is_utf16()) return module_name == kU16JsToNativeModule;
+  if(module_name.is_latin1()) return module_name == kJsToNativeModule;
+  return false;
+}
+
+void ContextifyModule::SetJs2NativeFunction(RunJsFunction js_to_native_function) {
+  ContextifyModule::js_to_native_function_ = js_to_native_function;
+}
 
 void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) { // NOLINT(readability-convert-member-functions-to-static)
 #ifdef JS_V8
@@ -71,6 +84,12 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
   }
 
   FOOTSTONE_DLOG(INFO) << "RunInThisContext key = " << key;
+
+  // run c++ Module and js file is empty
+  if (!IsJsModule(key)) {
+    if (js_to_native_function_) js_to_native_function_(info.GetScope());
+  }
+
   const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       key, string_view::Encoding::Utf8).utf8_value()));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);

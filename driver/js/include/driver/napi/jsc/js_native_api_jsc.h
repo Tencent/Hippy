@@ -71,6 +71,13 @@ class CBTuple {
   void* data_;
 };
 
+class PromiseData {
+ public:
+  PromiseCallback callback_;
+  void* data_;
+  PromiseData(PromiseCallback callback, void* data) : callback_(callback), data_(data) {}
+};
+
 class JSCVM : public VM {
  public:
   JSCVM(): VM(nullptr) { vm_ = JSContextGroupCreate(); }
@@ -157,6 +164,15 @@ class JSCCtx : public Ctx {
                                      NativeFunction fn,
                                      void* data) override;
 
+  virtual void RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                                const string_view& name,
+                                hippy::base::RegisterFunction fn,
+                                void* data) override;
+  virtual void RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                                const string_view& name,
+                                NativeFunction fn,
+                                void* data) override;
+
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) override;
   virtual std::shared_ptr<CtxValue> CreateString(
@@ -181,7 +197,19 @@ class JSCCtx : public Ctx {
   }
   virtual std::shared_ptr<CtxValue> CreateError(
       const string_view& msg) override;
+  virtual std::shared_ptr<CtxValue> CreateReferenceError(
+      const string_view& msg) override;
+  virtual std::shared_ptr<CtxValue> CreateTypeError(
+      const string_view& msg) override;
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(const void* buffer, size_t length) override;
+
+  virtual std::shared_ptr<CtxValue> CreatePromise() override;
+  virtual std::shared_ptr<CtxValue> CreateResolvePromise(
+      const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<CtxValue> CreateRejectPromise(
+      const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<CtxValue> CreatePromiseWithCallback(
+      PromiseCallback callback) override;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
@@ -274,6 +302,7 @@ class JSCCtx : public Ctx {
   std::shared_ptr<JSCCtxValue> exception_;
   bool is_exception_handled_;
   std::vector<std::unique_ptr<CBTuple>> function_private_data_container_;
+  std::vector<std::unique_ptr<PromiseData>> promise_map_;
 };
 
 inline footstone::stringview::string_view ToStrView(JSStringRef str) {

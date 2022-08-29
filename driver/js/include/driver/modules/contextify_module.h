@@ -33,6 +33,8 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
+using RunJsFunction = std::function<void(const std::shared_ptr<Scope>& scope)>;
+
 class ContextifyModule : public ModuleBase {
  public:
   using string_view = footstone::stringview::string_view;
@@ -42,10 +44,12 @@ class ContextifyModule : public ModuleBase {
   void RunInThisContext(const hippy::napi::CallbackInfo& info);
   void LoadUntrustedContent(const hippy::napi::CallbackInfo& info);
   void RemoveCBFunc(const string_view& uri);
+  static void SetJs2NativeFunction(RunJsFunction js_to_native_function);
 
  private:
   std::unordered_map<string_view, std::shared_ptr<CtxValue>>
       cb_func_map_;
+  static RunJsFunction js_to_native_function_;
 };
 
 }

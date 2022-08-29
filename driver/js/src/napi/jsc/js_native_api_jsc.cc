@@ -515,6 +515,60 @@ void JSCCtx::RegisterNativeBinding(const string_view& name,
   JSStringRelease(native_func_name);
 }
 
+void JSCCtx::RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                              const string_view& name,
+                              hippy::base::RegisterFunction fn,
+                              void* data) {
+  FOOTSTONE_UNIMPLEMENTED();
+}
+
+void JSCCtx::RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                              const string_view& name,
+                              Ctx::NativeFunction fn,
+                              void* data) {
+  std::shared_ptr<JSCCtxValue> object_ctx_value = std::static_pointer_cast<JSCCtxValue>(object);
+  JSValueRef value_ref = object_ctx_value->value_;
+  JSStringRef native_func_name = CreateJSCString(name);
+
+  auto native_func_callback =
+    [](JSContextRef ctx, JSObjectRef function, JSObjectRef thisObject,
+       size_t cnt, const JSValueRef arguments[], JSValueRef* exception) -> JSValueRef {
+      if (exception && JSValueIsString(ctx, *exception)) {
+        JSStringRef stringRef = (JSStringRef)(*exception);
+        size_t size = JSStringGetMaximumUTF8CStringSize(stringRef) + 1;
+        char buffer[size];
+        JSStringGetUTF8CString(stringRef, buffer, size);
+      }
+      CBTuple *tuple_ptr = static_cast<CBTuple *>(JSObjectGetPrivate(function));
+      std::shared_ptr<CtxValue> args[cnt];
+      for (int index = 0; index < cnt; index++) {
+        JSValueRef valueRef = arguments[index];
+        JSGlobalContextRef contextRef = (JSGlobalContextRef)ctx;
+        args[index] = std::make_shared<JSCCtxValue>(contextRef, valueRef);
+      }
+      CBCtxValueTuple value_tuple(tuple_ptr->data_, args, cnt);
+      const NativeFunction &fn = tuple_ptr->fn_;
+      std::shared_ptr<CtxValue> value = fn(&value_tuple);
+      std::shared_ptr<JSCCtxValue> ctxValue = std::static_pointer_cast<JSCCtxValue>(value);
+      return ctxValue->value_;
+  };
+
+  auto tuple = std::make_unique<CBTuple>(fn, data);
+  void *private_data = static_cast<void *>(tuple.get());
+  function_private_data_container_.push_back(std::move(tuple));
+  JSClassDefinition cls_def = kJSClassDefinitionEmpty;
+  cls_def.callAsFunction = native_func_callback;
+  JSClassRef cls_ref = JSClassCreate(&cls_def);
+  JSObjectRef func_object = JSObjectMake(context_, cls_ref, private_data);
+  JSClassRelease(cls_ref);
+  bool ret = JSValueIsObject(context_, value_ref);
+  if(ret) {
+    JSObjectRef object_ref = JSValueToObject(context_, value_ref, NULL);
+    JSObjectSetProperty(context_, object_ref, native_func_name, func_object, kJSPropertyAttributeNone, NULL);
+  }
+  JSStringRelease(native_func_name);
+}
+
 std::shared_ptr<CtxValue> JSCCtx::GetJsFn(const string_view& name) {
   return GetGlobalObjVar(name);
 }

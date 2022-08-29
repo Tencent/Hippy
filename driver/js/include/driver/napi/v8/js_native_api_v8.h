@@ -121,6 +121,15 @@ class CBDataTuple {
   const v8::FunctionCallbackInfo<v8::Value>& info_;
 };
 
+class ResolverData {
+ public:
+  uint32_t resolver_id_;
+  v8::Global<v8::Promise::Resolver> resolver_;
+  void* container_;
+  ResolverData(uint32_t resolver_id, v8::Global<v8::Promise::Resolver>& resolver, void* container)
+      : resolver_id_(resolver_id), resolver_(std::move(resolver)), container_(container) {}
+};
+
 class V8Ctx : public Ctx {
  public:
   using string_view = footstone::stringview::string_view;
@@ -171,6 +180,15 @@ class V8Ctx : public Ctx {
                                      NativeFunction fn,
                                      void* data) override;
 
+  virtual void RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                                const string_view& name,
+                                hippy::base::RegisterFunction fn,
+                                void* data) override;
+  virtual void RegisterFunction(const std::shared_ptr<CtxValue>& object,
+                                const string_view& name,
+                                NativeFunction fn,
+                                void* data) override;
+
   virtual std::shared_ptr<CtxValue> CreateNumber(double number) override;
   virtual std::shared_ptr<CtxValue> CreateBoolean(bool b) override;
   virtual std::shared_ptr<CtxValue> CreateString(
@@ -193,8 +211,20 @@ class V8Ctx : public Ctx {
       std::shared_ptr<CtxValue>>& map) override;
   virtual std::shared_ptr<CtxValue> CreateError(
       const string_view& msg) override;
+  virtual std::shared_ptr<CtxValue> CreateReferenceError(
+      const string_view& msg) override;
+  virtual std::shared_ptr<CtxValue> CreateTypeError(
+      const string_view& msg) override;
 
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(const void* buffer, size_t length) override;
+
+  virtual std::shared_ptr<CtxValue> CreatePromise() override;
+  virtual std::shared_ptr<CtxValue> CreateResolvePromise(
+      const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<CtxValue> CreateRejectPromise(
+      const std::shared_ptr<CtxValue>& value) override;
+  virtual std::shared_ptr<CtxValue> CreatePromiseWithCallback(
+      PromiseCallback callback) override;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
@@ -313,6 +343,7 @@ class V8Ctx : public Ctx {
   v8::Persistent<v8::ObjectTemplate> global_persistent_;
   v8::Persistent<v8::Context> context_persistent_;
   std::vector<std::unique_ptr<CBTuple>> function_private_data_container_;
+  std::unique_ptr<std::vector<std::unique_ptr<ResolverData>>> promise_resolver_map_;
 
  private:
   std::shared_ptr<CtxValue> InternalRunScript(
