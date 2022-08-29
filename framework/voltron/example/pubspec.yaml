@@ -62,7 +62,6 @@ flutter:
   assets:
     - assets/
     - assets/jsbundle/
-    - assets/jsbundle/
     - assets/jsbundle/assets/
 
   # An image asset can refer to one or more resolution-specific "variants", see

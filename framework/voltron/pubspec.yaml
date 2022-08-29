@@ -33,10 +33,10 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.voltron.flutter_render
-        pluginClass: FlutterRenderPlugin
+        package: com.voltron
+        pluginClass: VoltronPlugin
       ios:
-        pluginClass: FlutterRenderPlugin
+        pluginClass: VoltronPlugin
 
 
 dependencies:

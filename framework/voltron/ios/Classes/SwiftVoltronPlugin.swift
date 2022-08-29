@@ -23,10 +23,10 @@
 import Flutter
 import UIKit
 
-public class SwiftFlutterRenderPlugin: NSObject, FlutterPlugin {
+public class SwiftVoltronPlugin: NSObject, FlutterPlugin {
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "flutter_render", binaryMessenger: registrar.messenger())
-    let instance = SwiftFlutterRenderPlugin()
+    let channel = FlutterMethodChannel(name: "voltron", binaryMessenger: registrar.messenger())
+    let instance = SwiftVoltronPlugin()
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 

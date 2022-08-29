@@ -20,7 +20,7 @@
  *
  */
 
-#import "FlutterRenderPlugin.h"
+#import "VoltronPlugin.h"
 #if __has_include(<voltron_render/voltron_render-Swift.h>)
 #import <voltron_render/voltron_render-Swift.h>
 #else
@@ -30,8 +30,8 @@
 #import "voltron_render-Swift.h"
 #endif
 
-@implementation FlutterRenderPlugin
+@implementation VoltronPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  [SwiftFlutterRenderPlugin registerWithRegistrar:registrar];
+  [SwiftVoltronPlugin registerWithRegistrar:registrar];
 }
 @end

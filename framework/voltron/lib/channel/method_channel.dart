@@ -21,7 +21,7 @@
 import 'package:flutter/services.dart';
 
 class FlutterRenderMethodChannel {
-  static const MethodChannel _kChannel = MethodChannel('flutter_render');
+  static const MethodChannel _kChannel = MethodChannel('voltron');
 
   static Future<dynamic> get platformInfo async {
     return await _kChannel.invokeMethod('getPlatformInfo');

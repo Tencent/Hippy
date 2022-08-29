@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.voltron.flutter_render
+package com.voltron
 
 import android.content.Context
 import android.os.Build
@@ -30,7 +30,7 @@ import kotlin.collections.HashMap
 import kotlin.collections.set
 
 /** FlutterRenderPlugin */
-public class FlutterRenderPlugin: FlutterPlugin, MethodCallHandler {
+public class VoltronPlugin: FlutterPlugin, MethodCallHandler {
   private var applicationContext: Context? = null
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
@@ -38,8 +38,14 @@ public class FlutterRenderPlugin: FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
 
+  private fun getDensityApi(context: Context): Int {
+    val displayMetrics = context.resources.displayMetrics
+    return displayMetrics.densityDpi
+  }
+
+
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
-    channel = MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "flutter_render")
+    channel = MethodChannel(flutterPluginBinding.flutterEngine.dartExecutor, "voltron")
     channel.setMethodCallHandler(this)
     applicationContext = flutterPluginBinding.applicationContext
   }
@@ -57,7 +63,7 @@ public class FlutterRenderPlugin: FlutterPlugin, MethodCallHandler {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
       val channel = MethodChannel(registrar.messenger(), "flutter_render")
-      channel.setMethodCallHandler(FlutterRenderPlugin())
+      channel.setMethodCallHandler(VoltronPlugin())
     }
   }
 
