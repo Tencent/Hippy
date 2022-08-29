@@ -36,6 +36,7 @@ set(VISIBILITY_INLINES_HIDDEN on)
 add_library(${PROJECT_NAME} SHARED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+target_link_libraries(${PROJECT_NAME} PRIVATE android)
 if (HIDDEN_LIBRARY_SYMBOL)
   target_link_options(${PROJECT_NAME} PRIVATE
       "-Wl,--version-script=${PROJECT_SOURCE_DIR}/minimum_exports.lst")

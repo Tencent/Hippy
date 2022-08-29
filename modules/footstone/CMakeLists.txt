@@ -34,6 +34,9 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC include
     PRIVATE .)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
+if (ANDROID)
+  target_link_libraries(${PROJECT_NAME} PRIVATE log)
+endif()
 # endregion
 
 # region source set
