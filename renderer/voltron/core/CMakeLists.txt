@@ -1,4 +1,24 @@
-set(LIB_NAME "render_core")
+#
+#
+# Tencent is pleased to support the open source community by making
+# Hippy available.
+#
+# Copyright (C) 2019 THL A29 Limited, a Tencent company.
+# All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+#
 
 project(render_core)
 
@@ -23,9 +43,6 @@ set(SRC_FILES
         ${RENDER_CORE_SRC_DIR}/render/ffi/render_bridge_ffi_impl.cc
         ${RENDER_CORE_SRC_DIR}/render/ffi/string_convert.cc
         ${CODEC_SRC_DIR}/standard_codec.cc)
-
-if ("${BUILD_SHARED_LIB}" STREQUAL "true")
-endif()
 
 include_directories(${RENDER_CORE_DIR}/third_party/codec/include)
 include_directories(${RENDER_CORE_DIR}/include)
@@ -61,31 +78,31 @@ if ("${BUILD_SHARED_LIB}" STREQUAL "true")
     endif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-        add_library(${LIB_NAME} SHARED ${SRC_FILES})
-        set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)
-        target_link_libraries(${LIB_NAME} ${LINKED_LIBS})
+        add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
+        set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+        target_link_libraries(${PROJECT_NAME} ${LINKED_LIBS})
     elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -x objective-c++ -fprofile-instr-generate -fcoverage-mapping -std=c++17")
-        add_library(${LIB_NAME} SHARED ${SRC_FILES})
+        add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
         set_target_properties(${CMAKE_LIBRARY_NAME} PROPERTIES
                 FRAMEWORK TRUE
                 )
-        target_link_libraries(${LIB_NAME} ${LINKED_LIBS})
+        target_link_libraries(${PROJECT_NAME} ${LINKED_LIBS})
     elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-        add_library(${LIB_NAME} SHARED ${SRC_FILES})
+        add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
         set_target_properties(${CMAKE_LIBRARY_NAME} PROPERTIES
                 FRAMEWORK TRUE
                 )
-        target_link_libraries(${LIB_NAME} ${LINKED_LIBS})
+        target_link_libraries(${PROJECT_NAME} ${LINKED_LIBS})
     endif (CMAKE_SYSTEM_NAME STREQUAL "Android")
 else()
-    add_library(${LIB_NAME} STATIC ${SRC_FILES})
-    target_link_libraries(${LIB_NAME} ${LINKED_LIBS})
-    set_property(TARGET ${LIB_NAME} PROPERTY CXX_STANDARD 17)
+    add_library(${PROJECT_NAME} STATIC ${SRC_FILES})
+    target_link_libraries(${PROJECT_NAME} ${LINKED_LIBS})
+    set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 endif()
 
 GlobalPackages_Add(dom)
-target_link_libraries(${LIB_NAME} PRIVATE dom)
+target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 
 GlobalPackages_Add(footstone)
-target_link_libraries(${LIB_NAME} PRIVATE footstone)
+target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
