@@ -98,7 +98,6 @@ framework/voltron/example/ios/**/Pods/
 framework/voltron/example/ios/**/.symlinks/
 framework/voltron/ios/voltron_core.xcframework
 framework/voltron/ios/Flutter/
-framework/voltron/VoltronCore/VoltronCore.xcodeproj/project.xcworkspace/xcuserdata/
-framework/voltron/VoltronCore/VoltronCore.xcodeproj/xcuserdata/
+framework/voltron/VoltronCore/VoltronCore.xcodeproj/
 
 renderer/voltron/core/lib/
