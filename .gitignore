@@ -65,7 +65,7 @@ devtools/devtools-backend/lib/*
 devtools/devtools-backend/test/build/*
 
 # Flutter/Dart/Pub related
-**/doc/api/
+framework/voltron/**/doc/api/
 .dart_tool/
 .flutter-plugins
 .packages
@@ -76,7 +76,7 @@ devtools/devtools-backend/test/build/*
 pubspec.lock
 generated_plugin_registrant.dart
 GeneratedPluginRegistrant.java
-**/.generated/
+framework/voltron/**/.generated/
 
 framework/voltron/android/libs
 
