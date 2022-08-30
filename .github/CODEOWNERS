@@ -68,6 +68,7 @@ CMakeLists.txt @medns
 
 # android related
 /framework/android/ @siguangli
+/framework/android/src/main/cpp/ @churchill-zhang
 /renderer/native/android/ @siguangli
 /renderer/native/android/src/main/jni @churchill-zhang
 /gradle/ @siguangli
