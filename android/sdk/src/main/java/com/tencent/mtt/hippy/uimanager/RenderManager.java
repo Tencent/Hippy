@@ -131,6 +131,7 @@ public class RenderManager {
     }
     //		mContext.getGlobalConfigs().getLogAdapter().log(TAG,"render  moveNode  pId:" + pId+" id: "+id+" moveids:"+moveIds.toString());
     parentNode.move(arrayList, id);
+    addUpdateNodeIfNeeded(parentNode);
     addUpdateNodeIfNeeded(newParent);
   }
 
@@ -146,7 +147,7 @@ public class RenderManager {
     RenderNode uiNode = mNodes.get(id);
     uiNode.setDelete(true);
 
-    if (uiNode.mParent != null && mControllerManager.hasView(id)) {
+    if (uiNode.mParent != null) {
       uiNode.mParent.addDeleteId(id, uiNode);
       addUpdateNodeIfNeeded(uiNode.mParent);
     } else if (TextUtils.equals(NodeProps.ROOT_NODE, uiNode.getClassName())) {
