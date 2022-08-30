@@ -33,9 +33,10 @@ class DevServerImpl implements DevServerInterface {
     GlobalConfigs configs,
     String serverHost,
     String bundleName,
+    String remoteServerUrl
   ) {
-    _devServerHelper = DevServerHelper(configs, serverHost);
-    _devServerConfig = DevServerConfig(serverHost);
+    _devServerHelper = DevServerHelper(configs, serverHost, remoteServerUrl);
+    _devServerConfig = DevServerConfig(serverHost, bundleName);
   }
 
   @override
@@ -65,12 +66,17 @@ class DevServerImpl implements DevServerInterface {
   }
 
   @override
-  void setDevServerCallback(DevServerCallback devServerCallback) {
-    _devServerCallback = devServerCallback;
+  String createDebugUrl(String host, String? componentName, String debugClientId) {
+    return _devServerHelper.createDebugURL(host, componentName ?? _devServerConfig.getBundleName(), debugClientId);
   }
 
   @override
   void reload() {
     _devServerCallback?.onDevBundleReload();
+  }
+
+  @override
+  void setDevServerCallback(DevServerCallback devServerCallback) {
+    _devServerCallback = devServerCallback;
   }
 }

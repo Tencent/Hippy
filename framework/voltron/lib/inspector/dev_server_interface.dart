@@ -27,6 +27,8 @@ abstract class DevServerInterface {
 
   String createResourceUrl(String resName);
 
+  String createDebugUrl(String host, String? componentName, String debugClientId);
+
   void setDevServerCallback(DevServerCallback devServerCallback);
 
   void attachToHost(RootWidgetViewModel viewModel);

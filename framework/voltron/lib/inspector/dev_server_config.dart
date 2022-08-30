@@ -20,10 +20,15 @@
 
 class DevServerConfig {
   final String _serverHost;
+  final String _bundleName;
 
-  DevServerConfig(this._serverHost);
+  DevServerConfig(this._serverHost, this._bundleName);
 
   String getServerHost() {
     return _serverHost;
+  }
+
+  String getBundleName() {
+    return _bundleName;
   }
 }

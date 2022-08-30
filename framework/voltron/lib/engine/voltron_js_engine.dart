@@ -76,6 +76,9 @@ class VoltronJSEngine
   // Server的host，调试模式下有效
   late String _serverHost;
 
+  // Hippy Server url using remote debug in no usb，only take effect in debugMode = true
+  late String _remoteServerUrl;
+
   bool _devManagerInited = false;
   bool _hasReportEngineLoadResult = false;
   late int _groupId;
@@ -132,6 +135,7 @@ class VoltronJSEngine
     _startTimeMonitor = TimeMonitor(true);
     _engineMonitor = params.engineMonitor!;
     _serverHost = params.debugServerHost;
+    _remoteServerUrl = params.remoteServerUrl ?? '';
     _groupId = params.groupId;
     _thirdPartyAdapter = params.thirdPartyAdapter;
   }
@@ -174,6 +178,7 @@ class VoltronJSEngine
         _debugMode,
         _serverHost,
         _serverBundleName,
+          _remoteServerUrl,
       );
       _devSupportManager.setDevCallback(this);
       if (_debugMode) {
