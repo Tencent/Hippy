@@ -21,9 +21,21 @@
 #pragma once
 
 #include "core/common/rect.h"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
 #include "core/common/reflection.h"
-#include "core/tdfi/view/view.h"
-#include "core/tdfi/view/view_context.h"
+#include "tdfview/view.h"
+#include "tdfview/view_context.h"
+#pragma clang diagnostic pop
 
 namespace tdfrender {
 inline namespace view {
@@ -39,15 +51,15 @@ using OnOrientationChangeCallBack = std::function<void()>;
 class ModalView : public View {
   TDF_REFF_CLASS_META(ModalView)
 
- public:
+public:
   ~ModalView() override;
   ModalView();
 
-  void AddView(const std::shared_ptr<View>& child) override;
-  void AddView(const std::shared_ptr<View>& child, int64_t index) override;
-  void RemoveView(const std::shared_ptr<View>& child) override;
+  void AddView(const std::shared_ptr<View> &child) override;
+  void AddView(const std::shared_ptr<View> &child, int64_t index) override;
+  void RemoveView(const std::shared_ptr<View> &child) override;
   void InternalSetBackgroundColor(tdfcore::Color color) override;
-  void InternalSetFrame(const TRect& frame) override;
+  void InternalSetFrame(const TRect &frame) override;
   void Mount() override;
   void Unmount() override;
 
@@ -61,27 +73,28 @@ class ModalView : public View {
    * @brief set modal View display callback
    * @param show_callback
    */
-  void SetShowCallback(const OnShowCallBack& show_callback);
+  void SetShowCallback(const OnShowCallBack &show_callback);
 
   /**
    * @brief set modal View disappear callback
    * @param dismiss_callback
    */
-  void SetDismissCallback(const OnDismissCallBack& dismiss_callback);
+  void SetDismissCallback(const OnDismissCallBack &dismiss_callback);
 
   /**
    * @brief set close request callback
    * @param close_callback
    */
-  void SetRequestCloseCallback(const OnRequestCloseCallBack& close_callback);
+  void SetRequestCloseCallback(const OnRequestCloseCallBack &close_callback);
 
   /**
    * @brief set orientation changed callback
    * @param change_callback 回调
    */
-  void SetOrientationChangeCallback(const OnOrientationChangeCallBack& change_callback);
+  void SetOrientationChangeCallback(
+      const OnOrientationChangeCallBack &change_callback);
 
- private:
+private:
   bool is_immersion_status_bar = false;
   OnShowCallBack show_callback_;
   OnDismissCallBack dismiss_callback_;
@@ -92,8 +105,8 @@ class ModalView : public View {
   FRIEND_OF_TDF_ALLOC;
 };
 
-}  // namespace view
-}  // namespace tdfrender
+} // namespace view
+} // namespace tdfrender
 
 TDF_REFL_DEFINE(tdfrender::view::ModalView, bases<tdfcore::View>)
 TDF_REFL_END(tdfrender::view::ModalView)

@@ -27,8 +27,8 @@ std::shared_ptr<tdfcore::Task> Base64ImageLoader::Load(const std::string &url, c
   return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, loader_callback] {
     DEFINE_AND_CHECK_SELF(Base64ImageLoader)
 
-    int index = url.find(self->scheme_tag_);
-    int length = index + self->scheme_tag_.length();
+    auto index = url.find(self->scheme_tag_);
+    auto length = index + self->scheme_tag_.length();
     std::string content = url.substr(length);
     // base64 decode
     std::string data = tdfcore::Base64::Decode(content);

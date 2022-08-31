@@ -122,7 +122,9 @@ void TDFRenderManager::CreateRenderNode(std::weak_ptr<RootNode> root_node,
       if (view_node->GetViewName() == tdfrender::kModaViewName) {
         auto metrics = shell->GetViewportMetrics();
         auto device_pixel_ratio = metrics.device_pixel_ratio;
-        node->SetLayoutSize(metrics.width / device_pixel_ratio, metrics.height / device_pixel_ratio);
+        node->SetLayoutSize(
+            static_cast<float>(metrics.width / device_pixel_ratio),
+            static_cast<float>(metrics.height / device_pixel_ratio));
       }
       root_view_node->RegisterViewNode(node->GetId(), view_node);
       view_node->OnCreate();

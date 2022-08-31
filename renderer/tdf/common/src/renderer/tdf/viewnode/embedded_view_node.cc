@@ -20,73 +20,21 @@
 
 #include "renderer/tdf/viewnode/embedded_view_node.h"
 
-#include "core/tdfi/view/embedded_view.h"
-#include "nlohmann/json.hpp"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#include "tdfview/embedded_view.h"
+#pragma clang diagnostic pop
 
 namespace tdfrender {
 
-using nlohmann::json;
-
 static constexpr const char kNodeInfoProps[] = "props";
-static json ParseDomPrimitiveToJson(const std::shared_ptr<footstone::HippyValue> &value);
-static json ParseDomArrayToJson(const footstone::HippyValue::DomValueArrayType &dom_array);
-static json ParseDomObjectToJson(const footstone::HippyValue::HippyValueObjectType &dom_object);
-static json ParseSharedDomValueToJson(const std::shared_ptr<footstone::HippyValue> &dom_value);
-
-static json ParseDomPrimitiveToJson(const std::shared_ptr<footstone::HippyValue> &value) {
-  if (value->IsString()) {
-    return value->ToStringChecked();
-  } else if (value->IsBoolean()) {
-    return value->ToBooleanChecked();
-  } else if (value->IsDouble()) {
-    return value->ToDoubleChecked();
-  } else if (value->IsInt32()) {
-    return value->ToInt32Checked();
-  } else if (value->IsUInt32()) {
-    return value->ToUint32Checked();
-  }
-  return nullptr;
-}
-
-static json ParseDomArrayToJson(const footstone::HippyValue::DomValueArrayType &dom_array) {
-  auto target_array = json::array();
-  for (const auto &item : dom_array) {
-    if (item.IsObject()) {
-      target_array.push_back(ParseDomObjectToJson(item.ToObjectChecked()));
-    } else if (item.IsArray()) {
-      target_array.push_back(ParseDomArrayToJson(item.ToArrayChecked()));
-    } else {
-      target_array.push_back(ParseDomPrimitiveToJson(std::make_shared<footstone::HippyValue>(item)));
-    }
-  }
-}
-
-static json ParseDomObjectToJson(const footstone::HippyValue::HippyValueObjectType &dom_object) {
-  json root;
-  for (auto iterator : dom_object) {
-    root[iterator.first] = ParseSharedDomValueToJson(std::make_shared<footstone::HippyValue>(iterator.second));
-  }
-  return root;
-}
-
-static json ParseSharedDomValueToJson(const std::shared_ptr<footstone::HippyValue> &dom_value) {
-  if (dom_value->IsObject()) {
-    return ParseDomObjectToJson(dom_value->ToObjectChecked());
-  } else if (dom_value->IsArray()) {
-    return ParseDomArrayToJson(dom_value->ToArrayChecked());
-  } else {
-    return ParseDomPrimitiveToJson(dom_value);
-  }
-}
-
-static std::string GetJSONStringWithProps(const ViewNode::DomStyleMap &dom_style) {
-  json root;
-  for (auto iterator : dom_style) {
-    root[iterator.first] = ParseSharedDomValueToJson(iterator.second);
-  }
-
-  return root.dump();
-}
 
 EmbeddedViewNode::EmbeddedViewNode(RenderInfo render_info, const std::string &native_view_type)
     : ViewNode(render_info), native_view_type_(native_view_type) {}
@@ -97,8 +45,7 @@ std::shared_ptr<tdfcore::View> EmbeddedViewNode::CreateView() {
 
 void EmbeddedViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
-  auto json_string = GetJSONStringWithProps(dom_style);
-  property_ = {{kNodeInfoProps, std::move(json_string)}};
+  property_ = {{kNodeInfoProps, ""}};
   GetView<tdfcore::EmbeddedView>()->SetProperty(property_);
 }
 

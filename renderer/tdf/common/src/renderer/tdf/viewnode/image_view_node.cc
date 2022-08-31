@@ -21,7 +21,7 @@
 #include "renderer/tdf/viewnode/image_view_node.h"
 
 #include "core/common/image.h"
-#include "core/tdfi/view/image_view.h"
+#include "tdfview/image_view.h"
 #include "dom/node_props.h"
 #include "renderer/tdf/viewnode/base64_image_loader.h"
 #include "renderer/tdf/tdf_render_manager.h"
@@ -29,6 +29,8 @@
 
 namespace tdfrender {
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-const-variable"
 constexpr const char kImage[] = "Image";
 inline namespace image {
 constexpr const char kBackgroundColor[] = "backgroundColor";        // int
@@ -59,6 +61,7 @@ constexpr const char kLoad[] = "load";
 constexpr const char kLoadEnd[] = "loadEnd";
 constexpr const char kLoadStart[] = "loadStart";
 }  // namespace image
+#pragma clang diagnostic pop
 
 constexpr const char kAssetPrex[] = "hpfile://./";
 

@@ -20,9 +20,21 @@
 
 #pragma once
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
+#include "tdfview/view.h"
+#pragma clang diagnostic pop
 #include "core/common/listener.h"
 #include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
-#include "core/tdfi/view/view.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"

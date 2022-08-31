@@ -48,9 +48,6 @@ constexpr const char kOffset[] = "offset";
 constexpr const char kPageScrollState[] = "pageScrollState";
 }  // namespace viewpager
 
-using ScrollOffsetListener = std::function<void(int32_t position, double offset)>;
-using PageSelectedListener = std::function<void(int32_t position)>;
-using ScrollStateChangedListener = std::function<void(std::string old_state, std::string new_state)>;
 
 class ViewPagerNode : public ScrollViewNode {
  public:

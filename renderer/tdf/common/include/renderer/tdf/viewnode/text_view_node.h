@@ -20,8 +20,22 @@
 
 #pragma once
 
-#include "core/support/paragraph/TextStyle.h"
-#include "core/tdfi/view/text/text_view.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#include "core/support/text/text_base.h"
+#include "tdfview/text/text_view.h"
+#include "tdfview/text/cupertino_text_selection_control.h"
+#include "tdfview/view_context.h"
+#pragma clang diagnostic pop
+
 #include "renderer/tdf/viewnode/view_names.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
@@ -49,10 +63,9 @@ constexpr const char kTextShadowRadius[] = "textShadowRadius";            // flo
 
 class TextViewNode : public ViewNode {
   using TextView = tdfcore::TextView;
-  using TextAlign = tdfcore::textlayout::TextAlign;
-  using TextDecoration = tdfcore::textlayout::TextDecoration;
-  using TextShadow = tdfcore::textlayout::TextShadow;
-  using TextStyle = tdfcore::textlayout::TextStyle;
+  using TextAlign = tdfcore::TextAlign;
+  using TextDecoration = tdfcore::TextDecoration;
+  using TextStyle = tdfcore::TextStyle;
 
  public:
   explicit TextViewNode(const RenderInfo info);
@@ -63,7 +76,7 @@ class TextViewNode : public ViewNode {
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
   void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
   void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
-  std::string GetViewName() const { return kTextViewName; }
+  std::string GetViewName() const override { return kTextViewName; }
 
   void HandleLayoutUpdate(hippy::LayoutResult layout_result) override;
 
@@ -94,13 +107,10 @@ class TextViewNode : public ViewNode {
    */
   std::shared_ptr<tdfcore::TextView> GetTextView();
 
-  std::vector<std::shared_ptr<tdfcore::InlineSpan>> children_text_span_;
   std::string font_style_ = "";
   std::string font_weight_ = "";
-  TextShadow text_shadow_;
   bool has_shadow_ = true;
   float font_size_ = kDefaultFontSize;
-  float line_height_ = kDefaultLineHeight;
 
   // support layout when not attached.
   std::shared_ptr<tdfcore::TextView> layout_view_;

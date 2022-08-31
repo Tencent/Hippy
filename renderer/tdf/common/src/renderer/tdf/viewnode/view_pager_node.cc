@@ -64,7 +64,7 @@ void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgu
   if (!result) {
     return;
   }
-  auto index = dom_value_array.at(0).ToDoubleChecked();
+  auto index = dom_value_array.at(0).ToInt32Checked();
   FOOTSTONE_LOG(INFO) << "CallFunction index = " << index;
   if (function_name == kSetPage) {
     view_pager->SwitchToPage(index, true);
@@ -83,7 +83,7 @@ void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgu
 
 void ViewPagerNode::InitialPage(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
   if (auto iterator = dom_style.find(viewpager::kInitialPage); iterator != dom_style.end()) {
-    view_pager->SetInitialPage(iterator->second->ToDoubleChecked());
+    view_pager->SetInitialPage(iterator->second->ToInt32Checked());
   }
 }
 
@@ -118,7 +118,7 @@ void ViewPagerNode::SetScrollEnable(const DomStyleMap& dom_style, std::shared_pt
 
 void ViewPagerNode::SetPageMargin(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
   if (auto iterator = dom_style.find(viewpager::kPageMargin); iterator != dom_style.end()) {
-    view_pager->SetPageMargin(iterator->second->ToDoubleChecked());
+    view_pager->SetPageMargin(static_cast<float>(iterator->second->ToDoubleChecked()));
   }
 }
 

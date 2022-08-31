@@ -27,7 +27,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # region library
 add_library(${PROJECT_NAME} STATIC)
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 # region end
 
 add_subdirectory(${TDF_RENDER_COMMON} tdf_renderer_common/build)
@@ -44,5 +44,5 @@ set(SOURCE_SET_STANDALONE
 #
 # The `SOURCE_SET_STANDALONE` including static initializers,
 # so its visibility must be PUBLIC.
-target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
+target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET_STANDALONE})
 # endregion

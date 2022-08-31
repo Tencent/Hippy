@@ -22,6 +22,19 @@
 
 #include <chrono>
 #include "core/common/listener.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#include "tdfview/scroll_view.h"
+#pragma clang diagnostic pop
+
 #include "renderer/tdf/viewnode/view_node.h"
 
 namespace tdfrender {
@@ -87,7 +100,6 @@ class ScrollViewNode : public ViewNode {
   uint64_t child_layout_listener_id_ = kUninitializedId;
 
   int32_t scroll_event_throttle_ = 400;  // ms
-  std::chrono::milliseconds last_scroll_event_timestamp_ = std::chrono::milliseconds(0);
   int32_t min_scroll_offset_ = 0;
   uint64_t scroll_update_listener_id_ = kUninitializedId;
   std::function<void(tdfcore::TPoint, tdfcore::TPoint)> scroll_update_listener_;

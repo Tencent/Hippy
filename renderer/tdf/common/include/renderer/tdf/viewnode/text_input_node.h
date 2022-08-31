@@ -20,7 +20,20 @@
 
 #pragma once
 
-#include "core/tdfi/view/text/text_input_view.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
+#include "tdfview/text/text_input_view.h"
+#pragma clang diagnostic pop
+
 #include "renderer/tdf/viewnode/view_node.h"
 
 namespace tdfrender {
@@ -32,8 +45,7 @@ using tdfcore::TextEditingController;
 using tdfcore::TextInputView;
 using tdfcore::TextSelectionControl;
 using tdfcore::View;
-using tdfcore::textlayout::TextShadow;
-using tdfcore::textlayout::TextStyle;
+using tdfcore::TextStyle;
 
 using OnBlur = std::function<void()>;
 using OnChangeText = std::function<void(std::string)>;
@@ -190,7 +202,6 @@ class TextInputNode : public ViewNode {
   std::string font_weight_ = "";
   float font_size_ = kDefaultFontSize;
   float line_height_ = kDefaultLineHeight;
-  TextShadow text_shadow_;
   bool has_shadow_ = true;
   std::string place_holder_;
   Color place_holder_color_ = kDefaultTextColor;

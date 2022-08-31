@@ -62,7 +62,7 @@ void RefreshWrapperNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int6
 
   // RefreshHeader's location in ViewNode Tree is different from View Tree,
   // so we need to correct index here.
-  child->SetCorrectedIndex(index - 1);
+  child->SetCorrectedIndex(static_cast<int32_t>(index - 1));
   ViewNode::OnChildAdd(child, index);
   if (child_dom_node->GetViewName() == kListViewName) {
     refresh_header_node_id_ = child->GetRenderInfo().id;

@@ -19,7 +19,6 @@
  */
 
 #include "renderer/tdf/viewnode/modal_view_node.h"
-#include "core/tdfi/view/view.h"
 
 namespace tdfrender {
 

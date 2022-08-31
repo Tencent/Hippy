@@ -23,11 +23,22 @@
 #include <string>
 #include <vector>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
 #include "core/support/animation/ticker.h"
 #include "core/support/physics/scroll_physics.h"
-#include "core/tdfi/view/scroll_view.h"
-#include "core/tdfi/view/view.h"
-#include "core/tdfi/view/view_context.h"
+#include "tdfview/scroll_view.h"
+#include "tdfview/view.h"
+#include "tdfview/view_context.h"
+#pragma clang diagnostic pop
 
 namespace tdfrender {
 inline namespace view {
@@ -90,13 +101,13 @@ class ViewPager : public ScrollView {
    * @brief set margin of current page
    * @param margin
    */
-  void SetPageMargin(int32_t margin) { page_margin_ = margin; }
+  void SetPageMargin(float margin) { page_margin_ = margin; }
 
   /**
    * @brief get margin of current page
    * @return margin
    */
-  constexpr int32_t GetPageMargin() const { return page_margin_; }
+  constexpr float GetPageMargin() const { return page_margin_; }
 
   /**
    * @brief set scroll axis
@@ -175,7 +186,7 @@ class ViewPager : public ScrollView {
 
   float content_extent_size_ = 0.0;
   int32_t current_page_ = 0;
-  float page_margin_ = 0.0;
+  float page_margin_ = 0;
 
   ScrollOffsetListener offset_listener_;
   PageSelectedListener selected_listener_;

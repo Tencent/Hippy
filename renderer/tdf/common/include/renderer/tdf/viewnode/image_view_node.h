@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "core/tdfi/view/view.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
 namespace tdfrender {
@@ -40,7 +39,6 @@ class ImageViewNode : public ViewNode {
  private:
   std::string default_src_;
   std::string image_src_;
-  bool main_image_set_ = false;
   std::string scale_type_;
   std::shared_ptr<tdfcore::View> CreateView() override;
 };

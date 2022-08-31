@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "core/tdfi/view/view.h"
 #include "dom/root_node.h"
 #include "renderer/tdf/viewnode/view_node.h"
 

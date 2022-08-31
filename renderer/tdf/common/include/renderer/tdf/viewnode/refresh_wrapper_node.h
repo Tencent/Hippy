@@ -20,7 +20,19 @@
 
 #pragma once
 
-#include "core/tdfi/view/refresh_header.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#include "tdfview/refresh_header.h"
+#pragma clang diagnostic pop
+
 #include "renderer/tdf/viewnode/list_view_node.h"
 
 namespace tdfrender {

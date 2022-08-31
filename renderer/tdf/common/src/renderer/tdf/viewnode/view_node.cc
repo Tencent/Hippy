@@ -25,7 +25,6 @@
 
 #include "core/common/color.h"
 #include "core/support/text/UTF.h"
-#include "core/tdfi/view/view_context.h"
 #include "dom/node_props.h"
 #include "dom/scene.h"
 #include "footstone/hippy_value.h"
@@ -159,10 +158,10 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
     FOOTSTONE_CHECK(matrix_array.size() == 16);
     for (int i = 0; i < 4; ++i) {
       auto tv4 = tdfcore::TV4();
-      tv4.x = i + 0;
-      tv4.y = i + 4;
-      tv4.z = i + 8;
-      tv4.w = i + 12;
+      tv4.x = static_cast<float>(i + 0);
+      tv4.y = static_cast<float>(i + 4);
+      tv4.z = static_cast<float>(i + 8);
+      tv4.w = static_cast<float>(i + 12);
       transform.setRow(i, tv4);
     }
   }
@@ -170,32 +169,32 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
   if (auto it = dom_style.find(kPerspective); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     // M44中 2x3对应的位置就是perspective属性
-    transform.setRC(2, 3, checked_numeric_cast<float, double>(it->second->ToDoubleChecked()));
+    transform.setRC(2, 3, checked_numeric_cast<double, float>(it->second->ToDoubleChecked()));
   }
 
   auto tv3 = tdfcore::TV3();
   if (auto it = dom_style.find(kRotateX); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     tv3.x = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kRotateY); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     tv3.y = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kRotate); it != dom_style.end()) {
-    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kRotateZ); it != dom_style.end()) {
-    auto radians = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     tv3.z = 1;
     // TODO(kloudwang) TM44 Rotate没有提供设置旋转中心坐标接口，默认是围绕(0,0)旋转
     transform.setRotateUnit(tv3, radians);
@@ -203,19 +202,19 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
 
   if (auto it = dom_style.find(kScale); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    auto scale = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     transform.setScale(scale, scale);
   }
 
   if (auto it = dom_style.find(kScaleX); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    auto scale = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     transform.setScale(scale, 0);
   }
 
   if (auto it = dom_style.find(kScaleY); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = checked_numeric_cast<float, double>(it->second->ToDoubleChecked());
+    auto scale = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     transform.setScale(0, scale);
   }
 
@@ -227,9 +226,9 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
       return transform;
     }
     FOOTSTONE_CHECK(translation_array.size() == 3);
-    auto translate_x = translation_array.at(0).ToDoubleChecked();
-    auto translate_y = translation_array.at(1).ToDoubleChecked();
-    auto translate_z = translation_array.at(2).ToDoubleChecked();
+    auto translate_x = checked_numeric_cast<double, float>(translation_array.at(0).ToDoubleChecked());
+    auto translate_y = checked_numeric_cast<double, float>(translation_array.at(1).ToDoubleChecked());
+    auto translate_z = checked_numeric_cast<double, float>(translation_array.at(2).ToDoubleChecked());
     transform.setTranslate(translate_x, translate_y, translate_z);
   }
 
@@ -283,7 +282,7 @@ std::shared_ptr<tdfcore::View> ViewNode::CreateView() { return TDF_MAKE_SHARED(t
 
 tdfcore::Color ViewNode::ParseToColor(const std::shared_ptr<footstone::HippyValue>& value) {
   // Temp solution: https://km.woa.com/articles/show/526929
-  return util::ConversionIntToColor(value->ToDoubleChecked());
+  return util::ConversionIntToColor(static_cast<uint32_t>(value->ToDoubleChecked()));
 }
 
 void ViewNode::OnAddEventListener(uint32_t id, const std::string& name) {
@@ -366,7 +365,7 @@ std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
 
 void ViewNode::AddChildAt(const std::shared_ptr<ViewNode>& child, int32_t index) {
   FOOTSTONE_DCHECK(!child->GetParent());
-  FOOTSTONE_DCHECK(index >= 0 && index <= children_.size());
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) <= children_.size());
   // update related filed
   children_.insert(children_.begin() + index, child);
   child->SetParent(shared_from_this());
@@ -388,7 +387,7 @@ void ViewNode::RemoveChild(const std::shared_ptr<ViewNode>& child) {
 }
 
 std::shared_ptr<ViewNode> ViewNode::RemoveChildAt(int32_t index) {
-  FOOTSTONE_DCHECK(index < children_.size());
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < children_.size());
   auto child = children_[footstone::checked_numeric_cast<int32_t, unsigned long>(index)];
   FOOTSTONE_DCHECK(child != nullptr);
   OnChildRemove(child);
@@ -435,7 +434,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     // if (child_index < GetView()->GetChildren().size()) {
     //   child_view = GetView()->GetChildren()[child_index];
     // }
-    for (int index = 0; index < GetView()->GetChildren().size(); index++) {
+    for (uint32_t index = 0; index < GetView()->GetChildren().size(); index++) {
       auto temp_view = GetView()->GetChildren()[index];
       if (temp_view->GetId() == child->GetRenderInfo().id) {
         child_view = temp_view;

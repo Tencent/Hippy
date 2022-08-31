@@ -18,11 +18,10 @@
  * limitations under the License.
  */
 
-#include "core/tdfi/view/scroll_view.h"
-
-#include <memory>
 
 #include "renderer/tdf/viewnode/scroll_view_node.h"
+
+#include <memory>
 
 namespace tdfrender {
 

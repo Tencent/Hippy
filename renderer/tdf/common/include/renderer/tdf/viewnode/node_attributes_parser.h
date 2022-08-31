@@ -20,7 +20,19 @@
 
 #pragma once
 
-#include "core/tdfi/view/view.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wsign-compare"
+#pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wc++98-compat-extra-semi"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wshadow"
+#include "tdfview/view.h"
+#pragma clang diagnostic pop
+
 #include "footstone/hippy_value.h"
 
 namespace tdfrender {
@@ -28,16 +40,28 @@ namespace util {
 
 using Point = tdfcore::TPoint;
 using Color = tdfcore::Color;
-using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
+using DomStyleMap =
+    std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
 
 Color ConversionIntToColor(uint32_t value);
-SkColor ConversionIntToSkColor(uint32_t value);
-static bool ConvertDirectionToPoint(const std::string& direction, Point& begin_point, Point& end_point);
-void ParseLinearGradientInfo(tdfcore::View& view, const footstone::HippyValue::HippyValueObjectType& gradient_map);
-void ParseShadowInfo(tdfcore::View& view, const DomStyleMap& style_map);
-void ParseBorderInfo(tdfcore::View& view, const DomStyleMap& style_map);
-tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap& style_map, const char* width_name, const char* color_name,
-                                      std::pair<float, tdfcore::Color> default_style);
 
-}  // namespace util
-}  // namespace tdfrender
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+static bool ConvertDirectionToPoint(const std::string &direction,
+                                    Point &begin_point, Point &end_point);
+#pragma clang diagnostic pop
+
+void ParseLinearGradientInfo(
+    tdfcore::View &view,
+    const footstone::HippyValue::HippyValueObjectType &gradient_map);
+
+void ParseShadowInfo(tdfcore::View &view, const DomStyleMap &style_map);
+
+void ParseBorderInfo(tdfcore::View &view, const DomStyleMap &style_map);
+
+tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap &style_map, const char *width_name,
+                 const char *color_name, std::pair<float, tdfcore::Color> default_style);
+
+} // namespace util
+} // namespace tdfrender
+

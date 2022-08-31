@@ -20,13 +20,11 @@
 
 #include "renderer/tdf/viewnode/text_input_node.h"
 
+#include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 #include "renderer/tdf/viewnode/text_view_node.h"
 
-#include "core/tdfi/view/text/cupertino_text_selection_control.h"
-#include "core/tdfi/view/view_context.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
-#include "src/core/SkBlurMask.h"
 
 #define INVOKE_IF_VIEW_IS_VALIDATE(fn)         \
   do {                                         \
@@ -41,13 +39,11 @@ namespace tdfrender {
 using tdfcore::CupertinoTextSelectionControl;
 using tdfcore::ViewContext;
 using tdfcore::ViewportEvent;
-using tdfcore::textlayout::TextAlign;
+using tdfcore::TextAlign;
 using unicode_string_view = footstone::stringview::string_view;
 using footstone::stringview::StringViewUtils;
 
 TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
-  text_shadow_.fColor = tdfcore::Color::Transparent();
-  text_shadow_.fOffset = tdfcore::TPoint::Make(0, 0);
   InitCallBackMap();
   InitCallback();
 }
@@ -60,7 +56,7 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     return;
   }
 
-  auto text_style = text_input_view->GetAttributes().paragraph_style->getTextStyle();
+  auto text_style = text_input_view->GetAttributes().text_style;
   auto attributes = text_input_view->GetAttributes();
 
   SetCaretColor(dom_style, text_style);
@@ -95,7 +91,7 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   UpdateKeyBoardWillShowAttr(dom_style);
 
   if (has_shadow_) {
-    text_style.addShadow(text_shadow_);
+    //text_style.addShadow(text_shadow_);
   }
   auto unicode_str = unicode_string_view::new_from_utf8(place_holder_.c_str());
   auto utf16_string = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
@@ -109,9 +105,6 @@ std::shared_ptr<View> TextInputNode::CreateView() {
   selection_control_ = TDF_MAKE_SHARED(CupertinoTextSelectionControl);
   auto text_input_view = TDF_MAKE_SHARED(TextInputView, edit_controller_, selection_control_);
   edit_controller_->AddListener([&, text_input_view](const auto& v) { DidChangeTextEditingValue(text_input_view); });
-  auto text_style = text_input_view->GetAttributes().paragraph_style->getTextStyle();
-  text_style.setColor(kDefaultTextColor);
-  text_input_view->GetAttributes().paragraph_style->setTextStyle(text_style);
   text_input_view_ = text_input_view;
   text_input_view->GetViewContext()->GetShell()->GetEventCenter()->AddListener(
       tdfcore::KeyboardActionEvent::ClassType(),
@@ -285,7 +278,7 @@ void TextInputNode::SetCaretColor(const DomStyleMap& dom_style, TextStyle& text_
 
 void TextInputNode::SetColor(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(textinput::kColor); iter != dom_style.end()) {
-    text_style.setColor(util::ConversionIntToColor(static_cast<uint32_t>(iter->second->ToDoubleChecked())));
+    text_style.color = util::ConversionIntToColor(static_cast<uint32_t>(iter->second->ToDoubleChecked()));
   }
 }
 
@@ -307,7 +300,7 @@ void TextInputNode::SetEditable(const DomStyleMap& dom_style, std::shared_ptr<Te
 
 void TextInputNode::SetFontFamily(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(textinput::kFontFamily); iter != dom_style.end()) {
-    text_style.setFontFamilies({SkString(iter->second->ToStringChecked().c_str())});
+    text_style.font_family = iter->second->ToStringChecked().c_str();
   }
 }
 
@@ -315,17 +308,13 @@ void TextInputNode::SetFontSize(const DomStyleMap& dom_style, TextStyle& text_st
   if (auto iter = dom_style.find(textinput::kFontSize); iter != dom_style.end()) {
     font_size_ = static_cast<float>(iter->second->ToDoubleChecked());
     FOOTSTONE_DCHECK(font_size_ != 0);
-    text_style.setFontSize(font_size_);
-    text_style.setHeight(line_height_ / font_size_);
-    text_style.setHeightOverride(true);
+    text_style.font_size = font_size_;
   }
 }
 
 void TextInputNode::SetLineHeight(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kLineHeight); iter != dom_style.end()) {
     line_height_ = static_cast<float>(iter->second->ToDoubleChecked());
-    text_style.setHeight(line_height_ / font_size_);
-    text_style.setHeightOverride(true);
   }
 }
 
@@ -337,28 +326,16 @@ void TextInputNode::SetFontStyle(const DomStyleMap& dom_style, TextStyle& text_s
   }
 }
 
-void TextInputNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(textinput::kFontWeight); iter != dom_style.end()) {
-    auto dom_value = iter->second;
-    if (dom_value->IsString()) {
-      auto weight = dom_value->ToStringChecked();
-      if (font_weight_ == weight) {
-        return;
-      }
-      font_weight_ = weight;
-    } else {
-      // 具体数值
-      auto font_weight = dom_value->ToDoubleChecked();
-      if (font_weight > SkFontStyle::Weight::kMedium_Weight) {
-        font_weight_ = kFontBold;
-      }
-      auto font_style =
-          SkFontStyle(static_cast<int>(font_weight), SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
-      // 如果同时设置了fontStyle属性这里设置的值可能会被覆盖
-      text_style.setFontStyle(font_style);
+void TextInputNode::SetFontWeight(const DomStyleMap &dom_style, TextStyle &text_style) {
+  if (auto iter = dom_style.find(textinput::kFontWeight);
+      iter != dom_style.end()) {
+    auto weight = iter->second->ToStringChecked();
+    if (font_weight_ == weight) {
+      return;
     }
-    UpdateFontStyle(text_style);
+    font_weight_ = weight;
   }
+  UpdateFontStyle(text_style);
 }
 
 void TextInputNode::SetKeyBoardType(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view) {
@@ -378,7 +355,7 @@ void TextInputNode::SetKeyBoardType(const DomStyleMap& dom_style, std::shared_pt
 
 void TextInputNode::SetLetterSpacing(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(textinput::kLetterSpacing); iter != dom_style.end()) {
-    text_style.setLetterSpacing(static_cast<SkScalar>(iter->second->ToDoubleChecked()));
+    text_style.letter_spacing = static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
   }
 }
 
@@ -504,7 +481,7 @@ void TextInputNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<T
     } else if (text_align == kAlignCenter) {
       text_input_view->SetTextAlign(TextAlign::kCenter);
     } else if (text_align == kAlignJustify) {
-      text_input_view->SetTextAlign(TextAlign::kJustify);
+      FOOTSTONE_UNREACHABLE();
     } else {
       FOOTSTONE_UNREACHABLE();
     }
@@ -513,7 +490,6 @@ void TextInputNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<T
 
 void TextInputNode::SetTextShadowColor(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowColor); iter != dom_style.end()) {
-    text_shadow_.fColor = util::ConversionIntToColor(static_cast<uint32_t>(iter->second->ToDoubleChecked()));
     has_shadow_ = true;
   }
 }
@@ -521,20 +497,12 @@ void TextInputNode::SetTextShadowColor(const DomStyleMap& dom_style) {
 void TextInputNode::SetTextShadowOffset(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowOffset); iter != dom_style.end()) {
     auto value_object = iter->second->ToObjectChecked();
-    auto width_value = value_object.find(kWidth)->second.ToDoubleChecked();
-    auto height_value = value_object.find(kHeight)->second.ToDoubleChecked();
-    text_shadow_.fOffset =
-        tdfcore::TPoint::Make(static_cast<SkScalar>(width_value), static_cast<SkScalar>(height_value));
     has_shadow_ = true;
   }
 }
 
 void TextInputNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowRadius); iter != dom_style.end()) {
-    auto text_shadow_radius = iter->second->ToDoubleChecked();
-    /// TODO(kloudwang) 这里SkBlurMask的计算应该要在tdfcore加一层包装，这里不应该直接依赖skia,后期tdf core
-    /// 去skia，直接依赖skia就会有问题
-    text_shadow_.fBlurSigma = SkBlurMask::ConvertRadiusToSigma(static_cast<SkScalar>(text_shadow_radius));
     has_shadow_ = true;
   }
 }
@@ -544,24 +512,8 @@ void TextInputNode::SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle
 }
 
 void TextInputNode::UpdateFontStyle(TextStyle& text_style) {
-  bool is_italic = false;
-  bool is_bold = false;
-  if (font_style_ == kFontItalic) {
-    is_italic = true;
-  }
-  if (font_weight_ == kFontBold) {
-    is_bold = true;
-  }
-  if (is_italic && is_bold) {
-    auto font_style = SkFontStyle::BoldItalic();
-    text_style.setFontStyle(font_style);
-  } else if (is_bold) {
-    auto font_style = SkFontStyle::Bold();
-    text_style.setFontStyle(font_style);
-  } else if (is_italic) {
-    auto font_style = SkFontStyle::Italic();
-    text_style.setFontStyle(font_style);
-  }
+  text_style.bold = font_weight_ == "bold";
+  text_style.italic = font_style_ == "italic";
 }
 
 }  // namespace tdfrender

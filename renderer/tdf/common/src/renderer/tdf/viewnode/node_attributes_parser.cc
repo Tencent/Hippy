@@ -34,14 +34,6 @@ Color ConversionIntToColor(uint32_t value) {
   return Color::ARGB(alpha, red, green, blue);
 }
 
-SkColor ConversionIntToSkColor(uint32_t value) {
-  uint8_t alpha = (0xFF & (value >> 24));
-  uint8_t red = (0xFF & (value >> 16));
-  uint8_t green = (0xFF & (value >> 8));
-  uint8_t blue = (0xFF & (value >> 0));
-  return SkColorSetARGB(alpha, red, green, blue);
-}
-
 bool ConvertDirectionToPoint(const std::string& direction, Point& begin_point, Point& end_point) {
   bool is_converted = false;
   if (!direction.empty()) {
@@ -106,7 +98,7 @@ void ParseLinearGradientInfo(tdfcore::View& view, const footstone::HippyValue::H
         auto color = object.find("color");
         auto ratio = object.find("ratio");
         if (color != object.end() && ratio != object.end()) {
-          gradient_colors_.push_back(ConversionIntToColor(static_cast<int64_t>(color->second.ToDoubleChecked())));
+          gradient_colors_.push_back(ConversionIntToColor(static_cast<uint32_t>(color->second.ToDoubleChecked())));
           gradient_stops_.push_back(static_cast<float>(ratio->second.ToDoubleChecked()));
         }
       }
@@ -124,11 +116,11 @@ void ParseShadowInfo(tdfcore::View& view, const DomStyleMap& style_map) {
   auto shadow = view.GetShadow();
   auto color = shadow.GetColor();
   if (auto it = style_map.find(view::kShadowColor); it != style_map.cend()) {
-    color = ConversionIntToColor(static_cast<int64_t>(it->second->ToDoubleChecked()));
+    color = ConversionIntToColor(static_cast<uint32_t>(it->second->ToDoubleChecked()));
   }
   if (auto it = style_map.find(view::kShadowOpacity); it != style_map.cend()) {
     auto opacity = std::round(std::clamp(static_cast<float>(it->second->ToDoubleChecked()), 0.0f, 1.0f));
-    color = color.SetA(static_cast<unsigned>(opacity * 255));
+    color = color.SetA(static_cast<uint8_t>(opacity * 255));
   }
 
   auto offset_x = shadow.Offset().x;
@@ -199,7 +191,7 @@ tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap& style_map, const char* 
     default_style.first = static_cast<float>(it->second->ToDoubleChecked());
     if (auto it2 = style_map.find(color_name); it2 != style_map.end() && default_style.first > 0) {
       FOOTSTONE_DCHECK(it2->second->IsDouble());
-      default_style.second = ConversionIntToColor(static_cast<int64_t>(it2->second->ToDoubleChecked()));
+      default_style.second = ConversionIntToColor(static_cast<uint32_t>(it2->second->ToDoubleChecked()));
     }
   }
   return tdfcore::BorderStyle(default_style.second, default_style.first);

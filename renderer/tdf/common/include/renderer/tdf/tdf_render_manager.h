@@ -30,7 +30,6 @@
 #include "footstone/serializer.h"
 
 #include "core/platform/android/tdf_engine_android.h"
-#include "core/tdfi/view/view_context.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
 
 namespace hippy {

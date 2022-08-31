@@ -44,14 +44,15 @@ void ListViewNode::OnAttach() {
   list_view->SetItemChangeCallback(
       [WEAK_THIS](int64_t index, const std::shared_ptr<tdfcore::View>& item, tdfcore::ItemAction action) {
         DEFINE_AND_CHECK_SELF(ListViewNode)
-        FOOTSTONE_DCHECK(index < self->GetChildren().size());
-        auto node = std::static_pointer_cast<ListViewItemNode>(self->GetChildren()[index]);
+        FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < self->GetChildren().size());
+        auto new_index = static_cast<uint32_t>(index);
+        auto node = std::static_pointer_cast<ListViewItemNode>(self->GetChildren()[new_index]);
         if (action == tdfcore::ItemAction::kAdd) {
           // attach when updateItem (before add to listview)
           FOOTSTONE_DCHECK(node->IsAttached());
         } else {
-          FOOTSTONE_DCHECK(self->GetChildren()[index]->IsAttached());
-          self->GetChildren()[index]->Detach(false);
+          FOOTSTONE_DCHECK(self->GetChildren()[new_index]->IsAttached());
+          self->GetChildren()[new_index]->Detach(false);
         }
       });
   batch_end_listener_id_ = GetRootNode()->AddEndBatchListener([WEAK_THIS]() {
@@ -135,25 +136,25 @@ void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 std::shared_ptr<tdfcore::View> ListViewDataSource::GetItem(
     int64_t index, const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && index < list_view_node_.lock()->GetChildren().size());
-  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[index]);
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
+  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
   return node->CreateView();
 }
 
-int64_t ListViewDataSource::GetItemCount() { return list_view_node_.lock()->GetChildren().size(); }
+int64_t ListViewDataSource::GetItemCount() { return static_cast<int64_t>(list_view_node_.lock()->GetChildren().size()); }
 
 void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore::View>& item,
                                     const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && index < list_view_node_.lock()->GetChildren().size());
-  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[index]);
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
+  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
   node->Attach(item);
 }
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && index < list_view_node_.lock()->GetChildren().size());
-  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[index]);
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
+  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
   /// TODO(kloudwang) 复用机制还有点问题，临时先屏蔽
   // return node->GetViewType();
   return index;

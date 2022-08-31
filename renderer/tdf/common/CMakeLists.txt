@@ -38,17 +38,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/
 
 target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_TDF_RENDER")
 
-# regine tdfcore
-target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/include)
-# entry.cc need use tdf_render_manager.h
-# TODO: remove after tdfcore's include directory is cleaned.
-target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/skia)
-target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/angle/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/json/single_include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/refl-cpp/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/tracy)
-target_include_directories(${PROJECT_NAME} PRIVATE ${TDF_CORE_DIR}/third_party/libpag/tgfx/include)
-
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
@@ -68,9 +57,10 @@ GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PUBLIC jni)
 # endregion
 
-# TODO: replace with a static tdfcore library
-add_subdirectory(${TDF_CORE_DIR} tdfcore/build)
-target_link_libraries(${PROJECT_NAME} PUBLIC tdfcore)
+InfraPackage_Add(TDF
+  REMOTE "renderer/tdf/third_party/tdfcore/${TDF_CORE_VERSION}/android-${ANDROID_ARCH_NAME}.zip"
+  LOCAL "${PROJECT_ROOT_DIR}/third_party/tdfcore")
+target_link_libraries(${PROJECT_NAME} PUBLIC tdf)
 
 # region source set
 set(SRC_SET

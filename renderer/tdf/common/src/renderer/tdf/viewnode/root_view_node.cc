@@ -26,9 +26,11 @@ namespace tdfrender {
 
 constexpr const char kUpdateFrame[] = "frameupdate";
 
-RootViewNode::RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
-                           const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter)
-    : shell_(shell), dom_manager_(manager), getter_(getter), ViewNode(info) {}
+RootViewNode::RootViewNode(const RenderInfo info,
+                           const std::shared_ptr<tdfcore::Shell> &shell,
+                           const std::shared_ptr<hippy::DomManager> &manager,
+                           UriDataGetter getter)
+    : ViewNode(info), shell_(shell), dom_manager_(manager), getter_(getter) {}
 
 void RootViewNode::Init() {
   RegisterViewNode(render_info_.id, shared_from_this());
@@ -93,7 +95,7 @@ std::shared_ptr<tdfcore::View> RootViewNode::CreateView() {
 }
 
 void RootViewNode::RegisterViewNode(uint32_t id, const std::shared_ptr<ViewNode>& view_node) {
-  view_node->SetRootNode(static_pointer_cast<RootViewNode>(ViewNode::shared_from_this()));
+  view_node->SetRootNode(std::static_pointer_cast<RootViewNode>(ViewNode::shared_from_this()));
   nodes_query_table_.insert(std::make_pair(id, view_node));
 }
 
@@ -159,7 +161,7 @@ void RootViewNode::UpdateDomeRootNodeSize(tdfcore::ViewportMetrics viewport_metr
     auto& root_map = hippy::dom::RootNode::PersistentMap();
     std::shared_ptr<hippy::RootNode> root_node;
     root_map.Find(self->render_info_.id, root_node);
-    root_node->GetLayoutNode()->SetScaleFactor(device_pixel_ratio);
+    root_node->GetLayoutNode()->SetScaleFactor(static_cast<float>(device_pixel_ratio));
     self->dom_manager_.lock()->SetRootSize(root_node, static_cast<float>(width), static_cast<float>(height));
     self->dom_manager_.lock()->DoLayout(root_node);
     self->dom_manager_.lock()->EndBatch(root_node);

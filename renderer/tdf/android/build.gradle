@@ -44,11 +44,7 @@ android {
   }
   sourceSets {
     main {
-      // TODO import TDF Core's Java Code as an aar
-      java.srcDirs = [
-          'src/main/java',
-          '../core/src/platform/android/java'
-      ]
+      java.srcDirs = [ 'src/main/java',]
     }
   }
 
@@ -63,8 +59,9 @@ dependencies {
   compileOnly project(path: ':hippy-support')
   compileOnly project(path: ':serialization')
   compileOnly project(path: ':link_supplier')
-  // TODO(steve): tdf render need ControllerManager from native manager
+  // tdf render need ControllerManager from native manager
   compileOnly project(path: ':renderer-native')
-  // for tdf core
-  implementation 'androidx.appcompat:appcompat:1.2.0'
+  implementation "com.tencent.tdfcore:embedder:0.0.2"
+  implementation "androidx.appcompat:appcompat:1.2.0"
+  implementation "androidx.exifinterface:exifinterface:1.3.3"
 }

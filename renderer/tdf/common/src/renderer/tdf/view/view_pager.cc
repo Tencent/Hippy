@@ -94,7 +94,8 @@ void ViewPager::Layout() {
       content_extent_size_ += child->GetFrame().Height();
     }
   }
-  content_extent_size_ += (GetChildren().size() - 1) * page_margin_;
+  content_extent_size_ +=
+      static_cast<float>((GetChildren().size() - 1)) * page_margin_;
 
   if (IsHorizontal()) {
     SetContentRect(TRect::MakeLTRB(0, 0, content_extent_size_, GetFrame().Height()));
@@ -122,7 +123,7 @@ void ViewPager::LayoutChildrenFrame() {
 }
 
 void ViewPager::SetCurrentPage(int32_t page) {
-  int32_t max = GetChildren().size() - 1;
+  auto max = static_cast<int32_t>(GetChildren().size() - 1);
   int32_t real_page = std::max(0, std::min(page, max));
 
   if (real_page != current_page_ && selected_listener_) {

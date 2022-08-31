@@ -20,8 +20,6 @@
 
 #include "renderer/tdf/view/modal_view.h"
 
-#include "core/tdfi/view/view.h"
-#include "core/tdfi/view/view_context.h"
 #include "footstone/logging.h"
 
 namespace tdfrender {
@@ -74,8 +72,9 @@ void ModalView::InternalSetFrame(const TRect& frame) {
   } else {
     auto viewport = tdfcore::ViewContext::GetCurrent()->GetShell()->GetViewportMetrics();
     auto padding_top = viewport.view_padding_top / viewport.device_pixel_ratio;
-    modal_view_->SetFrame(
-        TRect::MakeXYWH(frame.left, padding_top + frame.top, frame.Width(), frame.Height() - padding_top));
+    modal_view_->SetFrame(TRect::MakeXYWH(
+        frame.left, static_cast<float>(padding_top + frame.top), frame.Width(),
+        static_cast<float>(frame.Height() - padding_top)));
   }
 }
 

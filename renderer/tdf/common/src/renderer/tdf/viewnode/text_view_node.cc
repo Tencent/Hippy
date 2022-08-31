@@ -23,17 +23,14 @@
 #include "dom/layout_node.h"
 #include "footstone/string_view_utils.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
-#include "src/core/SkBlurMask.h"
 
 namespace tdfrender {
 
 using hippy::LayoutMeasureMode;
 using tdfcore::TextAttributes;
 
-TextViewNode::TextViewNode(RenderInfo info) : ViewNode(info) {
-  text_shadow_.fColor = tdfcore::Color::Transparent();
-  text_shadow_.fOffset = tdfcore::TPoint::Make(0, 0);
-}
+TextViewNode::TextViewNode(RenderInfo info) : ViewNode(info) {}
+
 void TextViewNode::OnCreate() {
   ViewNode::OnCreate();
   auto shell = tdfcore::ViewContext::GetCurrent()->GetShell();
@@ -74,7 +71,7 @@ std::shared_ptr<tdfcore::TextView> TextViewNode::GetTextView() {
 std::shared_ptr<tdfcore::View> TextViewNode::CreateView() {
   auto text_view = TDF_MAKE_SHARED(TextView);
   auto text_style = text_view->GetTextStyle();
-  text_style.setColor(kDefaultTextColor);
+  text_style.color = kDefaultTextColor;
   text_view->SetTextStyle(text_style);
   return text_view;
 }
@@ -104,9 +101,6 @@ void TextViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   SetTextAlign(dom_style, text_view);
   SetEnableScale(dom_style, text_view);
 
-  if (has_shadow_) {
-    text_style.addShadow(text_shadow_);
-  }
   text_view->SetTextStyle(text_style);
   if (auto dome_node = GetDomNode()) {
     dome_node->GetLayoutNode()->MarkDirty();
@@ -124,29 +118,10 @@ void TextViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
 
 void TextViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   ViewNode::OnChildAdd(child, index);
-  FOOTSTONE_DCHECK(child->IsAttached());
-  // TODO(kloudwang) 不能嵌套非Text的节点。Hippy也可以嵌套Image，这里暂时不支持
-  if (child->GetViewName() != kTextViewName) {
-    return;
-  }
-  auto text_node = std::static_pointer_cast<TextViewNode>(child);
-  auto text_span = text_node->GetTextView()->GetTextSpan();
-  children_text_span_.push_back(text_span);
-  GetTextView()->GetTextSpan()->SetChildren(children_text_span_);
 }
 
 void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
   ViewNode::OnChildRemove(child);
-  if (child->GetViewName() != kTextViewName) {
-    return;
-  }
-  auto text_node = std::static_pointer_cast<TextViewNode>(child);
-  auto text_span = text_node->GetTextView()->GetTextSpan();
-  auto location = std::find(children_text_span_.begin(), children_text_span_.end(), text_span);
-  if (location != children_text_span_.end()) {
-    children_text_span_.erase(location);
-    GetTextView()->GetTextSpan()->SetChildren(children_text_span_);
-  }
 }
 
 void TextViewNode::SetText(const DomStyleMap& dom_style, TextStyle& text_style) {
@@ -154,21 +129,20 @@ void TextViewNode::SetText(const DomStyleMap& dom_style, TextStyle& text_style) 
     auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
     auto utf16_string =
         footstone::stringview::StringViewUtils::ConvertEncoding(unicode_str, footstone::string_view::Encoding::Utf16);
-    GetTextView()->GetTextSpan()->SetText(utf16_string.utf16_value());
+    GetTextView()->SetText(utf16_string.utf16_value());
   }
 }
 
 void TextViewNode::SetTextColor(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kColor); iter != dom_style.end()) {
-    text_style.setColor(util::ConversionIntToColor(static_cast<int64_t>(iter->second->ToDoubleChecked())));
+    text_style.color = util::ConversionIntToColor(static_cast<uint32_t>(iter->second->ToDoubleChecked()));
   }
 }
 
 void TextViewNode::SetFontSize(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kFontSize); iter != dom_style.end()) {
-    font_size_ = static_cast<SkScalar>(iter->second->ToDoubleChecked());
-    text_style.setFontSize(font_size_);
-    text_style.setHeight(line_height_ / font_size_);
+    font_size_ = static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
+    text_style.font_size = font_size_;
   }
 }
 
@@ -179,11 +153,9 @@ void TextViewNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_s
       font_weight_ = dom_value->ToStringChecked();
     } else {
       auto font_weight = dom_value->ToDoubleChecked();
-      if (font_weight > SkFontStyle::Weight::kMedium_Weight) {
+      if (font_weight > 500) {
         font_weight_ = "bold";
       }
-      auto font_style = SkFontStyle(font_weight, SkFontStyle::kNormal_Width, SkFontStyle::kUpright_Slant);
-      text_style.setFontStyle(font_style);
     }
     UpdateFontStyle(text_style);
   }
@@ -197,89 +169,51 @@ void TextViewNode::SetFontStyle(const DomStyleMap& dom_style, TextStyle& text_st
 }
 
 void TextViewNode::UpdateFontStyle(TextStyle& text_style) {
-  bool is_italic = false;
-  bool is_bold = false;
-  if (font_style_ == "italic") {
-    is_italic = true;
-  }
-  if (font_weight_ == "bold") {
-    is_bold = true;
-  }
-
-  if (is_italic && is_bold) {
-    auto font_style = SkFontStyle::BoldItalic();
-    text_style.setFontStyle(font_style);
-  } else if (is_bold) {
-    auto font_style = SkFontStyle::Bold();
-    text_style.setFontStyle(font_style);
-  } else if (is_italic) {
-    auto font_style = SkFontStyle::Italic();
-    text_style.setFontStyle(font_style);
-  }
+  text_style.bold = font_weight_ == "bold";
+  text_style.italic = font_style_ == "italic";
 }
 
 void TextViewNode::SetLineHeight(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kLineHeight); iter != dom_style.end()) {
-    if (iter->second->IsDouble()) {
-      line_height_ = iter->second->ToDoubleChecked();
-      text_style.setHeight(line_height_ / font_size_);
-      text_style.setHeightOverride(true);
-      text_style.setHalfLeading(true);
-    }
-  }
 }
 
-void TextViewNode::SetLetterSpacing(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kLetterSpacing); iter != dom_style.end()) {
-    auto letter_spacing = static_cast<SkScalar>(iter->second->ToDoubleChecked());
-    text_style.setLetterSpacing(letter_spacing);
+void TextViewNode::SetLetterSpacing(const DomStyleMap &dom_style,
+                                    TextStyle &text_style) {
+  if (auto iter = dom_style.find(text::kLetterSpacing);
+      iter != dom_style.end()) {
+    auto letter_spacing =
+        static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
+    text_style.letter_spacing = letter_spacing;
   }
 }
 
 void TextViewNode::SetFontFamily(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kFontFamily); iter != dom_style.end()) {
-    auto font_family = iter->second->ToStringChecked();
-    text_style.setFontFamilies({SkString(font_family.c_str())});
+    text_style.font_family = iter->second->ToStringChecked();
   }
 }
 
-void TextViewNode::SetDecorationLine(const DomStyleMap& dom_style, TextStyle& text_style) {
-  if (auto iter = dom_style.find(text::kTextDecorationLine); iter != dom_style.end()) {
-    auto text_decoration_line = iter->second->ToStringChecked();
-    TextDecoration decoration = TextDecoration::kNoDecoration;
-    if (text_decoration_line == "underline" || text_decoration_line == "underline line-through") {
-      decoration = TextDecoration::kUnderline;
-    } else if (text_decoration_line == "line-through") {
-      decoration = TextDecoration::kLineThrough;
-    }
-    text_style.setDecoration(decoration);
+void TextViewNode::SetDecorationLine(const DomStyleMap &dom_style,
+                                     TextStyle &text_style) {
+  if (auto iter = dom_style.find(text::kTextDecorationLine);
+      iter != dom_style.end()) {
   }
 }
 
 void TextViewNode::SetTextShadowOffset(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowOffset); iter != dom_style.end()) {
     auto value_object = iter->second->ToObjectChecked();
-    // todo remove use of hippy namespace
-    auto width_value = value_object.find("width")->second.ToDoubleChecked();
-    auto height_value = value_object.find("height")->second.ToDoubleChecked();
-    text_shadow_.fOffset = tdfcore::TPoint::Make(width_value, height_value);
     has_shadow_ = true;
   }
 }
 
 void TextViewNode::SetTextShadowColor(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowColor); iter != dom_style.end()) {
-    text_shadow_.fColor = util::ConversionIntToColor(static_cast<int64_t>(iter->second->ToDoubleChecked()));
     has_shadow_ = true;
   }
 }
 
 void TextViewNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
   if (auto iter = dom_style.find(text::kTextShadowRadius); iter != dom_style.end()) {
-    auto text_shadow_radius = iter->second->ToDoubleChecked();
-    /// TODO(kloudwang) 这里SkBlurMask的计算应该要在tdfcore加一层包装，这里不应该直接依赖skia,后期tdf core
-    /// 去skia，直接依赖skia就会有问题
-    text_shadow_.fBlurSigma = SkBlurMask::ConvertRadiusToSigma(text_shadow_radius);
     has_shadow_ = true;
   }
 }
@@ -287,7 +221,7 @@ void TextViewNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
 void TextViewNode::SetLineSpacingMultiplier(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kLineSpacingMultiplier); iter != dom_style.end()) {
     // todo(kloudwang) 设置行间距
-    auto line_spacing_multiplier = iter->second->ToDoubleChecked();
+    //auto line_spacing_multiplier = iter->second->ToDoubleChecked();
   }
 }
 
@@ -297,19 +231,14 @@ void TextViewNode::SetLineSpacingExtra(const DomStyleMap& dom_style, TextStyle& 
 
 void TextViewNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kNumberOfLines); iter != dom_style.end()) {
-    auto number_of_lines = 1;
-    if (iter->second->IsDouble()) {
-      number_of_lines = iter->second->ToDoubleChecked();
-    }
-    auto lines = number_of_lines == 0 ? 1 : number_of_lines;
-    text_view->SetMaxLines(lines);
   }
 }
 
 void TextViewNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kTextAlign); iter != dom_style.end()) {
+    // TODO
     auto text_align = iter->second->ToStringChecked();
-    TextAlign sk_text_align = TextAlign::kStart;
+    TextAlign sk_text_align = tdfcore::TextAlign::kLeft;
     if (text_align == "auto" || text_align == "left") {
       sk_text_align = TextAlign::kLeft;
     } else if (text_align == "right") {
@@ -317,7 +246,7 @@ void TextViewNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<Te
     } else if (text_align == "center") {
       sk_text_align = TextAlign::kCenter;
     } else if (text_align == "justify") {
-      sk_text_align = TextAlign::kJustify;
+      sk_text_align = TextAlign::kJustifyLastLineLeft;
     }
     text_view->SetTextAlign(sk_text_align);
   }
