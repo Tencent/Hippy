@@ -110,7 +110,7 @@ const HippyEvent = {
     }
     return 0;
   },
-  emit(event: string | undefined, param?: any) {
+  emit(event: string | undefined, ...param: any) {
     if (typeof event !== 'string') {
       throw new TypeError('The event argument is not string for HippyEvent.emit()');
     }
@@ -119,7 +119,7 @@ const HippyEvent = {
       warn(`Event [${event}] has not been registered yet in HippyEvent`);
       return HippyEvent;
     }
-    eventHub.notifyEvent(param);
+    eventHub.notifyEvent(...param);
     return HippyEvent;
   },
 };
