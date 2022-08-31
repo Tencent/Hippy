@@ -1,6 +1,12 @@
-# 终端事件
+# 事件
 
 有一些事件不是发给单个 UI，而是发给整个业务的，例如屏幕的翻转、网络的变化等等，我们称之它为 `终端事件`。
+
+Hippy 提供了两种方式来管理全局事件:
+
++ `Hippy.on`、`Hippy.off`、`Hippy.emit` 是框架无关的全局事件 EventBus，主要用来监听如 `dealloc`、`destroyInstance` 等特殊 C++ 底层事件，也可以手动定制 JS 内的全局事件。
+
++ `HippyEventEmitter` 和 `HippyEvent`(2.15.0后支持) 是 HippyReact 定制的 EventBus，除了可以手动定制 JS 内的全局事件外，所有全局 `NativeEvent` 都由其来分发，如 `rotate` 事件等。
 
 ---
 
@@ -78,20 +84,20 @@ HippyEvent.off('rotate');
 
 ### emit
 
-`(event: string, param?: any) => HippyEvent` 用于触发对应事件，返回 `HippyEvent` 对象可用于链式调用。
+`(event: string, ...param: any) => HippyEvent` 用于触发对应事件，返回 `HippyEvent` 对象可用于链式调用。
 
 > + event: string - 指定事件名称，只能传单个事件。
-> + param?: any - 可选参数，用作回调函数的参数。
+> + ...param: any - 可选，支持发送多个参数，用作回调函数的参数。
 
 
 ```js
 import { HippyEvent } from '@hippy/react';
-const rotateCallback = (data) => {
-  console.log('rotate data', data && data.orientation);
+const rotateCallback = (data1, data2) => {
+  console.log('rotate data', data1, data2);
 }
 HippyEvent.on('rotate', rotateCallback);
 // 触发 rotate 事件，并携带参数
-HippyEvent.emit('rotate', { orientation: 'vertical' });
+HippyEvent.emit('rotate', { orientation: 'vertical' }, { degree: '90' });
 ```
 
 ### sizeOf
