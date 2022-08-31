@@ -23,8 +23,14 @@ import { unCacheNodeOnIdle } from '../util/node';
 
 const namespaceMap = {};
 
-function createElement(name) {
-  return document.createElement(name);
+function createElement(name, vnode) {
+  const elm = document.createElement(name);
+  // If it is root container, Vue would not call createElement, which resulted in id attribute missed to set.
+  // So set id explicitly.
+  if (vnode && vnode.data && vnode.data.attrs && vnode.data.attrs.id) {
+    elm.setAttribute('id', vnode.data.attrs.id, { notToNative: true });
+  }
+  return elm;
 }
 
 function createElementNS(namespace, name) {

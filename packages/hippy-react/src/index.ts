@@ -22,6 +22,7 @@ import './global';
 import {
   HippyEventEmitter,
   HippyEventListener,
+  HippyEvent,
 } from './event';
 import { colorParse } from './color';
 import HippyReact from './hippy';
@@ -109,6 +110,7 @@ export {
   RNfqbEventEmitter,
   RNfqbEventListener,
   HippyRegister,
+  HippyEvent,
   HippyEventEmitter,
   HippyEventListener,
   AsyncStorage,

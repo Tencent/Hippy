@@ -111,13 +111,13 @@ import icon from './qb_icon_new.png';
 | onWillAppear     | 当有`ListViewItem`至少一个像素进入屏幕时（曝光）触发，入参返回曝光的`ListViewItem`对应索引值。 `最低支持版本2.3.0` | `(index) => void` | `Android、iOS` |
 | onWillDisappear     | 当有`ListViewItem`至少一个像素滑动离开屏幕时触发，入参返回离开的`ListViewItem`对应索引值。 `最低支持版本2.3.0`| `(index) => void` | `Android、iOS` |
 | onEndReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onMomentumScrollBegin | 在 `ListView` 开始滑动的时候触发。                          | `Function`                                                  | `Android、iOS、Web-Renderer`    |
-| onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候触发。                          | `Function`                                                  | `Android、iOS、Web-Renderer`    |
-| onScroll              | 在 `ListView` 滑动时回调。调用频率可能较高，可使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向 ListView 时，Android 在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onScrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `Android、iOS、Web-Renderer`    |
-| onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动时调用 | `Function`                                                  | `Android、iOS、Web-Renderer`    |
+| onMomentumScrollBegin | 在 `ListView` 开始滑动的时候触发。                          | `(obj: { contentOffset: { x: number, y: number } }) => any`   | `Android、iOS、Web-Renderer`    |
+| onMomentumScrollEnd   | 在 `ListView` 结束滑动的时候触发。                          | `(obj: { contentOffset: { x: number, y: number } }) => any`   | `Android、iOS、Web-Renderer`    |
+| onScroll              | 在 `ListView` 滑动时回调。调用频率可能较高，可使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向 ListView Android 在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `(obj: { contentOffset: { x: number, y: number } }) => any`     | `Android、iOS、Web-Renderer`    |
+| onScrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动时调用 | `(obj: { contentOffset: { x: number, y: number } }) => any`    | `Android、iOS、Web-Renderer`    |
 | preloadItemNumber     | 指定当列表滚动至倒数第几行时触发 `onEndReached` 回调。 | `number` | `Android、iOS、Web-Renderer` |
-| renderRow             | 这里的入参是当前行的索引 index，需返回 Node 节点。在这里可以凭借 index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| renderRow             | 这里的入参是当前行的索引 index，需返回一个用于构造 `ListViewItem` 内容的 Node 节点。在这里可以凭借 index 获取到具体这一行单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => Node`                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | rowShouldSticky       | 在回调函数，根据传入参数index（ListView单元格的index）返回 true 或 false 指定对应的 item 是否需要使用悬停效果（滚动到顶部时，会悬停在List顶部，不会滚出屏幕）。 | `(index: number) => boolean`                                | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollEventThrottle   | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 事件 | `number`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollEnabled    | 滑动是否开启。`default: true` | `boolean` | `Android、iOS、hippy-react-web、Web-Renderer` |
@@ -235,11 +235,11 @@ import icon from './qb_icon_new.png';
 | bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
 | contentContainerStyle          | 这些样式会应用到一个内层的内容容器上，所有的子视图都会包裹在内容容器内。 | `StyleSheet`                                                 | `Android、iOS、hippy-react-web、Web-Renderer` |
 | horizontal                     | 当此属性为 `true` 的时候，所有的子视图会在水平方向上排成一行，而不是默认的在垂直方向上排成一列 | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onMomentumScrollBegin          | 在 `ScrollView` 滑动开始的时候调起。                         | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onMomentumScrollEnd            | 在 `ScrollView` 滑动结束的时候调起。                         | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onScroll                       | 在滚动的过程中，每帧最多调用一次此回调函数。                 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onScrollBeginDrag              | 当用户开始拖拽 `ScrollView` 时调用。                         | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
-| onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。 | `Function`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onMomentumScrollBegin          | 在 `ScrollView` 滑动开始的时候调起。                         | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onMomentumScrollEnd            | 在 `ScrollView` 滑动结束的时候调起。                         | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScroll                       | 在滚动的过程中，每帧最多调用一次此回调函数。                 | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollBeginDrag              | 当用户开始拖拽 `ScrollView` 时调用。                         | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onScrollEndDrag                | 当用户停止拖拽 `ScrollView` 或者放手让 `ScrollView` 开始滑动的时候调用。 | `(obj: { contentOffset: { x: number, y: number } }) => any`                                                   | `Android、iOS、hippy-react-web、Web-Renderer` |
 | pagingEnabled                  | 当值为 `true` 时，滚动条会停在滚动视图的尺寸的整数倍位置。这个可以用在水平分页上。`default: false` | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
@@ -348,7 +348,7 @@ import icon from './qb_icon_new.png';
 * breakStrategy 的参数含义：
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
-  * `blanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
+  * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
 
 ## 方法
 
@@ -411,7 +411,7 @@ import icon from './qb_icon_new.png';
 * breakStrategy 的参数含义：
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
-  * `blanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
+  * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
 
 
 ---
