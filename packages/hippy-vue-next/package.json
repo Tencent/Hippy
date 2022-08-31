@@ -28,8 +28,7 @@
   ],
   "dependencies": {
     "@vue/runtime-core": "^3.2.21",
-    "@vue/shared": "^3.2.21",
-    "tiny-emitter": "2.1.0"
+    "@vue/shared": "^3.2.21"
   },
   "jest": {
     "moduleNameMapper": {
