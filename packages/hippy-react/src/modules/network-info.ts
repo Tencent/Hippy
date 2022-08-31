@@ -95,16 +95,16 @@ function removeEventListener(eventName: string, listener?: NetInfoRevoker | Netw
   if (eventName === 'change') {
     event = DEVICE_CONNECTIVITY_EVENT;
   }
-  const count = NetInfoEventEmitter.listenerSize(event);
-  if (count <= 1) {
-    Bridge.callNative('NetInfo', 'removeListener', event);
-  }
   const handler = subscriptions.get(listener);
   if (!handler) {
     return;
   }
   handler.remove();
   subscriptions.delete(listener);
+  const count = NetInfoEventEmitter.listenerSize(event);
+  if (count < 1) {
+    Bridge.callNative('NetInfo', 'removeListener', event);
+  }
 }
 
 /**

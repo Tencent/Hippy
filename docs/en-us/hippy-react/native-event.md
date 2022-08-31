@@ -2,6 +2,12 @@
 
 Some events are not sent to a single UI, but to the entire business, such as screen flips, network changes, etc., we call it `native events`.
 
+Hippy provides two methods to manage global events:
+
++ `Hippy.on`, `Hippy.off`, `Hippy.emit` is framework-less EventBus, mainly to listen to some special C++ events such as `dealloc`, `destroyInstance`. It can be also used to customize JS global events. 
+
++ `HippyEventEmitter` and `HippyEvent`(supported after 2.15.0) is HippyReact EventBus, which not only being used to customize JS global events, but also to handle all `NativeEvent` dispatching, such as `rotate` event.
+
 ---
 
 # Event Listener
@@ -78,20 +84,20 @@ HippyEvent.off('rotate');
 
 ### emit
 
-`(event: string, param?: any) => HippyEvent` used to trigger event, `HippyEvent` object is returned for chaining call.
+`(event: string, ...param: any) => HippyEvent` used to trigger event, `HippyEvent` object is returned for chaining call.
 
 > + event: string - specify the event name, only single event supported.
-> + param?: any - optional parameter，used as the arguments of callback function.
+> + ...param: any - optional, support to send multiple parameters, used as the arguments of callback function.
 
 
 ```js
 import { HippyEvent } from '@hippy/react';
-const rotateCallback = (data) => {
-  console.log('rotate data', data && data.orientation);
+const rotateCallback = (data1, data2) => {
+  console.log('rotate data', data1, data2);
 }
 HippyEvent.on('rotate', rotateCallback);
 // Trigger rotate event with orientation paramters
-HippyEvent.emit('rotate', { orientation: 'vertical' });
+HippyEvent.emit('rotate', { orientation: 'vertical' }, { degree: '90' });
 ```
 
 ### sizeOf
