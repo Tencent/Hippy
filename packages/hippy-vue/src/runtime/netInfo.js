@@ -86,9 +86,6 @@ function removeEventListener(eventName, listener) {
   if (eventName === 'change') {
     event = DEVICE_CONNECTIVITY_EVENT;
   }
-  if (subscriptions.size <= 1) {
-    Native.callNative('NetInfo', 'removeListener', event);
-  }
   const handler = subscriptions.get(listener);
   if (!handler) {
     return;
@@ -101,6 +98,9 @@ function removeEventListener(eventName, listener) {
     handler,
   );
   subscriptions.delete(listener);
+  if (subscriptions.size < 1) {
+    Native.callNative('NetInfo', 'removeListener', event);
+  }
 }
 
 /**
