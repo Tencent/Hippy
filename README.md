@@ -112,7 +112,6 @@ Before build the android app, please make sure the SDK and NDK is installed, And
 4. Run `npm run hippy:vendor` and `npm run hippy:build` in sequence to build the production `vendor.[android|ios].js` and `index.[android|ios].js`.
 
 > Hippy demo uses DllPlugin to split the common chunk and app chunk.
-> Vue-Next demo do not use vendor chunk, so Vue-Next demo no need to run hippy:vendor
 
 ### How to Integrate
 

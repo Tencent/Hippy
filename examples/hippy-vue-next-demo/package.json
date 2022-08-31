@@ -9,6 +9,7 @@
   "scripts": {
     "hippy:debug": "hippy-debug",
     "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/webpack.dev.js",
+    "hippy:vendor": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/webpack.ios-vendor.js --config ./scripts/webpack.android-vendor.js",
     "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/webpack.ios.js --config ./scripts/webpack.android.js"
   },
   "dependencies": {
