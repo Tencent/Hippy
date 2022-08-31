@@ -29,25 +29,3 @@ export function warn(...context: NeedToTyped[]): void {
   // eslint-disable-next-line no-console
   console.warn(...context);
 }
-
-// regular expression of number
-const numberRegEx = new RegExp('^(?=.+)[+-]?\\d*\\.?\\d*([Ee][+-]?\\d+)?$');
-
-/**
- * convert string to number
- *
- * @param str - target string
- */
-export function tryConvertNumber(str: string | number): string | number {
-  if (typeof str === 'number') {
-    return str;
-  }
-  if (numberRegEx.test(str)) {
-    try {
-      return parseFloat(str);
-    } catch (err) {
-      // pass
-    }
-  }
-  return str;
-}
