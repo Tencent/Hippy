@@ -21,25 +21,124 @@
 /**
  * Hippy event bus, methods such as on off emit in Vue3 have been removed, and the event bus is implemented here
  */
+import type { CallbackType, NeedToTyped } from '../../config';
 
-import { TinyEmitter } from 'tiny-emitter';
-import type { NeedToTyped } from '../../config';
-
-const emitter = new TinyEmitter();
+// all global event listeners
+let globalEventListeners = Object.create(null);
 
 /**
- * use emitter to achieve event bus
- *
- * @public
+ * EventBus for global event handle
  */
-export const EventBus: {
-  $on: (...arg: NeedToTyped) => void;
-  $off: (...arg: NeedToTyped) => void;
-  $once: (...arg: NeedToTyped) => void;
-  $emit: (...arg: NeedToTyped) => void;
-} = {
-  $on: (...args: NeedToTyped[]) => emitter.on(args[0], args[1], args[2]),
-  $off: (...args: NeedToTyped[]) => emitter.off(args[0], args[1]),
-  $once: (...args: NeedToTyped[]) => emitter.once(args[0], args[1], args[2]),
-  $emit: (...args: NeedToTyped[]) => emitter.emit(args[0], ...args.slice(1)),
+export const EventBus = {
+  /**
+   * add event listener
+   *
+   * @param event
+   * @param callback
+   * @param ctx
+   */
+  $on(event: string | Array<string>, callback: CallbackType, ctx?: NeedToTyped) {
+    if (Array.isArray(event)) {
+      event.forEach((eventName) => {
+        EventBus.$on(eventName, callback, ctx);
+      });
+    } else {
+      // init event listeners
+      if (!globalEventListeners[event]) {
+        globalEventListeners[event] = [];
+      }
+
+      // add listener
+      globalEventListeners[event].push({
+        fn: callback,
+        ctx,
+      });
+    }
+
+    return EventBus;
+  },
+
+  /**
+   * add event listener, only execute once
+   *
+   * @param event
+   * @param callback
+   * @param ctx
+   */
+  $once(event: string, callback: CallbackType, ctx?: NeedToTyped) {
+    function listener() {
+      EventBus.$off(event, listener);
+      callback.apply(ctx, arguments);
+    }
+
+    listener._ = callback;
+    EventBus.$on(event, listener);
+
+    return EventBus;
+  },
+
+  /**
+   * emit event
+   *
+   * @param event
+   */
+  $emit(event: string) {
+    const data = [].slice.call(arguments, 1);
+    const callbackList = (globalEventListeners[event] || []).slice();
+    const len = callbackList.length;
+
+    for (let i = 0; i < len; i += 1) {
+      callbackList[i].fn.apply(callbackList[i].ctx, data);
+    }
+
+    return EventBus;
+  },
+
+  /**
+   * remove global event listener. remove all if no params
+   *
+   * @param event
+   * @param callback
+   */
+  $off(event?: string | Array<string>, callback?: CallbackType) {
+    if (!event && !callback) {
+      // remove all event listener
+      globalEventListeners = Object.create(null);
+
+      return EventBus;
+    }
+
+    // handle array of events
+    if (Array.isArray(event)) {
+      event.forEach((eventName) => {
+        EventBus.$off(eventName, callback);
+      });
+
+      return EventBus;
+    }
+
+    // specific event
+    const callbackList = globalEventListeners[event!];
+    if (!callbackList) {
+      return EventBus;
+    }
+    if (!callback) {
+      globalEventListeners[event!] = null;
+      return EventBus;
+    }
+
+    // specific handler
+    let existCallback;
+    const len = callbackList.length;
+    for (let i = 0; i < len; i++) {
+      existCallback = callbackList[i];
+      if (existCallback.fn === callback || existCallback.fn._ === callback) {
+        // remove specific listener
+        callbackList.splice(i, 1);
+        break;
+      }
+    }
+
+    return EventBus;
+  },
 };

@@ -43,15 +43,74 @@ describe('runtime/event/event-bus.ts', () => {
     EventBus.$emit('change');
     EventBus.$emit('change');
     expect(sign).toEqual(3);
+    sign = 1;
+    const plusOne = () => {
+      sign += 1;
+    };
+    const plusTwo = () => {
+      sign += 2;
+    };
+    EventBus.$on('add', plusOne);
+    EventBus.$on('add', plusTwo);
+    EventBus.$emit('add');
+    expect(sign).toEqual(4);
+    EventBus.$emit('add');
+    expect(sign).toEqual(7);
+    EventBus.$off('add', plusTwo);
+    EventBus.$emit('add');
+    expect(sign).toEqual(8);
+    EventBus.$off('add', plusOne);
+    EventBus.$emit('add');
+    expect(sign).toEqual(8);
 
+
+    sign = 1;
+    EventBus.$on(['click', 'input'], () => {
+      sign += 1;
+    });
+    EventBus.$emit('click');
+    expect(sign).toEqual(2);
+    EventBus.$emit('input');
+    expect(sign).toEqual(3);
+    EventBus.$emit('input');
+    EventBus.$emit('click');
+    expect(sign).toEqual(5);
+    EventBus.$off(['click', 'input']);
+    EventBus.$emit('input');
+    EventBus.$emit('click');
+    EventBus.$emit('input');
+    EventBus.$emit('click');
+    expect(sign).toEqual(5);
+
+    sign = 1;
     EventBus.$once('change', () => {
       sign += 1;
     });
     EventBus.$emit('change');
-    expect(sign).toEqual(4);
+    expect(sign).toEqual(2);
     EventBus.$emit('change');
     EventBus.$emit('change');
     EventBus.$emit('change');
-    expect(sign).toEqual(4);
+    expect(sign).toEqual(2);
+
+    sign = 1;
+    EventBus.$on('addOne', () => {
+      sign += 1;
+    });
+    EventBus.$on('addTwo', () => {
+      sign += 2;
+    });
+    EventBus.$on('addThree', () => {
+      sign += 3;
+    });
+    EventBus.$emit('addOne');
+    EventBus.$emit('addTwo');
+    EventBus.$emit('addThree');
+    expect(sign).toEqual(7);
+    EventBus.$off();
+    EventBus.$emit('addOne');
+    EventBus.$emit('addTwo');
+    EventBus.$emit('addThree');
+    expect(sign).toEqual(7);
   });
 });
