@@ -237,6 +237,7 @@ export function registerWaterfall(vueApp: App): void {
           ref: 'waterfall',
           numberOfColumns: this.numberOfColumns,
           contentInset: this.contentInset,
+          columnSpacing: this.columnSpacing,
           interItemSpacing: this.interItemSpacing,
           preloadItemNumber: this.preloadItemNumber,
           containBannerView: this.containBannerView,

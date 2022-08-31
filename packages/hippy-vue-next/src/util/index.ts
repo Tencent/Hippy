@@ -266,7 +266,8 @@ export function getEventRedirects(
 
   events.forEach((event) => {
     /**
-     * For the case of array, exposedEventName has been declared in vue, so nativeEvent needs to be handled
+     * For the case of array, exposedEventName has been declared in vue, so nativeEvent needs to be handled,
+     * because native recognize onXXX event name, do not recognize original event name like "dropped"
      * For the case of non-array, because vue has already processed the attribute into onXXX type,
      * there is no need to deal with it here.
      */
