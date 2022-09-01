@@ -37,7 +37,9 @@
 
 #include "renderer/tdf/viewnode/scroll_view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 inline namespace listview {
 constexpr const char kListViewItem[] = "ListViewItem";
@@ -129,3 +131,5 @@ class ListViewNode : public ScrollViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

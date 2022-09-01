@@ -31,15 +31,17 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #include "core/support/text/text_base.h"
-#include "tdfview/text/text_view.h"
 #include "tdfview/text/cupertino_text_selection_control.h"
+#include "tdfview/text/text_view.h"
 #include "tdfview/view_context.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/view_names.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 inline namespace text {
 constexpr const char kText[] = "text";                                    // String
@@ -117,3 +119,5 @@ class TextViewNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

@@ -25,7 +25,9 @@
 #include "renderer/tdf/viewnode/root_view_node.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 inline namespace listviewitem {
 constexpr const char kViewType[] = "type";
@@ -90,9 +92,7 @@ void ListViewNode::OnDetach() {
   list_view->RemoveScrollUpdateListener(on_reach_end_listener_id_);
 }
 
-void ListViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
-  ScrollViewNode::HandleStyleUpdate(dom_style);
-}
+void ListViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) { ScrollViewNode::HandleStyleUpdate(dom_style); }
 
 void ListViewNode::HandleEndReachedEvent() {
   ViewNode::SendUIDomEvent(kEndreached);
@@ -137,24 +137,29 @@ std::shared_ptr<tdfcore::View> ListViewDataSource::GetItem(
     int64_t index, const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
-  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
+  auto node =
+      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
   return node->CreateView();
 }
 
-int64_t ListViewDataSource::GetItemCount() { return static_cast<int64_t>(list_view_node_.lock()->GetChildren().size()); }
+int64_t ListViewDataSource::GetItemCount() {
+  return static_cast<int64_t>(list_view_node_.lock()->GetChildren().size());
+}
 
 void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore::View>& item,
                                     const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
-  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
+  auto node =
+      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
   node->Attach(item);
 }
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
-  auto node = std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
+  auto node =
+      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
   /// TODO(kloudwang) 复用机制还有点问题，临时先屏蔽
   // return node->GetViewType();
   return index;
@@ -167,3 +172,5 @@ bool ListViewDataSource::IsItemSticky(int64_t index) {
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

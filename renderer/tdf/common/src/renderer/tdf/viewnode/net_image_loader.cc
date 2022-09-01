@@ -21,7 +21,9 @@
 #include "renderer/tdf/viewnode/net_image_loader.h"
 #include "footstone/logging.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 NetImageLoader::NetImageLoader(std::string_view scheme, UriDataGetter uri_data_getter)
     : scheme_(scheme), uri_data_getter_(uri_data_getter) {
@@ -51,3 +53,5 @@ std::shared_ptr<tdfcore::Task> NetImageLoader::Load(const std::string &url, cons
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

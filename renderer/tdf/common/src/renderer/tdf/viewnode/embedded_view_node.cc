@@ -32,7 +32,9 @@
 #include "tdfview/embedded_view.h"
 #pragma clang diagnostic pop
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 static constexpr const char kNodeInfoProps[] = "props";
 
@@ -50,3 +52,5 @@ void EmbeddedViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

@@ -22,7 +22,9 @@
 
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 class ImageViewNode : public ViewNode {
  public:
@@ -44,3 +46,5 @@ class ImageViewNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

@@ -26,7 +26,9 @@
 #include "core/support/image/image_load_manager.h"
 #include "footstone//string_view_utils.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 using StringView = footstone::string_view;
 using DataCb = std::function<void(StringView::u8string)>;
@@ -46,3 +48,5 @@ class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_fr
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

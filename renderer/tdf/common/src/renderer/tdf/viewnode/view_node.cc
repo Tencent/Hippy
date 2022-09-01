@@ -32,7 +32,9 @@
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 using footstone::check::checked_numeric_cast;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
@@ -121,12 +123,12 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
   // kNextFocusDownId  / kNextFocusLeftId  / kNextFocusRightId / kNextFocusUpId
 
-  if (auto it = dom_style.find(hippy::kOpacity); it != map_end) {
+  if (auto it = dom_style.find(hippy::dom::kOpacity); it != map_end) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetOpacity(static_cast<float>(it->second->ToDoubleChecked()));
   }
 
-  if (auto it = dom_style.find(hippy::kOverflow); it != map_end) {
+  if (auto it = dom_style.find(hippy::dom::kOverflow); it != map_end) {
     // TODO(vimerzhao) not support yet.
   }
 
@@ -141,7 +143,7 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
   // kTouchdown / kTouchend / kTouchmove / kTransform will will handled in ViewNode::OnAddEventListener
 
-  if (auto it = dom_style.find(hippy::kZIndex); it != map_end) {
+  if (auto it = dom_style.find(hippy::dom::kZIndex); it != map_end) {
     view->SetZIndex(it->second->ToInt32Checked());
   }
 }
@@ -246,12 +248,12 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
 
   if (auto it = dom_style.find(kSkewX); it != dom_style.end()) {
     auto skew_x = static_cast<float>(it->second->ToDoubleChecked());
-    transform.setRC(0,1, skew_x);
+    transform.setRC(0, 1, skew_x);
   }
 
   if (auto it = dom_style.find(kSkewY); it != dom_style.end()) {
     auto skew_y = static_cast<float>(it->second->ToDoubleChecked());
-    transform.setRC(1,0,skew_y);
+    transform.setRC(1, 0, skew_y);
   }
   return transform;
 }
@@ -467,3 +469,5 @@ void ViewNode::Detach(bool sync_to_view_tree) {
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

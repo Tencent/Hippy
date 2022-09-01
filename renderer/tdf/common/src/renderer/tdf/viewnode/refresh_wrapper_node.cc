@@ -22,7 +22,9 @@
 
 #include "renderer/tdf/viewnode/view_names.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 constexpr const char kRefreshEvent[] = "refresh";
 
@@ -94,3 +96,5 @@ void RefreshWrapperNode::CallFunction(const std::string& name, const DomArgument
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

@@ -24,7 +24,9 @@
 #include "core/common/rect.h"
 #include "core/common/scalar.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 inline namespace view {
 
 using tdfcore::TPoint;
@@ -94,8 +96,7 @@ void ViewPager::Layout() {
       content_extent_size_ += child->GetFrame().Height();
     }
   }
-  content_extent_size_ +=
-      static_cast<float>((GetChildren().size() - 1)) * page_margin_;
+  content_extent_size_ += static_cast<float>((GetChildren().size() - 1)) * page_margin_;
 
   if (IsHorizontal()) {
     SetContentRect(TRect::MakeLTRB(0, 0, content_extent_size_, GetFrame().Height()));
@@ -171,3 +172,5 @@ void ViewPager::SwitchPrevPage() { SwitchToPage(current_page_ - 1, true); }
 
 }  // namespace view
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

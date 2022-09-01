@@ -37,7 +37,9 @@
 #include "tdfview/view_context.h"
 #pragma clang diagnostic pop
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 inline namespace view {
 
 using tdfcore::TRect;
@@ -51,16 +53,23 @@ using OnOrientationChangeCallBack = std::function<void()>;
 class ModalView : public View {
   TDF_REFF_CLASS_META(ModalView)
 
-public:
+ public:
   ~ModalView() override;
+
   ModalView();
 
   void AddView(const std::shared_ptr<View> &child) override;
+
   void AddView(const std::shared_ptr<View> &child, int64_t index) override;
+
   void RemoveView(const std::shared_ptr<View> &child) override;
+
   void InternalSetBackgroundColor(tdfcore::Color color) override;
+
   void InternalSetFrame(const TRect &frame) override;
+
   void Mount() override;
+
   void Unmount() override;
 
   /**
@@ -91,10 +100,9 @@ public:
    * @brief set orientation changed callback
    * @param change_callback 回调
    */
-  void SetOrientationChangeCallback(
-      const OnOrientationChangeCallBack &change_callback);
+  void SetOrientationChangeCallback(const OnOrientationChangeCallBack &change_callback);
 
-private:
+ private:
   bool is_immersion_status_bar = false;
   OnShowCallBack show_callback_;
   OnDismissCallBack dismiss_callback_;
@@ -102,11 +110,14 @@ private:
   OnOrientationChangeCallBack orientation_change_callback_;
   std::shared_ptr<View> modal_view_;
   std::shared_ptr<View> root_view_;
+
   FRIEND_OF_TDF_ALLOC;
 };
 
-} // namespace view
-} // namespace tdfrender
+}  // namespace view
+}  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy
 
-TDF_REFL_DEFINE(tdfrender::view::ModalView, bases<tdfcore::View>)
+TDF_REFL_DEFINE(hippy::render::tdfrender::view::ModalView, bases<tdfcore::View>)
 TDF_REFL_END(tdfrender::view::ModalView)

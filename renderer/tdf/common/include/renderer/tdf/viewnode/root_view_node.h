@@ -23,7 +23,9 @@
 #include "dom/root_node.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 class RootViewNode : public ViewNode {
  public:
@@ -69,3 +71,5 @@ class RootViewNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

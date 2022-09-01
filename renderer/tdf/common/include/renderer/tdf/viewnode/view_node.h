@@ -45,8 +45,9 @@
     return;                     \
   }
 
-namespace tdfrender {
-
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 inline namespace view {
 constexpr const char kView[] = "View";
 constexpr const char kAccessibilityLabel[] = "accessibilityLabel";                          // String
@@ -144,6 +145,7 @@ constexpr const tdfcore::Color kDefaultTextColor = tdfcore::Color::Black();
 }  // namespace defaultvalue
 
 class ViewNode;
+
 class RootViewNode;
 
 /*
@@ -159,6 +161,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   using Point = tdfcore::TPoint;
 
   ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view = nullptr);
+
   virtual ~ViewNode() = default;
 
   static node_creator GetViewNodeCreator();
@@ -183,7 +186,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief Be called when a related DomNode is Updated.
    */
-  void OnUpdate(hippy::DomNode& dom_node);
+  void OnUpdate(hippy::DomNode &dom_node);
 
   /**
    * @brief Be called when a related DomNode is Deleted.
@@ -192,27 +195,27 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual void HandleLayoutUpdate(hippy::LayoutResult layout_result);
 
-  virtual void OnAddEventListener(uint32_t id, const std::string& name);
+  virtual void OnAddEventListener(uint32_t id, const std::string &name);
 
-  virtual void OnRemoveEventListener(uint32_t id, const std::string& name);
+  virtual void OnRemoveEventListener(uint32_t id, const std::string &name);
 
   virtual std::string GetViewName() const { return "View"; }
 
-  virtual void CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) {}
+  virtual void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) {}
 
   void SetRootNode(std::weak_ptr<RootViewNode> root_node) { root_node_ = root_node; }
 
-  static tdfcore::Color ParseToColor(const std::shared_ptr<footstone::HippyValue>& value);
+  static tdfcore::Color ParseToColor(const std::shared_ptr<footstone::HippyValue> &value);
 
   std::shared_ptr<ViewNode> GetSharedPtr() { return shared_from_this(); }
 
-  uint64_t AddLayoutUpdateListener(const std::function<void(tdfcore::TRect)>& listener) {
+  uint64_t AddLayoutUpdateListener(const std::function<void(tdfcore::TRect)> &listener) {
     return layout_listener_.Add(listener);
   }
 
   void RemoveLayoutUpdateListener(uint64_t id) { layout_listener_.Remove(id); }
 
-  const RenderInfo& GetRenderInfo() const { return render_info_; }
+  const RenderInfo &GetRenderInfo() const { return render_info_; }
 
   std::shared_ptr<hippy::DomNode> GetDomNode() const;
 
@@ -222,7 +225,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
    * @brief attach current ViewNode to a tdfcore::View
    *        if view != nullptr(ListViewItem for example),then reuse it.Otherwise create a new tdfcore::View
    */
-  void Attach(const std::shared_ptr<tdfcore::View>& view = nullptr);
+  void Attach(const std::shared_ptr<tdfcore::View> &view = nullptr);
 
   /**
    * @brief detach current ViewNode to a tdfcore::View.
@@ -253,29 +256,29 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   std::shared_ptr<RootViewNode> GetRootNode() const;
 
-  virtual void HandleStyleUpdate(const DomStyleMap& dom_style);
+  virtual void HandleStyleUpdate(const DomStyleMap &dom_style);
 
   /**
    * @brief create the related tdfcore::View when attach if needed.
    */
   virtual std::shared_ptr<tdfcore::View> CreateView();
 
-  void SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr) {
+  void SendGestureDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue> &value = nullptr) {
     SendUIDomEvent(type, value, true, true);
   }
 
-  void SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue>& value = nullptr,
+  void SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue> &value = nullptr,
                       bool can_capture = false, bool can_bubble = false);
 
   /**
    * @brief Be called in ViewNode::OnCreate(mount in the ViewNode Tree immediately after create)
    */
-  void AddChildAt(const std::shared_ptr<ViewNode>& dom_node, int32_t index);
+  void AddChildAt(const std::shared_ptr<ViewNode> &dom_node, int32_t index);
 
   /**
    * @brief Be called in ViewNode::OnDelete(unmount in the ViewNode Tree immediately after create)
    */
-  void RemoveChild(const std::shared_ptr<ViewNode>& child);
+  void RemoveChild(const std::shared_ptr<ViewNode> &child);
 
   /**
    * @brief Be called in ViewNode::OnDelete(unmount in the ViewNode Tree immediately after create)
@@ -286,12 +289,12 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief notify after the AddChild action(sync the tdfcore::View Tree)
    */
-  virtual void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index);
+  virtual void OnChildAdd(const std::shared_ptr<ViewNode> &child, int64_t index);
 
   /**
    * @brief notify before the RemoveChild action(sync the tdfcore::View Tree)
    */
-  virtual void OnChildRemove(const std::shared_ptr<ViewNode>& child);
+  virtual void OnChildRemove(const std::shared_ptr<ViewNode> &child);
 
   void SetParent(std::shared_ptr<ViewNode> parent) { parent_ = parent; }
 
@@ -314,11 +317,12 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual void HandleEventInfoUpdate();
 
-  tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view);
+  tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap &dom_style, std::shared_ptr<tdfcore::View> view);
 
  private:
-  void RegisterTapEvent(std::string&& event_type);
-  void RemoveTapEvent(std::string&& event_type);
+  void RegisterTapEvent(std::string &&event_type);
+
+  void RemoveTapEvent(std::string &&event_type);
 
   /**
    * @brief DomNode's RenderInfo.index is not always the related View's index, it may need to be corrected.
@@ -337,3 +341,5 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

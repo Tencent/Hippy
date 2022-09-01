@@ -35,33 +35,32 @@
 
 #include "footstone/hippy_value.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 namespace util {
 
 using Point = tdfcore::TPoint;
 using Color = tdfcore::Color;
-using DomStyleMap =
-    std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
+using DomStyleMap = std::unordered_map<std::string, std::shared_ptr<footstone::HippyValue>>;
 
 Color ConversionIntToColor(uint32_t value);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
-static bool ConvertDirectionToPoint(const std::string &direction,
-                                    Point &begin_point, Point &end_point);
+static bool ConvertDirectionToPoint(const std::string &direction, Point &begin_point, Point &end_point);
 #pragma clang diagnostic pop
 
-void ParseLinearGradientInfo(
-    tdfcore::View &view,
-    const footstone::HippyValue::HippyValueObjectType &gradient_map);
+void ParseLinearGradientInfo(tdfcore::View &view, const footstone::HippyValue::HippyValueObjectType &gradient_map);
 
 void ParseShadowInfo(tdfcore::View &view, const DomStyleMap &style_map);
 
 void ParseBorderInfo(tdfcore::View &view, const DomStyleMap &style_map);
 
-tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap &style_map, const char *width_name,
-                 const char *color_name, std::pair<float, tdfcore::Color> default_style);
+tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap &style_map, const char *width_name, const char *color_name,
+                                      std::pair<float, tdfcore::Color> default_style);
 
-} // namespace util
-} // namespace tdfrender
-
+}  // namespace util
+}  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

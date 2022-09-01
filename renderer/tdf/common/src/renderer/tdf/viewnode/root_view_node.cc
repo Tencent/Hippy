@@ -22,14 +22,14 @@
 #include "renderer/tdf/viewnode/base64_image_loader.h"
 #include "renderer/tdf/viewnode/net_image_loader.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 constexpr const char kUpdateFrame[] = "frameupdate";
 
-RootViewNode::RootViewNode(const RenderInfo info,
-                           const std::shared_ptr<tdfcore::Shell> &shell,
-                           const std::shared_ptr<hippy::DomManager> &manager,
-                           UriDataGetter getter)
+RootViewNode::RootViewNode(const RenderInfo info, const std::shared_ptr<tdfcore::Shell>& shell,
+                           const std::shared_ptr<hippy::DomManager>& manager, UriDataGetter getter)
     : ViewNode(info), shell_(shell), dom_manager_(manager), getter_(getter) {}
 
 void RootViewNode::Init() {
@@ -170,3 +170,5 @@ void RootViewNode::UpdateDomeRootNodeSize(tdfcore::ViewportMetrics viewport_metr
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

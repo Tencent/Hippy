@@ -18,12 +18,13 @@
  * limitations under the License.
  */
 
-
 #include "renderer/tdf/viewnode/scroll_view_node.h"
 
 #include <memory>
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView() {
   auto scroll_view = TDF_MAKE_SHARED(tdfcore::ScrollView);
@@ -136,7 +137,6 @@ void ScrollViewNode::InitDragEndListener() {
   };
 }
 
-
 #define RegisterListener(Event, listener)                                                            \
   void ScrollViewNode::Register##Event##Listener(std::shared_ptr<tdfcore::ScrollView> scroll_view) { \
     if (listener == nullptr) {                                                                       \
@@ -146,11 +146,9 @@ void ScrollViewNode::InitDragEndListener() {
   }
 
 // Called by CreateView
-RegisterListener(ScrollStart, scroll_start_listener_)
-RegisterListener(ScrollUpdate, scroll_update_listener_)
-RegisterListener(ScrollEnd, scroll_end_listener_)
-RegisterListener(DragStart, drag_start_listener_)
-RegisterListener(DragEnd, drag_end_listener_)
+RegisterListener(ScrollStart, scroll_start_listener_) RegisterListener(ScrollUpdate, scroll_update_listener_)
+    RegisterListener(ScrollEnd, scroll_end_listener_) RegisterListener(DragStart, drag_start_listener_)
+        RegisterListener(DragEnd, drag_end_listener_)
 #undef RegisterListener
 
 #define RemoveListener(Event, listener)                                                            \
@@ -160,14 +158,12 @@ RegisterListener(DragEnd, drag_end_listener_)
     }                                                                                              \
   }
 
-RemoveListener(ScrollStart, scroll_start_listener_)
-RemoveListener(ScrollUpdate, scroll_update_listener_)
-RemoveListener(ScrollEnd, scroll_end_listener_)
-RemoveListener(DragStart, drag_start_listener_)
-RemoveListener(DragEnd, drag_end_listener_)
+            RemoveListener(ScrollStart, scroll_start_listener_) RemoveListener(ScrollUpdate, scroll_update_listener_)
+                RemoveListener(ScrollEnd, scroll_end_listener_) RemoveListener(DragStart, drag_start_listener_)
+                    RemoveListener(DragEnd, drag_end_listener_)
 #undef RemoveListener
 
-void ScrollViewNode::HandleInnerEvent(std::string type) {
+                        void ScrollViewNode::HandleInnerEvent(std::string type) {
   DomValueObjectType param;
   footstone::HippyValue::HippyValueObjectType content_offset_param;
   auto scroll_view = GetView<tdfcore::ScrollView>();
@@ -199,3 +195,5 @@ void ScrollViewNode::HandleInnerEvent(std::string type) {
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

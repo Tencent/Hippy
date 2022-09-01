@@ -23,7 +23,9 @@
 #include "renderer/tdf/view/view_pager.h"
 #include "renderer/tdf/viewnode/scroll_view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 inline namespace viewpager {
 constexpr const char kViewPager[] = "ViewPager";
@@ -47,7 +49,6 @@ constexpr const char kPrev[] = "prev";
 constexpr const char kOffset[] = "offset";
 constexpr const char kPageScrollState[] = "pageScrollState";
 }  // namespace viewpager
-
 
 class ViewPagerNode : public ScrollViewNode {
  public:
@@ -81,3 +82,5 @@ class ViewPagerNode : public ScrollViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

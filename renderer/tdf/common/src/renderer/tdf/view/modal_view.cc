@@ -22,7 +22,9 @@
 
 #include "footstone/logging.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 inline namespace view {
 
 ModalView::~ModalView() noexcept {
@@ -72,9 +74,8 @@ void ModalView::InternalSetFrame(const TRect& frame) {
   } else {
     auto viewport = tdfcore::ViewContext::GetCurrent()->GetShell()->GetViewportMetrics();
     auto padding_top = viewport.view_padding_top / viewport.device_pixel_ratio;
-    modal_view_->SetFrame(TRect::MakeXYWH(
-        frame.left, static_cast<float>(padding_top + frame.top), frame.Width(),
-        static_cast<float>(frame.Height() - padding_top)));
+    modal_view_->SetFrame(TRect::MakeXYWH(frame.left, static_cast<float>(padding_top + frame.top), frame.Width(),
+                                          static_cast<float>(frame.Height() - padding_top)));
   }
 }
 
@@ -97,3 +98,5 @@ void ModalView::SetOrientationChangeCallback(const OnOrientationChangeCallBack& 
 
 }  // namespace view
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

@@ -36,7 +36,9 @@
 
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 using tdfcore::Color;
 using tdfcore::KeyboardAction;
@@ -44,8 +46,8 @@ using tdfcore::KeyboardInputType;
 using tdfcore::TextEditingController;
 using tdfcore::TextInputView;
 using tdfcore::TextSelectionControl;
-using tdfcore::View;
 using tdfcore::TextStyle;
+using tdfcore::View;
 
 using OnBlur = std::function<void()>;
 using OnChangeText = std::function<void(std::string)>;
@@ -211,3 +213,5 @@ class TextInputNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

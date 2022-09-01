@@ -21,13 +21,14 @@
 #include "renderer/tdf/viewnode/image_view_node.h"
 
 #include "core/common/image.h"
-#include "tdfview/image_view.h"
 #include "dom/node_props.h"
-#include "renderer/tdf/viewnode/base64_image_loader.h"
 #include "renderer/tdf/tdf_render_manager.h"
 #include "renderer/tdf/viewnode/base64_image_loader.h"
+#include "tdfview/image_view.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-const-variable"
@@ -91,7 +92,7 @@ void ImageViewNode::SetScaleType(const std::string &type) {
     scale_type = tdfcore::ScaleType::kAspectFill;
   } else if (type == kScaleTypeStretch) {
     scale_type = tdfcore::ScaleType::kStretch;
-  }else{
+  } else {
     scale_type = tdfcore::ScaleType::kAspectFit;
   }
   GetView<tdfcore::ImageView>()->SetScaleType(scale_type);
@@ -105,7 +106,7 @@ void ImageViewNode::SetDefaultSrc(const std::string &src) {
 
 void ImageViewNode::SetSrc(const std::string &src) {
   if (src == image_src_) return;
-    image_src_ = src;
+  image_src_ = src;
   LoadImage(image_src_);
 }
 
@@ -129,3 +130,5 @@ void ImageViewNode::LoadImage(std::string url) {
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

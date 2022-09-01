@@ -25,7 +25,9 @@
 #include "core/engine/schedule/thread_task_driver.h"
 #include "core/support/image/image_load_manager.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 constexpr const char kBase64Scheme[] = "data:image/png;base64";
 
@@ -33,6 +35,7 @@ constexpr const char kBase64Scheme[] = "data:image/png;base64";
 class Base64ImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<Base64ImageLoader> {
  public:
   ~Base64ImageLoader() override = default;
+
   Base64ImageLoader() = default;
 
   std::shared_ptr<tdfcore::Task> Load(const std::string &url, const LoadCallback &loader_callback) override;
@@ -44,3 +47,5 @@ class Base64ImageLoader : public tdfcore::ImageLoader, public std::enable_shared
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

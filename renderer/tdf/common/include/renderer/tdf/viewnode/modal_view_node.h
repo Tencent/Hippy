@@ -24,7 +24,9 @@
 #include "renderer/tdf/viewnode/view_names.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 inline namespace modal {
 constexpr const char kModal[] = "Modal";
@@ -58,3 +60,5 @@ class ModalViewNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

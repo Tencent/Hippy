@@ -20,7 +20,9 @@
 
 #include "renderer/tdf/viewnode/modal_view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 using tdfcore::View;
 using tdfcore::ViewContext;
@@ -54,9 +56,9 @@ void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 }
 
 void ModalViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
-    ViewNode::HandleLayoutUpdate(layout_result);
-    auto root_view_frame = tdfcore::ViewContext::GetCurrent()->GetRootView()->GetFrame();
-    GetView()->SetFrame(TRect::MakeXYWH(0, 0, root_view_frame.Width(), root_view_frame.Height()));
+  ViewNode::HandleLayoutUpdate(layout_result);
+  auto root_view_frame = tdfcore::ViewContext::GetCurrent()->GetRootView()->GetFrame();
+  GetView()->SetFrame(TRect::MakeXYWH(0, 0, root_view_frame.Width(), root_view_frame.Height()));
 }
 
 std::shared_ptr<View> ModalViewNode::CreateView() {
@@ -94,3 +96,5 @@ void ModalViewNode::OnRequestClose() { SendUIDomEvent(kOnRequestClose); }
 void ModalViewNode::OnOrientationChange() { SendUIDomEvent(kOnOrientationChange); }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

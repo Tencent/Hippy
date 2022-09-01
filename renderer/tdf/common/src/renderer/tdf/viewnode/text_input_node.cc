@@ -34,12 +34,14 @@
     }                                          \
   } while (false)
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 using tdfcore::CupertinoTextSelectionControl;
+using tdfcore::TextAlign;
 using tdfcore::ViewContext;
 using tdfcore::ViewportEvent;
-using tdfcore::TextAlign;
 using unicode_string_view = footstone::stringview::string_view;
 using footstone::stringview::StringViewUtils;
 
@@ -91,7 +93,7 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   UpdateKeyBoardWillShowAttr(dom_style);
 
   if (has_shadow_) {
-    //text_style.addShadow(text_shadow_);
+    // text_style.addShadow(text_shadow_);
   }
   auto unicode_str = unicode_string_view::new_from_utf8(place_holder_.c_str());
   auto utf16_string = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
@@ -326,9 +328,8 @@ void TextInputNode::SetFontStyle(const DomStyleMap& dom_style, TextStyle& text_s
   }
 }
 
-void TextInputNode::SetFontWeight(const DomStyleMap &dom_style, TextStyle &text_style) {
-  if (auto iter = dom_style.find(textinput::kFontWeight);
-      iter != dom_style.end()) {
+void TextInputNode::SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_style) {
+  if (auto iter = dom_style.find(textinput::kFontWeight); iter != dom_style.end()) {
     auto weight = iter->second->ToStringChecked();
     if (font_weight_ == weight) {
       return;
@@ -517,3 +518,5 @@ void TextInputNode::UpdateFontStyle(TextStyle& text_style) {
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

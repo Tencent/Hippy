@@ -40,7 +40,9 @@
 #include "tdfview/view_context.h"
 #pragma clang diagnostic pop
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 inline namespace view {
 
 using tdfcore::ScrollView;
@@ -129,30 +131,30 @@ class ViewPager : public ScrollView {
    * @brief set scroll offset listener
    * @param offsetListener
    */
-  void SetScrollOffsetListener(const ScrollOffsetListener& offsetListener) { offset_listener_ = offsetListener; }
+  void SetScrollOffsetListener(const ScrollOffsetListener &offsetListener) { offset_listener_ = offsetListener; }
 
   /**
    * @brief get scroll offset listener
    */
-  constexpr const ScrollOffsetListener& GetScrollOffsetListener() const { return offset_listener_; }
+  constexpr const ScrollOffsetListener &GetScrollOffsetListener() const { return offset_listener_; }
 
   /**
    * @brief set page selected listener
    * @param selectedListener
    */
-  void SetPageSelectedListener(const PageSelectedListener& selectedListener) { selected_listener_ = selectedListener; }
+  void SetPageSelectedListener(const PageSelectedListener &selectedListener) { selected_listener_ = selectedListener; }
 
   /**
    * @brief get page selected listener
    * @return selected_listener_
    */
-  constexpr const PageSelectedListener& GetPageSelectedListener() const { return selected_listener_; }
+  constexpr const PageSelectedListener &GetPageSelectedListener() const { return selected_listener_; }
 
   /**
    * @brief set page switch state listener
    * @param stateChangedListener
    */
-  void SetScrollStateChangedListener(const ScrollStateChangedListener& stateChangedListener) {
+  void SetScrollStateChangedListener(const ScrollStateChangedListener &stateChangedListener) {
     state_changed_listener_ = stateChangedListener;
   }
 
@@ -160,7 +162,7 @@ class ViewPager : public ScrollView {
    * @brief get page switch state listener
    * @return state_changed_listener_
    */
-  constexpr const ScrollStateChangedListener& GetScrollStateChangedListener() const { return state_changed_listener_; }
+  constexpr const ScrollStateChangedListener &GetScrollStateChangedListener() const { return state_changed_listener_; }
 
   void SwitchToPage(int32_t index, bool animated);
 
@@ -192,11 +194,14 @@ class ViewPager : public ScrollView {
   PageSelectedListener selected_listener_;
   ScrollStateChangedListener state_changed_listener_;
   ScrollStateType scroll_state_ = ScrollStateType::kScrollStateIdle;
+
   FRIEND_OF_TDF_ALLOC;
 };
 
 }  // namespace view
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy
 
-TDF_REFL_DEFINE(tdfrender::view::ViewPager, bases<tdfcore::View>)
+TDF_REFL_DEFINE(hippy::render::tdfrender::view::ViewPager, bases<tdfcore::View>)
 TDF_REFL_END(tdfrender::view::ViewPager)

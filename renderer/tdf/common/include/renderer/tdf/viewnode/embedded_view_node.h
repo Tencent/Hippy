@@ -22,12 +22,16 @@
 
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 class EmbeddedViewNode : public ViewNode {
  public:
   ~EmbeddedViewNode() override = default;
+
   using ViewNode::ViewNode;
+
   EmbeddedViewNode(RenderInfo render_info, const std::string &view_type);
 
  protected:
@@ -41,3 +45,5 @@ class EmbeddedViewNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

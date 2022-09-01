@@ -22,7 +22,9 @@
 
 #include "footstone/logging.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 enum class FunctionType {
   kFunctionSetPage,
@@ -177,3 +179,5 @@ void ViewPagerNode::HandleStateChangedListener(std::string state) {
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

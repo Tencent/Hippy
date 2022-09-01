@@ -37,7 +37,9 @@
 
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 inline namespace scrollview {
 constexpr const char kScrollView[] = "ScrollView";
@@ -74,13 +76,12 @@ class ScrollViewNode : public ViewNode {
 
  private:
   void InitScrollStartListener();
-  void RegisterScrollStartListener( std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RegisterScrollStartListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
   void RemoveScrollStartListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
 
   void InitScrollUpdateListener();
-  void RegisterScrollUpdateListener( std::shared_ptr<tdfcore::ScrollView> scroll_view);
+  void RegisterScrollUpdateListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
   void RemoveScrollUpdateListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
-
 
   void InitScrollEndListener();
   void RegisterScrollEndListener(std::shared_ptr<tdfcore::ScrollView> scroll_view);
@@ -118,3 +119,5 @@ class ScrollViewNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

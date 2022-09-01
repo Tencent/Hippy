@@ -24,7 +24,9 @@
 #include "footstone/string_view_utils.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 using hippy::LayoutMeasureMode;
 using tdfcore::TextAttributes;
@@ -120,9 +122,7 @@ void TextViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t in
   ViewNode::OnChildAdd(child, index);
 }
 
-void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
-  ViewNode::OnChildRemove(child);
-}
+void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { ViewNode::OnChildRemove(child); }
 
 void TextViewNode::SetText(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kText); iter != dom_style.end()) {
@@ -173,15 +173,11 @@ void TextViewNode::UpdateFontStyle(TextStyle& text_style) {
   text_style.italic = font_style_ == "italic";
 }
 
-void TextViewNode::SetLineHeight(const DomStyleMap& dom_style, TextStyle& text_style) {
-}
+void TextViewNode::SetLineHeight(const DomStyleMap& dom_style, TextStyle& text_style) {}
 
-void TextViewNode::SetLetterSpacing(const DomStyleMap &dom_style,
-                                    TextStyle &text_style) {
-  if (auto iter = dom_style.find(text::kLetterSpacing);
-      iter != dom_style.end()) {
-    auto letter_spacing =
-        static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
+void TextViewNode::SetLetterSpacing(const DomStyleMap& dom_style, TextStyle& text_style) {
+  if (auto iter = dom_style.find(text::kLetterSpacing); iter != dom_style.end()) {
+    auto letter_spacing = static_cast<tdfcore::TScalar>(iter->second->ToDoubleChecked());
     text_style.letter_spacing = letter_spacing;
   }
 }
@@ -192,10 +188,8 @@ void TextViewNode::SetFontFamily(const DomStyleMap& dom_style, TextStyle& text_s
   }
 }
 
-void TextViewNode::SetDecorationLine(const DomStyleMap &dom_style,
-                                     TextStyle &text_style) {
-  if (auto iter = dom_style.find(text::kTextDecorationLine);
-      iter != dom_style.end()) {
+void TextViewNode::SetDecorationLine(const DomStyleMap& dom_style, TextStyle& text_style) {
+  if (auto iter = dom_style.find(text::kTextDecorationLine); iter != dom_style.end()) {
   }
 }
 
@@ -221,7 +215,7 @@ void TextViewNode::SetTextShadowRadius(const DomStyleMap& dom_style) {
 void TextViewNode::SetLineSpacingMultiplier(const DomStyleMap& dom_style, TextStyle& text_style) {
   if (auto iter = dom_style.find(text::kLineSpacingMultiplier); iter != dom_style.end()) {
     // todo(kloudwang) 设置行间距
-    //auto line_spacing_multiplier = iter->second->ToDoubleChecked();
+    // auto line_spacing_multiplier = iter->second->ToDoubleChecked();
   }
 }
 
@@ -262,3 +256,5 @@ void TextViewNode::SetEnableScale(const DomStyleMap& dom_style, std::shared_ptr<
 }
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

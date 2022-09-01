@@ -23,7 +23,9 @@
 #include "footstone/logging.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 namespace util {
 
 Color ConversionIntToColor(uint32_t value) {
@@ -199,3 +201,5 @@ tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap& style_map, const char* 
 
 }  // namespace util
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy

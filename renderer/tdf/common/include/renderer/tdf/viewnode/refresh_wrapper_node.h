@@ -35,7 +35,9 @@
 
 #include "renderer/tdf/viewnode/list_view_node.h"
 
-namespace tdfrender {
+namespace hippy {
+inline namespace render {
+inline namespace tdfrender {
 
 inline namespace refreshwrapper {
 constexpr const char kRefreshWrapper[] = "RefreshWrapper";
@@ -91,3 +93,5 @@ class RefreshWrapperNode : public ViewNode {
 };
 
 }  // namespace tdfrender
+}  // namespace render
+}  // namespace hippy
