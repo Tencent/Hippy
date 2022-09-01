@@ -119,15 +119,12 @@ public class TextDrawable extends Drawable {
         float dy = mTopPadding + borderWidth;
         switch (mLayout.getAlignment()) {
             case ALIGN_CENTER:
-                float contentW = width - mLeftPadding - mRightPadding - 2 * borderWidth;
-                float contentH = height - mTopPadding - mBottomPadding - 2 * borderWidth;
-                dy = (contentH - mLayout.getHeight()) / 2.0f;
-                dx = (contentW - mLayout.getWidth()) / 2.0f;
+                dy = (height - mLayout.getHeight()) / 2.0f;
+                dx = (width - mLayout.getWidth()) / 2.0f;
                 canvas.translate(dx, dy);
                 break;
             case ALIGN_OPPOSITE:
-                dx = width - mRightPadding - borderWidth
-                        - mLayout.getWidth();
+                dx = width - mRightPadding - borderWidth - mLayout.getWidth();
                 canvas.translate(dx, dy);
                 break;
             default:
