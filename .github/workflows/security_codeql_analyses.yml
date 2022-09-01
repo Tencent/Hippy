@@ -15,7 +15,7 @@ on:
 
 jobs:
   analyze:
-    runs-on: [self-hosted, linux]
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
     permissions:
