@@ -21,6 +21,7 @@
 /**
  * runtime/event/event-bus unit test
  */
+import type { NeedToTyped } from '../../../src/config';
 import { EventBus } from '../../../src/runtime/event/event-bus';
 
 /**
@@ -132,5 +133,23 @@ describe('runtime/event/event-bus.ts', () => {
     expect(sign).toEqual(3);
     EventBus.$emit('emitEvent', 1, 1);
     expect(sign).toEqual(5);
+    EventBus.$off();
+    EventBus.$emit('emitEvent', 1, 1);
+    expect(sign).toEqual(5);
+
+    class Context {
+      public test: string;
+
+      constructor() {
+        this.test = 'world';
+      }
+    }
+    const context = new Context();
+    let str = 'hello ';
+    EventBus.$on('contextEvent', function (this: NeedToTyped) {
+      str += this.test;
+    }, context);
+    EventBus.$emit('contextEvent');
+    expect(str).toEqual('hello world');
   });
 });
