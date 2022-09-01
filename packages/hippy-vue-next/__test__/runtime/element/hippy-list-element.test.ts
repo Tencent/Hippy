@@ -26,13 +26,13 @@ describe('runtime/element/hippy-list-element', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyListElement = new HippyListElement('ul');
     hippyListElement.scrollToIndex(0, 0);
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 
   it('should invoke callUIFunction when call scrollToPosition method.', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyListElement = new HippyListElement('ul');
     hippyListElement.scrollToPosition();
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 });

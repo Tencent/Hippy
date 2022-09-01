@@ -274,7 +274,7 @@ export interface NativeApiType {
   measureInAppWindow: (el: HippyNode) => Promise<MeasurePosition>;
 
   // convert the given color string to int32 recognized by Native
-  parseColor: (color: string, { platform: string }?) => number;
+  parseColor: (color: string, options?: { platform: string }) => number;
   // get the style of the specified element
   getElemCss: (element: HippyElement) => NeedToTyped;
 

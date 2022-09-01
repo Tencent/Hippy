@@ -64,7 +64,7 @@ const tagMap = new Map();
  * register component information for the specified tag
  *
  * @param tagName - tag name
- * @param tagComponent - tag component
+ * @param elementComponent - tag component
  */
 export function registerElement(
   tagName: string,

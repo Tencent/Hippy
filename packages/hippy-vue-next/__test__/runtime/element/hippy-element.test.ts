@@ -193,7 +193,7 @@ describe('runtime/element/hippy-element', () => {
       const hippyElement = new HippyElement('div');
       hippyElement.setAttribute('numberOfRows', '2');
 
-      expect(updateChildSpy).not.toBeCalled();
+      expect(updateChildSpy).not.toHaveBeenCalled();
     });
 
     it('should convert caretColor to caret-color.', () => {
@@ -340,7 +340,7 @@ describe('runtime/element/hippy-element', () => {
       const hippyElement = new HippyElement('div');
       hippyElement.setStyle('boxShadowColor', 'black', true);
 
-      expect(updateChildSpy).not.toBeCalled();
+      expect(updateChildSpy).not.toHaveBeenCalled();
     });
 
     it('removeStyle should clear all style attribute', () => {
@@ -394,14 +394,14 @@ describe('runtime/element/hippy-element', () => {
       const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
       const hippyElement = new HippyElement('div');
       hippyElement.scrollToPosition(0, 0, false);
-      expect(callUIFunctionSpy).toBeCalled();
+      expect(callUIFunctionSpy).toHaveBeenCalled();
     });
 
     it('should invoke callUIFunction when call scrollTo method and the param x is number.', () => {
       const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
       const hippyElement = new HippyElement('div');
       hippyElement.scrollTo(0, 0);
-      expect(callUIFunctionSpy).toBeCalled();
+      expect(callUIFunctionSpy).toHaveBeenCalled();
     });
 
     it('should invoke callUIFunction when call scrollTo method and the param x is object.', () => {
@@ -411,7 +411,7 @@ describe('runtime/element/hippy-element', () => {
         { left: 0, top: 0, behavior: 'none', duration: 100 },
         0,
       );
-      expect(callUIFunctionSpy).toBeCalled();
+      expect(callUIFunctionSpy).toHaveBeenCalled();
     });
   });
 
@@ -423,7 +423,7 @@ describe('runtime/element/hippy-element', () => {
       const hippyElement = new HippyElement('div');
       hippyElement.isMounted = true;
       hippyElement.addEventListener('hello', () => {});
-      expect(updateChildSpy).toBeCalled();
+      expect(updateChildSpy).toHaveBeenCalled();
     });
   });
 
@@ -486,12 +486,12 @@ describe('runtime/element/hippy-element', () => {
     it('setHotspot method should exist', () => {
       const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
       element.setHotspot(10, 100);
-      expect(callUIFunctionSpy).toBeCalled();
+      expect(callUIFunctionSpy).toHaveBeenCalled();
     });
     it('setPressed method should exist', () => {
       const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
       element.setPressed(true);
-      expect(callUIFunctionSpy).toBeCalled();
+      expect(callUIFunctionSpy).toHaveBeenCalled();
     });
   });
 
@@ -500,7 +500,7 @@ describe('runtime/element/hippy-element', () => {
       const element = new HippyElement('p');
       const callUIFunctionSpy = jest.spyOn(element, 'updateNativeNode');
       element.repaintWithChildren();
-      expect(callUIFunctionSpy).toBeCalled();
+      expect(callUIFunctionSpy).toHaveBeenCalled();
     });
   });
 

@@ -82,7 +82,7 @@ describe('runtime/render.ts', () => {
       renderInsertChildNativeNode(nativeNodes);
       await nextTick();
 
-      expect(createNodeSpy).toBeCalled();
+      expect(createNodeSpy).toHaveBeenCalled();
     });
   });
 
@@ -110,7 +110,7 @@ describe('runtime/render.ts', () => {
       renderUpdateChildNativeNode(nativeNodes);
       await nextTick();
 
-      expect(updateNodeSpy).toBeCalled();
+      expect(updateNodeSpy).toHaveBeenCalled();
     });
     it('should call updateNode method in iOS platform.', async () => {
       const updateNodeSpy = jest.spyOn(
@@ -135,7 +135,7 @@ describe('runtime/render.ts', () => {
       renderUpdateChildNativeNode(nativeNodes);
       await nextTick();
 
-      expect(updateNodeSpy).toBeCalled();
+      expect(updateNodeSpy).toHaveBeenCalled();
     });
   });
 
@@ -163,7 +163,7 @@ describe('runtime/render.ts', () => {
       renderRemoveChildNativeNode(nativeNodes);
       await nextTick();
 
-      expect(deleteNodeSpy).toBeCalled();
+      expect(deleteNodeSpy).toHaveBeenCalled();
     });
     it('should call deleteNode method in iOS platform.', async () => {
       const deleteNodeSpy = jest.spyOn(
@@ -188,7 +188,7 @@ describe('runtime/render.ts', () => {
       renderRemoveChildNativeNode(nativeNodes);
       await nextTick();
 
-      expect(deleteNodeSpy).toBeCalled();
+      expect(deleteNodeSpy).toHaveBeenCalled();
     });
   });
 });

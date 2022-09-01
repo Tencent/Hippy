@@ -46,7 +46,14 @@ export class HippyListElement extends HippyElement {
   /**
    * scroll to specified offset
    */
-  public scrollToPosition(posX = 0, posY = 0, needAnimation = true): void {
+  public scrollToPosition(
+    posX: number | undefined = 0,
+    posY: number | undefined = 0,
+    needAnimation = true,
+  ): void {
+    if (typeof posX !== 'number' || typeof posY !== 'number') {
+      return;
+    }
     Native.callUIFunction(this, 'scrollToContentOffset', [
       posX,
       posY,

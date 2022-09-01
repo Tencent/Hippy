@@ -35,42 +35,42 @@ describe('runtime/element/hippy-input-element', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.setValue('placeholder');
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 
   it('should invoke callUIFunction when focus of the input element.', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.focus();
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 
   it('should invoke callUIFunction when blur of the input element.', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.blur();
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 
   it('should invoke callUIFunction when clear of the input element.', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.clear();
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 
   it('should invoke callUIFunction when show input menu of the input element.', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.showInputMenu();
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 
   it('should invoke callUIFunction when hide input menu of the input element.', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.hideInputMenu();
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 
   it('setText method should work correct.', () => {
@@ -86,6 +86,6 @@ describe('runtime/element/hippy-input-element', () => {
     const callUIFunctionSpy = jest.spyOn(Native, 'callUIFunction');
     const hippyInputElement = new HippyInputElement('input');
     hippyInputElement.isFocused();
-    expect(callUIFunctionSpy).toBeCalled();
+    expect(callUIFunctionSpy).toHaveBeenCalled();
   });
 });

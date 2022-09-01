@@ -192,7 +192,7 @@ function convertPxUnitToPt(value) {
     return value;
   }
   // If value unit is px, change to use pt as 1:1.
-  if (value.endsWith('px')) {
+  if (typeof value === 'string' && value.endsWith('px')) {
     const num = parseFloat(value.slice(0, value.indexOf('px')));
     if (!Number.isNaN(num)) {
       value = num;
@@ -567,7 +567,7 @@ function parseCSS(
      * http://ostermiller.org/findcomment.html */
     return matched[0]
       .trim()
-      .replace(/\/\*(?=(?<digit1>([^*]|[\r\n]|((?=(?<digit2>\*+))\k<digit2>([^*/]|[\r\n])))*))\k<digit1>\*\/+/g, '')
+      .replace(/\/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*\/+/g, '')
       .replace(/"(?:\\"|[^"])*"|'(?:\\'|[^'])*'/g, m => m.replace(/,/g, '\u200C'))
       .split(/\s*(?![^(]*\)),\s*/)
       .map(s => s.replace(/\u200C/g, ','));

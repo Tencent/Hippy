@@ -104,12 +104,6 @@ module.exports = {
 
     'import/no-unresolved': 'off',
 
-    // Allow import name different with file name
-    'import/no-named-as-default': 'off',
-
-    // Allow import cycle
-    'import/no-cycle': 'off',
-
     // Disable prop-types
     'react/prop-types': 'off',
 

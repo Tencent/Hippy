@@ -51,10 +51,7 @@ console.log(`1/3 Start to install ${example} dependencies.`);
 exec('npm install --legacy-peer-deps', execOptions);
 
 console.log(`2/3 Start to build project ${example}.`);
-if (example !== 'hippy-vue-next-demo') {
-  // now vue-next no need to build vendor, maybe after
-  exec('npm run hippy:vendor', execOptions); // Build vendor js
-}
+exec('npm run hippy:vendor', execOptions); // Build vendor js
 exec('npm run hippy:build', execOptions); // Build index js
 
 console.log('3/3 Copy the built files to native.');

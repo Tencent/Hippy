@@ -348,14 +348,11 @@ export class HippyElement extends HippyNode {
       switch (key) {
         case 'class': {
           const newClassList = new Set(value.split(' ').filter((x: string) => x.trim()) as string);
-
           // If classList is still the same, return directly
           if (setsAreEqual(this.classList, newClassList)) {
             return;
           }
-
           this.classList = newClassList;
-
           // update current node and child nodes
           !options.notToNative && this.updateNativeNode(true);
           return;
@@ -380,17 +377,14 @@ export class HippyElement extends HippyNode {
               warn(`Property ${key} must be string：${(error as Error).message}`);
             }
           }
-          if (!options.textUpdate) {
+          if (!options || !options.textUpdate) {
             // Only when non-text nodes are automatically updated,
             // need to deal with leading and trailing whitespace characters, etc.
             value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
           }
-
           value = unicodeToChar(value);
           break;
         }
-        // FIXME: UpdateNode numberOfRows will makes Image flicker on Android.
-        //        So make it working on iOS only.
         case 'numberOfRows':
           if (!Native.isIOS()) {
             return;
@@ -426,12 +420,8 @@ export class HippyElement extends HippyNode {
         default:
           break;
       }
-
-      if (this.attributes[key] === value) {
-        return;
-      }
+      if (this.attributes[key] === value) return;
       this.attributes[key] = value;
-
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
       }
@@ -468,7 +458,7 @@ export class HippyElement extends HippyNode {
   /**
    * set styles batch
    *
-   * @param batchStyles
+   * @param batchStyles - batched style to set
    */
   public setStyles(batchStyles) {
     if (isEmpty(batchStyles)) return;
@@ -558,7 +548,7 @@ export class HippyElement extends HippyNode {
     }
 
     // If the style value does not exist or is equal to the original value, return directly
-    if (styleValue === null || this.style[styleProperty] === styleValue
+    if (styleValue === undefined || styleValue === null || this.style[styleProperty] === styleValue
     ) {
       return;
     }
@@ -575,10 +565,13 @@ export class HippyElement extends HippyNode {
    * Scroll children to specific position.
    */
   public scrollToPosition(
-    x = 0,
-    y = 0,
+    x: number | undefined = 0,
+    y: number | undefined = 0,
     rawDuration: number | boolean = 1000,
   ): void {
+    if (typeof x !== 'number' || typeof y !== 'number') {
+      return;
+    }
     let duration = rawDuration;
 
     if (duration === false) {
