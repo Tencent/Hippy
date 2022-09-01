@@ -21,7 +21,7 @@ on:
 jobs:
   changed_images:
     runs-on: ubuntu-latest
-    outputs: 
+    outputs:
       changed_images: ${{ steps.changed_images.outputs.changed_images }}
     steps:
       - name: Get changed images
@@ -53,7 +53,7 @@ jobs:
                   page,
                 });
 
-                files.filter(({ status, filename }) => 
+                files.filter(({ status, filename }) =>
                   (status === 'added' || status === 'modified' || status === 'changed' || status === 'copied' || status === 'renamed')
                   && filename.split(sep)[0] === 'docker'
                   && basename(filename) === 'Dockerfile').forEach(({ filename }) => {
@@ -69,9 +69,9 @@ jobs:
             console.log(`::set-output name=changed_images::${JSON.stringify(Array.from(changedImages))}`);
   build_images:
     needs: changed_images
-    runs-on: [self-hosted, linux]
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
     strategy:
-      matrix: 
+      matrix:
         images: ${{ fromJson(needs.changed_images.outputs.changed_images) }}
     steps:
       - name: Checkout repo
