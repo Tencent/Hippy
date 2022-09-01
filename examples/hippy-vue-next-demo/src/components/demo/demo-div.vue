@@ -144,24 +144,23 @@ import {
 } from '@vue/runtime-core';
 
 import defaultImage from '../../assets/defaultSource.jpg';
-import { warn } from '../../util';
 
 import DemoRippleDiv from './demo-ripple-div.vue';
 
 const onScroll = (e: Event) => {
-  warn('onScroll', e);
+  console.log('onScroll', e);
 };
 const onMomentumScrollBegin = (e: Event) => {
-  warn('onMomentumScrollBegin', e);
+  console.log('onMomentumScrollBegin', e);
 };
 const onMomentumScrollEnd = (e: Event) => {
-  warn('onMomentumScrollEnd', e);
+  console.log('onMomentumScrollEnd', e);
 };
 const onScrollBeginDrag = (e: Event) => {
-  warn('onScrollBeginDrag', e);
+  console.log('onScrollBeginDrag', e);
 };
 const onScrollEndDrag = (e: Event) => {
-  warn('onScrollEndDrag', e);
+  console.log('onScrollEndDrag', e);
 };
 
 export default defineComponent({
@@ -181,11 +180,11 @@ export default defineComponent({
     };
 
     onActivated(() => {
-      warn(`${Date.now()}-div-activated`);
+      console.log(`${Date.now()}-div-activated`);
     });
 
     onDeactivated(() => {
-      warn(`${Date.now()}-div-Deactivated`);
+      console.log(`${Date.now()}-div-Deactivated`);
     });
 
     onMounted(() => {

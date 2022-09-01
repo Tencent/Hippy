@@ -57,26 +57,25 @@ import { defineComponent } from '@vue/runtime-core';
 
 import defaultImage from '../../assets/defaultSource.jpg';
 import hippyLogoImage from '../../assets/hippyLogoWhite.png';
-import { warn } from '../../util';
 
 export default defineComponent({
   setup() {
     // img touch event is supported after hippy-vue 2.6.2
     const onTouchStart = (evt: Event) => {
-      warn('onTouchDown', evt);
+      console.log('onTouchDown', evt);
       evt.stopPropagation();
     };
       // img touch event is supported after hippy-vue 2.6.2
     const onTouchMove = (evt: Event) => {
-      warn('onTouchMove', evt);
+      console.log('onTouchMove', evt);
       evt.stopPropagation();
-      warn(evt);
+      console.log(evt);
     };
       // img touch event is supported after hippy-vue 2.6.2
     const onTouchEnd = (evt: Event) => {
-      warn('onTouchEnd', evt);
+      console.log('onTouchEnd', evt);
       evt.stopPropagation();
-      warn(evt);
+      console.log(evt);
     };
 
     return {

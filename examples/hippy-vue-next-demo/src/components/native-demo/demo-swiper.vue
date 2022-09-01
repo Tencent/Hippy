@@ -60,8 +60,6 @@
 <script lang="ts">
 import { defineComponent, ref } from '@vue/runtime-core';
 
-import { warn } from '../../util';
-
 const max = 7;
 
 export default defineComponent({
@@ -83,7 +81,7 @@ export default defineComponent({
        * scroll to next page
        */
     const scrollToNextPage = () => {
-      warn('scroll next', currentSlide.value, currentSlideNum.value);
+      console.log('scroll next', currentSlide.value, currentSlideNum.value);
       if (currentSlide.value < max) {
         currentSlide.value = currentSlideNum.value + 1;
       } else {
@@ -95,7 +93,7 @@ export default defineComponent({
        * scroll to previous page
        */
     const scrollToPrevPage = () => {
-      warn('scroll prev', currentSlide.value, currentSlideNum.value);
+      console.log('scroll prev', currentSlide.value, currentSlideNum.value);
       if (currentSlide.value === 0) {
         currentSlide.value = max - 1;
       } else {
@@ -114,7 +112,7 @@ export default defineComponent({
        * scrolling back nextSlide is still the current index, scrolling forward is normal
        */
       /* eslint-disable-next-line no-console */
-      warn(
+      console.log(
         'Current offset is',
         evt.offset,
         'and will into slide',
@@ -122,12 +120,12 @@ export default defineComponent({
       );
     };
     const onDropped = (evt) => {
-      warn('onDropped', evt);
+      console.log('onDropped', evt);
       // update current page number
       currentSlideNum.value = evt.currentSlide;
     };
     const onStateChanged = (evt) => {
-      warn('onStateChanged', evt);
+      console.log('onStateChanged', evt);
       // update state
       state.value = evt.state;
     };

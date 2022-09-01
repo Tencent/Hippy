@@ -29,8 +29,6 @@ import {
   toRefs,
 } from '@vue/runtime-core';
 
-import { warn } from '../../../util';
-
 import downVoteFace from './down-vote-face.png';
 
 const face1 = {
@@ -130,24 +128,24 @@ export default defineComponent({
     const { isChanged } = toRefs(props);
 
     const animationStart = () => {
-      warn('animation-start callback');
+      console.log('animation-start callback');
     };
     const animationEnd = () => {
-      warn('animation-end callback');
+      console.log('animation-end callback');
     };
     const animationRepeat = () => {
-      warn('animation-repeat callback');
+      console.log('animation-repeat callback');
     };
     const animationCancel = () => {
-      warn('animation-cancel callback');
+      console.log('animation-cancel callback');
     };
 
     watch(isChanged, (to, from) => {
       if (!from && to) {
-        warn('changed to face2');
+        console.log('changed to face2');
         animations.value.face = face2;
       } else if (from && !to) {
-        warn('changed to face1');
+        console.log('changed to face1');
         animations.value.face = face1;
       }
       /**

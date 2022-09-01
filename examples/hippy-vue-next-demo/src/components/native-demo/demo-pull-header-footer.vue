@@ -82,7 +82,6 @@ import { Native, type HippyListElement } from '@hippy/vue-next';
 import type { Ref } from '@vue/runtime-core';
 import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 
-import { warn } from '../../util';
 import mockData from '../list-items/mock';
 import StyleOne from '../list-items/style1.vue';
 import StyleTwo from '../list-items/style2.vue';
@@ -127,7 +126,7 @@ export default defineComponent({
         return;
       }
       fetchingDataFlag = true;
-      warn('onHeaderReleased');
+      console.log('onHeaderReleased');
       // retrieve data
       headerRefreshText.value = '刷新数据中，请稍等';
       dataSource.value = await mockFetchData();
@@ -152,7 +151,7 @@ export default defineComponent({
        * @param evt
        */
     const onEndReached = async (evt) => {
-      warn('endReached', evt);
+      console.log('endReached', evt);
 
       /**
        * Check the lock, if it is loading,
@@ -185,13 +184,13 @@ export default defineComponent({
     const onHeaderIdle = () => {};
     const onFooterIdle = () => {};
     const onFooterPulling = (evt) => {
-      warn('onFooterPulling', evt);
+      console.log('onFooterPulling', evt);
     };
     const onHeaderPulling = (evt) => {
       if (fetchingDataFlag) {
         return;
       }
-      warn('onHeaderPulling', evt.contentOffset);
+      console.log('onHeaderPulling', evt.contentOffset);
       if (evt.contentOffset > 30) {
         headerRefreshText.value = '松手，即可触发刷新';
       } else {
@@ -220,7 +219,7 @@ export default defineComponent({
       if (listRef.value) {
         const list = listRef.value as HippyListElement;
 
-        warn('scroll to next page', list, scrollPos.value, $windowHeight);
+        console.log('scroll to next page', list, scrollPos.value, $windowHeight);
 
         const top = scrollPos.value.top + $windowHeight - 200;
         // CSSOM View standard - ScrollToOptions

@@ -25,6 +25,8 @@ import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
 
 let uniqueId = 0;
 
+let isSilent = false;
+
 // rootViewId initial value
 export const DEFAULT_ROOT_ID = 1;
 
@@ -46,12 +48,11 @@ export function getUniqueId(): number {
  * @param context - content to output
  */
 export function trace(...context: NeedToTyped[]): void {
-  // do not print information in production environment
-  if (IS_PROD) {
+  // do not print information in production environment or keeps silent
+  if (IS_PROD || isSilent) {
     return;
   }
 
-  // eslint-disable-next-line no-console
   console.log(...context);
 }
 
@@ -66,7 +67,6 @@ export function warn(...context: NeedToTyped[]): void {
     return;
   }
 
-  // eslint-disable-next-line no-console
   console.warn(...context);
 }
 
@@ -299,5 +299,14 @@ export function isEmpty(any: NeedToTyped) {
     return true;
   }
   return Object.keys(any).length === 0;
+}
+
+/**
+ * disable print trace info
+ *
+ * @param silent
+ */
+export function setSilent(silent: boolean): void {
+  isSilent = silent;
 }
 

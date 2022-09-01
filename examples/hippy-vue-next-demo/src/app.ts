@@ -8,15 +8,15 @@ import {
 
 import App from './app.vue';
 import { createHippyRouter } from './router';
-import { warn, setGlobalInitProps } from './util';
+import { setGlobalInitProps } from './util';
 
 global.Hippy.on('uncaughtException', (err) => {
-  warn('uncaughtException error', err.stack, err.message);
+  console.log('uncaughtException error', err.stack, err.message);
 });
 
 // only supported in iOS temporarily
 global.Hippy.on('unhandledRejection', (reason) => {
-  warn('unhandledRejection reason', reason);
+  console.log('unhandledRejection reason', reason);
 });
 
 // create hippy app instance
@@ -38,6 +38,8 @@ const app: HippyApp = createApp(App, {
       // backgroundImage: 'https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png',
     },
   },
+  // do not print trace info when set to true
+  // silent: true,
 });
 
 // create router
@@ -56,7 +58,7 @@ EventBus.$on('onSizeChanged', (newScreenSize) => {
 
 // init callback
 const initCallback = ({ superProps, rootViewId }) => {
-  warn(superProps);
+  console.log(superProps);
   setGlobalInitProps({
     superProps,
     rootViewId,
@@ -81,7 +83,7 @@ const initCallback = ({ superProps, rootViewId }) => {
 
   // listen android native back press
   BackAndroid.addListener(() => {
-    warn('backAndroid');
+    console.log('backAndroid');
     // set true interrupts native back
     // return true;
   });

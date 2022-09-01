@@ -72,7 +72,6 @@ import { Native } from '@hippy/vue-next';
 import type { Ref } from '@vue/runtime-core';
 import { defineComponent, ref, computed } from '@vue/runtime-core';
 
-import { warn } from '../../util';
 import mockData from '../list-items/mock';
 import StyleOne from '../list-items/style1.vue';
 import StyleTwo from '../list-items/style2.vue';
@@ -180,7 +179,7 @@ export default defineComponent({
        * @param evt
        */
     const onScroll = (evt) => {
-      warn('waterfall onScroll', evt);
+      console.log('waterfall onScroll', evt);
     };
 
     return {

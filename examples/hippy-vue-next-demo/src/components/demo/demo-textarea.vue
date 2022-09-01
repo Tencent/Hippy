@@ -57,8 +57,6 @@ import {
 } from '@hippy/vue-next';
 import { defineComponent, ref } from '@vue/runtime-core';
 
-import { warn } from '../../util';
-
 export default defineComponent({
   setup() {
     const textareaRef = ref(null);
@@ -71,7 +69,7 @@ export default defineComponent({
        * @param evt
        */
     const contentSizeChange = (evt: Event) => {
-      warn(evt);
+      console.log(evt);
     };
 
     const onClickBlurAllInput = () => {

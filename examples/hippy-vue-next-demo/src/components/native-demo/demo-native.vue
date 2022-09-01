@@ -305,7 +305,7 @@
 import { Native, type HippyNode } from '@hippy/vue-next';
 import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 
-import { getGlobalInitProps, warn } from '../../util';
+import { getGlobalInitProps } from '../../util';
 
 let networkListener;
 
@@ -358,7 +358,7 @@ export default defineComponent({
        */
     const getSize = async () => {
       const result = await Native.ImageLoader.getSize('https://user-images.githubusercontent.com/12878546/148736102-7cd9525b-aceb-41c6-a905-d3156219ef16.png');
-      warn('ImageLoader getSize', result);
+      console.log('ImageLoader getSize', result);
       imageSize.value = `${result.width}x${result.height}`;
     };
 

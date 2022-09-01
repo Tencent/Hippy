@@ -60,7 +60,6 @@ import { Native } from '@hippy/vue-next';
 
 import Demos from '../components/demo';
 import NativeDemos from '../components/native-demo';
-import { warn } from '../util';
 
   /** 路由类型 */
   interface RouterList {
@@ -94,7 +93,7 @@ export default defineComponent({
        * it is necessary to convert the ref object to the original object.
        * Otherwise, the native js code does not have the logic to parse ref, which will cause logic errors.
        */
-      warn('data', testData, toRaw(testData));
+      console.log('data', testData, toRaw(testData));
     });
 
     const isShowDemoWrap = ref(true);

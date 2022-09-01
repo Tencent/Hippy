@@ -64,8 +64,6 @@
 import { defineComponent, ref } from '@vue/runtime-core';
 import { onBeforeRouteLeave } from 'vue-router';
 
-import { warn } from '../../util';
-
 const supportedOrientations = [
   'portrait',
   'portrait-upside-down',
@@ -89,7 +87,7 @@ export default defineComponent({
     };
 
     const onShow = () => {
-      warn('Dialog is opening');
+      console.log('Dialog is opening');
     };
 
     const onClose = (evt) => {
@@ -104,7 +102,7 @@ export default defineComponent({
       } else {
         dialogIsVisible.value = false;
       }
-      warn('Dialog is closing');
+      console.log('Dialog is closing');
     };
 
     const stopPropagation = (evt) => {

@@ -197,8 +197,6 @@
 import { defineComponent, ref } from '@vue/runtime-core';
 import { Native } from '@hippy/vue-next';
 
-import { warn } from '../../util';
-
 export default defineComponent({
   setup() {
     const labelTouchStatus = ref('');
@@ -223,19 +221,19 @@ export default defineComponent({
     // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
     const onTouchTextStart = (evt: Event) => {
       labelTouchStatus.value = 'touch start';
-      warn('onTextTouchDown', evt);
+      console.log('onTextTouchDown', evt);
     };
       // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
     const onTouchTextMove = (evt: Event) => {
       labelTouchStatus.value = 'touch move';
-      warn('onTextTouchMove', evt);
-      warn(evt);
+      console.log('onTextTouchMove', evt);
+      console.log(evt);
     };
       // text/span/label/p/a element touch event is supported after hippy-vue 2.6.2
     const onTouchTextEnd = (evt: Event) => {
       labelTouchStatus.value = 'touch end';
-      warn('onTextTouchEnd', evt);
-      warn(evt);
+      console.log('onTextTouchEnd', evt);
+      console.log(evt);
     };
 
     const incrementLine = () => {

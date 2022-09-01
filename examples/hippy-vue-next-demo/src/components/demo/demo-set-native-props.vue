@@ -32,8 +32,6 @@
 import { type HippyElement, Native } from '@hippy/vue-next';
 import { defineComponent, ref, onMounted } from '@vue/runtime-core';
 
-import { warn } from '../../util';
-
 export default defineComponent({
   setup() {
     const demoOnePointRef = ref(null);
@@ -46,7 +44,7 @@ export default defineComponent({
 
     const onTouchDown1 = (evt) => {
       const position = evt.touches[0].clientX - 40;
-      warn('touchdown x', position, screenWidth.value);
+      console.log('touchdown x', position, screenWidth.value);
       if (demoOnePointRef.value) {
         (demoOnePointRef.value as HippyElement).setNativeProps({
           style: {
@@ -57,7 +55,7 @@ export default defineComponent({
     };
     const onTouchMove1 = (evt) => {
       const position = evt.touches[0].clientX - 40;
-      warn('touchmove x', position, screenWidth.value);
+      console.log('touchmove x', position, screenWidth.value);
       if (demoOnePointRef.value) {
         (demoOnePointRef.value as HippyElement).setNativeProps({
           style: {
@@ -68,11 +66,11 @@ export default defineComponent({
     };
     const onTouchDown2 = (evt) => {
       demon2Left.value = evt.touches[0].clientX - 40;
-      warn('touchdown x', demon2Left.value, screenWidth.value);
+      console.log('touchdown x', demon2Left.value, screenWidth.value);
     };
     const onTouchMove2 = (evt) => {
       demon2Left.value = evt.touches[0].clientX - 40;
-      warn('touchmove x', demon2Left.value, screenWidth.value);
+      console.log('touchmove x', demon2Left.value, screenWidth.value);
     };
 
     return {

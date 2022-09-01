@@ -117,8 +117,6 @@
    */
 import { defineComponent, ref, type Ref, shallowRef, nextTick } from '@vue/runtime-core';
 
-import { warn } from '../../util';
-
 import colorComponent from './animations/color-change.vue';
 import CubicBezier from './animations/cubic-bezier.vue';
 import Loop from './animations/loop.vue';
@@ -168,7 +166,7 @@ export default defineComponent({
       // pay attention pls, animate operate should execute
       // after dom render finished
       nextTick().then(() => {
-        warn('actions updated & startAnimation');
+        console.log('actions updated & startAnimation');
         if (animationRef.value) {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore

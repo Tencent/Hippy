@@ -111,8 +111,6 @@
 import { type HippyEvent, Native } from '@hippy/vue-next';
 import { defineComponent, ref, onMounted, type Ref } from '@vue/runtime-core';
 
-import { warn } from '../../util';
-
 const STYLE_LOADING = 100;
 const mockDataArray = [
   { style: 1 },
@@ -156,19 +154,19 @@ const mockFetchData = async () => new Promise((resolve) => {
 
 // item fully exposed
 const onAppear = (index: number) => {
-  warn('onAppear', index);
+  console.log('onAppear', index);
 };
   // item is completely hidden
 const onDisappear = (index: number) => {
-  warn('onDisappear', index);
+  console.log('onDisappear', index);
 };
   // item at least one pixel exposure
 const onWillAppear = (index: number) => {
-  warn('onWillAppear', index);
+  console.log('onWillAppear', index);
 };
   // item is hidden by at least one pixel
 const onWillDisappear = (index: number) => {
-  warn('onWillDisappear', index);
+  console.log('onWillDisappear', index);
 };
 
 export default defineComponent({
@@ -186,7 +184,7 @@ export default defineComponent({
        * @param evt
        */
     const onEndReached = async (evt) => {
-      warn('endReached', evt);
+      console.log('endReached', evt);
 
       if (isLoading) {
         return;

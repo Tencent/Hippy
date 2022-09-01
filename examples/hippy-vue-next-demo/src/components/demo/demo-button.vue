@@ -49,8 +49,6 @@ import {
   ref,
 } from '@vue/runtime-core';
 
-import { warn } from '../../util';
-
 export default defineComponent({
   setup() {
     const isClicked = ref(false);
@@ -58,11 +56,11 @@ export default defineComponent({
     const isOnceClicked = ref(false);
 
     onActivated(() => {
-      warn(`${Date.now()}-button-activated`);
+      console.log(`${Date.now()}-button-activated`);
     });
 
     onDeactivated(() => {
-      warn(`${Date.now()}-button-Deactivated`);
+      console.log(`${Date.now()}-button-Deactivated`);
     });
 
     // click to change status
@@ -74,13 +72,13 @@ export default defineComponent({
       isOnceClicked.value = !isOnceClicked.value;
     };
     const onTouchBtnStart = (evt: Event) => {
-      warn('onBtnTouchDown', evt);
+      console.log('onBtnTouchDown', evt);
     };
     const onTouchBtnMove = (evt: Event) => {
-      warn('onBtnTouchMove', evt);
+      console.log('onBtnTouchMove', evt);
     };
     const onTouchBtnEnd = (evt: Event) => {
-      warn('onBtnTouchEnd', evt);
+      console.log('onBtnTouchEnd', evt);
     };
 
     return {

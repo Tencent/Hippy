@@ -15,17 +15,3 @@ export function setGlobalInitProps(props: NeedToTyped): void {
 export function getGlobalInitProps(): NeedToTyped {
   return globalProps;
 }
-
-/**
- * output debugging warnings
- *
- * @param context - output content
- */
-export function warn(...context: NeedToTyped[]): void {
-  if (process.env.NODE_ENV === 'production') {
-    return;
-  }
-
-  // eslint-disable-next-line no-console
-  console.warn(...context);
-}

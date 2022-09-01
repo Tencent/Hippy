@@ -84,8 +84,6 @@ import {
 } from '@hippy/vue-next';
 import { defineComponent, nextTick, ref, onMounted } from '@vue/runtime-core';
 
-import { warn } from '../../util';
-
 /**
    * When the input box is clicked, the click event bubbles up to the top View, so stopPropagation here
    */
@@ -97,7 +95,7 @@ const stopPropagation = (evt: HippyEvent) => {
    * print content when text changes
    */
 const textChange = (evt: HippyKeyboardEvent) => {
-  warn(evt.value);
+  console.log(evt.value);
 };
 
 /**
@@ -106,7 +104,7 @@ const textChange = (evt: HippyKeyboardEvent) => {
    * @param evt
    */
 const onKeyboardWillShow = (evt: HippyEvent) => {
-  warn(evt);
+  console.log(evt);
 };
 
 

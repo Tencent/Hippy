@@ -54,7 +54,7 @@ import './runtime/event/hippy-event-dispatcher';
 import './runtime/websocket/websocket';
 import { NativeInterfaceMap } from './runtime/native/modules';
 import type { HippyNode } from './runtime/node/hippy-node';
-import { setBeforeLoadStyle } from './util';
+import { setBeforeLoadStyle, setSilent } from './util';
 import type { HippyCachedInstanceType } from './util/instance';
 import {
   getHippyCachedInstance,
@@ -115,6 +115,8 @@ export interface HippyAppOptions {
     // base screen width, the default value is 750, which is usually used in the design draft.
     ratioBaseWidth?: number;
   };
+  // do not print trace info if set to true
+  silent?: boolean;
 }
 
 // base screen width
@@ -191,6 +193,11 @@ export const createApp = (
   if (typeof options?.styleOptions?.beforeLoadStyle === 'function') {
     // If a style loading hook is set, save the custom style loading hook
     setBeforeLoadStyle(options.styleOptions.beforeLoadStyle);
+  }
+
+  // do not print trace info
+  if (options.silent) {
+    setSilent(options.silent);
   }
 
   // save the original mount method
