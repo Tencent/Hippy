@@ -81,14 +81,14 @@ export const EventBus = {
    * emit event
    *
    * @param event
+   * @param args
    */
-  $emit(event: string) {
-    const data = [].slice.call(arguments, 1);
+  $emit(event: string, ...args: NeedToTyped) {
     const callbackList = (globalEventListeners[event] || []).slice();
     const len = callbackList.length;
 
     for (let i = 0; i < len; i += 1) {
-      callbackList[i].fn.apply(callbackList[i].ctx, data);
+      callbackList[i].fn.apply(callbackList[i].ctx, args);
     }
 
     return EventBus;

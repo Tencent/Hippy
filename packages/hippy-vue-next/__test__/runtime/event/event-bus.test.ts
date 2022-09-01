@@ -112,5 +112,25 @@ describe('runtime/event/event-bus.ts', () => {
     EventBus.$emit('addTwo');
     EventBus.$emit('addThree');
     expect(sign).toEqual(7);
+
+    sign = 1;
+    EventBus.$on('emitEvent', (paramsOne?: number, paramsTwo?: number) => {
+      if (typeof paramsOne !== 'undefined') {
+        sign += paramsOne;
+      }
+
+      if (typeof paramsTwo !== 'undefined') {
+        sign += paramsTwo;
+      }
+    });
+
+    EventBus.$emit('emitEvent');
+    expect(sign).toEqual(1);
+    EventBus.$emit('emitEvent', 1);
+    expect(sign).toEqual(2);
+    EventBus.$emit('emitEvent', 0, 1);
+    expect(sign).toEqual(3);
+    EventBus.$emit('emitEvent', 1, 1);
+    expect(sign).toEqual(5);
   });
 });
