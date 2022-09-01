@@ -7,6 +7,7 @@ const webpack = require('webpack');
 
 const platform = 'android';
 const pkg = require('../package.json');
+const manifest = require('../dist/android/vendor-manifest.json');
 const mode = 'production';
 let cssLoader = '@hippy/vue-css-loader';
 const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
@@ -27,6 +28,8 @@ module.exports = {
     filename: `[name].${platform}.js`,
     path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
+    // CDN path can be configured to load children bundles from remote server
+    // publicPath: 'https://xxx/hippy/hippyVueNextDemo/',
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
@@ -37,6 +40,10 @@ module.exports = {
         NODE_ENV: JSON.stringify(mode),
       },
       __PLATFORM__: JSON.stringify(platform),
+    }),
+    new webpack.DllReferencePlugin({
+      context: path.resolve(__dirname, '..'),
+      manifest,
     }),
     new HippyDynamicImportPlugin(),
   ],

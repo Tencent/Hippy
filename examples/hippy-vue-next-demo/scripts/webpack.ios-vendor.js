@@ -2,20 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader');
 
 const platform = 'ios';
-
-let vueLoader = '@hippy/vue-loader';
-let VueLoaderPlugin;
-const hippyVueLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib');
-if (fs.existsSync(hippyVueLoaderPath)) {
-  console.warn(`* Using the @hippy/vue-loader in ${hippyVueLoaderPath}`);
-  vueLoader = hippyVueLoaderPath;
-  VueLoaderPlugin = require(path.resolve(__dirname, '../../../packages/hippy-vue-loader/lib/plugin'));
-} else {
-  console.warn('* Using the @hippy/vue-loader defined in package.json');
-  VueLoaderPlugin = require('@hippy/vue-loader/lib/plugin');
-}
 
 module.exports = {
   mode: 'production',
@@ -48,7 +37,15 @@ module.exports = {
       {
         test: /\.vue$/,
         use: [
-          vueLoader,
+          {
+            loader: 'vue-loader',
+            options: {
+              compilerOptions: {
+                // disable vue3 dom patch flag，because hippy do not support innerHTML
+                hoistStatic: false,
+              },
+            },
+          },
         ],
       },
       {
@@ -77,43 +74,30 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.js', '.vue', '.json'],
-    // if node_modules path listed below is not your repo directory, change it.
-    modules: [path.resolve(__dirname, '../node_modules')],
+    extensions: ['.js', '.vue', '.json', '.ts'],
     alias: (() => {
       const aliases = {
-        vue: '@hippy/vue',
-        '@': path.resolve('./src'),
-        'vue-router': '@hippy/vue-router',
+        src: path.resolve('./src'),
       };
-      // If hippy-vue was built exist in packages directory then make a alias
+
+      // If @vue/runtime-core was built exist in packages directory then make an alias
       // Remove the section if you don't use it
-      const hippyVuePath = path.resolve(__dirname, '../../../packages/hippy-vue');
-      if (fs.existsSync(path.resolve(hippyVuePath, 'dist/index.js'))) {
-        console.warn(`* Using the @hippy/vue in ${hippyVuePath} as vue alias`);
-        aliases.vue = hippyVuePath;
-        aliases['@hippy/vue'] = hippyVuePath;
+      const hippyVueRuntimeCorePath = path.resolve(__dirname, '../../../packages/hippy-vue-next/node_modules/@vue/runtime-core');
+      if (fs.existsSync(path.resolve(hippyVueRuntimeCorePath, 'index.js'))) {
+        console.warn(`* Using the @vue/runtime-core in ${hippyVueRuntimeCorePath} as vue alias`);
+        aliases['@vue/runtime-core'] = hippyVueRuntimeCorePath;
       } else {
-        console.warn('* Using the @hippy/vue defined in package.json');
-      }
-      // If hippy-vue-router was built in packages directory exist then make a alias
-      // Remove the section if you don't use it
-      const hippyVueRouterPath = path.resolve(__dirname, '../../../packages/hippy-vue-router');
-      if (fs.existsSync(path.resolve(hippyVueRouterPath, 'dist/index.js'))) {
-        console.warn(`* Using the @hippy/vue-router in ${hippyVueRouterPath} as vue-router alias`);
-        aliases['vue-router'] = hippyVueRouterPath;
-      } else {
-        console.warn('* Using the @hippy/vue-router defined in package.json');
+        console.warn('* Using the @vue/runtime-core defined in package.json');
       }
 
-      // If hippy-vue-native-components was built in packages directory exist then make a alias
+      // If @hippy/vue-next was built exist in packages directory then make an alias
       // Remove the section if you don't use it
-      const hippyVueNativeComponentsPath = path.resolve(__dirname, '../../../packages/hippy-vue-native-components');
-      if (fs.existsSync(path.resolve(hippyVueNativeComponentsPath, 'dist/index.js'))) {
-        console.warn(`* Using the @hippy/vue-native-components in ${hippyVueNativeComponentsPath}`);
-        aliases['@hippy/vue-native-components'] = hippyVueNativeComponentsPath;
+      const hippyVueNextPath = path.resolve(__dirname, '../../../packages/hippy-vue-next/dist');
+      if (fs.existsSync(path.resolve(hippyVueNextPath, 'index.js'))) {
+        console.warn(`* Using the @hippy/vue-next in ${hippyVueNextPath} as @hippy/vue-next alias`);
+        aliases['@hippy/vue-next'] = hippyVueNextPath;
       } else {
-        console.warn('* Using the @hippy/vue-native-components defined in package.json');
+        console.warn('* Using the @hippy/vue-next defined in package.json');
       }
 
       return aliases;
