@@ -28,7 +28,7 @@ env:
 
 jobs:
   triage:
-    if: contains(github.event.issue.title, 'crash')
+    if: github.repository == 'Tencent/Hippy' && contains(github.event.issue.title, 'crash')
     runs-on: [self-hosted, linux]
     container:
       image: node:latest
