@@ -28,7 +28,7 @@ on:
 
 jobs:
   android_build_tests:
-    runs-on: [self-hosted, linux]
+    runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
     container:
       image: ghcr.io/tencent/android-release:latest # repository name must be lowercase(${{ github.repository_owner }})
     timeout-minutes: 10
