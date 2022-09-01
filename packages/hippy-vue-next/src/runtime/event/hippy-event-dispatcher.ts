@@ -51,6 +51,8 @@ export interface NativeGestureEvent {
   name: string;
 }
 
+const componentName = ['%c[event]%c', 'color: green', 'color: auto'];
+
 /**
  * get event name in vue
  *
@@ -94,7 +96,7 @@ const HippyEventDispatcher = {
    * @param nativeEvent - native event
    */
   receiveNativeEvent(nativeEvent: NativeEvent): void {
-    trace('receiverNativeEvent', nativeEvent);
+    trace(...componentName, 'receiverNativeEvent', nativeEvent);
 
     if (isInvalidNativeEvent(nativeEvent)) {
       return;
@@ -112,7 +114,7 @@ const HippyEventDispatcher = {
    * @param nativeEvent - native event
    */
   receiveNativeGesture(nativeEvent: NativeGestureEvent): void {
-    trace('receiveNativeGesture', nativeEvent);
+    trace(...componentName, 'receiveNativeGesture', nativeEvent);
 
     if (!nativeEvent) {
       return;
@@ -144,7 +146,7 @@ const HippyEventDispatcher = {
    * Receive event notifications from UI classes, such as keyboard input, etc.
    */
   receiveUIComponentEvent(nativeEvent: NativeEvent): void {
-    trace('receiveUIComponentEvent', nativeEvent);
+    trace(...componentName, 'receiveUIComponentEvent', nativeEvent);
 
     if (isInvalidNativeEvent(nativeEvent)) {
       return;

@@ -367,6 +367,8 @@ const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
 // subscribed web events
 const networkSubscriptions = new Map();
 
+const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
+
 /**
  * Native interfaces
  *
@@ -405,7 +407,7 @@ export const Native: NativeApiType = {
       callback = params;
       params = [];
     }
-    trace('callUIFunction', { nodeId, funcName, params });
+    trace(...componentName, 'callUIFunction', { nodeId, funcName, params });
 
     if (Native.isAndroid()) {
       if (isFunction(callback)) {

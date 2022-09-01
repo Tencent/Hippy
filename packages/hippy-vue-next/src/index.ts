@@ -54,7 +54,7 @@ import './runtime/event/hippy-event-dispatcher';
 import './runtime/websocket/websocket';
 import { NativeInterfaceMap } from './runtime/native/modules';
 import type { HippyNode } from './runtime/node/hippy-node';
-import { setBeforeLoadStyle, setSilent } from './util';
+import { setBeforeLoadStyle, setSilent, trace } from './util';
 import type { HippyCachedInstanceType } from './util/instance';
 import {
   getHippyCachedInstance,
@@ -121,6 +121,8 @@ export interface HippyAppOptions {
 
 // base screen width
 const defaultRatioBaseWidth = 750;
+
+const componentName = ['%c[Hippy-Vue-Next process.env.HIPPY_VUE_VERSION]%c', 'color: #4fc08d; font-weight: bold', 'color: auto; font-weight: auto'];
 
 /**
  * set the status bar for iOS
@@ -228,6 +230,7 @@ export const createApp = (
         // get the initialization parameters passed in by the native, login parameters
         const { __instanceId__: rootViewId } = superProps;
 
+        trace(...componentName, 'Start', options.appName, 'with rootViewId', rootViewId, superProps);
         // when refreshing the app, need to remove the old instance first
         const oldInstance = getHippyCachedInstance();
         if (oldInstance?.app) {

@@ -58,7 +58,6 @@ EventBus.$on('onSizeChanged', (newScreenSize) => {
 
 // init callback
 const initCallback = ({ superProps, rootViewId }) => {
-  console.log(superProps);
   setGlobalInitProps({
     superProps,
     rootViewId,

@@ -49,6 +49,8 @@ let IS_HANDLING = false;
 // list of nodes waiting to be batched operated
 let BATCH_NATIVE_NODES: BatchNativeNode[] = [];
 
+const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
+
 /**
  * Rearrange and combine the nodes in batchNodes, and put adjacent nodes of the same type together
  *
@@ -119,11 +121,11 @@ function renderToNative(
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NodeOperateType.CREATE:
-          trace('createNode', Date.now(), chunk.nodes);
+          trace(...componentName, 'createNode', Date.now(), chunk.nodes);
           Native.hippyNativeDocument.createNode(rootViewId, chunk.nodes);
           break;
         case NodeOperateType.UPDATE:
-          trace('updateNode', Date.now(), chunk.nodes);
+          trace(...componentName, 'updateNode', Date.now(), chunk.nodes);
           // iOS currently cannot update nodes in batches, this requires ios client repair
           if (Native.isIOS()) {
             chunk.nodes.forEach((node) => {
@@ -134,7 +136,7 @@ function renderToNative(
           }
           break;
         case NodeOperateType.DELETE:
-          trace('deleteNode', Date.now(), chunk.nodes);
+          trace(...componentName, 'deleteNode', Date.now(), chunk.nodes);
           // iOS currently cannot delete nodes in batches, this requires ios client repair
           if (Native.isIOS()) {
             chunk.nodes.forEach((node) => {
