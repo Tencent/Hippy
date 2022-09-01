@@ -19,6 +19,7 @@
  */
 
 #include "renderer/tdf/viewnode/modal_view_node.h"
+#include "renderer/tdf/viewnode/root_view_node.h"
 
 namespace hippy {
 inline namespace render {
@@ -53,6 +54,15 @@ void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
       GetView()->SetBackgroundColor(tdfcore::Color::ARGB(100, 99, 99, 99));
     }
   }
+}
+
+void ModalViewNode::OnCreate() {
+  ViewNode::OnCreate();
+  auto metrics = GetRootNode()->GetShell()->GetViewportMetrics();
+  auto device_pixel_ratio = metrics.device_pixel_ratio;
+  GetDomNode()->SetLayoutSize(
+      static_cast<float>(metrics.width / device_pixel_ratio),
+      static_cast<float>(metrics.height / device_pixel_ratio));
 }
 
 void ModalViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {

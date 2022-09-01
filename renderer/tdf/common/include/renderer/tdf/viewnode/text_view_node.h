@@ -72,10 +72,24 @@ class TextViewNode : public ViewNode {
  public:
   explicit TextViewNode(const RenderInfo info);
 
-  void OnCreate() override;
+  static void RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node,
+                                      const std::shared_ptr<TextViewNode>& view_node);
+
+  static void UnregisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node);
+
+  static std::shared_ptr<TextViewNode> FindLayoutTextViewNode(const std::shared_ptr<hippy::DomNode>& dom_node);
+
+  void SyncTextAttributes(const std::shared_ptr<hippy::DomNode>& dom_node);
 
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
+
+  /**
+   * @brief Update Text's specific attributes, make sure this function can run on any thread.
+   */
+  void HandleTextStyleUpdate(std::shared_ptr<tdfcore::TextView> text_view,
+                             const std::shared_ptr<hippy::DomNode>& dom_node, const DomStyleMap& dom_style);
+
   void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
   void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
   std::string GetViewName() const override { return kTextViewName; }
@@ -85,7 +99,7 @@ class TextViewNode : public ViewNode {
  private:
   std::shared_ptr<tdfcore::View> CreateView() override;
 
-  void SetText(const DomStyleMap& dom_style, TextStyle& text_style);
+  void SetText(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view);
   void SetTextColor(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetFontSize(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetFontWeight(const DomStyleMap& dom_style, TextStyle& text_style);

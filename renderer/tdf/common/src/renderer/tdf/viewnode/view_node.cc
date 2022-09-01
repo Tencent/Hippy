@@ -44,8 +44,7 @@ ViewNode::ViewNode(const RenderInfo info, std::shared_ptr<tdfcore::View> view)
   SetId(info.id);
 }
 
-ViewNode::DomStyleMap ViewNode::GenerateStyleInfo() {
-  auto dom_node = GetDomNode();
+ViewNode::DomStyleMap ViewNode::GenerateStyleInfo(const std::shared_ptr<hippy::DomNode>& dom_node) {
   DomStyleMap dom_style_map;
   auto style_map = dom_node->GetStyleMap();
   for (const auto& it : *style_map) {
@@ -423,7 +422,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   }
 
   // Sync style/listener/etc
-  HandleStyleUpdate(GenerateStyleInfo());
+  HandleStyleUpdate(GenerateStyleInfo(GetDomNode()));
   HandleLayoutUpdate(dom_node->GetRenderLayoutResult());  // TODO Rename to handle
   HandleEventInfoUpdate();
   // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)

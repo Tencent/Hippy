@@ -305,7 +305,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   /**
    * @brief merge the style info in DomNode
    */
-  DomStyleMap GenerateStyleInfo();
+  static DomStyleMap GenerateStyleInfo(const std::shared_ptr<hippy::DomNode>& dom_node);
 
   const RenderInfo render_info_;
 

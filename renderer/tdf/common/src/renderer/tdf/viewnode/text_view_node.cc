@@ -22,6 +22,7 @@
 
 #include "dom/layout_node.h"
 #include "footstone/string_view_utils.h"
+#include "footstone/persistent_object_map.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 
 namespace hippy {
@@ -31,43 +32,43 @@ inline namespace tdfrender {
 using hippy::LayoutMeasureMode;
 using tdfcore::TextAttributes;
 
+static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TextViewNode>> persistent_map_;
+
 TextViewNode::TextViewNode(RenderInfo info) : ViewNode(info) {}
 
-void TextViewNode::OnCreate() {
-  ViewNode::OnCreate();
-  auto shell = tdfcore::ViewContext::GetCurrent()->GetShell();
-  // set the related DomNode's measure function immediately after create.
-  // TODO(kloudwang) sync measure
-  GetDomNode()->GetLayoutNode()->SetMeasureFunction([this, shell](float width, LayoutMeasureMode width_measure_mode,
-                                                                  float height, LayoutMeasureMode height_measure_mode,
-                                                                  void* layoutContext) {
-    std::shared_ptr<tdfcore::TextView> text_view = nullptr;
-    std::promise<tdfcore::TSize> text_size;
-    shell->GetUITaskRunner()->PostTask([&text_view, this, &text_size, width]() {
-      text_view = GetTextView();
-      // sync the style for measure
-      if (!IsAttached()) {
-        HandleStyleUpdate(GenerateStyleInfo());
-      }
-      text_size.set_value(text_view->MeasureText(width));
-    });
-    auto future = text_size.get_future();
-    future.wait();
-    auto size = future.get();
+void TextViewNode::SyncTextAttributes(const std::shared_ptr<hippy::DomNode>& dom_node) {
+  if (!layout_view_) {
+    layout_view_ = std::static_pointer_cast<tdfcore::TextView>(CreateView());
+  }
+  HandleTextStyleUpdate(layout_view_, dom_node, GenerateStyleInfo(dom_node));
+}
+
+void TextViewNode::RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node,
+                                           const std::shared_ptr<TextViewNode>& view_node) {
+  dom_node->GetLayoutNode()->SetMeasureFunction([view_node](float width, LayoutMeasureMode width_measure_mode,
+                                                            float height, LayoutMeasureMode height_measure_mode,
+                                                            void* layoutContext) {
+    auto size = view_node->layout_view_->MeasureText(width);
     hippy::LayoutSize layout_result{static_cast<float>(size.width), static_cast<float>(size.height)};
     return layout_result;
   });
+  persistent_map_.Insert(dom_node->GetRenderInfo().id, view_node);
+}
+
+void TextViewNode::UnregisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node) {
+  dom_node->GetLayoutNode()->SetMeasureFunction(nullptr);
+  persistent_map_.Erase(dom_node->GetRenderInfo().id);
+}
+
+std::shared_ptr<TextViewNode> TextViewNode::FindLayoutTextViewNode(const std::shared_ptr<hippy::DomNode> &dom_node) {
+  std::shared_ptr<TextViewNode> result;
+  auto find = persistent_map_.Find(dom_node->GetRenderInfo().id, result);
+  FOOTSTONE_CHECK(find);
+  return result;
 }
 
 std::shared_ptr<tdfcore::TextView> TextViewNode::GetTextView() {
-  if (layout_view_ == nullptr) {
-    layout_view_ = std::static_pointer_cast<tdfcore::TextView>(CreateView());
-  }
-  auto view = layout_view_;
-  if (IsAttached()) {
-    view = GetView<tdfcore::TextView>();
-  }
-  return view;
+  return GetView<tdfcore::TextView>();
 }
 
 std::shared_ptr<tdfcore::View> TextViewNode::CreateView() {
@@ -82,10 +83,12 @@ void TextViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (IsAttached()) {
     ViewNode::HandleStyleUpdate(dom_style);
   }
-  auto text_view = GetTextView();
-  auto text_style = text_view->GetTextStyle();
+  HandleTextStyleUpdate(GetTextView(), GetDomNode(), dom_style);
+}
 
-  SetText(dom_style, text_style);
+void TextViewNode::HandleTextStyleUpdate(std::shared_ptr<tdfcore::TextView> text_view, const std::shared_ptr<hippy::DomNode>& dom_node, const DomStyleMap& dom_style){
+  auto text_style = text_view->GetTextStyle();
+  SetText(dom_style, text_view);
   SetTextColor(dom_style, text_style);
   SetFontSize(dom_style, text_style);
   SetFontWeight(dom_style, text_style);
@@ -102,10 +105,9 @@ void TextViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   SetNumberOfLines(dom_style, text_view);
   SetTextAlign(dom_style, text_view);
   SetEnableScale(dom_style, text_view);
-
   text_view->SetTextStyle(text_style);
-  if (auto dome_node = GetDomNode()) {
-    dome_node->GetLayoutNode()->MarkDirty();
+  if (dom_node) {
+    dom_node->GetLayoutNode()->MarkDirty();
   }
 }
 
@@ -124,12 +126,12 @@ void TextViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t in
 
 void TextViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { ViewNode::OnChildRemove(child); }
 
-void TextViewNode::SetText(const DomStyleMap& dom_style, TextStyle& text_style) {
+void TextViewNode::SetText(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kText); iter != dom_style.end()) {
     auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
     auto utf16_string =
         footstone::stringview::StringViewUtils::ConvertEncoding(unicode_str, footstone::string_view::Encoding::Utf16);
-    GetTextView()->SetText(utf16_string.utf16_value());
+    text_view->SetText(utf16_string.utf16_value());
   }
 }
 
