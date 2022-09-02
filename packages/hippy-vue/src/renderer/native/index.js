@@ -31,6 +31,7 @@ import {
   getApp,
   trace,
   warn,
+  deepCopy,
   isFunction,
   capitalizeFirstLetter,
   convertImageLocalPath,
@@ -298,7 +299,7 @@ function parseViewComponent(targetNode, nativeNode, style) {
  */
 function getTargetNodeAttributes(targetNode) {
   try {
-    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const targetNodeAttributes = deepCopy(targetNode.attributes);
     const classInfo = Array.from(targetNode.classList || []).join(' ');
     const attributes = {
       id: targetNode.id,
