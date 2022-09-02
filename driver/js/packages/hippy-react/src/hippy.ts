@@ -23,7 +23,7 @@ import Document from './dom/document-node';
 import renderer from './renderer';
 import * as Native from './native';
 import { setRootContainer } from './utils/node';
-import { trace, warn, setSilent, setBubbles } from './utils';
+import { trace, warn, setSilent, setBubbles, isDev } from './utils';
 
 const {
   createContainer,
@@ -126,7 +126,7 @@ class HippyReact implements HippyReact {
     const { __instanceId__: rootViewId } = superProps;
     trace(...componentName, 'Start', appName, 'with rootViewId', rootViewId, superProps);
 
-    if (process.env.NODE_ENV === 'development') {
+    if (isDev()) {
       injectIntoDevTools({
         bundleType: 1,
         version: React.version,

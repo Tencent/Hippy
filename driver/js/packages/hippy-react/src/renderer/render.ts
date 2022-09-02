@@ -327,7 +327,7 @@ function renderToNativeWithChildren(
       eventLanguages.push(eventNode);
     }
     if (printedNode) {
-      printedLanguages.push(printedNode)
+      printedLanguages.push(printedNode);
     }
     if (typeof callback === 'function') {
       callback(targetNode);
