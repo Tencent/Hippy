@@ -25,10 +25,10 @@ import AnimationSet from '../modules/animation-set';
 import { colorParse, colorArrayParse, Color } from '../color';
 import { updateChild, updateWithChildren, endBatch } from '../renderer/render';
 import {
-  unicodeToChar,
-  tryConvertNumber,
   isNumber,
   warn,
+  unicodeToChar,
+  tryConvertNumber,
   convertImgUrl,
   isCaptureEvent,
   hasTargetEvent,
@@ -494,7 +494,6 @@ class ElementNode extends ViewNode {
         action: () => {
           if (typeof value === 'function') {
             const eventName = getEventName(key);
-            this.attributes[eventName] = value;
             if (!this.events[key]) {
               // add event initially
               this.events[key] = {
@@ -508,11 +507,9 @@ class ElementNode extends ViewNode {
               this.events[key].type = eventHandlerType.ADD;
             }
           } else {
-            const eventName = getEventName(key);
             if (hasTargetEvent(key, this.events)
               && typeof value !== 'function') {
               // remove event
-              delete this.attributes[eventName];
               this.events[key].type = eventHandlerType.REMOVE;
               return false;
             }

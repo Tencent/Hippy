@@ -115,11 +115,18 @@ function setSilent(silentArg: boolean): void {
 }
 
 /**
+ * is development environment
+ */
+function isDev(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
+
+/**
  * is Trace silent
  * @returns {boolean}
  */
 function isTraceEnabled(): boolean {
-  return process.env.NODE_ENV !== 'production' && !silent;
+  return isDev() && !silent;
 }
 
 /**
@@ -144,7 +151,7 @@ function isGlobalBubble(): boolean {
  */
 function convertImgUrl(url: string): string {
   if (url && !/^(http|https):\/\//.test(url) && url.indexOf('assets') > -1) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (isDev()) {
       const addStr1 = 'http://';
       return `${addStr1}127.0.0.1:${process.env.PORT}/${url}`;
     }
@@ -195,6 +202,7 @@ export {
   warn,
   unicodeToChar,
   tryConvertNumber,
+  isDev,
   isCaptureEvent,
   hasTargetEvent,
   isFunction,

@@ -57,7 +57,7 @@ exec('npm run hippy:build', execOptions); // Build index js
 console.log('3/3 Copy the built files to native.');
 cp('-Rf', './dist/ios/*', '../../../../framework/examples/ios-demo/res/'); // Update the ios demo project
 cp('-Rf', './dist/android/*', '../../../../framework/examples/android-demo/res/'); // # Update the android project
-cp('-Rf', './dist/android/*', `../../../../framework/voltron/example/assets/jsbundle/`); // # Update the flutter project, ios and android use same bundle
+cp('-Rf', './dist/android/*', '../../../../framework/voltron/example/assets/jsbundle/'); // # Update the flutter project, ios and android use same bundle
 
 console.log('👌 All done, you can open your native app now, enjoy.');
 popd();

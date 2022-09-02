@@ -95,7 +95,7 @@ inline namespace driver {
 static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
   {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
   {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-  piece2: `
+    piece2: `
 };
 
 const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
@@ -118,7 +118,7 @@ const NativeSourceCode GetNativeSourceCode(const std::string& filename) {
   const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
     {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
     {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-  piece2: `
+    piece2: `
   };
   const auto it = global_base_js_source_map.find(filename);
   return it != global_base_js_source_map.cend() ? it->second : NativeSourceCode{};
@@ -138,7 +138,7 @@ inline namespace driver {
 static const std::unordered_map<std::string, NativeSourceCode> global_base_js_source_map{
   {"bootstrap.js", {k_bootstrap, ARRAY_SIZE(k_bootstrap) - 1}},  // NOLINT
   {"hippy.js", {k_hippy, ARRAY_SIZE(k_hippy) - 1}},  // NOLINT`,
-  piece2: `
+    piece2: `
 };
 
 const NativeSourceCode GetNativeSourceCode(const std::string& filename) {

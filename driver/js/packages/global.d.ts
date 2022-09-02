@@ -272,6 +272,8 @@ declare namespace HippyTypes {
     readonly relativeToRef?: RelativeToRef
   }
 
+  export type PrintedNode = { [key: string]: any } | undefined;
+
   export type TranslatedNodes = [NativeNode, ReferenceInfo];
 
   export interface EventAttribute {
