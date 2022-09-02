@@ -21,7 +21,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import { looseEqual } from 'shared/util';
-import { isFunction, warn } from '../../../util';
+import { isDev, isFunction, warn } from '../../../util';
 
 class EventEmitter {
   constructor(element) {
@@ -45,7 +45,7 @@ class EventEmitter {
     const events = eventNames.split(',');
     for (let i = 0, l = events.length; i < l; i += 1) {
       const eventName = events[i].trim();
-      if (process.env.NODE_ENV !== 'production') {
+      if (isDev()) {
         if (['touchStart', 'touchMove', 'touchEnd', 'touchCancel'].indexOf(eventName) !== -1) {
           warn(`@${eventName} is deprecated because it's not compatible with browser standard, please use @${eventName.toLowerCase()} to instead as so on.`);
         }

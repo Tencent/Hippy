@@ -173,8 +173,8 @@ Android uses the [adb](//developer.android.com/studio/command-line/adb) port map
 Specific procedure: 
 
 1. Download and install [Android Studio](//developer.android.com/studio)
-2. through Android Studio open [Hippy Android example project](//github.com/Tencent/Hippy/tree/master/examples/android-demo), when prompted "ToolChain need to update", choose to reject for all options, install SDK, NDK, and cmake 3.6.4.
-3. Plug in your real Android device via the data cable and click Run in Android Studio. Normally, the device should already be running the `Hippy Demo` app. *See [#39](//github.com/Tencent/Hippy/issues/39) for compilation problems.*
+2. Using Android Studio to open `Hippy Repo` root directory, which will load [Hippy Android example project](//github.com/Tencent/Hippy/tree/master/examples/android-demo).
+3. Plug in your real Android device via the data cable and click Run in Android Studio. Normally, the device should already be running the `Hippy Demo` app.
 4. Go back to your device and make sure that `USB debug mode` is turned on - you can enter `Developer mode`' by clicking `Build` in succession on the About page, and then turn on `USB debug mode` after you enter the `Developer mode` screen.
 5. Run `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` to make sure port 38389 is not occupied.
 6. Open the front-end example project [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) or [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo), use npm run hippy:dev to start building and debugging service.

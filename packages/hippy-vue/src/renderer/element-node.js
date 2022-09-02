@@ -31,6 +31,7 @@ import {
   endsWith,
   getBeforeLoadStyle,
   warn,
+  isDev,
   isEmpty,
 } from '../util';
 import Native from '../runtime/native';
@@ -243,22 +244,22 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  setAttribute(key, value, options = {}) {
+  setAttribute(rawKey, rawValue, options = {}) {
     try {
-      let propKey = key;
-      let propValue = value;
+      let key = rawKey;
+      let value = rawValue;
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
-      if (typeof (this.attributes[propKey]) === 'boolean' && propValue === '') {
-        propValue = true;
+      if (typeof (this.attributes[key]) === 'boolean' && value === '') {
+        value = true;
       }
-      if (propKey === undefined) {
+      if (key === undefined) {
         !options.notToNative && updateChild(this);
         return;
       }
-      switch (propKey) {
+      switch (key) {
         case 'class': {
-          const newClassList = new Set(propValue.split(' ').filter(x => x.trim()));
+          const newClassList = new Set(value.split(' ').filter(x => x.trim()));
           if (setsAreEqual(this.classList, newClassList)) {
             return;
           }
@@ -268,10 +269,10 @@ class ElementNode extends ViewNode {
           return;
         }
         case 'id':
-          if (propValue === this.id) {
+          if (value === this.id) {
             return;
           }
-          this.id = propValue;
+          this.id = value;
           // update current node and child nodes
           !options.notToNative && updateWithChildren(this);
           return;
@@ -280,17 +281,17 @@ class ElementNode extends ViewNode {
         case 'value':
         case 'defaultValue':
         case 'placeholder': {
-          if (typeof propValue !== 'string') {
+          if (typeof value !== 'string') {
             try {
-              propValue = propValue.toString();
+              value = value.toString();
             } catch (err) {
-              throw new TypeError(`Property ${propKey} must be string：${err.message}`);
+              warn(`Property ${key} must be string：${err.message}`);
             }
           }
           if (!options || !options.textUpdate) {
-            propValue = propValue.trim().replace(/(&nbsp;|Â)/g, ' ');
+            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
           }
-          propValue = unicodeToChar(propValue);
+          value = unicodeToChar(value);
           break;
         }
         case 'numberOfRows':
@@ -300,42 +301,42 @@ class ElementNode extends ViewNode {
           break;
         case 'caretColor':
         case 'caret-color':
-          propKey = 'caret-color';
-          propValue = Native.parseColor(propValue);
+          key = 'caret-color';
+          value = Native.parseColor(value);
           break;
         case 'break-strategy':
-          propKey = 'breakStrategy';
+          key = 'breakStrategy';
           break;
         case 'placeholderTextColor':
         case 'placeholder-text-color':
-          propKey = 'placeholderTextColor';
-          propValue = Native.parseColor(propValue);
+          key = 'placeholderTextColor';
+          value = Native.parseColor(value);
           break;
         case 'underlineColorAndroid':
         case 'underline-color-android':
-          propKey = 'underlineColorAndroid';
-          propValue = Native.parseColor(propValue);
+          key = 'underlineColorAndroid';
+          value = Native.parseColor(value);
           break;
         case 'nativeBackgroundAndroid': {
-          const nativeBackgroundAndroid = propValue;
+          const nativeBackgroundAndroid = value;
           if (typeof nativeBackgroundAndroid.color !== 'undefined') {
             nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
           }
-          propKey = 'nativeBackgroundAndroid';
-          propValue = nativeBackgroundAndroid;
+          key = 'nativeBackgroundAndroid';
+          value = nativeBackgroundAndroid;
           break;
         }
         default:
       }
-      if (this.attributes[propKey] === propValue) return;
-      this.attributes[propKey] = propValue;
+      if (this.attributes[key] === value) return;
+      this.attributes[key] = value;
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
       }
       !options.notToNative && updateChild(this);
     } catch (err) {
       // Throw error in development mode
-      if (process.env.NODE_ENV !== 'production') {
+      if (isDev()) {
         throw err;
       }
     }
@@ -354,9 +355,9 @@ class ElementNode extends ViewNode {
     updateChild(this);
   }
 
-  setStyle(property, value, notToNative = false) {
-    if (value === undefined) {
-      delete this.style[property];
+  setStyle(rawKey, rawValue, notToNative = false) {
+    if (rawValue === undefined) {
+      delete this.style[rawKey];
       if (!notToNative) {
         updateChild(this);
       }
@@ -364,57 +365,57 @@ class ElementNode extends ViewNode {
     }
     // Preprocess the style
     let {
-      property: p,
-      value: v,
-    } = this.beforeLoadStyle({
-      property,
       value,
+      property: key,
+    } = this.beforeLoadStyle({
+      property: rawKey,
+      value: rawValue,
     });
     // Process the specific style value
-    switch (p) {
+    switch (key) {
       case 'fontWeight':
-        if (typeof v !== 'string') {
-          v = v.toString();
+        if (typeof value !== 'string') {
+          value = value.toString();
         }
         break;
       case 'backgroundImage': {
-        [p, v] = parseBackgroundImage(p, v);
+        [key, value] = parseBackgroundImage(key, value);
         break;
       }
       case 'textShadowOffsetX':
       case 'textShadowOffsetY': {
-        [p, v] = parseTextShadowOffset(p, v, this.style);
+        [key, value] = parseTextShadowOffset(key, value, this.style);
         break;
       }
       case 'textShadowOffset': {
-        const { x = 0, width = 0, y = 0, height = 0 } = v || {};
-        v = { width: x || width, height: y || height };
+        const { x = 0, width = 0, y = 0, height = 0 } = value || {};
+        value = { width: x || width, height: y || height };
         break;
       }
       default: {
         // Convert the property to W3C standard.
-        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, p)) {
-          p = PROPERTIES_MAP[p];
+        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, key)) {
+          key = PROPERTIES_MAP[key];
         }
         // Convert the value
-        if (typeof v === 'string') {
-          v = v.trim();
+        if (typeof value === 'string') {
+          value = value.trim();
           // Convert inline color style to int
-          if (p.toLowerCase().indexOf('color') >= 0) {
-            v = colorParser(v, Native.Platform);
-          // Convert inline length style, drop the px unit
-          } else if (endsWith(v, 'px')) {
-            v = parseFloat(v.slice(0, v.length - 2));
+          if (key.toLowerCase().indexOf('color') >= 0) {
+            value = colorParser(value, Native.Platform);
+            // Convert inline length style, drop the px unit
+          } else if (endsWith(value, 'px')) {
+            value = parseFloat(value.slice(0, value.length - 2));
           } else {
-            v = tryConvertNumber(v);
+            value = tryConvertNumber(value);
           }
         }
       }
     }
-    if (v === undefined || v === null || this.style[p] === v) {
+    if (value === undefined || value === null || this.style[key] === value) {
       return;
     }
-    this.style[p] = v;
+    this.style[key] = value;
     if (!notToNative) {
       updateChild(this);
     }
@@ -431,7 +432,7 @@ class ElementNode extends ViewNode {
   }
 
   /**
-   * repaint element with latest style map, which maybe loaded from HMR chunk or dynamic chunk
+   * repaint element with the latest style map, which maybe loaded from HMR chunk or dynamic chunk
    */
   repaintWithChildren() {
     updateWithChildren(this);
@@ -517,8 +518,8 @@ class ElementNode extends ViewNode {
     // Current Target always be the event listener.
     eventInstance.currentTarget = this;
     // But target be the first target.
-    // Be careful, here's different than Browser,
-    // because Hippy can't callback without element _emitter.
+    // Be careful, here's different from Browser,
+    // because Hippy can't call back without element _emitter.
     if (!eventInstance.target) {
       eventInstance.target = this;
       // IMPORTANT: It's important for vnode diff and directive trigger.
