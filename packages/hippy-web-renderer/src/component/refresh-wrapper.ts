@@ -126,15 +126,32 @@ class PullRefresh {
     return this.refreshHeadHeight > PullOverThreshold ? this.refreshHeadHeight : PullOverThreshold;
   }
 
+  public get endYOffset() {
+    return 0 - this.refreshContent?.clientHeight;
+  }
+
   public init() {
     this.contentStyleCache = this.scrollContent.style;
     this.scrollContent.addEventListener('touchstart', this.handleTouchStart);
     this.scrollContent.addEventListener('touchmove', this.handlerTouchMove);
     this.scrollContent.addEventListener('touchend', this.handlerTouchEnd);
+    this.resetRefreshContentTop();
+  }
+
+  public resetRefreshContentTop() {
+    setElementsStyle([this.refreshContent], { transform: buildTranslate(0, `${(-this.refreshContent.clientHeight) ?? 0}px`) });
   }
 
   public finish() {
-    setElementsStyle([this.scrollContent, this.refreshContent], {
+    setElementsStyle([this.refreshContent], {
+      transform: buildTranslate(0, `${this.endYOffset}px`),
+      transition: buildTransition(
+        'transform',
+        `${BounceBackTime / 1000}`,
+        BounceBackEasingFunction,
+      ),
+    });
+    setElementsStyle([this.scrollContent], {
       transform: buildTranslate(0, 0),
       transition: buildTransition(
         'transform',
@@ -231,9 +248,7 @@ class PullRefresh {
           transform: buildTranslate(0, `${(this.overScrollThreshold - this.refreshContent.clientHeight) ?? 0}px`),
         });
       } else {
-        setElementsStyle([this.scrollContent, this.refreshContent], {
-          transform: buildTranslate(0, 0),
-        });
+        this.finish();
         setTimeout(() => {
           this.moveLengthRecord = 0;
           this.touchMove = 0;

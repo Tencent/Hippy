@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { HippyWebEngineContext, HippyWebModule } from '../base';
+import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
 import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
 import { setElementStyle, warn, error } from '../common';
 
@@ -178,6 +178,7 @@ export class UIManagerModule extends HippyWebModule {
 
     const keys = Object.keys(props);
     if (props.style) {
+      const oldPosition = component.props?.style?.position;
       setElementStyle(component.dom!, props.style, (key: string, value: any) => {
         this.animationProcess(key, value, component);
       });
@@ -188,6 +189,14 @@ export class UIManagerModule extends HippyWebModule {
         setElementStyle(component.dom!, { overflow: 'visible' });
       }
       component.updateProperty?.('style', props.style);
+
+      if ((props.style.position === 'absolute' ||  props.style.position === 'relative') && oldPosition !== props.style.position) {
+        (this.findViewById(component.pId)! as HippyWebView<any>)?.changeStackContext(true);
+      } else if (oldPosition !== props.style.position && !props.style.position) {
+        (this.findViewById(component.pId)! as HippyWebView<any>)?.changeStackContext(false);
+      } else if ((this.findViewById(component.pId)! as HippyWebView<any>)?.exitChildrenStackContext) {
+        (component as HippyWebView<any>).updateSelfStackContext(true);
+      }
     }
     for (const key of keys) {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {

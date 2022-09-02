@@ -23,6 +23,7 @@
 import ResizeObserver from 'resize-observer-polyfill';
 import * as Hammer from 'hammerjs';
 import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps, HippyTransferData } from '../types';
+import { setElementStyle } from '../common';
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public tagName!: InnerNodeTag;
@@ -36,7 +37,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
   public resizeObserver: ResizeObserver|undefined;
   public layoutCache: {x: number, y: number, height: number, width: number}|null = null;
   public hammer;
+  public exitChildrenStackContext = false;
   private mountedLayoutDispatch = false;
+  private updatedZIndex = false;
   public constructor(context, id, pId) {
     this.id = id;
     this.pId = pId;
@@ -58,6 +61,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
       this[key] = value;
       return;
     }
+    // if (!(key in this)) {
+    //   warn(`${this.tagName} is unsupported ${key}`);
+    // }
   }
   public initHammer() {
     if (!this.hammer) {
@@ -163,6 +169,49 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
 
   public get onLayout() {
     return this.props[NodeProps.ON_LAYOUT];
+  }
+
+  public changeStackContext(value: boolean) {
+    if (!value && this.exitChildrenStackContext) {
+      let hasOtherStackContext = false;
+      this.dom?.childNodes.forEach((item) => {
+        if ((item as HTMLElement).style.position === 'absolute' || (item as HTMLElement).style.position === 'relative') {
+          hasOtherStackContext = true;
+        }
+      });
+      if (!hasOtherStackContext) {
+        this.exitChildrenStackContext = false;
+        this.updateChildzIndex();
+      }
+    } else if (value && !this.exitChildrenStackContext) {
+      this.exitChildrenStackContext = true;
+      this.updateChildzIndex();
+    }
+  }
+
+  public updateChildzIndex() {
+    this.dom?.childNodes.forEach((item) => {
+      const childDom = this.context.getModuleByName('UIManagerModule').findViewById((item as HTMLElement).id);
+      if (this.exitChildrenStackContext
+        && !(childDom.props.style.position || childDom.props.style.zIndex !== undefined)) {
+        childDom.updateSelfStackContext();
+      }
+      if (!this.exitChildrenStackContext && childDom.updatedZIndex) {
+        childDom.updateSelfStackContext(false);
+      }
+    });
+  }
+
+  public updateSelfStackContext(value = true) {
+    if (value) {
+      this.props.style.zIndex = 0;
+      setElementStyle(this.dom as HTMLElement, { zIndex: 0 });
+      this.updatedZIndex = true;
+      return;
+    }
+    delete this.props.style.zIndex;
+    setElementStyle(this.dom as HTMLElement, { zIndex: 'auto' });
+    this.updatedZIndex = false;
   }
 
   public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
