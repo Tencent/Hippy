@@ -195,7 +195,7 @@ class Image extends React.Component<ImageProps, {}> {
     /**
      * tintColor(s)
      */
-    const nativeStyle = { ...style } as { tintColor?: HippyTypes.tintColor, tintColors?: HippyTypes.tintColors };
+    const nativeStyle: { tintColor?: HippyTypes.tintColor, tintColors?: HippyTypes.tintColors } = { ...style };
     this.handleTintColor(nativeStyle, tintColor as HippyTypes.tintColor, tintColors as HippyTypes.tintColors);
     (nativeProps as ImageProps).style = nativeStyle;
 
