@@ -357,7 +357,11 @@ function stylePolyfill() {
   style.type = 'text/css';
   style.innerHTML = '*::-webkit-scrollbar {\n'
     + '  display: none;\n'
-    + '}';
+    + '}'
+    + ' img[src=""],img:not([src]){\n'
+    + '     opacity: 0;\n'
+    + '     visibility: hidden;\n'
+    + ' }';
 
   document.getElementsByTagName('head')[0].appendChild(style);
 }
