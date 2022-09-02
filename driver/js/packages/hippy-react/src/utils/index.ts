@@ -37,7 +37,7 @@ function trace(...context: any[]) {
  */
 function warn(...context: any[]) {
   // In production build
-  if (process.env.NODE_ENV === 'production') {
+  if (!isDev()) {
     return;
   }
   console.warn(...context);

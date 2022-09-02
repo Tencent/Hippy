@@ -480,7 +480,7 @@ function renderToNativeWithChildren(rootViewId, node, callback, refInfo = {}) {
       eventLanguages.push(eventNode);
     }
     if (printedNode) {
-      printedLanguages.push(printedNode)
+      printedLanguages.push(printedNode);
     }
     if (typeof callback === 'function') {
       callback(targetNode);
