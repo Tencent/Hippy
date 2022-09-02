@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'core\' read begins'
     cores.source_files = 'core/**/*.{h,cc}'
     cores.public_header_files = 'core/include/**/*.h'
-    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr']
+    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr', 'core/include/core/inspector', 'core/src/inspector']
     cores.libraries = 'c++'
     #this setting causes 'There are header files outside of the header_mappings_dir'
     # cores.header_mappings_dir = 'core/include/'
