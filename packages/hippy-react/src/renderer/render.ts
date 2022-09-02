@@ -25,7 +25,7 @@ import Element from '../dom/element-node';
 import * as UIManagerModule from '../modules/ui-manager-module';
 import { Device } from '../global';
 import { getRootViewId, getRootContainer } from '../utils/node';
-import { trace, warn } from '../utils';
+import { deepCopy, isDev, trace, warn } from '../utils';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -148,7 +148,7 @@ function getNativeProps(node: Element) {
  */
 function getTargetNodeAttributes(targetNode: Element) {
   try {
-    const targetNodeAttributes = JSON.parse(JSON.stringify(targetNode.attributes));
+    const targetNodeAttributes = deepCopy(targetNode.attributes);
     const attributes = {
       id: targetNode.id,
       ...targetNodeAttributes,
@@ -188,11 +188,9 @@ function renderToNative(rootViewId: number, targetNode: Element): HippyTypes.Nat
     },
   };
   // Add nativeNode attributes info for debugging
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
     nativeNode.tagName = targetNode.nativeName;
-    if (nativeNode.props) {
-      nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
-    }
+    nativeNode.props!.attributes = getTargetNodeAttributes(targetNode);
   }
   return nativeNode;
 }

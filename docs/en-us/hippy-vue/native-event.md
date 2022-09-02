@@ -1,4 +1,4 @@
-# Event
+# Events
 
 Some events are not sent to a single UI, but to the whole business, such as the flip of the screen, the change of the network, etc., we call it `native events`.
 
