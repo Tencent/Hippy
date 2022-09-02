@@ -1,8 +1,12 @@
-# Native Event
+# Events
 
 Some events are not sent to a single UI, but to the whole business, such as the flip of the screen, the change of the network, etc., we call it `native events`.
 
-In hippy-vue, all native events are distributed to the instance of vue (named `app` in the example) through Vue's internal event mechanism.
+Hippy provides two methods to manage global events:
+
++ `Hippy.on`, `Hippy.off`, `Hippy.emit` is framework-less EventBus, mainly to listen to some special C++ events such as `dealloc`, `destroyInstance`. It can be also used to customize JS global events.
+
++ `app.$on`, `app.$off`, `app.$emit` is Vue EventBus, which not only being used to customize JS global events, but also to handle all `NativeEvent` dispatching, such as `rotate` event.
 
 ---
 

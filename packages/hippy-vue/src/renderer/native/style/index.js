@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { getBeforeLoadStyle } from '../../../util';
+import { getBeforeLoadStyle, isDev } from '../../../util';
 import parseSelector from './parser';
 import {
   RuleSet,
@@ -40,7 +40,7 @@ function isDeclaration(node) {
 function createDeclaration(beforeLoadStyle) {
   return (decl) => {
     const newDecl = beforeLoadStyle(decl);
-    if (process.env.NODE_ENV !== 'production') {
+    if (isDev()) {
       if (!newDecl) {
         throw new Error('beforeLoadStyle hook must returns the processed style object');
       }

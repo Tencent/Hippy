@@ -24,9 +24,9 @@ interface WebViewProps {
   source: { uri: string };
   userAgent: string;
   method: string;
-  onLoadStart: ({ url: string }) => void;
-  onLoad: ({ url: string }) => void;
-  onLoadEnd: ({ url: string }) => void;
+  onLoadStart: (options: { url: string }) => void;
+  onLoad: (options: { url: string }) => void;
+  onLoadEnd: (options: { url: string }) => void;
   style: HippyTypes.Style;
 }
 
