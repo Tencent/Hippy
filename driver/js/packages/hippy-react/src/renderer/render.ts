@@ -258,6 +258,7 @@ function renderToNative(
   if (!targetNode.meta.component) {
     throw new Error(`Specific tag is not supported yet: ${targetNode.tagName}`);
   }
+  // Translate to native node
   const nativeNode: HippyTypes.NativeNode = {
     id: targetNode.nodeId,
     pId: (targetNode.parentNode?.nodeId) || rootViewId,
