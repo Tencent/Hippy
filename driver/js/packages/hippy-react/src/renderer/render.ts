@@ -29,7 +29,7 @@ import {
   eventHandlerType,
   nativeEventMap,
 } from '../utils/node';
-import { deepCopy, isTraceEnabled, trace, warn } from '../utils';
+import { deepCopy, isDev, isTraceEnabled, trace, warn } from '../utils';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -47,7 +47,8 @@ const NODE_OPERATION_TYPES: BatchType = {
 interface BatchChunk {
   type: symbol,
   nodes: HippyTypes.TranslatedNodes[],
-  eventNodes: HippyTypes.EventNode[]
+  eventNodes: HippyTypes.EventNode[],
+  printedNodes: HippyTypes.PrintedNode[],
 }
 
 let batchIdle = true;
@@ -60,17 +61,19 @@ function chunkNodes(batchNodes: BatchChunk[]) {
   const result: BatchChunk[] = [];
   for (let i = 0; i < batchNodes.length; i += 1) {
     const chunk: BatchChunk = batchNodes[i];
-    const { type, nodes, eventNodes } = chunk;
+    const { type, nodes, eventNodes, printedNodes } = chunk;
     const lastChunk = result[result.length - 1];
     if (!lastChunk || lastChunk.type !== type) {
       result.push({
         type,
         nodes,
         eventNodes,
+        printedNodes,
       });
     } else {
       lastChunk.nodes = lastChunk.nodes.concat(nodes);
       lastChunk.eventNodes = lastChunk.eventNodes.concat(eventNodes);
+      lastChunk.printedNodes = lastChunk.printedNodes.concat(printedNodes);
     }
   }
   return result;
@@ -106,17 +109,11 @@ function handleEventListeners(eventNodes: HippyTypes.EventNode[] = [], sceneBuil
 
 /**
  * print nodes operation log
- * @param {HippyTypes.TranslatedNodes[]} nodes
+ * @param {HippyTypes.PrintedNode[]} printedNodes
  * @param {string} nodeType
  */
-function printNodesOperation(nodes: HippyTypes.TranslatedNodes[], nodeType: string): void {
+function printNodesOperation(printedNodes: HippyTypes.PrintedNode[], nodeType: string): void {
   if (isTraceEnabled()) {
-    const printedNodes: (HippyTypes.NativeNode & HippyTypes.ReferenceInfo)[] = [];
-    nodes.forEach((node) => {
-      const [domNode, referenceNode] = (node || []) as HippyTypes.TranslatedNodes;
-      const printedNode = Object.assign({}, domNode, referenceNode);
-      printedNodes.push(printedNode);
-    });
     trace(...componentName, nodeType, printedNodes);
   }
 }
@@ -131,21 +128,21 @@ function batchUpdate(rootViewId: number): void {
   chunks.forEach((chunk) => {
     switch (chunk.type) {
       case NODE_OPERATION_TYPES.createNode:
-        printNodesOperation(chunk.nodes, 'createNode');
+        printNodesOperation(chunk.printedNodes, 'createNode');
         sceneBuilder.create(chunk.nodes);
         handleEventListeners(chunk.eventNodes, sceneBuilder);
         break;
       case NODE_OPERATION_TYPES.updateNode:
-        printNodesOperation(chunk.nodes, 'updateNode');
+        printNodesOperation(chunk.printedNodes, 'updateNode');
         sceneBuilder.update(chunk.nodes);
         handleEventListeners(chunk.eventNodes, sceneBuilder);
         break;
       case NODE_OPERATION_TYPES.deleteNode:
-        printNodesOperation(chunk.nodes, 'deleteNode');
+        printNodesOperation(chunk.printedNodes, 'deleteNode');
         sceneBuilder.delete(chunk.nodes);
         break;
       case NODE_OPERATION_TYPES.moveNode:
-        printNodesOperation(chunk.nodes, 'moveNode');
+        printNodesOperation(chunk.printedNodes, 'moveNode');
         sceneBuilder.move(chunk.nodes);
         break;
       default:
@@ -237,7 +234,11 @@ function getEventNode(targetNode): HippyTypes.EventNode {
   return eventNode;
 }
 
-type renderToNativeReturnedVal = [translatedNode?: HippyTypes.TranslatedNodes, eventNode?: HippyTypes.EventNode];
+type renderToNativeReturnedVal = [
+  translatedNode?: HippyTypes.TranslatedNodes,
+  eventNode?: HippyTypes.EventNode,
+  printedNode?: HippyTypes.PrintedNode,
+];
 
 /**
  * Render Element to native
@@ -266,19 +267,34 @@ function renderToNative(
       style: targetNode.style,
     },
   };
+  const eventNode = getEventNode(targetNode);
+
+  let printedNode: HippyTypes.PrintedNode = undefined;
+  if (isDev()) {
+    // generate printedNode for debugging
+    const listenerProp = {};
+    if (eventNode && Array.isArray(eventNode.eventList)) {
+      eventNode.eventList.forEach((eventListItem) => {
+        const { name, listener, type } = eventListItem;
+        type === eventHandlerType.ADD && Object.assign(listenerProp, { [name]: listener });
+      });
+    }
+    Object.assign(printedNode = {}, nativeNode, refInfo);
+    printedNode.listeners = listenerProp;
+    // Add nativeNode attributes info for debugging
+    nativeNode.tagName = targetNode.nativeName;
+    nativeNode.props!.attributes = getTargetNodeAttributes(targetNode);
+  }
   // convert to translatedNode
   const translatedNode: HippyTypes.TranslatedNodes = [nativeNode, refInfo];
-  const eventNode = getEventNode(targetNode);
-  // Add nativeNode attributes info for debugging
-  if (process.env.NODE_ENV !== 'production') {
-    nativeNode.tagName = targetNode.nativeName;
-    if (nativeNode.props) {
-      nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
-    }
-  }
-  return [translatedNode, eventNode];
+  return [translatedNode, eventNode, printedNode];
 }
 
+type renderToNativeWithChildrenReturnedVal = [
+  nativeLanguages: HippyTypes.TranslatedNodes[],
+  eventLanguages: HippyTypes.EventNode[],
+  printedLanguages: HippyTypes.PrintedNode[]
+];
 /**
  * Render Element with children to native
  * @param {number} rootViewId - rootView id
@@ -294,26 +310,30 @@ function renderToNativeWithChildren(
   atIndex?: number,
   callback?: Function,
   refInfo: HippyTypes.ReferenceInfo = {},
-): [nativeLanguages: HippyTypes.TranslatedNodes[], eventLanguages: HippyTypes.EventNode[]] {
+): renderToNativeWithChildrenReturnedVal {
   const nativeLanguages: HippyTypes.TranslatedNodes[] = [];
   const eventLanguages: HippyTypes.EventNode[] = [];
+  const printedLanguages: HippyTypes.PrintedNode[] = [];
   let index = atIndex;
   if (typeof index === 'undefined' && node && node.parentNode) {
     index = node.parentNode.childNodes.indexOf(node);
   }
   node.traverseChildren((targetNode: Element, refInfo: HippyTypes.ReferenceInfo) => {
-    const [nativeNode, eventNode] = renderToNative(rootViewId, targetNode, refInfo);
+    const [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, targetNode, refInfo);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
     }
     if (eventNode) {
       eventLanguages.push(eventNode);
     }
+    if (printedNode) {
+      printedLanguages.push(printedNode)
+    }
     if (typeof callback === 'function') {
       callback(targetNode);
     }
   }, index, refInfo);
-  return [nativeLanguages, eventLanguages];
+  return [nativeLanguages, eventLanguages, printedLanguages];
 }
 
 function isLayout(node: ViewNode) {
@@ -337,7 +357,7 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, re
   const renderOtherNodeCondition = parentNode.isMounted && !childNode.isMounted;
   // Render the root node or other nodes
   if (renderRootNodeCondition || renderOtherNodeCondition) {
-    const [nativeLanguages, eventLanguages] = renderToNativeWithChildren(
+    const [nativeLanguages, eventLanguages, printedLanguages] = renderToNativeWithChildren(
       rootViewId,
       childNode,
       atIndex,
@@ -352,6 +372,7 @@ function insertChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, re
       type: NODE_OPERATION_TYPES.createNode,
       nodes: nativeLanguages,
       eventNodes: eventLanguages,
+      printedNodes: printedLanguages,
     });
   }
 }
@@ -363,16 +384,19 @@ function removeChild(parentNode: ViewNode, childNode: ViewNode | null, index: nu
   childNode.isMounted = false;
   childNode.index = index;
   const rootViewId = getRootViewId();
+  const nativeNode =  {
+    id: childNode.nodeId,
+    pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
+  };
   const deleteNodeIds: HippyTypes.TranslatedNodes[] = [
     [
-      {
-        id: childNode.nodeId,
-        pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
-      },
+      nativeNode,
       {},
     ],
   ];
+  const printedNodes = isDev() ? [nativeNode] : [];
   batchNodes.push({
+    printedNodes,
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
     eventNodes: [],
@@ -388,16 +412,19 @@ function moveChild(parentNode: ViewNode, childNode: ViewNode, atIndex = -1, refI
   }
   childNode.index = atIndex;
   const rootViewId = getRootViewId();
+  const nativeNode =  {
+    id: childNode.nodeId,
+    pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
+  };
   const moveNodeIds: HippyTypes.TranslatedNodes[] = [
     [
-      {
-        id: childNode.nodeId,
-        pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
-      },
+      nativeNode,
       refInfo,
     ],
   ];
+  const printedNodes = isDev() ? [nativeNode] : [];
   batchNodes.push({
+    printedNodes,
     type: NODE_OPERATION_TYPES.moveNode,
     nodes: moveNodeIds,
     eventNodes: [],
@@ -409,12 +436,13 @@ function updateChild(parentNode: Element) {
     return;
   }
   const rootViewId = getRootViewId();
-  const [nativeNode, eventNode] = renderToNative(rootViewId, parentNode);
+  const [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, parentNode);
   if (nativeNode) {
     batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: [nativeNode],
       eventNodes: [eventNode],
+      printedNodes: isDev() ? [printedNode] : [],
     });
   }
 }
@@ -424,12 +452,13 @@ function updateWithChildren(parentNode: ViewNode) {
     return;
   }
   const rootViewId = getRootViewId();
-  const [nativeLanguages, eventLanguages] = renderToNativeWithChildren(rootViewId, parentNode) || {};
+  const [nativeLanguages, eventLanguages, printedLanguages] = renderToNativeWithChildren(rootViewId, parentNode) || {};
   if (nativeLanguages) {
     batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: nativeLanguages,
       eventNodes: eventLanguages,
+      printedNodes: printedLanguages,
     });
   }
 }

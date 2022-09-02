@@ -71,8 +71,12 @@ const infoTrace = once(() => {
   console.log('Hippy-Vue has "Vue.config.silent" to control trace log output, to see output logs if set it to false.');
 });
 
+function isDev() {
+  return process.env.NODE_ENV !== 'production';
+}
+
 function isTraceEnabled() {
-  return !(process.env.NODE_ENV === 'production'
+  return !(!isDev()
     || (process && process.release)
     || (_Vue && _Vue.config.silent));
 }
@@ -86,7 +90,7 @@ function trace(...context) {
 }
 
 function warn(...context) {
-  if (process.env.NODE_ENV === 'production') {
+  if (!isDev()) {
     return null;
   }
   return console.warn(...context);
@@ -180,7 +184,7 @@ function endsWith(str, search, length) {
 function convertImageLocalPath(originalUrl) {
   let url = originalUrl;
   if (/^assets/.test(url)) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (isDev()) {
       url = `${HIPPY_DEBUG_ADDRESS}${url}`;
     } else {
       url = `${HIPPY_STATIC_PROTOCOL}./${url}`;
@@ -232,6 +236,7 @@ export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
   isEmpty,
+  isDev,
   setVue,
   getVue,
   setApp,

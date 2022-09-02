@@ -45,6 +45,7 @@ import {
 import {
   getApp,
   setApp,
+  isDev,
   isFunction,
   trace,
   setBeforeLoadStyle,
@@ -263,7 +264,7 @@ if (config.devtools && devtools) {
 const ProxyedVue = new Proxy(Vue, {
   construct(Target, args) {
     const vm = new Target(...args);
-    if (process.env.NODE_ENV === 'development') {
+    if (isDev()) {
       if (!global.__VUE_ROOT_INSTANCES__) global.__VUE_ROOT_INSTANCES__ = [];
       if (args && args.length && args[0].appName) global.__VUE_ROOT_INSTANCES__.push(vm);
     }

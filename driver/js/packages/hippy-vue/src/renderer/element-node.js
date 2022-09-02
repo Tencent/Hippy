@@ -32,6 +32,7 @@ import {
   endsWith,
   getBeforeLoadStyle,
   warn,
+  isDev,
   isEmpty,
 } from '../util';
 import Native from '../runtime/native';
@@ -357,7 +358,7 @@ class ElementNode extends ViewNode {
       !options.notToNative && updateChild(this);
     } catch (err) {
       // Throw error in development mode
-      if (process.env.NODE_ENV !== 'production') {
+      if (isDev()) {
         throw err;
       }
     }

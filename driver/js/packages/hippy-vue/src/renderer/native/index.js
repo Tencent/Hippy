@@ -30,6 +30,7 @@ import {
   getApp,
   trace,
   warn,
+  isDev,
   isFunction,
   convertImageLocalPath,
   deepCopy,
@@ -66,17 +67,19 @@ function chunkNodes(batchNodes) {
   const result = [];
   for (let i = 0; i < batchNodes.length; i += 1) {
     const chunk = batchNodes[i];
-    const { type, nodes, eventNodes } = chunk;
+    const { type, nodes, eventNodes, printedNodes } = chunk;
     const lastChunk = result[result.length - 1];
     if (!lastChunk || lastChunk.type !== type) {
       result.push({
         type,
         nodes,
         eventNodes,
+        printedNodes,
       });
     } else {
       lastChunk.nodes = lastChunk.nodes.concat(nodes);
       lastChunk.eventNodes = lastChunk.eventNodes.concat(eventNodes);
+      lastChunk.printedNodes = lastChunk.printedNodes.concat(printedNodes);
     }
   }
   return result;
@@ -117,17 +120,11 @@ let __cssMap;
 
 /**
  * print nodes operation log
- * @param {HippyTypes.TranslatedNodes[]} nodes
+ * @param {HippyTypes.PrintedNode[]} printedNodes
  * @param {string} nodeType
  */
-function printNodeOperation(nodes, nodeType) {
+function printNodeOperation(printedNodes, nodeType) {
   if (isTraceEnabled()) {
-    const printedNodes = [];
-    nodes.forEach((node) => {
-      const [domNode, referenceNode] = node || [];
-      const printedNode = Object.assign({}, domNode, referenceNode);
-      printedNodes.push(printedNode);
-    });
     trace(...componentName, nodeType, printedNodes);
   }
 }
@@ -151,21 +148,21 @@ function endBatch(app) {
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NODE_OPERATION_TYPES.createNode:
-          printNodeOperation(chunk.nodes, 'createNode');
+          printNodeOperation(chunk.printedNodes, 'createNode');
           sceneBuilder.create(chunk.nodes);
           handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.updateNode:
-          printNodeOperation(chunk.nodes, 'updateNode');
+          printNodeOperation(chunk.printedNodes, 'updateNode');
           sceneBuilder.update(chunk.nodes);
           handleEventListeners(chunk.eventNodes, sceneBuilder);
           break;
         case NODE_OPERATION_TYPES.deleteNode:
-          printNodeOperation(chunk.nodes, 'deleteNode');
+          printNodeOperation(chunk.printedNodes, 'deleteNode');
           sceneBuilder.delete(chunk.nodes);
           break;
         case NODE_OPERATION_TYPES.moveNode:
-          printNodeOperation(chunk.nodes, 'moveNode');
+          printNodeOperation(chunk.printedNodes, 'moveNode');
           sceneBuilder.move(chunk.nodes);
           break;
         default:
@@ -228,7 +225,7 @@ function getNativeProps(node) {
       }
     });
   }
-  // Get the proceed props from node attributes
+  // Get the processed props from node attributes
   Object.keys(node.attributes).forEach((key) => {
     let value = node.getAttribute(key);
     // No defined map
@@ -326,13 +323,11 @@ function parseViewComponent(targetNode, nativeNode, style) {
 /**
  * Get target node attributes, use to chrome devTool tag attribute show while debugging
  * @param targetNode
- * @param events
  * @returns attributes|{}
  */
-function getTargetNodeAttributes(targetNode, events) {
+function getTargetNodeAttributes(targetNode) {
   try {
-    const mergedProps = Object.assign({}, targetNode.attributes, events);
-    const targetNodeAttributes = deepCopy(mergedProps);
+    const targetNodeAttributes = deepCopy(targetNode.attributes);
     const classInfo = Array.from(targetNode.classList || []).join(' ');
     const attributes = {
       id: targetNode.id,
@@ -353,7 +348,7 @@ function processModalView(nativeNode) {
     const nodeStyle = nativeNode.props.style;
     Object.keys(nodeStyle).some((styleKey) => {
       if (styleKey === 'position' && nodeStyle[styleKey] === 'absolute') {
-        if (process.env.NODE_ENV !== 'production') {
+        if (isDev()) {
           console.error(`it cannot set { position: absolute } for the first child node of <dialog /> , please remove it.
 If you want to make dialog cover fullscreen, please use { flex: 1 } or set height and width to the first child node of <dialog />`);
         }
@@ -366,12 +361,11 @@ If you want to make dialog cover fullscreen, please use { flex: 1 } or set heigh
 }
 
 /**
- * getEventAttributeAndNode - translate event info to event attribute & event node.
+ * getEventNode - translate event info event node.
  * @param targetNode
  */
-function getEventAttributeAndNode(targetNode) {
-  const events = {};
-  let eventNode;
+function getEventNode(targetNode) {
+  let eventNode = undefined;
   const eventsAttributes = targetNode.events;
   if (eventsAttributes) {
     const eventList = [];
@@ -387,9 +381,6 @@ function getEventAttributeAndNode(targetNode) {
         //     listener,
         //   });
         // }
-        Object.assign(events, {
-          [name]: () => {},
-        });
         eventList.push({
           name,
           type,
@@ -402,7 +393,7 @@ function getEventAttributeAndNode(targetNode) {
       eventList,
     };
   }
-  return { events, eventNode };
+  return eventNode;
 }
 
 /**
@@ -431,7 +422,7 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
   style = { ...style, ...targetNode.style };
 
   // Convert to real native event
-  const { events, eventNode } = getEventAttributeAndNode(targetNode);
+  const eventNode = getEventNode(targetNode);
   // Translate to native node
   const nativeNode = {
     id: targetNode.nodeId,
@@ -439,21 +430,33 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
     name: targetNode.meta.component.name,
     props: {
       ...getNativeProps(targetNode),
-      ...events,
       style,
     },
   };
-  // convert to translatedNode
-  const translatedNode = [nativeNode, refInfo];
-  processModalView(nativeNode);
+
+  let printedNode = undefined;
   // Add nativeNode attributes info for Element debugging
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
+    // generate printedNode for debugging
+    const listenerProp = {};
+    if (eventNode && Array.isArray(eventNode.eventList)) {
+      eventNode.eventList.forEach((eventListItem) => {
+        const { name, listener, type } = eventListItem;
+        type === eventHandlerType.ADD && Object.assign(listenerProp, { [name]: listener });
+      });
+    }
+    Object.assign(printedNode = {}, nativeNode, refInfo);
+    printedNode.listeners = listenerProp;
+    // Add nativeNode attributes info for debugging
     nativeNode.tagName = targetNode.tagName;
-    nativeNode.props.attributes = getTargetNodeAttributes(targetNode, events);
+    nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
+  processModalView(nativeNode);
   parseViewComponent(targetNode, nativeNode, style);
   parseTextInputComponent(targetNode, style);
-  return [translatedNode, eventNode];
+  // convert to translatedNode
+  const translatedNode = [nativeNode, refInfo];
+  return [translatedNode, eventNode, printedNode];
 }
 
 /**
@@ -467,19 +470,23 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
 function renderToNativeWithChildren(rootViewId, node, callback, refInfo = {}) {
   const nativeLanguages = [];
   const eventLanguages = [];
+  const printedLanguages = [];
   node.traverseChildren((targetNode, refInfo) => {
-    const [nativeNode, eventNode] = renderToNative(rootViewId, targetNode, refInfo);
+    const [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, targetNode, refInfo);
     if (nativeNode) {
       nativeLanguages.push(nativeNode);
     }
     if (eventNode) {
       eventLanguages.push(eventNode);
     }
+    if (printedNode) {
+      printedLanguages.push(printedNode)
+    }
     if (typeof callback === 'function') {
       callback(targetNode);
     }
   }, refInfo);
-  return [nativeLanguages, eventLanguages];
+  return [nativeLanguages, eventLanguages, printedLanguages];
 }
 
 function isLayout(node, rootView) {
@@ -488,7 +495,7 @@ function isLayout(node, rootView) {
     return true;
   }
   // Check the id is specific for rootView.
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
     if (!rootView) {
       warn('rootView option is necessary for new HippyVue()');
     }
@@ -519,7 +526,7 @@ function insertChild(parentNode, childNode, atIndex = -1, refInfo = {}) {
   // Render the root node or other nodes
   if (renderRootNodeCondition || renderOtherNodeCondition) {
     // Start real native work.
-    const [nativeLanguages, eventLanguages] = renderToNativeWithChildren(
+    const [nativeLanguages, eventLanguages, printedLanguages] = renderToNativeWithChildren(
       rootViewId,
       renderRootNodeCondition ? parentNode : childNode,
       (node) => {
@@ -534,6 +541,7 @@ function insertChild(parentNode, childNode, atIndex = -1, refInfo = {}) {
       type: NODE_OPERATION_TYPES.createNode,
       nodes: nativeLanguages,
       eventNodes: eventLanguages,
+      printedNodes: printedLanguages,
     });
     endBatch(app);
   }
@@ -550,16 +558,19 @@ function removeChild(parentNode, childNode, index) {
   childNode.index = index;
   const app = getApp();
   const { $options: { rootViewId } } = app;
+  const nativeNode =    {
+    id: childNode.nodeId,
+    pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
+  };
   const deleteNodeIds = [
     [
-      {
-        id: childNode.nodeId,
-        pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
-      },
+      nativeNode,
       {},
     ],
   ];
+  const printedNodes = isDev() ? [nativeNode] : [];
   batchNodes.push({
+    printedNodes,
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
     eventNodes: [],
@@ -578,16 +589,19 @@ function moveChild(parentNode, childNode, index, refInfo = {}) {
   childNode.index = index;
   const app = getApp();
   const { $options: { rootViewId } } = app;
+  const nativeNode =  {
+    id: childNode.nodeId,
+    pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
+  };
   const moveNodeIds = [
     [
-      {
-        id: childNode.nodeId,
-        pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
-      },
+      nativeNode,
       refInfo,
     ],
   ];
+  const printedNodes = isDev() ? [nativeNode] : [];
   batchNodes.push({
+    printedNodes,
     type: NODE_OPERATION_TYPES.moveNode,
     nodes: moveNodeIds,
     eventNodes: [],
@@ -601,12 +615,13 @@ function updateChild(parentNode) {
   }
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  const  [nativeNode, eventNode] = renderToNative(rootViewId, parentNode);
+  const  [nativeNode, eventNode, printedNode] = renderToNative(rootViewId, parentNode);
   if (nativeNode) {
     batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: [nativeNode],
       eventNodes: [eventNode],
+      printedNodes: isDev() ? [printedNode] : [],
     });
     endBatch(app);
   }
@@ -618,11 +633,12 @@ function updateWithChildren(parentNode) {
   }
   const app = getApp();
   const { $options: { rootViewId } } = app;
-  const [nativeLanguages, eventLanguages] = renderToNativeWithChildren(rootViewId, parentNode);
+  const [nativeLanguages, eventLanguages, printedLanguages] = renderToNativeWithChildren(rootViewId, parentNode);
   batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: nativeLanguages,
     eventNodes: eventLanguages,
+    printedNodes: printedLanguages,
   });
   endBatch(app);
 }
