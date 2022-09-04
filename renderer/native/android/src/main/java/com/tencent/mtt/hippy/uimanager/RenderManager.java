@@ -18,14 +18,13 @@ package com.tencent.mtt.hippy.uimanager;
 
 import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_ALREADY_DELETED;
 import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
+import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_UPDATE_TOTAL_PROPS;
 
 import android.content.Context;
 import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.tencent.link_supplier.proxy.renderer.Renderer;
-import com.tencent.mtt.hippy.views.image.HippyImageViewController;
-import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.RenderRootNode;
@@ -121,6 +120,9 @@ public class RenderManager {
             LogUtils.w(TAG, "createNode: node == null");
             return;
         }
+        // New created node should use total props, therefore set this flag for
+        // update node not need to diff props in this batch cycle.
+        node.setNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
         rootNode.addRenderNode(node);
         parentNode.addChild(node, index);
         addUpdateNodeIfNeeded(rootId, parentNode);
