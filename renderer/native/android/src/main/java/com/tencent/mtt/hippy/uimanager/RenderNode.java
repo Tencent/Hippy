@@ -359,9 +359,6 @@ public class RenderNode {
             if (mPropsToUpdate == null) {
                 mPropsToUpdate = getProps();
             }
-            // New created view should use total props, therefore set this flag for
-            // update node not need to diff props in this batch cycle.
-            setNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
             // Do not need to create a view if both self and parent node support flattening
             // and no child nodes.
             if (createNow || !mControllerManager.checkFlatten(mClassName)
