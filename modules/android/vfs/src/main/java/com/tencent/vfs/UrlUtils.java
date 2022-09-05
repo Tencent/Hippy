@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.utils;
+package com.tencent.vfs;
 
 import androidx.annotation.Nullable;
 
