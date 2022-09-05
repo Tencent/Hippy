@@ -49,8 +49,8 @@ import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.image.ImageDataHolder;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
-import com.tencent.renderer.utils.UrlUtils;
 
+import com.tencent.vfs.UrlUtils;
 import java.lang.reflect.Field;
 
 public class TextImageSpan extends ImageSpan {

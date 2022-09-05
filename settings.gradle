@@ -13,5 +13,8 @@ project(':serialization').projectDir = new File('modules/android/serialization')
 include 'link_supplier'
 project(':link_supplier').projectDir = new File('modules/android/link_supplier')
 
+include 'vfs'
+project(':vfs').projectDir = new File('modules/android/vfs')
+
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')

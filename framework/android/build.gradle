@@ -156,6 +156,7 @@ dependencies {
   compileOnly project(path: ':renderer-native')
   compileOnly project(path: ':serialization')
   compileOnly project(path: ':link_supplier')
+  compileOnly project(path: ':vfs')
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
 
