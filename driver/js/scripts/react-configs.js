@@ -24,6 +24,7 @@ const typescript = require('rollup-plugin-typescript2');
 const replace = require('@rollup/plugin-replace');
 // const alias = require('@rollup/plugin-alias');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const { babel, getBabelOutputPlugin } = require('@rollup/plugin-babel');
 const commonjs = require('@rollup/plugin-commonjs');
 const hippyReactPackage = require('../packages/hippy-react/package.json');
 const hippyReactWebPackage = require('../packages/hippy-react-web/package.json');
@@ -108,6 +109,9 @@ const builds = {
     dest: resolvePackage('hippy-react-web', 'dist/index.js'),
     format: 'es',
     banner: banner('@hippy/react-web', hippyReactWebPackage.version),
+    plugins: [
+      babel({ babelHelpers: 'bundled' }),
+    ],
     output: {
       dir: './packages/hippy-react-web/dist',
       format: 'es',
@@ -117,6 +121,9 @@ const builds = {
         return 'lib/[name].js';
       },
       chunkFileNames: 'chunk/[name].[hash].js',
+      plugins: [
+        getBabelOutputPlugin({ presets: ['@babel/preset-env'] }),
+      ],
     },
     external(id) {
       return !![
