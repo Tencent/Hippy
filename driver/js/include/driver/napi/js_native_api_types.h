@@ -43,7 +43,9 @@ class Scope;
 inline namespace napi {
 
 constexpr char kErrorHandlerJSName[] = "ExceptionHandle.js";
+constexpr char kPromiseRejectHandlerJSName[] = "PromiseRejectHandle.js";
 constexpr char kHippyErrorHandlerName[] = "HippyExceptionHandler";
+constexpr char kHippyPromiseRejectHandlerName[] = "HippyPromiseRejectHandler";
 
 enum PropertyAttribute {
   /** None. **/
@@ -256,7 +258,7 @@ class Ctx {
   virtual bool IsFunction(const std::shared_ptr<CtxValue>& value) = 0;
   virtual string_view CopyFunctionName(
       const std::shared_ptr<CtxValue>& value) = 0;
-  
+
   virtual std::shared_ptr<CtxValue> RunScript(
       const string_view& data,
       const string_view& file_name) = 0;
@@ -266,7 +268,6 @@ class Ctx {
   virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) = 0;
   virtual void ThrowException(const string_view& exception) = 0;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
-
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(

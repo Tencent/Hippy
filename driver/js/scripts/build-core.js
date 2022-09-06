@@ -189,6 +189,7 @@ function getAllRequiredFiles(platform) {
       getAbsolutePath('../lib/bootstrap.js'),
       getAbsolutePath(`../lib/entry/${platform}/hippy.js`),
       getAbsolutePath('../lib/modules/ExceptionHandle.js'),
+      getAbsolutePath('../lib/modules/PromiseRejectHandle.js'),
     ];
 
     rl.on('line', (line) => {
@@ -241,7 +242,7 @@ function generateCpp(platform, buildDirPath) {
       for (let i = 0; i < fileBuffer.length; i += 1) {
         byteArr.push(fileBuffer[i]);
       }
-      if (fileName === 'bootstrap' || fileName === 'ExceptionHandle') {
+      if (fileName === 'bootstrap' || fileName === 'ExceptionHandle' || fileName === 'PromiseRejectHandle') {
         code += `
   const uint8_t k_${fileName}[] = { ${byteArr.join(',')},0 };  // NOLINT`;
       } else {

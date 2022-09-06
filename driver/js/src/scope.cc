@@ -222,7 +222,13 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
     auto context = weak_context.lock();
     if (context) {
       std::shared_ptr<hippy::dom::DomEvent> copied_event = event;
-      context->CallDomEvent(weak_scope, event_listener_info.callback, copied_event);
+      context->CallDomEvent(weak_scope, event_listener_info.callback,
+                            copied_event);
+#ifdef JS_V8
+      auto ctx =
+          std::static_pointer_cast<hippy::napi::V8Ctx>(weak_context.lock());
+      ctx->ProcessPromiseReject();
+#endif
     }
   }};
 }

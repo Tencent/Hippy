@@ -31,6 +31,9 @@
 #include "footstone/one_shot_timer.h"
 #include "footstone/repeating_timer.h"
 #include "footstone/string_view_utils.h"
+#ifdef JS_V8
+#include "driver/napi/v8/js_native_api_v8.h"
+#endif
 
 using string_view = footstone::stringview::string_view;
 using Ctx = hippy::napi::Ctx;
@@ -115,8 +118,8 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
       return;
     }
 
+    std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
     if (function) {
-      std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
       context->CallFunction(function, 0, nullptr);
     }
     std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
@@ -132,6 +135,10 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
     if (!repeat) {
       timer_map->erase(task_id);
     }
+#ifdef JS_V8
+    auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>(scope->GetContext());
+    ctx->ProcessPromiseReject();
+#endif
   });
 
   if (repeat) {

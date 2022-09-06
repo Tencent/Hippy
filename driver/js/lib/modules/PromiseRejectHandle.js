@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-(function exceptionHandler(eventName, err) {
+(function promiseRejectHandler(eventName, reason, promise) {
   if (global.Hippy) {
-    global.Hippy.emit(eventName, err);
+    global.Hippy.emit(eventName, {"reason" : reason, "promise" : promise});
   } else {
     /* eslint-disable-next-line no-console */
     console.error(eventName, err);

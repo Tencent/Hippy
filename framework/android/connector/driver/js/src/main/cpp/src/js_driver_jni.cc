@@ -327,7 +327,13 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   };
 
   runner->PostTask(std::move(func));
-
+#ifdef JS_V8
+  auto process_handle_callback = [ctx] {
+    auto context = std::static_pointer_cast<hippy::napi::V8Ctx>(ctx);
+    context->ProcessPromiseReject();
+  };
+  runner->PostTask(std::move(process_handle_callback));
+#endif
   return true;
 }
 

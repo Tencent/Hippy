@@ -970,6 +970,102 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const string_view& name) {
   return std::make_shared<V8CtxValue>(isolate_, maybe_func.ToLocalChecked());
 }
 
+void V8Ctx::ProcessPromiseReject() {
+  if (pending_unhandled_rejections_.empty()) {
+    return;
+  }
+  FOOTSTONE_LOG(INFO) << "[ProcessPromiseReject] size:"
+                      << pending_unhandled_rejections_.size();
+  string_view promise_reject_handle_name(kHippyPromiseRejectHandlerName);
+  std::shared_ptr<CtxValue> promise_reject_handler =
+      GetGlobalObjVar(promise_reject_handle_name);
+  if (!IsFunction(promise_reject_handler)) {
+    const auto& source_code = GetNativeSourceCode(kPromiseRejectHandlerJSName);
+    FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
+    string_view str_view(source_code.data_, source_code.length_);
+    promise_reject_handler =
+        RunScript(str_view, promise_reject_handle_name, false, nullptr, false);
+    SetGlobalObjVar(promise_reject_handle_name, promise_reject_handler,
+                    PropertyAttribute::ReadOnly);
+    FOOTSTONE_LOG(INFO)
+        << "[ProcessPromiseReject] init function";
+  }
+
+  for (auto iter = pending_unhandled_rejections_.begin();
+       iter != pending_unhandled_rejections_.end(); ++iter) {
+    std::shared_ptr<CtxValue> args[3];
+    args[0] = CreateString("unhandledRejection");
+    v8::HandleScope handle_scope(isolate_);
+    auto local = iter->second.second.Get(isolate_);
+    args[1] = std::make_shared<V8CtxValue>(isolate_, local);
+    args[2] = std::make_shared<V8CtxValue>(isolate_,
+                                           iter->second.first.Get(isolate_));
+    v8::TryCatch try_catch(isolate_);
+    std::shared_ptr<CtxValue> ret_value =
+        CallFunction(promise_reject_handler, 3, args);
+    if (try_catch.HasCaught()) {
+      auto message = try_catch.Message();
+      FOOTSTONE_LOG(WARNING)
+          << "[ProcessPromiseReject] HippyUnhandledRejection error, desc = "
+          << GetMsgDesc(message) << ", stack = " << GetStackInfo(message);
+    }
+  }
+  pending_unhandled_rejections_.clear();
+}
+
+void V8Ctx::HandlePromiseReject(v8::PromiseRejectMessage message) {
+  auto event = message.GetEvent();
+  auto promise = message.GetPromise();
+  auto value = message.GetValue();
+  switch (event) {
+    case v8::PromiseRejectEvent::kPromiseRejectWithNoHandler:
+      HandlePromiseRejectWithNoHandler(promise, value);
+      break;
+    case v8::PromiseRejectEvent::kPromiseHandlerAddedAfterReject:
+      HandlePromiseRejectWithHandler(promise, value);
+      break;
+    case v8::PromiseRejectEvent::kPromiseRejectAfterResolved:
+      break;
+    case v8::PromiseRejectEvent::kPromiseResolveAfterResolved:
+      break;
+    default:
+      FOOTSTONE_LOG(ERROR) << "HandlePromiseReject event = " << event;
+      FOOTSTONE_UNREACHABLE();
+  }
+}
+
+v8::internal::Address V8Ctx::GetValueAddr(const v8::Local<v8::Value>& v) {
+  auto add = reinterpret_cast<v8::internal::Address*>(*v);
+  v8::internal::Address ret = *add;
+  FOOTSTONE_LOG(ERROR) << "HandlePromiseReject GlobalValueHash = " << ret;
+  return ret;
+}
+
+void V8Ctx::HandlePromiseRejectWithNoHandler(
+    const v8::Local<v8::Promise>& promise,
+    const v8::Local<v8::Value>& value) {
+  v8::Global<v8::Value> g_promise = v8::Global<v8::Value>(isolate_, promise);
+  v8::Global<v8::Value> g_value = v8::Global<v8::Value>(isolate_, value);
+  pending_unhandled_rejections_[GetValueAddr(promise)] =
+      std::make_pair(std::move(g_promise), std::move(g_value));
+}
+
+void V8Ctx::HandlePromiseRejectWithHandler(
+    const v8::Local<v8::Promise>& promise,
+    const v8::Local<v8::Value>& value) {
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  auto key = GetValueAddr(promise);
+  auto iter = pending_unhandled_rejections_.find(key);
+  if (iter != pending_unhandled_rejections_.end()) {
+    v8::Maybe<bool> maybe =
+        promise->Equals(context, iter->second.first.Get(isolate_));
+    if (!maybe.IsNothing() && maybe.FromJust()) {
+      pending_unhandled_rejections_.erase(key);
+    }
+    FOOTSTONE_LOG(INFO) << "[HandlePromiseRejectWithHandler] delete promise";
+  }
+}
+
 void V8Ctx::ThrowException(const std::shared_ptr<CtxValue>& exception) {
   std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(exception);
   v8::HandleScope handle_scope(isolate_);
