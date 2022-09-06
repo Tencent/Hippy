@@ -95,6 +95,8 @@ module.exports = {
     // Allow event name not kebab-case
     'vue/custom-event-name-casing': 'off',
 
+    'import/no-unresolved': 'off',
+
     // Disable prop-types
     'react/prop-types': 'off',
 
