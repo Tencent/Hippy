@@ -17,9 +17,9 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    !> Hippy 仓库使用 [git-lfs](https://git-lfs.github.com/) 来管理 so, gz, otf, png, jpg 文件, 请确保你已经安装 [git-lfs](https://git-lfs.github.com/)。
 
 2. 项目根目录运行命令 `npm install` 安装前端依赖。
-3. 项目根目录运行命令 `npx lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
+3. 项目根目录运行命令 `npx lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库)
 4. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
-5. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+5. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample [hippy-react-demo|hippy-vue-demo]`。
 
 # 终端环境准备
 
@@ -173,8 +173,8 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 具体流程：
 
 1. 下载安装 [Android Studio](//developer.android.com/studio)。
-2. 通过 Android Studio 打开 [Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
-3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。*编译如果出现问题请参考 [#39](//github.com/Tencent/Hippy/issues/39)*。
+2. 通过 Android Studio 直接打开 Hippy 项目根目录，即可加载 [Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)
+3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
 5. 执行 `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` 确保 38389 端口不被占用。
 6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译和调试服务。
