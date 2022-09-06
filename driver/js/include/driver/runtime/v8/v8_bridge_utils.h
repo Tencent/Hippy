@@ -79,6 +79,8 @@ class V8BridgeUtils {
                                      bool is_local_file,
                                      std::function<string_view()> content_cb);
   static void HandleUncaughtJsError(v8::Local<v8::Message> message, v8::Local<v8::Value> error);
+  static void HandlePromiseReject(v8::PromiseRejectMessage message);
+
   static inline void SetOnThrowExceptionToJS(std::function<void(std::shared_ptr<Runtime>,
                                                                 string_view,
                                                                 string_view)> on_throw_exception_to_js) {

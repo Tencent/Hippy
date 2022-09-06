@@ -980,6 +980,90 @@ std::shared_ptr<CtxValue> V8Ctx::GetJsFn(const string_view& name) {
   return std::make_shared<V8CtxValue>(isolate_, maybe_func.ToLocalChecked());
 }
 
+void V8Ctx::ProcessPromiseReject() {
+  if (pending_unhandled_rejections_.empty()) {
+    return;
+  }
+  FOOTSTONE_LOG(INFO) << "[ProcessPromiseReject] size:"
+                      << pending_unhandled_rejections_.size();
+  string_view error_handle_name(kHippyErrorHandlerName);
+  std::shared_ptr<CtxValue> exception_handler =
+      GetGlobalObjVar(error_handle_name);
+
+  if (!IsFunction(exception_handler)) {
+    const auto& source_code = GetNativeSourceCode(kErrorHandlerJSName);
+    FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
+    string_view str_view(source_code.data_, source_code.length_);
+    exception_handler =
+        RunScript(str_view, error_handle_name, false, nullptr, false);
+    SetGlobalObjVar(error_handle_name, exception_handler,
+                    PropertyAttribute::ReadOnly);
+  }
+
+  for (auto iter = pending_unhandled_rejections_.begin();
+       iter != pending_unhandled_rejections_.end(); ++iter) {
+    std::shared_ptr<CtxValue> args[2];
+    args[0] = CreateString("unhandledRejection");
+    v8::HandleScope handle_scope(isolate_);
+    auto local = iter->second.Get(isolate_);
+    args[1] = std::make_shared<V8CtxValue>(isolate_, local);
+    v8::TryCatch try_catch(isolate_);
+    std::shared_ptr<CtxValue> ret_value =
+        CallFunction(exception_handler, 2, args);
+    if (try_catch.HasCaught()) {
+      auto message = try_catch.Message();
+      FOOTSTONE_LOG(WARNING)
+          << "[ProcessPromiseReject] HippyUnhandledRejection error, desc = " << GetMsgDesc(message)
+          << ", stack = " << GetStackInfo(message);
+    }
+  }
+  pending_unhandled_rejections_.clear();
+}
+
+void V8Ctx::HandlePromiseReject(v8::PromiseRejectMessage message) {
+  auto event = message.GetEvent();
+  auto promise = message.GetPromise();
+  auto value = message.GetValue();
+  switch (event) {
+    case v8::PromiseRejectEvent::kPromiseRejectWithNoHandler:
+      HandlePromiseRejectWithNoHandler(promise, value);
+      break;
+    case v8::PromiseRejectEvent::kPromiseHandlerAddedAfterReject:
+      HandlePromiseRejectWithHandler(promise, value);
+      break;
+    case v8::PromiseRejectEvent::kPromiseRejectAfterResolved:
+      break;
+    case v8::PromiseRejectEvent::kPromiseResolveAfterResolved:
+      break;
+    default:
+      break;
+  }
+}
+
+void V8Ctx::HandlePromiseRejectWithNoHandler(
+    const v8::Local<v8::Promise>& promise,
+    const v8::Local<v8::Value>& value) {
+  v8::Global<v8::Value> g_promise = v8::Global<v8::Value>(isolate_, promise);
+  v8::Global<v8::Value> g_value = v8::Global<v8::Value>(isolate_, value);
+  pending_unhandled_rejections_.push_back(
+      std::make_pair(std::move(g_promise), std::move(g_value)));
+}
+
+void V8Ctx::HandlePromiseRejectWithHandler(
+    const v8::Local<v8::Promise>& promise,
+    const v8::Local<v8::Value>& value) {
+  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
+  for (auto iter = pending_unhandled_rejections_.begin();
+       iter != pending_unhandled_rejections_.end(); ++iter) {
+    v8::Maybe<bool> maybe = promise->Equals(context, iter->first.Get(isolate_));
+    if (!maybe.IsNothing() && maybe.FromJust()) {
+      pending_unhandled_rejections_.erase(iter);
+      FOOTSTONE_LOG(INFO) << "[HandlePromiseRejectWithHandler] delete promise";
+      return;
+    }
+  }
+}
+
 void V8Ctx::ThrowException(const std::shared_ptr<CtxValue>& exception) {
   std::shared_ptr<V8CtxValue> ctx_value = std::static_pointer_cast<V8CtxValue>(exception);
   v8::HandleScope handle_scope(isolate_);

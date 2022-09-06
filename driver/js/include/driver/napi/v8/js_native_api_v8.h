@@ -267,6 +267,10 @@ class V8Ctx : public Ctx {
   virtual void ThrowException(const std::shared_ptr<CtxValue>& exception) override;
   virtual void ThrowException(const string_view& exception) override;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) override;
+  void HandlePromiseReject(v8::PromiseRejectMessage message);
+  void ProcessPromiseReject() override;
+  void HandlePromiseRejectWithNoHandler(const v8::Local<v8::Promise>& promise, const v8::Local<v8::Value>& value);
+  void HandlePromiseRejectWithHandler(const v8::Local<v8::Promise>& promise, const v8::Local<v8::Value>& value);
 
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) override;
@@ -323,6 +327,7 @@ class V8Ctx : public Ctx {
       string_view* cache);
 
   std::string v8_reused_buffer_;
+  std::vector<std::pair<v8::Global<v8::Value>,  v8::Global<v8::Value>>> pending_unhandled_rejections_;
 };
 
 struct V8CtxValue : public CtxValue {

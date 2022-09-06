@@ -115,8 +115,8 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
       return;
     }
 
+    std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
     if (function) {
-      std::shared_ptr<hippy::napi::Ctx> context = scope->GetContext();
       context->CallFunction(function, 0, nullptr);
     }
     std::unique_ptr<RegisterMap>& map = scope->GetRegisterMap();
@@ -132,6 +132,7 @@ std::shared_ptr<hippy::napi::CtxValue> TimerModule::Start(
     if (!repeat) {
       timer_map->erase(task_id);
     }
+    context->ProcessPromiseReject();
   });
 
   if (repeat) {

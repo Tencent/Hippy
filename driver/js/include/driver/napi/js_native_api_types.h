@@ -265,7 +265,7 @@ class Ctx {
   virtual void ThrowException(const std::shared_ptr<CtxValue> &exception) = 0;
   virtual void ThrowException(const string_view& exception) = 0;
   virtual void HandleUncaughtException(const std::shared_ptr<CtxValue>& exception) = 0;
-
+  virtual void ProcessPromiseReject() = 0;
   virtual std::shared_ptr<JSValueWrapper> ToJsValueWrapper(
       const std::shared_ptr<CtxValue>& value) = 0;
   virtual std::shared_ptr<CtxValue> CreateCtxValue(

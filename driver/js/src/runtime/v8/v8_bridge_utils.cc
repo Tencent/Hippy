@@ -104,6 +104,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
     v8::Isolate* isolate = v8_vm->isolate_;
     v8::HandleScope handle_scope(isolate);
     isolate->AddMessageListener(V8BridgeUtils::HandleUncaughtJsError);
+    isolate->SetPromiseRejectCallback(HandlePromiseReject);
     isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
     std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
@@ -355,6 +356,32 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
   bool flag = (ret != nullptr);
   FOOTSTONE_LOG(INFO) << "runScript end, flag = " << flag;
   return flag;
+}
+
+void V8BridgeUtils::HandlePromiseReject(v8::PromiseRejectMessage message) {
+  FOOTSTONE_LOG(ERROR) << "[HandlePromiseReject] begin";
+  auto promise = message.GetPromise();
+  if (promise.IsEmpty()) {
+    FOOTSTONE_LOG(ERROR)
+        << "[HandlePromiseReject] promise is empty";
+    return;
+  }
+  v8::Isolate* isolate = promise->GetIsolate();
+  std::shared_ptr<Runtime> runtime = Runtime::Find(isolate);
+  if (!runtime) {
+    return;
+  }
+  auto scope = runtime->GetScope();
+  if (!scope) {
+    return;
+  }
+  auto context = scope->GetContext();
+  if (!context) {
+    return;
+  }
+  std::shared_ptr<hippy::napi::V8Ctx> ctx =
+      std::static_pointer_cast<hippy::napi::V8Ctx>(context);
+  ctx->HandlePromiseReject(message);
 }
 
 void V8BridgeUtils::HandleUncaughtJsError(v8::Local<v8::Message> message,

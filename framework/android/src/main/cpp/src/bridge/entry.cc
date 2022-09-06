@@ -414,7 +414,8 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   };
 
   runner->PostTask(std::move(func));
-
+  auto process_handle_callback = [ctx] { ctx->ProcessPromiseReject(); };
+  runner->PostTask(std::move(process_handle_callback));
   return true;
 }
 
