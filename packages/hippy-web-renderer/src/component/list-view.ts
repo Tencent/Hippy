@@ -546,6 +546,14 @@ export class ListViewItem extends HippyWebView<HTMLDivElement> {
     this.onLayout = true;
   }
 
+  public set sticky(value: boolean) {
+    this.props[NodeProps.STICKY] = value;
+  }
+
+  public get sticky() {
+    return this.props[NodeProps.STICKY];
+  }
+
   public addDirtyListener(callBack: ((component: ListViewItem) => void) | null) {
     this.dirtyListener = callBack;
   }

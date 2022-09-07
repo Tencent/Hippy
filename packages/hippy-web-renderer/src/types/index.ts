@@ -65,6 +65,7 @@ export enum NodeProps {
   ON_SCROLL_BEGIN_DRAG = 'onScrollBeginDrag',
   ON_SCROLL_END_DRAG = 'onScrollEndDrag',
   ROW_SHOULD_STICKY = 'rowShouldSticky',
+  STICKY = 'sticky',
   ON_HEADER_PULLING = 'onHeaderPulling',
   ON_HEADER_RELEASED = 'onHeaderReleased',
   SCROLL_EVENT_THROTTLE = 'scrollEventThrottle',
