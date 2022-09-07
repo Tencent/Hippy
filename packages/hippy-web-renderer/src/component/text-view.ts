@@ -40,9 +40,11 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
   public set numberOfLines(value: number|undefined) {
     this.props[NodeProps.NUMBER_OF_LINES] = value;
     if (value === 1) {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all' });
+      this.dom && setElementStyle(this.dom, { 'white-space': 'nowrap', 'word-break': 'keep-all', display: 'initial',
+        '-webkit-box-orient': '', '-webkit-line-clamp': '', overflow: '' });
     } else {
-      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all' });
+      this.dom && setElementStyle(this.dom, { 'white-space': 'normal', 'word-break': 'break-all', display: '-webkit-box',
+        '-webkit-box-orient': 'vertical', '-webkit-line-clamp': `${value}`, overflow: 'hidden' });
     }
   }
 
