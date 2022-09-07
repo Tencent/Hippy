@@ -301,9 +301,9 @@ class V8Ctx : public Ctx {
     RegisterJsClass(animation_set);
   }
 
-  virtual void RegisterDomEvent(std::weak_ptr<Scope> weak_scope,
-                                const std::shared_ptr<CtxValue> callback,
-                                std::shared_ptr<DomEvent>& dom_event) override;
+  virtual void CallDomEvent(std::weak_ptr<Scope> weak_scope,
+                            const std::shared_ptr<CtxValue> callback,
+                            std::shared_ptr<DomEvent>& dom_event) override;
   string_view ToStringView(v8::Local<v8::String> str) const;
   string_view GetMsgDesc(v8::Local<v8::Message> message);
   string_view GetStackInfo(v8::Local<v8::Message> message);

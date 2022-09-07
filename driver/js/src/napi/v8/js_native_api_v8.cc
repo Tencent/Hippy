@@ -2164,8 +2164,19 @@ string_view V8Ctx::CopyFunctionName(
   return result;
 }
 
-void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
-  auto instance_define = hippy::MakeEventInstanceDefine(weak_scope, dom_event);
+void V8Ctx::CallDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
+  auto scope = weak_scope.lock();
+  if (!scope) {
+    return;
+  }
+
+  std::shared_ptr<InstanceDefine<DomEvent>> instance_define = scope->GetDomEventClassInstance();
+  if (instance_define == nullptr) {
+    instance_define = hippy::MakeEventInstanceDefine(weak_scope);
+    scope->SaveDomEventClassInstance(instance_define);
+  }
+  hippy::DomEventWrapper::Set(dom_event);
+
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
   v8::Context::Scope context_scope(context);
@@ -2176,10 +2187,6 @@ void V8Ctx::RegisterDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_
   v8::Local<v8::Object> instance = function->NewInstance(context).ToLocalChecked();
 
   // run callback with Event Object
-  auto scope = weak_scope.lock();
-  if (!scope) {
-    return;
-  }
   if (!callback) {
     scope->GetContext()->ThrowException(footstone::stringview::string_view("callback function nullptr"));
     return;

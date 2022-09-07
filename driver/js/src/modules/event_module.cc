@@ -45,14 +45,18 @@ namespace hippy {
 inline namespace driver {
 inline namespace module {
 
+std::shared_ptr<DomEvent> DomEventWrapper::dom_event_ = nullptr;
+
 std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
-    const std::weak_ptr<Scope>& weak_scope, std::shared_ptr<DomEvent>& dom_event) {
+    const std::weak_ptr<Scope>& weak_scope) {
   using DomEvent = hippy::dom::DomEvent;
   InstanceDefine<DomEvent> def;
   def.name = "Event";
-  def.constructor = [dom_event](size_t argument_count,
-                                const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<
-      DomEvent> { return dom_event; };
+  def.constructor = [](size_t argument_count, const std::shared_ptr<CtxValue> arguments[]) -> std::shared_ptr<DomEvent> {
+    auto event = DomEventWrapper::Get();
+    DomEventWrapper::Release();
+    return event;
+  };
 
   // function
   FunctionDefine<DomEvent> stop_propagation;
@@ -228,6 +232,10 @@ std::shared_ptr<InstanceDefine<DomEvent>> MakeEventInstanceDefine(
   def.properties.emplace_back(std::move(params));
 
   std::shared_ptr<InstanceDefine<DomEvent>> event = std::make_shared<InstanceDefine<DomEvent>>(def);
+  auto scope = weak_scope.lock();
+  if (scope) {
+    scope->SaveDomEventClassInstance(event);
+  }
   return event;
 }
 
