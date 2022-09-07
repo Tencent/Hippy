@@ -921,8 +921,18 @@ bool JSCCtx::IsByteBuffer(const std::shared_ptr<CtxValue>& value) {
   return kJSTypedArrayTypeNone != type;
 }
 
-void JSCCtx::RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
-  auto instance_define = hippy::MakeEventInstanceDefine(scope, dom_event);
+void JSCCtx::CallDomEvent(std::weak_ptr<Scope> weak_scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) {
+  auto scope = weak_scope.lock();
+  if (!scope) {
+    return;
+  }
+  std::shared_ptr<InstanceDefine<DomEvent>> instance_define = scope->GetDomEventClassInstance();
+  if (instance_define == nullptr) {
+    instance_define = hippy::MakeEventInstanceDefine(weak_scope);
+    scope->SaveDomEventClassInstance(instance_define);
+  }
+  hippy::DomEventWrapper::Set(dom_event);
+
   JSClassDefinition cls_def = kJSClassDefinitionEmpty;
   cls_def.attributes = kJSClassAttributeNone;
   cls_def.callAsConstructor = NewConstructor<DomEvent>();

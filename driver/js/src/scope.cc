@@ -221,7 +221,7 @@ hippy::dom::EventListenerInfo Scope::AddListener(const EventListenerInfo& event_
     auto context = weak_context.lock();
     if (context) {
       std::shared_ptr<hippy::dom::DomEvent> copied_event = event;
-      context->RegisterDomEvent(weak_scope, event_listener_info.callback, copied_event);
+      context->CallDomEvent(weak_scope, event_listener_info.callback, copied_event);
     }
   }};
 }

@@ -126,7 +126,7 @@ class JSCCtx : public Ctx {
   void SetName(const char *name);
   virtual bool RegisterGlobalInJs() override;
   virtual void RegisterClasses(std::weak_ptr<Scope> scope) override;
-  virtual void RegisterDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) override;
+  virtual void CallDomEvent(std::weak_ptr<Scope> scope, const std::shared_ptr<CtxValue> callback, std::shared_ptr<DomEvent>& dom_event) override;
   virtual bool SetGlobalJsonVar(const string_view& name,
                                 const string_view& json) override;
   virtual bool SetGlobalStrVar(const string_view& name,

@@ -111,6 +111,15 @@ class Scope : public std::enable_shared_from_this<Scope> {
     scene_build_holder_ = instance;
   }
 
+  inline void SaveDomEventClassInstance(
+      std::shared_ptr<InstanceDefine<hippy::DomEvent>> instance) {
+    dom_event_holder_ = instance;
+  }
+
+  inline std::shared_ptr<InstanceDefine<hippy::DomEvent>> GetDomEventClassInstance() {
+    return dom_event_holder_;
+  }
+
   inline void SaveHippyAnimationClassInstance(
       std::shared_ptr<InstanceDefine<hippy::CubicBezierAnimation>> instance) {
     animation_holder_ = instance;
@@ -214,6 +223,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
       bind_listener_map_; // bind js function and dom event listener id
   std::vector<std::unique_ptr<FunctionData>> function_data_;
   std::shared_ptr<InstanceDefine<hippy::SceneBuilder>> scene_build_holder_;
+  std::shared_ptr<InstanceDefine<hippy::DomEvent>> dom_event_holder_;
   std::shared_ptr<InstanceDefine<hippy::CubicBezierAnimation>> animation_holder_;
   std::shared_ptr<InstanceDefine<hippy::AnimationSet>> animation_set_holder_;
   std::unique_ptr<BindingData> binding_data_;
