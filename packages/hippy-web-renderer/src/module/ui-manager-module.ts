@@ -182,8 +182,10 @@ export class UIManagerModule extends HippyWebModule {
       setElementStyle(component.dom!, props.style, (key: string, value: any) => {
         this.animationProcess(key, value, component);
       });
-      if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position) {
-        setElementStyle(this.findViewById(component.pId)!.dom!, { position: 'relative' });
+      const parent = this.findViewById(component.pId) as HippyWebView<any>;
+      if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position
+        && !parent?.defaultStyle().position) {
+        setElementStyle(parent!.dom!, { position: 'relative' });
       }
       if (props.style.position === 'absolute' && !props.style.width && !props.style.height && !props.style.overflow) {
         setElementStyle(component.dom!, { overflow: 'visible' });
@@ -191,10 +193,10 @@ export class UIManagerModule extends HippyWebModule {
       component.updateProperty?.('style', props.style);
 
       if ((props.style.position === 'absolute' ||  props.style.position === 'relative') && oldPosition !== props.style.position) {
-        (this.findViewById(component.pId)! as HippyWebView<any>)?.changeStackContext(true);
+        parent?.changeStackContext(true);
       } else if (oldPosition !== props.style.position && !props.style.position) {
-        (this.findViewById(component.pId)! as HippyWebView<any>)?.changeStackContext(false);
-      } else if ((this.findViewById(component.pId)! as HippyWebView<any>)?.exitChildrenStackContext) {
+        parent?.changeStackContext(false);
+      } else if (parent?.exitChildrenStackContext) {
         (component as HippyWebView<any>).updateSelfStackContext(true);
       }
     }
