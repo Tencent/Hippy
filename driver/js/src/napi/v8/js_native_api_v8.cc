@@ -25,6 +25,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "dom/scene_builder.h"
 #include "driver/base/common.h"
 #include "driver/modules/ui_manager_module.h"
 #include "driver/napi/v8/serializer.h"
@@ -194,14 +195,12 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  std::shared_ptr<V8Ctx> v8_ctx =
-      std::static_pointer_cast<V8Ctx>(scope->GetContext());
+  std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(scope->GetContext());
 
   v8::Isolate* isolate = info.GetIsolate();
   v8::HandleScope handle_scope(isolate);
 
-  v8::Local<v8::Context> context =
-      v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
+  v8::Local<v8::Context> context = v8_ctx->context_persistent_.Get(v8_ctx->isolate_);
   v8::Context::Scope context_scope(context);
 
   v8::MaybeLocal<v8::String> maybe_module_name = info[0]->ToString(context);
@@ -209,8 +208,7 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     info.GetReturnValue().SetUndefined();
     return;
   }
-  string_view module_name =
-      v8_ctx->ToStringView(maybe_module_name.ToLocalChecked());
+  string_view module_name = v8_ctx->ToStringView(maybe_module_name.ToLocalChecked());
   if (StringViewUtils::IsEmpty(module_name)) {
     info.GetReturnValue().SetUndefined();
     return;
@@ -572,8 +570,6 @@ string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
   FOOTSTONE_DLOG(INFO) << "stack = " << stack_str;
   return stack_str;
 }
-
-#include "dom/scene_builder.h"
 
 bool V8Ctx::RegisterGlobalInJs() {
   FOOTSTONE_DLOG(INFO) << "RegisterGlobalInJs";

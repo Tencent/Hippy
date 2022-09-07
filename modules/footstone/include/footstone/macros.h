@@ -23,6 +23,9 @@
 // Calculate size of array
 #define ARRAY_SIZE(array) (sizeof(ARRAY_SIZE_HELPER(array)))
 
+template <typename T>
+constexpr inline size_t SIZE_OF = sizeof(T);
+
 template <typename CharType, size_t N>
 char (&ARRAY_SIZE_HELPER(CharType (&array)[N]))[N];
 
