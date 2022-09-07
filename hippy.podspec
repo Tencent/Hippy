@@ -9,8 +9,8 @@
 Pod::Spec.new do |s|
   puts 'hippy.podspec read begins'
   s.name             = 'hippy'
-  s.version          = '2.2.0'
-  s.summary          = 'Hippy library for iOS'
+  s.version          = 'unspecified'
+  s.summary          = 'Hippy Cross Platform Framework'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -19,12 +19,11 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-                        Hippy is a cross-platform development framework created by Tencent, aiming to help developers write once, run on three platforms(iOS, Android and Web). 
-                        Hippy is quite friendly to web developers, especially who are familiar with React or Vue. With Hippy, developers are able to create the cross platform app easily.
+                        Hippy is designed for developers to easily build cross-platform and high-performance awesome apps.
                        DESC
-  s.homepage         = 'http://hippyjs.org'
+  s.homepage         = 'https://hippyjs.org'
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
-  s.author           = { 'mengyanluo' => 'mengyanluo@tencent.com' }
+  s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
   s.ios.deployment_target = '9.0'
   s.source_files = 'ios/sdk/**/*.{h,m,c,mm,s,cpp,cc}'
@@ -35,7 +34,7 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'core\' read begins'
     cores.source_files = 'core/**/*.{h,cc}'
     cores.public_header_files = 'core/include/**/*.h'
-    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr']
+    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr', 'core/include/core/inspector', 'core/src/inspector']
     cores.libraries = 'c++'
     #this setting causes 'There are header files outside of the header_mappings_dir'
     # cores.header_mappings_dir = 'core/include/'

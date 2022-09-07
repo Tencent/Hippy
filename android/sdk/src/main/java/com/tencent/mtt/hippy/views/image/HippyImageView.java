@@ -20,7 +20,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Movie;
+import android.graphics.Path;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.TextUtils;
@@ -44,6 +46,7 @@ import com.tencent.mtt.hippy.views.common.CommonBackgroundDrawable;
 import com.tencent.mtt.hippy.views.common.CommonBorder;
 import com.tencent.mtt.hippy.views.list.HippyRecycler;
 import com.tencent.mtt.supportui.adapters.image.IDrawableTarget;
+import com.tencent.mtt.supportui.utils.CommonTool;
 import com.tencent.mtt.supportui.views.asyncimage.AsyncImageView;
 import com.tencent.mtt.supportui.views.asyncimage.BackgroundDrawable;
 import com.tencent.mtt.supportui.views.asyncimage.ContentDrawable;
@@ -74,6 +77,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   private int mGifStartY = 0;
   private float mGifScaleX = 1;
   private float mGifScaleY = 1;
+  private Path mGifPath;
   private boolean mGifMatrixComputed = false;
   private long mGifProgress = 0;
   private long mGifLastPlayTime = -1;
@@ -92,6 +96,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     mImageType = null;
     setBackgroundDrawable(null);
     Arrays.fill(mShouldSendImageEvent, false);
+    mGifMatrixComputed = false;
   }
 
   @Override
@@ -157,6 +162,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
   protected void resetContent() {
     super.resetContent();
     mGifMovie = null;
+    mGifMatrixComputed = false;
     mGifProgress = 0;
     mGifLastPlayTime = -1;
   }
@@ -301,6 +307,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     if (mContentDrawable instanceof HippyContentDrawable && sourceType == SOURCE_TYPE_SRC) {
       ((HippyContentDrawable) mContentDrawable).setNinePatchCoordinate(mNinePatchRect);
     }
+    mGifMatrixComputed = false;
   }
 
   @Override
@@ -429,8 +436,36 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
         mGifStartX = (int) ((getWidth() / mGifScaleX - mGifMovie.width()) / 2f);
         mGifStartY = (int) ((getHeight() / mGifScaleY - mGifMovie.height()) / 2f);
       }
+      if (mGifPath == null) {
+        mGifPath = new Path();
+      } else {
+        mGifPath.rewind();
+      }
+      if (mBGDrawable != null) {
+        float[] borderWidthArray = mBGDrawable.getBorderWidthArray();
+        float fullBorderWidth = borderWidthArray == null ? 0 : borderWidthArray[0];
+        RectF bounds = new RectF(fullBorderWidth, fullBorderWidth, getWidth() - fullBorderWidth,
+          getHeight() - fullBorderWidth);
+        float[] borderRadiusArray = mBGDrawable.getBorderRadiusArray();
+        if (CommonTool.hasPositiveItem(borderRadiusArray)) {
+          float fullRadius = borderRadiusArray[0];
+          float topLeftRadius = calculateBorderRadius(borderRadiusArray[1], fullRadius, fullBorderWidth);
+          float topRightRadius = calculateBorderRadius(borderRadiusArray[2], fullRadius, fullBorderWidth);
+          float bottomRightRadius = calculateBorderRadius(borderRadiusArray[3], fullRadius, fullBorderWidth);
+          float bottomLeftRadius = calculateBorderRadius(borderRadiusArray[4], fullRadius, fullBorderWidth);
+          float[] radii = new float[] { topLeftRadius, topLeftRadius, topRightRadius, topRightRadius,
+            bottomRightRadius, bottomRightRadius, bottomLeftRadius, bottomLeftRadius };
+          mGifPath.addRoundRect(bounds, radii, Path.Direction.CW);
+        } else {
+          mGifPath.addRect(bounds, Path.Direction.CW);
+        }
+      }
       mGifMatrixComputed = true;
     }
+  }
+
+  private static float calculateBorderRadius(float value, float fullValue, float inset) {
+    return Math.max(0, (value != 0 ? value : fullValue) - inset * .5f);
   }
 
   @Override
@@ -441,6 +476,7 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
 
     if (target instanceof HippyDrawable && ((HippyDrawable)target).isAnimated()) {
       mGifMovie = ((HippyDrawable) target).getGIF();
+      mGifMatrixComputed = false;
       setLayerType(View.LAYER_TYPE_SOFTWARE, null);
     }
 
@@ -463,6 +499,36 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     } else {
       super.handleImageRequest(target, sourceType, requestInfo);
     }
+  }
+
+  @Override
+  public void setBorderRadius(float radius, int position) {
+    super.setBorderRadius(radius, position);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  public void setBorderWidth(float width, int position) {
+    super.setBorderWidth(width, position);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  public void setBorderColor(int color, int position) {
+    super.setBorderColor(color, position);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  public void setBorderStyle(int borderStyle) {
+    super.setBorderStyle(borderStyle);
+    mGifMatrixComputed = false;
+  }
+
+  @Override
+  protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+    super.onSizeChanged(w, h, oldw, oldh);
+    mGifMatrixComputed = false;
   }
 
   protected boolean drawGIF(Canvas canvas) {
@@ -492,6 +558,9 @@ public class HippyImageView extends AsyncImageView implements CommonBorder, Hipp
     int progress = mGifProgress > Integer.MAX_VALUE ? 0 : (int) mGifProgress;
     mGifMovie.setTime(progress);
     canvas.save(); // 保存变换矩阵
+    if (!mGifPath.isEmpty()) {
+      canvas.clipPath(mGifPath);
+    }
     canvas.scale(mGifScaleX, mGifScaleY);
     mGifMovie.draw(canvas, mGifStartX, mGifStartY);
     canvas.restore(); // 恢复变换矩阵

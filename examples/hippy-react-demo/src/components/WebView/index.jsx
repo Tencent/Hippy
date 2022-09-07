@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
 
 export default function WebViewExample() {
   return (
-    <View style={{ padding: 10,  flex: 1 }}>
+    <View style={{ paddingHorizontal: 10,  flex: 1 }}>
       <View style={styles.itemTitle}>
         <Text>WebView 示例</Text>
       </View>

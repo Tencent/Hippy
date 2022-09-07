@@ -1,7 +1,7 @@
 /*
  * Tencent is pleased to support the open source community by making Hippy
  * available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2018-2022 THL A29 Limited, a Tencent company. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,15 +15,11 @@
 package com.tencent.mtt.hippy;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
 
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.FrameLayout.LayoutParams;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
@@ -53,6 +49,8 @@ import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.mtt.hippy.v8.V8;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -68,6 +66,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   static final String TAG = "HippyEngineManagerImpl";
 
   static final int MSG_ENGINE_INIT_TIMEOUT = 100;
+
   /**
    * All HippyCompoundView Instance collections,multi-thread read and write
    */
@@ -93,6 +92,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
    */
   DevSupportManager mDevSupportManager;
   HippyEngineContextImpl mEngineContext;
+  V8 mHippyV8;
   // 从网络上加载jsbundle
   final boolean mDebugMode;
   // Hippy Server的jsbundle名字，调试模式下有效
@@ -374,6 +374,19 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
   public HippyEngineContextImpl getEngineContext() {
     return mEngineContext;
+  }
+
+  public V8 getV8() {
+    if (mEngineContext == null) {
+      return null;
+    }
+    if (mHippyV8 == null) {
+      long runTimeId = mEngineContext.getBridgeManager().getV8RuntimeId();
+      if (runTimeId != HippyBridgeManagerImpl.V8_RUNTIME_ID_EMPTY) {
+        mHippyV8 = new V8(runTimeId);
+      }
+    }
+    return mHippyV8;
   }
 
   @Override
@@ -675,7 +688,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
   }
 
   private void notifyModuleLoaded(final ModuleLoadStatus statusCode, final String msg,
-      final HippyRootView hippyRootView) {
+                                  final HippyRootView hippyRootView) {
     if (mModuleListener != null) {
       if (UIThreadUtils.isOnUiThread()) {
         if (mModuleListener != null) {

@@ -38,6 +38,7 @@
 @class HippyPerformanceLogger;
 @class HippyUIManager;
 @class HippyExtAnimationModule;
+@class HippyOCTurboModule;
 extern NSString *const _HippySDKVersion;
 /**
  * This notification triggers a reload of all bridges currently running.
@@ -259,9 +260,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)bindKeys;
 
 /**
- * Get  the turbo module for a given name.
+ * Get the turbo module for a given name.
  */
-- (id)turboModuleWithName:(NSString *)name;
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
+
 
 @end
 

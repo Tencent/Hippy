@@ -43,7 +43,7 @@ NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNot
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
 NSString *const HippyDidInitializeModuleNotification = @"HippyDidInitializeModuleNotification";
 NSString *const HippyBusinessDidLoadNotification = @"HippyBusinessDidLoadNotification";
-NSString *const _HippySDKVersion = @"2.2.0";
+NSString *const _HippySDKVersion = @"unspecified";
 
 static NSMutableArray<Class> *HippyModuleClasses;
 NSArray<Class> *HippyGetModuleClasses(void) {
@@ -431,6 +431,10 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyRedBox *redBox = [self redBox];
     redBox.showEnabled = enabled;
 #endif  // HIPPY_DEBUG
+}
+
+- (HippyOCTurboModule *)turboModuleWithName:(NSString *)name {
+    return [self.batchedBridge turboModuleWithName:name];
 }
 
 @end

@@ -6,7 +6,7 @@
 
 ### Introduction
 
-`hippy-vue-router` is the official router for `hippy-vue`. It deeply integrated with hippy-vue to make building Native Application with hippy-vue a breeze. It's supported all of features of vue-router, and will support following features:
+`hippy-vue-router` is the official router for `hippy-vue`. It deeply integrated with hippy-vue to make building Native Application with hippy-vue a breeze. It's supported all features of vue-router, and will support following features:
 
 1. Android hardware back button to navigate to previous page.
 2. Safe area wrapper for hippy-vue app to compatible different hardware.
@@ -15,7 +15,7 @@
 
 The developing line is following the mainstream vue-router, master branch is the vue-router's remote `dev` branch, All of features will append to `feature/hippy-vue`  after original `dev` branch.
 
-All of core feature/bug fixes please PR to vue-router.
+All core feature/bugs fix please PR to vue-router.
 
 ``` bash
 # install deps

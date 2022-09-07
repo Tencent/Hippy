@@ -122,6 +122,7 @@ export default class ListExample extends React.Component {
     this.onWillAppear = this.onWillAppear.bind(this);
     this.onWillDisappear = this.onWillDisappear.bind(this);
     this.rowShouldSticky = this.rowShouldSticky.bind(this);
+    this.onScroll = this.onScroll.bind(this);
   }
 
   onDelete({ index }) {
@@ -148,6 +149,19 @@ export default class ListExample extends React.Component {
   onAppear(index) {
     console.log('onAppear', index);
   }
+
+  onScroll(obj) {
+    console.log('onScroll', obj.contentOffset.y);
+    if (obj.contentOffset.y <= 0) {
+      if (!this.topReached) {
+        this.topReached = true;
+        console.log('onTopReached');
+      }
+    } else {
+      this.topReached = false;
+    }
+  }
+
   // item完全隐藏
   onDisappear(index) {
     console.log('onDisappear', index);
@@ -265,6 +279,10 @@ export default class ListExample extends React.Component {
           onEndReached={this.onEndReached}
           getRowType={this.getRowType}
           onDelete={this.onDelete}
+          onMomentumScrollBegin={params => console.log('onMomentumScrollBegin', params)}
+          onMomentumScrollEnd={params => console.log('onMomentumScrollEnd', params)}
+          onScrollBeginDrag={params => console.log('onScrollBeginDrag', params)}
+          onScrollEndDrag={params => console.log('onScrollEndDrag', params)}
           delText={this.delText}
           editable={true}
           // configure listItem style if horizontal listview is set
@@ -276,6 +294,8 @@ export default class ListExample extends React.Component {
           onDisappear={this.onDisappear}
           onWillAppear={this.onWillAppear}
           onWillDisappear={this.onWillDisappear}
+          onScroll={this.onScroll}
+          scrollEventThrottle={1000} // 1s
         />
         {Platform.OS === 'android'
           ? <View

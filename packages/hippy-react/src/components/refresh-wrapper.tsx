@@ -63,7 +63,7 @@ class RefreshWrapper extends React.Component<RefreshWrapperProps, {}> {
    */
   public render() {
     const { children, ...nativeProps } = this.props;
-    const style = { left: 0, right: 0, position: 'absolute' } as CSSProperties;
+    const style: CSSProperties = { left: 0, right: 0, position: 'absolute' };
     return (
       <div nativeName="RefreshWrapper" ref={(ref) => {
         this.instance = ref;

@@ -53,7 +53,7 @@ const Header = ({ history, route }) => {
         </View>
         <View style={styles.headerButton}>
           <Text numberOfLines={1} style={styles.title}>
-            ver: {HippyReact.version !== '2.2.1' ? `${HippyReact.version}` : 'master'}
+            ver: {HippyReact.version !== 'unspecified' ? `${HippyReact.version}` : 'master'}
           </Text>
         </View>
       </View>
