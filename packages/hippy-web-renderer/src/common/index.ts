@@ -169,6 +169,7 @@ function isLayout(key: string, value: number) {
     isNaN(value)
     || key.startsWith('flex')
     || key.startsWith('zIndex')
+    || key.startsWith('-webkit')
     || key.startsWith('z-index')
     || key.startsWith('opacity')
   );
