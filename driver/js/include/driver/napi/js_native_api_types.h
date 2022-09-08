@@ -133,7 +133,8 @@ struct InstanceDefine {
   std::vector<PropertyDefine<T>> properties{};
   std::vector<FunctionDefine<T>> functions{};
   string_view name;
-  std::unordered_map<void*, std::shared_ptr<T>> holder;
+  size_t size = SIZE_OF<T>;
+  std::unordered_map<void*, std::pair<std::shared_ptr<T>, std::shared_ptr<CtxValue>>> holder;
 };
 
 class Ctx {

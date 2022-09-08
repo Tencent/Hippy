@@ -465,7 +465,7 @@ JSObjectCallAsConstructorCallback JSCCtx::NewConstructor() {
       param[i] = std::static_pointer_cast<CtxValue>(p);
     }
     std::shared_ptr<T> ret = constructor(argc, param);
-    instance_define->holder.insert({ret.get(), ret});
+    instance_define->holder.insert({ret.get(), {ret, nullptr}});
     JSObjectRef obj_ref = JSObjectMake(ctx, cls_ref, nullptr);
     JSObjectSetPrivate(obj_ref, ret.get());
     JSObjectSetPrototype(ctx, obj_ref, prototype->value_);

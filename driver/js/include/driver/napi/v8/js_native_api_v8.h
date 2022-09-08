@@ -328,7 +328,7 @@ class V8Ctx : public Ctx {
 struct V8CtxValue : public CtxValue {
   V8CtxValue(v8::Isolate* isolate, const v8::Local<v8::Value>& value)
       : global_value_(isolate, value) {}
-  V8CtxValue(v8::Isolate* isolate, const v8::Persistent<v8::Value>& value)
+  V8CtxValue(v8::Isolate* isolate, const v8::Global<v8::Value>& value)
       : global_value_(isolate, value) {}
   ~V8CtxValue() { global_value_.Reset(); }
   V8CtxValue(const V8CtxValue &) = delete;
@@ -426,33 +426,40 @@ v8::Local<v8::FunctionTemplate> V8Ctx::NewConstructor(const std::shared_ptr<Inst
         v8::Local<v8::Object> data = info.Data().As<v8::Object>();
         auto* instance_define = reinterpret_cast<InstanceDefine<T>*>(
             data->Get(context, 0).ToLocalChecked().As<v8::External>()->Value());
-        if (!instance_define) {
-          FOOTSTONE_UNREACHABLE();
-        }
+        FOOTSTONE_CHECK(instance_define);
         auto constructor = instance_define->constructor;
         auto len = info.Length();
         std::shared_ptr<CtxValue> arguments[len];
         for (int i = 0; i < len; i++) {
           arguments[i] = std::make_shared<V8CtxValue>(isolate, info[i]);
         }
-        std::shared_ptr<T> ret = constructor((size_t)len, arguments);
-        instance_define->holder.insert({ ret.get(), ret }); // 插入和删除都在同一个js线程，暂时不用加锁
-        auto obj = info.This();
+        std::shared_ptr<T> ret = constructor(static_cast<size_t>(len), arguments);
+        std::shared_ptr<CtxValue> weak_obj = nullptr;
         if (ret) {
+          auto obj = info.This();
           obj->SetAlignedPointerInInternalField(0, ret.get());
+          isolate->AdjustAmountOfExternalAllocatedMemory(static_cast<int64_t>(instance_define->size));
           v8::Global<v8::Value> weak(isolate, obj);
           weak.SetWeak(instance_define,
                        [](const v8::WeakCallbackInfo<InstanceDefine<T>>& info) {
-            auto* instance_define = static_cast<InstanceDefine<T>*>(info.GetParameter());
-            auto* constructor_ptr = info.GetInternalField(0);
-            auto holder = instance_define->holder;
-            // 插入和删除都在同一个js线程，暂时不用加锁
-            auto it = holder.find(constructor_ptr);
-            if (it != holder.end()) {
-              holder.erase(it);
-            }
+            info.SetSecondPassCallback([](const v8::WeakCallbackInfo<InstanceDefine<T>>& info) {
+              auto* instance_define = static_cast<InstanceDefine<T>*>(info.GetParameter());
+              auto* constructor_ptr = info.GetInternalField(0);
+              if (constructor_ptr) {
+                auto holder = instance_define->holder;
+                // Insertion and deletion are in the same thread, no need to lock
+                auto it = holder.find(constructor_ptr);
+                if (it != holder.end()) {
+                  holder.erase(it);
+                  info.GetIsolate()->AdjustAmountOfExternalAllocatedMemory(
+                      static_cast<int64_t>(0 - instance_define->size));
+                }
+              }
+            });
           }, v8::WeakCallbackType::kParameter);
+          weak_obj = std::make_shared<V8CtxValue>(isolate, weak);
         }
+        instance_define->holder.insert({ret.get(), {ret, weak_obj}});
       },
       data);
   function->InstanceTemplate()->SetInternalFieldCount(1);
