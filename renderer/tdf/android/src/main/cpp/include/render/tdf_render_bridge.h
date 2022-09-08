@@ -33,6 +33,5 @@ class TDFRenderBridge {
 
   static void Destroy();
 
-  // TODO: need a better implementation.
   static void RegisterScopeForUriLoader(uint32_t render_id, const std::shared_ptr<hippy::driver::Scope>& scope);
 };

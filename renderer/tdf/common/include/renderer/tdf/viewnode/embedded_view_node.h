@@ -24,7 +24,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 class EmbeddedViewNode : public ViewNode {
  public:
@@ -44,6 +44,6 @@ class EmbeddedViewNode : public ViewNode {
   std::string native_view_type_;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

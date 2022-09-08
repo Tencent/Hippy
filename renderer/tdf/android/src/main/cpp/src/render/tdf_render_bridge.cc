@@ -33,8 +33,8 @@ void TDFRenderBridge::Init(JavaVM *j_vm, __unused void *reserved) {
 void TDFRenderBridge::RegisterScopeForUriLoader(
     uint32_t render_id, const std::shared_ptr<hippy::driver::Scope> &scope) {
   hippy::TDFRenderManager::SetUriDataGetter(
-      render_id, [scope](hippy::render::tdfrender::RootViewNode::StringView uri,
-                         hippy::render::tdfrender::RootViewNode::DataCb cb) {
+      render_id, [scope](hippy::render::tdf::RootViewNode::StringView uri,
+                         hippy::render::tdf::RootViewNode::DataCb cb) {
         FOOTSTONE_DCHECK(scope->GetUriLoader());
         return scope->GetUriLoader()->RequestUntrustedContent(uri, cb);
       });

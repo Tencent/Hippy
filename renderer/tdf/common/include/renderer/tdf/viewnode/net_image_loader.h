@@ -28,13 +28,12 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 using StringView = footstone::string_view;
 using DataCb = std::function<void(StringView::u8string)>;
 using UriDataGetter = std::function<bool(const StringView &uri, DataCb cb)>;
 
-/// TODO(kloudwang) 到时跟Base64ImageLoader统一走VFS
 class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<NetImageLoader> {
  public:
   ~NetImageLoader() override = default;
@@ -47,6 +46,6 @@ class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_fr
   UriDataGetter uri_data_getter_;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

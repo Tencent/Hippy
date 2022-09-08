@@ -37,7 +37,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 inline namespace refreshwrapper {
 constexpr const char kRefreshWrapper[] = "RefreshWrapper";
@@ -92,6 +92,6 @@ class RefreshWrapperNode : public ViewNode {
   std::shared_ptr<ListViewNode> list_node_;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

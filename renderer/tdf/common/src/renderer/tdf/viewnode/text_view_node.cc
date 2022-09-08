@@ -27,7 +27,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 using hippy::LayoutMeasureMode;
 using tdfcore::TextAttributes;
@@ -112,7 +112,6 @@ void TextViewNode::HandleTextStyleUpdate(std::shared_ptr<tdfcore::TextView> text
 }
 
 void TextViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
-  // TODO TDFCore 暂不支持 Padding，这里直接修改Frame来模拟（其实是Margin的效果了）
   layout_result.left += layout_result.paddingLeft;
   layout_result.width -= layout_result.paddingRight;
   layout_result.top += layout_result.paddingTop;
@@ -232,7 +231,6 @@ void TextViewNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_pt
 
 void TextViewNode::SetTextAlign(const DomStyleMap& dom_style, std::shared_ptr<TextView>& text_view) {
   if (auto iter = dom_style.find(text::kTextAlign); iter != dom_style.end()) {
-    // TODO
     auto text_align = iter->second->ToStringChecked();
     TextAlign sk_text_align = tdfcore::TextAlign::kLeft;
     if (text_align == "auto" || text_align == "left") {
@@ -257,6 +255,6 @@ void TextViewNode::SetEnableScale(const DomStyleMap& dom_style, std::shared_ptr<
   }
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

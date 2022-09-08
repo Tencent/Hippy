@@ -43,43 +43,42 @@
 namespace hippy {
 inline namespace dom {
 
-// TODO: handle conflict with native render key generator
 static std::atomic<int32_t> global_tdf_render_manager_key{1000};
 constexpr const char kUpdateFrame[] = "frameupdate";
 
-using RenderInfo = hippy::render::tdfrender::ViewNode::RenderInfo;
-using node_creator = hippy::render::tdfrender::ViewNode::node_creator;
-using RootViewNode = hippy::render::tdfrender::RootViewNode;
+using RenderInfo = hippy::render::tdf::ViewNode::RenderInfo;
+using node_creator = hippy::render::tdf::ViewNode::node_creator;
+using RootViewNode = hippy::render::tdf::RootViewNode;
 
 void InitNodeCreator() {
-  RegisterNodeCreator(hippy::render::tdfrender::kViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdfrender::ViewNode, info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kTextViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdfrender::TextViewNode, info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kImageViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdfrender::ImageViewNode, info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kListViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdfrender::ListViewNode, info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kTextInputViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdfrender::TextInputNode, info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kListViewItemName, [](RenderInfo info) {
-    return TDF_MAKE_SHARED(hippy::render::tdfrender::ListViewItemNode, info);
+  RegisterNodeCreator(hippy::render::tdf::kViewName,
+                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ViewNode, info); });
+  RegisterNodeCreator(hippy::render::tdf::kTextViewName,
+                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::TextViewNode, info); });
+  RegisterNodeCreator(hippy::render::tdf::kImageViewName,
+                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ImageViewNode, info); });
+  RegisterNodeCreator(hippy::render::tdf::kListViewName,
+                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ListViewNode, info); });
+  RegisterNodeCreator(hippy::render::tdf::kTextInputViewName,
+                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::TextInputNode, info); });
+  RegisterNodeCreator(hippy::render::tdf::kListViewItemName, [](RenderInfo info) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::ListViewItemNode, info);
   });
-  RegisterNodeCreator(hippy::render::tdfrender::kScrollViewName,
-                      [](RenderInfo info) { return std::make_shared<hippy::render::tdfrender::ScrollViewNode>(info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kWebViewName, [](RenderInfo render_info) {
-    return std::make_shared<hippy::render::tdfrender::EmbeddedViewNode>(render_info,
-                                                                        hippy::render::tdfrender::kWebViewName);
+  RegisterNodeCreator(hippy::render::tdf::kScrollViewName,
+                      [](RenderInfo info) { return std::make_shared<hippy::render::tdf::ScrollViewNode>(info); });
+  RegisterNodeCreator(hippy::render::tdf::kWebViewName, [](RenderInfo render_info) {
+    return std::make_shared<hippy::render::tdf::EmbeddedViewNode>(render_info,
+                                                                        hippy::render::tdf::kWebViewName);
   });
-  RegisterNodeCreator(hippy::render::tdfrender::kModaViewName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdfrender::ModalViewNode, info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kViewPagerName,
-                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdfrender::ViewPagerNode, info); });
-  RegisterNodeCreator(hippy::render::tdfrender::kRefreshWrapperName, [](RenderInfo info) {
-    return TDF_MAKE_SHARED(hippy::render::tdfrender::RefreshWrapperNode, info);
+  RegisterNodeCreator(hippy::render::tdf::kModaViewName,
+                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ModalViewNode, info); });
+  RegisterNodeCreator(hippy::render::tdf::kViewPagerName,
+                      [](RenderInfo info) { return TDF_MAKE_SHARED(hippy::render::tdf::ViewPagerNode, info); });
+  RegisterNodeCreator(hippy::render::tdf::kRefreshWrapperName, [](RenderInfo info) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::RefreshWrapperNode, info);
   });
-  RegisterNodeCreator(hippy::render::tdfrender::kRefreshWrapperItemViewName, [](RenderInfo info) {
-    return TDF_MAKE_SHARED(hippy::render::tdfrender::RefreshWrapperItemNode, info);
+  RegisterNodeCreator(hippy::render::tdf::kRefreshWrapperItemViewName, [](RenderInfo info) {
+    return TDF_MAKE_SHARED(hippy::render::tdf::RefreshWrapperItemNode, info);
   });
 }
 
@@ -92,7 +91,7 @@ node_creator GetNodeCreator(const std::string& view_name) {
   if (result != node_creator_tables_.end()) {
     return result->second;
   }
-  return node_creator_tables_.find(hippy::render::tdfrender::kViewName)->second;
+  return node_creator_tables_.find(hippy::render::tdf::kViewName)->second;
 }
 
 TDFRenderManager::TDFRenderManager() : RenderManager("TDFRenderManager") {
@@ -107,14 +106,14 @@ void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdf
 
 #define FOR_EACH_TEXT_NODE(ation)                          \
   for (auto const& node : nodes) {                         \
-    if (node->GetViewName() != tdfrender::kTextViewName) { \
+    if (node->GetViewName() != tdf::kTextViewName) { \
       continue;                                            \
     }                                                      \
     ation                                                  \
   }
 
 #define GET_SHELL() \
-    std::shared_ptr<tdfrender::RootViewNode> root_view_node = nullptr; \
+    std::shared_ptr<tdf::RootViewNode> root_view_node = nullptr; \
     auto result = root_view_nodes_map_.Find(root->GetId(), root_view_node); \
     FOOTSTONE_CHECK(result); \
     auto shell = root_view_node->GetShell()
@@ -130,9 +129,9 @@ void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdf
   CHECK_ROOT()
   FOR_EACH_TEXT_NODE(
       auto view_node = GetNodeCreator(node->GetViewName())(node->GetRenderInfo());
-      auto text_view_node = std::static_pointer_cast<tdfrender::TextViewNode>(view_node);
+      auto text_view_node = std::static_pointer_cast<tdf::TextViewNode>(view_node);
       text_view_node->SyncTextAttributes(node);
-      tdfrender::TextViewNode::RegisterMeasureFunction(node, text_view_node);
+      tdf::TextViewNode::RegisterMeasureFunction(node, text_view_node);
   )
 
   GET_SHELL();
@@ -140,9 +139,9 @@ void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdf
     for (auto const& node : nodes) {
       FOOTSTONE_LOG(INFO) << "CreateNode: id:" << node->GetRenderInfo().id << " |pid:" << node->GetRenderInfo().pid;
       FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
-      std::shared_ptr<tdfrender::ViewNode> view_node;
-      if (node->GetViewName() == tdfrender::kTextViewName) {
-        view_node = tdfrender::TextViewNode::FindLayoutTextViewNode(node);
+      std::shared_ptr<tdf::ViewNode> view_node;
+      if (node->GetViewName() == tdf::kTextViewName) {
+        view_node = tdf::TextViewNode::FindLayoutTextViewNode(node);
       } else {
         view_node = GetNodeCreator(node->GetViewName())(node->GetRenderInfo());
       }
@@ -157,7 +156,7 @@ void TDFRenderManager::UpdateRenderNode(std::weak_ptr<RootNode> root_node,
                                         std::vector<std::shared_ptr<DomNode>>&& nodes) {
   CHECK_ROOT()
   FOR_EACH_TEXT_NODE(
-      tdfrender::TextViewNode::FindLayoutTextViewNode(node)->SyncTextAttributes(node);
+      tdf::TextViewNode::FindLayoutTextViewNode(node)->SyncTextAttributes(node);
   )
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
@@ -177,7 +176,7 @@ void TDFRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,
 void TDFRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
                                         std::vector<std::shared_ptr<DomNode>>&& nodes) {
   CHECK_ROOT()
-  FOR_EACH_TEXT_NODE(tdfrender::TextViewNode::UnregisterMeasureFunction(node);)
+  FOR_EACH_TEXT_NODE(tdf::TextViewNode::UnregisterMeasureFunction(node);)
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
     for (auto const& node : nodes) {
@@ -217,13 +216,9 @@ void TDFRenderManager::EndBatch(std::weak_ptr<RootNode> root_node) {
   shell->GetUITaskRunner()->PostTask([root_view_node] { root_view_node->EndBatch(); });
 }
 
-void TDFRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {
-  // TODO
-}
+void TDFRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) { }
 
-void TDFRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
-  // TODO
-}
+void TDFRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) { }
 
 void TDFRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node,
                                         const std::string& name) {

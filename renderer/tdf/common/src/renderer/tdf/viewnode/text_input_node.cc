@@ -36,7 +36,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 using tdfcore::CupertinoTextSelectionControl;
 using tdfcore::TextAlign;
@@ -196,9 +196,7 @@ void TextInputNode::InitCallBackMap() {
     auto fn = [](std::shared_ptr<View> view) { std::static_pointer_cast<TextInputView>(view)->RequestFocus(); };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  input_event_callback_map_[kGetValue] = [](const uint32_t callback_id, const DomArgument& param) {
-    // TODO(kloudwang)
-  };
+  input_event_callback_map_[kGetValue] = [](const uint32_t callback_id, const DomArgument& param) {};
   input_event_callback_map_[kHideInputMethod] = [this](const uint32_t callback_id, const DomArgument& param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) {
       std::static_pointer_cast<tdfcore::TextInputView>(view)->TryHidingInputMethod();
@@ -380,17 +378,11 @@ void TextInputNode::SetNumberOfLines(const DomStyleMap& dom_style, std::shared_p
 }
 
 void TextInputNode::UpdateBlurAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnBlur); iter != dom_style.end()) {
-    // TODO: value is Object type
-    // event_callback_.on_blur_flag = iter->second->ToBooleanChecked();
-  }
+  if (auto iter = dom_style.find(textinput::kOnBlur); iter != dom_style.end()) { }
 }
 
 void TextInputNode::UpdateChangeTextAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(textinput::kOnChangeText); iter != dom_style.end()) {
-    // TODO: value is Object type
-    // event_callback_.on_change_text_flag = iter->second->ToBooleanChecked();
-  }
+  if (auto iter = dom_style.find(textinput::kOnChangeText); iter != dom_style.end()) { }
 }
 
 void TextInputNode::UpdateEndEditingAttr(const DomStyleMap& dom_style) {
@@ -416,14 +408,7 @@ void TextInputNode::UpdateFocusAttr(const DomStyleMap& dom_style) {
 }
 
 void TextInputNode::UpdateKeyBoardWillShowAttr(const DomStyleMap& dom_style) {
-  if (auto iter = dom_style.find(kOnKeyBoardWillShow); iter != dom_style.end()) {
-    // TODO: type unmatch
-    //    if (iter->second->ToBooleanChecked()) {
-    //      RegisterViewportListener();
-    //    } else {
-    //      UnregisterViewportListener();
-    //    }
-  }
+  if (auto iter = dom_style.find(kOnKeyBoardWillShow); iter != dom_style.end()) { }
 }
 
 void TextInputNode::UpdateSelectionChangeAttr(const DomStyleMap& dom_style) {
@@ -517,6 +502,6 @@ void TextInputNode::UpdateFontStyle(TextStyle& text_style) {
   text_style.italic = font_style_ == "italic";
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

@@ -24,7 +24,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 enum class FunctionType {
   kFunctionSetPage,
@@ -90,7 +90,6 @@ void ViewPagerNode::InitialPage(const DomStyleMap& dom_style, std::shared_ptr<Vi
 }
 
 void ViewPagerNode::HandleEventInfoUpdate() {
-  /// TODO(kloudwang) infinite loop scroll
   auto supported_events = GetSupportedEvents();
   if (auto iterator = supported_events.find(kOnPageSelected); iterator != supported_events.end()) {
     has_on_page_selected_event_ = true;
@@ -178,6 +177,6 @@ void ViewPagerNode::HandleStateChangedListener(std::string state) {
   SendUIDomEvent(kOnPageScrollStateChanged, std::make_shared<footstone::HippyValue>(param));
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

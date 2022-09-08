@@ -23,7 +23,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 using tdfcore::View;
 using tdfcore::ViewContext;
@@ -33,18 +33,6 @@ void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
   if (auto iterator = dom_style.find(kImmersionStatusBar); iterator != dom_style.end()) {
     SetImmersionStatusBar(iterator->second->ToBooleanChecked());
-  }
-
-  if (auto iterator = dom_style.find(kAnimationType); iterator != dom_style.end()) {
-    // todo(kloudwang)
-  }
-
-  if (auto iterator = dom_style.find(kDarkStatusBarText); iterator != dom_style.end()) {
-    // todo(kloudwang)
-  }
-
-  if (auto iterator = dom_style.find(kSupportedOrientation); iterator != dom_style.end()) {
-    // todo(kloudwang)
   }
 
   if (auto iterator = dom_style.find(kTransparent); iterator != dom_style.end()) {
@@ -105,6 +93,6 @@ void ModalViewNode::OnRequestClose() { SendUIDomEvent(kOnRequestClose); }
 
 void ModalViewNode::OnOrientationChange() { SendUIDomEvent(kOnOrientationChange); }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

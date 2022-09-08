@@ -61,9 +61,7 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     }
 
     @Override
-    public void destroy() {
-        // TODO: destroy relate tdf render & tdf engine
-    }
+    public void destroy() { }
 
     @Override
     public void setFrameworkProxy(@NonNull FrameworkProxy proxy) {
@@ -74,7 +72,6 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     @Override
     public View createRootView(@NonNull Context context, int rootId) {
         mRootViewId = rootId;
-        // TODO: Due to design of TDFHippyRootView, context must be subclass of Activity. This should be optimized.
         if (!(context instanceof Activity)) {
             throw new RuntimeException("Unsupported Host");
         }

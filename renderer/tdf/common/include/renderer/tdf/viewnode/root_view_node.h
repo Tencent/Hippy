@@ -25,7 +25,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 class RootViewNode : public ViewNode {
  public:
@@ -70,6 +70,6 @@ class RootViewNode : public ViewNode {
   std::atomic<bool> is_enable_update_animation_ = false;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

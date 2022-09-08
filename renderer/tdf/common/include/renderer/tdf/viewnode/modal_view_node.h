@@ -26,7 +26,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 inline namespace modal {
 constexpr const char kModal[] = "Modal";
@@ -60,6 +60,6 @@ class ModalViewNode : public ViewNode {
   void OnOrientationChange();
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

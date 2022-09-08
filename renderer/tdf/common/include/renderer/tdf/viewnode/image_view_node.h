@@ -24,7 +24,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 class ImageViewNode : public ViewNode {
  public:
@@ -45,6 +45,6 @@ class ImageViewNode : public ViewNode {
   std::shared_ptr<tdfcore::View> CreateView() override;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

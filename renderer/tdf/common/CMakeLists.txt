@@ -32,7 +32,7 @@ set(CMAKE_CXX_STANDARD 17)
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${TDF_RENDER_DIR}/common/include)
-# TODO: remove dependency of scope.h
+# remove dependency of scope.h After VFS finished
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/include)
 # region end
 

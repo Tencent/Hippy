@@ -34,7 +34,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 using footstone::check::checked_numeric_cast;
 using DomValueArrayType = footstone::value::HippyValue::DomValueArrayType;
@@ -54,7 +54,6 @@ ViewNode::DomStyleMap ViewNode::GenerateStyleInfo(const std::shared_ptr<hippy::D
   for (const auto& it : *ext_map) {
     dom_style_map.insert(it);
   }
-  // TODO Ensure RVO
   return dom_style_map;
 }
 
@@ -79,42 +78,15 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto view = GetView();
   auto const map_end = dom_style.cend();
 
-  if (auto it = dom_style.find(view::kAccessibilityLabel); it != map_end) {
-    //    view->SetAccessibilityLabel(utf16_string.utf16_value());
-  }
-
-  // Skip Parse: view::kAttachedtowindow
-
   if (auto it = dom_style.find(view::kBackgroundColor); it != map_end) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetBackgroundColor(ViewNode::ParseToColor(it->second));
   }
 
-  if (auto it = dom_style.find(view::kBackgroundImage); it != map_end) {
-    // TODO(vimerzhao) view.cc not support yet
-  }
-
-  // Skip Parse: kBackgroundPositionX / kBackgroundPositionY / kBackgroundSize
-
   // Border Width / Border Color / Border Radius ,All in On Method
   util::ParseBorderInfo(*view, dom_style);
 
-  // view::kClick will be parsed in ViewNode::OnAddEventListener,
-  // the same as view::kLongclick / view::kPressin / view::kPressout
-  // view::kTouchstart / view::kTouchmove / view::kTouchend / view::kTouchcancel
-
-  // Skip Parse: kCustomProp
-  // Skip Parse: kDetachedfromwindow
-
-  if (auto it = dom_style.find(view::kFocusable); it != map_end) {
-    // TODO(vimerzhao) view.cc not support yet
-  }
-
-  // Skip Parse: kIntercepttouchevent
-  // Skip Parse: kInterceptpullupevent TODO(vimerzhao) View怎么支持？
-
   if (auto it = dom_style.find(view::kLinearGradient); it != map_end) {
-    // ParseLinearGradientInfo(it->second->ToObjectChecked());
     util::ParseLinearGradientInfo(*view, it->second->ToObjectChecked());
   }
 
@@ -127,20 +99,10 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     view->SetOpacity(static_cast<float>(it->second->ToDoubleChecked()));
   }
 
-  if (auto it = dom_style.find(hippy::dom::kOverflow); it != map_end) {
-    // TODO(vimerzhao) not support yet.
-  }
-
-  // view::kPressin / view::kPressout will will handled in ViewNode::OnAddEventListener
-
-  // Skip Parse: view::kRenderToHardwareTextureAndroid / view::RequestFocus
-
   util::ParseShadowInfo(*view, dom_style);
 
   // animation
   view->SetTransform(GenerateAnimationTransform(dom_style, view).asM33());
-
-  // kTouchdown / kTouchend / kTouchmove / kTransform will will handled in ViewNode::OnAddEventListener
 
   if (auto it = dom_style.find(hippy::dom::kZIndex); it != map_end) {
     view->SetZIndex(it->second->ToInt32Checked());
@@ -197,7 +159,6 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
   if (auto it = dom_style.find(kRotateZ); it != dom_style.end()) {
     auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
     tv3.z = 1;
-    // TODO(kloudwang) TM44 Rotate没有提供设置旋转中心坐标接口，默认是围绕(0,0)旋转
     transform.setRotateUnit(tv3, radians);
   }
 
@@ -341,7 +302,6 @@ void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index)
   if (!IsAttached()) {
     return;
   }
-  // TODO(vimerzhao): index is not used.
   child->Attach();
 }
 
@@ -413,7 +373,6 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   } else {
     // this should be the only caller of CreateView.
     auto v = CreateView();
-    // TODO K歌的Render Tree层可能有问题（唱歌Tab），所以默认用HitTestBehavior::kTranslucent
     v->SetHitTestBehavior(tdfcore::HitTestBehavior::kTranslucent);
     v->SetId(render_info_.id);
     // must add to parent_, otherwise the view will be freed immediately.
@@ -423,23 +382,14 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
 
   // Sync style/listener/etc
   HandleStyleUpdate(GenerateStyleInfo(GetDomNode()));
-  HandleLayoutUpdate(dom_node->GetRenderLayoutResult());  // TODO Rename to handle
+  HandleLayoutUpdate(dom_node->GetRenderLayoutResult());
   HandleEventInfoUpdate();
   // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)
   for (const auto& child : children_) {
     std::shared_ptr<tdfcore::View> child_view = nullptr;
-
-    // TODO(kloudwang) 这里通过index 去索引对应的child_view 发现在首页进入个人页面会有几率
-    // 位置错位(原因暂时没找到)先临时通过id去匹配保证正确性
-    // auto child_index = child->GetRenderInfo().index;
-    // if (child_index < GetView()->GetChildren().size()) {
-    //   child_view = GetView()->GetChildren()[child_index];
-    // }
-    for (uint32_t index = 0; index < GetView()->GetChildren().size(); index++) {
-      auto temp_view = GetView()->GetChildren()[index];
-      if (temp_view->GetId() == child->GetRenderInfo().id) {
-        child_view = temp_view;
-      }
+    auto child_index = static_cast<uint32_t >(child->GetRenderInfo().index);
+    if (child_index < GetView()->GetChildren().size()) {
+      child_view = GetView()->GetChildren()[child_index];
     }
     child->Attach(child_view);
   }
@@ -458,8 +408,6 @@ void ViewNode::Detach(bool sync_to_view_tree) {
   }
   OnDetach();
 
-  // TODO clear view attribution which cost memory like image data.
-
   if (sync_to_view_tree) {
     parent_.lock()->GetView()->RemoveView(GetView());
   }
@@ -467,6 +415,6 @@ void ViewNode::Detach(bool sync_to_view_tree) {
   is_attached_ = false;
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

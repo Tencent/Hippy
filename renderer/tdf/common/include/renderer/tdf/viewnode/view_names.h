@@ -21,7 +21,7 @@
 #pragma once
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 constexpr const char kViewName[] = "View";
 constexpr const char kTextViewName[] = "Text";
@@ -36,8 +36,6 @@ constexpr const char kViewPagerItemName[] = "ViewPagerItem";
 constexpr const char kWebViewName[] = "WebView";
 constexpr const char kRefreshWrapperName[] = "RefreshWrapper";
 constexpr const char kRefreshWrapperItemViewName[] = "RefreshWrapperItemView";
-// TODO: CustomProps / RecyclerView / PullFooterView / PullHeaderView / WaterfallView / WaterfallItem
-
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

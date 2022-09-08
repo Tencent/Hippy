@@ -38,7 +38,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 using tdfcore::Color;
 using tdfcore::KeyboardAction;
@@ -180,9 +180,6 @@ class TextInputNode : public ViewNode {
   void SetTextShadowColor(const DomStyleMap& dom_style);
   void SetTextShadowRadius(const DomStyleMap& dom_style);
   void SetTextAlignVertical(const DomStyleMap& dom_style, TextStyle& text_style);
-
-  // TODO(kloudwang): underlineColorAndroid/validator/value
-
   void UpdateBlurAttr(const DomStyleMap& dom_style);
   void UpdateChangeTextAttr(const DomStyleMap& dom_style);
   void UpdateContentSizeChangeAttr(const DomStyleMap& dom_style);
@@ -212,6 +209,6 @@ class TextInputNode : public ViewNode {
   EventCallback event_callback_;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

@@ -26,7 +26,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 inline namespace view {
 
 using tdfcore::TPoint;
@@ -171,6 +171,6 @@ void ViewPager::SwitchNextPage() { SwitchToPage(current_page_ + 1, true); }
 void ViewPager::SwitchPrevPage() { SwitchToPage(current_page_ - 1, true); }
 
 }  // namespace view
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

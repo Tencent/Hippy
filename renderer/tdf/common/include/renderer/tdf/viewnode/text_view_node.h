@@ -41,7 +41,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 inline namespace text {
 constexpr const char kText[] = "text";                                    // String
@@ -132,6 +132,6 @@ class TextViewNode : public ViewNode {
   std::shared_ptr<tdfcore::TextView> layout_view_;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

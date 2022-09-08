@@ -24,7 +24,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView() {
   auto scroll_view = TDF_MAKE_SHARED(tdfcore::ScrollView);
@@ -41,17 +41,6 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
   auto map_end = dom_style.cend();
   auto scroll_view = GetView<tdfcore::ScrollView>();
-  if (auto it = dom_style.find(scrollview::kContentOffset4Reuse); it != map_end) {
-    // TODO ScrollView not support now!
-  }
-
-  if (auto it = dom_style.find(scrollview::kFlingEnabled); it != map_end) {
-    // TODO ScrollView not support now!
-  }
-
-  if (auto it = dom_style.find(scrollview::kInitialContentOffset); it != map_end) {
-    // TODO SetOffset ?
-  }
 
   if (auto it = dom_style.find(scrollview::kPagingEnabled); it != map_end) {
     FOOTSTONE_DCHECK(it->second->IsBoolean());
@@ -75,10 +64,7 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   }
 
   if (auto it = dom_style.find(scrollview::kShowScrollIndicator); it != map_end) {
-  }
-
-  if (auto it = dom_style.find(kOnScroll); it != map_end) {
-    /// TODO kOnScroll
+    // Skip
   }
 
   if (auto it = dom_style.find(kHorizontal); it != map_end && it->second->ToBooleanChecked()) {
@@ -194,6 +180,6 @@ RegisterListener(ScrollStart, scroll_start_listener_) RegisterListener(ScrollUpd
   SendGestureDomEvent(type, std::make_shared<footstone::HippyValue>(param));
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

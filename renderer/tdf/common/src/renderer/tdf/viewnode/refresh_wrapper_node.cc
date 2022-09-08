@@ -24,7 +24,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 constexpr const char kRefreshEvent[] = "refresh";
 
@@ -70,7 +70,6 @@ void RefreshWrapperNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int6
     refresh_header_node_id_ = child->GetRenderInfo().id;
     list_node_ = std::static_pointer_cast<ListViewNode>(child->GetSharedPtr());
     FOOTSTONE_DCHECK(item_node_ != nullptr && item_node_->IsAttached());
-    // TODO release refresh_header_'s pointer here.
     list_node_->GetView<tdfcore::CustomLayoutView>()->SetHeader(refresh_header_);
     refresh_header_->AddStateListener(tdfcore::RefreshHeaderState::kRefreshing, [WEAK_THIS]() {
       DEFINE_AND_CHECK_SELF(RefreshWrapperNode)
@@ -95,6 +94,6 @@ void RefreshWrapperNode::CallFunction(const std::string& name, const DomArgument
   }
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

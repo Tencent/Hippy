@@ -25,7 +25,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 namespace util {
 
 Color ConversionIntToColor(uint32_t value) {
@@ -179,11 +179,6 @@ void ParseBorderInfo(tdfcore::View& view, const DomStyleMap& style_map) {
     std::array<float, 8> radius_arr = {radius, radius, radius, radius, radius, radius, radius, radius};
     view.SetRadius(radius_arr);
   }
-  /// TODO(kloudwang) 临时屏蔽，属性中是有这些值的
-  //  FOOTSTONE_DCHECK(style_map.find(view::kBorderTopLeftRadius) == style_map.end());
-  //  FOOTSTONE_DCHECK(style_map.find(view::kBorderTopRightRadius) == style_map.end());
-  //  FOOTSTONE_DCHECK(style_map.find(view::kBorderBottomLeftRadius) == style_map.end());
-  //  FOOTSTONE_DCHECK(style_map.find(view::kBorderBottomRightRadius) == style_map.end());
 }
 
 tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap& style_map, const char* width_name, const char* color_name,
@@ -200,6 +195,6 @@ tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap& style_map, const char* 
 }
 
 }  // namespace util
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

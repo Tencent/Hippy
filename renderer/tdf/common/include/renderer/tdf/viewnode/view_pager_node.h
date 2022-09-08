@@ -25,7 +25,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 inline namespace viewpager {
 constexpr const char kViewPager[] = "ViewPager";
@@ -81,6 +81,6 @@ class ViewPagerNode : public ScrollViewNode {
   bool has_on_page_scroll_state_changed_event_ = false;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

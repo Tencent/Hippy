@@ -24,7 +24,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 inline namespace view {
 
 ModalView::~ModalView() noexcept {
@@ -97,6 +97,6 @@ void ModalView::SetOrientationChangeCallback(const OnOrientationChangeCallBack& 
 }
 
 }  // namespace view
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

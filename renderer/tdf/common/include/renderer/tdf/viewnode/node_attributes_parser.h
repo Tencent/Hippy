@@ -37,7 +37,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 namespace util {
 
 using Point = tdfcore::TPoint;
@@ -61,6 +61,6 @@ tdfcore::BorderStyle ParseBorderStyle(const DomStyleMap &style_map, const char *
                                       std::pair<float, tdfcore::Color> default_style);
 
 }  // namespace util
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

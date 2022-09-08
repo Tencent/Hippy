@@ -39,7 +39,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 inline namespace scrollview {
 constexpr const char kScrollView[] = "ScrollView";
@@ -118,6 +118,6 @@ class ScrollViewNode : public ViewNode {
   std::function<void()> drag_end_listener_;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

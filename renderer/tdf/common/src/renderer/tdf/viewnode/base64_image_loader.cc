@@ -23,7 +23,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 std::shared_ptr<tdfcore::Task> Base64ImageLoader::Load(const std::string &url, const LoadCallback &loader_callback) {
   return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, loader_callback] {
@@ -48,6 +48,6 @@ std::shared_ptr<tdfcore::Task> Base64ImageLoader::Load(const std::string &url, c
   });
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

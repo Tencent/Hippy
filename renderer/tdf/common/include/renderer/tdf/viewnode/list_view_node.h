@@ -39,7 +39,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 inline namespace listview {
 constexpr const char kListViewItem[] = "ListViewItem";
@@ -130,6 +130,6 @@ class ListViewNode : public ScrollViewNode {
   bool has_reached_end_ = false;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

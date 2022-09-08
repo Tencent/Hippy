@@ -35,16 +35,16 @@
 namespace hippy {
 inline namespace dom {
 
-static std::map<std::string, hippy::render::tdfrender::ViewNode::node_creator> node_creator_tables_;
-static std::unordered_map<uint32_t, hippy::render::tdfrender::RootViewNode::UriDataGetter> uri_data_getter_map_;
+static std::map<std::string, hippy::render::tdf::ViewNode::node_creator> node_creator_tables_;
+static std::unordered_map<uint32_t, hippy::render::tdf::RootViewNode::UriDataGetter> uri_data_getter_map_;
 
 void InitNodeCreator();
-void RegisterNodeCreator(const std::string&, const hippy::render::tdfrender::ViewNode::node_creator&);
-hippy::render::tdfrender::ViewNode::node_creator GetNodeCreator(const std::string&);
+void RegisterNodeCreator(const std::string&, const hippy::render::tdf::ViewNode::node_creator&);
+hippy::render::tdf::ViewNode::node_creator GetNodeCreator(const std::string&);
 
 class TDFRenderManager : public RenderManager, public std::enable_shared_from_this<TDFRenderManager> {
-  using RootViewNode = hippy::render::tdfrender::RootViewNode;
-  using ViewNode = hippy::render::tdfrender::ViewNode;
+  using RootViewNode = hippy::render::tdf::RootViewNode;
+  using ViewNode = hippy::render::tdf::ViewNode;
 
  public:
   static footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<TDFRenderManager>>& PersistentMap() {

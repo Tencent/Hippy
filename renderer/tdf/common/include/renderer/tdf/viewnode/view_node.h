@@ -47,7 +47,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 inline namespace view {
 constexpr const char kView[] = "View";
 constexpr const char kAccessibilityLabel[] = "accessibilityLabel";                          // String
@@ -340,6 +340,6 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   std::unordered_map<std::string, std::shared_ptr<tdfcore::GestureRecognizer>> gestures_map_;
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

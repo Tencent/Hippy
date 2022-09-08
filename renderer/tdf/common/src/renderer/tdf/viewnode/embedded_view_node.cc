@@ -34,7 +34,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 static constexpr const char kNodeInfoProps[] = "props";
 
@@ -51,6 +51,6 @@ void EmbeddedViewNode::HandleStyleUpdate(const DomStyleMap &dom_style) {
   GetView<tdfcore::EmbeddedView>()->SetProperty(property_);
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

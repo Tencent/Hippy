@@ -27,7 +27,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 inline namespace listviewitem {
 constexpr const char kViewType[] = "type";
@@ -81,7 +81,6 @@ void ListViewNode::OnAttach() {
       self->has_reached_end_ = false;
     }
   });
-  // TODO(vimerzhao) move to more proper location
   SendUIDomEvent(hippy::kInitialListReady);
 }
 
@@ -125,7 +124,6 @@ void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     } else if (it->second->IsInt32()) {
       view_type_ = it->second->ToInt32Checked();
     }
-    // TODO Other Type
   }
   if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
     FOOTSTONE_DCHECK(it->second->IsInt32());
@@ -160,17 +158,14 @@ int64_t ListViewDataSource::GetItemType(int64_t index) {
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
   auto node =
       std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
-  /// TODO(kloudwang) 复用机制还有点问题，临时先屏蔽
-  // return node->GetViewType();
-  return index;
+  return node->GetViewType();
 }
 
 bool ListViewDataSource::IsItemSticky(int64_t index) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  // TODO(vimerzhao): TDFCore's sticky feature is conflict with Hippy. Need to improve.
   return false;
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

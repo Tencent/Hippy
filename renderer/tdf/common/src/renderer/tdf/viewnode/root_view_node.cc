@@ -24,7 +24,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 constexpr const char kUpdateFrame[] = "frameupdate";
 
@@ -66,21 +66,20 @@ void RootViewNode::Init() {
           return tdfcore::EventDispatchBehavior::kContinue;
         });
 
-    // TODO: provide a FrameworkProxy Binding
     // register custom image loader
     auto https_scheme = "https";
-    auto https_net_image_loader = TDF_MAKE_SHARED(tdfrender::NetImageLoader, https_scheme, self->getter_);
+    auto https_net_image_loader = TDF_MAKE_SHARED(tdf::NetImageLoader, https_scheme, self->getter_);
     self->view_context_->GetImageManager()->GetImageLoadManager()->RegisterImageLoader(https_scheme,
                                                                                        https_net_image_loader);
 
     auto http_scheme = "http";
-    auto http_net_image_loader = TDF_MAKE_SHARED(tdfrender::NetImageLoader, http_scheme, self->getter_);
+    auto http_net_image_loader = TDF_MAKE_SHARED(tdf::NetImageLoader, http_scheme, self->getter_);
     self->view_context_->GetImageManager()->GetImageLoadManager()->RegisterImageLoader(http_scheme,
                                                                                        http_net_image_loader);
 
-    auto base64_image_loader = TDF_MAKE_SHARED(tdfrender::Base64ImageLoader);
+    auto base64_image_loader = TDF_MAKE_SHARED(tdf::Base64ImageLoader);
     self->view_context_->GetImageManager()->GetImageLoadManager()->RegisterImageLoader(
-        tdfrender::Base64ImageLoader::GetScheme(), base64_image_loader);
+        tdf::Base64ImageLoader::GetScheme(), base64_image_loader);
   });
 }
 
@@ -169,6 +168,6 @@ void RootViewNode::UpdateDomeRootNodeSize(tdfcore::ViewportMetrics viewport_metr
   dom_manager_.lock()->PostTask(hippy::Scene(std::move(ops)));
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

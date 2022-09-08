@@ -27,11 +27,10 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 constexpr const char kBase64Scheme[] = "data:image/png;base64";
 
-/// TODO(kloudwang) 到时跟NetImageLoader统一走VFS
 class Base64ImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<Base64ImageLoader> {
  public:
   ~Base64ImageLoader() override = default;
@@ -46,6 +45,6 @@ class Base64ImageLoader : public tdfcore::ImageLoader, public std::enable_shared
   std::string scheme_tag_ = "base64,";
 };
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

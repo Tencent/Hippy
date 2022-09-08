@@ -28,7 +28,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-const-variable"
@@ -100,7 +100,6 @@ void ImageViewNode::SetScaleType(const std::string &type) {
 
 void ImageViewNode::SetDefaultSrc(const std::string &src) {
   default_src_ = src;
-  /// TODO(kloudwang): default_src is slower than image_src_.
   LoadImage(default_src_);
 }
 
@@ -129,6 +128,6 @@ void ImageViewNode::LoadImage(std::string url) {
   }
 }
 
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy

@@ -39,7 +39,7 @@
 
 namespace hippy {
 inline namespace render {
-inline namespace tdfrender {
+inline namespace tdf {
 inline namespace view {
 
 using tdfcore::TRect;
@@ -115,9 +115,9 @@ class ModalView : public View {
 };
 
 }  // namespace view
-}  // namespace tdfrender
+}  // namespace tdf
 }  // namespace render
 }  // namespace hippy
 
-TDF_REFL_DEFINE(hippy::render::tdfrender::view::ModalView, bases<tdfcore::View>)
-TDF_REFL_END(tdfrender::view::ModalView)
+TDF_REFL_DEFINE(hippy::render::tdf::view::ModalView, bases<tdfcore::View>)
+TDF_REFL_END(tdf::view::ModalView)
