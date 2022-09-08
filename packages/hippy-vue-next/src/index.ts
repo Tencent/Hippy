@@ -46,7 +46,6 @@ import type { HippyListElement } from './runtime/element/hippy-list-element';
 import { EventBus } from './runtime/event/event-bus';
 import {
   type HippyEvent,
-  HippyKeyboardEvent,
 } from './runtime/event/hippy-event';
 import { Native } from './runtime/native';
 import type { NativeApiType } from './runtime/native';
@@ -280,6 +279,7 @@ export type {
 };
 
 export * from './config';
+export * from './runtime/event/hippy-event';
 
 export {
   EventBus,
@@ -289,7 +289,6 @@ export {
   parseCSS,
   NativeInterfaceMap,
   setScreenSize,
-  HippyKeyboardEvent,
   getTagComponent,
   registerElement,
 };

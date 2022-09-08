@@ -236,5 +236,5 @@ export interface HippyGlobalEventHandlersEventMap {
 // Convert map to union, so that you can use the feature of 4.6 to do narrowing in switch case
 // https://devblogs.microsoft.com/typescript/announcing-typescript-4-6/#control-flow-analysis-for-destructured-discriminated-unions
 // https://stackoverflow.com/questions/59075083/
-type MapToUnion<I> = { [k in keyof I]: { __evt: k; handler: I[k] } }[keyof I];
+export type MapToUnion<I> = { [k in keyof I]: { __evt: k; handler: I[k] } }[keyof I];
 export type EventsUnionType = MapToUnion<HippyGlobalEventHandlersEventMap>;

@@ -4,6 +4,9 @@ import {
   EventBus,
   setScreenSize,
   BackAndroid,
+  Native,
+  registerElement,
+  EventsUnionType,
 } from '@hippy/vue-next';
 
 import App from './app.vue';
@@ -85,6 +88,43 @@ const initCallback = ({ superProps, rootViewId }) => {
     console.log('backAndroid');
     // set true interrupts native back
     // return true;
+  });
+
+  // invoke custom nativeapis with type hints
+  Native.callNative('customModule', 'customMethod', '123', 456);
+  Native.callNativeWithPromise(
+    'customModule',
+    'customMethodWithPromise',
+    '123',
+    456,
+  ).then((result) => {
+    console.log(result);
+  });
+
+  // register custom component with type inference
+  registerElement('customComponent', {
+    component: {
+      name: 'custom-component',
+      processEventData(
+        evtData: EventsUnionType,
+        nativeEventParams: { [key: string]: NeedToTyped },
+      ) {
+        const { handler: event, __evt: nativeEventName } = evtData;
+
+        switch (nativeEventName) {
+          // can infer event is HippyTouchEvent from type narrowing
+          case 'onTest':
+            event.contentOffset = nativeEventParams.position;
+            break;
+          // extended HippyEvent which has testProp
+          case 'onAnotherTest':
+            event.testProp = 123;
+            break;
+          default:
+        }
+        return event;
+      },
+    },
   });
 };
 
