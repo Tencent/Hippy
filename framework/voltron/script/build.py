@@ -91,7 +91,8 @@ def build_ios(args):
                      f'-B{cmake_build_dir} ' \
                      '-G\"Xcode\" ' \
                      '-DCMAKE_SYSTEM_NAME=iOS ' \
-                     '-DENABLE_INSPECTOR=0 ' \
+                     '-DV8_WITHOUT_INSPECTOR=1 ' \
+                     '-DENABLE_INSPECTOR=1 ' \
                      f'-DCMAKE_TOOLCHAIN_FILE={_ORIGIN_PATH}/ios.toolchain.cmake ' \
                      '-DCMAKE_XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET=12.0 ' \
                      '-DCMAKE_XCODE_ATTRIBUTE_VALID_ARCHS=\"armv7 arm64 x86_64\" ' \

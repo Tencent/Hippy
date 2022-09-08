@@ -83,7 +83,7 @@ if (IOS)
   InfraPackage_Add(json
           REMOTE "devtools/backend/third_party/json/3.9.1/json.zip"
           LOCAL "third_party/json")
-  target_include_directories(${PROJECT_NAME} PRIVATE ${json_SOURCE_DIR}/single_include)
+  target_include_directories(${PROJECT_NAME} PUBLIC ${json_SOURCE_DIR}/single_include)
 else()
   # nlohmann_json 3.9.1 failed to compile on Android，throw has not been changed completely
   InfraPackage_Add(json

@@ -19,46 +19,53 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		BC012D8628B6133C00AC56E8 /* PBXContainerItemProxy */ = {
+		BC1A861C28C9960C001DAA2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */;
+			containerPortal = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 29000648D53E44B4BEC3B84C;
+			remoteGlobalIDString = 35E8DF485E2943CABC3D10F9;
+			remoteInfo = devtools_backend;
+		};
+		BC1A861E28C9960C001DAA2E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 864CDE6BFB6A40599168E8B3;
 			remoteInfo = dom;
 		};
-		BC012D8828B6133C00AC56E8 /* PBXContainerItemProxy */ = {
+		BC1A862028C9960C001DAA2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */;
+			containerPortal = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = E579B4C8C66E477C958C47C8;
+			remoteGlobalIDString = A815382AA476416F9A0222B1;
 			remoteInfo = footstone;
 		};
-		BC012D8A28B6133C00AC56E8 /* PBXContainerItemProxy */ = {
+		BC1A862228C9960C001DAA2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */;
+			containerPortal = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 4A511AC2CC924F048C0D7EC5;
+			remoteGlobalIDString = CADCAA0845894DCE8F6C7B11;
 			remoteInfo = js_driver;
 		};
-		BC012D8C28B6133C00AC56E8 /* PBXContainerItemProxy */ = {
+		BC1A862428C9960C001DAA2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */;
+			containerPortal = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 90A5E8CE9C5746D78E8DE292;
+			remoteGlobalIDString = 548C9D5E7FCF48ECBE96E80E;
 			remoteInfo = render_core;
 		};
-		BC012D8E28B6133C00AC56E8 /* PBXContainerItemProxy */ = {
+		BC1A862628C9960C001DAA2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */;
+			containerPortal = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = B30D5397FC1C40A09FECEC40;
+			remoteGlobalIDString = 0440336BB5C047218626A89F;
 			remoteInfo = taitank;
 		};
-		BC012D9028B6133C00AC56E8 /* PBXContainerItemProxy */ = {
+		BC1A862828C9960C001DAA2E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */;
+			containerPortal = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 660D0BDF7F004C019497C267;
+			remoteGlobalIDString = 1BF471D587EF49F49EBB45F9;
 			remoteInfo = voltron_core;
 		};
 /* End PBXContainerItemProxy section */
@@ -94,7 +101,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A4C247B741516BC4289E341B /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		AD0D662A2775C39900FAD911 /* voltron_core.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = voltron_core.xcframework; path = .symlinks/plugins/voltron_render/ios/../../../../../../ios/voltron_core.xcframework; sourceTree = "<group>"; };
-		BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = voltron_core.xcodeproj; path = ../../build/CMakeOutput/ios/x86_64/voltron_core.xcodeproj; sourceTree = "<group>"; };
+		BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = voltron_core.xcodeproj; path = ../../build/CMakeOutput/ios/arm64/voltron_core.xcodeproj; sourceTree = "<group>"; };
 		BC870F302775720B007080AE /* libFOOTSTONE_common.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFOOTSTONE_common.a; path = ../../build/ios/arm64/libFOOTSTONE_common.a; sourceTree = "<group>"; };
 		BC870F322775720B007080AE /* voltron_core.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = voltron_core.framework; path = ../../build/ios/arm64/voltron_core.framework; sourceTree = "<group>"; };
 		BC870F332775720B007080AE /* libdom.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdom.a; path = ../../build/ios/arm64/libdom.a; sourceTree = "<group>"; };
@@ -157,7 +164,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
-				BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */,
+				BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
@@ -197,15 +204,16 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		BC012D7C28B6133C00AC56E8 /* Products */ = {
+		BC1A861028C9960C001DAA2E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BC012D8728B6133C00AC56E8 /* libdom.a */,
-				BC012D8928B6133C00AC56E8 /* libfootstone.a */,
-				BC012D8B28B6133C00AC56E8 /* libjs_driver.a */,
-				BC012D8D28B6133C00AC56E8 /* librender_core.a */,
-				BC012D8F28B6133C00AC56E8 /* libtaitank.a */,
-				BC012D9128B6133C00AC56E8 /* voltron_core.framework/voltron_core */,
+				BC1A861D28C9960C001DAA2E /* libdevtools_backend.a */,
+				BC1A861F28C9960C001DAA2E /* libdom.a */,
+				BC1A862128C9960C001DAA2E /* libfootstone.a */,
+				BC1A862328C9960C001DAA2E /* libjs_driver.a */,
+				BC1A862528C9960C001DAA2E /* librender_core.a */,
+				BC1A862728C9960C001DAA2E /* libtaitank.a */,
+				BC1A862928C9960C001DAA2E /* voltron_core.framework/voltron_core */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -263,8 +271,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = BC012D7C28B6133C00AC56E8 /* Products */;
-					ProjectRef = BC012D7B28B6133C00AC56E8 /* voltron_core.xcodeproj */;
+					ProductGroup = BC1A861028C9960C001DAA2E /* Products */;
+					ProjectRef = BC1A860F28C9960C001DAA2E /* voltron_core.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -275,47 +283,54 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		BC012D8728B6133C00AC56E8 /* libdom.a */ = {
+		BC1A861D28C9960C001DAA2E /* libdevtools_backend.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdevtools_backend.a;
+			remoteRef = BC1A861C28C9960C001DAA2E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BC1A861F28C9960C001DAA2E /* libdom.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libdom.a;
-			remoteRef = BC012D8628B6133C00AC56E8 /* PBXContainerItemProxy */;
+			remoteRef = BC1A861E28C9960C001DAA2E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		BC012D8928B6133C00AC56E8 /* libfootstone.a */ = {
+		BC1A862128C9960C001DAA2E /* libfootstone.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libfootstone.a;
-			remoteRef = BC012D8828B6133C00AC56E8 /* PBXContainerItemProxy */;
+			remoteRef = BC1A862028C9960C001DAA2E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		BC012D8B28B6133C00AC56E8 /* libjs_driver.a */ = {
+		BC1A862328C9960C001DAA2E /* libjs_driver.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libjs_driver.a;
-			remoteRef = BC012D8A28B6133C00AC56E8 /* PBXContainerItemProxy */;
+			remoteRef = BC1A862228C9960C001DAA2E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		BC012D8D28B6133C00AC56E8 /* librender_core.a */ = {
+		BC1A862528C9960C001DAA2E /* librender_core.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = librender_core.a;
-			remoteRef = BC012D8C28B6133C00AC56E8 /* PBXContainerItemProxy */;
+			remoteRef = BC1A862428C9960C001DAA2E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		BC012D8F28B6133C00AC56E8 /* libtaitank.a */ = {
+		BC1A862728C9960C001DAA2E /* libtaitank.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libtaitank.a;
-			remoteRef = BC012D8E28B6133C00AC56E8 /* PBXContainerItemProxy */;
+			remoteRef = BC1A862628C9960C001DAA2E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		BC012D9128B6133C00AC56E8 /* voltron_core.framework/voltron_core */ = {
+		BC1A862928C9960C001DAA2E /* voltron_core.framework/voltron_core */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			name = voltron_core.framework/voltron_core;
 			path = voltron_core.framework;
-			remoteRef = BC012D9028B6133C00AC56E8 /* PBXContainerItemProxy */;
+			remoteRef = BC1A862828C9960C001DAA2E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
