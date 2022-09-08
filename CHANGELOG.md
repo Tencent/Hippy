@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.7](https://github.com/Tencent/Hippy/compare/2.14.6...2.14.7) (2022-09-08)
+
+
+### Bug Fixes
+
+* **android:** listview not update when delete invisible items ([e893f50](https://github.com/Tencent/Hippy/commit/e893f503c1044b6ca0ba66e18044a3fe1fb9d7e7))
+* **hippy-react:** remove NetInfo duplicated EventEmitter creating ([8591c9f](https://github.com/Tencent/Hippy/commit/8591c9fbe1a4d768c2bc819056fac628fef69f71))
+* **ios:** ViewPager onPageScrollStateChange missing ([adb0121](https://github.com/Tencent/Hippy/commit/adb0121a925e0af49870422db74e89cff7646d15))
+
+
+
+
+
 ## [2.14.6](https://github.com/Tencent/Hippy/compare/2.14.5...2.14.6) (2022-08-26)
 
 

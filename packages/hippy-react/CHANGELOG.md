@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.7](https://github.com/Tencent/Hippy/compare/2.14.6...2.14.7) (2022-09-08)
+
+
+### Bug Fixes
+
+* **hippy-react:** remove NetInfo duplicated EventEmitter creating ([8591c9f](https://github.com/Tencent/Hippy/commit/8591c9fbe1a4d768c2bc819056fac628fef69f71))
+
+
+
+
+
 ## [2.14.6](https://github.com/Tencent/Hippy/compare/2.14.5...2.14.6) (2022-08-26)
 
 
