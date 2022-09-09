@@ -195,6 +195,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private buildTintDomContainer() {
     this.tintModeContainerDom = document.createElement('div');
     this.tintModeContainerDom.style.overflow = 'hidden';
+    this.tintModeContainerDom.style.lineHeight = '100%';
   }
 
   private imgDomChangeContainer(oldParent: HTMLElement, newParent: HTMLElement) {
