@@ -172,11 +172,36 @@ void ParseBorderInfo(tdfcore::View& view, const DomStyleMap& style_map) {
   auto border = tdfcore::BoxBorder(left_border_style, top_border_style, right_border_style, bottom_border_style);
   view.SetBorder(border);
 
-  float radius = 0;
+  float radius = 0, radius_tl = 0, radius_tr = 0, radius_bl = 0, radius_br = 0;
+  bool has_radius = false;
   if (auto it = style_map.find(view::kBorderRadius); it != style_map.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     radius = static_cast<float>(it->second->ToDoubleChecked());
-    std::array<float, 8> radius_arr = {radius, radius, radius, radius, radius, radius, radius, radius};
+    has_radius = true;
+    radius_tl = radius_tr = radius_bl = radius_br = radius;
+  }
+  if (auto it = style_map.find(view::kBorderTopLeftRadius); it != style_map.end()) {
+    FOOTSTONE_DCHECK(it->second->IsDouble());
+    radius_tl = static_cast<float>(it->second->ToDoubleChecked());
+    has_radius = true;
+  }
+  if (auto it = style_map.find(view::kBorderTopRightRadius); it != style_map.end()) {
+    FOOTSTONE_DCHECK(it->second->IsDouble());
+    radius_tr = static_cast<float>(it->second->ToDoubleChecked());
+    has_radius = true;
+  }
+  if (auto it = style_map.find(view::kBorderBottomLeftRadius); it != style_map.end()) {
+    FOOTSTONE_DCHECK(it->second->IsDouble());
+    radius_bl = static_cast<float>(it->second->ToDoubleChecked());
+    has_radius = true;
+  }
+  if (auto it = style_map.find(view::kBorderBottomRightRadius); it != style_map.end()) {
+    FOOTSTONE_DCHECK(it->second->IsDouble());
+    radius_br = static_cast<float>(it->second->ToDoubleChecked());
+    has_radius = true;
+  }
+  if (has_radius) {
+    std::array<float, 8> radius_arr = {radius_tl, radius_tl, radius_tr, radius_tr, radius_br, radius_br, radius_bl, radius_bl};
     view.SetRadius(radius_arr);
   }
 }
