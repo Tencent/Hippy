@@ -208,4 +208,40 @@ app.$start().then(({ superProps, rootViewId }) => {
   });
   ```
 
+- Native接口和自定义组件的类型提示
+  @hippy/vue-next提供了Native接口的Typescript类型提示，如果有业务自定义的Native接口，也可以采用类似的方式进行扩展
+  
+  ```typescript
+  declare module '@hippy/vue-next' {
+    export interface NativeInterfaceMap {
+      // 用户自定义的Native接口，接下来你可以在Native.callNative，Native.callNativeWithPromise拥有类型提示了
+    }
+  }
+  ```
+
+  @hippy/vue-next也参考dom的事件声明提供了事件类型，具体可以参考hippy-event.ts.
+  如果需要在内置的事件上进行扩展，可以采用类似方式
+
+  ```typescript
+    declare module '@hippy/vue-next' {
+      export interface HippyEvent {
+        testProp: number;
+      }
+    }
+  ```
+
+  在使用registerElement去注册组件的时候，利用了typescript的type narrow，在switch case中提供了准确的类型提示，
+  如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式
+
+  ```typescript
+    export interface HippyGlobalEventHandlersEventMap {
+      // extend new event name and related event interface
+      onTest: CustomEvent;
+      // extend existing event interface
+      onAnotherTest: HippyEvent;
+    }
+  ```
+
+  更多信息可以参考demo里的extend.ts和app.ts
+
 - 其他尚未发现的Bug...

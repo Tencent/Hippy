@@ -28,8 +28,17 @@ app.$start().then(({ superProps, rootViewId }) => {
   // mount hippy app and render to native 
   app.mount('#mount');
 })
+
+// extend custom nativeapis and components
+declare module '@hippy/vue-next' {
+  export interface NativeInterfaceMap {
+    // custom nativeapis
+  }
+  export interface HippyGlobalEventHandlersEventMap {
+    // events used by custom components 
+  }
+}
 ```
 > This is the simple usage. For more detail, please read the [doc](https://hippyjs.org) or
 > try [demo](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo).
-> 
 

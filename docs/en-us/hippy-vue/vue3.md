@@ -216,4 +216,43 @@ For details, please see the writing method of the [example project](https://gith
   });
   ```
 
+- Type hints of Nativeapis and Custom components
+  @hippy/vue-next provides type hints for the nativeapis. 
+  If there is a business-defined nativeapi, it can also be extended in a similar way
+  
+  ```typescript
+  declare module '@hippy/vue-next' {
+    export interface NativeInterfaceMap {
+      // then you can have type hints in Native.callNative, Native.callNativeWithPromise
+    }
+  }
+  ```
+
+  @hippy/vue-next also provides event types with reference to the event declaration of lib.dom.d.ts. 
+  For details, please refer to hippy-event.ts.
+  If you need to extend the built-in events, you can use a similar way
+
+  ```typescript
+    declare module '@hippy/vue-next' {
+      export interface HippyEvent {
+        testProp: number;
+      }
+    }
+  ```
+
+  When using registerElement to register components, type narrowing is used to provide 
+  accurate type hints in switch cases, If you also need similar type hints when registering custom 
+  components, you can use the following methods
+
+  ```typescript
+    export interface HippyGlobalEventHandlersEventMap {
+      // extend new event name and related event interface
+      onTest: CustomEvent;
+      // extend existing event interface
+      onAnotherTest: HippyEvent;
+    }
+  ```
+
+  For more information, please refer to extend.ts and app.ts in the demo
+
 - Other undiscovered bugs...
