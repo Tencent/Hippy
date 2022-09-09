@@ -105,27 +105,25 @@ void Worker::BalanceNoLock() {
 
 bool Worker::RunTask() {
   auto task = GetNextTask();
-  if (task) {
-    TimePoint begin = TimePoint::Now();
-    is_task_running = true;
-    task->Run();
-    is_task_running = false;
-    for (auto &it : curr_group) {
-      it->AddTime(TimePoint::Now() - begin);
-    }
-  } else if (driver_->IsTerminated()) {
+  if (!task) {
     return false;
+  }
+  TimePoint begin = TimePoint::Now();
+  is_task_running = true;
+  task->Run();
+  is_task_running = false;
+  for (auto &it : curr_group) {
+    it->AddTime(TimePoint::Now() - begin);
   }
   return true;
 }
 
 void Worker::Start(bool in_new_thread) {
-  driver_->SetUnit([weak_self = GetSelf()]() -> bool {
+  driver_->SetUnit([weak_self = GetSelf()]() {
     auto self = weak_self.lock();
     if (self) {
-      return self->RunTask();
+      while(self->RunTask()){};
     }
-    return false;
   });
   if (in_new_thread) {
     thread_ = std::thread([this]() -> void {
@@ -338,7 +336,7 @@ auto MakeCopyable(F&& f) {
 }
 
 std::unique_ptr<Task> Worker::GetNextTask() {
-  if (driver_->IsTerminated()) {
+  if (driver_->IsExitImmediately()) {
     return nullptr;
   }
   {
@@ -392,6 +390,9 @@ std::unique_ptr<Task> Worker::GetNextTask() {
           task->Run(param);
         }));
     return wrapper_idle_task;
+  }
+  if (driver_->IsTerminated()) {
+    return nullptr;
   }
   driver_->WaitFor(min_wait_time_);
   return nullptr;

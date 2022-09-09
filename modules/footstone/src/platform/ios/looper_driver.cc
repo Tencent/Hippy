@@ -81,15 +81,10 @@ void LooperDriver::Terminate() {
 }
 
 void LooperDriver::OnTimerFire(CFRunLoopTimerRef timer) {
-  while(true) {
-    if (is_terminated_ && is_exit_immediately_) {
-      return;
-    }
-    has_task_pending_ = unit_();
-    if (!has_task_pending_) {
-      return;
-    }
+  if (IsExitImmediately()) {
+    return;
   }
+  unit_();
 }
 
 }
