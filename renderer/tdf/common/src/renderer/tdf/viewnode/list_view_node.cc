@@ -123,6 +123,10 @@ void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
       view_type_ = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
     } else if (it->second->IsInt32()) {
       view_type_ = it->second->ToInt32Checked();
+    } else if (it->second->IsUInt32()) {
+      view_type_ = it->second->ToUint32Checked();
+    } else if (it->second->IsDouble()) {
+      view_type_ = static_cast<int64_t>(it->second->ToDoubleChecked());
     }
   }
   if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
