@@ -38,20 +38,14 @@ void CVDriver::WaitFor(const TimeDelta& delta) {
 }
 
 void CVDriver::Start() {
-  if (is_exit_immediately_) {
-    while (!is_terminated_) {
-      unit_();
-    }
-  } else {
-    while (unit_()) {}
+  while (!is_terminated_) {
+    unit_();
   }
 }
 
 void CVDriver::Terminate() {
-  {
-    std::unique_lock<std::mutex> lock(mutex_);
-    is_terminated_ = true;
-  }
+  std::unique_lock<std::mutex> lock(mutex_);
+  is_terminated_ = true;
 }
 
 }

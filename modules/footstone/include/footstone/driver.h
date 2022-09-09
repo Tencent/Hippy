@@ -39,7 +39,7 @@ class Driver {
   virtual void Start() = 0;
   virtual void Terminate() = 0;
 
-  inline void SetUnit(std::function<bool()> unit) {
+  inline void SetUnit(std::function<void()> unit) {
     unit_ = std::move(unit);
   }
 
@@ -47,8 +47,12 @@ class Driver {
     return is_terminated_;
   }
 
+  inline bool IsExitImmediately() {
+    return is_terminated_ && is_exit_immediately_;
+  }
+
  protected:
-  std::function<bool()> unit_;
+  std::function<void()> unit_;
   bool is_terminated_;
   /*
    * 是否立刻退出
