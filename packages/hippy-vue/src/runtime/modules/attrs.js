@@ -56,6 +56,26 @@ function updateAttrs(oldVNode, vNode) {
   });
 }
 
+export function setAttrs(vNode, customElem, options = {}) {
+  if (!vNode || !vNode.data) {
+    return;
+  }
+  let { elm } = vNode;
+  if (customElem) {
+    elm = customElem;
+  }
+  if (!elm) return;
+  let attrs = (vNode.data && vNode.data.attrs) || {};
+  // clone observed objects, as the user probably wants to mutate it
+  if (attrs.__ob__) {
+    attrs = extend({}, attrs);
+    vNode.data.attrs = attrs;
+  }
+  Object.keys(attrs).forEach((key) => {
+    elm.setAttribute(key, attrs[key], { notToNative: !!options.notToNative });
+  });
+}
+
 export default {
   create: updateAttrs,
   update: updateAttrs,

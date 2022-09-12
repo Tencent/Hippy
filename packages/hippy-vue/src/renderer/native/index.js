@@ -26,7 +26,7 @@
  */
 
 import Native, { UIManagerModule } from '../../runtime/native';
-import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
+import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME, ROOT_VIEW_ID } from '../../runtime/constants';
 import {
   getApp,
   trace,
@@ -402,8 +402,7 @@ function renderToNativeWithChildren(rootViewId, node, callback) {
 }
 
 function isLayout(node, rootView) {
-  // First time init rootViewId always be 3.
-  if (node.nodeId === 3) {
+  if (node.nodeId === ROOT_VIEW_ID) {
     return true;
   }
   // Check the id is specific for rootView.
