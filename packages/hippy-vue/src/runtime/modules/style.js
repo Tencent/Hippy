@@ -95,6 +95,45 @@ function createStyle(oldVNode, vNode) {
   updateStyle(oldVNode, vNode);
 }
 
+export function setStyle(vNode, customElem, options = {}) {
+  if (!vNode || !vNode.data) {
+    return;
+  }
+  let { elm } = vNode;
+  if (customElem) {
+    elm = customElem;
+  }
+  if (!elm) return;
+  const { staticStyle } = vNode.data;
+  if (staticStyle) {
+    Object.keys(staticStyle).forEach((name) => {
+      const value = staticStyle[name];
+      if (value) {
+        elm.setStyle(normalize(name), value, !!options.notToNative);
+      }
+    });
+  }
+  let { style } = vNode.data;
+  if (style) {
+    const needClone = style.__ob__;
+    // handle array syntax
+    if (Array.isArray(style)) {
+      style = toObject(style);
+      vNode.data.style = style;
+    }
+    // clone the style for future updates,
+    // in case the user mutates the style object in-place.
+    if (needClone) {
+      style = extend({}, style);
+      vNode.data.style = style;
+    }
+    // Then set the new styles.
+    Object.keys(style).forEach((name) => {
+      elm.setStyle(normalize(name), style[name], !!options.notToNative);
+    });
+  }
+}
+
 export default {
   create: createStyle,
   update: updateStyle,

@@ -47,7 +47,7 @@ class ViewNode {
     this._meta = null;
     // Will change to be true after insert into Native dom.
     this._isMounted = false;
-    // Virtual DOM node id, will used in native to identify.
+    // Virtual DOM node id, will be used in native to identify.
     this.nodeId = getNodeId();
     // Index number in children, will update at traverseChildren method.
     this.index = 0;
