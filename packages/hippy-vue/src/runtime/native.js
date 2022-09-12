@@ -395,6 +395,9 @@ const Native = {
    * @returns { Number } int32Color
    */
   parseColor(color, options = { platform: Native.Platform }) {
+    if (Number.isInteger(color)) {
+      return color;
+    }
     const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
       // cache the calculation result
