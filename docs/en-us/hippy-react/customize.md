@@ -1,5 +1,7 @@
 # Custom Component And Module
 
+---
+
 # Custom Components
 
 Define a custom React component by specifying the name of the native component by `nativeName` where it needs to be rendered. Take `MyView` in the native example as an example:

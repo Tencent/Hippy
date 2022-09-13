@@ -4,6 +4,8 @@ Hippy 采用 `monorepo` 进行代码管理，多仓库 SDK 统一版本，前端
 
 Hippy 已经提供了完整的[前端和终端范例](//github.com/Tencent/Hippy/tree/master/examples)，可直接基于我们现有的范例开始 App 开发。若想快速体验 Hippy，可按照 [README 步骤](https://github.com/Tencent/Hippy/blob/master/README.zh_CN.md#-%E5%BC%80%E5%A7%8B) 将 DEMO 运行起来 。 如果要在已有的 App 里整合 Hippy，请继续阅读下面的 `终端接入` 章节。
 
+---
+
 # 终端接入
 
 如果要接入 Hippy 到现有终端项目，请参考 [Android集成](android/integration.md) 和 [iOS集成](ios/integration.md) 教程。
@@ -307,6 +309,3 @@ setApp(app);
 
 `@hippy/vue-router` 完整支持 vue-router 中的跳转功能，具体请参考 [hippy-vue-router](hippy-vue/router.md) 文档。
 
-### hippy-vue 转 Web
-
-hippy-vue 项目基于 vue-cli 生成的 Web 项目，之前的 Web 能力可以直接使用，对于使用 vue-cli 生产的项目，可以参考[官方文档](//cli.vuejs.org/zh/guide/build-targets.html)。

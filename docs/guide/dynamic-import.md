@@ -1,28 +1,30 @@
 # 动态加载
 
-## 介绍
+---
+
+# 介绍
 
 Hippy 2.2 版本之前只支持加载单个 js bundle 文件。随着业务越来越复杂，单个 js 文件体积愈发增加的体积会影响首屏启动速度。为了解决这个问题，Hippy 在 2.2 版本增添了动态加载能力，开发人员可以按需来动态引入子 js bundle 文件。
 
  `Hippy 最低版本支持 2.2`
 
-## 原理架构
+# 原理架构
 
 ![Communication Info](../assets/img/dynamic_import.png)
 
-## 范例
+# 范例
 
 [[React 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-react-demo/src/externals/DyanmicImport/index.jsx)
 
 [[Vue 范例]](//github.com/Tencent/Hippy/blob/master/examples/hippy-vue-demo/src/components/demos/demo-dynamicimport.vue)
 
-## 使用方法
+# 使用方法
 
-### 安装
+## 安装
 
 `npm install -D @hippy/hippy-dynamic-import-plugin`
 
-### 使用
+## 使用
 
 在 [Webpack 打包脚本](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/scripts) 中引入插件
 
@@ -45,7 +47,7 @@ module.exports = {
 };
 ```
 
-### 降级方案
+## 降级方案
 
 在终端 SDK 不支持 dynamic import 的版本，可以使用以下两种方法阻止分包。
 
@@ -71,7 +73,7 @@ plugins: [
 ],
 ```
 
-## 支持同时配置本地/网络加载分包
+# 可同时配置本地/网络加载分包
 
 `网络加载 hippy sdk 最低支持版本 2.5.5`
 
@@ -79,11 +81,11 @@ plugins: [
 
 提供以下几种模式
 
-### 业务只加载 [本地] js bundle
+## 业务只加载 [本地] js bundle
 
 与原有动态加载能力一样，直接使用 `import()` 语法即可
 
-### 业务只加载 [远程] js bundle
+## 业务只加载 [远程] js bundle
 
 + webpack打包脚本配置全局 `publicPath`(可选)
 
@@ -106,7 +108,7 @@ plugins: [
   .catch(err => console.error('import async remote component error', err))
 ```
 
-### 业务同时加载 [本地 + 远程] js bundle
+## 业务同时加载 [本地 + 远程] js bundle
 
 + 去除 webpack 全局配置的 `publicPath`（publicPath 会强制在所有 bundle 前加上配置的路径，影响本地 bundle 加载）
 

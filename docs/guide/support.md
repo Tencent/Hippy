@@ -1,12 +1,14 @@
 # 技术支持
 
+---
+
 # Github
 
 我们鼓励在 [Issue](//github.com/Tencent/Hippy/issues) 里汇报使用问题。
 或者在提交 [Pull Request](//github.com/Tencent/Hippy/pulls)，一起来建设Hippy。
 
-# QQ 群
+# 企业微信群
 
-也可以加入 QQ 群 [784894901](//shang.qq.com/wpa/qunwpa?idkey=ce9cd2eb06fd6da26a1a63b70da82edd132964d22998e5154e533822f7b757cc)
+使用微信或者企业微信扫描加入
 
-[![QQ群](../assets/img/qq-group.png)](//shang.qq.com/wpa/qunwpa?idkey=ce9cd2eb06fd6da26a1a63b70da82edd132964d22998e5154e533822f7b757cc)
+![企业微信群二维码](../assets/img/wechat-group.jpeg)

@@ -1,10 +1,12 @@
 # Animation Scheme
 
-## Principle
+---
+
+# Principle
 
 The parameters of the animation in Hippy are completely passed in by the front end, and then the native controls the calculation and typesetting update of each frame, which reduces the number of communications between the front-end and the native, and thus greatly reduces animation freezes.
 
-## Cool Effect
+# Cool Effect
 
 * Follow animation
 
@@ -18,7 +20,7 @@ The parameters of the animation in Hippy are completely passed in by the front e
 
 <img src="assets/img/pk_animation.gif" alt="PK animation" width="30%"/>
 
-## How to Use
+# How to Use
 
 We take `Hippy-React` for example, there are three steps to implementing an animation on Hippy:
 
@@ -26,7 +28,7 @@ We take `Hippy-React` for example, there are three steps to implementing an anim
 2. When calling render, animate the control properties that you want to animate;
 3. Start the Animation through the start method of the animation, and stop and destroy the animation through the destroy method;
 
-### Example Code
+## Example Code
 
 ```js
 import { Animation, StyleSheet } from "@hippy/react";
@@ -139,7 +141,7 @@ export default class AnimationExample extends Component {
 // Style code omitted
 ```
 
-### More Introduction
+## More Introduction
 
 For detailed usage, please refer to
 

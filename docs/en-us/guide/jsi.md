@@ -4,14 +4,16 @@
 
 The JavaScript Interface (JSI) pattern provides a cross-VM (synchronous) intercall solution without going through the codec (serialization) process, allowing js to communicate directly with native. Objects passed by traditional intercalls are serialised in their entirety, but not all members are accessed, leading to unnecessary overhead and redundancy in certain scenarios. With JSI, the js side can fetch a C++-defined object (HostObject) and call the methods on that object.
 
-## JSI Structure
+---
+
+# Structure
 
 <br />
 <img src="assets/img/jsi_structure.png" alt="JSI Structure" width="40%"/>
 <br />
 <br />
 
-## Not Applicable Scenarios
+# Not Applicable Scenarios
 
 JSI is not suitable for all scenarios:
 
@@ -19,11 +21,11 @@ JSI is not suitable for all scenarios:
 * As the percentage of members to be read rises, the cumulative time consumed increases as the number of JNI calls increases, which is not as good as the codec implementation.
 * Synchronous calls simplify coding process and are more stable, but they block JS execution and are not suitable for complex logic.
 
-## Instructions
+# Instructions
 
-### Native
+## Native
 
-#### Android
+### Android
 
 * Enable JSI capability by setting engine initialization parameters
 
@@ -78,7 +80,7 @@ public class MyAPIProvider implements HippyAPIProvider {
   }
 ```
 
-#### iOS
+### iOS
 
 * Enable JSI capability by setting engine initialization parameters
   iOS has two ways to turn on/off the enableTurbo capability, as follows.

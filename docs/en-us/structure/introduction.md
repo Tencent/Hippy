@@ -1,4 +1,6 @@
-# Introduction
+# Architecture
+
+---
 
 # Hippy 2.x Architecture
 

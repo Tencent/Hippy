@@ -11,6 +11,7 @@
   * [Exception Handler](guide/exception.md)
   * [Custom Font](guide/custom-font.md)
   * [Dynamic Load](guide/dynamic-import.md)
+  * [Performance](guide/performance.md)
   * [JSI](guide/jsi.md)
   * [Tech Support](guide/support.md)
   * [Privacy Policy](guide/privacy.md)
@@ -23,6 +24,7 @@
   * [Custom Modules](android/custom-module.md)
   * [DOM Cache](android/dom-cache.md)
   * [ECMAScript & Java Type-Mapping](android/type-mapping.md)
+  * [V8 API](android/v8-api.md)
 
 * iOS
   * [iOS Integration](ios/integration.md)

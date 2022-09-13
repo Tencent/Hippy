@@ -79,11 +79,11 @@
 | focus            | 该事件在 `focusable` 置为 true 时触发，通过遥控方向键可以移动活动组件位置，事件回调带有 `isFocused` 参数用于标记激活和非激活状态 | `Function`  | `Android` |
 | longClick   | 当按钮被长按以后调用此回调函数。  例如， `@longClick="longClickHandler"}` | `Function`                                | `Android、iOS、Web-Renderer`    |
 | layout           | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置 | `Function`                           | `Android、iOS、Web-Renderer`     |
-| momentumScrollBegin  | 在 ScrollView 滑动开始的时候调起。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS、Web-Renderer`    |
-| momentumScrollEnd  | 在 ScrollView 滑动结束的时候调起。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS、Web-Renderer`    |
-| scroll  | 在滚动的过程中，每帧最多调用一次此回调函数。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS、Web-Renderer`    |
-| scrollBeginDrag  | 当用户开始拖拽 ScrollView 时调用。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS、Web-Renderer`    |
-| scrollEndDrag  | 当用户停止拖拽 ScrollView 时调用。`（仅在 overflow-y/x: scroll 时适用）` | `Function`                                | `Android、iOS、Web-Renderer`    |
+| momentumScrollBegin  | 在 ScrollView 滑动开始的时候调起。`（仅在 overflow-y/x: scroll 时适用）`, `2.14.6` 版本后支持 `offset` 相关参数 | `(event: { offsetX: number, offsetY: number }) => any`                                | `Android、iOS、Web-Renderer`    |
+| momentumScrollEnd  | 在 ScrollView 滑动结束的时候调起。`（仅在 overflow-y/x: scroll 时适用）`，`2.14.6` 版本后支持 `offset` 相关参数 | `(event: { offsetX: number, offsetY: number }) => any`                                | `Android、iOS、Web-Renderer`    |
+| scroll  | 在滚动的过程中，每帧最多调用一次此回调函数。`（仅在 overflow-y/x: scroll 时适用）` | `(event: { offsetX: number, offsetY: number }) => any`                                | `Android、iOS、Web-Renderer`    |
+| scrollBeginDrag  | 当用户开始拖拽 ScrollView 时调用。`（仅在 overflow-y/x: scroll 时适用）` | `(event: { offsetX: number, offsetY: number }) => any`                                | `Android、iOS、Web-Renderer`    |
+| scrollEndDrag  | 当用户停止拖拽 ScrollView 时调用。`（仅在 overflow-y/x: scroll 时适用）` | `(event: { offsetX: number, offsetY: number }) => any`                                | `Android、iOS、Web-Renderer`    |
 | touchstart  | 触屏开始事件，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
 | touchmove   | 触屏移动事件，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
 | touchend    | 触屏结束事件，参数为 `evt: { touches: [{ clientX: number, clientY: number }] }`，`clientX` 和 `clientY` 分别表示点击在屏幕内的绝对位置 | `Function`                                | `Android、iOS、Web-Renderer`    |
@@ -265,7 +265,7 @@
 * break-strategy 的参数含义：
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
-  * `blanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
+  * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
 
 ## 事件
 
@@ -361,11 +361,11 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | endReached          | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer`    |
-| momentumScrollBegin | 在 `ListView` 开始滑动的时候调起                           | `Function`                                                  | `Android、iOS、Web-Renderer`    |
-| momentumScrollEnd   | 在 `ListView` 结束滑动的时候调起                           | `Function`                                                  | `Android、iOS、Web-Renderer`    |
-| scroll              | 当触发 `ListView` 的滑动事件时回调。由于在 `ListView` 滑动时回调，调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(obj: { contentOffset: { x: number, y: number } }) => any` | `Android、iOS、Web-Renderer`    |
-| scrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用。                         | `Function`                                                  | `Android、iOS、Web-Renderer`    |
-| scrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用 | `Function`                                                  | `Android、iOS、Web-Renderer`    |
+| momentumScrollBegin | 在 `ListView` 开始滑动的时候调起，`2.14.6` 版本后支持 `offset` 相关参数      | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer`    |
+| momentumScrollEnd   | 在 `ListView` 结束滑动的时候调起，`2.14.6` 版本后支持 `offset` 相关参数   | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer`    |
+| scroll              | 当触发 `ListView` 的滑动事件时回调。由于在 `ListView` 滑动时回调，调用会非常频繁，请使用 `scrollEventThrottle` 进行频率控制。 注意：ListView 在滚动时会进行组件回收，不要在滚动时对 renderRow() 生成的 ListItemView 做任何 ref 节点级的操作（例如：所有 callUIFunction 和 measureInAppWindow 方法），回收后的节点将无法再进行操作而报错。横向ListView时，Android在 `2.8.0` 版本后支持 | `(event: { offsetX: number, offsetY: number }) => any` | `Android、iOS、Web-Renderer`    |
+| scrollBeginDrag     | 当用户开始拖拽 `ListView` 时调用，`2.14.6` 版本后支持 `offset` 相关参数   | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer`    |
+| scrollEndDrag       | 当用户停止拖拽 `ListView` 或者放手让 `ListView` 开始滑动的时候调用，`2.14.6` 版本后支持 `offset` 相关参数 | `(event: { offsetX: number, offsetY: number }) => any`                                                  | `Android、iOS、Web-Renderer`    |
 | layout      | 当元素挂载或者布局改变的时候调用，参数为： `nativeEvent: { layout: { x, y, width, height } }`，其中 `x` 和 `y` 为相对父元素的坐标位置。 | `Function`                                | `Android、iOS、Web-Renderer`    |
 | delete      | 在列表项侧滑删除时调起。`最低支持版本2.9.0` | `(nativeEvent: { index: number}) => void`                                | `iOS`    |
 
@@ -443,7 +443,7 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
 * break-strategy 的参数含义：
   * `simple`（默认值）：简单折行，每一行显示尽可能多的字符，直到这一行不能显示更多字符时才进行换行，这种策略下不会自动折断单词（当一行只有一个单词并且宽度显示不下的情况下才会折断）；
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
-  * `blanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
+  * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
 
 ---
 

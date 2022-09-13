@@ -4,6 +4,8 @@
 
 This tutorial shows how to integrate Hippy into an iOS project.
 
+---
+
 # Integrate with Pod
 
 1. install [cocoapods](https://cocoapods.org/), Hippy iOS SDK [version query](https://cocoapods.org/pods/hippy)

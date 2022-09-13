@@ -2,6 +2,8 @@
 
 Includes foreground, background, border, opacity, font and other appearance styles.
 
+---
+
 # borderColor
 
 > Android default value is `transparent`，iOS default value is `black`
@@ -321,5 +323,5 @@ Tint the image (When tinting the non-solid color image with transparency, there 
 
 | Type                               | Required| Supported Platforms
 |------------------------------------| -------- | --- |
-| enum('visible'[default], 'hidden') | No | iOS（2.9.0）
+| enum('visible'[default], 'hidden') | No | Android(2.14.5)、iOS（2.9.0）
 

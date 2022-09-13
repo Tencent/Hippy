@@ -1,8 +1,14 @@
-# 终端事件
+# 事件
 
 有一些事件不是发给单个 UI，而是发给整个业务的，例如屏幕的翻转、网络的变化等等，我们称之它为 `终端事件`。
 
-在 hippy-vue 中，所有终端事件都是分发到 Vue 的实例上（范例中实例名为 `app`），通过 Vue 的内部事件机制进行分发的。
+Hippy 提供了两种方式来管理全局事件:
+
++ `Hippy.on`、`Hippy.off`、`Hippy.emit` 是框架无关的全局事件 EventBus，主要用来监听如 `dealloc`、`destroyInstance` 等特殊 C++ 底层事件，也可以手动定制 JS 内的全局事件。
+
++ `app.$on`、`app.$off`、`app.$emit` 是 Vue 定制的 EventBus，除了可以手动定制 JS 内的全局事件外，所有全局 `NativeEvent` 都由其来分发，如 `rotate` 事件等。
+
+---
 
 # 事件监听器
 
