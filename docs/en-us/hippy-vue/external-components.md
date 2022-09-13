@@ -1,6 +1,6 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# Native Extension Component
+# Extended Components
 
 Extensions are some convenient components provided by the native, which are provided by [@hippy/vue-native-components](//www.npmjs.com/package/@hippy/vue-native-components) in hippy-vue.
 

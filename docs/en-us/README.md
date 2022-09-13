@@ -1,12 +1,12 @@
 <div id='custom-homepage'>
-    <div><img alt="logo" data-origin="_media/logo.svg" src="/_media/logo.svg" style="max-width: 100%;"></div>
+    <div><img alt="logo" data-origin="_media/hippy-logo.png" src="/_media/hippy-logo.png" style="min-width: 165px;min-height: 165px;max-height: 22vh;max-width: 22vw"></div>
     <div class="custom-homepage-container">
         <h1 id="hippy">
             <a class="anchor" data-id="hippy" href="#/?id=hippy">
                 <span>Hippy</span>
             </a>
         </h1>
-        <div class="sub-title"><span>Cross-Platform Framework for Front-End Developers</span></div>
+        <div class="sub-title"><span>Cross-Platform Framework for Developers</span></div>
         <a href="https://github.com/Tencent/Hippy/stargazers" rel="noopener" target="_blank"><img
                 alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Tencent/Hippy?color=50c52a"></a>
         <a href="https://github.com/Tencent/Hippy/releases"
@@ -286,10 +286,9 @@ Hippy has also made a lot of optimizations in the development experience, includ
 ## Communication
 
 * [Article Column](https://cloud.tencent.com/developer/column/84006)
-* QQ Group: [784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a)-click the link to start QQ to join, or copy the group number to join manually.
-* QQ Group QR code, use Mobile QQ scan to join.
+* WeCom Group, use WeChat or WeCom scan to join.
 
- ![QQ group QR code](assets/img/qq-group.png)
+ ![WeCom Group QR code](assets/img/wechat-group.jpeg)
 
 ## Summary
 

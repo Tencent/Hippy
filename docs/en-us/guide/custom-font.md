@@ -1,6 +1,8 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# Custom font
+# Custom Font
+
+---
 
 # Front-end
 

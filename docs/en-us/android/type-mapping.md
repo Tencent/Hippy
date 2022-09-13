@@ -9,7 +9,9 @@ Hippy provides two type systems in Java.
 * Recommend Type System: A newly designed type system that can express all [HTML structured clone algorithm](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm) in both directions  (recommended).
 * Compatible Type System: old type system, simple in structure but does not completely support bidirectional expression of types, used only by stock code (not recommended).
 
-## Type Mapping Relationship
+---
+
+# Type Mapping Relationship
 
 | ECMAScript Type Category  | ECMAScript Type              | Recommend(New) Type in Java       | Compatible(Old) Type in Java           |
 |---------------------------|------------------------------|-----------------------------------|----------------------------------------|
@@ -51,7 +53,7 @@ Hippy provides two type systems in Java.
 1. com.tencent.mtt.hippy.runtime.builtins
 2. com.tencent.mtt.hippy.common
 
-## Type Correction
+# Type Correction
 
 Since the ECMAScript standard does not define how the [number](https://262.ecma-international.org/#sec-ecmascript-language-types-number-type) type is stored/expressed within the VM, different VM engine implementations may store the same value differently, leading to type deviations.
 
@@ -63,7 +65,7 @@ The type system automatically completes type correction, restoring the user's or
 > For example:
 > When a `double` type can be expressed as an `int` type, the system will automatically convert to an `int` type
 
-## Old and New Type Interchange
+# Old and New Type Interchange
 
 Bidirectional Type conversion between old and new type systems can be done by calling the following methods.
 
@@ -75,18 +77,18 @@ Bidirectional Type conversion between old and new type systems can be done by ca
 
 In general, users do not need to convert between the old and new type systems. When registering a module to Bridge, you can specify the type system you want to use.
 
-## Recommend(New) Type in Java
+# Recommend(New) Type in Java
 
 All types in the new type system are defined in the package `com.tencent.mtt.hippy.runtime.builds`.
 
-### JSValue
+## JSValue
 
 All types are derived from the `JSValue` base class, providing mainly:
 
 * Object instance type determination: the `is##Name()` method can be called to confirm the actual type.
 * Primitive object fetching: the `to##Name()` method can be called to get the actual value of the (wrapped)Primitives.
 
-### JSArray
+## JSArray
 
 All type arrays (including dense `JSDenseArray` and sparse `JSSparseArray` arrays) are derived from `JSAbstractArray`.
 
@@ -97,11 +99,11 @@ As defined by the ECMAScript specification, `JSAbstractArray` overrides the meth
 
 If you just want to iterate through the array, you can call the `items()` method.
 
-### JSRegExp
+## JSRegExp
 
 Due to the difference between `java.util.regex.Pattern` and ECMAScript `RegExp` object, the global (`g`) and sticky match (`y`) flags are not supported, while the Unicode character (`u`) flags are always enabled.
 
-## Demo
+# Demo
 
 Take the example of transferring `ArrayBuffer` to the front-end:
 

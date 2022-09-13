@@ -1,5 +1,7 @@
 # 自定义组件和模块
 
+---
+
 # Vue.registerElement
 
 hippy-vue 提供了 `registerElement` 方法来注册组件，将 template 中的 tag 和原生组件映射起来。
