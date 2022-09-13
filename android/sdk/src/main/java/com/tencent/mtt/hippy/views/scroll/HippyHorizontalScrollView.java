@@ -81,6 +81,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   private HashMap<Integer, Integer> scrollOffsetForReuse = new HashMap<>();
   private final Priority[] mNestedScrollPriority = { Priority.SELF, Priority.SELF, Priority.SELF, Priority.SELF };
   private final int[] mScrollConsumed = new int[2];
+  private final int[] mScrollOffset = new int[2];
+  private int mNestedXOffset;
 
   public HippyHorizontalScrollView(Context context) {
     super(context);
@@ -154,6 +156,18 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   }
 
   @Override
+  public boolean dispatchTouchEvent(MotionEvent ev) {
+    if (hasNestedScrollingParent() && mNestedXOffset != 0) {
+      MotionEvent transformEv = MotionEvent.obtain(ev);
+      transformEv.offsetLocation(mNestedXOffset, 0);
+      boolean result = super.dispatchTouchEvent(transformEv);
+      transformEv.recycle();
+      return result;
+    }
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
   public boolean onTouchEvent(MotionEvent event) {
     if (!mScrollEnabled) {
       return false;
@@ -169,12 +183,13 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
             HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
           }
           // 若自己能水平滚动
-          if (canScrollHorizontally(-1) || canScrollHorizontally(1)) {
-            requestDisallowInterceptTouchEvent(true);
-          }
+//          if (canScrollHorizontally(-1) || canScrollHorizontally(1)) {
+//            requestDisallowInterceptTouchEvent(true);
+//          }
         }
         result = super.onTouchEvent(event);
         if (result) {
+          mNestedXOffset = 0;
           startNestedScroll(SCROLL_AXIS_HORIZONTAL);
         }
         break;
@@ -217,7 +232,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent event) {
-    if (!mScrollEnabled) {
+    if (!mScrollEnabled || getNestedScrollAxes() != SCROLL_AXIS_NONE) {
       return false;
     }
 
@@ -226,6 +241,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     switch (action) {
       case MotionEvent.ACTION_DOWN:
         startScrollX = getScrollX();
+        mNestedXOffset = 0;
         result = super.onInterceptTouchEvent(event);
         startNestedScroll(SCROLL_AXIS_HORIZONTAL);
         break;
@@ -250,30 +266,30 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     return false;
   }
 
-  private int computeHorizontallyScrollDistance(int dx) {
-    if (dx < 0) {
-      return Math.max(dx, -computeHorizontalScrollOffset());
+  @Override
+  public int getOverScrollMode() {
+    // 如果正在嵌套滚动，则屏蔽overScrollMode效果，避免误触发回弹状态
+    if (!hasNestedScrollingParent() || getNestedScrollPriority(DIRECTION_LEFT) == Priority.NONE
+      && getNestedScrollPriority(DIRECTION_RIGHT) == Priority.NONE) {
+      return super.getOverScrollMode();
     }
-    if (dx > 0) {
-      int avail = computeHorizontalScrollRange() - computeHorizontalScrollExtent() - computeHorizontalScrollOffset() - 1;
-      return Math.min(dx, avail);
-    }
-    return 0;
+    return OVER_SCROLL_NEVER;
   }
 
   @Override
   protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY,
                                  int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
-    if (!hasNestedScrollingParent() || HippyNestedScrollHelper.priorityOfX(this, deltaX) == Priority.NONE) {
+    if (!isTouchEvent || !hasNestedScrollingParent() || HippyNestedScrollHelper.priorityOfX(this, deltaX) == Priority.NONE) {
       return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
     }
     int consumed = 0;
     int unConsumed = deltaX;
     mScrollConsumed[0] = 0;
     mScrollConsumed[1] = 0;
-    if (dispatchNestedPreScroll(unConsumed, 0, mScrollConsumed, null)) {
+    if (dispatchNestedPreScroll(unConsumed, 0, mScrollConsumed, mScrollOffset)) {
       consumed = mScrollConsumed[0];
       unConsumed -= mScrollConsumed[0];
+      mNestedXOffset += mScrollOffset[0];
       if (unConsumed == 0) {
         return false;
       }
@@ -285,7 +301,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       unConsumed -= myDx;
     }
     if (unConsumed != 0) {
-      dispatchNestedScroll(consumed, 0, unConsumed, 0, null);
+      dispatchNestedScroll(consumed, 0, unConsumed, 0, mScrollOffset);
+      mNestedXOffset += mScrollOffset[0];
     }
     return false;
   }
@@ -515,7 +532,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   @Override
   public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
     super.onNestedScrollAccepted(child, target, axes);
-    requestDisallowInterceptTouchEvent(true);
+    // requestDisallowInterceptTouchEvent(true);
     startNestedScroll(SCROLL_AXIS_HORIZONTAL);
   }
 
@@ -565,11 +582,13 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   @Override
   public void onStopNestedScroll(View child) {
     super.onStopNestedScroll(child);
-    post(new Runnable() {
-      @Override
-      public void run() {
-        doPageScroll();
-      }
-    });
+    if(mPagingEnabled) {
+      post(new Runnable() {
+        @Override
+        public void run() {
+          doPageScroll();
+        }
+      });
+    }
   }
 }

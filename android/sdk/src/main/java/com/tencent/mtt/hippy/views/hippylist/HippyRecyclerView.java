@@ -35,7 +35,6 @@ import androidx.recyclerview.widget.IHippyViewAboundListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
-import com.tencent.mtt.hippy.utils.HippyViewUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget2;
@@ -137,7 +136,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-      if (!isEnableScroll) {
+      if (!isEnableScroll || mNestedScrollAxesTouch != SCROLL_AXIS_NONE) {
         return false;
       }
       return super.onInterceptTouchEvent(ev);
@@ -146,7 +145,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     @Override
     public boolean onTouchEvent(MotionEvent e) {
       if (!isEnableScroll) {
-        HippyViewUtil.requestParentDisallowInterceptTouchEvent(this, false);
+        // HippyViewUtil.requestParentDisallowInterceptTouchEvent(this, false);
         return false;
       }
       return super.onTouchEvent(e);
@@ -714,7 +713,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
     if (myAxes != SCROLL_AXIS_NONE) {
       if (type == ViewCompat.TYPE_TOUCH) {
-        requestDisallowInterceptTouchEvent(true);
+        // requestDisallowInterceptTouchEvent(true);
         mNestedScrollAxesTouch = myAxes;
       } else {
         mNestedScrollAxesNonTouch = myAxes;
@@ -806,9 +805,14 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     int myDy = HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT
       ? computeVerticallyScrollDistance(dy) : 0;
     if (myDx != 0 || myDy != 0) {
-      consumed[0] += dx;
-      consumed[1] += dy;
+      consumed[0] += myDx;
+      consumed[1] += myDy;
       scrollBy(myDx, myDy);
     }
+  }
+
+  @Override
+  public int getNestedScrollAxes() {
+    return mNestedScrollAxesTouch | mNestedScrollAxesNonTouch;
   }
 }

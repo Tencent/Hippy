@@ -16,7 +16,6 @@
 package com.tencent.mtt.hippy.utils;
 
 import android.view.View;
-import android.view.ViewParent;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
@@ -48,13 +47,6 @@ public class HippyViewUtil {
       }
     }
     return view.getId();
-  }
-
-  public static void requestParentDisallowInterceptTouchEvent(View view, boolean disallow) {
-    final ViewParent parent = view.getParent();
-    if (parent != null) {
-      parent.requestDisallowInterceptTouchEvent(disallow);
-    }
   }
 
 }

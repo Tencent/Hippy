@@ -67,6 +67,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     setAdapter(createAdapter(context));
     setLeftDragOutSizeEnabled(false);
     setRightDragOutSizeEnabled(false);
+    setNestedScrollingEnabled(true);
     mAxes = isVertical ? SCROLL_AXIS_VERTICAL : SCROLL_AXIS_HORIZONTAL;
 
     if (I18nUtil.isRTL()) {
@@ -158,7 +159,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
-    if (!isScrollEnabled()) {
+    if (!isScrollEnabled() || getNestedScrollAxes() != SCROLL_AXIS_NONE) {
       return false;
     }
 
@@ -170,8 +171,21 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     if (!isScrollEnabled()) {
       return false;
     }
-
-    return super.onTouchEvent(ev);
+    boolean result = super.onTouchEvent(ev);
+    if (result) {
+      switch (ev.getAction() & MotionEvent.ACTION_MASK) {
+        case MotionEvent.ACTION_DOWN:
+          startNestedScroll(mAxes);
+          break;
+        case MotionEvent.ACTION_CANCEL:
+        case MotionEvent.ACTION_UP:
+          stopNestedScroll();
+          break;
+        default:
+          break;
+      }
+    }
+    return result;
   }
 
   @Override
@@ -263,7 +277,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
     super.onNestedScrollAccepted(child, target, axes);
     requestDisallowInterceptTouchEvent(true);
-    beginFakeDrag();
+    // beginFakeDrag();
   }
 
   @Override
@@ -316,7 +330,16 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
 
   @Override
   public void onStopNestedScroll(View child) {
-    endFakeDrag();
+    if (isFakeDragging()) {
+      endFakeDrag();
+    }
     mCaptured = false;
+  }
+
+  @Override
+  public void fakeDragBy(float offset) {
+    if (isFakeDragging() || beginFakeDrag()) {
+      super.fakeDragBy(offset);
+    }
   }
 }

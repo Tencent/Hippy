@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.core.widget.NestedScrollView;
 
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -137,6 +138,9 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
 
   @Override
   public boolean onTouchEvent(MotionEvent event) {
+    if (!mScrollEnabled) {
+      return false;
+    }
     int action = event.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_DOWN && !mDragging) {
       mDragging = true;
@@ -171,7 +175,7 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
       mFocusHelper.handleRequestFocusFromTouch(event);
     }
 
-    boolean result = mScrollEnabled && super.onTouchEvent(event);
+    boolean result = super.onTouchEvent(event);
     if (mGestureDispatcher != null) {
       result |= mGestureDispatcher.handleTouchEvent(event);
     }
@@ -186,6 +190,9 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
 
     int action = event.getAction() & MotionEvent.ACTION_MASK;
     if (action == MotionEvent.ACTION_DOWN) {
+      // fix子控件缺少stopNestedScroll(TYPE_NON_TOUCH)导致不响应划动
+      onStopNestedScroll(this, ViewCompat.TYPE_NON_TOUCH);
+
       startScrollY = getScrollY();
     }
 
@@ -426,6 +433,14 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
   }
 
   @Override
+  public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes, int type) {
+    if (!mScrollEnabled) {
+      return false;
+    }
+    return (axes & ViewCompat.SCROLL_AXIS_VERTICAL) != 0;
+  }
+
+  @Override
   public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
                              int type) {
     // 先给当前节点处理
@@ -479,6 +494,24 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
           doPageScroll();
         }
       });
+    }
+  }
+
+  @Override
+  public void computeScroll() {
+    /*
+     * computeScroll由父控件的draw方法触发，如果有nestedScrollingParent并且是RecyclerView，可能会触发
+     * onNestedScroll等方法，导致RecyclerView在draw过程中removeView从而crash，因此需要post执行。
+     */
+    if (hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
+      post(new Runnable() {
+        @Override
+        public void run() {
+          HippyVerticalScrollView.super.computeScroll();
+        }
+      });
+    } else {
+      super.computeScroll();
     }
   }
 }
