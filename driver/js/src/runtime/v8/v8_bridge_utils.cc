@@ -28,7 +28,6 @@
 #include <utility>
 
 #include "devtools/devtools_macro.h"
-#include "driver/base/file.h"
 #include "driver/napi/v8/js_native_api_v8.h"
 #include "driver/napi/v8/serializer.h"
 #include "footstone/deserializer.h"
@@ -38,6 +37,7 @@
 #include "footstone/task.h"
 #include "footstone/task_runner.h"
 #include "footstone/worker_impl.h"
+#include "vfs/file.h"
 
 namespace hippy {
 inline namespace driver {
@@ -53,7 +53,7 @@ using Ctx = hippy::napi::Ctx;
 using CtxValue = hippy::napi::CtxValue;
 using Deserializer = footstone::value::Deserializer;
 using HippyValue = footstone::value::HippyValue;
-using HippyFile = hippy::base::HippyFile;
+using HippyFile = hippy::vfs::HippyFile;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using V8VM = hippy::napi::V8VM;
@@ -238,14 +238,12 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
       runtime, file_name, is_use_code_cache, code_cache_dir, uri, is_local_file,
       [uri_ = uri, runtime_ = runtime]() {
         u8string content;
-        auto loader = runtime_->GetScope()->GetUriLoader();
+        auto loader = runtime_->GetScope()->GetUriLoader().lock();
         if (loader) {
-          bool flag =
-              loader->RequestUntrustedContent(
-                  uri_, content);
-          if (flag) {
-            return string_view(std::move(content));
-          }
+//          bool flag = loader->RequestUntrustedContent(uri_, {}, content);
+//          if (flag) {
+//            return string_view(std::move(content));
+//          }
         }
 
         return string_view{};
@@ -273,7 +271,7 @@ bool V8BridgeUtils::RunScriptWithoutLoader(const std::shared_ptr<Runtime>& runti
   string_view code_cache_path;
   if (is_use_code_cache) {
     if (is_local_file) {
-      modify_time = hippy::base::HippyFile::GetFileModifyTime(uri);
+      modify_time = HippyFile::GetFileModifyTime(uri);
     }
 
     code_cache_path = code_cache_dir + file_name + string_view("_") +

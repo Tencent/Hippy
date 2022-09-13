@@ -26,9 +26,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class VfsManager {
 
     private final CopyOnWriteArrayList<Processor> mChain = new CopyOnWriteArrayList<>();
+    private int id;
 
     public VfsManager() {
-        onCreateVfs();
+        id = onCreateVfs();
+    }
+    public void Destroy() {
+      onDestroyVfs(id);
     }
 
     public void addProcessorAtFirst(@NonNull Processor processor) {
@@ -68,7 +72,7 @@ public class VfsManager {
             }
         }
         if (doNativeTraversals) {
-            return doNativeTraversalsSync(holder);
+            return doNativeTraversalsSync(id, holder);
         }
         return holder;
     }
@@ -107,7 +111,7 @@ public class VfsManager {
     }
 
     private void performNativeTraversals(@NonNull final ResourceDataHolder holder) {
-        doNativeTraversalsAsync(holder, new FetchResourceCallback() {
+        doNativeTraversalsAsync(id, holder, new FetchResourceCallback() {
             @Override
             public void onFetchCompleted(ResourceDataHolder dataHolder) {
                 onTraversalsEnd(holder);
@@ -160,18 +164,19 @@ public class VfsManager {
 
     public ResourceDataHolder fetchResourceSync(@NonNull String uri, @Nullable ByteBuffer data,
             @Nullable Map<String, Object> params) {
-        return fetchResourceSyncImpl(uri, params, data, false);
+      return fetchResourceSyncImpl(uri, params, data, false);
     }
 
-    private native void onCreateVfs();
+    private native int onCreateVfs();
+    private native void onDestroyVfs(int id);
 
     /**
      * Request from JAVA, after java chain traversals end, continue traverse native (C++) chain.
      */
-    private native void doNativeTraversalsAsync(ResourceDataHolder holder,
+    private native void doNativeTraversalsAsync(int id, ResourceDataHolder holder,
             FetchResourceCallback callback);
 
-    private native ResourceDataHolder doNativeTraversalsSync(ResourceDataHolder holder);
+    private native ResourceDataHolder doNativeTraversalsSync(int id, ResourceDataHolder holder);
 
     /**
      * Request from native (C++), after java chain traversals end, asynchronously return the result

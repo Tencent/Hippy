@@ -30,6 +30,8 @@
 #include <string>
 #include <unordered_map>
 
+#include "android_vfs/uri.h"
+#include "android_vfs/android_uri_loader.h"
 #include "bridge/bridge.h"
 #include "bridge/entry.h"
 #include "bridge/java2js.h"
@@ -51,8 +53,6 @@
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/turbo_module_manager.h"
-#include "jni/uri.h"
-#include "loader/adr_loader.h"
 
 #ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
@@ -152,6 +152,7 @@ using Ctx = hippy::napi::Ctx;
 using Bridge = hippy::Bridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
+using AndroidUriLoader = hippy::vfs::AndroidUriLoader;
 
 static std::mutex log_mutex;
 static bool is_initialized = false;
@@ -400,17 +401,17 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
   });
 
-  std::shared_ptr<ADRLoader> loader = std::make_shared<ADRLoader>();
+  auto loader = std::make_shared<AndroidUriLoader>();
   FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
   auto bridge = std::any_cast<std::shared_ptr<Bridge>>(runtime->GetData(kBridgeSlot));
   auto ref = bridge->GetRef();
-  loader->SetBridge(ref);
-  loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
+//  loader->SetBridge(ref);
+//  loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
   runtime->GetScope()->SetUriLoader(loader);
   AAssetManager* aasset_manager = nullptr;
   if (j_aasset_manager) {
     aasset_manager = AAssetManager_fromJava(j_env, j_aasset_manager);
-    loader->SetAAssetManager(aasset_manager);
+//    loader->SetAAssetManager(aasset_manager);
   }
 
   std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_cb);

@@ -30,15 +30,13 @@
 #include <string>
 #include <vector>
 
-#include "driver/base/common.h"
 #include "footstone/logging.h"
 #include "footstone/string_view.h"
 #include "footstone/check.h"
 #include "footstone/string_view_utils.h"
 
 namespace hippy {
-inline namespace driver {
-inline namespace base {
+inline namespace vfs {
 
 class HippyFile {
  public:
@@ -91,6 +89,5 @@ class HippyFile {
   }
 };
 
-} // namespace base
-} // namespace driver
+} // namespace vfs
 } // namespace hippy

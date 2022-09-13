@@ -76,6 +76,20 @@ function(GlobalPackages_Add_jni)
   endif()
 endfunction()
 
+function(GlobalPackages_Add_vfs)
+  if (NOT TARGET vfs)
+    InfraPackage_Add(VFS
+            LOCAL "${PROJECT_ROOT_DIR}/modules/vfs/native")
+  endif()
+endfunction()
+
+function(GlobalPackages_Add_vfs_android)
+  if (NOT TARGET vfs_android)
+    InfraPackage_Add(VFS_ANDROID
+            LOCAL "${PROJECT_ROOT_DIR}/modules/vfs/android/src/main/cpp")
+  endif()
+endfunction()
+
 function(GlobalPackages_Add)
   foreach (packageName IN LISTS ARGN)
     cmake_language(CALL GlobalPackages_Add_${packageName})
