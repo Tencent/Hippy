@@ -20,15 +20,14 @@
  *
  */
 
-#include "driver/base/file.h"
+#include "vfs/file.h"
 
 #include <dirent.h>
 #include <sys/stat.h>
 #include <iostream>
 
 namespace hippy {
-inline namespace driver {
-inline namespace base {
+inline namespace vfs {
 
 using StringViewUtils = footstone::stringview::StringViewUtils;
 
@@ -131,6 +130,5 @@ uint64_t HippyFile::GetFileModifyTime(const string_view& file_path) {
   return modify_time;
 }
 
-} // namespace base
-} // namespace driver
+} // namespace vfs
 } // namespace hippy

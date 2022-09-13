@@ -26,7 +26,6 @@
 #include <memory>
 #include <string>
 
-#include "driver/base/uri_loader.h"
 #include "driver/modules/module_register.h"
 #include "driver/napi/js_native_api.h"
 #include "driver/napi/native_source_code.h"
@@ -105,7 +104,6 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   }
   FOOTSTONE_DLOG(INFO) << "uri = " << uri;
 
-  auto loader = scope->GetUriLoader();
   std::shared_ptr<hippy::napi::CtxValue> param = info[1];
   std::shared_ptr<hippy::napi::CtxValue> function;
   hippy::napi::Encoding encode = hippy::napi::UNKNOWN_ENCODING;
@@ -201,8 +199,10 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       runner->PostTask(std::move(callback));
     }
   };
+
+  auto loader = scope->GetUriLoader().lock();
   if (loader) {
-    loader->RequestUntrustedContent(uri, cb);
+    // loader->RequestUntrustedContent(uri, {}, cb);
   }
 
   info.GetReturnValue()->SetUndefined();

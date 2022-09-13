@@ -90,7 +90,7 @@ string_view JniUtils::JByteArrayToStrView(JNIEnv* j_env,
                             reinterpret_cast<int8_t*>(&ret[0]));
 
   const auto* ptr = reinterpret_cast<const char16_t*>(ret.c_str());
-  return string_view(ptr, ret.length() / sizeof(char16_t));
+  return {ptr, ret.length() / sizeof(char16_t)};
 }
 
 jstring JniUtils::StrViewToJString(JNIEnv* j_env,

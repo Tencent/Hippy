@@ -79,6 +79,11 @@ GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
+# region vfs
+GlobalPackages_Add(vfs_android)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs_android)
+# endregion
+
 # region native renderer
 add_subdirectory(${PROJECT_ROOT_DIR}/renderer/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/renderer/native)
 target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)
@@ -91,8 +96,6 @@ set(SOURCE_SET
     src/bridge/js2java.cc
     src/bridge/native_source_code_android.cc
     src/jni/exception_handler.cc
-    src/jni/uri.cc
-    src/loader/adr_loader.cc
     src/jni/convert_utils.cc
     src/jni/turbo_module_manager.cc
     src/jni/java_turbo_module.cc)
