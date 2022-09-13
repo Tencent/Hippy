@@ -45,7 +45,6 @@ class LooperDriver: public Driver {
 
   ALooper* looper_;
   int32_t fd_;
-  bool has_task_pending_;
 };
 
 }
