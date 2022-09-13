@@ -36,7 +36,7 @@ static void OnTimerCb(CFRunLoopTimerRef timer, LooperDriver* driver) {
   driver->OnTimerFire(timer);
 }
 
-LooperDriver::LooperDriver(): loop_(), has_task_pending_(true) {
+LooperDriver::LooperDriver(): loop_() {
   CFRunLoopTimerContext context = {
       .info = this,
   };
@@ -66,16 +66,12 @@ void LooperDriver::Start() {
   loop_ = CFRunLoopGetCurrent();
   CFRunLoopAddTimer(loop_, delayed_wake_timer_, kCFRunLoopDefaultMode);
   while (true) {
-    if (is_terminated_ && is_exit_immediately_) {
-      return;
-    }
-    if (is_terminated_ && !has_task_pending_) {
+    if (IsExitImmediately()) {
       return;
     }
     int result = CFRunLoopRunInMode(kCFRunLoopDefaultMode, kInterval, true);
     if (result == kCFRunLoopRunStopped || result == kCFRunLoopRunFinished) {
       is_terminated_ = true;
-      has_task_pending_ = false;
     }
   }
 }

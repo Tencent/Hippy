@@ -44,7 +44,6 @@ class LooperDriver: public Driver {
  private:
   CFRunLoopTimerRef delayed_wake_timer_;
   CFRunLoopRef loop_;
-  bool has_task_pending_;
 };
 
 }

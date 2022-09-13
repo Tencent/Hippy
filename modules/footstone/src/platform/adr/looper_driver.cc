@@ -45,11 +45,7 @@ itimerspec SetItimerspec(uint64_t nano_secs) {
   return spec;
 }
 
-LooperDriver::LooperDriver(): looper_(nullptr), fd_(-1) {
-  if (!is_exit_immediately_) {
-    has_task_pending_ = true;
-  }
-}
+LooperDriver::LooperDriver(): looper_(nullptr), fd_(-1) {}
 
 LooperDriver::~LooperDriver() {
   ALooper_removeFd(looper_, fd_);
@@ -91,16 +87,12 @@ void LooperDriver::Start() {
                   this);
 
   while (true) {
-    if (is_terminated_ && is_exit_immediately_) {
-      return;
-    }
-    if (is_terminated_ && !has_task_pending_) {
+    if (IsExitImmediately()) {
       return;
     }
     int result = ::ALooper_pollOnce(-1, nullptr, nullptr, nullptr);
     if (result == ALOOPER_POLL_TIMEOUT || result == ALOOPER_POLL_ERROR) {
       is_terminated_ = true;
-      has_task_pending_ = false;
     }
   }
 }
