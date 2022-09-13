@@ -28,6 +28,7 @@
 import Native, { UIManagerModule } from '../../runtime/native';
 import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME, ROOT_VIEW_ID } from '../../runtime/constants';
 import {
+  isDev,
   getApp,
   trace,
   warn,
@@ -371,7 +372,7 @@ function renderToNative(rootViewId, targetNode) {
     },
   };
   // Add nativeNode attributes info for Element debugging
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
     nativeNode.tagName = targetNode.tagName;
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
@@ -406,7 +407,7 @@ function isLayout(node, rootView) {
     return true;
   }
   // Check the id is specific for rootView.
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
     if (!rootView) {
       warn('rootView option is necessary for new HippyVue()');
     }
