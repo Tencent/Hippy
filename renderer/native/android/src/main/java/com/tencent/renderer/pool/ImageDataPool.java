@@ -24,7 +24,7 @@ import com.tencent.renderer.component.image.ImageDataHolder;
 
 public class ImageDataPool extends NativeRenderPool<Integer, ImageDataSupplier> {
 
-    private static final int DEFAULT_IMAGE_POOL_SIZE = 8;
+    private static final int DEFAULT_IMAGE_POOL_SIZE = 2;
     private LruCache<Integer, ImageDataSupplier> mPools;
 
     public ImageDataPool() {

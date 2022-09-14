@@ -548,6 +548,12 @@ public class RenderNode {
         return false;
     }
 
+    public void onDeleted() {
+        if (mComponent != null) {
+            mComponent.clear();
+        }
+    }
+
     protected void batchStart() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchStart(mRootId, mId, mClassName);

@@ -36,6 +36,8 @@ public interface ImageDataSupplier {
 
     boolean checkImageData();
 
+    boolean isRecyclable();
+
     @NonNull
     String getSource();
 
