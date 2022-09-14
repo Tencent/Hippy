@@ -1,4 +1,4 @@
-# Style
+# Styles
 
 Standard Hippy does not allow units of length - but for browser compatibility, hippy-vue uses the 1px = 1pt conversion scheme - which removes the px from the CSS unit and turns it into a number without units in Hippy.
 

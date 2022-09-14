@@ -1,5 +1,7 @@
 # Custom Adapters
 
+---
+
 # HippyImageViewCustomLoader
 
 In the Hippy SDK, the default `HippyImageView` will be used to download and display picture data according to source property. However, in some cases, the business side wants to use custom image loading logic (such as caching, or intercepting data for a specific URL). Thus, the SDK provides a protocol for this called `HippyImageViewCustomLoader`.

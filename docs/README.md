@@ -1,12 +1,12 @@
 <div id='custom-homepage'>
-    <div><img alt="logo" data-origin="_media/logo.svg" src="/_media/logo.svg" style="max-width: 100%;"></div>
+    <div><img alt="logo" data-origin="_media/hippy-logo.png" src="/_media/hippy-logo.png" style="min-width: 165px;min-height: 165px;max-height: 22vh;max-width: 22vw"></div>
     <div class="custom-homepage-container">
         <h1 id="hippy">
             <a class="anchor" data-id="hippy" href="#/?id=hippy">
                 <span>Hippy</span>
             </a>
         </h1>
-        <div class="sub-title"><span>为前端开发人员设计的跨端框架</span></div>
+        <div class="sub-title"><span>为开发者设计的跨端框架</span></div>
         <a href="https://github.com/Tencent/Hippy/stargazers" rel="noopener" target="_blank"><img
                 alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Tencent/Hippy?color=50c52a"></a>
         <a href="https://github.com/Tencent/Hippy/releases"
@@ -286,10 +286,9 @@ Hippy 在开发体验上也进行了大量优化，包含但不限于，跟浏�
 ## 交流链接
 
 * [文章专栏](https://cloud.tencent.com/developer/column/84006)
-* QQ 群：[784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a) - 点击链接启动 QQ 加入，或者复制群号码手工加入
-* QQ群二维码，使用手机QQ扫描加入
+* 企业微信交流群，使用微信或者企业微信扫描加入
 
- ![QQ群二维码](assets/img/qq-group.png)
+ ![企业微信群二维码](assets/img/wechat-group.jpeg)
 
 ## 总结
 

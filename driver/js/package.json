@@ -4,7 +4,7 @@
   "author": "Hippy Team <hippy@tencent.com>",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=16.0.0"
   },
   "scripts": {
     "build": "node ./scripts/build.js",
@@ -27,7 +27,7 @@
     "@babel/types": "^7.16.8",
     "@microsoft/api-extractor": "^7.19.4",
     "@rollup/plugin-alias": "^3.1.9",
-    "@rollup/plugin-babel": "^5.3.0",
+    "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-node-resolve": "^13.1.2",
     "@rollup/plugin-replace": "^3.0.1",

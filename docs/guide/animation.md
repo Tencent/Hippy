@@ -1,10 +1,12 @@
 # 动画方案
 
-## 原理
+---
+
+# 原理
 
 Hippy 的动画则是完全由前端传入动画参数，由终端控制每一帧的计算和排版更新，减少了前端与终端的通信次数，因此也大大减少动画的卡顿。
 
-## 酷炫的效果
+# 酷炫效果
 
 * 关注动画
 
@@ -18,7 +20,7 @@ Hippy 的动画则是完全由前端传入动画参数，由终端控制每一�
 
 <img src="assets/img/pk_animation.gif" alt="PK进度条动画" width="30%"/>
 
-## 如何使用
+# 如何使用
 
 以 `Hippy-React` 为例，在 Hippy 上实现一个动画分为三个步骤：
 
@@ -26,7 +28,7 @@ Hippy 的动画则是完全由前端传入动画参数，由终端控制每一�
 2. 在 render() 时，将动画设置到需要产生动画效果的控件属性上
 3. 通过 Animation 的 start 方法启动动画，与通过 destroy 方法停止并销毁动画；
 
-### 示例代码
+## 示例代码
 
 ```js
 import { Animation, StyleSheet } from "@hippy/react";
@@ -139,7 +141,7 @@ export default class AnimationExample extends Component {
 // 样式代码省略
 ```
 
-### 更多使用说明
+## 更多使用说明
 
 详细使用，可以参考
 

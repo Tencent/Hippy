@@ -1,10 +1,12 @@
 <!-- markdownlint-disable no-duplicate-header -->
 
-# Adapt To The Web
+# Web Isomorphic
 
 Hippy apps react translates and runs hippy applications in browsers through the [@hippy/React apps web library](//www.npmjs.com/package/@hippy/react-web).
 
 > After version 2.14.0, @hippy/react-web supports relatively complete adaptation to the Web.
+
+---
 
 # Install Runtime Dependencies
 

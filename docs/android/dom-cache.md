@@ -2,15 +2,17 @@
 
 缓存上一次页面打开 DOM Node 节点的数据，序列化保存至本地，当下次打开页面时反序列化本地节点数据，调用 SDK create node 接口创建节点完成上屏。SDK统一提供对外接口，由接入方完成节点数据的存储与读取(序列化，反序列化)，同样数据的缓存有效期也是由接入方自行决定，SDK 负责首屏节点数据的获取与首屏界面的创建还原。
 
-## 接口
+---
 
-### HippyThirdPartyAdapter 新增接口
+# 接口
+
+## HippyThirdPartyAdapter 新增接口
 
 + `public void saveInstanceState(ArrayList<DomNodeRecord> recordList)`
 
     这个接口由接入方实现，通过根节点遍历获取每个节点数据，序列化并保存，获取节点数据可以调用 `node.getDomainData()` 接口返回 `DomDomainData` 对象。
 
-### HippyEngine 新增接口
+## HippyEngine 新增接口
 
 + `public void saveInstanceState()`
 
@@ -24,7 +26,7 @@
 
     最终真实JS页面显示后，需要销毁首屏页面释放内存。
 
-## 使用方式
+# 使用方式
 
 + `saveInstanceState` 调用时机
   

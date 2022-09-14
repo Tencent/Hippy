@@ -20,11 +20,38 @@
 
 import document from '../renderer/document-node';
 import { unCacheNodeOnIdle } from '../util/node';
+import { getApp } from '../util';
+import { setAttrs } from './modules/attrs';
+import { setStyle } from './modules/style';
+import { setClass } from './modules/class';
+import { ROOT_VIEW_ID } from './constants';
 
 const namespaceMap = {};
 
-function createElement(name) {
-  return document.createElement(name);
+function setRootViewAttr(elm, vnode) {
+  // If it is root container, Vue would not call createElement, which resulted in attributes missed to set.
+  // So set root view attributes explicitly.
+  let isRootView = false;
+  if (elm.nodeId === ROOT_VIEW_ID) {
+    isRootView = true;
+  } else if (vnode && vnode.data && vnode.data.attrs && vnode.data.attrs.id) {
+    const app  = getApp();
+    if (app) {
+      const { $options: { rootView } } = app;
+      isRootView = vnode.data.attrs.id === rootView.slice(1 - rootView.length);
+    }
+  }
+  if (isRootView) {
+    setAttrs(vnode, elm, { notToNative: true });
+    setStyle(vnode, elm, { notToNative: true });
+    setClass(vnode, elm, { notToNative: true });
+  }
+}
+
+function createElement(name, vnode) {
+  const elm = document.createElement(name);
+  setRootViewAttr(elm, vnode);
+  return elm;
 }
 
 function createElementNS(namespace, name) {

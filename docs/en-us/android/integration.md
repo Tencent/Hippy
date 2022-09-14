@@ -4,6 +4,8 @@
 
 This tutorial describes how to integrate Hippy into your Android project.
 
+---
+
 # Preliminary Preparation
 
 - JDK version>=1.7 is installed and environment variables are configured

@@ -63,16 +63,16 @@ class HippyEventHub implements HippyEventHub {
     return currId;
   }
 
-  public notifyEvent(eventParams: any) {
+  public notifyEvent(...eventParams: any) {
     Object.keys(this.handlerContainer).forEach((key) => {
       const instance = this.handlerContainer[key];
       if (!instance || !instance.eventHandler) {
         return;
       }
       if (instance.context) {
-        instance.eventHandler.call(instance.context, eventParams);
+        instance.eventHandler.call(instance.context, ...eventParams);
       } else {
-        instance.eventHandler(eventParams);
+        instance.eventHandler(...eventParams);
       }
     });
   }

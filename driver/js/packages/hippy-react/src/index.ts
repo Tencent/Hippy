@@ -22,6 +22,7 @@ import './global';
 import {
   HippyEventEmitter,
   HippyEventListener,
+  HippyEvent,
 } from './event';
 import { colorParse } from './color';
 import HippyReact from './hippy';
@@ -100,6 +101,7 @@ export {
   callNativeWithCallbackId,
   removeNativeCallback,
   HippyRegister,
+  HippyEvent,
   HippyEventEmitter,
   HippyEventListener,
   AsyncStorage,

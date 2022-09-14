@@ -104,6 +104,8 @@ const div = {
         case 'onScroll':
         case 'onScrollBeginDrag':
         case 'onScrollEndDrag':
+        case 'onMomentumScrollBegin':
+        case 'onMomentumScrollEnd':
           event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
           event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
           break;
@@ -195,8 +197,12 @@ const ul = {
     processEventData(event, nativeEventName, nativeEventParams) {
       switch (nativeEventName) {
         case 'onScroll':
-          event.offsetX = nativeEventParams.contentOffset.x;
-          event.offsetY = nativeEventParams.contentOffset.y;
+        case 'onScrollBeginDrag':
+        case 'onScrollEndDrag':
+        case 'onMomentumScrollBegin':
+        case 'onMomentumScrollEnd':
+          event.offsetX = nativeEventParams.contentOffset && nativeEventParams.contentOffset.x;
+          event.offsetY = nativeEventParams.contentOffset && nativeEventParams.contentOffset.y;
           break;
         case 'onDelete':
           event.index = nativeEventParams.index;

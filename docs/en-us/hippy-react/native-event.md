@@ -1,10 +1,20 @@
-# Native event
+# Events
 
 Some events are not sent to a single UI, but to the entire business, such as screen flips, network changes, etc., we call it `native events`.
+
+Hippy provides two methods to manage global events:
+
++ `Hippy.on`, `Hippy.off`, `Hippy.emit` is framework-less EventBus, mainly to listen to some special C++ events such as `dealloc`, `destroyInstance`. It can be also used to customize JS global events. 
+
++ `HippyEventEmitter` and `HippyEvent`(supported after 2.15.0) is HippyReact EventBus, which not only being used to customize JS global events, but also to handle all `NativeEvent` dispatching, such as `rotate` event.
+
+---
 
 # Event Listener
 
 Here is an event called rotate sent to the front end, and one of its parameters is result, which is sent to the front end like this.
+
+> PS：`HippyEventEmitter` do not need to be initialized repeatedly, recommend only once globally。
 
 ```jsx
 import { HippyEventEmitter } from '@hippy/react';
@@ -20,6 +30,96 @@ Remember to call the method of removing listeners when you don't need to use the
 ```jsx
 this.call.remove()
 ```
+
+!> After version`2.15.0`, `HippyEvent` object is recommended to manage global events.
+
+## HippyEvent
+
+Minimum supported version `2.15.0`
+
+### on
+
+`(events: string | string[], callback: (data?: any) => void) => HippyEvent` used to listen to global events, `HippyEvent` object is returned for chaining call.
+
+> + events: string | string[] - specify the event name，which has two types, `string` means to bind one event，`array` means to bind multiple events.
+> + callback: (data?: any) => void - specify the callback function，which can be the second parameters of `HippyEvent.off`.
+
+```js
+import { HippyEvent } from '@hippy/react';
+const rotateCallback = (data) => {
+  console.log('rotate data', data && data.orientation);
+}
+const accountChanged = (data) => {
+  console.log('accountChanged data', data && data.user);
+}
+// Chaining call to regiser events
+HippyEvent
+  .on('rotate', rotateCallback)
+  .on('accountChanged', accountChanged);
+/*
+  Array can be used to register two events.
+  HippyEvent.on(['rotate1', 'rotate2'], rotateCallback)
+ */
+```
+
+### off
+
+`(events: string | string[], callback?: (data?: any) => void) => HippyEvent` used to remove global event listeners, `HippyEvent` object is returned for chaining call.
+There are two options for usage: If only event name provided, it will remove all listeners of the event; If event name and callback provided, it will just remove the target listener of the event.
+
+> + events: string | string[] - specify the event name，which has two types - `string` means to remove one event binding，`array` means to remove multiple events binding.
+> + callback?: (data?: any) => void - optional parameter，which is mapped to the callback parameter of `HippyEvent.on`. When `callback` is empty, it will remove all listeners of the event.
+
+```js
+import { HippyEvent } from '@hippy/react';
+const rotateCallback = (data) => {
+  console.log('rotate data', data && data.orientation);
+}
+HippyEvent.on('rotate', rotateCallback);
+// Just remove the target listener of the event
+HippyEvent.off('rotate', rotateCallback);
+// Remove all listeners of the event
+HippyEvent.off('rotate');
+```
+
+### emit
+
+`(event: string, ...param: any) => HippyEvent` used to trigger event, `HippyEvent` object is returned for chaining call.
+
+> + event: string - specify the event name, only single event supported.
+> + ...param: any - optional, support to send multiple parameters, used as the arguments of callback function.
+
+
+```js
+import { HippyEvent } from '@hippy/react';
+const rotateCallback = (data1, data2) => {
+  console.log('rotate data', data1, data2);
+}
+HippyEvent.on('rotate', rotateCallback);
+// Trigger rotate event with orientation paramters
+HippyEvent.emit('rotate', { orientation: 'vertical' }, { degree: '90' });
+```
+
+### sizeOf
+
+`(event: string) => number` used to get the total number of event listeners.
+
+> + event: string - specify the event name.
+
+```js
+import { HippyEvent } from '@hippy/react';
+const rotateCallback1 = (data) => {
+  console.log('rotate data', data && data.orientation);
+}
+const rotateCallback2 = (data) => {
+  console.log('rotate data', data && data.orientation);
+}
+HippyEvent.on('rotate', rotateCallback1);
+HippyEvent.on('rotate', rotateCallback2);
+// To get the total number of rotate event listeners
+console.log(HippyEvent.sizeOf('rotate')); // => 2;
+```
+
 
 # JS Engine Destroy Event
 

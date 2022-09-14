@@ -396,6 +396,16 @@ Hippy 默认采用 Flex 布局。同时，因为仅支持 Flex 布局，所以�
 | --------------- | -------- |
 | number | 否       |
 
+# textAlign
+
+[[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/text-align)
+
+`textAlign` 指定行内文字如何相对它的块父元素对齐，默认值为 `left`
+
+| 类型            | 必需 |
+| --------------- | -------- |
+| enum('left', 'center', 'right') | 否       |
+
 # top
 
 [[MDN 文档]](//developer.mozilla.org/zh-CN/docs/Web/CSS/top)

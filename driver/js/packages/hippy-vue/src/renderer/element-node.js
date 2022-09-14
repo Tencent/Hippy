@@ -92,7 +92,7 @@ function convertToDegree(value, unit = DEGREE_UNIT.DEG) {
  */
 function getLinearGradientAngle(value) {
   const processedValue = (value || '').replace(/\s*/g, '').toLowerCase();
-  const reg = /^([+-]?\d+\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
+  const reg = /^([+-]?(?=(?<digit>\d+))\k<digit>\.?\d*)+(deg|turn|rad)|(to\w+)$/g;
   const valueList = reg.exec(processedValue);
   if (!Array.isArray(valueList)) return;
   // if default direction is to bottom, i.e. 180degree
@@ -272,8 +272,10 @@ class ElementNode extends ViewNode {
     return this.attributes[key];
   }
 
-  setAttribute(key, value, options = {}) {
+  setAttribute(rawKey, rawValue, options = {}) {
     try {
+      let key = rawKey;
+      let value = rawValue;
       // detect expandable attrs for boolean values
       // See https://vuejs.org/v2/guide/components-props.html#Passing-a-Boolean
       if (typeof (this.attributes[key]) === 'boolean' && value === '') {
@@ -311,47 +313,51 @@ class ElementNode extends ViewNode {
             try {
               value = value.toString();
             } catch (err) {
-              throw new TypeError(`Property ${key} must be string：${err.message}`);
+              warn(`Property ${key} must be string：${err.message}`);
             }
           }
           if (!options || !options.textUpdate) {
             value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
           }
-          this.attributes[key] = unicodeToChar(value);
+          value = unicodeToChar(value);
           break;
         }
         case 'numberOfRows':
-          this.attributes[key] = value;
           if (Native.Platform !== 'ios') {
             return;
           }
           break;
         case 'caretColor':
         case 'caret-color':
-          this.attributes['caret-color'] = Native.parseColor(value);
+          key = 'caret-color';
+          value = Native.parseColor(value);
           break;
         case 'break-strategy':
-          this.attributes.breakStrategy = value;
+          key = 'breakStrategy';
           break;
         case 'placeholderTextColor':
         case 'placeholder-text-color':
-          this.attributes.placeholderTextColor = Native.parseColor(value);
+          key = 'placeholderTextColor';
+          value = Native.parseColor(value);
           break;
         case 'underlineColorAndroid':
         case 'underline-color-android':
-          this.attributes.underlineColorAndroid = Native.parseColor(value);
+          key = 'underlineColorAndroid';
+          value = Native.parseColor(value);
           break;
         case 'nativeBackgroundAndroid': {
           const nativeBackgroundAndroid = value;
           if (typeof nativeBackgroundAndroid.color !== 'undefined') {
             nativeBackgroundAndroid.color = Native.parseColor(nativeBackgroundAndroid.color);
           }
-          this.attributes.nativeBackgroundAndroid = nativeBackgroundAndroid;
+          key = 'nativeBackgroundAndroid';
+          value = nativeBackgroundAndroid;
           break;
         }
         default:
-          this.attributes[key] = value;
       }
+      if (this.attributes[key] === value) return;
+      this.attributes[key] = value;
       if (typeof this.filterAttribute === 'function') {
         this.filterAttribute(this.attributes);
       }
@@ -377,9 +383,9 @@ class ElementNode extends ViewNode {
     updateChild(this);
   }
 
-  setStyle(property, value, notToNative = false) {
-    if (value === undefined) {
-      delete this.style[property];
+  setStyle(rawKey, rawValue, notToNative = false) {
+    if (rawValue === undefined) {
+      delete this.style[rawKey];
       if (!notToNative) {
         updateChild(this);
       }
@@ -387,57 +393,57 @@ class ElementNode extends ViewNode {
     }
     // Preprocess the style
     let {
-      property: p,
-      value: v,
-    } = this.beforeLoadStyle({
-      property,
       value,
+      property: key,
+    } = this.beforeLoadStyle({
+      property: rawKey,
+      value: rawValue,
     });
     // Process the specific style value
-    switch (p) {
+    switch (key) {
       case 'fontWeight':
-        if (typeof v !== 'string') {
-          v = v.toString();
+        if (typeof value !== 'string') {
+          value = value.toString();
         }
         break;
       case 'backgroundImage': {
-        [p, v] = parseBackgroundImage(p, v);
+        [key, value] = parseBackgroundImage(key, value);
         break;
       }
       case 'textShadowOffsetX':
       case 'textShadowOffsetY': {
-        [p, v] = parseTextShadowOffset(p, v, this.style);
+        [key, value] = parseTextShadowOffset(key, value, this.style);
         break;
       }
       case 'textShadowOffset': {
-        const { x = 0, width = 0, y = 0, height = 0 } = v || {};
-        v = { width: x || width, height: y || height };
+        const { x = 0, width = 0, y = 0, height = 0 } = value || {};
+        value = { width: x || width, height: y || height };
         break;
       }
       default: {
         // Convert the property to W3C standard.
-        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, p)) {
-          p = PROPERTIES_MAP[p];
+        if (Object.prototype.hasOwnProperty.call(PROPERTIES_MAP, key)) {
+          key = PROPERTIES_MAP[key];
         }
         // Convert the value
-        if (typeof v === 'string') {
-          v = v.trim();
+        if (typeof value === 'string') {
+          value = value.trim();
           // Convert inline color style to int
-          if (p.toLowerCase().indexOf('color') >= 0) {
-            v = colorParser(v, Native.Platform);
-          // Convert inline length style, drop the px unit
-          } else if (endsWith(v, 'px')) {
-            v = parseFloat(v.slice(0, v.length - 2));
+          if (key.toLowerCase().indexOf('color') >= 0) {
+            value = colorParser(value, Native.Platform);
+            // Convert inline length style, drop the px unit
+          } else if (endsWith(value, 'px')) {
+            value = parseFloat(value.slice(0, value.length - 2));
           } else {
-            v = tryConvertNumber(v);
+            value = tryConvertNumber(value);
           }
         }
       }
     }
-    if (v === undefined || v === null || this.style[p] === v) {
+    if (value === undefined || value === null || this.style[key] === value) {
       return;
     }
-    this.style[p] = v;
+    this.style[key] = value;
     if (!notToNative) {
       updateChild(this);
     }
@@ -454,7 +460,7 @@ class ElementNode extends ViewNode {
   }
 
   /**
-   * repaint element with latest style map, which maybe loaded from HMR chunk or dynamic chunk
+   * repaint element with the latest style map, which maybe loaded from HMR chunk or dynamic chunk
    */
   repaintWithChildren() {
     updateWithChildren(this);

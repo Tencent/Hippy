@@ -4,6 +4,8 @@
 
 Hippy 直接支持 W3C 标准的 fetch 和 WebSocket 接口，可以通过这两个方法对服务器进行访问。
 
+---
+
 # fetch
 
 Hippy 提供了跟 W3C 标准基本一致的 [fetch](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API) 方法，可以直接参考 [MDN](//developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API)。
