@@ -132,51 +132,51 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
   if (auto it = dom_style.find(kPerspective); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     // M44中 2x3对应的位置就是perspective属性
-    transform.setRC(2, 3, checked_numeric_cast<double, float>(it->second->ToDoubleChecked()));
+    transform.setRC(2, 3, static_cast<float>(it->second->ToDoubleChecked()));
   }
 
   auto tv3 = tdfcore::TV3();
   if (auto it = dom_style.find(kRotateX); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
+    auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.x = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kRotateY); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
+    auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.y = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kRotate); it != dom_style.end()) {
-    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
+    auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kRotateZ); it != dom_style.end()) {
-    auto radians = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
+    auto radians = static_cast<float>(it->second->ToDoubleChecked());
     tv3.z = 1;
     transform.setRotateUnit(tv3, radians);
   }
 
   if (auto it = dom_style.find(kScale); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
+    auto scale = static_cast<float>(it->second->ToDoubleChecked());
     transform.setScale(scale, scale);
   }
 
   if (auto it = dom_style.find(kScaleX); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
+    auto scale = static_cast<float>(it->second->ToDoubleChecked());
     transform.setScale(scale, 0);
   }
 
   if (auto it = dom_style.find(kScaleY); it != dom_style.end()) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
-    auto scale = checked_numeric_cast<double, float>(it->second->ToDoubleChecked());
+    auto scale = static_cast<float>(it->second->ToDoubleChecked());
     transform.setScale(0, scale);
   }
 
@@ -188,9 +188,9 @@ tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style,
       return transform;
     }
     FOOTSTONE_CHECK(translation_array.size() == 3);
-    auto translate_x = checked_numeric_cast<double, float>(translation_array.at(0).ToDoubleChecked());
-    auto translate_y = checked_numeric_cast<double, float>(translation_array.at(1).ToDoubleChecked());
-    auto translate_z = checked_numeric_cast<double, float>(translation_array.at(2).ToDoubleChecked());
+    auto translate_x = static_cast<float>(translation_array.at(0).ToDoubleChecked());
+    auto translate_y = static_cast<float>(translation_array.at(1).ToDoubleChecked());
+    auto translate_z = static_cast<float>(translation_array.at(2).ToDoubleChecked());
     transform.setTranslate(translate_x, translate_y, translate_z);
   }
 

@@ -157,6 +157,9 @@ dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
   compileOnly project(path: ':hippy-support')
   compileOnly project(path: ':renderer-native')
+  if (ENABLE_TDF_RENDER == "true") {
+    compileOnly project(path: ':renderer-tdf')
+  }
   compileOnly project(path: ':serialization')
   compileOnly project(path: ':link_supplier')
   //noinspection GradleDependency

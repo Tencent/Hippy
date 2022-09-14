@@ -21,8 +21,6 @@
 project("tdf_renderer_common")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
-get_filename_component(TDF_RENDER_DIR "${PROJECT_ROOT_DIR}/renderer/tdf" REALPATH)
-get_filename_component(TDF_CORE_DIR "${TDF_RENDER_DIR}/core" REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
@@ -31,7 +29,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 # region library
 add_library(${PROJECT_NAME} STATIC)
-target_include_directories(${PROJECT_NAME} PUBLIC ${TDF_RENDER_DIR}/common/include)
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/renderer/tdf/common/include)
 # remove dependency of scope.h After VFS finished
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/include)
 # region end
@@ -52,13 +50,14 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PUBLIC footstone)
 # endregion
 
-# region jni
-GlobalPackages_Add(jni)
-target_link_libraries(${PROJECT_NAME} PUBLIC jni)
-# endregion
+# Consider iOS intergration in the future
+if (ANDROID)
+  set (TDFCORE_LIB_NAME "android-${ANDROID_ARCH_NAME}.zip")
+elseif (IOS)
+endif()
 
 InfraPackage_Add(TDF
-  REMOTE "renderer/tdf/third_party/tdfcore/${TDF_CORE_VERSION}/android-${ANDROID_ARCH_NAME}.zip"
+  REMOTE "renderer/tdf/third_party/tdfcore/${TDF_CORE_VERSION}/${TDFCORE_LIB_NAME}"
   LOCAL "${PROJECT_ROOT_DIR}/third_party/tdfcore")
 target_link_libraries(${PROJECT_NAME} PUBLIC tdf)
 

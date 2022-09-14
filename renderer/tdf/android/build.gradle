@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-println("tdf-render config build.gradle")
 buildscript {
   repositories {
     google()

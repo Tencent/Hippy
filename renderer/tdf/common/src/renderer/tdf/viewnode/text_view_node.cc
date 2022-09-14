@@ -38,7 +38,8 @@ TextViewNode::TextViewNode(RenderInfo info) : ViewNode(info) {}
 
 void TextViewNode::SyncTextAttributes(const std::shared_ptr<hippy::DomNode>& dom_node) {
   if (!layout_view_) {
-    layout_view_ = std::static_pointer_cast<tdfcore::TextView>(CreateView());
+    // Not in TDF UI Task Runner, have no ViewContext
+    layout_view_ = TDF_MAKE_SHARED(TextView, nullptr);
   }
   HandleTextStyleUpdate(layout_view_, dom_node, GenerateStyleInfo(dom_node));
 }

@@ -85,7 +85,8 @@ void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgu
 
 void ViewPagerNode::InitialPage(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
   if (auto iterator = dom_style.find(viewpager::kInitialPage); iterator != dom_style.end()) {
-    view_pager->SetInitialPage(iterator->second->ToInt32Checked());
+    auto init_page = static_cast<int32_t>(iterator->second->ToDoubleChecked());
+    view_pager->SetInitialPage(init_page);
   }
 }
 

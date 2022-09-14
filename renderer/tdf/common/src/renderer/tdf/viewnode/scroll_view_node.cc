@@ -54,8 +54,8 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   }
 
   if (auto it = dom_style.find(scrollview::kScrollEventThrottle); it != map_end) {
-    FOOTSTONE_DCHECK(it->second->IsInt32());
-    scroll_event_throttle_ = it->second->ToInt32Checked();
+    FOOTSTONE_DCHECK(it->second->IsDouble());
+    scroll_event_throttle_ = static_cast<int32_t>(it->second->ToDoubleChecked());
   }
 
   if (auto it = dom_style.find(scrollview::kScrollMinOffset); it != map_end) {
@@ -67,11 +67,13 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     // Skip
   }
 
-  if (auto it = dom_style.find(kHorizontal); it != map_end && it->second->ToBooleanChecked()) {
-    FOOTSTONE_DCHECK(it->second->IsBoolean());
-    auto horizontal = it->second->ToBooleanChecked();
-    scroll_view->SetHorizontalOverscrollEnabled(horizontal);
-    scroll_view->SetVerticalOverscrollEnabled(!horizontal);
+  if (auto it = dom_style.find(kHorizontal); it != map_end) {
+    // May be undefined
+    if (!it->second->IsUndefined() && it->second->ToBooleanChecked()) {
+      auto horizontal = it->second->ToBooleanChecked();
+      scroll_view->SetHorizontalOverscrollEnabled(horizontal);
+      scroll_view->SetVerticalOverscrollEnabled(!horizontal);
+    }
   }
 }
 
@@ -86,7 +88,9 @@ void ScrollViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t 
 
 void ScrollViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
   ViewNode::OnChildRemove(child);
-  child->RemoveLayoutUpdateListener(child_layout_listener_id_);
+  if (child_layout_listener_id_ != kUninitializedId) {
+    child->RemoveLayoutUpdateListener(child_layout_listener_id_);
+  }
 }
 
 void ScrollViewNode::InitScrollStartListener() {

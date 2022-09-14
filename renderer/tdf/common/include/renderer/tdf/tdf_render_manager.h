@@ -23,8 +23,6 @@
 #include "footstone/persistent_object_map.h"
 #include "renderer/tdf/viewnode/view_node.h"
 
-#include "jni/scoped_java_ref.h"
-
 #include "dom/dom_node.h"
 #include "dom/render_manager.h"
 #include "footstone/serializer.h"

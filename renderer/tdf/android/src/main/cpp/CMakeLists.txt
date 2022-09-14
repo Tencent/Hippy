@@ -21,7 +21,6 @@
 project("tdf_renderer")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../.." REALPATH)
-get_filename_component(TDF_RENDER_COMMON "${PROJECT_ROOT_DIR}/renderer/tdf/common" REALPATH)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -30,11 +29,13 @@ add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 # region end
 
-add_subdirectory(${TDF_RENDER_COMMON} tdf_renderer_common/build)
+GlobalPackages_Add(jni)
+target_link_libraries(${PROJECT_NAME} PUBLIC jni)
+
+add_subdirectory(${PROJECT_ROOT_DIR}/renderer/tdf/common tdf_renderer_common/build)
 target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer_common)
 
 # region source set
-# set(SOURCE_SET )
 set(SOURCE_SET_STANDALONE
         src/render/tdf_render_bridge.cc)
 # target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})

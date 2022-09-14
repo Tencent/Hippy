@@ -136,6 +136,7 @@ void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdf
 
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, shell, root_view_node] {
+    FOOTSTONE_LOG(INFO) << "CreateNode: BEGIN";
     for (auto const& node : nodes) {
       FOOTSTONE_LOG(INFO) << "CreateNode: id:" << node->GetRenderInfo().id << " |pid:" << node->GetRenderInfo().pid;
       FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
@@ -179,11 +180,13 @@ void TDFRenderManager::DeleteRenderNode(std::weak_ptr<RootNode> root_node,
   FOR_EACH_TEXT_NODE(tdf::TextViewNode::UnregisterMeasureFunction(node);)
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, root_view_node] {
+    FOOTSTONE_LOG(INFO) << "DeleteRenderNode: BEGIN";
     for (auto const& node : nodes) {
       FOOTSTONE_DCHECK(node->GetId() == node->GetRenderInfo().id);
       auto id = node->GetRenderInfo().id;
       root_view_node->FindViewNode(id)->OnDelete();
     }
+    FOOTSTONE_LOG(INFO) << "DeleteRenderNode: END";
   });
 }
 

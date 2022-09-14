@@ -209,10 +209,7 @@ void DoBind(JNIEnv* j_env,
   dom_manager->SetRenderManager(render_manager);
 
 #ifdef ENABLE_TDF_RENDER
-  /// TODO(kloudwang) 这里为了tdf_renderer复用native
-  /// renderer的图片下载能力(临时方案)，后面应该直接走FrameworkProxy
-  TDFRenderBridge::RegisterScopeForUriLoader(static_cast<uint32_t>(j_render_id),
-                                             scope);
+  TDFRenderBridge::RegisterScopeForUriLoader(static_cast<uint32_t>(j_render_id), scope);
 #endif
 
 #ifdef ENABLE_INSPECTOR
@@ -273,13 +270,14 @@ void DoConnect(__unused JNIEnv* j_env,
   }
 #endif
 
-  /// TODO(kloudwang) GetDensity()方法应该抽象到
-  /// RenderManager里面去，目前只有NativeRenderManager才有这个方法
-  //  std::shared_ptr<NativeRenderManager> render_manager =
-  //          std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
-  //  float density = render_manager->GetDensity();
-  //  auto layout_node = root_node->GetLayoutNode();
-  //  layout_node->SetScaleFactor(density);
+  // GetDensity()方法应该抽象到RenderManager里面去，目前只有NativeRenderManager才有这个方法
+#ifndef ENABLE_TDF_RENDER
+  std::shared_ptr<NativeRenderManager> render_manager =
+      std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
+  float density = render_manager->GetDensity();
+  auto layout_node = root_node->GetLayoutNode();
+  layout_node->SetScaleFactor(density);
+#endif
 }
 
 jint CreateWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
