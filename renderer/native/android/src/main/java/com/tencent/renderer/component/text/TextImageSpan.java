@@ -195,7 +195,7 @@ public class TextImageSpan extends ImageSpan {
             props.pushInt(NodeProps.HEIGHT, mHeight);
             doFetchImage(url, props, adapter);
         } else {
-            ImageDataSupplier supplier = adapter.getLocalImage(url);
+            ImageDataSupplier supplier = adapter.getLocalImage(url, mWidth, mHeight);
             if (supplier instanceof ImageDataHolder) {
                 shouldReplaceDrawable((ImageDataHolder) supplier);
             }

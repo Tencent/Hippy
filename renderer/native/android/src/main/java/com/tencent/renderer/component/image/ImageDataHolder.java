@@ -16,6 +16,9 @@
 
 package com.tencent.renderer.component.image;
 
+import android.graphics.ImageDecoder;
+import android.os.Build.VERSION_CODES;
+import androidx.annotation.RequiresApi;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -32,6 +35,7 @@ import android.util.Base64;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import java.nio.ByteBuffer;
 
 public class ImageDataHolder implements ImageDataSupplier {
 
@@ -44,6 +48,9 @@ public class ImageDataHolder implements ImageDataSupplier {
     private static final String PREFIX_IMAGE_SOURCE_ASSETS = "assets://";
     private static final String PREFIX_IMAGE_SOURCE_BASE64 = ";base64,";
     private int mStateFlags = 0;
+    private int mWidth;
+    private int mHeight;
+    @NonNull
     private final String mSource;
     @Nullable
     private Drawable mDrawable;
@@ -56,6 +63,12 @@ public class ImageDataHolder implements ImageDataSupplier {
 
     public ImageDataHolder(@NonNull String source) {
         mSource = source;
+    }
+
+    public ImageDataHolder(@NonNull String source, int width, int height) {
+        mSource = source;
+        mWidth = width;
+        mHeight = height;
     }
 
     public static int generateSourceKey(@NonNull String source) {
@@ -176,42 +189,8 @@ public class ImageDataHolder implements ImageDataSupplier {
         mDrawable = drawable;
     }
 
-    public void setData(byte[] rawData) {
-        try {
-            if (isGif(rawData)) {
-                mGifMovie = Movie.decodeByteArray(rawData, 0, rawData.length);
-                mBitmap = null;
-            } else {
-                mBitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
-                // Mark bitmap is created internally.
-                setStateFlag(FLAG_RECYCLABLE);
-                mGifMovie = null;
-            }
-        } catch (OutOfMemoryError | Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void setData(File path) {
-        FileInputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(path);
-            byte[] rawData = new byte[inputStream.available()];
-            int total = inputStream.read(rawData);
-            if (total > 0) {
-                setData(rawData);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    public void setData(byte[] data) {
+        decodeImageData(data);
     }
 
     public void setData(Bitmap bitmap) {
@@ -220,14 +199,13 @@ public class ImageDataHolder implements ImageDataSupplier {
         resetStateFlag(FLAG_RECYCLABLE);
     }
 
-    public void setData(@NonNull String source) {
-        if (source.startsWith(PREFIX_IMAGE_SOURCE_DATA)) {
-            handleBase64Data(source);
-        } else if (source.startsWith(PREFIX_IMAGE_SOURCE_FILE)) {
-            String filePath = source.substring(PREFIX_IMAGE_SOURCE_FILE.length());
-            setData(new File(filePath));
-        } else if (source.startsWith(PREFIX_IMAGE_SOURCE_ASSETS)) {
-            handleAssetsFileData(source);
+    public void loadImageResource() {
+        if (mSource.startsWith(PREFIX_IMAGE_SOURCE_DATA)) {
+            loadBase64Image();
+        } else if (mSource.startsWith(PREFIX_IMAGE_SOURCE_FILE)) {
+            loadLocalImageFile(mSource.substring(PREFIX_IMAGE_SOURCE_FILE.length()));
+        } else if (mSource.startsWith(PREFIX_IMAGE_SOURCE_ASSETS)) {
+            loadAssetsImageFile(mSource.substring(PREFIX_IMAGE_SOURCE_ASSETS.length()));
         }
     }
 
@@ -235,38 +213,151 @@ public class ImageDataHolder implements ImageDataSupplier {
         return mGifMovie != null;
     }
 
-    private void handleAssetsFileData(@NonNull String source) {
-        InputStream inputStream = null;
+    @RequiresApi(api = VERSION_CODES.P)
+    private void decodeImageSource(@Nullable ImageDecoder.Source source)
+            throws IOException {
+        if (source != null) {
+            mBitmap = ImageDecoder.decodeBitmap(source);
+            mGifMovie = null;
+            setStateFlag(FLAG_RECYCLABLE);
+        }
+    }
+
+    @RequiresApi(api = VERSION_CODES.P)
+    private void decodeLocalFileForTarget28(@NonNull File file) {
         try {
-            String fileName = source.substring(PREFIX_IMAGE_SOURCE_ASSETS.length());
-            inputStream = ContextHolder.getAppContext().getAssets().open(fileName);
-            byte[] rawData = new byte[inputStream.available()];
-            int total = inputStream.read(rawData);
-            if (total > 0) {
-                setData(rawData);
-            }
+            ImageDecoder.Source source = ImageDecoder.createSource(file);
+            decodeImageSource(source);
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = VERSION_CODES.P)
+    private void decodeLocalFileForTarget28(@NonNull String fileName) {
+        try {
+            ImageDecoder.Source source = ImageDecoder.createSource(
+                    ContextHolder.getAppContext().getAssets(), fileName);
+            decodeImageSource(source);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = VERSION_CODES.P)
+    private void decodeLocalFileForTarget28(@NonNull ByteBuffer buffer) {
+        try {
+            ImageDecoder.Source source = ImageDecoder.createSource(buffer);
+            decodeImageSource(source);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int getSampleSize(int outWidth, int outHeight) {
+        int sampleSize = 1;
+        if (mWidth <=0 || mHeight <= 0) {
+            return sampleSize;
+        }
+        if (outWidth >= outHeight) {
+            sampleSize = (int) (outWidth / mWidth);
+        } else {
+            sampleSize = (int) (outHeight / mHeight);
+        }
+        if (sampleSize < 1) {
+            sampleSize = 1;
+        } else if (sampleSize > 4) {
+            sampleSize = 4;
+        }
+        return sampleSize;
+    }
+
+    private void decodeImageData(@Nullable byte[] data) {
+        if (data == null || data.length <= 0) {
+            return;
+        }
+        try {
+            if (isGif(data)) {
+                mGifMovie = Movie.decodeByteArray(data, 0, data.length);
+                mBitmap = null;
+            } else {
+                final BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(data, 0, data.length, options);
+                options.inSampleSize = getSampleSize(options.outWidth, options.outHeight);
+                options.inJustDecodeBounds = false;
+                mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+                mGifMovie = null;
+            }
+        } catch (OutOfMemoryError | Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadAssetsImageFile(@NonNull String fileName) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            decodeLocalFileForTarget28(fileName);
+        } else {
+            InputStream inputStream = null;
+            try {
+                inputStream = ContextHolder.getAppContext().getAssets().open(fileName);
+                byte[] rawData = new byte[inputStream.available()];
+                int total = inputStream.read(rawData);
+                if (total > 0) {
+                    decodeImageData(rawData);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
     }
 
-    private void handleBase64Data(@NonNull String source) {
+    private void loadLocalImageFile(@NonNull String fileName) {
+        File file = new File(fileName);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            decodeLocalFileForTarget28(file);
+        } else {
+            InputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(file);
+                byte[] rawData = new byte[inputStream.available()];
+                int total = inputStream.read(rawData);
+                if (total > 0) {
+                    decodeImageData(rawData);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } finally {
+                if (inputStream != null) {
+                    try {
+                        inputStream.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    private void loadBase64Image() {
         try {
-            int base64Index = source.indexOf(PREFIX_IMAGE_SOURCE_BASE64);
+            int base64Index = mSource.indexOf(PREFIX_IMAGE_SOURCE_BASE64);
             if (base64Index >= 0) {
                 base64Index += PREFIX_IMAGE_SOURCE_BASE64.length();
-                String base64String = source.substring(base64Index);
-                byte[] decode = Base64.decode(base64String, Base64.DEFAULT);
-                if (decode != null) {
-                    setData(decode);
+                String base64String = mSource.substring(base64Index);
+                byte[] rawData = Base64.decode(base64String, Base64.DEFAULT);
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+                    decodeLocalFileForTarget28(ByteBuffer.wrap(rawData));
+                } else {
+                    decodeImageData(rawData);
                 }
             }
         } catch (Exception e) {

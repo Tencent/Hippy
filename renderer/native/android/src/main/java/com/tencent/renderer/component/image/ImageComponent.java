@@ -32,7 +32,9 @@ import androidx.annotation.Px;
 import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
+import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.drawable.ContentDrawable.ScaleType;
 
@@ -235,6 +237,8 @@ public class ImageComponent extends Component {
     }
 
     private void doFetchLocalImage(final String uri, final ImageSourceType sourceType) {
+        int width = (mHostRef.get() != null) ? mHostRef.get().getWidth() : 0;
+        int height = (mHostRef.get() != null) ? mHostRef.get().getHeight() : 0;
         assert mImageLoaderAdapter != null;
         mImageLoaderAdapter.getLocalImage(uri, new ImageRequestListener() {
             @Override
@@ -258,7 +262,7 @@ public class ImageComponent extends Component {
                     mDefaultImageFetchState = ImageFetchState.UNLOAD;
                 }
             }
-        });
+        }, width, height);
     }
 
     private void doFetchRemoteImage(final String uri, final ImageSourceType sourceType) {
