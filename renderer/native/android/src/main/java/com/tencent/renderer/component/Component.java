@@ -155,13 +155,17 @@ public class Component implements Drawable.Callback {
         // Stub method.
     }
 
+    public void clear() {
+        if (mContentDrawable != null) {
+            mContentDrawable.clear();
+        }
+    }
+
     /**
      * On host view remove from {@link com.tencent.mtt.hippy.uimanager.ControllerRegistry}
      */
     public void onHostViewRemoved() {
-        if (mContentDrawable != null) {
-            mContentDrawable.reset();
-        }
+
     }
 
     @Nullable

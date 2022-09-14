@@ -248,6 +248,7 @@ public class RenderManager {
         }
         removeRenderNode(rootId, node.getId());
         node.setNodeFlag(FLAG_ALREADY_DELETED);
+        node.onDeleted();
     }
 
     private void removeRenderNode(int rootId, int nodeId) {

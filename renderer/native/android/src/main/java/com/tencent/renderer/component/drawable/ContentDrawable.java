@@ -118,7 +118,7 @@ public class ContentDrawable extends Drawable {
         // Stub method.
     }
 
-    public void reset() {
+    public void clear() {
         mContentBitmap = null;
         mGifMovie = null;
         mGifMovieState = null;

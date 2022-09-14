@@ -113,6 +113,14 @@ public class ImageComponent extends Component {
     @Override
     public void onHostViewRemoved() {
         super.onHostViewRemoved();
+        clear();
+        mImageFetchState = ImageFetchState.UNLOAD;
+        mDefaultImageFetchState = ImageFetchState.UNLOAD;
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
         if (mImageData != null) {
             mImageData.detached();
             mImageData.clear();
@@ -123,8 +131,6 @@ public class ImageComponent extends Component {
             mDefaultImageData.clear();
             mDefaultImageData = null;
         }
-        mImageFetchState = ImageFetchState.UNLOAD;
-        mDefaultImageFetchState = ImageFetchState.UNLOAD;
     }
 
     public void setSrc(String uri) {
@@ -205,7 +211,7 @@ public class ImageComponent extends Component {
                 ensureContentDrawable().setContentBitmap(imageData.getBitmap());
             }
         }
-        if (!loadFromCache) {
+        if (!loadFromCache && imageData.isRecyclable()) {
             assert mImageLoaderAdapter != null;
             mImageLoaderAdapter.saveImageToCache(imageData);
         }

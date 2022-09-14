@@ -156,6 +156,11 @@ public class ImageDataHolder implements ImageDataSupplier {
     }
 
     @Override
+    public boolean isRecyclable() {
+        return checkStateFlag(FLAG_RECYCLABLE);
+    }
+
+    @Override
     public int getImageWidth() {
         if (mBitmap != null) {
             return mBitmap.getWidth();
@@ -288,6 +293,7 @@ public class ImageDataHolder implements ImageDataSupplier {
                 options.inJustDecodeBounds = false;
                 mBitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
                 mGifMovie = null;
+                setStateFlag(FLAG_RECYCLABLE);
             }
         } catch (OutOfMemoryError | Exception e) {
             e.printStackTrace();
