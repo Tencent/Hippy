@@ -1,3 +1,18 @@
+/* Tencent is pleased to support the open source community by making Hippy available.
+ * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.tencent.mtt.supportui.views.viewpager;
 
 import android.content.Context;
@@ -2819,7 +2834,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 				if (mIsVertical)
 				{
 					if (!mScrollEnabled
-							|| (dy != 0 && !isGutterDrag(mLastMotionY, dy) && (!ignoreCheck && checkChildCanScroll((int) dx, (int) x, (int) y))))
+							|| (dy != 0 && !isGutterDrag(mLastMotionY, dy) && (!ignoreCheck && checkChildCanScroll((int) dy, (int) x, (int) y))))
 					{
 						// Nested view has scrollable area under this point. Let
 						// it
@@ -3880,12 +3895,12 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		return verticalCanScroll(direction);
 	}
 
-	protected boolean onStartDrag(boolean left) {
-		if (left) {
-			return horizontalCanScroll(1);
-		} else {
-			return horizontalCanScroll(-1);
-		}
+	protected boolean onStartDrag(boolean start) {
+    if (mIsVertical) {
+      return verticalCanScroll(start ? 1 : -1);
+    } else {
+      return horizontalCanScroll(start ? 1 : -1);
+    }
 	}
 
 	/**
@@ -3950,12 +3965,12 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		velocityTracker.computeCurrentVelocity(1000, mMaximumVelocity);
 		int initialVelocity = (int) velocityTracker.getXVelocity(mActivePointerId);
 		mPopulatePending = true;
-		final int width = getClientWidth();
-		final int scrollX = getScrollX();
+		final int size = getClientSize();
+		final int scrollPos = mIsVertical ? getScrollY() : getScrollX();
 		final ItemInfo ii = infoForCurrentScrollPosition();
 		final int currentPage = ii.position;
-		final float pageOffset = (((float) scrollX / width) - ii.offset) / ii.sizeFactor;
-		final int totalDelta = (int) (mLastMotionX - mInitialMotionX);
+		final float pageOffset = (((float) scrollPos / size) - ii.offset) / ii.sizeFactor;
+		final int totalDelta = (int) (mIsVertical ? mLastMotionY - mInitialMotionY : mLastMotionX - mInitialMotionX);
 		int nextPage = determineTargetPage(currentPage, pageOffset, initialVelocity, totalDelta);
 		setCurrentItemInternal(nextPage, true, true, 0, initialVelocity);
 		endDrag();
@@ -4716,13 +4731,21 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 	@Override
 	public boolean verticalCanScroll(int dis)
 	{
+    if (!mCanScroll || !mIsVertical) {
+      return false;
+    }
+    if (dis < 0) {
+      return mCurItem > 0;
+    } else if (dis > 0) {
+      return mCurItem < getPageCount() - 1;
+    }
 		return false;
 	}
 
 	@Override
 	public boolean horizontalCanScroll(int dis)
 	{
-		if (!mCanScroll)
+		if (!mCanScroll || mIsVertical)
 		{
 			return false;
 		}

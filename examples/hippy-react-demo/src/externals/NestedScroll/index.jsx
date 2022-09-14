@@ -29,6 +29,13 @@ const styles = StyleSheet.create({
     lineHeight: 12,
     opacity: .75,
   },
+  button: {
+    flex: 1,
+    borderColor: 'black',
+    borderWidth: 1,
+    textAlign: 'center',
+    lineHeight: 50,
+  },
 });
 
 function renderTestCases(itemFn, key, priority, width, height) {
@@ -136,11 +143,12 @@ export default class NestedScrollExample extends React.Component {
       width: 300,
       height: 300,
       priority: 'self',
+      index: 0,
     };
   }
 
   render() {
-    const { width, height, priority } = this.state;
+    const { width, height, priority, index } = this.state;
     const fn = (key, priority, width, height) => [
       // eslint-disable-next-line react/jsx-key
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', width, height }}><Text style={{ fontSize: 40 }}>A</Text></View>,
@@ -153,13 +161,25 @@ export default class NestedScrollExample extends React.Component {
     const items = fn4('key', priority, width, height);
     return (
       <View style={{ flex: 1 }}>
+        <Text>nestedScrollPriority:</Text>
         <View style={{ height: 50, flexDirection: 'row' }}>
-          <Text>self</Text>
-          <Text>parent</Text>
-          <Text>none</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ priority: 'self' })}>self</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ priority: 'parent' })}>parent</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ priority: 'none' })}>none</Text>
+        </View>
+        <Text>test case:</Text>
+        <View style={{ height: 50, flexDirection: 'row' }}>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 0 })}>0</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 1 })}>1</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 2 })}>2</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 3 })}>3</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 4 })}>4</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 5 })}>5</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 6 })}>6</Text>
+          <Text style={ styles.button } onClick={() => this.setState({ index: 7 })}>7</Text>
         </View>
         <View style={{ width, height }}>
-          {items[1]}
+          {items[index]}
         </View>
       </View>
     );

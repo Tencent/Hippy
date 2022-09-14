@@ -65,7 +65,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private boolean isTvPlatform = false;
     private HippyRecycleViewFocusHelper mFocusHelper = null;
     private final int[] mScrollConsumedPair = new int[2];
-    private final Priority[] mNestedScrollPriority = { Priority.SELF, Priority.SELF, Priority.SELF, Priority.SELF };
+    private final Priority[] mNestedScrollPriority = { Priority.SELF, Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET };
     private int mNestedScrollAxesTouch;
     private int mNestedScrollAxesNonTouch;
 
@@ -664,7 +664,11 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
   @Override
   public Priority getNestedScrollPriority(int direction) {
-    return mNestedScrollPriority[direction];
+    Priority result = mNestedScrollPriority[direction];
+    if (result == Priority.NOT_SET) {
+      result = mNestedScrollPriority[DIRECTION_ALL];
+    }
+    return result;
   }
 
   private int computeHorizontallyScrollDistance(int dx) {

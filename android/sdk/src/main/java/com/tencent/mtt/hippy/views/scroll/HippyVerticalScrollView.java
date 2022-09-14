@@ -76,7 +76,7 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
   private boolean hasCompleteFirstBatch = false;
   private HippyVerticalScrollViewFocusHelper mFocusHelper = null;
   private final boolean isTvPlatform;
-  private final Priority[] mNestedScrollPriority = { Priority.SELF, Priority.SELF, Priority.SELF, Priority.SELF };
+  private final Priority[] mNestedScrollPriority = { Priority.SELF, Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET };
 
   public HippyVerticalScrollView(Context context) {
     super(context);
@@ -429,7 +429,11 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
 
   @Override
   public Priority getNestedScrollPriority(int direction) {
-    return mNestedScrollPriority[direction];
+    Priority result = mNestedScrollPriority[direction];
+    if (result == Priority.NOT_SET) {
+      result = mNestedScrollPriority[DIRECTION_ALL];
+    }
+    return result;
   }
 
   @Override
@@ -441,13 +445,34 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
   }
 
   @Override
+  public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
+    onNestedScrollInternal(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, ViewCompat.TYPE_TOUCH, null);
+  }
+
+  @Override
   public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
                              int type) {
+    onNestedScrollInternal(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type, null);
+  }
+
+  @Override
+  public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed,
+                             int type, @NonNull int[] consumed) {
+    onNestedScrollInternal(target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type, consumed);
+  }
+
+  void onNestedScrollInternal(@NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
+                             int dyUnconsumed, int type, int[] consumed) {
+    if (mPagingEnabled && type == ViewCompat.TYPE_NON_TOUCH) {
+      // 因为NestedScrollView的惯性滚动不发送stopNestedScroll通知，所以paging模式下不响应惯性滚动，避免滚动结束后不触发doPageScroll
+      return;
+    }
+    int myConsumed = 0;
     // 先给当前节点处理
     if (HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
       final int oldScrollY = getScrollY();
       scrollBy(0, dyUnconsumed);
-      final int myConsumed = getScrollY() - oldScrollY;
+      myConsumed = getScrollY() - oldScrollY;
       dyConsumed += myConsumed;
       dyUnconsumed -= myConsumed;
     }
@@ -455,12 +480,28 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
     int parentDx = HippyNestedScrollHelper.priorityOfX(this, dxUnconsumed) == Priority.NONE ? 0 : dxUnconsumed;
     int parentDy = HippyNestedScrollHelper.priorityOfY(this, dyUnconsumed) == Priority.NONE ? 0 : dyUnconsumed;
     if (parentDx != 0 || parentDy != 0) {
-      dispatchNestedScroll(dxConsumed, dyConsumed, parentDx, parentDy, null, type);
+      if (consumed == null) {
+        dispatchNestedScroll(dxConsumed, dyConsumed, parentDx, parentDy, null, type);
+      } else {
+        int consumedX = consumed[0];
+        int consumedY = consumed[1] + myConsumed;
+        consumed[0] = 0;
+        consumed[1] = 0;
+        dispatchNestedScroll(dxConsumed, dyConsumed, parentDx, parentDy, null, type, consumed);
+        consumed[0] += consumedX;
+        consumed[1] += consumedY;
+      }
     }
   }
 
   @Override
   public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed, int type) {
+    if (mPagingEnabled && type == ViewCompat.TYPE_NON_TOUCH) {
+      if (HippyNestedScrollHelper.priorityOfY(target, dy) == Priority.PARENT) {
+        consumed[1] += dy;
+      }
+      return;
+    }
     // 先分发给父级处理
     int parentDx = HippyNestedScrollHelper.priorityOfX(this, dx) == Priority.NONE ? 0 : dx;
     int parentDy = HippyNestedScrollHelper.priorityOfY(this, dy) == Priority.NONE ? 0 : dy;

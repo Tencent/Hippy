@@ -648,10 +648,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     if (view instanceof HippyNestedScrollComponent) {
       HippyNestedScrollComponent sc = (HippyNestedScrollComponent) view;
       HippyNestedScrollComponent.Priority priority = HippyNestedScrollHelper.priorityOf(priorityName);
-      sc.setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_LEFT, priority);
-      sc.setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_TOP, priority);
-      sc.setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_RIGHT, priority);
-      sc.setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_BOTTOM, priority);
+      sc.setNestedScrollPriority(HippyNestedScrollComponent.DIRECTION_ALL, priority);
     }
   }
 
