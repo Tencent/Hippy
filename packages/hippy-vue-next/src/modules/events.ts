@@ -59,8 +59,12 @@ function parseName(eventName: string): (string | EventOption)[] {
     }
   }
 
+  // vue 3.2.39+ transform custom event name start with :
+  // https://github.com/vuejs/core/commit/0739f8909a0e56ae0fa760f233dfb8c113c9bde2
+  // so we need to remove it
+  name = name[2] === ':' ? name.slice(3) : name.slice(2);
   // remove on and lowercase the first letter
-  return [lowerFirstLetter(name.slice(2)), options];
+  return [lowerFirstLetter(name), options];
 }
 
 /**

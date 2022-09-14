@@ -11,8 +11,14 @@
       :bounces="true"
       :rowShouldSticky="true"
       :overScrollEnabled="true"
+      :scrollEventThrottle="1000"
       @endReached="onEndReached"
       @delete="onDelete"
+      @scroll="onScroll"
+      @momentumScrollBegin="onMomentumScrollBegin"
+      @momentumScrollEnd="onMomentumScrollEnd"
+      @scrollBeginDrag="onScrollBeginDrag"
+      @scrollEndDrag="onScrollEndDrag"
     >
       <li
         v-for="(ui, index) in dataSource"
@@ -169,6 +175,22 @@ const onWillDisappear = (index: number) => {
   console.log('onWillDisappear', index);
 };
 
+const onMomentumScrollBegin = (event) => {
+  console.log('momentumScrollBegin', event);
+};
+
+const onMomentumScrollEnd = (event) => {
+  console.log('momentumScrollEnd', event);
+};
+
+const onScrollBeginDrag = (event) => {
+  console.log('onScrollBeginDrag', event);
+};
+
+const onScrollEndDrag = (event) => {
+  console.log('onScrollEndDrag', event);
+};
+
 export default defineComponent({
   setup() {
     const loadingState = ref('');
@@ -190,11 +212,13 @@ export default defineComponent({
         return;
       }
 
+      const data = dataSource.value;
       isLoading = true;
       loadingState.value = '正在加载...';
+      dataSource.value = [...data, [{ style: STYLE_LOADING }]];
       // 获取数据
       const newData: any = await mockFetchData();
-      dataSource.value = [...dataSource.value, ...newData];
+      dataSource.value = [...data, ...newData];
       // 请求解锁
       isLoading = false;
     };
@@ -213,6 +237,19 @@ export default defineComponent({
        */
     const changeDirection = () => {
       horizontal.value = !horizontal.value;
+    };
+
+    let topReached = false;
+    const onScroll = (event) => {
+      console.log('onScroll', event.offsetY);
+      if (event.offsetY <= 0) {
+        if (!topReached) {
+          topReached = true;
+          console.log('onTopReached');
+        }
+      } else {
+        topReached = false;
+      }
     };
 
     onMounted(() => {
@@ -240,6 +277,11 @@ export default defineComponent({
       onWillAppear,
       onWillDisappear,
       changeDirection,
+      onScroll,
+      onMomentumScrollBegin,
+      onMomentumScrollEnd,
+      onScrollBeginDrag,
+      onScrollEndDrag,
     };
   },
 });
