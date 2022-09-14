@@ -33,9 +33,9 @@ export const EventBus = {
   /**
    * add event listener
    *
-   * @param event
-   * @param callback
-   * @param ctx
+   * @param event - event name
+   * @param callback - callback function
+   * @param ctx - context
    */
   $on(event: string | Array<string>, callback: CallbackType, ctx?: NeedToTyped) {
     if (Array.isArray(event)) {
@@ -61,14 +61,14 @@ export const EventBus = {
   /**
    * add event listener, only execute once
    *
-   * @param event
-   * @param callback
-   * @param ctx
+   * @param event - event name
+   * @param callback - callback function
+   * @param ctx - context
    */
   $once(event: string, callback: CallbackType, ctx?: NeedToTyped) {
-    function listener() {
+    function listener(...args) {
       EventBus.$off(event, listener);
-      callback.apply(ctx, arguments);
+      callback.apply(ctx, args);
     }
 
     listener._ = callback;
@@ -80,8 +80,8 @@ export const EventBus = {
   /**
    * emit event
    *
-   * @param event
-   * @param args
+   * @param event - event name
+   * @param args - event params
    */
   $emit(event: string, ...args: NeedToTyped) {
     const callbackList = (globalEventListeners[event] || []).slice();
@@ -97,8 +97,8 @@ export const EventBus = {
   /**
    * remove global event listener. remove all if no params
    *
-   * @param event
-   * @param callback
+   * @param event - event name
+   * @param callback - callback function
    */
   $off(event?: string | Array<string>, callback?: CallbackType) {
     if (!event && !callback) {
