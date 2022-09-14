@@ -48,9 +48,9 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
 
     @Override
     public void getLocalImage(@NonNull final String source,
-            @NonNull final ImageRequestListener listener) {
+            @NonNull final ImageRequestListener listener, final int width, final int height) {
         if (!UIThreadUtils.isOnUiThread()) {
-            ImageDataSupplier supplier = getLocalImageImpl(source);
+            ImageDataSupplier supplier = getLocalImageImpl(source, width, height);
             if (supplier == null) {
                 listener.onRequestFail(null);
             } else {
@@ -64,7 +64,7 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
         mExecutorService.execute(new Runnable() {
             @Override
             public void run() {
-                final ImageDataSupplier supplier = getLocalImageImpl(source);
+                final ImageDataSupplier supplier = getLocalImageImpl(source, width, height);
                 UIThreadUtils.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -81,14 +81,14 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
 
     @Override
     @Nullable
-    public ImageDataSupplier getLocalImage(@NonNull String source) {
-        return getLocalImageImpl(source);
+    public ImageDataSupplier getLocalImage(@NonNull String source, int width, int height) {
+        return getLocalImageImpl(source, width, height);
     }
 
     @Nullable
-    private ImageDataSupplier getLocalImageImpl(@NonNull String source) {
-        ImageDataHolder dataHolder = new ImageDataHolder(source);
-        dataHolder.setData(source);
+    private ImageDataSupplier getLocalImageImpl(@NonNull String source, int width, int height) {
+        ImageDataHolder dataHolder = new ImageDataHolder(source, width, height);
+        dataHolder.loadImageResource();
         // The source decoding may fail, if bitmap and gif movie does not exist,
         // return null object directly.
         if (!dataHolder.checkImageData()) {

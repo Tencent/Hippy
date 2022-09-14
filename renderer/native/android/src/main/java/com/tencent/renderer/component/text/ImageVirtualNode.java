@@ -68,7 +68,7 @@ public class ImageVirtualNode extends VirtualNode {
         Drawable drawable = null;
         ImageLoaderAdapter adapter = mNativeRenderer.getImageLoaderAdapter();
         if (mDefaultSource != null && adapter != null) {
-            ImageDataSupplier supplier = adapter.getLocalImage(mDefaultSource);
+            ImageDataSupplier supplier = adapter.getLocalImage(mDefaultSource, mWidth, mHeight);
             Bitmap bitmap = supplier.getBitmap();
             if (bitmap != null) {
                 Resources resources = ContextHolder.getAppContext().getResources();

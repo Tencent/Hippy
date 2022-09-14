@@ -159,6 +159,8 @@ public class ContentDrawable extends Drawable {
         if (mContentBitmap != null && !mContentBitmap.isRecycled()) {
             if (mPaint == null) {
                 mPaint = new Paint();
+            } else {
+                mPaint.reset();
             }
             mPaint.setAntiAlias(true);
             if (mTintColor != Color.TRANSPARENT) {

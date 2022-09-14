@@ -24,10 +24,11 @@ public interface ImageLoaderAdapter {
     void fetchImage(@NonNull String url, @NonNull ImageRequestListener listener,
             @Nullable Object params);
 
-    void getLocalImage(@NonNull String source, @NonNull ImageRequestListener listener);
+    void getLocalImage(@NonNull String source, @NonNull ImageRequestListener listener, int width,
+            int height);
 
     @Nullable
-    ImageDataSupplier getLocalImage(@NonNull String source);
+    ImageDataSupplier getLocalImage(@NonNull String source, int width, int height);
 
     void saveImageToCache(@NonNull ImageDataSupplier data);
 
