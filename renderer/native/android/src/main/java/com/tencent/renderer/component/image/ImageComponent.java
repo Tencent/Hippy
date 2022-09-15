@@ -211,6 +211,7 @@ public class ImageComponent extends Component {
                 ensureContentDrawable().setContentBitmap(imageData.getBitmap());
             }
         }
+        // Only bitmap decoded inside the SDK need to be cached
         if (!loadFromCache && imageData.isRecyclable()) {
             assert mImageLoaderAdapter != null;
             mImageLoaderAdapter.saveImageToCache(imageData);

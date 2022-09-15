@@ -240,7 +240,7 @@ public class ComponentController {
         component.setBottomBorderColor(borderBottomColor);
     }
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({"unused", "rawtypes"})
     @HippyControllerProps(name = NodeProps.BACKGROUND_RIPPLE, defaultType = HippyControllerProps.MAP)
     public void setNativeBackground(@NonNull Component component, @Nullable Map params) {
         component.ensureRippleDrawable(params);
