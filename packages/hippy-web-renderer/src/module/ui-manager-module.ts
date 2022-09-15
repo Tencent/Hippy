@@ -55,7 +55,7 @@ export class UIManagerModule extends HippyWebModule {
       if (updateComponentIdSet.has(id)) {
         continue;
       }
-      if (tagName === InnerNodeTag.LIST) {
+      if (tagName === InnerNodeTag.LIST || tagName === InnerNodeTag.VIEW_PAGER) {
         updateComponentIdSet.add(id);
       }
       if (this.findViewById(pId)?.tagName === InnerNodeTag.LIST) {
@@ -194,9 +194,11 @@ export class UIManagerModule extends HippyWebModule {
 
       if ((props.style.position === 'absolute' ||  props.style.position === 'relative') && oldPosition !== props.style.position) {
         parent?.changeStackContext(true);
+        (component as HippyWebView<any>).updateSelfStackContext(true);
       } else if (oldPosition !== props.style.position && !props.style.position) {
         parent?.changeStackContext(false);
-      } else if (parent?.exitChildrenStackContext) {
+        (component as HippyWebView<any>).updateSelfStackContext(false);
+      } else if (parent?.exitChildrenStackContext && props.style.zIndex === undefined) {
         (component as HippyWebView<any>).updateSelfStackContext(true);
       }
     }
