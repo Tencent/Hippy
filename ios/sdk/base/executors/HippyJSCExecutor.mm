@@ -172,18 +172,6 @@ HIPPY_EXPORT_MODULE()
     self.pScope->SetUriLoader(loader);
 }
 
-static std::u16string NSStringToU16(NSString* str) {
-  if (!str) {
-    return u"";
-  }
-  unsigned long len = str.length;
-  std::u16string ret;
-  ret.resize(len);
-  unichar *p = reinterpret_cast<unichar*>(const_cast<char16_t*>(&ret[0]));
-  [str getCharacters:p range:NSRange{0, len}];
-  return ret;
-}
-
 static unicode_string_view NSStringToU8(NSString* str) {
   std::string u8 = [str UTF8String];
   return unicode_string_view(reinterpret_cast<const unicode_string_view::char8_t_*>(u8.c_str()), u8.length());
