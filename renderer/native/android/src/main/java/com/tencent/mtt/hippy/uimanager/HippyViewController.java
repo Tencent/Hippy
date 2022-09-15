@@ -21,7 +21,6 @@ import android.os.Looper;
 import android.os.MessageQueue;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.link_supplier.proxy.renderer.Renderer;
@@ -35,8 +34,6 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
-import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
-import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.text.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -185,6 +182,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (bUserChangeFocus) {
@@ -350,17 +348,20 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     @Deprecated
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull HippyArray params) {
+        // Stub method.
     }
 
     @SuppressWarnings("deprecation")
     @Deprecated
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull HippyArray params, @NonNull Promise promise) {
+        // Stub method.
     }
 
     @SuppressWarnings("rawtypes")
     public void dispatchFunction(@NonNull T view, @NonNull String functionName,
             @NonNull List params) {
+        // Stub method.
     }
 
     @SuppressWarnings("rawtypes")

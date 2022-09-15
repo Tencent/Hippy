@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
 import com.tencent.mtt.hippy.uimanager.RenderNode;
-import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.drawable.BackgroundDrawable;
 import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderArc;
@@ -149,7 +148,7 @@ public class Component implements Drawable.Callback {
 
     @Override
     public void unscheduleDrawable(@NonNull Drawable who, @NonNull Runnable what) {
-
+        // Stub method.
     }
 
     public void onHostViewAttachedToWindow() {

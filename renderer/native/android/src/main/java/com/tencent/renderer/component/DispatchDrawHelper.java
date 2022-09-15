@@ -17,12 +17,10 @@
 package com.tencent.renderer.component;
 
 import android.graphics.Canvas;
-import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
-import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
