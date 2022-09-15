@@ -31,10 +31,10 @@ import {
 const ANIMATION_TIME = 200;
 
 export class ViewPager extends HippyWebView<HTMLDivElement> {
-  private pageIndex =0;
+  private pageIndex = 0;
   private scrollCaptureState = false;
   private lastPosition: [number, number] = [0, 0];
-  private childViewItem: ViewPagerItem[] = [];
+  private children: ViewPagerItem[] = [];
   private swipeRecognize: any = null;
   private touchListenerRelease;
 
@@ -98,14 +98,14 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
   public async beforeChildMount(child: HippyBaseView, childPosition: number): Promise<any> {
     await super.beforeChildMount(child, childPosition);
     if (child instanceof ViewPagerItem) {
-      this.childViewItem.push(child);
+      this.children.push(child);
     }
   }
 
   public beforeChildRemove(child: HippyBaseView): void {
     super.beforeChildRemove(child);
     if (child instanceof ViewPagerItem) {
-      this.childViewItem = this.childViewItem.filter(item => item !== child);
+      this.children = this.children.filter(item => item !== child);
     }
   }
 
@@ -115,10 +115,16 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
     this.touchListenerRelease?.();
   }
 
+  public endBatch() {
+    if (this.initialPage !== 0 && this.initialPage !== this.pageIndex) {
+      this.scrollToPageByIndex(this.initialPage, false);
+    }
+  }
+
   public init() {
     this.props[NodeProps.INITIAL_PAGE] = 0;
     this.props[NodeProps.SCROLL_ENABLED] = true;
-    this.hammer =  new Hammer.Manager(this.dom!, { inputClass: Hammer.TouchInput });
+    this.hammer =  new Hammer.Manager(this.dom!, { inputClass: Hammer.TouchInput, touchAction: 'auto' });
     const swipe = new Hammer.Swipe();
     this.hammer.add(swipe);
     this.hammer.on('swipe', (e) => {
@@ -176,7 +182,7 @@ export class ViewPager extends HippyWebView<HTMLDivElement> {
       if (this.swipeRecognize.offsetDirection === Hammer.DIRECTION_RIGHT && this.pageIndex > 0) {
         nextPage -= 1;
       } else if (this.swipeRecognize.offsetDirection === Hammer.DIRECTION_LEFT
-        && this.pageIndex < this.childViewItem.length - 1) {
+        && this.pageIndex < this.children.length - 1) {
         nextPage += 1;
       }
       this.scrollPage(nextPage, true);

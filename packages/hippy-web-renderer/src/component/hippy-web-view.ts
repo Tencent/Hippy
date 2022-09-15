@@ -193,7 +193,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     this.dom?.childNodes.forEach((item) => {
       const childDom = this.context.getModuleByName('UIManagerModule').findViewById((item as HTMLElement).id);
       if (this.exitChildrenStackContext
-        && !(childDom.props.style.position || childDom.props.style.zIndex !== undefined)) {
+        && !childDom.props.style.zIndex !== undefined) {
         childDom.updateSelfStackContext();
       }
       if (!this.exitChildrenStackContext && childDom.updatedZIndex) {
