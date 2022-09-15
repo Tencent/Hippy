@@ -58,6 +58,7 @@ public class Component implements Drawable.Callback {
     private static final String PROPERTY_RIPPLE_RADIUS = "rippleRadius";
     private static final String PROPERTY_RIPPLE_BORDERLESS = "borderless";
     private int mComponentFlags = 0;
+    private int mZIndex = 0;
     @Nullable
     protected BackgroundDrawable mBackgroundDrawable;
     @Nullable
@@ -313,6 +314,14 @@ public class Component implements Drawable.Callback {
                 setGestureEnable((spans != null && spans.length > 0));
             }
         }
+    }
+
+    public int getZIndex() {
+        return mZIndex;
+    }
+
+    public void setZIndex(int zIndex) {
+        mZIndex = zIndex;
     }
 
     public void setBackgroundColor(@ColorInt int color) {

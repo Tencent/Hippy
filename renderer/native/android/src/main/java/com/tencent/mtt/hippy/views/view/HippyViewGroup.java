@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.view;
 
 import android.view.ViewGroup;
@@ -20,22 +21,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
-import com.tencent.mtt.hippy.uimanager.IHippyZIndexViewGroup;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
-import com.tencent.mtt.hippy.uimanager.ViewGroupDrawingOrderHelper;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewConfiguration;
 import com.tencent.renderer.component.FlatViewGroup;
 
-public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHippyZIndexViewGroup {
+public class HippyViewGroup extends FlatViewGroup implements HippyViewBase {
 
     private static final String TAG = "HippyViewGroup";
-    private final ViewGroupDrawingOrderHelper mDrawingOrderHelper;
     float mDownX = 0;
     float mDownY = 0;
     boolean isHandlePullUp = false;
@@ -45,7 +42,6 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHip
 
     public HippyViewGroup(Context context) {
         super(context);
-        mDrawingOrderHelper = new ViewGroupDrawingOrderHelper(this);
         setClipChildren(false);
     }
 
@@ -131,32 +127,5 @@ public class HippyViewGroup extends FlatViewGroup implements HippyViewBase, IHip
             result = isHandlePullUp;
         }
         return result;
-    }
-
-    @Override
-    public int getZIndexMappedChildIndex(int index) {
-        if (mDrawingOrderHelper.shouldEnableCustomDrawingOrder()) {
-            return mDrawingOrderHelper.getChildDrawingOrder(getChildCount(), index);
-        } else {
-            return index;
-        }
-    }
-
-    @Override
-    public void updateDrawingOrder() {
-        mDrawingOrderHelper.update();
-        invalidate();
-    }
-
-    @Override
-    public void addView(View child, int index) {
-        super.addView(child, index);
-        mDrawingOrderHelper.handleAddView(child);
-    }
-
-    @Override
-    public void removeView(View view) {
-        super.removeView(view);
-        mDrawingOrderHelper.handleRemoveView(view);
     }
 }

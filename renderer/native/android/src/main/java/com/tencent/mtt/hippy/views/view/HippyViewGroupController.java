@@ -33,7 +33,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.List;
-import java.util.WeakHashMap;
 
 @HippyController(name = HippyViewGroupController.CLASS_NAME, dispatchWithStandardType = true, supportFlatten = true)
 public class HippyViewGroupController extends HippyGroupController<HippyViewGroup> {
@@ -42,19 +41,6 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
     public static final String CLASS_NAME = "View";
     private static final String FUNC_SET_PRESSED = "setPressed";
     private static final String FUNC_SET_HOTSPOT = "setHotspot";
-    private static final WeakHashMap<View, Integer> mZIndexHash = new WeakHashMap<>();
-
-    public static void setViewZIndex(View view, int zIndex) {
-        mZIndexHash.put(view, zIndex);
-    }
-
-    public static void removeViewZIndex(View view) {
-        mZIndexHash.remove(view);
-    }
-
-    public static Integer getViewZIndex(View view) {
-        return mZIndexHash.get(view);
-    }
 
     @Override
     protected View createViewImpl(Context context) {
@@ -67,6 +53,7 @@ public class HippyViewGroupController extends HippyGroupController<HippyViewGrou
         viewGroup.setOverflow(overflow);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void dispatchFunction(@NonNull HippyViewGroup viewGroup, @NonNull String functionName,
             @NonNull HippyArray params) {

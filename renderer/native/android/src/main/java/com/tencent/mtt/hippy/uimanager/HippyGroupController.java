@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.uimanager;
 
 import android.view.ViewGroup;
@@ -20,7 +21,6 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
-@SuppressWarnings({"unused"})
 public abstract class HippyGroupController<T extends ViewGroup & HippyViewBase> extends
         HippyViewController<T> {
 

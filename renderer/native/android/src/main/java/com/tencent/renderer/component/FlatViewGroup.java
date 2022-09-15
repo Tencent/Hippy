@@ -72,10 +72,11 @@ public class FlatViewGroup extends ViewGroup {
 
     @Override
     protected int getChildDrawingOrder(int childCount, int i) {
+        int index = -1;
         if (mDispatchDrawHelper.isActive()) {
-            mDispatchDrawHelper.drawNext();
+            index = mDispatchDrawHelper.drawNext(this);
         }
-        return i;
+        return (index < 0 || index >= getChildCount()) ? i : index;
     }
 
     @Override
@@ -98,7 +99,7 @@ public class FlatViewGroup extends ViewGroup {
         mDispatchDrawHelper.onDispatchDrawStart(canvas, node);
         super.dispatchDraw(canvas);
         if (mDispatchDrawHelper.isActive()) {
-            mDispatchDrawHelper.drawNext();
+            mDispatchDrawHelper.drawNext(this);
         }
         mDispatchDrawHelper.onDispatchDrawEnd();
         canvas.restore();
