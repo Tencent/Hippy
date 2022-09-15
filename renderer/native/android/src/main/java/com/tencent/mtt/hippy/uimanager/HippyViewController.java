@@ -128,18 +128,6 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         view.setContentDescription(accessibilityLabel);
     }
 
-    /**
-     * zIndex
-     **/
-    @HippyControllerProps(name = NodeProps.Z_INDEX, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
-    public void setZIndex(T view, int zIndex) {
-        HippyViewGroupController.setViewZIndex(view, zIndex);
-        ViewParent parent = view.getParent();
-        if (parent instanceof IHippyZIndexViewGroup) {
-            ((IHippyZIndexViewGroup) parent).updateDrawingOrder();
-        }
-    }
-
     @HippyControllerProps(name = NodeProps.OPACITY, defaultType = HippyControllerProps.NUMBER, defaultNumber = 1.f)
     public void setOpacity(T view, float opacity) {
         view.setAlpha(opacity);
@@ -234,14 +222,14 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
     }
 
     @HippyControllerProps(name = NodeProps.ON_PRESS_IN, defaultType = HippyControllerProps.BOOLEAN)
-    public void setPressInable(T view, boolean flag) {
+    public void setPressIn(T view, boolean flag) {
         if (!handleGestureBySelf()) {
             setGestureType(view, NodeProps.ON_PRESS_IN, flag);
         }
     }
 
     @HippyControllerProps(name = NodeProps.ON_PRESS_OUT, defaultType = HippyControllerProps.BOOLEAN)
-    public void setPressOutable(T view, boolean flag) {
+    public void setPressOut(T view, boolean flag) {
         if (!handleGestureBySelf()) {
             setGestureType(view, NodeProps.ON_PRESS_OUT, flag);
         }

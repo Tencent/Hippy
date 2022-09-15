@@ -17,43 +17,63 @@
 package com.tencent.renderer.component;
 
 import android.graphics.Canvas;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.mtt.hippy.views.view.HippyViewGroupController;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class DispatchDrawHelper {
+
+    private int mDrawIndex;
     @Nullable
     private Canvas mCanvas;
-    private int mDrawIndex;
+    @Nullable
     private RenderNode mNode;
+    private final ArrayList<RenderNode> mDrawingOrder = new ArrayList<>();
 
-    public void onDispatchDrawStart(Canvas canvas, @Nullable RenderNode node) {
+    public void onDispatchDrawStart(Canvas canvas, @NonNull RenderNode node) {
         mCanvas = canvas;
         mNode = node;
         mDrawIndex = 0;
+        for (int i = 0; i < node.getChildCount(); i++) {
+            mDrawingOrder.add(node.getChildAt(i));
+        }
+        Collections.sort(mDrawingOrder, new Comparator<RenderNode>() {
+            @Override
+            public int compare(RenderNode n1, RenderNode n2) {
+                return n1.getZIndex() - n2.getZIndex();
+            }
+        });
     }
 
     public void onDispatchDrawEnd() {
         mCanvas = null;
         mNode = null;
+        mDrawingOrder.clear();
     }
 
     public boolean isActive() {
         return mCanvas != null && mNode != null && mDrawIndex < mNode.getChildCount();
     }
 
-    public void drawNext() {
+    public int drawNext(@NonNull ViewGroup parent) {
         if (mCanvas == null || mNode == null) {
-            return;
+            return -1;
         }
-        int size = mNode.getChildCount();
+        int size = mDrawingOrder.size();
         for (int i = mDrawIndex; i < size; i++) {
-            final RenderNode child = mNode.getChildAt(i);
+            final RenderNode child = mDrawingOrder.get(i);
             if (child == null) {
                 continue;
             }
             if (child.getHostView() != null) {
                 mDrawIndex = i + 1;
-                return;
+                return parent.indexOfChild(child.getHostView());
             }
             Component component = child.getComponent();
             if (component != null) {
@@ -64,5 +84,6 @@ public class DispatchDrawHelper {
             }
         }
         mDrawIndex = size;
+        return -1;
     }
 }

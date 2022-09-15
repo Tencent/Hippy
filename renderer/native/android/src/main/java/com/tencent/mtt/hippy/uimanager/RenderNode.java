@@ -143,6 +143,13 @@ public class RenderNode {
         return mComponent;
     }
 
+    public int getZIndex() {
+        if (mComponent != null) {
+            return mComponent.getZIndex();
+        }
+        return 0;
+    }
+
     @Nullable
     public RenderNode getParent() {
         return mParent;

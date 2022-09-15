@@ -43,6 +43,11 @@ public class ComponentController {
     private static final String BORDER_STYLE_DOTTED = "dotted";
     private static final String BORDER_STYLE_DASHED = "dashed";
 
+    @HippyControllerProps(name = NodeProps.Z_INDEX, defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)
+    public void setZIndex(@NonNull Component component, int zIndex) {
+        component.setZIndex(zIndex);
+    }
+
     @HippyControllerProps(name = NodeProps.BACKGROUND_COLOR, defaultType = HippyControllerProps.NUMBER, defaultNumber = Color.TRANSPARENT)
     public void setBackground(@NonNull Component component, @ColorInt int backgroundColor) {
         component.setBackgroundColor(backgroundColor);
