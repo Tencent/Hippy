@@ -106,7 +106,6 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
       options.staticRenderFns = staticRenderFns;
     }
   }
-
   return mountComponent(this, el, hydrating);
 };
 
@@ -131,7 +130,7 @@ Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   });
 
   // Register the entry point into Hippy
-  // The callback will be execute when Native trigger loadInstance
+  // The callback will be executed when Native trigger loadInstance
   // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;

@@ -26,13 +26,15 @@
  */
 
 import Native, { UIManagerModule } from '../../runtime/native';
-import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME } from '../../runtime/constants';
+import { GLOBAL_STYLE_NAME, GLOBAL_DISPOSE_STYLE_NAME, ROOT_VIEW_ID } from '../../runtime/constants';
 import {
+  isDev,
   getApp,
   trace,
   warn,
   deepCopy,
   isFunction,
+  isScopedEnabled,
   capitalizeFirstLetter,
   convertImageLocalPath,
 } from '../../util';
@@ -315,6 +317,17 @@ function getTargetNodeAttributes(targetNode) {
   }
 }
 
+function isStyleMatched(matchedSelector, targetNode) {
+  if (!isScopedEnabled()) return true;
+  if (!targetNode || !matchedSelector) return false;
+  const nodeScopeId = targetNode.styleScopeId;
+  // set scopeId as element node attribute for style matching
+  nodeScopeId && (targetNode.attributes[nodeScopeId] = true);
+  const isMatched = matchedSelector.match(targetNode);
+  nodeScopeId && delete targetNode.attributes[nodeScopeId];
+  return isMatched;
+}
+
 /**
  * Render Element to native
  */
@@ -333,6 +346,7 @@ function renderToNative(rootViewId, targetNode) {
   // Apply styles from CSS
   const matchedSelectors = getCssMap().query(targetNode);
   matchedSelectors.selectors.forEach((matchedSelector) => {
+    if (!isStyleMatched(matchedSelector, targetNode)) return;
     matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
       style[cssStyle.property] = cssStyle.value;
     });
@@ -371,7 +385,7 @@ function renderToNative(rootViewId, targetNode) {
     },
   };
   // Add nativeNode attributes info for Element debugging
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
     nativeNode.tagName = targetNode.tagName;
     nativeNode.props.attributes = getTargetNodeAttributes(targetNode);
   }
@@ -402,12 +416,11 @@ function renderToNativeWithChildren(rootViewId, node, callback) {
 }
 
 function isLayout(node, rootView) {
-  // First time init rootViewId always be 3.
-  if (node.nodeId === 3) {
+  if (node.nodeId === ROOT_VIEW_ID) {
     return true;
   }
   // Check the id is specific for rootView.
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDev()) {
     if (!rootView) {
       warn('rootView option is necessary for new HippyVue()');
     }

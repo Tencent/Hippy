@@ -286,10 +286,9 @@ Hippy has also made a lot of optimizations in the development experience, includ
 ## Communication
 
 * [Article Column](https://cloud.tencent.com/developer/column/84006)
-* QQ Group: [784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a)-click the link to start QQ to join, or copy the group number to join manually.
-* QQ Group QR code, use Mobile QQ scan to join.
+* WeCom Group, use WeChat or WeCom scan to join.
 
- ![QQ group QR code](assets/img/qq-group.png)
+ ![WeCom Group QR code](assets/img/wechat-group.jpeg)
 
 ## Summary
 
