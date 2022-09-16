@@ -199,7 +199,10 @@ class RenderManager
         InstanceLifeCycleDelegate,
         RenderExecutorDelegate,
         EventRenderDelegate
-    implements Destroyable, InstanceLifecycleEventListener, EngineLifecycleEventListener {
+    implements
+        Destroyable,
+        InstanceLifecycleEventListener,
+        EngineLifecycleEventListener {
   final List<RenderNode> _uiUpdateNodes = [];
   final List<RenderNode> _nullUiUpdateNodes = [];
   final List<int> _animationNodeIds = [];
@@ -247,7 +250,14 @@ class RenderManager
     }
   }
 
-  void createNode(int instanceId, int id, int pId, int childIndex, String name, VoltronMap? props) {
+  void createNode(
+    int instanceId,
+    int id,
+    int pId,
+    int childIndex,
+    String name,
+    VoltronMap? props,
+  ) {
     // 父节点为0标识根节点，根节点id跟instanceId相同
     if (pId == 0) {
       pId = instanceId;
@@ -371,7 +381,8 @@ class RenderManager
 
   RenderBox? getRenderBox(int? instanceId, int? nodeId) {
     final node = getNode(instanceId, nodeId);
-    final renderBox = node?.renderViewModel.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        node?.renderViewModel.currentContext?.findRenderObject() as RenderBox?;
 
     return renderBox;
   }
@@ -402,7 +413,8 @@ class RenderManager
       for (var moveId in moveIds) {
         var renderNode = controllerManager.findNode(instanceId, moveId);
         if (renderNode != null) {
-          LogUtils.dRender("move node ID:$moveId from ${parentNode.id} to ${newParent.id}");
+          LogUtils.dRender(
+              "move node ID:$moveId from ${parentNode.id} to ${newParent.id}");
           arrayList.add(renderNode);
           parentNode.removeChild(renderNode, needRemoveChild: false);
           newParent.addChild(renderNode, i);
@@ -495,7 +507,12 @@ class RenderManager
   }
 
   void dispatchUIFunction(
-      int instanceId, int id, String funcName, VoltronArray array, Promise promise) {
+    int instanceId,
+    int id,
+    String funcName,
+    VoltronArray array,
+    Promise promise,
+  ) {
     var renderNode = controllerManager.findNode(instanceId, id);
     if (renderNode != null) {
       renderNode.dispatchUIFunction(funcName, array, promise);
@@ -521,7 +538,7 @@ class RenderManager
   void doRenderBatch() {
     LogUtils.d(_kTag, "do batch size: ${_uiUpdateNodes.length}");
     _updateRenderNodes.addAll(_uiUpdateNodes);
-    _updateRenderNodes.addAll(_nullUiUpdateNodes);
+    // _updateRenderNodes.addAll(_nullUiUpdateNodes);
 
     for (var renderNode in _uiUpdateNodes) {
       renderNode.createViewModel();
@@ -560,7 +577,12 @@ class RenderManager
     }
 
     for (final id in _animationNodeIds) {
-      context.bridgeManager.execNativeEvent(id, id, RootNodeController.kDoFrame, {});
+      context.bridgeManager.execNativeEvent(
+        id,
+        id,
+        RootNodeController.kDoFrame,
+        {},
+      );
     }
   }
 

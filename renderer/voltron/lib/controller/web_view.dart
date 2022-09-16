@@ -64,8 +64,8 @@ class WebViewViewController extends BaseViewController<WebViewModel> {
 
   @ControllerProps(NodeProps.kSource)
   void setSource(WebViewModel renderViewModel, VoltronMap source) {
-    String src = source.get('uri');
-    if (src != renderViewModel.src) {
+    String? src = source.get<String>('uri');
+    if (src != null && src != renderViewModel.src) {
       renderViewModel.src = src;
     }
   }

@@ -126,18 +126,25 @@ class NetworkModule extends VoltronNativeModule {
   }
 
   void _voltronMapToRequestHeaders(
-      HttpRequest httpRequest, VoltronMap headers) {
+    HttpRequest httpRequest,
+    VoltronMap headers,
+  ) {
     for (var key in headers.keySet()) {
       final value = headers.get(key);
       if (value is VoltronArray) {
         var headerValueArray = <Object>[];
         for (var i = 0; i < value.size(); i++) {
-          headerValueArray.add(value.get(i));
+          var v = value.get<Object>(i);
+          if (v != null) {
+            headerValueArray.add(v);
+          }
         }
         httpRequest.addHeader(key, headerValueArray);
       } else {
-        LogUtils.e('NetworkModule _voltronMapToRequestHeaders',
-            "Unsupported Request Header Type, Header Field Should All be an Array!!!");
+        LogUtils.e(
+          'NetworkModule _voltronMapToRequestHeaders',
+          "Unsupported Request Header Type, Header Field Should All be an Array!!!",
+        );
       }
     }
   }

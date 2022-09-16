@@ -25,10 +25,13 @@ import 'package:sqflite/sqflite.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 typedef StorageCallback = void Function(
-    bool success, Object data, String errorMsg);
+  bool success,
+  Object data,
+  String errorMsg,
+);
 
 class StorageAdapter with Destroyable {
-  static final int kMaxSqlKeys = 999;
+  static const int kMaxSqlKeys = 999;
   late SQLiteHelper _sqLiteHelper;
 
   //
@@ -55,14 +58,19 @@ class StorageAdapter with Destroyable {
         var keyCount = min(keys.size() - keyStart, kMaxSqlKeys);
         var args = <String>[];
         for (var i = 0; i < keyCount; i++) {
-          args.add(keys.get(keyStart + i));
+          var keyStr = keys.get<String>(keyStart + i);
+          if (keyStr != null) {
+            args.add(keyStr);
+          }
         }
         var batch = database.batch();
         for (var arg in args) {
-          batch.query(_sqLiteHelper.getTableName(),
-              columns: columns,
-              where: '${SQLiteHelper.kColumnKey} = ?',
-              whereArgs: [arg]);
+          batch.query(
+            _sqLiteHelper.getTableName(),
+            columns: columns,
+            where: '${SQLiteHelper.kColumnKey} = ?',
+            whereArgs: [arg],
+          );
         }
         List<dynamic> result = await batch.commit();
         finalData.addAll(result);
@@ -71,7 +79,9 @@ class StorageAdapter with Destroyable {
       for (List list in finalData) {
         for (Map<String, dynamic> map in list) {
           kv = StorageKeyValue(
-              map[SQLiteHelper.kColumnKey], map[SQLiteHelper.kColumnValue]);
+            map[SQLiteHelper.kColumnKey],
+            map[SQLiteHelper.kColumnValue],
+          );
           resultList.add(kv);
         }
       }
@@ -129,12 +139,18 @@ class StorageAdapter with Destroyable {
         var keyCount = min(keys.size() - keyStart, kMaxSqlKeys);
         var args = <String>[];
         for (var i = 0; i < keyCount; i++) {
-          args.add(keys.get(keyStart + i));
+          var keyStr = keys.get<String>(keyStart + i);
+          if (keyStr != null) {
+            args.add(keyStr);
+          }
         }
         var batch = database.batch();
         for (var arg in args) {
-          batch.delete(_sqLiteHelper.getTableName(),
-              where: '${SQLiteHelper.kColumnKey} = ?', whereArgs: [arg]);
+          batch.delete(
+            _sqLiteHelper.getTableName(),
+            where: '${SQLiteHelper.kColumnKey} = ?',
+            whereArgs: [arg],
+          );
         }
         List<dynamic> result = await batch.commit();
         resultList.addAll(result);
@@ -179,12 +195,12 @@ class StorageKeyValue {
 }
 
 class SQLiteHelper {
-  static final String kColumnKey = "key";
-  static final String kColumnValue = "value";
-  static final String kTableStorage = "Voltron_engine_storage";
-  static final String kDatabaseName = "VoltronStorage";
-  static final int kDatabaseVersion = 1;
-  static final String kStatementCreateTable =
+  static const String kColumnKey = "key";
+  static const String kColumnValue = "value";
+  static const String kTableStorage = "Voltron_engine_storage";
+  static const String kDatabaseName = "VoltronStorage";
+  static const int kDatabaseVersion = 1;
+  static const String kStatementCreateTable =
       "CREATE TABLE IF NOT EXISTS $kTableStorage($kColumnKey TEXT PRIMARY KEY , $kColumnValue TEXT NOT NULL,UNIQUE($kColumnValue))";
   Database? _db;
 

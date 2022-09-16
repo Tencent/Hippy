@@ -19,20 +19,46 @@
 //
 
 import '../engine.dart';
+import '../inspector.dart';
 
 class DevServerHelper {
   final GlobalConfigs _configs;
   final String _serverHost;
+  final String? _remoteServerUrl;
+  late DevRemoteServerData _remoteServerData;
 
-  DevServerHelper(this._configs, this._serverHost);
+  DevServerHelper(this._configs, this._serverHost, this._remoteServerUrl) {
+    var remoteServerUrl = _remoteServerUrl;
+    if (remoteServerUrl != null) {
+      _remoteServerData = DevRemoteServerData(remoteServerUrl);
+    }
+  }
 
-  String createBundleURL(
-    String host,
-    String bundleName,
-    bool devMode,
-    bool hmr,
-    bool jsMinify,
-  ) {
+  String createBundleURL(String host,
+      String bundleName,
+      bool devMode,
+      bool hmr,
+      bool jsMinify,) {
     return "http://$host/$bundleName?dev=$devMode&hot=$hmr&minify=$jsMinify";
+  }
+
+  String createDebugURL(String host, String componentName, String clientId) {
+    var debugHost = host;
+    var debugClientId = clientId;
+    var debugHash = '';
+    var debugComponentName = componentName;
+    if (_remoteServerData.isValid()) {
+      debugHash = _remoteServerData.getVersionId()!;
+
+      var wsUrl = _remoteServerData.getWsUrl();
+      if (wsUrl != null && wsUrl != '') {
+        var split = wsUrl.contains('?') ? '&' : '?';
+        return "$wsUrl${split}role=android_client&clientId=$debugClientId&hash=$debugHash&contextName=$debugComponentName";
+      } else {
+        debugHost = _remoteServerData.getHost()!;
+      }
+    }
+    var debugServerHost = host;
+    return "ws://$debugHost/debugger-proxy?role=android_client&clientId=$debugClientId&hash=$debugHash&contextName=$debugComponentName";
   }
 }

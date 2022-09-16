@@ -24,7 +24,6 @@ import '../bridge.dart';
 import '../common.dart';
 import '../controller.dart';
 import '../engine.dart';
-import '../gesture.dart';
 import '../render.dart';
 import '../style.dart';
 import '../widget.dart';
@@ -39,7 +38,6 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
   final HashMap<int, RootWidgetViewModel> _instanceMap = HashMap();
   final HashMap<int, T> _loadContextMap = HashMap();
 
-  UIComponentEventHandler get eventHandler;
   double get fontScale;
   DimensionChecker get dimensionChecker;
 

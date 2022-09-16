@@ -34,6 +34,7 @@ class VoltronRenderBridgeManager implements Destroyable {
 
   bool _isBridgeInit = false;
   int _workerManagerId = 0;
+
   int get workerId => _workerManagerId;
   static HashMap<int, VoltronRenderBridgeManager> bridgeMap = HashMap();
 
@@ -73,7 +74,8 @@ class VoltronRenderBridgeManager implements Destroyable {
   }
 
   Future destroyNativeRenderManager() async {
-    await VoltronRenderApi.destroyNativeRender(_context.renderManager.getNativeId());
+    await VoltronRenderApi.destroyNativeRender(
+        _context.renderManager.getNativeId());
   }
 
   Future updateNodeSize(int rootId,
@@ -132,11 +134,86 @@ class VoltronRenderBridgeManager implements Destroyable {
     );
   }
 
-  Future<dynamic> execNativeEvent(int rootId, int id, String event, Object params) async {
+  Future<dynamic> execNativeEvent(
+    int rootId,
+    int id,
+    String event,
+    Object params,
+  ) async {
     if (!_isBridgeInit) {
       return false;
     }
-    await VoltronRenderApi.callNativeEvent(_context.renderManager.getNativeId(), rootId, id, event, params);
+    var convertParams = params;
+    if (params is VoltronMap) {
+      convertParams = params.toMap();
+    } else if (params is VoltronArray) {
+      convertParams = params.toList();
+    }
+    await VoltronRenderApi.callNativeEvent(
+      _context.renderManager.getNativeId(),
+      rootId,
+      id,
+      event,
+      true,
+      true,
+      convertParams,
+    );
+  }
+
+  /// Dispatch UI component event, such as click, doubleClick.
+  Future<dynamic> sendGestureEvent(
+    int rootId,
+    int id,
+    String event,
+    Object params,
+  ) async {
+    if (!_isBridgeInit) {
+      return false;
+    }
+    var convertParams = params;
+    if (params is VoltronMap) {
+      convertParams = params.toMap();
+    } else if (params is VoltronArray) {
+      convertParams = params.toList();
+    }
+    var lowerCaseEventName = event.toLowerCase();
+    await VoltronRenderApi.callNativeEvent(
+      _context.renderManager.getNativeId(),
+      rootId,
+      id,
+      lowerCaseEventName,
+      true,
+      true,
+      convertParams,
+    );
+  }
+
+  /// Dispatch UI component event, such as onLayout, onScroll, onInitialListReady.
+  Future<dynamic> sendComponentEvent(
+    int rootId,
+    int id,
+    String event,
+    Object params,
+  ) async {
+    if (!_isBridgeInit) {
+      return false;
+    }
+    var convertParams = params;
+    if (params is VoltronMap) {
+      convertParams = params.toMap();
+    } else if (params is VoltronArray) {
+      convertParams = params.toList();
+    }
+    var lowerCaseEventName = event.toLowerCase();
+    await VoltronRenderApi.callNativeEvent(
+      _context.renderManager.getNativeId(),
+      rootId,
+      id,
+      lowerCaseEventName,
+      false,
+      false,
+      convertParams,
+    );
   }
 
   @override
@@ -158,11 +235,20 @@ class VoltronRenderBridgeManager implements Destroyable {
     }
   }
 
-  int calculateNodeLayout(int instanceId, int nodeId, FlexLayoutParams layoutParams) {
+  int calculateNodeLayout(
+    int instanceId,
+    int nodeId,
+    FlexLayoutParams layoutParams,
+  ) {
     LogUtils.dBridge(
-        'call calculate node layout(page:$instanceId, node:$nodeId, layout:$layoutParams)');
+      'call calculate node layout(page:$instanceId, node:$nodeId, layout:$layoutParams)',
+    );
     if (_isBridgeInit) {
-      return _context.renderManager.calculateLayout(instanceId, nodeId, layoutParams);
+      return _context.renderManager.calculateLayout(
+        instanceId,
+        nodeId,
+        layoutParams,
+      );
     }
     return layoutParams.defaultOutput();
   }

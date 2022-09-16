@@ -35,7 +35,7 @@ bool isEmpty(String? value) {
   return value == null || value.isEmpty;
 }
 
-String objectToJson(Object obj) {
+String objectToJson(Object? obj) {
   if (obj is String) {
     if (isEmpty(obj)) {
       return "\"\"";
@@ -49,7 +49,7 @@ String objectToJson(Object obj) {
     sb.write("[");
     var length = obj.size();
     for (var i = 0; i < length; i++) {
-      sb.write(objectToJson(obj.get(i)));
+      sb.write(objectToJson(obj.get<Object>(i)));
       if (i < length - 1) {
         sb.write(",");
       }

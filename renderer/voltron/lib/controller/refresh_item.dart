@@ -31,14 +31,22 @@ class RefreshItemController
 
   @override
   RefreshWrapperItemRenderViewModel createRenderViewModel(
-      RenderNode node, RenderContext context) {
+    RenderNode node,
+    RenderContext context,
+  ) {
     return RefreshWrapperItemRenderViewModel(
-        node.id, node.rootId, node.name, context);
+      node.id,
+      node.rootId,
+      node.name,
+      context,
+    );
   }
 
   @override
   Widget createWidget(
-      BuildContext context, RefreshWrapperItemRenderViewModel viewModel) {
+    BuildContext context,
+    RefreshWrapperItemRenderViewModel viewModel,
+  ) {
     return RefreshWrapperItemWidget(viewModel);
   }
 

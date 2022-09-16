@@ -31,10 +31,4 @@ class ModalRenderNode extends RenderNode {
     ControllerManager controllerManager,
     VoltronMap? props,
   ) : super(id, className, root, controllerManager, props);
-
-  void addChild(RenderNode? node, int index) {
-    super.addChild(node, index);
-    // child.styleWidth = ScreenUtil.getInstance().screenWidth;
-    // child.styleHeight = ScreenUtil.getInstance().screenHeight;
-  }
 }

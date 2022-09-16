@@ -25,18 +25,18 @@ import 'package:voltron_renderer/voltron_renderer.dart';
 import 'js_dimension_checker.dart';
 import 'js_engine_context.dart';
 import 'js_instance_context.dart';
-import 'js_native_event_handler.dart';
 
 class JSRenderContext extends RenderContext<JSLoadInstanceContext> {
   final EngineContext _engineContext;
 
-  final UIComponentEventHandler _eventHandler;
   final JSDimensionChecker _dimensionChecker;
 
-  JSRenderContext(this._engineContext, int id,
-      List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor)
-      : _eventHandler = JSUIComponentEventHandler(_engineContext),
-        _dimensionChecker = JSDimensionChecker(_engineContext),
+  JSRenderContext(
+    this._engineContext,
+    int id,
+    List<ViewControllerGenerator>? generators,
+    EngineMonitor engineMonitor,
+  )   : _dimensionChecker = JSDimensionChecker(_engineContext),
         super(id, generators, engineMonitor);
 
   @override
@@ -52,9 +52,6 @@ class JSRenderContext extends RenderContext<JSLoadInstanceContext> {
 
   @override
   DimensionChecker get dimensionChecker => _dimensionChecker;
-
-  @override
-  UIComponentEventHandler get eventHandler => _eventHandler;
 
   @override
   double get fontScale =>
@@ -89,7 +86,9 @@ class JSRenderContext extends RenderContext<JSLoadInstanceContext> {
 
   @override
   void handleNativeException(Error error, bool haveCaught) {
-    _engineContext.globalConfigs.exceptionHandlerAdapter
-        ?.handleNativeException(error, haveCaught);
+    _engineContext.globalConfigs.exceptionHandlerAdapter?.handleNativeException(
+      error,
+      haveCaught,
+    );
   }
 }

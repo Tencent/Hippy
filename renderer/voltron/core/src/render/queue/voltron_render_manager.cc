@@ -185,8 +185,9 @@ void VoltronRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
 
 void VoltronRenderManager::CallEvent(
     std::weak_ptr<DomNode> dom_node, const std::string &name,
+    bool capture, bool bubble,
     const std::unique_ptr<EncodableValue> &params) {
-  RunCallEvent(dom_node, name, params);
+  RunCallEvent(dom_node, name, capture, bubble, params);
 }
 
 void VoltronRenderManager::AddEventListener(std::weak_ptr<RootNode> root_node,

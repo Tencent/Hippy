@@ -54,6 +54,8 @@ class EngineInitParams {
   // 可选参数 Server的Host。默认为"localhost:38989"。debugMode = true时有效
   String debugServerHost = "localhost:38989";
 
+  String? remoteServerUrl = "";
+
   // 可选参数 引擎模式 默认为NORMAL
   EngineMode engineMode = EngineMode.normal;
 

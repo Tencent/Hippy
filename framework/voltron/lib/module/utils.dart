@@ -38,8 +38,8 @@ class UtilsModule extends VoltronNativeModule {
     var nativeModuleMap = _context?.moduleManager.nativeModule;
     var jsModuleMap = _context?.moduleManager.jsModule;
     var controllerGeneratorMap = _context?.moduleManager.controllerGenerator;
-    List? checkModuleList = message.get('module')?.toList();
-    List? checkComponentList = message.get('component')?.toList();
+    List? checkModuleList = message.get<VoltronArray>('module')?.toList();
+    List? checkComponentList = message.get<VoltronArray>('component')?.toList();
     var result = VoltronMap();
 
     if (checkModuleList != null && checkModuleList.isNotEmpty) {

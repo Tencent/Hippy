@@ -308,7 +308,7 @@ class _Builder {
       var arraySize = paramsArray.size();
       writeUnsignedInt(arraySize);
       for (var i = 0; i < arraySize; i++) {
-        Object element = paramsArray.get(i);
+        Object? element = paramsArray.get<Object>(i);
         writeObject(element);
       }
       refStack.remove(refStack.length - 1);

@@ -52,7 +52,7 @@ public:
                        const std::string &name, const DomArgument &param,
                        uint32_t cb_id);
   static void RunCallEvent(const std::weak_ptr<DomNode> &dom_node,
-                    const std::string &name,
+                    const std::string &name, bool capture, bool bubble,
                     const std::unique_ptr<EncodableValue> &params);
 
   void RunAddEventListener(uint32_t root_id, const uint32_t &node_id, const String &event_name);

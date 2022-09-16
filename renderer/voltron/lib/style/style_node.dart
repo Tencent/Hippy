@@ -216,19 +216,19 @@ class StyleNode extends FlexNode with StyleMethodPropConsumer {
 class FloatStyleMethodProp extends StyleMethodProp {
   FloatStyleMethodProp(String type, [double defaultValue = undefined])
       : super(((consumer, value) {
-          if (consumer is StyleNode && value is double) {
-            consumer.setPropFloat(type, value);
-          }
-        }), defaultValue);
+    if (consumer is StyleNode && value is double) {
+      consumer.setPropFloat(type, value);
+    }
+  }), defaultValue);
 }
 
 class StringStyleMethodProp extends StyleMethodProp {
   StringStyleMethodProp(String type, [String defaultValue = ""])
       : super(((consumer, value) {
-          if (consumer is StyleNode) {
-            consumer.setPropString(type, value?.toString());
-          }
-        }), defaultValue);
+    if (consumer is StyleNode) {
+      consumer.setPropString(type, value?.toString());
+    }
+  }), defaultValue);
 }
 
 class StyleMethodPropProvider extends MethodPropProvider {
@@ -275,15 +275,15 @@ class StyleMethodPropProvider extends MethodPropProvider {
     pushStringMethodProp(NodeProps.kJustifyContent);
     pushStringMethodProp(NodeProps.kOverflow);
     pushStringMethodProp(NodeProps.kDisplay);
-    pushStringMethodProp(NodeProps.kWhiteSpace);
 
     pushMethodProp(
-        NodeProps.kOnLayout,
-        StyleMethodProp((consumer, value) {
-          if (consumer is StyleNode && value is bool) {
-            consumer.shouldNotifyOnLayout = value;
-          }
-        }, false));
+      NodeProps.kOnLayout,
+      StyleMethodProp((consumer, value) {
+        if (consumer is StyleNode && value is bool) {
+          consumer.shouldNotifyOnLayout = value;
+        }
+      }, false),
+    );
   }
 
   void pushFloatMethodProp(String type) {

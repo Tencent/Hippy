@@ -139,7 +139,6 @@ class NodeProps {
   static const String kFontWeight = "fontWeight";
   static const String kFontStyle = "fontStyle";
   static const String kFontFamily = "fontFamily";
-  static const String kTextOverflow = "textOverflow";
   static const String kLineHeight = "lineHeight";
   static const String kNumberOfLines = "numberOfLines";
   static const String kEllipsizeMode = "ellipsizeMode";
@@ -148,7 +147,6 @@ class NodeProps {
   static const String kResizeMethod = "resizeMethod";
   static const String kText = "text";
   static const String kTextAlign = "textAlign";
-  static const String kWhiteSpace = "whiteSpace";
   static const String kTextAlignVertical = "textAlignVertical";
   static const String kTextDecorationLine = "textDecorationLine";
   static const String kTextDecorationStyle = "textDecorationStyle";
@@ -191,8 +189,6 @@ class NodeProps {
   static const String kOnLoadStart = "onLoadStart";
   static const String kOnError = "onError";
   static const String kOnProgress = "onProgress";
-
-  static const String kOnRefresh = "onRefresh";
 
   static const String kTransform = "transform";
   static const String kTransformOrigin = "transformOrigin";

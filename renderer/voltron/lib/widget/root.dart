@@ -277,7 +277,6 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     WidgetsBinding.instance.addPostFrameCallback(doFirstFrame);
     viewModel._wrapper = () => context;
     hasDispose = false;
-    AnimationController controller = AnimationController(vsync: this);
   }
 
   @override

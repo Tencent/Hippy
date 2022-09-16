@@ -45,8 +45,10 @@ class ImageWidget extends FRStatefulWidget {
 class _ImageWidgetState extends FRState<ImageWidget> {
   @override
   Widget build(BuildContext context) {
-    LogUtils.dWidget("ImageWidget",
-        "image widget:(id: ${widget.viewModel.id}, name: ${widget.viewModel.name}, parent: ${widget.viewModel.parent?.id})");
+    LogUtils.dWidget(
+      "ImageWidget",
+      "image widget:(id: ${widget.viewModel.id}, name: ${widget.viewModel.name}, parent: ${widget.viewModel.parent?.id})",
+    );
     return ChangeNotifierProvider.value(
       value: widget.viewModel,
       child: Consumer<ImageRenderViewModel>(
@@ -149,39 +151,40 @@ class CapInsets {
 }
 
 class ImageEventDispatcher {
+  final int _rootId;
   final int _id;
   final RenderContext _context;
   final HashSet<String> _gestureTypes = HashSet();
 
-  ImageEventDispatcher(this._id, this._context);
+  ImageEventDispatcher(this._rootId, this._id, this._context);
 
   void handleOnLoad() {
     if (_needHandle(NodeProps.kOnLoad)) {
-      _handleEvent(NodeProps.kOnLoad, VoltronMap());
+      _handleEvent("load", VoltronMap());
     }
   }
 
   void handleOnLoadEnd() {
     if (_needHandle(NodeProps.kOnLoadEnd)) {
-      _handleEvent(NodeProps.kOnLoadEnd, VoltronMap());
+      _handleEvent("loadEnd", VoltronMap());
     }
   }
 
   void handleOnLoadStart() {
     if (_needHandle(NodeProps.kOnLoadStart)) {
-      _handleEvent(NodeProps.kOnLoadStart, VoltronMap());
+      _handleEvent("loadStart", VoltronMap());
     }
   }
 
   void handleOnError() {
     if (_needHandle(NodeProps.kOnError)) {
-      _handleEvent(NodeProps.kOnError, VoltronMap());
+      _handleEvent("error", VoltronMap());
     }
   }
 
   void handleOnProgress(VoltronMap params) {
     if (_needHandle(NodeProps.kOnProgress)) {
-      _handleEvent(NodeProps.kOnProgress, params);
+      _handleEvent("progress", params);
     }
   }
 
@@ -198,6 +201,6 @@ class ImageEventDispatcher {
   }
 
   void _handleEvent(String type, VoltronMap params) {
-    _context.eventHandler.receiveUIComponentEvent(_id, type, params);
+    _context.bridgeManager.sendComponentEvent(_rootId, _id, type, params);
   }
 }

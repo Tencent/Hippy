@@ -54,6 +54,9 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   void SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler);
   void SetContextName(const std::string& context_name);
   void SetRootNode(std::weak_ptr<RootNode> weak_root_node);
+  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() {
+    return devtools_service_->GetNotificationCenter();
+  }
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);

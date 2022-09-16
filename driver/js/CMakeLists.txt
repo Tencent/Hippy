@@ -37,6 +37,9 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 if (ENABLE_INSPECTOR)
   target_compile_definitions(${PROJECT_NAME} PUBLIC "ENABLE_INSPECTOR")
 endif ()
+if (V8_WITHOUT_INSPECTOR)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
+endif()
 # endregion
 
 # region vm

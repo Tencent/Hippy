@@ -48,6 +48,6 @@ class ListPullHeaderViewModel extends GroupViewModel {
   int get hashCode => super.hashCode;
 
   void sendEvent(String eventName, VoltronMap params) {
-    context.eventHandler.receiveUIComponentEvent(id, eventName, params);
+    context.bridgeManager.sendComponentEvent(rootId, id, eventName, params);
   }
 }
