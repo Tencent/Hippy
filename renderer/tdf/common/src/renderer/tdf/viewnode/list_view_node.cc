@@ -121,11 +121,7 @@ void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
     if (it->second->IsString()) {
       view_type_ = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
-    } else if (it->second->IsInt32()) {
-      view_type_ = it->second->ToInt32Checked();
-    } else if (it->second->IsUInt32()) {
-      view_type_ = it->second->ToUint32Checked();
-    } else if (it->second->IsDouble()) {
+    } else if (it->second->IsNumber()) {
       view_type_ = static_cast<int64_t>(it->second->ToDoubleChecked());
     }
   }
