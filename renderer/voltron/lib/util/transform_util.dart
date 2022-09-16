@@ -59,15 +59,15 @@ class TransformUtil {
     MatrixUtil.resetIdentityMatrix(result);
     var size = transformList.size();
     for (var transformIdx = 0; transformIdx < size; transformIdx++) {
-      VoltronMap transform = transformList.get(transformIdx);
-      if (transform.size() > 0) {
+      VoltronMap? transform = transformList.get<VoltronMap>(transformIdx);
+      if (transform != null && transform.size() > 0) {
         for (var transformType in transform.keySet()) {
           MatrixUtil.resetIdentityMatrix(helperMatrix);
-          Object value = transform.get(transformType);
+          Object? value = transform.get<Object>(transformType);
           if (transformType == "matrix" && value is VoltronArray) {
             var matrix = value;
             for (var i = 0; i < 16; i++) {
-              Object matrixValue = matrix.get(i);
+              Object? matrixValue = matrix.get<Object>(i);
               if (matrixValue is num) {
                 helperMatrix[i] = matrixValue.toDouble();
               } else {
@@ -98,21 +98,21 @@ class TransformUtil {
             var y = 0.0;
             var z = 0.0;
             if (value.size() > 0) {
-              Object tranX = value.get(0);
+              Object? tranX = value.get<Object>(0);
               if (tranX is num) {
                 x = tranX.toDouble();
               }
             }
 
             if (value.size() > 1) {
-              Object tranY = value.get(1);
+              Object? tranY = value.get<Object>(1);
               if (tranY is num) {
                 y = tranY.toDouble();
               }
             }
 
             if (value.size() > 2) {
-              Object tranZ = value.get(1);
+              Object? tranZ = value.get<Object>(1);
               if (tranZ is num) {
                 z = tranZ.toDouble();
               }

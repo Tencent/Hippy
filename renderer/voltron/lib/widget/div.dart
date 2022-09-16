@@ -19,6 +19,7 @@
 //
 
 import 'dart:developer';
+import 'dart:ui' as ui show window;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -208,11 +209,22 @@ class _BoxWidgetState extends FRState<BoxWidget> {
       );
     }
 
-    current = SizedBox(
-      width: width,
-      height: height,
-      child: current,
-    );
+    /// if scrollView or listView, make input can auto scroll
+    if (widget._viewModel is ScrollViewRenderViewModel || widget._viewModel is ListViewModel) {
+      current = SizedBox(
+        width: width,
+        height: height! - MediaQueryData.fromWindow(ui.window).viewInsets.bottom,
+        child: current,
+      );
+    } else {
+      current = SizedBox(
+        width: width,
+        height: height,
+        child: current,
+      );
+    }
+
+
 
     /// 4. use UnconstrainedBox make child is able to bugger than parent
     /// exclude waterfallItem (waterfallItem has tight constraints)

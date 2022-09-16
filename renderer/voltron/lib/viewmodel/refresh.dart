@@ -83,7 +83,7 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
   int get hashCode => _content.hashCode | bounceTime.hashCode | preloadSize.hashCode;
 
   RefreshEventDispatcher createRefreshDispatcher() {
-    return RefreshEventDispatcher(id, context);
+    return RefreshEventDispatcher(rootId, id, context);
   }
 
   @override

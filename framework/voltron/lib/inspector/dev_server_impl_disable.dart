@@ -26,25 +26,17 @@ import '../inspector.dart';
 
 class DevServerImplDisable implements DevServerInterface {
   late DevServerHelper _devServerHelper;
-  late DevServerConfig _devServerConfig;
 
   DevServerImplDisable(
     GlobalConfigs configs,
     String serverHost,
   ) {
-    _devServerHelper = DevServerHelper(configs, serverHost);
-    _devServerConfig = DevServerConfig(serverHost);
+    _devServerHelper = DevServerHelper(configs, serverHost, null);
   }
 
   @override
   String createResourceUrl(String resName) {
-    return _devServerHelper.createBundleURL(
-      _devServerConfig.getServerHost(),
-      resName,
-      false,
-      false,
-      false,
-    );
+    return '';
   }
 
   @override
@@ -61,4 +53,10 @@ class DevServerImplDisable implements DevServerInterface {
 
   @override
   void reload() {}
+
+  @override
+  String createDebugUrl(
+      String host, String? componentName, String debugClientId) {
+    return '';
+  }
 }

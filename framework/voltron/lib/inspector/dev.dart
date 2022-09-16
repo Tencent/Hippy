@@ -35,8 +35,9 @@ class DevSupportManager {
     bool enableDev,
     String serverHost,
     String bundleName,
+    String remoteServerUrl
   ) {
-    _devImp = DevFactory.create(configs, enableDev, serverHost, bundleName);
+    _devImp = DevFactory.create(configs, enableDev, serverHost, bundleName, remoteServerUrl);
     _supportDev = enableDev;
   }
 
@@ -58,6 +59,10 @@ class DevSupportManager {
 
   String createResourceUrl(String resName) {
     return _devImp.createResourceUrl(resName);
+  }
+
+  String createDebugUrl(String host) {
+    return _devImp.createDebugUrl(host, null, _uuid.toString());
   }
 
   void handleException(JsError error) {

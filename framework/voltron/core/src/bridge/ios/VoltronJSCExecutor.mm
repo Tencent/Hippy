@@ -101,6 +101,7 @@ struct RandomAccessBundleData {
 
 - (instancetype)initWithExecurotKey:(NSString *)execurotkey
                        globalConfig:(NSString *)globalConfig
+                      workerManager:(const std::shared_ptr<footstone::WorkerManager>&)workerManager
                               wsURL:(NSString *)wsURL
                           debugMode:(BOOL)debugMode
                          completion:(VoltronFrameworkInitCallback)completion{
@@ -119,7 +120,7 @@ struct RandomAccessBundleData {
         self.pScope = scope;
     #if ENABLE_INSPECTOR
         // create devtools
-        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String]);
+        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], workerManager);
         devtools_data_source->SetRuntimeDebugMode(debugMode);
         self.pScope->SetDevtoolsDataSource(devtools_data_source);
     #endif
@@ -451,8 +452,13 @@ static void installBasicSynchronousHooksOnContext(JSContext *context) {
         return;
     }
 #ifdef ENABLE_INSPECTOR
-    bool reload = self.bridge.invalidateReason == HippyInvalidateReasonReload ? true : false;
-    self.pScope->GetDevtoolsDataSource()->Destroy(reload);
+    auto devtools_data_source = self.pScope->GetDevtoolsDataSource();
+        if (devtools_data_source) {
+            // todo 调试模式下这里需要支持reload
+//            bool reload = self.bridge.invalidateReason == NativeRenderInvalidateReasonReload ? true : false;
+//            devtools_data_source->Destroy(reload);
+            devtools_data_source->Destroy(false);
+        }
 #endif
     VoltronLogInfo(@"[Hippy_OC_Log][Life_Circle],VoltronJSCExecutor invalide %p", self);
     _valid = NO;

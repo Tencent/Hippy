@@ -74,7 +74,7 @@ class VoltronMap {
 
   Map<String, Object?> get data => _data;
 
-  T? get<T>(String key) {
+  T? get<T extends Object>(String key) {
     dynamic obj = _data[key];
     return obj is T ? obj : null;
   }

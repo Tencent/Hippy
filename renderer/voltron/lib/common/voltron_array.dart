@@ -20,6 +20,8 @@
 
 import 'dart:typed_data';
 
+import 'package:voltron_renderer/common.dart';
+
 import 'voltron_map.dart';
 
 class VoltronArray {
@@ -27,7 +29,7 @@ class VoltronArray {
 
   int size() => _data.length;
 
-  T? get<T>(int index) {
+  T? get<T extends Object>(int index) {
     if (index >= 0 && index < _data.length) {
       dynamic obj = _data[index];
       if (obj is T) {
@@ -40,7 +42,7 @@ class VoltronArray {
 
   VoltronArray? getArray(int index) {
     if (_data.length > index) {
-      Object value = get(index);
+      var value = get<VoltronArray>(index);
       if (value is VoltronArray) {
         return value;
       }
@@ -50,7 +52,7 @@ class VoltronArray {
 
   String? getString(int index) {
     if (_data.length > index) {
-      return get(index).toString();
+      return get<String>(index);
     }
     return null;
   }
@@ -64,7 +66,7 @@ class VoltronArray {
   List<dynamic> get data => _data;
 
   /// 获取数组中倒数第n项元素(order: 第n项)(默认：order = 1，返回倒数第一项的元素)
-  T? getLastItemByOrder<T>([int order = 1]) {
+  T? getLastItemByOrder<T extends Object>([int order = 1]) {
     return get<T>(size() - order);
   }
 

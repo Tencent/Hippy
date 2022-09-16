@@ -159,12 +159,16 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   }
 
   // ignore: always_declare_return_types, type_annotate_public_apis
+  @override
   get data => _data;
 
+  @override
   set data(dynamic data) => {_data = data};
 
+  @override
   double get flexBasis => style.flexBasis;
 
+  @override
   set flexBasis(double flexBasis) => {style.flexBasis = flexBasis};
 
   FlexNodeStyle get style => _flexNodeStyle;

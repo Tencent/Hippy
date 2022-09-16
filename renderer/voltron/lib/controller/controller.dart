@@ -26,16 +26,30 @@ import '../voltron_renderer.dart';
 abstract class BaseViewController<T extends RenderViewModel>
     extends VoltronViewController<T, RenderNode> {
   @override
-  RenderNode createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
-      ControllerManager controllerManager, bool lazy) {
-    return RenderNode(id, name, tree, controllerManager, props);
+  RenderNode createRenderNode(
+    int id,
+    VoltronMap? props,
+    String name,
+    RenderTree tree,
+    ControllerManager controllerManager,
+    bool lazy,
+  ) {
+    return RenderNode(
+      id,
+      name,
+      tree,
+      controllerManager,
+      props,
+    );
   }
 }
 
-abstract class VoltronViewController<T extends RenderViewModel, R extends RenderNode>
-    implements ControllerMethodPropConsumer<T> {
+abstract class VoltronViewController<T extends RenderViewModel,
+    R extends RenderNode> implements ControllerMethodPropConsumer<T> {
   @override
   String get name;
+
+  static const String kMeasureInWindow = "measureInWindow";
 
   @override
   ControllerMethodPropProvider generateProvider() {
@@ -47,43 +61,60 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
 
   Map<String, ControllerMethodProp> get _baseRegisteredMethodProp => {
         NodeProps.kDisplay: ControllerMethodProp(setDisplay, ''),
-        NodeProps.kOverflow:
-            ControllerMethodProp(setOverflow, enumValueToString(ContainOverflow.visible)),
+        NodeProps.kOverflow: ControllerMethodProp(
+            setOverflow, enumValueToString(ContainOverflow.visible)),
         NodeProps.kTransform: ControllerMethodProp(setTransform, null),
-        NodeProps.kTransformOrigin: ControllerMethodProp(setTransformOrigin, null),
-        NodeProps.kPropAccessibilityLabel: ControllerMethodProp(setAccessibilityLabel, ""),
+        NodeProps.kTransformOrigin:
+            ControllerMethodProp(setTransformOrigin, null),
+        NodeProps.kPropAccessibilityLabel:
+            ControllerMethodProp(setAccessibilityLabel, ""),
         NodeProps.kBackgroundColor:
             ControllerMethodProp(setBackgroundColor, Colors.transparent.value),
-        NodeProps.kBackgroundImage: ControllerMethodProp(setBackgroundImage, null),
-        NodeProps.kBackgroundSize:
-            ControllerMethodProp(setBackgroundImageSize, enumValueToString(ImageResizeMode.auto)),
-        NodeProps.kBackgroundPositionX: ControllerMethodProp(setBackgroundImagePositionX, ''),
-        NodeProps.kBackgroundPositionY: ControllerMethodProp(setBackgroundImagePositionY, ''),
-        NodeProps.kBackgroundRepeat: ControllerMethodProp(setBackgroundImageRepeat, ''),
+        NodeProps.kBackgroundImage:
+            ControllerMethodProp(setBackgroundImage, null),
+        NodeProps.kBackgroundSize: ControllerMethodProp(
+            setBackgroundImageSize, enumValueToString(ImageResizeMode.auto)),
+        NodeProps.kBackgroundPositionX:
+            ControllerMethodProp(setBackgroundImagePositionX, ''),
+        NodeProps.kBackgroundPositionY:
+            ControllerMethodProp(setBackgroundImagePositionY, ''),
+        NodeProps.kBackgroundRepeat:
+            ControllerMethodProp(setBackgroundImageRepeat, ''),
         NodeProps.kOpacity: ControllerMethodProp(setOpacity, 1.0),
-        NodeProps.kNextFocusDownId: ControllerMethodProp(setNextFocusDownId, 0.0),
+        NodeProps.kNextFocusDownId:
+            ControllerMethodProp(setNextFocusDownId, 0.0),
         NodeProps.kNextFocusUpId: ControllerMethodProp(setNextFocusUpId, 0.0),
-        NodeProps.kNextFocusLeftId: ControllerMethodProp(setNextFocusLeftId, 0.0),
-        NodeProps.kNextFocusRightId: ControllerMethodProp(setNextFocusRightId, 0.0),
+        NodeProps.kNextFocusLeftId:
+            ControllerMethodProp(setNextFocusLeftId, 0.0),
+        NodeProps.kNextFocusRightId:
+            ControllerMethodProp(setNextFocusRightId, 0.0),
         NodeProps.kBorderRadius: ControllerMethodProp(setBorderRadius, 0.0),
-        NodeProps.kBorderTopLeftRadius: ControllerMethodProp(setTopLeftBorderRadius, 0.0),
-        NodeProps.kBorderTopRightRadius: ControllerMethodProp(setTopRightBorderRadius, 0.0),
-        NodeProps.kBorderBottomRightRadius: ControllerMethodProp(setBottomRightBorderRadius, 0.0),
-        NodeProps.kBorderBottomLeftRadius: ControllerMethodProp(setBottomLeftBorderRadius, 0.0),
+        NodeProps.kBorderTopLeftRadius:
+            ControllerMethodProp(setTopLeftBorderRadius, 0.0),
+        NodeProps.kBorderTopRightRadius:
+            ControllerMethodProp(setTopRightBorderRadius, 0.0),
+        NodeProps.kBorderBottomRightRadius:
+            ControllerMethodProp(setBottomRightBorderRadius, 0.0),
+        NodeProps.kBorderBottomLeftRadius:
+            ControllerMethodProp(setBottomLeftBorderRadius, 0.0),
         NodeProps.kBorderWidth: ControllerMethodProp(setBorderWidth, 0.0),
-        NodeProps.kBorderLeftWidth: ControllerMethodProp(setLeftBorderWidth, 0.0),
+        NodeProps.kBorderLeftWidth:
+            ControllerMethodProp(setLeftBorderWidth, 0.0),
         NodeProps.kBorderTopWidth: ControllerMethodProp(setTopBorderWidth, 0.0),
-        NodeProps.kBorderRightWidth: ControllerMethodProp(setRightBorderWidth, 0.0),
-        NodeProps.kBorderBottomWidth: ControllerMethodProp(setBottomBorderWidth, 0.0),
-        NodeProps.kBorderColor: ControllerMethodProp(setBorderColor, Colors.transparent.value),
+        NodeProps.kBorderRightWidth:
+            ControllerMethodProp(setRightBorderWidth, 0.0),
+        NodeProps.kBorderBottomWidth:
+            ControllerMethodProp(setBottomBorderWidth, 0.0),
+        NodeProps.kBorderColor:
+            ControllerMethodProp(setBorderColor, Colors.transparent.value),
         NodeProps.kBorderLeftColor:
             ControllerMethodProp(setBorderLeftColor, Colors.transparent.value),
         NodeProps.kBorderTopColor:
             ControllerMethodProp(setBorderTopColor, Colors.transparent.value),
         NodeProps.kBorderRightColor:
             ControllerMethodProp(setBorderRightColor, Colors.transparent.value),
-        NodeProps.kBorderBottomColor:
-            ControllerMethodProp(setBorderBottomColor, Colors.transparent.value),
+        NodeProps.kBorderBottomColor: ControllerMethodProp(
+            setBorderBottomColor, Colors.transparent.value),
         NodeProps.kBorderStyle: ControllerMethodProp(setBorderStyle, ''),
         NodeProps.kBoxShadow: ControllerMethodProp(setBoxShadow, null),
         NodeProps.kFocusable: ControllerMethodProp(setFocusable, false),
@@ -96,7 +127,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
         NodeProps.shadowOpacity: ControllerMethodProp(setShadowOpacity, 0.0),
         NodeProps.shadowRadius: ControllerMethodProp(setShadowRadius, 0.0),
         NodeProps.shadowSpread: ControllerMethodProp(setShadowSpread, 0.0),
-        NodeProps.shadowColor: ControllerMethodProp(setShadowColor, Colors.transparent.value),
+        NodeProps.shadowColor:
+            ControllerMethodProp(setShadowColor, Colors.transparent.value),
       };
 
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp;
@@ -188,7 +220,8 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   @ControllerProps(NodeProps.kBackgroundImage)
   void setBackgroundImage(T viewModel, Object data) {
     if (data is String) {
-      viewModel.backgroundImage = viewModel.context.convertRelativePath(viewModel.rootId, data);
+      viewModel.backgroundImage =
+          viewModel.context.convertRelativePath(viewModel.rootId, data);
     } else {
       viewModel.backgroundImage = data;
     }
@@ -423,7 +456,12 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
   // @param functionName 函数名
   // @param array 函数参数
   // @param promise 回调
-  void dispatchFunction(T viewModel, String functionName, VoltronArray array, {Promise? promise}) {
+  void dispatchFunction(
+    T viewModel,
+    String functionName,
+    VoltronArray array, {
+    Promise? promise,
+  }) {
     switch (functionName) {
       case DevtoolsUtil.kGetScreenShot:
         DevtoolsUtil.getScreenShot(viewModel, array, promise);
@@ -434,8 +472,49 @@ abstract class VoltronViewController<T extends RenderViewModel, R extends Render
       case DevtoolsUtil.kRemoveFrameCallback:
         DevtoolsUtil.removeFrameCallback(viewModel, array, promise);
         break;
+      case kMeasureInWindow:
+        measureInWindow(viewModel, array, promise);
+        break;
       default:
         break;
+    }
+  }
+
+  void measureInWindow(
+    T viewModel,
+    VoltronArray array,
+    Promise? promise,
+  ) {
+    if (promise == null) return;
+    var renderObject =
+        viewModel.currentContext?.findRenderObject() as RenderBox?;
+    if (renderObject == null) {
+      promise.reject("this view is null");
+    } else {
+      var position = renderObject.localToGlobal(Offset.zero);
+      var size = renderObject.size;
+
+      var x = position.dx;
+      var y = position.dy;
+      var width = size.width;
+      var height = size.height;
+
+      var statusBarHeight = ScreenUtil.getInstance().statusBarHeight;
+      var bottomBarHeight = ScreenUtil.getInstance().bottomBarHeight;
+      // We need to remove the status bar from the height.  getLocationOnScreen will include the
+      // status bar.
+      if (statusBarHeight > 0) {
+        y -= statusBarHeight;
+      }
+
+      var paramsMap = VoltronMap();
+      paramsMap.push("x", x);
+      paramsMap.push("y", y);
+      paramsMap.push("width", width);
+      paramsMap.push("height", height);
+      paramsMap.push("statusBarHeight", statusBarHeight);
+      paramsMap.push("bottomBarHeight", bottomBarHeight);
+      promise.resolve(paramsMap);
     }
   }
 

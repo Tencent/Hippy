@@ -110,8 +110,8 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
     }
 
     if (functionName == kFuncSetPage) {
-      Object selected = array.get(0);
-      if (selected is int && selected >= 0 && selected < viewModel.children.length) {
+      int? selected = array.get<int>(0);
+      if (selected != null && selected >= 0 && selected < viewModel.children.length) {
         viewModel.pageController?.animateToPage(
           selected,
           duration: const Duration(milliseconds: 300),
@@ -119,8 +119,8 @@ class ViewPagerController extends BaseGroupController<ViewPagerRenderViewModel> 
         );
       }
     } else if (functionName == kFuncSetPageWidthOutAnim) {
-      Object selected = array.get(0);
-      if (selected is int && selected >= 0 && selected < viewModel.children.length) {
+      int? selected = array.get<int>(0);
+      if (selected != null && selected >= 0 && selected < viewModel.children.length) {
         viewModel.pageController?.jumpToPage(
           selected,
         );

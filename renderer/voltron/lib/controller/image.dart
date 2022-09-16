@@ -53,17 +53,19 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   @override
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     var extraMap = <String, ControllerMethodProp>{};
+    /// props
     extraMap[NodeProps.kSrc] = ControllerMethodProp(setUrl, '');
     extraMap[NodeProps.kSource] = ControllerMethodProp(setSource, null);
     extraMap[NodeProps.kResizeMode] = ControllerMethodProp(setResizeMode, '');
+    extraMap[NodeProps.kCapInsets] = ControllerMethodProp(setCapInsets, null);
+    extraMap[NodeProps.kDefaultSource] = ControllerMethodProp(setDefaultSource, null);
+    extraMap[NodeProps.kTintColor] = ControllerMethodProp(setTintColor, Colors.transparent.value);
+    /// listen
     extraMap[NodeProps.kOnLoad] = ControllerMethodProp(setOnLoad, false);
     extraMap[NodeProps.kOnLoadStart] = ControllerMethodProp(setOnLoadStart, false);
     extraMap[NodeProps.kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, false);
     extraMap[NodeProps.kOnError] = ControllerMethodProp(setOnError, false);
     extraMap[NodeProps.kOnProgress] = ControllerMethodProp(setOnProgress, false);
-    extraMap[NodeProps.kCapInsets] = ControllerMethodProp(setCapInsets, null);
-    extraMap[NodeProps.kDefaultSource] = ControllerMethodProp(setDefaultSource, null);
-    extraMap[NodeProps.kTintColor] = ControllerMethodProp(setTintColor, Colors.transparent.value);
 
     return extraMap;
   }
@@ -81,11 +83,13 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   @ControllerProps(NodeProps.kSource)
   void setSource(ImageRenderViewModel renderViewModel, VoltronArray source) {
     if (source.size() == 0) return;
-    VoltronMap firstObj = source.get(0);
-    String src = firstObj.get('uri');
-    src = renderViewModel.context.convertRelativePath(renderViewModel.rootId, src);
-    if (src != renderViewModel.src) {
-      renderViewModel.src = src;
+    VoltronMap? firstObj = source.get<VoltronMap>(0);
+    String? src = firstObj?.get<String>('uri');
+    if (src != null) {
+      src = renderViewModel.context.convertRelativePath(renderViewModel.rootId, src);
+      if (src != renderViewModel.src) {
+        renderViewModel.src = src;
+      }
     }
   }
 
@@ -149,10 +153,10 @@ class ImageController extends BaseViewController<ImageRenderViewModel> {
   @ControllerProps(NodeProps.kCapInsets)
   void setCapInsets(ImageRenderViewModel renderViewModel, VoltronMap capInsetsMap) {
     renderViewModel.capInsets = CapInsets(
-      left: capInsetsMap.get('left').toDouble(),
-      top: capInsetsMap.get('top').toDouble(),
-      right: capInsetsMap.get('right').toDouble(),
-      bottom: capInsetsMap.get('bottom').toDouble(),
+      left: capInsetsMap.get<double>('left') ?? capInsetsMap.get<int>('left')?.toDouble() ?? 0.0,
+      top: capInsetsMap.get<double>('top') ?? capInsetsMap.get<int>('top')?.toDouble() ?? 0.0,
+      right: capInsetsMap.get<double>('right') ?? capInsetsMap.get<int>('right')?.toDouble() ?? 0.0,
+      bottom: capInsetsMap.get<double>('bottom') ?? capInsetsMap.get<int>('bottom')?.toDouble() ?? 0.0,
     );
   }
 

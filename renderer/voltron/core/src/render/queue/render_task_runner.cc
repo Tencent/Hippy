@@ -326,6 +326,7 @@ void VoltronRenderTaskRunner::RunCallFunction(uint32_t root_id,
 
 void VoltronRenderTaskRunner::RunCallEvent(
     const std::weak_ptr<DomNode> &dom_node, const std::string &name,
+    bool capture, bool bubble,
     const std::unique_ptr<EncodableValue> &params) {
   auto node = dom_node.lock();
   if (node && !name.empty()) {
@@ -333,11 +334,10 @@ void VoltronRenderTaskRunner::RunCallEvent(
       auto encode_params = EncodeDomValue(*params);
       if (!encode_params.IsNull()) {
         node->HandleEvent(std::make_shared<DomEvent>(
-            name, dom_node, std::make_shared<HippyValue>(encode_params)));
+            name, dom_node, capture, bubble, std::make_shared<HippyValue>(encode_params)));
         return;
       }
     }
-
     node->HandleEvent(std::make_shared<DomEvent>(name, dom_node));
   }
 }

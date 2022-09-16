@@ -120,6 +120,6 @@ class WaterfallViewModel extends ScrollableModel {
       contentInset.hashCode;
 
   void sendEvent(String eventName, VoltronMap params) {
-    context.eventHandler.receiveUIComponentEvent(id, eventName, params);
+    context.bridgeManager.sendComponentEvent(rootId, id, eventName, params);
   }
 }

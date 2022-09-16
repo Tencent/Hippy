@@ -42,10 +42,10 @@ class ScrollViewRenderViewModel extends ScrollableModel {
 
   void setInitOffset(VoltronMap map) {
     if (isHorizontal) {
-      var offset = map.get("x") ?? 0;
+      var offset = map.get<double>("x") ?? map.get<int>("x")?.toDouble() ?? 0;
       _initOffset = offset;
     } else {
-      var offset = map.get("y") ?? 0;
+      var offset = map.get<double>("y") ?? map.get<int>("y")?.toDouble() ?? 0;
       _initOffset = offset;
     }
   }
@@ -62,8 +62,11 @@ class ScrollViewRenderViewModel extends ScrollableModel {
           ? offset
           : scrollController.position.maxScrollExtent;
       if (duration > 0) {
-        scrollController.animateTo(finalOffset,
-            duration: Duration(milliseconds: duration), curve: Curves.linearToEaseOut);
+        scrollController.animateTo(
+          finalOffset,
+          duration: Duration(milliseconds: duration),
+          curve: Curves.linearToEaseOut,
+        );
       } else {
         scrollController.jumpTo(finalOffset);
       }

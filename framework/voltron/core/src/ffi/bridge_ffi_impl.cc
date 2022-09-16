@@ -234,7 +234,7 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
   if (!bridge_manager) {
     return;
   }
-  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime().lock());
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
   if (!runtime) {
     return;
   }
@@ -245,11 +245,11 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
   // change char16_t* to std::string
   std::string request_string;
   if (request_id) {
-    request_string = hippy::base::StringViewUtils::ToU8StdStr(footstone::string_view(request_id));
+    request_string = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::CovertToUtf8(footstone::string_view(request_id), footstone::string_view::Encoding::Utf16).utf8_value());
   }
   std::string content_string;
   if (content) {
-    content_string = hippy::base::StringViewUtils::ToU8StdStr(footstone::string_view(content));
+    content_string = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::CovertToUtf8(footstone::string_view(content), footstone::string_view::Encoding::Utf16).utf8_value());
   }
 
   // dispatch network event
@@ -259,7 +259,7 @@ EXTERN_C void NotifyNetworkEvent(int32_t engine_id, const char16_t* request_id, 
   } else if (event_type == static_cast<int32_t> (NetworkEventType::kResponseReceived)) {
     // create response request body
     hippy::devtools::DevtoolsHttpResponse response = hippy::devtools::DevtoolsHttpResponse(content_string);
-    response.SetBodyData(hippy::base::StringViewUtils::ToU8StdStr(footstone::string_view(extra)));
+    response.SetBodyData(footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::CovertToUtf8(footstone::string_view(extra), footstone::string_view::Encoding::Utf16).utf8_value()));
     auto notification_center = scope->GetDevtoolsDataSource()->GetNotificationCenter();
     notification_center->network_notification->ResponseReceived(request_string, response);
   } else if (event_type == static_cast<int32_t> (NetworkEventType::kLoadingFinished)) {
@@ -310,7 +310,7 @@ EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uin
 #ifdef ENABLE_INSPECTOR
   auto devtools_data_source = scope->GetDevtoolsDataSource();
   if (devtools_data_source) {
-    devtools_data_source->Bind(runtime_id, dom_manager_id, j_render_id);
+    devtools_data_source->Bind(static_cast<int32_t>(runtime_id), dom_manager_id, static_cast<int32_t>(render_id));
   }
 #endif
 }

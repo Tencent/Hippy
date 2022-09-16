@@ -68,6 +68,7 @@ class VoltronRenderManager : public hippy::RenderManager,
   void CallFunction(std::weak_ptr<RootNode> root_node, std::weak_ptr<DomNode> dom_node, const std::string &name,
                     const DomArgument &param, uint32_t cb_id) override;
   void CallEvent(std::weak_ptr<DomNode> dom_node, const std::string &name,
+                 bool capture, bool bubble,
                  const std::unique_ptr<EncodableValue> &params);
   void Notify();
 

@@ -27,7 +27,8 @@ import '../util.dart';
 import '../widget.dart';
 import 'group.dart';
 
-class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEventListener {
+class ModalRenderViewModel extends GroupViewModel
+    implements InstanceLifecycleEventListener {
   bool animationSwitch = true;
   String animationType = "none";
   int animationDuration = 200;
@@ -138,7 +139,8 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
   }
 
   void registerFrameCallback() {
-    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) == false) {
+    if (context.getInstance(rootId)?.viewExecutorList.contains(doFrame) ==
+        false) {
       context.getInstance(rootId)?.viewExecutorList.add(doFrame);
     }
   }
@@ -162,7 +164,8 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
 
   void showOrDismissDialog() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      LogUtils.dWidget("ModalWidget", "container build inner, can show:$canDialogShow");
+      LogUtils.dWidget(
+          "ModalWidget", "container build inner, can show:$canDialogShow");
       if (canDialogShow) {
         showDialog();
       } else {
@@ -172,8 +175,8 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
   }
 
   void showDialog() {
-    LogUtils.dWidget(
-        "ModalWidget", "real show dialog, (isShow: $isShowDialog, childLen(${children.length}))");
+    LogUtils.dWidget("ModalWidget",
+        "real show dialog, (isShow: $isShowDialog, childLen(${children.length}))");
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (!isShowDialog && buildContext != null && children.isNotEmpty) {
       isShowDialog = true;
@@ -184,7 +187,8 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
         durationTime = animationDuration;
       }
       showGeneralDialog(
-        barrierLabel: MaterialLocalizations.of(buildContext).modalBarrierDismissLabel,
+        barrierLabel:
+            MaterialLocalizations.of(buildContext).modalBarrierDismissLabel,
         barrierDismissible: true,
         barrierColor: Color(barrierColor),
         context: buildContext,
@@ -221,7 +225,9 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
         backgroundColor: const Color(0x01ffffff),
         resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         body: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: statusBarTextDarkColor ? SystemUiOverlayStyle.dark : SystemUiOverlayStyle.light,
+          value: statusBarTextDarkColor
+              ? SystemUiOverlayStyle.dark
+              : SystemUiOverlayStyle.light,
           child: WillPopScope(
             onWillPop: () async {
               onRequestClose();
@@ -235,14 +241,28 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
   }
 
   void onRequestClose() {
-    context.eventHandler.receiveUIComponentEvent(id, "onRequestClose", null);
+    context.bridgeManager.sendComponentEvent(
+      rootId,
+      id,
+      "requestClose",
+      {},
+    );
   }
 
   void onShow() {
-    context.eventHandler.receiveUIComponentEvent(id, "onShow", null);
+    context.bridgeManager.sendComponentEvent(
+      rootId,
+      id,
+      "show",
+      {},
+    );
   }
 
-  Widget _animation({String? aniType, Widget? child, required Animation<double> animation}) {
+  Widget _animation({
+    String? aniType,
+    Widget? child,
+    required Animation<double> animation,
+  }) {
     if (!isEmpty(aniType)) {
       if (aniType == "fade") {
         return FadeTransition(
@@ -359,7 +379,8 @@ class ModalRenderViewModel extends GroupViewModel implements InstanceLifecycleEv
   }
 
   void dismissDialog() {
-    LogUtils.dWidget("ModalWidget", "real dismiss dialog, (isShow: $isShowDialog)");
+    LogUtils.dWidget(
+        "ModalWidget", "real dismiss dialog, (isShow: $isShowDialog)");
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (isShowDialog && buildContext != null) {
       removeFrameCallback();

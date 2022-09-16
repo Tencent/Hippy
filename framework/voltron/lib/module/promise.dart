@@ -66,7 +66,8 @@ abstract class JSPromise extends Promise {
     _doCallback(kPromiseCodeSuccess, value);
   }
 
-  void reject(Object error) {
+  @override
+  void reject(Object? error) {
     _doCallback(kPromiseCodeOtherError, error);
   }
 

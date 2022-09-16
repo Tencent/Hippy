@@ -27,9 +27,10 @@ class DevFactory {
     bool enableDev,
     String serverHost,
     String bundleName,
+    String remoteServerUrl
   ) {
     if (enableDev) {
-      return new DevServerImpl(configs, serverHost, bundleName);
+      return new DevServerImpl(configs, serverHost, bundleName, remoteServerUrl);
     } else {
       return new DevServerImplDisable(configs, serverHost);
     }

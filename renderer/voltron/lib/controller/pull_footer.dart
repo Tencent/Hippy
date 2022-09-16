@@ -32,8 +32,8 @@ class ListPullFooterViewController extends BaseGroupController<ListPullFooterVie
   static const String collapsePullFooter = "collapsePullFooter";
   static const String expandPullFooter = "expandPullFooter";
 
-  static const String onFooterReleased = 'onFooterReleased';
-  static const String onFooterPulling = 'onFooterPulling';
+  static const String onFooterReleased = 'footerReleased';
+  static const String onFooterPulling = 'footerPulling';
 
   @override
   ListPullFooterViewModel createRenderViewModel(RenderNode node, RenderContext context) {

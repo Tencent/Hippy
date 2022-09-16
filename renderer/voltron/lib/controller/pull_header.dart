@@ -26,17 +26,21 @@ import '../render.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class ListPullHeaderViewController extends BaseGroupController<ListPullHeaderViewModel> {
+class ListPullHeaderViewController
+    extends BaseGroupController<ListPullHeaderViewModel> {
   static const String kClassName = "PullHeaderView";
 
   static const String collapsePullHeader = "collapsePullHeader";
+  static const String collapsePullHeaderWithOptions =
+      "collapsePullHeaderWithOptions";
   static const String expandPullHeader = "expandPullHeader";
 
-  static const String onHeaderReleased = 'onHeaderReleased';
-  static const String onHeaderPulling = 'onHeaderPulling';
+  static const String onHeaderReleased = 'headerReleased';
+  static const String onHeaderPulling = 'headerPulling';
 
   @override
-  ListPullHeaderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
+  ListPullHeaderViewModel createRenderViewModel(
+      RenderNode node, RenderContext context) {
     return ListPullHeaderViewModel(
       node.id,
       node.rootId,
@@ -60,12 +64,25 @@ class ListPullHeaderViewController extends BaseGroupController<ListPullHeaderVie
   String get name => kClassName;
 
   @override
-  void dispatchFunction(ListPullHeaderViewModel viewModel, String functionName, VoltronArray array,
-      {Promise? promise}) {
+  void dispatchFunction(
+    ListPullHeaderViewModel viewModel,
+    String functionName,
+    VoltronArray array, {
+    Promise? promise,
+  }) {
     if (collapsePullHeader == functionName) {
       var listViewModel = viewModel.parent;
       if (listViewModel is ListViewModel) {
         listViewModel.refreshEventDispatcher.refreshComplected();
+      }
+    } else if (collapsePullHeaderWithOptions == functionName) {
+      var listViewModel = viewModel.parent;
+      if (listViewModel is ListViewModel) {
+        var timeMap = array.get<VoltronMap>(0);
+        var time = timeMap?.get<int>('time') ?? 0;
+        Future.delayed(Duration(milliseconds: time), () {
+          listViewModel.refreshEventDispatcher.refreshComplected();
+        });
       }
     }
   }

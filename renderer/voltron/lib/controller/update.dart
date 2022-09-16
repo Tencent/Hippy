@@ -47,21 +47,27 @@ class ControllerUpdateUtil {
     final methodMap = provider.renderMethodMap;
     final props = paramsMap.keySet();
     for (var prop in props) {
-      final value = paramsMap.get(prop);
+      final value = paramsMap.get<Object>(prop);
       var propMethodHolder = methodMap[prop];
       if (propMethodHolder != null) {
         final realValue = checkValueType(value, propMethodHolder.defaultValue);
         try {
           if (realValue != null) {
-            Function.apply(
-                propMethodHolder.method, [node.renderViewModel, realValue]);
+            Function.apply(propMethodHolder.method, [
+              node.renderViewModel,
+              realValue,
+            ]);
           } else {
-            Function.apply(propMethodHolder.method,
-                [node.renderViewModel, propMethodHolder.defaultValue]);
+            Function.apply(propMethodHolder.method, [
+              node.renderViewModel,
+              propMethodHolder.defaultValue,
+            ]);
           }
         } catch (e) {
-          LogUtils.e(kTag,
-              "update controller($propertyName) prop($prop) to ($value) error:$e");
+          LogUtils.e(
+            kTag,
+            "update controller($propertyName) prop($prop) to ($value) error:$e",
+          );
         }
         if (value is VoltronMap && prop == NodeProps.kStyle) {
           updateProps(t, node, value);
@@ -69,7 +75,7 @@ class ControllerUpdateUtil {
       } else {
         if (value is VoltronMap && prop == NodeProps.kStyle) {
           updateProps(t, node, value);
-        } else {
+        } else if (value != null){
           t.setCustomProp(node, prop, value);
         }
       }

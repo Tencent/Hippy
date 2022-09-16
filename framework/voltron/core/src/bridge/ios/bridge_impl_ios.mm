@@ -151,7 +151,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(dom_task_runner, nullptr);
     [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
 
-    [bridge initJSFramework:globalConfig execurotKey:executorKey wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
+    [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_manager wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
         callback(succ ? 1 : 0);
     }];
 
@@ -233,7 +233,10 @@ void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callba
     // destory devtools
     auto scope = bridge.jscExecutor.pScope;
     if (scope) {
-      scope->DestroyDevtools(is_reload);
+        auto devtools_data_source = scope->GetDevtoolsDataSource();
+        if (devtools_data_source) {
+          devtools_data_source->Destroy(is_reload);
+        }
     }
 #endif
     callback(1);

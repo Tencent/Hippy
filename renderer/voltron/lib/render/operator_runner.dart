@@ -22,7 +22,8 @@ import 'dart:typed_data';
 
 import '../voltron_renderer.dart';
 
-typedef RenderOpTaskGenerator = RenderOpTask Function(int instanceId, int nodeId, Map params);
+typedef RenderOpTaskGenerator = RenderOpTask Function(
+    int instanceId, int nodeId, Map params);
 
 const int kInvalidIndex = -1;
 const int kInvalidId = -1;
@@ -47,7 +48,8 @@ class RenderOperatorRunner implements Destroyable {
         _UpdateNodeOpTask(instanceId, nodeId, params),
     _RenderOpType.updateLayout.index: (instanceId, nodeId, params) =>
         _UpdateLayoutOpTask(instanceId, nodeId, params),
-    _RenderOpType.batch.index: (instanceId, nodeId, params) => _BatchOpTask(instanceId),
+    _RenderOpType.batch.index: (instanceId, nodeId, params) =>
+        _BatchOpTask(instanceId),
     _RenderOpType.dispatchUiFunc.index: (instanceId, nodeId, params) =>
         _CallUiFunctionOpTask(instanceId, nodeId, params),
     _RenderOpType.addEvent.index: (instanceId, nodeId, params) =>
@@ -94,7 +96,8 @@ abstract class RenderOpTask {
 
   late RenderContext _renderContext;
 
-  VirtualNodeManager get virtualNodeManager => _renderContext.virtualNodeManager;
+  VirtualNodeManager get virtualNodeManager =>
+      _renderContext.virtualNodeManager;
 
   RenderManager get renderManager => _renderContext.renderManager;
 
@@ -111,12 +114,14 @@ abstract class _NodeOpTask extends RenderOpTask {
 }
 
 class _AddNodeOpTask extends _NodeOpTask {
-  _AddNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+  _AddNodeOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
 
   @override
   void _run() {
     var className = _params[_RenderOpParamsKey.kClassNameKey] ?? '';
-    var childIndex = _params[_RenderOpParamsKey.kChildIndexKey] ?? kInvalidIndex;
+    var childIndex =
+        _params[_RenderOpParamsKey.kChildIndexKey] ?? kInvalidIndex;
     var parentId = _params[_RenderOpParamsKey.kParentNodeIdKey] ?? kInvalidId;
     var styleMap = _params[_RenderOpParamsKey.kStylesKey] ?? {};
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
@@ -149,8 +154,12 @@ class _AddNodeOpTask extends _NodeOpTask {
       var width = ScreenUtil.getInstance().screenWidth;
       var height = ScreenUtil.getInstance().screenHeight;
       if (width > 0 && height > 0) {
-        bridgeManager.updateNodeSize(_instanceId,
-            nodeId: _nodeId, width: width, height: height);
+        bridgeManager.updateNodeSize(
+          _instanceId,
+          nodeId: _nodeId,
+          width: width,
+          height: height,
+        );
       }
     }
   }
@@ -173,7 +182,8 @@ class _DeleteNodeOpTask extends _NodeOpTask {
 }
 
 class _UpdateNodeOpTask extends _NodeOpTask {
-  _UpdateNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+  _UpdateNodeOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
 
   @override
   void _run() {
@@ -191,11 +201,13 @@ class _UpdateNodeOpTask extends _NodeOpTask {
 }
 
 class _UpdateLayoutOpTask extends _NodeOpTask {
-  _UpdateLayoutOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+  _UpdateLayoutOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
 
   @override
   void _run() {
-    var layoutNodeList = (_params[_RenderOpParamsKey.kLayoutNodesKey] ?? []) as List;
+    var layoutNodeList =
+        (_params[_RenderOpParamsKey.kLayoutNodesKey] ?? []) as List;
     for (var layoutNode in layoutNodeList) {
       if (layoutNode is List) {
         var nodeId = (layoutNode[0] ?? kInvalidId) as int;
@@ -205,7 +217,8 @@ class _UpdateLayoutOpTask extends _NodeOpTask {
           var width = layoutNode[3] ?? 0;
           var height = layoutNode[4] ?? 0;
           if (virtualNodeManager.hasVirtualParent(nodeId)) continue;
-          final TextExtra? supplier = virtualNodeManager.updateLayout(nodeId, width, layoutNode);
+          final TextExtra? supplier =
+              virtualNodeManager.updateLayout(nodeId, width, layoutNode);
           renderManager.addUITask(() {
             if (supplier != null) {
               renderManager.updateExtra(_instanceId, nodeId, supplier);
@@ -225,18 +238,9 @@ class _UpdateLayoutOpTask extends _NodeOpTask {
   }
 }
 
-class _LayoutNodeInfo {
-  final int nodeId;
-  final double left;
-  final double top;
-  final double width;
-  final double height;
-
-  _LayoutNodeInfo(this.nodeId, {this.left = 0, this.top = 0, this.width = 0, this.height = 0});
-}
-
 class _MoveNodeOpTask extends _NodeOpTask {
-  _MoveNodeOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+  _MoveNodeOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
 
   @override
   void _run() {
@@ -287,7 +291,8 @@ class _LayoutFinishOpTask extends RenderOpTask {
 }
 
 class _CallUiFunctionOpTask extends _NodeOpTask {
-  _CallUiFunctionOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+  _CallUiFunctionOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
 
   @override
   void _run() {
@@ -295,10 +300,17 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
     if (funcName.isNotEmpty) {
       Uint8List funcParams = _params[_RenderOpParamsKey.kFuncParamsKey] ?? [];
       var realParams = funcParams.decodeType<VoltronArray>() ?? VoltronArray();
-      String callbackId = _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
+      String callbackId =
+          _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
       var promise = NativePromise(_renderContext, callId: callbackId);
       renderManager.addNulUITask(() {
-        renderManager.dispatchUIFunction(_instanceId, _nodeId, funcName, realParams, promise);
+        renderManager.dispatchUIFunction(
+          _instanceId,
+          _nodeId,
+          funcName,
+          realParams,
+          promise,
+        );
       });
       renderManager.renderBatchEnd();
     }
@@ -306,7 +318,8 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
 }
 
 class _AddEventOpTask extends _NodeOpTask {
-  _AddEventOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+  _AddEventOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
 
   @override
   void _run() {
@@ -320,7 +333,8 @@ class _AddEventOpTask extends _NodeOpTask {
 }
 
 class _RemoveEventOpTask extends _NodeOpTask {
-  _RemoveEventOpTask(int instanceId, int nodeId, Map params) : super(instanceId, nodeId, params);
+  _RemoveEventOpTask(int instanceId, int nodeId, Map params)
+      : super(instanceId, nodeId, params);
 
   @override
   void _run() {
@@ -333,7 +347,16 @@ class _RemoveEventOpTask extends _NodeOpTask {
   }
 }
 
-enum EventType { click, longClick, touchStart, touchMove, touchEnd, touchCancel, show, dismiss }
+enum EventType {
+  click,
+  longClick,
+  touchStart,
+  touchMove,
+  touchEnd,
+  touchCancel,
+  show,
+  dismiss
+}
 
 enum _RenderOpType {
   addNode,
