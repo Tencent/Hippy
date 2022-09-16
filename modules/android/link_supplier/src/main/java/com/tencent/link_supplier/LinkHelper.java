@@ -33,9 +33,14 @@ import com.tencent.link_supplier.proxy.renderer.RenderProxy;
 public interface LinkHelper {
 
     enum RenderMode {
-        NATIVE_RENDER,
-        TDF_RENDER,
-        FLUTTER_RENDER
+        NATIVE_RENDER("NativeRenderer"),
+        TDF_RENDER("TDFRenderer"),
+        FLUTTER_RENDER("");
+
+        public final String renderClassName;
+        RenderMode(String renderClassName) {
+            this.renderClassName = renderClassName;
+        }
     }
 
     /**

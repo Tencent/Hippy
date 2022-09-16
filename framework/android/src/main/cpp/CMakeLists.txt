@@ -84,6 +84,13 @@ add_subdirectory(${PROJECT_ROOT_DIR}/renderer/native/android/src/main/jni ${CMAK
 target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)
 # endregion
 
+# region tdf render
+if ("${ENABLE_TDF_RENDER}" STREQUAL "true")
+  add_subdirectory(${PROJECT_ROOT_DIR}/renderer/tdf/android/src/main/cpp ${CMAKE_CURRENT_BINARY_DIR}/renderer/tdf)
+  target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer)
+endif()
+# region end
+
 # region source set
 set(SOURCE_SET
     src/bridge/entry.cc

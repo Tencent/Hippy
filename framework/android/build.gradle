@@ -88,6 +88,7 @@ android {
                   "-DCMAKE_BUILD_TYPE=Release",
                   "-DANDROID_STL=$ANDROID_STL",
                   "-DV8_COMPONENT=$V8_COMPONENT",
+                  "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -116,7 +117,9 @@ android {
                   "-DCMAKE_BUILD_TYPE=Debug",
                   "-DENABLE_INSPECTOR=$ENABLE_INSPECTOR",
                   "-DANDROID_STL=$ANDROID_STL",
+                  "-DENABLE_TDF_RENDER=${ENABLE_TDF_RENDER}",
                   "-DV8_COMPONENT=$V8_COMPONENT",
+                  "-DTDF_CORE_VERSION=$TDF_CORE_VERSION",
                   "-DHIDDEN_LIBRARY_SYMBOL=$HIDDEN_LIBRARY_SYMBOL"
 
           if (INCLUDE_ABI_ARMEABI_V7A.toBoolean() || INCLUDE_ABI_ARMEABI.toBoolean()) {
@@ -154,6 +157,9 @@ dependencies {
   api fileTree(dir: 'libs', include: ['*.jar'])
   compileOnly project(path: ':hippy-support')
   compileOnly project(path: ':renderer-native')
+  if (ENABLE_TDF_RENDER == "true") {
+    compileOnly project(path: ':renderer-tdf')
+  }
   compileOnly project(path: ':serialization')
   compileOnly project(path: ':link_supplier')
   //noinspection GradleDependency

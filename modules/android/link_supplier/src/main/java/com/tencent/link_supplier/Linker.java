@@ -87,16 +87,11 @@ public class Linker implements LinkHelper {
 
     @Override
     public void createRenderer(RenderMode mode) throws RuntimeException {
-        switch (mode) {
-            case TDF_RENDER:
-                // TODO: Create TDF renderer.
-                break;
-            case FLUTTER_RENDER:
-                // TODO: Create Flutter renderer.
-                break;
-            case NATIVE_RENDER:
-            default:
-                mRenderProxy = createNativeRenderer();
+        try {
+            Class rendererClass = Class.forName("com.tencent.renderer." + mode.renderClassName);
+            mRenderProxy = (RenderProxy) (rendererClass.newInstance());
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
         if (mRenderProxy == null) {
             throw new RuntimeException(
@@ -173,17 +168,6 @@ public class Linker implements LinkHelper {
         @Override
         public void removeRootId(int rootId) {
             removeRoot(mInstanceId, rootId);
-        }
-    }
-
-    private RenderProxy createNativeRenderer() {
-        try {
-            Class nativeRendererClass = Class
-                    .forName("com.tencent.renderer.NativeRenderer");
-            return (RenderProxy) (nativeRendererClass.newInstance());
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
