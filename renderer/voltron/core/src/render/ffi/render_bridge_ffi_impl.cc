@@ -128,6 +128,7 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, uint32_t render_manager_i
 
 EXTERN_C void CallNativeEventFFI(uint32_t render_manager_id, uint32_t root_id,
                                  int32_t node_id, const char16_t *event,
+                                 bool capture, bool bubble,
                                  const uint8_t *params, int32_t params_len) {
   auto render_manager = BridgeManager::FindRenderManager(render_manager_id);
   if (!render_manager) {
@@ -153,7 +154,8 @@ EXTERN_C void CallNativeEventFFI(uint32_t render_manager_id, uint32_t root_id,
   if (params && params_len > 0) {
     auto copy_params = voltron::CopyBytes(params, params_len);
     std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name,
-                                                  copy_params, params_len, root_node]() {
+                                                use_capture = capture, use_bubble = bubble,
+                                                copy_params, params_len, root_node]() {
       auto decode_params =
           StandardMessageCodec::GetInstance().DecodeMessage(copy_params,
                                                             params_len);
@@ -163,15 +165,15 @@ EXTERN_C void CallNativeEventFFI(uint32_t render_manager_id, uint32_t root_id,
       FOOTSTONE_DLOG(INFO) << "CallNativeEventFFI event_name:" << event_name
                            << " node_id:" << node_id << " node:" << dom_node;
       if (dom_node) {
-        render_manager->CallEvent(dom_node, event_name, decode_params);
+        render_manager->CallEvent(dom_node, event_name, use_capture, use_bubble, decode_params);
       }
     }};
     dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
   } else {
-    std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name, root_node]() {
+    std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name, use_capture = capture, use_bubble = bubble, root_node]() {
       auto dom_node = dom_manager->GetNode(root_node, node_id);
       if (dom_node) {
-        render_manager->CallEvent(dom_node, event_name, nullptr);
+        render_manager->CallEvent(dom_node, event_name, use_capture, use_bubble, nullptr);
       }
     }};
     dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));

@@ -241,9 +241,9 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     super.dispatchFunction(viewModel, functionName, array, promise: promise);
     if (functionName == kScrollToIndex) {
       // list滑动到某个item
-      var yIndex = array.get(1) ?? -1;
-      var animated = array.get(2) ?? false;
-      var duration = array.get(3) ?? 0; //1.2.7 增加滚动时间 ms,animated==true时生效
+      var yIndex = array.get<int>(1) ?? -1;
+      var animated = array.get<bool>(2) ?? false;
+      var duration = array.get<int>(3) ?? 0; //1.2.7 增加滚动时间 ms,animated==true时生效
 
       if (duration <= 100) {
         // 保证duration最小为100ms
@@ -254,8 +254,8 @@ class ListViewController extends BaseGroupController<ListViewModel> {
     } else if (functionName == kScrollToContentOffset) {
       // list滑动到某个距离
       var yOffset = array.get<double>(1) ?? array.get<int>(1)?.toDouble() ?? 0.0;
-      var animated = array.get(2) ?? false;
-      var duration = array.get(3) ?? 0; //1.2.7 增加滚动时间 ms,animated==true时生效
+      var animated = array.get<bool>(2) ?? false;
+      var duration = array.get<int>(3) ?? 0; //1.2.7 增加滚动时间 ms,animated==true时生效
 
       if (duration <= 100) {
         // 保证duration最小为100ms

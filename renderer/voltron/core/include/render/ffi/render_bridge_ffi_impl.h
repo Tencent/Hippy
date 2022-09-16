@@ -46,6 +46,7 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, uint32_t render_manager_i
 
 EXTERN_C void CallNativeEventFFI(uint32_t render_manager_id, uint32_t root_id,
                                  int32_t node_id, const char16_t *event,
+                                 bool capture, bool bubble,
                                  const uint8_t *params, int32_t params_len);
 
 EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,

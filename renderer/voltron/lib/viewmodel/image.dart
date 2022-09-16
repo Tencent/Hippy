@@ -65,7 +65,7 @@ class ImageRenderViewModel extends RenderViewModel {
   }
 
   ImageEventDispatcher createImageEventDispatcher() {
-    return ImageEventDispatcher(id, context);
+    return ImageEventDispatcher(rootId, id, context);
   }
 
   @override

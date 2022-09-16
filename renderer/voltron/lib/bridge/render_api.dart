@@ -102,8 +102,9 @@ class _RenderBridgeFFIManager {
         DestroyVoltronRenderNativeType,
         DestroyVoltronRenderDartType>('DestroyVoltronRenderProvider');
 
-    createDom = _library
-        .lookupFunction<CreateDomFfiNativeType, CreateDomFfiDartType>('CreateDomInstance');
+    createDom =
+        _library.lookupFunction<CreateDomFfiNativeType, CreateDomFfiDartType>(
+            'CreateDomInstance');
 
     destroyDom =
         _library.lookupFunction<DestroyDomFfiNativeType, DestroyDomFfiDartType>(
@@ -115,8 +116,11 @@ class _RenderBridgeFFIManager {
     destroyWorker = _library.lookupFunction<DestroyWorkerFfiNativeType,
         DestroyWorkerFfiDartType>('DestroyWorkerManager');
 
-    addRoot = _library.lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>('AddRoot');
-    removeRoot = _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>('RemoveRoot');
+    addRoot = _library
+        .lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>('AddRoot');
+    removeRoot =
+        _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>(
+            'RemoveRoot');
 
     callNativeFunction = _library.lookupFunction<
         CallNativeFunctionFfiNativeType,
@@ -128,8 +132,8 @@ class _RenderBridgeFFIManager {
     updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
         UpdateNodeSizeFfiDartType>('UpdateNodeSize');
 
-    notifyRender = _library.lookupFunction<NotifyRenderNativeType, NotifyRenderDartType>(
-        'Notify');
+    notifyRender = _library
+        .lookupFunction<NotifyRenderNativeType, NotifyRenderDartType>('Notify');
 
     registerCallback = _library.lookupFunction<RegisterCallbackFfiNativeType,
         RegisterCallbackFfiDartType>("RegisterCallFunc");
@@ -181,8 +185,8 @@ class VoltronRenderApi {
     _RenderBridgeFFIManager.instance.removeRoot(domInstanceId, rootId);
   }
 
-  static Future updateNodeSize(
-      int renderManagerId, int rootId, int nodeId, double width, double height) async {
+  static Future updateNodeSize(int renderManagerId, int rootId, int nodeId,
+      double width, double height) async {
     var stopwatch = Stopwatch();
 
     stopwatch.start();
@@ -202,8 +206,8 @@ class VoltronRenderApi {
     _RenderBridgeFFIManager.instance.notifyRender(engineId, renderManagerId);
   }
 
-  static Future<dynamic> callNativeFunction(
-      int engineId, int renderManagerId, String callId, Object params, bool keep) async {
+  static Future<dynamic> callNativeFunction(int engineId, int renderManagerId,
+      String callId, Object params, bool keep) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var callIdU16 = callId.toNativeUtf16();
@@ -214,22 +218,40 @@ class VoltronRenderApi {
       final result = malloc<Uint8>(length);
       final nativeParams = result.asTypedList(length);
       nativeParams.setRange(
-          0, length, encodeParamsByteData.buffer.asUint8List());
+        0,
+        length,
+        encodeParamsByteData.buffer.asUint8List(),
+      );
       _RenderBridgeFFIManager.instance.callNativeFunction(
-          engineId, renderManagerId, callIdU16, result, length, keep ? 1 : 0);
+        engineId,
+        renderManagerId,
+        callIdU16,
+        result,
+        length,
+        keep ? 1 : 0,
+      );
       free(result);
       stopwatch.stop();
       LogUtils.profile("callNativeFunction", stopwatch.elapsedMilliseconds);
     } else {
       LogUtils.e(
-          'Voltron::Bridge', 'call native function error, invalid params');
+        'Voltron::Bridge',
+        'call native function error, invalid params',
+      );
     }
 
     free(callIdU16);
   }
 
-  static Future callNativeEvent(int renderManagerId, int rootId, int nodeId,
-      String eventName, Object params) async {
+  static Future callNativeEvent(
+    int renderManagerId,
+    int rootId,
+    int nodeId,
+    String eventName,
+    bool useCapture,
+    bool useBubble,
+    Object params,
+  ) async {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var eventU16 = eventName.toNativeUtf16();
@@ -241,9 +263,20 @@ class VoltronRenderApi {
       final result = malloc<Uint8>(length);
       final nativeParams = result.asTypedList(length);
       nativeParams.setRange(
-          0, length, encodeParamsByteData.buffer.asUint8List());
-      _RenderBridgeFFIManager.instance
-          .callNativeEvent(renderManagerId, rootId, nodeId, eventU16, result, length);
+        0,
+        length,
+        encodeParamsByteData.buffer.asUint8List(),
+      );
+      _RenderBridgeFFIManager.instance.callNativeEvent(
+        renderManagerId,
+        rootId,
+        nodeId,
+        eventU16,
+        useCapture,
+        useBubble,
+        result,
+        length,
+      );
       free(result);
       stopwatch.stop();
       LogUtils.profile("callNativeEvent", stopwatch.elapsedMilliseconds);

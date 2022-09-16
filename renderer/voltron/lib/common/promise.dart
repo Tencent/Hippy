@@ -18,8 +18,6 @@
 // limitations under the License.
 //
 
-import 'package:path/path.dart';
-
 import '../render.dart';
 
 abstract class Promise {
@@ -34,21 +32,39 @@ abstract class Promise {
   bool isCallback() => _callId != kCallIdNoCallback;
 
   void resolve(Object? value);
+
+  void reject(Object? error);
 }
 
 class NativePromise extends Promise {
-  bool keep = true;
+  static const int kPromiseCodeResolve = 0;
+  static const int kPromiseCodeReject = 2;
   final RenderContext _context;
 
-  NativePromise(RenderContext context, {required String callId})
-      : _context = context, super(callId);
+  NativePromise(
+    RenderContext context, {
+    required String callId,
+  })  : _context = context,
+        super(callId);
 
   @override
   void resolve(Object? value) {
+    _doCallback(kPromiseCodeResolve, value);
+  }
+
+  @override
+  void reject(Object? error) {
+    _doCallback(kPromiseCodeReject, error);
+  }
+
+  void error(int code, Object error) {
+    _doCallback(code, error);
+  }
+
+  void _doCallback(int code, Object? value) {
     if (!isCallback()) {
       return;
     }
-
     _context.bridgeManager.execNativeCallback(_callId, value ?? 'unknown');
   }
 }

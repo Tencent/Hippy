@@ -24,79 +24,163 @@ import 'package:ffi/ffi.dart';
 
 class Work extends Opaque {}
 
-typedef GlobalCallback = Void Function(Int32 callbackId, Int64 value);
-typedef CommonCallback = void Function(int value);
+typedef GlobalCallback = Void Function(
+  Int32 callbackId,
+  Int64 value,
+);
+typedef CommonCallback = void Function(
+  int value,
+);
 
 typedef CreateVoltronRenderNativeType = Uint32 Function();
 typedef CreateVoltronRenderDartType = int Function();
 
-typedef DestroyVoltronRenderNativeType = Void Function(Uint32 renderManagerId);
-typedef DestroyVoltronRenderDartType = void Function(int renderManagerId);
+typedef DestroyVoltronRenderNativeType = Void Function(
+  Uint32 renderManagerId,
+);
+typedef DestroyVoltronRenderDartType = void Function(
+  int renderManagerId,
+);
 
-typedef CallNativeFunctionFfiNativeType = Void Function(Int32 engineId, Uint32 renderManagerId,
-    Pointer<Utf16> callId, Pointer<Uint8> params, Int32 paramsLen, Int32 keep);
-typedef CallNativeFunctionFfiDartType = void Function(int engineId, int renderManagerId,
-    Pointer<Utf16> callId, Pointer<Uint8> params, int paramsLen, int keep);
+typedef CallNativeFunctionFfiNativeType = Void Function(
+    Int32 engineId,
+    Uint32 renderManagerId,
+    Pointer<Utf16> callId,
+    Pointer<Uint8> params,
+    Int32 paramsLen,
+    Int32 keep);
+typedef CallNativeFunctionFfiDartType = void Function(
+    int engineId,
+    int renderManagerId,
+    Pointer<Utf16> callId,
+    Pointer<Uint8> params,
+    int paramsLen,
+    int keep);
 
 typedef CreateWorkerFfiNativeType = Uint32 Function();
 typedef CreateWorkerFfiDartType = int Function();
 
-typedef DestroyWorkerFfiNativeType = Void Function(Uint32 workerId);
-typedef DestroyWorkerFfiDartType = void Function(int workerId);
+typedef DestroyWorkerFfiNativeType = Void Function(
+  Uint32 workerId,
+);
+typedef DestroyWorkerFfiDartType = void Function(
+  int workerId,
+);
 
-typedef CreateDomFfiNativeType = Uint32 Function(Uint32 workerId);
-typedef CreateDomFfiDartType = int Function(int workerId);
+typedef CreateDomFfiNativeType = Uint32 Function(
+  Uint32 workerId,
+);
+typedef CreateDomFfiDartType = int Function(
+  int workerId,
+);
 
-typedef DestroyDomFfiNativeType = Void Function(Uint32 domId);
-typedef DestroyDomFfiDartType = void Function(int domId);
+typedef DestroyDomFfiNativeType = Void Function(
+  Uint32 domId,
+);
+typedef DestroyDomFfiDartType = void Function(
+  int domId,
+);
 
-typedef AddRootFfiNativeType = Void Function(Uint32 domId, Uint32 rootId);
-typedef AddRootFfiDartType = void Function(int domId, int rootId);
+typedef AddRootFfiNativeType = Void Function(
+  Uint32 domId,
+  Uint32 rootId,
+);
+typedef AddRootFfiDartType = void Function(
+  int domId,
+  int rootId,
+);
 
-typedef RemoveRootFfiNativeType = Void Function(Uint32 domId, Uint32 rootId);
-typedef RemoveRootFfiDartType = void Function(int domId, int rootId);
+typedef RemoveRootFfiNativeType = Void Function(
+  Uint32 domId,
+  Uint32 rootId,
+);
+typedef RemoveRootFfiDartType = void Function(
+  int domId,
+  int rootId,
+);
 
 typedef CallNativeEventFfiNativeType = Void Function(
-    Uint32 renderManagerId,
-    Uint32 rootId,
-    Int32 nodeId,
-    Pointer<Utf16> event,
-    Pointer<Uint8> params,
-    Int32 paramsLen);
-typedef CallNativeEventFfiDartType = void Function(int renderManagerId, int rootId,
-    int nodeId, Pointer<Utf16> event, Pointer<Uint8> params, int paramsLen);
+  Uint32 renderManagerId,
+  Uint32 rootId,
+  Int32 nodeId,
+  Pointer<Utf16> event,
+  Bool useCapture,
+  Bool useBubble,
+  Pointer<Uint8> params,
+  Int32 paramsLen,
+);
+typedef CallNativeEventFfiDartType = void Function(
+  int renderManagerId,
+  int rootId,
+  int nodeId,
+  Pointer<Utf16> event,
+  bool useCapture,
+  bool useBubble,
+  Pointer<Uint8> params,
+  int paramsLen,
+);
 
 typedef UpdateNodeSizeFfiNativeType = Void Function(
-    Uint32 renderManagerId, Uint32 rootId, Int32 nodeId, Double width, Double height);
+  Uint32 renderManagerId,
+  Uint32 rootId,
+  Int32 nodeId,
+  Double width,
+  Double height,
+);
 typedef UpdateNodeSizeFfiDartType = void Function(
-    int renderManagerId, int rootId, int nodeId, double width, double height);
+  int renderManagerId,
+  int rootId,
+  int nodeId,
+  double width,
+  double height,
+);
 
-typedef NotifyRenderNativeType = Void Function(Int32 engineId, Uint32 renderManagerId);
-typedef NotifyRenderDartType = void Function(int engineId, int renderManagerId);
+typedef NotifyRenderNativeType = Void Function(
+  Int32 engineId,
+  Uint32 renderManagerId,
+);
+typedef NotifyRenderDartType = void Function(
+  int engineId,
+  int renderManagerId,
+);
 
 typedef RegisterCallbackFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<GlobalCallbackNativeType>> func);
+  Int32 type,
+  Pointer<NativeFunction<GlobalCallbackNativeType>> func,
+);
 typedef RegisterCallbackFfiDartType = int Function(
-    int type, Pointer<NativeFunction<GlobalCallbackNativeType>> func);
+  int type,
+  Pointer<NativeFunction<GlobalCallbackNativeType>> func,
+);
 
 typedef RegisterPostRenderOpFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<PostRenderOpNativeType>> func);
+  Int32 type,
+  Pointer<NativeFunction<PostRenderOpNativeType>> func,
+);
 typedef RegisterPostRenderOpFfiDartType = int Function(
-    int type, Pointer<NativeFunction<PostRenderOpNativeType>> func);
+  int type,
+  Pointer<NativeFunction<PostRenderOpNativeType>> func,
+);
 
 typedef RegisterCalculateNodeLayoutFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func);
+  Int32 type,
+  Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func,
+);
 typedef RegisterCalculateNodeLayoutFfiDartType = int Function(
-    int type, Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func);
+  int type,
+  Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func,
+);
 
 typedef RegisterDartPostCObjectNativeType = Void Function(
-    Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>
-        functionPointer,
-    Int64 port);
+  Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>
+      functionPointer,
+  Int64 port,
+);
 typedef RegisterDartPostCObjectDartType = void Function(
-    Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>
-        functionPointer,
-    int port);
+  Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>
+      functionPointer,
+  int port,
+);
 
 typedef ExecuteCallbackNativeType = Void Function(Pointer<Work>);
 typedef ExecuteCallbackDartType = void Function(Pointer<Work>);
@@ -110,18 +194,28 @@ enum RenderFuncType {
 const int kRenderFuncTypeSize = 3;
 
 typedef PostRenderOpNativeType = Void Function(
-    Int32 engindId, Uint32 rootId, Pointer<Void> paramsData, Int64 paramsLen);
+  Int32 engindId,
+  Uint32 rootId,
+  Pointer<Void> paramsData,
+  Int64 paramsLen,
+);
 
 typedef LoggerFunctionNativeType = Void Function(
-    Int32 level, Pointer<Utf8> print);
+  Int32 level,
+  Pointer<Utf8> print,
+);
 
 typedef CalculateNodeLayoutNativeType = Pointer<Int64> Function(
-    Int32 engindId,
-    Uint32 rootId,
-    Int32 nodeId,
-    Double width,
-    Int32 widthMode,
-    Double height,
-    Int32 heightMode);
+  Int32 engindId,
+  Uint32 rootId,
+  Int32 nodeId,
+  Double width,
+  Int32 widthMode,
+  Double height,
+  Int32 heightMode,
+);
 
-typedef GlobalCallbackNativeType = Void Function(Int32 callbackId, Int64 value);
+typedef GlobalCallbackNativeType = Void Function(
+  Int32 callbackId,
+  Int64 value,
+);

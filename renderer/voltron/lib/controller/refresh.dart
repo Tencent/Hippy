@@ -19,6 +19,7 @@
 //
 
 import 'package:flutter/widgets.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -34,7 +35,8 @@ enum RefreshState {
   loading,
 }
 
-class RefreshWrapperController extends BaseGroupController<RefreshWrapperRenderViewModel> {
+class RefreshWrapperController
+    extends BaseGroupController<RefreshWrapperRenderViewModel> {
   static const String kWrapperKey = "refresh_wrapper";
 
   static const kPreloadItemSize = "preloadItemSize";
@@ -43,20 +45,25 @@ class RefreshWrapperController extends BaseGroupController<RefreshWrapperRenderV
   static const String kStartRefresh = "startRefresh";
 
   @override
-  RefreshWrapperRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
-    return RefreshWrapperRenderViewModel(node.id, node.rootId, node.name, context);
+  RefreshWrapperRenderViewModel createRenderViewModel(
+      RenderNode node, RenderContext context) {
+    return RefreshWrapperRenderViewModel(
+        node.id, node.rootId, node.name, context);
   }
 
   @override
-  Widget createWidget(BuildContext context, RefreshWrapperRenderViewModel viewModel) {
+  Widget createWidget(
+      BuildContext context, RefreshWrapperRenderViewModel viewModel) {
     return RefreshWrapperWidget(viewModel);
   }
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
         NodeProps.kBounceTime: ControllerMethodProp(bounceTime, 300),
-        NodeProps.kOnScrollEnable: ControllerMethodProp(setOnScrollEventEnable, true),
-        NodeProps.kScrollEventThrottle: ControllerMethodProp(setScrollEventThrottle, 400),
+        NodeProps.kOnScrollEnable:
+            ControllerMethodProp(setOnScrollEventEnable, true),
+        NodeProps.kScrollEventThrottle:
+            ControllerMethodProp(setScrollEventThrottle, 400),
         kPreloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
       };
 
@@ -64,30 +71,45 @@ class RefreshWrapperController extends BaseGroupController<RefreshWrapperRenderV
   String get name => kClassName;
 
   @ControllerProps(NodeProps.kBounceTime)
-  void bounceTime(RefreshWrapperRenderViewModel renderViewModel, int bounceTime) {
+  void bounceTime(
+    RefreshWrapperRenderViewModel renderViewModel,
+    int bounceTime,
+  ) {
     renderViewModel.bounceTime = bounceTime;
   }
 
   @ControllerProps(NodeProps.kOnScrollEnable)
-  void setOnScrollEventEnable(RefreshWrapperRenderViewModel renderViewModel, bool flag) {
+  void setOnScrollEventEnable(
+    RefreshWrapperRenderViewModel renderViewModel,
+    bool flag,
+  ) {
     renderViewModel.scrollGestureDispatcher.scrollEnable = flag;
   }
 
   @ControllerProps(NodeProps.kScrollEventThrottle)
   void setScrollEventThrottle(
-      RefreshWrapperRenderViewModel renderViewModel, int scrollEventThrottle) {
-    renderViewModel.scrollGestureDispatcher.scrollEventThrottle = scrollEventThrottle;
+    RefreshWrapperRenderViewModel renderViewModel,
+    int scrollEventThrottle,
+  ) {
+    renderViewModel.scrollGestureDispatcher.scrollEventThrottle =
+        scrollEventThrottle;
   }
 
   @ControllerProps(kPreloadItemSize)
-  void setPreloadItemSize(RefreshWrapperRenderViewModel renderViewModel, double preloadItemSize) {
+  void setPreloadItemSize(
+    RefreshWrapperRenderViewModel renderViewModel,
+    double preloadItemSize,
+  ) {
     renderViewModel.preloadSize = preloadItemSize;
   }
 
   @override
   void dispatchFunction(
-      RefreshWrapperRenderViewModel viewModel, String functionName, VoltronArray array,
-      {Promise? promise}) {
+    RefreshWrapperRenderViewModel viewModel,
+    String functionName,
+    VoltronArray array, {
+    Promise? promise,
+  }) {
     super.dispatchFunction(viewModel, functionName, array, promise: promise);
     if (kRefreshComplected == functionName) {
       viewModel.refreshEventDispatcher.refreshComplected();
@@ -98,18 +120,17 @@ class RefreshWrapperController extends BaseGroupController<RefreshWrapperRenderV
 }
 
 class RefreshEventDispatcher {
+  final int _rootId;
   final int _id;
   final RenderContext _context;
 
-  final RefreshController _refreshController = RefreshController(initialRefresh: false);
+  final RefreshController _refreshController = RefreshController(
+    initialRefresh: false,
+  );
 
   RefreshController get refreshController => _refreshController;
 
-  RefreshEventDispatcher(this._id, this._context);
-
-  void _handleEvent(String type) {
-    _context.eventHandler.receiveUIComponentEvent(_id, type, null);
-  }
+  RefreshEventDispatcher(this._rootId, this._id, this._context);
 
   void refreshComplected() {
     _refreshController.refreshCompleted();
@@ -121,6 +142,6 @@ class RefreshEventDispatcher {
 
   void startRefresh() {
     _refreshController.requestRefresh(needMove: true);
-    _handleEvent(NodeProps.kOnRefresh);
+    _context.bridgeManager.sendComponentEvent(_rootId, _id, "refresh", {});
   }
 }

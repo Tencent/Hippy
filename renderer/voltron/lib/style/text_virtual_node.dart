@@ -55,8 +55,7 @@ class TextVirtualNode extends VirtualNode {
   TextAlign _textAlign = TextAlign.start;
   FontStyle _fontStyle = FontStyle.normal;
   FontWeight? _fontWeight;
-  String? _whiteSpace;
-  TextOverflow _textOverflow = TextOverflow.visible;
+  TextOverflow _textOverflow = TextOverflow.ellipsis;
   double customTextScale = 1.0;
 
   // 文本阴影属性
@@ -82,26 +81,9 @@ class TextVirtualNode extends VirtualNode {
 
   bool get enableScale => _enableScale;
 
-  final List<PlaceholderDimensions> _placeholderDimensions = [];
+  List<PlaceholderDimensions> _placeholderDimensions = [];
 
   String get _text {
-    if (_whiteSpace == null || _whiteSpace == 'normal' || _whiteSpace == 'nowrap') {
-      // 连续的空白符会被合并，换行符会被当作空白符来处理
-      return _sourceText
-              ?.replaceAll(RegExp(r' +'), ' ')
-              .replaceAll('\n', ' ')
-              .replaceAll(RegExp(r'<br\s*/?>'), ' ') ??
-          '';
-    }
-    if (_whiteSpace == 'pre-line') {
-      // 连续的空白符会被合并。在遇到换行符或者<br>元素，才换行
-      return _sourceText?.replaceAll(RegExp(r' +'), ' ').replaceAll(RegExp(r'<br\s*/?>'), '\n') ??
-          '';
-    }
-    if (_whiteSpace == 'pre') {
-      // 连续的空白符会被保留。在遇到换行符或者<br>元素，才换行
-      return _sourceText?.replaceAll(RegExp(r'<br\s*/?>'), '\n') ?? '';
-    }
     return _sourceText ?? '';
   }
 
@@ -217,7 +199,8 @@ class TextVirtualNode extends VirtualNode {
   void textDecorationLine(String textDecorationLineString) {
     _isUnderlineTextDecorationSet = false;
     _isLineThroughTextDecorationSet = false;
-    for (var textDecorationLineSubString in textDecorationLineString.split(" ")) {
+    for (var textDecorationLineSubString
+        in textDecorationLineString.split(" ")) {
       if ("underline" == textDecorationLineSubString) {
         _isUnderlineTextDecorationSet = true;
       } else if ("line-through" == textDecorationLineSubString) {
@@ -237,7 +220,8 @@ class TextVirtualNode extends VirtualNode {
       'wavy': TextDecorationStyle.wavy,
     };
 
-    _textDecorationStyle = propertyMap[textDecorationStyleString] ?? TextDecorationStyle.solid;
+    _textDecorationStyle =
+        propertyMap[textDecorationStyleString] ?? TextDecorationStyle.solid;
     markDirty();
   }
 
@@ -249,8 +233,14 @@ class TextVirtualNode extends VirtualNode {
 
   @ControllerProps(NodeProps.kPropShadowOffset)
   void textShadowOffset(VoltronMap offsetMap) {
-    _textShadowOffsetDx = offsetMap.get(NodeProps.kPropShadowOffsetWidth)?.toDouble() ?? 0.0;
-    _textShadowOffsetDy = offsetMap.get(NodeProps.kPropShadowOffsetHeight)?.toDouble() ?? 0.0;
+    _textShadowOffsetDx =
+        offsetMap.get<double>(NodeProps.kPropShadowOffsetWidth) ??
+            offsetMap.get<int>(NodeProps.kPropShadowOffsetWidth)?.toDouble() ??
+            0.0;
+    _textShadowOffsetDy =
+        offsetMap.get<double>(NodeProps.kPropShadowOffsetHeight) ??
+            offsetMap.get<int>(NodeProps.kPropShadowOffsetHeight)?.toDouble() ??
+            0.0;
     markDirty();
   }
 
@@ -307,31 +297,18 @@ class TextVirtualNode extends VirtualNode {
     markDirty();
   }
 
-  @ControllerProps(NodeProps.kWhiteSpace)
-  // ignore: use_setters_to_change_properties
-  void whiteSpace(String whiteSpace) {
-    _whiteSpace = whiteSpace;
-    markDirty();
-  }
-
-  @ControllerProps(NodeProps.kTextOverflow)
-  void setTextOverflow(String textOverflow) {
-    _textOverflow = parseTextOverflow(textOverflow);
-    markDirty();
-  }
-
-  static TextOverflow parseTextOverflow(String textOverflow) {
-    var v = TextOverflow.visible;
-    if ("ellipsis" == (textOverflow)) {
-      v = TextOverflow.ellipsis;
-    } else if ("clip" == (textOverflow)) {
-      v = TextOverflow.clip;
-    } else if ('fade' == (textOverflow)) {
-      v = TextOverflow.fade;
-    } else {
-      LogUtils.e(_kTag, "Invalid textOverflow: $textOverflow");
+  @ControllerProps(NodeProps.kEllipsizeMode)
+  void setEllipsizeMode(String ellipsizeMode) {
+    var textOverflow = _textOverflow;
+    if (ellipsizeMode == 'tail') {
+      textOverflow = TextOverflow.ellipsis;
+    } else if (ellipsizeMode == 'clip') {
+      textOverflow = TextOverflow.clip;
     }
-    return v;
+    if (textOverflow != _textOverflow) {
+      _textOverflow = textOverflow;
+      markDirty();
+    }
   }
 
   @ControllerProps(NodeProps.kPropEnableScale)
@@ -361,8 +338,8 @@ class TextVirtualNode extends VirtualNode {
     }
 
     var childrenSpan = <InlineSpan>[];
-
     if (useChild) {
+      _placeholderDimensions = [];
       for (var i = 0; i < childCount; i++) {
         var node = getChildAt(i);
         if (node != null) {
@@ -419,7 +396,9 @@ class TextVirtualNode extends VirtualNode {
           decorationColor: Color(_textDecorationColor),
         ),
         children: childrenSpan,
-        recognizer: nativeGestureDispatcher.needListener() ? _tapGestureRecognizer : null,
+        recognizer: nativeGestureDispatcher.needListener()
+            ? _tapGestureRecognizer
+            : null,
       );
     }
     return const TextSpan(text: "");
@@ -445,7 +424,8 @@ class TextVirtualNode extends VirtualNode {
   }
 
   TextPainter createPainter(double width, FlexMeasureMode widthMode) {
-    var unconstrainedWidth = widthMode == FlexMeasureMode.undefined || width < 0;
+    var unconstrainedWidth =
+        widthMode == FlexMeasureMode.undefined || width < 0;
     var maxWidth = unconstrainedWidth ? double.infinity : width;
     if (span == null || dirty) {
       span = createSpan(useChild: true);
@@ -494,138 +474,149 @@ class TextVirtualNode extends VirtualNode {
 class TextMethodProvider extends StyleMethodPropProvider {
   TextMethodProvider() {
     pushMethodProp(
-        NodeProps.kFontStyle,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.fontStyle(value);
-          }
-        }, "normal"));
+      NodeProps.kFontStyle,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.fontStyle(value);
+        }
+      }, "normal"),
+    );
     pushMethodProp(
-        NodeProps.kLetterSpacing,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is double) {
-            consumer.letterSpacing(value);
-          }
-        }, -1.0));
+      NodeProps.kLetterSpacing,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is double) {
+          consumer.letterSpacing(value);
+        }
+      }, -1.0),
+    );
     pushMethodProp(
-        NodeProps.kColor,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is int) {
-            consumer.color(value);
-          }
-        }, Colors.transparent.value));
+      NodeProps.kColor,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is int) {
+          consumer.color(value);
+        }
+      }, Colors.transparent.value),
+    );
     pushMethodProp(
-        NodeProps.kFontSize,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is double) {
-            consumer.fontSize(value);
-          }
-        }, NodeProps.kDefaultFontSizeSp));
+      NodeProps.kFontSize,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is double) {
+          consumer.fontSize(value);
+        }
+      }, NodeProps.kDefaultFontSizeSp),
+    );
     pushMethodProp(
-        NodeProps.kNumberOfLines,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is int) {
-            consumer.setNumberOfLines(value);
-          }
-        }, kMaxLineCount));
+      NodeProps.kNumberOfLines,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is int) {
+          consumer.setNumberOfLines(value);
+        }
+      }, kMaxLineCount),
+    );
     pushMethodProp(
-        NodeProps.kFontFamily,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.fontFamily(value);
-          }
-        }, ""));
+      NodeProps.kFontFamily,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.fontFamily(value);
+        }
+      }, ""),
+    );
     pushMethodProp(
-        NodeProps.kFontWeight,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.fontWeight(value);
-          }
-        }, ""));
+      NodeProps.kFontWeight,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.fontWeight(value);
+        }
+      }, ""),
+    );
     pushMethodProp(
-        NodeProps.kTextDecorationLine,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.textDecorationLine(value);
-          }
-        }, ""));
+      NodeProps.kTextDecorationLine,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.textDecorationLine(value);
+        }
+      }, ""),
+    );
     pushMethodProp(
-        NodeProps.kTextDecorationStyle,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.textDecorationStyle(value);
-          }
-        }, ""));
+      NodeProps.kTextDecorationStyle,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.textDecorationStyle(value);
+        }
+      }, ""),
+    );
     pushMethodProp(
-        NodeProps.kTextDecorationColor,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is int) {
-            consumer.textDecorationColor(value);
-          }
-        }, Colors.black.value));
+      NodeProps.kTextDecorationColor,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is int) {
+          consumer.textDecorationColor(value);
+        }
+      }, Colors.black.value),
+    );
     pushMethodProp(
-        NodeProps.kPropShadowOffset,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is VoltronMap) {
-            consumer.textShadowOffset(value);
-          }
-        }, null));
+      NodeProps.kPropShadowOffset,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is VoltronMap) {
+          consumer.textShadowOffset(value);
+        }
+      }, null),
+    );
     pushMethodProp(
-        NodeProps.kPropShadowRadius,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is double) {
-            consumer.textShadowRadius(value);
-          }
-        }, 0));
+      NodeProps.kPropShadowRadius,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is double) {
+          consumer.textShadowRadius(value);
+        }
+      }, 0),
+    );
     pushMethodProp(
-        NodeProps.kPropShadowColor,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is int) {
-            consumer.setTextShadowColor(value);
-          }
-        }, Colors.transparent.value));
+      NodeProps.kPropShadowColor,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is int) {
+          consumer.setTextShadowColor(value);
+        }
+      }, Colors.transparent.value),
+    );
     pushMethodProp(
-        NodeProps.kLineHeight,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is int) {
-            consumer.lineHeight(value);
-          }
-        }, -1));
+      NodeProps.kLineHeight,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is int) {
+          consumer.lineHeight(value);
+        }
+      }, -1),
+    );
     pushMethodProp(
-        NodeProps.kTextAlign,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.setTextAlign(value);
-          }
-        }, "left"));
+      NodeProps.kTextAlign,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.setTextAlign(value);
+        }
+      }, "left"),
+    );
     pushMethodProp(
-        NodeProps.kText,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.text(value);
-          }
-        }, ""));
+      NodeProps.kText,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.text(value);
+        }
+      }, ""),
+    );
     pushMethodProp(
-        NodeProps.kTextOverflow,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.setTextOverflow(value);
-          }
-        }, ""));
+      NodeProps.kEllipsizeMode,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is String) {
+          consumer.setEllipsizeMode(value);
+        }
+      }, ""),
+    );
     pushMethodProp(
-        NodeProps.kPropEnableScale,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is bool) {
-            consumer.enableScale = value;
-          }
-        }, false));
-    pushMethodProp(
-        NodeProps.kWhiteSpace,
-        StyleMethodProp((consumer, value) {
-          if (consumer is TextVirtualNode && value is String) {
-            consumer.whiteSpace(value);
-          }
-        }, "normal"));
+      NodeProps.kPropEnableScale,
+      StyleMethodProp((consumer, value) {
+        if (consumer is TextVirtualNode && value is bool) {
+          consumer.enableScale = value;
+        }
+      }, false),
+    );
   }
 }
 

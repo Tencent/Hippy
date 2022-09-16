@@ -81,13 +81,13 @@ class StorageModule extends VoltronNativeModule {
     }
     var handleData = <StorageKeyValue>[];
     StorageKeyValue keyValue;
-    VoltronArray array;
+    VoltronArray? array;
     String? key;
     String? value;
     for (var idx = 0; idx < keyValues.size(); idx++) {
-      array = keyValues.get(idx);
+      array = keyValues.get<VoltronArray>(idx);
 
-      if (array.size() != 2) {
+      if (array == null || array.size() != 2) {
         promise.reject("Invalid Value");
         return true;
       }

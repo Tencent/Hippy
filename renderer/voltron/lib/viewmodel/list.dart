@@ -59,7 +59,7 @@ class ListViewModel extends ScrollableModel {
     String className,
     RenderContext context,
   ) : super(id, instanceId, className, context) {
-    refreshEventDispatcher = RefreshEventDispatcher(id, context);
+    refreshEventDispatcher = RefreshEventDispatcher(rootId, id, context);
   }
 
   ListViewModel.copy(
@@ -188,13 +188,6 @@ class ListViewModel extends ScrollableModel {
     super.removeViewModel(child);
   }
 
-  @override
-  void dispose() {
-    // pull_to_refresh will auto dispose after 1.5
-    // refreshEventDispatcher.refreshController.dispose();
-    super.dispose();
-  }
-
   void scrollToIndex(int index, int duration, bool animate) {
     scrollToOffset(calculateOffsetOfIndex(index), duration, animate);
   }
@@ -233,7 +226,7 @@ class ListViewModel extends ScrollableModel {
   }
 
   void sendEvent(String eventName, VoltronMap params) {
-    context.eventHandler.receiveUIComponentEvent(id, eventName, params);
+    context.bridgeManager.sendComponentEvent(rootId, id, eventName, params);
   }
 }
 

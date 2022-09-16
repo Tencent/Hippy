@@ -19,6 +19,7 @@
 //
 
 import 'package:flutter/material.dart';
+
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:gradient_like_css/gradient_like_css.dart';
 
@@ -154,7 +155,8 @@ class RenderViewModel extends ChangeNotifier {
 
   double? get height => _height;
 
-  bool get noPosition => _x == null || _y == null || _x == double.nan || _y == double.nan;
+  bool get noPosition =>
+      _x == null || _y == null || _x == double.nan || _y == double.nan;
 
   bool get noSize =>
       _width == null ||
@@ -265,10 +267,14 @@ class RenderViewModel extends ChangeNotifier {
       var layoutW = other.width;
       var h = height;
       var layoutH = other.height;
-      var xEqual = x == layoutX || (x != null && x.isNaN && layoutX != null && layoutX.isNaN);
-      var yEqual = y == layoutY || (y != null && y.isNaN && layoutY != null && layoutY.isNaN);
-      var wEqual = w == layoutW || (w != null && w.isNaN && layoutW != null && layoutW.isNaN);
-      var hEqual = h == layoutH || (h != null && h.isNaN && layoutH != null && layoutH.isNaN);
+      var xEqual = x == layoutX ||
+          (x != null && x.isNaN && layoutX != null && layoutX.isNaN);
+      var yEqual = y == layoutY ||
+          (y != null && y.isNaN && layoutY != null && layoutY.isNaN);
+      var wEqual = w == layoutW ||
+          (w != null && w.isNaN && layoutW != null && layoutW.isNaN);
+      var hEqual = h == layoutH ||
+          (h != null && h.isNaN && layoutH != null && layoutH.isNaN);
       sizeEqual = xEqual && yEqual && wEqual && hEqual;
     }
 
@@ -388,7 +394,11 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   NativeGestureDispatcher createDispatcher() {
-    return NativeGestureDispatcher(rootId: rootId, id: id, context: _renderContext);
+    return NativeGestureDispatcher(
+      rootId: rootId,
+      id: id,
+      context: _renderContext,
+    );
   }
 
   void updateLayout(double x, double y, double width, double height) {
@@ -641,7 +651,12 @@ class RenderViewModel extends ChangeNotifier {
       var angle = linearGradientMap.get<String>("angle");
       var colorStopList = linearGradientMap.get<VoltronArray>("colorStopList");
       if (angle != null && colorStopList != null) {
-        return GradientUtil.generateHippyLinearGradient(w, h, angle, colorStopList);
+        return GradientUtil.generateHippyLinearGradient(
+          w,
+          h,
+          angle,
+          colorStopList,
+        );
       }
     }
     return null;
@@ -766,7 +781,13 @@ class RenderViewModel extends ChangeNotifier {
     var bgImg = backgroundImage;
     if (bgImg is! String || bgImg == '') return null;
     var imgFit = resizeModeToBoxFit(backgroundImgSize);
-    const alignMap = {'left': -1.0, 'center': 0.0, 'right': 1.0, 'top': -1.0, 'bottom': 1.0};
+    const alignMap = {
+      'left': -1.0,
+      'center': 0.0,
+      'right': 1.0,
+      'top': -1.0,
+      'bottom': 1.0
+    };
     var alignX = alignMap[backgroundPositionX] ?? -1.0;
     var alignY = alignMap[backgroundPositionY] ?? -1.0;
     var alignment = Alignment(alignX, alignY);
@@ -894,10 +915,18 @@ class TransformOrigin {
       return;
     }
 
-    final alignX = transformOriginMap.get('alignX').toDouble();
-    final alignY = transformOriginMap.get('alignY').toDouble();
-    final offsetX = transformOriginMap.get('offsetX').toDouble();
-    final offsetY = transformOriginMap.get('offsetY').toDouble();
+    final alignX = transformOriginMap.get<double>('alignX') ??
+        transformOriginMap.get<int>('alignX')?.toDouble() ??
+        0.0;
+    final alignY = transformOriginMap.get<double>('alignY') ??
+        transformOriginMap.get<int>('alignY')?.toDouble() ??
+        0.0;
+    final offsetX = transformOriginMap.get<double>('offsetX') ??
+        transformOriginMap.get<int>('offsetX')?.toDouble() ??
+        0.0;
+    final offsetY = transformOriginMap.get<double>('offsetY') ??
+        transformOriginMap.get<int>('offsetY')?.toDouble() ??
+        0.0;
     final newAlignment = Alignment(alignX, alignY);
     final newOffset = Offset(offsetX, offsetY);
     offset = newOffset;
@@ -906,7 +935,9 @@ class TransformOrigin {
 
   @override
   bool operator ==(Object other) {
-    return other is TransformOrigin && offset == other.offset && alignment == other.alignment;
+    return other is TransformOrigin &&
+        offset == other.offset &&
+        alignment == other.alignment;
   }
 
   @override

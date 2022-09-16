@@ -145,23 +145,37 @@ class ViewPagerRenderViewModel extends GroupViewModel {
   }
 
   void setScrollState(String pageScrollState) {
-    var map = VoltronMap();
-    map.push("pageScrollState", pageScrollState);
-    context.eventHandler
-        .receiveUIComponentEvent(id, "onPageScrollStateChanged", map);
+    var params = VoltronMap();
+    params.push("pageScrollState", pageScrollState);
+    context.bridgeManager.sendComponentEvent(
+      rootId,
+      id,
+      "pageScrollStateChanged",
+      params,
+    );
   }
 
   void onPageSelect(int page) {
-    var map = VoltronMap();
-    map.push("position", page);
-    context.eventHandler.receiveUIComponentEvent(id, "onPageSelected", map);
+    var params = VoltronMap();
+    params.push("position", page);
+    context.bridgeManager.sendComponentEvent(
+      rootId,
+      id,
+      "pageSelected",
+      params,
+    );
   }
 
   void onPageScroll(int position, double offset) {
-    var map = VoltronMap();
-    map.push("position", position);
-    map.push("offset", offset);
-    context.eventHandler.receiveUIComponentEvent(id, "onPageScroll", map);
+    var params = VoltronMap();
+    params.push("position", position);
+    params.push("offset", offset);
+    context.bridgeManager.sendComponentEvent(
+      rootId,
+      id,
+      "pageScroll",
+      params,
+    );
   }
 }
 

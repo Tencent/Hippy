@@ -11,7 +11,8 @@ class ImageVirtualNode extends VirtualNode {
   static const String propVerticalAlignment = "verticalAlignment";
   static const String propVerticalAlign = "verticalAlign";
 
-  static ImageSpanMethodProvider sImageSpanMethodProvider = ImageSpanMethodProvider();
+  static ImageSpanMethodProvider sImageSpanMethodProvider =
+      ImageSpanMethodProvider();
 
   double mWidth = 0.0;
   double mHeight = 0.0;
@@ -48,12 +49,14 @@ class ImageVirtualNode extends VirtualNode {
   @ControllerProps(NodeProps.kSource)
   void source(VoltronArray source) {
     if (source.size() == 0) return;
-    VoltronMap firstObj = source.get(0);
-    String src = firstObj.get('uri');
-    var srcComputed = context.convertRelativePath(rootId, src);
-    if (srcComputed != imgSrc) {
-      imgSrc = srcComputed;
-      _isFirstLoad = true;
+    VoltronMap? firstObj = source.get<VoltronMap>(0);
+    String? src = firstObj?.get<String>('uri');
+    if (src != null) {
+      var srcComputed = context.convertRelativePath(rootId, src);
+      if (srcComputed != imgSrc) {
+        imgSrc = srcComputed;
+        _isFirstLoad = true;
+      }
     }
   }
 
@@ -115,12 +118,12 @@ class ImageVirtualNode extends VirtualNode {
     mHeight = v;
   }
 
-  void _handleImageEvent(
+  void _sendComponentEvent(
     String type,
     VoltronMap params,
   ) {
-    if (!_imageEventTypes.contains(type)) return;
-    context.eventHandler.receiveUIComponentEvent(
+    context.bridgeManager.sendComponentEvent(
+      rootId,
       id,
       type,
       params,
@@ -135,20 +138,20 @@ class ImageVirtualNode extends VirtualNode {
       var img = getImage(imgSrc);
       if (_imageEventTypes.isNotEmpty) {
         if (imgSrc == src && isFirstLoad) {
-          _handleImageEvent(
-            NodeProps.kOnLoadStart,
+          _sendComponentEvent(
+            "loadStart",
             VoltronMap(),
           );
         }
         img.resolve(const ImageConfiguration()).addListener(ImageStreamListener(
               (image, flag) {
                 if (imgSrc == src && isFirstLoad) {
-                  _handleImageEvent(
-                    NodeProps.kOnLoad,
+                  _sendComponentEvent(
+                    "load",
                     VoltronMap(),
                   );
-                  _handleImageEvent(
-                    NodeProps.kOnLoadEnd,
+                  _sendComponentEvent(
+                    "loadEnd",
                     VoltronMap(),
                   );
                 }
@@ -161,8 +164,8 @@ class ImageVirtualNode extends VirtualNode {
                     var params = VoltronMap();
                     params.push('loaded', loaded);
                     params.push('total', total);
-                    _handleImageEvent(
-                      NodeProps.kOnProgress,
+                    _sendComponentEvent(
+                      "progress",
                       params,
                     );
                   }
@@ -170,12 +173,12 @@ class ImageVirtualNode extends VirtualNode {
               },
               onError: (exception, stackTrace) {
                 if (imgSrc == src && isFirstLoad) {
-                  _handleImageEvent(
-                    NodeProps.kOnError,
+                  _sendComponentEvent(
+                    "error",
                     VoltronMap(),
                   );
-                  _handleImageEvent(
-                    NodeProps.kOnLoadEnd,
+                  _sendComponentEvent(
+                    "loadEnd",
                     VoltronMap(),
                   );
                 }
@@ -197,10 +200,14 @@ class ImageVirtualNode extends VirtualNode {
       if (nativeGestureDispatcher.needListener()) {
         current = Listener(
           behavior: HitTestBehavior.opaque,
-          onPointerDown: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
-          onPointerCancel: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
-          onPointerMove: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
-          onPointerUp: (event) => nativeGestureDispatcher.handleOnTouchEvent(event),
+          onPointerDown: (event) =>
+              nativeGestureDispatcher.handleOnTouchEvent(event),
+          onPointerCancel: (event) =>
+              nativeGestureDispatcher.handleOnTouchEvent(event),
+          onPointerMove: (event) =>
+              nativeGestureDispatcher.handleOnTouchEvent(event),
+          onPointerUp: (event) =>
+              nativeGestureDispatcher.handleOnTouchEvent(event),
           child: GestureDetector(
             onTap: () => nativeGestureDispatcher.handleClick(),
             onLongPress: () => nativeGestureDispatcher.handleLongClick(),
@@ -231,91 +238,124 @@ class ImageSpanMethodProvider extends StyleMethodPropProvider {
   ImageSpanMethodProvider() {
     pushMethodProp(
       NodeProps.kSrc,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is String) {
-          consumer.src(value);
-        }
-      }, ''),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is String) {
+            consumer.src(value);
+          }
+        },
+        '',
+      ),
     );
     pushMethodProp(
       NodeProps.kSource,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is VoltronArray) {
-          consumer.source(value);
-        }
-      }, VoltronArray()),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is VoltronArray) {
+            consumer.source(value);
+          }
+        },
+        VoltronArray(),
+      ),
     );
     pushMethodProp(
       NodeProps.kOnProgress,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.setOnProgress(value);
-        }
-      }, false),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is bool) {
+            consumer.setOnProgress(value);
+          }
+        },
+        false,
+      ),
     );
     pushMethodProp(
       NodeProps.kOnLoadStart,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.setOnLoadStart(value);
-        }
-      }, false),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is bool) {
+            consumer.setOnLoadStart(value);
+          }
+        },
+        false,
+      ),
     );
     pushMethodProp(
       NodeProps.kOnLoad,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.setOnLoad(value);
-        }
-      }, false),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is bool) {
+            consumer.setOnLoad(value);
+          }
+        },
+        false,
+      ),
     );
     pushMethodProp(
       NodeProps.kOnLoadEnd,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.setOnLoadEnd(value);
-        }
-      }, false),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is bool) {
+            consumer.setOnLoadEnd(value);
+          }
+        },
+        false,
+      ),
     );
     pushMethodProp(
       NodeProps.kOnError,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is bool) {
-          consumer.setOnError(value);
-        }
-      }, false),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is bool) {
+            consumer.setOnError(value);
+          }
+        },
+        false,
+      ),
     );
     pushMethodProp(
       ImageVirtualNode.propVerticalAlignment,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is String) {
-          consumer.setVerticalAlignment(value);
-        }
-      }, ''),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is String) {
+            consumer.setVerticalAlignment(value);
+          }
+        },
+        '',
+      ),
     );
     pushMethodProp(
       ImageVirtualNode.propVerticalAlign,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is String) {
-          consumer.setVerticalAlignment(value);
-        }
-      }, ''),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is String) {
+            consumer.setVerticalAlignment(value);
+          }
+        },
+        '',
+      ),
     );
     pushMethodProp(
       NodeProps.kWidth,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is double) {
-          consumer.setWidth(value);
-        }
-      }, 0.0),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is double) {
+            consumer.setWidth(value);
+          }
+        },
+        0.0,
+      ),
     );
     pushMethodProp(
       NodeProps.kHeight,
-      StyleMethodProp((consumer, value) {
-        if (consumer is ImageVirtualNode && value is double) {
-          consumer.setHeight(value);
-        }
-      }, 0.0),
+      StyleMethodProp(
+        (consumer, value) {
+          if (consumer is ImageVirtualNode && value is double) {
+            consumer.setHeight(value);
+          }
+        },
+        0.0,
+      ),
     );
   }
 }

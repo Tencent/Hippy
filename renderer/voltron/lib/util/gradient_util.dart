@@ -112,10 +112,9 @@ class GradientUtil {
     var colors = <Color>[];
     var stops = <double>[];
     for (var i = 0; i < colorStopList.size(); i++) {
-      VoltronMap colorStop = colorStopList.get(i);
-      var color = colorStop.get<double>('color')?.toInt();
-      color ??= colorStop.get<int>('color');
-      var stop = colorStop.get<double>('ratio');
+      VoltronMap? colorStop = colorStopList.get<VoltronMap>(i);
+      var color = colorStop?.get<int>('color') ?? colorStop?.get<double>('color')?.toInt();
+      var stop = colorStop?.get<double>('ratio');
       if (color != null) colors.add(Color(color));
       if (stop != null) stops.add(stop);
     }

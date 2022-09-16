@@ -98,20 +98,21 @@ class DialogModule extends VoltronNativeModule {
 
   @VoltronMethod(kFuncToast)
   bool toast(VoltronMap message, JSPromise promise) {
-    var gravity = message.get('gravity') ?? 'bottom';
-    var text = message.get('message') ?? '';
+    var gravity = message.get<String>('gravity') ?? 'bottom';
+    var text = message.get<String>('message') ?? '';
     Fluttertoast.showToast(
-        msg: text,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: _getToastGravity(gravity),
-        timeInSecForIosWeb: 1);
+      msg: text,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: _getToastGravity(gravity),
+      timeInSecForIosWeb: 1,
+    );
     return true;
   }
 
   @VoltronMethod(kFuncAlert)
   Future<bool> alert(int rootId, VoltronMap message, JSPromise promise) async {
-    var text = message.get('message') ?? '';
-    var textOK = message.get('textOK') ?? '确定';
+    var text = message.get<String>('message') ?? '';
+    var textOK = message.get<String>('textOK') ?? '确定';
     var buildContext = _context?.getInstance(rootId)?.rootKey.currentContext;
     var ret = false;
     if (buildContext != null) {
@@ -128,9 +129,9 @@ class DialogModule extends VoltronNativeModule {
   @VoltronMethod(kFuncConfirm)
   Future<bool> confirm(
       int rootId, VoltronMap message, JSPromise promise) async {
-    var text = message.get('message') ?? '';
-    var textOK = message.get('textOK') ?? '确定';
-    var textCancel = message.get('textOK') ?? '取消';
+    var text = message.get<String>('message') ?? '';
+    var textOK = message.get<String>('textOK') ?? '确定';
+    var textCancel = message.get<String>('textOK') ?? '取消';
     var buildContext = _context?.getInstance(rootId)?.rootKey.currentContext;
     var ret = false;
     if (buildContext != null) {
@@ -147,9 +148,9 @@ class DialogModule extends VoltronNativeModule {
 
   @VoltronMethod(kFuncPrompt)
   Future<bool> prompt(int rootId, VoltronMap message, JSPromise promise) async {
-    var text = message.get('title') ?? '';
-    var textOK = message.get('textOK') ?? '确定';
-    var textCancel = message.get('textOK') ?? '取消';
+    var text = message.get<String>('title') ?? '';
+    var textOK = message.get<String>('textOK') ?? '确定';
+    var textCancel = message.get<String>('textOK') ?? '取消';
     var buildContext = _context?.getInstance(rootId)?.rootKey.currentContext;
     String? value;
     if (buildContext != null) {
