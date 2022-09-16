@@ -32,10 +32,7 @@ add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/renderer/tdf/common/include)
 # remove dependency of scope.h After VFS finished
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_ROOT_DIR}/driver/js/include)
-# region end
-
 target_compile_definitions(${PROJECT_NAME} INTERFACE "ENABLE_TDF_RENDER")
-
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 # endregion
 
@@ -50,16 +47,18 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PUBLIC footstone)
 # endregion
 
+# region tdfcore
 # Consider iOS intergration in the future
 if (ANDROID)
   set (TDFCORE_LIB_NAME "android-${ANDROID_ARCH_NAME}.zip")
 elseif (IOS)
+  message(FATAL_ERROR "unsupport platform")
 endif()
-
 InfraPackage_Add(TDF
   REMOTE "renderer/tdf/third_party/tdfcore/${TDF_CORE_VERSION}/${TDFCORE_LIB_NAME}"
   LOCAL "${PROJECT_ROOT_DIR}/third_party/tdfcore")
 target_link_libraries(${PROJECT_NAME} PUBLIC tdf)
+# endregion
 
 # region source set
 set(SRC_SET
@@ -82,4 +81,4 @@ set(SRC_SET
         src/renderer/tdf/view/view_pager.cc
         )
 target_sources(${PROJECT_NAME} PRIVATE ${SRC_SET})
-
+# endregion

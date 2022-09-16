@@ -27,18 +27,21 @@ set(CMAKE_CXX_STANDARD 17)
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-# region end
+# endregion
 
+# region jni
 GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PUBLIC jni)
+# endregion
 
+# region tdf-rendre-common
 add_subdirectory(${PROJECT_ROOT_DIR}/renderer/tdf/common tdf_renderer_common/build)
 target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer_common)
+# endregion
 
 # region source set
 set(SOURCE_SET_STANDALONE
         src/render/tdf_render_bridge.cc)
-# target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.
 #   * `.o` files in the linker always go inside, referenced or not.
