@@ -91,7 +91,7 @@ class SelectorsMap {
     }
     const selectors = selectorClasses
       .filter(arr => !!arr)
-      .reduce((cur, next) => cur.concat(next), []);
+      .reduce((cur, next) => cur.concat(next || []), []);
 
     const selectorsMatch = new SelectorsMatch();
 

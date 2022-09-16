@@ -211,7 +211,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 #demo-pull-header-footer {
   flex: 1;
   padding: 12px;
