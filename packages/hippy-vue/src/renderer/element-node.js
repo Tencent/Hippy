@@ -445,6 +445,10 @@ class ElementNode extends ViewNode {
     this._styleScopeId = styleScopeId;
   }
 
+  get styleScopeId() {
+    return this._styleScopeId;
+  }
+
   appendChild(childNode) {
     if (childNode && childNode.meta.symbol === Text) {
       this.setText(childNode.text, { notToNative: true });
