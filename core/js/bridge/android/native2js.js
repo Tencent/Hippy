@@ -117,6 +117,10 @@ global.hippyBridge = (_action, _callObj) => {
       Hippy.bridge.callNative('UIManagerModule', 'startBatch');
       Hippy.bridge.callNative('UIManagerModule', 'deleteNode', rootViewId, [{ id: rootViewId }]);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch');
+      // compatible for hippy1.x
+      delete __GLOBAL__.nodeIdCache[rootViewId];
+      delete __GLOBAL__.nodeTreeCache[rootViewId];
+      __GLOBAL__.destroyInstanceList[rootViewId] = true;
       break;
     }
     default: {
