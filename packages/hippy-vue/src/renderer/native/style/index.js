@@ -97,6 +97,8 @@ function createSelector(sel) {
     if (!parsedSelector) {
       return new InvalidSelector(new Error('Empty selector'));
     }
+    // parsedSelector.value is ast, like:
+    // [[[{type: '#', identifier: 'root'}, {type: '[]', property: 'data-v-5ef48958'}], undefined]]
     return createSelectorFromAst(parsedSelector.value);
   } catch (e) {
     return new InvalidSelector(e);
@@ -105,7 +107,6 @@ function createSelector(sel) {
 
 function fromAstNodes(astRules = []) {
   const beforeLoadStyle = getBeforeLoadStyle();
-
   return astRules.map((rule) => {
     const declarations = rule.declarations
       .filter(isDeclaration)
