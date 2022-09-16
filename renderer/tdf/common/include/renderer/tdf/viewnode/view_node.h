@@ -34,7 +34,6 @@
 #include "tdfview/view.h"
 #pragma clang diagnostic pop
 #include "core/common/listener.h"
-#include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
 #include "dom/dom_argument.h"
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
@@ -320,9 +319,11 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap &dom_style, std::shared_ptr<tdfcore::View> view);
 
  private:
-  void RegisterTapEvent(std::string &&event_type);
+  void RegisterClickEvent();
+  void RegisterLongClickEvent();
 
-  void RemoveTapEvent(std::string &&event_type);
+  void RemoveGestureEvent(std::string &&event_type);
+  void RemoveAllEventInfo();
 
   /**
    * @brief DomNode's RenderInfo.index is not always the related View's index, it may need to be corrected.
