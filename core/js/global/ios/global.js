@@ -33,6 +33,11 @@ __GLOBAL__._callbackID = 0;
 __GLOBAL__._callbacks = {};
 __GLOBAL__._notDeleteCallbackIds = {};
 __GLOBAL__._queue = [[], [], [], __GLOBAL__._callID];
+// compatible for hippy1.x
+__GLOBAL__.nodeIdCache = {};
+__GLOBAL__.nodeTreeCache = {};
+__GLOBAL__.nodeParamCache = {};
+__GLOBAL__.destroyInstanceList = {};
 
 __GLOBAL__.arrayContains = (array, value) => array.indexOf(value) !== -1;
 
