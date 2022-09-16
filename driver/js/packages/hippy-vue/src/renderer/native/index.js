@@ -396,6 +396,16 @@ function getEventNode(targetNode) {
   return eventNode;
 }
 
+function isStyleMatched(matchedSelector, targetNode) {
+  if (!targetNode || !matchedSelector) return false;
+  const nodeScopeId = targetNode.styleScopeId;
+  // set scopeId as element node attribute for style matching
+  nodeScopeId && (targetNode.attributes[nodeScopeId] = true);
+  const isMatched = matchedSelector.match(targetNode);
+  nodeScopeId && delete targetNode.attributes[nodeScopeId];
+  return isMatched;
+}
+
 /**
  * Render Element to native
  */
@@ -414,6 +424,7 @@ function renderToNative(rootViewId, targetNode, refInfo = {}) {
   // Apply styles from CSS
   const matchedSelectors = getCssMap().query(targetNode);
   matchedSelectors.selectors.forEach((matchedSelector) => {
+    if (!isStyleMatched(matchedSelector, targetNode)) return;
     matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
       style[cssStyle.property] = cssStyle.value;
     });
