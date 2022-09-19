@@ -663,6 +663,9 @@ export const Native: NativeApiType = {
 
       EventBus.$off(event, handler);
       networkSubscriptions.delete(listener);
+      if (networkSubscriptions.size < 1) {
+        Native.callNative('NetInfo', 'removeListener', event);
+      }
     },
   },
 
@@ -746,7 +749,10 @@ export const Native: NativeApiType = {
    * @param color - color string
    * @param options - parse options
    */
-  parseColor(color: string, options = { platform: Native.Platform }): number {
+  parseColor(color: string | number, options = { platform: Native.Platform }): number {
+    if (Number.isInteger(color)) {
+      return color as number;
+    }
     const cache = CACHE.COLOR_PARSER ?? (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
       // cache parse result

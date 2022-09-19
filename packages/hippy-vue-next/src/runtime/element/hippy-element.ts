@@ -36,6 +36,7 @@ import {
   unicodeToChar,
   warn,
   isEmpty,
+  deepCopy,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { getHippyCachedInstance } from '../../util/instance';
@@ -202,6 +203,9 @@ export class HippyElement extends HippyNode {
 
   // polyFill of native event
   protected polyFillNativeEvents?: (type: string) => string;
+
+  // style scoped id for element
+  private scopedId = '';
 
   constructor(tagName: string) {
     super(NodeType.ElementNode);
@@ -428,7 +432,7 @@ export class HippyElement extends HippyNode {
       !options.notToNative && this.updateNativeNode();
     } catch (err) {
       // Throw error in development mode
-      if (process.env.NODE_ENV !== 'production') {
+      if (!IS_PROD) {
         throw err;
       }
     }
@@ -782,6 +786,22 @@ export class HippyElement extends HippyNode {
   }
 
   /**
+   * save scoped id for element
+   *
+   * @param scopeStyleId - scoped style id
+   */
+  public setStyleScope(scopeStyleId: NeedToTyped): void {
+    this.scopedId = typeof scopeStyleId !== 'string' ? scopeStyleId.toString() : scopeStyleId;
+  }
+
+  /**
+   * get style scoped id
+   */
+  public get styleScopeId() {
+    return this.scopedId;
+  }
+
+  /**
    * get the inline style
    */
   private getInlineStyle(): NativeNodeProps {
@@ -812,6 +832,10 @@ export class HippyElement extends HippyNode {
     // rem needs to be processed here
     const matchedSelectors = getCssMap().query(this);
     matchedSelectors.selectors.forEach((matchedSelector) => {
+      // if current element do not match style scopedId, return
+      if (this.isStyleMatched(matchedSelector)) {
+        return;
+      }
       if (matchedSelector.ruleSet?.declarations?.length) {
         matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
           if (cssStyle) {
@@ -927,7 +951,7 @@ export class HippyElement extends HippyNode {
    */
   private getNodeAttributes() {
     try {
-      const nodeAttributes = JSON.parse(JSON.stringify(this.attributes));
+      const nodeAttributes = deepCopy(this.attributes);
       const classInfo = Array.from(this.classList ?? []).join(' ');
       const attributes = {
         id: this.id,
@@ -1006,5 +1030,30 @@ export class HippyElement extends HippyNode {
         this.updateNativeNode();
       },
     });
+  }
+
+  /**
+   * determine if the element's style scoped id is matched selector
+   *
+   * @param matchedSelector - matched selector
+   * @private
+   */
+  private isStyleMatched(matchedSelector: NeedToTyped): boolean {
+    const styleScopedId = this.styleScopeId;
+
+    if (styleScopedId) {
+      // set element's attribute for style scoped determine
+      this.attributes[styleScopedId] = true;
+    }
+
+    // determine if element matched
+    const isMatched = matchedSelector.match(this);
+
+    // remove scoped attribute after match determine
+    if (styleScopedId) {
+      this.attributes[styleScopedId] = undefined;
+    }
+
+    return isMatched;
   }
 }

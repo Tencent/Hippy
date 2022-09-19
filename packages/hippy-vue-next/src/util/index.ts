@@ -292,21 +292,65 @@ export function getEventRedirects(
 
 /**
  * Detect if the param is falsy or empty
- * @param {any} any
+ *
+ * @param {any} params - params
  */
-export function isEmpty(any: NeedToTyped) {
-  if (!any || typeof any !== 'object') {
+export function isEmpty(params: NeedToTyped) {
+  if (!params || typeof params !== 'object') {
     return true;
   }
-  return Object.keys(any).length === 0;
+  return Object.keys(params).length === 0;
 }
 
 /**
  * disable print trace info
  *
- * @param silent
+ * @param silent - silent option
  */
 export function setSilent(silent: boolean): void {
   isSilent = silent;
+}
+
+/**
+ * determine if the value is null or undefined
+ *
+ * @param value - value
+ */
+export function isNullOrUndefined(value: NeedToTyped): boolean {
+  return typeof value === 'undefined' || value === null;
+}
+
+/**
+ * deep copy object
+ *
+ * @param data - copy object
+ * @param hash - cached hash
+ */
+export function deepCopy(data: NeedToTyped, hash = new WeakMap()): NeedToTyped {
+  if (typeof data !== 'object' || data === null) {
+    throw new TypeError('deepCopy data is object');
+  }
+  // is it data existed in WeakMap
+  if (hash.has(data)) {
+    return hash.get(data);
+  }
+  const newData = {};
+  const dataKeys = Object.keys(data);
+  dataKeys.forEach((value) => {
+    const currentDataValue = data[value];
+    if (typeof currentDataValue !== 'object' || currentDataValue === null) {
+      newData[value] = currentDataValue;
+    } else if (Array.isArray(currentDataValue)) {
+      newData[value] = [...currentDataValue];
+    } else if (currentDataValue instanceof Set) {
+      newData[value] = new Set([...currentDataValue]);
+    } else if (currentDataValue instanceof Map) {
+      newData[value] = new Map([...currentDataValue]);
+    } else {
+      hash.set(data, data);
+      newData[value] = deepCopy(currentDataValue, hash);
+    }
+  });
+  return newData;
 }
 

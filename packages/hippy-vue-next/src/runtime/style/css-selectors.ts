@@ -32,8 +32,20 @@
 import type { CssDeclarationType } from '@hippy-vue-next-style-parser/index';
 
 import type { HippyElement } from '../element/hippy-element';
+import type { HippyNode } from '../node/hippy-node';
 
+import { isNullOrUndefined } from '../../util';
 import type { SelectorsMap, SelectorsMatch } from './css-selectors-match';
+
+
+/**
+ * wrap string text
+ *
+ * @param text - string
+ */
+function wrap(text: string | undefined): string {
+  return text ? ` ${text}` : '';
+}
 
 /**
  * Base classes
@@ -148,14 +160,20 @@ class SimpleSelectorSequence extends SimpleSelector {
   }
 
   toString(): string {
-    return `${this.selectors.join('')}${this.combinator}`;
+    return `${this.selectors.join('')}${wrap(this.combinator)}`;
   }
 
-  match(node: HippyElement): boolean {
+  match(node?: HippyElement): boolean {
+    if (!node) {
+      return false;
+    }
     return this.selectors.every(sel => sel.match(node));
   }
 
-  mayMatch(node: HippyElement): boolean {
+  mayMatch(node?: HippyElement): boolean {
+    if (!node) {
+      return false;
+    }
     return this.selectors.every(sel => sel.mayMatch(node));
   }
 
@@ -188,7 +206,7 @@ class UniversalSelector extends SimpleSelector {
   }
 
   toString(): string {
-    return `*${this.combinator}`;
+    return `*${wrap(this.combinator)}`;
   }
 
   match(): boolean {
@@ -212,10 +230,13 @@ class IdSelector extends SimpleSelector {
   }
 
   toString(): string {
-    return `#${this.id}${this.combinator}`;
+    return `#${this.id}${wrap(this.combinator)}`;
   }
 
-  match(node: HippyElement): boolean {
+  match(node?: HippyElement): boolean {
+    if (!node) {
+      return false;
+    }
     return node.id === this.id;
   }
 
@@ -243,10 +264,13 @@ class TypeSelector extends SimpleSelector {
   }
 
   toString(): string {
-    return `${this.cssType}${this.combinator}`;
+    return `${this.cssType}${wrap(this.combinator)}`;
   }
 
-  match(node: HippyElement): boolean {
+  match(node?: HippyElement): boolean {
+    if (!node) {
+      return false;
+    }
     return node.tagName === this.cssType;
   }
 
@@ -274,10 +298,13 @@ class ClassSelector extends SimpleSelector {
   }
 
   toString(): string {
-    return `.${this.className}${this.combinator}`;
+    return `.${this.className}${wrap(this.combinator)}`;
   }
 
-  match(node: HippyElement): boolean {
+  match(node?: HippyElement): boolean {
+    if (!node) {
+      return false;
+    }
     return !!(node.classList.size && node.classList.has(this.className));
   }
 
@@ -305,7 +332,7 @@ class PseudoClassSelector extends SimpleSelector {
   }
 
   toString(): string {
-    return `:${this.cssPseudoClass}${this.combinator}`;
+    return `:${this.cssPseudoClass}${wrap(this.combinator)}`;
   }
 
   match(): boolean {
@@ -348,53 +375,64 @@ class AttributeSelector extends SimpleSelector {
 
     if (!test) {
       // HasAttribute
-      this.match = (node: HippyElement) => !!node[attribute];
+      this.match = (node?: HippyElement) => {
+        if (!node || !node.attributes) {
+          return false;
+        }
+
+        return !isNullOrUndefined(node.attributes[attribute]);
+      };
       return;
     }
 
     if (!value) {
       this.match = () => false;
-    }
-
-    const escapedValue = value.replace(/[\-\[\]\/{}()*+?.\\^$|]/g, '\\$&');
-    let regexp: RegExp | undefined;
-    switch (test) {
-      case '^=': // PrefixMatch
-        regexp = new RegExp(`^${escapedValue}`);
-        break;
-      case '$=': // SuffixMatch
-        regexp = new RegExp(`${escapedValue}$`);
-        break;
-      case '*=': // SubstringMatch
-        regexp = new RegExp(escapedValue);
-        break;
-      case '=': // Equals
-        regexp = new RegExp(`^${escapedValue}$`);
-        break;
-      case '~=': // Includes
-        if (/\s/.test(value)) {
-          this.match = () => false;
-          return;
-        }
-        regexp = new RegExp(`(^|\\s)${escapedValue}(\\s|$)`);
-        break;
-      case '|=': // DashMatch
-        regexp = new RegExp(`^${escapedValue}(-|$)`);
-        break;
-      default:
-        break;
-    }
-
-    if (typeof regexp !== 'undefined') {
-      this.match = node => (regexp ? regexp.test(`${node[attribute]}`) : false);
       return;
     }
-    this.match = () => false;
+
+    this.match = (node?: HippyElement) => {
+      if (!node || !node.attributes) {
+        return false;
+      }
+      const attr = `${node.attributes[attribute]}`;
+      if (test === '=') {
+        // Equal
+        return attr === value;
+      }
+
+      if (test === '^=') {
+        // PrefixMatch
+        return attr.startsWith(value);
+      }
+
+      if (test === '$=') {
+        // SuffixMatch
+        return attr.endsWith(value);
+      }
+
+      if (test === '*=') {
+        // SubstringMatch
+        return attr.indexOf(value) !== -1;
+      }
+
+      if (test === '~=') {
+        // Includes
+        const words = attr.split(' ');
+        return words?.indexOf(value) !== -1;
+      }
+
+      if (test === '|=') {
+        // DashMatch
+        return attr === value || attr.startsWith(`${value}-`);
+      }
+
+      return false;
+    };
   }
 
   toString(): string {
-    return `[${this.attribute}${this.test}${(this.test && this.value) || ''}]${
-      this.combinator
+    return `[${this.attribute}${wrap(this.test)}${(this.test && this.value) || ''}]${
+      wrap(this.combinator)
     }`;
   }
 
@@ -403,7 +441,7 @@ class AttributeSelector extends SimpleSelector {
    *
    * @param node - target node
    */
-  match(node: HippyElement): boolean {
+  match(node?: HippyElement): boolean {
     return node ? !node : false;
   }
 
@@ -464,6 +502,9 @@ class ChildGroup {
   }
 
   match(node) {
+    if (!node) {
+      return false;
+    }
     const pass = this.selectors.every((sel, i) => {
       if (i !== 0) {
         node = node.parentNode;
@@ -474,6 +515,9 @@ class ChildGroup {
   }
 
   mayMatch(node) {
+    if (!node) {
+      return false;
+    }
     const pass = this.selectors.every((sel, i) => {
       if (i !== 0) {
         node = node.parentNode;
@@ -512,6 +556,9 @@ class SiblingGroup {
   }
 
   match(node) {
+    if (!node) {
+      return false;
+    }
     const pass = this.selectors.every((sel, i) => {
       if (i !== 0) {
         node = node.nextSibling;
@@ -522,6 +569,9 @@ class SiblingGroup {
   }
 
   mayMatch(node) {
+    if (!node) {
+      return false;
+    }
     const pass = this.selectors.every((sel, i) => {
       if (i !== 0) {
         node = node.nextSibling;
@@ -556,12 +606,14 @@ class Selector extends SelectorCore {
 
   constructor(selectors: SimpleSelector[]) {
     super();
-    const supportedCombinator = [undefined, ' ', '>', '+'];
-    let siblingGroup: SimpleSelector[];
-    let lastGroup: SimpleSelector[][];
+    const supportedCombinator = [undefined, ' ', '>', '+', '~'];
+    let siblingGroup: SimpleSelector[] = [];
+    let lastGroup: SimpleSelector[][] = [];
     const groups: SimpleSelector[][][] = [];
-    selectors.reverse().forEach((sel) => {
+    const reversedSelectors = selectors.reverse();
+    reversedSelectors.forEach((sel) => {
       if (supportedCombinator.indexOf(sel.combinator) === -1) {
+        console.error(`Unsupported combinator "${sel.combinator}".`);
         throw new Error(`Unsupported combinator "${sel.combinator}".`);
       }
       if (sel.combinator === undefined || sel.combinator === ' ') {
@@ -575,27 +627,32 @@ class Selector extends SelectorCore {
       siblingGroup.push(sel);
     });
     this.groups = groups.map(g => new ChildGroup(g.map(sg => new SiblingGroup(sg))));
-    this.last = selectors[0];
-    this.specificity = selectors.reduce((sum, sel) => sel.specificity + sum, 0);
-    this.dynamic = selectors.some(sel => sel.dynamic);
+    this.last = reversedSelectors[0];
+    this.specificity = reversedSelectors.reduce((sum, sel) => sel.specificity + sum, 0);
+    this.dynamic = reversedSelectors.some(sel => sel.dynamic);
   }
 
   toString(): string {
     return this.selectors.join('');
   }
 
-  match(node: HippyElement): boolean {
+  match(node?: HippyElement): boolean {
+    if (!node) {
+      return false;
+    }
     return this.groups.every((group, i) => {
       if (i === 0) {
         node = group.match(node);
         return !!node;
       }
-      let ancestor = node.parentNode;
-      while (ancestor) {
-        if ((node = group.match(ancestor))) {
-          return true;
+      if (node?.parentNode) {
+        let ancestor: HippyNode | null = node.parentNode;
+        while (ancestor) {
+          if ((node = group.match(ancestor))) {
+            return true;
+          }
+          ancestor = ancestor.parentNode;
         }
-        ancestor = ancestor.parentNode;
       }
       return false;
     });

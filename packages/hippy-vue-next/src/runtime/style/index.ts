@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '../../config';
+import { type NeedToTyped, IS_PROD } from '../../config';
 import { getBeforeLoadStyle } from '../../util';
 
 import {
@@ -43,7 +43,7 @@ function isDeclaration(node) {
 function createDeclaration(beforeLoadStyle) {
   return (decl) => {
     const newDecl = beforeLoadStyle(decl);
-    if (process.env.NODE_ENV !== 'production') {
+    if (!IS_PROD) {
       if (!newDecl) {
         throw new Error('beforeLoadStyle hook must returns the processed style object');
       }
@@ -111,6 +111,8 @@ function createSelector(sel) {
     if (!parsedSelector) {
       return new InvalidSelector(new Error('Empty selector'));
     }
+    // parsedSelector.value is ast, like:
+    // [[[{type: '#', identifier: 'root'}, {type: '[]', property: 'data-v-5ef48958'}], undefined]]
     return createSelectorFromAst(parsedSelector.value);
   } catch (e) {
     return new InvalidSelector(e as Error);

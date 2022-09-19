@@ -129,6 +129,16 @@ function nextSibling(node: HippyNode): HippyNode | null {
   return node.nextSibling;
 }
 
+/**
+ * set style scoped id for element
+ *
+ * @param element - element node
+ * @param id - scoped id
+ */
+function setScopeId(element: HippyElement, id: string) {
+  element.setStyleScope(id);
+}
+
 export const nodeOps = {
   insert,
   remove,
@@ -139,4 +149,5 @@ export const nodeOps = {
   createText,
   parentNode,
   nextSibling,
+  setScopeId,
 };

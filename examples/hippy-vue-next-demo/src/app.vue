@@ -235,11 +235,6 @@ export default defineComponent({
     align-items: center;
     justify-content: center;
   }
-  .bottom-tab:not(:last-child) {
-    border-right-width: 1px;
-    border-right-color: #eee;
-    border-style: solid;
-  }
   .bottom-tab.activated .bottom-tab-text {
     color: #4c9afa;
   }
