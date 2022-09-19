@@ -29,11 +29,6 @@ inline namespace tdf {
 std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView() {
   auto scroll_view = TDF_MAKE_SHARED(tdfcore::ScrollView);
   scroll_view->SetVerticalOverscrollEnabled(true);  // defaultValue
-  RegisterScrollStartListener(scroll_view);
-  RegisterScrollEndListener(scroll_view);
-  RegisterScrollUpdateListener(scroll_view);
-  RegisterDragStartListener(scroll_view);
-  RegisterDragEndListener(scroll_view);
   return scroll_view;
 }
 
@@ -71,9 +66,74 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     // May be undefined
     if (!it->second->IsUndefined() && it->second->ToBooleanChecked()) {
       auto horizontal = it->second->ToBooleanChecked();
-      scroll_view->SetHorizontalOverscrollEnabled(horizontal);
-      scroll_view->SetVerticalOverscrollEnabled(!horizontal);
+      if (horizontal) {
+        scroll_view->SetHorizontalOverscrollEnabled(true);
+        scroll_view->SetVerticalOverscrollEnabled(false);
+        scroll_view->SetScrollDirection(tdfcore::ScrollDirection::kHorizontal);
+      } else {
+        scroll_view->SetHorizontalOverscrollEnabled(false);
+        scroll_view->SetVerticalOverscrollEnabled(true);
+        scroll_view->SetScrollDirection(tdfcore::ScrollDirection::kVertical);
+      }
     }
+  }
+}
+
+void ScrollViewNode::CallFunction(const std::string &function_name,
+                                  const DomArgument &param,
+                                  const uint32_t call_back_id) {
+  auto scroll_view = GetView<tdfcore::ScrollView>();
+  footstone::HippyValue value;
+  param.ToObject(value);
+  footstone::value::HippyValue::DomValueArrayType dom_value_array;
+  auto result = value.ToArray(dom_value_array);
+  FOOTSTONE_CHECK(result);
+  if (!result) {
+    return;
+  }
+  if (function_name == kScrollTo) {
+    auto x = static_cast<float>(dom_value_array.at(0).ToDoubleChecked());
+    auto y = static_cast<float>(dom_value_array.at(1).ToDoubleChecked());
+    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    scroll_view->SetOffset({x, y}, animated);
+  }
+}
+
+void ScrollViewNode::HandleEventInfoUpdate() {
+  auto scroll_view = GetView<tdfcore::ScrollView>();
+  if (!scroll_view) {
+    return;
+  }
+  auto supported_events = GetSupportedEvents();
+
+  if (auto iterator = supported_events.find(kEventTypeScroll); iterator != supported_events.end()) {
+    RegisterScrollUpdateListener(scroll_view);
+  } else {
+    RemoveScrollUpdateListener(scroll_view);
+  }
+
+  if (auto iterator = supported_events.find(kEventTypeMomentumBegin); iterator != supported_events.end()) {
+    RegisterScrollStartListener(scroll_view);
+  } else {
+    RemoveScrollStartListener(scroll_view);
+  }
+
+  if (auto iterator = supported_events.find(kEventTypeMomentumEnd); iterator != supported_events.end()) {
+    RegisterScrollEndListener(scroll_view);
+  } else {
+    RemoveScrollEndListener(scroll_view);
+  }
+
+  if (auto iterator = supported_events.find(kEventTypeBeginDrag); iterator != supported_events.end()) {
+    RegisterDragStartListener(scroll_view);
+  } else {
+    RemoveDragStartListener(scroll_view);
+  }
+
+  if (auto iterator = supported_events.find(kEventTypeEndDrag); iterator != supported_events.end()) {
+    RegisterDragEndListener(scroll_view);
+  } else {
+    RemoveDragEndListener(scroll_view);
   }
 }
 
@@ -127,18 +187,22 @@ void ScrollViewNode::InitDragEndListener() {
   };
 }
 
-#define RegisterListener(Event, listener)                                                            \
-  void ScrollViewNode::Register##Event##Listener(std::shared_ptr<tdfcore::ScrollView> scroll_view) { \
-    if (listener == nullptr) {                                                                       \
-      Init##Event##Listener();                                                                       \
-    }                                                                                                \
-    listener##id_ = scroll_view->Add##Event##Listener(listener);                                     \
-  }
+#define RegisterListener(Event, listener)                                                             \
+  void ScrollViewNode::Register##Event##Listener(std::shared_ptr<tdfcore::ScrollView> scroll_view) {  \
+    if (listener##id_ == kUninitializedId) {                                                          \
+      if (listener == nullptr) {                                                                      \
+        Init##Event##Listener();                                                                      \
+      }                                                                                               \
+      listener##id_ = scroll_view->Add##Event##Listener(listener);                                    \
+    }                                                                                                 \
+  }                                                                                                   \
 
-// Called by CreateView
-RegisterListener(ScrollStart, scroll_start_listener_) RegisterListener(ScrollUpdate, scroll_update_listener_)
-    RegisterListener(ScrollEnd, scroll_end_listener_) RegisterListener(DragStart, drag_start_listener_)
-        RegisterListener(DragEnd, drag_end_listener_)
+  // Called by CreateView
+RegisterListener(ScrollStart, scroll_start_listener_)
+RegisterListener(ScrollUpdate, scroll_update_listener_)
+RegisterListener(ScrollEnd, scroll_end_listener_)
+RegisterListener(DragStart, drag_start_listener_)
+RegisterListener(DragEnd, drag_end_listener_)
 #undef RegisterListener
 
 #define RemoveListener(Event, listener)                                                            \
@@ -148,12 +212,14 @@ RegisterListener(ScrollStart, scroll_start_listener_) RegisterListener(ScrollUpd
     }                                                                                              \
   }
 
-            RemoveListener(ScrollStart, scroll_start_listener_) RemoveListener(ScrollUpdate, scroll_update_listener_)
-                RemoveListener(ScrollEnd, scroll_end_listener_) RemoveListener(DragStart, drag_start_listener_)
-                    RemoveListener(DragEnd, drag_end_listener_)
+RemoveListener(ScrollStart, scroll_start_listener_)
+RemoveListener(ScrollUpdate, scroll_update_listener_)
+RemoveListener(ScrollEnd, scroll_end_listener_)
+RemoveListener(DragStart, drag_start_listener_)
+RemoveListener(DragEnd, drag_end_listener_)
 #undef RemoveListener
 
-                        void ScrollViewNode::HandleInnerEvent(std::string type) {
+void ScrollViewNode::HandleInnerEvent(std::string type) {
   DomValueObjectType param;
   footstone::HippyValue::HippyValueObjectType content_offset_param;
   auto scroll_view = GetView<tdfcore::ScrollView>();

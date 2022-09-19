@@ -59,6 +59,9 @@ constexpr const char kScrollEventThrottle[] = "scrollEventThrottle";      // int
 constexpr const char kSuspendViewListener[] = "suspendViewListener";      // int
 constexpr const char kEndreached[] = "endreached";
 constexpr const char kLoadmore[] = "loadmore";
+constexpr const char kScrollToIndex[] = "scrollToIndex";
+constexpr const char kScrollToContentOffset[] = "scrollToContentOffset";
+
 }  // namespace listview
 
 class ListViewItemNode : public ViewNode {
@@ -110,6 +113,8 @@ class ListViewNode : public ScrollViewNode {
   using ScrollViewNode::ScrollViewNode;
 
   static node_creator GetCreator();
+
+  void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) override;
 
  protected:
   void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
