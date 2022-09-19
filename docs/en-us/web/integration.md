@@ -22,8 +22,8 @@ In the Demo project, run the `web:dev` command to start the WebRenderer debuggin
 
 ```json
   "scripts": {
-    "web:dev": "npm run hippy:dev & cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
-    "web:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web-renderer.js"
+    "web:dev": "npm run hippy:dev & cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
+    "web:build": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.web-renderer.js"
   }
 ```
 
