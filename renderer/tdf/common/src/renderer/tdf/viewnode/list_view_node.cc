@@ -51,7 +51,8 @@ void ListViewNode::OnAttach() {
         auto node = std::static_pointer_cast<ListViewItemNode>(self->GetChildren()[new_index]);
         if (action == tdfcore::ItemAction::kAdd) {
           // attach when updateItem (before add to listview)
-          FOOTSTONE_DCHECK(node->IsAttached());
+          FOOTSTONE_DCHECK(!node->IsAttached());
+          self->GetChildren()[new_index]->Attach(item);
         } else {
           FOOTSTONE_DCHECK(self->GetChildren()[new_index]->IsAttached());
           self->GetChildren()[new_index]->Detach(false);
@@ -96,6 +97,36 @@ void ListViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) { ScrollViewN
 void ListViewNode::HandleEndReachedEvent() {
   ViewNode::SendUIDomEvent(kEndreached);
   ViewNode::SendUIDomEvent(kLoadmore);
+}
+
+void ListViewNode::CallFunction(const std::string &function_name,
+                                const DomArgument &param,
+                                const uint32_t call_back_id) {
+  auto list_view = GetView<tdfcore::CustomLayoutView>();
+  footstone::HippyValue value;
+  param.ToObject(value);
+  footstone::value::HippyValue::DomValueArrayType dom_value_array;
+  auto result = value.ToArray(dom_value_array);
+  FOOTSTONE_CHECK(result);
+  if (!result) {
+    return;
+  }
+  if (function_name == kScrollToIndex) {
+    auto x_offset = dom_value_array.at(0).ToInt32Checked();
+    auto y_offset = dom_value_array.at(1).ToInt32Checked();
+    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    auto scroll_direction = list_view->GetScrollDirection();
+    if (scroll_direction == tdfcore::ScrollDirection::kHorizontal) {
+      list_view->ScrollToIndex(x_offset, animated);
+    } else {
+      list_view->ScrollToIndex(y_offset, animated);
+    }
+  } else if (function_name == kScrollToContentOffset) {
+    auto x = static_cast<float>(dom_value_array.at(0).ToDoubleChecked());
+    auto y = static_cast<float>(dom_value_array.at(1).ToDoubleChecked());
+    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    list_view->SetOffset({x, y}, animated);
+  }
 }
 
 void ListViewItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
@@ -148,9 +179,6 @@ void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore
                                     const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
-  auto node =
-      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
-  node->Attach(item);
 }
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
