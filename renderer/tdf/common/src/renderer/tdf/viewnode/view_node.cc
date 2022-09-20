@@ -101,6 +101,16 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     view->SetOpacity(static_cast<float>(it->second->ToDoubleChecked()));
   }
 
+  if (auto it = dom_style.find(hippy::dom::kOverflow); it != map_end) {
+    FOOTSTONE_DCHECK(it->second->IsString());
+    auto overflow_value = it->second->ToStringChecked();
+    if (overflow_value == "visible") {
+      view->SetClipToBounds(false);
+    } else if(overflow_value == "hidden") {
+      view->SetClipToBounds(true);
+    }
+  }
+
   util::ParseShadowInfo(*view, dom_style);
 
   // animation

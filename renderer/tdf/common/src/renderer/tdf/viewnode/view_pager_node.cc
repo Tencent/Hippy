@@ -35,7 +35,6 @@ void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto view_pager = GetView<ViewPager>();
 
   InitialPage(dom_style, view_pager);
-  SetOverFlow(dom_style);
   SetScrollEnable(dom_style, view_pager);
   SetPageMargin(dom_style, view_pager);
   SetDirection(dom_style, view_pager);
@@ -93,17 +92,6 @@ void ViewPagerNode::HandleEventInfoUpdate() {
     has_on_page_scroll_state_changed_event_ = true;
   }
   UpdatePagerCallBack(GetView<ViewPager>());
-}
-
-void ViewPagerNode::SetOverFlow(const DomStyleMap& dom_style) {
-  if (auto iterator = dom_style.find(viewpager::kOverflow); iterator != dom_style.end()) {
-    auto over_flow = iterator->second->ToStringChecked();
-    if (over_flow == kOverFlowHidden) {
-      // todo(kloudwang)不可以超出父区域
-    } else {
-      // todo(kloudwang)可以超出父区域
-    }
-  }
 }
 
 void ViewPagerNode::SetScrollEnable(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager) {
