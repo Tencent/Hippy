@@ -51,7 +51,8 @@ void ListViewNode::OnAttach() {
         auto node = std::static_pointer_cast<ListViewItemNode>(self->GetChildren()[new_index]);
         if (action == tdfcore::ItemAction::kAdd) {
           // attach when updateItem (before add to listview)
-          FOOTSTONE_DCHECK(node->IsAttached());
+          FOOTSTONE_DCHECK(!node->IsAttached());
+          self->GetChildren()[new_index]->Attach(item);
         } else {
           FOOTSTONE_DCHECK(self->GetChildren()[new_index]->IsAttached());
           self->GetChildren()[new_index]->Detach(false);
@@ -178,9 +179,6 @@ void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore
                                     const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
-  auto node =
-      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
-  node->Attach(item);
 }
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
