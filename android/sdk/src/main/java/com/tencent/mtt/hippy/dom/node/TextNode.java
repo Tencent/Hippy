@@ -100,6 +100,8 @@ public class TextNode extends StyleNode {
   public static final String IMAGE_SPAN_TEXT = "[img]";
 
   final TextPaint mTextPaintInstance;
+  // 这个TextPaint用于兼容2.13.x及之前版本对于空Text节点的layout高度
+  private TextPaint mTextPaintForEmpty;
 
   private final boolean mIsVirtual;
 
@@ -738,7 +740,7 @@ public class TextNode extends StyleNode {
   }
 
   protected Layout createLayout(float width, FlexMeasureMode widthMode) {
-    TextPaint textPaint = mTextPaintInstance;
+    final TextPaint textPaint = getTextPaint();
     Layout layout;
     Spanned text = mSpanned == null ? new SpannedString("") : mSpanned;
     BoringLayout.Metrics boring = null;
@@ -771,6 +773,16 @@ public class TextNode extends StyleNode {
 
     assert layout != null;
     return layout;
+  }
+
+  private TextPaint getTextPaint() {
+    if (TextUtils.isEmpty(mText)) {
+      if (mTextPaintForEmpty == null) {
+        mTextPaintForEmpty = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+      }
+      return mTextPaintForEmpty;
+    }
+    return mTextPaintInstance;
   }
 
   private StaticLayout truncateLayoutWithNumberOfLine(Layout preLayout, int width, int numberOfLines) {
@@ -810,7 +822,9 @@ public class TextNode extends StyleNode {
       }
       CharSequence lastLine;
       if (MODE_HEAD.equals(mEllipsizeMode)) {
-        measurePaint.setTextSize(Math.max(getLineHeight(preLayout, lineCount - 2), getLineHeight(preLayout, lineCount - 1)));
+        float formerTextSize = numberOfLines >= 2 ? getLineHeight(preLayout, numberOfLines - 2) : paint.getTextSize();
+        float latterTextSize = Math.max(getLineHeight(preLayout, lineCount - 2), getLineHeight(preLayout, lineCount - 1));
+        measurePaint.setTextSize(Math.max(formerTextSize, latterTextSize));
         lastLine = ellipsizeHead(origin, measurePaint, width, start);
       } else if (MODE_MIDDLE.equals(mEllipsizeMode)) {
         measurePaint.setTextSize(Math.max(getLineHeight(preLayout, numberOfLines - 1), getLineHeight(preLayout, lineCount - 1)));
