@@ -28,6 +28,12 @@ describe('runtime/node/hippy-node', () => {
     it('should be 1.', () => {
       const hippyNode = new HippyNode(NodeType.ElementNode);
       expect(hippyNode.nodeId).toEqual(1);
+      const textNode = new HippyNode(NodeType.TextNode);
+      expect(textNode.isNeedInsertToNative).toBeFalsy();
+      const commentNode = new HippyNode(NodeType.CommentNode);
+      expect(commentNode.isNeedInsertToNative).toBeFalsy();
+      const documentNode = new HippyNode(NodeType.DocumentNode);
+      expect(documentNode.isNeedInsertToNative).toBeFalsy();
     });
 
     it('should not to be added to native node tree by default.', () => {
@@ -245,6 +251,7 @@ describe('runtime/node/hippy-node', () => {
         const aimNode = parentHippyNode.findChild(node => node.nodeId === childHippyNodeLast.nodeId);
         expect(aimNode === childHippyNodeLast).toBeTruthy();
         expect(parentHippyNode.findChild(node => node.nodeId === parentHippyNode.nodeId)).toEqual(parentHippyNode);
+        expect(parentHippyNode.findChild(node => node.nodeId === 0)).toBeNull();
       });
     });
 

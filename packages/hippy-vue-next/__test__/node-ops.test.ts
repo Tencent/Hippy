@@ -236,4 +236,14 @@ describe('node-ops.ts', () => {
     nodeOps.setElementText(inputElement, text);
     expect(inputElement.getAttribute('value')).toEqual(text);
   });
+
+  it('setScopeId method should work correct', () => {
+    const element = nodeOps.createElement('div');
+    element.setStyleScope('style-scoped-id-1');
+    expect(element.styleScopeId).toEqual('style-scoped-id-1');
+    element.setStyleScope({});
+    expect(element.styleScopeId).toEqual('[object Object]');
+    element.setStyleScope(123456);
+    expect(element.styleScopeId).toEqual('123456');
+  });
 });

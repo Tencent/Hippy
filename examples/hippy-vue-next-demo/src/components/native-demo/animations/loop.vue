@@ -97,7 +97,7 @@ export default defineComponent({
 });
 </script>
 
-<style scoped>
+<style>
   .loop-green {
     margin-top: 10px;
     justify-content: center;

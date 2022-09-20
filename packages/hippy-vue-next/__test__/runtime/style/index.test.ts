@@ -347,4 +347,52 @@ describe('runtime/style/index.ts', () => {
     // chunk-2 removed, two selectors removed
     expect(matchedCss.selectors.length).toEqual(13);
   });
+
+  it('style scoped should work correctly', () => {
+    const scopedId = 'data-v-9270b1a8';
+    const appendAst = [
+      {
+        hash: 'chunk-1',
+        selectors: [`.wrapper[${scopedId}]`],
+        declarations: [
+          {
+            type: 'declaration',
+            property: 'display',
+            value: 'flex',
+          },
+        ],
+      },
+    ];
+
+    const appendRules = fromAstNodes(appendAst);
+    cssMap.append(appendRules);
+
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('class', 'wrapper');
+    // set scoped id determine attribute
+    divElement.setAttribute(scopedId, true);
+
+    let matchedSelectors = cssMap.query(divElement);
+    expect(matchedSelectors.selectors.length).toEqual(4);
+    let matched = 0;
+    matchedSelectors.selectors.forEach((matchedSelector) => {
+      if (matchedSelector.match(divElement)) {
+        matched += 1;
+      }
+    });
+    expect(matched).toEqual(4);
+    divElement.removeAttribute(scopedId);
+
+    // set an unmatched scoped id
+    divElement.setAttribute(`${scopedId}-123`, true);
+    matchedSelectors = cssMap.query(divElement);
+    expect(matchedSelectors.selectors.length).toEqual(4);
+    matched = 0;
+    matchedSelectors.selectors.forEach((matchedSelector) => {
+      if (matchedSelector.match(divElement)) {
+        matched += 1;
+      }
+    });
+    expect(matched).toEqual(3);
+  });
 });

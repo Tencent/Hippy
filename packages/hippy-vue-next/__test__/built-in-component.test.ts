@@ -106,6 +106,16 @@ describe('built-in-component', () => {
       divElement.addEventListener('touchcancel', noop);
       [nativeNode] = divElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.onTouchCancel).toBeTruthy();
+      divElement.setStyle('overflowX', 'scroll');
+      divElement.setStyle('backgroundImage', 'assets/index.png');
+      const divChildElement = new HippyElement('div');
+      divElement.appendChild(divChildElement);
+      [nativeNode] = divElement.convertToNativeNodes(false);
+      expect(nativeNode?.name).toEqual('ScrollView');
+      expect(nativeNode?.props?.horizontal).toBeTruthy();
+      expect(nativeNode?.props?.style?.flexDirection).toEqual('row');
+      expect(nativeNode?.props?.style?.backgroundImage).toEqual(`${HIPPY_DEBUG_ADDRESS}assets/index.png`);
+      expect((divElement.childNodes[0] as HippyElement).getAttribute('collapsable')).toBeFalsy();
 
       const offset = {
         x: 0,
@@ -213,6 +223,15 @@ describe('built-in-component', () => {
       imgElement.setAttribute('src', 'assets/index.png');
       [nativeNode] = imgElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.defaultSource).toEqual(`${HIPPY_DEBUG_ADDRESS}assets/index.png`);
+      Native.Platform = 'ios';
+      imgElement.setAttribute('src', 'https://hippyjs.org/index.png');
+      [nativeNode] = imgElement.convertToNativeNodes(false);
+      expect(nativeNode?.props?.source).toEqual([
+        {
+          uri: 'https://hippyjs.org/index.png',
+        },
+      ]);
+      expect(nativeNode?.props?.src).toBeUndefined();
     });
 
     it('ul tag test', () => {
@@ -333,6 +352,9 @@ describe('built-in-component', () => {
       inputElement.setAttribute('maxlength', 10);
       [nativeNode] = inputElement.convertToNativeNodes(false);
       expect(nativeNode?.props?.maxLength).toEqual(10);
+      Native.Localization.direction = 1;
+      [nativeNode] = inputElement.convertToNativeNodes(false);
+      expect(nativeNode?.props?.style?.textAlign).toEqual('right');
 
       // test event handle
       let text = 'hello';
