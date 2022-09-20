@@ -184,6 +184,10 @@ class ViewPager : public ScrollView {
 
   void SetScrollStateType(ScrollStateType state);
 
+  void UpdateCurrentPage(int32_t page);
+
+  int32_t CalculateCurrentPage();
+
   ScrollAxis axis_ = ScrollAxis::kNone;
 
   float content_extent_size_ = 0.0;

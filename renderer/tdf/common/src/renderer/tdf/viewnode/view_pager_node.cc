@@ -26,14 +26,6 @@ namespace hippy {
 inline namespace render {
 inline namespace tdf {
 
-enum class FunctionType {
-  kFunctionSetPage,
-  kFunctionSetPageWithoutAnimation,
-  kFunctionSetIndex,
-  kFunctionNextPage,
-  kFunctionPrevPage
-};
-
 void ViewPagerNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   ViewNode::OnChildAdd(child, index);
 }
@@ -47,7 +39,6 @@ void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   SetScrollEnable(dom_style, view_pager);
   SetPageMargin(dom_style, view_pager);
   SetDirection(dom_style, view_pager);
-  ParsePageScrollStateChangedAttr(dom_style);
 }
 
 std::shared_ptr<tdfcore::View> ViewPagerNode::CreateView() {
@@ -98,6 +89,9 @@ void ViewPagerNode::HandleEventInfoUpdate() {
   if (auto iterator = supported_events.find(kOnPageScroll); iterator != supported_events.end()) {
     has_on_page_scroll_event_ = true;
   }
+  if (auto iterator = supported_events.find(kOnPageScrollStateChanged); iterator != supported_events.end()) {
+    has_on_page_scroll_state_changed_event_ = true;
+  }
   UpdatePagerCallBack(GetView<ViewPager>());
 }
 
@@ -131,12 +125,6 @@ void ViewPagerNode::SetDirection(const DomStyleMap& dom_style, std::shared_ptr<V
     if (iterator->second->ToStringChecked() == kVertical) {
       view_pager->SetAxis(ScrollAxis::kVertical);
     }
-  }
-}
-
-void ViewPagerNode::ParsePageScrollStateChangedAttr(const DomStyleMap& dom_style) {
-  if (auto iterator = dom_style.find(kOnPageScrollStateChanged); iterator != dom_style.end()) {
-    has_on_page_scroll_state_changed_event_ = iterator->second->ToBooleanChecked();
   }
 }
 
