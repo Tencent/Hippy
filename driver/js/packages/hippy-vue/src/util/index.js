@@ -232,6 +232,10 @@ function isEmpty(any) {
   return Object.keys(any).length === 0;
 }
 
+function isNullOrUndefined(value) {
+  return typeof value === 'undefined' || value === null;
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
@@ -244,8 +248,9 @@ export {
   setBeforeLoadStyle,
   getBeforeLoadStyle,
   trace,
-  isTraceEnabled,
   warn,
+  isTraceEnabled,
+  isNullOrUndefined,
   capitalizeFirstLetter,
   tryConvertNumber,
   unicodeToChar,

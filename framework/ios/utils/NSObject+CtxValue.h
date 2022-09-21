@@ -29,36 +29,36 @@ NS_ASSUME_NONNULL_BEGIN
 using CtxValuePtr = std::shared_ptr<hippy::napi::CtxValue>;
 using CtxPtr = std::shared_ptr<hippy::napi::Ctx>;
 
-@interface NSObject (ToJSCtxValue)
+@interface NSObject (CtxValue)
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context;
 
 @end
 
-@interface NSString (ToJSCtxValue)
+@interface NSString (CtxValue)
 
 @end
 
-@interface NSNumber (ToJSCtxValue)
+@interface NSNumber (CtxValue)
 
 @end
 
-@interface NSArray (ToJSCtxValue)
+@interface NSArray (CtxValue)
 
 @end
 
-@interface NSDictionary (ToJSCtxValue)
+@interface NSDictionary (CtxValue)
 
 @end
 
-@interface NSData (ToJSCtxValue)
+@interface NSData (CtxValue)
 
 @end
 
-@interface NSNull (ToJSCtxValue)
+@interface NSNull (CtxValue)
 
 @end
 
-HIPPY_EXTERN id ObjectFromJSValue(CtxPtr context, CtxValuePtr value);
+HIPPY_EXTERN id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
 
 NS_ASSUME_NONNULL_END

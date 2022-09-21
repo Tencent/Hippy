@@ -21,13 +21,11 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyBridgeModule.h"
+#import "HippyContextWrapper.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN NSDictionary *HippyExportedDimensions(void);
-
-@interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
+@interface HippyV8ContextWrapper : NSObject<HippyContextWrapper>
 
 @end
 

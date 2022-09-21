@@ -20,7 +20,6 @@
  * limitations under the License.
  */
 
-#import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyDefines.h"
 #import "HippyBridgeModule.h"
 #import "NativeRenderInvalidating.h"
@@ -36,6 +35,11 @@ class Scope;
 }
 
 @class HippyBridge;
+@protocol HippyContextWrapper;
+
+typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
+
+
 /**
  * Default name for the JS thread
  */
@@ -46,7 +50,8 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  */
 @interface HippyJSExecutor : NSObject<NativeRenderInvalidating>
 
-@property (nonatomic, strong) HippyBridge *bridge;
+@property (nonatomic, readonly, weak) HippyBridge *bridge;
+
 /**
  * Whether the executor has been invalidated
  */
@@ -60,19 +65,17 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 
 @property (nonatomic, copy) NSString *contextName;
 
+@property(nonatomic, copy) HippyContextCreatedBlock contextCreatedBlock;
+
 - (instancetype)initWithEngineKey:(NSString *)engineKey bridge:(HippyBridge *)bridge;
 
 /**
  * Used to set up the executor after the bridge has been fully initialized.
  * Do any expensive setup in this method instead of `-init`.
  */
-- (void)setUp;
-
-- (void)notifyModulesSetupComplete;
+- (void)setup;
 
 - (void)setSandboxDirectory:(NSString *)directory;
-
-- (void)setContextName:(NSString *)contextName;
 
 - (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 
@@ -82,10 +85,7 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  */
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete;
 
-/**
- * called before excute secondary js bundle
- */
-- (void)updateGlobalObjectBeforeExcuteSecondary;
+-(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict;
 
 /**
  * Executes BatchedBridge.callFunctionReturnFlushedQueue with the module name,
