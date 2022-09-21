@@ -4,7 +4,7 @@
     class="local-local"
   >
     <p class="async-txt">
-      我是远程http组件
+      我是远程异步组件
     </p>
   </div>
 </template>

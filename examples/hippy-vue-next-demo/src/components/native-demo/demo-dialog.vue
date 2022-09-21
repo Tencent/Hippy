@@ -131,7 +131,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 #dialog-demo {
   display: flex;
   align-items: center;

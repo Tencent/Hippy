@@ -24,20 +24,6 @@
       src="https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png"
       class="button-demo-1-image"
     >
-    <label class="button-label">仅执行一次事件(once)</label>
-    <button
-      class="button-demo-1"
-      @click.once="onClickViewOnce"
-    >
-      <span
-        v-if="isOnceClicked"
-        class="button-text"
-      >once 视图已被点击</span>
-      <span
-        v-else
-        class="button-text"
-      >once 视图尚未点击</span>
-    </button>
   </div>
 </template>
 
@@ -95,50 +81,50 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  .button-label {
-    width: 220px;
-    height: 50px;
-    margin-top: 20px;
-    text-align: center;
-    line-height: 50px;
-    margin-bottom: 20px;
-  }
-  .button-demo {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-  }
+<style scoped>
+.button-label {
+  width: 220px;
+  height: 50px;
+  margin-top: 20px;
+  text-align: center;
+  line-height: 50px;
+  margin-bottom: 20px;
+}
+.button-demo {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
 
-  .button-demo-1 {
-    height: 64px;
-    width: 240px;
-    border-style: solid;
-    border-color: #40b883;
-    border-width: 2px;
-    border-radius: 10px;
-    align-items: center;
-  }
+.button-demo-1 {
+  height: 64px;
+  width: 240px;
+  border-style: solid;
+  border-color: #40b883;
+  border-width: 2px;
+  border-radius: 10px;
+  align-items: center;
+}
 
-  .button-demo-1 .button-text {
-    line-height: 56px;
-    text-align: center;
-  }
+.button-demo-1 .button-text {
+  line-height: 56px;
+  text-align: center;
+}
 
-  .button-demo-1-image {
-    width: 216px;
-    height: 58px;
-    background-color: #40b883;
-    margin-top: 20px;
-  }
+.button-demo-1-image {
+  width: 216px;
+  height: 58px;
+  background-color: #40b883;
+  margin-top: 20px;
+}
 
-  /*.button-demo-1.is-active {*/
-  /*  color: white;*/
-  /*  background-color: cornflowerblue;*/
-  /*}*/
+/*.button-demo-1.is-active {*/
+/*  color: white;*/
+/*  background-color: cornflowerblue;*/
+/*}*/
 
-  /*.button-demo-1.is-pressing {*/
-  /*  color: white;*/
-  /*  background-color: blue;*/
-  /*}*/
+/*.button-demo-1.is-pressing {*/
+/*  color: white;*/
+/*  background-color: blue;*/
+/*}*/
 </style>

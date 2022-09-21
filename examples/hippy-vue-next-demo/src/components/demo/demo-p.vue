@@ -8,7 +8,12 @@
         @touchmove.stop="onTouchTextMove"
         @touchend.stop="onTouchTextEnd"
       >
-        这是最普通的一行文字 - 当前 touch 状态: {{ labelTouchStatus }}
+        这是最普通的一行文字
+      </p>
+      <p
+        class="p-demo-content-status"
+      >
+        当前touch状态: {{ labelTouchStatus }}
       </p>
       <label>颜色：</label>
       <p class="p-demo-1 p-demo-content">
@@ -55,7 +60,7 @@
       >
         Text width letter-spacing 5
       </p>
-      <label>斜体：</label>
+      <label>字体 style：</label>
       <div class="p-demo-content">
         <p style="font-style: normal">
           font-style: normal
@@ -157,9 +162,9 @@
           </button>
         </div>
       </div>
-      <label v-if="isAndroid">break-strategy={{ breakStrategy }}</label>
+      <label v-if="Platform === 'android'">break-strategy={{ breakStrategy }}</label>
       <div
-        v-if="isAndroid"
+        v-if="Platform === 'android'"
         class="p-demo-content"
       >
         <p
@@ -275,7 +280,7 @@ export default defineComponent({
       textMode,
       textShadow,
       textShadowIndex,
-      isAndroid: Native.isAndroid(),
+      Platform: Native.Platform,
       breakStrategy,
       onTouchTextEnd,
       onTouchTextMove,
@@ -290,76 +295,76 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  .p-demo {
-    margin: 7px;
-    overflow-y: scroll;
-    flex: 1;
-    flex-direction: column;
-  }
+<style scoped>
+.p-demo {
+  margin: 7px;
+  overflow-y: scroll;
+  flex: 1;
+  flex-direction: column;
+}
 
-  .p-demo .p-demo-content {
-    margin: 20px;
-  }
+.p-demo .p-demo-content {
+  margin: 20px;
+}
 
-  .p-demo .p-demo-content-status {
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-bottom: 10px;
-  }
+.p-demo .p-demo-content-status {
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 10px;
+}
 
-  .p-demo .p-demo-1 {
-    color: #f44837;
-  }
-  .p-demo .p-demo-2 {
-    font-size: 30px;
-  }
-  .p-demo .p-demo-3 {
-    font-weight: bold;
-  }
+.p-demo .p-demo-1 {
+  color: #f44837;
+}
+.p-demo .p-demo-2 {
+  font-size: 30px;
+}
+.p-demo .p-demo-3 {
+  font-weight: bold;
+}
 
-  .p-demo .p-demo-4 {
-    text-decoration-line: underline;
-    text-decoration-style: dotted;
-  }
+.p-demo .p-demo-4 {
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+}
 
-  .p-demo .p-demo-5 {
-    text-decoration-line: line-through;
-    text-decoration-color: red;
-  }
+.p-demo .p-demo-5 {
+  text-decoration-line: line-through;
+  text-decoration-color: red;
+}
 
-  .p-demo .p-demo-6 {
-    color: #0052d9;
-    font-family: TTTGB;
-    font-size: 32px;
-  }
+.p-demo .p-demo-6 {
+  color: #0052d9;
+  font-family: TTTGB;
+  font-size: 32px;
+}
 
-  .p-demo .p-demo-7 {
-    /*text-shadow-offset: 1px 1px; !* not support declared separately *!*/
-    /*text-shadow-radius: 3;*/
-    /*text-shadow-color: grey;*/
-  }
+.p-demo .p-demo-7 {
+  /*text-shadow-offset: 1px 1px; !* not support declared separately *!*/
+  /*text-shadow-radius: 3;*/
+  /*text-shadow-color: grey;*/
+}
 
-  .p-demo .p-demo-8 {
-    letter-spacing: -1px;
-  }
+.p-demo .p-demo-8 {
+  letter-spacing: -1px;
+}
 
-  .p-demo .p-demo-9 {
-    letter-spacing: 5px;
-  }
+.p-demo .p-demo-9 {
+  letter-spacing: 5px;
+}
 
-  .p-demo .button-bar {
-    flex-direction: row;
-  }
+.p-demo .button-bar {
+  flex-direction: row;
+}
 
-  .p-demo .button {
-    width: 100px;
-    margin: 2px;
-    backgroundcolor: #eee;
-    border-style: solid;
-    border-color: black;
-    border-width: 1px;
-    align-items: center;
-    flex-shrink: 1;
-  }
+.p-demo .button {
+  width: 100px;
+  margin: 2px;
+  backgroundColor: #eee;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  align-items: center;
+  flex-shrink: 1;
+}
 </style>

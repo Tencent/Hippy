@@ -1,12 +1,12 @@
 <template>
   <div
-    ref="wrapperRef"
+    ref="inputDemo"
     class="demo-input"
-    @click.stop="onClickBlurAllInput"
+    @click.stop="blurAllInput"
   >
     <label>文本:</label>
     <input
-      ref="inputRef"
+      ref="input"
       placeholder="Text"
       caret-color="yellow"
       underline-color-android="grey"
@@ -17,11 +17,15 @@
       @change="text = $event.value"
       @click="stopPropagation"
       @keyboardWillShow="onKeyboardWillShow"
+      @keyboardWillHide="onKeyboardWillHide"
+      @blur="onBlur"
+      @focus="onFocus"
     >
     <div>
       <span>文本内容为：</span>
       <span>{{ text }}</span>
     </div>
+    <div><span>{{ `事件: ${event} | isFocused: ${isFocused}` }}</span></div>
     <button
       class="input-button"
       @click.stop="clearTextContent"
@@ -104,24 +108,32 @@ const textChange = (evt: HippyKeyboardEvent) => {
    * @param evt
    */
 const onKeyboardWillShow = (evt: HippyEvent) => {
-  console.log(evt);
+  console.log('onKeyboardWillShow', evt);
 };
 
+/**
+ * keyboard event
+ */
+const onKeyboardWillHide = () => {
+  console.log('onKeyboardWillHide');
+};
 
 export default defineComponent({
   setup() {
-    const wrapperRef = ref(null);
-    const inputRef = ref(null);
-    const text = ref('这是默认值');
+    const inputDemo = ref(null);
+    const input = ref(null);
+    const text = ref('');
+    const event = ref('');
+    const isFocused = ref(false);
     /**
        * Get all current input elements
        */
     const getChildInputElements = (): HippyInputElement[] => {
-      if (wrapperRef.value) {
-        const inputWrapper: HippyElement = wrapperRef.value as HippyElement;
+      if (inputDemo.value) {
+        const inputWrapper: HippyElement = inputDemo.value as HippyElement;
 
         if (inputWrapper.childNodes.length) {
-          let inputItems: HippyElement[] =              inputWrapper.childNodes as HippyElement[];
+          let inputItems: HippyElement[] = inputWrapper.childNodes as HippyElement[];
 
           inputItems = inputItems.filter((element: HippyElement) => element.tagName === 'input');
 
@@ -135,7 +147,7 @@ export default defineComponent({
     /**
        * Click to make all input boxes out of focus
        */
-    const onClickBlurAllInput = () => {
+    const blurAllInput = () => {
       const inputItems = getChildInputElements();
 
       if (inputItems.length) {
@@ -156,15 +168,15 @@ export default defineComponent({
 
     const focus = (evt: HippyEvent) => {
       evt.stopPropagation();
-      if (inputRef.value) {
-        (inputRef.value as HippyInputElement).focus();
+      if (input.value) {
+        (input.value as HippyInputElement).focus();
       }
     };
 
     const blur = (evt: HippyEvent) => {
       evt.stopPropagation();
-      if (inputRef.value) {
-        (inputRef.value as HippyInputElement).blur();
+      if (input.value) {
+        (input.value as HippyInputElement).blur();
       }
     };
 
@@ -190,46 +202,67 @@ export default defineComponent({
       }
     };
 
+    const onFocus = async () => {
+      if (input.value) {
+        isFocused.value = await (input.value as HippyInputElement).isFocused();
+        event.value = 'onFocus';
+      }
+    };
+
+    const onBlur = async () => {
+      if (input.value) {
+        isFocused.value = await (input.value as HippyInputElement).isFocused();
+        event.value = 'onBlur';
+      }
+    };
+
     return {
-      inputRef,
-      wrapperRef,
+      input,
+      inputDemo,
       text,
+      event,
+      isFocused,
       blur,
       clearTextContent,
       focus,
-      onClickBlurAllInput,
+      blurAllInput,
       onKeyboardWillShow,
+      onKeyboardWillHide,
       stopPropagation,
       textChange,
       onChange,
+      onBlur,
+      onFocus,
     };
   },
 });
 </script>
 
-<style>
-  .demo-input {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    flex-direction: column;
-  }
-  .demo-input .input {
-    width: 300px;
-    height: 48px;
-    color: #242424;
-    border-width: 1px;
-    border-color: #ccc;
-    font-size: 16px;
-    margin: 20px;
-    placeholder-text-color: #aaa;
-  }
-  .demo-input .input-button {
-    border-color: #4c9afa;
-    border-width: 1px;
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-  }
+<style scoped>
+.demo-input {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  flex-direction: column;
+  margin: 7px;
+}
+.demo-input .input {
+  width: 300px;
+  height: 48px;
+  color: #242424;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ccc;
+  font-size: 16px;
+  margin: 20px;
+}
+.demo-input .input-button {
+  border-color: #4c9afa;
+  border-width: 1px;
+  border-style: solid;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
 </style>

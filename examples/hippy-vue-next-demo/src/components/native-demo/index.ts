@@ -1,41 +1,40 @@
-import DemoSetNativeProps from '../demo/demo-set-native-props.vue';
+import demoSetNativeProps from '../demo/demo-set-native-props.vue';
+import demoAnimation from './demo-animation.vue';
+import demoDialog from './demo-dialog.vue';
+import demoVueNative from './demo-vue-native.vue';
+import demoPullHeaderFooter from './demo-pull-header-footer.vue';
+import demoSwiper from './demo-swiper.vue';
+import demoWaterfall from './demo-waterfall.vue';
 
-import NativeAnimation from './demo-animation.vue';
-import NativeDialog from './demo-dialog.vue';
-import NativeDemo from './demo-native.vue';
-import NativePullHeaderFooter from './demo-pull-header-footer.vue';
-import NativeSwiper from './demo-swiper.vue';
-import NativeWaterfall from './demo-waterfall.vue';
-
-const nativeDemos = {
+const demos = {
+  demoNative: {
+    name: 'Native 能力',
+    component: demoVueNative,
+  },
   demoAnimation: {
-    name: 'Animation 组件',
-    component: NativeAnimation,
+    name: 'animation 组件',
+    component: demoAnimation,
   },
   demoDialog: {
-    name: 'Dialog 组件',
-    component: NativeDialog,
-  },
-  demoNative: {
-    name: 'Native 支持能力列表',
-    component: NativeDemo,
-  },
-  demoPullHeaderFooter: {
-    name: 'Pull Header & Footer 组件',
-    component: NativePullHeaderFooter,
+    name: 'dialog 组件',
+    component: demoDialog,
   },
   demoSwiper: {
-    name: 'Swiper 组件',
-    component: NativeSwiper,
+    name: 'swiper 组件',
+    component: demoSwiper,
+  },
+  demoPullHeaderFooter: {
+    name: 'pull header/footer 组件',
+    component: demoPullHeaderFooter,
   },
   demoWaterfall: {
-    name: 'Waterfall 组件',
-    component: NativeWaterfall,
+    name: 'waterfall 组件',
+    component: demoWaterfall,
   },
   demoSetNativeProps: {
     name: 'setNativeProps',
-    component: DemoSetNativeProps,
+    component: demoSetNativeProps,
   },
 };
 
-export default nativeDemos;
+export default demos;

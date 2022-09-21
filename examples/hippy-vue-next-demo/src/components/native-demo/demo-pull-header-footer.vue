@@ -19,7 +19,7 @@
     </div>
     <ul
       id="list"
-      ref="listRef"
+      ref="list"
       :numberOfRows="dataSource.length"
       @scroll="onScroll"
     >
@@ -28,7 +28,7 @@
       pull-header 后触发一次，参数 contentOffset，滑动距离 * refresh:
       滑动超出距离，松手后触发一次 */
       <pull-header
-        ref="pullHeaderRef"
+        ref="pullHeader"
         class="ul-refresh"
         @idle="onHeaderIdle"
         @pulling="onHeaderPulling"
@@ -63,7 +63,7 @@
       pull-footer 后触发一次，参数 contentOffset，滑动距离 * released:
       滑动超出距离，松手后触发一次 */
       <pull-footer
-        ref="pullFooterRef"
+        ref="pullFooter"
         class="pull-footer"
         @idle="onFooterIdle"
         @pulling="onFooterPulling"
@@ -109,9 +109,9 @@ export default defineComponent({
     StyleFive,
   },
   setup() {
-    const listRef = ref(null);
-    const pullHeaderRef = ref(null);
-    const pullFooterRef = ref(null);
+    const list = ref(null);
+    const pullHeader = ref(null);
+    const pullFooter = ref(null);
     const dataSource: Ref<any[]> = ref([...mockData]);
 
     let loadMoreDataFlag = false;
@@ -138,10 +138,10 @@ export default defineComponent({
        * You need to actively call collapsePullHeader to close the pullHeader,
        * otherwise the released event may not be triggered again
        */
-      if (pullHeaderRef.value) {
+      if (pullHeader.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        pullHeaderRef.value.collapsePullHeader({ time: 2000 });
+        pullHeader.value.collapsePullHeader({ time: 2000 });
       }
     };
 
@@ -174,10 +174,10 @@ export default defineComponent({
        * You need to actively call collapsePullHeader to close pullFooter,
        * otherwise the released event may not be triggered again
        */
-      if (pullFooterRef.value) {
+      if (pullFooter.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        pullFooterRef.value.collapsePullFooter();
+        pullFooter.value.collapsePullFooter();
       }
     };
 
@@ -216,15 +216,15 @@ export default defineComponent({
         alert('This method is only supported in Native environment.');
         return;
       }
-      if (listRef.value) {
-        const list = listRef.value as HippyListElement;
+      if (list.value) {
+        const ul = list.value as HippyListElement;
 
         console.log('scroll to next page', list, scrollPos.value, $windowHeight);
 
         const top = scrollPos.value.top + $windowHeight - 200;
         // CSSOM View standard - ScrollToOptions
         // https://www.w3.org/TR/cssom-view-1/#extensions-to-the-window-interface
-        list.scrollTo({
+        ul.scrollTo({
           left: scrollPos.value.left,
           top,
           behavior: 'auto',
@@ -243,9 +243,9 @@ export default defineComponent({
         return;
       }
 
-      if (listRef.value) {
-        const list = listRef.value as HippyListElement;
-        list.scrollToIndex(0, list.childNodes.length - 1);
+      if (list.value) {
+        const ul = list.value as HippyListElement;
+        ul.scrollToIndex(0, ul.childNodes.length - 1);
       }
     };
 
@@ -268,10 +268,10 @@ export default defineComponent({
        * You need to actively call collapsePullHeader to close the pullHeader,
        * otherwise the released event may not be triggered again
        */
-      if (pullHeaderRef.value) {
+      if (pullHeader.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        pullHeaderRef.value.collapsePullHeader({ time: 2000 });
+        pullHeader.value.collapsePullHeader({ time: 2000 });
       }
     });
 
@@ -280,9 +280,9 @@ export default defineComponent({
       dataSource,
       headerRefreshText,
       footerRefreshText,
-      listRef,
-      pullHeaderRef,
-      pullFooterRef,
+      list,
+      pullHeader,
+      pullFooter,
       onEndReached,
       onHeaderReleased,
       onHeaderIdle,
@@ -298,114 +298,114 @@ export default defineComponent({
 </script>
 
 <style>
-  #demo-pull-header-footer {
-    flex: 1;
-    padding: 12px;
-  }
+#demo-pull-header-footer {
+  flex: 1;
+  padding: 12px;
+}
 
-  #demo-pull-header-footer #loading {
-    font-size: 11px;
-    color: #aaa;
-    align-self: center;
-    height: 30px;
-    line-height: 30px;
-  }
+#demo-pull-header-footer #loading {
+  font-size: 11px;
+  color: #aaa;
+  align-self: center;
+  height: 30px;
+  line-height: 30px;
+}
 
-  #demo-pull-header-footer #toolbar {
-    display: flex;
-    height: 40px;
-    flex-direction: row;
-  }
+#demo-pull-header-footer #toolbar {
+  display: flex;
+  height: 40px;
+  flex-direction: row;
+}
 
-  #demo-pull-header-footer .ul-refresh {
-    background-color: #40b883;
-  }
+#demo-pull-header-footer .ul-refresh {
+  background-color: #40b883;
+}
 
-  #demo-pull-header-footer .ul-refresh-text {
-    color: white;
-    height: 50px;
-    line-height: 50px;
-    text-align: center;
-  }
+#demo-pull-header-footer .ul-refresh-text {
+  color: white;
+  height: 50px;
+  line-height: 50px;
+  text-align: center;
+}
 
-  #demo-pull-header-footer .pull-footer {
-    background-color: #40b883;
-    height: 40px;
-  }
+#demo-pull-header-footer .pull-footer {
+  background-color: #40b883;
+  height: 40px;
+}
 
-  #demo-pull-header-footer .pull-footer-text {
-    color: white;
-    line-height: 40px;
-    text-align: center;
-  }
+#demo-pull-header-footer .pull-footer-text {
+  color: white;
+  line-height: 40px;
+  text-align: center;
+}
 
-  #demo-pull-header-footer #list {
-    flex: 1;
-    background-color: white;
-  }
+#demo-pull-header-footer #list {
+  flex: 1;
+  background-color: white;
+}
 
-  #demo-pull-header-footer .article-title {
-    font-size: 17px;
-    line-height: 24px;
-    color: #242424;
-  }
+#demo-pull-header-footer .article-title {
+  font-size: 17px;
+  line-height: 24px;
+  color: #242424;
+}
 
-  #demo-pull-header-footer .normal-text {
-    font-size: 11px;
-    color: #aaa;
-    align-self: center;
-  }
+#demo-pull-header-footer .normal-text {
+  font-size: 11px;
+  color: #aaa;
+  align-self: center;
+}
 
-  #demo-pull-header-footer .image {
-    flex: 1;
-    height: 160px;
-    resize-mode: cover;
-  }
+#demo-pull-header-footer .image {
+  flex: 1;
+  height: 160px;
+  resize-mode: cover;
+}
 
-  #demo-pull-header-footer .style-one-image-container {
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 8px;
-    flex: 1;
-  }
+#demo-pull-header-footer .style-one-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
 
-  #demo-pull-header-footer .style-one-image {
-    height: 120px;
-  }
+#demo-pull-header-footer .style-one-image {
+  height: 120px;
+}
 
-  #demo-pull-header-footer .style-two {
-    flex-direction: row;
-    justify-content: space-between;
-  }
+#demo-pull-header-footer .style-two {
+  flex-direction: row;
+  justify-content: space-between;
+}
 
-  #demo-pull-header-footer .style-two-left-container {
-    flex: 1;
-    flex-direction: column;
-    justify-content: center;
-    margin-right: 8px;
-  }
+#demo-pull-header-footer .style-two-left-container {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 8px;
+}
 
-  #demo-pull-header-footer .style-two-image-container {
-    flex: 1;
-  }
+#demo-pull-header-footer .style-two-image-container {
+  flex: 1;
+}
 
-  #demo-pull-header-footer .style-two-image {
-    height: 140px;
-  }
+#demo-pull-header-footer .style-two-image {
+  height: 140px;
+}
 
-  #demo-pull-header-footer .style-five-image-container {
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 8px;
-    flex: 1;
-  }
+#demo-pull-header-footer .style-five-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
 
-  #demo-pull-header-footer .item-style {
-    background-color: white;
-    padding-top: 12px;
-    padding-bottom: 12px;
-    border-bottom-width: 1px;
-    border-bottom-color: #e5e5e5;
-    border-style: solid;
-  }
+#demo-pull-header-footer .item-style {
+  background-color: white;
+  padding-top: 12px;
+  padding-bottom: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: #e5e5e5;
+  border-style: solid;
+}
 </style>

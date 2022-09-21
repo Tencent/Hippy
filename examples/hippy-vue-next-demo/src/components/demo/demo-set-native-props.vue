@@ -86,41 +86,41 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  .set-native-props-demo {
-    display: flex;
-    align-items: center;
-    position: relative;
-  }
-  .native-demo-1-drag {
-    height: 80px;
-    background-color: #40b883;
-    position: relative;
-    margintop: 10px;
-  }
-  .native-demo-1-point {
-    height: 80px;
-    width: 80px;
-    color: #40ee94;
-    background-color: #40ee94;
-    position: absolute;
-    left: 0;
-  }
-  .native-demo-2-drag {
-    height: 80px;
-    background-color: #40b883;
-    position: relative;
-    margintop: 10px;
-  }
-  .native-demo-2-point {
-    height: 80px;
-    width: 80px;
-    color: #40ee94;
-    background-color: #40ee94;
-    position: absolute;
-    left: 0;
-  }
-  .splitter {
-    margintop: 50px;
-  }
+<style scoped>
+.set-native-props-demo {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+.native-demo-1-drag {
+  height: 80px;
+  background-color: #40b883;
+  position: relative;
+  marginTop: 10px
+}
+.native-demo-1-point {
+  height: 80px;
+  width: 80px;
+  color: #40ee94;
+  background-color: #40ee94;
+  position: absolute;
+  left: 0;
+}
+.native-demo-2-drag {
+  height: 80px;
+  background-color: #40b883;
+  position: relative;
+  marginTop: 10px;
+}
+.native-demo-2-point {
+  height: 80px;
+  width: 80px;
+  color: #40ee94;
+  background-color: #40ee94;
+  position: absolute;
+  left: 0;
+}
+.splitter{
+  marginTop: 50px;
+}
 </style>

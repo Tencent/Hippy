@@ -5,9 +5,6 @@
     @layout="onLayout"
   >
     <div>
-      <div class="native-block">
-        <label class="vue-native-title">Native能力使用示例：</label>
-      </div>
       <!-- platform -->
       <div
         v-if="Native.Platform"
@@ -15,16 +12,6 @@
       >
         <label class="vue-native-title">Native.Platform</label>
         <p>{{ Native.Platform }}</p>
-      </div>
-
-      <div class="native-block">
-        <label class="vue-native-title">Native.isIOS</label>
-        <p>{{ Native.isIOS() }}</p>
-      </div>
-
-      <div class="native-block">
-        <label class="vue-native-title">Native.isAndroid</label>
-        <p>{{ Native.isAndroid() }}</p>
       </div>
 
       <!-- device name -->
@@ -163,8 +150,26 @@
       >
         <label
           class="vue-native-title"
-        >在$start完成后的回调参数中包含了superProps</label>
+        >afterCallback of $start method contain superProps</label>
         <p>{{ superProps }}</p>
+      </div>
+
+      <!-- A demo of Native Event，Just show how to use -->
+      <div
+        class="native-block"
+      >
+        <label class="vue-native-title">App event</label>
+        <div>
+          <button
+            class="event-btn"
+            @click="triggerAppEvent"
+          >
+            <span class="event-btn-text">Trigger app event</span>
+          </button>
+          <div class="event-btn-result">
+            <p>Event triggered times: {{ eventTriggeredTimes }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- example of measuring the size of an element -->
@@ -297,17 +302,30 @@
           <span>{{ clipboardValue }}</span>
         </div>
       </div>
+
+      <!-- iOS platform  -->
+      <div v-if="Native.isIOS()" class="native-block">
+        <label class="vue-native-title">Native.isIOS</label>
+        <p>{{ Native.isIOS() }}</p>
+      </div>
+
+      <!-- Android platform  -->
+      <div v-if="Native.isAndroid()" class="native-block">
+        <label class="vue-native-title">Native.isAndroid</label>
+        <p>{{ Native.isAndroid() }}</p>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Native, type HippyNode } from '@hippy/vue-next';
+import { Native, type HippyNode, EventBus } from '@hippy/vue-next';
 import { defineComponent, onMounted, ref } from '@vue/runtime-core';
 
 import { getGlobalInitProps } from '../../util';
 
 let networkListener;
+const TEST_EVENT_NAME = 'testEvent';
 
 export default defineComponent({
   setup() {
@@ -323,6 +341,7 @@ export default defineComponent({
     const fetchText = ref('请求网址中...');
     const cookieString = ref('ready to set');
     const cookiesValue = ref('');
+    const eventTriggeredTimes = ref(0);
     let hasLayout = false;
 
     /**
@@ -405,6 +424,10 @@ export default defineComponent({
       }
     };
 
+    const triggerAppEvent = () => {
+      EventBus.$emit(TEST_EVENT_NAME);
+    };
+
     onMounted(() => {
       superProps.value = JSON.stringify(getGlobalInitProps());
 
@@ -424,6 +447,10 @@ export default defineComponent({
         .catch((error) => {
           fetchText.value = `收到错误: ${error}`;
         });
+
+      EventBus.$on(TEST_EVENT_NAME, () => {
+        eventTriggeredTimes.value += 1;
+      });
     });
 
     return {
@@ -449,77 +476,80 @@ export default defineComponent({
       setCookie,
       getCookie,
       onLayout,
+      triggerAppEvent,
+      eventTriggeredTimes,
     };
   },
   beforeDestroy() {
     if (networkListener) {
       Native.NetInfo.removeEventListener('change', networkListener);
     }
+    EventBus.$off(TEST_EVENT_NAME);
   },
 });
 </script>
 
-<style>
-  #demo-vue-native {
-    flex: 1;
-    padding: 12px;
-    overflow-y: scroll;
-  }
+<style scoped>
+#demo-vue-native {
+  flex: 1;
+  padding: 12px;
+  overflow-y: scroll;
+}
 
-  .native-block {
-    margin-top: 15px;
-    margin-bottom: 15px;
-  }
+.native-block {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
 
-  .native-block p {
-    margin-vertical: 5px;
-  }
+.native-block p {
+  margin-vertical: 5px;
+}
 
-  .vue-native-title {
-    text-decoration: underline;
-    color: #40b883;
-  }
+.vue-native-title {
+  text-decoration: underline;
+  color: #40b883
+}
 
-  .event-btn {
-    background-color: #40b883;
-    flex: 1;
-    flex-direction: column;
-    width: 120px;
-    height: 40px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 3px;
-    margin-bottom: 5px;
-    margin-top: 5px;
-  }
+.event-btn {
+  background-color: #40b883;
+  flex: 1;
+  flex-direction: column;
+  width: 120px;
+  height: 40px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
 
-  .event-btn-result {
-    flex: 1;
-    flex-direction: column;
-  }
+.event-btn-result {
+  flex: 1;
+  flex-direction: column;
+}
 
-  .event-btn .event-btn-text {
-    color: white;
-  }
-  .item-wrapper {
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: row;
-    align-items: center;
-  }
-  .item-button {
-    width: 80px;
-    height: 40px;
-    background-color: #40b883;
-    border-radius: 3px;
-    margin-bottom: 5px;
-    margin-top: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-right: 10px;
-  }
-  .item-button span {
-    color: white;
-  }
+.event-btn .event-btn-text {
+  color: white;
+}
+.item-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  align-items: center;
+}
+.item-button {
+  width: 80px;
+  height: 40px;
+  background-color: #40b883;
+  border-radius: 3px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px
+}
+.item-button span {
+  color: white;
+}
 </style>

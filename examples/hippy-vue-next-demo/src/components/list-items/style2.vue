@@ -8,7 +8,7 @@
       >
         {{ itemBean.title }}
       </p>
-      <div class="tag-line">
+      <div :style="{ alignSelf: 'flex-start', marginTop: '5px' }">
         <p class="normal-text">
           {{ itemBean.subInfo.join('') }}
         </p>

@@ -1,14 +1,12 @@
 <template>
   <ul class="feature-list">
     <li>
-      <div
-        v-show="isShowDemoWrap"
-        id="version-info"
-      >
+      <div id="version-info">
         <p class="feature-title">
           Vue: {{ version }}
         </p>
         <p
+          v-if="Native"
           class="feature-title"
         >
           Hippy-Vue-Next: {{ Native.version !== 'unspecified' ? Native.version : 'master' }}
@@ -16,10 +14,7 @@
       </div>
     </li>
     <li>
-      <p
-        class="feature-title"
-        @click.stop="onClickDemoTitle"
-      >
+      <p class="feature-title">
         浏览器组件 Demos
       </p>
     </li>
@@ -35,9 +30,9 @@
         {{ feature.name }}
       </router-link>
     </li>
-    <li>
+    <li v-if="nativeFeatureList.length">
       <p class="feature-title">
-        Native组件 Demos
+        终端组件 Demos
       </p>
     </li>
     <li
@@ -55,18 +50,18 @@
   </ul>
 </template>
 <script lang="ts">
-import { toRaw, defineComponent, ref, onMounted, version } from '@vue/runtime-core';
+import { defineComponent, ref, onMounted, version } from '@vue/runtime-core';
 import { Native } from '@hippy/vue-next';
 
 import Demos from '../components/demo';
 import NativeDemos from '../components/native-demo';
 
-  /** 路由类型 */
-  interface RouterList {
-    [key: string]: {
-      name: string;
-    };
-  }
+/** 路由类型 */
+interface RouterList {
+  [key: string]: {
+    name: string;
+  };
+}
 
 export default defineComponent({
   name: 'Menu',
@@ -83,10 +78,6 @@ export default defineComponent({
       name: (NativeDemos as RouterList)[demoId].name,
     }));
 
-    const testData = ref({
-      a: 1,
-    });
-
     onMounted(() => {
       /**
        * In some scenarios, for example, when passing data to Native,
@@ -96,61 +87,55 @@ export default defineComponent({
       // console.log('data', testData, toRaw(testData));
     });
 
-    const isShowDemoWrap = ref(true);
-    const onClickDemoTitle = () => {
-      isShowDemoWrap.value = !isShowDemoWrap.value;
-    };
-
     return {
       featureList,
-      isShowDemoWrap,
       nativeFeatureList,
-      onClickDemoTitle,
       version,
       Native,
     };
   },
 });
 </script>
-<style>
-  .feature-list {
-    display: flex;
-    flex: 1;
-    overflow: scroll;
-  }
+<style scoped>
+.feature-list {
+  overflow: scroll;
+}
 
-  .feature-item {
-    align-items: center;
-    justify-content: center;
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
+.feature-item {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
 
-  .feature-title {
-    color: #555;
-    text-align: center;
-  }
+.feature-title {
+  color: #555;
+  text-align: center;
+}
 
-  .feature-item .button {
-    border-style: solid;
-    border-color: #40b883;
-    border-width: 2px;
-    border-radius: 10px;
-    justify-content: center;
-    align-items: center;
-    width: 200px;
-    height: 56px;
-    line-height: 56px;
-    font-size: 16px;
-    color: #40b883;
-    text-align: center;
-  }
+.feature-item .button {
+  display: block;
+  border-style: solid;
+  border-color: #40b883;
+  border-width: 2px;
+  border-radius: 10px;
+  justify-content: center;
+  align-items: center;
+  width: 200px;
+  height: 56px;
+  line-height: 56px;
+  font-size: 16px;
+  color: #40b883;
+  text-align: center;
+}
 
-  #version-info {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    border-bottom-width: 1px;
-    border-bottom-color: gainsboro;
-  }
+#version-info {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom-width: 1px;
+  border-style: solid;
+  border-bottom-color: gainsboro;
+}
 </style>

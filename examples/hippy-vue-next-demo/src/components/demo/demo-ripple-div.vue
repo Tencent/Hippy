@@ -1,6 +1,6 @@
 <template>
   <div
-    ref="rippleRef"
+    ref="ripple1"
     :style="wrapperStyle"
     :nativeBackgroundAndroid="{ ...nativeBackgroundAndroid }"
     @layout="onLayout"
@@ -51,7 +51,7 @@ export default defineComponent({
   },
   setup(props) {
     const { positionY } = toRefs(props);
-    const rippleRef = ref(null);
+    const ripple1 = ref(null);
     const scrollOffsetY = ref(positionY.value);
     let viewX = 0;
     let viewY = 0;
@@ -61,8 +61,8 @@ export default defineComponent({
     });
 
     const onLayout = () => {
-      if (rippleRef.value) {
-        Native.measureInAppWindow(rippleRef.value).then((rect) => {
+      if (ripple1.value) {
+        Native.measureInAppWindow(ripple1.value).then((rect) => {
           viewX = rect.left;
           viewY = rect.top;
         });
@@ -71,25 +71,25 @@ export default defineComponent({
 
     const onTouchStart = (e) => {
       const t = e.touches[0];
-      if (rippleRef.value) {
-        (rippleRef.value as HippyElement).setHotspot(
+      if (ripple1.value) {
+        (ripple1.value as HippyElement).setHotspot(
           t.clientX - viewX,
           t.clientY + scrollOffsetY.value - viewY,
         );
-        (rippleRef.value as HippyElement).setPressed(true);
+        (ripple1.value as HippyElement).setPressed(true);
       }
     };
 
     const onTouchEnd = () => {
-      if (rippleRef.value) {
-        (rippleRef.value as HippyElement).setPressed(false);
+      if (ripple1.value) {
+        (ripple1.value as HippyElement).setPressed(false);
       }
     };
 
     return {
       scrollOffsetY: props.positionY,
       demo1Style,
-      rippleRef,
+      ripple1,
       onLayout,
       onTouchStart,
       onTouchEnd,

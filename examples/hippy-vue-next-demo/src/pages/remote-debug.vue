@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="inputDemo"
     class="demo-remote-input"
     @click.stop="blurInput"
   >
@@ -120,42 +121,42 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  .demo-remote-input {
-    display: flex;
-    flex: 1;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-  }
-  .input-label {
-    margin: 20px;
-    margin-bottom: 0;
-  }
-  .demo-remote-input .remote-input {
-    width: 350px;
-    height: 80px;
-    color: #242424;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #ccc;
-    font-size: 16px;
-    margin: 20px;
-    placeholder-text-color: #aaa;
-  }
-  .demo-remote-input .input-button {
-    border-color: #4c9afa;
-    border-width: 1px;
-    padding-left: 10px;
-    padding-right: 10px;
-    border-style: solid;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    margin-left: 20px;
-    margin-right: 20px;
-  }
-  .tips-wrap {
-    margin-top: 20px;
-    padding: 10px;
-  }
+<style scoped>
+.demo-remote-input {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.input-label {
+  margin: 20px;
+  margin-bottom: 0;
+}
+.demo-remote-input .remote-input {
+  width: 350px;
+  height: 80px;
+  color: #242424;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ccc;
+  font-size: 16px;
+  margin: 20px;
+  placeholder-text-color: #aaa;
+}
+.demo-remote-input .input-button {
+  border-color: #4c9afa;
+  border-width: 1px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-style: solid;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+.tips-wrap {
+  margin-top: 20px;
+  padding: 10px;
+}
 </style>

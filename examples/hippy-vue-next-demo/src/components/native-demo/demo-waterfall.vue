@@ -1,7 +1,7 @@
 <template>
   <div id="demo-waterfall">
     <ul-refresh-wrapper
-      ref="headerRef"
+      ref="header"
       style="flex: 1"
       @refresh="onRefresh"
     >
@@ -11,7 +11,7 @@
         </p>
       </ul-refresh>
       <waterfall
-        ref="waterfallRef"
+        ref="gridView"
         :content-inset="contentInset"
         :column-spacing="columnSpacing"
         :contain-banner-view="isIos"
@@ -119,8 +119,8 @@ export default defineComponent({
     const isRefreshing = ref(false);
     const loadingState = ref('正在加载...');
     const refreshText = computed(() => (isRefreshing.value ? '正在刷新' : '下拉刷新'));
-    const waterfallRef = ref(null);
-    const headerRef = ref(null);
+    const gridView = ref(null);
+    const header = ref(null);
     const itemWidth = computed(() => {
       const screenWidth = Native.Dimensions.screen.width;
       const width = screenWidth - contentInset.left - contentInset.right;
@@ -135,11 +135,11 @@ export default defineComponent({
       const data = await mockFetchData();
       isRefreshing.value = false;
       dataSource.value = data.reverse();
-      if (headerRef.value) {
+      if (header.value) {
         // Notify refresh completed
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        headerRef.value.refreshCompleted();
+        header.value.refreshCompleted();
       }
     };
 
@@ -166,10 +166,10 @@ export default defineComponent({
     };
 
     const onClickItem = (index) => {
-      if (waterfallRef.value) {
+      if (gridView.value) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        waterfallRef.value.scrollToIndex({ index, animation: true });
+        gridView.value.scrollToIndex({ index, animation: true });
       }
     };
 
@@ -190,8 +190,8 @@ export default defineComponent({
 
       isIos: Native.isIOS(),
       loadingState,
-      headerRef,
-      waterfallRef,
+      header,
+      gridView,
 
       contentInset,
       columnSpacing,
@@ -208,91 +208,91 @@ export default defineComponent({
 </script>
 
 <style>
-  #demo-waterfall {
-    flex: 1;
-  }
+#demo-waterfall {
+  flex: 1;
+}
 
-  #demo-waterfall .refresh-header {
-    background-color: #40b883;
-  }
+#demo-waterfall .refresh-header {
+  background-color: #40b883;
+}
 
-  #demo-waterfall .refresh-text {
-    height: 40px;
-    line-height: 40px;
-    text-align: center;
-    color: white;
-  }
+#demo-waterfall .refresh-text {
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  color: white;
+}
 
-  #demo-waterfall .banner-view {
-    background-color: grey;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+#demo-waterfall .banner-view {
+  background-color: grey;
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  #demo-waterfall .list-view-item {
-    background-color: #eeeeee;
-  }
+#demo-waterfall .list-view-item {
+  background-color: #eeeeee;
+}
 
-  #demo-waterfall .article-title {
-    font-size: 12px;
-    line-height: 16px;
-    color: #242424;
-  }
+#demo-waterfall .article-title {
+  font-size: 12px;
+  line-height: 16px;
+  color: #242424;
+}
 
-  #demo-waterfall .normal-text {
-    font-size: 10px;
-    color: #aaa;
-    align-self: center;
-  }
+#demo-waterfall .normal-text {
+  font-size: 10px;
+  color: #aaa;
+  align-self: center;
+}
 
-  #demo-waterfall .image {
-    flex: 1;
-    height: 120px;
-    resize: both;
-  }
+#demo-waterfall .image {
+  flex: 1;
+  height: 120px;
+  resize: both;
+}
 
-  #demo-waterfall .style-one-image-container {
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 8px;
-    flex: 1;
-  }
+#demo-waterfall .style-one-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
 
-  #demo-waterfall .style-one-image {
-    height: 60px;
-  }
+#demo-waterfall .style-one-image {
+  height: 60px;
+}
 
-  #demo-waterfall .style-two {
-    flex-direction: row;
-    justify-content: space-between;
-  }
+#demo-waterfall .style-two {
+  flex-direction: row;
+  justify-content: space-between;
+}
 
-  #demo-waterfall .style-two-left-container {
-    flex: 1;
-    flex-direction: column;
-    justify-content: center;
-    margin-right: 8px;
-  }
+#demo-waterfall .style-two-left-container {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 8px;
+}
 
-  #demo-waterfall .style-two-image-container {
-    flex: 1;
-  }
+#demo-waterfall .style-two-image-container {
+  flex: 1;
+}
 
-  #demo-waterfall .style-two-image {
-    height: 80px;
-  }
+#demo-waterfall .style-two-image {
+  height: 80px;
+}
 
-  #demo-waterfall .refresh {
-    background-color: #40b883;
-  }
+#demo-waterfall .refresh {
+  background-color: #40b883;
+}
 
-  #demo-waterfall .pull-footer {
-    flex: 1;
-    height: 40px;
-    background-color: #40b883;
-    justify-content: center;
-    align-items: center;
-  }
+#demo-waterfall .pull-footer {
+  flex: 1;
+  height: 40px;
+  background-color: #40b883;
+  justify-content: center;
+  align-items: center;
+}
 </style>

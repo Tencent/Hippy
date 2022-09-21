@@ -10,7 +10,7 @@ import {
 } from '@hippy/vue-next';
 
 import App from './app.vue';
-import { createHippyRouter } from './router';
+import { createHippyRouter } from './routes';
 import { setGlobalInitProps } from './util';
 
 global.Hippy.on('uncaughtException', (err) => {
@@ -32,10 +32,9 @@ const app: HippyApp = createApp(App, {
       // disable status bar autofill
       // disabled: true,
 
-      // Status bar background color, if not set, it will use 4282431619
+      // Status bar background color, if not set, it will use 4282431619, as #40b883, Vue default green
       // hippy-vue-css-loader/src/compiler/style/color-parser.js
-      // backgroundColor: 4294309626,
-      backgroundColor: 4282431619,
+      backgroundColor: 4283416717,
 
       // 状态栏背景图，要注意这个会根据容器尺寸拉伸。
       // backgroundImage: 'https://user-images.githubusercontent.com/12878546/148737148-d0b227cb-69c8-4b21-bf92-739fb0c3f3aa.png',
@@ -90,7 +89,7 @@ const initCallback = ({ superProps, rootViewId }) => {
     // return true;
   });
 
-  // invoke custom nativeapis with type hints
+  // invoke custom native apis with type hints
   Native.callNative('customModule', 'customMethod', '123', 456);
   Native.callNativeWithPromise(
     'customModule',

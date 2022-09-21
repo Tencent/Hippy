@@ -1,7 +1,7 @@
 <template>
   <div>
     <animation
-      ref="animationViewRef"
+      ref="animationView"
       :playing="playing"
       :actions="loopActions"
       class="loop-green"
@@ -45,37 +45,37 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const animationViewRef = ref(null);
+    const animationView = ref(null);
 
     onMounted(() => {
       if (props.onRef) {
-        props.onRef(animationViewRef.value);
+        props.onRef(animationView.value);
       }
     });
 
     return {
-      animationViewRef,
+      animationView,
       loopActions: horizonAnimation,
     };
   },
 });
 </script>
 
-<style>
-  .loop-green {
-    margin-top: 10px;
-    justify-content: center;
-    align-items: center;
-    background-color: #40b883;
-    width: 200px;
-    height: 80px;
-  }
+<style scoped>
+.loop-green {
+  margin-top: 10px;
+  justify-content: center;
+  align-items: center;
+  background-color: #40b883;
+  width: 200px;
+  height: 80px;
+}
 
-  .loop-white {
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    width: 160px;
-    height: 50px;
-  }
+.loop-white {
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  width: 160px;
+  height: 50px;
+}
 </style>

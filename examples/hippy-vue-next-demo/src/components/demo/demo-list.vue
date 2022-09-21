@@ -2,7 +2,7 @@
   <div id="demo-list">
     <ul
       id="list"
-      ref="listRef"
+      ref="list"
       :style="horizontal && { height: 50, flex: 0 }"
       :horizontal="horizontal"
       :exposureEventEnabled="true"
@@ -78,7 +78,7 @@
       </li>
     </ul>
     <div
-      v-if="isAndroid"
+      v-if="Platform === 'android'"
       :style="{
         position: 'absolute',
         right: 20,
@@ -114,7 +114,7 @@
 </template>
 
 <script lang="ts">
-import { type HippyEvent, Native } from '@hippy/vue-next';
+import { type ListViewEvent, Native} from '@hippy/vue-next';
 import { defineComponent, ref, onMounted, type Ref } from '@vue/runtime-core';
 
 const STYLE_LOADING = 100;
@@ -195,7 +195,7 @@ export default defineComponent({
   setup() {
     const loadingState = ref('');
     const dataSource: Ref<any[]> = ref([]);
-    const listRef = ref(null);
+    const list = ref(null);
     const horizontal = ref(false);
     const delText = 'Delete';
     let isLoading = false;
@@ -214,19 +214,19 @@ export default defineComponent({
 
       const data = dataSource.value;
       isLoading = true;
-      loadingState.value = '正在加载...';
+      loadingState.value = 'Loading now...';
       dataSource.value = [...data, [{ style: STYLE_LOADING }]];
-      // 获取数据
+      // get data
       const newData: any = await mockFetchData();
       dataSource.value = [...data, ...newData];
-      // 请求解锁
+      // release lock
       isLoading = false;
     };
 
     /**
        * delete data
        */
-    const onDelete = (event: HippyEvent) => {
+    const onDelete = (event: ListViewEvent) => {
       if (typeof event.index !== 'undefined') {
         dataSource.value.splice(event.index, 1);
       }
@@ -266,10 +266,10 @@ export default defineComponent({
       loadingState,
       dataSource,
       delText,
-      listRef,
+      list,
       STYLE_LOADING,
       horizontal,
-      isAndroid: Native.isAndroid(),
+      Platform: Native.Platform,
       onAppear,
       onDelete,
       onDisappear,
@@ -287,36 +287,36 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  #demo-list {
-    collapsable: false;
-    flex: 1;
-  }
-  #demo-list #loading {
-    font-size: 11px;
-    color: #aaa;
-    align-self: center;
-  }
+<style scoped>
+#demo-list {
+  collapsable: false;
+  flex: 1;
+}
+#demo-list #loading {
+  font-size: 11px;
+  color: #aaa;
+  align-self: center;
+}
 
-  #demo-list .container {
-    background-color: #fff;
-    collapsable: false;
-  }
+#demo-list .container {
+  background-color: #fff;
+  collapsable: false;
+}
 
-  #demo-list .item-container {
-    padding: 12px;
-  }
+#demo-list .item-container {
+  padding: 12px;
+}
 
-  #demo-list .separator-line {
-    margin-left: 12px;
-    margin-right: 12px;
-    height: 1px;
-    background-color: #e5e5e5;
-  }
+#demo-list .separator-line {
+  margin-left: 12px;
+  margin-right: 12px;
+  height: 1px;
+  background-color: #e5e5e5;
+}
 
-  /* configure li style if horizontal ul is set*/
-  #demo-list .item-horizontal-style {
-    height: 50px;
-    width: 100px;
-  }
+/* configure li style if horizontal ul is set*/
+#demo-list .item-horizontal-style {
+  height: 50px;
+  width: 100px;
+}
 </style>

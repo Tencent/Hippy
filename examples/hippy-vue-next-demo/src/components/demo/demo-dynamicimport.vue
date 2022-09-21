@@ -41,7 +41,7 @@ export default defineComponent({
      *  When an import error occurs, the corresponding downgrade plan needs to be done in the catch.
      */
 
-    AsyncComponentFromLocal: defineAsyncComponent(async () => import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromLocal" */ './dynamic-import/dynamic-import-local.vue')),
+    AsyncComponentFromLocal: defineAsyncComponent(async () => import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromLocal" */ './dynamicImport/async-component-local.vue')),
     /**
      *  Remote Loading Reference AsyncComponentFromHttp,
      *  need to explicitly specify the chunk remote address, customChunkPath, chunk name and webpackChunkName.
@@ -49,8 +49,8 @@ export default defineComponent({
      *  When an import error occurs, the corresponding downgrade plan needs to be done in the catch.
      */
     AsyncComponentFromHttp: defineAsyncComponent(async () => (process.env.NODE_ENV === 'development'
-      ? import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue')
-      : import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/static/hippy-vue-next/", webpackChunkName: "asyncComponentFromHttp" */ './dynamic-import/dynamic-import-http.vue'))),
+      ? import(/* webpackMode: "lazy", webpackChunkName: "asyncComponentFromHttp" */ './dynamicImport/async-component-http.vue')
+      : import(/* webpackMode: "lazy",customChunkPath: "https://raw.githubusercontent.com/Tencent/Hippy/master/static/hippy-vue-next/", webpackChunkName: "asyncComponentFromHttp" */ './dynamicImport/async-component-http.vue'))),
   },
   setup() {
     const loaded = ref(false);
@@ -92,6 +92,6 @@ export default defineComponent({
   line-height: 40px;
 }
 .async-com-wrapper {
-  margin-top: 20px
+  marginTop: 20px
 }
 </style>

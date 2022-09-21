@@ -88,40 +88,40 @@ export default defineComponent({
   },
 });
 </script>
-<style>
-  #demo-img {
-    overflow-y: scroll;
-    flex: 1;
-    margin: 7px;
-  }
+<style scoped>
+#demo-img {
+  overflow-y: scroll;
+  flex: 1;
+  margin: 7px;
+}
 
-  #demo-img #demo-img-container {
-    display: flex;
-    flex-direction: column;
-  }
+#demo-img #demo-img-container {
+  display: flex;
+  flex-direction: column;
+}
 
-  #demo-img .image {
-    width: 300px;
-    height: 180px;
-    margin: 30px;
-    border-width: 1px;
-    border-style: solid;
-    border-color: #40b883;
-  }
+#demo-img .image {
+  width: 300px;
+  height: 180px;
+  margin: 30px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #40b883;
+}
 
-  #demo-img .contain {
-    resize-mode: contain;
-  }
+#demo-img .contain {
+  resize-mode: contain;
+}
 
-  #demo-img .cover {
-    resize-mode: cover;
-  }
+#demo-img .cover {
+  resize-mode: cover;
+}
 
-  #demo-img .center {
-    resize-mode: center;
-  }
+#demo-img .center {
+  resize-mode: center;
+}
 
-  #demo-img .tint-color {
-    tint-color: #40b88399;
-  }
+#demo-img .tint-color {
+  tint-color: #40b88399
+}
 </style>

@@ -40,18 +40,18 @@
       <swiper-slide
         v-for="n in dataSource"
         :key="n"
-        :style="{ backgroundColor: 4278222848 + 100 }"
+        :style="{ backgroundColor: 4278222848 + 100 * n }"
       >
         <p>I'm Slide {{ n + 1 }}</p>
       </swiper-slide>
     </swiper>
-    <!-- 一个放小点的范例 -->
+    <!-- A Demo of dots -->
     <div id="swiper-dots">
       <div
         v-for="n in dataSource"
         :key="n"
         class="dot"
-        :class="{ highlight: currentSlideNum === n }"
+        :class="{ hightlight: currentSlideNum === n }"
       />
     </div>
   </div>
@@ -151,32 +151,32 @@ export default defineComponent({
 </script>
 
 <style>
-  #demo-swiper {
-    flex: 1;
-  }
+#demo-swiper {
+  flex: 1;
+}
 
-  #demo-swiper #swiper {
-    flex: 1;
-    height: 400px;
-  }
+#demo-swiper #swiper {
+  flex: 1;
+  height: 400px;
+}
 
-  #demo-swiper #swiper-dots {
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-  }
+#demo-swiper #swiper-dots {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+}
 
-  #demo-swiper .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color: darkgray;
-    margin-left: 5px;
-    margin-right: 5px;
-  }
+#demo-swiper .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: darkgray;
+  margin-left: 5px;
+  margin-right: 5px;
+}
 
-  #demo-swiper .dot.highlight {
-    background-color: limegreen;
-  }
+#demo-swiper .dot.hightlight {
+  background-color: limegreen;
+}
 </style>

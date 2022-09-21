@@ -1,7 +1,7 @@
 <template>
   <div>
     <animation
-      ref="animationLoopRef"
+      ref="animationLoop"
       :playing="playing"
       :actions="loopActions"
       class="loop-green"
@@ -62,7 +62,7 @@ export default defineComponent({
   setup(props) {
     const { direction } = toRefs(props);
     const loopActions: Ref = ref('');
-    const animationLoopRef = ref(null);
+    const animationLoop = ref(null);
 
     watch(
       direction,
@@ -85,33 +85,33 @@ export default defineComponent({
 
     onMounted(() => {
       if (props.onRef) {
-        props.onRef(animationLoopRef.value);
+        props.onRef(animationLoop.value);
       }
     });
 
     return {
       loopActions,
-      animationLoopRef,
+      animationLoop,
     };
   },
 });
 </script>
 
-<style>
-  .loop-green {
-    margin-top: 10px;
-    justify-content: center;
-    align-items: center;
-    background-color: #40b883;
-    width: 200px;
-    height: 80px;
-  }
+<style scoped>
+.loop-green {
+  margin-top: 10px;
+  justify-content: center;
+  align-items: center;
+  background-color: #40b883;
+  width: 200px;
+  height: 80px;
+}
 
-  .loop-white {
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    width: 160px;
-    height: 50px;
-  }
+.loop-white {
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  width: 160px;
+  height: 50px;
+}
 </style>

@@ -92,39 +92,39 @@ export default defineComponent({
 </script>
 
 <style>
-  .demo-turbo {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
+.demo-turbo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-  .demo-turbo .cell .contentView {
-    flex-direction: row;
-    justify-content: space-between;
-    background-color: #ccc;
-    margin-bottom: 1px;
-  }
+.demo-turbo .cell .contentView {
+  flex-direction: row;
+  justify-content: space-between;
+  background-color: #ccc;
+  margin-bottom: 1px;
+}
 
-  .demo-turbo .func-info {
-    justify-content: center;
+.demo-turbo .func-info {
+  justify-content: center;
 
-    padding-left: 15px;
-    padding-right: 15px;
-  }
+  padding-left: 15px;
+  padding-right: 15px;
+}
 
-  .demo-turbo .action-button {
-    background-color: #4c9afa;
-    color: white;
-    height: 44px;
-    line-height: 44px;
-    text-align: center;
-    width: 80px;
-    border-radius: 6px;
-  }
+.demo-turbo .action-button {
+  background-color: #4c9afa;
+  color: white;
+  height: 44px;
+  line-height: 44px;
+  text-align: center;
+  width: 80px;
+  border-radius: 6px;
+}
 
-  .demo-turbo .result {
-    background-color: darkseagreen;
-    min-height: 150px;
-    padding: 15px;
-  }
+.demo-turbo .result {
+  background-color: darkseagreen;
+  min-height: 150px;
+  padding: 15px;
+}
 </style>

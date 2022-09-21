@@ -5,14 +5,14 @@
         Url:
       </p>
       <input
-        ref="wsUrlRef"
+        ref="inputUrl"
         value="wss://echo.websocket.org"
       >
       <div class="row">
-        <button @click.stop="onClickConnect">
+        <button @click.stop="connect">
           <span>Connect</span>
         </button>
-        <button @click.stop="onClickDisconnect">
+        <button @click.stop="disconnect">
           <span>Disconnect</span>
         </button>
       </div>
@@ -22,10 +22,10 @@
         Message:
       </p>
       <input
-        ref="messageRef"
+        ref="inputMessage"
         value="Rock it with Hippy WebSocket"
       >
-      <button @click.stop="onClickSendMessage">
+      <button @click.stop="sendMessage">
         <span>Send</span>
       </button>
     </div>
@@ -76,7 +76,7 @@ const appendOutput = (message: string) => {
 /**
    * disconnect websocket connection
    */
-const disconnect = () => {
+const wsDisconnect = () => {
   // If the current state is connected, close the connection
   if (wsInstance && wsInstance.readyState === 1) {
     wsInstance.close();
@@ -88,9 +88,9 @@ const disconnect = () => {
    *
    * @param url
    */
-const connect = (url: string) => {
+const wsConnect = (url: string) => {
   // First close the existing connection
-  disconnect();
+  wsDisconnect();
   // Create instance and bind event callback
   wsInstance = new WebSocket(url);
   wsInstance.onopen = () => appendOutput(`[Opened] ${wsInstance?.url}`);
@@ -105,7 +105,7 @@ const connect = (url: string) => {
 /**
    * Send websocket message
    */
-const sendMessage = (message) => {
+const wsSendMessage = (message) => {
   appendOutput(`[Sent] ${message}`);
   if (wsInstance) {
     wsInstance.send(message);
@@ -114,19 +114,19 @@ const sendMessage = (message) => {
 
 export default defineComponent({
   setup() {
-    const wsUrlRef = ref(null);
-    const messageRef = ref(null);
+    const inputUrl = ref(null);
+    const inputMessage = ref(null);
 
     /**
        * Click to establish a websocket connection
        */
-    const onClickConnect = () => {
+    const connect = () => {
       // Get the url of the input box and establish a websocket connection
-      const wsUrlInput = wsUrlRef.value;
+      const wsUrlInput = inputUrl.value;
 
       if (wsUrlInput) {
         (wsUrlInput as HippyInput).getValue().then((url) => {
-          connect(url);
+          wsConnect(url);
         });
       }
     };
@@ -134,67 +134,68 @@ export default defineComponent({
     /**
        * Click to close the websocket connection
        */
-    const onClickDisconnect = () => {
-      disconnect();
+    const disconnect = () => {
+      wsDisconnect();
     };
 
     /**
        * Click to send the content of the input box to websocket
        */
-    const onClickSendMessage = () => {
-      const messageInput = messageRef.value;
+    const sendMessage = () => {
+      const messageInput = inputMessage.value;
 
       if (messageInput) {
         (messageInput as HippyInput).getValue().then((message) => {
-          sendMessage(message);
+          wsSendMessage(message);
         });
       }
     };
     return {
       output,
-      wsUrlRef,
-      messageRef,
-      onClickConnect,
-      onClickDisconnect,
-      onClickSendMessage,
+      inputUrl,
+      inputMessage,
+      connect,
+      disconnect,
+      sendMessage,
     };
   },
 });
 </script>
 
-<style>
-  #websocket-demo .demo-title {
-    color: #ccc;
-  }
+<style scoped>
+#websocket-demo .demo-title {
+  color: #ccc;
+}
 
-  #websocket-demo .output {
-    overflow-y: scroll;
-  }
+#websocket-demo .output {
+  overflow-y: scroll;
+}
 
-  #websocket-demo button {
-    background-color: #40b883;
-    border-color: #5dabfb;
-    border-style: solid;
-    border-width: 1px;
-    padding-horizontal: 20px;
-    font-size: 16px;
-    color: #fff;
-    margin: 10px;
-  }
+#websocket-demo button {
+  background-color: #40b883;
+  border-color: #5dabfb;
+  border-style: solid;
+  border-width: 1px;
+  padding-horizontal: 20px;
+  font-size: 16px;
+  color: #fff;
+  margin: 10px;
+}
 
-  #websocket-demo button span {
-    height: 56px;
-    line-height: 56px;
-  }
+#websocket-demo button span {
+  height: 56px;
+  line-height: 56px;
+}
 
-  #websocket-demo input {
-    color: black;
-    flex: 1;
-    height: 36px;
-    line-height: 36px;
-    font-size: 14px;
-    border-bottom-color: #40b883;
-    border-bottom-width: 1px;
-    padding: 0;
-  }
+#websocket-demo input {
+  color: black;
+  flex: 1;
+  height: 36px;
+  line-height: 36px;
+  font-size: 14px;
+  border-bottom-color: #40b883;
+  border-bottom-width: 1px;
+  border-style: solid;
+  padding: 0;
+}
 </style>

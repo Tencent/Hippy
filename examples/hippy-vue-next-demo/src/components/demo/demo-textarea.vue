@@ -1,9 +1,5 @@
 <template>
-  <div
-    id="demo-textarea"
-    ref="textareaRef"
-    @click.stop="onClickBlurAllInput"
-  >
+  <div id="demo-textarea">
     <label>多行文本:</label>
     <textarea
       :value="content"
@@ -18,8 +14,8 @@
         输入的文本为：{{ content }}
       </p>
     </div>
-    <label v-if="isAndroid">break-strategy={{ breakStrategy }}</label>
-    <div v-if="isAndroid">
+    <label v-if="Platform === 'android'">break-strategy={{ breakStrategy }}</label>
+    <div v-if="Platform === 'android'">
       <textarea
         class="textarea"
         :defaultValue="longText"
@@ -50,16 +46,11 @@
 </template>
 
 <script lang="ts">
-import {
-  type HippyElement,
-  type HippyInputElement,
-  Native,
-} from '@hippy/vue-next';
+import { Native } from '@hippy/vue-next';
 import { defineComponent, ref } from '@vue/runtime-core';
 
 export default defineComponent({
   setup() {
-    const textareaRef = ref(null);
     const content = ref('The quick brown fox jumps over the lazy dog，快灰狐狸跳过了懒 🐕。');
     const breakStrategy = ref('simple');
 
@@ -72,62 +63,66 @@ export default defineComponent({
       console.log(evt);
     };
 
-    const onClickBlurAllInput = () => {
-      if (textareaRef.value) {
-        const inputWrapper = textareaRef.value as HippyElement;
-
-        // Find all text box nodes in child nodes and call the defocus interface
-        if (inputWrapper.childNodes.length) {
-          const elements: HippyElement[] =              inputWrapper.childNodes as HippyElement[];
-
-          const matchedElement: HippyElement | undefined = elements.find(element => element.tagName === 'textarea');
-
-          if (matchedElement) {
-            (matchedElement as HippyInputElement).blur();
-          }
-        }
-      }
-    };
-
     const changeBreakStrategy = (strategy: string) => {
       breakStrategy.value = strategy;
     };
 
     return {
       content,
-      textareaRef,
       breakStrategy,
-      isAndroid: Native.isAndroid(),
+      Platform: Native.Platform,
       longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is the name of a town on Anglesey, an island of Wales.',
       contentSizeChange,
-      onClickBlurAllInput,
       changeBreakStrategy,
     };
   },
 });
 </script>
 
-<style>
-  #demo-textarea {
-    display: flex;
-    flex: 1;
-    align-items: center;
-    flex-direction: column;
-    margin: 7px;
-  }
+<style scoped>
+#demo-textarea {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 7px;
+}
 
-  #demo-textarea .textarea {
-    width: 300px;
-    height: 170px;
-    color: #242424;
-    text-align: left;
-    border-width: 1px;
-    border-color: #ccc;
-    underline-color-android: #40b883;
-    placeholder-text-color: #666;
-  }
+#demo-textarea label {
+  align-self: flex-start;
+  font-weight: bold;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
 
-  .demo-textarea .output {
-    word-break: break-all;
-  }
+#demo-textarea .textarea {
+  width: 300px;
+  height: 150px;
+  color: #242424;
+  text-align: left;
+  border-width: 1px;
+  border-style: solid;
+  border-color: #ccc;
+  underline-color-android: #40b883;
+  placeholder-text-color: #666;
+  align-self: center;
+}
+
+#demo-textarea .output {
+  word-break: break-all;
+}
+
+#demo-textarea .button-bar {
+  flex-direction: row;
+}
+
+#demo-textarea .button {
+  width: 100px;
+  margin: 2px;
+  backgroundColor: #eee;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  align-items: center;
+  flex-shrink: 1;
+}
 </style>

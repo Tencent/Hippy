@@ -177,23 +177,23 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  .vote-face {
-    width: 40px;
-    height: 40px;
-    background-color: #ffdb00;
-    border-color: #e9b156;
-    border-width: 1px;
-    border-radius: 20px;
-    border-style: solid;
-  }
+<style scoped>
+.vote-face {
+  width: 40px;
+  height: 40px;
+  background-color: #ffdb00;
+  border-color: #e9b156;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 20px;
+}
 
-  .vote-down-face {
-    position: absolute;
-    top: 15px;
-    left: 16px;
-    width: 18px;
-    height: 18px;
-    resize-mode: stretch;
-  }
+.vote-down-face {
+  position: absolute;
+  top: 15px;
+  left: 16px;
+  width: 18px;
+  height: 18px;
+  resize-mode: stretch;
+}
 </style>

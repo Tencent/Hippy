@@ -1,64 +1,64 @@
-import DemoButton from './demo-button.vue';
-import DemoDiv from './demo-div.vue';
-import DemoDynamicImport from './demo-dynamic-import.vue';
-import DemoIFrame from './demo-iframe.vue';
-import DemoImg from './demo-img.vue';
-import DemoInput from './demo-input.vue';
-import DemoList from './demo-list.vue';
-import DemoP from './demo-p.vue';
-import DemoShadow from './demo-shadow.vue';
-import DemoTextarea from './demo-textarea.vue';
-import DemoTurbo from './demo-turbo.vue';
-import DemoWebSocket from './demo-websocket.vue';
+import demoButton from './demo-button.vue';
+import demoDiv from './demo-div.vue';
+import demoDynamicImport from './demo-dynamicimport.vue';
+import demoIFrame from './demo-iframe.vue';
+import demoImg from './demo-img.vue';
+import demoInput from './demo-input.vue';
+import demoList from './demo-list.vue';
+import demoP from './demo-p.vue';
+import demoShadow from './demo-shadow.vue';
+import demoTextarea from './demo-textarea.vue';
+import demoTurbo from './demo-turbo.vue';
+import demoWebSocket from './demo-websocket.vue';
 
 const demos = {
   demoDiv: {
     name: 'div 组件',
-    component: DemoDiv,
+    component: demoDiv,
   },
   demoShadow: {
     name: 'box-shadow',
-    component: DemoShadow,
+    component: demoShadow,
   },
   demoP: {
     name: 'p 组件',
-    component: DemoP,
+    component: demoP,
   },
   demoButton: {
     name: 'button 组件',
-    component: DemoButton,
+    component: demoButton,
   },
   demoImg: {
     name: 'img 组件',
-    component: DemoImg,
+    component: demoImg,
   },
   demoInput: {
     name: 'input 组件',
-    component: DemoInput,
+    component: demoInput,
   },
   demoTextarea: {
     name: 'textarea 组件',
-    component: DemoTextarea,
+    component: demoTextarea,
   },
   demoUl: {
     name: 'ul/li 组件',
-    component: DemoList,
+    component: demoList,
   },
   demoIFrame: {
     name: 'iframe 组件',
-    component: DemoIFrame,
+    component: demoIFrame,
   },
   demoWebSocket: {
     name: 'WebSocket',
-    component: DemoWebSocket,
+    component: demoWebSocket,
   },
   demoDynamicImport: {
     name: 'DynamicImport',
-    component: DemoDynamicImport,
+    component: demoDynamicImport,
   },
   demoTurbo: {
     name: 'Turbo',
-    component: DemoTurbo,
+    component: demoTurbo,
   },
 };
 

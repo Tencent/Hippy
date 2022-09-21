@@ -6,7 +6,7 @@
     <label>地址栏：</label>
     <input
       id="address"
-      ref="inputRef"
+      ref="input"
       name="targetUrl"
       returnKeyType="go"
       :value="displayUrl"
@@ -15,23 +15,26 @@
     >
     <iframe
       id="iframe"
-      :ref="iframeRef"
+      :ref="iframe"
       :src="targetUrl"
+      method="get"
       @load="onLoad"
+      @loadStart="onLoadStart"
+      @loadEnd="onLoadEnd"
     />
   </div>
 </template>
 
 <script lang="ts">
-import { Native, type HippyEvent } from '@hippy/vue-next';
+import { Native, type HippyLoadResourceEvent, type HippyKeyboardEvent } from '@hippy/vue-next';
 import { defineComponent, ref } from '@vue/runtime-core';
 
 export default defineComponent({
   setup() {
     const targetUrl = ref('https://hippyjs.org');
     const displayUrl = ref('https://hippyjs.org');
-    const inputRef = ref(null);
-    const iframeRef = ref(null);
+    const input = ref(null);
+    const iframe = ref(null);
 
     /**
        * 跳转到指定链接
@@ -49,10 +52,10 @@ export default defineComponent({
        *
        * @param evt
        */
-    const onLoad = (evt: HippyEvent) => {
+    const onLoad = (evt: HippyLoadResourceEvent) => {
       let { url } = evt;
-      if (url === undefined && iframeRef.value) {
-        url = (iframeRef.value as HTMLIFrameElement).src;
+      if (url === undefined && iframe.value) {
+        url = (iframe.value as HTMLIFrameElement).src;
       }
 
       if (url && url !== targetUrl.value) {
@@ -60,14 +63,24 @@ export default defineComponent({
       }
     };
       // Web compatible
-    const onKeyUp = (evt: HippyEvent) => {
+    const onKeyUp = (evt: HippyKeyboardEvent) => {
       if (evt.keyCode === 13) {
         evt.preventDefault();
 
-        if (inputRef.value) {
-          goToUrl((inputRef.value as HTMLInputElement).value);
+        if (input.value) {
+          goToUrl((input.value as HTMLInputElement).value);
         }
       }
+    };
+
+    const onLoadStart = (evt: HippyLoadResourceEvent) => {
+      const { url } = evt;
+      console.log('onLoadStart', url);
+    };
+
+    const onLoadEnd = (evt: HippyLoadResourceEvent) => {
+      const { url } = evt;
+      console.log('onLoadEnd', url);
     };
 
     return {
@@ -76,30 +89,34 @@ export default defineComponent({
       iframeStyle: {
         'min-height': Native ? 100 : '100vh',
       },
-      inputRef,
-      iframeRef,
+      input,
+      iframe,
       onLoad,
       onKeyUp,
       goToUrl,
+      onLoadStart,
+      onLoadEnd,
     };
   },
 });
 </script>
 
 <style>
-  #iframe-demo {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-  }
-  #iframe-demo #address {
-    height: 48px;
-    border-color: #ccc;
-    border-width: 1px;
-  }
+#iframe-demo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 7px;
+}
+#iframe-demo #address {
+  height: 48px;
+  border-color: #ccc;
+  border-width: 1px;
+  border-style: solid;
+}
 
-  #iframe-demo #iframe {
-    flex: 1;
-    flex-grow: 1;
-  }
+#iframe-demo #iframe {
+  flex: 1;
+  flex-grow: 1;
+}
 </style>

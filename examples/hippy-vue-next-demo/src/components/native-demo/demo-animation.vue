@@ -18,7 +18,7 @@
           <span v-else>切换为横向</span>
         </button>
       </div>
-      <div class="animation-wrapper">
+      <div style="height: 150px">
         <loop
           :playing="loopPlaying"
           :direction="direction"
@@ -30,7 +30,7 @@
       </div>
     </li>
     <li>
-      <div class="animation-label" />
+      <div style="margin-top: 10px" />
       <label>点赞笑脸动画:</label>
       <div class="toolbar">
         <button
@@ -55,7 +55,7 @@
       </div>
     </li>
     <li>
-      <div class="animation-label" />
+      <div style="margin-top: 10px" />
       <label>渐变色动画</label>
       <div class="toolbar">
         <button
@@ -73,7 +73,7 @@
       </div>
     </li>
     <li>
-      <div class="animation-label" />
+      <div style="margin-top: 10px" />
       <label>贝塞尔曲线动画</label>
       <div class="toolbar">
         <button
@@ -197,28 +197,21 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  #animation-demo {
-    overflow: scroll;
-  }
+<style scoped>
+#animation-demo {
+  overflow: scroll;
+  margin: 7px;
+}
 
-  #animation-demo .vote-icon {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-    align-items: center;
-    justify-content: center;
-  }
+#animation-demo .vote-icon {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  align-items: center;
+  justify-content: center;
+}
 
-  #animation-demo .vote-face-container {
-    height: 60px;
-  }
-
-  .animation-wrapper {
-    height: 150px;
-  }
-
-  .animation-label {
-    margin-top: 10px;
-  }
+#animation-demo .vote-face-container {
+  height: 60px;
+}
 </style>

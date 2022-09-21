@@ -168,29 +168,29 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  .vote-face {
-    width: 40px;
-    height: 40px;
-    background-color: #ffdb00;
-    border-color: #e9b156;
-    border-width: 1px;
-    border-radius: 20px;
-    border-style: solid;
-  }
+<style scoped>
+.vote-face {
+  width: 40px;
+  height: 40px;
+  background-color: #ffdb00;
+  border-color: #e9b156;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 20px;
+}
 
-  .vote-up-eye {
-    position: absolute;
-    top: 16px;
-    left: 16px;
-    width: 18px;
-    height: 4px;
-  }
-  .vote-up-mouth {
-    position: absolute;
-    bottom: 9px;
-    left: 9px;
-    width: 32px;
-    height: 16px;
-  }
+.vote-up-eye {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 18px;
+  height: 4px;
+}
+.vote-up-mouth {
+  position: absolute;
+  bottom: 9px;
+  left: 9px;
+  width: 32px;
+  height: 16px;
+}
 </style>

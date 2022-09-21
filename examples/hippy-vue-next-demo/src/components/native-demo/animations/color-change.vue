@@ -56,22 +56,22 @@ export default defineComponent({
 });
 </script>
 
-<style>
-  .color-green {
-    margin-top: 10px;
-    justify-content: center;
-    align-items: center;
-    background-color: #40b883;
-    width: 200px;
-    height: 80px;
-    margin-left: 5px;
-  }
+<style scoped>
+.color-green {
+  margin-top: 10px;
+  justify-content: center;
+  align-items: center;
+  background-color: #40b883;
+  width: 200px;
+  height: 80px;
+  margin-left: 5px;
+}
 
-  .color-white {
-    justify-content: center;
-    align-items: center;
-    background-color: white;
-    width: 100px;
-    height: 35px;
-  }
+.color-white {
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  width: 100px;
+  height: 35px;
+}
 </style>
