@@ -180,39 +180,6 @@ static string_view NSStringToU8StringView(NSString* str) {
   return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
 }
 
-static NSString *UnicodeStringViewToNSString(const string_view &view) {
-    string_view::Encoding encode = view.encoding();
-    NSString *result = nil;
-    switch (encode) {
-        case string_view::Encoding::Latin1:
-            result = [NSString stringWithUTF8String:view.latin1_value().c_str()];
-            break;
-        case string_view::Encoding::Utf8:
-        {
-            result = [[NSString alloc] initWithBytes:view.utf8_value().c_str()
-                                              length:view.utf8_value().length()
-                                            encoding:NSUTF8StringEncoding];
-            break;
-        }
-        case string_view::Encoding::Utf16:
-        {
-            const string_view::u16string &u16String = view.utf16_value();
-            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-        }
-            break;
-        case string_view::Encoding::Utf32:
-        {
-            string_view convertedString = StringViewUtils::ConvertEncoding(view, string_view::Encoding::Utf16);
-            const string_view::u16string &u16String = convertedString.utf16_value();
-            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-        }
-            break;
-        default:
-            break;
-    }
-    return result;
-}
-
 - (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {
     __weak HippyJSExecutor *weakSelf = self;
     hippy::base::RegisterFunction taskEndCB = [weakSelf](void *) {
