@@ -28,7 +28,7 @@ namespace hippy {
 inline namespace framework {
 inline namespace bridge {
 
-void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
+void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger);
 
 jint CreateWorkerManager(JNIEnv* j_env, __unused jobject j_obj);
 

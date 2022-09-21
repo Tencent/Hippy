@@ -68,9 +68,9 @@ inline namespace framework {
 inline namespace bridge {
 
 REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cpp)
-                    "initNativeLogHandler",
-                    "(Lcom/tencent/mtt/hippy/IHippyNativeLogHandler;)V",
-                    InitNativeLogHandler)
+                    "setNativeLogHandler",
+                    "(Lcom/tencent/mtt/hippy/adapter/HippyLogAdapter;)V",
+                    setNativeLogHandler)
 
 REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "createWorkerManager",
@@ -165,6 +165,7 @@ enum INIT_CB_STATE {
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 constexpr uint32_t kDefaultNumberOfThreads = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
+constexpr char kLogTag[] = "native";
 
 static std::atomic<uint32_t> global_worker_manager_key{1};
 
@@ -316,7 +317,7 @@ void DestroyDomInstance(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_w
   }
 }
 
-void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
+void setNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_logger) {
   if (!j_logger) {
     return;
   }
@@ -327,7 +328,7 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
   }
 
   jmethodID j_method =
-      j_env->GetMethodID(j_cls, "onReceiveNativeLogMessage", "(Ljava/lang/String;)V");
+      j_env->GetMethodID(j_cls, "onReceiveLogMessage", "(ILjava/lang/String;Ljava/lang/String;)V");
   if (!j_method) {
     return;
   }
@@ -343,8 +344,11 @@ void InitNativeLogHandler(JNIEnv* j_env, __unused jobject j_object, jobject j_lo
 
         std::string str = stream.str();
         jstring j_logger_str = j_env->NewStringUTF((str.c_str()));
-        j_env->CallVoidMethod(logger->GetObj(), j_method, j_logger_str);
+        jstring j_tag_str = j_env->NewStringUTF(kLogTag);
+        jint j_level = static_cast<jint>(severity);
+        j_env->CallVoidMethod(logger->GetObj(), j_method, j_level, j_tag_str, j_logger_str);
         JNIEnvironment::ClearJEnvException(j_env);
+        j_env->DeleteLocalRef(j_tag_str);
         j_env->DeleteLocalRef(j_logger_str);
       });
       is_initialized = true;
