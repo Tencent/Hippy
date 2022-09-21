@@ -23,18 +23,25 @@
 #import "NativeRenderModalHostViewController.h"
 #import "NativeRenderUtils.h"
 
-@implementation NativeRenderModalHostViewController {
+@interface NativeRenderModalHostViewController () {
     CGRect _lastViewFrame;
     UIStatusBarStyle _preferredStatusBarStyle;
 }
 
+@end
+
+@implementation NativeRenderModalHostViewController
+
 - (instancetype)init {
-    if (!(self = [super init])) {
-        return nil;
+    self = [super init];
+    if (self) {
+        if (@available(iOS 13.0, *)) {
+            _preferredStatusBarStyle = [[[NativeRenderKeyWindow() windowScene] statusBarManager] statusBarStyle];
+        }
+        else {
+            _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+        }
     }
-
-    _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
-
     return self;
 }
 
@@ -51,6 +58,20 @@
     return _preferredStatusBarStyle;
 }
 
+- (void)setPreferredStatusBarStyle:(UIStatusBarStyle)style {
+    if (_preferredStatusBarStyle != style) {
+        _preferredStatusBarStyle = style;
+        [self setNeedsStatusBarAppearanceUpdate];
+    }
+}
+
+- (void)setHideStatusBar:(NSNumber *)hideStatusBar {
+    if ([_hideStatusBar isEqualToNumber:hideStatusBar]) {
+        _hideStatusBar = hideStatusBar;
+        [self setNeedsStatusBarAppearanceUpdate];
+    }
+}
+
 - (BOOL)prefersStatusBarHidden {
     if (_hideStatusBar) {
         return [_hideStatusBar boolValue];
@@ -64,10 +85,6 @@
     UIWindow *keyWindow = NativeRenderKeyWindow();
     UIInterfaceOrientationMask appSupportedOrientationsMask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:keyWindow];
     if (!(_supportedInterfaceOrientations & appSupportedOrientationsMask)) {
-//        NativeRenderLogError(@"Modal was presented with 0x%x orientations mask but the application only supports 0x%x."
-//                      @"Add more interface orientations to your app's Info.plist to fix this."
-//                      @"NOTE: This will crash in non-dev mode.",
-//            (unsigned)_supportedInterfaceOrientations, (unsigned)appSupportedOrientationsMask);
         return UIInterfaceOrientationMaskAll;
     }
 

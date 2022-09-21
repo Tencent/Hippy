@@ -583,7 +583,6 @@
 		F468DE922812ACE900319196 /* NativeRenderAnimationType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderAnimationType.h; sourceTree = "<group>"; };
 		F468DE932812ACE900319196 /* NativeRenderComponentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderComponentData.h; sourceTree = "<group>"; };
 		F468DE942812ACE900319196 /* NativeRenderComponentProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderComponentProtocol.h; sourceTree = "<group>"; };
-		F468DE952812ACE900319196 /* NativeRenderAutoInsetsProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderAutoInsetsProtocol.h; sourceTree = "<group>"; };
 		F468DE962812ACEA00319196 /* NativeRenderComponentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderComponentData.mm; sourceTree = "<group>"; };
 		F468DE972812ACEA00319196 /* NativeRenderObjectRootView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderObjectRootView.mm; sourceTree = "<group>"; };
 		F468DE982812ACEA00319196 /* NativeRenderScrollProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderScrollProtocol.h; sourceTree = "<group>"; };
@@ -1922,7 +1921,6 @@
 				F473F13F2859C37100422C1A /* NativeRenderComponentMap.mm */,
 				F468DE922812ACE900319196 /* NativeRenderAnimationType.h */,
 				F487A001284E28AA0068A9F6 /* NativeRenderInvalidating.h */,
-				F468DE952812ACE900319196 /* NativeRenderAutoInsetsProtocol.h */,
 				F468DE942812ACE900319196 /* NativeRenderComponentProtocol.h */,
 				F468DE932812ACE900319196 /* NativeRenderComponentData.h */,
 				F468DE962812ACEA00319196 /* NativeRenderComponentData.mm */,
@@ -2465,6 +2463,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
@@ -2509,6 +2508,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";

@@ -188,8 +188,6 @@ static inline BOOL CGPointIsNull(CGPoint point) {
         _scrollView = [[NativeRenderCustomScrollView alloc] initWithFrame:CGRectZero];
         _scrollView.delegate = self;
         _scrollView.delaysContentTouches = NO;
-        _automaticallyAdjustContentInsets = YES;
-        _contentInset = UIEdgeInsetsZero;
         _contentSize = CGSizeZero;
         _lastClippedToRect = CGRectNull;
 
@@ -286,6 +284,10 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     _scrollView.clipsToBounds = clipsToBounds;
 }
 
+- (UIEdgeInsets)contentInset {
+    return _scrollView.contentInset;
+}
+
 - (void)dealloc {
     _scrollView.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidReceiveMemoryWarningNotification object:nil];
@@ -329,19 +331,6 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     }
 }
 
-- (void)setContentInset:(UIEdgeInsets)contentInset {
-    if (UIEdgeInsetsEqualToEdgeInsets(contentInset, _contentInset)) {
-        return;
-    }
-
-    CGPoint contentOffset = _scrollView.contentOffset;
-
-    _contentInset = contentInset;
-    [NativeRenderView autoAdjustInsetsForView:self withScrollView:_scrollView updateOffset:NO];
-
-    _scrollView.contentOffset = contentOffset;
-}
-
 - (void)setContentSize:(CGSize)contentSize {
     _contentSize = contentSize;
     _scrollView.contentSize = contentSize;
@@ -363,10 +352,6 @@ static inline BOOL CGPointIsNull(CGPoint point) {
 
 - (void)zoomToRect:(CGRect)rect animated:(BOOL)animated {
     [_scrollView zoomToRect:rect animated:animated];
-}
-
-- (void)refreshContentInset {
-    [NativeRenderView autoAdjustInsetsForView:self withScrollView:_scrollView updateOffset:YES];
 }
 
 #pragma mark - ScrollView delegate
