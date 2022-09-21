@@ -206,7 +206,7 @@ class RootWidgetViewModel extends ChangeNotifier {
     if (_context == null && uiContext != null) {
       return;
     }
-
+    if (uiContext != null) {
     var dimensionMap = getDimensions(
       windowWidth,
       windowHeight,
@@ -214,7 +214,7 @@ class RootWidgetViewModel extends ChangeNotifier {
       uiContext,
     );
     _context?.dimensionChecker.checkUpdateDimension(
-      uiContext!,
+        uiContext,
       dimensionMap,
       windowWidth,
       windowHeight,
@@ -222,6 +222,7 @@ class RootWidgetViewModel extends ChangeNotifier {
       systemUiVisibilityChanged,
     );
   }
+}
 }
 
 class VoltronWidget extends StatefulWidget {

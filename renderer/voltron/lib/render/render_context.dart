@@ -63,9 +63,11 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
     _instanceMap.values.forEach(call);
   }
 
-  RenderContext(int id, List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor)
+  RenderContext(int id, List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor, {
+    VoltronRenderBridgeManager? bridgetManager,
+  })
       : _engineMonitor = engineMonitor {
-    _bridgeManager = VoltronRenderBridgeManager(id, this);
+    _bridgeManager = bridgetManager ?? VoltronRenderBridgeManager(id, this);
     _domHolder = DomHolder(this);
     _renderManager = RenderManager(this, generators);
     _virtualNodeManager = VirtualNodeManager(this);

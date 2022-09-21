@@ -132,6 +132,8 @@ class RenderNode extends StyleNode {
   @override
   double get layoutHeight => _height;
 
+  RenderViewModel? get viewModel => _viewModel;
+
   bool get shouldCreateView => !_isLazyLoad && _viewModel == null;
 
   bool get isLazyLoad => _isLazyLoad;
