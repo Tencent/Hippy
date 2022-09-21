@@ -156,4 +156,41 @@ describe('util/index.ts', () => {
     expect(index.isEmpty({})).toBeTruthy();
     expect(index.isEmpty({ test: 'test' })).toBeFalsy();
   });
+
+  it('setSilent should work correct', () => {
+    expect(index.setSilent).toBeDefined();
+    index.setSilent(true);
+  });
+
+  it('isNullOrUndefined should work correct', () => {
+    expect(index.isNullOrUndefined(null)).toBeTruthy();
+    expect(index.isNullOrUndefined(undefined)).toBeTruthy();
+    expect(index.isNullOrUndefined('123')).toBeFalsy();
+    expect(index.isNullOrUndefined(123)).toBeFalsy();
+    expect(index.isNullOrUndefined({})).toBeFalsy();
+    expect(index.isNullOrUndefined([])).toBeFalsy();
+  });
+
+  it('deepCopy should work correct', () => {
+    expect(() => index.deepCopy(123)).toThrow(Error);
+    expect(() => index.deepCopy(null)).toThrow(Error);
+    const rawData = {
+      a: 1,
+      b: '1',
+      c: {
+        a: 1,
+      },
+      d: [1],
+      e: new Set([1]),
+      f: new Map().set('a', 1),
+    };
+    const newData = index.deepCopy(rawData);
+    expect(newData === rawData).toBeFalsy();
+    expect(newData.a).toEqual(1);
+    expect(newData.b).toEqual('1');
+    expect(newData.c).toEqual({ a: 1 });
+    expect(newData.d).toEqual([1]);
+    expect(newData.e).toEqual(new Set([1]));
+    expect(newData.f).toEqual(new Map().set('a', 1));
+  });
 });

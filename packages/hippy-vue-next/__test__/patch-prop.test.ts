@@ -110,6 +110,11 @@ describe('patch-prop.ts', () => {
     expect(sign).toEqual(1);
     eventDispatcher.receiveNativeGesture(clickEvent);
     expect(sign).toEqual(1);
+
+    // test custom event
+    patchProp(element, 'on:Drop', null, noop, false, undefined, null);
+    listeners = element.getEventListenerList();
+    expect(listeners?.drop?.[0].callback).toBeDefined();
   });
 
   it('patch attribute prop', () => {
