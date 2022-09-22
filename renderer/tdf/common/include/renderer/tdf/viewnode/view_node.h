@@ -321,6 +321,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
  private:
   void RegisterClickEvent();
   void RegisterLongClickEvent();
+  void RegisterTouchEvent();
 
   void RemoveGestureEvent(std::string &&event_type);
   void RemoveAllEventInfo();

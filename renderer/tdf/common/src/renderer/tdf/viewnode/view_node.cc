@@ -33,6 +33,7 @@
 #include "footstone/logging.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
+#include "renderer/tdf/gesture/touch_recognizer.h"
 
 namespace hippy {
 inline namespace render {
@@ -285,6 +286,14 @@ void ViewNode::HandleEventInfoUpdate() {
   if (supported_events_.find(hippy::kLongClickEvent) != supported_events_.end()) {
     RegisterLongClickEvent();
   }
+
+  RemoveGestureEvent(hippy::kTouchStartEvent);
+  if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end() ||
+      supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end() ||
+      supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end() ||
+      supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
+    RegisterTouchEvent();
+  }
 }
 
 void ViewNode::RegisterClickEvent() {
@@ -329,6 +338,36 @@ void ViewNode::RegisterLongClickEvent() {
   GetView()->AddGesture(gesture_recognizer);
 }
 
+void ViewNode::RegisterTouchEvent() {
+  auto gesture_recognizer = TDF_MAKE_SHARED(TouchRecognizer);
+  if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchStart([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      self->SendGestureDomEvent(kTouchStartEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+    });
+  }
+  if (supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchMove([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      self->SendGestureDomEvent(kTouchMoveEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+    });
+  }
+  if (supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchEnd([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      self->SendGestureDomEvent(kTouchEndEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+    });
+  }
+  if (supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchCancel([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      self->SendGestureDomEvent(kTouchCancelEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+    });
+  }
+  gestures_map_.emplace(kTouchStartEvent, gesture_recognizer);
+  GetView()->AddGesture(gesture_recognizer);
+}
+
 void ViewNode::RemoveGestureEvent(std::string&& event_type) {
   if (gestures_map_.find(event_type) != gestures_map_.end()) {
     GetView()->RemoveGesture(gestures_map_.find(event_type)->second);
@@ -339,6 +378,7 @@ void ViewNode::RemoveGestureEvent(std::string&& event_type) {
 void ViewNode::RemoveAllEventInfo() {
   RemoveGestureEvent(hippy::kClickEvent);
   RemoveGestureEvent(hippy::kLongClickEvent);
+  RemoveGestureEvent(hippy::kTouchStartEvent);
 }
 
 std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const { return GetRootNode()->FindDomNode(render_info_.id); }
