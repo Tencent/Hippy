@@ -46,13 +46,20 @@ if (!test('-d', DEMO_PATH)) {
 
 pushd(DEMO_PATH);
 
+function errorHandler(code, stdout, stderr) {
+  if (code !== 0) {
+    console.error(`❌ build example - ${example} error: ${stderr}`);
+    process.exit(1);
+  }
+}
+
 const execOptions = { stdio: 'inherit' };
 console.log(`1/3 Start to install ${example} dependencies.`);
-exec('npm install --legacy-peer-deps', execOptions);
+exec('npm install --legacy-peer-deps', execOptions, errorHandler);
 
 console.log(`2/3 Start to build project ${example}.`);
-exec('npm run hippy:vendor', execOptions); // Build vendor js
-exec('npm run hippy:build', execOptions); // Build index js
+exec('npm run hippy:vendor', execOptions, errorHandler); // Build vendor js
+exec('npm run hippy:build', execOptions, errorHandler); // Build index js
 
 console.log('3/3 Copy the built files to native.');
 cp('-Rf', './dist/ios/*', '../../../../framework/examples/ios-demo/res/'); // Update the ios demo project
