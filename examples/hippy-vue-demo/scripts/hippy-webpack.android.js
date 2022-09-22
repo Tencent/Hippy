@@ -8,7 +8,7 @@ const manifest = require('../dist/android/vendor-manifest.json');
 
 const platform = 'android';
 let cssLoader = '@hippy/vue-css-loader';
-const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
   cssLoader = hippyVueCssLoaderPath;
