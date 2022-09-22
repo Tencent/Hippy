@@ -156,6 +156,10 @@ Reusable vertical list function, especially suitable for data rendering of a lar
 >
 >* time: number: specify how much delay collapsing the PullHeader, the unit is ms.
 
+### expandPullHeader
+
+`() => void` Expand the refresh bar PullHeader. When the refresh ends, you need to actively call `collapsePullHeader` to put away the PullHeader.
+
 ### collapsePullFooter
 
 > `Minimum supported version 2.14.0`

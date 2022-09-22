@@ -158,6 +158,10 @@ import icon from './qb_icon_new.png';
 >
 >* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
+### expandPullHeader
+
+`() => void` 展开刷新条 PullHeader。刷新结束后需要主动调用`collapsePullHeader`方法收起 PullHeader。
+
 ### collapsePullFooter
 
 > 最低支持版本 `2.14.0`
