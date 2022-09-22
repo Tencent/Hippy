@@ -43,9 +43,16 @@ if (!test('-d', DEMO_PATH)) {
 
 pushd(DEMO_PATH);
 
+function errorHandler(code, stdout, stderr) {
+  if (code !== 0) {
+    console.error(`❌ init example - ${example} error: ${stderr}`);
+    process.exit(1);
+  }
+}
+
 const execOptions = { stdio: 'inherit' };
 console.log(`1/2 Start to install ${example} dependencies.`);
 rm('-rf', './node_modules');
-exec('npm install --legacy-peer-deps', execOptions);
+exec('npm install --legacy-peer-deps', execOptions, errorHandler);
 
 console.log(`${example} dependencies have been installed.`);
