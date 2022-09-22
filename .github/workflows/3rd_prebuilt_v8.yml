@@ -310,7 +310,7 @@ jobs:
       env:
         local_file: ./v8/out/windows-${{ matrix.arch }}.zip
         cos_key: hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/windows-${{ matrix.arch }}.zip
-        v8_head: ${{ steps.release_package.outputs.head_full
+        v8_head: ${{ steps.release_package.outputs.head_full }}
       run: ${{ env.publish_package_script }}
 
   macos_prebuilt:
