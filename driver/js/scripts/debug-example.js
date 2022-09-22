@@ -52,6 +52,13 @@ if (!test('-d', DEMO_PATH)) {
 
 pushd(DEMO_PATH);
 
+function errorHandler(code, stdout, stderr) {
+  if (code !== 0) {
+    console.error(`❌ debug example - ${example} error: ${stderr}`);
+    process.exit(1);
+  }
+}
+
 const execOptions = { stdio: 'inherit' };
 if (!fs.existsSync(path.resolve(DEMO_PATH, 'node_modules'))) {
   console.error(`❌ ${example} dependencies have not been installed, please execute 'npm run init:example ${example}' first.`);
@@ -60,4 +67,4 @@ if (!fs.existsSync(path.resolve(DEMO_PATH, 'node_modules'))) {
 }
 
 console.log(`Start to start ${example} with cmd 'npm run hippy:${cmd}'.`);
-exec(`npm run hippy:${cmd}`, execOptions); // start to build dev js
+exec(`npm run hippy:${cmd}`, execOptions, errorHandler); // start to build dev js
