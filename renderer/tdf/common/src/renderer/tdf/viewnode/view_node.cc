@@ -346,25 +346,29 @@ void ViewNode::RegisterTouchEvent() {
   if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end()) {
     gesture_recognizer->SetTouchStart([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kTouchStartEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchDown", details);
+      self->SendGestureDomEvent(kTouchStartEvent, value);
     });
   }
   if (supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end()) {
     gesture_recognizer->SetTouchMove([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kTouchMoveEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchMove", details);
+      self->SendGestureDomEvent(kTouchMoveEvent, value);
     });
   }
   if (supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end()) {
     gesture_recognizer->SetTouchEnd([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kTouchEndEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchEnd", details);
+      self->SendGestureDomEvent(kTouchEndEvent, value);
     });
   }
   if (supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
     gesture_recognizer->SetTouchCancel([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
-      self->SendGestureDomEvent(kTouchCancelEvent, TouchRecognizer::TouchDetails2HippyValue(details));
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchCancel", details);
+      self->SendGestureDomEvent(kTouchCancelEvent, value);
     });
   }
   gestures_map_.emplace(kTouchStartEvent, gesture_recognizer);

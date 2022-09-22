@@ -157,12 +157,13 @@ void TouchRecognizer::CheckCancel(const tdfcore::TPoint &position) {
   }
 }
 
-std::shared_ptr<footstone::HippyValue> TouchRecognizer::TouchDetails2HippyValue(const TouchDetails &details) {
+std::shared_ptr<footstone::HippyValue> TouchRecognizer::TouchDetails2HippyValue(
+    uint32_t id, const char *name, const TouchDetails &details) {
   footstone::HippyValue::HippyValueObjectType obj;
-  auto x = footstone::HippyValue(details.position.x);
-  obj["page_x"] = x;
-  auto y = footstone::HippyValue(details.position.y);
-  obj["page_y"] = y;
+  obj["id"] = footstone::HippyValue(id);
+  obj["name"] = footstone::HippyValue(name);
+  obj["page_x"] = footstone::HippyValue(details.position.x);
+  obj["page_y"] = footstone::HippyValue(details.position.y);
   return std::make_shared<footstone::HippyValue>(obj);
 }
 

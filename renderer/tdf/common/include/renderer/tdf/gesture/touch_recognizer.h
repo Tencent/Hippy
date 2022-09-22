@@ -58,7 +58,8 @@ class TouchRecognizer : public OneSequenceGestureRecognizer {
   void SetTouchEnd(const TouchClosure &on_touch_end) { on_touch_end_ = on_touch_end; }
   void SetTouchCancel(const TouchClosure &on_touch_cancel) { on_touch_cancel_ = on_touch_cancel; }
 
-  static std::shared_ptr<footstone::HippyValue> TouchDetails2HippyValue(const TouchDetails &details);
+  static std::shared_ptr<footstone::HippyValue> TouchDetails2HippyValue(
+      uint32_t id, const char *name, const TouchDetails &details);
 
  protected:
   void HandleEventDown(const std::shared_ptr<tdfcore::PointerData>& data) override;
