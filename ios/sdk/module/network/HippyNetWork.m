@@ -124,6 +124,7 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     BOOL is302Response = ([task.response isKindOfClass:[NSHTTPURLResponse class]] && 302 == [(NSHTTPURLResponse *)task.response statusCode]);
     HippyFetchInfo *fetchInfo = fetchInfoForSessionTask(task);
     if (is302Response && fetchInfo.report302Status) {
+        [session finishTasksAndInvalidate];
         return;
     }
     if (error) {
@@ -138,9 +139,9 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
         NSHTTPURLResponse *resp = (NSHTTPURLResponse *)task.response;
         NSDictionary *result =
             @{ @"statusCode": @(resp.statusCode), @"statusLine": @"", @"respHeaders": resp.allHeaderFields ?: @ {}, @"respBody": dataStr ?: @"" };
-
         resolver(result);
     }
+    [session finishTasksAndInvalidate];
 }
 
 - (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
