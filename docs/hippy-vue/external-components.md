@@ -238,6 +238,10 @@ export default {
 >
 >* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
+### expandPullHeader
+
+`() => void` 展开顶部刷新条 `<pull-header>`。刷新结束后需要主动调用`collapsePullHeader`方法收起 pull-header。
+
 ---
 
 # pull-footer
