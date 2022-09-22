@@ -27,7 +27,7 @@ const stylePostLoaderPath = require.resolve('./stylePostLoader');
 
 const isESLintLoader = l => /(\/|\\|@)eslint-loader/.test(l.path);
 const isNullLoader = l => /(\/|\\|@)null-loader/.test(l.path);
-const isCSSLoader = l => /(\/|\\|@?)css-loader/.test(l.path);
+const isCSSLoader = l => /(\/|\\|@)css-loader/.test(l.path);
 const isCacheLoader = l => /(\/|\\|@)cache-loader/.test(l.path);
 const isPitcher = l => l.path !== __filename;
 const isPreLoader = l => !l.pitchExecuted;
