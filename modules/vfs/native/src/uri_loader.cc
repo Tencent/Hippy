@@ -73,7 +73,7 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
     if (!self) {
       return nullptr;
     }
-    return self->GetNextDelegate(*cur_it, *end_it);
+    return self->GetNextHandler(*cur_it, *end_it);
   };
   (**cur_it)->RequestUntrustedContent(ctx, next);
 }
@@ -82,7 +82,7 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
                                         const std::unordered_map<std::string, std::string>& req_meta,
                                         RetCode& code,
                                         std::unordered_map<std::string, std::string>& rsp_meta,
-                                        bytes&& content) {
+                                        bytes& content) {
   string_view scheme = GetScheme(uri);
   if (scheme.encoding() == string_view::Encoding::Unknown) {
     code = RetCode::SchemeError;
@@ -105,14 +105,19 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
     end_it = scheme_it->second.end();
   }
 
-  auto ctx = std::make_shared<SyncContext>(uri, req_meta, RetCode::Success, rsp_meta, std::move(content));
+  auto ctx = std::make_shared<SyncContext>(uri, req_meta);
   std::function<std::shared_ptr<UriHandler>()> next = [this, &cur_it, end_it]() -> std::shared_ptr<UriHandler> {
-    return this->GetNextDelegate(cur_it, end_it);
+    return this->GetNextHandler(cur_it, end_it);
   };
   (*cur_it)->RequestUntrustedContent(ctx, next);
+
+  code = ctx->code;
+  rsp_meta = std::move(ctx->rsp_meta);
+  content = std::move(ctx->content);
 }
-std::shared_ptr<UriHandler> UriLoader::GetNextDelegate(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
-                                                       const std::list<std::shared_ptr<UriHandler>>::iterator& end) {
+
+std::shared_ptr<UriHandler> UriLoader::GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
+                                                      const std::list<std::shared_ptr<UriHandler>>::iterator& end) {
   std::lock_guard<std::mutex> lock(mutex_);
   ++cur;
   if (cur == end) {

@@ -33,6 +33,8 @@ inline namespace vfs {
 class UriHandler {
  public:
   using bytes = std::string;
+  using string_view = footstone::string_view;
+
   enum class RetCode { Success, Failed, DelegateError, UriError, SchemeError, SchemeNotRegister,
       PathNotMatch, PathError, ResourceNotFound, Timeout };
   struct SyncContext {
@@ -42,15 +44,9 @@ class UriHandler {
     std::unordered_map<std::string, std::string> rsp_meta;
     bytes content;
     SyncContext(const footstone::string_view& uri,
-                const std::unordered_map<std::string, std::string>& req_meta,
-                RetCode code,
-                std::unordered_map<std::string, std::string> rsp_meta,
-                bytes&& content) {
+                const std::unordered_map<std::string, std::string>& req_meta) {
       this->uri = uri;
       this->req_meta = req_meta;
-      this->code = code;
-      this->rsp_meta = std::move(rsp_meta);
-      this->content = std::move(content);
     }
   };
 
