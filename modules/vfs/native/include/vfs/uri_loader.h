@@ -53,13 +53,13 @@ class UriLoader: std::enable_shared_from_this<UriLoader> {
       const std::unordered_map<std::string, std::string>& req_meta,
       RetCode& code,
       std::unordered_map<std::string, std::string>& rsp_meta,
-      bytes&& content);
+      bytes& content);
 
   virtual string_view GetScheme(const string_view& uri) = 0;
 
  private:
-  std::shared_ptr<UriHandler> GetNextDelegate(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
-                                              const std::list<std::shared_ptr<UriHandler>>::iterator& end);
+  std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
+                                             const std::list<std::shared_ptr<UriHandler>>::iterator& end);
 
   std::unordered_map<std::u16string, std::list<std::shared_ptr<UriHandler>>> router_;
   std::mutex mutex_;

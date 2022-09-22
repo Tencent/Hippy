@@ -45,6 +45,10 @@ void FileHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
   } else {
     ctx->code = UriHandler::RetCode::Failed;
   }
+  auto next_handler = next();
+  if (next_handler) {
+    next_handler->RequestUntrustedContent(ctx, next);
+  }
 }
 
 void FileHandler::RequestUntrustedContent(
@@ -57,26 +61,32 @@ void FileHandler::RequestUntrustedContent(
     ctx->cb(UriHandler::RetCode::PathError, {}, UriHandler::bytes());
     return;
   }
-  LoadByFile(path, ctx->cb);
+  auto new_cb = [orig_cb = ctx->cb](RetCode code , std::unordered_map<std::string, std::string> meta, bytes content) {
+
+    orig_cb(code, std::move(meta), "test");
+  };
+  ctx->cb = new_cb;
+  LoadByFile(path, ctx, next);
 }
 
 void FileHandler::LoadByFile(const string_view& path,
-                              std::function<void(UriHandler::RetCode,
-                                                 std::unordered_map<std::string, std::string>,
-                                                 UriHandler::bytes)> cb) {
+                             std::shared_ptr<ASyncContext> ctx,
+                             std::function<std::shared_ptr<UriHandler>()> next) {
   auto runner = runner_.lock();
   if (!runner) {
-    cb(UriHandler::RetCode::DelegateError, {}, UriHandler::bytes());
+    ctx->cb(UriHandler::RetCode::DelegateError, {}, UriHandler::bytes());
     return;
   }
-  runner->PostTask([path, cb] {
+  runner->PostTask([path, ctx, next] {
     UriHandler::bytes content;
     bool ret = HippyFile::ReadFile(path, content, false);
     if (ret) {
-      cb(UriHandler::RetCode::Success, {}, std::move(content));
+      ctx->cb(UriHandler::RetCode::Success, {}, std::move(content));
     } else {
-      cb(UriHandler::RetCode::Failed, {}, std::move(content));
+      ctx->cb(UriHandler::RetCode::Failed, {}, std::move(content));
     }
+    auto next_handler = next();
+    next_handler->RequestUntrustedContent(ctx, next);
   });
 }
 

@@ -43,7 +43,8 @@ class FileHandler : public UriHandler {
       std::function<std::shared_ptr<UriHandler>()> next) override;
  private:
   void LoadByFile(const string_view& path,
-                  std::function<void(UriHandler::RetCode, std::unordered_map<std::string, std::string>, UriHandler::bytes)> cb);
+                  std::shared_ptr<ASyncContext> ctx,
+                  std::function<std::shared_ptr<UriHandler>()> next);
 
   std::weak_ptr<TaskRunner> runner_;
 };

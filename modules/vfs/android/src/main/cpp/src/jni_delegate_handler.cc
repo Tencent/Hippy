@@ -160,7 +160,13 @@ void JniDelegateHandler::RequestUntrustedContent(
 
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_uri = JniUtils::StrViewToJString(j_env, ctx->uri);
-  auto j_obj = j_env->CallObjectMethod(delegate_->GetObj(), j_fetch_resource_sync_method_id, j_uri, nullptr);
+  auto j_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
+  for (auto [key, value]: ctx->req_meta) {
+    auto j_key = JniUtils::StrViewToJString(j_env, string_view::new_from_utf8(key.c_str(), key.length()));
+    auto j_value = JniUtils::StrViewToJString(j_env, string_view::new_from_utf8(value.c_str(), value.length()));
+    j_env->CallObjectMethod(j_map, j_map_put_method_id, j_key, j_value);
+  }
+  auto j_obj = j_env->CallObjectMethod(delegate_->GetObj(), j_fetch_resource_sync_method_id, j_uri, j_map);
   auto j_ret_code = j_env->GetIntField(j_obj, j_holder_ret_code_field_id);
   RetCode ret_code = ConvertJniRetCode(j_ret_code);
   ctx->code = ret_code;
