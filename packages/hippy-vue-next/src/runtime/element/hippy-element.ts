@@ -832,7 +832,7 @@ export class HippyElement extends HippyNode {
     // rem needs to be processed here
     const matchedSelectors = getCssMap().query(this);
     matchedSelectors.selectors.forEach((matchedSelector) => {
-      // if current element do not match style scopedId, return
+      // if current element do not match style rule, return
       if (!this.isStyleMatched(matchedSelector)) {
         return;
       }
@@ -1044,11 +1044,6 @@ export class HippyElement extends HippyNode {
     if (styleScopedId) {
       // set element's attribute for style scoped determine
       this.attributes[styleScopedId] = true;
-    } else {
-      // return true if no style scoped id,
-      // because enter this method should match other style rules before,
-      // so just return true if no style scoped id.
-      return true;
     }
 
     // determine if element matched
