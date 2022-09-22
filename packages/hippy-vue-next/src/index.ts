@@ -44,9 +44,6 @@ import type { HippyElement } from './runtime/element/hippy-element';
 import type { HippyInputElement } from './runtime/element/hippy-input-element';
 import type { HippyListElement } from './runtime/element/hippy-list-element';
 import { EventBus } from './runtime/event/event-bus';
-import {
-  type HippyEvent,
-} from './runtime/event/hippy-event';
 import { Native } from './runtime/native';
 import type { NativeApiType } from './runtime/native';
 import './runtime/event/hippy-event-dispatcher';
@@ -268,7 +265,6 @@ export const createApp = (
 export type {
   NativeApiType,
   HippyCachedInstanceType,
-  HippyEvent,
   HippyElement,
   HippyNode,
   HippyInputElement,
@@ -278,8 +274,34 @@ export type {
   ElementComponent,
 };
 
-export * from './config';
-export * from './runtime/event/hippy-event';
+export {
+  HIPPY_DEBUG_ADDRESS,
+  HIPPY_STATIC_PROTOCOL,
+  NATIVE_COMPONENT_MAP,
+  IS_PROD,
+  HIPPY_GLOBAL_STYLE_NAME,
+  HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
+  HIPPY_VUE_VERSION,
+  type CallbackType,
+  type CommonMapParams,
+  type NeedToTyped,
+} from './config';
+export {
+  HippyEvent,
+  HippyTouchEvent,
+  HippyKeyboardEvent,
+  HippyGlobalEventHandlersEventMap,
+  HippyLayoutEvent,
+  HippyLoadResourceEvent,
+  EventsUnionType,
+  ExposureEvent,
+  FocusEvent,
+  ContentSizeEvent,
+  ListViewEvent,
+  ViewPagerEvent,
+  eventIsKeyboardEvent,
+  MapToUnion,
+} from './runtime/event/hippy-event';
 
 export {
   EventBus,
