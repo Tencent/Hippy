@@ -1562,7 +1562,7 @@ static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data
 }
 #endif //V8_MAJOR_VERSION >= 9
 
-std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(const void* buffer, size_t length) {
+std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(void* buffer, size_t length) {
   if (!buffer) {
     return nullptr;
   }
@@ -1572,7 +1572,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(const void* buffer, size_t len
 #if V8_MAJOR_VERSION < 9
   v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_, buffer, length, v8::ArrayBufferCreationMode::kInternalized);
 #else
-  auto backingStore = v8::ArrayBuffer::NewBackingStore(const_cast<void*>(buffer), length, ArrayBufferDataDeleter,
+  auto backingStore = v8::ArrayBuffer::NewBackingStore(buffer, length, ArrayBufferDataDeleter,
                                                        nullptr);
   v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_, std::move(backingStore));
 #endif //V8_MAJOR_VERSION >= 9

@@ -94,7 +94,12 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context {
     size_t bufferLength = [self length];
-    return context->CreateByteBuffer([self bytes], bufferLength);
+    void *buffer = malloc(bufferLength);
+    if (buffer) {
+        [self getBytes:buffer length:bufferLength];
+        return context->CreateByteBuffer(buffer, bufferLength);
+    }
+    return context->CreateUndefined();
 }
 
 @end
