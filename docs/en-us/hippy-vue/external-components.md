@@ -236,6 +236,10 @@ Dropdown refresh component, nested in `ul` as first child element
 >
 >* time: number: specify how much delay collapsing the pull-header, the unit is ms.
 
+### expandPullHeader
+
+`() => void` Expand the refresh bar `<pull-header>`. When the refresh ends, you need to actively call `collapsePullHeader` to put away the pull-header.
+
 ---
 
 # pull-footer
