@@ -61,6 +61,8 @@ public interface HippyEngineContext {
 
     int getDomManagerId();
 
+    int getVfsId();
+
     void onRuntimeInitialized(long runtimeId);
 
     void onBridgeDestroyed(boolean isReload, Throwable e);

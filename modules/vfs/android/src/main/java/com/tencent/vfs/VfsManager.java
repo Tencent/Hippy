@@ -25,30 +25,35 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class VfsManager {
 
-    private final CopyOnWriteArrayList<Processor> mChain = new CopyOnWriteArrayList<>();
-    private int id;
+    private final CopyOnWriteArrayList<Processor> mProcessorChain = new CopyOnWriteArrayList<>();
+    private int mId;
 
     public VfsManager() {
-        id = onCreateVfs();
+        mId = onCreateVfs();
     }
+    
     public void Destroy() {
-      onDestroyVfs(id);
+        onDestroyVfs(mId);
+    }
+
+    public int getId() {
+        return mId;
     }
 
     public void addProcessorAtFirst(@NonNull Processor processor) {
-        mChain.add(0, processor);
+        mProcessorChain.add(0, processor);
     }
 
     public void addProcessorAtLast(@NonNull Processor processor) {
-        mChain.add(mChain.size(), processor);
+        mProcessorChain.add(mProcessorChain.size(), processor);
     }
 
     public void removeProcessor(@NonNull Processor processor) {
-        mChain.remove(processor);
+        mProcessorChain.remove(processor);
     }
 
     public void destroy() {
-        mChain.clear();
+        mProcessorChain.clear();
     }
 
     public void fetchResourceAsync(@NonNull String uri, @Nullable Map<String, Object> params,
@@ -65,14 +70,14 @@ public class VfsManager {
             @Nullable Map<String, Object> params, @Nullable ByteBuffer data,
             boolean doNativeTraversals) {
         ResourceDataHolder holder = new ResourceDataHolder(uri, params, null, data, -1);
-        for (Processor processor : mChain) {
+        for (Processor processor : mProcessorChain) {
             processor.handle(holder);
             if (!processor.goNext()) {
                 return holder;
             }
         }
         if (doNativeTraversals) {
-            return doNativeTraversalsSync(id, holder);
+            return doNativeTraversalsSync(mId, holder);
         }
         return holder;
     }
@@ -92,7 +97,7 @@ public class VfsManager {
 
     private void traverseNext(int index, @NonNull final ResourceDataHolder holder,
             final boolean doNativeTraversals) {
-        final Processor processor = mChain.get(index);
+        final Processor processor = mProcessorChain.get(index);
         holder.index = index;
         if (processor == null) {
             performTraversals(holder, doNativeTraversals);
@@ -111,7 +116,7 @@ public class VfsManager {
     }
 
     private void performNativeTraversals(@NonNull final ResourceDataHolder holder) {
-        doNativeTraversalsAsync(id, holder, new FetchResourceCallback() {
+        doNativeTraversalsAsync(mId, holder, new FetchResourceCallback() {
             @Override
             public void onFetchCompleted(ResourceDataHolder dataHolder) {
                 onTraversalsEnd(holder);
@@ -122,7 +127,7 @@ public class VfsManager {
     private void performTraversals(@NonNull final ResourceDataHolder holder,
             final boolean doNativeTraversals) {
         if (holder.index < 0) {
-            if (mChain.size() > 0) {
+            if (mProcessorChain.size() > 0) {
                 traverseNext(0, holder, doNativeTraversals);
             } else if (doNativeTraversals) {
                 performNativeTraversals(holder);
@@ -131,7 +136,7 @@ public class VfsManager {
             }
         } else {
             int index = holder.index + 1;
-            if (index < mChain.size()) {
+            if (index < mProcessorChain.size()) {
                 traverseNext(index, holder, doNativeTraversals);
             } else if (doNativeTraversals) {
                 performNativeTraversals(holder);
@@ -164,10 +169,11 @@ public class VfsManager {
 
     public ResourceDataHolder fetchResourceSync(@NonNull String uri, @Nullable ByteBuffer data,
             @Nullable Map<String, Object> params) {
-      return fetchResourceSyncImpl(uri, params, data, false);
+        return fetchResourceSyncImpl(uri, params, data, false);
     }
 
     private native int onCreateVfs();
+
     private native void onDestroyVfs(int id);
 
     /**
