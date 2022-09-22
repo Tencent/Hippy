@@ -240,6 +240,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   void SetCorrectedIndex(int32_t index) { corrected_index_ = index; }
 
+  bool GetInterceptTouchEventFlag() { return intercept_touch_event_flag_; }
+  bool GetInterceptPullUpEventFlag() { return intercept_pullup_event_flag_; }
+
  protected:
   /**
    * @brief notify after the attach action
@@ -326,6 +329,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   void RemoveGestureEvent(std::string &&event_type);
   void RemoveAllEventInfo();
 
+  void HandleInterceptEvent(const DomStyleMap& dom_style);
+
   /**
    * @brief DomNode's RenderInfo.index is not always the related View's index, it may need to be corrected.
    */
@@ -340,6 +345,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   std::set<std::string> supported_events_;
   std::unordered_map<std::string, std::shared_ptr<tdfcore::GestureRecognizer>> gestures_map_;
+
+  bool intercept_touch_event_flag_ = false;
+  bool intercept_pullup_event_flag_ = false;
 };
 
 }  // namespace tdf

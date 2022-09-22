@@ -120,6 +120,9 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(hippy::dom::kZIndex); it != map_end) {
     view->SetZIndex(it->second->ToInt32Checked());
   }
+
+  // kIntercepttouchevent / kInterceptpullupevent
+  HandleInterceptEvent(dom_style);
 }
 
 tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
@@ -381,6 +384,22 @@ void ViewNode::RemoveAllEventInfo() {
   RemoveGestureEvent(hippy::kTouchStartEvent);
 }
 
+void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
+  if (auto it = dom_style.find("onInterceptTouchEvent"); it != dom_style.cend()) {
+    intercept_touch_event_flag_ = it->second->ToBooleanChecked();
+    if (intercept_touch_event_flag_) {
+      auto children_views = GetView()->GetChildren();
+      for (const auto& child_view : children_views) {
+        child_view->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
+      }
+    }
+  }
+  if (auto it = dom_style.find("onInterceptPullUpEvent"); it != dom_style.cend()) {
+    intercept_pullup_event_flag_ = it->second->ToBooleanChecked();
+    // TDF not support
+  }
+}
+
 std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const { return GetRootNode()->FindDomNode(render_info_.id); }
 
 void ViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
@@ -455,12 +474,18 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   is_attached_ = true;
   if (view) {
     view->SetId(render_info_.id);
+    if (parent_.lock()->GetInterceptTouchEventFlag()) {
+      view->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
+    }
     attached_view_ = view;
   } else {
     // this should be the only caller of CreateView.
     auto v = CreateView();
-    v->SetHitTestBehavior(tdfcore::HitTestBehavior::kTranslucent);
     v->SetId(render_info_.id);
+    v->SetHitTestBehavior(tdfcore::HitTestBehavior::kTranslucent);
+    if (parent_.lock()->GetInterceptTouchEventFlag()) {
+      v->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
+    }
     // must add to parent_, otherwise the view will be freed immediately.
     parent_.lock()->GetView()->AddView(v, GetCorrectedIndex());
     attached_view_ = v;
