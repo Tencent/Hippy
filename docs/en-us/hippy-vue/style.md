@@ -32,7 +32,7 @@ At present, the basic `Universal`, `Type`, `ID`, `Class`, `Grouping` selectors h
 
 How to use?
 
-1. Update `@hippy/vue` and  `@hippy/vue-loader` to `2.15.0+` version.
+1. Update `@hippy/vue` and  `@hippy/vue-css-loader` to `2.15.0+` version.
 2. Vue2.0 set `Vue.config.scoped = true;`（Vue2.0 `scoped` and `Attribute` disabled by default，Vue3.0 enabled by default）
 
 

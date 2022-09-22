@@ -29,7 +29,7 @@ HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者
 
 如何开启？
 
-1. 升级 `@hippy/vue` 和 `@hippy/vue-loader` 到 `2.15.0+` 版本
+1. 升级 `@hippy/vue` 和 `@hippy/vue-css-loader` 到 `2.15.0+` 版本
 2. Vue2.0 设置全局开关 `Vue.config.scoped = true;`（Vue2.0 默认 `scoped` 和 `Attribute` 选择器能力关闭，Vue3.0 默认开启无需设置开关）
 
 
