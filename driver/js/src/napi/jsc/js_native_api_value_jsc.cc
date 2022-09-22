@@ -353,18 +353,12 @@ void JSCCtx_dataBufferFree(void* bytes, void* deallocatorContext) {
   free(bytes);
 }
 
-std::shared_ptr<CtxValue> JSCCtx::CreateByteBuffer(const void* buffer, size_t length) {
+std::shared_ptr<CtxValue> JSCCtx::CreateByteBuffer(void* buffer, size_t length) {
   if (nullptr == buffer || 0 == length) {
     return nullptr;
   }
-  void* data = malloc(length);
-  if (!data) {
-    FOOTSTONE_DLOG(ERROR) << "malloc failure, Out of memory";
-    return nullptr;
-  }
-  memcpy(data, buffer, length);
   JSValueRef exception = nullptr;
-  JSValueRef value_ref = JSObjectMakeArrayBufferWithBytesNoCopy(context_, data, length, JSCCtx_dataBufferFree, nullptr, &exception);
+  JSValueRef value_ref = JSObjectMakeArrayBufferWithBytesNoCopy(context_, buffer, length, JSCCtx_dataBufferFree, nullptr, &exception);
   if (exception) {
     SetException(std::make_shared<hippy::napi::JSCCtxValue>(context_, exception));
     return nullptr;
