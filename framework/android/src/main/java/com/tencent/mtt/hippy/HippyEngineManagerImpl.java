@@ -890,6 +890,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
+        public int getVfsId() {
+            return mVfsManager.getId();
+        }
+
+        @Override
         public ViewGroup getRootView() {
             return mRootView;
         }
