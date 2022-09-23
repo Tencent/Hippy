@@ -26,9 +26,6 @@
 
 namespace footstone {
 inline namespace value {
-// V8 latest version
-static const uint32_t kLatestVersion = 13;
-
 enum class Oddball : uint8_t {
   kTheHole,
   kUndefined,

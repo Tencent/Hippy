@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.runtime.builtins.JSSharedArrayBuffer;
 import com.tencent.mtt.hippy.runtime.builtins.wasm.WasmModule;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneDeserializationException;
 import com.tencent.mtt.hippy.serialization.recommend.Deserializer;
+import com.tencent.mtt.hippy.serialization.recommend.SharedValueConveyor;
 
 @SuppressWarnings("unused")
 public class DeserializerDelegate implements Deserializer.Delegate {
@@ -48,5 +49,10 @@ public class DeserializerDelegate implements Deserializer.Delegate {
   @Override
   public WasmModule getWasmModuleFromId(Deserializer deserializer, int transfer_id) {
     return NativeAccess.getWasmModuleFromId(transfer_id);
+  }
+
+  @Override
+  public SharedValueConveyor getSharedValueConveyor(Deserializer deserializer) {
+    return null;
   }
 }
