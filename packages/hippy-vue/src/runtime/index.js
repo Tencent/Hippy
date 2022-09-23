@@ -260,14 +260,18 @@ if (config.devtools && devtools) {
 }
 
 // proxy Vue constructor to add Hippy Vue instance to global.__VUE_ROOT_INSTANCES__
-const ProxyedVue = new Proxy(Vue, {
+const VueProxy = new Proxy(Vue, {
   construct(Target, args) {
     const vm = new Target(...args);
     if (isDev()) {
-      if (!global.__VUE_ROOT_INSTANCES__) global.__VUE_ROOT_INSTANCES__ = [];
-      if (args && args.length && args[0].appName) global.__VUE_ROOT_INSTANCES__.push(vm);
+      if (!global.__VUE_ROOT_INSTANCES__) {
+        global.__VUE_ROOT_INSTANCES__ = [];
+      }
+      if (args && args.length && args[0].appName) {
+        global.__VUE_ROOT_INSTANCES__.push(vm);
+      }
     }
     return vm;
   },
 });
-export default ProxyedVue;
+export default VueProxy;
