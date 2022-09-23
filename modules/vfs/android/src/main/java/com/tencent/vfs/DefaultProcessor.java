@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.vfs.VfsManager.ProcessorCallback;
 
-public class DefaultProcessor implements Processor {
+public class DefaultProcessor extends Processor {
 
     private final ResourceLoader mResourceLoader;
 
@@ -30,27 +30,20 @@ public class DefaultProcessor implements Processor {
     }
 
     @Override
-    public void handle(@NonNull ResourceDataHolder holder,
-            @Nullable final ProcessorCallback callback) {
+    public void handleRequestAsync(@NonNull ResourceDataHolder holder,
+            @NonNull final ProcessorCallback callback) {
         if (holder.data != null) {
-            if (callback != null) {
-                callback.onHandleCompleted();
-            }
+            callback.onHandleCompleted();
         } else {
             mResourceLoader.fetchResourceAsync(holder, callback);
         }
     }
 
     @Override
-    public void handle(@NonNull ResourceDataHolder holder) {
+    public boolean handleRequestSync(@NonNull ResourceDataHolder holder) {
         if (holder.data == null) {
-            mResourceLoader.fetchResourceSync(holder);
+            return mResourceLoader.fetchResourceSync(holder);
         }
-    }
-
-    @Override
-    public boolean goNext() {
         return true;
     }
-
 }

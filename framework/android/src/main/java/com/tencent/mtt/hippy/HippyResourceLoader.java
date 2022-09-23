@@ -34,6 +34,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HippyResourceLoader implements ResourceLoader {
 
@@ -53,7 +56,7 @@ public class HippyResourceLoader implements ResourceLoader {
             @Nullable final ProcessorCallback callback) {
         if (UrlUtils.isWebUrl(holder.uri)) {
             loadRemoteResource(holder, callback);
-        } else {
+        } else if (holder.uri.startsWith(PREFIX_FILE) || holder.uri.startsWith(PREFIX_ASSETS)) {
             mExecutorAdapter.getBackgroundTaskExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -63,6 +66,8 @@ public class HippyResourceLoader implements ResourceLoader {
                     }
                 }
             });
+        } else {
+            callback.goNext();
         }
     }
 
@@ -79,6 +84,7 @@ public class HippyResourceLoader implements ResourceLoader {
                 }
                 if (response.getStatusCode() == 200 && response.getInputStream() != null) {
                     readResourceDataFromStream(holder, response.getInputStream());
+                    setResponseHeaderToHolder(holder, response);
                 } else {
                     String message = "unknown";
                     if (response.getErrorStream() != null) {
@@ -141,12 +147,38 @@ public class HippyResourceLoader implements ResourceLoader {
     }
 
     @Override
-    public void fetchResourceSync(@NonNull ResourceDataHolder holder) {
+    public boolean fetchResourceSync(@NonNull ResourceDataHolder holder) {
+        if (holder.uri.startsWith(PREFIX_FILE) || holder.uri.startsWith(PREFIX_ASSETS)) {
+            loadLocalFileResource(holder);
+            return true;
+        }
         if (UrlUtils.isWebUrl(holder.uri)) {
             holder.resultCode = FetchResultCode.ERR_NOT_SUPPORT_SYNC_REMOTE.ordinal();
             holder.errorMessage = "Loading remote resources synchronously is not supported!";
-        } else {
-            loadLocalFileResource(holder);
+        }
+        return false;
+    }
+
+    private void setResponseHeaderToHolder(@NonNull final ResourceDataHolder holder,
+            @NonNull HippyHttpResponse response) {
+        if (holder.responseHeader == null) {
+            holder.responseHeader = new HashMap<>();
+        }
+        holder.responseHeader.put("statusCode", response.getStatusCode().toString());
+        Map<String, List<String>> headers = response.getRspHeaderMaps();
+        if (headers == null) {
+            return;
+        }
+        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+            String key = entry.getKey();
+            List<String> list = entry.getValue();
+            if (list != null) {
+                if (list.size() == 1) {
+                    holder.responseHeader.put(key, list.get(0));
+                } else if (list.size() > 1) {
+                    holder.responseHeader.put(key, String.join(";", list));
+                }
+            }
         }
     }
 

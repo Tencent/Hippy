@@ -25,5 +25,5 @@ public interface ResourceLoader {
     void fetchResourceAsync(@NonNull ResourceDataHolder holder,
             @Nullable ProcessorCallback callback);
 
-    void fetchResourceSync(@NonNull ResourceDataHolder holder);
+    boolean fetchResourceSync(@NonNull ResourceDataHolder holder);
 }
