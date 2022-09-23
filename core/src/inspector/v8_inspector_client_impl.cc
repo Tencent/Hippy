@@ -48,7 +48,7 @@ std::shared_ptr<V8InspectorContext> V8InspectorClientImpl::CreateInspectorContex
   } else {
     auto context_group_id = context_group_count_.fetch_add(1, std::memory_order_relaxed);
     auto channel = std::make_unique<V8ChannelImpl>(bridge);
-    auto session = inspector_->connect(context_group_id, channel.get(), v8_inspector::StringView());
+    auto session = InspectorConnect(inspector_, context_group_id, channel.get());
     inspector_context = std::make_shared<V8InspectorContext>(context_group_id, std::move(channel), std::move(session));
     std::lock_guard<std::mutex> lock(inspector_context_mutex_);
     inspector_context_map_[context_group_id] = inspector_context;
@@ -89,10 +89,9 @@ void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorCon
     v8_inspector::StringView message_view;
     switch (encoding) {
       case unicode_string_view::Encoding::Latin1: {
-        const std::string& str = params.latin1_value();
-        if (str == "chrome_socket_closed") {
-          auto session = inspector_->connect(inspector_context->GetContextGroupId(), inspector_context->GetV8Channel(),
-                                         v8_inspector::StringView());
+        const auto& str = params.latin1_value();
+        if (str.rfind("chrome_socket_closed") == 0) { // starts_with "chrome_socket_closed"
+          auto session = V8InspectorClientImpl::InspectorConnect(inspector_, inspector_context->GetContextGroupId(), inspector_context->GetV8Channel());
           inspector_context->SetSession(std::move(session));
           return;
         }
@@ -101,10 +100,9 @@ void V8InspectorClientImpl::SendMessageToV8(const std::shared_ptr<V8InspectorCon
         break;
       }
       case unicode_string_view::Encoding::Utf16: {
-        const std::u16string& str = params.utf16_value();
-        if (str == u"chrome_socket_closed") {
-          auto session = inspector_->connect(inspector_context->GetContextGroupId(), inspector_context->GetV8Channel(),
-                                         v8_inspector::StringView());
+        const auto& str = params.utf16_value();
+        if (str.rfind(u"chrome_socket_closed") == 0) { // starts_with u"chrome_socket_closed"
+          auto session = V8InspectorClientImpl::InspectorConnect(inspector_, inspector_context->GetContextGroupId(), inspector_context->GetV8Channel());
           inspector_context->SetSession(std::move(session));
           return;
         }
