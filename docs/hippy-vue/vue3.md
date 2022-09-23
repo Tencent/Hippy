@@ -21,13 +21,13 @@
 
 - 初始化
 
-```typescript
+```javascript
 // 仅 Vue
 // app.ts
 import { defineComponent, ref } from 'vue';
 import { type HippyApp, createApp } from '@hippy/vue-next';
 
-// 创建 Hippy App 实例，需要注意 Vue 3.x 使用 Typescript 需要使用 defineComponent 将组件对象进行包裹
+// 创建 Hippy App 实例，需要注意 Vue 3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
 const app: HippyApp = createApp(defineComponent({
   setup() {
     const counter = ref(0);
@@ -36,7 +36,7 @@ const app: HippyApp = createApp(defineComponent({
     }
   }
 }), {
-  // Hippy App Name，必传，示例项目可以使用 Demo
+  // Hippy App Name 必传，示例项目可以使用 Demo
   appName: 'Demo',
 });
 
@@ -51,7 +51,7 @@ app.$start().then(({ superProps, rootViewId }) => {
 
 如果要使用 Vue-Router，则需要使用另外的初始化逻辑
 
-```typescript
+```javascript
 // Vue + Vue Router
 
 // app.vue
@@ -95,7 +95,7 @@ import { type HippyApp, createApp } from '@hippy/vue-next';
 import { createRouter, createMemoryHistory, type Router } from 'vue-router';
 import App from 'app.vue';
 
-// 创建 Hippy App 实例，需要注意 Vue 3.x 使用 Typescript 需要使用 defineComponent 将组件对象进行包裹
+// 创建 Hippy App 实例，需要注意 Vue 3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
 const app: HippyApp = createApp(App, {
   // Hippy App Name，必传，示例项目可以使用 Demo
   appName: 'Demo',
@@ -140,23 +140,22 @@ app.$start().then(({ superProps, rootViewId }) => {
 
 # 额外说明
 
-目前 @hippy/vue-next 与 @hippy/vue 功能上基本对齐了，不过API方面与 @hippy/vue 有稍许不同💰，以及还有一些问题没有解决，这里做下说明，未解决的问题我们会尽快修复
+目前 @hippy/vue-next 与 @hippy/vue 功能上基本对齐，不过在 API 方面与 @hippy/vue 有稍许不同，以及还有一些问题没有解决，这里做些说明：
 
 - Vue.Native
-  在 @hippy/vue 中，Native 提供的能力是通过挂载在全局 Vue 上的 Native 属性来提供的，在 Vue 3.x 中这种实现方式不再可行，因此现在 Native 属性通过 @hippy/vue-next 来提供使用了，可以通过
 
-  ```typescript
+  在 @hippy/vue 中，Native 提供的能力是通过挂载在全局 Vue 对象的 Native 属性来提供的，在 Vue 3.x 中这种实现方式不再可行，因此现在 Native 属性需通过 @hippy/vue-next 导出来使用
+
+  ```javascript
   import { Native } from '@hippy/vue-next';
   
-  Native.xxx
+  console.log('do somethig', Native.xxx)
   ```
 
-  来使用
+- v-model 指令：
+  因为 Vue 3.x 中内置指令的实现采用的是编译时插入代码的方式，目前 v-model 指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
 
-- v-model指令：
-  因为 Vue 3.x 中内置指令的实现采用的是编译时插入代码的方式，目前v-model指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
-
-  ```typescript
+  ```javascript
   // 具体的可以参考 demo 中的 demo-input.vue 中的示例
   <template>
     <input type="text" ref="inputRef" :value="textValue" @change="textValue = $event.value" />
@@ -186,15 +185,14 @@ app.$start().then(({ superProps, rootViewId }) => {
   需要使用 Vue 提供的 toRaw 方法来拿到原始的对象并传递给终端接口
 - registerElement问题：@hippy/vue 中 registerElement方法是挂在全局 Vue 中，与 Native 类似，@hippy/vue-next 中 registerElement 方法也是单独提供了
 
-   ```typescript
+   ```javascript
   import { registerElement } from '@hippy/vue-next';
   ```
-  
-  > 通过包单独提供的 API 来进行引用
+
 - 全局事件：
   在 @hippy/vue 中，全局事件也是挂载在 Vue 上的，在 @hippy/vue-next 中，提供了单独的事件总线来处理该问题
   
-  ```typescript
+  ```javascript
   import { EventBus } from '@hippy/vue-next';
   
   // 监听容器大小改变事件(仅 Android)
@@ -208,10 +206,10 @@ app.$start().then(({ superProps, rootViewId }) => {
   });
   ```
 
-- Native接口和自定义组件的类型提示
-  @hippy/vue-next提供了Native接口的Typescript类型提示，如果有业务自定义的Native接口，也可以采用类似的方式进行扩展
+- Native 接口和自定义组件的类型提示
+  @hippy/vue-next 提供了 Native 接口的 Typescript 类型提示，如果有业务自定义的Native接口，也可以采用类似的方式进行扩展
   
-  ```typescript
+  ```javascript
   declare module '@hippy/vue-next' {
     export interface NativeInterfaceMap {
       // 用户自定义的Native接口，接下来你可以在Native.callNative，Native.callNativeWithPromise拥有类型提示了
@@ -219,10 +217,10 @@ app.$start().then(({ superProps, rootViewId }) => {
   }
   ```
 
-  @hippy/vue-next也参考dom的事件声明提供了事件类型，具体可以参考hippy-event.ts.
+  @hippy/vue-next 也参考 dom 的事件声明提供了事件类型，具体可以参考 hippy-event.ts.
   如果需要在内置的事件上进行扩展，可以采用类似方式
 
-  ```typescript
+  ```javascript
     declare module '@hippy/vue-next' {
       export interface HippyEvent {
         testProp: number;
@@ -230,10 +228,10 @@ app.$start().then(({ superProps, rootViewId }) => {
     }
   ```
 
-  在使用registerElement去注册组件的时候，利用了typescript的type narrow，在switch case中提供了准确的类型提示，
+  在使用 registerElement 去注册组件的时候，利用了 typescript 的 type narrow，在 switch case 中提供了准确的类型提示，
   如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式
 
-  ```typescript
+  ```javascript
     export interface HippyGlobalEventHandlersEventMap {
       // extend new event name and related event interface
       onTest: CustomEvent;
@@ -242,6 +240,4 @@ app.$start().then(({ superProps, rootViewId }) => {
     }
   ```
 
-  更多信息可以参考demo里的extend.ts和app.ts
-
-- 其他尚未发现的Bug...
+  更多信息可以参考 demo 里的 extend.ts 和 app.ts

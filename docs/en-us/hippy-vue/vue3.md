@@ -11,7 +11,7 @@ The implementation principle is basically the same as @hippy/vue. Convert the VN
 
 # Architecture
 
-<img src="assets/img/hippy-vue-next-arch-en.png" alt="hippy-vue-next 架构图" width="80%"/>
+<img src="assets/img/hippy-vue-next-arch-en.png" alt="hippy-vue-next structure" width="80%"/>
 <br />
 <br />
 
@@ -21,7 +21,7 @@ The capabilities supported by @hippy/vue-next are basically the same as @hippy/v
 
 - initialization
 
-```typescript
+```javascript
 // only for Vue
 // app.ts
 import { defineComponent, ref } from 'vue';
@@ -51,7 +51,7 @@ app.$start().then(({ superProps, rootViewId }) => {
 
 If you want to use Vue-Router, you need to use additional initialization logic
 
-```typescript
+```javascript
 
 // Vue + Vue Router
 
@@ -142,13 +142,13 @@ For details, please see the writing method of the [example project](https://gith
 
 # Additional Notes
 
-@hippy/vue-next is basically functionally aligned with @hippy/vue now, but the API is slightly different from @hippy/vue, and there are still some problems that have not been solved, here is a description, we will fix the unsolved problems as soon as possible.
+@hippy/vue-next is basically functionally aligned with @hippy/vue now, but the APIs are slightly different from @hippy/vue, and there are still some problems that have not been solved, here is the description:
 
 - Vue.Native
 
   In @hippy/vue, the capabilities provided by Native are provided by the Native attribute mounted on the global Vue. In Vue 3.x, this implementation is no longer feasible. You can access Native as follows: 
 
-  ```typescript
+  ```javascript
   import { Native } from '@hippy/vue-next';
   
   Native.xxx
@@ -158,7 +158,7 @@ For details, please see the writing method of the [example project](https://gith
 
   Because the built-in instructions in Vue 3.x are implemented by inserting code at compile time, the v-model instruction has not yet found a good way to deal with it. Here, a temporary solution can be used to implement the corresponding function:
 
-  ```typescript
+  ```javascript
   // For the specific usage, please refer to the example in demo-input.vue in demo
   <template>
     <input type="text" ref="inputRef" :value="textValue" @change="textValue = $event.value" />
@@ -194,7 +194,7 @@ For details, please see the writing method of the [example project](https://gith
 
   In @hippy/vue, method registerElement used by Vue.registerElement，But with the same reason with Vue.Native. registerElement method in @hippy/vue-next provide single.
 
-  ```typescript
+  ```javascript
   import { registerElement } from '@hippy/vue-next';
   ```
   
@@ -202,7 +202,7 @@ For details, please see the writing method of the [example project](https://gith
 - Global Event
   In @hippy/vue，global event used Vue.$on or Vue.$off，Now in @hippy/vue-next，we provide single EventBus API to do that.
 
-  ```typescript
+  ```javascript
   import { EventBus } from '@hippy/vue-next';
   
   // Listen container size change event(Only Android)
@@ -220,7 +220,7 @@ For details, please see the writing method of the [example project](https://gith
   @hippy/vue-next provides type hints for the nativeapis. 
   If there is a business-defined nativeapi, it can also be extended in a similar way
   
-  ```typescript
+  ```javascript
   declare module '@hippy/vue-next' {
     export interface NativeInterfaceMap {
       // then you can have type hints in Native.callNative, Native.callNativeWithPromise
@@ -232,7 +232,7 @@ For details, please see the writing method of the [example project](https://gith
   For details, please refer to hippy-event.ts.
   If you need to extend the built-in events, you can use a similar way
 
-  ```typescript
+  ```javascript
     declare module '@hippy/vue-next' {
       export interface HippyEvent {
         testProp: number;
@@ -244,7 +244,7 @@ For details, please see the writing method of the [example project](https://gith
   accurate type hints in switch cases, If you also need similar type hints when registering custom 
   components, you can use the following methods
 
-  ```typescript
+  ```javascript
     export interface HippyGlobalEventHandlersEventMap {
       // extend new event name and related event interface
       onTest: CustomEvent;
@@ -253,6 +253,4 @@ For details, please see the writing method of the [example project](https://gith
     }
   ```
 
-  For more information, please refer to extend.ts and app.ts in the demo
-
-- Other undiscovered bugs...
+  For more information, please refer to extend.ts and app.ts in the demo.
