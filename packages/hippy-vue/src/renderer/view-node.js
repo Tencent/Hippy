@@ -28,6 +28,7 @@ let currentNodeId = 0;
 if (global.__GLOBAL__ && Number.isInteger(global.__GLOBAL__.nodeId)) {
   currentNodeId = global.__GLOBAL__.nodeId;
 }
+
 function getNodeId() {
   currentNodeId += 1;
   if (currentNodeId % 10 === 0) {
@@ -102,7 +103,6 @@ class ViewNode {
   }
 
   set isMounted(isMounted) {
-    // TODO: Maybe need validation, maybe not.
     this._isMounted = isMounted;
   }
 
