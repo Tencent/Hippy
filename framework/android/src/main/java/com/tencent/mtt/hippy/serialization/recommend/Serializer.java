@@ -26,11 +26,11 @@ import com.tencent.mtt.hippy.runtime.builtins.array.JSAbstractArray;
 import com.tencent.mtt.hippy.runtime.builtins.array.JSSparseArray;
 import com.tencent.mtt.hippy.runtime.builtins.wasm.WasmModule;
 import com.tencent.mtt.hippy.serialization.ArrayBufferViewTag;
+import com.tencent.mtt.hippy.serialization.JSSerializationTag;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneException;
 import com.tencent.mtt.hippy.serialization.ErrorTag;
 import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
-import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.runtime.builtins.JSArrayBuffer;
 import com.tencent.mtt.hippy.runtime.builtins.JSError;
 import com.tencent.mtt.hippy.runtime.builtins.JSMap;
@@ -46,7 +46,6 @@ import com.tencent.mtt.hippy.runtime.builtins.objects.JSStringObject;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import java.nio.ByteBuffer;
-import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -97,6 +96,21 @@ public class Serializer extends PrimitiveValueSerializer {
      * @return ID
      */
     int getWasmModuleTransferId(Serializer serializer, WasmModule module);
+
+    /**
+     * Called when the first shared value is serialized. All subsequent shared
+     * values will use the same conveyor.
+     *
+     * The implement must ensure the lifetime of the conveyor matches the
+     * lifetime of the serialized data.
+     *
+     * This method is called at most once per serializer.
+     *
+     * @param serializer current serializer
+     * @param conveyor   SharedValueConveyor
+     * @return return true if supports serializing shared values, otherwise return false.
+     */
+    boolean adoptSharedValueConveyor(Serializer serializer, SharedValueConveyor conveyor);
   }
 
   /**
@@ -111,21 +125,17 @@ public class Serializer extends PrimitiveValueSerializer {
    * Determines whether {@link JSArrayBuffer}s should be serialized as host objects.
    */
   private boolean treatArrayBufferViewsAsHostObjects;
+  /**
+   * Shared value conveyors to keep JS shared values alive in transit when serialized.
+   */
+  private SharedValueConveyor sharedObjectConveyor;
 
   public Serializer() {
-    this(null, null);
+    this(null, null, 13);
   }
 
-  public Serializer(Delegate delegate) {
-    this(null, delegate);
-  }
-
-  public Serializer(BinaryWriter writer) {
-    this(writer, null);
-  }
-
-  public Serializer(BinaryWriter writer, Delegate delegate) {
-    super(writer);
+  public Serializer(BinaryWriter writer, Delegate delegate, int version) {
+    super(writer, version);
     this.delegate = delegate;
   }
 
@@ -161,6 +171,12 @@ public class Serializer extends PrimitiveValueSerializer {
       return true;
     }
 
+    if (getVersion() >= 15 && object instanceof SharedValueConveyor.SharedValue) {
+      assignId(object);
+      writeSharedObject((SharedValueConveyor.SharedValue) object);
+      return true;
+    }
+
     if (!treatArrayBufferViewsAsHostObjects && JSValue.is(object) && ((JSValue) object)
         .isDataView()) {
       JSDataView<?> view = (JSDataView<?>) object;
@@ -172,11 +188,7 @@ public class Serializer extends PrimitiveValueSerializer {
       }
     }
 
-    if (object instanceof Date) {
-      assignId(object);
-      writeTag(SerializationTag.DATE);
-      writeDate((Date) object);
-    } else if (JSValue.is(object)) {
+    if (JSValue.is(object)) {
       assignId(object);
       JSValue value = (JSValue) object;
 
@@ -201,7 +213,7 @@ public class Serializer extends PrimitiveValueSerializer {
       } else if (value.isBooleanObject()) {
         writeJSBoolean((JSBooleanObject) value);
       } else if (value.isBigIntObject()) {
-        writeTag(SerializationTag.BIG_INT_OBJECT);
+        writeTag(JSSerializationTag.BIG_INT_OBJECT);
         writeJSBigIntContents((JSBigintObject) value);
       } else if (value.isNumberObject()) {
         writeJSNumber((JSNumberObject) value);
@@ -220,12 +232,16 @@ public class Serializer extends PrimitiveValueSerializer {
     return true;
   }
 
-  private void writeDate(@NonNull Date date) {
-    writer.putDouble(date.getTime());
+  private void writeTag(ArrayBufferViewTag tag) {
+    writer.putVarint(tag.getTag());
+  }
+
+  private void writeTag(ErrorTag tag) {
+    writer.putVarint(tag.getTag());
   }
 
   private void writeJSBoolean(@NonNull JSBooleanObject value) {
-    writeTag(value.isTrue() ? SerializationTag.TRUE_OBJECT : SerializationTag.FALSE_OBJECT);
+    writeTag(value.isTrue() ? JSSerializationTag.TRUE_OBJECT : JSSerializationTag.FALSE_OBJECT);
   }
 
   private void writeJSBigIntContents(@NonNull JSBigintObject value) {
@@ -233,17 +249,17 @@ public class Serializer extends PrimitiveValueSerializer {
   }
 
   private void writeJSNumber(@NonNull JSNumberObject value) {
-    writeTag(SerializationTag.NUMBER_OBJECT);
+    writeTag(JSSerializationTag.NUMBER_OBJECT);
     writeDouble(value.getValue().doubleValue());
   }
 
   private void writeJSString(@NonNull JSStringObject value) {
-    writeTag(SerializationTag.STRING_OBJECT);
+    writeTag(JSSerializationTag.STRING_OBJECT);
     writeString(value.getValue().toString());
   }
 
   private void writeJSRegExp(@NonNull JSRegExp value) {
-    writeTag(SerializationTag.REGEXP);
+    writeTag(JSSerializationTag.REGEXP);
     writeString(value.getSource());
     writer.putVarint(value.getFlags());
   }
@@ -257,13 +273,13 @@ public class Serializer extends PrimitiveValueSerializer {
     if (id == null) {
       ByteBuffer source = value.getBuffer();
       int byteLength = source.limit();
-      writeTag(SerializationTag.ARRAY_BUFFER);
+      writeTag(JSSerializationTag.ARRAY_BUFFER);
       writer.putVarint(byteLength);
       for (int i = 0; i < byteLength; i++) {
         writer.putByte(source.get(i));
       }
     } else {
-      writeTag(SerializationTag.ARRAY_BUFFER_TRANSFER);
+      writeTag(JSSerializationTag.ARRAY_BUFFER_TRANSFER);
       writer.putVarint(IntegerPolyfill.toUnsignedLong(id));
     }
   }
@@ -273,14 +289,14 @@ public class Serializer extends PrimitiveValueSerializer {
       throw new DataCloneException(value);
     }
     int id = delegate.getSharedArrayBufferId(this, value);
-    writeTag(SerializationTag.SHARED_ARRAY_BUFFER);
+    writeTag(JSSerializationTag.SHARED_ARRAY_BUFFER);
     writer.putVarint(id);
   }
 
   private void writeJSObject(JSObject value) {
-    writeTag(SerializationTag.BEGIN_JS_OBJECT);
+    writeTag(JSSerializationTag.BEGIN_JS_OBJECT);
     writeJSObjectProperties(value.entries());
-    writeTag(SerializationTag.END_JS_OBJECT);
+    writeTag(JSSerializationTag.END_JS_OBJECT);
     writer.putVarint(value.size());
   }
 
@@ -292,7 +308,7 @@ public class Serializer extends PrimitiveValueSerializer {
   }
 
   private void writeJSMap(@NonNull JSMap value) {
-    writeTag(SerializationTag.BEGIN_JS_MAP);
+    writeTag(JSSerializationTag.BEGIN_JS_MAP);
     Iterator<Map.Entry<Object, Object>> entries = value.getInternalMap().entrySet().iterator();
     int count = 0;
     while (entries.hasNext()) {
@@ -301,41 +317,41 @@ public class Serializer extends PrimitiveValueSerializer {
       writeValue(entry.getKey());
       writeValue(entry.getValue());
     }
-    writeTag(SerializationTag.END_JS_MAP);
-    writer.putVarint(2 * count);
+    writeTag(JSSerializationTag.END_JS_MAP);
+    writer.putVarint(2L * count);
   }
 
   private void writeJSSet(@NonNull JSSet value) {
-    writeTag(SerializationTag.BEGIN_JS_SET);
+    writeTag(JSSerializationTag.BEGIN_JS_SET);
     Iterator<Object> entries = value.getInternalSet().iterator();
     int count = 0;
     while (entries.hasNext()) {
       count++;
       writeValue(entries.next());
     }
-    writeTag(SerializationTag.END_JS_SET);
+    writeTag(JSSerializationTag.END_JS_SET);
     writer.putVarint(count);
   }
 
   private void writeJSArray(@NonNull JSAbstractArray value) {
     int length = value.size();
     if (value.isDenseArray()) {
-      writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
+      writeTag(JSSerializationTag.BEGIN_DENSE_JS_ARRAY);
       writer.putVarint(length);
       for (int i = 0; i < length; i++) {
         writeValue(value.get(i));
       }
       writeJSObjectProperties(JSObject.entries(value));
-      writeTag(SerializationTag.END_DENSE_JS_ARRAY);
+      writeTag(JSSerializationTag.END_DENSE_JS_ARRAY);
     } else if (value.isSparseArray()) {
-      writeTag(SerializationTag.BEGIN_SPARSE_JS_ARRAY);
+      writeTag(JSSerializationTag.BEGIN_SPARSE_JS_ARRAY);
       writer.putVarint(length);
       for (Pair<Integer, Object> item : ((JSSparseArray) value).items()) {
         writer.putVarint(item.first);
         writeValue(item.second);
       }
       writeJSObjectProperties(JSObject.entries(value));
-      writeTag(SerializationTag.END_SPARSE_JS_ARRAY);
+      writeTag(JSSerializationTag.END_SPARSE_JS_ARRAY);
     } else {
       throw new UnreachableCodeException();
     }
@@ -349,11 +365,19 @@ public class Serializer extends PrimitiveValueSerializer {
         throw new DataCloneException(value);
       }
     } else {
-      writeTag(SerializationTag.ARRAY_BUFFER_VIEW);
+      writeTag(JSSerializationTag.ARRAY_BUFFER_VIEW);
       ArrayBufferViewTag tag;
       switch (value.getKind()) {
         case DATA_VIEW: {
           tag = ArrayBufferViewTag.DATA_VIEW;
+          break;
+        }
+        case BIGINT64_ARRAY: {
+          tag = ArrayBufferViewTag.BIGINT64_ARRAY;
+          break;
+        }
+        case BIGUINT64_ARRAY: {
+          tag = ArrayBufferViewTag.BIGUINT64_ARRAY;
           break;
         }
         case FLOAT32_ARRAY: {
@@ -399,11 +423,14 @@ public class Serializer extends PrimitiveValueSerializer {
       writeTag(tag);
       writer.putVarint(value.getByteOffset());
       writer.putVarint(value.getByteLength());
+      if (getVersion() >= 14) {
+        writer.putVarint(value.getFlags());
+      }
     }
   }
 
   private void writeJSError(@NonNull JSError error) {
-    writeTag(SerializationTag.ERROR);
+    writeTag(JSSerializationTag.ERROR);
     writeErrorTypeTag(error);
 
     String message = error.getMessage();
@@ -463,11 +490,26 @@ public class Serializer extends PrimitiveValueSerializer {
   }
 
   private boolean writeHostObject(Object object) {
-    writeTag(SerializationTag.HOST_OBJECT);
+    writeTag(JSSerializationTag.HOST_OBJECT);
     if (delegate == null) {
       throw new DataCloneException(object);
     }
     return delegate.writeHostObject(this, object);
+  }
+
+  private void writeSharedObject(SharedValueConveyor.SharedValue object) {
+    if (delegate == null) {
+      throw new DataCloneException(object);
+    }
+    if (sharedObjectConveyor == null) {
+      sharedObjectConveyor = new SharedValueConveyor();
+      if (!delegate.adoptSharedValueConveyor(this, sharedObjectConveyor)) {
+        sharedObjectConveyor = null;
+        return;
+      }
+    }
+    writeTag(JSSerializationTag.SHARED_OBJECT);
+    writer.putVarint(sharedObjectConveyor.persist(object));
   }
 
   /**
