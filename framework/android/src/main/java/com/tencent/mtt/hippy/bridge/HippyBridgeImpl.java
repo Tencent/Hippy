@@ -111,7 +111,6 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
                         groupId,
                         mContext.getWorkerManagerId(),
                         mContext.getDomManagerId(),
-                        mContext.getVfsId(),
                         v8InitParams,
                         localCachePath,
                         mContext.getDevSupportManager().createDebugUrl(mDebugServerHost)
@@ -149,13 +148,13 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             }
 
             return runScriptFromUri(uri, assetManager, canUseCodeCache, codeCacheDir, mV8RuntimeId,
-                    callback);
+              mContext.getVfsId(), callback);
         } else {
             boolean ret = false;
             LogUtils.d("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
             try {
                 ret = runScriptFromUri(uri, assetManager, false, "" + codeCacheTag + File.separator,
-                        mV8RuntimeId, callback);
+                        mV8RuntimeId, mContext.getVfsId(), callback);
             } catch (Throwable e) {
                 if (mBridgeCallback != null) {
                     mBridgeCallback.reportException(e);
@@ -277,11 +276,11 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     public native long initJSFramework(byte[] globalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
-            long groupId, int workerManagerId, int domManagerId, int vfsId,
+            long groupId, int workerManagerId, int domManagerId,
             V8InitParams v8InitParams, String dataDir, String wsUrl);
 
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
-            boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId,
+            boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId, int vfsId,
             NativeCallback callback);
 
     public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload, NativeCallback callback);

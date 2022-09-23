@@ -33,32 +33,31 @@
 namespace hippy {
 inline namespace vfs {
 
-char16_t kAssetSchema[] = u"asset";
 char16_t kFileSchema[] = u"file";
 char16_t kHttpSchema[] = u"http";
 char16_t kHttpsSchema[] = u"https";
 
-REGISTER_STATIC_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
                     "onCreateVfs",
                     "()I",
                     OnCreateVfs)
 
-REGISTER_STATIC_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
                     "onDestroyVfs",
                     "(I)V",
                     OnDestroyVfs)
 
-REGISTER_STATIC_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
                     "onTraversalsEndAsync",
                     "(Lcom/tencent/vfs/ResourceDataHolder;)V",
                     OnTraversalsEndAsync)
 
-REGISTER_STATIC_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
                     "doNativeTraversalsAsync",
                     "(ILcom/tencent/vfs/ResourceDataHolder;Lcom/tencent/vfs/VfsManager$FetchResourceCallback;)V",
                     DoNativeTraversalsAsync)
 
-REGISTER_STATIC_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
                     "doNativeTraversalsSync",
                     "(ILcom/tencent/vfs/ResourceDataHolder;)Lcom/tencent/vfs/ResourceDataHolder;",
                     DoNativeTraversalsSync)
@@ -212,8 +211,8 @@ jint OnCreateVfs(JNIEnv* j_env, jobject j_object) {
   auto id = hippy::global_data_holder_key.fetch_add(1);
   auto loader = std::make_shared<AndroidUriLoader>();
   auto file_delegate = std::make_shared<FileHandler>();
-  std::shared_ptr<AssetHandler> asset_delegate = std::make_shared<AssetHandler>();
-  loader->RegisterUriHandler(kAssetSchema, asset_delegate);
+//  std::shared_ptr<AssetHandler> asset_delegate = std::make_shared<AssetHandler>();
+//  loader->RegisterUriHandler(kAssetSchema, asset_delegate);
   loader->RegisterUriHandler(kFileSchema, file_delegate);
   loader->RegisterUriHandler(kHttpSchema, delegate);
   loader->RegisterUriHandler(kHttpsSchema, delegate);

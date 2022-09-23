@@ -70,6 +70,10 @@ void AssetHandler::RequestUntrustedContent(
   } else {
     ctx->code = UriHandler::RetCode::Failed;
   }
+  auto next_handler = next();
+  if (next_handler) {
+    next_handler->RequestUntrustedContent(ctx, next);
+  }
 }
 
 void AssetHandler::RequestUntrustedContent(
@@ -82,30 +86,32 @@ void AssetHandler::RequestUntrustedContent(
     ctx->cb(UriHandler::RetCode::PathError, {}, UriHandler::bytes());
     return;
   }
-  LoadByAsset(path, ctx->cb);
+  auto new_cb = [orig_cb = ctx->cb](RetCode code , std::unordered_map<std::string, std::string> meta, bytes content) {
+    orig_cb(code, std::move(meta), std::move(content));
+  };
+  ctx->cb = new_cb;
+  LoadByAsset(path, ctx, next);
 }
 
-bool AssetHandler::LoadByAsset(const string_view& path,
-                                std::function<void(UriHandler::RetCode,
-                                                   std::unordered_map<std::string, std::string>,
-                                                   UriHandler::bytes)> cb,
-                                bool is_auto_fill) {
+void AssetHandler::LoadByAsset(const string_view& path,
+                               std::shared_ptr<ASyncContext> ctx,
+                               std::function<std::shared_ptr<UriHandler>()> next,
+                               bool is_auto_fill) {
   FOOTSTONE_DLOG(INFO) << "ReadAssetFile file_path = " << path;
   auto runner = runner_.lock();
   if (!runner) {
-
-    return false;
+    ctx->cb(UriHandler::RetCode::DelegateError, {}, UriHandler::bytes());
+    return;
   }
-  runner->PostTask([path, aasset_manager = aasset_manager_, is_auto_fill, cb] {
+  runner->PostTask([path, aasset_manager = aasset_manager_, is_auto_fill, ctx] {
     UriHandler::bytes content;
     bool ret = ReadAsset(path, aasset_manager, content, is_auto_fill);
     if (ret) {
-      cb(UriHandler::RetCode::Success, {}, std::move(content));
+      ctx->cb(UriHandler::RetCode::Success, {}, std::move(content));
     } else {
-      cb(UriHandler::RetCode::Failed, {}, std::move(content));
+      ctx->cb(UriHandler::RetCode::Failed, {}, std::move(content));
     }
   });
-  return true;
 }
 
 }

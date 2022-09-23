@@ -62,8 +62,7 @@ void FileHandler::RequestUntrustedContent(
     return;
   }
   auto new_cb = [orig_cb = ctx->cb](RetCode code , std::unordered_map<std::string, std::string> meta, bytes content) {
-
-    orig_cb(code, std::move(meta), "test");
+    orig_cb(code, std::move(meta), std::move(content));
   };
   ctx->cb = new_cb;
   LoadByFile(path, ctx, next);

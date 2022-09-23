@@ -24,6 +24,7 @@
 #include <android/asset_manager_jni.h>
 #include <sys/stat.h>
 
+#include <any>
 #include <future>
 #include <memory>
 #include <mutex>
@@ -47,12 +48,14 @@
 #include "footstone/hippy_value.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/worker_manager.h"
+#include "jni/data_holder.h"
 #include "jni/exception_handler.h"
 #include "jni/java_turbo_module.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/turbo_module_manager.h"
+#include "android_vfs/asset_handler.h"
 
 #ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
@@ -91,7 +94,7 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "runScriptFromUri",
              "(Ljava/lang/String;Landroid/content/res/AssetManager;ZLjava/lang/"
-             "String;JLcom/tencent/mtt/hippy/bridge/NativeCallback;)Z",
+             "String;JILcom/tencent/mtt/hippy/bridge/NativeCallback;)Z",
              RunScriptFromUri)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -167,6 +170,7 @@ constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 constexpr uint32_t kDefaultNumberOfThreads = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
 constexpr char kLogTag[] = "native";
+char16_t kAssetSchema[] = u"asset";
 
 static std::atomic<uint32_t> global_worker_manager_key{1};
 
@@ -364,6 +368,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jboolean j_can_use_code_cache,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
+                          jint j_vfs_id,
                           jobject j_cb) {
   FOOTSTONE_DLOG(INFO) << "runScriptFromUri begin, j_runtime_id = "
                       << j_runtime_id;
@@ -401,20 +406,22 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     ctx->SetGlobalStrVar(kHippyCurDirKey, base_path);
   });
 
-  auto loader = std::make_shared<AndroidUriLoader>();
-  FOOTSTONE_DCHECK(runtime->HasData(kBridgeSlot));
+  std::any vfs_instance;
+  auto vfs_id = footstone::checked_numeric_cast<jint, uint32_t>(j_vfs_id);
+  auto flag = hippy::global_data_holder.Find(vfs_id, vfs_instance);
+  FOOTSTONE_CHECK(flag);
+  auto loader = std::any_cast<std::shared_ptr<hippy::AndroidUriLoader>>(vfs_instance);
+  FOOTSTONE_CHECK(runtime->HasData(kBridgeSlot));
   auto bridge = std::any_cast<std::shared_ptr<Bridge>>(runtime->GetData(kBridgeSlot));
   auto ref = bridge->GetRef();
-//  loader->SetBridge(ref);
-//  loader->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
   runtime->GetScope()->SetUriLoader(loader);
-  AAssetManager* aasset_manager = nullptr;
-  if (j_aasset_manager) {
-    aasset_manager = AAssetManager_fromJava(j_env, j_aasset_manager);
-//    loader->SetAAssetManager(aasset_manager);
-  }
-
-  std::shared_ptr<JavaRef> save_object = std::make_shared<JavaRef>(j_env, j_cb);
+  FOOTSTONE_CHECK(j_aasset_manager);
+  auto  aasset_manager = AAssetManager_fromJava(j_env, j_aasset_manager);
+  auto asset_handler = std::make_shared<hippy::AssetHandler>();
+  asset_handler->SetAAssetManager(aasset_manager);
+  asset_handler->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
+  loader->RegisterUriHandler(kAssetSchema, asset_handler);
+  auto save_object = std::make_shared<JavaRef>(j_env, j_cb);
   auto func = [runtime, save_object_ = std::move(save_object), script_name,
       j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
       time_begin] {

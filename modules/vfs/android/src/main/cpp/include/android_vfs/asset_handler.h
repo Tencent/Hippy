@@ -55,8 +55,9 @@ class AssetHandler : public UriHandler {
       std::shared_ptr<ASyncContext> ctx,
       std::function<std::shared_ptr<UriHandler>()> next) override;
  private:
-  bool LoadByAsset(const string_view& file_path,
-                   std::function<void(UriHandler::RetCode, std::unordered_map<std::string, std::string>, UriHandler::bytes)> cb,
+  void LoadByAsset(const string_view& path,
+                   std::shared_ptr<ASyncContext> ctx,
+                   std::function<std::shared_ptr<UriHandler>()> next,
                    bool is_auto_fill = false);
 
   AAssetManager* aasset_manager_;
