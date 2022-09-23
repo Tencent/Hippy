@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   puts 'hippy.podspec read begins'
   s.name             = 'hippy'
-  s.version          = 'unspecified'
+  s.version          = '3.0'
   s.summary          = 'Hippy Cross Platform Framework'
 
 # This description is used to generate tags and improve search results.
@@ -25,28 +25,56 @@ Pod::Spec.new do |s|
   s.license          = { :type => 'Apache2', :file => 'LICENSE' }
   s.author           = 'OpenHippy Team'
   s.source           = {:git => 'https://github.com/Tencent/Hippy.git', :tag => s.version}
-  s.ios.deployment_target = '9.0'
-  s.source_files = 'ios/sdk/**/*.{h,m,c,mm,s,cpp,cc}'
-  s.public_header_files = 'ios/sdk/**/*.h'
-  s.default_subspec = 'core'
+  s.platform = :ios
+  s.ios.deployment_target = '10.0'
+  s.source_files = 'framework/ios/**/*.{h,m,c,mm,s,cpp,cc}'
+  s.public_header_files = 'framework/ios/**/*.h'
+  s.exclude_files = ['framework/ios/base/enginewrapper/v8', 'framework/ios/utils/v8']
+  s.libraries = 'c++'
+  s.frameworks = 'JavaScriptCore'
+  s.pod_target_xcconfig = {'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17'}
 
-  s.subspec 'core' do |cores|
-    puts 'hippy subspec \'core\' read begins'
-    cores.source_files = 'core/**/*.{h,cc}'
-    cores.public_header_files = 'core/include/**/*.h'
-    cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr']
-    cores.libraries = 'c++'
-    #this setting causes 'There are header files outside of the header_mappings_dir'
-    # cores.header_mappings_dir = 'core/include/'
-    cores.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/'}
-    puts 'hippy subspec \'core\' read end'
+  s.subspec 'layout' do |layout|
+    puts 'hippy subspec \'layout\' read begin'
+    layout.source_files = 'layout/engine/*.{h,cpp}'
+    layout.public_header_files = 'layout/engine/*.h'
+    layout.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/layout'}
+    puts 'hippy subspec \'layout\' read end'
+  end
+
+  s.subspec 'footstone' do |footstone|
+    puts 'hippy subspec \'footstone\' read begin'
+    footstone.source_files = 'modules/footstone/**/*.{h,cc}'
+    footstone.public_header_files = 'modules/footstone/**/*.h'
+    footstone.exclude_files = ['modules/footstone/include/footstone/platform/adr', 'modules/footstone/src/platform/adr']
+    footstone.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/footstone/include/ ${PODS_ROOT}/hippy/modules/footstone/'}
+    puts 'hippy subspec \'footstone\' read end'
+  end
+
+  s.subspec 'driver' do |driver|
+    puts 'hippy subspec \'driver\' read begin'
+    driver.source_files = ['driver/js/include/**/*.h', 'driver/js/src/**/*.cc']
+    driver.public_header_files = 'driver/js/include/**/*.h'
+    driver.exclude_files = ['driver/js/include/driver/napi/v8','driver/js/include/drive/runtime','driver/js/src/napi/v8','driver/js/src/runtime']
+    driver.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/driver/js/include/'}
+    puts 'hippy subspec \'driver\' read end'
   end 
 
-  if ENV['hippy_use_frameworks']
-    puts 'use frameworks mode, no force load'
-  else
-    puts 'use library mode, force load hippy library'
-    s.user_target_xcconfig = {'OTHER_LDFLAGS' => '-force_load "${PODS_CONFIGURATION_BUILD_DIR}/hippy/libhippy.a"'}
-  end
+  s.subspec 'dom' do |dom|
+    puts 'hippy subspec \'dom\' read begin'
+    dom.source_files = ['dom/include/**/*.h', 'dom/src/**/*.cc']
+    dom.public_header_files = 'dom/include/**/*.h'
+    dom.exclude_files = ['dom/src/dom/*unittests.cc', 'dom/src/dom/tools', 'dom/src/dom/yoga_layout_node.cc']
+    dom.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/dom/include/'}
+    puts 'hippy subspec \'dom\' read end'
+  end 
+
+  s.subspec 'nativerender' do |render|
+    puts 'hippy subspec \'nativerender\' read begin'
+    render.source_files = 'renderer/native/ios/**/*.{h,m,mm}'
+    render.public_header_files = 'renderer/native/ios/**/*.h'
+    puts 'hippy subspec \'nativerender\' read end'
+  end 
+
   puts 'hippy.podspec read ends'
 end

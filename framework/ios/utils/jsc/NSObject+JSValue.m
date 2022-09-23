@@ -20,8 +20,6 @@
  * limitations under the License.
  */
 
-#ifdef JS_USE_JSC
-
 #import "NSObject+JSValue.h"
 #import "NativeRenderLog.h"
 
@@ -253,4 +251,3 @@ id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value
         return object;
     }
 }
-#endif //JS_USE_JSC

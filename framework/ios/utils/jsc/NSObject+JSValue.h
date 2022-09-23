@@ -20,8 +20,6 @@
  * limitations under the License.
  */
 
-#ifdef JS_USE_JSC
-
 #import <Foundation/Foundation.h>
 #import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyDefines.h"
@@ -55,5 +53,3 @@ NS_ASSUME_NONNULL_BEGIN
 HIPPY_EXTERN id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value, JSValueRef _Nonnull * _Nonnull exception);
 
 NS_ASSUME_NONNULL_END
-
-#endif //JS_USE_JSC
