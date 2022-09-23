@@ -62,6 +62,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jboolean j_can_use_code_cache,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
+                          jint j_vfs_id,
                           jobject j_cb);
 
 void DoBind(JNIEnv* j_env,

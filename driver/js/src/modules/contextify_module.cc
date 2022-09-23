@@ -64,8 +64,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
 
   string_view key;
   if (!context->GetValueString(info[0], &key)) {
-    info.GetExceptionValue()->Set(
-        context, "The first argument must be non-empty string.");
+    info.GetExceptionValue()->Set(context, "The first argument must be non-empty string.");
     return;
   }
 
@@ -80,8 +79,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
   auto ret = context->RunScript(str_view, key);
 #endif
   if (try_catch->HasCaught()) {
-    FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = "
-                          << try_catch->GetExceptionMsg();
+    FOOTSTONE_DLOG(ERROR) << "GetNativeSourceCode error = " << try_catch->GetExceptionMsg();
     info.GetExceptionValue()->Set(try_catch->Exception());
   } else {
     info.GetReturnValue()->Set(ret);
@@ -98,8 +96,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   FOOTSTONE_CHECK(context);
   string_view uri;
   if (!context->GetValueString(info[0], &uri)) {
-    info.GetExceptionValue()->Set(
-        context, "The first argument must be non-empty string.");
+    info.GetExceptionValue()->Set(context, "The first argument must be non-empty string.");
     return;
   }
   FOOTSTONE_DLOG(INFO) << "uri = " << uri;
@@ -126,8 +123,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   std::weak_ptr<Scope> weak_scope = scope;
   std::weak_ptr<hippy::napi::CtxValue> weak_function = function;
 
-  std::function<void(u8string)> cb = [this, weak_scope, weak_function, encode,
-      uri](u8string code) {
+  auto cb = [this, weak_scope, weak_function, encode, uri](
+      UriLoader::RetCode ret_code, const std::unordered_map<std::string, std::string>&, UriLoader::bytes content) {
     std::shared_ptr<Scope> scope = weak_scope.lock();
     if (!scope) {
       return;
@@ -145,16 +142,14 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
       file_name = uri;
     }
 
-    if (code.empty()) {
-      FOOTSTONE_DLOG(WARNING) << "Load uri = " << uri << ", code empty";
+    if (ret_code != UriLoader::RetCode::Success || content.empty()) {
+      FOOTSTONE_LOG(WARNING) << "Load uri = " << uri << ", code empty";
     } else {
-      FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << code.length()
+      FOOTSTONE_DLOG(INFO) << "Load uri = " << uri << ", len = " << content.length()
                            << ", encode = " << encode
-                           << ", code = " << string_view(code);
+                           << ", code = " << string_view(content);
     }
-    auto callback = [this, weak_scope, weak_function,
-        move_code = std::move(code), cur_dir, file_name,
-        uri]() {
+    auto callback = [this, weak_scope, weak_function, move_code = std::move(content), cur_dir, file_name, uri]() {
       std::shared_ptr<Scope> scope = weak_scope.lock();
       if (!scope) {
         return;
@@ -175,8 +170,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
                              hippy::napi::PropertyAttribute::None);
         if (try_catch->HasCaught()) {
           error = try_catch->Exception();
-          FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = "
-                                << try_catch->GetExceptionMsg();
+          FOOTSTONE_DLOG(ERROR) << "RequestUntrustedContent error = " << try_catch->GetExceptionMsg();
         }
       } else {
         string_view err_msg = uri + " not found";
@@ -201,9 +195,8 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
   };
 
   auto loader = scope->GetUriLoader().lock();
-  if (loader) {
-    // loader->RequestUntrustedContent(uri, {}, cb);
-  }
+  FOOTSTONE_CHECK(loader);
+  loader->RequestUntrustedContent(uri, {}, cb);
 
   info.GetReturnValue()->SetUndefined();
 }

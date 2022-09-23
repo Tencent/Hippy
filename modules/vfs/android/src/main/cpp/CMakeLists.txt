@@ -55,7 +55,12 @@ set(SOURCE_SET
   src/android_uri_loader.cc
   src/asset_handler.cc
   src/file_handler.cc
-  src/jni_delegate_handler.cc
   src/uri.cc)
+
+set(SOURCE_SET_STANDALONE
+  src/jni_delegate_handler.cc)
+
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
+
+target_sources(${PROJECT_NAME} PUBLIC ${SOURCE_SET_STANDALONE})
 # endregion

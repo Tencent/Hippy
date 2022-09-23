@@ -237,13 +237,13 @@ bool V8BridgeUtils::RunScript(const std::shared_ptr<Runtime>& runtime,
   return RunScriptWithoutLoader(
       runtime, file_name, is_use_code_cache, code_cache_dir, uri, is_local_file,
       [uri_ = uri, runtime_ = runtime]() {
-        u8string content;
         auto loader = runtime_->GetScope()->GetUriLoader().lock();
         if (loader) {
-//          bool flag = loader->RequestUntrustedContent(uri_, {}, content);
-//          if (flag) {
-//            return string_view(std::move(content));
-//          }
+          UriLoader::RetCode code;
+          std::unordered_map<std::string, std::string> meta;
+          UriLoader::bytes content;
+          loader->RequestUntrustedContent(uri_, {}, code, meta, content);
+          return string_view::new_from_utf8(content.c_str(), content.length());
         }
 
         return string_view{};

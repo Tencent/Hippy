@@ -50,8 +50,6 @@ std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  FOOTSTONE_DLOG(INFO) << "JsCallbackFunc begin";
-
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
     info.GetReturnValue().SetUndefined();
@@ -87,7 +85,6 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   }
 
   v8::Context::Scope context_scope(context);
-  FOOTSTONE_DLOG(INFO) << "callback_info info.length = " << info.Length();
   for (int i = 0; i < info.Length(); i++) {
     callback_info.AddValue(std::make_shared<V8CtxValue>(isolate, info[i]));
   }
@@ -1731,7 +1728,6 @@ bool V8Ctx::GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* result
 
 bool V8Ctx::GetValueString(const std::shared_ptr<CtxValue>& value,
                            string_view* result) {
-  FOOTSTONE_DLOG(INFO) << "V8Ctx::GetValueString";
   if (!value || !result) {
     return false;
   }
