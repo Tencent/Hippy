@@ -26,11 +26,11 @@ import { isDev, isFunction, warn } from '../../../util';
 class EventEmitter {
   constructor(element) {
     this.element = element;
-    this._observers = {};
+    this.observers = {};
   }
 
   getEventListeners() {
-    return this._observers;
+    return this.observers;
   }
 
   addEventListener(eventNames, callback, options) {
@@ -56,7 +56,7 @@ class EventEmitter {
         options,
       });
     }
-    return this._observers;
+    return this.observers;
   }
 
   removeEventListener(eventNames, callback, options) {
@@ -79,19 +79,19 @@ class EventEmitter {
             list.splice(index, 1);
           }
           if (list.length === 0) {
-            this._observers[eventName] = undefined;
+            this.observers[eventName] = undefined;
           }
         }
       } else {
-        this._observers[eventName] = undefined;
+        this.observers[eventName] = undefined;
       }
     }
-    return this._observers;
+    return this.observers;
   }
 
   emit(eventInstance) {
     const { type: eventName } = eventInstance;
-    const observers = this._observers[eventName];
+    const observers = this.observers[eventName];
     if (!observers) {
       return;
     }
@@ -109,10 +109,10 @@ class EventEmitter {
   }
 
   _getEventList(eventName, createIfNeeded) {
-    let list = this._observers[eventName];
+    let list = this.observers[eventName];
     if (!list && createIfNeeded) {
       list = [];
-      this._observers[eventName] = list;
+      this.observers[eventName] = list;
     }
     return list;
   }
