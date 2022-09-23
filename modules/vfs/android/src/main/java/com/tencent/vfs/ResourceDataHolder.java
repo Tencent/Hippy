@@ -31,25 +31,44 @@ public class ResourceDataHolder {
         ERR_NOT_SUPPORT_SYNC_REMOTE,
     }
 
+    public enum RequestFrom {
+        NATIVE,
+        LOCAL,
+    }
+
     @NonNull
     public String uri;
     @Nullable
     public ByteBuffer data;
     @Nullable
-    public Map<String, Object> params;
+    public Map<String, Object> requestHeader;
+    @Nullable
+    public Map<String, String> responseHeader;
     @Nullable
     public FetchResourceCallback callback;
+    public final RequestFrom requestFrom;
     public String errorMessage;
     public int resultCode = FetchResultCode.OK.ordinal();
     public int nativeId;
     public int index = -1;
 
     public ResourceDataHolder(@NonNull String uri, @Nullable Map<String, Object> params,
-            @Nullable FetchResourceCallback callback, @Nullable ByteBuffer data, int nativeId) {
+            RequestFrom from) {
+        this.requestFrom = from;
+        init(uri, params, null, -1);
+    }
+
+    public ResourceDataHolder(@NonNull String uri, @Nullable Map<String, Object> params,
+            @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
+        this.requestFrom = from;
+        init(uri, params, callback, nativeId);
+    }
+
+    private void init(@NonNull String uri, @Nullable Map<String, Object> params,
+            @Nullable FetchResourceCallback callback, int nativeId) {
         this.uri = uri;
-        this.params = params;
+        this.requestHeader = params;
         this.callback = callback;
-        this.data = data;
         this.nativeId = nativeId;
     }
 }

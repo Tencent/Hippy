@@ -19,7 +19,7 @@ package com.tencent.vfs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.nio.ByteBuffer;
+import com.tencent.vfs.ResourceDataHolder.RequestFrom;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -31,13 +31,17 @@ public class VfsManager {
     public VfsManager() {
         mId = onCreateVfs();
     }
-    
+
     public void Destroy() {
         onDestroyVfs(mId);
     }
 
     public int getId() {
         return mId;
+    }
+
+    public void addProcessor(@NonNull Processor processor) {
+        addProcessorAtFirst(processor);
     }
 
     public void addProcessorAtFirst(@NonNull Processor processor) {
@@ -58,96 +62,135 @@ public class VfsManager {
 
     public void fetchResourceAsync(@NonNull String uri, @Nullable Map<String, Object> params,
             @Nullable FetchResourceCallback callback) {
-        fetchResourceAsyncImpl(uri, params, callback, null, -1, true);
+        onFetchResourceStart();
+        fetchResourceAsyncImpl(uri, params, callback, RequestFrom.LOCAL, -1);
     }
 
     public ResourceDataHolder fetchResourceSync(@NonNull String uri,
             @Nullable Map<String, Object> params) {
-        return fetchResourceSyncImpl(uri, params, null, true);
+        onFetchResourceStart();
+        ResourceDataHolder holder = fetchResourceSyncImpl(uri, params, RequestFrom.LOCAL);
+        onFetchResourceEnd(holder);
+        return holder;
     }
 
     private ResourceDataHolder fetchResourceSyncImpl(@NonNull String uri,
-            @Nullable Map<String, Object> params, @Nullable ByteBuffer data,
-            boolean doNativeTraversals) {
-        ResourceDataHolder holder = new ResourceDataHolder(uri, params, null, data, -1);
-        for (Processor processor : mProcessorChain) {
-            processor.handle(holder);
-            if (!processor.goNext()) {
-                return holder;
-            }
-        }
-        if (doNativeTraversals) {
-            return doNativeTraversalsSync(mId, holder);
-        }
+            @Nullable Map<String, Object> params, RequestFrom from) {
+        ResourceDataHolder holder = new ResourceDataHolder(uri, params, from);
+        traverseForward(holder, true);
         return holder;
     }
 
     private void fetchResourceAsyncImpl(@NonNull String uri, @Nullable Map<String, Object> params,
-            @Nullable FetchResourceCallback callback, @Nullable ByteBuffer data, int nativeId,
-            boolean doNativeTraversals) {
-        ResourceDataHolder holder = new ResourceDataHolder(uri, params, callback, data, nativeId);
-        performTraversals(holder, doNativeTraversals);
+            @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
+        ResourceDataHolder holder = new ResourceDataHolder(uri, params, callback, from, nativeId);
+        traverseForward(holder, false);
     }
 
-    private void onTraversalsEnd(@NonNull final ResourceDataHolder holder) {
-        if (holder.callback != null) {
-            holder.callback.onFetchCompleted(holder);
-        }
-    }
-
-    private void traverseNext(int index, @NonNull final ResourceDataHolder holder,
-            final boolean doNativeTraversals) {
-        final Processor processor = mProcessorChain.get(index);
-        holder.index = index;
-        if (processor == null) {
-            performTraversals(holder, doNativeTraversals);
-            return;
-        }
-        processor.handle(holder, new ProcessorCallback() {
-            @Override
-            public void onHandleCompleted() {
-                if (processor.goNext()) {
-                    performTraversals(holder, doNativeTraversals);
+    private void traverseForward(@NonNull final ResourceDataHolder holder, final boolean isSync) {
+        int index = holder.index + 1;
+        if (index < mProcessorChain.size()) {
+            holder.index = index;
+            Processor processor = mProcessorChain.get(index);
+            if (isSync) {
+                boolean goNext = processor.handleRequestSync(holder);
+                if(goNext) {
+                    traverseForward(holder, true);
                 } else {
-                    onTraversalsEnd(holder);
+                    traverseGoBack(holder, true);
                 }
+            } else {
+                processor.handleRequestAsync(holder, new ProcessorCallback() {
+                    @Override
+                    public void goNext() {
+                        traverseForward(holder, false);
+                    }
+
+                    @Override
+                    public void onHandleCompleted() {
+                        traverseGoBack(holder, false);
+                    }
+                });
             }
-        });
+        } else if (isSync) {
+            if (holder.requestFrom == RequestFrom.LOCAL) {
+                doNativeTraversalsSync(mId, holder);
+            } else if (holder.requestFrom == RequestFrom.NATIVE) {
+                traverseGoBack(holder, true);
+            }
+        } else {
+            if (holder.requestFrom == RequestFrom.LOCAL) {
+                performNativeTraversals(holder);
+            } else if (holder.requestFrom == RequestFrom.NATIVE) {
+                traverseGoBack(holder, false);
+            }
+        }
+    }
+
+    private void traverseGoBack(@NonNull final ResourceDataHolder holder, final boolean isSync) {
+        int index = holder.index - 1;
+        if (index >= 0 && index < mProcessorChain.size()) {
+            holder.index = index;
+            Processor processor = mProcessorChain.get(index);
+            if (isSync) {
+                processor.handleResponseSync(holder);
+                traverseGoBack(holder, true);
+            } else {
+                processor.handleResponseAsync(holder, new ProcessorCallback() {
+                    @Override
+                    public void goNext() {
+                        // It only needs to be processed when traversing forward
+                    }
+
+                    @Override
+                    public void onHandleCompleted() {
+                        traverseGoBack(holder, false);
+                    }
+                });
+            }
+        } else if (!isSync) {
+            if (holder.requestFrom == RequestFrom.LOCAL) {
+                onFetchResourceEnd(holder);
+            } else if (holder.requestFrom == RequestFrom.NATIVE) {
+                onTraversalsEndAsync(holder);
+            }
+        }
     }
 
     private void performNativeTraversals(@NonNull final ResourceDataHolder holder) {
         doNativeTraversalsAsync(mId, holder, new FetchResourceCallback() {
             @Override
             public void onFetchCompleted(ResourceDataHolder dataHolder) {
-                onTraversalsEnd(holder);
+                traverseGoBack(holder, false);
             }
         });
     }
 
-    private void performTraversals(@NonNull final ResourceDataHolder holder,
-            final boolean doNativeTraversals) {
-        if (holder.index < 0) {
-            if (mProcessorChain.size() > 0) {
-                traverseNext(0, holder, doNativeTraversals);
-            } else if (doNativeTraversals) {
-                performNativeTraversals(holder);
-            } else {
-                onTraversalsEnd(holder);
-            }
-        } else {
-            int index = holder.index + 1;
-            if (index < mProcessorChain.size()) {
-                traverseNext(index, holder, doNativeTraversals);
-            } else if (doNativeTraversals) {
-                performNativeTraversals(holder);
-            } else {
-                onTraversalsEnd(holder);
-            }
+    private void onFetchResourceStart() {
+
+    }
+
+    private void onFetchResourceEnd(@NonNull final ResourceDataHolder holder) {
+        if (holder.callback != null) {
+            holder.callback.onFetchCompleted(holder);
         }
     }
 
     public interface ProcessorCallback {
 
+        /**
+         * Should go next processor, only used when processing requests.
+         */
+        void goNext();
+
+        /**
+         * Response or request processing completion callback.
+         *
+         * <p>
+         * If calls back this interface after processing the request, it will not be handed over to
+         * the next processor.
+         * </p>
+         */
         void onHandleCompleted();
     }
 
@@ -156,20 +199,20 @@ public class VfsManager {
         void onFetchCompleted(ResourceDataHolder dataHolder);
     }
 
-    public void fetchResourceAsync(@NonNull String uri, @Nullable ByteBuffer data,
-            @Nullable Map<String, Object> params, int nativeId) {
+    public void doLocalTraversalsAsync(@NonNull String uri, @Nullable Map<String, Object> params,
+            int nativeId) {
         FetchResourceCallback callback = new FetchResourceCallback() {
             @Override
             public void onFetchCompleted(ResourceDataHolder dataHolder) {
                 onTraversalsEndAsync(dataHolder);
             }
         };
-        fetchResourceAsyncImpl(uri, params, callback, data, nativeId, false);
+        fetchResourceAsyncImpl(uri, params, callback, RequestFrom.NATIVE, nativeId);
     }
 
-    public ResourceDataHolder fetchResourceSync(@NonNull String uri, @Nullable ByteBuffer data,
+    public ResourceDataHolder doLocalTraversalsSync(@NonNull String uri,
             @Nullable Map<String, Object> params) {
-        return fetchResourceSyncImpl(uri, params, data, false);
+        return fetchResourceSyncImpl(uri, params, RequestFrom.NATIVE);
     }
 
     private native int onCreateVfs();
@@ -182,7 +225,7 @@ public class VfsManager {
     private native void doNativeTraversalsAsync(int id, ResourceDataHolder holder,
             FetchResourceCallback callback);
 
-    private native ResourceDataHolder doNativeTraversalsSync(int id, ResourceDataHolder holder);
+    private native void doNativeTraversalsSync(int id, ResourceDataHolder holder);
 
     /**
      * Request from native (C++), after java chain traversals end, asynchronously return the result

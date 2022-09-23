@@ -17,22 +17,53 @@
 package com.tencent.vfs;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.tencent.vfs.VfsManager.ProcessorCallback;
 
-public interface Processor {
-
-    void handle(@NonNull ResourceDataHolder holder, @Nullable ProcessorCallback callback);
-
-    void handle(@NonNull ResourceDataHolder holder);
+public class Processor {
 
     /**
-     * Should go next processor
+     * Handle request asynchronous
      *
-     * @return {@code true} continue go next processor
-     *         {@code false} stop traversals
+     * @param holder {@link ResourceDataHolder}
+     * @param callback {@link ProcessorCallback}
      */
-    boolean goNext();
+    public void handleRequestAsync(@NonNull ResourceDataHolder holder,
+            @NonNull ProcessorCallback callback) {
+        // Pass to the next processor by default
+        callback.goNext();
+    }
 
+    /**
+     * Handle request synchronous
+     *
+     * @param holder {@link ResourceDataHolder}
+     * @return the handle result
+     *         {@code true} Can handle this request, will traverse go back for handle response
+     *         {@code false} Can not handle this request, will hand over to next processor
+     */
+    public boolean handleRequestSync(@NonNull ResourceDataHolder holder) {
+        return false;
+    }
+
+    /**
+     * Handle response asynchronous
+     *
+     * @param holder {@link ResourceDataHolder}
+     * @param callback {@link ProcessorCallback}
+     */
+    public void handleResponseAsync(@NonNull ResourceDataHolder holder,
+            @NonNull ProcessorCallback callback) {
+        // The callback must be called after the response is processed
+        callback.onHandleCompleted();
+    }
+
+    /**
+     * Handle response synchronous
+     *
+     * @param holder {@link ResourceDataHolder}
+     */
+    public void handleResponseSync(@NonNull ResourceDataHolder holder) {
+        // Need do nothing by default
+    }
 }

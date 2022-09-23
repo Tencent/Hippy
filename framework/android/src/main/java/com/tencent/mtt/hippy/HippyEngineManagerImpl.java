@@ -733,7 +733,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mVfsManager = new VfsManager();
             DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(
                     getGlobalConfigs().getHttpAdapter(), getGlobalConfigs().getExecutorSupplierAdapter()));
-            mVfsManager.addProcessorAtFirst(processor);
+            mVfsManager.addProcessor(processor);
         }
 
         @Override
