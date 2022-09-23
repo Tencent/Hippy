@@ -30,17 +30,20 @@
 #import "NativeRenderContext.h"
 #import "NativeRenderFrameworkProxy.h"
 #import "NativeRenderManager.h"
-#import "NativeRenderImageProviderProtocol.h"
 #import "NativeRenderInvalidating.h"
 
 #include <memory>
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "footstone/worker_manager.h"
+#include "uri_loader.h"
 
 @class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
+
+class HippyUriLoader;
+
 /**
  * Indicate hippy sdk version
  */
@@ -144,6 +147,8 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  *  @param props Initial parameters for instance.
  */
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
+
+@property(nonatomic, assign)std::shared_ptr<hippy::vfs::UriLoader> uriLoader;
 
 /**
  * Access the underlying JavaScript executor. You can use this in unit tests to detect

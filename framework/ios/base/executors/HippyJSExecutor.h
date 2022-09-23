@@ -21,11 +21,15 @@
  */
 
 #import <JavaScriptCore/JavaScriptCore.h>
-#import "HippyDefines.h"
+
 #import "HippyBridgeModule.h"
+#import "HippyDefines.h"
 #import "NativeRenderInvalidating.h"
 #import "js_native_api_types.h"
-#import <memory>
+
+#include <memory>
+
+#include "uri_loader.h"
 
 namespace hippy {
 inline namespace driver {
@@ -47,6 +51,8 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 @interface HippyJSExecutor : NSObject<NativeRenderInvalidating>
 
 @property (nonatomic, strong) HippyBridge *bridge;
+
+@property(nonatomic, assign)std::weak_ptr<hippy::vfs::UriLoader> uriLoader;
 /**
  * Whether the executor has been invalidated
  */

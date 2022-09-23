@@ -20,39 +20,36 @@
  * limitations under the License.
  */
 
+#import "HippyAssert.h"
 #import "HippyBridge.h"
-
-#import <objc/runtime.h>
-#import <sys/utsname.h>
-#import "HippyTurboModuleManager.h"
-#import "NativeRenderConvert.h"
-#import "NativeRenderI18nUtils.h"
-#import "HippyEventDispatcher.h"
-#import "HippyInstanceLoadBlock.h"
-#import "HippyKeyCommands.h"
 #import "HippyBundleDownloadOperation.h"
 #import "HippyBundleExecutionOperation.h"
 #import "HippyBundleOperationQueue.h"
 #import "HippyDeviceBaseInfo.h"
-#import "NativeRenderLog.h"
-#import "HippyModuleData.h"
-#import "HippyAssert.h"
-#import "NativeRenderInvalidating.h"
-#import "HippyOCTurboModule.h"
 #import "HippyDisplayLink.h"
-#import "HippyModuleMethod.h"
-#import "HippyPerformanceLogger.h"
-#import "NativeRenderUtils.h"
-#import "NativeRenderImpl.h"
-#import "HippyRedBox.h"
-#import "HippyTurboModule.h"
-#import "NativeRenderImageDataLoader.h"
-#import "NativeRenderDefaultImageProvider.h"
+#import "HippyInstanceLoadBlock.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyJSExecutor.h"
-#import "HippyAssert.h"
-#import "scene.h"
-#import "scope.h"
+#import "HippyKeyCommands.h"
+#import "HippyModuleData.h"
+#import "HippyModuleMethod.h"
+#import "HippyOCTurboModule.h"
+#import "HippyPerformanceLogger.h"
+#import "HippyTurboModuleManager.h"
+#import "HippyRedBox.h"
+#import "HippyTurboModule.h"
+#import "NativeRenderConvert.h"
+#import "NativeRenderDefaultImageProvider.h"
+#import "NativeRenderDomNodeUtils.h"
+#import "NativeRenderImageDataLoader.h"
+#import "NativeRenderImageProviderProtocol.h"
+#import "NativeRenderI18nUtils.h"
+#import "NativeRenderLog.h"
+#import "NativeRenderUtils.h"
+
+#include <sys/utsname.h>
+#include "dom/scene.h"
+#include "driver/scope.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNotification";
@@ -83,6 +80,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSMutableArray<HippyInstanceLoadBlock *> *_instanceBlocks;
     NSMutableArray<dispatch_block_t> *_nativeSetupBlocks;
     NSURL *_sandboxDirectory;
+    std::shared_ptr<hippy::vfs::UriLoader> _uriLoader;
 }
 
 @property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
@@ -258,6 +256,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     @try {
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
         _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
+        [_javaScriptExecutor setUriLoader:_uriLoader];
         _displayLink = [[HippyDisplayLink alloc] init];
         __weak HippyBridge *weakSelf = self;
         dispatch_async(HippyBridgeQueue(), ^{
@@ -395,6 +394,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     footstone::value::HippyValue value = OCTypeToDomValue(param);
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
+}
+
+- (void)setUriLoader:(std::shared_ptr<hippy::vfs::UriLoader>)uriLoader {
+    if (_uriLoader != uriLoader) {
+        _uriLoader = uriLoader;
+    }
+}
+
+- (std::shared_ptr<hippy::vfs::UriLoader>)uriLoader {
+    return _uriLoader;
 }
 
 - (void)executeJSCode:(NSString *)script

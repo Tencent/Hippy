@@ -20,40 +20,30 @@
  * limitations under the License.
  */
 
-#import "HippyJSExecutor.h"
-
-#import <cinttypes>
-#import <memory>
-#import <pthread.h>
-#import <string>
-#import <unordered_map>
-
 #import <UIKit/UIDevice.h>
 
+#import "FootstoneUtils.h"
 #import "HippyAssert.h"
+#import "HippyBundleURLProvider.h"
 #import "HippyDefines.h"
-#import "HippyDevMenu.h"
-#import "HippyJavaScriptLoader.h"
-#import "NativeRenderLog.h"
-#import "HippyPerformanceLogger.h"
-#import "NativeRenderUtils.h"
-#import "HippyRedBox.h"
+#import "HippyDevInfo.h"
+#import "HippyJSExecutor.h"
 #import "HippyJSEnginesMapper.h"
-#include "ios_loader.h"
-#include "footstone/string_view.h"
-#include "footstone/string_view_utils.h"
-#include "footstone/task_runner.h"
-#include "footstone/task.h"
+#import "HippyOCTurboModule+Inner.h"
+#import "HippyPerformanceLogger.h"
+#import "HippyTurboModuleManager.h"
+#import "HippyUriLoader.h"
+#import "NativeRenderLog.h"
+#import "NativeRenderUtils.h"
+#import "NSObject+ToJSCtxValue.h"
+
+#include "driver/engine.h"
 #include "driver/napi/js_native_api.h"
 #include "driver/scope.h"
-#include "driver/engine.h"
-#import "HippyOCTurboModule+Inner.h"
-#import "HippyTurboModuleManager.h"
-#import "HippyDevInfo.h"
-#import "HippyBundleURLProvider.h"
-#import "NSObject+ToJSCtxValue.h"
+#include "footstone/string_view.h"
+
 #ifdef JS_USE_JSC
-#import "driver/napi/jsc/js_native_api_jsc.h"
+#include "driver/napi/jsc/js_native_api_jsc.h"
 #endif //JS_USE_JSC
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
@@ -65,56 +55,13 @@ using WeakCtxPtr = std::weak_ptr<hippy::napi::Ctx>;
 using SharedCtxValuePtr = std::shared_ptr<hippy::napi::CtxValue>;
 using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
-static bool defaultDynamicLoadAction(const string_view& uri, std::function<void(u8string)> cb) {
-    std::u16string u16Uri = StringViewUtils::ConvertEncoding(uri, string_view::Encoding::Utf16).utf16_value();
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], to default dynamic load action:%S", (const unichar*)u16Uri.c_str());
-    NSString *URIString = [NSString stringWithCharacters:(const unichar*)u16Uri.c_str() length:(u16Uri.length())];
-    NSURL *url = NativeRenderURLWithString(URIString, NULL);
-    if ([url isFileURL]) {
-        NSString *result = [NSString stringWithContentsOfURL:url encoding:NSUTF8StringEncoding error:nil];
-        u8string content(reinterpret_cast<const string_view::char8_t_*>([result UTF8String]?[result UTF8String]:""));
-        cb(std::move(content));;
-    }
-    else {
-        NSURLRequest *req = [NSURLRequest requestWithURL:url];
-        [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            if (error) {
-                NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], error:%@", [error description]);
-                u8string emptyContent;
-                cb(std::move(emptyContent));
-            }
-            else {
-                NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                u8string content(reinterpret_cast<const string_view::char8_t_*>([result UTF8String]?:""));
-                cb(std::move(content));
-            }
-        }] resume];
-    }
-    return true;
-}
-
-static bool loadFunc(const string_view& uri, std::function<void(u8string)> cb, CFTypeRef userData) {
-    std::u16string u16Uri = StringViewUtils::ConvertEncoding(uri, string_view::Encoding::Utf16).utf16_value();
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Dynamic_Load], start load function:%S", (const unichar*)u16Uri.c_str());
-    HippyBridge *strongBridge = (__bridge HippyBridge *)userData;
-    if ([strongBridge.delegate respondsToSelector:@selector(dynamicLoad:URI:completion:)]) {
-        NSString *URIString = [NSString stringWithCharacters:(const unichar *)u16Uri.c_str() length:u16Uri.length()];
-        BOOL delegateCallRet = [strongBridge.delegate dynamicLoad:strongBridge URI:URIString completion:^(NSString *result) {
-            u8string content(reinterpret_cast<const string_view::char8_t_*>([result UTF8String]?:""));
-            cb(std::move(content));
-        }];
-        return delegateCallRet?:defaultDynamicLoadAction(uri, cb);
-    }
-    else {
-        return defaultDynamicLoadAction(uri, cb);
-    }
-}
-
 @interface HippyJSExecutor () {
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
     dispatch_semaphore_t _moduleSemaphore;
+    std::shared_ptr<HippyUriLoader> _defaultUriLoader;
+    std::weak_ptr<hippy::vfs::UriLoader> _uriLoader;
 }
 
 @end
@@ -158,46 +105,37 @@ static bool loadFunc(const string_view& uri, std::function<void(u8string)> cb, C
 }
 
 - (void)initURILoader {
-    std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(loadFunc, (__bridge void *)_bridge);
-    self.pScope->SetUriLoader(loader);
-}
-
-static string_view NSStringToU8StringView(NSString* str) {
-  std::string u8 = [str UTF8String];
-  return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
-}
-
-static NSString *UnicodeStringViewToNSString(const string_view &view) {
-    string_view::Encoding encode = view.encoding();
-    NSString *result = nil;
-    switch (encode) {
-        case string_view::Encoding::Latin1:
-            result = [NSString stringWithUTF8String:view.latin1_value().c_str()];
-            break;
-        case string_view::Encoding::Utf8:
-        {
-            result = [[NSString alloc] initWithBytes:view.utf8_value().c_str()
-                                              length:view.utf8_value().length()
-                                            encoding:NSUTF8StringEncoding];
-            break;
-        }
-        case string_view::Encoding::Utf16:
-        {
-            const string_view::u16string &u16String = view.utf16_value();
-            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-        }
-            break;
-        case string_view::Encoding::Utf32:
-        {
-            string_view convertedString = StringViewUtils::ConvertEncoding(view, string_view::Encoding::Utf16);
-            const string_view::u16string &u16String = convertedString.utf16_value();
-            result = [NSString stringWithCharacters:(const unichar *)u16String.c_str() length:u16String.length()];
-        }
-            break;
-        default:
-            break;
+    if (!_defaultUriLoader) {
+        _defaultUriLoader = std::make_shared<HippyUriLoader>();
+        self.pScope->SetUriLoader(_defaultUriLoader);
     }
-    return result;
+}
+
+- (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader {
+    auto loader = uriLoader.lock();
+    if (loader) {
+        auto exsitedLoader = _uriLoader.lock();
+        if (exsitedLoader) {
+            if (loader != exsitedLoader) {
+                _uriLoader = uriLoader;
+                self.pScope->SetUriLoader(uriLoader);
+            }
+        }
+        else {
+            _uriLoader = uriLoader;
+            self.pScope->SetUriLoader(uriLoader);
+        }
+        _defaultUriLoader = nil;
+    }
+    else {
+        _uriLoader = uriLoader;
+        [self initURILoader];
+    }
+}
+
+- (std::weak_ptr<hippy::vfs::UriLoader>)uriLoader {
+    auto uriLoader = _uriLoader.lock();
+    return uriLoader?_uriLoader:_defaultUriLoader;
 }
 
 - (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {
@@ -263,7 +201,7 @@ static NSString *UnicodeStringViewToNSString(const string_view &view) {
                         if (context->IsString(ctxValue)) {
                             string_view string;
                             if (context->GetValueString(ctxValue, &string)) {
-                                NSString *moduleName = UnicodeStringViewToNSString(string);
+                                NSString *moduleName = StringViewToNSString(string);
                                 NSArray *result = [strongSelf->_bridge configForModuleName:moduleName];
                                 auto ret = [NativeRenderNullIfNil(result) convertToCtxValue:context];
                                 return ret;
@@ -452,7 +390,7 @@ static NSString *UnicodeStringViewToNSString(const string_view &view) {
         [strongSelf addInfoToGlobalObject:[secondaryGlobal copy]];
         if (tryCatch->HasCaught()) {
             string_view errorMsg = tryCatch->GetExceptionMsg();
-            NativeRenderLogError(@"update global object failed:%@", UnicodeStringViewToNSString(errorMsg));
+            NativeRenderLogError(@"update global object failed:%@", StringViewToNSString(errorMsg));
         }
     }];
 }
@@ -540,7 +478,7 @@ static NSString *UnicodeStringViewToNSString(const string_view &view) {
                 }
                 if (!StringViewUtils::IsEmpty(exception) || executeError) {
                     if (!StringViewUtils::IsEmpty(exception)) {
-                        NSString *string = UnicodeStringViewToNSString(exception);
+                        NSString *string = StringViewToNSString(exception);
                         executeError = NativeRenderErrorWithMessageAndModuleName(string, moduleName);
                     }
                 } else if (resultValue) {
@@ -604,7 +542,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         }
         [performanceLogger markStopForTag:HippyPLScriptExecution];
         *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
-            NSLocalizedDescriptionKey: UnicodeStringViewToNSString(errorMsg)}] : nil;
+            NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}] : nil;
         id objcResult = ObjectFromJSValue(context, result);
         return objcResult;
     }
@@ -657,7 +595,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         if (tryCatch->HasCaught()) {
             string_view errorMsg = tryCatch->GetExceptionMsg();
             NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
-                NSLocalizedDescriptionKey: UnicodeStringViewToNSString(errorMsg)}];
+                NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
             onComplete(@(NO), error);
         }
         else {

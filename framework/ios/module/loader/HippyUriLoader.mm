@@ -20,32 +20,24 @@
  *
  */
 
-#pragma once
-
 #import <CoreFoundation/CoreFoundation.h>
-#include "driver/base/uri_loader.h"
-#include "footstone/logging.h"
 
-namespace  {
-using string_view = footstone::stringview::string_view;
-using u8string = footstone::string_view::u8string;
+#import "HippyDefaultUriHandler.h"
+#import "HippyUriLoader.h"
+#import "FootstoneUtils.h"
+
+#include "logging.h"
+
+using string_view = footstone::string_view;
+
+HippyUriLoader::HippyUriLoader() {
+    auto handler = std::make_shared<HippyDefaultUriHandler>();
+    RegisterUriHandler("http", handler);
+    RegisterUriHandler("file", handler);
+    RegisterUriHandler("data", handler);
 }
 
-typedef bool (*RequestUntrustedContentPtr)(const string_view& uri, std::function<void(u8string)> cb, CFTypeRef userData);
-
-class IOSLoader : public hippy::base::UriLoader {
- public:
-  IOSLoader(RequestUntrustedContentPtr loader, CFTypeRef userData);
-
-  virtual ~IOSLoader();
-
-  virtual bool RequestUntrustedContent(const string_view& uri, std::function<void(u8string)> cb);
-
-  virtual bool RequestUntrustedContent(const string_view& uri, u8string& content) {
-    FOOTSTONE_UNIMPLEMENTED();
-  }
-
- private:
-  RequestUntrustedContentPtr loader_;
-  CFTypeRef userData_;
-};
+string_view HippyUriLoader::GetScheme(const string_view &uri) {
+    NSURL *url = StringViewToNSURL(uri);
+    return NSStringToU16StringView([url scheme]);
+}

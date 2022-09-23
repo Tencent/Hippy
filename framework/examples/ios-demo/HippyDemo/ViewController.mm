@@ -37,6 +37,7 @@
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "MyViewManager.h"
+#import "HippyDemoLoader.h"
 
 @interface ViewController ()<HippyBridgeDelegate, NativeRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
@@ -108,6 +109,8 @@
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
     bridge.methodInterceptor = self;
+    //set custom vfs loader
+    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
     _bridge = bridge;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];

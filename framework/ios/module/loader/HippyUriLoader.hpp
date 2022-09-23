@@ -20,16 +20,14 @@
  *
  */
 
+#ifndef HippyUriLoader_hpp
+#define HippyUriLoader_hpp
 
-#include "ios_loader.h"
+#include "vfs/uri_loader.h"
 
-IOSLoader::IOSLoader(RequestUntrustedContentPtr loader, CFTypeRef userData): loader_(loader), userData_(CFRetain(userData)) {}
+class HippyUriLoader : public hippy::vfs::UriLoader {
+ public:
+  virtual string_view GetScheme(const string_view& uri);
+};
 
-IOSLoader::~IOSLoader() {
-  CFRelease(userData_);
-  userData_ = nullptr;
-}
-
-bool IOSLoader::RequestUntrustedContent(const string_view& uri, std::function<void(u8string)> cb) {
-  return loader_(uri, cb, userData_);
-}
+#endif /* HippyUriLoader_hpp */
