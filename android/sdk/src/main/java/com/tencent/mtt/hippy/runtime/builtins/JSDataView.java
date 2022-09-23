@@ -32,23 +32,31 @@ public class JSDataView<T extends JSArrayBuffer> extends JSObject {
     UINT32_ARRAY, // kUint32Array
     FLOAT32_ARRAY, // kFloat32Array
     FLOAT64_ARRAY, // kFloat64Array
+    BIGINT64_ARRAY, // kBigInt64Array
+    BIGUINT64_ARRAY, // kBigUint64Arra
     DATA_VIEW // kDataView
   }
 
   private T bufferObject;
   private DataViewKind kind;
+  private final int flags;
   private final String BYTE_OFFSET = "byteOffset";
   private final String BYTE_LENGTH = "byteLength";
 
-  public JSDataView(T bufferObject, DataViewKind kind, int byteOffset, int byteLength) {
+  public JSDataView(T bufferObject, DataViewKind kind, int byteOffset, int byteLength, int flags) {
     this.bufferObject = bufferObject;
     this.kind = kind;
+    this.flags = flags;
     set(BYTE_OFFSET, byteOffset);
     set(BYTE_LENGTH, byteLength);
   }
 
   public DataViewKind getKind() {
     return kind;
+  }
+
+  public int getFlags() {
+    return flags;
   }
 
   public T getBufferObject() {
