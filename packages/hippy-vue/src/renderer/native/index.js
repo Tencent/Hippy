@@ -58,8 +58,9 @@ const NODE_OPERATION_TYPES = {
   updateNode: Symbol('updateNode'),
   deleteNode: Symbol('deleteNode'),
 };
-let __batchIdle = true;
-let __batchNodes = [];
+
+let batchIdle = true;
+let batchNodes = [];
 
 /**
  * Convert an ordered node array into multiple fragments
@@ -85,13 +86,13 @@ function chunkNodes(batchNodes) {
 /**
  * Initial CSS Map;
  */
-let __cssMap;
+let cssMap;
 
 function endBatch(app) {
-  if (!__batchIdle) return;
-  __batchIdle = false;
-  if (__batchNodes.length === 0) {
-    __batchIdle = true;
+  if (!batchIdle) return;
+  batchIdle = false;
+  if (batchNodes.length === 0) {
+    batchIdle = true;
     return;
   }
   const {
@@ -102,7 +103,7 @@ function endBatch(app) {
   } = app;
   UIManagerModule.startBatch();
   $nextTick(() => {
-    const chunks = chunkNodes(__batchNodes);
+    const chunks = chunkNodes(batchNodes);
     chunks.forEach((chunk) => {
       switch (chunk.type) {
         case NODE_OPERATION_TYPES.createNode:
@@ -134,38 +135,38 @@ function endBatch(app) {
       }
     });
     UIManagerModule.endBatch();
-    __batchIdle = true;
-    __batchNodes = [];
+    batchIdle = true;
+    batchNodes = [];
   });
 }
 
 function getCssMap() {
   /**
-   * To support dynamic import, __cssMap can be loaded from different js file.
-   * __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
+   * To support dynamic import, cssMap can be loaded from different js file.
+   * cssMap should be 'create/append' if global[GLOBAL_STYLE_NAME] exists;
    */
-  if (!__cssMap || global[GLOBAL_STYLE_NAME]) {
+  if (!cssMap || global[GLOBAL_STYLE_NAME]) {
     /**
      *  Here is a secret startup option: beforeStyleLoadHook.
      *  Usage for process the styles while styles loading.
      */
     const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
-    if (__cssMap) {
-      __cssMap.append(cssRules);
+    if (cssMap) {
+      cssMap.append(cssRules);
     } else {
-      __cssMap = new SelectorsMap(cssRules);
+      cssMap = new SelectorsMap(cssRules);
     }
     global[GLOBAL_STYLE_NAME] = undefined;
   }
 
   if (global[GLOBAL_DISPOSE_STYLE_NAME]) {
     global[GLOBAL_DISPOSE_STYLE_NAME].forEach((id) => {
-      __cssMap.delete(id);
+      cssMap.delete(id);
     });
     global[GLOBAL_DISPOSE_STYLE_NAME] = undefined;
   }
 
-  return __cssMap;
+  return cssMap;
 }
 
 /**
@@ -190,7 +191,7 @@ function getNativeProps(node) {
       }
     });
   }
-  // Get the proceed props from node attributes
+  // Get the processed props from node attributes
   Object.keys(node.attributes).forEach((key) => {
     let value = node.getAttribute(key);
     // No defined map
@@ -225,12 +226,11 @@ function getNativeProps(node) {
     }
   });
 
-  // Get the force props from meta, it's can't be override
+  // Get the force props from meta, it can't be overridden
   if (node.meta.component.nativeProps) {
     Object.assign(props, node.meta.component.nativeProps);
   }
 
-  // FIXME: Workaround for Image src props, should unify to use src.
   if (node.tagName === 'img' && (__PLATFORM__ === 'ios' || Native.Platform === 'ios')) {
     props.source = [{
       uri: props.src,
@@ -287,7 +287,6 @@ function parseViewComponent(targetNode, nativeNode, style) {
         targetNode.childNodes[0].setStyle('collapsable', false);
       }
     }
-    // TODO backgroundImage would use local path if webpack file-loader active, which needs native support
     if (style.backgroundImage) {
       style.backgroundImage = convertImageLocalPath(style.backgroundImage);
     }
@@ -322,9 +321,10 @@ function isStyleMatched(matchedSelector, targetNode) {
   if (!targetNode || !matchedSelector) return false;
   const nodeScopeId = targetNode.styleScopeId;
   // set scopeId as element node attribute for style matching
-  nodeScopeId && (targetNode.attributes[nodeScopeId] = true);
+  if (nodeScopeId) targetNode.attributes[nodeScopeId] = true;
   const isMatched = matchedSelector.match(targetNode);
-  nodeScopeId && delete targetNode.attributes[nodeScopeId];
+  // delete scopeId attr after selector matching check
+  if (nodeScopeId) delete targetNode.attributes[nodeScopeId];
   return isMatched;
 }
 
@@ -460,7 +460,7 @@ function insertChild(parentNode, childNode, atIndex = -1) {
         preCacheNode(node, node.nodeId);
       },
     );
-    __batchNodes.push({
+    batchNodes.push({
       type: NODE_OPERATION_TYPES.createNode,
       nodes: translated,
     });
@@ -484,7 +484,7 @@ function removeChild(parentNode, childNode, index) {
     pId: childNode.parentNode ? childNode.parentNode.nodeId : rootViewId,
     index: childNode.index,
   }];
-  __batchNodes.push({
+  batchNodes.push({
     type: NODE_OPERATION_TYPES.deleteNode,
     nodes: deleteNodeIds,
   });
@@ -499,7 +499,7 @@ function updateChild(parentNode) {
   const { $options: { rootViewId } } = app;
   const translated = renderToNative(rootViewId, parentNode);
   if (translated) {
-    __batchNodes.push({
+    batchNodes.push({
       type: NODE_OPERATION_TYPES.updateNode,
       nodes: [translated],
     });
@@ -514,7 +514,7 @@ function updateWithChildren(parentNode) {
   const app = getApp();
   const { $options: { rootViewId } } = app;
   const translated = renderToNativeWithChildren(rootViewId, parentNode);
-  __batchNodes.push({
+  batchNodes.push({
     type: NODE_OPERATION_TYPES.updateNode,
     nodes: translated,
   });
