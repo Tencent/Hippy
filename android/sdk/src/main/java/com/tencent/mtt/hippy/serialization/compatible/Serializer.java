@@ -33,11 +33,11 @@ import java.util.Set;
 public class Serializer extends PrimitiveValueSerializer {
 
   public Serializer() {
-    super(null);
+    super(null, 13);
   }
 
-  public Serializer(BinaryWriter writer) {
-    super(writer);
+  public Serializer(BinaryWriter writer, int version) {
+    super(writer, version);
   }
 
   @Override

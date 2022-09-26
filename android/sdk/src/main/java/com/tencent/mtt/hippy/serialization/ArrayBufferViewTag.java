@@ -25,11 +25,12 @@ public enum ArrayBufferViewTag {
   UINT32_ARRAY('D'), // kUint32Array
   FLOAT32_ARRAY('f'), // kFloat32Array
   FLOAT64_ARRAY('F'), // kFloat64Array
+  BIGINT64_ARRAY('q'), // kBigInt64Array
+  BIGUINT64_ARRAY('Q'), // kBigUint64Array
   DATA_VIEW('?'); // kDataView
 
   private final byte tag;
 
-  @SuppressWarnings("unused")
   ArrayBufferViewTag(char tag) {
     this.tag = (byte) tag;
   }

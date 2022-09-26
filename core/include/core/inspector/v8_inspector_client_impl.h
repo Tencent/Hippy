@@ -58,6 +58,20 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient {
   void runIfWaitingForDebugger(int contextGroupId) override;
 
  private:
+  inline static auto
+  InspectorConnect(const std::unique_ptr<v8_inspector::V8Inspector> &inspector,
+                   int contextGroupId, v8_inspector::V8Inspector::Channel *channel) {
+#if (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION == 3 && V8_BUILD_NUMBER >= 118) || \
+    (V8_MAJOR_VERSION == 10 && V8_MINOR_VERSION > 3) || \
+    (V8_MAJOR_VERSION > 10)
+    return inspector->connect(contextGroupId,
+                              channel,
+                              v8_inspector::StringView(),
+                              v8_inspector::V8Inspector::kFullyTrusted);
+#else
+    return inspector->connect(contextGroupId, channel, v8_inspector::StringView());
+#endif
+  }
   void CreateContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
   void DestroyContext(const std::shared_ptr<V8InspectorContext>& inspector_context);
 
