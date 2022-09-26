@@ -120,10 +120,10 @@ public class NodeProps {
   public static final String ON_TOUCH_MOVE = "touchmove";
   public static final String ON_TOUCH_END = "touchend";
   public static final String ON_TOUCH_CANCEL = "touchcancel";
-  public static final String ON_INTERCEPT_TOUCH_EVENT = "intercepttouchevent";
-  public static final String ON_INTERCEPT_PULL_UP_EVENT = "interceptpullupevent";
-  public static final String ON_ATTACHED_TO_WINDOW = "attachedtowindow";
-  public static final String ON_DETACHED_FROM_WINDOW = "detachedfromwindow";
+  public static final String ON_INTERCEPT_TOUCH_EVENT = "onInterceptTouchEvent";
+  public static final String ON_INTERCEPT_PULL_UP_EVENT = "onInterceptPullUpEvent";
+  public static final String ON_ATTACHED_TO_WINDOW = "attachedToWindow";
+  public static final String ON_DETACHED_FROM_WINDOW = "detachedFromWindow";
 
   public static final String BORDER_RADIUS = "borderRadius";
   public static final String BORDER_TOP_LEFT_RADIUS = "borderTopLeftRadius";
