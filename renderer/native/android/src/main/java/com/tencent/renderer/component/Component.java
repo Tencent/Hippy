@@ -331,6 +331,22 @@ public class Component implements Drawable.Callback {
         ensureBackgroundDrawable().setBorderStyle(style);
     }
 
+    public void setLeftBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.LEFT);
+    }
+
+    public void setTopBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.TOP);
+    }
+
+    public void setRightBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.RIGHT);
+    }
+
+    public void setBottomBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.BOTTOM);
+    }
+
     public void setBorderRadius(@Px float radius) {
         ensureBackgroundDrawable().setBorderRadius(radius);
     }

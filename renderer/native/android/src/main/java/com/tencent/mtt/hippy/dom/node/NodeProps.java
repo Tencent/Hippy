@@ -73,7 +73,11 @@ public class NodeProps {
   public static final String BORDER_TOP_COLOR = "borderTopColor";
   public static final String BORDER_RIGHT_COLOR = "borderRightColor";
   public static final String BORDER_BOTTOM_COLOR = "borderBottomColor";
-  public static final String BORDER_STYLES = "borderStyle";
+  public static final String BORDER_STYLE = "borderStyle";
+  public static final String BORDER_LEFT_STYLE = "borderLeftStyle";
+  public static final String BORDER_TOP_STYLE = "borderTopStyle";
+  public static final String BORDER_RIGHT_STYLE = "borderRightStyle";
+  public static final String BORDER_BOTTOM_STYLE = "borderBottomStyle";
   public static final String SHADOW_COLOR = "shadowColor";
   public static final String SHADOW_OFFSET = "shadowOffset";
   public static final String SHADOW_OFFSET_X = "shadowOffsetX";

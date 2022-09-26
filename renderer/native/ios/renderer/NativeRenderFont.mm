@@ -62,7 +62,6 @@ static NativeRenderFontWeight weightOfFont(UIFont *font) {
             @"regular": @(UIFontWeightRegular),
             @"medium": @(UIFontWeightMedium),
             @"semibold": @(UIFontWeightSemibold),
-            @"bold": @(UIFontWeightBold),
             @"heavy": @(UIFontWeightHeavy),
             @"black": @(UIFontWeightBlack),
         };

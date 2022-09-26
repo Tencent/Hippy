@@ -254,7 +254,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = F48CA3E330A248F5AB1C4C7B;
+			remoteGlobalIDString = B94FDE1338674861BB962469;
 			remoteInfo = devtools_backend;
 		};
 /* End PBXContainerItemProxy section */
@@ -583,7 +583,6 @@
 		F468DE922812ACE900319196 /* NativeRenderAnimationType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderAnimationType.h; sourceTree = "<group>"; };
 		F468DE932812ACE900319196 /* NativeRenderComponentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderComponentData.h; sourceTree = "<group>"; };
 		F468DE942812ACE900319196 /* NativeRenderComponentProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderComponentProtocol.h; sourceTree = "<group>"; };
-		F468DE952812ACE900319196 /* NativeRenderAutoInsetsProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderAutoInsetsProtocol.h; sourceTree = "<group>"; };
 		F468DE962812ACEA00319196 /* NativeRenderComponentData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderComponentData.mm; sourceTree = "<group>"; };
 		F468DE972812ACEA00319196 /* NativeRenderObjectRootView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderObjectRootView.mm; sourceTree = "<group>"; };
 		F468DE982812ACEA00319196 /* NativeRenderScrollProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderScrollProtocol.h; sourceTree = "<group>"; };
@@ -1434,44 +1433,29 @@
 		F468DDF72812A95100319196 /* base */ = {
 			isa = PBXGroup;
 			children = (
+				F47C06FB28DAE73200F85FFF /* modules */,
+				F47C06FA28DAE64E00F85FFF /* bridge */,
 				F46EA09428BDB39D001A92A5 /* bundleoperations */,
-				F479F15828AA711B0033E156 /* engine_wrapper */,
+				F479F15828AA711B0033E156 /* enginewrapper */,
 				F468DE182812A95200319196 /* executors */,
-				F468DDF82812A95100319196 /* HippyJSEnginesMapper.h */,
-				F468DDF92812A95100319196 /* HippyEventDispatcher.mm */,
 				F468DDFE2812A95100319196 /* HippyPerformanceLogger.mm */,
-				F468DDFF2812A95100319196 /* HippyBridge.h */,
 				F468DE002812A95200319196 /* HippyJSStackFrame.m */,
-				F468DE012812A95200319196 /* HippyModuleMethod.mm */,
 				F468DE022812A95200319196 /* HippyDeviceBaseInfo.mm */,
-				F468DE032812A95200319196 /* HippyBridgeModule.h */,
 				F468DE042812A95200319196 /* HippyKeyCommands.h */,
 				F468DE052812A95200319196 /* HippyRootView.mm */,
 				F468DE062812A95200319196 /* HippyRootView.h */,
-				F468DE092812A95200319196 /* HippyModuleMethod.h */,
-				F468DE0A2812A95200319196 /* HippyModuleData.h */,
 				F468DE0D2812A95200319196 /* HippyDisplayLink.h */,
 				F468DE0E2812A95200319196 /* HippyFrameUpdate.h */,
 				F468DE0F2812A95200319196 /* HippyDeviceBaseInfo.h */,
-				F468DE102812A95200319196 /* HippyBundleURLProvider.m */,
-				F468DE112812A95200319196 /* HippyJSEnginesMapper.mm */,
 				F468DE132812A95200319196 /* HippyJavaScriptLoader.mm */,
 				F468DE142812A95200319196 /* HippyPerformanceLogger.h */,
-				F468DE162812A95200319196 /* HippyBridgeDelegate.h */,
 				F468DE1D2812A95200319196 /* HippyKeyCommands.m */,
 				F468DE1F2812A95200319196 /* native_source_code_ios.cc */,
-				F468DE202812A95200319196 /* HippyEventDispatcher.h */,
-				F468DE212812A95200319196 /* HippyBridgeMethod.h */,
 				F468DE222812A95200319196 /* HippyJSStackFrame.h */,
-				F468DE232812A95200319196 /* HippyBridge.mm */,
 				F468DE242812A95200319196 /* HippyJavaScriptLoader.h */,
-				F468DE272812A95200319196 /* HippyBundleURLProvider.h */,
-				F468DE2A2812A95200319196 /* HippyModuleData.mm */,
 				F468DE2B2812A95200319196 /* HippyFrameUpdate.m */,
 				F468DE2C2812A95200319196 /* HippyDisplayLink.m */,
 				F42155EB2816939D00688C0D /* HippyMethodInterceptorProtocol.h */,
-				F48D006828B4EFBC003DDC31 /* HippyModulesSetup.h */,
-				F48D006928B4EFBC003DDC31 /* HippyModulesSetup.mm */,
 			);
 			path = base;
 			sourceTree = "<group>";
@@ -1479,6 +1463,8 @@
 		F468DE182812A95200319196 /* executors */ = {
 			isa = PBXGroup;
 			children = (
+				F468DDF82812A95100319196 /* HippyJSEnginesMapper.h */,
+				F468DE112812A95200319196 /* HippyJSEnginesMapper.mm */,
 				F468DE192812A95200319196 /* HippyJSExecutor.mm */,
 				F468DE1B2812A95200319196 /* HippyJSExecutor.h */,
 			);
@@ -1521,6 +1507,8 @@
 		F46EA09428BDB39D001A92A5 /* bundleoperations */ = {
 			isa = PBXGroup;
 			children = (
+				F468DE102812A95200319196 /* HippyBundleURLProvider.m */,
+				F468DE272812A95200319196 /* HippyBundleURLProvider.h */,
 				F4087DFE28B616F5001F0B9E /* HippyBundleDownloadOperation.h */,
 				F4087DFF28B616F5001F0B9E /* HippyBundleDownloadOperation.mm */,
 				F4087E0128B62BB4001F0B9E /* HippyBundleExecutionOperation.h */,
@@ -1531,13 +1519,40 @@
 			path = bundleoperations;
 			sourceTree = "<group>";
 		};
-		F479F15828AA711B0033E156 /* engine_wrapper */ = {
+		F479F15828AA711B0033E156 /* enginewrapper */ = {
 			isa = PBXGroup;
 			children = (
 				F48A106B28AE58FA00B79F66 /* jsc */,
 				F479F15D28AA71910033E156 /* HippyContextWrapper.h */,
 			);
-			path = engine_wrapper;
+			path = enginewrapper;
+			sourceTree = "<group>";
+		};
+		F47C06FA28DAE64E00F85FFF /* bridge */ = {
+			isa = PBXGroup;
+			children = (
+				F468DDFF2812A95100319196 /* HippyBridge.h */,
+				F468DE032812A95200319196 /* HippyBridgeModule.h */,
+				F468DE162812A95200319196 /* HippyBridgeDelegate.h */,
+				F468DE212812A95200319196 /* HippyBridgeMethod.h */,
+				F468DE232812A95200319196 /* HippyBridge.mm */,
+			);
+			path = bridge;
+			sourceTree = "<group>";
+		};
+		F47C06FB28DAE73200F85FFF /* modules */ = {
+			isa = PBXGroup;
+			children = (
+				F468DDF92812A95100319196 /* HippyEventDispatcher.mm */,
+				F468DE012812A95200319196 /* HippyModuleMethod.mm */,
+				F468DE092812A95200319196 /* HippyModuleMethod.h */,
+				F468DE0A2812A95200319196 /* HippyModuleData.h */,
+				F468DE202812A95200319196 /* HippyEventDispatcher.h */,
+				F468DE2A2812A95200319196 /* HippyModuleData.mm */,
+				F48D006828B4EFBC003DDC31 /* HippyModulesSetup.h */,
+				F48D006928B4EFBC003DDC31 /* HippyModulesSetup.mm */,
+			);
+			path = modules;
 			sourceTree = "<group>";
 		};
 		F48A105328AE570B00B79F66 /* jsc */ = {
@@ -1906,7 +1921,6 @@
 				F473F13F2859C37100422C1A /* NativeRenderComponentMap.mm */,
 				F468DE922812ACE900319196 /* NativeRenderAnimationType.h */,
 				F487A001284E28AA0068A9F6 /* NativeRenderInvalidating.h */,
-				F468DE952812ACE900319196 /* NativeRenderAutoInsetsProtocol.h */,
 				F468DE942812ACE900319196 /* NativeRenderComponentProtocol.h */,
 				F468DE932812ACE900319196 /* NativeRenderComponentData.h */,
 				F468DE962812ACEA00319196 /* NativeRenderComponentData.mm */,
@@ -2449,6 +2463,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
@@ -2493,6 +2508,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";

@@ -20,8 +20,8 @@ import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.common.ConstantValue;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.serialization.JSSerializationTag;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
-import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import java.util.Set;
@@ -33,11 +33,11 @@ import java.util.Set;
 public class Serializer extends PrimitiveValueSerializer {
 
   public Serializer() {
-    super(null);
+    super(null, 13);
   }
 
-  public Serializer(BinaryWriter writer) {
-    super(writer);
+  public Serializer(BinaryWriter writer, int version) {
+    super(writer, version);
   }
 
   @Override
@@ -73,7 +73,7 @@ public class Serializer extends PrimitiveValueSerializer {
   }
 
   private void writeJSObject(@NonNull HippyMap value) {
-    writeTag(SerializationTag.BEGIN_JS_OBJECT);
+    writeTag(JSSerializationTag.BEGIN_JS_OBJECT);
     Set<String> keys = value.keySet();
     for (String key : keys) {
       if (key == Null) {
@@ -83,18 +83,18 @@ public class Serializer extends PrimitiveValueSerializer {
       }
       writeValue(value.get(key));
     }
-    writeTag(SerializationTag.END_JS_OBJECT);
+    writeTag(JSSerializationTag.END_JS_OBJECT);
     writer.putVarint(keys.size());
   }
 
   private void writeJSArray(@NonNull HippyArray value) {
     long length = value.size();
-    writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
+    writeTag(JSSerializationTag.BEGIN_DENSE_JS_ARRAY);
     writer.putVarint(length);
     for (int i = 0; i < length; i++) {
       writeValue(value.get(i));
     }
-    writeTag(SerializationTag.END_DENSE_JS_ARRAY);
+    writeTag(JSSerializationTag.END_DENSE_JS_ARRAY);
     writer.putVarint(0);
     writer.putVarint(length);
   }

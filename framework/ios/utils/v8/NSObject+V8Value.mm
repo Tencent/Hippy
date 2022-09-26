@@ -82,13 +82,16 @@ static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data
 
 - (v8::Local<v8::Value>)toV8ValueInIsolate:(v8::Isolate *)isolate context:(v8::Local<v8::Context>)context {
     HippyAssert(isolate, @"ios must not be null for data convert");
-    const void *buffer = [self bytes];
     size_t length = [self length];
+    void *buffer = malloc(length);
+    if (!buffer) {
+        return v8::Undefined(isolate);
+    }
+    [self getBytes:buffer length:length];
 #if V8_MAJOR_VERSION < 9
     v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate, buffer, length, v8::ArrayBufferCreationMode::kInternalized);
 #else
-    auto backingStore = v8::ArrayBuffer::NewBackingStore(const_cast<void*>(buffer), length, ArrayBufferDataDeleter,
-                                                         nullptr);
+    auto backingStore = v8::ArrayBuffer::NewBackingStore(buffer, length, ArrayBufferDataDeleter,nullptr);
     v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate, std::move(backingStore));
 #endif //V8_MAJOR_VERSION >= 9
     return array_buffer;
