@@ -24,7 +24,8 @@
  */
 import { HIPPY_GLOBAL_DISPOSE_STYLE_NAME, HIPPY_GLOBAL_STYLE_NAME } from '../../../src/config';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
-import { fromAstNodes } from '../../../src/runtime/style';
+import { fromAstNodes, SelectorsMap } from '../../../src/runtime/style';
+import { SimpleSelectorSequence } from '../../../src/runtime/style/css-selectors';
 import { getCssMap } from '../../../src/runtime/style/css-map';
 import { registerElement } from '../../../src/runtime/component';
 import { setHippyCachedInstance } from '../../../src/util/instance';
@@ -394,5 +395,180 @@ describe('runtime/style/index.ts', () => {
       }
     });
     expect(matched).toEqual(3);
+  });
+
+  it('universal attribute selector should match element correctly', () => {
+    // nothing
+    const ast = [{
+      hash: 'chunk-1',
+      selectors: ['#id[attr*="es"]'],
+      declarations: [
+        {
+          type: 'declaration',
+          property: 'AttributeSelector',
+          value: 'AttributeSelector',
+        },
+      ],
+    }];
+
+    const cssRules = fromAstNodes(ast);
+    const cssMap = new SelectorsMap(cssRules);
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('id', 'id1');
+    let matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(0);
+    divElement.setAttribute('id', 'id');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeFalsy();
+    divElement.setAttribute('attr', 'test');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeTruthy();
+    expect(matched.selectors[0] instanceof SimpleSelectorSequence).toBeTruthy();
+  });
+
+  it('equal attribute selector should match element correctly', () => {
+    // nothing
+    const ast = [{
+      hash: 'chunk-1',
+      selectors: ['#id[attr="test"]'],
+      declarations: [
+        {
+          type: 'declaration',
+          property: 'AttributeSelector',
+          value: 'AttributeSelector',
+        },
+      ],
+    }];
+
+    const cssRules = fromAstNodes(ast);
+    const cssMap = new SelectorsMap(cssRules);
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('id', 'id');
+    divElement.setAttribute('attr', 'tes');
+    let matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeFalsy();
+    divElement.setAttribute('attr', 'test');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeTruthy();
+  });
+
+  it('start with attribute selector should match element correctly', () => {
+    // nothing
+    const ast = [{
+      hash: 'chunk-1',
+      selectors: ['#id[attr^="tes"]'],
+      declarations: [
+        {
+          type: 'declaration',
+          property: 'AttributeSelector',
+          value: 'AttributeSelector',
+        },
+      ],
+    }];
+
+    const cssRules = fromAstNodes(ast);
+    const cssMap = new SelectorsMap(cssRules);
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('id', 'id');
+    divElement.setAttribute('attr', 'est');
+    let matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeFalsy();
+    divElement.setAttribute('attr', 'tes321321');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeTruthy();
+  });
+
+  it('end with attribute selector should match element correctly', () => {
+    // nothing
+    const ast = [{
+      hash: 'chunk-1',
+      selectors: ['#id[attr$="est"]'],
+      declarations: [
+        {
+          type: 'declaration',
+          property: 'AttributeSelector',
+          value: 'AttributeSelector',
+        },
+      ],
+    }];
+
+    const cssRules = fromAstNodes(ast);
+    const cssMap = new SelectorsMap(cssRules);
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('id', 'id');
+    divElement.setAttribute('attr', 'abtes');
+    let matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeFalsy();
+    divElement.setAttribute('attr', 'abtest');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeTruthy();
+  });
+
+  it('include attribute selector should match element correctly', () => {
+    // nothing
+    const ast = [{
+      hash: 'chunk-1',
+      selectors: ['#id[attr~="world"]'],
+      declarations: [
+        {
+          type: 'declaration',
+          property: 'AttributeSelector',
+          value: 'AttributeSelector',
+        },
+      ],
+    }];
+
+    const cssRules = fromAstNodes(ast);
+    const cssMap = new SelectorsMap(cssRules);
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('id', 'id');
+    divElement.setAttribute('attr', 'testworld');
+    let matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeFalsy();
+    divElement.setAttribute('attr', 'test world');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeTruthy();
+  });
+
+  it('dash attribute selector should match element correctly', () => {
+    // nothing
+    const ast = [{
+      hash: 'chunk-1',
+      selectors: ['#id[attr|="dash"]'],
+      declarations: [
+        {
+          type: 'declaration',
+          property: 'AttributeSelector',
+          value: 'AttributeSelector',
+        },
+      ],
+    }];
+
+    const cssRules = fromAstNodes(ast);
+    const cssMap = new SelectorsMap(cssRules);
+    const divElement = new HippyElement('div');
+    divElement.setAttribute('id', 'id');
+    divElement.setAttribute('attr', 'das');
+    let matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeFalsy();
+    divElement.setAttribute('attr', 'dash');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeTruthy();
+    divElement.setAttribute('attr', 'dash-world');
+    matched = cssMap.query(divElement);
+    expect(matched.selectors.length).toEqual(1);
+    expect(matched.selectors[0].match(divElement)).toBeTruthy();
   });
 });
