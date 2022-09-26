@@ -304,13 +304,19 @@
       </div>
 
       <!-- iOS platform  -->
-      <div v-if="Native.isIOS()" class="native-block">
+      <div
+        v-if="Native.isIOS()"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.isIOS</label>
         <p>{{ Native.isIOS() }}</p>
       </div>
 
       <!-- Android platform  -->
-      <div v-if="Native.isAndroid()" class="native-block">
+      <div
+        v-if="Native.isAndroid()"
+        class="native-block"
+      >
         <label class="vue-native-title">Native.isAndroid</label>
         <p>{{ Native.isAndroid() }}</p>
       </div>

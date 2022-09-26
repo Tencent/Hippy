@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { CSSProperties, DetailedHTMLProps } from 'react';
+import React, { CSSProperties } from 'react';
 
 interface HTMLAttributesExtension {
   [props: string]: any;
@@ -30,7 +30,7 @@ interface HTMLAttributesExtension {
 
 declare module 'react' {
   // eslint-disable-next-line
-  interface HTMLAttributes<T> extends Overwrite<DetailedHTMLProps<any, any>, HTMLAttributesExtension> {}
+  interface HTMLAttributes<T> extends Overwrite<React.DetailedHTMLProps<any, any>, HTMLAttributesExtension> {}
 }
 
 export type Type = string;

@@ -102,6 +102,9 @@ module.exports = {
     // Allow event name not kebab-case
     'vue/custom-event-name-casing': 'off',
 
+    // Allow component names not be multi-word
+    'vue/multi-word-component-names': 'off',
+
     'import/no-unresolved': 'off',
 
     // Disable prop-types
@@ -109,6 +112,8 @@ module.exports = {
 
     // Disable deprecated
     'react/no-deprecated': 'off',
+
+    'react/no-unknown-property': 'off',
 
     'import/namespace': [
       'error',

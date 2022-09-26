@@ -50,7 +50,7 @@
   </ul>
 </template>
 <script lang="ts">
-import { defineComponent, ref, onMounted, version } from '@vue/runtime-core';
+import { defineComponent, onMounted, version } from '@vue/runtime-core';
 import { Native } from '@hippy/vue-next';
 
 import Demos from '../components/demo';

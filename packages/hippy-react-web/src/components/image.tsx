@@ -29,7 +29,7 @@ import { isFunc, noop } from '../utils';
 
 
 type ImageResizeMode = 'cover' | 'contain' | 'stretch' | 'center' | 'none';
-interface ImageProps {
+export interface ImageProps {
   [key: string]: any;
   style: HippyTypes.Style;
   tintColor?: HippyTypes.color;

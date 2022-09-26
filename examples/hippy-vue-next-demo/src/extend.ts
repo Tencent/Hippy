@@ -3,7 +3,7 @@
  *  extend custom nativeapis and components demo
  */
 
-import { HippyTouchEvent } from "@hippy/vue-next";
+import { HippyTouchEvent } from '@hippy/vue-next';
 
 
 declare module '@hippy/vue-next' {

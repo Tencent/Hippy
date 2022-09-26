@@ -114,7 +114,7 @@
 </template>
 
 <script lang="ts">
-import { type ListViewEvent, Native} from '@hippy/vue-next';
+import { type ListViewEvent, Native } from '@hippy/vue-next';
 import { defineComponent, ref, onMounted, type Ref } from '@vue/runtime-core';
 
 const STYLE_LOADING = 100;
