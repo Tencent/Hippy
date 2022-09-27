@@ -428,6 +428,25 @@ void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone:
   GetRootNode()->GetDomManager()->PostTask(hippy::Scene(std::move(ops)));
 }
 
+void ViewNode::DoCallback(const std::string &function_name,
+                          const uint32_t callback_id,
+                          const std::shared_ptr<footstone::HippyValue> &value) {
+  auto dom_node = GetDomNode();
+  if (!dom_node) {
+    return;
+  }
+  auto callback = GetDomNode()->GetCallback(function_name, callback_id);
+  if (callback) {
+    if(value) {
+      callback(std::make_shared<DomArgument>(*value));
+    } else {
+      FOOTSTONE_LOG(ERROR) << "ViewNode::DoCallback value is null, function_name: " << function_name;
+    }
+  } else {
+    FOOTSTONE_LOG(ERROR) << "ViewNode::DoCallback callback not found: " << function_name << ", " << callback_id;
+  }
+}
+
 std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
   FOOTSTONE_DCHECK(!root_node_.expired());
   return root_node_.lock();

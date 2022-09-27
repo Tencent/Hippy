@@ -272,6 +272,10 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   void SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue> &value = nullptr,
                       bool can_capture = false, bool can_bubble = false);
 
+  void DoCallback(const std::string &function_name,
+                  const uint32_t callback_id,
+                  const std::shared_ptr<footstone::HippyValue> &value);
+
   /**
    * @brief Be called in ViewNode::OnCreate(mount in the ViewNode Tree immediately after create)
    */
