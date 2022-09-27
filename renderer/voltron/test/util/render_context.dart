@@ -2,7 +2,6 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:voltron_renderer/bridge.dart';
 import 'package:voltron_renderer/common.dart';
-import 'package:voltron_renderer/gesture/event_handler.dart';
 import 'package:voltron_renderer/render.dart';
 import 'package:voltron_renderer/controller.dart';
 import 'package:voltron_renderer/engine.dart';
@@ -125,9 +124,6 @@ class MockRenderContext extends RenderContext {
   String convertRelativePath(int rootId, String path) {
     return path;
   }
-
-  @override
-  UIComponentEventHandler get eventHandler => throw UnimplementedError();
 
   @override
   double get fontScale => 1.0;
