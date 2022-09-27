@@ -22,8 +22,8 @@
 
 #import "MyViewManager.h"
 #import "MyView.h"
-#import "UIView+Hippy.h"
-#import "HippyUIManager.h"
+#import <hippy/UIView+Hippy.h>
+#import <hippy/HippyUIManager.h>
 
 @implementation MyViewManager
 HIPPY_EXPORT_MODULE(MyView)

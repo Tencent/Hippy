@@ -21,10 +21,10 @@
 */
 
 #import "TestModule.h"
-#import "HippyRootView.h"
 #import "AppDelegate.h"
-#import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
+#import <hippy/HippyRootView.h>
+#import <hippy/HippyBundleURLProvider.h>
 
 @interface TestModule ()<HippyBridgeDelegate>
 

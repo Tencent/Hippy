@@ -20,7 +20,7 @@
 * limitations under the License.
 */
 
-#import "HippyBridgeModule.h"
+#import <hippy/HippyBridgeModule.h>
 
 @interface TestModule : NSObject <HippyBridgeModule>
 

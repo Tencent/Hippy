@@ -1,0 +1,18 @@
+PODS:
+  - hippy (2.14.7):
+    - hippy/core (= 2.14.7)
+  - hippy/core (2.14.7)
+
+DEPENDENCIES:
+  - hippy (from `../../`)
+
+EXTERNAL SOURCES:
+  hippy:
+    :path: "../../"
+
+SPEC CHECKSUMS:
+  hippy: 3efdcc33f88741de55100c13221bc10a1336ac3d
+
+PODFILE CHECKSUM: 82eaceafc04b3ef0e6510b6fe39909eac8a10b0c
+
+COCOAPODS: 1.11.3

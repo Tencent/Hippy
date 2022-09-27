@@ -21,7 +21,7 @@
  */
 
 #import "TurboConfig.h"
-#import "HippyDefines.h"
+#import <hippy/HippyDefines.h>
 
 @interface TurboConfig ()
 

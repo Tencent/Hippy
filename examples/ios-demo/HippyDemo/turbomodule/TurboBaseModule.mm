@@ -22,9 +22,9 @@
 
 #import <UIKit/UIKit.h>
 #import "TurboBaseModule.h"
-#import "HippyBridgeModule.h"
 #import "TurboConfig.h"
-#import "HippyBridge.h"
+#import <hippy/HippyBridgeModule.h>
+#import <hippy/HippyBridge.h>
 
 @implementation TurboBaseModule
 

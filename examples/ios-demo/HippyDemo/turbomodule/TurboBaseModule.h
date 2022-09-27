@@ -20,7 +20,7 @@
  *
  */
 
-#import "HippyOCTurboModule.h"
+#import <hippy/HippyOCTurboModule.h>
 
 @interface TurboBaseModule : HippyOCTurboModule
 

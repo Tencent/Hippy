@@ -21,9 +21,9 @@
 */
 
 #import "ViewController.h"
-#import "HippyRootView.h"
-#import "HippyLog.h"
-#import "HippyBundleURLProvider.h"
+#import <hippy/HippyRootView.h>
+#import <hippy/HippyLog.h>
+#import <hippy/HippyBundleURLProvider.h>
 #import "DemoConfigs.h"
 
 @interface ViewController ()<HippyBridgeDelegate, HippyMethodInterceptorProtocol>

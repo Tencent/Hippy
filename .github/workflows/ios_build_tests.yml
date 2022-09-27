@@ -20,4 +20,4 @@ jobs:
           lfs: true
       - name: Build
         run: |
-          pushd examples/ios-demo && xcodebuild build -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd
+          pushd examples/ios-demo && pod install && xcodebuild build -workspace HippyDemo.xcworkspace -destination 'name=iPhone 11' -scheme 'HippyDemo' && popd

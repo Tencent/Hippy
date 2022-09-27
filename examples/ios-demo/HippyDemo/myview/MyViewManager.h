@@ -20,7 +20,7 @@
 * limitations under the License.
 */
 
-#import "HippyViewManager.h"
+#import <hippy/HippyViewManager.h>
 
 
 NS_ASSUME_NONNULL_BEGIN
