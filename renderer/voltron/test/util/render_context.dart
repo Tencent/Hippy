@@ -123,7 +123,7 @@ class MockRenderContext extends RenderContext {
 
   @override
   String convertRelativePath(int rootId, String path) {
-    return '';
+    return path;
   }
 
   @override
