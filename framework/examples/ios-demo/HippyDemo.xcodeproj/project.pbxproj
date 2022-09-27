@@ -27,7 +27,6 @@
 		D86B3E62284E31EB007E729B /* animation.cc in Sources */ = {isa = PBXBuildFile; fileRef = D86B3E5D284E31EB007E729B /* animation.cc */; };
 		D86B3E63284E31EB007E729B /* cubic_bezier_animation.cc in Sources */ = {isa = PBXBuildFile; fileRef = D86B3E5E284E31EB007E729B /* cubic_bezier_animation.cc */; };
 		D86B3E64284E31EB007E729B /* animation_set.cc in Sources */ = {isa = PBXBuildFile; fileRef = D86B3E5F284E31EB007E729B /* animation_set.cc */; };
-		F0889ED581FF7516357B3726 /* libPods-HippyDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C98B5A3CF5267599CFCFF48A /* libPods-HippyDemo.a */; };
 		F4079544281ABD7A00DD084A /* RenderVsyncManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4079543281ABA4100DD084A /* RenderVsyncManager.mm */; };
 		F4087E0028B616F5001F0B9E /* HippyBundleDownloadOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4087DFF28B616F5001F0B9E /* HippyBundleDownloadOperation.mm */; };
 		F4087E0328B62BB4001F0B9E /* HippyBundleExecutionOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4087E0228B62BB4001F0B9E /* HippyBundleExecutionOperation.mm */; };
@@ -254,7 +253,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = B94FDE1338674861BB962469;
+			remoteGlobalIDString = 54BFF209A9C8452C99BC5E97;
 			remoteInfo = devtools_backend;
 		};
 /* End PBXContainerItemProxy section */
@@ -274,10 +273,8 @@
 		067AB97223B5F309009D5EE2 /* MyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyView.h; sourceTree = "<group>"; };
 		067AB97323B5F309009D5EE2 /* MyViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyViewManager.h; sourceTree = "<group>"; };
 		067AB97423B5F309009D5EE2 /* MyView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
-		5EFC12FC2074771164E4766F /* Pods-HippyDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.debug.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.debug.xcconfig"; sourceTree = "<group>"; };
 		9252AE8A2809532F00B27E50 /* root_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = root_node.cc; sourceTree = "<group>"; };
 		9252AE8C2809534100B27E50 /* root_node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = root_node.h; sourceTree = "<group>"; };
-		A04A0CACCEE3C91B722BD4AC /* Pods-HippyDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HippyDemo.release.xcconfig"; path = "Target Support Files/Pods-HippyDemo/Pods-HippyDemo.release.xcconfig"; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		C98B5A3CF5267599CFCFF48A /* libPods-HippyDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HippyDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -767,7 +764,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4FC1600289BBBCA00A35F4A /* libdevtools_backend.a in Frameworks */,
-				F0889ED581FF7516357B3726 /* libPods-HippyDemo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -790,7 +786,6 @@
 				0612F01F23A8BE320079E622 /* Products */,
 				9B51BEDA28096C8C00AA0743 /* Frameworks */,
 				78D3D0932831F7EE00E8CAFD /* Recovered References */,
-				E1DA5B4EDA341771CC7E3DCD /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -945,15 +940,6 @@
 				D86B3E5F284E31EB007E729B /* animation_set.cc */,
 			);
 			path = animation;
-			sourceTree = "<group>";
-		};
-		E1DA5B4EDA341771CC7E3DCD /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				5EFC12FC2074771164E4766F /* Pods-HippyDemo.debug.xcconfig */,
-				A04A0CACCEE3C91B722BD4AC /* Pods-HippyDemo.release.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		F42E711D27D0684C0099248B /* render */ = {
@@ -1999,7 +1985,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0612F03723A8BE330079E622 /* Build configuration list for PBXNativeTarget "HippyDemo" */;
 			buildPhases = (
-				AD4F7C1F6FED4D4B2B1A55F7 /* [CP] Check Pods Manifest.lock */,
 				0612F01A23A8BE320079E622 /* Sources */,
 				0612F01B23A8BE320079E622 /* Frameworks */,
 				0612F01C23A8BE320079E622 /* Resources */,
@@ -2080,31 +2065,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		AD4F7C1F6FED4D4B2B1A55F7 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-HippyDemo-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		0612F01A23A8BE320079E622 /* Sources */ = {
@@ -2459,7 +2419,6 @@
 		};
 		0612F03823A8BE330079E622 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5EFC12FC2074771164E4766F /* Pods-HippyDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
@@ -2504,7 +2463,6 @@
 		};
 		0612F03923A8BE330079E622 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A04A0CACCEE3C91B722BD4AC /* Pods-HippyDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";

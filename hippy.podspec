@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   puts 'hippy.podspec read begins'
   s.name             = 'hippy'
-  s.version          = '3.0'
+  s.version          = 'unspecified'
   s.summary          = 'Hippy Cross Platform Framework'
 
 # This description is used to generate tags and improve search results.
@@ -56,7 +56,7 @@ Pod::Spec.new do |s|
     driver.source_files = ['driver/js/include/**/*.h', 'driver/js/src/**/*.cc']
     driver.public_header_files = 'driver/js/include/**/*.h'
     driver.exclude_files = ['driver/js/include/driver/napi/v8','driver/js/include/drive/runtime','driver/js/src/napi/v8','driver/js/src/runtime']
-    driver.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/driver/js/include/'}
+    driver.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/driver/js/include/', 'GCC_PREPROCESSOR_DEFINITIONS' => 'JS_USE_JSC=1'}
     puts 'hippy subspec \'driver\' read end'
   end 
 
