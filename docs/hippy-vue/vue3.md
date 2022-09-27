@@ -241,3 +241,25 @@ app.$start().then(({ superProps, rootViewId }) => {
   ```
 
   更多信息可以参考 demo 里的 extend.ts 和 app.ts
+
+- Android 实体键回退问题：
+  在 @hippy/vue 中，@hippy/vue-router 默认拦截了安卓实体回退键的操作，对于有路由历史的情况下，实体回退键会先回退历史，也就是调用
+  router.back。如果没有历史可以回退了，再触发退出 APP 的操作。而在 @hippy/vue-next 中，因为没有对 vue-router 做修改，因此如果
+  用户有类似 @hippy/vue 中的需求，可以参考 demo 中的 src/routes.ts 和 src/main-native.ts 的做法。
+
+  ```javascript
+  // 1.引入自定义的hippy history(src/history.ts)
+  import { createHippyHistory } from './history';
+  
+  // 2.创建路由时，使用createHippyHistory(src/routes.ts)
+  createRouter({
+    history: createHippyHistory(), // 注意这里使用的是 demo 中自定义的 hippy history
+    // history: createMemoryHistory(),
+    routes,
+  });
+  
+  // 3.在 app $start 方法内拦截物理返回键的操作(src/main-native.ts)
+  injectAndroidHardwareBackPress(router);
+  ```
+  
+  更多信息可以参考 demo 中的对应文件

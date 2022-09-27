@@ -10,7 +10,7 @@ import {
 } from '@hippy/vue-next';
 
 import App from './app.vue';
-import { createHippyRouter } from './routes';
+import { createHippyRouter, injectAndroidHardwareBackPress } from './routes';
 import { setGlobalInitProps } from './util';
 
 global.Hippy.on('uncaughtException', (err) => {
@@ -70,6 +70,19 @@ const initCallback = ({ superProps, rootViewId }) => {
    * On the browser, it is matched by vue-router according to location.href, and the default push root path '/'
    */
   router.push('/');
+
+  // listen android native back press, must before router back press inject
+  BackAndroid.addListener(() => {
+    console.log('backAndroid');
+    // set true interrupts native back
+    return true;
+  });
+
+  // inject android hardware back press if you need.
+  // if used this, hardware back press should not exit app. but router.back when it can be.
+  // only exit app whether there is no route history to back
+  injectAndroidHardwareBackPress(router);
+
   // mount first， you can do something before mount
   app.mount('#root');
 
@@ -81,13 +94,6 @@ const initCallback = ({ superProps, rootViewId }) => {
   //   // mount app
   //   app.mount('#root');
   // });
-
-  // listen android native back press
-  BackAndroid.addListener(() => {
-    console.log('backAndroid');
-    // set true interrupts native back
-    // return true;
-  });
 
   // invoke custom native apis with type hints
   Native.callNative('customModule', 'customMethod', '123', 456);
