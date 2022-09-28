@@ -47,7 +47,7 @@ void main() {
       test('== "none"', () {
         var vm = renderOpUtil.getViewModelFromStyles({"display": "none"});
 
-        expect(vm.display, 'flex');
+        expect(vm.display, 'none');
         expect(vm.isShow, isFalse);
       });
     });

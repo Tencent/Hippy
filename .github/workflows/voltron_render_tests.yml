@@ -1,9 +1,6 @@
 name: '[voltron-render] unit tests'
 
 on:
-  push:
-    branches:
-      - test/voltron-test
   pull_request:
     branches:
       - main
