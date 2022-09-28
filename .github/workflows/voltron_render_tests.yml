@@ -24,5 +24,4 @@ jobs:
         with:
           flutter-version: '3.0.5'
           channel: 'stable'
-      - run: flutter --version
       - run: flutter test
