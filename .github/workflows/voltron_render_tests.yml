@@ -1,0 +1,28 @@
+name: '[voltron-render] unit tests'
+
+on:
+  push:
+    branches:
+      - test/voltron-test
+  pull_request:
+    branches:
+      - main
+      - master
+      - v3.0-dev
+      - v3.0
+    paths:
+      - 'renderer/voltron/**'
+defaults:
+  run:
+    working-directory: renderer/voltron
+jobs:
+  flutter_renderer_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.5'
+          channel: 'stable'
+      - run: flutter --version
+      - run: flutter test
