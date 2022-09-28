@@ -90,7 +90,8 @@ class RefreshWrapperNode : public ViewNode {
   void HandleOffsetListener(int32_t position, double offset);
   std::shared_ptr<RefreshWrapperItemNode> item_node_;
   std::shared_ptr<HippyRefreshHeader> refresh_header_;
-  uint32_t refresh_header_node_id_;
+  uint32_t item_node_id_;
+  uint32_t list_view_node_id_;
   std::shared_ptr<ListViewNode> list_node_;
 };
 
