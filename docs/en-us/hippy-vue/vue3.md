@@ -254,26 +254,3 @@ For details, please see the writing method of the [example project](https://gith
   ```
 
   For more information, please refer to extend.ts and app.ts in the demo.
-
-- Android Hardware Back：
-  In @hippy/vue，@hippy/vue-router inject android back hardware press by default. Press back will call "router.back" if there has route history,
-  and only exit app when there is no history. Now in @hippy/vue-next, we used original "vue-router" package. So if you need these logic，you can
-  read the source code 'src/routes.ts' and 'src/main-native.ts' in the demo to known how to use.
-  we add this in demo by default.
-
-  ```javascript
-  // 1. Import custom hippy history(src/history.ts)
-  import { createHippyHistory } from './history';
-  
-  // 2. Use createHippyHistory to create router(src/routes.ts)
-  createRouter({
-    history: createHippyHistory(), // pay attention here used custom hippy history
-    // history: createMemoryHistory(),
-    routes,
-  });
-  
-  // 3. Inject hardware back operate in "app.$start" method(src/main-native.ts)
-  injectAndroidHardwareBackPress(router);
-  ```
-
-  For more information, please refer to routes.ts, history.ts and app.ts in the demo.

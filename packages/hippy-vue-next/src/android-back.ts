@@ -75,13 +75,14 @@ const realBackAndroid = {
     EventBus.$on('hardwareBackPress', () => {
       let invokeDefault = true;
       const subscriptions = Array.from(backPressSubscriptions).reverse();
-      subscriptions.every((subscription) => {
+      subscriptions.forEach((subscription) => {
+        // execute all back press listener
         if (typeof subscription === 'function' && subscription()) {
+          // if we should not exit app, set invokeDefault to false
           invokeDefault = false;
-          return false;
         }
-        return true;
       });
+      // only exit app when we need
       if (invokeDefault) {
         realBackAndroid.exitApp();
       }

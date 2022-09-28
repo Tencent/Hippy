@@ -10,7 +10,7 @@ import {
 } from '@hippy/vue-next';
 
 import App from './app.vue';
-import { createHippyRouter, injectAndroidHardwareBackPress } from './routes';
+import { createRouter } from './routes';
 import { setGlobalInitProps } from './util';
 
 global.Hippy.on('uncaughtException', (err) => {
@@ -45,7 +45,7 @@ const app: HippyApp = createApp(App, {
 });
 
 // create router
-const router = createHippyRouter();
+const router = createRouter();
 app.use(router);
 
 // Monitor screen size and update size data
@@ -77,11 +77,6 @@ const initCallback = ({ superProps, rootViewId }) => {
     // set true interrupts native back
     return true;
   });
-
-  // inject android hardware back press if you need.
-  // if used this, hardware back press should not exit app. but router.back when it can be.
-  // only exit app whether there is no route history to back
-  injectAndroidHardwareBackPress(router);
 
   // mount first， you can do something before mount
   app.mount('#root');
