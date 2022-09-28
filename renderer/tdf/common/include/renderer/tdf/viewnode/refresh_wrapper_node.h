@@ -30,7 +30,9 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
-#include "tdfview/refresh_header.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+
+#include "tdfui/view/refresh_header.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/list_view_node.h"

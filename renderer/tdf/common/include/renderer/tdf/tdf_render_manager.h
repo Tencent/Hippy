@@ -19,6 +19,8 @@
  */
 
 #pragma once
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wextra-semi"
 
 #include "footstone/persistent_object_map.h"
 #include "renderer/tdf/viewnode/view_node.h"

@@ -92,7 +92,7 @@ class TouchRecognizer : public OneSequenceGestureRecognizer {
   TouchClosure on_touch_end_;
   TouchClosure on_touch_cancel_;
 
-  FRIEND_OF_TDF_ALLOC;
+  FRIEND_OF_TDF_ALLOC
 };
 
 }  // namespace gesture

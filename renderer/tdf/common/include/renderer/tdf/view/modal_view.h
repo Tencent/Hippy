@@ -32,9 +32,10 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
 #include "core/common/reflection.h"
-#include "tdfview/view.h"
-#include "tdfview/view_context.h"
+#include "tdfui/view/view.h"
+#include "tdfui/view/view_context.h"
 #pragma clang diagnostic pop
 
 namespace hippy {
@@ -111,7 +112,7 @@ class ModalView : public View {
   std::shared_ptr<View> modal_view_;
   std::shared_ptr<View> root_view_;
 
-  FRIEND_OF_TDF_ALLOC;
+  FRIEND_OF_TDF_ALLOC
 };
 
 }  // namespace view

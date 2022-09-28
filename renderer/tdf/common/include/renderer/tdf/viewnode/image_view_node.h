@@ -19,6 +19,7 @@
  */
 
 #pragma once
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
 
 #include "renderer/tdf/viewnode/view_node.h"
 

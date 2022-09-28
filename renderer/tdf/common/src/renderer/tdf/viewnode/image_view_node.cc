@@ -24,7 +24,7 @@
 #include "dom/node_props.h"
 #include "renderer/tdf/tdf_render_manager.h"
 #include "renderer/tdf/viewnode/base64_image_loader.h"
-#include "tdfview/image_view.h"
+#include "tdfui/view/image_view.h"
 
 namespace hippy {
 inline namespace render {

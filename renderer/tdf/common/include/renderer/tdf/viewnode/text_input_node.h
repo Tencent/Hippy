@@ -31,7 +31,9 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
-#include "tdfview/text/text_input_view.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+
+#include "tdfui/view/text/text_input_view.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/view_node.h"

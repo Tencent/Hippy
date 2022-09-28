@@ -30,7 +30,9 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
-#include "tdfview/view.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+
+#include "tdfui/view/view.h"
 #pragma clang diagnostic pop
 
 #include "footstone/hippy_value.h"

@@ -31,7 +31,9 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
-#include "tdfview/view.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+
+#include "tdfui/view/view.h"
 #pragma clang diagnostic pop
 #include "core/common/listener.h"
 #include "dom/dom_argument.h"
