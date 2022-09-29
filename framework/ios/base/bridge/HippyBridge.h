@@ -118,8 +118,9 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 /**
  *  Load js bundles from urls
  *  @param bundleURLs Bundles urls
+ *  @param completion Block invoked when loading completed
  */
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs;
+- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs completion:(dispatch_block_t)completion;
 
 @property (nonatomic, weak) id<NativeRenderFrameworkProxy> frameworkProxy;
 @property (nonatomic, weak) id<NativeRenderContext> renderContext;
@@ -156,8 +157,6 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 @property (nonatomic, readonly) HippyJSExecutor *javaScriptExecutor;
 
-
-- (void)addPropertiesToUserGlobalObject:(NSDictionary *)props;
 /**
  * JS invocation methods
  */

@@ -26,6 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+<<<<<<< HEAD:framework/ios/utils/jsc/NSObject+JSValue.h
 @interface NSObject (JSValue)
 
 - (JSValue *)toJSValueInContext:(JSContext *)context;
@@ -52,4 +53,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 HIPPY_EXTERN id ObjectFromJSValueRef(JSGlobalContextRef const context, JSValueRef const value, JSValueRef _Nonnull * _Nonnull exception);
 
+=======
+@interface HippyInstanceLoadBlock : NSObject
+
+@property(nonatomic, copy)dispatch_block_t loadedBlock;
+@property(nonatomic, assign)NSUInteger index;
+@property(nonatomic, assign, getter=isLoaded)BOOL loaded;
+
+- (instancetype)initWithBlock:(dispatch_block_t)block index:(NSUInteger)index;
+
+@end
+
+>>>>>>> 8bba36018fedb938d3aa6ed7d6c0d33e60abb699:framework/ios/utils/HippyInstanceLoadBlock.h
 NS_ASSUME_NONNULL_END

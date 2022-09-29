@@ -102,7 +102,8 @@
     [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
           frameworkProxy:bridge rootView:rootView.contentView
              screenScale:[UIScreen mainScreen].scale];
-    [bridge loadBundleURLs:bundleURLs];
+    [bridge loadBundleURLs:bundleURLs completion:^{
+    }];
     [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";
@@ -274,32 +275,21 @@ std::string mock;
     return dom_node_vector;
 }
 
-- (void)bridge:(HippyBridge *)bridge willLoadBundle:(NSURL *)bundleURL {
-    //vendor.ios.js for release and minify=false for debug
-    NSString *component = [bundleURL absoluteString];
-    if ([component hasSuffix:@"vendor.ios.js"] || [component hasSuffix:@"false"]) {
-        NSDictionary *dic1 = @{@"name": @"zs", @"gender": @"male"};
-        NSDictionary *dic2 = @{@"name": @"ls", @"gender": @"male"};
-        NSDictionary *dic3 = @{@"name": @"ww", @"gender": @"female"};
+- (NSDictionary *)objectsBeforeExecuteCode {
+    NSDictionary *dic1 = @{@"name": @"zs", @"gender": @"male"};
+    NSDictionary *dic2 = @{@"name": @"ls", @"gender": @"male"};
+    NSDictionary *dic3 = @{@"name": @"ww", @"gender": @"female"};
 
-        NSDictionary *ret = @{@"info1": dic1, @"info2": dic2, @"info3": dic3};
-        [bridge addPropertiesToUserGlobalObject:ret];
-    }
-#ifdef HIPPYDEBUG
-#else
-    if ([component hasSuffix:@"index.ios.js"]) {
-        NSDictionary *dic = @{@"secKey":@"value",
-                 @"secNum":@(12),
-                 @"secDic": @{@"key1":@"value", @"number": @(2)},
-                 @"thrAry":@[@"value1", @"value2", @(3), @[@"vv1", @"vv2"], @{@"k1": @"v1", @"k2": @"v2"}]
-        };
-        [bridge addPropertiesToUserGlobalObject:dic];
-    }
-#endif
+    NSDictionary *ret = @{@"info1": dic1, @"info2": dic2, @"info3": dic3};
+    return ret;
 }
 
-- (void)bridge:(HippyBridge *)bridge endLoadingBundle:(NSURL *)bundle {
-    
+- (NSDictionary *)objectsBeforeExecuteSecondaryCode {
+    return @{@"secKey":@"value",
+             @"secNum":@(12),
+             @"secDic": @{@"key1":@"value", @"number": @(2)},
+             @"thrAry":@[@"value1", @"value2", @(3), @[@"vv1", @"vv2"], @{@"k1": @"v1", @"k2": @"v2"}]
+    };
 }
 
 - (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion {
