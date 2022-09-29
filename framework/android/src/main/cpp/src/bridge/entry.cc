@@ -54,6 +54,7 @@
 #include "jni/jni_utils.h"
 #include "jni/turbo_module_manager.h"
 #include "handler/asset_handler.h"
+#include "handler/file_handler.h"
 #include "handler/jni_delegate_handler.h"
 #include "handler/uri.h"
 
@@ -134,17 +135,25 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
              "(II)V",
              DestroyDomInstance)
 
-REGISTER_JNI( // NOLINT(cert-err58-cpp)
-    "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
-    "loadInstance",
-    "(J[BII)V",
-    LoadInstance)
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
+                   "loadInstance",
+                   "(J[BII)V",
+                   LoadInstance)
 
-REGISTER_JNI( // NOLINT(cert-err58-cpp)
-        "com/tencent/mtt/hippy/bridge/HippyBridgeImpl",
-        "destroyInstance",
-        "(J[BII)V",
-        UnloadInstance)
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
+                  "destroyInstance",
+                  "(J[BII)V",
+                  UnloadInstance)
+
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+             "onCreateVfs",
+             "()I",
+             OnCreateVfs)
+
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+             "onDestroyVfs",
+             "(I)V",
+             OnDestroyVfs)
 
 using string_view = footstone::stringview::string_view;
 using TaskRunner = footstone::runner::TaskRunner;
@@ -173,12 +182,13 @@ constexpr uint32_t kDefaultNumberOfThreads = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
 constexpr char kLogTag[] = "native";
 constexpr char kAssetSchema[] = "asset";
+constexpr char kFileSchema[] = "file";
 
 static std::atomic<uint32_t> global_worker_manager_key{1};
 
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<footstone::WorkerManager>> worker_manager_map;
 
-void DoBind(JNIEnv* j_env,
+void DoBind(__unused JNIEnv* j_env,
             __unused jobject j_obj,
             jint j_dom_manager_id,
             jint j_render_id,
@@ -228,8 +238,8 @@ void DoBind(JNIEnv* j_env,
 #endif
 }
 
-void AddRoot(JNIEnv* j_env,
-            __unused jobject j_obj,
+void AddRoot(__unused JNIEnv* j_env,
+             __unused jobject j_obj,
              jint j_dom_manager_id,
              jint j_root_id) {
   auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_manager_id);
@@ -316,7 +326,7 @@ jint CreateDomInstance(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_wo
   return footstone::checked_numeric_cast<uint32_t, jint>(dom_manager->GetId());
 }
 
-void DestroyDomInstance(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_worker_manager_id, jint j_dom_id) {
+void DestroyDomInstance(__unused JNIEnv* j_env, __unused jobject j_obj, __unused jint j_worker_manager_id, jint j_dom_id) {
   auto id = footstone::checked_numeric_cast<jint, uint32_t>(j_dom_id);
   auto dom_manager = DomManager::Find(id);
   if (dom_manager) {
@@ -563,6 +573,24 @@ void UnloadInstance(JNIEnv* j_env,
   auto buffer_data = JniUtils::AppendJavaByteArrayToBytes(j_env, j_byte_array, j_offset, j_length);
   V8BridgeUtils::UnloadInstance(footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id),
                               std::move(buffer_data));
+}
+
+jint OnCreateVfs(JNIEnv* j_env, jobject j_object) {
+  auto delegate = std::make_shared<JniDelegateHandler>(j_env, j_object);
+  auto id = hippy::global_data_holder_key.fetch_add(1);
+  auto loader = std::make_shared<UriLoader>();
+  auto file_delegate = std::make_shared<FileHandler>();
+  loader->RegisterUriHandler(kFileSchema, file_delegate);
+  loader->SetDefaultHandler(delegate);
+
+  hippy::global_data_holder.Insert(id, loader);
+  return footstone::checked_numeric_cast<uint32_t, jint>(id);
+}
+
+void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) {
+  auto id = footstone::checked_numeric_cast<jint, uint32_t>(j_id);
+  bool flag = JniDelegateHandler::GetJniDelegateHandlerMap().Erase(id);
+  FOOTSTONE_DCHECK(flag);
 }
 
 } // namespace bridge

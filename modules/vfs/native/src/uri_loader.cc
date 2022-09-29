@@ -137,7 +137,7 @@ std::string UriLoader::GetScheme(const UriLoader::string_view& uri) {
   auto u8_uri = StringViewUtils::ConvertEncoding(uri, string_view::Encoding::Utf8)
       .utf8_value();
   size_t pos = u8_uri.find_last_of(':');
-  if (pos != static_cast<size_t>(-1)) {
+  if (pos != std::string::npos) {
     return {reinterpret_cast<const char*>(u8_uri.c_str()), pos};
   }
   return {};

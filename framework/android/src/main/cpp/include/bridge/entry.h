@@ -125,6 +125,9 @@ void UnloadInstance(JNIEnv* j_env,
                     jint j_offset,
                     jint j_length);
 
+jint OnCreateVfs(JNIEnv* j_env, jobject j_object);
+void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id);
+
 } // namespace bridge
 } // namespace framework
 } // namespace hippy

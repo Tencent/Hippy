@@ -34,28 +34,19 @@
 namespace hippy {
 inline namespace vfs {
 
-char kFileSchema[] = "file";
-
-REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
-                    "onCreateVfs",
-                    "()I",
-                    OnCreateVfs)
-
-REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
-                    "onDestroyVfs",
-                    "(I)V",
-                    OnDestroyVfs)
-
+// call from c++
 REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
                     "onTraversalsEndAsync",
                     "(Lcom/tencent/vfs/ResourceDataHolder;)V",
                     OnJniDelegateCallback)
 
+// call from java
 REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
              "doNativeTraversalsAsync",
              "(ILcom/tencent/vfs/ResourceDataHolder;Lcom/tencent/vfs/VfsManager$FetchResourceCallback;)V",
              OnJniDelegateInvokeAsync)
 
+// call from java
 REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
              "doNativeTraversalsSync",
              "(ILcom/tencent/vfs/ResourceDataHolder;)V",
@@ -110,6 +101,9 @@ std::atomic<uint32_t> JniDelegateHandler::request_id_ = 1;
 JniDelegateHandler::JniDelegateHandlerMap JniDelegateHandler::delegate_map_;
 
 std::atomic<uint32_t> g_delegate_id = 1;
+
+constexpr char kCallFromKey[] = "__Hippy_call_from";
+constexpr char kCallFromJavaValue[] = "java";
 
 bool JniDelegateHandler::Init(JNIEnv* j_env) {
   j_resource_data_holder_clazz = reinterpret_cast<jclass>(
@@ -228,6 +222,9 @@ FetchResultCode CovertToFetchResultCode(UriHandler::RetCode code) {
 }
 
 std::unordered_map<std::string, std::string> JavaMapToUnorderedMap(JNIEnv* j_env, jobject j_map) {
+  if (!j_map) {
+    return {};
+  }
   auto size = j_env->CallIntMethod(j_map, j_map_size_method_id);
   if (!size) {
     return {};
@@ -237,18 +234,19 @@ std::unordered_map<std::string, std::string> JavaMapToUnorderedMap(JNIEnv* j_env
   auto j_iterator = j_env->CallObjectMethod(j_set, j_set_iterator_method_id);
   while (j_env->CallBooleanMethod(j_iterator, j_set_iterator_has_next_method_id)) {
     auto j_entry = j_env->CallObjectMethod(j_iterator, j_set_iterator_next_method_id);
-    auto j_key = static_cast<jstring>(j_env->CallObjectMethod(j_entry, j_map_entry_get_key_method_id));
+    auto j_key = reinterpret_cast<jstring>(j_env->CallObjectMethod(j_entry, j_map_entry_get_key_method_id));
     if (!j_key) {
       continue;
     }
     auto u8_key_str = footstone::StringViewUtils::ConvertEncoding(JniUtils::ToStrView(j_env, j_key),
                                                                   footstone::string_view::Encoding::Utf8).utf8_value();
-    auto j_value = static_cast<jstring>(j_env->CallObjectMethod(j_entry, j_map_entry_get_value_method_id));
+    auto j_value = reinterpret_cast<jstring>(j_env->CallObjectMethod(j_entry, j_map_entry_get_value_method_id));
     if (!j_value) {
       continue;
     }
-    auto u8_value_str = footstone::StringViewUtils::ConvertEncoding(JniUtils::ToStrView(j_env, j_value),
-                                                                    footstone::string_view::Encoding::Utf8).utf8_value();
+    auto u8_value_str = footstone::StringViewUtils::ConvertEncoding(
+        JniUtils::ToStrView(j_env, j_value),
+        footstone::string_view::Encoding::Utf8).utf8_value();
     auto key_str = std::string(reinterpret_cast<const char*>(u8_key_str.c_str()), u8_key_str.length());
     auto value_str = std::string(reinterpret_cast<const char*>(u8_value_str.c_str()), u8_value_str.length());
     ret_map[key_str] = value_str;
@@ -282,7 +280,6 @@ void JniDelegateHandler::RequestUntrustedContent(
     std::shared_ptr<SyncContext> ctx,
     std::function<std::shared_ptr<UriHandler>()> next) {
   FOOTSTONE_DCHECK(ctx);
-
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_uri = JniUtils::StrViewToJString(j_env, ctx->uri);
   auto j_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
@@ -300,6 +297,7 @@ void JniDelegateHandler::RequestUntrustedContent(
   }
   auto j_data = j_env->GetObjectField(j_obj, j_holder_data_field_id);
   auto next_delegate = next();
+  FOOTSTONE_CHECK(next_delegate);
   if (next_delegate) {
     FOOTSTONE_UNREACHABLE();
   }
@@ -319,12 +317,12 @@ void JniDelegateHandler::RequestUntrustedContent(
 void JniDelegateHandler::RequestUntrustedContent(
     std::shared_ptr<ASyncContext> ctx,
     std::function<std::shared_ptr<UriHandler>()> next) {
-  FOOTSTONE_DCHECK(ctx);
-  auto next_delegate = next();
-  if (next_delegate) {
-    FOOTSTONE_UNREACHABLE();
+  FOOTSTONE_DCHECK(!next());
+  if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java
+    ctx->req_meta.erase(kCallFromKey);
+    ctx->cb(UriHandler::RetCode::SchemeNotRegister, {}, {});
+    return;
   }
-
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_uri = JniUtils::StrViewToJString(j_env, ctx->uri);
   auto id = request_id_.fetch_add(1);
@@ -337,27 +335,14 @@ void JniDelegateHandler::RequestUntrustedContent(
     auto j_value = JniUtils::StrViewToJString(j_env, string_view::new_from_utf8(value.c_str(), value.length()));
     j_env->CallObjectMethod(j_map, j_map_put_method_id, j_key, j_value);
   }
-  j_env->CallVoidMethod(delegate_->GetObj(), j_call_jni_delegate_async_method_id, j_uri, j_map, id);
+  j_env->CallVoidMethod(delegate_->GetObj(),
+                        j_call_jni_delegate_async_method_id,
+                        j_uri,
+                        j_map,
+                        footstone::checked_numeric_cast<uint32_t, jint>(id));
 }
 
-jint OnCreateVfs(JNIEnv* j_env, jobject j_object) {
-  auto delegate = std::make_shared<JniDelegateHandler>(j_env, j_object);
-  auto id = hippy::global_data_holder_key.fetch_add(1);
-  auto loader = std::make_shared<UriLoader>();
-  auto file_delegate = std::make_shared<FileHandler>();
-  loader->RegisterUriHandler(kFileSchema, file_delegate);
-  loader->SetDefaultHandler(delegate);
-
-  hippy::global_data_holder.Insert(id, loader);
-  return footstone::checked_numeric_cast<uint32_t, jint>(id);
-}
-
-void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id) {
-  auto id = footstone::checked_numeric_cast<jint, uint32_t>(j_id);
-  bool flag = JniDelegateHandler::GetJniDelegateHandlerMap().Erase(id);
-  FOOTSTONE_DCHECK(flag);
-}
-
+// call from c++
 void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_holder) {
   auto j_native_id = j_env->GetIntField(j_holder, j_holder_native_id_field_id);
   auto request_id = footstone::checked_numeric_cast<jint, uint32_t>(j_native_id);
@@ -381,27 +366,32 @@ void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_h
     cb(ret_code, {}, UriHandler::bytes());
     return;
   }
+  auto rsp_map = JavaMapToUnorderedMap(
+      j_env, j_env->GetObjectField(j_holder, j_holder_rsp_header_field_id));
   auto j_data = j_env->GetObjectField(j_holder, j_holder_data_field_id);
-  char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_data));
-  auto capacity = j_env->GetDirectBufferCapacity(j_data);
-  if (capacity < 0) {
-    cb(UriHandler::RetCode::DelegateError, {}, UriHandler::bytes());
-    return;
+  if (j_data) {
+    char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_data));
+    auto capacity = j_env->GetDirectBufferCapacity(j_data);
+    if (capacity >= 0) {
+      cb(ret_code, rsp_map, UriHandler::bytes(buffer_address,
+                                              footstone::checked_numeric_cast<jlong, size_t>(capacity)));
+      return;
+    }
   }
-
-  auto j_map = j_env->GetObjectField(j_holder, j_holder_rsp_header_field_id);
-  auto rsp_map = JavaMapToUnorderedMap(j_env, j_map);
-  cb(ret_code, rsp_map, UriHandler::bytes(buffer_address, static_cast<uint32_t>(capacity)));
+  cb(ret_code, rsp_map, UriHandler::bytes());
 }
 
+// call from java
 void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder, jobject j_cb) {
   auto loader = GetUriLoader(j_id);
-  auto j_uri = static_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
+  auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
   auto uri = JniUtils::ToStrView(j_env, j_uri);
-  auto j_req_meta = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
-  auto req_meta = JavaMapToUnorderedMap(j_env, j_req_meta);
+  auto req_meta = JavaMapToUnorderedMap(j_env,
+                                        j_env->GetObjectField(j_holder, j_holder_req_header_field_id));
+  req_meta[kCallFromKey] = kCallFromJavaValue;
   auto java_cb = std::make_shared<JavaRef>(j_env, j_cb);
-  auto cb = [java_cb, j_uri](UriLoader::RetCode, std::unordered_map<std::string, std::string> rsp_meta, UriLoader::bytes) {
+  auto cb = [java_cb, j_uri](
+      UriLoader::RetCode, const std::unordered_map<std::string, std::string>& rsp_meta, const UriLoader::bytes&) {
     auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     auto j_rsp_meta = UnorderedMapToJavaMap(j_env, rsp_meta);
     auto j_request_from = j_env->GetStaticObjectField(j_request_from_clazz, j_request_from_native_field_id);
@@ -414,15 +404,17 @@ void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_i
 
 }
 
+// call from java
 void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder) {
   auto loader = GetUriLoader(j_id);
-  auto j_uri = static_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
+  auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
   auto uri = JniUtils::ToStrView(j_env, j_uri);
   auto j_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
   auto req_meta = JavaMapToUnorderedMap(j_env, j_map);
   UriLoader::RetCode code;
   std::unordered_map<std::string, std::string> rsp_meta;
   UriLoader::bytes content;
+  req_meta[kCallFromKey] = kCallFromJavaValue;
   loader->RequestUntrustedContent(uri, req_meta, code, rsp_meta, content);
   j_env->SetObjectField(j_holder, j_holder_rsp_header_field_id, UnorderedMapToJavaMap(j_env, rsp_meta));
   auto j_data = j_env->NewDirectByteBuffer(const_cast<void*>(reinterpret_cast<const void*>(content.c_str())),
