@@ -20,34 +20,40 @@
  * limitations under the License.
  */
 
-#import "HippyAssert.h"
 #import "HippyBridge.h"
+
+#import "HippyTurboModuleManager.h"
+#import "NativeRenderConvert.h"
+#import "NativeRenderI18nUtils.h"
+#import "HippyEventDispatcher.h"
+#import "HippyInstanceLoadBlock.h"
+#import "HippyKeyCommands.h"
+#import "HippyContextWrapper.h"
 #import "HippyBundleDownloadOperation.h"
 #import "HippyBundleExecutionOperation.h"
 #import "HippyBundleOperationQueue.h"
 #import "HippyDeviceBaseInfo.h"
-#import "HippyDisplayLink.h"
-#import "HippyInstanceLoadBlock.h"
-#import "HippyJSEnginesMapper.h"
-#import "HippyJSExecutor.h"
-#import "HippyKeyCommands.h"
+#import "NativeRenderLog.h"
 #import "HippyModuleData.h"
-#import "HippyModuleMethod.h"
+#import "HippyAssert.h"
+#import "NativeRenderInvalidating.h"
 #import "HippyOCTurboModule.h"
+#import "HippyDisplayLink.h"
+#import "HippyModuleMethod.h"
 #import "HippyPerformanceLogger.h"
-#import "HippyTurboModuleManager.h"
+#import "NativeRenderUtils.h"
+#import "NativeRenderImpl.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
-#import "NativeRenderConvert.h"
-#import "NativeRenderDefaultImageProvider.h"
-#import "NativeRenderDomNodeUtils.h"
 #import "NativeRenderImageDataLoader.h"
-#import "NativeRenderImageProviderProtocol.h"
-#import "NativeRenderI18nUtils.h"
-#import "NativeRenderLog.h"
-#import "NativeRenderUtils.h"
+#import "NativeRenderDefaultImageProvider.h"
+#import "HippyJSEnginesMapper.h"
+#import "HippyJSExecutor.h"
+#import "HippyAssert.h"
 
+#include <objc/runtime.h>
 #include <sys/utsname.h>
+
 #include "dom/scene.h"
 #include "driver/scope.h"
 
@@ -85,6 +91,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 
 @property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
 @property(readwrite, assign) NSUInteger loadingCount;
+@property(readwrite, strong) dispatch_semaphore_t moduleSemaphore;
 
 @end
 
@@ -134,7 +141,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         [self setUp];
         NativeRenderExecuteOnMainQueue(^{
             [self bindKeys];
-            self->_dimDic = hippyExportedDimensions();
+            self->_dimDic = HippyExportedDimensions();
         });
         NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
@@ -253,17 +260,26 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _valid = YES;
     self.loadingCount = 0;
     self.currentIndexOfBundleExecuted = NSNotFound;
+    self.moduleSemaphore = dispatch_semaphore_create(0);
     @try {
+        __weak HippyBridge *weakSelf = self;
         _moduleSetup = [[HippyModulesSetup alloc] initWithBridge:self extraProviderModulesBlock:_moduleProvider];
         _javaScriptExecutor = [[HippyJSExecutor alloc] initWithEngineKey:_engineKey bridge:self];
-        [_javaScriptExecutor setUriLoader:_uriLoader];
+        _javaScriptExecutor.contextCreatedBlock = ^(id<HippyContextWrapper> ctxWrapper){
+            HippyBridge *strongSelf = weakSelf;
+            if (strongSelf) {
+                dispatch_semaphore_wait(strongSelf.moduleSemaphore, DISPATCH_TIME_FOREVER);
+                NSString *moduleConfig = [strongSelf moduleConfig];
+                [ctxWrapper createGlobalObject:@"__hpBatchedBridgeConfig" withJsonValue:moduleConfig];
+            }
+        };
+        [_javaScriptExecutor setup];
         _displayLink = [[HippyDisplayLink alloc] init];
-        __weak HippyBridge *weakSelf = self;
         dispatch_async(HippyBridgeQueue(), ^{
             [self initWithModulesCompletion:^{
                 HippyBridge *strongSelf = weakSelf;
                 if (strongSelf) {
-                    [strongSelf->_javaScriptExecutor notifyModulesSetupComplete];
+                    dispatch_semaphore_signal(strongSelf.moduleSemaphore);
                 }
             }];
         });
@@ -842,6 +858,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     _displayLink = nil;
     _javaScriptExecutor = nil;
     _moduleSetup = nil;
+    self.moduleSemaphore = nil;
     dispatch_group_notify(group, dispatch_get_main_queue(), ^{
         [jsExecutor executeBlockOnJavaScriptQueue:^{
             [displayLink invalidate];
