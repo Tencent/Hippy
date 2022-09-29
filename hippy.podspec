@@ -51,6 +51,15 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'footstone\' read end'
   end
 
+  s.subspec 'vfs' do |vfs|
+    puts 'hippy subspec \'vfs\' read begin'
+    footstone.source_files = 'modules/vfs/native/**/*.{h,cc}'
+    footstone.public_header_files = 'modules/vfs/native/include/vfs/*.h'
+    footstone.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/vfs/native/include/'}
+    puts 'hippy subspec \'vfs\' read end'
+  end
+
+
   s.subspec 'driver' do |driver|
     puts 'hippy subspec \'driver\' read begin'
     driver.source_files = ['driver/js/include/**/*.h', 'driver/js/src/**/*.cc']
