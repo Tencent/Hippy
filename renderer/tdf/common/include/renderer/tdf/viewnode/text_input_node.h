@@ -162,6 +162,7 @@ class TextInputNode : public ViewNode {
   void UnregisterViewportListener();
   void DidChangeTextEditingValue(std::shared_ptr<TextInputView> text_input_view);
 
+  void SetValue(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetCaretColor(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetColor(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetDefaultValue(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);

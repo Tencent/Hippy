@@ -61,6 +61,7 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto text_style = text_input_view->GetAttributes().text_style;
   auto attributes = text_input_view->GetAttributes();
 
+  SetValue(dom_style, text_style);
   SetCaretColor(dom_style, text_style);
   SetColor(dom_style, text_style);
   SetDefaultValue(dom_style, text_input_view);
@@ -292,6 +293,16 @@ void TextInputNode::UnregisterViewportListener() {
   if (viewport_listener_id_ != kViewportListenerInvalidID) {
     ViewContext::GetCurrent()->GetShell()->GetEventCenter()->RemoveListener(ViewportEvent::ClassType(),
                                                                             viewport_listener_id_);
+  }
+}
+
+void TextInputNode::SetValue(const DomStyleMap& dom_style, TextStyle& text_style) {
+  if (auto iter = dom_style.find(kValue); iter != dom_style.end()) {
+    if (auto text_input_view = text_input_view_.lock()) {
+      auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
+      auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
+      text_input_view->SetText(text_u16);
+    }
   }
 }
 
