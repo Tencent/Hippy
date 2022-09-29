@@ -47,6 +47,7 @@ std::shared_ptr<tdfcore::View> ViewPagerNode::CreateView() {
 
 void ViewPagerNode::CallFunction(const std::string& function_name, const DomArgument& param,
                                  const uint32_t call_back_id) {
+  ViewNode::CallFunction(function_name, param, call_back_id);
   auto view_pager = GetView<ViewPager>();
   footstone::HippyValue value;
   param.ToObject(value);

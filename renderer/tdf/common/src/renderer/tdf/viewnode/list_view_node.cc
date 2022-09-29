@@ -102,6 +102,7 @@ void ListViewNode::HandleEndReachedEvent() {
 void ListViewNode::CallFunction(const std::string &function_name,
                                 const DomArgument &param,
                                 const uint32_t call_back_id) {
+  ViewNode::CallFunction(function_name, param, call_back_id);
   auto list_view = GetView<tdfcore::CustomLayoutView>();
   footstone::HippyValue value;
   param.ToObject(value);

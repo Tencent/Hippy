@@ -91,10 +91,13 @@ void RefreshWrapperNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
 }
 
 void RefreshWrapperNode::CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) {
+  ViewNode::CallFunction(name, param, call_back_id);
   if (name == kRefreshComplected) {
     if (refresh_header_ && refresh_header_->GetState() == tdfcore::RefreshHeaderState::kRefreshing) {
       refresh_header_->FinishRefresh();
     }
+  } else if (name == kStartRefresh) {
+    // TDF not support
   }
 }
 

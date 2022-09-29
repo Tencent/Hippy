@@ -46,6 +46,7 @@ constexpr const char kRefreshWrapper[] = "RefreshWrapper";
 constexpr const char kBounceTime[] = "bounceTime";                    // int
 constexpr const char kOnScrollEnable[] = "onScrollEnable";            // boolean
 constexpr const char kScrollEventThrottle[] = "scrollEventThrottle";  // int
+constexpr const char kStartRefresh[] = "startRefresh";
 constexpr const char kRefreshComplected[] = "refreshComplected";
 }  // namespace refreshwrapper
 

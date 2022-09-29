@@ -554,6 +554,21 @@ void ViewNode::Detach(bool sync_to_view_tree) {
   is_attached_ = false;
 }
 
+void ViewNode::CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) {
+  if (name == "measureInWindow") {
+    auto frame = GetView()->GetFrame();
+    FOOTSTONE_LOG(INFO) << "ViewNode::CallFunction measureInWindow result: "
+      << frame.X() << "," << frame.Y() << "," << frame.Width() << "," << frame.Height();
+
+    DomValueObjectType obj;
+    obj["x"] = frame.X();
+    obj["y"] = frame.Y();
+    obj["width"] = frame.Width();
+    obj["height"] = frame.Height();
+    DoCallback(name, call_back_id, std::make_shared<footstone::HippyValue>(obj));
+  }
+}
+
 }  // namespace tdf
 }  // namespace render
 }  // namespace hippy

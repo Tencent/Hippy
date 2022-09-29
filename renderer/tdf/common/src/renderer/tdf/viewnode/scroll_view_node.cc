@@ -82,6 +82,7 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 void ScrollViewNode::CallFunction(const std::string &function_name,
                                   const DomArgument &param,
                                   const uint32_t call_back_id) {
+  ViewNode::CallFunction(function_name, param, call_back_id);
   auto scroll_view = GetView<tdfcore::ScrollView>();
   footstone::HippyValue value;
   param.ToObject(value);

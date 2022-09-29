@@ -202,7 +202,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual std::string GetViewName() const { return "View"; }
 
-  virtual void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) {}
+  virtual void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id);
 
   void SetRootNode(std::weak_ptr<RootViewNode> root_node) { root_node_ = root_node; }
 
