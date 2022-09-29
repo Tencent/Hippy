@@ -297,21 +297,17 @@ void JniDelegateHandler::RequestUntrustedContent(
   }
   auto j_data = j_env->GetObjectField(j_obj, j_holder_data_field_id);
   auto next_delegate = next();
-  FOOTSTONE_CHECK(next_delegate);
-  if (next_delegate) {
-    FOOTSTONE_UNREACHABLE();
+  FOOTSTONE_CHECK(!next_delegate);
+  if (j_data) {
+    char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_data));
+    FOOTSTONE_CHECK(buffer_address);
+    auto capacity = j_env->GetDirectBufferCapacity(j_data);
+    if (capacity >= 0) {
+      ctx->content = bytes(buffer_address, footstone::checked_numeric_cast<jlong, size_t>(capacity));
+      return;
+    }
   }
-  char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_data));
-  if (!buffer_address) {
-    ctx->content = bytes();
-    return;
-  }
-  auto capacity = j_env->GetDirectBufferCapacity(j_data);
-  if (capacity < 0) {
-    ctx->code = RetCode::DelegateError;
-    return;
-  }
-  ctx->content = bytes(buffer_address, static_cast<uint32_t>(capacity));
+  ctx->code = RetCode::DelegateError;
 }
 
 void JniDelegateHandler::RequestUntrustedContent(
@@ -319,7 +315,6 @@ void JniDelegateHandler::RequestUntrustedContent(
     std::function<std::shared_ptr<UriHandler>()> next) {
   FOOTSTONE_DCHECK(!next());
   if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java
-    ctx->req_meta.erase(kCallFromKey);
     ctx->cb(UriHandler::RetCode::SchemeNotRegister, {}, {});
     return;
   }
@@ -371,6 +366,7 @@ void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_h
   auto j_data = j_env->GetObjectField(j_holder, j_holder_data_field_id);
   if (j_data) {
     char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_data));
+    FOOTSTONE_CHECK(buffer_address);
     auto capacity = j_env->GetDirectBufferCapacity(j_data);
     if (capacity >= 0) {
       cb(ret_code, rsp_map, UriHandler::bytes(buffer_address,
