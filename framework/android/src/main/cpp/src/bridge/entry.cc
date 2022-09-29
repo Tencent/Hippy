@@ -31,8 +31,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "android_vfs/uri.h"
-#include "android_vfs/android_uri_loader.h"
 #include "bridge/bridge.h"
 #include "bridge/entry.h"
 #include "bridge/java2js.h"
@@ -55,7 +53,11 @@
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/turbo_module_manager.h"
-#include "android_vfs/asset_handler.h"
+#include "handler/asset_handler.h"
+#include "handler/jni_delegate_handler.h"
+#include "handler/uri.h"
+
+#include "vfs/uri_loader.h"
 
 #ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
@@ -155,7 +157,7 @@ using Ctx = hippy::napi::Ctx;
 using Bridge = hippy::Bridge;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using RegisterFunction = hippy::base::RegisterFunction;
-using AndroidUriLoader = hippy::vfs::AndroidUriLoader;
+using UriLoader = hippy::vfs::UriLoader;
 
 static std::mutex log_mutex;
 static bool is_initialized = false;
@@ -410,7 +412,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   auto vfs_id = footstone::checked_numeric_cast<jint, uint32_t>(j_vfs_id);
   auto flag = hippy::global_data_holder.Find(vfs_id, vfs_instance);
   FOOTSTONE_CHECK(flag);
-  auto loader = std::any_cast<std::shared_ptr<hippy::AndroidUriLoader>>(vfs_instance);
+  auto loader = std::any_cast<std::shared_ptr<UriLoader>>(vfs_instance);
   FOOTSTONE_CHECK(runtime->HasData(kBridgeSlot));
   auto bridge = std::any_cast<std::shared_ptr<Bridge>>(runtime->GetData(kBridgeSlot));
   auto ref = bridge->GetRef();
@@ -598,6 +600,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   TDFRenderBridge::Init(j_vm, reserved);
 #endif
 
+  hippy::JniDelegateHandler::Init(j_env);
 
   return JNI_VERSION_1_4;
 }
@@ -618,5 +621,6 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   TDFRenderBridge::Destroy();
 #endif
 
+  hippy::JniDelegateHandler::Destroy();
   hippy::JNIEnvironment::DestroyInstance();
 }

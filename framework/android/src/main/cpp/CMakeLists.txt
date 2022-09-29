@@ -80,8 +80,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
 # region vfs
-GlobalPackages_Add(vfs_android)
-target_link_libraries(${PROJECT_NAME} PRIVATE vfs_android)
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 # endregion
 
 # region native renderer
@@ -105,7 +105,11 @@ set(SOURCE_SET
     src/jni/exception_handler.cc
     src/jni/convert_utils.cc
     src/jni/turbo_module_manager.cc
-    src/jni/java_turbo_module.cc)
+    src/jni/java_turbo_module.cc
+    src/handler/asset_handler.cc
+    src/handler/file_handler.cc
+    src/handler/jni_delegate_handler.cc
+    src/handler/uri.cc)
 
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE

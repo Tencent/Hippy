@@ -18,9 +18,9 @@
  * limitations under the License.
  */
 
-#include "android_vfs/file_handler.h"
+#include "handler/file_handler.h"
 
-#include "android_vfs/uri.h"
+#include "handler/uri.h"
 #include "footstone/task.h"
 #include "vfs/file.h"
 

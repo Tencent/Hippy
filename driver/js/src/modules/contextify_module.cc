@@ -164,7 +164,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         std::shared_ptr<TryCatch> try_catch =
             CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
-        string_view view_code(move_code);
+        auto view_code = string_view::new_from_utf8(move_code.c_str(), move_code.length());
         scope->RunJS(view_code, file_name);
         ctx->SetGlobalObjVar(kHippyCurDirKey, last_dir_str_obj,
                              hippy::napi::PropertyAttribute::None);
