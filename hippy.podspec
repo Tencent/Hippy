@@ -53,9 +53,9 @@ Pod::Spec.new do |s|
 
   s.subspec 'vfs' do |vfs|
     puts 'hippy subspec \'vfs\' read begin'
-    footstone.source_files = 'modules/vfs/native/**/*.{h,cc}'
-    footstone.public_header_files = 'modules/vfs/native/include/vfs/*.h'
-    footstone.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/vfs/native/include/'}
+    vfs.source_files = 'modules/vfs/native/**/*.{h,cc}'
+    vfs.public_header_files = 'modules/vfs/native/include/vfs/*.h'
+    vfs.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/modules/vfs/native/include/'}
     puts 'hippy subspec \'vfs\' read end'
   end
 
