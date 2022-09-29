@@ -143,7 +143,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)co
                 y = ((NSNumber *)(options[@"y"])).floatValue;
             }
             [UIView animateWithDuration:duration animations:^{
-                ((NativeRenderScrollView *)view).scrollView.contentOffset = CGPointMake(x, y);
+                [(id<NativeRenderScrollableProtocol>)view scrollToOffset:(CGPoint){x,y} animated:NO];
             }];
         } else {
             NativeRenderLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
