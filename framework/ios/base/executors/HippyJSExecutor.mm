@@ -21,6 +21,7 @@
  */
 
 #import <UIKit/UIDevice.h>
+#import "HippyDefaultUriHandler.h"
 #import "FootstoneUtils.h"
 #import "HippyAssert.h"
 #import "HippyBundleURLProvider.h"
@@ -52,6 +53,7 @@
 #include "footstone/string_view_utils.h"
 #include "footstone/task_runner.h"
 #include "footstone/task.h"
+#include "vfs/uri_handler.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
@@ -66,7 +68,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
-//    std::shared_ptr<HippyUriLoader> _defaultUriLoader;
+    std::shared_ptr<hippy::vfs::UriLoader> _defaultUriLoader;
     id<HippyContextWrapper> _contextWrapper;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
     std::weak_ptr<hippy::vfs::UriLoader> _uriLoader;
@@ -125,38 +127,38 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 }
 
 - (void)initURILoader {
-//    if (!_defaultUriLoader) {
-//        _defaultUriLoader = std::make_shared<HippyUriLoader>();
-//        self.pScope->SetUriLoader(_defaultUriLoader);
-//    }
+    if (!_defaultUriLoader) {
+        _defaultUriLoader = std::make_shared<hippy::vfs::UriLoader>();
+        _defaultUriLoader->SetDefaultHandler(std::make_shared<HippyDefaultUriHandler>());
+        self.pScope->SetUriLoader(_defaultUriLoader);
+    }
 }
 
 - (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader {
-//    auto loader = uriLoader.lock();
-//    if (loader) {
-//        auto exsitedLoader = _uriLoader.lock();
-//        if (exsitedLoader) {
-//            if (loader != exsitedLoader) {
-//                _uriLoader = uriLoader;
-//                self.pScope->SetUriLoader(uriLoader);
-//            }
-//        }
-//        else {
-//            _uriLoader = uriLoader;
-//            self.pScope->SetUriLoader(uriLoader);
-//        }
-//        _defaultUriLoader = nil;
-//    }
-//    else {
-//        _uriLoader = uriLoader;
-//        [self initURILoader];
-//    }
+    auto loader = uriLoader.lock();
+    if (loader) {
+        auto exsitedLoader = _uriLoader.lock();
+        if (exsitedLoader) {
+            if (loader != exsitedLoader) {
+                _uriLoader = uriLoader;
+                self.pScope->SetUriLoader(uriLoader);
+            }
+        }
+        else {
+            _uriLoader = uriLoader;
+            self.pScope->SetUriLoader(uriLoader);
+        }
+        _defaultUriLoader = nil;
+    }
+    else {
+        _uriLoader = uriLoader;
+        [self initURILoader];
+    }
 }
 
 - (std::weak_ptr<hippy::vfs::UriLoader>)uriLoader {
-//    auto uriLoader = _uriLoader.lock();
-//    return uriLoader?_uriLoader:_defaultUriLoader;
-    return std::make_shared<hippy::vfs::UriLoader>();
+    auto uriLoader = _uriLoader.lock();
+    return uriLoader?_uriLoader:_defaultUriLoader;
 }
 
 - (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {

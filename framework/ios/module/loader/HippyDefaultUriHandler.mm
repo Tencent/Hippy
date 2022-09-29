@@ -80,74 +80,74 @@ static hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
 
 void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx,
                                                std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
-//    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
-//    if (!request) {
-//        ctx->code = hippy::vfs::UriHandler::RetCode::UriError;
-//        return;
-//    }
-//    typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
-//    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-//    DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
-//        if (error) {
-//            ctx->code = RetCodeFromNSError(error);
-//        }
-//        else {
-//            ctx->code = hippy::vfs::UriHandler::RetCode::Success;
-//            std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
-//            ctx->content = content;
-//            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-//                NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
-//                NSDictionary *headerFields = [httpResp allHeaderFields];
-//                std::unordered_map<std::string, std::string> respMap;
-//                respMap.reserve([headerFields count]);
-//                for (NSString *key in headerFields) {
-//                    NSString *value = headerFields[key];
-//                    std::string keyString([key UTF8String]);
-//                    std::string valueString([value UTF8String]);
-//                    respMap[keyString] = valueString;
-//                }
-//                ctx->rsp_meta = respMap;
-//            }
-//        }
-//        dispatch_semaphore_signal(sem);
-//    };
-//    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
-//    [dataTask resume];
-//    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
+    if (!request) {
+        ctx->code = hippy::vfs::UriHandler::RetCode::UriError;
+        return;
+    }
+    typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+    DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
+        if (error) {
+            ctx->code = RetCodeFromNSError(error);
+        }
+        else {
+            ctx->code = hippy::vfs::UriHandler::RetCode::Success;
+            std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
+            ctx->content = content;
+            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
+                NSDictionary *headerFields = [httpResp allHeaderFields];
+                std::unordered_map<std::string, std::string> respMap;
+                respMap.reserve([headerFields count]);
+                for (NSString *key in headerFields) {
+                    NSString *value = headerFields[key];
+                    std::string keyString([key UTF8String]);
+                    std::string valueString([value UTF8String]);
+                    respMap[keyString] = valueString;
+                }
+                ctx->rsp_meta = respMap;
+            }
+        }
+        dispatch_semaphore_signal(sem);
+    };
+    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
+    [dataTask resume];
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 }
 
 void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
                                                std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
-//    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->meta);
-//    if (!request) {
-//        ctx->cb(hippy::vfs::UriHandler::RetCode::UriError, std::unordered_map<std::string, std::string>(), "");
-//        return;
-//    }
-//    typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
-//    DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
-//        if (error) {
-//            ctx->cb(RetCodeFromNSError(error), std::unordered_map<std::string, std::string>(), "");
-//        }
-//        else {
-//            std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
-//            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-//                NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
-//                NSDictionary *headerFields = [httpResp allHeaderFields];
-//                std::unordered_map<std::string, std::string> respMap;
-//                respMap.reserve([headerFields count]);
-//                for (NSString *key in headerFields) {
-//                    NSString *value = headerFields[key];
-//                    std::string keyString([key UTF8String]);
-//                    std::string valueString([value UTF8String]);
-//                    respMap[keyString] = valueString;
-//                }
-//                ctx->cb(hippy::vfs::UriHandler::RetCode::Success, respMap, content);
-//            }
-//            else {
-//                ctx->cb(hippy::vfs::UriHandler::RetCode::Success, std::unordered_map<std::string, std::string>(), content);
-//            }
-//        }
-//    };
-//    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
-//    [dataTask resume];
+    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
+    if (!request) {
+        ctx->cb(hippy::vfs::UriHandler::RetCode::UriError, std::unordered_map<std::string, std::string>(), "");
+        return;
+    }
+    typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
+    DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
+        if (error) {
+            ctx->cb(RetCodeFromNSError(error), std::unordered_map<std::string, std::string>(), "");
+        }
+        else {
+            std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
+            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+                NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
+                NSDictionary *headerFields = [httpResp allHeaderFields];
+                std::unordered_map<std::string, std::string> respMap;
+                respMap.reserve([headerFields count]);
+                for (NSString *key in headerFields) {
+                    NSString *value = headerFields[key];
+                    std::string keyString([key UTF8String]);
+                    std::string valueString([value UTF8String]);
+                    respMap[keyString] = valueString;
+                }
+                ctx->cb(hippy::vfs::UriHandler::RetCode::Success, respMap, content);
+            }
+            else {
+                ctx->cb(hippy::vfs::UriHandler::RetCode::Success, std::unordered_map<std::string, std::string>(), content);
+            }
+        }
+    };
+    NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
+    [dataTask resume];
 }

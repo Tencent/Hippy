@@ -6,10 +6,11 @@
 //  Copyright © 2022 tencent. All rights reserved.
 //
 
-#import "HippyUriLoader.h"
 #import "HippyDefaultUriHandler.h"
 
-class HippyDemoLoader : public HippyUriLoader {
+#include "vfs/uri_loader.h"
+
+class HippyDemoLoader : public hippy::vfs::UriLoader {
 };
 
 

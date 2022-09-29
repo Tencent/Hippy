@@ -234,7 +234,6 @@
 		F4E7B43E276C61EB00F17139 /* dom_event.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B43A276C61EB00F17139 /* dom_event.cc */; };
 		F4E7CC4B28DDACD600302CBA /* file.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7CC2328DDACD600302CBA /* file.cc */; };
 		F4E7CC4C28DDACD600302CBA /* uri_loader.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7CC2428DDACD600302CBA /* uri_loader.cc */; };
-		F4F0728F28DDB6B700872D42 /* HippyUriLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4F0728D28DDB6B700872D42 /* HippyUriLoader.mm */; };
 		F4FC1600289BBBCA00A35F4A /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F48D38F8289BA876007BD6FE /* libdevtools_backend.a */; };
 /* End PBXBuildFile section */
 
@@ -764,8 +763,6 @@
 		F4E7CC2128DDACD600302CBA /* uri_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uri_handler.h; sourceTree = "<group>"; };
 		F4E7CC2328DDACD600302CBA /* file.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file.cc; sourceTree = "<group>"; };
 		F4E7CC2428DDACD600302CBA /* uri_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = uri_loader.cc; sourceTree = "<group>"; };
-		F4F0728D28DDB6B700872D42 /* HippyUriLoader.mm */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyUriLoader.mm; sourceTree = "<group>"; tabWidth = 4; };
-		F4F0728E28DDB6B700872D42 /* HippyUriLoader.h */ = {isa = PBXFileReference; indentWidth = 4; lastKnownFileType = sourcecode.c.h; path = HippyUriLoader.h; sourceTree = "<group>"; tabWidth = 4; };
 		F4F1FCB0286C44BE005B39D4 /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
 		F4F1FCB1286C4A0C005B39D4 /* NativeRenderDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NativeRenderDefines.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1326,8 +1323,6 @@
 		F468DDD22812A95100319196 /* loader */ = {
 			isa = PBXGroup;
 			children = (
-				F4F0728D28DDB6B700872D42 /* HippyUriLoader.mm */,
-				F4F0728E28DDB6B700872D42 /* HippyUriLoader.h */,
 				F49817BA28E13A2800000889 /* HippyDefaultUriHandler.mm */,
 				F49817BB28E13A2800000889 /* HippyDefaultUriHandler.h */,
 			);
@@ -2284,7 +2279,6 @@
 				F45D269328067B6900CAB185 /* NativeRenderText.mm in Sources */,
 				F438B755281250CD0078435B /* NativeRenderUtils.m in Sources */,
 				F48D3809289BA662007BD6FE /* trace_control.cc in Sources */,
-				F4F0728F28DDB6B700872D42 /* HippyUriLoader.mm in Sources */,
 				F48D3874289BA6A1007BD6FE /* repeating_timer.cc in Sources */,
 				F468DE5D2812A95200319196 /* HippyNetInfoIntenal.m in Sources */,
 				F48D381E289BA662007BD6FE /* js_native_jsc_helper.cc in Sources */,
