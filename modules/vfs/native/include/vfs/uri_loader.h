@@ -40,8 +40,8 @@ class UriLoader: std::enable_shared_from_this<UriLoader> {
   UriLoader() = default;
   virtual ~UriLoader() = default;
 
-  virtual void RegisterUriHandler(const string_view& scheme,
-                                   std::shared_ptr<UriHandler> handler);
+  virtual void RegisterUriHandler(const std::string& scheme,
+                                  const std::shared_ptr<UriHandler>& handler);
 
   virtual void RequestUntrustedContent(
       const string_view& uri,
@@ -63,9 +63,11 @@ class UriLoader: std::enable_shared_from_this<UriLoader> {
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
                                              const std::list<std::shared_ptr<UriHandler>>::iterator& end);
 
-  static std::u16string GetScheme(const string_view& uri);
+  // the return value is encoded in utf8
+  static std::string GetScheme(const string_view& uri);
 
-  std::unordered_map<std::u16string, std::list<std::shared_ptr<UriHandler>>> router_;
+  // key is encoded in utf8
+  std::unordered_map<std::string, std::list<std::shared_ptr<UriHandler>>> router_;
   std::shared_ptr<UriHandler> default_handler_;
   std::mutex mutex_;
 };

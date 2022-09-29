@@ -34,9 +34,7 @@
 namespace hippy {
 inline namespace vfs {
 
-char16_t kFileSchema[] = u"file";
-char16_t kHttpSchema[] = u"http";
-char16_t kHttpsSchema[] = u"https";
+char kFileSchema[] = "file";
 
 REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
                     "onCreateVfs",
@@ -347,11 +345,7 @@ jint OnCreateVfs(JNIEnv* j_env, jobject j_object) {
   auto id = hippy::global_data_holder_key.fetch_add(1);
   auto loader = std::make_shared<UriLoader>();
   auto file_delegate = std::make_shared<FileHandler>();
-//  std::shared_ptr<AssetHandler> asset_delegate = std::make_shared<AssetHandler>();
-//  loader->RegisterUriHandler(kAssetSchema, asset_delegate);
   loader->RegisterUriHandler(kFileSchema, file_delegate);
-  loader->RegisterUriHandler(kHttpSchema, delegate);
-  loader->RegisterUriHandler(kHttpsSchema, delegate);
   loader->SetDefaultHandler(delegate);
 
   hippy::global_data_holder.Insert(id, loader);

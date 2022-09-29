@@ -167,7 +167,7 @@ enum INIT_CB_STATE {
 constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 constexpr uint32_t kDefaultNumberOfThreads = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
-char16_t kAssetSchema[] = u"asset";
+char kAssetSchema[] = "asset";
 
 static std::atomic<uint32_t> global_worker_manager_key{1};
 
