@@ -29,14 +29,12 @@ using ASyncContext = hippy::UriHandler::ASyncContext;
 namespace hippy {
 inline namespace vfs {
 
-void UriLoader::RegisterUriHandler(const footstone::string_view& scheme,
-                                    std::shared_ptr<UriHandler> handler) {
-  std::u16string u16_scheme = StringViewUtils::ConvertEncoding(scheme, string_view::Encoding::Utf16).utf16_value();
-
+void UriLoader::RegisterUriHandler(const std::string& scheme,
+                                   const std::shared_ptr<UriHandler>& handler) {
   std::lock_guard<std::mutex> lock(mutex_);
-  auto it = router_.find(u16_scheme);
+  auto it = router_.find(scheme);
   if (it == router_.end()) {
-    router_.insert({u16_scheme, std::list<std::shared_ptr<UriHandler>>{handler}});
+    router_.insert({scheme, std::list<std::shared_ptr<UriHandler>>{handler}});
   } else {
     it->second.push_back(handler);
   }
@@ -135,11 +133,12 @@ std::shared_ptr<UriHandler> UriLoader::GetNextHandler(std::list<std::shared_ptr<
   return *cur;
 }
 
-std::u16string UriLoader::GetScheme(const UriLoader::string_view& uri) {
-  auto u16_uri = StringViewUtils::ConvertEncoding(uri, string_view::Encoding::Utf16).utf16_value();
-  size_t pos = u16_uri.find_last_of(u':');
+std::string UriLoader::GetScheme(const UriLoader::string_view& uri) {
+  auto u8_uri = StringViewUtils::ConvertEncoding(uri, string_view::Encoding::Utf8)
+      .utf8_value();
+  size_t pos = u8_uri.find_last_of(':');
   if (pos != static_cast<size_t>(-1)) {
-    return u16_uri.substr(0, pos);
+    return {reinterpret_cast<const char*>(u8_uri.c_str()), pos};
   }
   return {};
 }

@@ -172,7 +172,7 @@ constexpr char kHippyCurDirKey[] = "__HIPPYCURDIR__";
 constexpr uint32_t kDefaultNumberOfThreads = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
 constexpr char kLogTag[] = "native";
-char16_t kAssetSchema[] = u"asset";
+constexpr char kAssetSchema[] = "asset";
 
 static std::atomic<uint32_t> global_worker_manager_key{1};
 
