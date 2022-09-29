@@ -43,30 +43,35 @@ void UriLoader::RegisterUriHandler(const footstone::string_view& scheme,
 }
 
 void UriLoader::RequestUntrustedContent(const string_view& uri,
-                                        std::unordered_map<std::string, std::string> meta,
+                                        const std::unordered_map<std::string, std::string>& meta,
                                         std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) {
-  bytes content;
   auto scheme = GetScheme(uri);
-  if (scheme.encoding() == string_view::Encoding::Unknown) {
-    cb(RetCode::SchemeError, {}, content);
+  auto ctx = std::make_shared<ASyncContext>(uri, meta, cb);
+  if (scheme.empty()) { // get scheme failed
+    FOOTSTONE_CHECK(default_handler_);
+    default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
+      return nullptr;
+    });
     return;
   }
 
-  FOOTSTONE_DCHECK(scheme.encoding() == string_view::Encoding::Utf16);
   std::shared_ptr<std::list<std::shared_ptr<UriHandler>>::iterator> cur_it;
   std::shared_ptr<std::list<std::shared_ptr<UriHandler>>::iterator> end_it;
+  bytes content;
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    const auto& scheme_it = router_.find(scheme.utf16_value());
-    if (scheme_it == router_.end()) {
-      cb(RetCode::SchemeNotRegister, {}, content);
+    const auto& scheme_it = router_.find(scheme);
+    if (scheme_it == router_.end()) { // scheme not register
+      FOOTSTONE_CHECK(default_handler_);
+      default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
+        return nullptr;
+      });
       return;
     }
     FOOTSTONE_DCHECK(!scheme_it->second.empty());
     cur_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(scheme_it->second.begin());
     end_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(scheme_it->second.end());
   }
-  auto ctx = std::make_shared<ASyncContext>(uri, meta, cb);
   auto weak = weak_from_this();
   std::function<std::shared_ptr<UriHandler>()> next = [weak, cur_it, end_it]() mutable -> std::shared_ptr<UriHandler> {
     auto self = weak.lock();
@@ -83,21 +88,26 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
                                         RetCode& code,
                                         std::unordered_map<std::string, std::string>& rsp_meta,
                                         bytes& content) {
-  string_view scheme = GetScheme(uri);
-  if (scheme.encoding() == string_view::Encoding::Unknown) {
-    code = RetCode::SchemeError;
+  auto ctx = std::make_shared<SyncContext>(uri, req_meta);
+  auto scheme = GetScheme(uri);
+  if (scheme.empty()) { // get scheme failed
+    FOOTSTONE_CHECK(default_handler_);
+    default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
+      return nullptr;
+    });
     return;
   }
-
-  FOOTSTONE_DCHECK(scheme.encoding() == string_view::Encoding::Utf16);
 
   std::list<std::shared_ptr<UriHandler>>::iterator cur_it;
   std::list<std::shared_ptr<UriHandler>>::iterator end_it;
   {
     std::lock_guard<std::mutex> lock(mutex_);
-    const auto& scheme_it = router_.find(scheme.utf16_value());
-    if (scheme_it == router_.end()) {
-      code = RetCode::SchemeNotRegister;
+    const auto& scheme_it = router_.find(scheme);
+    if (scheme_it == router_.end()) { // scheme not register
+      FOOTSTONE_CHECK(default_handler_);
+      default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
+        return nullptr;
+      });
       return;
     }
     FOOTSTONE_DCHECK(!scheme_it->second.empty());
@@ -105,7 +115,6 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
     end_it = scheme_it->second.end();
   }
 
-  auto ctx = std::make_shared<SyncContext>(uri, req_meta);
   std::function<std::shared_ptr<UriHandler>()> next = [this, &cur_it, end_it]() -> std::shared_ptr<UriHandler> {
     return this->GetNextHandler(cur_it, end_it);
   };
@@ -124,6 +133,15 @@ std::shared_ptr<UriHandler> UriLoader::GetNextHandler(std::list<std::shared_ptr<
     return nullptr;
   }
   return *cur;
+}
+
+std::u16string UriLoader::GetScheme(const UriLoader::string_view& uri) {
+  auto u16_uri = StringViewUtils::ConvertEncoding(uri, string_view::Encoding::Utf16).utf16_value();
+  size_t pos = u16_uri.find_last_of(u':');
+  if (pos != static_cast<size_t>(-1)) {
+    return u16_uri.substr(0, pos);
+  }
+  return {};
 }
 
 }

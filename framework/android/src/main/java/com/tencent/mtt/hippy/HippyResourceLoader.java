@@ -191,6 +191,7 @@ public class HippyResourceLoader implements ResourceLoader {
             output.write(b, 0, size);
         }
         byte[] resBytes = output.toByteArray();
-        holder.data = ByteBuffer.wrap(resBytes);
+        holder.data = ByteBuffer.allocateDirect(resBytes.length);
+        holder.data.put(resBytes);
     }
 }

@@ -38,7 +38,7 @@ inline namespace timer {
 
   void Start(std::unique_ptr<Task> user_task, TimeDelta delay);
 
-  virtual std::shared_ptr<BaseTimer> GetWeakSelf() override;
+  virtual std::weak_ptr<BaseTimer> GetWeakSelf() override;
  private:
   void OnStop() final;
   void RunUserTask() override;

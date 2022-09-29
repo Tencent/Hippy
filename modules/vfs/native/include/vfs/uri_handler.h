@@ -52,14 +52,14 @@ class UriHandler {
 
   struct ASyncContext {
     footstone::string_view uri;
-    std::unordered_map<std::string, std::string> meta;
+    std::unordered_map<std::string, std::string> req_meta;
     std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb;
 
     ASyncContext(const footstone::string_view& uri,
                  std::unordered_map<std::string, std::string> meta,
                  std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) {
       this->uri = uri;
-      this->meta = meta;
+      this->req_meta = meta;
       this->cb = cb;
     }
   };

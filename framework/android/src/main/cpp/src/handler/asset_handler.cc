@@ -1,6 +1,6 @@
-#include "android_vfs/asset_handler.h"
+#include "handler/asset_handler.h"
 
-#include "android_vfs/uri.h"
+#include "handler/uri.h"
 #include "footstone/check.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"

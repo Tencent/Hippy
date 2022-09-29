@@ -30,7 +30,7 @@
 namespace hippy {
 inline namespace vfs {
 
-class JniDelegateHandler : public UriHandler, std::enable_shared_from_this<JniDelegateHandler> {
+class JniDelegateHandler : public UriHandler, public std::enable_shared_from_this<JniDelegateHandler> {
  public:
   using string_view = footstone::string_view;
   struct JniDelegateHandlerAsyncWrapper {
@@ -72,9 +72,9 @@ class JniDelegateHandler : public UriHandler, std::enable_shared_from_this<JniDe
 
 jint OnCreateVfs(JNIEnv* j_env, jobject j_object);
 void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id);
-void OnTraversalsEndAsync(JNIEnv* j_env, __unused jobject j_object, jobject j_holder);
-void DoNativeTraversalsAsync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder, jobject j_cb);
-jobject DoNativeTraversalsSync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder);
+void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_holder);
+void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder, jobject j_cb);
+void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder);
 
 }
 }

@@ -45,7 +45,7 @@ class UriLoader: std::enable_shared_from_this<UriLoader> {
 
   virtual void RequestUntrustedContent(
       const string_view& uri,
-      std::unordered_map<std::string, std::string> meta,
+      const std::unordered_map<std::string, std::string>& meta,
       std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb);
 
   virtual void RequestUntrustedContent(
@@ -55,13 +55,18 @@ class UriLoader: std::enable_shared_from_this<UriLoader> {
       std::unordered_map<std::string, std::string>& rsp_meta,
       bytes& content);
 
-  virtual string_view GetScheme(const string_view& uri) = 0;
+  inline void SetDefaultHandler(std::shared_ptr<UriHandler> handler) {
+    default_handler_ = handler;
+  }
 
  private:
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
                                              const std::list<std::shared_ptr<UriHandler>>::iterator& end);
 
+  static std::u16string GetScheme(const string_view& uri);
+
   std::unordered_map<std::u16string, std::list<std::shared_ptr<UriHandler>>> router_;
+  std::shared_ptr<UriHandler> default_handler_;
   std::mutex mutex_;
 };
 
