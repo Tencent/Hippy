@@ -99,6 +99,7 @@ constexpr const char kBlurTextInput[] = "blurTextInput";
 constexpr const char kClear[] = "clear";
 constexpr const char kFocusTextInput[] = "focusTextInput";
 constexpr const char kGetValue[] = "getValue";
+constexpr const char kSetValue[] = "setValue";
 constexpr const char kHideInputMethod[] = "hideInputMethod";
 constexpr const char kShowInputMethod[] = "showInputMethod";
 

@@ -193,6 +193,7 @@ void TextInputNode::InitCallBackMap() {
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
+
   input_event_callback_map_[kClear] = [this](const std::string &function_name,
                                              const uint32_t callback_id,
                                              const DomArgument &param) {
@@ -209,6 +210,7 @@ void TextInputNode::InitCallBackMap() {
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
+
   input_event_callback_map_[kGetValue] = [this](const std::string &function_name,
                                                 const uint32_t callback_id,
                                                 const DomArgument &param) {
@@ -221,6 +223,27 @@ void TextInputNode::InitCallBackMap() {
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
+
+  input_event_callback_map_[kSetValue] = [this](const std::string &function_name,
+                                                const uint32_t callback_id,
+                                                const DomArgument &param) {
+
+    auto fn = [param] (std::shared_ptr<View> view) {
+      footstone::HippyValue value;
+      param.ToObject(value);
+      footstone::value::HippyValue::DomValueArrayType dom_value_array;
+      auto result = value.ToArray(dom_value_array);
+      FOOTSTONE_CHECK(result);
+      if (!result) {
+        return;
+      }
+      auto unicode_str = footstone::string_view::new_from_utf8(dom_value_array.at(0).ToStringChecked().c_str());
+      auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
+      std::static_pointer_cast<TextInputView>(view)->SetText(text_u16);
+    };
+    INVOKE_IF_VIEW_IS_VALIDATE(fn);
+  };
+
   input_event_callback_map_[kHideInputMethod] = [this](const std::string &function_name,
                                                        const uint32_t callback_id,
                                                        const DomArgument &param) {
@@ -229,6 +252,7 @@ void TextInputNode::InitCallBackMap() {
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
+
   input_event_callback_map_[kShowInputMethod] = [this](const std::string &function_name,
                                                        const uint32_t callback_id,
                                                        const DomArgument &param) {
