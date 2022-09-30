@@ -20,13 +20,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.vfs.ResourceDataHolder.RequestFrom;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class VfsManager {
 
     private final CopyOnWriteArrayList<Processor> mProcessorChain = new CopyOnWriteArrayList<>();
-    private int mId;
+    private final int mId;
 
     public VfsManager() {
         mId = onCreateVfs();
@@ -60,14 +60,14 @@ public class VfsManager {
         mProcessorChain.clear();
     }
 
-    public void fetchResourceAsync(@NonNull String uri, @Nullable Map<String, Object> params,
+    public void fetchResourceAsync(@NonNull String uri, @Nullable HashMap<String, Object> params,
             @Nullable FetchResourceCallback callback) {
         onFetchResourceStart();
         fetchResourceAsyncImpl(uri, params, callback, RequestFrom.LOCAL, -1);
     }
 
     public ResourceDataHolder fetchResourceSync(@NonNull String uri,
-            @Nullable Map<String, Object> params) {
+            @Nullable HashMap<String, Object> params) {
         onFetchResourceStart();
         ResourceDataHolder holder = fetchResourceSyncImpl(uri, params, RequestFrom.LOCAL);
         onFetchResourceEnd(holder);
@@ -75,13 +75,13 @@ public class VfsManager {
     }
 
     private ResourceDataHolder fetchResourceSyncImpl(@NonNull String uri,
-            @Nullable Map<String, Object> params, RequestFrom from) {
+            @Nullable HashMap<String, Object> params, RequestFrom from) {
         ResourceDataHolder holder = new ResourceDataHolder(uri, params, from);
         traverseForward(holder, true);
         return holder;
     }
 
-    private void fetchResourceAsyncImpl(@NonNull String uri, @Nullable Map<String, Object> params,
+    private void fetchResourceAsyncImpl(@NonNull String uri, @Nullable HashMap<String, Object> params,
             @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
         ResourceDataHolder holder = new ResourceDataHolder(uri, params, callback, from, nativeId);
         traverseForward(holder, false);
@@ -199,7 +199,7 @@ public class VfsManager {
         void onFetchCompleted(ResourceDataHolder dataHolder);
     }
 
-    public void doLocalTraversalsAsync(@NonNull String uri, @Nullable Map<String, Object> params,
+    public void doLocalTraversalsAsync(@NonNull String uri, @Nullable HashMap<String, Object> params,
             int nativeId) {
         FetchResourceCallback callback = new FetchResourceCallback() {
             @Override
@@ -211,7 +211,7 @@ public class VfsManager {
     }
 
     public ResourceDataHolder doLocalTraversalsSync(@NonNull String uri,
-            @Nullable Map<String, Object> params) {
+            @Nullable HashMap<String, Object> params) {
         return fetchResourceSyncImpl(uri, params, RequestFrom.NATIVE);
     }
 

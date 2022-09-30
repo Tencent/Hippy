@@ -21,7 +21,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.nio.ByteBuffer;
-import java.util.Map;
+import java.util.HashMap;
 
 public class ResourceDataHolder {
 
@@ -50,9 +50,9 @@ public class ResourceDataHolder {
     @Nullable
     public byte[] bytes;
     @Nullable
-    public Map<String, Object> requestHeader;
+    public HashMap<String, Object> requestHeader;
     @Nullable
-    public Map<String, String> responseHeader;
+    public HashMap<String, String> responseHeader;
     @Nullable
     public FetchResourceCallback callback;
     public TransferType transferType = TransferType.NORMAL;
@@ -62,21 +62,21 @@ public class ResourceDataHolder {
     public int nativeId;
     public int index = -1;
 
-    public ResourceDataHolder(@NonNull String uri, @Nullable Map<String, Object> params,
+    public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, Object> params,
             RequestFrom from) {
         this.requestFrom = from;
         this.uri = uri;
         init(params, null, -1);
     }
 
-    public ResourceDataHolder(@NonNull String uri, @Nullable Map<String, Object> params,
+    public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, Object> params,
             @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
         this.requestFrom = from;
         this.uri = uri;
         init(params, callback, nativeId);
     }
 
-    private void init(@Nullable Map<String, Object> params,
+    private void init(@Nullable HashMap<String, Object> params,
             @Nullable FetchResourceCallback callback, int nativeId) {
         this.requestHeader = params;
         this.callback = callback;

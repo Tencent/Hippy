@@ -112,14 +112,14 @@ bool JniDelegateHandler::Init(JNIEnv* j_env) {
   j_resource_data_holder_init_method_id =
       j_env->GetMethodID(j_resource_data_holder_clazz,
                          "<init>",
-                         "(Ljava/lang/String;Ljava/util/Map;Lcom/tencent/vfs/ResourceDataHolder$RequestFrom;)V");
+                         "(Ljava/lang/String;Ljava/util/HashMap;Lcom/tencent/vfs/ResourceDataHolder$RequestFrom;)V");
   j_holder_uri_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "uri", "Ljava/lang/String;");
   j_holder_buffer_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "buffer", "Ljava/nio/ByteBuffer;");
   j_holder_bytes_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "bytes", "[B");
   j_holder_transfer_type_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "transferType",
                                                       "Lcom/tencent/vfs/ResourceDataHolder$TransferType;");
-  j_holder_req_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestHeader", "Ljava/util/Map;");
-  j_holder_rsp_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "responseHeader", "Ljava/util/Map;");
+  j_holder_req_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestHeader", "Ljava/util/HashMap;");
+  j_holder_rsp_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "responseHeader", "Ljava/util/HashMap;");
   j_holder_ret_code_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "resultCode", "I");
   j_holder_native_id_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "nativeId", "I");
   auto j_request_from_clazz = reinterpret_cast<jclass>(
@@ -167,9 +167,9 @@ bool JniDelegateHandler::Init(JNIEnv* j_env) {
   j_fetch_resource_cb_interface_clazz = j_env->FindClass("com/tencent/vfs/VfsManager$FetchResourceCallback");
   j_interface_cb_method_id = j_env->GetMethodID(j_fetch_resource_cb_interface_clazz, "onFetchCompleted", "(Lcom/tencent/vfs/ResourceDataHolder;)V");
   j_call_jni_delegate_sync_method_id = j_env->GetMethodID(j_vfs_manager_clazz,"doLocalTraversalsSync",
-    "(Ljava/lang/String;Ljava/util/Map;)Lcom/tencent/vfs/ResourceDataHolder;");
+    "(Ljava/lang/String;Ljava/util/HashMap;)Lcom/tencent/vfs/ResourceDataHolder;");
   j_call_jni_delegate_async_method_id = j_env->GetMethodID(j_vfs_manager_clazz, "doLocalTraversalsAsync",
-    "(Ljava/lang/String;Ljava/util/Map;I)V");
+    "(Ljava/lang/String;Ljava/util/HashMap;I)V");
 
   return true;
 }
