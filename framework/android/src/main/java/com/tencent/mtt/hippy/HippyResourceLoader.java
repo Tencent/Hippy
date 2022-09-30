@@ -194,7 +194,7 @@ public class HippyResourceLoader implements ResourceLoader {
             holder.buffer.put(resBytes);
         } else {
             holder.transferType = TransferType.NORMAL;
-            holder.buffer = ByteBuffer.wrap(resBytes);
+            holder.bytes = resBytes;
         }
     }
 }

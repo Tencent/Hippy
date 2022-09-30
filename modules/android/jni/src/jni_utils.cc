@@ -60,7 +60,7 @@ JniUtils::byte_string JniUtils::AppendJavaByteArrayToBytes(JNIEnv* j_env,
   }
 
   byte_string ret;
-  ret.resize(footstone::check::checked_numeric_cast<jsize, size_t>(j_length));
+  ret.resize(footstone::check::checked_numeric_cast<jsize, size_t>(j_len));
   j_env->GetByteArrayRegion(j_byte_array, j_offset, j_len,
                             reinterpret_cast<int8_t*>(&ret[0]));
   return ret;
