@@ -76,7 +76,7 @@ constexpr const char kMaxLength[] = "maxLength";                          // int
 constexpr const char kMultiline[] = "multiline";                          // boolean
 constexpr const char kNumberOfLines[] = "numberOfLines";                  // int
 constexpr const char kOnBlur[] = "onBlur";                                // boolean
-constexpr const char kOnChangeText[] = "onChangeText";                    // boolean
+constexpr const char kOnChangeText[] = "changetext";                      // boolean
 constexpr const char kOnContentSizeChange[] = "onContentSizeChange";      // boolean
 constexpr const char kOnEndEditing[] = "onEndEditing";                    // boolean
 constexpr const char kOnFocus[] = "onFocus";                              // boolean
@@ -203,6 +203,7 @@ class TextInputNode : public ViewNode {
   std::shared_ptr<tdfcore::TextSelectionControl> selection_control_;
   std::map<std::string, InputEventCallBack> input_event_callback_map_;
   tdfcore::TextSelection text_selection_;
+  std::u16string text_ = u"";
   std::string font_style_ = "";
   std::string font_weight_ = "";
   float font_size_ = kDefaultFontSize;

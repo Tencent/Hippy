@@ -157,12 +157,11 @@ void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& ev
 }
 
 void TextInputNode::DidChangeTextEditingValue(std::shared_ptr<TextInputView> text_input_view) {
-  auto text_u16 = edit_controller_->GetText();
-  if (edit_controller_->GetText() != text_u16) {
-    text_input_view->SetText(text_u16);
-    if (event_callback_.on_change_text_flag) {
-      auto unicode_str =
-          StringViewUtils::ConvertEncoding(text_u16.c_str(), unicode_string_view::Encoding::Utf8).utf8_value();
+  if (edit_controller_->GetText() != text_) {
+    text_ = edit_controller_->GetText();
+    auto unicode_str =
+        StringViewUtils::ConvertEncoding(text_.c_str(), unicode_string_view::Encoding::Utf8).utf8_value();
+    if (event_callback_.on_change_text) {
       event_callback_.on_change_text(StringViewUtils::ToStdString(unicode_str));
     }
   }
@@ -271,8 +270,8 @@ void TextInputNode::InitCallback() {
   event_callback_.on_change_text = [WEAK_THIS](const std::string& value) {
     DEFINE_AND_CHECK_SELF(TextInputNode)
     DomValueObjectType param;
-    param[kText] = value;
-    self->SendUIDomEvent(textinput::kOnChangeText, std::make_shared<footstone::HippyValue>(param));
+    param[kText] = footstone::HippyValue(value);
+    self->SendUIDomEvent(kOnChangeText, std::make_shared<footstone::HippyValue>(param));
   };
   event_callback_.on_keyboard_height_change = [WEAK_THIS](float keyboard_height) {
     DEFINE_AND_CHECK_SELF(TextInputNode)
