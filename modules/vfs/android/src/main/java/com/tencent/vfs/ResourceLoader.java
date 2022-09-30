@@ -23,7 +23,7 @@ import com.tencent.vfs.VfsManager.ProcessorCallback;
 public interface ResourceLoader {
 
     void fetchResourceAsync(@NonNull ResourceDataHolder holder,
-            @Nullable ProcessorCallback callback);
+            @NonNull ProcessorCallback callback);
 
     boolean fetchResourceSync(@NonNull ResourceDataHolder holder);
 }

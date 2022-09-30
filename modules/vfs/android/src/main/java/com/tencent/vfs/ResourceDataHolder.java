@@ -29,6 +29,8 @@ public class ResourceDataHolder {
         OK,
         ERR_OPEN_LOCAL_FILE,
         ERR_NOT_SUPPORT_SYNC_REMOTE,
+        ERR_UNKNOWN_SCHEME,
+        ERR_REMOTE_REQUEST_FAILED,
     }
 
     public enum RequestFrom {
@@ -36,16 +38,24 @@ public class ResourceDataHolder {
         LOCAL,
     }
 
+    public enum TransferType {
+        NORMAL,
+        NIO,
+    }
+
     @NonNull
     public String uri;
     @Nullable
-    public ByteBuffer data;
+    public ByteBuffer buffer;
+    @Nullable
+    public byte[] bytes;
     @Nullable
     public Map<String, Object> requestHeader;
     @Nullable
     public Map<String, String> responseHeader;
     @Nullable
     public FetchResourceCallback callback;
+    public TransferType transferType = TransferType.NORMAL;
     public final RequestFrom requestFrom;
     public String errorMessage;
     public int resultCode = FetchResultCode.OK.ordinal();
@@ -55,18 +65,19 @@ public class ResourceDataHolder {
     public ResourceDataHolder(@NonNull String uri, @Nullable Map<String, Object> params,
             RequestFrom from) {
         this.requestFrom = from;
-        init(uri, params, null, -1);
+        this.uri = uri;
+        init(params, null, -1);
     }
 
     public ResourceDataHolder(@NonNull String uri, @Nullable Map<String, Object> params,
             @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
         this.requestFrom = from;
-        init(uri, params, callback, nativeId);
+        this.uri = uri;
+        init(params, callback, nativeId);
     }
 
-    private void init(@NonNull String uri, @Nullable Map<String, Object> params,
+    private void init(@Nullable Map<String, Object> params,
             @Nullable FetchResourceCallback callback, int nativeId) {
-        this.uri = uri;
         this.requestHeader = params;
         this.callback = callback;
         this.nativeId = nativeId;

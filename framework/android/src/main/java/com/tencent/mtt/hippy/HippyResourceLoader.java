@@ -17,7 +17,6 @@
 package com.tencent.mtt.hippy;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpRequest;
@@ -25,6 +24,7 @@ import com.tencent.mtt.hippy.adapter.http.HippyHttpResponse;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.ResourceDataHolder.FetchResultCode;
+import com.tencent.vfs.ResourceDataHolder.TransferType;
 import com.tencent.vfs.ResourceLoader;
 import com.tencent.vfs.UrlUtils;
 import com.tencent.vfs.VfsManager.ProcessorCallback;
@@ -42,6 +42,7 @@ public class HippyResourceLoader implements ResourceLoader {
 
     private static final String PREFIX_FILE = "file://";
     private static final String PREFIX_ASSETS = "assets://";
+    private static final int MAX_HEAP_BYTE_BUFFER_SIZE = 4*1024*1024;
     private final HippyHttpAdapter mHttpAdapter;
     private final HippyExecutorSupplierAdapter mExecutorAdapter;
 
@@ -53,35 +54,31 @@ public class HippyResourceLoader implements ResourceLoader {
 
     @Override
     public void fetchResourceAsync(@NonNull final ResourceDataHolder holder,
-            @Nullable final ProcessorCallback callback) {
+            @NonNull final ProcessorCallback callback) {
         if (UrlUtils.isWebUrl(holder.uri)) {
             loadRemoteResource(holder, callback);
         } else if (holder.uri.startsWith(PREFIX_FILE) || holder.uri.startsWith(PREFIX_ASSETS)) {
             mExecutorAdapter.getBackgroundTaskExecutor().execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (callback != null) {
-                        loadLocalFileResource(holder);
-                        callback.onHandleCompleted();
-                    }
+                    loadLocalFileResource(holder);
+                    callback.onHandleCompleted();
                 }
             });
         } else {
+            holder.resultCode = FetchResultCode.ERR_UNKNOWN_SCHEME.ordinal();
             callback.goNext();
         }
     }
 
     private void loadRemoteResource(@NonNull final ResourceDataHolder holder,
-            @Nullable final ProcessorCallback callback) {
+            @NonNull final ProcessorCallback callback) {
         HippyHttpRequest request = new HippyHttpRequest();
         request.setUrl(holder.uri);
         mHttpAdapter.sendRequest(request, new HippyHttpAdapter.HttpTaskCallback() {
             @Override
             public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
                     throws Exception {
-                if (callback == null) {
-                    return;
-                }
                 if (response.getStatusCode() == 200 && response.getInputStream() != null) {
                     readResourceDataFromStream(holder, response.getInputStream());
                     setResponseHeaderToHolder(holder, response);
@@ -110,13 +107,12 @@ public class HippyResourceLoader implements ResourceLoader {
 
             @Override
             public void onTaskFailed(HippyHttpRequest request, Throwable error) {
-                if (callback != null) {
-                    holder.errorMessage = (
-                            "Could not connect to development server." + "URL: " + holder.uri
-                                    + "  try to :adb reverse tcp:38989 tcp:38989 , message : "
-                                    + error.getMessage());
-                    callback.onHandleCompleted();
-                }
+                holder.resultCode = FetchResultCode.ERR_REMOTE_REQUEST_FAILED.ordinal();
+                holder.errorMessage = (
+                        "Could not connect to development server." + "URL: " + holder.uri
+                                + "  try to :adb reverse tcp:38989 tcp:38989 , message : "
+                                + error.getMessage());
+                callback.onHandleCompleted();
             }
         });
     }
@@ -154,7 +150,8 @@ public class HippyResourceLoader implements ResourceLoader {
         }
         if (UrlUtils.isWebUrl(holder.uri)) {
             holder.resultCode = FetchResultCode.ERR_NOT_SUPPORT_SYNC_REMOTE.ordinal();
-            holder.errorMessage = "Loading remote resources synchronously is not supported!";
+        } else {
+            holder.resultCode = FetchResultCode.ERR_UNKNOWN_SCHEME.ordinal();
         }
         return false;
     }
@@ -191,7 +188,13 @@ public class HippyResourceLoader implements ResourceLoader {
             output.write(b, 0, size);
         }
         byte[] resBytes = output.toByteArray();
-        holder.data = ByteBuffer.allocateDirect(resBytes.length);
-        holder.data.put(resBytes);
+        if (resBytes.length >= MAX_HEAP_BYTE_BUFFER_SIZE) {
+            holder.transferType = TransferType.NIO;
+            holder.buffer = ByteBuffer.allocateDirect(resBytes.length);
+            holder.buffer.put(resBytes);
+        } else {
+            holder.transferType = TransferType.NORMAL;
+            holder.buffer = ByteBuffer.wrap(resBytes);
+        }
     }
 }

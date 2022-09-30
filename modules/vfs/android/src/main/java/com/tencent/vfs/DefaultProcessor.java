@@ -19,6 +19,7 @@ package com.tencent.vfs;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.vfs.ResourceDataHolder.FetchResultCode;
 import com.tencent.vfs.VfsManager.ProcessorCallback;
 
 public class DefaultProcessor extends Processor {
@@ -29,10 +30,21 @@ public class DefaultProcessor extends Processor {
         mResourceLoader = resourceLoader;
     }
 
+    private boolean checkResourceData(@NonNull ResourceDataHolder holder) {
+        if (holder.resultCode != FetchResultCode.OK.ordinal()) {
+            return false;
+        }
+        if ((holder.bytes != null && holder.bytes.length > 0) || (holder.buffer != null
+                && holder.buffer.hasArray())) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void handleRequestAsync(@NonNull ResourceDataHolder holder,
             @NonNull final ProcessorCallback callback) {
-        if (holder.data != null) {
+        if (checkResourceData(holder)) {
             callback.onHandleCompleted();
         } else {
             mResourceLoader.fetchResourceAsync(holder, callback);
@@ -41,9 +53,9 @@ public class DefaultProcessor extends Processor {
 
     @Override
     public boolean handleRequestSync(@NonNull ResourceDataHolder holder) {
-        if (holder.data == null) {
-            return mResourceLoader.fetchResourceSync(holder);
+        if (checkResourceData(holder)) {
+            return true;
         }
-        return true;
+        return mResourceLoader.fetchResourceSync(holder);
     }
 }
