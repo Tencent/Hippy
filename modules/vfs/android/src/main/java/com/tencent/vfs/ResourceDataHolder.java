@@ -50,7 +50,7 @@ public class ResourceDataHolder {
     @Nullable
     public byte[] bytes;
     @Nullable
-    public HashMap<String, Object> requestHeader;
+    public HashMap<String, String> requestHeader;
     @Nullable
     public HashMap<String, String> responseHeader;
     @Nullable
@@ -62,21 +62,21 @@ public class ResourceDataHolder {
     public int nativeId;
     public int index = -1;
 
-    public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, Object> params,
+    public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, String> params,
             RequestFrom from) {
         this.requestFrom = from;
         this.uri = uri;
         init(params, null, -1);
     }
 
-    public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, Object> params,
+    public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, String> params,
             @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
         this.requestFrom = from;
         this.uri = uri;
         init(params, callback, nativeId);
     }
 
-    private void init(@Nullable HashMap<String, Object> params,
+    private void init(@Nullable HashMap<String, String> params,
             @Nullable FetchResourceCallback callback, int nativeId) {
         this.requestHeader = params;
         this.callback = callback;
