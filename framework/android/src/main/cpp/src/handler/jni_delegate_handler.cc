@@ -64,11 +64,8 @@ static jfieldID j_holder_bytes_field_id;
 static jfieldID j_holder_req_header_field_id;
 static jfieldID j_holder_rsp_header_field_id;
 static jfieldID j_holder_transfer_type_field_id;
-static jfieldID j_holder_cb_field_id;
-static jfieldID j_holder_err_msg_field_id;
 static jfieldID j_holder_ret_code_field_id;
 static jfieldID j_holder_native_id_field_id;
-static jfieldID j_holder_index_field_id;
 
 static jclass j_util_map_clazz;
 static jmethodID j_map_init_method_id;
@@ -123,11 +120,8 @@ bool JniDelegateHandler::Init(JNIEnv* j_env) {
                                                       "Lcom/tencent/vfs/ResourceDataHolder$TransferType;");
   j_holder_req_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestHeader", "Ljava/util/Map;");
   j_holder_rsp_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "responseHeader", "Ljava/util/Map;");
-  j_holder_cb_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "callback", "Lcom/tencent/vfs/VfsManager$FetchResourceCallback;");
-  j_holder_err_msg_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "errorMessage", "Ljava/lang/String;");
   j_holder_ret_code_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "resultCode", "I");
   j_holder_native_id_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "nativeId", "I");
-  j_holder_index_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "index", "I");
   auto j_request_from_clazz = reinterpret_cast<jclass>(
       j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/ResourceDataHolder$RequestFrom")));
   auto j_request_from_native_field_id = j_env->GetStaticFieldID(j_request_from_clazz, "NATIVE",
