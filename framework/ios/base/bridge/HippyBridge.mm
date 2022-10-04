@@ -235,9 +235,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         for (dispatch_block_t block in setupBlocks) {
             block();
         }
-        [strongSelf beginLoadingBundles:bundleURLs completion:^{
-            
-        }];
+        [strongSelf beginLoadingBundles:bundleURLs];
         if (dir) {
             [strongSelf.javaScriptExecutor setSandboxDirectory:[dir absoluteString]];
         }
@@ -291,16 +289,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 }
 
-- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs completion:(dispatch_block_t)completion {
+- (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs {
     if (!bundleURLs) {
-        if (completion) {
-            completion();
-        }
         return;
     }
     [_bundleURLs addObjectsFromArray:bundleURLs];
     dispatch_async(HippyBridgeQueue(), ^{
-        [self beginLoadingBundles:bundleURLs completion:completion];
+        [self beginLoadingBundles:bundleURLs];
     });
 }
 
@@ -310,7 +305,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [_moduleSetup setupModulesCompletion:completion];
 }
 
-- (void)beginLoadingBundles:(NSArray<NSURL *> *)bundleURLs completion:(dispatch_block_t)completion {
+- (void)beginLoadingBundles:(NSArray<NSURL *> *)bundleURLs {
     dispatch_group_t group = dispatch_group_create();
     self.loadingCount++;
     for (NSURL *bundleURL in bundleURLs) {
@@ -379,9 +374,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         HippyBridge *strongSelf = weakSelf;
         if (strongSelf) {
             strongSelf.loadingCount--;
-        }
-        if (completion) {
-            completion();
         }
     };
     dispatch_group_notify(group, HippyBridgeQueue(), completionBlock);
