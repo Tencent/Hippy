@@ -29,6 +29,7 @@ import {
   getCssMap,
 } from '../renderer/native/index';
 
+import { isStyleMatched } from '../util/node';
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
 
@@ -96,6 +97,7 @@ const getElemCss = function getElemCss(element) {
   const style = Object.create(null);
   try {
     getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      if (!isStyleMatched(matchedSelector, element)) return;
       matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
         style[cssStyle.property] = cssStyle.value;
       });
