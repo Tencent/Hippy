@@ -136,8 +136,9 @@ app.$start().then(({ superProps, rootViewId }) => {
 >Tips: @hippy/vue-router-next-history 对 vue-router 的 history 模式做了处理。为安卓加上了触发物理返回键时优先回退历史记录的逻辑，
 > 如果不需要这个逻辑，可以直接使用原生 vue-router 来实现路由：
 
+使用原生 vue-router 实现路由
+
 ```javascript
-# 使用原生 vue-router 实现路由
 import { createRouter, createMemoryHistory, type Router } from 'vue-router';
 
 // 路由列表

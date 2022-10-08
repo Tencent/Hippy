@@ -138,8 +138,9 @@ app.$start().then(({ superProps, rootViewId }) => {
 > Tips: @hippy/vue-router-next-history modify vue-router's history mode. Added the logic of returning the history record first when the hardware back key is triggered for Android,
 > If you don't need this, you can use original vue-router to implement routing：
 
+use original vue-router
+
 ```javascript
-# use original vue-router
 import { createRouter, createMemoryHistory, type Router } from 'vue-router';
 
 // 路由列表
