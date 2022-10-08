@@ -92,7 +92,8 @@ export default defineComponent({
 // app.ts
 import { defineComponent, ref } from 'vue';
 import { type HippyApp, createApp } from '@hippy/vue-next';
-import { createRouter, createMemoryHistory, type Router } from 'vue-router';
+import { createHippyRouter } from '@hippy/vue-router-next-history';
+import { type Router } from 'vue-router';
 import App from 'app.vue';
 
 // 创建 Hippy App 实例，需要注意 Vue 3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
@@ -110,8 +111,7 @@ const routes = [
 ];
 
 // 创建路由对象
-const router: Router = createRouter({
-  history: createMemoryHistory(),
+const router: Router = createHippyRouter({
   routes,
 });
 
@@ -131,6 +131,27 @@ app.$start().then(({ superProps, rootViewId }) => {
   // mount app，完成渲染上屏 
   app.mount('#mount');
 })
+```
+
+>Tips: @hippy/vue-router-next-history 对 vue-router 的 history 模式做了处理。为安卓加上了触发物理返回键时优先回退历史记录的逻辑，
+> 如果不需要这个逻辑，可以直接使用原生 vue-router 来实现路由：
+
+```javascript
+# 使用原生 vue-router 实现路由
+import { createRouter, createMemoryHistory, type Router } from 'vue-router';
+
+// 路由列表
+const routes = [
+  {
+    path: '/',
+    component: Index,
+  },
+]; 
+
+const router: Router = createRouter({
+  history: createMemoryHistory(),
+  routes,
+});
 ```
 
 # 示例

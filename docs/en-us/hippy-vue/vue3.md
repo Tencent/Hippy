@@ -93,7 +93,8 @@ export default defineComponent({
 // app.ts
 import { defineComponent, ref } from 'vue';
 import { type HippyApp, createApp } from '@hippy/vue-next';
-import { createRouter, createMemoryHistory, type Router } from 'vue-router';
+import { createHippyRouter } from '@hippy/vue-router-next-history';
+import { type Router } from 'vue-router';
 import App from 'app.vue';
 
 // To create a Hippy App instance, it should be noted that Vue 3.x uses Typescript, and you need to use defineComponent to wrap the component object
@@ -111,8 +112,7 @@ const routes = [
 ];
 
 // create router
-const router: Router = createRouter({
-  history: createMemoryHistory(),
+const router: Router = createHippyRouter({
   routes,
 });
 
@@ -133,6 +133,27 @@ app.$start().then(({ superProps, rootViewId }) => {
   // mount app, render to screen 
   app.mount('#mount');
 })
+```
+
+> Tips: @hippy/vue-router-next-history modify vue-router's history mode. Added the logic of returning the history record first when the hardware back key is triggered for Android,
+> If you don't need this, you can use original vue-router to implement routing：
+
+```javascript
+# use original vue-router
+import { createRouter, createMemoryHistory, type Router } from 'vue-router';
+
+// 路由列表
+const routes = [
+  {
+    path: '/',
+    component: Index,
+  },
+]; 
+
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes,
+});
 ```
 
 # Examples
