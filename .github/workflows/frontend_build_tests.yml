@@ -32,7 +32,7 @@ jobs:
       - name: lint & build
         run: npm run lint & npm run build
       - name: test
-        run: npm run coverage
+        run: npm run test:jest && npm run coverage
       - name: coverage
         if: matrix.node == '16.x'
         uses: codecov/codecov-action@v2
