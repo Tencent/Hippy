@@ -22,7 +22,7 @@ import { translateColor } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
 import { CallbackType, NATIVE_COMPONENT_MAP, type NeedToTyped, HIPPY_VUE_VERSION } from '../../config';
-import { trace, warn } from '../../util';
+import { isStyleMatched, trace, warn } from '../../util';
 import { type HippyElement } from '../element/hippy-element';
 import { EventBus } from '../event/event-bus';
 import { type HippyNode } from '../node/hippy-node';
@@ -767,6 +767,9 @@ export const Native: NativeApiType = {
       getCssMap()
         .query(element)
         .selectors.forEach((matchedSelector) => {
+          if (!isStyleMatched(matchedSelector, element)) {
+            return;
+          }
           matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
             style[cssStyle.property] = cssStyle.value;
           });

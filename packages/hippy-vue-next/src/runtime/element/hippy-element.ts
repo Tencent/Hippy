@@ -37,6 +37,7 @@ import {
   warn,
   isEmpty,
   deepCopy,
+  isStyleMatched,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { getHippyCachedInstance } from '../../util/instance';
@@ -833,7 +834,7 @@ export class HippyElement extends HippyNode {
     const matchedSelectors = getCssMap().query(this);
     matchedSelectors.selectors.forEach((matchedSelector) => {
       // if current element do not match style rule, return
-      if (!this.isStyleMatched(matchedSelector)) {
+      if (!isStyleMatched(matchedSelector, this)) {
         return;
       }
       if (matchedSelector.ruleSet?.declarations?.length) {
@@ -1030,29 +1031,5 @@ export class HippyElement extends HippyNode {
         this.updateNativeNode();
       },
     });
-  }
-
-  /**
-   * determine if the element's style scoped id is matched selector
-   *
-   * @param matchedSelector - matched selector
-   * @private
-   */
-  private isStyleMatched(matchedSelector: NeedToTyped): boolean {
-    const styleScopedId = this.styleScopeId;
-
-    if (styleScopedId) {
-      // set element's attribute for style scoped determine
-      this.attributes[styleScopedId] = true;
-    }
-
-    // determine if element matched
-    const isMatched = matchedSelector.match(this);
-    // remove scoped attribute after match determine
-    if (styleScopedId) {
-      delete this.attributes[styleScopedId];
-    }
-
-    return isMatched;
   }
 }

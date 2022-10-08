@@ -22,6 +22,7 @@ import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { capitalize } from '@vue/shared';
 import type { CallbackType, CommonMapParams, NeedToTyped } from '../config';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
+import { type HippyElement } from '../runtime/element/hippy-element';
 
 let uniqueId = 0;
 
@@ -352,5 +353,28 @@ export function deepCopy(data: NeedToTyped, hash = new WeakMap()): NeedToTyped {
     }
   });
   return newData;
+}
+
+/**
+ * determine if the element's style scoped id is matched selector
+ *
+ * @param matchedSelector - matched selector
+ * @param element - hippy element
+ */
+export function isStyleMatched(matchedSelector: NeedToTyped, element: HippyElement): boolean {
+  if (!element || !matchedSelector) return false;
+
+  const styleScopedId = element.styleScopeId;
+  if (styleScopedId) {
+    // set element's attribute for style scoped determine
+    element.attributes[styleScopedId] = true;
+  }
+  // determine if element matched
+  const isMatched = matchedSelector.match(element);
+  // remove scoped attribute after match determine
+  if (styleScopedId) {
+    delete element.attributes[styleScopedId];
+  }
+  return isMatched;
 }
 
