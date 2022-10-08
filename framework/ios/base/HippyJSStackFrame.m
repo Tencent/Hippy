@@ -21,7 +21,7 @@
  */
 
 #import "HippyJSStackFrame.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 #import "NativeRenderUtils.h"
 
 static NSRegularExpression *HippyJSStackFrameRegex() {
@@ -31,7 +31,7 @@ static NSRegularExpression *HippyJSStackFrameRegex() {
         NSError *regexError;
         _regex = [NSRegularExpression regularExpressionWithPattern:@"^([^@]+)@(.*):(\\d+):(\\d+)$" options:0 error:&regexError];
         if (regexError) {
-            NativeRenderLogError(@"Failed to build regex: %@", [regexError localizedDescription]);
+            HippyLogError(@"Failed to build regex: %@", [regexError localizedDescription]);
         }
     });
     return _regex;

@@ -28,7 +28,6 @@
 #import "HippyDefines.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
-#import "NativeRenderLog.h"
 #import "HippyRootView.h"
 #import "NativeRenderUtils.h"
 #import "HippyWebSocketProxy.h"

@@ -33,7 +33,7 @@
 #import "HippyBundleExecutionOperation.h"
 #import "HippyBundleOperationQueue.h"
 #import "HippyDeviceBaseInfo.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 #import "HippyModuleData.h"
 #import "HippyAssert.h"
 #import "NativeRenderInvalidating.h"
@@ -144,7 +144,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
             [self bindKeys];
             self->_dimDic = HippyExportedDimensions();
         });
-        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
+        HippyLogInfo(self, @"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
 }
@@ -154,7 +154,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
      * This runs only on the main thread, but crashes the subclass
      * HippyAssertMainQueue();
      */
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
+    HippyLogInfo(self, @"[Hippy_OC_Log][Life_Circle],%@ dealloc %p", NSStringFromClass([self class]), self);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     self.invalidateReason = NativeRenderInvalidateReasonDealloc;
     [self invalidate];
@@ -403,7 +403,7 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
 
 - (void)innerLoadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props {
     NSString *moduleName = _moduleName ?: @"";
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, props);
+    HippyLogInfo(self, @"[Hippy_OC_Log][Life_Circle],Running application %@ (%@)", moduleName, props);
     NSDictionary *param = @{@"name": moduleName,
                             @"id": rootTag,
                             @"params": props ?: @{},
@@ -582,7 +582,7 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     NSArray *requestsArray = [NativeRenderConvert NSArray:buffer];
 
     if (HIPPY_DEBUG && requestsArray.count <= HippyBridgeFieldParams) {
-        NativeRenderLogError(@"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
+        HippyLogError(self, @"Buffer should contain at least %tu sub-arrays. Only found %tu", HippyBridgeFieldParams + 1, requestsArray.count);
         return;
     }
 
@@ -597,7 +597,7 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     }
 
     if (HIPPY_DEBUG && (moduleIDs.count != methodIDs.count || moduleIDs.count != paramsArrays.count)) {
-        NativeRenderLogError(@"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
+        HippyLogError(self, @"Invalid data message - all must be length: %lu", (unsigned long)moduleIDs.count);
         return;
     }
 
@@ -652,14 +652,14 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     NSArray<HippyModuleData *> *moduleDataByID = [_moduleSetup moduleDataByID];
     if (moduleID >= [moduleDataByID count]) {
         if (isValid) {
-            NativeRenderLogError(@"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)isValid);
+            HippyLogError(self, @"moduleID %lu exceed range of moduleDataByID %lu, bridge is valid %ld", moduleID, [moduleDataByID count], (long)isValid);
         }
         return nil;
     }
     HippyModuleData *moduleData = moduleDataByID[moduleID];
     if (HIPPY_DEBUG && !moduleData) {
         if (isValid) {
-            NativeRenderLogError(@"No module found for id '%lu'", (unsigned long)moduleID);
+            HippyLogError(self, @"No module found for id '%lu'", (unsigned long)moduleID);
         }
         return nil;
     }
@@ -672,14 +672,14 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     NSArray<id<HippyBridgeMethod>> *methods = [moduleData.methods copy];
     if (methodID >= [methods count]) {
         if (isValid) {
-            NativeRenderLogError(@"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)isValid);
+            HippyLogError(self, @"methodID %lu exceed range of moduleData.methods %lu, bridge is valid %ld", moduleID, [methods count], (long)isValid);
         }
         return nil;
     }
     id<HippyBridgeMethod> method = methods[methodID];
     if (HIPPY_DEBUG && !method) {
         if (isValid) {
-            NativeRenderLogError(@"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
+            HippyLogError(self, @"Unknown methodID: %lu for module: %lu (%@)", (unsigned long)methodID, (unsigned long)moduleID, moduleData.name);
         }
         return nil;
     }
@@ -814,7 +814,7 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
 }
 
 - (void)invalidate {
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
+    HippyLogInfo(self, @"[Hippy_OC_Log][Life_Circle],%@ invalide %p", NSStringFromClass([self class]), self);
     if (![self isValid]) {
         return;
     }

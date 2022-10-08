@@ -36,7 +36,7 @@
 #import "HippyPerformanceLogger.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModuleManager.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 #import "NativeRenderUtils.h"
 #import "NSObject+CtxValue.h"
 
@@ -118,7 +118,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
         self.ready = NO;
         _pendingCalls = [NSMutableArray arrayWithCapacity:4];
-        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, engineKey:%@", self, engineKey);
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, engineKey:%@", self, engineKey);
     }
 
     return self;
@@ -314,7 +314,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         devtools_data_source->Destroy(reload);
     }
 #endif
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
 #ifdef JS_USE_JSC
     auto scope = self.pScope;
@@ -330,7 +330,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", enginekey);
+        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", enginekey);
         [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
     });
 }
@@ -352,7 +352,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
         jsc_context->SetName([contextName UTF8String]);
         if (tryCatch->HasCaught()) {
-            NativeRenderLogWarn(@"set context throw exception");
+            HippyLogWarn(@"set context throw exception");
         }
     }];
 #endif //JS_USE_JSC
@@ -360,7 +360,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 // clang-format on
 
 - (void)dealloc {
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
     [self invalidate];
 }
 
