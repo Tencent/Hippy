@@ -34,14 +34,13 @@ import {
   warn,
   deepCopy,
   isFunction,
-  isScopedEnabled,
   capitalizeFirstLetter,
   convertImageLocalPath,
 } from '../../util';
 import {
   isRTL,
 } from '../../util/i18n';
-import { preCacheNode } from '../../util/node';
+import { isStyleMatched, preCacheNode } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -314,18 +313,6 @@ function getTargetNodeAttributes(targetNode) {
     warn('getTargetNodeAttributes error:', e);
     return {};
   }
-}
-
-function isStyleMatched(matchedSelector, targetNode) {
-  if (!isScopedEnabled()) return true;
-  if (!targetNode || !matchedSelector) return false;
-  const nodeScopeId = targetNode.styleScopeId;
-  // set scopeId as element node attribute for style matching
-  if (nodeScopeId) targetNode.attributes[nodeScopeId] = true;
-  const isMatched = matchedSelector.match(targetNode);
-  // delete scopeId attr after selector matching check
-  if (nodeScopeId) delete targetNode.attributes[nodeScopeId];
-  return isMatched;
 }
 
 /**
