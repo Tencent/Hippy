@@ -83,7 +83,7 @@ static void registerTDFLogHandler() {
                     NSString *fileName = nil;
                     int lineNumber = 0;
                     if (GetFileNameAndLineNumberFromLogMessage(message, &fileName, &lineNumber)) {
-                        HippyLogNativeInternal(logSeverityToLogLevel(serverity), nil, [fileName UTF8String], lineNumber, @"%@", message);
+                        HippyLogNativeInternal(logSeverityToLogLevel(serverity), [fileName UTF8String], lineNumber, nil, @"%@", message);
                     }
                 }
             }
@@ -222,7 +222,7 @@ NSString *HippyFormatLog(NSDate *timestamp, HippyLogLevel level, NSString *fileN
     return log;
 }
 
-void HippyLogNativeInternal(HippyLogLevel level, __weak HippyBridge *bridge, const char *fileName, int lineNumber, NSString *format, ...) {
+void HippyLogNativeInternal(HippyLogLevel level, const char *fileName, int lineNumber, __weak HippyBridge *bridge, NSString *format, ...) {
     HippyLogFunction logFunction = HippyGetLogFunction();
     BOOL log = HIPPY_DEBUG || (logFunction != nil);
     if (log && level >= HippyGetLogThreshold()) {

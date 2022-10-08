@@ -26,7 +26,7 @@
 #import "HippyAssert.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 #import "NativeRenderImpl.h"
 #import "NativeRenderUtils.h"
 #import "NativeRenderView.h"
@@ -145,7 +145,7 @@ NSNumber *AllocRootViewTag() {
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_contentView invalidate];
-    NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
+    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyRootView dealloc %p", self);
 }
 
 @end
