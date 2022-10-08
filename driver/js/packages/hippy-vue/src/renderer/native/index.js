@@ -39,7 +39,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
-import { preCacheNode, eventHandlerType, nativeEventMap, translateToNativeEventName } from '../../util/node';
+import { isStyleMatched, preCacheNode, eventHandlerType, nativeEventMap, translateToNativeEventName } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -395,17 +395,6 @@ function getEventNode(targetNode) {
     };
   }
   return eventNode;
-}
-
-function isStyleMatched(matchedSelector, targetNode) {
-  if (!targetNode || !matchedSelector) return false;
-  const nodeScopeId = targetNode.styleScopeId;
-  // set scopeId as element node attribute for style matching
-  if (nodeScopeId) targetNode.attributes[nodeScopeId] = true;
-  const isMatched = matchedSelector.match(targetNode);
-  // delete scopeId attr after selector matching check
-  if (nodeScopeId) delete targetNode.attributes[nodeScopeId];
-  return isMatched;
 }
 
 /**
