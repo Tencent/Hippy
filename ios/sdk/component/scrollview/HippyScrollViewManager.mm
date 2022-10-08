@@ -164,7 +164,7 @@ HIPPY_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)hippyTag
                 y = ((NSNumber *)(options[@"y"])).floatValue;
             }
             [UIView animateWithDuration:duration animations:^{
-                ((HippyScrollView *)view).scrollView.contentOffset = CGPointMake(x, y);
+                [(id<HippyScrollableProtocol>)view scrollToOffset:(CGPoint){x,y} animated:NO];
             }];
         } else {
             HippyLogError(@"tried to scrollTo: on non-HippyScrollableProtocol view %@ "
