@@ -20,34 +20,14 @@
  *
  */
 
-#pragma once
+#ifndef HippyUriLoader_hpp
+#define HippyUriLoader_hpp
 
-#include <memory>
-#include <string>
-#include <vector>
+#include "vfs/uri_loader.h"
 
-#include "footstone/string_view.h"
-
-namespace hippy {
-inline namespace driver {
-inline namespace base {
-
-class UriLoader {
+class HippyUriLoader : public hippy::vfs::UriLoader {
  public:
-  using string_view = footstone::stringview::string_view;
-  using u8string = string_view::u8string;
-
-  UriLoader() {}
-  virtual ~UriLoader() {}
-
-  virtual bool RequestUntrustedContent(const string_view& uri,
-                                       std::function<void(u8string)> cb) = 0;
-
-  virtual bool RequestUntrustedContent(
-      const string_view& uri,
-      u8string& content) = 0;
+  virtual string_view GetScheme(const string_view& uri);
 };
 
-} // namespace base
-} // namespace driver
-} // namespace hippy
+#endif /* HippyUriLoader_hpp */

@@ -39,8 +39,8 @@ import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.drawable.ContentDrawable.ScaleType;
 
 import com.tencent.renderer.utils.EventUtils;
-import com.tencent.renderer.utils.UrlUtils;
 
+import com.tencent.vfs.UrlUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;

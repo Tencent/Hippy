@@ -20,7 +20,7 @@
  *
  */
 
-#include "jni/uri.h"
+#include "handler/uri.h"
 
 #include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"

@@ -62,6 +62,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
                           jboolean j_can_use_code_cache,
                           jstring j_code_cache_dir,
                           jlong j_runtime_id,
+                          jint j_vfs_id,
                           jobject j_cb);
 
 void DoBind(JNIEnv* j_env,
@@ -123,6 +124,9 @@ void UnloadInstance(JNIEnv* j_env,
                     jbyteArray j_byte_array,
                     jint j_offset,
                     jint j_length);
+
+jint OnCreateVfs(JNIEnv* j_env, jobject j_object);
+void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id);
 
 } // namespace bridge
 } // namespace framework

@@ -77,6 +77,7 @@ dependencies {
             api project(path: ':renderer-tdf')
         }
         api project(path: ':serialization')
+        api project(path: ':vfs')
     }
     // noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'

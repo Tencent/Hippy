@@ -31,6 +31,7 @@ android {
 }
 
 dependencies {
+    compileOnly project(path: ':vfs')
     compileOnly project(path: ':hippy-support')
     compileOnly project(path: ':serialization')
     compileOnly project(path: ':link_supplier')

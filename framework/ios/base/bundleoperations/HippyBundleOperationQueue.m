@@ -20,11 +20,10 @@
  * limitations under the License.
  */
 
-#import "HippyAssert.h"
 #import "HippyBundleOperationQueue.h"
 
 @interface HippyBundleOperationQueue () {
-    NSMutableArray<NSOperation *> *_ops;
+    NSMutableArray *_ops;
 }
 
 @end
@@ -64,16 +63,14 @@
     if (!value) {
         return;
     }
-    HippyAssert([object isKindOfClass:[NSOperation class]], @"object must be instance of NSOperation");
-    NSOperation *operation = (NSOperation *)object;
     BOOL status = [value boolValue];
     if ([keyPath isEqualToString:@"ready"] && status) {
-        [operation removeObserver:self forKeyPath:@"ready" context:NULL];
-        [operation start];
+        [object removeObserver:self forKeyPath:@"ready" context:NULL];
+        [object start];
     }
     else if ([keyPath isEqualToString:@"finished"] && status) {
-        [_ops removeObject:operation];
-        [operation removeObserver:self forKeyPath:@"finished" context:NULL];
+        [_ops removeObject:object];
+        [object removeObserver:self forKeyPath:@"finished" context:NULL];
     }
 }
 

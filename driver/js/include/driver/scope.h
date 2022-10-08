@@ -34,13 +34,13 @@
 #include "dom/root_node.h"
 #include "dom/scene_builder.h"
 #include "driver/base/common.h"
-#include "driver/base/uri_loader.h"
 #include "driver/engine.h"
 #include "driver/napi/js_native_api.h"
 #include "driver/napi/js_native_api_types.h"
 #include "footstone/hippy_value.h"
 #include "footstone/task.h"
 #include "footstone/string_view.h"
+#include "vfs/uri_loader.h"
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
@@ -73,7 +73,6 @@ class Scope : public std::enable_shared_from_this<Scope> {
   using HippyValue = footstone::value::HippyValue;
   using RenderManager = hippy::dom::RenderManager;
   using RootNode = hippy::dom::RootNode;
-  using UriLoader = hippy::base::UriLoader;
   using FunctionData = hippy::napi::FunctionData;
   using BindingData = hippy::napi::BindingData;
   using Encoding = hippy::napi::Encoding;
@@ -169,11 +168,11 @@ class Scope : public std::enable_shared_from_this<Scope> {
     }
   }
 
-  inline void SetUriLoader(std::shared_ptr<UriLoader> loader) {
+  inline void SetUriLoader(std::weak_ptr<UriLoader> loader) {
     loader_ = loader;
   }
 
-  inline std::shared_ptr<UriLoader> GetUriLoader() { return loader_; }
+  inline std::weak_ptr<UriLoader> GetUriLoader() { return loader_; }
 
   inline void SetDomManager(std::shared_ptr<DomManager> dom_manager) {
     dom_manager_ = dom_manager;
@@ -228,7 +227,7 @@ class Scope : public std::enable_shared_from_this<Scope> {
   std::shared_ptr<InstanceDefine<hippy::AnimationSet>> animation_set_holder_;
   std::unique_ptr<BindingData> binding_data_;
   std::unique_ptr<ScopeWrapper> wrapper_;
-  std::shared_ptr<UriLoader> loader_;
+  std::weak_ptr<UriLoader> loader_;
   std::weak_ptr<DomManager> dom_manager_;
   std::weak_ptr<RenderManager> render_manager_;
   std::weak_ptr<RootNode> root_node_;

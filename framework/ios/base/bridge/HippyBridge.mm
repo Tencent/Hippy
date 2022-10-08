@@ -22,8 +22,6 @@
 
 #import "HippyBridge.h"
 
-#import <objc/runtime.h>
-#import <sys/utsname.h>
 #import "HippyTurboModuleManager.h"
 #import "NativeRenderConvert.h"
 #import "NativeRenderI18nUtils.h"
@@ -52,8 +50,12 @@
 #import "HippyJSEnginesMapper.h"
 #import "HippyJSExecutor.h"
 #import "HippyAssert.h"
-#import "scene.h"
-#import "scope.h"
+
+#include <objc/runtime.h>
+#include <sys/utsname.h>
+
+#include "dom/scene.h"
+#include "driver/scope.h"
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNotification";
@@ -74,6 +76,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyModulesSetup *_moduleSetup;
     __weak NSOperation *_lastOperation;
     BOOL _wasBatchActive;
+    NSDictionary *_dimDic;
     HippyDisplayLink *_displayLink;
     HippyBridgeModuleProviderBlock _moduleProvider;
     NSString *_engineKey;
@@ -83,6 +86,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSMutableArray<HippyInstanceLoadBlock *> *_instanceBlocks;
     NSMutableArray<dispatch_block_t> *_nativeSetupBlocks;
     NSURL *_sandboxDirectory;
+    std::shared_ptr<hippy::vfs::UriLoader> _uriLoader;
 }
 
 @property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
@@ -137,6 +141,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         [self setUp];
         NativeRenderExecuteOnMainQueue(^{
             [self bindKeys];
+            self->_dimDic = HippyExportedDimensions();
         });
         NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
@@ -304,9 +309,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     dispatch_group_t group = dispatch_group_create();
     self.loadingCount++;
     for (NSURL *bundleURL in bundleURLs) {
-        if ([self.delegate respondsToSelector:@selector(bridge:willLoadBundle:)]) {
-            [self.delegate bridge:self willLoadBundle:bundleURL];
-        }
         __weak HippyBridge *weakSelf = self;
         __block NSString *script = nil;
         dispatch_group_enter(group);
@@ -333,9 +335,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
                 if (!strongSelf || !strongSelf.valid) {
                     dispatch_group_leave(group);
                     return;
-                }
-                if ([strongSelf.delegate respondsToSelector:@selector(bridge:endLoadingBundle:)]) {
-                    [strongSelf.delegate bridge:strongSelf endLoadingBundle:bundleURL];
                 }
                 if (error) {
                     HippyFatal(error, weakSelf);
@@ -403,6 +402,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     footstone::value::HippyValue value = OCTypeToDomValue(param);
     std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
+}
+
+- (void)setUriLoader:(std::shared_ptr<hippy::vfs::UriLoader>)uriLoader {
+    if (_uriLoader != uriLoader) {
+        _uriLoader = uriLoader;
+    }
+}
+
+- (std::shared_ptr<hippy::vfs::UriLoader>)uriLoader {
+    return _uriLoader;
 }
 
 - (void)executeJSCode:(NSString *)script
@@ -851,10 +860,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     });
 }
 
-- (void)addPropertiesToUserGlobalObject:(NSDictionary *)props {
-    [_javaScriptExecutor addInfoToGlobalObject:props];
-}
-
 - (void)enqueueJSCall:(NSString *)moduleDotMethod args:(NSArray *)args {
     NSArray<NSString *> *ids = [moduleDotMethod componentsSeparatedByString:@"."];
     NSString *module = ids[0];
@@ -890,7 +895,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     [deviceInfo setValue:iosVersion forKey:@"OSVersion"];
     [deviceInfo setValue:deviceModel forKey:@"Device"];
     [deviceInfo setValue:HippySDKVersion forKey:@"SDKVersion"];
-    [deviceInfo setValue:HippyExportedDimensions() forKey:@"Dimensions"];
+    if (_dimDic) {
+        [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
+    }
     NSString *countryCode = [[NativeRenderI18nUtils sharedInstance] currentCountryCode];
     NSString *lanCode = [[NativeRenderI18nUtils sharedInstance] currentAppLanguageCode];
     NSWritingDirection direction = [[NativeRenderI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];

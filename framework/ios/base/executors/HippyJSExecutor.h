@@ -24,7 +24,8 @@
 #import "HippyBridgeModule.h"
 #import "NativeRenderInvalidating.h"
 #import "js_native_api_types.h"
-#import <memory>
+
+#include <memory>
 
 namespace hippy {
 inline namespace driver {
@@ -39,7 +40,6 @@ class Scope;
 
 typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 
-
 /**
  * Default name for the JS thread
  */
@@ -50,8 +50,9 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  */
 @interface HippyJSExecutor : NSObject<NativeRenderInvalidating>
 
-@property (nonatomic, readonly, weak) HippyBridge *bridge;
+@property (nonatomic, strong) HippyBridge *bridge;
 
+@property(nonatomic, assign)std::weak_ptr<hippy::vfs::UriLoader> uriLoader;
 /**
  * Whether the executor has been invalidated
  */
@@ -77,6 +78,8 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 
 - (void)setSandboxDirectory:(NSString *)directory;
 
+- (void)setContextName:(NSString *)contextName;
+
 - (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 
 /**
@@ -84,8 +87,6 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
  * with JSValue, containing the next queue, and JSContext.
  */
 - (void)flushedQueue:(HippyJavaScriptCallback)onComplete;
-
--(void)addInfoToGlobalObject:(NSDictionary*)addInfoDict;
 
 /**
  * Executes BatchedBridge.callFunctionReturnFlushedQueue with the module name,
