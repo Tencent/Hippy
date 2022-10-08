@@ -20,7 +20,7 @@
       <div class="dialog-demo-wrapper">
         <div
           class="fullscreen center row"
-          @click.stop="onClickView"
+          @click="onClickView"
         >
           <div
             class="dialog-demo-close-btn center column"
@@ -31,7 +31,7 @@
             </p>
             <button
               class="dialog-demo-button-2"
-              @click.stop="onClickOpenSecond"
+              @click="onClickOpenSecond"
             >
               <span class="button-text">点击打开二级全屏弹窗</span>
             </button>
@@ -44,7 +44,7 @@
           >
             <div
               class="dialog-2-demo-wrapper center column row"
-              @click.stop="onClickOpenSecond"
+              @click="onClickOpenSecond"
             >
               <p
                 class="dialog-demo-close-btn-text"
@@ -82,7 +82,8 @@ export default defineComponent({
     const onClickView = () => {
       dialogIsVisible.value = !dialogIsVisible.value;
     };
-    const onClickOpenSecond = () => {
+    const onClickOpenSecond = (evt) => {
+      evt.stopPropagation();
       dialog2IsVisible.value = !dialog2IsVisible.value;
     };
 
