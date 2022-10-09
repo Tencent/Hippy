@@ -143,4 +143,9 @@ public class HippyWebView extends FrameLayout implements HippyViewBase {
   @Override
   public void setGestureDispatcher(NativeGestureDispatcher dispatcher) {
   }
+
+    @Override
+    public void setBackgroundColor(int color) {
+        mWebView.setBackgroundColor(color);
+    }
 }
