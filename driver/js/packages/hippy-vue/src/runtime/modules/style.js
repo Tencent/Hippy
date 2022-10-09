@@ -56,7 +56,7 @@ function updateStyle(oldVNode, vNode) {
     vNode.data.style = style;
   }
   const batchedStyles = {};
-  // Remove the removed styles at first
+  // Remove the deleted styles at first
   Object.keys(oldStyle).forEach((name) => {
     const oldStyleValue = oldStyle[name];
     const newStyleValue = style[name];
