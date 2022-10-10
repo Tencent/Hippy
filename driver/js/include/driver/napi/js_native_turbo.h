@@ -55,6 +55,8 @@ class TurboEnv {
       const std::shared_ptr<CtxValue>& value);
 };
 
+std::unique_ptr<TurboEnv> GetTurboEnvInstance(const std::shared_ptr<Ctx> &context);
+
 class HostObject {
  public:
   virtual ~HostObject();

@@ -387,6 +387,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         } else if ([HippyTurboModuleManager isTurboModule:typeName]) {
             [argumentBlocks addObject:^(__unused HippyBridge * bridge, NSUInteger index, id json) {
                 [invocation setArgument:&json atIndex:(index) + 2];
+                CFBridgingRetain(json);
                 return YES;
             }];
         } else {
@@ -554,12 +555,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         if ([_invocation.methodSignature getArgumentTypeAtIndex:index][0] == _C_ID) {
             __unsafe_unretained id value;
             [_invocation getArgument:&value atIndex:index];
-
-            BOOL shouldRelase = YES;
-            if ([value isKindOfClass:[HippyOCTurboModule class]]) {
-                shouldRelase = NO;
-            }
-            if (value && shouldRelase) {
+            if (value) {
                 CFRelease((__bridge CFTypeRef)value);
             }
         }
