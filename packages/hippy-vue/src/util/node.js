@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-param-reassign */
+
 import { isScopedEnabled } from './index';
 
 const nodeCache = new Map();
