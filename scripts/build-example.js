@@ -28,7 +28,7 @@ const {
   test,
 } = require('shelljs');
 
-const cmdExample = 'please execute command like \'npm run buildexample hippy-react-demo\' or \'npm run buildexample hippy-vue-demo\'';
+const cmdExample = 'please execute command like \'npm run buildexample hippy-react-demo\' or \'npm run buildexample hippy-vue-demo|hippy-vue-next-demo\'';
 const example = process.argv[2];
 if (!example) {
   console.error(`❌ No example argument found, ${cmdExample}.`);

@@ -799,8 +799,13 @@ NSURL *__nullable HippyURLByReplacingQueryParam(NSURL *__nullable URL, NSString 
 
 NSURL *__nullable HippyURLWithString(NSString *URLString, NSString *baseURLString) {
     if (URLString) {
-        NSURL *baseURL = HippyURLWithString(baseURLString, NULL);
-        CFURLRef URLRef = CFURLCreateWithString(NULL, (CFStringRef)URLString, (CFURLRef)baseURL);
+        NSURL *baseURL = nil;
+        if (baseURLString) {
+            baseURL = HippyURLWithString(baseURLString, NULL);
+            HippyAssert(baseURL, @"base url creation failed, may be contain Chinese character");
+        }
+        CFURLRef URLRef = CFURLCreateWithString(kCFAllocatorDefault, (CFStringRef)URLString, (CFURLRef)baseURL);
+        HippyAssert(URLRef, @"url creation failed, may be contain Chinese character");
         if (URLRef) {
             return CFBridgingRelease(URLRef);
         }

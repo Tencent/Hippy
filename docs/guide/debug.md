@@ -614,6 +614,6 @@ webpack(webpackConfig, (err, stats) => {
 
 无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法。当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
 
-如果需要关闭日志，可以在 hippy-react 的 `new Hippy` 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+如果需要关闭日志，可以在 hippy-react 的 `new Hippy` 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`，或者在 hippy-vue-next 项目的 `createApp` 初始化参数中增加 `silent: true`。
 
 <img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>
