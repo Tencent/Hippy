@@ -1,4 +1,4 @@
-name: '[voltron-render] unit tests'
+name: '[voltron] unit tests'
 
 on:
   pull_request:
