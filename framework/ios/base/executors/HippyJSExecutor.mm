@@ -110,7 +110,7 @@ static bool loadFunc(const string_view& uri, std::function<void(u8string)> cb, C
 @interface HippyJSExecutor () {
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
-    std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
+    std::unique_ptr<hippy::napi::TurboEnv> _turboRuntime;
     id<HippyContextWrapper> _contextWrapper;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
     __weak HippyBridge *_bridge;
@@ -273,8 +273,8 @@ static string_view NSStringToU8StringView(NSString* str) {
                     [bridge handleBuffer:calls batchEnded:NO];
                     return nil;
                 }];
-                                
-                strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
+
+                strongSelf->_turboRuntime = hippy::napi::GetTurboEnvInstance(scope->GetContext());
                 hippy::napi::Ctx::NativeFunction getTurboModuleFunc = [weakSelf](void *data) {
                     @autoreleasepool {
                         HippyJSExecutor *strongSelf = weakSelf;

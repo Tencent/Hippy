@@ -928,7 +928,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 
     if(!self.turboModuleManager) {
-        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self delegate:nil];
+        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self];
     }
 
     // getTurboModule
