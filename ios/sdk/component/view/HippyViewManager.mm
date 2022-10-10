@@ -35,6 +35,7 @@
 #import "HippyVirtualNode.h"
 #import "HippyConvert+Transform.h"
 #import "HippyGradientObject.h"
+#import "HippyTextEnumDefines.h"
 
 @implementation HippyViewManager
 
@@ -358,6 +359,14 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(direction, MTTDirection, HippyShadowView) {
     }
     else {
         view.layoutDirection = DirectionInherit;
+    }
+}
+
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlignment, HippyTextAttachmentVerticalAlign, HippyShadowView) {
+    if (json) {
+        view.verticalAlignment = (HippyTextAttachmentVerticalAlign)[HippyConvert int:json];;
+    } else {
+        view.verticalAlignment = HippyTextAttachmentVerticalAlignBottom;
     }
 }
 

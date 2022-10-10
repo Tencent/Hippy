@@ -36,12 +36,23 @@
 NSString *const HippyShadowViewAttributeName = @"HippyShadowViewAttributeName";
 NSString *const HippyIsHighlightedAttributeName = @"IsHighlightedAttributeName";
 NSString *const HippyHippyTagAttributeName = @"HippyTagAttributeName";
+/// The distance to the bottom of the baseline, for text attachment baseline layout
+NSString *const HippyVerticalAlignBaselineOffsetAttributeName = @"HippyVerticalAlignBaselineOffsetAttributeName";
+
 
 CGFloat const HippyTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const HippyTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const HippyTextAutoSizeGranularity = 0.001f;
 
 static const CGFloat gDefaultFontSize = 14.f;
+
+@interface HippyShadowText () <NSLayoutManagerDelegate>
+{
+    BOOL _hasTextAttachment; // for speeding up typesetting calculations
+    CGFloat _maximumFontLineHeight; // for text baselineOffset calculation when with attachment
+}
+
+@end
 
 @implementation HippyShadowText
 // MTTlayout
@@ -262,16 +273,36 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                     HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
                 
-                /**
-                 * For RichText, a view, which is top aligment by default, should be center alignment to text,
-                 */
-                
                 //rect for attachment at its line fragment
                 CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
                 CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
                 CGFloat roundedHeight = x5RoundPixelValue(height);
                 CGFloat roundedWidth = x5RoundPixelValue(width);
-                CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
+                
+                CGFloat positionY;
+                switch (child.verticalAlignment) {
+                    case HippyTextAttachmentVerticalAlignCenter: {
+                        positionY = (CGRectGetMaxY(glyphRect) - roundedHeight) / 2.0f;
+                        break;
+                    }
+                    case HippyTextAttachmentVerticalAlignBaseline: {
+                        // get baseline-bottom distance from HippyVerticalAlignBaselineOffsetAttributeName
+                        NSNumber *baselineToBottom = [layoutManager.textStorage attribute:HippyVerticalAlignBaselineOffsetAttributeName
+                                                                                  atIndex:range.location effectiveRange:nullptr];
+                        positionY = CGRectGetMaxY(glyphRect) - roundedHeight - baselineToBottom.doubleValue;
+                        break;
+                    }
+                    case HippyTextAttachmentVerticalAlignTop: {
+                        positionY = 0;
+                        break;
+                    }
+                    default: {
+                        // default is at bottom
+                        positionY = CGRectGetMaxY(glyphRect) - roundedHeight;
+                        break;
+                    }
+                }
+                
                 CGRect childFrame = CGRectMake(textFrame.origin.x + location.x, textFrame.origin.y + positionY,
                                                roundedWidth, roundedHeight);
                 NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
@@ -296,6 +327,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     NSLayoutManager *layoutManager = [NSLayoutManager new];
+    layoutManager.delegate = self;
 
     NSTextStorage *textStorage = [[NSTextStorage alloc] initWithAttributedString:self.attributedString];
     [textStorage addLayoutManager:layoutManager];
@@ -394,7 +426,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     for (HippyShadowView *child in [self hippySubviews]) {
         if ([child isKindOfClass:[HippyShadowText class]]) {
             HippyShadowText *shadowText = (HippyShadowText *)child;
-            [attributedString appendAttributedString:[shadowText _attributedStringWithFontFamily:fontFamily fontSize:fontSize fontWeight:fontWeight
+            [attributedString appendAttributedString:[shadowText _attributedStringWithFontFamily:fontFamily
+                                                                                        fontSize:fontSize
+                                                                                      fontWeight:fontWeight
                                                                                        fontStyle:fontStyle
                                                                                    letterSpacing:letterSpacing
                                                                               useBackgroundColor:YES
@@ -422,11 +456,20 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             attachment.image = placehoderImage;
             NSMutableAttributedString *attachmentString = [NSMutableAttributedString new];
             [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
-            [attachmentString addAttribute:HippyShadowViewAttributeName value:child range:(NSRange) { 0, attachmentString.length }];
+            [attachmentString addAttribute:HippyShadowViewAttributeName
+                                     value:child range:(NSRange) { 0, attachmentString.length }];
+            
+            // ray test code
+            CGFloat hue = (arc4random() % 256) / 255.0;
+            UIColor *randomColor = [UIColor colorWithHue:hue saturation:1.0 brightness:1.0 alpha:1.0];
+            [attachmentString addAttribute:NSBackgroundColorAttributeName value:randomColor range:(NSRange) { 0, attachmentString.length }];
+
+            
             [attributedString appendAttributedString:attachmentString];
             if (height > heightOfTallestSubview) {
                 heightOfTallestSubview = height;
             }
+            _hasTextAttachment = YES;
             // Don't call setTextComputed on this child. HippyTextManager takes care of
             // processing inline UIViews.
         }
@@ -542,15 +585,19 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         [attributedString addAttribute:NSParagraphStyleAttributeName value:paragraphStyle range:(NSRange) { 0, attributedString.length }];
 
         /**
-         * for keeping text ertical center, we need to set baseline offset
+         * for keeping text vertical center, we need to set baseline offset
          */
         if (lineHeight > fontLineHeight) {
-            CGFloat baselineOffset = newLineHeight / 2 - maximumFontLineHeight / 2;
-            [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(baselineOffset)
-                                     range:(NSRange) { 0, attributedString.length }];
+            CGFloat baselineOffset = (newLineHeight - maximumFontLineHeight) / 2.0f;
+            if (baselineOffset > .0f) {
+                [attributedString addAttribute:NSBaselineOffsetAttributeName value:@(baselineOffset)
+                                         range:(NSRange) { 0, attributedString.length }];
+            }
         }
     }
     _maximumFontLineHeight = maximumFontLineHeight;
+    
+    
     // Text decoration
     if (_textDecorationLine == HippyTextDecorationLineTypeUnderline || _textDecorationLine == HippyTextDecorationLineTypeUnderlineStrikethrough) {
         [self _addAttribute:NSUnderlineStyleAttributeName withValue:@(_textDecorationStyle) toAttributedString:attributedString];
@@ -784,6 +831,57 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
         _minimumFontScale = minimumFontScale;
     }
     [self dirtyText];
+}
+
+
+#pragma mark - NSLayoutManagerDelegate
+
+- (BOOL)layoutManager:(NSLayoutManager *)layoutManager shouldSetLineFragmentRect:(inout CGRect *)lineFragmentRect
+ lineFragmentUsedRect:(inout CGRect *)lineFragmentUsedRect baselineOffset:(inout CGFloat *)baselineOffset
+      inTextContainer:(NSTextContainer *)textContainer forGlyphRange:(NSRange)glyphRange {
+    
+    if (_hasTextAttachment) {
+        __block CGFloat maxAttachmentHeight = .0f;
+        __block BOOL isAlignBaseline = NO;
+        [layoutManager.textStorage enumerateAttribute:HippyShadowViewAttributeName
+                                              inRange:glyphRange options:0
+                                           usingBlock:^(HippyShadowView *child, NSRange range, __unused BOOL *_) {
+            if (child) {
+                if (HippyTextAttachmentVerticalAlignBaseline == child.verticalAlignment) {
+                    isAlignBaseline = YES;
+                }
+                float height = MTTNodeLayoutGetHeight(child.nodeRef);
+                if (height > maxAttachmentHeight) {
+                    maxAttachmentHeight = height;
+                }
+            }
+        }];
+        
+        if (isAlignBaseline) {
+            // calculate the position of 'baseline' for later layout
+            __block UIFont *maxFont = nil;
+            [layoutManager.textStorage enumerateAttribute:NSFontAttributeName inRange:glyphRange options:0
+                                               usingBlock:^(id  _Nullable value, NSRange range, BOOL * _Nonnull stop) {
+                UIFont *currentFont = (UIFont *)value;
+                if (currentFont) {
+                    if (!maxFont || currentFont.pointSize > maxFont.pointSize) {
+                        maxFont = currentFont;
+                    }
+                }
+            }];
+            CGFloat baselineToBottom = abs(maxFont.descender) + abs(maxFont.leading);
+            [layoutManager.textStorage addAttribute:HippyVerticalAlignBaselineOffsetAttributeName
+                                              value:@(baselineToBottom) range:glyphRange];
+        }
+        
+        if (maxAttachmentHeight > _lineHeight) {
+            CGFloat baselineToBottom = CGRectGetHeight(*lineFragmentUsedRect) - *baselineOffset;
+            // adjust baselineOffset if attachment height is larger than font height
+            *baselineOffset = ((CGRectGetHeight(*lineFragmentUsedRect) + _lineHeight) / 2.f) - baselineToBottom;
+            return YES;
+        }
+    }
+    return NO;
 }
 
 @end

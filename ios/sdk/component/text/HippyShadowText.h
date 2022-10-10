@@ -21,7 +21,7 @@
  */
 
 #import "HippyShadowView.h"
-#import "HippyTextDecorationLineType.h"
+#import "HippyTextEnumDefines.h"
 
 typedef NS_ENUM(NSInteger, HippySizeComparison) {
     HippySizeTooLarge,
@@ -41,7 +41,6 @@ extern NSString *const HippyShadowViewAttributeName;
     NSAttributedString *_cachedAttributedString;
     CGFloat _effectiveLetterSpacing;
     BOOL _textAlignSet;
-    CGFloat _maximumFontLineHeight;
 }
 
 @property (nonatomic, strong) UIColor *color;

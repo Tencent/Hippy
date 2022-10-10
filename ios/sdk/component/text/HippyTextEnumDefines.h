@@ -28,3 +28,14 @@ typedef NS_ENUM(NSInteger, HippyTextDecorationLineType) {
     HippyTextDecorationLineTypeStrikethrough,
     HippyTextDecorationLineTypeUnderlineStrikethrough,
 };
+
+/// Vertical alignment enum for text attachment,
+/// similar to imageSpan's VerticalAlignment in Android
+///
+/// Default is bottom
+typedef NS_ENUM(NSInteger, HippyTextAttachmentVerticalAlign) {
+    HippyTextAttachmentVerticalAlignBottom = 0,
+    HippyTextAttachmentVerticalAlignBaseline = 1,
+    HippyTextAttachmentVerticalAlignCenter = 2,
+    HippyTextAttachmentVerticalAlignTop = 3, // android not support yet
+};

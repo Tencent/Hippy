@@ -104,6 +104,10 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 
 @property (nonatomic, assign) CGRect frame;
 
+/// Vertical Alignment as Text Attachment,
+/// Note that this property only takes effect under this condition.
+@property (nonatomic, assign) NSInteger verticalAlignment;
+
 - (void)setTopLeft:(CGPoint)topLeft;
 - (void)setSize:(CGSize)size;
 
