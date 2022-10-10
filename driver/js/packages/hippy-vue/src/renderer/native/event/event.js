@@ -25,10 +25,11 @@ class Event {
     this.type = eventName;
     this.bubbles = true;
     this.cancelable = true;
-    this.eventPhase = false;
+    this.eventPhase = 0;
     this.originalTarget = null;
     this.currentTarget = null;
     this.target = null;
+    // Private properties
     this._canceled = false;
   }
 

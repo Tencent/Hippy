@@ -71,7 +71,7 @@ function addEventListener(eventName, listener) {
 }
 
 /**
- * Remove network status event event listener
+ * Remove network status event listener
  *
  * @param {string} eventName - Event name will listen for NetInfo module,
  *                             use `change` for listen network change.
