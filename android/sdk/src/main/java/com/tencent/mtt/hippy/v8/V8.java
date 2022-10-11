@@ -27,30 +27,66 @@ import com.tencent.mtt.hippy.v8.memory.V8Memory;
 import java.util.ArrayList;
 
 public class V8 implements V8Memory {
-  private long mV8RuntimeId;
+
+  public interface NearHeapLimitCallback {
+    /**
+     * This callback is invoked when the heap size is close to the heap limit and
+     * V8 is likely to abort with out-of-memory error.
+     * The callback can extend the heap limit by returning a value that is greater
+     * than the current_heap_limit. The initial heap limit is the limit that was
+     * set after heap setup.
+     */
+    long callback(long currentHeapLimit, long initialHeapLimit);
+  }
+
+  private final long mV8RuntimeId;
 
   public V8(long mV8RuntimeId) {
     this.mV8RuntimeId = mV8RuntimeId;
   }
 
+  // The method must be called in the js thread
   @Override
   public boolean getHeapStatistics(@NonNull Callback<V8HeapStatistics> callback) throws NoSuchMethodException {
     return getHeapStatistics(mV8RuntimeId, callback);
   }
 
+  // The method must be called in the js thread
   @Override
   public boolean getHeapCodeStatistics(@NonNull Callback<V8HeapCodeStatistics> callback) throws NoSuchMethodException {
     return getHeapCodeStatistics(mV8RuntimeId, callback);
   }
 
+  // The method must be called in the js thread
   @Override
   public boolean getHeapSpaceStatistics(@NonNull Callback<ArrayList<V8HeapSpaceStatistics>> callback) throws NoSuchMethodException {
     return getHeapSpaceStatistics(mV8RuntimeId, callback);
   }
 
+  // The method must be called in the js thread
   @Override
   public boolean writeHeapSnapshot(@NonNull String filePath, @NonNull Callback<Integer> callback) throws NoSuchMethodException {
     return writeHeapSnapshot(mV8RuntimeId, filePath, callback);
+  }
+
+  // The method must be called in the js thread
+  public void addNearHeapLimitCallback(NearHeapLimitCallback callback) {
+    addNearHeapLimitCallback(mV8RuntimeId, callback);
+  }
+
+  // The method must be called in the js thread
+  public void printCurrentStackTrace(Callback<String> callback) {
+    printCurrentStackTrace(mV8RuntimeId, callback);
+  }
+
+  // the method can be called from any thread
+  public void requestInterrupt(Callback<Void> callback) {
+    requestInterrupt(mV8RuntimeId, callback);
+  }
+
+  // the method can be called from any thread
+  public void runInV8Thread(Callback<Void> callback) {
+    runInV8Thread(mV8RuntimeId, callback);
   }
 
   // [memory]
@@ -61,5 +97,13 @@ public class V8 implements V8Memory {
   private native boolean getHeapSpaceStatistics(long runtimeId, Callback<ArrayList<V8HeapSpaceStatistics>> callback) throws NoSuchMethodException;
 
   private native boolean writeHeapSnapshot(long runtimeId, String filePath, Callback<Integer> callback) throws NoSuchMethodException;
+
+  private native void addNearHeapLimitCallback(long runtimeId, NearHeapLimitCallback callback);
+
+  private native void printCurrentStackTrace(long runtimeId, Callback<String> callback);
+
+  private native void runInV8Thread(long runtimeId, Callback<Void> callback);
+
+  private native void requestInterrupt(long runtimeId, Callback<Void> callback);
 
 }

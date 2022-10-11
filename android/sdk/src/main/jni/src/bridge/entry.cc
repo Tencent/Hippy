@@ -442,8 +442,13 @@ jlong InitInstance(JNIEnv* j_env,
       isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(kReuseRuntimeId));
     }
     isolate->AddMessageListener(HandleUncaughtJsError);
+    auto runtime = Runtime::Find(runtime_id);
+    auto interrupt_queue = std::make_shared<hippy::InterruptQueue>(isolate);
+    interrupt_queue->SetTaskRunner(runtime->GetEngine()->GetJSRunner());
+    runtime->SetInterruptQueue(interrupt_queue);
+    auto& map = InterruptQueue::GetPersistentMap();
+    map.Insert(interrupt_queue->GetId(), interrupt_queue);
 #ifndef V8_WITHOUT_INSPECTOR
-    std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (runtime->IsDebug()) {
       auto inspector = std::make_shared<V8InspectorClientImpl>(runtime->GetEngine()->GetJSRunner());
       runtime->GetEngine()->SetInspectorClient(inspector);
@@ -534,7 +539,6 @@ jlong InitInstance(JNIEnv* j_env,
       isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
     } else {
       engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
-      runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
     }
   } else if (group != kDefaultEngineId) {
