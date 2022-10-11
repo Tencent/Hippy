@@ -270,14 +270,12 @@ void DoConnect(__unused JNIEnv* j_env,
   }
 #endif
 
-  // GetDensity()方法应该抽象到RenderManager里面去，目前只有NativeRenderManager才有这个方法
-#ifndef ENABLE_TDF_RENDER
-  std::shared_ptr<NativeRenderManager> render_manager =
-      std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
-  float density = render_manager->GetDensity();
-  auto layout_node = root_node->GetLayoutNode();
-  layout_node->SetScaleFactor(density);
-#endif
+  auto render_manager = scope->GetRenderManager().lock();
+  if (render_manager) {
+    float density = render_manager->GetDensity();
+    auto layout_node = root_node->GetLayoutNode();
+    layout_node->SetScaleFactor(density);
+  }
 }
 
 jint CreateWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj) {

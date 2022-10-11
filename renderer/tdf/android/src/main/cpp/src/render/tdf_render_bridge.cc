@@ -44,6 +44,8 @@ void TDFRenderBridge::Destroy() {}
 
 jint OnCreateTDFRender(JNIEnv *j_env, jobject j_obj, jfloat j_density) {
   auto render = std::make_shared<hippy::TDFRenderManager>();
+  auto density = static_cast<float>(j_density);
+  render->SetDensity(density);
   auto &map = hippy::TDFRenderManager::PersistentMap();
   bool ret = map.Insert(static_cast<uint32_t>(render->GetId()), render);
   if (!ret) {
