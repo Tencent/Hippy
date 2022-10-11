@@ -458,9 +458,14 @@ public class HippyWaterfallView extends HippyListView implements HippyViewBase, 
       NodeHolder contentHolder = new NodeHolder();
       RenderNode contentViewRenderNode = mHippyContext.getRenderManager()
         .getRenderNode(getId()).getChildAt(position);
-      contentViewRenderNode.setLazy(false);
 
-      contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
+      if (!contentViewRenderNode.isIsLazyLoad()) {
+        int id = contentViewRenderNode.getId();
+        contentHolder.mContentView = mHippyContext.getRenderManager().getControllerManager().findView(id); // contentViewRenderNode.findView(id);
+      } else {
+        contentViewRenderNode.setLazy(false);
+        contentHolder.mContentView = contentViewRenderNode.createViewRecursive();
+      }
       FooterUtil.checkFooterBinding(mParentRecyclerView, contentHolder.mContentView);
 
       contentHolder.mBindNode = contentViewRenderNode;
