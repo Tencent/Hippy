@@ -65,16 +65,13 @@ void ScrollViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(kHorizontal); it != map_end) {
     // May be undefined
     if (!it->second->IsUndefined() && it->second->ToBooleanChecked()) {
-      auto horizontal = it->second->ToBooleanChecked();
-      if (horizontal) {
-        scroll_view->SetHorizontalOverscrollEnabled(true);
-        scroll_view->SetVerticalOverscrollEnabled(false);
-        scroll_view->SetScrollDirection(tdfcore::ScrollDirection::kHorizontal);
-      } else {
-        scroll_view->SetHorizontalOverscrollEnabled(false);
-        scroll_view->SetVerticalOverscrollEnabled(true);
-        scroll_view->SetScrollDirection(tdfcore::ScrollDirection::kVertical);
-      }
+      scroll_view->SetHorizontalOverscrollEnabled(true);
+      scroll_view->SetVerticalOverscrollEnabled(false);
+      scroll_view->SetScrollDirection(tdfcore::ScrollDirection::kHorizontal);
+    } else {
+      scroll_view->SetHorizontalOverscrollEnabled(false);
+      scroll_view->SetVerticalOverscrollEnabled(true);
+      scroll_view->SetScrollDirection(tdfcore::ScrollDirection::kVertical);
     }
   }
 }
