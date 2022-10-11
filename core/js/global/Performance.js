@@ -19,16 +19,20 @@
  */
 
 /* eslint-disable no-undef */
-/* eslint-disable no-underscore-dangle */
 
 const MemoryModule = internalBinding('MemoryModule');
 
-global.performance = global.performance || {};
-!Object.prototype.hasOwnProperty.call(global.performance, 'memory')
-&& Object.defineProperties(global.performance, {
-  memory: {
-    get() {
-      return MemoryModule ? MemoryModule.Get() : undefined;
-    },
-  },
-});
+const timeOrigin = Date.now();
+
+global.performance = global.performance || new class Performance {
+  get timeOrigin() {
+    return timeOrigin;
+  }
+  get memory() {
+    return MemoryModule ? MemoryModule.Get() : undefined;
+  }
+  now() {
+    return Date.now() - timeOrigin;
+  }
+};
+
