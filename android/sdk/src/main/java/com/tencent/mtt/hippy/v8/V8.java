@@ -33,7 +33,7 @@ public class V8 implements V8Memory {
      * This callback is invoked when the heap size is close to the heap limit and
      * V8 is likely to abort with out-of-memory error.
      * The callback can extend the heap limit by returning a value that is greater
-     * than the current_heap_limit. The initial heap limit is the limit that was
+     * than the currentHeapLimit. The initial heap limit is the limit that was
      * set after heap setup.
      */
     long callback(long currentHeapLimit, long initialHeapLimit);
