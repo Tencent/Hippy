@@ -140,7 +140,7 @@ constexpr const char kRefreshColors[] = "refreshColors";                      //
 }  // namespace waterfallview
 
 inline namespace defaultvalue {
-constexpr const float kDefaultFontSize = 16.0;
+constexpr const float kDefaultFontSize = 14.0;
 constexpr const float kDefaultLineHeight = 16.0;
 constexpr const tdfcore::Color kDefaultTextColor = tdfcore::Color::Black();
 }  // namespace defaultvalue
@@ -326,6 +326,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   virtual void HandleEventInfoUpdate();
 
   tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap &dom_style, std::shared_ptr<tdfcore::View> view);
+
+  float GetDensity();
 
  private:
   void RegisterClickEvent();
