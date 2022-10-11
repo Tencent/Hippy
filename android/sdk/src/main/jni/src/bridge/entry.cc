@@ -76,6 +76,11 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "(JLjava/lang/String;)V",
              RunScript)
 
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
+             "runInJsThread",
+             "(JLcom/tencent/mtt/hippy/common/Callback;)V",
+             RunInJsThread)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
@@ -636,6 +641,28 @@ void DestroyInstance(__unused JNIEnv* j_env,
     }
   }
   TDF_BASE_DLOG(INFO) << "destroy end";
+}
+
+void RunInJsThread(JNIEnv *j_env,
+                   jobject j_object,
+                   jlong j_runtime_id,
+                   jobject j_callback) {
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  TDF_BASE_CHECK(runtime);
+  auto cb = std::make_shared<JavaRef>(j_env, j_callback);
+  auto task_runner = runtime->GetEngine()->GetJSRunner();
+  TDF_BASE_CHECK(task_runner);
+  auto task = std::make_unique<JavaScriptTask>();
+  task->callback = [cb]() {
+    auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    auto j_callback = cb->GetObj();
+    auto j_cb_class = j_env->GetObjectClass(j_callback);
+    auto j_cb_method_id = j_env->GetMethodID(j_cb_class, "callback",
+                                             "(Ljava/lang/Object;Ljava/lang/Throwable;)V");
+    j_env->CallVoidMethod(j_callback, j_cb_method_id, nullptr, nullptr);
+    JNIEnvironment::ClearJEnvException(j_env);
+  };
+  task_runner->PostTask(std::move(task));
 }
 
 }  // namespace bridge

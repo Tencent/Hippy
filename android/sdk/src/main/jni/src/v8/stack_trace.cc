@@ -55,9 +55,10 @@ void GetCurrentStackTrace(JNIEnv *j_env,
   auto j_cb_class = j_env->GetObjectClass(j_callback);
   auto j_cb_method_id = j_env->GetMethodID(j_cb_class, "callback",
                                            "(Ljava/lang/Object;Ljava/lang/Throwable;)V");
-  j_env->CallVoidMethod(j_callback, j_cb_method_id,
-                        JniUtils::StrViewToJString(j_env, trace_info), nullptr);
+  auto j_trace_info = JniUtils::StrViewToJString(j_env, trace_info);
+  j_env->CallVoidMethod(j_callback, j_cb_method_id, j_trace_info, nullptr);
   JNIEnvironment::ClearJEnvException(j_env);
+  j_env->DeleteLocalRef(j_trace_info);
 }
 
 

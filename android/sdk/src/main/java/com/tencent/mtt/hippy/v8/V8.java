@@ -84,11 +84,6 @@ public class V8 implements V8Memory {
     requestInterrupt(mV8RuntimeId, callback);
   }
 
-  // the method can be called from any thread
-  public void runInV8Thread(Callback<Void> callback) {
-    runInV8Thread(mV8RuntimeId, callback);
-  }
-
   // [memory]
   private native boolean getHeapStatistics(long runtimeId, Callback<V8HeapStatistics> callback) throws NoSuchMethodException;
 
@@ -101,8 +96,6 @@ public class V8 implements V8Memory {
   private native void addNearHeapLimitCallback(long runtimeId, NearHeapLimitCallback callback);
 
   private native void printCurrentStackTrace(long runtimeId, Callback<String> callback);
-
-  private native void runInV8Thread(long runtimeId, Callback<Void> callback);
 
   private native void requestInterrupt(long runtimeId, Callback<Void> callback);
 

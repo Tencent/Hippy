@@ -83,7 +83,6 @@ set(SOURCE_SET
     src/v8/heap_limit.cc
     src/v8/request_interrupt.cc
     src/v8/interrupt_queue.cc
-    src/v8/run_in_v8_thread.cc
     src/v8/stack_trace.cc)
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE.
