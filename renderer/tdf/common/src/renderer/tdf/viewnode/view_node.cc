@@ -75,8 +75,8 @@ void ViewNode::OnUpdate(hippy::DomNode& dom_node) {
     return;
   }
   // only update the different part
-  if (GetDomNode()->GetDiffStyle() != nullptr) {
-    HandleStyleUpdate(*(GetDomNode()->GetDiffStyle()));
+  if (dom_node.GetDiffStyle() != nullptr) {
+    HandleStyleUpdate(*(dom_node.GetDiffStyle()));
   }
 }
 
@@ -519,7 +519,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   }
 
   // Sync style/listener/etc
-  HandleStyleUpdate(GenerateStyleInfo(GetDomNode()));
+  HandleStyleUpdate(GenerateStyleInfo(dom_node));
   HandleLayoutUpdate(dom_node->GetRenderLayoutResult());
   HandleEventInfoUpdate();
   // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)
