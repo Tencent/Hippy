@@ -50,7 +50,7 @@ constexpr size_t kdefaultMaxHeapSize = DEFAULT_MAX_HEAP_SIZE_IN_BYTES;
 
 constexpr auto DefaultNearHeapLimitCallback = [](void* data, size_t current_heap_limit,
                                           size_t initial_heap_limit) -> size_t {
-  return std::min(std::numeric_limits<size_t>::max(), current_heap_limit * 2);
+  return std::clamp(current_heap_limit * 2, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max());
 };
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
