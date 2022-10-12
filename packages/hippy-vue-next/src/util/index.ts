@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-param-reassign */
+
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { capitalize } from '@vue/shared';
 import type { CallbackType, CommonMapParams, NeedToTyped } from '../config';

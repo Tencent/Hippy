@@ -14,7 +14,7 @@
         ref="gridView"
         :content-inset="contentInset"
         :column-spacing="columnSpacing"
-        :contain-banner-view="isIos"
+        :contain-banner-view="true"
         :contain-pull-footer="true"
         :inter-item-spacing="interItemSpacing"
         :number-of-columns="numberOfColumns"
@@ -24,7 +24,6 @@
         @scroll="onScroll"
       >
         <div
-          v-if="isIos"
           class="banner-view"
           :type="1"
         >
@@ -188,7 +187,6 @@ export default defineComponent({
       refreshText,
       STYLE_LOADING,
 
-      isIos: Native.isIOS(),
       loadingState,
       header,
       gridView,
