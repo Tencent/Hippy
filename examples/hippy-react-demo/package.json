@@ -4,7 +4,7 @@
   "private": true,
   "main": "src/main.js",
   "webMain": "src/main.web.js",
-  "author": "XQ Kuang <x@kxq.io>",
+  "author": "OpenHippy Team",
   "license": "Apache-2.0",
   "description": "Demo app for hippy-react",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo",
