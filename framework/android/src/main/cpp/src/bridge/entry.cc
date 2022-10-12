@@ -20,8 +20,6 @@
  *
  */
 
-#include <android/asset_manager.h>
-#include <android/asset_manager_jni.h>
 #include <sys/stat.h>
 
 #include <any>
@@ -53,12 +51,11 @@
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/turbo_module_manager.h"
-#include "handler/asset_handler.h"
-#include "handler/file_handler.h"
-#include "handler/jni_delegate_handler.h"
-#include "handler/uri.h"
-
+#include "vfs/handler/asset_handler.h"
+#include "vfs/handler/file_handler.h"
+#include "vfs/handler/jni_delegate_handler.h"
 #include "vfs/uri_loader.h"
+#include "vfs/uri.h"
 
 #ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
@@ -428,18 +425,18 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   auto ref = bridge->GetRef();
   runtime->GetScope()->SetUriLoader(loader);
   FOOTSTONE_CHECK(j_aasset_manager);
-  auto  aasset_manager = AAssetManager_fromJava(j_env, j_aasset_manager);
   auto asset_handler = std::make_shared<hippy::AssetHandler>();
-  asset_handler->SetAAssetManager(aasset_manager);
+  asset_handler->SetAAssetManager(j_env, j_aasset_manager);
   asset_handler->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
   loader->RegisterUriHandler(kAssetSchema, asset_handler);
   auto save_object = std::make_shared<JavaRef>(j_env, j_cb);
+  auto is_local_file = j_aasset_manager != nullptr;
   auto func = [runtime, save_object_ = std::move(save_object), script_name,
-      j_can_use_code_cache, code_cache_dir, uri, aasset_manager,
+      j_can_use_code_cache, code_cache_dir, uri, is_local_file,
       time_begin] {
     FOOTSTONE_DLOG(INFO) << "runScriptFromUri enter";
     bool flag = V8BridgeUtils::RunScript(runtime, script_name, j_can_use_code_cache,
-                                         code_cache_dir, uri, aasset_manager != nullptr);
+                                         code_cache_dir, uri, is_local_file);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now())
         .time_since_epoch()

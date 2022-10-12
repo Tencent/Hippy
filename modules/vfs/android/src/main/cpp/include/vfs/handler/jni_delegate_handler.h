@@ -22,7 +22,7 @@
 
 #include <jni.h>
 
-#include "vfs/uri_handler.h"
+#include "vfs/handler/uri_handler.h"
 #include "footstone/persistent_object_map.h"
 #include "footstone/string_view.h"
 #include "jni/scoped_java_ref.h"

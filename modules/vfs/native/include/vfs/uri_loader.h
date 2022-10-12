@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "vfs/uri_handler.h"
+#include "vfs/handler/uri_handler.h"
 
 #include <list>
 #include <mutex>

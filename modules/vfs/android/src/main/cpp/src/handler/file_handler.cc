@@ -18,11 +18,11 @@
  * limitations under the License.
  */
 
-#include "handler/file_handler.h"
+#include "vfs/handler/file_handler.h"
 
-#include "handler/uri.h"
 #include "footstone/task.h"
 #include "vfs/file.h"
+#include "vfs/uri.h"
 
 
 using Uri = hippy::Uri;

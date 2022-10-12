@@ -18,12 +18,12 @@
  * limitations under the License.
  */
 
-#include "handler/asset_handler.h"
+#include "vfs/handler/asset_handler.h"
 
-#include "handler/uri.h"
 #include "footstone/check.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
+#include "vfs/uri.h"
 
 using string_view = footstone::string_view;
 using StringViewUtils = footstone::StringViewUtils;

@@ -18,10 +18,8 @@
  * limitations under the License.
  */
 
-#include "handler/jni_delegate_handler.h"
+#include "vfs/handler/jni_delegate_handler.h"
 
-#include "handler/asset_handler.h"
-#include "handler/file_handler.h"
 #include "footstone/check.h"
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
@@ -30,6 +28,8 @@
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "vfs/uri_loader.h"
+#include "vfs/handler/asset_handler.h"
+#include "vfs/handler/file_handler.h"
 
 namespace hippy {
 inline namespace vfs {
