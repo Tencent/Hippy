@@ -4,9 +4,9 @@
 
 Hippy 提供了两种方式来管理全局事件:
 
-+ `Hippy.on`、`Hippy.off`、`Hippy.emit` 是框架无关的全局事件 EventBus，主要用来监听如 `dealloc`、`destroyInstance` 等特殊 C++ 底层事件，也可以手动定制 JS 内的全局事件。
++ `Hippy.on`、`Hippy.off`、`Hippy.emit` 是框架无关的全局事件监听器，主要用来监听如 `dealloc`、`destroyInstance` 等特殊 C++ 底层事件，也可以手动定制 JS 内的全局事件。
 
-+ `HippyEventEmitter` 和 `HippyEvent`(2.15.0后支持) 是 HippyReact 定制的 EventBus，除了可以手动定制 JS 内的全局事件外，所有全局 `NativeEvent` 都由其来分发，如 `rotate` 事件等。
++ `HippyEventEmitter` 和 `EventBus`(2.15.0后支持) 是 HippyReact 定制的 EventBus，除了可以手动定制 JS 内的全局事件外，所有全局 `NativeEvent` 都由其来分发，如 `rotate` 事件等。
 
 ---
 
@@ -31,21 +31,21 @@ this.call = hippyEventEmitter.addListener('rotate', evt => console.log(evt.resul
 this.call.remove()
 ```
 
-!> `2.15.0` 版本后，增加 `HippyEvent` 全局事件对象，推荐采用该对象管理全局事件
+!> `2.15.0` 版本后，增加 `EventBus` 全局事件对象，推荐采用该对象管理全局事件
 
-## HippyEvent
+## EventBus
 
 最低支持版本 `2.15.0`
 
 ### on
 
-`(events: string | string[], callback: (data?: any) => void) => HippyEvent` 用于监听全局事件，返回 `HippyEvent` 对象可用于链式调用。
+`(events: string | string[], callback: (data?: any) => void) => EventBus` 用于监听全局事件，返回 `EventBus` 对象可用于链式调用。
 
 > + events: string | string[] - 指定事件名称，可以有两种类型，传入字符串时用于绑定单个事件，传入数组时用于同时绑定多个事件。
-> + callback: (data?: any) => void) - 指定回调函数，该回调函数可以作为 `HippyEvent.off` 的第二个参数。
+> + callback: (data?: any) => void) - 指定回调函数，该回调函数可以作为 `EventBus.off` 的第二个参数。
 
 ```js
-import { HippyEvent } from '@hippy/react';
+import { EventBus } from '@hippy/react';
 const rotateCallback = (data) => {
   console.log('rotate data', data && data.orientation);
 }
@@ -53,51 +53,51 @@ const accountChanged = (data) => {
   console.log('accountChanged data', data && data.user);
 }
 // 链式调用注册事件
-HippyEvent
+EventBus
   .on('rotate', rotateCallback)
   .on('accountChanged', accountChanged);
 /*
   可以通过数组同时注册两个事件
-  HippyEvent.on(['rotate1', 'rotate2'], rotateCallback)
+  EventBus.on(['rotate1', 'rotate2'], rotateCallback)
  */
 ```
 
 ### off
 
-`(events: string | string[], callback?: (data?: any) => void) => HippyEvent` 用于移除全局绑定的事件，返回 `HippyEvent` 对象可用于链式调用。
+`(events: string | string[], callback?: (data?: any) => void) => EventBus` 用于移除全局绑定的事件，返回 `EventBus` 对象可用于链式调用。
 这里有两种使用方法，当只提供了事件名称，则移除对应事件的所有回调函数；当同时提供了事件名称和回调函数，则只移除事件上指定的回调函数。
 
 > + events: string | string[] - 指定事件名称，可以有两种类型，传入字符串时用于移除单个事件，传入数组时用于同时移除多个事件。
-> + callback?: (data?: any) => void - 可选参数，与 `HippyEvent.on` 第二个参数对应的回调函数，当 `callback` 为空时，移除对应事件的所有监听器。
+> + callback?: (data?: any) => void - 可选参数，与 `EventBus.on` 第二个参数对应的回调函数，当 `callback` 为空时，移除对应事件的所有监听器。
 
 ```js
-import { HippyEvent } from '@hippy/react';
+import { EventBus } from '@hippy/react';
 const rotateCallback = (data) => {
   console.log('rotate data', data && data.orientation);
 }
-HippyEvent.on('rotate', rotateCallback);
+EventBus.on('rotate', rotateCallback);
 // 只移除事件上指定的回调函数
-HippyEvent.off('rotate', rotateCallback);
+EventBus.off('rotate', rotateCallback);
 // 移除对应事件的所有回调函数
-HippyEvent.off('rotate');
+EventBus.off('rotate');
 ```
 
 ### emit
 
-`(event: string, ...param: any) => HippyEvent` 用于触发对应事件，返回 `HippyEvent` 对象可用于链式调用。
+`(event: string, ...param: any) => EventBus` 用于触发对应事件，返回 `EventBus` 对象可用于链式调用。
 
 > + event: string - 指定事件名称，只能传单个事件。
 > + ...param: any - 可选，支持发送多个参数，用作回调函数的参数。
 
 
 ```js
-import { HippyEvent } from '@hippy/react';
+import { EventBus } from '@hippy/react';
 const rotateCallback = (data1, data2) => {
   console.log('rotate data', data1, data2);
 }
-HippyEvent.on('rotate', rotateCallback);
+EventBus.on('rotate', rotateCallback);
 // 触发 rotate 事件，并携带参数
-HippyEvent.emit('rotate', { orientation: 'vertical' }, { degree: '90' });
+EventBus.emit('rotate', { orientation: 'vertical' }, { degree: '90' });
 ```
 
 ### sizeOf
@@ -107,17 +107,17 @@ HippyEvent.emit('rotate', { orientation: 'vertical' }, { degree: '90' });
 > + event: string - 指定事件名称。
 
 ```js
-import { HippyEvent } from '@hippy/react';
+import { EventBus } from '@hippy/react';
 const rotateCallback1 = (data) => {
   console.log('rotate data', data && data.orientation);
 }
 const rotateCallback2 = (data) => {
   console.log('rotate data', data && data.orientation);
 }
-HippyEvent.on('rotate', rotateCallback1);
-HippyEvent.on('rotate', rotateCallback2);
+EventBus.on('rotate', rotateCallback1);
+EventBus.on('rotate', rotateCallback2);
 // 获取 rotate 事件所绑定的回调函数数量
-console.log(HippyEvent.sizeOf('rotate')); // => 2;
+console.log(EventBus.sizeOf('rotate')); // => 2;
 ```
 
 # JS 引擎销毁事件
