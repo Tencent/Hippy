@@ -43,13 +43,12 @@
             }
         }
     }
-    // 如果header还没收回的时候，就滑动，sectionHeader的位置可能异常，这里需要恢复一下
+    // Section cell will stick in wrong position while header is still refresh. in this scenario，the scrollview inset need to be reset.
     [self resetInset];
 }
 
 - (void)resetInset
 {
-    // sectionheader停留解决
     CGFloat insetT = - self.scrollView.contentOffset.y > 0 ? - self.scrollView.contentOffset.y : 0;
     insetT = insetT > self.frame.size.height ? self.frame.size.height : insetT;
 
