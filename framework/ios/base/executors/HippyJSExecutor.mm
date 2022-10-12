@@ -68,10 +68,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
     std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
-    std::shared_ptr<hippy::vfs::UriLoader> _defaultUriLoader;
     id<HippyContextWrapper> _contextWrapper;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
-    std::weak_ptr<hippy::vfs::UriLoader> _uriLoader;
     __weak HippyBridge *_bridge;
 }
 
@@ -96,7 +94,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     const char *pName = [self.enginekey UTF8String] ?: "";
     std::shared_ptr<hippy::Scope> scope = engine->GetEngine()->CreateScope(pName, std::move(map));
     self.pScope = scope;
-    [self initURILoader];
 #ifdef ENABLE_INSPECTOR
     HippyBridge *bridge = self.bridge;
     if (bridge && bridge.debugMode) {
@@ -126,39 +123,10 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     return self;
 }
 
-- (void)initURILoader {
-    if (!_defaultUriLoader) {
-        _defaultUriLoader = std::make_shared<hippy::vfs::UriLoader>();
-        _defaultUriLoader->SetDefaultHandler(std::make_shared<HippyDefaultUriHandler>());
-        self.pScope->SetUriLoader(_defaultUriLoader);
-    }
-}
-
 - (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader {
-    auto loader = uriLoader.lock();
-    if (loader) {
-        auto exsitedLoader = _uriLoader.lock();
-        if (exsitedLoader) {
-            if (loader != exsitedLoader) {
-                _uriLoader = uriLoader;
-                self.pScope->SetUriLoader(uriLoader);
-            }
-        }
-        else {
-            _uriLoader = uriLoader;
-            self.pScope->SetUriLoader(uriLoader);
-        }
-        _defaultUriLoader = nil;
+    if (self.pScope->GetUriLoader().lock() != uriLoader.lock()) {
+        self.pScope->SetUriLoader(uriLoader);
     }
-    else {
-        _uriLoader = uriLoader;
-        [self initURILoader];
-    }
-}
-
-- (std::weak_ptr<hippy::vfs::UriLoader>)uriLoader {
-    auto uriLoader = _uriLoader.lock();
-    return uriLoader?_uriLoader:_defaultUriLoader;
 }
 
 - (std::unique_ptr<hippy::Engine::RegisterMap>)registerMap {

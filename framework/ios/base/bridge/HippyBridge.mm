@@ -39,6 +39,7 @@
 #import "NativeRenderInvalidating.h"
 #import "HippyOCTurboModule.h"
 #import "HippyDisplayLink.h"
+#import "HippyDefaultUriLoader.h"
 #import "HippyModuleMethod.h"
 #import "HippyPerformanceLogger.h"
 #import "NativeRenderUtils.h"
@@ -252,6 +253,11 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     }
 }
 
+static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
+    auto uriLoader = std::make_shared<HippyDefaultUriLoader>();
+    return uriLoader;
+}
+
 - (void)setUp {
     _performanceLogger = [HippyPerformanceLogger new];
     [_performanceLogger markStartForTag:HippyPLBridgeStartup];
@@ -283,6 +289,9 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
         });
     } @catch (NSException *exception) {
         HippyHandleException(exception, self);
+    }
+    if (!self.uriLoader) {
+        self.uriLoader = GetDefaultUriLoader();
     }
     if (nil == self.renderContext.frameworkProxy) {
         self.renderContext.frameworkProxy = self;
@@ -407,6 +416,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 - (void)setUriLoader:(std::shared_ptr<hippy::vfs::UriLoader>)uriLoader {
     if (_uriLoader != uriLoader) {
         _uriLoader = uriLoader;
+        [_javaScriptExecutor setUriLoader:uriLoader];
     }
 }
 

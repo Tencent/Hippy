@@ -79,3 +79,13 @@ NSURL *StringViewToNSURL(const footstone::string_view &uri) {
     }
     return [NSURL URLWithString:uriString];
 }
+
+NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &map) {
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:map.size()];
+    for (const auto &it : map) {
+        NSString *key = [NSString stringWithUTF8String:it.first.c_str()];
+        NSString *value = [NSString stringWithUTF8String:it.second.c_str()];
+        [dictionary setObject:value forKey:key];
+    }
+    return [dictionary copy];
+}

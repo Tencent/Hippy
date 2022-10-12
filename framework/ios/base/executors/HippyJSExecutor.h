@@ -52,7 +52,6 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 
 @property (nonatomic, strong) HippyBridge *bridge;
 
-@property(nonatomic, assign)std::weak_ptr<hippy::vfs::UriLoader> uriLoader;
 /**
  * Whether the executor has been invalidated
  */
@@ -79,6 +78,8 @@ HIPPY_EXTERN NSString *const HippyJSCThreadName;
 - (void)setSandboxDirectory:(NSString *)directory;
 
 - (void)setContextName:(NSString *)contextName;
+
+- (void)setUriLoader:(std::weak_ptr<hippy::vfs::UriLoader>)uriLoader;
 
 - (std::shared_ptr<hippy::napi::CtxValue>)JSTurboObjectWithName:(NSString *)name;
 

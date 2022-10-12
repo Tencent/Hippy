@@ -36,13 +36,11 @@
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "footstone/worker_manager.h"
-#include "uri_loader.h"
+#include "vfs/uri_loader.h"
 
 @class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
-
-class HippyUriLoader;
 
 /**
  * Indicate hippy sdk version
@@ -147,6 +145,10 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
 
+/**
+ * Set URI loader for Hippy instance
+ * Default handler is HippyDefaultUriHandler
+ */
 @property(nonatomic, assign)std::shared_ptr<hippy::vfs::UriLoader> uriLoader;
 
 /**

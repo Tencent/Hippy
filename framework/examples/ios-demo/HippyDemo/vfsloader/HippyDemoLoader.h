@@ -23,6 +23,8 @@
 #include "vfs/uri_loader.h"
 
 class HippyDemoLoader : public hippy::vfs::UriLoader {
+  public:
+    HippyDemoLoader();
 };
 
 

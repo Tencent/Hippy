@@ -24,6 +24,7 @@
 
 #import "FootstoneUtils.h"
 #import "HippyDefaultUriHandler.h"
+#import "NSURLResponse+ToUnorderedMap.h"
 
 static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri,
                                                      const std::unordered_map<std::string, std::string> &headers) {
@@ -33,6 +34,17 @@ static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri
     }
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
     for (const auto &it : headers) {
+        if (0 == strcasecmp("method", it.first.c_str())) {
+            NSString *method = [NSString stringWithUTF8String:it.second.c_str()];
+            [request setHTTPMethod:method];
+            continue;
+        }
+        else if (0 == strcasecmp("body", it.first.c_str())) {
+            const void *data = reinterpret_cast<const void *>(it.second.c_str());
+            NSData *body = [NSData dataWithBytes:data length:it.second.length()];
+            [request setHTTPBody:body];
+            continue;
+        }
         NSString *headerKey = [NSString stringWithUTF8String:it.first.c_str()];
         NSString *headerValue = [NSString stringWithUTF8String:it.second.c_str()];
         [request setValue:headerValue forHTTPHeaderField:headerKey];
@@ -95,19 +107,8 @@ void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs:
             ctx->code = hippy::vfs::UriHandler::RetCode::Success;
             std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
             ctx->content = content;
-            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
-                NSDictionary *headerFields = [httpResp allHeaderFields];
-                std::unordered_map<std::string, std::string> respMap;
-                respMap.reserve([headerFields count]);
-                for (NSString *key in headerFields) {
-                    NSString *value = headerFields[key];
-                    std::string keyString([key UTF8String]);
-                    std::string valueString([value UTF8String]);
-                    respMap[keyString] = valueString;
-                }
-                ctx->rsp_meta = respMap;
-            }
+            std::unordered_map<std::string, std::string> respMap = [response toUnorderedMap];
+            ctx->rsp_meta = std::move(respMap);
         }
         dispatch_semaphore_signal(sem);
     };
@@ -130,22 +131,8 @@ void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs:
         }
         else {
             std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
-            if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-                NSHTTPURLResponse *httpResp = (NSHTTPURLResponse *)response;
-                NSDictionary *headerFields = [httpResp allHeaderFields];
-                std::unordered_map<std::string, std::string> respMap;
-                respMap.reserve([headerFields count]);
-                for (NSString *key in headerFields) {
-                    NSString *value = headerFields[key];
-                    std::string keyString([key UTF8String]);
-                    std::string valueString([value UTF8String]);
-                    respMap[keyString] = valueString;
-                }
-                ctx->cb(hippy::vfs::UriHandler::RetCode::Success, respMap, content);
-            }
-            else {
-                ctx->cb(hippy::vfs::UriHandler::RetCode::Success, std::unordered_map<std::string, std::string>(), content);
-            }
+            std::unordered_map<std::string, std::string> respMap = [response toUnorderedMap];
+            ctx->cb(hippy::vfs::UriHandler::RetCode::Success, respMap, content);
         }
     };
     NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];

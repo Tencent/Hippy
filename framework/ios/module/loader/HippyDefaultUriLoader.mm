@@ -20,14 +20,14 @@
  *
  */
 
-#ifndef HippyUriLoader_hpp
-#define HippyUriLoader_hpp
+#import "HippyDefaultUriLoader.h"
+#import "HippyDefaultUriHandler.h"
 
-#include "vfs/uri_loader.h"
+HippyDefaultUriLoader::HippyDefaultUriLoader() {
+    SetDefaultHandler(std::make_shared<HippyDefaultUriHandler>());
+}
 
-class HippyUriLoader : public hippy::vfs::UriLoader {
- public:
-  virtual string_view GetScheme(const string_view& uri);
-};
+HippyDefaultUriLoader::HippyDefaultUriLoader(const std::shared_ptr<hippy::vfs::UriHandler> &handler) {
+    SetDefaultHandler(handler);
+}
 
-#endif /* HippyUriLoader_hpp */

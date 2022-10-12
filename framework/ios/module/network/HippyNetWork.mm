@@ -22,31 +22,32 @@
 
 #import "HippyNetWork.h"
 #import "HippyAssert.h"
-#import "NativeRenderLog.h"
 #import <WebKit/WKHTTPCookieStore.h>
 #import <WebKit/WKWebsiteDataStore.h>
 #import "NativeRenderUtils.h"
-#import "HippyFetchInfo.h"
-#import "objc/runtime.h"
-#import "NativeRenderUtils.h"
+#import "HippyBridge+VFSLoader.h"
 
-static char fetchInfoKey;
-
-static void setFetchInfoForSessionTask(NSURLSessionTask *task, HippyFetchInfo *fetchInfo) {
-    objc_setAssociatedObject(task, &fetchInfoKey, fetchInfo, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-HippyFetchInfo *fetchInfoForSessionTask(NSURLSessionTask *task) {
-    HippyFetchInfo *info = objc_getAssociatedObject(task, &fetchInfoKey);
-    return info;
+static NSStringEncoding GetStringEncodingFromURLResponse(NSURLResponse *response) {
+    NSString *textEncoding = [response textEncodingName];
+    if (!textEncoding) {
+        return NSUTF8StringEncoding;
+    }
+    CFStringEncoding encoding = CFStringConvertIANACharSetNameToEncoding((CFStringRef)textEncoding);
+    NSStringEncoding dataEncoding = CFStringConvertEncodingToNSStringEncoding(encoding);
+    return dataEncoding;
 }
 
 @implementation HippyNetWork
+
+@synthesize bridge = _bridge;
 
 HIPPY_EXPORT_MODULE(network)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
+    if (!resolve) {
+        return;
+    }
     NSString *method = params[@"method"];
     NSString *url = params[@"url"];
     NSDictionary *header = params[@"headers"];
@@ -54,108 +55,39 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
   
     HippyAssertParam(url);
     HippyAssertParam(method);
-	
-	if (![header isKindOfClass: [NSDictionary class]]) {
-		header = @{};
-	}
-	
-    NSURL *requestURL = NativeRenderURLWithString(url, NULL);
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL];
-    [request setHTTPMethod: method];
-	
-	NSMutableDictionary *httpHeader = [NSMutableDictionary new];
-	[header enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL *stop) {
-		NSString *value = nil;
-		if ([obj isKindOfClass: [NSArray class]]) {
-			value = [[(NSArray *)obj valueForKey:@"description"] componentsJoinedByString:@","];
-		} else if ([obj isKindOfClass: [NSString class]]) {
-			value = obj;
-		}
-		
-		[httpHeader setValue: value forKey: key];
-	}];
-    if (httpHeader.count) {
-		[request setAllHTTPHeaderFields: httpHeader];
-	}
-    NSDictionary<NSString *, NSString *> *extraHeaders = [self extraHeaders];
-    [extraHeaders enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
-        [request addValue:obj forHTTPHeaderField:key];
-    }];
-    
-    if (body.length) {
-        NSData *postData = [body dataUsingEncoding: NSUTF8StringEncoding];
-        if (postData) {
-            [request setHTTPBody: postData];
+
+    NSMutableDictionary *vfsParams = [NSMutableDictionary new];
+    [header enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL *stop) {
+        NSString *value = nil;
+        if ([obj isKindOfClass: [NSArray class]]) {
+            value = [[(NSArray *)obj valueForKey:@"description"] componentsJoinedByString:@","];
+        } else if ([obj isKindOfClass: [NSString class]]) {
+            value = obj;
         }
+        
+        [vfsParams setValue: value forKey: key];
+    }];
+    [vfsParams setObject:method?:@"Get" forKey:@"method"];
+    if (body) {
+        [vfsParams setObject:body forKey:@"body"];
     }
-    NSString *redirect = params[@"redirect"];
-    BOOL report302Status = (nil == redirect || [redirect isEqualToString:@"manual"]);
-    HippyFetchInfo *fetchInfo = [[HippyFetchInfo alloc] initWithResolveBlock:resolve rejectBlock:reject report302Status:report302Status];
-    NSURLSessionConfiguration *sessionConfiguration = [NSURLSessionConfiguration defaultSessionConfiguration];
-    sessionConfiguration.protocolClasses = [self protocolClasses];
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:sessionConfiguration delegate:self delegateQueue:nil];
-    NSURLSessionTask *task = [session dataTaskWithRequest:request];
-    setFetchInfoForSessionTask(task, fetchInfo);
-    [task resume];
+    NSURL *requestURL = NativeRenderURLWithString(url, NULL);
+    [self.bridge loadContentsAsynchronouslyFromUrl:requestURL params:vfsParams completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSStringEncoding encoding = GetStringEncodingFromURLResponse(response);
+        NSString *dataStr = [[NSString alloc] initWithData:data encoding:encoding];
+        NSUInteger statusCode = 0;
+        NSDictionary *headers = nil;
+        if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
+            statusCode = [httpRes statusCode];
+            headers = [httpRes allHeaderFields];
+        }
+        NSDictionary *result =
+            @{ @"statusCode": @(statusCode), @"statusLine": @"", @"respHeaders": headers ?: @ {}, @"respBody": dataStr ?: @"" };
+        resolve(result);
+    }];
 }
 // clang-format on
-
-- (void)URLSession:(NSURLSession *)session
-                          task:(NSURLSessionTask *)task
-    willPerformHTTPRedirection:(NSHTTPURLResponse *)response
-                    newRequest:(NSURLRequest *)request
-             completionHandler:(void (^)(NSURLRequest *_Nullable))completionHandler {
-    HippyFetchInfo *fetchInfo = fetchInfoForSessionTask(task);
-    if (fetchInfo.report302Status) {
-        HippyPromiseResolveBlock resolver = fetchInfo.resolveBlock;
-        if (resolver) {
-            NSDictionary *result =
-                @{ @"statusCode": @(response.statusCode), @"statusLine": @"", @"respHeaders": response.allHeaderFields ?: @ {}, @"respBody": @"" };
-
-            resolver(result);
-        }
-        completionHandler(nil);
-    } else {
-        completionHandler(request);
-    }
-}
-
-- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(nullable NSError *)error {
-    BOOL is302Response = ([task.response isKindOfClass:[NSHTTPURLResponse class]] && 302 == [(NSHTTPURLResponse *)task.response statusCode]);
-    HippyFetchInfo *fetchInfo = fetchInfoForSessionTask(task);
-    if (is302Response && fetchInfo.report302Status) {
-        [session finishTasksAndInvalidate];
-        return;
-    }
-    if (error) {
-        HippyPromiseRejectBlock rejector = fetchInfo.rejectBlock;
-        NSString *code = [NSString stringWithFormat:@"%ld", (long)error.code];
-        rejector(code, error.description, error);
-    } else {
-        HippyPromiseResolveBlock resolver = fetchInfo.resolveBlock;
-        NSData *data = fetchInfo.fetchData;
-        NSStringEncoding dataEncoding = NativeRenderGetStringEncodingFromURLResponse(task.response);
-        NSString *dataStr = [[NSString alloc] initWithData:data encoding:dataEncoding];
-        NSHTTPURLResponse *resp = (NSHTTPURLResponse *)task.response;
-        NSDictionary *result =
-            @{ @"statusCode": @(resp.statusCode), @"statusLine": @"", @"respHeaders": resp.allHeaderFields ?: @ {}, @"respBody": dataStr ?: @"" };
-        resolver(result);
-    }
-    [session finishTasksAndInvalidate];
-}
-
-- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveData:(NSData *)data {
-    NSMutableData *fetchData = fetchInfoForSessionTask(dataTask).fetchData;
-    [fetchData appendData:data];
-}
-
-- (NSArray<Class> *)protocolClasses {
-    return [NSArray array];
-}
-
-- (NSDictionary<NSString *, NSString *> *)extraHeaders {
-    return nil;
-}
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(__unused HippyPromiseRejectBlock)reject) {
@@ -164,7 +96,7 @@ HIPPY_EXPORT_METHOD(getCookie:(NSString *)urlString resolver:(HippyPromiseResolv
         resolve(@"");
         return;
     }
-    CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
+    CFURLRef urlRef = CFURLCreateWithBytes(NULL, (const UInt8 *)[uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
     NSURL *source_url = CFBridgingRelease(urlRef);
     NSArray<NSHTTPCookie *>* cookies = [[NSHTTPCookieStorage sharedHTTPCookieStorage] cookiesForURL:source_url];
     NSMutableString *string = [NSMutableString stringWithCapacity:256];
@@ -184,7 +116,7 @@ HIPPY_EXPORT_METHOD(setCookie:(NSString *)urlString keyValue:(NSString *)keyValu
     if (nil == uriData) {
         return;
     }
-    CFURLRef urlRef = CFURLCreateWithBytes(NULL, [uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
+    CFURLRef urlRef = CFURLCreateWithBytes(NULL, (const UInt8 *)[uriData bytes], [uriData length], kCFStringEncodingUTF8, NULL);
     if (NULL == urlRef) {
         return;
     }
