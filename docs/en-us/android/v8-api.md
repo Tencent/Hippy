@@ -7,7 +7,8 @@ Get V8 JS engine instance and operate it。
 # GetHeapStatistics
 
 Get statistics about the V8 heap.
-This method must be called in the Js thread.
+
+!> This method must be called in the js thread.
 
 > Minimum supported version `2.15.0`
 
@@ -40,7 +41,9 @@ if (v8 != null) {
 # GetHeapCodeStatistics
 
 Get statistics about the V8 heap code.
-This method must be called in the Js thread.
+
+!> This method must be called in the js thread.
+
 > Minimum supported version `2.15.0`
 
 ``` java
@@ -72,7 +75,9 @@ if (v8 != null) {
 # GetHeapSpaceStatistics
 
 Get statistics about the V8 heap spaces.
-This method must be called in the Js thread.
+
+!> This method must be called in the js thread.
+
 > Minimum supported version `2.15.0`
 
 ``` java
@@ -105,7 +110,8 @@ if (v8 != null) {
 
 Generate a snapshot of the current V8 heap and writes it to a JSON file.
 This file is intended to be used with tools such as Chrome DevTools.
-This method must be called in the Js thread.
+
+!> This method must be called in the js thread.
 
 > Minimum supported version `2.15.0`
 
@@ -138,7 +144,9 @@ if (v8 != null) {
 # printCurrentStackTrace
 
 Print current stack trace.
-This method must be called in the Js thread.
+
+!> This method must be called in the js thread.
+
 > Minimum supported version `2.15.0`
 
 ``` java
@@ -153,7 +161,9 @@ if (v8 != null) {
 # addNearHeapLimitCallback
 
 Add a callback to invoke in case the heap size is close to the heap limit.
-This method must be called in the Js thread.
+
+!> This method must be called in the js thread.
+
 > Minimum supported version `2.15.0`
 
 ``` java
@@ -167,8 +177,7 @@ if (v8 != null) {
 
 # requestInterrupt
 
-Request V8 to interrupt long running JavaScript code and invoke
-the given callback. After |callback| returns control will be returned to the JavaScript code.
+Request V8 to interrupt long running JavaScript code and invoke the given callback. After |callback| returns control will be returned to the JavaScript code.
 > Minimum supported version `2.15.0`
 
 ``` java

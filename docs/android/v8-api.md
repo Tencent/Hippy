@@ -7,7 +7,8 @@
 # GetHeapStatistics
 
 获取 js 堆内存信息。
-注意：该方法必须在Js线程中调用（使用示例的runInJsThread方法）。
+
+!> 注意：该方法必须在 js 线程中调用（使用示例的 runInJsThread 方法）。
 
 > 最低支持版本 `2.15.0`
 
@@ -40,7 +41,9 @@ if (v8 != null) {
 # GetHeapCodeStatistics
 
 获取js堆中代码及其元数据的统计信息。
-注意：该方法必须在Js线程中调用（使用示例的runInJsThread方法）。
+
+!> 注意：该方法必须在 js 线程中调用（使用示例的 runInJsThread 方法）。
+
 > 最低支持版本 `2.15.0`
 
 ``` java
@@ -72,7 +75,9 @@ if (v8 != null) {
 # GetHeapSpaceStatistics
 
 返回堆各个空间的统计信息。
-注意：该方法必须在Js线程中调用（使用示例的runInJsThread方法）。
+
+!> 注意：该方法必须在 js 线程中调用（使用示例的 runInJsThread 方法）。
+
 > 最低支持版本 `2.15.0`
 
 ``` java
@@ -103,8 +108,10 @@ if (v8 != null) {
 
 # WriteHeapSnapshot
 
-生成一个堆快照（可导入Chrome浏览器开发者工具分析）。
-注意：该方法必须在Js线程中调用（使用示例的runInJsThread方法）。
+生成一个堆快照（可导入 Chrome 浏览器开发者工具分析）。
+
+!> 注意：该方法必须在 js 线程中调用（使用示例的 runInJsThread 方法）。
+
 > 最低支持版本 `2.15.0`
 
 ``` java
@@ -136,7 +143,9 @@ if (v8 != null) {
 # printCurrentStackTrace
 
 打印当前堆栈信息。
-注意：该方法必须在Js线程中调用（使用示例的runInJsThread方法）。
+
+!> 注意：该方法必须在 js 线程中调用（使用示例的 runInJsThread 方法）。
+
 > 最低支持版本 `2.15.0`
 
 ``` java
@@ -150,8 +159,10 @@ if (v8 != null) {
 
 # addNearHeapLimitCallback
 
-添加一个回调。当V8堆大小接近最大限制的场景下会回调改方法。
-注意：该方法必须在Js线程中调用（使用示例的runInJsThread方法）。
+添加一个回调。当 V8 堆大小接近最大限制的场景下会回调该方法。
+
+!> 注意：该方法必须在 js 线程中调用（使用示例的 runInJsThread 方法）。
+
 > 最低支持版本 `2.15.0`
 
 ``` java
@@ -165,8 +176,10 @@ if (v8 != null) {
 
 # requestInterrupt
 
-请求 v8 打断当前正在执行耗时长的 Js 任务，并调用我们注入的回调方法。
-该方法可以在任意线程中调用。
+请求 V8 打断当前正在执行耗时长的 js 任务，并调用我们注入的回调方法。回调完成后控制权将会返回给 js 代码。
+
+!> 该方法可以在任意线程中调用。
+
 > 最低支持版本 `2.15.0`
 
 ``` java
