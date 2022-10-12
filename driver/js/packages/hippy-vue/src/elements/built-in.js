@@ -90,7 +90,7 @@ const div = {
   component: {
     name: NATIVE_COMPONENT_NAME_MAP[components.View],
     eventNamesMap: mapEvent([
-      ['touchStart', 'onTouchDown'], // TODO: Back compatible, will remove soon
+      ['touchStart', 'onTouchDown'],
       ['touchstart', 'onTouchDown'],
       ['touchmove', 'onTouchMove'],
       ['touchend', 'onTouchEnd'],
@@ -157,7 +157,6 @@ const img = {
       backgroundColor: 0,
     },
     attributeMaps: {
-      // TODO: check placeholder or defaultSource value in compile-time wll be better.
       placeholder: {
         name: 'defaultSource',
         propsValue(value) {
@@ -229,7 +228,7 @@ const li = {
 
 // Text area
 const span = {
-  symbol: components.View, // IMPORTANT: Can't be Text.
+  symbol: components.View,
   component: {
     ...div.component,
     name: NATIVE_COMPONENT_NAME_MAP[components.Text],

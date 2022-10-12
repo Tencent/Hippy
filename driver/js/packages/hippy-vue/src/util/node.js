@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-param-reassign */
+
 const nodeCache = new Map();
 
 /**
