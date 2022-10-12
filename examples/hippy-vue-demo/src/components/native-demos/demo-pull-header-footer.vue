@@ -21,6 +21,7 @@
       id="list"
       ref="list"
       :numberOfRows="dataSource.length"
+      :rowShouldSticky="true"
       @scroll="onScroll"
     >
       /**
@@ -47,6 +48,7 @@
         :key="index"
         class="item-style"
         :type="'row-' + ui.style"
+        :sticky="index === 0"
       >
         <style-one
           v-if="ui.style === 1"
