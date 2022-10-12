@@ -413,7 +413,7 @@ const Native = {
   /**
    * Key-Value storage system
    */
-  AsyncStorage: global.localStorage,
+  AsyncStorage: global.Hippy.asyncStorage,
   /**
    * Android hardware back button event listener.
    */
