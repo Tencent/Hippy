@@ -84,6 +84,20 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)compone
 // clang-format on
 
 // clang-format off
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
+    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+        NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
+        if (view == nil) return ;
+        if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
+            NativeRenderLogError(@"Invalid view returned from registry, expecting NativeRenderBaseTextInput, got: %@", view);
+        }
+        BOOL isFocused = [view isFirstResponder];
+        callback([NSDictionary dictionaryWithObject:[NSNumber numberWithBool:isFocused] forKey:@"value"]);
+    }];
+}
+// clang-format on
+
+// clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
