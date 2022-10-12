@@ -32,6 +32,10 @@ inline namespace v8_engine {
 
 using V8VM = hippy::napi::V8VM;
 
+#ifdef V8_X5_LITE
+constexpr int kFrameLimit = 20;
+#endif
+
 REGISTER_JNI("com/tencent/mtt/hippy/v8/V8", // NOLINT(cert-err58-cpp)
               "printCurrentStackTrace",
               "(JLcom/tencent/mtt/hippy/common/Callback;)V",
@@ -45,13 +49,19 @@ void GetCurrentStackTrace(JNIEnv *j_env,
   auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   TDF_BASE_CHECK(runtime);
 
-  v8::Isolate *isolate = std::static_pointer_cast<hippy::napi::V8Ctx>( runtime->GetScope()->GetContext())->isolate_;
+  auto ctx = std::static_pointer_cast<hippy::napi::V8Ctx>( runtime->GetScope()->GetContext());
+  v8::Isolate *isolate = ctx->isolate_;
   v8::HandleScope handle_scope(isolate);
+#ifndef V8_X5_LITE
   std::ostringstream trace;
   v8::Message::PrintCurrentStackTrace(isolate, trace);
   auto trace_str = trace.str();
-  auto trace_info = tdf::base::unicode_string_view::new_from_utf8(
-      trace_str.c_str(), trace_str.length());
+  auto trace_info = tdf::base::unicode_string_view::new_from_utf8(trace_str.c_str(), trace_str.length());
+#else
+  auto trace = v8::StackTrace::CurrentStackTrace(isolate, kFrameLimit);
+  auto trace_info = ctx->GetStackTrace(trace);
+#endif
+
   auto j_cb_class = j_env->GetObjectClass(j_callback);
   auto j_cb_method_id = j_env->GetMethodID(j_cb_class, "callback",
                                            "(Ljava/lang/Object;Ljava/lang/Throwable;)V");
