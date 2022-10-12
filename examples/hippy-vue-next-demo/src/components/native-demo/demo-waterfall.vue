@@ -25,7 +25,6 @@
       >
         <div
           class="banner-view"
-          :type="1"
         >
           <span>BannerView</span>
         </div>

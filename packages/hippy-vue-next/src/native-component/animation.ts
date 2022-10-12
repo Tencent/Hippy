@@ -24,6 +24,7 @@ import type { NeedToTyped, CommonMapParams } from '../config';
 
 import { EventBus as HippyEventBus } from '../runtime/event/event-bus';
 import { Native } from '../runtime/native';
+import { getNormalizeEventName } from '../util';
 
 type NodeStyle = CommonMapParams;
 
@@ -224,8 +225,9 @@ export function registerAnimation(vueApp: App): void {
         this.create();
         // trigger actionsDidUpdate in setTimeout callback to make sure node style updated
         setTimeout(() => {
-          if (typeof this.$attrs.onActionsDidUpdate === 'function') {
-            this.$attrs.onActionsDidUpdate();
+          const actionsDidUpdateFunc = this.$attrs[getNormalizeEventName('actionsDidUpdate')];
+          if (typeof actionsDidUpdateFunc === 'function') {
+            actionsDidUpdateFunc();
           }
         });
       },
@@ -279,14 +281,16 @@ export function registerAnimation(vueApp: App): void {
       },
       removeAnimationEvent() {
         Object.keys(this.animationEventMap).forEach((key) => {
+          if (typeof this.$attrs[getNormalizeEventName(key)] !== 'function') return;
           const eventName = this.animationEventMap[key];
-          if (eventName && this[`${eventName}`]) {
+          if (eventName && typeof this[`${eventName}`] === 'function') {
             HippyEventBus.$off(eventName, this[`${eventName}`]);
           }
         });
       },
       addAnimationEvent() {
         Object.keys(this.animationEventMap).forEach((key) => {
+          if (typeof this.$attrs[getNormalizeEventName(key)] !== 'function') return;
           const eventName = this.animationEventMap[key];
           if (eventName) {
             this[`${eventName}`] = (animationId) => {
@@ -294,7 +298,7 @@ export function registerAnimation(vueApp: App): void {
                 if (key !== 'repeat') {
                   HippyEventBus.$off(eventName, this[`${eventName}`]);
                 }
-                HippyEventBus.$emit(key);
+                this.$emit(key);
               }
             };
             HippyEventBus.$on(eventName, this[`${eventName}`]);

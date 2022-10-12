@@ -78,7 +78,6 @@ export class HippyEvent {
       if (this.isCanceled) {
         return;
       }
-
       this.isCanceled = true;
     }
   }
@@ -150,7 +149,7 @@ export class HippyLoadResourceEvent extends HippyEvent {
 
 export class HippyKeyboardEvent extends HippyEvent {
   // content value
-  public value?: string;
+  public value?: string | NeedToTyped;
 
   // the starting position of the text selected by the input box
   public start?: number;
@@ -208,6 +207,8 @@ export function eventIsKeyboardEvent(event: HippyEvent): event is HippyKeyboardE
 
 export interface HippyGlobalEventHandlersEventMap {
   onScroll: HippyTouchEvent;
+  onMomentumScrollBegin: HippyTouchEvent;
+  onMomentumScrollEnd: HippyTouchEvent;
   onScrollBeginDrag: HippyTouchEvent;
   onScrollEndDrag: HippyTouchEvent;
   onTouchDown: HippyTouchEvent;
