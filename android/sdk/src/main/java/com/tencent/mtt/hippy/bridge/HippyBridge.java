@@ -20,6 +20,8 @@ import android.content.res.AssetManager;
 
 import androidx.annotation.NonNull;
 
+import com.tencent.mtt.hippy.common.Callback;
+
 import java.nio.ByteBuffer;
 
 public interface HippyBridge {
@@ -27,9 +29,11 @@ public interface HippyBridge {
     String URI_SCHEME_ASSETS = "asset:";
     String URI_SCHEME_FILE = "file:";
 
-    void initJSBridge(String gobalConfig, NativeCallback callback, int groupId);
+    void initJSBridge(String globalConfig, NativeCallback callback, int groupId);
 
     void runScript(@NonNull String script);
+
+    void runInJsThread(Callback<Void> callback);
 
     boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
             String codeCacheTag, NativeCallback callback);

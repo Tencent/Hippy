@@ -199,8 +199,7 @@ void CallFunctionByDirectBuffer(JNIEnv* j_env,
                                 jobject j_buffer,
                                 jint j_offset,
                                 jint j_length) {
-  char* buffer_address =
-      static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
+  char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
   TDF_BASE_CHECK(buffer_address != nullptr);
   CallFunction(j_env, j_obj, j_action, j_runtime_id, j_callback,
                bytes(buffer_address + j_offset,

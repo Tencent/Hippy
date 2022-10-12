@@ -238,7 +238,8 @@ class V8Ctx : public Ctx {
 
   unicode_string_view ToStringView(v8::Local<v8::String> str) const;
   unicode_string_view GetMsgDesc(v8::Local<v8::Message> message);
-  unicode_string_view GetStackInfo(v8::Local<v8::Message> message);
+  unicode_string_view GetStackInfo(v8::Local<v8::Message> message) const;
+  unicode_string_view GetStackTrace(v8::Local<v8::StackTrace> trace) const;
   v8::Local<v8::String> CreateV8String(const unicode_string_view& string) const;
 
   v8::Isolate* isolate_;

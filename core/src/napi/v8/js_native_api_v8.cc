@@ -39,6 +39,20 @@ using JSValueWrapper = hippy::base::JSValueWrapper;
 std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
 
+constexpr size_t KB = 1024;
+constexpr size_t MB = 1024 * KB;
+
+#ifndef DEFAULT_MAX_HEAP_SIZE_IN_BYTES
+constexpr size_t kdefaultMaxHeapSize = 10 * MB;
+#else
+constexpr size_t kdefaultMaxHeapSize = DEFAULT_MAX_HEAP_SIZE_IN_BYTES;
+#endif
+
+constexpr auto DefaultNearHeapLimitCallback = [](void* data, size_t current_heap_limit,
+                                          size_t initial_heap_limit) -> size_t {
+  return std::clamp(current_heap_limit * 2, std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max());
+};
+
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   TDF_BASE_DLOG(INFO) << "JsCallbackFunc begin";
 
@@ -246,15 +260,22 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
     }
   }
 
+  size_t initial_heap_size_in_bytes = 0;
+  size_t maximum_heap_size_in_bytes = kdefaultMaxHeapSize;
+  if (param) {
+    initial_heap_size_in_bytes = param->initial_heap_size_in_bytes;
+    maximum_heap_size_in_bytes = param->maximum_heap_size_in_bytes;
+  }
   create_params_.array_buffer_allocator =
       v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-  if (param) {
-    create_params_.constraints.ConfigureDefaultsFromHeapSize(param->initial_heap_size_in_bytes,
-                                                             param->maximum_heap_size_in_bytes);
-  }
+  create_params_.constraints.ConfigureDefaultsFromHeapSize(initial_heap_size_in_bytes,
+                                                           maximum_heap_size_in_bytes);
   isolate_ = v8::Isolate::New(create_params_);
   isolate_->Enter();
   isolate_->SetCaptureStackTraceForUncaughtExceptions(true);
+  if (!param) {
+    isolate_->AddNearHeapLimitCallback(DefaultNearHeapLimitCallback, nullptr);
+  }
   TDF_BASE_DLOG(INFO) << "V8VM end";
 }
 
@@ -346,7 +367,7 @@ std::shared_ptr<CtxValue> V8TryCatch::Exception() {
 
 unicode_string_view V8TryCatch::GetExceptionMsg() {
   if (!try_catch_) {
-    return unicode_string_view();
+    return {};
   }
 
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
@@ -477,16 +498,7 @@ unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
   return desc;
 }
 
-unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
-  if (message.IsEmpty()) {
-    return "";
-  }
-
-  v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(context);
-
-  v8::Local<v8::StackTrace> trace = message->GetStackTrace();
+unicode_string_view V8Ctx::GetStackTrace(v8::Local<v8::StackTrace> trace) const {
   if (trace.IsEmpty()) {
     return "";
   }
@@ -516,10 +528,16 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
                  << frame->GetColumn() << ":" << function_name;
   }
   std::string u8_str = stack_stream.str();
-  unicode_string_view stack_str(
-      reinterpret_cast<const uint8_t*>(u8_str.c_str()));
-  TDF_BASE_DLOG(INFO) << "stack = " << stack_str;
-  return stack_str;
+  return unicode_string_view::new_from_utf8(u8_str.c_str(), u8_str.length());
+}
+
+unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) const {
+  if (message.IsEmpty()) {
+    return "";
+  }
+
+  auto trace = message->GetStackTrace();
+  return GetStackTrace(trace);
 }
 
 bool V8Ctx::RegisterGlobalInJs() {
@@ -1687,7 +1705,7 @@ bool V8Ctx::IsFunction(const std::shared_ptr<CtxValue>& value) {
 unicode_string_view V8Ctx::CopyFunctionName(
     const std::shared_ptr<CtxValue>& function) {
   if (!function) {
-    return unicode_string_view();
+    return {};
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
