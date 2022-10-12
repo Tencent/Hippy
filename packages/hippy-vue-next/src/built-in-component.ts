@@ -89,7 +89,7 @@ const div: ElementComponent = {
   component: {
     name: NATIVE_COMPONENT_MAP.View,
     eventNamesMap: mapHippyEvent([
-      ['touchStart', 'onTouchDown'], // TODO: Back compatible, will remove soon
+      ['touchStart', 'onTouchDown'],
       ['touchstart', 'onTouchDown'],
       ['touchmove', 'onTouchMove'],
       ['touchend', 'onTouchEnd'],
@@ -105,6 +105,8 @@ const div: ElementComponent = {
         case 'onScroll':
         case 'onScrollBeginDrag':
         case 'onScrollEndDrag':
+        case 'onMomentumScrollBegin':
+        case 'onMomentumScrollEnd':
           event.offsetX = nativeEventParams.contentOffset?.x;
           event.offsetY = nativeEventParams.contentOffset?.y;
           /**
@@ -165,7 +167,6 @@ const img: ElementComponent = {
       backgroundColor: 0,
     },
     attributeMaps: {
-      // TODO: check placeholder or defaultSource value in compile-time wll be better.
       placeholder: {
         name: 'defaultSource',
         propsValue(value: string) {
@@ -224,8 +225,12 @@ const ul: ElementComponent = {
       const { handler: event, __evt: nativeEventName } = evtData;
       switch (nativeEventName) {
         case 'onScroll':
-          event.offsetX = nativeEventParams.contentOffset.x;
-          event.offsetY = nativeEventParams.contentOffset.y;
+        case 'onScrollBeginDrag':
+        case 'onScrollEndDrag':
+        case 'onMomentumScrollBegin':
+        case 'onMomentumScrollEnd':
+          event.offsetX = nativeEventParams.contentOffset?.x;
+          event.offsetY = nativeEventParams.contentOffset?.y;
           break;
         case 'onDelete':
           event.index = nativeEventParams.index;

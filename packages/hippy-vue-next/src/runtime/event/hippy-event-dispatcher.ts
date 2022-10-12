@@ -29,7 +29,7 @@ import type { HippyNode } from '../node/hippy-node';
 
 import { EventBus } from './event-bus';
 import {
-  type HippyGlobalEventHandlersEventMap,
+  type EventsUnionType,
   HippyEvent,
   HippyLayoutEvent,
 } from './hippy-event';
@@ -133,9 +133,9 @@ const HippyEventDispatcher = {
     if (processEventData) {
       processEventData(
         {
-          __evt: eventName as keyof HippyGlobalEventHandlersEventMap,
+          __evt: eventName,
           handler: targetEvent,
-        },
+        } as EventsUnionType,
         nativeEvent,
       );
     }
@@ -185,9 +185,9 @@ const HippyEventDispatcher = {
       if (processEventData) {
         processEventData(
           {
-            __evt: eventName as keyof HippyGlobalEventHandlersEventMap,
+            __evt: eventName,
             handler: targetEvent,
-          },
+          } as EventsUnionType,
           params,
         );
       }
