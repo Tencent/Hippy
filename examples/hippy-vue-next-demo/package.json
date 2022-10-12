@@ -5,7 +5,7 @@
   "private": true,
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo",
   "license": "Apache-2.0",
-  "author": "birdguo@tencent.com",
+  "author": "OpenHippy Team",
   "scripts": {
     "hippy:debug": "hippy-debug",
     "hippy:dev": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/webpack.dev.js",

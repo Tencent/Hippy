@@ -35,7 +35,7 @@ const PULLING_EVENT = 'pulling';
 const IDLE_EVENT = 'idle';
 
 /**
- * register pull headerand pull footer component
+ * register pull header and pull footer component
  *
  * @param vueApp - vue app instance
  */
@@ -88,19 +88,13 @@ export function registerPull(vueApp: App): void {
         },
         /**
          * Collapse the PullView and hide the content
-         * @param options - additional config for pull header
-         *  options.time - time left to hide pullHeader after collapsePullHeader() called, unit is ms
+         * @param {Object} options - additional config for pull header
+         * @param {number} options.time - time left to hide pullHeader after collapsePullHeader() called, unit is ms
          */
         [`collapsePull${capitalCase}`](options: { time: number }) {
           if (capitalCase === 'Header') {
             // options: { time }
-            if (Native.isAndroid()) {
-              callUIFunction(
-                this.$refs.instance,
-                `collapsePull${capitalCase}`,
-                [options],
-              );
-            } else if (typeof options !== 'undefined') {
+            if (typeof options !== 'undefined') {
               callUIFunction(
                 this.$refs.instance,
                 `collapsePull${capitalCase}WithOptions`,
