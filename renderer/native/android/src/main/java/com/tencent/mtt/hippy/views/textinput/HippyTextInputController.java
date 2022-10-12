@@ -26,6 +26,7 @@ import android.os.MessageQueue;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
 import android.util.TypedValue;
@@ -49,6 +50,7 @@ import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.component.text.TextVirtualNode;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.LinkedList;
@@ -71,6 +73,7 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     private static final String FUNC_CLEAR = "clear";
     private static final String FUNC_FOCUS = "focusTextInput";
     private static final String FUNC_BLUR = "blurTextInput";
+    private static final String FUNC_IS_FOCUSED = "isFocused";
     private static final String FUNC_GET_VALUE = "getValue";
     private static final String FUNC_SET_VALUE = "setValue";
     private static final String FUNC_KEYBOARD_DISMISS = "dissmiss";
@@ -440,6 +443,26 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
 
     }
 
+    @HippyControllerProps(name = NodeProps.BREAK_STRATEGY, defaultType = HippyControllerProps.STRING)
+    public void setBreakStrategy(HippyTextInput view, String strategy) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int strategyInt;
+            switch (strategy) {
+                case TextVirtualNode.STRATEGY_HIGH_QUALITY:
+                    strategyInt = Layout.BREAK_STRATEGY_HIGH_QUALITY;
+                    break;
+                case TextVirtualNode.STRATEGY_BALANCED:
+                    strategyInt = Layout.BREAK_STRATEGY_BALANCED;
+                    break;
+                case TextVirtualNode.STRATEGY_SIMPLE:
+                default:
+                    strategyInt = Layout.BREAK_STRATEGY_SIMPLE;
+            }
+            // noinspection WrongConstant
+            view.setBreakStrategy(strategyInt);
+        }
+    }
+
     @Override
     public void dispatchFunction(@NonNull HippyTextInput textInput, @NonNull String functionName,
             @NonNull HippyArray params, @NonNull Promise promise) {
@@ -449,8 +472,13 @@ public class HippyTextInputController extends HippyViewController<HippyTextInput
     @Override
     public void dispatchFunction(@NonNull final HippyTextInput textInput,
             @NonNull String functionName, @NonNull List params, @NonNull Promise promise) {
-        if (FUNC_GET_VALUE.equals(functionName) && promise != null) {
+        if (promise == null) {
+            return;
+        }
+        if (FUNC_GET_VALUE.equals(functionName)) {
             promise.resolve(textInput.jsGetValue());
+        } else if (FUNC_IS_FOCUSED.equals(functionName)) {
+            promise.resolve(textInput.jsIsFocused());
         }
     }
 
