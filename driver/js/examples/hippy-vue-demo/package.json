@@ -4,7 +4,7 @@
   "private": true,
   "webMain": "./src/main-web.js",
   "nativeMain": "./src/main-native.js",
-  "author": "XQ Kuang <x@kxq.io>",
+  "author": "OpenHippy Team",
   "license": "Apache-2.0",
   "description": "Demo app for hippy-vue",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo",
