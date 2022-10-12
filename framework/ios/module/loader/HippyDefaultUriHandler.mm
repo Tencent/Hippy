@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FootstoneUtils.h"
+#import "HippyUtils.h"
 #import "HippyDefaultUriHandler.h"
 #import "NSURLResponse+ToUnorderedMap.h"
 

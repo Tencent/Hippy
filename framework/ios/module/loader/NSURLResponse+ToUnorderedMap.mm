@@ -29,11 +29,11 @@
 - (std::unordered_map<std::string, std::string>)toUnorderedMap {
     std::unordered_map<std::string, std::string> map;
     map.reserve(5);
-    map[kURL] = [[[self URL] absoluteString] UTF8String];
-    map[kMIMEType] = [[self MIMEType] UTF8String];
+    map[kURL] = [[[self URL] absoluteString] UTF8String]?:"";
+    map[kMIMEType] = [[self MIMEType] UTF8String]?:"";
     map[kExpectedContentLength] = std::to_string([self expectedContentLength]);
-    map[kTextEncodingName] = [[self textEncodingName] UTF8String];
-    map[kSuggestedFilename] = [[self suggestedFilename] UTF8String];
+    map[kTextEncodingName] = [[self textEncodingName] UTF8String]?:"";
+    map[kSuggestedFilename] = [[self suggestedFilename] UTF8String]?:"";
     return map;
 }
 

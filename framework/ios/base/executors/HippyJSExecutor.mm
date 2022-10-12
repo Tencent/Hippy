@@ -22,7 +22,7 @@
 
 #import <UIKit/UIDevice.h>
 #import "HippyDefaultUriHandler.h"
-#import "FootstoneUtils.h"
+#import "HippyUtils.h"
 #import "HippyAssert.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyContextWrapper.h"

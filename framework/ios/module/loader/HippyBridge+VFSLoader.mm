@@ -21,7 +21,7 @@
  */
 
 #import "HippyBridge+VFSLoader.h"
-#import "FootstoneUtils.h"
+#import "HippyUtils.h"
 #import "NSURLResponse+ToUnorderedMap.h"
 
 #include <unordered_map>

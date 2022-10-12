@@ -24,9 +24,9 @@
 
 #import "HippyDefines.h"
 
-#include "string_view.h"
 #include <unordered_map>
-
+#include "string_view.h"
+    
 NS_ASSUME_NONNULL_BEGIN
 
 extern footstone::string_view NSStringToU8StringView(NSString* str);

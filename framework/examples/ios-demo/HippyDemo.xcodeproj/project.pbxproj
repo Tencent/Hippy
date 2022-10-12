@@ -193,7 +193,7 @@
 		F48D3891289BA6E3007BD6FE /* Hippy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F48D3886289BA6E2007BD6FE /* Hippy.cpp */; };
 		F48D3892289BA6E3007BD6FE /* HPLayoutCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F48D3888289BA6E2007BD6FE /* HPLayoutCache.cpp */; };
 		F49817BC28E13A2800000889 /* HippyDefaultUriHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = F49817BA28E13A2800000889 /* HippyDefaultUriHandler.mm */; };
-		F49817C228E13F7100000889 /* FootstoneUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F49817C128E13F7100000889 /* FootstoneUtils.mm */; };
+		F49817C228E13F7100000889 /* HippyUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = F49817C128E13F7100000889 /* HippyUtils.mm */; };
 		F49817C628E18DC200000889 /* HippyDemoLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F49817C428E18DC200000889 /* HippyDemoLoader.mm */; };
 		F49B8CD928F698220059D402 /* HippyDefaultUriLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F49B8CD728F698220059D402 /* HippyDefaultUriLoader.mm */; };
 		F49B8CE028F69EB80059D402 /* HippyBridge+VFSLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F49B8CDF28F69EB80059D402 /* HippyBridge+VFSLoader.mm */; };
@@ -675,8 +675,8 @@
 		F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = devtools_backend.xcodeproj; path = devtools_backend/devtools_backend.xcodeproj; sourceTree = "<group>"; };
 		F49817BA28E13A2800000889 /* HippyDefaultUriHandler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyDefaultUriHandler.mm; sourceTree = "<group>"; };
 		F49817BB28E13A2800000889 /* HippyDefaultUriHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDefaultUriHandler.h; sourceTree = "<group>"; };
-		F49817C028E13F7100000889 /* FootstoneUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FootstoneUtils.h; sourceTree = "<group>"; };
-		F49817C128E13F7100000889 /* FootstoneUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = FootstoneUtils.mm; sourceTree = "<group>"; };
+		F49817C028E13F7100000889 /* HippyUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyUtils.h; sourceTree = "<group>"; };
+		F49817C128E13F7100000889 /* HippyUtils.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyUtils.mm; sourceTree = "<group>"; };
 		F49817C428E18DC200000889 /* HippyDemoLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyDemoLoader.mm; sourceTree = "<group>"; };
 		F49817C528E18DC200000889 /* HippyDemoLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyDemoLoader.h; sourceTree = "<group>"; };
 		F49B8CD728F698220059D402 /* HippyDefaultUriLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyDefaultUriLoader.mm; sourceTree = "<group>"; };
@@ -1416,8 +1416,8 @@
 				F468DDF62812A95100319196 /* HippyAssert.h */,
 				F4660AB528C722A4002B4D77 /* HippyInstanceLoadBlock.h */,
 				F4660AB628C722A4002B4D77 /* HippyInstanceLoadBlock.m */,
-				F49817C028E13F7100000889 /* FootstoneUtils.h */,
-				F49817C128E13F7100000889 /* FootstoneUtils.mm */,
+				F49817C028E13F7100000889 /* HippyUtils.h */,
+				F49817C128E13F7100000889 /* HippyUtils.mm */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -2325,7 +2325,7 @@
 				F468DE842812A95200319196 /* HippyWebSocketManager.m in Sources */,
 				F4D6F00228E58163003DCE41 /* HippyJSExecutor.mm in Sources */,
 				D86B3E62284E31EB007E729B /* animation.cc in Sources */,
-				F49817C228E13F7100000889 /* FootstoneUtils.mm in Sources */,
+				F49817C228E13F7100000889 /* HippyUtils.mm in Sources */,
 				F45D268128067B6900CAB185 /* UIView+DirectionalLayout.mm in Sources */,
 				F48D3864289BA6A1007BD6FE /* log_settings.cc in Sources */,
 				F48D3814289BA662007BD6FE /* timer_module.cc in Sources */,

@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "FootstoneUtils.h"
+#import "HippyUtils.h"
 #import "HippyAssert.h"
 
 #include "string_view_utils.h"
