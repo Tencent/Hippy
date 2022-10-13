@@ -545,6 +545,7 @@ jlong InitInstance(JNIEnv* j_env,
     } else {
       engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
       reuse_engine_map[group] = std::make_pair(engine, 1);
+      runtime->SetEngine(engine);
     }
   } else if (group != kDefaultEngineId) {
     std::lock_guard<std::mutex> lock(engine_mutex);
@@ -567,8 +568,7 @@ jlong InitInstance(JNIEnv* j_env,
     engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
     runtime->SetEngine(engine);
   }
-  runtime->SetScope(
-      runtime->GetEngine()->CreateScope("", std::move(scope_cb_map)));
+  runtime->SetScope(engine->CreateScope("", std::move(scope_cb_map)));
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
