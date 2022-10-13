@@ -295,12 +295,6 @@ static string_view NSStringToU8StringView(NSString* str) {
                 };
                 context->RegisterNativeBinding("getTurboModule", getTurboModuleFunc, nullptr);
             }
-            strongSelf.ready = YES;
-            NSArray<dispatch_block_t> *pendingCalls = [strongSelf->_pendingCalls copy];
-            [pendingCalls enumerateObjectsUsingBlock:^(dispatch_block_t  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [strongSelf executeBlockOnJavaScriptQueue:obj];
-            }];
-            [strongSelf->_pendingCalls removeAllObjects];
             if (strongSelf.contextCreatedBlock) {
                 strongSelf.contextCreatedBlock(strongSelf->_contextWrapper);
             }
@@ -313,8 +307,12 @@ static string_view NSStringToU8StringView(NSString* str) {
             if (!strongSelf) {
                 return;
             }
-            hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
-            std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
+            strongSelf.ready = YES;
+            NSArray<dispatch_block_t> *pendingCalls = [strongSelf->_pendingCalls copy];
+            [pendingCalls enumerateObjectsUsingBlock:^(dispatch_block_t  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                [strongSelf executeBlockOnJavaScriptQueue:obj];
+            }];
+            [strongSelf->_pendingCalls removeAllObjects];
         }
     };
     std::unique_ptr<hippy::Engine::RegisterMap> ptr = std::make_unique<hippy::Engine::RegisterMap>();
