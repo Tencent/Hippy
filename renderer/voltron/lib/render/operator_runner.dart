@@ -71,7 +71,7 @@ class RenderOperatorRunner implements Destroyable {
           _parseOp(op as List, instanceId)?._run();
           // ignore: avoid_catching_errors
         } on Error catch (e) {
-          LogUtils.dRender('consume render op error, op:$op, error:$e');
+          LogUtils.dOperate('consume render op error, op:$op, error:$e');
         }
       }
     }
@@ -125,6 +125,7 @@ class _AddNodeOpTask extends _NodeOpTask {
     var parentId = _params[_RenderOpParamsKey.kParentNodeIdKey] ?? kInvalidId;
     var styleMap = _params[_RenderOpParamsKey.kStylesKey] ?? {};
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
+    LogUtils.dOperate('addNode ID:$_nodeId, className:$className, childIndex:$childIndex, parentId: $parentId, styleMap: ${styleMap.toString()}, propMap: ${propMap.toString()}');
     var composePropMap = VoltronMap.fromMap(propMap);
     composePropMap.pushAll(VoltronMap.fromMap(styleMap));
     onCreateNode(_nodeId, className);
@@ -170,6 +171,7 @@ class _DeleteNodeOpTask extends _NodeOpTask {
 
   @override
   void _run() {
+    LogUtils.dOperate('deleteNode ID:$_nodeId}');
     if (virtualNodeManager.hasVirtualParent(_nodeId)) {
       virtualNodeManager.deleteNode(_nodeId);
       return;
@@ -188,6 +190,7 @@ class _UpdateNodeOpTask extends _NodeOpTask {
   @override
   void _run() {
     var propMap = _params[_RenderOpParamsKey.kPropsKey] ?? {};
+    LogUtils.dOperate('updateNode ID:$_nodeId, propMap:${propMap.toString()}');
     virtualNodeManager.updateNode(_nodeId, VoltronMap.fromMap(propMap));
     if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addUITask(() {
@@ -216,6 +219,7 @@ class _UpdateLayoutOpTask extends _NodeOpTask {
           var top = layoutNode[2] ?? 0;
           var width = layoutNode[3] ?? 0;
           var height = layoutNode[4] ?? 0;
+          LogUtils.dOperate('updateLayout ID:$nodeId, top:$top, left:$left, width: $width, height: $height');
           if (virtualNodeManager.hasVirtualParent(nodeId)) continue;
           final TextExtra? supplier =
               virtualNodeManager.updateLayout(nodeId, width, layoutNode);
@@ -246,7 +250,7 @@ class _MoveNodeOpTask extends _NodeOpTask {
   void _run() {
     var moveIdList = _params[_RenderOpParamsKey.kMoveIdListKey] ?? [];
     var movePid = _params[_RenderOpParamsKey.kMovePidKey];
-
+    LogUtils.dOperate('moveNode ID:$_nodeId, movePid: $movePid, moveIdList:${moveIdList.toString()}');
     renderManager.addUITask(() {
       renderManager.moveNode(_instanceId, moveIdList, movePid, _nodeId);
     });
@@ -258,6 +262,7 @@ class _BatchOpTask extends RenderOpTask {
 
   @override
   void _run() {
+    LogUtils.dOperate('batch');
     Map<int, TextData>? layoutToUpdate = virtualNodeManager.endBatch();
     if (layoutToUpdate != null) {
       layoutToUpdate.forEach((int id, TextData textData) {
@@ -275,6 +280,7 @@ class _LayoutBeforeOpTask extends RenderOpTask {
 
   @override
   void _run() {
+    LogUtils.dOperate('layoutBefore');
     renderManager.layoutBefore();
   }
 }
@@ -284,6 +290,7 @@ class _LayoutFinishOpTask extends RenderOpTask {
 
   @override
   void _run() {
+    LogUtils.dOperate('layoutFinish');
     renderManager.addUITask(() {
       renderManager.layoutAfter();
     });
@@ -303,6 +310,7 @@ class _CallUiFunctionOpTask extends _NodeOpTask {
       String callbackId =
           _params[_RenderOpParamsKey.kFuncIdKey] ?? Promise.kCallIdNoCallback;
       var promise = NativePromise(_renderContext, callId: callbackId);
+      LogUtils.dOperate('callUIFunction ID:$_nodeId, funcName:$funcName, realParams: ${realParams.toString()}');
       renderManager.addNulUITask(() {
         renderManager.dispatchUIFunction(
           _instanceId,
@@ -324,6 +332,7 @@ class _AddEventOpTask extends _NodeOpTask {
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
+    LogUtils.dOperate('addEvent ID:$_nodeId, eventName:$eventName');
     virtualNodeManager.addEvent(_instanceId, _nodeId, eventName);
     if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addNulUITask(() {
@@ -339,6 +348,7 @@ class _RemoveEventOpTask extends _NodeOpTask {
   @override
   void _run() {
     String eventName = _params[_RenderOpParamsKey.kFuncNameKey] ?? '';
+    LogUtils.dOperate('removeEvent ID:$_nodeId, eventName:$eventName');
     virtualNodeManager.removeEvent(_instanceId, _nodeId, eventName);
     if (virtualNodeManager.hasVirtualParent(_nodeId)) return;
     renderManager.addNulUITask(() {

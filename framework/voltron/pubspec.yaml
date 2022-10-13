@@ -63,7 +63,4 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^1.0.0
 
-dependency_overrides:
-  win32: 2.6.1
-
 

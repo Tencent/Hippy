@@ -164,8 +164,7 @@ class ModalRenderViewModel extends GroupViewModel
 
   void showOrDismissDialog() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      LogUtils.dWidget(
-          "ModalWidget", "container build inner, can show:$canDialogShow");
+      LogUtils.dWidget("ID:$id, node:$idDesc, modal can show:$canDialogShow");
       if (canDialogShow) {
         showDialog();
       } else {
@@ -175,8 +174,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void showDialog() {
-    LogUtils.dWidget("ModalWidget",
-        "real show dialog, (isShow: $isShowDialog, childLen(${children.length}))");
+    LogUtils.dWidget("ID:$id, node:$idDesc, fire modal show");
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (!isShowDialog && buildContext != null && children.isNotEmpty) {
       isShowDialog = true;
@@ -197,7 +195,7 @@ class ModalRenderViewModel extends GroupViewModel
           return _animation(
             aniType: animationType,
             child: _dialogRoot(
-              child: ModalDialogWidget(this),
+              child: ModalContainerWidget(this),
             ),
             animation: anim1,
           );
@@ -379,8 +377,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void dismissDialog() {
-    LogUtils.dWidget(
-        "ModalWidget", "real dismiss dialog, (isShow: $isShowDialog)");
+    LogUtils.dWidget("ID:$id, node:$idDesc, fire modal dismiss");
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (isShowDialog && buildContext != null) {
       removeFrameCallback();

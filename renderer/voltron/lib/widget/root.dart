@@ -290,7 +290,7 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    LogUtils.i("root_widget", "build root widget");
+    LogUtils.dWidget("ID:${viewModel.id}, build root widget");
     return LayoutBuilder(builder: (context, constraints) {
       if (hasDispose) {
         return _empty(context);
@@ -359,15 +359,14 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     return Consumer<RootWidgetViewModel>(
       builder: (context, viewModel, widget) {
         var model = LoadingModel(!(viewModel.loadFinish), viewModel.loadError);
-        LogUtils.dWidget("root_widget", "build content start");
         if (model.isLoading) {
-          LogUtils.dWidget("root_widget", "build content loading");
+          LogUtils.dWidget("ID:${viewModel.id}, build root widget, build content loading");
           return _loading(context);
         } else if (model.isError) {
-          LogUtils.dWidget("root_widget", "build content error");
+          LogUtils.dWidget("ID:${viewModel.id}, build root widget, build content error");
           return _error(context, viewModel);
         } else {
-          LogUtils.dWidget("root_widget", "build content");
+          LogUtils.dWidget("ID:${viewModel.id}, build root widget, build content");
           return _content(viewModel);
         }
       },
@@ -410,7 +409,6 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   }
 
   Widget _content(RootWidgetViewModel viewModel) {
-    LogUtils.dWidget("root_widget", "create root widget content, build");
     var nodeList = <RenderNode>[];
     var tree = viewModel.renderTree;
     if (tree != null) {
@@ -519,7 +517,6 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   }
 
   void _loadModule() {
-    LogUtils.i("root_widget", "start to load module");
     widget.loader.load(viewModel);
   }
 

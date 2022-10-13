@@ -22,6 +22,7 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:waterfall_flow/waterfall_flow.dart';
 
+import '../util.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
@@ -39,6 +40,7 @@ class WaterfallWidget extends FRStatefulWidget {
 class _WaterfallWidgetState extends FRState<WaterfallWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build waterfall widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<WaterfallViewModel, WaterfallViewModel>(
@@ -61,35 +63,8 @@ class _WaterfallWidgetState extends FRState<WaterfallWidget> {
     );
   }
 
-  Widget generateWaterfallFlow(WaterfallViewModel viewModel) {
-    Widget waterfallFlow = SliverWaterfallFlow(
-      gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
-        crossAxisCount: viewModel.numberOfColumns,
-        mainAxisSpacing: viewModel.interItemSpacing,
-        crossAxisSpacing: viewModel.columnSpacing,
-      ),
-      delegate: SliverChildBuilderDelegate(
-        (c, index) {
-          var child = viewModel.realItemList[index];
-          return ClipRRect(
-            clipBehavior: Clip.hardEdge,
-            child: generateByViewModel(context, child),
-          );
-        },
-        childCount: viewModel.realItemList.length,
-      ),
-    );
-    var contentInset = viewModel.contentInset;
-    if (contentInset != null) {
-      waterfallFlow = SliverPadding(
-        padding: contentInset,
-        sliver: waterfallFlow,
-      );
-    }
-    return waterfallFlow;
-  }
-
   Widget _waterfall(WaterfallViewModel viewModel) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build waterfall inner widget");
     var slivers = <Widget>[];
     var containBannerView = viewModel.containBannerView;
     var bannerViewModel = viewModel.bannerViewModel;
@@ -117,5 +92,33 @@ class _WaterfallWidgetState extends FRState<WaterfallWidget> {
       scrollGestureDispatcher: viewModel.scrollGestureDispatcher,
     );
     return waterfall;
+  }
+
+  Widget generateWaterfallFlow(WaterfallViewModel viewModel) {
+    Widget waterfallFlow = SliverWaterfallFlow(
+      gridDelegate: SliverWaterfallFlowDelegateWithFixedCrossAxisCount(
+        crossAxisCount: viewModel.numberOfColumns,
+        mainAxisSpacing: viewModel.interItemSpacing,
+        crossAxisSpacing: viewModel.columnSpacing,
+      ),
+      delegate: SliverChildBuilderDelegate(
+            (c, index) {
+          var child = viewModel.realItemList[index];
+          return ClipRRect(
+            clipBehavior: Clip.hardEdge,
+            child: generateByViewModel(context, child),
+          );
+        },
+        childCount: viewModel.realItemList.length,
+      ),
+    );
+    var contentInset = viewModel.contentInset;
+    if (contentInset != null) {
+      waterfallFlow = SliverPadding(
+        padding: contentInset,
+        sliver: waterfallFlow,
+      );
+    }
+    return waterfallFlow;
   }
 }

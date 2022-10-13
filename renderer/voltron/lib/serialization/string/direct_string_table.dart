@@ -20,16 +20,19 @@
 
 import 'dart:convert';
 import 'dart:typed_data';
-// ignore: import_of_legacy_library_into_null_safe
-import 'package:utf/utf.dart';
+import 'package:charset/charset.dart';
 import 'string_encoding.dart';
 import 'string_location.dart';
 import 'string_table.dart';
 
 class DirectStringTable extends StringTable {
   @override
-  String lookup(ByteData byteData, StringEncoding encoding,
-      StringLocation location, Object? relatedKey) {
+  String lookup(
+    ByteData byteData,
+    StringEncoding encoding,
+    StringLocation location,
+    Object? relatedKey,
+  ) {
     if (location == StringLocation.eVoid) {
       return "";
     }
@@ -40,7 +43,8 @@ class DirectStringTable extends StringTable {
       return Latin1Codec().decode(dataList);
     } else if (encoding == StringEncoding.utf16Le) {
       // utf16-le标准
-      return decodeUtf16le(dataList);
+      var decoder = utf16.decoder as Utf16Decoder;
+      return decoder.decodeUtf16Le(dataList);
     } else {
       return Utf8Codec().decode(dataList);
     }

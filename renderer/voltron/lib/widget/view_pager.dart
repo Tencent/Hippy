@@ -24,8 +24,7 @@ import 'package:provider/provider.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
 class ViewPagerWidget extends FRStatefulWidget {
   final ViewPagerRenderViewModel _viewModel;
@@ -41,6 +40,7 @@ class ViewPagerWidget extends FRStatefulWidget {
 class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build view pager widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Consumer<ViewPagerRenderViewModel>(
@@ -55,7 +55,7 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
   }
 
   Widget viewPager(ViewPagerRenderViewModel viewModel) {
-    LogUtils.dWidget("view_pager", "build view pager, children:${viewModel.children.length}");
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build view pager inner widget, children length:${viewModel.children.length}");
     if (viewModel.children.isEmpty) {
       return Container();
     } else {
@@ -110,7 +110,7 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
   }
 
   void onPageChanged(int page) {
-    LogUtils.d("view_pager", "page change:$page");
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, fire view pager event, page change:$page");
     widget._viewModel.onPageChanged(page);
   }
 
@@ -137,20 +137,8 @@ class _ViewPagerWidgetState extends FRState<ViewPagerWidget> {
         child: content,
       );
     }
-
-    LogUtils.dWidget(
-      "view_pager",
-      "build view pager child(${childViewModel.id}) success",
-    );
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build view pager child(${childViewModel.id})");
     return content;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (!widget._viewModel.isDispose) {
-      widget._viewModel.onDispose();
-    }
   }
 }
 
