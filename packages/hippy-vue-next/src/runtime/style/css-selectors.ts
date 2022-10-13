@@ -610,7 +610,7 @@ class Selector extends SelectorCore {
     let siblingGroup: SimpleSelector[] = [];
     let lastGroup: SimpleSelector[][] = [];
     const groups: SimpleSelector[][][] = [];
-    const reversedSelectors = selectors.reverse();
+    const reversedSelectors = [...selectors].reverse();
     reversedSelectors.forEach((sel) => {
       if (supportedCombinator.indexOf(sel.combinator) === -1) {
         console.error(`Unsupported combinator "${sel.combinator}".`);
