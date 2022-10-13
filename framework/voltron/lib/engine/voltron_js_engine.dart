@@ -242,7 +242,7 @@ class VoltronJSEngine
     final RootWidgetViewModel rootView,
   ) {
     if (statusCode != ModuleLoadStatus.ok) {
-      rootView.onLoadError(statusCode);
+      rootView.onLoadError(statusCode.value);
     }
     var moduleListener = _moduleListener;
     if (moduleListener != null) {

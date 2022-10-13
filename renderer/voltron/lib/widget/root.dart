@@ -90,7 +90,7 @@ class RootWidgetViewModel extends ChangeNotifier {
     checkUpdateDimension(-1, -1, false, false);
   }
 
-  void onLoadError(errCode) {
+  void onLoadError(int errCode) {
     _loadErrCode = errCode;
     _loadError = true;
     _loadCompleted = true;

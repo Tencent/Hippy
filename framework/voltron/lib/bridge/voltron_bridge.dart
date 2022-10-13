@@ -394,7 +394,7 @@ class VoltronBridgeManager implements Destroyable {
     final RootWidgetViewModel? rootWidgetViewModel,
   ) {
     if (statusCode != ModuleLoadStatus.ok) {
-      rootWidgetViewModel?.onLoadError(statusCode);
+      rootWidgetViewModel?.onLoadError(statusCode.value);
     }
     var loadModuleListener = _loadModuleListener;
     if (loadModuleListener != null) {

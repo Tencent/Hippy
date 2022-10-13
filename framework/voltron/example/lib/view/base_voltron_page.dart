@@ -49,16 +49,12 @@ class BaseVoltronPage extends StatefulWidget {
   final bool debugMode;
   final String coreBundle;
   final String indexBundle;
-  final String debugBundleName;
-  final String debugServerHost;
   final String remoteServerUrl;
 
   BaseVoltronPage({
     this.debugMode = false,
     this.coreBundle = '',
     this.indexBundle = '',
-    this.debugBundleName = '',
-    this.debugServerHost = '',
     this.remoteServerUrl = '',
   });
 
@@ -76,8 +72,6 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
   late bool _debugMode;
   late String _coreBundle;
   late String _indexBundle;
-  late String _debugBundleName;
-  late String _debugServerHost;
   late String _remoteServerUrl;
 
   @override
@@ -86,8 +80,6 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     _debugMode = widget.debugMode;
     _coreBundle = widget.coreBundle;
     _indexBundle = widget.indexBundle;
-    _debugBundleName = widget.debugBundleName;
-    _debugServerHost = widget.debugServerHost;
     _remoteServerUrl = widget.remoteServerUrl;
     _initVoltronData();
   }
@@ -108,8 +100,6 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     initParams.enableLog = true;
     if (_debugMode) {
       // 调试模式下直接使用debug参数
-      initParams.debugBundleName = _debugBundleName;
-      initParams.debugServerHost = _debugServerHost;
       initParams.remoteServerUrl = _remoteServerUrl;
     } else {
       // 如果是不分包加载，可以只填写coreJSAssetsPath，下面的jsAssetsPath直接忽略即可
