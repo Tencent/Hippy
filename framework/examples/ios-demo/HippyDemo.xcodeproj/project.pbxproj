@@ -229,7 +229,7 @@
 		F4D6F00D28E58163003DCE41 /* HippyFrameUpdate.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D6EFF028E58162003DCE41 /* HippyFrameUpdate.m */; };
 		F4D6F00E28E58163003DCE41 /* HippyDisplayLink.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D6EFF128E58162003DCE41 /* HippyDisplayLink.m */; };
 		F4D6F00F28E58163003DCE41 /* HippyBundleOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D6EFF328E58162003DCE41 /* HippyBundleOperationQueue.m */; };
-		F4D6F01028E58163003DCE41 /* HippyBundleDownloadOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4D6EFF428E58162003DCE41 /* HippyBundleDownloadOperation.mm */; };
+		F4D6F01028E58163003DCE41 /* HippyBundleLoadOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4D6EFF428E58162003DCE41 /* HippyBundleLoadOperation.mm */; };
 		F4D6F01128E58163003DCE41 /* HippyBundleURLProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = F4D6EFF528E58162003DCE41 /* HippyBundleURLProvider.m */; };
 		F4D6F01228E58163003DCE41 /* HippyBundleExecutionOperation.mm in Sources */ = {isa = PBXBuildFile; fileRef = F4D6EFF928E58162003DCE41 /* HippyBundleExecutionOperation.mm */; };
 		F4E7B43D276C61EB00F17139 /* dom_argument.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4E7B439276C61EA00F17139 /* dom_argument.cc */; };
@@ -258,7 +258,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = AC2245B8BB2749ACB1D4A2E8;
+			remoteGlobalIDString = D0F3D4793C104B8C96759C0C;
 			remoteInfo = devtools_backend;
 		};
 /* End PBXContainerItemProxy section */
@@ -311,6 +311,7 @@
 		F419C381274634DB003E242A /* taitank_layout_node.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = taitank_layout_node.h; sourceTree = "<group>"; tabWidth = 2; };
 		F419C382274634E9003E242A /* taitank_layout_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = taitank_layout_node.cc; sourceTree = "<group>"; tabWidth = 2; };
 		F42155EF2816A78000688C0D /* dom_action_interceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dom_action_interceptor.h; sourceTree = "<group>"; };
+		F42366EE28F7AD4000163FFF /* uri_handler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = uri_handler.h; sourceTree = "<group>"; };
 		F42A933628C350B8009B59E1 /* HippyLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyLog.h; sourceTree = "<group>"; };
 		F42A933B28C350B8009B59E1 /* HippyLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyLog.mm; sourceTree = "<group>"; };
 		F42EA796277C354C007874A2 /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
@@ -752,9 +753,9 @@
 		F4D6EFF028E58162003DCE41 /* HippyFrameUpdate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyFrameUpdate.m; sourceTree = "<group>"; };
 		F4D6EFF128E58162003DCE41 /* HippyDisplayLink.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyDisplayLink.m; sourceTree = "<group>"; };
 		F4D6EFF328E58162003DCE41 /* HippyBundleOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyBundleOperationQueue.m; sourceTree = "<group>"; };
-		F4D6EFF428E58162003DCE41 /* HippyBundleDownloadOperation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBundleDownloadOperation.mm; sourceTree = "<group>"; };
+		F4D6EFF428E58162003DCE41 /* HippyBundleLoadOperation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBundleLoadOperation.mm; sourceTree = "<group>"; };
 		F4D6EFF528E58162003DCE41 /* HippyBundleURLProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HippyBundleURLProvider.m; sourceTree = "<group>"; };
-		F4D6EFF628E58162003DCE41 /* HippyBundleDownloadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBundleDownloadOperation.h; sourceTree = "<group>"; };
+		F4D6EFF628E58162003DCE41 /* HippyBundleLoadOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBundleLoadOperation.h; sourceTree = "<group>"; };
 		F4D6EFF728E58162003DCE41 /* HippyBundleOperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBundleOperationQueue.h; sourceTree = "<group>"; };
 		F4D6EFF828E58162003DCE41 /* HippyBundleExecutionOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyBundleExecutionOperation.h; sourceTree = "<group>"; };
 		F4D6EFF928E58162003DCE41 /* HippyBundleExecutionOperation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyBundleExecutionOperation.mm; sourceTree = "<group>"; };
@@ -766,7 +767,6 @@
 		F4E7B43A276C61EB00F17139 /* dom_event.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_event.cc; sourceTree = "<group>"; };
 		F4E7CC1F28DDACD600302CBA /* uri_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uri_loader.h; sourceTree = "<group>"; };
 		F4E7CC2028DDACD600302CBA /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
-		F4E7CC2128DDACD600302CBA /* uri_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uri_handler.h; sourceTree = "<group>"; };
 		F4E7CC2328DDACD600302CBA /* file.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file.cc; sourceTree = "<group>"; };
 		F4E7CC2428DDACD600302CBA /* uri_loader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = uri_loader.cc; sourceTree = "<group>"; };
 		F4F1FCB0286C44BE005B39D4 /* HippyDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HippyDefines.h; sourceTree = "<group>"; };
@@ -940,6 +940,14 @@
 				D86B3E5F284E31EB007E729B /* animation_set.cc */,
 			);
 			path = animation;
+			sourceTree = "<group>";
+		};
+		F42366ED28F7AD4000163FFF /* handler */ = {
+			isa = PBXGroup;
+			children = (
+				F42366EE28F7AD4000163FFF /* uri_handler.h */,
+			);
+			path = handler;
 			sourceTree = "<group>";
 		};
 		F42E711D27D0684C0099248B /* render */ = {
@@ -1980,9 +1988,9 @@
 			isa = PBXGroup;
 			children = (
 				F4D6EFF328E58162003DCE41 /* HippyBundleOperationQueue.m */,
-				F4D6EFF428E58162003DCE41 /* HippyBundleDownloadOperation.mm */,
+				F4D6EFF428E58162003DCE41 /* HippyBundleLoadOperation.mm */,
 				F4D6EFF528E58162003DCE41 /* HippyBundleURLProvider.m */,
-				F4D6EFF628E58162003DCE41 /* HippyBundleDownloadOperation.h */,
+				F4D6EFF628E58162003DCE41 /* HippyBundleLoadOperation.h */,
 				F4D6EFF728E58162003DCE41 /* HippyBundleOperationQueue.h */,
 				F4D6EFF828E58162003DCE41 /* HippyBundleExecutionOperation.h */,
 				F4D6EFF928E58162003DCE41 /* HippyBundleExecutionOperation.mm */,
@@ -2020,9 +2028,9 @@
 		F4E7CC1E28DDACD600302CBA /* vfs */ = {
 			isa = PBXGroup;
 			children = (
+				F42366ED28F7AD4000163FFF /* handler */,
 				F4E7CC1F28DDACD600302CBA /* uri_loader.h */,
 				F4E7CC2028DDACD600302CBA /* file.h */,
-				F4E7CC2128DDACD600302CBA /* uri_handler.h */,
 			);
 			path = vfs;
 			sourceTree = "<group>";
@@ -2343,7 +2351,7 @@
 				F45D266828067B6900CAB185 /* NativeRenderWaterfallView.mm in Sources */,
 				D86B3E63284E31EB007E729B /* cubic_bezier_animation.cc in Sources */,
 				F45D269628067B6900CAB185 /* NativeRenderModalHostViewManager.mm in Sources */,
-				F4D6F01028E58163003DCE41 /* HippyBundleDownloadOperation.mm in Sources */,
+				F4D6F01028E58163003DCE41 /* HippyBundleLoadOperation.mm in Sources */,
 				F45D267A28067B6900CAB185 /* NativeRenderCollectionViewFlowLayout.m in Sources */,
 				F45D267328067B6900CAB185 /* NativeRenderImageCache.m in Sources */,
 				F45D267828067B6900CAB185 /* NativeRenderBaseListViewManager.mm in Sources */,

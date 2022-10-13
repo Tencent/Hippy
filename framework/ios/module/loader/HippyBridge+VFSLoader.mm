@@ -26,7 +26,7 @@
 
 #include <unordered_map>
 
-#include "vfs/uri_handler.h"
+#include "vfs/handler/uri_handler.h"
 
 NSString *const VFSErrorDomain = @"VFSErrorDomain";
 NSString *const VFSParamsMethod = @"VFSParamsMethod";

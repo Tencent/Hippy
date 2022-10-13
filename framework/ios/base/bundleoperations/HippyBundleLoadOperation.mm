@@ -20,11 +20,11 @@
  * limitations under the License.
  */
 
-#import "HippyBundleDownloadOperation.h"
+#import "HippyBundleLoadOperation.h"
 #import "HippyBridge.h"
 #import "HippyPerformanceLogger.h"
 
-@interface HippyBundleDownloadOperation () {
+@interface HippyBundleLoadOperation () {
     HippyBridge *_bridge;
     NSURL *_bundleURL;
     
@@ -38,7 +38,7 @@
 
 @end
 
-@implementation HippyBundleDownloadOperation
+@implementation HippyBundleLoadOperation
 
 @synthesize finished = _finished;
 @synthesize executing = _executing;
@@ -67,9 +67,9 @@
     HippyBridge *bridge = _bridge;
     HippyPerformanceLogger *performanceLogger = bridge?bridge.performanceLogger:nil;
     [performanceLogger markStartForTag:HippyPLScriptDownload];
-    __weak HippyBundleDownloadOperation *weakSelf = self;
+    __weak HippyBundleLoadOperation *weakSelf = self;
     HippySourceLoadBlock onSourceLoad = ^(NSError *error, NSData *source, int64_t sourceLength) {
-        HippyBundleDownloadOperation *strongSelf = weakSelf;
+        HippyBundleLoadOperation *strongSelf = weakSelf;
         if (!strongSelf || strongSelf.cancelled) {
             strongSelf.finished = YES;
             strongSelf.executing = NO;

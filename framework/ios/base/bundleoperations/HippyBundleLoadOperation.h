@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class HippyBridge;
 
-@interface HippyBundleDownloadOperation : NSOperation
+@interface HippyBundleLoadOperation : NSOperation
 
 @property(nonatomic, copy) HippySourceLoadProgressBlock onProgress;
 @property(nonatomic, copy) HippySourceLoadBlock onLoad;

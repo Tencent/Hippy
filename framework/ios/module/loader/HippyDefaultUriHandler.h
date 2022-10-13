@@ -20,7 +20,7 @@
  *
  */
 
-#include "uri_handler.h"
+#include "vfs/handler/uri_handler.h"
 
 class HippyDefaultUriHandler : public hippy::vfs::UriHandler {
   public:

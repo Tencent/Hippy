@@ -29,7 +29,7 @@
 #import "HippyInstanceLoadBlock.h"
 #import "HippyKeyCommands.h"
 #import "HippyContextWrapper.h"
-#import "HippyBundleDownloadOperation.h"
+#import "HippyBundleLoadOperation.h"
 #import "HippyBundleExecutionOperation.h"
 #import "HippyBundleOperationQueue.h"
 #import "HippyDeviceBaseInfo.h"
@@ -321,7 +321,7 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
         __weak HippyBridge *weakSelf = self;
         __block NSString *script = nil;
         dispatch_group_enter(group);
-        HippyBundleDownloadOperation *fetchOp = [[HippyBundleDownloadOperation alloc] initWithBridge:self bundleURL:bundleURL];
+        HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self bundleURL:bundleURL];
         fetchOp.onLoad = ^(NSError *error, NSData *source, int64_t sourceLength) {
             if (error) {
                 HippyFatal(error, weakSelf);

@@ -53,7 +53,7 @@
 #include "footstone/string_view_utils.h"
 #include "footstone/task_runner.h"
 #include "footstone/task.h"
-#include "vfs/uri_handler.h"
+#include "vfs/handler/uri_handler.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
