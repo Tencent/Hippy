@@ -27,7 +27,7 @@ import {
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
 
-import type { CallbackType, NeedToTyped, NativeNode, NativeNodeProps } from '../../../types';
+import type { CallbackType, NeedToTyped, NativeNode, NativeNodeProps } from '../../types';
 import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {
   capitalizeFirstLetter,

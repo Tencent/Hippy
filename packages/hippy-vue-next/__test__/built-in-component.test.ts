@@ -22,7 +22,7 @@
  * built-in-component unit test
  */
 
-import type { NeedToTyped } from '../types';
+import type { NeedToTyped } from '../src/types';
 import { NATIVE_COMPONENT_MAP, HIPPY_DEBUG_ADDRESS } from '../src/config';
 import { Native } from '../src/runtime/native';
 import BuiltInComponent from '../src/built-in-component';

@@ -27,7 +27,7 @@
  * TODO Is it better to obtain component information in the node or where it is used?
  *
  */
-import type { NeedToTyped, NativeNodeProps } from '../../../types';
+import type { NeedToTyped, NativeNodeProps } from '../../types';
 import { normalizeTagName } from '../../util';
 import type { EventsUnionType, HippyEvent } from '../event/hippy-event';
 

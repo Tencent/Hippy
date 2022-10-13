@@ -23,7 +23,7 @@
  */
 import type { ComponentInternalInstance, VNode } from '@vue/runtime-core';
 import { isOn } from '@vue/shared';
-import type { NeedToTyped } from '../types';
+import type { NeedToTyped } from './types';
 
 import { patchAttr } from './modules/attrs';
 import { patchClass } from './modules/class';

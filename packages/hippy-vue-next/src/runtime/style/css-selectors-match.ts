@@ -22,7 +22,7 @@
 /* eslint-disable no-param-reassign */
 
 // eslint-disable-next-line max-classes-per-file
-import type { NeedToTyped, CommonMapParams } from '../../../types';
+import type { NeedToTyped, CommonMapParams } from '../../types';
 import type { HippyElement } from '../element/hippy-element';
 import type { RuleSet, SelectorCore } from './css-selectors';
 

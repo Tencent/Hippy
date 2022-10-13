@@ -22,7 +22,7 @@
  * runtime/event/hippy-event-target unit test
  * hippy-event-target is abstract class，which needs instantiation in unit test
  */
-import type { NeedToTyped } from '../../../types';
+import type { NeedToTyped } from '../../../src/types';
 import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { HippyEvent } from '../../../src/runtime/event/hippy-event';
 

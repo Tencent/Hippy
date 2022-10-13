@@ -20,7 +20,7 @@
 
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
-import type { NeedToTyped, CommonMapParams, AnimationStyle } from '../../types';
+import type { NeedToTyped, CommonMapParams, AnimationStyle } from '../types';
 
 import { EventBus as HippyEventBus } from '../runtime/event/event-bus';
 import { Native } from '../runtime/native';

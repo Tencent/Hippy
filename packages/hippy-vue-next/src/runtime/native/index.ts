@@ -21,7 +21,7 @@
 import { translateColor } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
-import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../../types';
+import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../types';
 import { NATIVE_COMPONENT_MAP, HIPPY_VUE_VERSION } from '../../config';
 import { isStyleMatched, trace, warn } from '../../util';
 import { type HippyElement } from '../element/hippy-element';

@@ -22,7 +22,7 @@
  * Tags supported by Hippy built-in
  */
 
-import type { NeedToTyped } from '../types';
+import type { NeedToTyped } from './types';
 import { NATIVE_COMPONENT_MAP, HIPPY_DEBUG_ADDRESS } from './config';
 import { registerElement, type ElementComponent } from './runtime/component';
 import type { EventsUnionType } from './runtime/event/hippy-event';

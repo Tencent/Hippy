@@ -22,7 +22,7 @@
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
-import type { CommonMapParams } from '../../types';
+import type { CommonMapParams } from '../types';
 import { registerElement } from '../runtime/component';
 import type { EventsUnionType } from '../runtime/event/hippy-event';
 import { Native } from '../runtime/native';

@@ -20,7 +20,7 @@
 
 import { looseEqual } from '@vue/shared';
 
-import type { CallbackType } from '../../../types';
+import type { CallbackType } from '../../types';
 import type { HippyEvent } from './hippy-event';
 
 export interface EventListenerOptions {

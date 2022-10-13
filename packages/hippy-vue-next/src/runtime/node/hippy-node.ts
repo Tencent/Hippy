@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { CallbackType, NativeNode } from '../../../types';
+import type { CallbackType, NativeNode } from '../../types';
 import { getUniqueId, DEFAULT_ROOT_ID } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { preCacheNode } from '../../util/node-cache';

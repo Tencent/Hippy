@@ -22,7 +22,7 @@
 
 import type { ComponentPublicInstance } from '@vue/runtime-core';
 import { capitalize } from '@vue/shared';
-import type { NeedToTyped, CommonMapParams, CallbackType } from '../../types';
+import type { NeedToTyped, CommonMapParams, CallbackType } from '../types';
 import { HIPPY_DEBUG_ADDRESS, HIPPY_STATIC_PROTOCOL, IS_PROD } from '../config';
 import { type HippyElement } from '../runtime/element/hippy-element';
 

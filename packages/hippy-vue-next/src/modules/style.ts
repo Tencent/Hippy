@@ -22,7 +22,7 @@ import { camelize } from '@vue/runtime-core';
 import { isString } from '@vue/shared';
 
 import { type HippyElement } from '../runtime/element/hippy-element';
-import type { NeedToTyped } from '../../types';
+import type { NeedToTyped } from '../types';
 
 // type of style
 type Style = string | Record<string, string | string[]> | null;

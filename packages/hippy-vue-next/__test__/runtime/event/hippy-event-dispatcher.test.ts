@@ -27,7 +27,7 @@ import '../../../src/runtime/event/hippy-event-dispatcher';
 import { createRenderer } from '@vue/runtime-core';
 import { Native } from '../../../src/runtime/native';
 
-import type { NeedToTyped } from '../../../types';
+import type { NeedToTyped } from '../../../src/types';
 import { nodeOps } from '../../../src/node-ops';
 import { patchProp } from '../../../src/patch-prop';
 import type { ElementComponent } from '../../../src/runtime/component/index';

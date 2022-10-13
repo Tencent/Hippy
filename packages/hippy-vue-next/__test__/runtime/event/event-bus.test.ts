@@ -21,7 +21,7 @@
 /**
  * runtime/event/event-bus unit test
  */
-import type { NeedToTyped } from '../../../types';
+import type { NeedToTyped } from '../../../src/types';
 import { EventBus } from '../../../src/runtime/event/event-bus';
 
 /**

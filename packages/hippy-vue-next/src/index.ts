@@ -32,7 +32,7 @@ import {
 } from '@vue/runtime-core';
 import { isFunction } from '@vue/shared';
 
-import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap } from '../types';
+import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap } from './types';
 import { BackAndroid } from './android-back';
 import BuiltInComponent from './built-in-component';
 import { drawIphoneStatusBar } from './iphone';
