@@ -15,6 +15,8 @@ The ios flutter plugin for voltron loader.
   s.source           = { :path => '.' }
   s.source_files = "Classes/**/*"
   s.vendored_frameworks = '*.xcframework'
+  s.pod_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
   s.libraries = 'c++'
   s.dependency 'Flutter'
   s.platform = :ios, '11.0'

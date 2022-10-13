@@ -106,6 +106,7 @@ public class NodeProps {
   public static final String LINE_SPACING_EXTRA = "lineSpacingExtra";
   public static final String NUMBER_OF_LINES = "numberOfLines";
   public static final String ELLIPSIZE_MODE = "ellipsizeMode";
+  public static final String BREAK_STRATEGY = "breakStrategy";
   public static final String ON = "on";
   public static final String RESIZE_MODE = "resizeMode";
   public static final String RESIZE_METHOD = "resizeMethod";

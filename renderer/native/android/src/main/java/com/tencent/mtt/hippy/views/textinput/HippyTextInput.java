@@ -501,6 +501,12 @@ public class HippyTextInput extends AppCompatEditText implements HippyViewBase,
         return false;
     }
 
+    public Map<String, Object> jsIsFocused() {
+        Map<String, Object> result = new HashMap<>();
+        result.put("value", hasFocus());
+        return result;
+    }
+
     public void setBlurOrOnFocus(boolean blur) {
         if (blur) {
             setOnFocusChangeListener(this);

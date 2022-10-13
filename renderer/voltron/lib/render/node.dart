@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -131,6 +131,8 @@ class RenderNode extends StyleNode {
 
   @override
   double get layoutHeight => _height;
+
+  RenderViewModel? get viewModel => _viewModel;
 
   bool get shouldCreateView => !_isLazyLoad && _viewModel == null;
 

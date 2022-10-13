@@ -39,7 +39,7 @@ import {
 import {
   isRTL,
 } from '../../util/i18n';
-import { preCacheNode, eventHandlerType, nativeEventMap, translateToNativeEventName } from '../../util/node';
+import { isStyleMatched, preCacheNode, eventHandlerType, nativeEventMap, translateToNativeEventName } from '../../util/node';
 import { fromAstNodes, SelectorsMap } from './style';
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
@@ -57,7 +57,8 @@ const NODE_OPERATION_TYPES = {
   deleteNode: Symbol('deleteNode'),
   moveNode: Symbol('moveNode'),
 };
-let __batchIdle = true;
+
+let batchIdle = true;
 let batchNodes = [];
 
 /**
@@ -116,7 +117,7 @@ function handleEventListeners(eventNodes = [], sceneBuilder) {
 /**
  * Initial CSS Map;
  */
-let __cssMap;
+let cssMap;
 
 /**
  * print nodes operation log
@@ -130,10 +131,10 @@ function printNodeOperation(printedNodes, nodeType) {
 }
 
 function endBatch(app) {
-  if (!__batchIdle) return;
-  __batchIdle = false;
+  if (!batchIdle) return;
+  batchIdle = false;
   if (batchNodes.length === 0) {
-    __batchIdle = true;
+    batchIdle = true;
     return;
   }
   const {
@@ -169,38 +170,38 @@ function endBatch(app) {
       }
     });
     sceneBuilder.build();
-    __batchIdle = true;
+    batchIdle = true;
     batchNodes = [];
   });
 }
 
 function getCssMap() {
   /**
-   * To support dynamic import, __cssMap can be loaded from different js file.
-   * __cssMap should be create/append if global[GLOBAL_STYLE_NAME] exists;
+   * To support dynamic import, cssMap can be loaded from different js file.
+   * cssMap should be 'create/append' if global[GLOBAL_STYLE_NAME] exists;
    */
-  if (!__cssMap || global[GLOBAL_STYLE_NAME]) {
+  if (!cssMap || global[GLOBAL_STYLE_NAME]) {
     /**
      *  Here is a secret startup option: beforeStyleLoadHook.
      *  Usage for process the styles while styles loading.
      */
     const cssRules = fromAstNodes(global[GLOBAL_STYLE_NAME]);
-    if (__cssMap) {
-      __cssMap.append(cssRules);
+    if (cssMap) {
+      cssMap.append(cssRules);
     } else {
-      __cssMap = new SelectorsMap(cssRules);
+      cssMap = new SelectorsMap(cssRules);
     }
     global[GLOBAL_STYLE_NAME] = undefined;
   }
 
   if (global[GLOBAL_DISPOSE_STYLE_NAME]) {
     global[GLOBAL_DISPOSE_STYLE_NAME].forEach((id) => {
-      __cssMap.delete(id);
+      cssMap.delete(id);
     });
     global[GLOBAL_DISPOSE_STYLE_NAME] = undefined;
   }
 
-  return __cssMap;
+  return cssMap;
 }
 
 /**
@@ -260,7 +261,7 @@ function getNativeProps(node) {
     }
   });
 
-  // Get the force props from meta, it's can't be override
+  // Get the force props from meta, it can't be overridden
   if (node.meta.component.nativeProps) {
     Object.assign(props, node.meta.component.nativeProps);
   }
@@ -394,16 +395,6 @@ function getEventNode(targetNode) {
     };
   }
   return eventNode;
-}
-
-function isStyleMatched(matchedSelector, targetNode) {
-  if (!targetNode || !matchedSelector) return false;
-  const nodeScopeId = targetNode.styleScopeId;
-  // set scopeId as element node attribute for style matching
-  nodeScopeId && (targetNode.attributes[nodeScopeId] = true);
-  const isMatched = matchedSelector.match(targetNode);
-  nodeScopeId && delete targetNode.attributes[nodeScopeId];
-  return isMatched;
 }
 
 /**

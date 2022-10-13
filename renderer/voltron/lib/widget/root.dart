@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -206,7 +206,7 @@ class RootWidgetViewModel extends ChangeNotifier {
     if (_context == null && uiContext != null) {
       return;
     }
-
+    if (uiContext != null) {
     var dimensionMap = getDimensions(
       windowWidth,
       windowHeight,
@@ -214,7 +214,7 @@ class RootWidgetViewModel extends ChangeNotifier {
       uiContext,
     );
     _context?.dimensionChecker.checkUpdateDimension(
-      uiContext!,
+        uiContext,
       dimensionMap,
       windowWidth,
       windowHeight,
@@ -222,6 +222,7 @@ class RootWidgetViewModel extends ChangeNotifier {
       systemUiVisibilityChanged,
     );
   }
+}
 }
 
 class VoltronWidget extends StatefulWidget {
