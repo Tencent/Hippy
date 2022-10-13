@@ -22,14 +22,15 @@
  * Hippy Native Node Props types, including properties, events, styles, and more
  */
 // type NativeNodeProps = NativeNodeNativeProps | NativeNodeEvent | NativeNodeStyle & NativeNodeDebugProps;
-import type { NeedToTyped } from '../../config';
-
-export interface NativeNodeProps {
+import type { NeedToTyped } from './index';
+interface NativeNodeProps {
   [key: string]: NeedToTyped;
 }
 
-// Hippy Native Node type
-export interface NativeNode {
+/**
+ * @public
+ */
+interface NativeNode {
   // native node id
   id: number;
   // parent node id
@@ -43,3 +44,8 @@ export interface NativeNode {
   // properties, include props, styles, events
   props?: NativeNodeProps;
 }
+
+export {
+  NativeNodeProps,
+  NativeNode,
+};

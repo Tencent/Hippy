@@ -21,7 +21,7 @@
 /**
  * Hippy event bus, methods such as on off emit in Vue3 have been removed, and the event bus is implemented here
  */
-import type { CallbackType, NeedToTyped } from '../../config';
+import type { NeedToTyped, CallbackType } from '../../../types';
 
 // all global event listeners
 let globalEventListeners = Object.create(null);

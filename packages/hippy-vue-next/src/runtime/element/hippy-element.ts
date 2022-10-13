@@ -27,7 +27,8 @@ import {
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
 
-import { CallbackType, IS_PROD, NATIVE_COMPONENT_MAP, type NeedToTyped } from '../../config';
+import type { CallbackType, NeedToTyped, NativeNode, NativeNodeProps } from '../../../types';
+import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {
   capitalizeFirstLetter,
   convertImageLocalPath,
@@ -46,7 +47,6 @@ import { getTagComponent, type TagComponent } from '../component';
 import { eventIsKeyboardEvent, type HippyEvent } from '../event/hippy-event';
 import type { EventListenerOptions } from '../event/hippy-event-target';
 import { Native } from '../native';
-import type { NativeNodeProps, NativeNode } from '../native/native-node';
 import { HippyNode, NodeType } from '../node/hippy-node';
 import { getCssMap } from '../style/css-map';
 import { HippyText } from '../text/hippy-text';

@@ -26,7 +26,7 @@ import { nextTick } from '@vue/runtime-core';
 import { trace } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { Native } from '../native';
-import type { NativeNode } from '../native/native-node';
+import type { NativeNode } from '../../../types';
 
 // operation type of native node
 enum NodeOperateType {

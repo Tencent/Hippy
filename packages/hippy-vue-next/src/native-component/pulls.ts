@@ -21,7 +21,7 @@
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
 
-import type { CallbackType, CommonMapParams } from '../config';
+import type { CallbackType, CommonMapParams } from '../../types';
 import { registerElement } from '../runtime/component';
 import type {
   HippyEvent,

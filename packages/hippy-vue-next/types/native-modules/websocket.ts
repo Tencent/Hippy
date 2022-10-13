@@ -17,28 +17,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { NeedToTyped } from '../index';
 
-import type { NeedToTyped } from '../../../config/index';
-
-interface ConnectArgs {
+export interface ConnectArgs {
   headers: {
     [x: string]: NeedToTyped;
   };
   url: string;
 }
 
-interface ConnectResp {
+export interface ConnectResp {
   id: number;
   code: number;
 }
 
-interface CloseArgs {
+export interface CloseArgs {
   id: number;
   reason: string;
   code: number;
 }
 
-interface SendArgs {
+export interface SendArgs {
   id: number;
   data: string;
 }

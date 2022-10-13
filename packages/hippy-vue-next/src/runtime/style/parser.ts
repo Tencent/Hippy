@@ -17,8 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { NeedToTyped } from '../../../types';
 
-import { type NeedToTyped } from '../../config';
 
 export interface SelectorType {
   type: string;
