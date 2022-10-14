@@ -23,14 +23,13 @@
 #ifndef HippyOCTurboModule_Inner_h
 #define HippyOCTurboModule_Inner_h
 
-#import "driver/napi/jsc/js_native_turbo_jsc.h"
 #import "HippyOCTurboModule.h"
+
+#include "driver/napi/js_native_turbo.h"
 
 @interface HippyOCTurboModule (Inner)
 
 - (std::shared_ptr<hippy::napi::HippyTurboModule>)getTurboModule;
-- (JSValueRef)getTurboHostModule;
-- (void)setTurboHostModule:(JSValueRef)turboHostModule;
 
 @end
 

@@ -21,7 +21,6 @@
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import 'bundle.dart';
-import 'js_instance_context.dart';
 
 class ModuleLoadParams {
   //

@@ -54,6 +54,7 @@
 #include "footstone/task_runner.h"
 #include "footstone/task.h"
 #include "vfs/handler/uri_handler.h"
+#include "driver/napi/jsc/js_native_api_jsc.h"
 
 NSString *const HippyJSCThreadName = @"com.tencent.hippy.JavaScript";
 
@@ -67,7 +68,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 @interface HippyJSExecutor () {
     // Set at setUp time:
     HippyPerformanceLogger *_performanceLogger;
-    std::unique_ptr<hippy::napi::ObjcTurboEnv> _turboRuntime;
+    std::unique_ptr<hippy::napi::TurboEnv> _turboRuntime;
     id<HippyContextWrapper> _contextWrapper;
     NSMutableArray<dispatch_block_t> *_pendingCalls;
     __weak HippyBridge *_bridge;
@@ -221,8 +222,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                     [bridge handleBuffer:calls batchEnded:NO];
                     return nil;
                 }];
-                                
-                strongSelf->_turboRuntime = std::make_unique<hippy::napi::ObjcTurboEnv>(scope->GetContext());
+
+                strongSelf->_turboRuntime = hippy::napi::GetTurboEnvInstance(scope->GetContext());
                 hippy::napi::Ctx::NativeFunction getTurboModuleFunc = [weakSelf](void *data) {
                     @autoreleasepool {
                         HippyJSExecutor *strongSelf = weakSelf;
@@ -243,12 +244,6 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 };
                 context->RegisterNativeBinding("getTurboModule", getTurboModuleFunc, nullptr);
             }
-            strongSelf.ready = YES;
-            NSArray<dispatch_block_t> *pendingCalls = [strongSelf->_pendingCalls copy];
-            [pendingCalls enumerateObjectsUsingBlock:^(dispatch_block_t  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                [strongSelf executeBlockOnJavaScriptQueue:obj];
-            }];
-            [strongSelf->_pendingCalls removeAllObjects];
             if (strongSelf.contextCreatedBlock) {
                 strongSelf.contextCreatedBlock(strongSelf->_contextWrapper);
             }
@@ -261,8 +256,12 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             if (!strongSelf) {
                 return;
             }
-            hippy::ScopeWrapper *wrapper = reinterpret_cast<hippy::ScopeWrapper *>(p);
-            std::shared_ptr<hippy::Scope> scope = wrapper->scope_.lock();
+            strongSelf.ready = YES;
+            NSArray<dispatch_block_t> *pendingCalls = [strongSelf->_pendingCalls copy];
+            [pendingCalls enumerateObjectsUsingBlock:^(dispatch_block_t  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                [strongSelf executeBlockOnJavaScriptQueue:obj];
+            }];
+            [strongSelf->_pendingCalls removeAllObjects];
         }
     };
     std::unique_ptr<hippy::Engine::RegisterMap> ptr = std::make_unique<hippy::Engine::RegisterMap>();

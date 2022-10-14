@@ -26,6 +26,7 @@
 #import "js_native_api_types.h"
 
 #include <memory>
+#include "vfs/uri_loader.h"
 
 namespace hippy {
 inline namespace driver {

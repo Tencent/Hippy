@@ -111,6 +111,12 @@ class NativeGestureDispatcher implements GestureHandleCallback {
         break;
       case GestureType.interceptPullUpEvent:
         break;
+      case GestureType.click:
+      // ignore, already resolve by other
+        break;
+      case GestureType.longClick:
+        // ignore, already resolve by other
+        break;
     }
   }
 

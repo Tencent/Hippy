@@ -109,7 +109,7 @@ class NetworkInspector {
         }) ?? {};
     String mimeType = responseHeader[kContentType] ?? "";
     if (mimeType.isEmpty) {
-      mimeType = MimeType.getType(httpResponse?.requestOptions?.responseType);
+      mimeType = MimeType.getType(httpResponse?.requestOptions.responseType);
     }
 
     final responseContentMap = {

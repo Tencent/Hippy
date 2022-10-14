@@ -945,7 +945,7 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     }
 
     if(!self.turboModuleManager) {
-        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self delegate:nil];
+        self.turboModuleManager = [[HippyTurboModuleManager alloc] initWithBridge:self];
     }
 
     // getTurboModule

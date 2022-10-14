@@ -24,9 +24,9 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
 class WebViewWidget extends FRStatefulWidget {
   final WebViewModel _viewModel;
@@ -49,6 +49,7 @@ class WebViewWidgetState extends FRState<WebViewWidget> {
 
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<WebViewModel, WebViewModel>(
@@ -72,6 +73,7 @@ class WebViewWidgetState extends FRState<WebViewWidget> {
   }
 
   Widget _webWidget(WebViewModel viewModel) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build web view inner widget");
     return WebView(
       initialUrl: viewModel.src,
       userAgent: viewModel.userAgent,

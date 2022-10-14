@@ -22,8 +22,8 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../util.dart';
+import '../widget.dart';
 
 class ListItemWidget extends FRStatefulWidget {
   final ListItemViewModel _viewModel;
@@ -39,6 +39,9 @@ class ListItemWidget extends FRStatefulWidget {
 class _ListItemWidgetState extends FRState<ListItemWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build list item widget",
+    );
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<ListItemViewModel, ListItemViewModel>(
@@ -68,7 +71,12 @@ class _ListItemWidgetState extends FRState<ListItemWidget> {
           viewModel,
           child: Selector<ListItemViewModel, DivContainerViewModel>(
             selector: (context, viewModel) => DivContainerViewModel(viewModel),
-            builder: (context, viewModel, _) => DivContainerWidget(viewModel),
+            builder: (context, viewModel, _) {
+              LogUtils.dWidget(
+                "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build list item inner widget",
+              );
+              return DivContainerWidget(viewModel);
+            },
           ),
         );
       },

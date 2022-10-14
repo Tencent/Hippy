@@ -22,8 +22,8 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../util.dart';
+import '../widget.dart';
 
 class ListPullHeaderWidget extends FRStatefulWidget {
   final ListPullHeaderViewModel _viewModel;
@@ -39,6 +39,9 @@ class ListPullHeaderWidget extends FRStatefulWidget {
 class _ListPullHeaderWidgetState extends FRState<ListPullHeaderWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build pull header widget",
+    );
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<ListPullHeaderViewModel, ListPullHeaderViewModel>(
@@ -56,7 +59,12 @@ class _ListPullHeaderWidgetState extends FRState<ListPullHeaderWidget> {
             viewModel,
             child: Selector0<DivContainerViewModel>(
               selector: (context) => DivContainerViewModel(viewModel),
-              builder: (context, viewModel, _) => DivContainerWidget(viewModel),
+              builder: (context, viewModel, _) {
+                LogUtils.dWidget(
+                  "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build pull header inner widget",
+                );
+                return DivContainerWidget(viewModel);
+              },
             ),
           );
         },

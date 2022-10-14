@@ -40,6 +40,7 @@ class VoltronJSEngine
   final List<EngineListener> _eventListenerList = [];
   final HashMap<int, RootWidgetViewModel> _rootWidgetViewModelMap = HashMap();
   final HashMap<int, ModuleLoadParams> _moduleLoadParamsMap = HashMap();
+
   // late RootWidgetViewModel _rootWidgetViewModel;
   // late ModuleLoadParams _moduleLoadParams;
   ModuleListener? _moduleListener;
@@ -178,7 +179,7 @@ class VoltronJSEngine
         _debugMode,
         _serverHost,
         _serverBundleName,
-          _remoteServerUrl,
+        _remoteServerUrl,
       );
       _devSupportManager.setDevCallback(this);
       if (_debugMode) {
@@ -241,7 +242,7 @@ class VoltronJSEngine
     final RootWidgetViewModel rootView,
   ) {
     if (statusCode != ModuleLoadStatus.ok) {
-      rootView.onLoadError(statusCode);
+      rootView.onLoadError(statusCode.value);
     }
     var moduleListener = _moduleListener;
     if (moduleListener != null) {
@@ -332,14 +333,13 @@ class VoltronJSEngine
   }
 
   Future<dynamic> _loadJSInstance(RootWidgetViewModel rootWidgetViewModel) async {
-    var loadContext =
-        JSLoadInstanceContext(_moduleLoadParamsMap[rootWidgetViewModel.id]!);
+    var loadContext = JSLoadInstanceContext(_moduleLoadParamsMap[rootWidgetViewModel.id]!);
     _engineContext?.renderContext.createInstance(
       loadContext,
       rootWidgetViewModel,
     );
-    _engineContext?.bridgeManager.connectRootViewAndRuntime(
-        _engineContext?.engineId ?? 0, rootWidgetViewModel.id);
+    _engineContext?.bridgeManager
+        .connectRootViewAndRuntime(_engineContext?.engineId ?? 0, rootWidgetViewModel.id);
 
     LogUtils.d(_kTag, "in internalLoadInstance");
     for (var listener in _engineContext!.instanceLifecycleEventListener) {
@@ -362,25 +362,16 @@ class VoltronJSEngine
     var launchParams = loadInstanceContext.launchParams;
     var name = loadInstanceContext.name;
     var loader = loadInstanceContext.bundleLoader;
-    if (!_debugMode) {
-      if (loader != null) {
-        rootWidgetViewModel.timeMonitor?.startEvent(
-          EngineMonitorEventKey.moduleLoadEventWaitLoadBundle,
-        );
-        await _engineContext?.bridgeManager.runBundle(
-          rootWidgetViewModel.id,
-          loader,
-          _moduleListener,
-          rootWidgetViewModel,
-        );
-      } else {
-        _notifyModuleLoaded(
-          ModuleLoadStatus.varialeNull,
-          "load module error. loader null",
-          rootWidgetViewModel,
-        );
-        return;
-      }
+    if (!_debugMode && loader != null) {
+      rootWidgetViewModel.timeMonitor?.startEvent(
+        EngineMonitorEventKey.moduleLoadEventWaitLoadBundle,
+      );
+      await _engineContext?.bridgeManager.runBundle(
+        rootWidgetViewModel.id,
+        loader,
+        _moduleListener,
+        rootWidgetViewModel,
+      );
     }
     LogUtils.d(
       _kTag,
@@ -391,7 +382,8 @@ class VoltronJSEngine
       rootWidgetViewModel.id,
       launchParams,
     );
-    if (_debugMode) {
+    LogUtils.dBridge("load module success");
+    if (_debugMode || loader == null) {
       _notifyModuleLoaded(
         ModuleLoadStatus.ok,
         null,
@@ -407,6 +399,7 @@ class VoltronJSEngine
     ModuleErrorBuilder? moduleStatusBuilder,
     OnLoadCompleteListener? onLoadCompleteListener,
   }) async {
+    LogUtils.dBridge("load module start");
     loadParams.jsParams ??= VoltronMap();
     if (!isEmpty(loadParams.jsAssetsPath)) {
       loadParams.jsParams!.push("sourcePath", loadParams.jsAssetsPath);

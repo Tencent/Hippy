@@ -104,8 +104,8 @@ class PlatformManager {
           _osVersion = deviceData['systemVersion'] ?? '1.0';
           _device = deviceData['utsname.machine'] ?? '';
           _model = deviceData['model'] ?? '';
-          _deviceId = deviceData['id'];
-          _codeName = deviceData['codename'];
+          _deviceId = deviceData['id'] ?? '';
+          _codeName = deviceData['codename'] ?? '';
           _appName = info.appName;
           _appVersion = info.version;
           _packageName = info.packageName;
