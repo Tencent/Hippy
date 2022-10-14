@@ -255,7 +255,7 @@ class VoltronRenderApi {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var eventU16 = eventName.toNativeUtf16();
-    LogUtils.i('Voltron::Bridge', 'call native event $eventName');
+    LogUtils.i('Voltron::Bridge', 'ID:$nodeId, call native event $eventName');
     var encodeParamsByteData =
         const StandardMessageCodec().encodeMessage(params);
     if (encodeParamsByteData != null) {

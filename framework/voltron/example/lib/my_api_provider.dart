@@ -18,9 +18,9 @@
 // limitations under the License.
 //
 
-import 'package:voltron_render/engine.dart';
-import 'package:voltron_render_example/module/test_module.dart';
+import 'package:voltron/voltron.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
+import './module/test_module.dart';
 
 class MyAPIProvider implements APIProvider {
   @override

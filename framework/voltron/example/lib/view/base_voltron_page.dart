@@ -22,14 +22,10 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:voltron_render/voltron_render.dart';
+import 'package:voltron/voltron.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
-import 'my_api_provider.dart';
-
-// ios and android use same bundle
-const String kVendorPath = "assets/jsbundle/vendor.android.js";
-const String kIndexPath = "assets/jsbundle/index.android.js";
+import '../my_api_provider.dart';
 
 enum PageStatus {
   init,
@@ -49,30 +45,42 @@ class Monitor extends EngineMonitor {
   bool enableCreateElementTime = true;
 }
 
-class PageTestWidget extends StatefulWidget {
-  final String? bundle;
+class BaseVoltronPage extends StatefulWidget {
   final bool debugMode;
+  final String coreBundle;
+  final String indexBundle;
+  final String remoteServerUrl;
 
-  PageTestWidget([this.bundle, this.debugMode = false]);
+  BaseVoltronPage({
+    this.debugMode = false,
+    this.coreBundle = '',
+    this.indexBundle = '',
+    this.remoteServerUrl = '',
+  });
 
   @override
   State<StatefulWidget> createState() {
-    return _PageTestWidgetState();
+    return _BaseVoltronPageState();
   }
 }
 
-class _PageTestWidgetState extends State<PageTestWidget> {
+class _BaseVoltronPageState extends State<BaseVoltronPage> {
   PageStatus pageStatus = PageStatus.init;
   late VoltronJSLoaderManager _loaderManager;
   late VoltronJSLoader _jsLoader;
-  late String _bundle;
-  int _errorCode = -1;
-  Offset offsetA = Offset(20, 300);
+  int errorCode = -1;
+  late bool _debugMode;
+  late String _coreBundle;
+  late String _indexBundle;
+  late String _remoteServerUrl;
 
   @override
   void initState() {
     super.initState();
-    _bundle = widget.bundle ?? kIndexPath;
+    _debugMode = widget.debugMode;
+    _coreBundle = widget.coreBundle;
+    _indexBundle = widget.indexBundle;
+    _remoteServerUrl = widget.remoteServerUrl;
     _initVoltronData();
   }
 
@@ -88,17 +96,23 @@ class _PageTestWidgetState extends State<PageTestWidget> {
       }
     }
     var initParams = EngineInitParams();
-    initParams.debugMode = widget.debugMode;
+    initParams.debugMode = _debugMode;
     initParams.enableLog = true;
-    initParams.coreJSAssetsPath = kVendorPath;
-    initParams.codeCacheTag = "common";
+    if (_debugMode) {
+      // 调试模式下直接使用debug参数
+      initParams.remoteServerUrl = _remoteServerUrl;
+    } else {
+      // 如果是不分包加载，可以只填写coreJSAssetsPath，下面的jsAssetsPath直接忽略即可
+      initParams.coreJSAssetsPath = _coreBundle;
+      initParams.codeCacheTag = "common";
+    }
     initParams.providers = [
       MyAPIProvider(),
     ];
     initParams.engineMonitor = Monitor();
     _loaderManager = VoltronJSLoaderManager.createLoaderManager(
       initParams,
-      (statusCode, msg) {
+          (statusCode, msg) {
         LogUtils.i(
           'loadEngine',
           'code($statusCode), msg($msg)',
@@ -110,7 +124,7 @@ class _PageTestWidgetState extends State<PageTestWidget> {
         } else {
           setState(() {
             pageStatus = PageStatus.error;
-            _errorCode = statusCode.value;
+            errorCode = statusCode.value;
           });
         }
       },
@@ -118,10 +132,10 @@ class _PageTestWidgetState extends State<PageTestWidget> {
     var loadParams = ModuleLoadParams();
     loadParams.componentName = "Demo";
     loadParams.codeCacheTag = "Demo";
-    if (_bundle.startsWith('http://') || _bundle.startsWith('https://')) {
-      loadParams.jsHttpPath = _bundle;
+    if (_indexBundle.startsWith('http://') || _indexBundle.startsWith('https://')) {
+      loadParams.jsHttpPath = _indexBundle;
     } else {
-      loadParams.jsAssetsPath = _bundle;
+      loadParams.jsAssetsPath = _indexBundle;
     }
     loadParams.jsParams = VoltronMap();
     loadParams.jsParams?.push(
@@ -159,11 +173,12 @@ class _PageTestWidgetState extends State<PageTestWidget> {
       child = Scaffold(
         body: VoltronWidget(
           loader: _jsLoader,
+          loadingBuilder: _debugMode ? null : (context) => Container(),
         ),
       );
     } else if (pageStatus == PageStatus.error) {
       child = Center(
-        child: Text('init engine error, code: ${_errorCode.toString()}'),
+        child: Text('init engine error, code: ${errorCode.toString()}'),
       );
     } else {
       child = Container();

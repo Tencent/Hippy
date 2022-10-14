@@ -98,10 +98,7 @@ class ImageRenderViewModel extends RenderViewModel {
                   imageHeight = image.image.height;
                   dispatchedEvent.add(NodeProps.kOnLoad);
                   dispatchedEvent.add(NodeProps.kOnLoadEnd);
-                  LogUtils.d(
-                    'ImageRenderViewModel',
-                    "ImageProvider onImage, info: ${image.toString()}",
-                  );
+                  LogUtils.dWidget("ID:$id, node:$idDesc, image load success, info:${image.toString()}");
                   notifyListeners();
                 }
               },
@@ -121,10 +118,7 @@ class ImageRenderViewModel extends RenderViewModel {
                 if (src == curSrc) {
                   imageEventDispatcher.handleOnError();
                   imageEventDispatcher.handleOnLoadEnd();
-                  LogUtils.w(
-                    'ImageController',
-                    "ImageProvider onError, src $src exception: ${exception.toString()}",
-                  );
+                  LogUtils.dWidget("ID:$id, node:$idDesc, image load error, src:$src, exception:${exception.toString()}");
                   notifyListeners();
                 }
               },

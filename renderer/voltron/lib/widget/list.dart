@@ -25,6 +25,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import '../common.dart';
 import '../controller.dart';
 import '../viewmodel.dart';
+import '../util.dart';
 import '../widget.dart';
 
 class ListViewWidget extends FRStatefulWidget {
@@ -41,6 +42,9 @@ class ListViewWidget extends FRStatefulWidget {
 class _ListViewWidgetState extends FRState<ListViewWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build list widget",
+    );
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<ListViewModel, ListViewModel>(
@@ -78,6 +82,9 @@ class _ListViewWidgetState extends FRState<ListViewWidget> {
   }
 
   Widget listView(ListViewDetailModel viewModel) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build list inner widget",
+    );
     var hasSticky = getStickyStatus(viewModel);
 
     var delegate = viewModel.delegate;

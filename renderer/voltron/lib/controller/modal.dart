@@ -64,7 +64,7 @@ class ModalController extends GroupController<ModalRenderViewModel, ModalRenderN
 
   @override
   Widget createWidget(BuildContext context, ModalRenderViewModel viewModel) {
-    return ModalContainerWidget(viewModel);
+    return ModalWidget(viewModel);
   }
 
   @override

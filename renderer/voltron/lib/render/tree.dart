@@ -54,13 +54,10 @@ class RenderTree {
       _rootWidgetViewModel.onViewAdd();
     }
     _nodeMap[node.id] = node;
-    LogUtils.dRenderNode(
-        "$hashCode render tree add node(${node.id}, ${node.hashCode})");
   }
 
   void unregisterNode(RenderNode node) {
-    LogUtils.dRenderNode(
-        "$hashCode render tree remove node(${node.id}, ${node.hashCode})");
+    LogUtils.dRenderNode("$hashCode render tree remove node(${node.id}, ${node.hashCode})");
     _nodeMap.remove(node.id);
   }
 

@@ -18,7 +18,7 @@
 // limitations under the License.
 //
 
-library voltron_render;
+library voltron_renderer;
 
 export 'bridge.dart';
 export "common.dart";

@@ -1,4 +1,4 @@
-package com.example.voltron_render.voltron_render_example
+package com.example.voltron.voltron_example
 
 import io.flutter.embedding.android.FlutterActivity
 

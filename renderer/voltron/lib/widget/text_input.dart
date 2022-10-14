@@ -22,9 +22,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
 class TextInputWidget extends FRStatefulWidget {
   final TextInputRenderViewModel _viewModel;
@@ -54,6 +54,7 @@ class _TextInputWidgetState extends FRState<TextInputWidget> {
 
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build text input widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Consumer<TextInputRenderViewModel>(
@@ -68,6 +69,7 @@ class _TextInputWidgetState extends FRState<TextInputWidget> {
   }
 
   Widget _textInput(TextInputRenderViewModel inputModel) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build text input inner widget");
     return TextField(
       scrollPadding: const EdgeInsets.all(0),
       decoration: InputDecoration(
@@ -126,13 +128,5 @@ class _TextInputWidgetState extends FRState<TextInputWidget> {
         leadingDistribution: TextLeadingDistribution.even,
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (!widget._viewModel.isDispose) {
-      widget._viewModel.onDispose();
-    }
   }
 }

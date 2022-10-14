@@ -24,13 +24,13 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../util.dart';
+import '../widget.dart';
 
 class QrWidget extends FRStatefulWidget {
-  final QrRenderViewModel renderViewModel;
+  final QrRenderViewModel _viewModel;
 
-  QrWidget(this.renderViewModel) : super(renderViewModel);
+  QrWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
@@ -41,8 +41,11 @@ class QrWidget extends FRStatefulWidget {
 class _QrWidgetState extends FRState<QrWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build qr widget",
+    );
     return ChangeNotifierProvider.value(
-      value: widget.renderViewModel,
+      value: widget._viewModel,
       child: Consumer<QrRenderViewModel>(
         builder: (context, viewModel, widget) {
           return PositionWidget(
@@ -55,6 +58,9 @@ class _QrWidgetState extends FRState<QrWidget> {
   }
 
   Widget qrView(QrRenderViewModel viewModel) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build qr inner widget",
+    );
     var text = viewModel.text;
     if (text != null && text.isNotEmpty) {
       return QrImage(
@@ -66,14 +72,6 @@ class _QrWidgetState extends FRState<QrWidget> {
       );
     } else {
       return Container();
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    if (!widget.renderViewModel.isDispose) {
-      widget.renderViewModel.onDispose();
     }
   }
 }

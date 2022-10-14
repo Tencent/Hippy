@@ -21,9 +21,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
+import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
 class WaterfallItemWidget extends FRStatefulWidget {
   final WaterfallItemViewModel _viewModel;
@@ -39,6 +39,7 @@ class WaterfallItemWidget extends FRStatefulWidget {
 class _WaterfallItemWidgetState extends FRState<WaterfallItemWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build waterfall item widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<WaterfallItemViewModel, WaterfallItemViewModel>(
@@ -56,7 +57,10 @@ class _WaterfallItemWidgetState extends FRState<WaterfallItemWidget> {
             viewModel,
             child: Selector0<DivContainerViewModel>(
               selector: (context) => DivContainerViewModel(viewModel),
-              builder: (context, viewModel, _) => DivContainerWidget(viewModel),
+              builder: (context, viewModel, _) {
+                LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build waterfall item inner widget");
+                return DivContainerWidget(viewModel);
+              },
             ),
           );
         },
