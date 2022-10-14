@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.15.0](https://github.com/Tencent/Hippy/compare/2.14.7...2.15.0) (2022-10-14)
+
+
+### Bug Fixes
+
+* **hippy-react:** support to emit multi parameters for HippyEvent ([0b84e88](https://github.com/Tencent/Hippy/commit/0b84e88ccb1c62ce9e1874d79edc7506f9c4c08e))
+
+
+### Features
+
+* **hippy-react:** add HippyEvent to listen global events ([93a291a](https://github.com/Tencent/Hippy/commit/93a291ae57a399b6293209b241c3e588da84b6b1))
+* **hippy-vue-next:** support vue3.x ([#2357](https://github.com/Tencent/Hippy/issues/2357)) ([0445c4e](https://github.com/Tencent/Hippy/commit/0445c4ec41ea3abcbd45728a62ef75abd21df676))
+
+
+
+
+
 ## [2.14.7](https://github.com/Tencent/Hippy/compare/2.14.6...2.14.7) (2022-09-08)
 
 

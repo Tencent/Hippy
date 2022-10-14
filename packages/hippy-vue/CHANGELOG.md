@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.15.0](https://github.com/Tencent/Hippy/compare/2.14.7...2.15.0) (2022-10-14)
+
+
+### Bug Fixes
+
+* **vue:** fix web-renderer script ([34cc959](https://github.com/Tencent/Hippy/commit/34cc959065a482309ff5658a301f203f6dc786c6))
+* **vue:** set id for root view to fix style missed ([2dc9db5](https://github.com/Tencent/Hippy/commit/2dc9db52177c948fd3a16db29d16402bb308c617))
+
+
+### Features
+
+* **vue:** add getElemCss scoped judgement ([e9ea3f8](https://github.com/Tencent/Hippy/commit/e9ea3f84164c82e51dcb9bea80d83e85cb05e13b))
+* **vue:** perf first screen attributes node update ([dcd7459](https://github.com/Tencent/Hippy/commit/dcd74599427b7792b91cf6e9d5a2af4d953685fe))
+* **vue:** support scoped & attribute selector ([772a698](https://github.com/Tencent/Hippy/commit/772a69895b8658e3509db3b03d246153fca5f93c))
+
+
+
+
+
 ## [2.14.7](https://github.com/Tencent/Hippy/compare/2.14.6...2.14.7) (2022-09-08)
 
 **Note:** Version bump only for package @hippy/vue

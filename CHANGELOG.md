@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.15.0](https://github.com/Tencent/Hippy/compare/2.14.7...2.15.0) (2022-10-14)
+
+
+### Bug Fixes
+
+* **android:** `onPageScroll` event gives wrong value ([8850523](https://github.com/Tencent/Hippy/commit/88505237e64eabccb58dd2342a94466023843ff2))
+* **android:** empty text node height compatibility ([700697f](https://github.com/Tencent/Hippy/commit/700697f55ff6ce2e5b0b43fee0e9d1fd83c50a9b))
+* **android:** implement `preloadItemNumber` for `ListView` ([c978c85](https://github.com/Tencent/Hippy/commit/c978c859e5ee3552e7cfcbde45bfbb2648e65633))
+* **android:** prevent `LIBRARY_VERSION` inlining ([472404c](https://github.com/Tencent/Hippy/commit/472404c7fbe892589823b2e9d9cdb89ef7a34e78))
+* **android:** WebView backgroundColor not working ([07e4dd2](https://github.com/Tencent/Hippy/commit/07e4dd2433efb09f4277ef53aa1157525e74601d))
+* **core:** compatible with lower version v8 for memory feature ([7d3b773](https://github.com/Tencent/Hippy/commit/7d3b7731e1026874ac9c7798f9b908a756def1c5))
+* **core:** fix inspector crash ([806f240](https://github.com/Tencent/Hippy/commit/806f240e098f0ee75d2df53d67274fa6d178a8dd))
+* **core:** revert hippy1.x compatible code ([4722e88](https://github.com/Tencent/Hippy/commit/4722e882b1c24ddd56120ae04eb509e9aa87af8c))
+* **debug-server:** fix wepback & node md4 hash not campatible ([e4753e5](https://github.com/Tencent/Hippy/commit/e4753e52f799b8422e417c3ccbc4fa75371a9ba9))
+* **docs, android:** `expandPullHeader` method for `ListView` ([#2494](https://github.com/Tencent/Hippy/issues/2494)) ([08d38dc](https://github.com/Tencent/Hippy/commit/08d38dc0e46e556467ac1755fd2ce5c1d3870434))
+* **hippy-react:** support to emit multi parameters for HippyEvent ([0b84e88](https://github.com/Tencent/Hippy/commit/0b84e88ccb1c62ce9e1874d79edc7506f9c4c08e))
+* **ios:** add assert for url creation failure ([26ef050](https://github.com/Tencent/Hippy/commit/26ef050962dabdd8e6900544f70b092d0aa6e5f3))
+* **ios:** fix memory leaks in network module ([0c172a9](https://github.com/Tencent/Hippy/commit/0c172a91a588edde1f83a995216e4ed1a0b8fe5e))
+* **ios:** fix touch gesture no touch.view ([9378959](https://github.com/Tencent/Hippy/commit/9378959b7b87bf029579f49f6e37c4b73e967300))
+* **ios:** needs to reset showing state when cell prepares for reusing ([a5e9e00](https://github.com/Tencent/Hippy/commit/a5e9e009a1d1222bbdfb7ce27d88edc24a2e438a))
+* **ios:** scrollview: scrollToWithDuration not trigger OnScroll ([7a8b9e7](https://github.com/Tencent/Hippy/commit/7a8b9e79d1463c91c39c83de9950deafebc50472))
+* **script:** fix build script error ([d219a12](https://github.com/Tencent/Hippy/commit/d219a124aed05570677a31009e3f78ec90937be7))
+* **vue-next:** add missing modules & perf docs ([6046d2c](https://github.com/Tencent/Hippy/commit/6046d2cf37e526f77dfb270f5df5b7dbb927121d))
+* **vue-next:** fix syntax errors ([93faab4](https://github.com/Tencent/Hippy/commit/93faab404c219deff5805a5e9726bad05bbf9e06))
+* **vue:** fix web-renderer script ([34cc959](https://github.com/Tencent/Hippy/commit/34cc959065a482309ff5658a301f203f6dc786c6))
+* **vue:** set id for root view to fix style missed ([2dc9db5](https://github.com/Tencent/Hippy/commit/2dc9db52177c948fd3a16db29d16402bb308c617))
+* **workflows:** fix workflow file syntax exception ([1ed405e](https://github.com/Tencent/Hippy/commit/1ed405e121876be1d0d05df77b8893fe703c20df))
+
+
+### Features
+
+* **android:** add v8 memory(heap) to performance ([7b03a60](https://github.com/Tencent/Hippy/commit/7b03a60b993a191b0211de7cbd78ed2c736df251))
+* **android:** provide sdk version information ([8f0cfe6](https://github.com/Tencent/Hippy/commit/8f0cfe64ecc45a9e3daa0b54c4c7b51b52c7799e))
+* **android:** provide sdk version information ([a9a9f40](https://github.com/Tencent/Hippy/commit/a9a9f4004a1b539f22bd27ca643d65b9ab058790))
+* **android:** serialization support version 15 data ([270775c](https://github.com/Tencent/Hippy/commit/270775cba523c1e9b818c3462fc73fc819ace57e))
+* **android:** support v8 version to 10.6.194 ([e345701](https://github.com/Tencent/Hippy/commit/e3457011b21d85b063af5488ad6f9ae1613fa73c))
+* **android:** update docs and demo for android waterfall banner render; ([#2412](https://github.com/Tencent/Hippy/issues/2412)) ([5fe65e9](https://github.com/Tencent/Hippy/commit/5fe65e962a980e33e61f6de32a9dc3220b3bbfc4))
+* **android:** update to use C++17 standard ([250a4aa](https://github.com/Tencent/Hippy/commit/250a4aa2614d80d8309c4215da6676797d34db56))
+* **core:** export v8 method to java ([9a577ab](https://github.com/Tencent/Hippy/commit/9a577ab90234e7ef07b65c01f970d68047f952ef))
+* **hippy-react:** add HippyEvent to listen global events ([93a291a](https://github.com/Tencent/Hippy/commit/93a291ae57a399b6293209b241c3e588da84b6b1))
+* **hippy-vue-next:** support vue3.x ([#2357](https://github.com/Tencent/Hippy/issues/2357)) ([0445c4e](https://github.com/Tencent/Hippy/commit/0445c4ec41ea3abcbd45728a62ef75abd21df676))
+* **ios:** listview stick cell wrong offset while refreshing ([#2523](https://github.com/Tencent/Hippy/issues/2523)) ([e246165](https://github.com/Tencent/Hippy/commit/e2461658f134f23b94d2272dd559338014b521aa))
+* **vue-css-loader:** change dist file name to be parsed by vue-loader ([b5d94e4](https://github.com/Tencent/Hippy/commit/b5d94e4a83960a7ef246b1ddd7edec71befe7c4e))
+* **vue-next:** add web-renderer script ([1be39dc](https://github.com/Tencent/Hippy/commit/1be39dc41d62b3a917b8d054a4f91cd07b5fb725))
+* **vue-next:** refactor type definition files place ([#2542](https://github.com/Tencent/Hippy/issues/2542)) ([202dccb](https://github.com/Tencent/Hippy/commit/202dccbe42626b0f356c93f43aba4544d84ee6bd))
+* **vue:** add getElemCss scoped judgement ([e9ea3f8](https://github.com/Tencent/Hippy/commit/e9ea3f84164c82e51dcb9bea80d83e85cb05e13b))
+* **vue:** perf first screen attributes node update ([dcd7459](https://github.com/Tencent/Hippy/commit/dcd74599427b7792b91cf6e9d5a2af4d953685fe))
+* **vue:** support scoped & attribute selector ([772a698](https://github.com/Tencent/Hippy/commit/772a69895b8658e3509db3b03d246153fca5f93c))
+
+
+### Performance Improvements
+
+* **ios:** use respondsToSelector instead of conformsToProtocol ([cb2b2b8](https://github.com/Tencent/Hippy/commit/cb2b2b8d6c695d39630acc6ba54ecbcb57e1212c))
+
+
+
+
+
 ## [2.14.7](https://github.com/Tencent/Hippy/compare/2.14.6...2.14.7) (2022-09-08)
 
 

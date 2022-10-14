@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.15.0](https://github.com/Tencent/Hippy/compare/2.14.7...2.15.0) (2022-10-14)
+
+
+### Features
+
+* **vue-css-loader:** change dist file name to be parsed by vue-loader ([b5d94e4](https://github.com/Tencent/Hippy/commit/b5d94e4a83960a7ef246b1ddd7edec71befe7c4e))
+
+
+
+
+
 ## [2.14.7](https://github.com/Tencent/Hippy/compare/2.14.6...2.14.7) (2022-09-08)
 
 **Note:** Version bump only for package @hippy/vue-css-loader
