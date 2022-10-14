@@ -19,12 +19,11 @@
 //
 
 import 'package:flutter/material.dart';
-import 'package:voltron_render/engine/js_engine_context.dart';
 import 'package:voltron_renderer/common/voltron_map.dart';
 import 'package:voltron_renderer/util/image_util.dart';
 
-import 'module.dart';
-import 'promise.dart';
+import '../engine.dart';
+import '../module.dart';
 
 class ImageLoaderModule extends VoltronNativeModule {
   static const String kImageLoaderModuleName = "ImageLoaderModule";

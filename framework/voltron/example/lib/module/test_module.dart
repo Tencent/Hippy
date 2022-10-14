@@ -19,9 +19,9 @@
 //
 
 import 'package:flutter/material.dart';
-import 'package:voltron_render/engine.dart';
-import 'package:voltron_render/module.dart';
-import 'package:voltron_render_example/view/base_voltron_page.dart';
+import 'package:voltron/engine.dart';
+import 'package:voltron/module.dart';
+import '../view/base_voltron_page.dart';
 
 class TestModule extends VoltronNativeModule {
   static const String kModuleName = "TestModule";

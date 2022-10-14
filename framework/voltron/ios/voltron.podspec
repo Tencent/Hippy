@@ -3,9 +3,9 @@
 # Run `pod lib lint flutter_render.podspec' to validate before publishing.
 #
 Pod::Spec.new do |s|
-  s.name             = 'voltron_render'
+  s.name             = 'voltron'
   s.version          = '0.0.1'
-  s.summary          = 'voltron_render ios plugin project.'
+  s.summary          = 'voltron ios plugin project.'
   s.description      = <<-DESC
 The ios flutter plugin for voltron loader.
                        DESC

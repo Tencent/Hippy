@@ -20,7 +20,7 @@
 #
 #
 
-name: voltron_render
+name: voltron
 description: A flutter plugin project to render hippy page.
 
 environment:

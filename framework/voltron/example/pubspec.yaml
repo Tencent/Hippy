@@ -20,7 +20,7 @@
 #
 #
 
-name: voltron_render_example
+name: voltron_example
 description: Demonstrates how to use the flutter_render plugin.
 
 environment:
@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  voltron_render:
+  voltron:
     # When depending on this package from a real application you should use:
     #   flutter_render: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints
