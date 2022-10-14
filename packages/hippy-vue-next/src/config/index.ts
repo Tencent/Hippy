@@ -49,12 +49,6 @@ const NATIVE_COMPONENT_MAP = {
 // Hippy static file protocol address
 const HIPPY_STATIC_PROTOCOL = 'hpfile://';
 
-
-/**
- * @public
- */
-type NeedToTyped = any;
-
 /**
   * Global style store identifier name
   *
@@ -74,18 +68,6 @@ const HIPPY_GLOBAL_DISPOSE_STYLE_NAME = '__HIPPY_VUE_DISPOSE_STYLES__';
 // eslint-disable-next-line
 const HIPPY_VUE_VERSION = process.env.HIPPY_VUE_VERSION;
 
-/**
-  * @public
-  */
-type CallbackType = Function;
-
-/**
-  * @public
-  */
-interface CommonMapParams {
-  [key: string]: NeedToTyped;
-}
-
 export {
   HIPPY_DEBUG_ADDRESS,
   HIPPY_STATIC_PROTOCOL,
@@ -94,7 +76,4 @@ export {
   HIPPY_GLOBAL_STYLE_NAME,
   HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
   HIPPY_VUE_VERSION,
-  type CallbackType,
-  type CommonMapParams,
-  type NeedToTyped,
 };
