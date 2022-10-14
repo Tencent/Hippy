@@ -21,7 +21,7 @@
 /* eslint-disable no-param-reassign */
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
-import type { NeedToTyped } from '../config';
+import type { NeedToTyped } from '../types';
 
 import { registerElement } from '../runtime/component';
 import type { EventsUnionType } from '../runtime/event/hippy-event';

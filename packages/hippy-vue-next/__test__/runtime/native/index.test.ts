@@ -21,7 +21,7 @@
 /**
  * runtime/native unit test
  */
-import type { NeedToTyped } from '../../../src/config';
+import type { NeedToTyped } from '../../../src/types';
 import { HippyListElement } from '../../../src/runtime/element/hippy-list-element';
 import { Native, CACHE } from '../../../src/runtime/native/index';
 import { EventBus } from '../../../src/runtime/event/event-bus';

@@ -18,33 +18,34 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '../../../config/index';
-
-interface ConnectArgs {
-  headers: {
-    [x: string]: NeedToTyped;
-  };
-  url: string;
+/**
+ * Hippy Native Node Props types, including properties, events, styles, and more
+ */
+// type NativeNodeProps = NativeNodeNativeProps | NativeNodeEvent | NativeNodeStyle & NativeNodeDebugProps;
+import type { NeedToTyped } from './index';
+interface NativeNodeProps {
+  [key: string]: NeedToTyped;
 }
 
-interface ConnectResp {
+/**
+ * @public
+ */
+interface NativeNode {
+  // native node id
   id: number;
-  code: number;
+  // parent node id
+  pId: number;
+  // index value of the current node in the sibling nodes
+  index: number;
+  // name in native, such as View,SwiperView
+  name?: string;
+  // tag name, such as div, li, used for inspector debugging
+  tagName?: string;
+  // properties, include props, styles, events
+  props?: NativeNodeProps;
 }
 
-interface CloseArgs {
-  id: number;
-  reason: string;
-  code: number;
-}
-
-interface SendArgs {
-  id: number;
-  data: string;
-}
-
-export interface Websocket {
-  connect: (args: ConnectArgs) => ConnectResp;
-  send: (args: SendArgs) => void;
-  close: (args: CloseArgs) => void;
-}
+export {
+  NativeNodeProps,
+  NativeNode,
+};

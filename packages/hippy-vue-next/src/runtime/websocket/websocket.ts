@@ -19,7 +19,7 @@
  */
 
 import { isFunction } from '@vue/shared';
-import type { NeedToTyped, CallbackType } from '../../config';
+import type { NeedToTyped, CallbackType } from '../../types';
 
 import { warn, getNormalizeEventName } from '../../util';
 import { EventBus } from '../event/event-bus';
