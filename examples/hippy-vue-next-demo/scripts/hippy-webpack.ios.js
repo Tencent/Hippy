@@ -1,11 +1,13 @@
 const path = require('path');
 const fs = require('fs');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
 const webpack = require('webpack');
 
+const platform = 'ios';
 const pkg = require('../package.json');
+const manifest = require('../dist/ios/vendor-manifest.json');
 let cssLoader = '@hippy/vue-css-loader';
 const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
@@ -15,54 +17,42 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn('* Using the @hippy/vue-css-loader defined in package.json');
 }
 
-
 module.exports = {
-  mode: 'development',
-  // devtool: 'eval-source-map',
-  watch: true,
-  watchOptions: {
-    aggregateTimeout: 1500,
-  },
-  devServer: {
-    remote: {
-      protocol: 'http',
-      host: '127.0.0.1',
-      port: 38989,
-    },
-    vueDevtools: false,
-    multiple: false,
-    hot: true,
-    liveReload: true,
-    client: {
-      overlay: false,
-    },
-    devMiddleware: {
-      writeToDisk: true,
-    },
-  },
+  mode: 'production',
+  bail: true,
   entry: {
-    index: [path.resolve(pkg.demo)],
+    index: ['@hippy/rejection-tracking-polyfill', path.resolve(pkg.nativeMain)],
   },
   output: {
-    filename: 'index.bundle',
-    strictModuleExceptionHandling: true,
-    path: path.resolve('./dist/dev/'),
+    filename: `[name].${platform}.js`,
+    path: path.resolve(`./dist/${platform}/`),
     globalObject: '(0, eval)("this")',
+    // CDN path can be configured to load children bundles from remote server
+    // publicPath: 'https://xxx/hippy/hippyVueNextDemo/',
   },
   plugins: [
-    new VueLoaderPlugin(),
+    new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('development'),
-        HOST: JSON.stringify(process.env.DEV_HOST || '127.0.0.1'),
-        PORT: JSON.stringify(process.env.DEV_PORT || 38989),
-      },
-      __VUE_OPTIONS_API__: true,
-      __VUE_PROD_DEVTOOLS__: false,
-      __PLATFORM__: null,
+      'process.env.NODE_ENV': JSON.stringify('production'),
+      __PLATFORM__: JSON.stringify(platform),
+    }),
+    new CaseSensitivePathsPlugin(),
+    new VueLoaderPlugin(),
+    new webpack.DllReferencePlugin({
+      context: path.resolve(__dirname, '..'),
+      manifest,
     }),
     new HippyDynamicImportPlugin(),
-    new CleanWebpackPlugin(),
+    // LimitChunkCountPlugin can control dynamic import ability
+    // Using 1 will prevent any additional chunks from being added
+    // new webpack.optimize.LimitChunkCountPlugin({
+    //   maxChunks: 1,
+    // }),
+    // use SourceMapDevToolPlugin can generate sourcemap file
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
   ],
   module: {
     rules: [
@@ -73,7 +63,7 @@ module.exports = {
             loader: 'vue-loader',
             options: {
               compilerOptions: {
-                // disable vue3 dom patch flag，because hippy do not support innerHTML
+                // disable vue3 dom patchflag，because hippy do not support innerHTML
                 hoistStatic: false,
               },
             },
@@ -88,28 +78,41 @@ module.exports = {
         test: /\.t|js$/,
         use: [
           {
-            loader: 'esbuild-loader',
+            loader: 'babel-loader',
             options: {
-              target: 'es2015',
+              sourceType: 'unambiguous',
+              presets: [
+                [
+                  '@babel/preset-env',
+                  {
+                    targets: {
+                      ios: 9,
+                    },
+                  },
+                ],
+              ],
+              plugins: [
+                ['@babel/plugin-proposal-class-properties'],
+                ['@babel/plugin-proposal-decorators', { legacy: true }],
+                ['@babel/plugin-transform-runtime', { regenerator: true }],
+              ],
             },
           },
         ],
       },
       {
         test: /\.(png|jpe?g|gif)$/i,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              // if you would like to use base64 for picture, uncomment limit: true
-              // limit: true,
-              limit: 8192,
-              fallback: 'file-loader',
-              name: '[name].[ext]',
-              outputPath: 'assets/',
-            },
+        use: [{
+          loader: 'url-loader',
+          options: {
+            // if you would like to use base64 for picture, uncomment limit: true
+            // limit: true,
+            limit: 8192,
+            fallback: 'file-loader',
+            name: '[name].[ext]',
+            outputPath: 'assets/',
           },
-        ],
+        }],
       },
       {
         test: /\.(ts)$/,

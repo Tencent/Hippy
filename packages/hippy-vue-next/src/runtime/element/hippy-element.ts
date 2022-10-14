@@ -21,7 +21,6 @@
 import {
   parseBackgroundImage,
   PROPERTIES_MAP,
-  translateColor,
   type PropertiesMapType,
 } from '@hippy-vue-next-style-parser/index';
 import { toRaw } from '@vue/runtime-core';
@@ -539,9 +538,7 @@ export class HippyElement extends HippyNode {
           styleValue = styleValue.trim();
           // Convert inline color style to int
           if (styleProperty.toLowerCase().indexOf('color') >= 0) {
-            styleValue = translateColor(styleValue, {
-              platform: Native.Platform,
-            });
+            styleValue = Native.parseColor(styleValue);
             // Convert inline length style, drop the px unit
           } else if (styleValue.endsWith('px')) {
             styleValue = parseFloat(styleValue.slice(0, styleValue.length - 2));
