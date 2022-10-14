@@ -20,19 +20,13 @@
 
 import type { App } from '@vue/runtime-core';
 import { h } from '@vue/runtime-core';
-import type { NeedToTyped, CommonMapParams } from '../config';
+import type { NeedToTyped, CommonMapParams, AnimationStyle } from '../types';
 
 import { EventBus as HippyEventBus } from '../runtime/event/event-bus';
 import { Native } from '../runtime/native';
 import { getNormalizeEventName } from '../util';
 
 type NodeStyle = CommonMapParams;
-
-// type of animation style
-export interface AnimationStyle {
-  animationId: number;
-  follow?: boolean;
-}
 
 /**
  * register an animated Vue component

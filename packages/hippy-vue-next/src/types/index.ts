@@ -19,27 +19,37 @@
  */
 
 /**
- * Hippy Native Node Props types, including properties, events, styles, and more
+ * @public
  */
-// type NativeNodeProps = NativeNodeNativeProps | NativeNodeEvent | NativeNodeStyle & NativeNodeDebugProps;
-import type { NeedToTyped } from '../../config';
+type NeedToTyped = any;
 
-export interface NativeNodeProps {
+/**
+ * @public
+ */
+type CallbackType = Function;
+
+/**
+ * @public
+ */
+interface CommonMapParams {
   [key: string]: NeedToTyped;
 }
 
-// Hippy Native Node type
-export interface NativeNode {
-  // native node id
-  id: number;
-  // parent node id
-  pId: number;
-  // index value of the current node in the sibling nodes
-  index: number;
-  // name in native, such as View,SwiperView
-  name?: string;
-  // tag name, such as div, li, used for inspector debugging
-  tagName?: string;
-  // properties, include props, styles, events
-  props?: NativeNodeProps;
-}
+// global type
+export {
+  NeedToTyped,
+  CallbackType,
+  CommonMapParams,
+};
+
+// native node type
+export {
+  NativeNode,
+  NativeNodeProps,
+} from './native-node';
+
+// native interface map type
+export {
+  AnimationStyle,
+  NativeInterfaceMap,
+} from './native-modules';
