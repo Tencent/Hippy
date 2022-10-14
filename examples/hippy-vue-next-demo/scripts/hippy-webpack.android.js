@@ -8,7 +8,6 @@ const webpack = require('webpack');
 const platform = 'android';
 const pkg = require('../package.json');
 const manifest = require('../dist/android/vendor-manifest.json');
-const mode = 'production';
 let cssLoader = '@hippy/vue-css-loader';
 const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
@@ -19,10 +18,10 @@ if (fs.existsSync(hippyVueCssLoaderPath)) {
 }
 
 module.exports = {
-  mode,
+  mode: 'production',
   bail: true,
   entry: {
-    index: [path.resolve(pkg.demo)],
+    index: [path.resolve(pkg.nativeMain)],
   },
   output: {
     filename: `[name].${platform}.js`,
@@ -33,19 +32,27 @@ module.exports = {
   },
   plugins: [
     new webpack.NamedModulesPlugin(),
-    new CaseSensitivePathsPlugin(),
-    new VueLoaderPlugin(),
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify(mode),
-      },
+      'process.env.NODE_ENV': JSON.stringify('production'),
       __PLATFORM__: JSON.stringify(platform),
     }),
+    new CaseSensitivePathsPlugin(),
+    new VueLoaderPlugin(),
     new webpack.DllReferencePlugin({
       context: path.resolve(__dirname, '..'),
       manifest,
     }),
     new HippyDynamicImportPlugin(),
+    // LimitChunkCountPlugin can control dynamic import ability
+    // Using 1 will prevent any additional chunks from being added
+    // new webpack.optimize.LimitChunkCountPlugin({
+    //   maxChunks: 1,
+    // }),
+    // use SourceMapDevToolPlugin can generate sourcemap file
+    // new webpack.SourceMapDevToolPlugin({
+    //   test: /\.(js|jsbundle|css|bundle)($|\?)/i,
+    //   filename: '[file].map',
+    // }),
   ],
   module: {
     rules: [
@@ -95,19 +102,17 @@ module.exports = {
       },
       {
         test: /\.(png|jpe?g|gif)$/i,
-        use: [
-          {
-            loader: 'url-loader',
-            options: {
-              // if you would like to use base64 for picture, uncomment limit: true
-              // limit: true,
-              limit: 8192,
-              fallback: 'file-loader',
-              name: '[name].[ext]',
-              outputPath: 'assets/',
-            },
+        use: [{
+          loader: 'url-loader',
+          options: {
+            // if you would like to use base64 for picture, uncomment limit: true
+            // limit: true,
+            limit: 8192,
+            fallback: 'file-loader',
+            name: '[name].[ext]',
+            outputPath: 'assets/',
           },
-        ],
+        }],
       },
       {
         test: /\.(ts)$/,
