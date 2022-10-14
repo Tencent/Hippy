@@ -71,6 +71,9 @@ using DomArgument = hippy::DomArgument;
         0 == strcmp(objcType, @encode(double))) {
         return HippyValue([self doubleValue]);
     }
+    else if (0 == strcmp(objcType, @encode(BOOL)) || 0 == strcmp(objcType, @encode(signed char))) {
+        return HippyValue([self boolValue]);
+    }
     else {
         return HippyValue([self intValue]);
     }
