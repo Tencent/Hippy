@@ -25,11 +25,4 @@
 
 @interface HippyNetWork : NSObject <HippyBridgeModule, NSURLSessionDataDelegate>
 
-/// override it for customer protocols
-- (NSArray<Class> *)protocolClasses;
-/**
- * extra headers in http header
- * value will be added to key if key already exists.
- */
-- (NSDictionary<NSString *, NSString *> *)extraHeaders;
 @end

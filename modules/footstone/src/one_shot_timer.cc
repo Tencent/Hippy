@@ -45,7 +45,7 @@ void OneShotTimer::FireNow() {
 
 void OneShotTimer::OnStop() { user_task_.reset(); }
 
-std::shared_ptr<BaseTimer> OneShotTimer::GetWeakSelf() {
+std::weak_ptr<BaseTimer> OneShotTimer::GetWeakSelf() {
   return std::static_pointer_cast<BaseTimer>(shared_from_this());
 }
 

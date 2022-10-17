@@ -30,17 +30,18 @@
 #import "NativeRenderContext.h"
 #import "NativeRenderFrameworkProxy.h"
 #import "NativeRenderManager.h"
-#import "NativeRenderImageProviderProtocol.h"
 #import "NativeRenderInvalidating.h"
 
 #include <memory>
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
 #include "footstone/worker_manager.h"
+#include "vfs/uri_loader.h"
 
 @class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
+
 /**
  * Indicate hippy sdk version
  */
@@ -145,14 +146,18 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
 
 /**
+ * Set URI loader for Hippy instance
+ * Default handler is HippyDefaultUriHandler
+ */
+@property(nonatomic, assign)std::shared_ptr<hippy::vfs::UriLoader> uriLoader;
+
+/**
  * Access the underlying JavaScript executor. You can use this in unit tests to detect
  * when the executor has been invalidated, or when you want to schedule calls on the
  * JS VM outside of Hippy Native. Use with care!
  */
 @property (nonatomic, readonly) HippyJSExecutor *javaScriptExecutor;
 
-
-- (void)addPropertiesToUserGlobalObject:(NSDictionary *)props;
 /**
  * JS invocation methods
  */

@@ -43,6 +43,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 
 # region sources(.h header files are for IDE only, promote better integration)
 set(SOURCE_SET
+    src/data_holder.cc
     src/jni_env.cc
     src/jni_register.cc
     src/jni_utils.cc

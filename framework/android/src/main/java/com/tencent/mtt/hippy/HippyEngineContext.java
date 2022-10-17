@@ -13,51 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy;
 
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
+import com.tencent.vfs.VfsManager;
 import java.util.Map;
 
 public interface HippyEngineContext {
 
-  String getComponentName();
+    String getComponentName();
 
-  @Nullable
-  Map<String, Object> getNativeParams();
+    @Nullable
+    Map<String, Object> getNativeParams();
 
-  HippyGlobalConfigs getGlobalConfigs();
+    @NonNull
+    VfsManager getVfsManager();
 
-  HippyModuleManager getModuleManager();
+    HippyGlobalConfigs getGlobalConfigs();
 
-  HippyBridgeManager getBridgeManager();
+    HippyModuleManager getModuleManager();
 
-  DevSupportManager getDevSupportManager();
+    HippyBridgeManager getBridgeManager();
 
-  ThreadExecutor getThreadExecutor();
+    DevSupportManager getDevSupportManager();
 
-  ViewGroup getRootView();
+    ThreadExecutor getThreadExecutor();
 
-  void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+    ViewGroup getRootView();
 
-  void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
+    void addEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-  void handleException(Throwable throwable);
+    void removeEngineLifecycleEventListener(HippyEngineLifecycleEventListener listener);
 
-  int getEngineId();
+    void handleException(Throwable throwable);
 
-  int getWorkerManagerId();
+    int getEngineId();
 
-  int getDomManagerId();
+    int getWorkerManagerId();
 
-  void onRuntimeInitialized(long runtimeId);
+    int getDomManagerId();
 
-  void onBridgeDestroyed(boolean isReload, Throwable e);
+    int getVfsId();
 
-  void removeRootView(int rootId);
+    void onRuntimeInitialized(long runtimeId);
+
+    void onBridgeDestroyed(boolean isReload, Throwable e);
+
+    void removeRootView(int rootId);
 }
