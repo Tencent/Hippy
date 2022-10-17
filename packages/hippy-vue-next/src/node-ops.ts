@@ -21,9 +21,9 @@
 /**
  * Implement the operation method of el in the Vue3 custom renderer
  */
-import type { HippyComment } from './runtime/comment/hippy-comment';
 import { HippyDocument } from './runtime/document/hippy-document';
 import type { HippyElement } from './runtime/element/hippy-element';
+import type { HippyCommentElement } from './runtime/element/hippy-comment-element';
 import type { HippyNode } from './runtime/node/hippy-node';
 import type { HippyText } from './runtime/text/hippy-text';
 import { unCacheNodeOnIdle } from './util/node-cache';
@@ -87,7 +87,7 @@ function createText(text: string): HippyText {
  *
  * @param text - comment content
  */
-function createComment(text: string): HippyComment {
+function createComment(text: string): HippyCommentElement {
   return HippyDocument.createComment(text);
 }
 

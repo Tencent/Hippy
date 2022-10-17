@@ -19,6 +19,7 @@ package com.tencent.mtt.hippy.bridge;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -290,6 +291,11 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         runScript(mV8RuntimeId, script);
     }
 
+    @Override
+    public void runInJsThread(Callback<Void> callback) {
+      runInJsThread(mV8RuntimeId, callback);
+    }
+
     public native long initJSFramework(byte[] gobalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, V8InitParams v8InitParams);
@@ -308,6 +314,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             byte[] buffer, int offset, int length);
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
+
+    private native void runInJsThread(long runtimeId, Callback<Void> callback);
 
     public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
         callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));

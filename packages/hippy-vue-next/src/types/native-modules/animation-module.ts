@@ -18,28 +18,31 @@
  * limitations under the License.
  */
 
-/**
- * Hippy Native Node Props types, including properties, events, styles, and more
- */
-// type NativeNodeProps = NativeNodeNativeProps | NativeNodeEvent | NativeNodeStyle & NativeNodeDebugProps;
-import type { NeedToTyped } from '../../config';
+import type { NeedToTyped } from '../index';
 
-export interface NativeNodeProps {
-  [key: string]: NeedToTyped;
+// type of animation style
+export interface AnimationStyle {
+  animationId: number;
+  follow?: boolean;
 }
 
-// Hippy Native Node type
-export interface NativeNode {
-  // native node id
-  id: number;
-  // parent node id
-  pId: number;
-  // index value of the current node in the sibling nodes
-  index: number;
-  // name in native, such as View,SwiperView
-  name?: string;
-  // tag name, such as div, li, used for inspector debugging
-  tagName?: string;
-  // properties, include props, styles, events
-  props?: NativeNodeProps;
+export interface CreateAnimationSetOptions {
+  repeatCount: string | number;
+  children: AnimationStyle[];
+}
+
+export interface AnimationModule {
+  createAnimation: (
+    flag: boolean,
+    mode: string,
+    fullOption: Record<string, NeedToTyped>,
+  ) => number;
+  startAnimation: (animationId: number) => void;
+  createAnimationSet: (
+    flag: boolean,
+    options: CreateAnimationSetOptions,
+  ) => number;
+  resumeAnimation: (animationId: number) => void;
+  pauseAnimation: (animationId: number) => void;
+  destroyAnimation: (animationId: number) => void;
 }

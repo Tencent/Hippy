@@ -21,7 +21,7 @@
 /**
  * runtime/native unit test
  */
-import type { NeedToTyped } from '../../../src/config';
+import type { NeedToTyped } from '../../../src/types';
 import { HippyListElement } from '../../../src/runtime/element/hippy-list-element';
 import { Native, CACHE } from '../../../src/runtime/native/index';
 import { EventBus } from '../../../src/runtime/event/event-bus';
@@ -141,7 +141,7 @@ describe('runtime/native.ts', () => {
     expect(await Native.Clipboard.getString()).toEqual('123');
   });
   it('test native bridge calls: cookie.getAll invalid', async () => {
-    await expect(() => Native.Cookie.getAll('')).rejects.toEqual(new Error('Native.Cookie.getAll() must have url argument'));
+    await expect(() => Native.Cookie.getAll('')).toThrow(new Error('Native.Cookie.getAll() must have url argument'));
   });
 
   it('test native bridge calls: cookie.set invalid', async () => {

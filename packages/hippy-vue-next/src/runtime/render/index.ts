@@ -26,7 +26,7 @@ import { nextTick } from '@vue/runtime-core';
 import { trace } from '../../util';
 import { getHippyCachedInstance } from '../../util/instance';
 import { Native } from '../native';
-import type { NativeNode } from '../native/native-node';
+import type { NativeNode } from '../../types';
 
 // operation type of native node
 enum NodeOperateType {
@@ -44,10 +44,10 @@ interface BatchNativeNode {
 }
 
 // is operating node
-let IS_HANDLING = false;
+let isHandling = false;
 
 // list of nodes waiting to be batched operated
-let BATCH_NATIVE_NODES: BatchNativeNode[] = [];
+let batchNativeNodes: BatchNativeNode[] = [];
 
 const componentName = ['%c[native]%c', 'color: red', 'color: auto'];
 
@@ -91,20 +91,20 @@ function renderToNative(
   operateType: NodeOperateType,
 ) {
   // First insert the node into the pending list
-  BATCH_NATIVE_NODES.push({
+  batchNativeNodes.push({
     type: operateType,
     nodes: nativeNodes,
   });
 
   // Then judge whether it is currently being processed, and if it is still processing, return first
-  if (IS_HANDLING) {
+  if (isHandling) {
     return;
   }
-  IS_HANDLING = true;
+  isHandling = true;
 
   // If the node has been processed, open the lock and process it directly next time
-  if (BATCH_NATIVE_NODES.length === 0) {
-    IS_HANDLING = false;
+  if (batchNativeNodes.length === 0) {
+    isHandling = false;
     return;
   }
 
@@ -113,7 +113,7 @@ function renderToNative(
   // invoke native action after nextTick
   nextTick().then(() => {
     // put adjacent nodes of the same type together to the number of operations
-    const chunks = chunkNodes(BATCH_NATIVE_NODES);
+    const chunks = chunkNodes(batchNativeNodes);
 
     // get native root view id
     const { rootViewId } = getHippyCachedInstance();
@@ -155,9 +155,9 @@ function renderToNative(
     Native.hippyNativeDocument.endBatch();
 
     // reset flag
-    IS_HANDLING = false;
+    isHandling = false;
     // clear list
-    BATCH_NATIVE_NODES = [];
+    batchNativeNodes = [];
   });
 }
 

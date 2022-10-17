@@ -14,7 +14,7 @@
         ref="gridView"
         :content-inset="contentInset"
         :column-spacing="columnSpacing"
-        :contain-banner-view="isIos"
+        :contain-banner-view="true"
         :contain-pull-footer="true"
         :inter-item-spacing="interItemSpacing"
         :number-of-columns="numberOfColumns"
@@ -24,9 +24,7 @@
         @scroll="onScroll"
       >
         <div
-          v-if="isIos"
           class="banner-view"
-          :type="1"
         >
           <span>BannerView</span>
         </div>
@@ -77,7 +75,6 @@ export default {
       STYLE_LOADING,
       loadingState: '正在加载...',
       isLoading: false,
-      isIos: Vue.Native.Platform === 'ios',
     };
   },
   computed: {

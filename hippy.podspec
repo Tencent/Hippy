@@ -14,6 +14,8 @@ Pod::Spec.new do |s|
   s.public_header_files = 'ios/sdk/**/*.h'
   s.default_subspec = 'core'
   s.pod_target_xcconfig = {'DEFINES_MODULE' => 'NO'}
+  s.framework = 'JavaScriptCore'
+  s.libraries = 'c++'
 
   s.subspec 'core' do |cores|
     cores.source_files = 'core/**/*.{h,cc}'
@@ -24,7 +26,6 @@ Pod::Spec.new do |s|
                            'core/src/inspector',
                            'core/js',
                            'core/third_party/base/src/platform/adr']
-    cores.libraries = 'c++'
     #this setting causes 'There are header files outside of the header_mappings_dir'
     # cores.header_mappings_dir = 'core/include/'
     # Add the following custom search path for development pod

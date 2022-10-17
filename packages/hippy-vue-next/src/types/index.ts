@@ -18,33 +18,38 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '../../../config/index';
+/**
+ * @public
+ */
+type NeedToTyped = any;
 
-interface ConnectArgs {
-  headers: {
-    [x: string]: NeedToTyped;
-  };
-  url: string;
+/**
+ * @public
+ */
+type CallbackType = Function;
+
+/**
+ * @public
+ */
+interface CommonMapParams {
+  [key: string]: NeedToTyped;
 }
 
-interface ConnectResp {
-  id: number;
-  code: number;
-}
+// global type
+export {
+  NeedToTyped,
+  CallbackType,
+  CommonMapParams,
+};
 
-interface CloseArgs {
-  id: number;
-  reason: string;
-  code: number;
-}
+// native node type
+export {
+  NativeNode,
+  NativeNodeProps,
+} from './native-node';
 
-interface SendArgs {
-  id: number;
-  data: string;
-}
-
-export interface Websocket {
-  connect: (args: ConnectArgs) => ConnectResp;
-  send: (args: SendArgs) => void;
-  close: (args: CloseArgs) => void;
-}
+// native interface map type
+export {
+  AnimationStyle,
+  NativeInterfaceMap,
+} from './native-modules';

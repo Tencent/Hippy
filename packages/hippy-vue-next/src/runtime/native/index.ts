@@ -21,14 +21,13 @@
 import { translateColor } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
-import { CallbackType, NATIVE_COMPONENT_MAP, type NeedToTyped, HIPPY_VUE_VERSION } from '../../config';
+import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../types';
+import { NATIVE_COMPONENT_MAP, HIPPY_VUE_VERSION } from '../../config';
 import { isStyleMatched, trace, warn } from '../../util';
 import { type HippyElement } from '../element/hippy-element';
 import { EventBus } from '../event/event-bus';
 import { type HippyNode } from '../node/hippy-node';
 import { getCssMap } from '../style/css-map';
-
-import { type NativeInterfaceMap } from './modules';
 
 // Extend the global interface definition
 declare global {
@@ -270,6 +269,9 @@ export interface NativeApiType {
 
   isIOS: () => boolean;
 
+  // measure the position of an element within the rootView(container)
+  measureInWindow: (el: HippyNode) => Promise<MeasurePosition>;
+
   // measure the position of an element within the window
   measureInAppWindow: (el: HippyNode) => Promise<MeasurePosition>;
 
@@ -280,6 +282,8 @@ export interface NativeApiType {
 
   // hippy vue next package version
   version?: string;
+
+  ConsoleModule: NeedToTyped
 }
 
 // cached data type
@@ -385,6 +389,8 @@ export const Native: NativeApiType = {
 
   PixelRatio: pixelRatio,
 
+  ConsoleModule: global.ConsoleModule || global.console,
+
   callNative,
 
   callNativeWithPromise,
@@ -393,7 +399,7 @@ export const Native: NativeApiType = {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  AsyncStorage: global.localStorage,
+  AsyncStorage: global.Hippy.asyncStorage,
 
   callUIFunction(...args) {
     const [el, funcName, ...options] = args;
@@ -451,7 +457,7 @@ export const Native: NativeApiType = {
     /**
      * get clipboard content
      */
-    async getString(): Promise<string> {
+    getString(): Promise<string> {
       return Native.callNativeWithPromise.call(
         this,
         'ClipboardModule',
@@ -475,7 +481,7 @@ export const Native: NativeApiType = {
      *
      * @param url - Get the cookies by specific url.
      */
-    async getAll(url: string) {
+    getAll(url: string) {
       if (!url) {
         throw new TypeError('Native.Cookie.getAll() must have url argument');
       }
@@ -518,7 +524,7 @@ export const Native: NativeApiType = {
      *
      * @param url - image url
      */
-    async getSize(url): Promise<ImageSize> {
+    getSize(url): Promise<ImageSize> {
       return Native.callNativeWithPromise.call(
         this,
         'ImageLoaderModule',
@@ -599,7 +605,14 @@ export const Native: NativeApiType = {
   /**
    * Measure the component size and position.
    */
-  async measureInAppWindow(el) {
+  measureInWindow(el) {
+    return measureInWindowByMethod(el, 'measureInWindow');
+  },
+
+  /**
+   * Measure the component size and position.
+   */
+  measureInAppWindow(el) {
     if (Native.isAndroid()) {
       return measureInWindowByMethod(el, 'measureInWindow');
     }
@@ -609,7 +622,7 @@ export const Native: NativeApiType = {
     /**
      * get current network status, return with promise
      */
-    async fetch(): Promise<string> {
+    fetch(): Promise<string> {
       return Native.callNativeWithPromise(
         'NetInfo',
         'getCurrentConnectivity',
@@ -703,13 +716,14 @@ export const Native: NativeApiType = {
    */
   get APILevel(): string | null {
     if (!Native.isAndroid()) {
+      warn('Vue.Native.APIVersion is available in Android only');
       return null;
     }
 
     if (global?.__HIPPYNATIVEGLOBAL__?.Platform?.APILevel) {
       return global.__HIPPYNATIVEGLOBAL__.Platform.APILevel;
     }
-
+    warn('Vue.Native.APILevel needs higher Android SDK version to retrieve');
     return null;
   },
 

@@ -25,11 +25,13 @@
 #include <jni.h>
 #include <stdint.h>
 
+#include <any>
 #include <memory>
 
 #include "core/core.h"
 #include "jni/turbo_module_runtime.h"
 #include "jni/scoped_java_ref.h"
+#include "v8/interrupt_queue.h"
 
 class Runtime {
  public:
@@ -71,6 +73,28 @@ class Runtime {
     turbo_module_runtime_ = turbo_module_runtime;
   }
 
+  inline std::any GetData(uint8_t slot) {
+    return slot_[slot];
+  }
+  inline bool HasData(uint8_t slot) {
+    return slot_.find(slot) != slot_.end();
+  }
+  inline void SetData(uint8_t slot, std::any data) {
+    slot_[slot] = data;
+  }
+  inline void SetInterruptQueue(std::shared_ptr<hippy::InterruptQueue> queue) {
+    interrupt_queue_ = queue;
+  }
+  inline std::shared_ptr<hippy::InterruptQueue> GetInterruptQueue() {
+    return interrupt_queue_;
+  }
+  inline auto GetNearHeapLimitCallback() {
+    return near_heap_limit_cb_;
+  }
+  inline void SetNearHeapLimitCallback(std::function<size_t(void*, size_t, size_t)> cb) {
+    near_heap_limit_cb_ = cb;
+  }
+
   static void Insert(const std::shared_ptr<Runtime>& runtime);
   static std::shared_ptr<Runtime> Find(int32_t id);
   static std::shared_ptr<Runtime> Find(v8::Isolate* isolate);
@@ -88,6 +112,9 @@ class Runtime {
   std::shared_ptr<hippy::napi::CtxValue> bridge_func_;
   int32_t id_;
   std::shared_ptr<TurboModuleRuntime> turbo_module_runtime_;
+  std::unordered_map<uint32_t, std::any> slot_;
+  std::shared_ptr<hippy::InterruptQueue> interrupt_queue_;
+  std::function<size_t(void*, size_t, size_t)> near_heap_limit_cb_;
 #ifndef V8_WITHOUT_INSPECTOR
   std::shared_ptr<V8InspectorContext> inspector_context_;
 #endif

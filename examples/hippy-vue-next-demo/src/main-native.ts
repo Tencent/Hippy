@@ -112,7 +112,7 @@ const initCallback = ({ superProps, rootViewId }) => {
         const { handler: event, __evt: nativeEventName } = evtData;
 
         switch (nativeEventName) {
-          // can infer event is HippyTouchEvent from type narrowing
+          // this can infer event is HippyTouchEvent from type narrowing
           case 'onTest':
             event.contentOffset = nativeEventParams.position;
             break;

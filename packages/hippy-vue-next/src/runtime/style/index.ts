@@ -18,7 +18,8 @@
  * limitations under the License.
  */
 
-import { type NeedToTyped, IS_PROD } from '../../config';
+import type { NeedToTyped } from '../../types';
+import { IS_PROD } from '../../config';
 import { getBeforeLoadStyle } from '../../util';
 
 import {

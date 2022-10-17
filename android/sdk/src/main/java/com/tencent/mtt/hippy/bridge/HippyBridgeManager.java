@@ -32,6 +32,8 @@ public interface HippyBridgeManager {
 
   void runScript(@NonNull String script);
 
+  void runInJsThread(Callback<Void> callback);
+
   void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
       HippyRootView hippyRootView);
 

@@ -277,7 +277,6 @@ public class RenderNode {
     return mComponentManager.hasView(mId);
   }
 
-
   protected void addChildToPendingList(RenderNode renderNode) {
     mChildPendingList.add(renderNode);
   }

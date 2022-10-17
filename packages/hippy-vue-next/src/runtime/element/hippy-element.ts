@@ -21,13 +21,13 @@
 import {
   parseBackgroundImage,
   PROPERTIES_MAP,
-  translateColor,
   type PropertiesMapType,
 } from '@hippy-vue-next-style-parser/index';
 import { toRaw } from '@vue/runtime-core';
 import { isFunction, isString } from '@vue/shared';
 
-import { CallbackType, IS_PROD, NATIVE_COMPONENT_MAP, type NeedToTyped } from '../../config';
+import type { CallbackType, NeedToTyped, NativeNode, NativeNodeProps } from '../../types';
+import { IS_PROD, NATIVE_COMPONENT_MAP } from '../../config';
 import {
   capitalizeFirstLetter,
   convertImageLocalPath,
@@ -46,7 +46,6 @@ import { getTagComponent, type TagComponent } from '../component';
 import { eventIsKeyboardEvent, type HippyEvent } from '../event/hippy-event';
 import type { EventListenerOptions } from '../event/hippy-event-target';
 import { Native } from '../native';
-import type { NativeNodeProps, NativeNode } from '../native/native-node';
 import { HippyNode, NodeType } from '../node/hippy-node';
 import { getCssMap } from '../style/css-map';
 import { HippyText } from '../text/hippy-text';
@@ -539,9 +538,7 @@ export class HippyElement extends HippyNode {
           styleValue = styleValue.trim();
           // Convert inline color style to int
           if (styleProperty.toLowerCase().indexOf('color') >= 0) {
-            styleValue = translateColor(styleValue, {
-              platform: Native.Platform,
-            });
+            styleValue = Native.parseColor(styleValue);
             // Convert inline length style, drop the px unit
           } else if (styleValue.endsWith('px')) {
             styleValue = parseFloat(styleValue.slice(0, styleValue.length - 2));

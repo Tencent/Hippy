@@ -18,26 +18,21 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '../../../config';
-import type { AnimationStyle } from '../../../native-component/animation';
+/* eslint-disable no-undef */
 
-interface CreateAnimationSetOptions {
-  repeatCount: string | number;
-  children: AnimationStyle[];
-}
+const MemoryModule = internalBinding('MemoryModule');
 
-export interface AnimationModule {
-  createAnimation: (
-    flag: boolean,
-    mode: string,
-    fullOption: Record<string, NeedToTyped>,
-  ) => number;
-  startAnimation: (animationId: number) => void;
-  createAnimationSet: (
-    flag: boolean,
-    options: CreateAnimationSetOptions,
-  ) => number;
-  resumeAnimation: (animationId: number) => void;
-  pauseAnimation: (animationId: number) => void;
-  destroyAnimation: (animationId: number) => void;
-}
+const timeOrigin = Date.now();
+
+global.performance = global.performance || new class Performance {
+  get timeOrigin() {
+    return timeOrigin;
+  }
+  get memory() {
+    return MemoryModule ? MemoryModule.Get() : undefined;
+  }
+  now() {
+    return Date.now() - timeOrigin;
+  }
+};
+

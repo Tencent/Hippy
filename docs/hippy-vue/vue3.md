@@ -4,9 +4,10 @@
 
 # 介绍
 
-@hippy/vue-next 基于 @hippy/vue 的已有逻辑。通过 Vue 3.x 提供的[createRenderer()](//github.com/vuejs/vue-next/blob/v3.0.0-alpha.0/packages/runtime-core/src/renderer.ts#L154)，无需侵入 Vue 代码，直接通过外部库的方式引用 Vue。
-可以及时跟随 Vue 生态。在实现原理上与 @hippy/vue 基本一致。将 Vue 组件生成的 VNode Tree 转换为 Hippy Node Tree，并通过 Hippy 终端注入的 Native 渲染接口完成渲染。
-@hippy/vue-next 全部代码采用 typescript 进行编写，可以拥有更好的程序健壮性和类型提示。并且 @hippy/vue-next 的整体架构也进行了一定程度的优化
+@hippy/vue-next 基于 @hippy/vue 的已有逻辑。通过 Vue3.x 提供的 [createRenderer()](//github.com/vuejs/vue-next/blob/v3.0.0-alpha.0/packages/runtime-core/src/renderer.ts#L154)，无需侵入 Vue 代码直接通过外部库的方式引用 Vue，
+可以及时跟随 Vue 生态，在实现原理上与 @hippy/vue 基本一致。
+
+@hippy/vue-next 全部代码采用 typescript 进行编写，可以拥有更好的程序健壮性和类型提示，并且 @hippy/vue-next 在整体架构上也进行了一定程度的优化。
 
 # 架构图
 
@@ -16,18 +17,17 @@
 
 # 如何使用
 
-@hippy/vue-next 支持的能力与 @hippy/vue 基本一致。因此关于 Hippy-Vue 的组件、模块、样式等就不做额外声明了，可以直接参考 [Hippy-Vue](https://hippyjs.org/#/hippy-vue/introduction)
-中的相关内容，本文档仅对差异部分进行说明
+@hippy/vue-next 支持的能力与 @hippy/vue 基本一致。因此关于 Hippy-Vue 的组件、模块、样式等就不做额外声明了，可以直接参考 [Hippy-Vue](hippy-vue/introduction)
+中的相关内容，本文档仅对差异部分进行说明：
 
-- 初始化
+## 初始化
 
 ```javascript
-// 仅 Vue
 // app.ts
 import { defineComponent, ref } from 'vue';
 import { type HippyApp, createApp } from '@hippy/vue-next';
 
-// 创建 Hippy App 实例，需要注意 Vue 3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
+// 创建 Hippy App 实例，需要注意 Vue3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
 const app: HippyApp = createApp(defineComponent({
   setup() {
     const counter = ref(0);
@@ -43,7 +43,7 @@ const app: HippyApp = createApp(defineComponent({
 // 启动 Hippy App
 app.$start().then(({ superProps, rootViewId }) => {
   // superProps 是 Native 传入的初始化参数，如果需要做路由预处理等操作，则可以让 Native 将对应参数传入
-  // rootViewId 是 Native 当前 Hippy 实例所挂载的 Native 的跟节点的 id
+  // rootViewId 是 Native 当前 Hippy 实例所挂载的 Native 的根节点的 id
   // mount app，完成渲染上屏 
   app.mount('#mount');
 })
@@ -96,7 +96,7 @@ import { createHippyRouter } from '@hippy/vue-router-next-history';
 import { type Router } from 'vue-router';
 import App from 'app.vue';
 
-// 创建 Hippy App 实例，需要注意 Vue 3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
+// 创建 Hippy App 实例，需要注意 Vue3.x 使用 Typescript，因此需要使用 defineComponent 将组件对象进行包裹
 const app: HippyApp = createApp(App, {
   // Hippy App Name，必传，示例项目可以使用 Demo
   appName: 'Demo',
@@ -133,10 +133,9 @@ app.$start().then(({ superProps, rootViewId }) => {
 })
 ```
 
->Tips: @hippy/vue-router-next-history 对 vue-router 的 history 模式做了处理。为安卓加上了触发物理返回键时优先回退历史记录的逻辑，
-> 如果不需要这个逻辑，可以直接使用原生 vue-router 来实现路由：
+> @hippy/vue-router-next-history 对 vue-router 的 history 模式做了处理，为 Android 加上了触发物理返回键时优先回退历史记录的逻辑
 
-使用原生 vue-router 实现路由
+如果不需要这个逻辑，可以直接使用原生 vue-router 来实现路由：
 
 ```javascript
 import { createRouter, createMemoryHistory, type Router } from 'vue-router';
@@ -155,18 +154,13 @@ const router: Router = createRouter({
 });
 ```
 
-# 示例
+# 其他差异说明
 
-[示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo)与 @hippy/vue 示例项目实现的功能基本一致，只是写法上采用的是 Vue 3.x 的组合式 API 的写法，以及部分 @hippy/vue-next 与 @hippy/vue 不同的写法。
-具体的请直接看示例项目的写法
-
-# 额外说明
-
-目前 @hippy/vue-next 与 @hippy/vue 功能上基本对齐，不过在 API 方面与 @hippy/vue 有稍许不同，以及还有一些问题没有解决，这里做些说明：
+目前 `@hippy/vue-next` 与 `@hippy/vue` 功能上基本对齐，不过在 API 方面与 @hippy/vue 有一些区别，以及还有一些问题还没有解决，这里做些说明：
 
 - Vue.Native
 
-  在 @hippy/vue 中，Native 提供的能力是通过挂载在全局 Vue 对象的 Native 属性来提供的，在 Vue 3.x 中这种实现方式不再可行，因此现在 Native 属性需通过 @hippy/vue-next 导出来使用
+  在 @hippy/vue 中，Native 提供的能力是通过挂载在全局 Vue 对象的 Native 属性来提供的，在 Vue3.x 中这种实现方式不再可行，因此现在 Native 属性需通过 @hippy/vue-next 导出来使用
 
   ```javascript
   import { Native } from '@hippy/vue-next';
@@ -174,8 +168,35 @@ const router: Router = createRouter({
   console.log('do somethig', Native.xxx)
   ```
 
-- v-model 指令：
-  因为 Vue 3.x 中内置指令的实现采用的是编译时插入代码的方式，目前 v-model 指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
+- registerElement
+
+  @hippy/vue 中 `registerElement` 方法是挂在全局 Vue 中，与 Native 类似，@hippy/vue-next 中 `registerElement` 方法也是单独提供了导出
+
+  ```javascript
+    import { registerElement } from '@hippy/vue-next';
+  ```
+
+- 全局事件
+
+  在 @hippy/vue 中，全局事件是挂载在 Vue 上的，在 @hippy/vue-next 中，提供了单独的 `EventBus` 事件总线来处理该问题
+
+  ```javascript
+  import { EventBus } from '@hippy/vue-next';
+  
+  // 监听容器大小改变事件(仅 Android)
+  EventBus.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
+    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
+    console.log('size', oldWidth, oldHeight, width, height);
+  });
+  // 触发全局事件
+  EventBus.$emit('eventName', {
+    ...args, // 事件参数
+  });
+  ```
+
+- v-model 指令
+
+  因为 Vue3.x 中内置指令的实现采用的是编译时插入代码的方式，目前 v-model 指令还没有找到很好的办法去处理，这里可以先使用临时解决办法实现对应功能
 
   ```javascript
   // 具体的可以参考 demo 中的 demo-input.vue 中的示例
@@ -201,65 +222,50 @@ const router: Router = createRouter({
   </script>
   ```
 
-- Keep-Alive HMR问题：在示例代码中，我们的路由组件是包裹在 Keep-Alive 组件内的，但是目前使用 Keep-Alive 包裹的路由组件无法实现开发时热更新，需要刷新整个实例才能完成刷新。
-  如果是不包裹在 Keep-Alive 中则没有这个问题。目前官方[该问题](https://github.com/vuejs/core/pull/5165)也尚未解决。等待官方解决后升级 Vue 即可解决该问题
-- Vue 3.x 变量 Proxy 问题：因为3.x的响应式是通过 Proxy 代理对象来实现的，所以我们得到的对象其实是 Proxy 的实例而非原始对象，因此调用终端接口时需要注意，终端并不认识 Proxy 对象，
-  需要使用 Vue 提供的 toRaw 方法来拿到原始的对象并传递给终端接口
-- registerElement问题：@hippy/vue 中 registerElement方法是挂在全局 Vue 中，与 Native 类似，@hippy/vue-next 中 registerElement 方法也是单独提供了
+- Keep-Alive HMR 问题
 
-   ```javascript
-  import { registerElement } from '@hippy/vue-next';
-  ```
+  在示例代码中，我们的路由组件是包裹在 Keep-Alive 组件内的，但是目前使用 Keep-Alive 包裹的路由组件无法实现开发时热更新，需要刷新整个实例才能完成刷新。
+  如果是不包裹在 Keep-Alive 中则没有这个问题。目前官方[该问题](https://github.com/vuejs/core/pull/5165)也尚未解决，等待官方解决后升级 Vue 即可解决该问题。
 
-- 全局事件：
-  在 @hippy/vue 中，全局事件也是挂载在 Vue 上的，在 @hippy/vue-next 中，提供了单独的事件总线来处理该问题
-  
-  ```javascript
-  import { EventBus } from '@hippy/vue-next';
-  
-  // 监听容器大小改变事件(仅 Android)
-  EventBus.$on('onSizeChanged', ({ oldWidth, oldHeight, width, height }) => {
-    // oldWidth: 旧的宽度；oldHeight: 旧的高度；width: 新的宽度; height: 新的高度
-    console.log('size', oldWidth, oldHeight, width, height);
-  });
-  // 触发全局事件
-  EventBus.$emit('eventName', {
-    ...args, // 事件参数
-  });
-  ```
+- Vue3.x 变量 Proxy 问题
+
+  因为 3.x 的响应式是通过 Proxy 代理对象来实现的，所以我们得到的对象其实是 Proxy 的实例而非原始对象，因此调用终端接口时需要注意，终端并不认识 Proxy 对象，需要使用 Vue 提供的 [`toRaw`](https://cn.vuejs.org/api/reactivity-advanced.html#toraw) 方法来拿到原始的对象并传递给终端接口。
 
 - Native 接口和自定义组件的类型提示
-  @hippy/vue-next 提供了 Native 接口的 Typescript 类型提示，如果有业务自定义的Native接口，也可以采用类似的方式进行扩展
+
+    @hippy/vue-next 提供了 Native 模块接口的 Typescript 类型提示，如果有业务自定义的 Native 接口，也可以采用类似的方式进行扩展
   
-  ```javascript
-  declare module '@hippy/vue-next' {
-    export interface NativeInterfaceMap {
-      // 用户自定义的Native接口，接下来你可以在Native.callNative，Native.callNativeWithPromise拥有类型提示了
-    }
-  }
-  ```
-
-  @hippy/vue-next 也参考 dom 的事件声明提供了事件类型，具体可以参考 hippy-event.ts.
-  如果需要在内置的事件上进行扩展，可以采用类似方式
-
-  ```javascript
+    ```javascript
     declare module '@hippy/vue-next' {
-      export interface HippyEvent {
-        testProp: number;
+      export interface NativeInterfaceMap {
+        // 用户自定义的 Native 接口，接下来你可以在调用 Native.callNative，Native.callNativeWithPromise 时拥有类型提示了
       }
     }
-  ```
+    ```
 
-  在使用 registerElement 去注册组件的时候，利用了 typescript 的 type narrow，在 switch case 中提供了准确的类型提示，
-  如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式
+    @hippy/vue-next 也参考 `lib.dom.d.ts` 的事件声明提供了事件类型，具体可以参考 hippy-event.ts 文件。如果需要在内置的事件上进行扩展，可以采用类似方式
 
-  ```javascript
-    export interface HippyGlobalEventHandlersEventMap {
-      // extend new event name and related event interface
-      onTest: CustomEvent;
-      // extend existing event interface
-      onAnotherTest: HippyEvent;
-    }
-  ```
+    ```javascript
+      declare module '@hippy/vue-next' {
+        export interface HippyEvent {
+          testProp: number;
+        }
+      }
+    ```
 
-  更多信息可以参考 demo 里的 extend.ts 和 app.ts
+    在使用 `registerElement` 去注册组件的时候，利用了 typescript 的 `type narrowing`，在 switch case 中提供了准确的类型提示。如果在业务注册自定义组件的时候也需要类型提示，可以采用如下方式:
+
+    ```javascript
+      export interface HippyGlobalEventHandlersEventMap {
+        // extend new event name and related event interface
+        onTest: CustomEvent;
+        // extend existing event interface
+        onAnotherTest: HippyEvent;
+      }
+    ```
+
+    更多信息可以参考 demo 里的 [extend.ts](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/extend.ts).
+
+# 示例
+
+更多使用请参考 [示例项目](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo).

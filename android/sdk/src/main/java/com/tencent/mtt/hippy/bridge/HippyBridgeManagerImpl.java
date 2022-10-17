@@ -425,7 +425,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         mHandler.sendMessage(message);
     }
 
-  @Override
+    public void runInJsThread(Callback<Void> callback) {
+      mHippyBridge.runInJsThread(callback);
+    }
+
+    @Override
     public void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
             HippyRootView hippyRootView) {
         if (!mIsInit) {
