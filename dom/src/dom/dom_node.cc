@@ -424,12 +424,32 @@ void DomNode::EmplaceStyleMap(const std::string& key, const HippyValue& value) {
   if (iter != style_map_->end()) {
     iter->second = std::make_shared<HippyValue>(value);
   } else {
-    bool replaced = false;
     for (auto& style: *style_map_) {
-      replaced = ReplaceStyle(*style.second, key, value);
-      if (replaced) return;
+      auto replaced = ReplaceStyle(*style.second, key, value);
+      if (replaced) {
+        return;
+      }
     }
     style_map_->insert({key, std::make_shared<HippyValue>(value)});
+  }
+}
+
+void DomNode::EmplaceStyleMapAndGetDiff(const std::string& key, const HippyValue& value,
+                                        std::unordered_map<std::string, std::shared_ptr<HippyValue>>& diff) {
+  auto it = style_map_->find(key);
+  if (it != style_map_->end()) {
+    it->second = std::make_shared<HippyValue>(value);
+    diff[key] = it->second;
+  } else {
+    for (auto& style: *style_map_) {
+      auto replaced = ReplaceStyle(*style.second, key, value);
+      if (replaced) {
+        diff[style.first] = style.second;
+        return;
+      }
+    }
+    diff[key] = std::make_shared<HippyValue>(value);
+    style_map_->insert({key, diff[key]});
   }
 }
 
@@ -466,7 +486,7 @@ void DomNode::UpdateDiff(const std::unordered_map<std::string,
   if (ext_update) {
     diff_value->insert(ext_update->begin(), ext_update->end());
   }
-  this->SetDiffStyle(diff_value);
+  SetDiffStyle(diff_value);
 }
 
 void DomNode::UpdateDomExt(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_dom_ext) {
