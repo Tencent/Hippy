@@ -731,6 +731,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
             mLinkHelper.getRenderer().init(controllers, mRootView);
             mVfsManager = new VfsManager();
+            initVfsManager();
+        }
+
+        private void initVfsManager() {
+            assert mVfsManager != null;
+            mVfsManager.setId(onCreateVfs(mVfsManager));
             DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(
                     getGlobalConfigs().getHttpAdapter(), getGlobalConfigs().getExecutorSupplierAdapter()));
             mVfsManager.addProcessor(processor);
@@ -939,6 +945,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
             if (mVfsManager != null) {
                 mVfsManager.destroy();
+                onDestroyVfs(mVfsManager.getId());
             }
             if (mNativeParams != null) {
                 mNativeParams.clear();
@@ -946,4 +953,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mLinkHelper.destroy(onReLoad);
         }
     }
+
+    private native int onCreateVfs(VfsManager vfsManager);
+
+    private native void onDestroyVfs(int id);
 }

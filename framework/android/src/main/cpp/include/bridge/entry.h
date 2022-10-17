@@ -125,7 +125,7 @@ void UnloadInstance(JNIEnv* j_env,
                     jint j_offset,
                     jint j_length);
 
-jint OnCreateVfs(JNIEnv* j_env, jobject j_object);
+jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager);
 void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id);
 
 } // namespace bridge

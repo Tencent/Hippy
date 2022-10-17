@@ -26,14 +26,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class VfsManager {
 
     private final CopyOnWriteArrayList<Processor> mProcessorChain = new CopyOnWriteArrayList<>();
-    private final int mId;
+    private int mId;
 
-    public VfsManager() {
-        mId = onCreateVfs();
-    }
-
-    public void Destroy() {
-        onDestroyVfs(mId);
+    public void setId(int id) {
+        mId = id;
     }
 
     public int getId() {
@@ -214,10 +210,6 @@ public class VfsManager {
             @Nullable HashMap<String, String> params) {
         return fetchResourceSyncImpl(uri, params, RequestFrom.NATIVE);
     }
-
-    private native int onCreateVfs();
-
-    private native void onDestroyVfs(int id);
 
     /**
      * Request from JAVA, after java chain traversals end, continue traverse native (C++) chain.

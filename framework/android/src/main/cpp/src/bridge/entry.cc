@@ -142,12 +142,12 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
                   "(J[BII)V",
                   UnloadInstance)
 
-REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err58-cpp)
              "onCreateVfs",
-             "()I",
+             "(Lcom/tencent/vfs/VfsManager;)I",
              OnCreateVfs)
 
-REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err58-cpp)
              "onDestroyVfs",
              "(I)V",
              OnDestroyVfs)
@@ -572,8 +572,8 @@ void UnloadInstance(JNIEnv* j_env,
                               std::move(buffer_data));
 }
 
-jint OnCreateVfs(JNIEnv* j_env, jobject j_object) {
-  auto delegate = std::make_shared<JniDelegateHandler>(j_env, j_object);
+jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager) {
+  auto delegate = std::make_shared<JniDelegateHandler>(j_env, j_vfs_manager);
   auto id = hippy::global_data_holder_key.fetch_add(1);
   auto loader = std::make_shared<UriLoader>();
   auto file_delegate = std::make_shared<FileHandler>();
