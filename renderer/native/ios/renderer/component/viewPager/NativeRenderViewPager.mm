@@ -435,7 +435,7 @@
     }
     else {
         if (self.needsResetPageIndex) {
-            [self setPage:_lastPageIndex animated:YES];
+            [self setPage:_lastPageIndex animated:NO];
             self.needsResetPageIndex= NO;
         }
     }
