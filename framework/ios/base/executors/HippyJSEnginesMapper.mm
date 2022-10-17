@@ -21,7 +21,7 @@
  */
 
 #import "HippyJSEnginesMapper.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 
 #include "footstone/worker_impl.h"
 #include "footstone/platform/ios/looper_driver.h"
@@ -120,7 +120,7 @@ using EngineMapper = std::unordered_map<std::string, EngineRef>;
         EngineRef &ref = it->second;
         ref.second--;
         if (0 == ref.second) {
-            NativeRenderLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
+            HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor destroy engine %@", key);
             _engineMapper.erase(it);
         }
     }

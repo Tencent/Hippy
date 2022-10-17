@@ -25,7 +25,7 @@
 #import "HippyModuleData.h"
 #import "HippyModulesSetup.h"
 #import "HippyTurboModule.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 
 #include "objc/runtime.h"
 
@@ -109,7 +109,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                 if (isModuleSuperClass) {
                     break;
                 }
-                NativeRenderLogWarn(@"Class %@ was not exported. Did you forget to use HIPPY_EXPORT_MODULE()?", cls);
+                HippyLogWarn(@"Class %@ was not exported. Did you forget to use HIPPY_EXPORT_MODULE()?", cls);
                 break;
             }
             superclass = class_getSuperclass(superclass);
@@ -155,7 +155,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 }
 
 - (void)setupModulesCompletion:(dispatch_block_t)completion {
-    NativeRenderLogInfo(@"Begin Modules Setup");
+    HippyLogInfo(@"Begin Modules Setup");
     NSArray<id<HippyBridgeModule>> *extraModules = _providerBlock ? _providerBlock() : @[];
 #if HIPPY_DEBUG
     static dispatch_once_t onceToken;
@@ -174,7 +174,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
             // Check for name collisions between preregistered modules
             HippyModuleData *moduleData = moduleDataByName[moduleName];
             if (moduleData) {
-                NativeRenderLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
                 continue;
@@ -200,7 +200,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                 continue;
             } else if ([moduleData.moduleClass new] != nil) {
                 // Both modules were non-nil, so it's unclear which should take precedence
-                NativeRenderLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
             }
@@ -218,7 +218,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     _moduleClassesByID = [moduleClassesByID copy];
     [self prepareModules];
     self.moduleSetupComplete = YES;
-    NativeRenderLogInfo(@"End Modules Setup");
+    HippyLogInfo(@"End Modules Setup");
     if (completion) {
         completion();
     }

@@ -28,7 +28,7 @@
 #import <CommonCrypto/CommonDigest.h>
 #import "HippyBridge.h"
 #import "NativeRenderConvert.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 #import "NativeRenderUtils.h"
 #import "HippyAssert.h"
 
@@ -229,7 +229,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
             NSString *serialized = [self _readFileFromPath:[self HippyGetManifestFilePath] key:nil error:&errorOut];
             NSMutableDictionary *tmpDic = serialized ? NativeRenderJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
             if (error) {
-                NativeRenderLogWarn(@"Failed to parse manifest - creating new one.\n\n%@", error);
+                HippyLogWarn(self.bridge, @"Failed to parse manifest - creating new one.\n\n%@", error);
                 tmpDic = [NSMutableDictionary new];
             }
             [_manifest addEntriesFromDictionary:tmpDic];

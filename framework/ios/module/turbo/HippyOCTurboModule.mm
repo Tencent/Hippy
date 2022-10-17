@@ -21,10 +21,10 @@
  */
 
 #import "HippyAssert.h"
-#import "HippyBridgeMethod.h"
-#import "HippyJSExecutor.h"
 #import "HippyLog.h"
 #import "HippyModuleMethod.h"
+#import "NSObject+HippyTurbo.h"
+#import "HippyJSExecutor.h"
 #import "HippyOCTurboModule.h"
 #import "HippyTurboModuleManager.h"
 #import "NativeRenderUtils.h"

@@ -21,12 +21,11 @@
  */
 
 #import "HippyAssert.h"
-#import "HippyBridgeMethod.h"
 #import "HippyModuleMethod.h"
 #import "NativeRenderUtils.h"
 #import "NSObject+HippyTurbo.h"
 
-#include "objc/message.h"
+#include <objc/message.h>
 
 @implementation NSObject (HippyTurbo)
 
