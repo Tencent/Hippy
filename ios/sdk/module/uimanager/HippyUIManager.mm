@@ -1152,9 +1152,7 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
         }
     }];
 
-#ifdef QBNativeListENABLE
     [self flushVirtualNodeBlocks];
-#endif
 
     [self flushUIBlocks];
 
