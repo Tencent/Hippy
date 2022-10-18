@@ -13,31 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.uimanager;
 
+package com.tencent.renderer.node;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import java.util.Map;
 
-public class ListViewRenderNode extends RenderNode {
+public class PullFooterRenderNode extends ListItemRenderNode {
 
-    public ListViewRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
-            String className, ControllerManager componentManager, boolean isLazyLoad) {
+    public PullFooterRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager componentManager, boolean isLazyLoad) {
         super(rootId, id, props, className, componentManager, isLazyLoad);
     }
 
     @Override
-    protected void addChildToPendingList(RenderNode renderNode) {
-        // Since the recycler view of the system will automatically complete add sub views,
-        // we don't need to deal with it in this function
+    public boolean shouldSticky() {
+        return false;
     }
 
     @Override
-    public boolean removeChild(RenderNode uiNode) {
-        if (uiNode instanceof ListItemRenderNode) {
-            ListItemRenderNode listItemRenderNode = (ListItemRenderNode) uiNode;
-            listItemRenderNode.setRecycleItemTypeChangeListener(null);
-        }
-        return super.removeChild(uiNode);
+    public int getItemViewType() {
+        return this.getClassName().hashCode();
+    }
+
+    @Override
+    public boolean isPullFooter() {
+        return true;
     }
 }

@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
 
 public interface IRecycleItemTypeChange {
 

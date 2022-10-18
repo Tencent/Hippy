@@ -101,7 +101,7 @@ public class HippyPagerController extends HippyViewController<HippyPager> {
     }
 
     @Override
-    public void onBatchComplete(HippyPager viewPager) {
+    public void onBatchComplete(@NonNull HippyPager viewPager) {
         viewPager.setChildCountAndUpdate(viewPager.getAdapter().getItemViewSize());
     }
 

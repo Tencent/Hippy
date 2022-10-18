@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.uimanager;
+package com.tencent.renderer.node;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import java.util.Map;
 
-public class PullFooterRenderNode extends ListItemRenderNode {
+public class PullHeaderRenderNode extends ListItemRenderNode {
 
-    public PullFooterRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+    public PullHeaderRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ControllerManager componentManager, boolean isLazyLoad) {
         super(rootId, id, props, className, componentManager, isLazyLoad);
     }
@@ -39,7 +40,7 @@ public class PullFooterRenderNode extends ListItemRenderNode {
     }
 
     @Override
-    public boolean isPullFooter() {
+    public boolean isPullHeader() {
         return true;
     }
 }

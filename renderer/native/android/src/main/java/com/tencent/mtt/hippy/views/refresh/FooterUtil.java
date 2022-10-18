@@ -18,8 +18,8 @@ package com.tencent.mtt.hippy.views.refresh;
 import android.view.View;
 
 import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
-import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.PullFooterRenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.HippyViewUtil;
 import com.tencent.mtt.hippy.views.list.HippyListView;
 import com.tencent.mtt.hippy.views.waterfalllist.HippyWaterfallView;

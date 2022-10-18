@@ -24,7 +24,7 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.HashMap;

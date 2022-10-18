@@ -22,7 +22,7 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 
 import java.util.Map;
 

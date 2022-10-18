@@ -31,6 +31,7 @@ import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.image.ImageComponentController;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
+import com.tencent.renderer.node.RenderNode;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
