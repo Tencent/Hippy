@@ -198,7 +198,6 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 @interface NativeRenderImageView () {
     __weak CALayer *_borderWidthLayer;
     BOOL _needsUpdateBorderRadiusManully;
-    CGSize _size;
     BOOL _needsReloadImage;
     BOOL _needsUpdateImage;
     id<NativeRenderImageProviderProtocol> _imageProvider;
@@ -303,7 +302,6 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 - (void)setFrame:(CGRect)frame {
     CGSize originSize = self.frame.size;
     [super setFrame:frame];
-    _size = frame.size;
     BOOL currentImageIsDefaultImage = self.image == _defaultImage && nil != self.image;
     if (CGSizeEqualToSize(CGSizeZero, originSize) || !currentImageIsDefaultImage) {
         [self reloadImage];

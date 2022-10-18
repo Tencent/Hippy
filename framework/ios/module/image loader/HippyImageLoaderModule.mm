@@ -21,23 +21,18 @@
 */
 
 #import <UIKit/UIKit.h>
-#import "HippyBridge.h"
+
+#import "HippyBridge+VFSLoader.h"
 #import "HippyImageLoaderModule.h"
-#import "HippyImageCacheManager.h"
-#import "NativeRenderFrameworkProxy.h"
-#import "NativeRenderImageDataLoaderProtocol.h"
-#import "NativeRenderImageDataLoader.h"
-#import "NativeRenderUtils.h"
 #import "NativeRenderDefaultImageProvider.h"
+#import "NativeRenderUtils.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
 static NSUInteger const ImageLoaderErrorParseError = 2;
 static NSUInteger const ImageLoaderErrorRequestError = 3;
 
 @interface HippyImageLoaderModule () {
-    id<NativeRenderImageDataLoaderProtocol> _imageDataLoader;
     Class<NativeRenderImageProviderProtocol> _imageProviderClass;
-    NSUInteger _sequence;
 }
 
 @end
@@ -50,26 +45,21 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-    id<NativeRenderImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
-    NSURL *url = NativeRenderURLWithString(urlString, nil);
-    NSUInteger sequence = _sequence++;
-    [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
-        
-    } completion:^(NSUInteger seq, id result, NSURL *retURL, NSError *error) {
-        UIImage *retImage = nil;
+    NSString *standardizeAssetUrlString = urlString;
+    if ([self.bridge.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+        standardizeAssetUrlString = [self.bridge.frameworkProxy standardizeAssetUrlString:standardizeAssetUrlString forRenderContext:[self.bridge renderContext]];
+    }
+    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
+    [self.bridge loadContentsAsynchronouslyFromUrl:url params:nil completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (!error) {
-            if ([result isKindOfClass:[UIImage class]]) {
-                retImage = result;
-            }
-            else if ([result isKindOfClass:[NSData class]]) {
-                Class<NativeRenderImageProviderProtocol> imageProviderClass = [self imageProviderClass];
-                if ([imageProviderClass canHandleData:(NSData *)result]) {
-                    id<NativeRenderImageProviderProtocol> imageProvider = [[(Class)imageProviderClass alloc] init];
-                    imageProvider.scale = [[UIScreen mainScreen] scale];
-                    imageProvider.imageDataPath = [retURL absoluteString];
-                    [imageProvider setImageData:(NSData *)result];
-                    retImage = [imageProvider image];
-                }
+            UIImage *retImage = nil;
+            Class<NativeRenderImageProviderProtocol> imageProviderClass = [self imageProviderClass];
+            if ([imageProviderClass canHandleData:data]) {
+                id <NativeRenderImageProviderProtocol> imageProvider = [[(Class) imageProviderClass alloc] init];
+                imageProvider.scale = [[UIScreen mainScreen] scale];
+                imageProvider.imageDataPath = [url absoluteString];
+                [imageProvider setImageData:data];
+                retImage = [imageProvider image];
             }
             if (retImage) {
                 NSDictionary *dic = @{@"width": @(retImage.size.width), @"height": @(retImage.size.height)};
@@ -77,7 +67,7 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
             }
             else {
                 NSError *error = [NSError errorWithDomain:kImageLoaderModuleErrorDomain
-                                                    code:ImageLoaderErrorParseError userInfo:@{@"reason": @"image parse error"}];
+                                                     code:ImageLoaderErrorParseError userInfo:@{@"reason": @"image parse error"}];
                 NSString *errorKey = [NSString stringWithFormat:@"%lu", ImageLoaderErrorParseError];
                 reject(errorKey, @"image parse error", error);
             }
@@ -92,28 +82,16 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
 
 // clang-format off
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
-    id<NativeRenderImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
-    NSURL *url = NativeRenderURLWithString(urlString, nil);
-    NSUInteger sequence = _sequence++;
-    [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
-        
-    } completion:^(NSUInteger seq, id ret, NSURL *url, NSError *error) {
-        
+    NSString *standardizeAssetUrlString = urlString;
+    if ([self.bridge.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+        standardizeAssetUrlString = [self.bridge.frameworkProxy standardizeAssetUrlString:standardizeAssetUrlString forRenderContext:[self.bridge renderContext]];
+    }
+    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
+    [self.bridge loadContentsAsynchronouslyFromUrl:url params:nil completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+
     }];
 }
 // clang-format on
-
-- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoader {
-    if (!_imageDataLoader) {
-        if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
-            _imageDataLoader = [self.bridge.frameworkProxy imageDataLoaderForRenderContext:self.bridge.renderContext];
-        }
-        if (!_imageDataLoader) {
-            _imageDataLoader = [[NativeRenderImageDataLoader alloc] init];
-        }
-    }
-    return _imageDataLoader;
-}
 
 - (Class<NativeRenderImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {

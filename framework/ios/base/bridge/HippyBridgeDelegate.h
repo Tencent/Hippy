@@ -20,7 +20,6 @@
  * limitations under the License.
  */
 
-#import "HippyJavaScriptLoader.h"
 #import "NativeRenderComponentProtocol.h"
 
 @class HippyBridge;
@@ -36,25 +35,7 @@
 
 - (void)bridge:(HippyBridge *)bridge endLoadingBundle:(NSURL *)bundle;
 
-/**
- * The bridge will automatically attempt to load the JS source code from the
- * location specified by the `sourceURLForBridge:` method, however, if you want
- * to handle loading the JS yourself, you can do so by implementing this method.
- */
-- (void)downloadBundleForURL:(NSURL *)bundleURL bridge:(HippyBridge *)bridge
-              onProgress:(HippySourceLoadProgressBlock)onProgress onComplete:(HippySourceLoadBlock)loadCallback;
-
-/**
- * Similar to loadSourceForBridge:onProgress:onComplete: but without progress
- * reporting.
- */
-- (void)downloadBundleForURL:(NSURL *)bundleURL bridge:(HippyBridge *)bridge withBlock:(HippySourceLoadBlock)loadCallback;
-
-- (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion;
-
 - (BOOL)scriptWillBeExecuted:(NSString *)script sourceURL:(NSURL *)sourceURL;
-
-//chrome dev tools inspector delegate
 
 /**
  * ask delegate should bridge start a web inspector

@@ -29,15 +29,12 @@
 #import "UIView+NativeRender.h"
 #import "NativeRenderConvert+Transform.h"
 #import "NativeRenderGradientObject.h"
-#import "NativeRenderImageDataLoaderProtocol.h"
 #import "NativeRenderContext.h"
-#import "NativeRenderImageDataLoader.h"
 #import "NativeRenderDefaultImageProvider.h"
 #import "objc/runtime.h"
 #import "UIView+DirectionalLayout.h"
 
 @interface NativeRenderViewManager () {
-    id<NativeRenderImageDataLoaderProtocol> _imageDataLoader;
     NSUInteger _sequence;
 }
 
@@ -157,52 +154,36 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) {
     if (json) {
         NSString *imagePath = [NativeRenderConvert NSString:json];
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
-            imagePath = [self.renderContext.frameworkProxy standardizeAssetUrlString:imagePath forRenderContext:self.renderContext];
-        }
-        id<NativeRenderImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
-        __weak NativeRenderView *weakView = view;
-        CGFloat scale = [UIScreen mainScreen].scale;
-        NSURL *url = NativeRenderURLWithString(imagePath, nil);
-        NSUInteger sequence = _sequence++;
-        [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
-        } completion:^(NSUInteger seq, id result, NSURL *url, NSError *error) {
-            if (!error && sequence == seq) {
-                UIImage *backgroundImage = nil;
-                if ([result isKindOfClass:[UIImage class]]) {
-                    backgroundImage = result;
-                }
-                else if ([result isKindOfClass:[NSData class]]) {
-                    NativeRenderDefaultImageProvider *imageProvider = [[NativeRenderDefaultImageProvider alloc] init];
-                    imageProvider.imageDataPath = imagePath;
-                    [imageProvider setImageData:(NSData *)result];
-                    imageProvider.scale = scale;
-                    backgroundImage = [imageProvider image];
-                }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NativeRenderView *strongView = weakView;
-                    if (strongView) {
-                        strongView.backgroundImage = backgroundImage;
-                    }
-                });
-            }
-        }];
+        [self loadImageSource:imagePath forView:view];
     }
     else {
         view.backgroundImage = nil;
     }
 }
 
-- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoader {
-    if (!_imageDataLoader) {
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
-            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoaderForRenderContext:self.renderContext];
-        }
-        if (!_imageDataLoader) {
-            _imageDataLoader = [[NativeRenderImageDataLoader alloc] init];
-        }
+- (void)loadImageSource:(NSString *)path forView:(NativeRenderView *)view {
+    if (!path || !view) {
+        return;
     }
-    return _imageDataLoader;
+    NSString *standardizeAssetUrlString = path;
+    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+        standardizeAssetUrlString = [self.renderContext.frameworkProxy standardizeAssetUrlString:path forRenderContext:self.renderContext];
+    }
+    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
+    __weak NativeRenderView *weakView = view;
+    self.renderContext.frameworkProxy.URILoader->loadContentsAsynchronously(url, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
+        NativeRenderDefaultImageProvider *imageProvider = [[NativeRenderDefaultImageProvider alloc] init];
+        imageProvider.imageDataPath = standardizeAssetUrlString;
+        [imageProvider setImageData:data];
+        imageProvider.scale = [[UIScreen mainScreen] scale];
+        UIImage *backgroundImage = [imageProvider image];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NativeRenderView *strongView = weakView;
+            if (strongView) {
+                strongView.backgroundImage = backgroundImage;
+            }
+        });
+    });
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, NativeRenderView) {

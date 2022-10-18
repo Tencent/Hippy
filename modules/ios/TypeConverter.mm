@@ -20,16 +20,16 @@
  * limitations under the License.
  */
 
-#import "HippyUtils.h"
-#import "HippyAssert.h"
+#import "TypeConverter.h"
+#import "NSURLResponse+ToUnorderedMap.h"
 
-#include "string_view_utils.h"
+#include "footstone/string_view_utils.h"
 
 using string_view = footstone::string_view;
 
 string_view NSStringToU8StringView(NSString* str) {
-  std::string u8 = [str UTF8String];
-  return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
+    std::string u8([str UTF8String]);
+    return string_view(reinterpret_cast<const string_view::char8_t_*>(u8.c_str()), u8.length());
 }
 
 string_view NSStringToU16StringView(NSString *string) {
@@ -73,7 +73,7 @@ NSString *StringViewToNSString(const string_view &view) {
 
 NSURL *StringViewToNSURL(const footstone::string_view &uri) {
     NSString *uriString = StringViewToNSString(uri);
-    HippyAssert(uriString, @"uriString must not be null");
+    NSCAssert(uriString, @"uriString must not be null");
     if (!uriString) {
         return nil;
     }
@@ -88,4 +88,43 @@ NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std
         [dictionary setObject:value forKey:key];
     }
     return [dictionary copy];
+}
+
+std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NSDictionary<NSString *, NSString *> *dictionary) {
+    std::unordered_map<std::string, std::string> map;
+    map.reserve([dictionary count]);
+    for (NSString *key in dictionary) {
+        NSString *value = dictionary[key];
+        std::string mapKey = [key UTF8String];
+        std::string mapValue = [value UTF8String];
+        map[mapKey] = mapValue;
+    }
+    return map;
+}
+
+NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength) {
+    NSURLResponse *response = nil;
+    if ([[url absoluteString] hasPrefix:@"http"]) {
+        NSDictionary<NSString *, NSString *> *headers = StringUnorderedMapToNSDictionary(headerMap);
+        auto find = headerMap.find(kStatusCode);
+        NSInteger statusCode = 502;
+        if (headerMap.end() != find) {
+            statusCode = std::stoi(find->second);
+        }
+        response = [[NSHTTPURLResponse alloc] initWithURL:url statusCode:statusCode HTTPVersion:@"1.1" headerFields:headers];
+    }
+    else {
+        NSString *mimeType = @"";
+        auto find = headerMap.find(kMIMEType);
+        if (headerMap.end() != find) {
+            mimeType = [NSString stringWithUTF8String:find->second.c_str()];
+        }
+        NSString *textEncodingName = @"";
+        find = headerMap.find(kTextEncodingName);
+        if (headerMap.end() != find) {
+            textEncodingName = [NSString stringWithUTF8String:find->second.c_str()];
+        }
+        response = [[NSURLResponse alloc] initWithURL:url MIMEType:mimeType expectedContentLength:contentsLength textEncodingName:textEncodingName];
+    }
+    return response;
 }

@@ -21,8 +21,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "NativeRenderImageDataLoaderProtocol.h"
 #import "NativeRenderImageProviderProtocol.h"
+#import "VFSUriLoader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,9 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(id<NativeRenderContext>)renderContext;
 
-- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<NativeRenderContext>)renderContext;
-
 - (Class<NativeRenderImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext;
+
+- (std::shared_ptr<VFSUriLoader>)URILoader;
 
 @end
 

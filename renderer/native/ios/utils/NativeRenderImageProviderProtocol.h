@@ -41,7 +41,7 @@
 /**
  * Image scale
  */
-@property(nonatomic, assign)CGFloat scale;
+@property(nonatomic, assign)double scale;
 
 /**
  * Set image data for provider
