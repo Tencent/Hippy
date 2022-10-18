@@ -21,8 +21,8 @@ import androidx.recyclerview.widget.RecyclerView.RecycledViewPool.ScrapData;
 import androidx.recyclerview.widget.RecyclerView.Recycler;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.util.SparseArray;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import java.util.ArrayList;
 

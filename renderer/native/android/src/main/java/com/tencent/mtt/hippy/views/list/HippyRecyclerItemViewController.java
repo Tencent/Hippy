@@ -18,18 +18,13 @@ package com.tencent.mtt.hippy.views.list;
 
 import android.content.Context;
 import android.view.View;
-import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyController;
-import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
-import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
-import com.tencent.mtt.hippy.uimanager.RecyclerItemRenderNode;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RecyclerItemRenderNode;
+import com.tencent.renderer.node.RenderNode;
 import java.util.Map;
 
 @HippyController(name = HippyRecyclerItemViewController.CLASS_NAME, isLazyLoad = true)

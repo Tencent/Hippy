@@ -27,8 +27,8 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.RenderNode;
 
 import java.util.Map;
 

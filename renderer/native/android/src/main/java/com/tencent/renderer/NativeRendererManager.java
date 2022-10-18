@@ -19,13 +19,14 @@ package com.tencent.renderer;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.renderer.node.RootRenderNode;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NativeRendererManager {
 
     private static final ConcurrentHashMap<Integer, NativeRender> sNativeRendererMap = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<Integer, RenderRootNode> sRootNodeMap = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Integer, RootRenderNode> sRootNodeMap = new ConcurrentHashMap<>();
 
     public static void addNativeRendererInstance(Integer instanceId, @NonNull NativeRender nativeRenderer) {
         sNativeRendererMap.put(instanceId, nativeRenderer);
@@ -56,7 +57,7 @@ public class NativeRendererManager {
         return 0;
     }
 
-    public static void addRootNode(@NonNull RenderRootNode node) {
+    public static void addRootNode(@NonNull RootRenderNode node) {
         sRootNodeMap.put(node.getId(), node);
     }
 
@@ -65,7 +66,7 @@ public class NativeRendererManager {
     }
 
     @Nullable
-    public static RenderRootNode getRootNode(Integer rootId) {
+    public static RootRenderNode getRootNode(Integer rootId) {
         return sRootNodeMap.get(rootId);
     }
 
