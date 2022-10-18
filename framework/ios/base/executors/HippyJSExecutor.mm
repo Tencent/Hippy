@@ -21,15 +21,13 @@
  */
 
 #import <UIKit/UIDevice.h>
-#import "HippyDefaultUriHandler.h"
-#import "HippyUtils.h"
+#import "VFSUriHandler.h"
 #import "HippyAssert.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyContextWrapper.h"
 #import "HippyDefines.h"
 #import "HippyDevInfo.h"
 #import "HippyDevMenu.h"
-#import "HippyJavaScriptLoader.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyJSExecutor.h"
 #import "HippyOCTurboModule+Inner.h"
@@ -39,6 +37,7 @@
 #import "HippyLog.h"
 #import "NativeRenderUtils.h"
 #import "NSObject+CtxValue.h"
+#import "TypeConverter.h"
 
 #include <cinttypes>
 #include <memory>

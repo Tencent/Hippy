@@ -21,16 +21,16 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "HippyJavaScriptLoader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class HippyBridge;
 
+typedef void (^HippyBundleLoadCompletionBlock)(NSData *, NSError *);
+
 @interface HippyBundleLoadOperation : NSOperation
 
-@property(nonatomic, copy) HippySourceLoadProgressBlock onProgress;
-@property(nonatomic, copy) HippySourceLoadBlock onLoad;
+@property(nonatomic, copy) HippyBundleLoadCompletionBlock onLoad;
 
 - (instancetype)initWithBridge:(HippyBridge *)bridge bundleURL:(NSURL *)bundleURL;
 

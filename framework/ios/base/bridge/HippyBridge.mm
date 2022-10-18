@@ -39,14 +39,13 @@
 #import "NativeRenderInvalidating.h"
 #import "HippyOCTurboModule.h"
 #import "HippyDisplayLink.h"
-#import "HippyDefaultUriLoader.h"
+#import "VFSUriLoader.h"
 #import "HippyModuleMethod.h"
 #import "HippyPerformanceLogger.h"
 #import "NativeRenderUtils.h"
 #import "NativeRenderImpl.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModule.h"
-#import "NativeRenderImageDataLoader.h"
 #import "NativeRenderDefaultImageProvider.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyJSExecutor.h"
@@ -87,7 +86,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSMutableArray<HippyInstanceLoadBlock *> *_instanceBlocks;
     NSMutableArray<dispatch_block_t> *_nativeSetupBlocks;
     NSURL *_sandboxDirectory;
-    std::shared_ptr<hippy::vfs::UriLoader> _uriLoader;
+    std::shared_ptr<VFSUriLoader> _uriLoader;
 }
 
 @property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
@@ -254,7 +253,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 }
 
 static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
-    auto uriLoader = std::make_shared<HippyDefaultUriLoader>();
+    auto uriLoader = std::make_shared<VFSUriLoader>();
     return uriLoader;
 }
 
@@ -290,9 +289,6 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     } @catch (NSException *exception) {
         HippyHandleException(exception, self);
     }
-    if (!self.uriLoader) {
-        self.uriLoader = GetDefaultUriLoader();
-    }
     if (nil == self.renderContext.frameworkProxy) {
         self.renderContext.frameworkProxy = self;
     }
@@ -322,7 +318,7 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
         __block NSString *script = nil;
         dispatch_group_enter(group);
         HippyBundleLoadOperation *fetchOp = [[HippyBundleLoadOperation alloc] initWithBridge:self bundleURL:bundleURL];
-        fetchOp.onLoad = ^(NSError *error, NSData *source, int64_t sourceLength) {
+        fetchOp.onLoad = ^(NSData *source, NSError *error) {
             if (error) {
                 HippyFatal(error, weakSelf);
             }
@@ -413,14 +409,17 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
 }
 
-- (void)setUriLoader:(std::shared_ptr<hippy::vfs::UriLoader>)uriLoader {
+- (void)setUriLoader:(std::shared_ptr<VFSUriLoader>)uriLoader {
     if (_uriLoader != uriLoader) {
         _uriLoader = uriLoader;
         [_javaScriptExecutor setUriLoader:uriLoader];
     }
 }
 
-- (std::shared_ptr<hippy::vfs::UriLoader>)uriLoader {
+- (std::shared_ptr<VFSUriLoader>)uriLoader {
+    if (!_uriLoader) {
+        self.uriLoader = std::make_shared<VFSUriLoader>();
+    }
     return _uriLoader;
 }
 
@@ -961,19 +960,17 @@ static std::shared_ptr<hippy::vfs::UriLoader> GetDefaultUriLoader() {
     return UrlString;
 }
 
-- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<NativeRenderContext>)renderContext {
-    if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
-        return [self.frameworkProxy imageDataLoaderForRenderContext:renderContext];
-    }
-    return [NativeRenderImageDataLoader new];
-}
-
 - (Class<NativeRenderImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext {
     if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
         return [self.frameworkProxy imageProviderClassForRenderContext:renderContext];
     }
     return [NativeRenderDefaultImageProvider class];
 }
+
+- (std::shared_ptr<VFSUriLoader>)URILoader { 
+    return [self uriLoader];
+}
+
 
 - (void)immediatelyCallTimer:(NSNumber *)timer {
     [_javaScriptExecutor executeAsyncBlockOnJavaScriptQueue:^{

@@ -1,8 +1,7 @@
-/*!
- * iOS SDK
+/*
  *
  * Tencent is pleased to support the open source community by making
- * NativeRender available.
+ * Hippy available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -11,23 +10,24 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-#import <UIKit/UIKit.h>
+#include "vfs/handler/uri_handler.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface UIView (Sequence)
-
-@property(nonatomic, assign) NSUInteger sequence;
-
-@end
-
-NS_ASSUME_NONNULL_END
+class VFSUriHandler : public hippy::vfs::UriHandler {
+  public:
+    virtual void RequestUntrustedContent(
+        std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx,
+        std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next);
+    virtual void RequestUntrustedContent(
+        std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
+        std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next);
+};

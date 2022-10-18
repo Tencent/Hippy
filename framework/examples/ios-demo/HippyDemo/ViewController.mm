@@ -31,7 +31,6 @@
 #import "DemoConfigs.h"
 #import "NativeRenderFrameworkProxy.h"
 #import "NativeRenderDomNodeUtils.h"
-#import "NativeRenderImageDataLoader.h"
 #import "NativeRenderDefaultImageProvider.h"
 #import "HippyRedBox.h"
 #import "HippyAssert.h"
@@ -102,14 +101,14 @@
     [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
           frameworkProxy:bridge rootView:rootView.contentView
              screenScale:[UIScreen mainScreen].scale];
+    //set custom vfs loader
+    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
     [bridge loadBundleURLs:bundleURLs];
     [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
     bridge.methodInterceptor = self;
-    //set custom vfs loader
-    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
     _bridge = bridge;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
@@ -291,23 +290,6 @@ std::string mock;
     };
 }
 
-- (BOOL)dynamicLoad:(HippyBridge *)bridge URI:(NSString *)uri completion:(void (^)(NSString *))completion {
-//    NSURL *url = [NSURL URLWithString:uri];
-//    NSURLRequest *req = [NSURLRequest requestWithURL:url];
-//    [[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-//        if (error) {
-//            NSLog(@"dynamic load error: %@", [error description]);
-//        }
-//        else {
-//            NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-//            completion(result);
-//        }
-//    }];;
-    //简单处理，直接返回。
-//    completion(@"var a = 1");
-    return false;
-}
-
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
     return bridge.debugMode;
 }
@@ -321,11 +303,6 @@ std::string mock;
     //这里将对应的URL转换为标准URL
     //比如将相对地址根据沙盒路径为转换绝对地址
     return UrlString;
-}
-
-- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoaderForRenderContext:(id<NativeRenderContext>)renderContext {
-    //设置自定义的图片加载实例，负责图片加载。默认使用NativeRenderImageDataLoader
-    return [NativeRenderImageDataLoader new];
 }
 
 - (Class<NativeRenderImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext {

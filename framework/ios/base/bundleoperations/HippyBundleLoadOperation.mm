@@ -21,7 +21,7 @@
  */
 
 #import "HippyBundleLoadOperation.h"
-#import "HippyBridge.h"
+#import "HippyBridge+VFSLoader.h"
 #import "HippyPerformanceLogger.h"
 
 @interface HippyBundleLoadOperation () {
@@ -68,30 +68,22 @@
     HippyPerformanceLogger *performanceLogger = bridge?bridge.performanceLogger:nil;
     [performanceLogger markStartForTag:HippyPLScriptDownload];
     __weak HippyBundleLoadOperation *weakSelf = self;
-    HippySourceLoadBlock onSourceLoad = ^(NSError *error, NSData *source, int64_t sourceLength) {
+    [bridge loadContentsAsynchronouslyFromUrl:_bundleURL params:nil completionHandler:^(NSData * _Nonnull data, NSURLResponse * _Nonnull response, NSError * _Nonnull error) {
         HippyBundleLoadOperation *strongSelf = weakSelf;
         if (!strongSelf || strongSelf.cancelled) {
             strongSelf.finished = YES;
             strongSelf.executing = NO;
             return;
         }
+        int64_t sourceLength = [data length];
         [performanceLogger markStopForTag:HippyPLScriptDownload];
         [performanceLogger setValue:sourceLength forTag:HippyPLBundleSize];
         if (strongSelf.onLoad) {
-            strongSelf.onLoad(error, source, sourceLength);
+            strongSelf.onLoad(data, error);
         }
         strongSelf.finished = YES;
         strongSelf.executing = NO;
-    };
-    if ([bridge.delegate respondsToSelector:@selector(downloadBundleForURL:bridge:onProgress:onComplete:)]) {
-        [bridge.delegate downloadBundleForURL:_bundleURL bridge:bridge onProgress:_onProgress onComplete:onSourceLoad];
-    }
-    else if ([bridge.delegate respondsToSelector:@selector(downloadBundleForURL:bridge:withBlock:)]) {
-        [bridge.delegate downloadBundleForURL:_bundleURL bridge:bridge withBlock:_onLoad];
-    }
-    else {
-        [HippyJavaScriptLoader downloadBundleAtURL:_bundleURL onProgress:_onProgress onComplete:onSourceLoad];
-    }
+    }];
 }
 
 - (void)cancel {

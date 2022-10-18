@@ -22,21 +22,24 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HippyDefines.h"
-
 #include <unordered_map>
-#include "string_view.h"
-    
+#include <string>
+#include "footstone/string_view.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-extern footstone::string_view NSStringToU8StringView(NSString* str);
+footstone::string_view NSStringToU8StringView(NSString *str);
 
-extern footstone::string_view NSStringToU16StringView(NSString *string);
+footstone::string_view NSStringToU16StringView(NSString *string);
 
-HIPPY_EXTERN NSString *StringViewToNSString(const footstone::string_view &view);
+NSString *StringViewToNSString(const footstone::string_view &view);
 
-HIPPY_EXTERN NSURL *StringViewToNSURL(const footstone::string_view &uri);
+NSURL *StringViewToNSURL(const footstone::string_view &uri);
 
-HIPPY_EXTERN NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
+NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
+
+std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NSDictionary<NSString *, NSString *> *dictionary);
+
+NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
 
 NS_ASSUME_NONNULL_END
