@@ -19,7 +19,7 @@ import android.content.Context;
 import android.view.View;
 
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewItem;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderContext;

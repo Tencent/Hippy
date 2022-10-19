@@ -16,9 +16,8 @@
 
 package com.tencent.renderer.component.text;
 
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.component.Component;
-import java.lang.ref.WeakReference;
 
 public class TextComponent extends Component {
 

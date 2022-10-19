@@ -31,7 +31,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
-import com.tencent.renderer.RenderRootNode;
+import com.tencent.renderer.node.RootRenderNode; 
 import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.PropertyUtils;
@@ -169,7 +169,7 @@ public class VirtualNodeManager {
 
 
     private VirtualNode getVirtualNode(int rootId, int nodeId) {
-        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootNode != null) {
             return rootNode.getVirtualNode(nodeId);
         }
@@ -290,7 +290,7 @@ public class VirtualNodeManager {
 
     public void createNode(int rootId, int id, int pid, int index, @NonNull String className,
             @Nullable Map<String, Object> props) {
-        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootNode == null) {
             return;
         }
@@ -323,7 +323,7 @@ public class VirtualNodeManager {
         }
     }
 
-    private void deleteNode(@NonNull RenderRootNode rootNode, int nodeId) {
+    private void deleteNode(@NonNull RootRenderNode rootNode, int nodeId) {
         VirtualNode node = rootNode.getVirtualNode(nodeId);
         if (node == null) {
             return;
@@ -342,7 +342,7 @@ public class VirtualNodeManager {
     }
 
     public void deleteNode(int rootId, int nodeId) {
-        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootNode != null) {
             deleteNode(rootNode, nodeId);
         }

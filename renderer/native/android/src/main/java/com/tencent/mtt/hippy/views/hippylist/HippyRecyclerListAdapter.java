@@ -17,7 +17,7 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
-import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
+import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
 
 import android.view.MotionEvent;
 import android.view.View.OnTouchListener;
@@ -29,11 +29,11 @@ import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
-import com.tencent.mtt.hippy.uimanager.PullFooterRenderNode;
-import com.tencent.mtt.hippy.uimanager.PullHeaderRenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.PullFooterRenderNode;
+import com.tencent.renderer.node.PullHeaderRenderNode;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.list.IRecycleItemTypeChange;
 import com.tencent.mtt.hippy.views.refresh.HippyPullFooterView;
