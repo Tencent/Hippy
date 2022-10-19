@@ -52,9 +52,13 @@ NSString *const HippyRuntimeMethodUpdateContextInfo = @"updateContextInfo";
                                                                clientId:clientId];
         _devWSClient.delegate = self;
         _inspector = [[HippyInspector alloc] initWithDevManager:self];
-        [self updateContextInfoWithName:contextName];
+        self.contextName = contextName;
     }
     return self;
+}
+
+- (void)devClientDidConnect:(HippyDevWebSocketClient *)devClient {
+    [self updateContextInfoWithName:self.contextName];
 }
 
 - (void)updateContextInfoWithName:(NSString *)contextName {
