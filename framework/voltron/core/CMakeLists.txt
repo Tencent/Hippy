@@ -62,7 +62,9 @@ set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} dom)
 # endregion
 
 # region vfs
-set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} vfs_native)
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
+set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} vfs)
 # endregion
 
 # region voltron renderer

@@ -64,8 +64,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
 # region vfs
-add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_DIR}/vfs/native)
-target_link_libraries(${PROJECT_NAME} PRIVATE vfs_native)
+GlobalPackages_Add(vfs)
+# Just reference the `dom` header files, no library needed
+target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:vfs,INTERFACE_INCLUDE_DIRECTORIES>)
 # endregion
 
 # region devtools
