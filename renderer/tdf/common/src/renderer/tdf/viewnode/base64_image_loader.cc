@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 
+#pragma clang diagnostic ignored "-Wextra-semi"
 #include "renderer/tdf/viewnode/base64_image_loader.h"
 #include "core/common/base64.h"
 
@@ -25,8 +26,10 @@ namespace hippy {
 inline namespace render {
 inline namespace tdf {
 
-std::shared_ptr<tdfcore::Task> Base64ImageLoader::Load(const std::string &url, const LoadCallback &loader_callback) {
-  return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, loader_callback] {
+std::shared_ptr<tdfcore::Task> Base64ImageLoader::Load(const std::string &url,
+                                                       const ProgressCallback &progress_callback,
+                                                       const FinishCallback &finish_callback) {
+  return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, progress_callback, finish_callback] {
     DEFINE_AND_CHECK_SELF(Base64ImageLoader)
 
     auto index = url.find(self->scheme_tag_);
@@ -37,12 +40,15 @@ std::shared_ptr<tdfcore::Task> Base64ImageLoader::Load(const std::string &url, c
     if (!data.empty()) {
       auto bytes = data.data();
       auto buffer = tdfcore::TData::MakeWithCopy(bytes, data.length());
-      if (loader_callback) {
-        loader_callback(buffer, tdfcore::ImageLoadStatus::kCompleted, 1);
+      if (progress_callback) {
+        progress_callback(1.0);
+      }
+      if (finish_callback) {
+        finish_callback(buffer, tdfcore::ImageLoadError::kNone);
       }
     } else {
-      if (loader_callback) {
-        loader_callback(nullptr, tdfcore::ImageLoadStatus::kCanceled, 0);
+      if (finish_callback) {
+        finish_callback(nullptr, tdfcore::ImageLoadError::kLoadFailed);
       }
     }
   });

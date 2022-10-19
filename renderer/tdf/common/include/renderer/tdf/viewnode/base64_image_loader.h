@@ -19,7 +19,6 @@
  */
 
 #pragma once
-#pragma clang diagnostic ignored "-Wextra-semi"
 
 #include "core/common/time.h"
 #include "core/engine/schedule/task_runner.h"
@@ -38,7 +37,9 @@ class Base64ImageLoader : public tdfcore::ImageLoader, public std::enable_shared
 
   Base64ImageLoader() = default;
 
-  std::shared_ptr<tdfcore::Task> Load(const std::string &url, const LoadCallback &loader_callback) override;
+  std::shared_ptr<tdfcore::Task> Load(const std::string &url,
+                                      const ProgressCallback &progress_callback,
+                                      const FinishCallback &finish_callback) override;
 
   static std::string GetScheme() { return kBase64Scheme; }
 
