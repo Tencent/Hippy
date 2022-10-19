@@ -46,9 +46,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
 # region vfs
-if (NOT TARGET vfs_native)
-  add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_DIR}/vfs/native)
-endif()
+add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_DIR}/vfs/native)
 target_link_libraries(${PROJECT_NAME} PUBLIC vfs_native)
 # endregion
 
