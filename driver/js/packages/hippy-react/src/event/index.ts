@@ -24,4 +24,4 @@ export { default as Event } from './event';
 export { default as HippyEventEmitter } from './emitter';
 export { default as HippyEventListener } from './listener';
 export { default as HippyEventRevoker } from './emitter-revoker';
-export { default as HippyEvent } from './global-listener';
+export { default as EventBus } from './global-listener';

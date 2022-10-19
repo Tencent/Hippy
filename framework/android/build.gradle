@@ -23,25 +23,6 @@
 apply plugin: 'com.android.library'
 apply from: './publish.gradle'
 
-buildscript {
-  repositories {
-    google()
-    mavenCentral()
-  }
-  dependencies {
-    classpath "com.android.tools.build:gradle:$AGP_VERSION"
-    // NOTE: Do not place your application dependencies here; they belong
-    // in the individual module build.gradle files
-  }
-}
-
-allprojects {
-  repositories {
-    google()
-    mavenCentral()
-  }
-}
-
 android {
   archivesBaseName = ARCHIVES_BASE_NAME
   compileSdkVersion COMPILE_VERSION as int
@@ -162,6 +143,7 @@ dependencies {
   }
   compileOnly project(path: ':serialization')
   compileOnly project(path: ':link_supplier')
+  compileOnly project(path: ':vfs')
   //noinspection GradleDependency
   implementation 'androidx.annotation:annotation:1.0.0'
 

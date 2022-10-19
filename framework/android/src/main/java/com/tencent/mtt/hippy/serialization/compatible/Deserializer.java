@@ -21,8 +21,9 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.exception.UnexpectedException;
 import com.tencent.mtt.hippy.exception.UnreachableCodeException;
 import com.tencent.mtt.hippy.serialization.ErrorTag;
+import com.tencent.mtt.hippy.serialization.JSSerializationTag;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
-import com.tencent.mtt.hippy.serialization.SerializationTag;
+import com.tencent.mtt.hippy.serialization.PrimitiveSerializationTag;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
@@ -36,12 +37,22 @@ import java.math.BigInteger;
 @SuppressWarnings({"unused", "deprecation"})
 public class Deserializer extends PrimitiveValueDeserializer {
 
+  /**
+   * Version 13 compatibility mode
+   */
+  private boolean version13BrokenDataMode = false;
+
   public Deserializer(BinaryReader reader) {
     this(reader, null);
   }
 
   public Deserializer(BinaryReader reader, StringTable stringTable) {
     super(reader, stringTable);
+  }
+
+  @Override
+  protected int getSupportedVersion() {
+    return 15;
   }
 
   @Override
@@ -60,27 +71,120 @@ public class Deserializer extends PrimitiveValueDeserializer {
   }
 
   @Override
-  protected Boolean readJSBoolean(boolean value) {
+  @SuppressWarnings("fallthrough")
+  protected Object readValue(byte tag, StringLocation location, Object relatedKey) {
+    Object object = super.readValue(tag, location, relatedKey);
+    if (object != Nothing) {
+      return object;
+    }
+
+    switch (tag) {
+      case JSSerializationTag.TRUE_OBJECT:
+        return readJSBoolean(true);
+      case JSSerializationTag.FALSE_OBJECT:
+        return readJSBoolean(false);
+      case JSSerializationTag.NUMBER_OBJECT:
+        return readJSNumber();
+      case JSSerializationTag.BIG_INT_OBJECT:
+        return readJSBigInt();
+      case JSSerializationTag.STRING_OBJECT:
+        return readJSString(location, relatedKey);
+      case JSSerializationTag.REGEXP:
+        return readJSRegExp();
+      case JSSerializationTag.ARRAY_BUFFER:
+        return readJSArrayBuffer();
+      case JSSerializationTag.ARRAY_BUFFER_TRANSFER:
+        return readTransferredJSArrayBuffer();
+      case JSSerializationTag.SHARED_ARRAY_BUFFER:
+        return readSharedArrayBuffer();
+      case JSSerializationTag.BEGIN_JS_OBJECT:
+        return readJSObject();
+      case JSSerializationTag.BEGIN_JS_MAP:
+        return readJSMap();
+      case JSSerializationTag.BEGIN_JS_SET:
+        return readJSSet();
+      case JSSerializationTag.BEGIN_DENSE_JS_ARRAY:
+        return readDenseArray();
+      case JSSerializationTag.BEGIN_SPARSE_JS_ARRAY:
+        return readSparseArray();
+      case JSSerializationTag.WASM_MODULE_TRANSFER:
+        return readTransferredWasmModule();
+      case JSSerializationTag.HOST_OBJECT:
+        return readHostObject();
+      case JSSerializationTag.WASM_MEMORY_TRANSFER:
+        return readTransferredWasmMemory();
+      case JSSerializationTag.ERROR:
+        return readJSError();
+      case JSSerializationTag.SHARED_OBJECT: {
+        if (getWireFormatVersion() >= 15) {
+          return readSharedObject();
+        }
+        // If the data doesn't support shared values because it is from an older
+        // version, treat the tag as unknown.
+        // [[fallthrough]]
+      }
+      default: {
+        //  Before there was an explicit tag for host objects, all unknown tags
+        //  were delegated to the host.
+        if (getWireFormatVersion() < 13) {
+          reader.position(-1);
+          return readHostObject();
+        }
+
+        // Unsupported Tag treated as Undefined
+        return Undefined;
+      }
+    }
+  }
+
+  /**
+   * Deserializes a JavaScript delegate object from the buffer.
+   *
+   * @return JavaScript delegate object
+   */
+  @Override
+  public Object readValue() {
+    /*
+     *  The `V8` engine has a bug which produced invalid version 13 data (see https://crbug.com/1284506).
+     *
+     *  This compatibility mode tries to first read the data normally,
+     *  and if it fails, and the version is 13, tries to read the broken format.
+     */
+    int originalPosition = reader.position();
+    try {
+      return super.readValue();
+    } catch (Exception e) {
+      if (getWireFormatVersion() == 13) {
+        reader.position(originalPosition);
+        version13BrokenDataMode = true;
+        return super.readValue();
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  private ErrorTag readErrorTag() {
+    return ErrorTag.fromTag((byte) reader.getVarint());
+  }
+
+  private Boolean readJSBoolean(boolean value) {
     return assignId(value);
   }
 
-  @Override
-  protected Number readJSNumber() {
+  private Number readJSNumber() {
     return assignId(reader.getDouble());
   }
 
-  @Override
-  protected BigInteger readJSBigInt() {
+  private BigInteger readJSBigInt() {
     return assignId(readBigInt());
   }
 
-  @Override
-  protected String readJSString(StringLocation location, Object relatedKey) {
+  private String readJSString(StringLocation location, Object relatedKey) {
     return assignId(readString(location, relatedKey));
   }
 
-  @Override
-  protected Object readJSArrayBuffer() {
+  private Object readJSArrayBuffer() {
     int byteLength = (int) reader.getVarint();
     if (byteLength < 0) {
       throw new DataCloneOutOfRangeException(byteLength);
@@ -88,25 +192,23 @@ public class Deserializer extends PrimitiveValueDeserializer {
     reader.position(reader.position() + byteLength);
 
     assignId(Undefined);
-    if (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) {
+    if (peekTag() == JSSerializationTag.ARRAY_BUFFER_VIEW) {
       readJSArrayBufferView();
     }
 
     return null;
   }
 
-  @Override
-  protected Object readJSRegExp() {
+  private Object readJSRegExp() {
     readString(StringLocation.VOID, null);
     reader.getVarint();
     return assignId(Undefined);
   }
 
-  @Override
-  protected HippyMap readJSObject() {
+  private HippyMap readJSObject() {
     HippyMap object = new HippyMap();
     assignId(object);
-    int read = readJSProperties(object, SerializationTag.END_JS_OBJECT);
+    int read = readJSProperties(object, JSSerializationTag.END_JS_OBJECT);
     int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
@@ -114,19 +216,19 @@ public class Deserializer extends PrimitiveValueDeserializer {
     return object;
   }
 
-  private int readJSProperties(HippyMap object, SerializationTag endTag) {
+  private int readJSProperties(HippyMap object, byte endTag) {
     final StringLocation keyLocation, valueLocation;
-    if (endTag == SerializationTag.END_DENSE_JS_ARRAY) {
+    if (endTag == JSSerializationTag.END_DENSE_JS_ARRAY) {
       keyLocation = StringLocation.DENSE_ARRAY_KEY;
       valueLocation = StringLocation.DENSE_ARRAY_ITEM;
-    } else if (endTag == SerializationTag.END_JS_OBJECT) {
+    } else if (endTag == JSSerializationTag.END_JS_OBJECT) {
       keyLocation = StringLocation.OBJECT_KEY;
       valueLocation = StringLocation.OBJECT_VALUE;
     } else {
       throw new UnreachableCodeException();
     }
 
-    SerializationTag tag;
+    byte tag;
     int count = 0;
     while ((tag = readTag()) != endTag) {
       count++;
@@ -150,13 +252,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
     return count;
   }
 
-  @Override
-  protected HippyMap readJSMap() {
+  private HippyMap readJSMap() {
     HippyMap object = new HippyMap();
     assignId(object);
-    SerializationTag tag;
+    byte tag;
     int read = 0;
-    while ((tag = readTag()) != SerializationTag.END_JS_MAP) {
+    while ((tag = readTag()) != JSSerializationTag.END_JS_MAP) {
       read++;
       Object key = readValue(tag, StringLocation.MAP_KEY, null);
       key = key.toString();
@@ -176,13 +277,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
     return object;
   }
 
-  @Override
-  protected HippyArray readJSSet() {
+  private HippyArray readJSSet() {
     HippyArray array = new HippyArray();
     assignId(array);
-    SerializationTag tag;
+    byte tag;
     int read = 0;
-    while ((tag = readTag()) != SerializationTag.END_JS_SET) {
+    while ((tag = readTag()) != JSSerializationTag.END_JS_SET) {
       read++;
       Object value = readValue(tag, StringLocation.SET_ITEM, null);
       array.pushObject(value);
@@ -194,8 +294,7 @@ public class Deserializer extends PrimitiveValueDeserializer {
     return array;
   }
 
-  @Override
-  protected HippyArray readDenseArray() {
+  private HippyArray readDenseArray() {
     int length = (int) reader.getVarint();
     if (length < 0) {
       throw new DataCloneOutOfRangeException(length);
@@ -203,13 +302,13 @@ public class Deserializer extends PrimitiveValueDeserializer {
     HippyArray array = new HippyArray();
     assignId(array);
     for (int i = 0; i < length; i++) {
-      SerializationTag tag = readTag();
-      if (tag != SerializationTag.THE_HOLE) {
+      byte tag = readTag();
+      if (tag != PrimitiveSerializationTag.THE_HOLE) {
         array.pushObject(readValue(tag, StringLocation.DENSE_ARRAY_ITEM, i));
       }
     }
 
-    int read = readJSProperties(null, SerializationTag.END_DENSE_JS_ARRAY);
+    int read = readJSProperties(null, JSSerializationTag.END_DENSE_JS_ARRAY);
     int expected = (int) reader.getVarint();
     if (read != expected) {
       throw new UnexpectedException("unexpected number of properties");
@@ -232,15 +331,14 @@ public class Deserializer extends PrimitiveValueDeserializer {
    *
    * @return array
    */
-  @Override
-  protected HippyArray readSparseArray() {
+  private HippyArray readSparseArray() {
     long length = reader.getVarint();
     HippyArray array = new HippyArray();
     assignId(array);
 
-    SerializationTag tag;
+    byte tag;
     int read = 0;
-    while ((tag = readTag()) != SerializationTag.END_SPARSE_JS_ARRAY) {
+    while ((tag = readTag()) != JSSerializationTag.END_SPARSE_JS_ARRAY) {
       read++;
       Object key = readValue(tag, StringLocation.SPARSE_ARRAY_KEY, null);
       Object value = readValue(StringLocation.SPARSE_ARRAY_ITEM, key);
@@ -282,19 +380,21 @@ public class Deserializer extends PrimitiveValueDeserializer {
   }
 
   private void readJSArrayBufferView() {
-    SerializationTag arrayBufferViewTag = readTag();
-    if (arrayBufferViewTag != SerializationTag.ARRAY_BUFFER_VIEW) {
+    byte arrayBufferViewTag = readTag();
+    if (arrayBufferViewTag != JSSerializationTag.ARRAY_BUFFER_VIEW) {
       throw new AssertionError("ArrayBufferViewTag: " + arrayBufferViewTag);
     }
     reader.getVarint();
     reader.getVarint();
-    readArrayBufferViewTag();
+    if (getWireFormatVersion() >= 14 || version13BrokenDataMode) {
+      reader.getVarint();
+    }
+    reader.getVarint();
 
     assignId(Undefined);
   }
 
-  @Override
-  protected HippyMap readJSError() {
+  private HippyMap readJSError() {
     String message = null;
     String stack = null;
     String errorType = null;
@@ -346,40 +446,40 @@ public class Deserializer extends PrimitiveValueDeserializer {
     return error;
   }
 
-  @Override
-  protected Object readHostObject() {
+  private Object readHostObject() {
     return assignId(Undefined);
   }
 
-  @Override
+  private Object readSharedObject() {
+    reader.getVarint();
+    return assignId(Undefined);
+  }
+
   public Object readTransferredJSArrayBuffer() {
     reader.getVarint();
     assignId(Undefined);
-    if (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) {
+    if (peekTag() == JSSerializationTag.ARRAY_BUFFER_VIEW) {
       readJSArrayBufferView();
     }
     return null;
   }
 
-  @Override
-  public Object readSharedArrayBuffer() {
+  private Object readSharedArrayBuffer() {
     reader.getVarint();
     assignId(Undefined);
-    if (peekTag() == SerializationTag.ARRAY_BUFFER_VIEW) {
+    if (peekTag() == JSSerializationTag.ARRAY_BUFFER_VIEW) {
       readJSArrayBufferView();
     }
     return null;
   }
 
-  @Override
-  protected Object readTransferredWasmModule() {
+  private Object readTransferredWasmModule() {
     reader.getVarint();
     assignId(Undefined);
     return null;
   }
 
-  @Override
-  protected Object readTransferredWasmMemory() {
+  private Object readTransferredWasmMemory() {
     reader.getVarint();
     readSharedArrayBuffer();
     assignId(Undefined);

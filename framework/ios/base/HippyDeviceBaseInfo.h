@@ -25,13 +25,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-extern NSDictionary *hippyExportedDimensions(void);
-#ifdef __cplusplus
-}
-#endif
+HIPPY_EXTERN NSDictionary *HippyExportedDimensions(void);
 
 @interface HippyDeviceBaseInfo : NSObject <HippyBridgeModule>
 

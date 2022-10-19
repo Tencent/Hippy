@@ -72,8 +72,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
           frameworkProxy:bridge rootView:rootView.contentView
              screenScale:[UIScreen mainScreen].scale];
-    [bridge loadBundleURLs:bundleURLs completion:^{
-    }];
+    [bridge loadBundleURLs:bundleURLs];
     [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";

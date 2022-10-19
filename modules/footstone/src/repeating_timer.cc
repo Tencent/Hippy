@@ -34,7 +34,7 @@ void RepeatingTimer::Start(std::unique_ptr<Task> user_task, TimeDelta delay) {
   StartInternal(delay);
 }
 
-std::shared_ptr<BaseTimer> RepeatingTimer::GetWeakSelf() {
+std::weak_ptr<BaseTimer> RepeatingTimer::GetWeakSelf() {
   return std::static_pointer_cast<BaseTimer>(shared_from_this());
 }
 

@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +27,6 @@ import '../style.dart';
 import '../util.dart';
 
 class TextRenderNode extends RenderNode {
-  static const String _kTag = 'TextRenderNode';
-
   TextRenderNode(
     int id,
     String className,
@@ -50,19 +48,18 @@ class TextRenderNode extends RenderNode {
           layoutParams.widthMode,
         );
       } catch (e) {
-        LogUtils.e(_kTag, "text createLayout error:$e");
+        LogUtils.dRenderNode('ID:$id, calculate layout error, error:${e.toString()}');
         exception = true;
       }
     }
 
     if (exception || painter == null) {
-      LogUtils.d(_kTag, 'measure($id) error: layout:$layoutParams');
       return FlexOutput.makeMeasureResult(
         layoutParams.width,
         layoutParams.height,
       );
     } else {
-      LogUtils.d(_kTag, 'measure($id):[${painter.width}, ${painter.height}]');
+      LogUtils.dRenderNode('ID:$id, calculate layout success, width:${painter.width}, height:${painter.height}');
       return FlexOutput.makeMeasureResult(painter.width, painter.height);
     }
   }

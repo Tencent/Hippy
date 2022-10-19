@@ -101,14 +101,13 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    ```json
    {
      "scripts": {
-        "hippy:debug": "hippy-debug",
         // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
 
-   !> Node 17+ 在 Windows 和 Linux 上不再支持 `md4` hash，此处为了兼容 Webpack 的 hash 算法，通过 `cross-env-os` 设置环境变量解决
+   !> Node 17+ 不再支持 `md4` hash，此处为了兼容 Webpack 的 hash 算法，暂时通过 `cross-env-os` 设置环境变量解决，若出现没法设置的错误即将对应的`os`类型移除即可
 
 4. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
 
@@ -262,7 +261,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
      "scripts": {
         "hippy:debug": "hippy-debug",
          // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
@@ -357,7 +356,7 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
       "scripts": {
         "hippy:debug": "hippy-debug",
         // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
       }
    }
    ```

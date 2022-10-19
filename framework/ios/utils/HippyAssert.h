@@ -55,7 +55,7 @@ HIPPY_EXTERN void _HippyAssertFormat(const char *, const char *, int, const char
 
 #define HippyAssertUnimplemented()                                            \
   do {                                                                        \
-    NativeRenderLogError(@"Not implemented in: %s", __FUNCTION__)             \
+    HippyLogError(@"Not implemented in: %s", __FUNCTION__)             \
     abort();                                                                  \
   } while (0)
 

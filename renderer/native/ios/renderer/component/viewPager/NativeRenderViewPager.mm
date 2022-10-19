@@ -170,10 +170,6 @@
 
 #pragma mark scrollview delegate methods
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (self.onPageScrollStateChanged) {
-        NSString *state = scrollView.isDragging ? @"dragging" : @"settling";
-        self.onPageScrollStateChanged(@{ @"pageScrollState": state });
-    }
 
     CGFloat currentContentOffset = self.contentOffset.x;
     CGFloat offset = currentContentOffset - self.previousStopOffset;
@@ -218,6 +214,9 @@
             [scrollViewListener scrollViewWillBeginDragging:scrollView];
         }
     }
+    if (self.onPageScrollStateChanged) {
+        self.onPageScrollStateChanged(@{ @"pageScrollState": @"dragging" });
+    }
 }
 
 - (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
@@ -239,6 +238,10 @@
     }
     if (!decelerate) {
         self.isScrolling = NO;
+    }
+    if (self.onPageScrollStateChanged) {
+        NSString *state = decelerate ? @"settling" : @"idle";
+        self.onPageScrollStateChanged(@{ @"pageScrollState": state });
     }
 }
 
@@ -432,7 +435,7 @@
     }
     else {
         if (self.needsResetPageIndex) {
-            [self setPage:_lastPageIndex animated:YES];
+            [self setPage:_lastPageIndex animated:NO];
             self.needsResetPageIndex= NO;
         }
     }

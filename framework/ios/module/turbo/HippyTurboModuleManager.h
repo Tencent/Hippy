@@ -21,26 +21,24 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <JavaScriptCore/JavaScriptCore.h>
 #import "HippyBridge.h"
 #import "HippyOCTurboModule.h"
 
-@protocol HippyTurboModuleDelegate <NSObject>
-@end
+#include "js_native_api.h"
 
 /**
  * The HippyTurboModuleManager is the module responsible for manager the tuoboModules.
  */
 @interface HippyTurboModuleManager : NSObject
 
-- (instancetype)initWithBridge:(HippyBridge *)bridge delegate:(id<HippyTurboModuleDelegate>) delegate;
+- (instancetype)initWithBridge:(HippyBridge *)bridge;
 
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
 
 + (BOOL)isTurboModule:(NSString *)name;
 
-- (void)bindJSObject:(JSValue *)jsObj toModuleName:(NSString *)moduleName;
-- (NSString *)turboModuleNameForJSObject:(JSValue *)jsObj;
+- (void)bindJSObject:(const std::shared_ptr<hippy::napi::CtxValue> &)object toModuleName:(NSString *)moduleName;
+- (NSString *)turboModuleNameForJSObject:(const std::shared_ptr<hippy::napi::CtxValue> &)object;
 
 @end
 

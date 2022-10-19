@@ -21,8 +21,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.mtt.hippy.views.textinput.HippyTextInput;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 

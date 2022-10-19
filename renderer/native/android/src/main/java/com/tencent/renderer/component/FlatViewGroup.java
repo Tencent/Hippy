@@ -21,7 +21,7 @@ import android.graphics.Canvas;
 import android.view.ViewGroup;
 
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 
 public class FlatViewGroup extends ViewGroup {
 

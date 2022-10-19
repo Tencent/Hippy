@@ -19,7 +19,7 @@
  */
 
 /**
- * All of component implemented by Native.
+ * All components implemented by Native.
  */
 
 const View = Symbol.for('View');

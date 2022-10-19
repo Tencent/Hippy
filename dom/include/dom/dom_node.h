@@ -183,6 +183,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
    */
   void EmplaceStyleMap(const std::string& key, const HippyValue& value);
 
+  void EmplaceStyleMapAndGetDiff(const std::string& key, const HippyValue& value,
+                                 std::unordered_map<std::string, std::shared_ptr<HippyValue>>& diff);
+
   void UpdateProperties(const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_style,
                         const std::unordered_map<std::string, std::shared_ptr<HippyValue>>& update_dom_ext);
 
@@ -205,18 +208,15 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   friend std::ostream& operator<<(std::ostream& os, const DomNode& dom_value);
 
  private:
-  uint32_t id_{};          // 节点唯一id
-  uint32_t pid_{};         // 父节点id
-  int32_t index_{};        // 当前节点在父节点孩子数组中的索引位置
-  std::string tag_name_;   // DSL 中定义的组件名称
-  std::string view_name_;  // 底层映射的组件
-  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style_map_;
-  // 样式预处理后结果
-  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> dom_ext_map_;
-  //  用户自定义数据
-  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> diff_;
+  uint32_t id_{};          // node id
+  uint32_t pid_{};         // parent node id
+  int32_t index_{};        // the index position in the child array of the parent node
+  std::string tag_name_;   // component name as defined in the DSL
+  std::string view_name_;  // render-defined component name
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> style_map_; // Result after style preprocessing
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> dom_ext_map_; //  user-defined data
+  std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<HippyValue>>> diff_; // User-defined data differences during Update.The map will be cleared after UpdateRenderNode
   std::shared_ptr<std::vector<std::string>> delete_props_;
-  // Update 时用户自定义数据差异，UpdateRenderNode 完成后会清空 map，以节省内存
 
   std::shared_ptr<LayoutNode> layout_node_;
   LayoutResult layout_;         // Layout 结果

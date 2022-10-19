@@ -23,7 +23,6 @@
 #import "HippyDefines.h"
 #import "HippyWebSocketManager.h"
 #import "NativeRenderConvert.h"
-#import "NativeRenderLog.h"
 #import "NativeRenderUtils.h"
 #import "HippySRWebSocket.h"
 

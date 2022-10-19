@@ -21,9 +21,19 @@ HippyVue provides `beforeLoadStyle` Vue options hook function, for developers to
     });
 ```
 
-# CSS selector and support for scoped
+# CSS Selector
 
-At present, the basic `ID`、`Class`、`Tag` selectors have been implemented, and the basic nesting relationship can be supported. The rest selectors and scoped are not supported yet.
+At present, the basic `Universal`, `Type`, `ID`, `Class`, `Grouping` selectors have been implemented, and the basic combinators except for sibling have been supported.
+
+
+## Scoped & Attribute
+
+> `2.15.0+` support Vue `scoped` and `Attribute` Selector
+
+How to use?
+
+1. Update `@hippy/vue` and  `@hippy/vue-css-loader` to `2.15.0+` version.
+2. Vue2.0 set `Vue.config.scoped = true;`（Vue2.0 `scoped` and `Attribute` disabled by default，Vue3.0 enabled by default）
 
 
 

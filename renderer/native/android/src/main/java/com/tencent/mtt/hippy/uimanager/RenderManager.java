@@ -16,9 +16,9 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
-import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_ALREADY_DELETED;
-import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_LAZY_LOAD;
-import static com.tencent.mtt.hippy.uimanager.RenderNode.FLAG_UPDATE_TOTAL_PROPS;
+import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_DELETED;
+import static com.tencent.renderer.node.RenderNode.FLAG_LAZY_LOAD;
+import static com.tencent.renderer.node.RenderNode.FLAG_UPDATE_TOTAL_PROPS;
 
 import android.content.Context;
 import android.view.View;
@@ -27,9 +27,10 @@ import androidx.annotation.NonNull;
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
-import com.tencent.renderer.RenderRootNode;
+import com.tencent.renderer.node.RootRenderNode; 
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.pool.NativeRenderPool.PoolType;
+import com.tencent.renderer.node.RenderNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,7 +74,7 @@ public class RenderManager {
     }
 
     public void createRootNode(int id) {
-        RenderRootNode node = new RenderRootNode(id, id, mRendererId, NodeProps.ROOT_NODE,
+        RootRenderNode node = new RootRenderNode(id, id, mRendererId, NodeProps.ROOT_NODE,
                 mControllerManager);
         NativeRendererManager.addRootNode(node);
     }
@@ -108,7 +109,7 @@ public class RenderManager {
     public void createNode(int rootId, int id, int pid, int index,
             @NonNull String className, @NonNull Map<String, Object> props) {
         boolean isLazy = mControllerManager.checkLazy(className);
-        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         RenderNode parentNode = getRenderNode(rootId, pid);
         if (rootNode == null || parentNode == null) {
             LogUtils.w(TAG, "createNode: parentNode == null, pid=" + pid);
@@ -197,9 +198,9 @@ public class RenderManager {
         if (node == null) {
             return;
         }
-        if (node.mParent != null && mControllerManager.hasView(rootId, id)) {
-            node.mParent.addDeleteChild(node);
-            addUpdateNodeIfNeeded(rootId, node.mParent);
+        if (node.getParent() != null && mControllerManager.hasView(rootId, id)) {
+            node.getParent().addDeleteChild(node);
+            addUpdateNodeIfNeeded(rootId, node.getParent());
         } else if (TextUtils.equals(NodeProps.ROOT_NODE, node.getClassName())) {
             addUpdateNodeIfNeeded(rootId, node);
         }
@@ -211,7 +212,7 @@ public class RenderManager {
         RenderNode node = getRenderNode(rootId, nodeId);
         if (node != null) {
             mControllerManager
-                    .dispatchUIFunction(rootId, nodeId, node.mClassName, functionName, params,
+                    .dispatchUIFunction(rootId, nodeId, node.getClassName(), functionName, params,
                             promise);
         }
     }
@@ -243,8 +244,8 @@ public class RenderManager {
         for (int i = 0; i < childCount; i++) {
             deleteSelfFromParent(rootId, node.getChildAt(0));
         }
-        if (node.mParent != null) {
-            node.mParent.removeChild(node);
+        if (node.getParent() != null) {
+            node.getParent().removeChild(node);
         }
         removeRenderNode(rootId, node.getId());
         node.setNodeFlag(FLAG_ALREADY_DELETED);
@@ -252,7 +253,7 @@ public class RenderManager {
     }
 
     private void removeRenderNode(int rootId, int nodeId) {
-        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootId == nodeId) {
             NativeRendererManager.removeRootNode(rootId);
         }
@@ -273,7 +274,7 @@ public class RenderManager {
 
     @Nullable
     public static RenderNode getRenderNode(int rootId, int id) {
-        RenderRootNode rootNode = NativeRendererManager.getRootNode(rootId);
+        RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         if (rootId == id) {
             return rootNode;
         }

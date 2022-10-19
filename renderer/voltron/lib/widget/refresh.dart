@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +26,8 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 import '../controller.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../util.dart';
+import '../widget.dart';
 
 class RefreshWrapperWidget extends FRStatefulWidget {
   final RefreshWrapperRenderViewModel _viewModel;
@@ -43,6 +43,9 @@ class RefreshWrapperWidget extends FRStatefulWidget {
 class _RefreshWrapperWidgetState extends FRState<RefreshWrapperWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build refresh wrapper widget",
+    );
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<RefreshWrapperRenderViewModel, RefreshWrapperRenderViewModel>(
@@ -69,6 +72,9 @@ class _RefreshWrapperWidgetState extends FRState<RefreshWrapperWidget> {
   }
 
   Widget refreshWrapper(RefreshWrapperRenderContentViewModel viewModel) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build refresh wrapper inner widget",
+    );
     var content = viewModel.content;
     if (content == null) {
       return Container();

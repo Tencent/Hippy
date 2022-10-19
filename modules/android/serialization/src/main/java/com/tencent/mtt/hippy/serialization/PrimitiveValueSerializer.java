@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.serialization.utils.IntegerPolyfill;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import java.math.BigInteger;
+import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -34,6 +35,10 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * Writer used for write buffer.
    */
   protected BinaryWriter writer;
+  /**
+   * The version of the data used for the serialization.
+   */
+  private final int version;
   /**
    * ID of the next serialized object.
    **/
@@ -58,16 +63,16 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * Small string max length, used for SSO(Short / Small String Optimization).
    */
   private static final int SSO_SMALL_STRING_MAX_LENGTH = 32;
-
   /**
    * ISO-8859-1(Latin1) max char
    */
   private static final char ISO_8859_1_MAX_CHAR = 0xff;
 
-  protected PrimitiveValueSerializer(BinaryWriter writer) {
+  protected PrimitiveValueSerializer(BinaryWriter writer, int version) {
     super();
 
     this.writer = writer;
+    this.version = version;
   }
 
   /**
@@ -101,20 +106,12 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
    * Writes out a header, which includes the format version.
    */
   public void writeHeader() {
-    writeTag(SerializationTag.VERSION);
-    writer.putVarint(LATEST_VERSION);
+    writeTag(PrimitiveSerializationTag.VERSION);
+    writer.putVarint(version);
   }
 
-  protected void writeTag(SerializationTag tag) {
-    writer.putByte(tag.getTag());
-  }
-
-  protected void writeTag(ArrayBufferViewTag tag) {
-    writer.putVarint(tag.getTag());
-  }
-
-  protected void writeTag(ErrorTag tag) {
-    writer.putVarint(tag.getTag());
+  protected void writeTag(byte tag) {
+    writer.putByte(tag);
   }
 
   /**
@@ -127,39 +124,42 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
       writeString((String) value);
     } else if (value instanceof Number) {
       if (value instanceof Integer || value instanceof Short || value instanceof Byte) {
-        writeTag(SerializationTag.INT32);
+        writeTag(PrimitiveSerializationTag.INT32);
         writeInt32((int) value);
       } else if (value instanceof Long) {
         long longValue = (long) value;
         if (longValue <= MAX_UINT32_VALUE && longValue >= MIN_UINT32_VALUE) {
-          writeTag(SerializationTag.UINT32);
+          writeTag(PrimitiveSerializationTag.UINT32);
           writer.putVarint(longValue);
         } else {
-          writeTag(SerializationTag.DOUBLE);
+          writeTag(PrimitiveSerializationTag.DOUBLE);
           writer.putDouble(((Number) value).doubleValue());
         }
       } else if (value instanceof BigInteger) {
-        writeTag(SerializationTag.BIG_INT);
+        writeTag(PrimitiveSerializationTag.BIG_INT);
         writeBigIntContents((BigInteger) value);
       } else {
-        writeTag(SerializationTag.DOUBLE);
+        writeTag(PrimitiveSerializationTag.DOUBLE);
         writer.putDouble(((Number) value).doubleValue());
       }
     } else if (value == Boolean.TRUE) {
-      writeTag(SerializationTag.TRUE);
+      writeTag(PrimitiveSerializationTag.TRUE);
     } else if (value == Boolean.FALSE) {
-      writeTag(SerializationTag.FALSE);
+      writeTag(PrimitiveSerializationTag.FALSE);
     } else if (value == Hole) {
-      writeTag(SerializationTag.THE_HOLE);
+      writeTag(PrimitiveSerializationTag.THE_HOLE);
     } else if (value == Undefined) {
-      writeTag(SerializationTag.UNDEFINED);
+      writeTag(PrimitiveSerializationTag.UNDEFINED);
     } else if (value == Null) {
-      writeTag(SerializationTag.NULL);
+      writeTag(PrimitiveSerializationTag.NULL);
     } else {
       Integer id = objectMap.get(value);
       if (id != null) {
-        writeTag(SerializationTag.OBJECT_REFERENCE);
+        writeTag(PrimitiveSerializationTag.OBJECT_REFERENCE);
         writer.putVarint(id);
+      } else if (value instanceof Date) {
+        assignId(value);
+        writeDate((Date) value);
       } else {
         return false;
       }
@@ -307,7 +307,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     }
 
     // region one byte string, commonly path
-    writeTag(SerializationTag.ONE_BYTE_STRING);
+    writeTag(PrimitiveSerializationTag.ONE_BYTE_STRING);
     int headerBytes = writer.putVarint(length) + 1;
     int i = 0;
     // Designed to take advantage of
@@ -328,7 +328,7 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     // endregion
 
     // region two byte string, universal path
-    writeTag(SerializationTag.TWO_BYTE_STRING);
+    writeTag(PrimitiveSerializationTag.TWO_BYTE_STRING);
     writer.putVarint(length * 2L);
     if (length > SSO_SMALL_STRING_MAX_LENGTH) {
       for (i = 0; i < length; i++) {
@@ -370,7 +370,21 @@ public abstract class PrimitiveValueSerializer extends SharedSerialization {
     }
   }
 
+  private void writeDate(@NonNull Date date) {
+    writeTag(PrimitiveSerializationTag.DATE);
+    writer.putDouble(date.getTime());
+  }
+
   protected void assignId(Object object) {
     objectMap.put(object, nextId++);
+  }
+
+  /**
+   * Get the version of the data used for the serialization.
+   *
+   * @return version
+   */
+  public int getVersion() {
+    return version;
   }
 }

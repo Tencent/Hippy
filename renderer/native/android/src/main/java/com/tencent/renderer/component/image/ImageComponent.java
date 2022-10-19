@@ -33,14 +33,14 @@ import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.drawable.ContentDrawable.ScaleType;
 
 import com.tencent.renderer.utils.EventUtils;
-import com.tencent.renderer.utils.UrlUtils;
 
+import com.tencent.vfs.UrlUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;

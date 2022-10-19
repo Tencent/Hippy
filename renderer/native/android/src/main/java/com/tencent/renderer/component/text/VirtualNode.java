@@ -19,6 +19,7 @@ package com.tencent.renderer.component.text;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 
+import android.text.style.ImageSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -135,9 +136,13 @@ public abstract class VirtualNode {
         }
 
         public void execute(SpannableStringBuilder builder) {
-            int spanFlags = Spannable.SPAN_EXCLUSIVE_INCLUSIVE;
-            if (mStart == 0) {
+            int spanFlags;
+            if (mWhat instanceof ImageSpan) {
+                spanFlags = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE;
+            } else if (mStart == 0) {
                 spanFlags = Spannable.SPAN_INCLUSIVE_INCLUSIVE;
+            } else {
+                spanFlags = Spannable.SPAN_EXCLUSIVE_INCLUSIVE;
             }
             builder.setSpan(mWhat, mStart, mEnd, spanFlags);
         }

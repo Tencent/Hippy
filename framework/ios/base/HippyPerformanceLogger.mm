@@ -24,7 +24,7 @@
 
 #import "HippyPerformanceLogger.h"
 #import "HippyRootView.h"
-#import "NativeRenderLog.h"
+#import "HippyLog.h"
 
 @interface HippyPerformanceLogger () {
     int64_t _data[HippyPLSize][2];
@@ -71,7 +71,7 @@
     if (_data[tag][0] != 0 && _data[tag][1] == 0) {
         _data[tag][1] = CACurrentMediaTime() * 1000;
     } else {
-        NativeRenderLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
+        HippyLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
     }
 }
 
@@ -94,7 +94,7 @@
         _data[tag][1] += CACurrentMediaTime() * 1000 - _data[tag][0];
         _data[tag][0] = 0;
     } else {
-        NativeRenderLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
+        HippyLogInfo(@"[Hippy_OC_Log][Performance],Unbalanced calls start/end for tag %li", (unsigned long)tag);
     }
 }
 

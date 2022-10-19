@@ -95,3 +95,7 @@ CMakeLists.txt @medns
 /modules/android/ @siguangli
 /modules/android/jni @churchill-zhang
 /modules/ios/ @ozonelmy
+/modules/vfs/ @churchill-zhang
+
+# tdf renderer related
+/renderer/tdf/android/src/main/java/ @siguangli

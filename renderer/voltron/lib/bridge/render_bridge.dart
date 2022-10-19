@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -241,7 +241,7 @@ class VoltronRenderBridgeManager implements Destroyable {
     FlexLayoutParams layoutParams,
   ) {
     LogUtils.dBridge(
-      'call calculate node layout(page:$instanceId, node:$nodeId, layout:$layoutParams)',
+      'ID:$nodeId, call calculate node layout, page:$instanceId, parent layout:$layoutParams',
     );
     if (_isBridgeInit) {
       return _context.renderManager.calculateLayout(

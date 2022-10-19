@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
-import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import com.tencent.renderer.NativeRenderException;
@@ -39,16 +38,17 @@ import java.util.Map;
  * for compatible with old versions, temporary support {@link HippyMap} and {@link HippyArray}
  * but will removed in the future
  */
+@SuppressWarnings("deprecation")
 public class Serializer extends PrimitiveValueSerializer {
 
     private static final String TAG = "Serializer";
 
     public Serializer() {
-        this(null);
+        this(null, 13);
     }
 
-    public Serializer(BinaryWriter writer) {
-        super(writer);
+    public Serializer(BinaryWriter writer, int version) {
+        super(writer, version);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class Serializer extends PrimitiveValueSerializer {
         return null;
     }
 
-    @SuppressWarnings({"rawtypes", "deprecation"})
+    @SuppressWarnings("rawtypes")
     @Override
     public boolean writeValue(@Nullable Object object) throws NativeRenderException {
         if (object == null) {
@@ -92,9 +92,9 @@ public class Serializer extends PrimitiveValueSerializer {
             assignId(object);
             for (Object key : ((Map) object).keySet()) {
                 if (key instanceof String) {
-                    writeJSObject((Map) object);
+                    writeObject((Map) object);
                 } else {
-                    writeJSMap((Map) object);
+                    writeMap((Map) object);
                 }
                 break;
             }
@@ -109,21 +109,21 @@ public class Serializer extends PrimitiveValueSerializer {
     }
 
     @SuppressWarnings("rawtypes")
-    private void writeJSMap(@NonNull Map map) {
-        writeTag(SerializationTag.BEGIN_JS_MAP);
+    private void writeMap(@NonNull Map map) {
+        writeTag(SerializationTag.BEGIN_MAP);
         int count = 0;
         for (Object key : map.keySet()) {
             count++;
             writeValue(key);
             writeValue(map.get(key));
         }
-        writeTag(SerializationTag.END_JS_MAP);
+        writeTag(SerializationTag.END_MAP);
         writer.putVarint(2L * count);
     }
 
     @SuppressWarnings("rawtypes")
-    private void writeJSObject(@NonNull Map map) {
-        writeTag(SerializationTag.BEGIN_JS_OBJECT);
+    private void writeObject(@NonNull Map map) {
+        writeTag(SerializationTag.BEGIN_OBJECT);
         for (Object key : map.keySet()) {
             if (key == null) {
                 writeString("null");
@@ -132,18 +132,18 @@ public class Serializer extends PrimitiveValueSerializer {
             }
             writeValue(map.get(key));
         }
-        writeTag(SerializationTag.END_JS_OBJECT);
+        writeTag(SerializationTag.END_OBJECT);
         writer.putVarint(map.size());
     }
 
     private void writeList(@NonNull List<?> list) {
         int length = list.size();
-        writeTag(SerializationTag.BEGIN_DENSE_JS_ARRAY);
+        writeTag(SerializationTag.BEGIN_DENSE_ARRAY);
         writer.putVarint(length);
         for (Object value : list) {
             writeValue(value);
         }
-        writeTag(SerializationTag.END_DENSE_JS_ARRAY);
+        writeTag(SerializationTag.END_DENSE_ARRAY);
         writer.putVarint(0);
         writer.putVarint(length);
     }

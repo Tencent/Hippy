@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,9 +22,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../gesture.dart';
+import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
 class ScrollViewWidget extends FRStatefulWidget {
   final ScrollViewRenderViewModel _viewModel;
@@ -40,6 +40,7 @@ class ScrollViewWidget extends FRStatefulWidget {
 class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build scroller widget");
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<ScrollViewRenderViewModel, ScrollViewRenderViewModel>(
@@ -66,6 +67,7 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
   }
 
   Widget scrollView(ScrollViewDetailRenderViewModel widgetModel) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build scroller inner widget");
     if (widgetModel.children.isEmpty) {
       return Container();
     }
@@ -123,9 +125,6 @@ class _ScrollViewWidgetState extends FRState<ScrollViewWidget> {
   @override
   void dispose() {
     super.dispose();
-    if (!widget._viewModel.isDispose) {
-      widget._viewModel.onDispose();
-    }
   }
 }
 

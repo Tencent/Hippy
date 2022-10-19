@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,9 +63,11 @@ abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
     _instanceMap.values.forEach(call);
   }
 
-  RenderContext(int id, List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor)
+  RenderContext(int id, List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor, {
+    VoltronRenderBridgeManager? bridgetManager,
+  })
       : _engineMonitor = engineMonitor {
-    _bridgeManager = VoltronRenderBridgeManager(id, this);
+    _bridgeManager = bridgetManager ?? VoltronRenderBridgeManager(id, this);
     _domHolder = DomHolder(this);
     _renderManager = RenderManager(this, generators);
     _virtualNodeManager = VirtualNodeManager(this);

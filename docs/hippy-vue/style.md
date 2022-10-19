@@ -19,9 +19,18 @@ HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者
     });
 ```
 
-# CSS 选择器和 scoped 的支持
+# CSS 选择器
 
-目前已经实现了基本的 `ID`、`Class`、`Tag` 选择器，而且可以支持基本的嵌套关系，其余选择器和 scoped 还未支持。
+目前已经实现了基本的 `Universal`、`Type`、`ID`、`Class`、`Grouping` 选择器，而且可以支持除兄弟组合器以外的基本组合关系。
+
+## Scoped & Attribute
+
+> `2.15.0` 版本增加支持 Vue `scoped` 能力和 `Attribute` 选择器
+
+如何开启？
+
+1. 升级 `@hippy/vue` 和 `@hippy/vue-css-loader` 到 `2.15.0+` 版本
+2. Vue2.0 设置全局开关 `Vue.config.scoped = true;`（Vue2.0 默认 `scoped` 和 `Attribute` 选择器能力关闭，Vue3.0 默认开启无需设置开关）
 
 
 

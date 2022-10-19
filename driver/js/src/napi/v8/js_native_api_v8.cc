@@ -50,8 +50,6 @@ std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
 
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
-  FOOTSTONE_DLOG(INFO) << "JsCallbackFunc begin";
-
   auto data = info.Data().As<v8::External>();
   if (data.IsEmpty()) {
     info.GetReturnValue().SetUndefined();
@@ -87,7 +85,6 @@ void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   }
 
   v8::Context::Scope context_scope(context);
-  FOOTSTONE_DLOG(INFO) << "callback_info info.length = " << info.Length();
   for (int i = 0; i < info.Length(); i++) {
     callback_info.AddValue(std::make_shared<V8CtxValue>(isolate, info[i]));
   }
@@ -1562,7 +1559,7 @@ static void ArrayBufferDataDeleter(void* data, size_t length, void* deleter_data
 }
 #endif //V8_MAJOR_VERSION >= 9
 
-std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(const void* buffer, size_t length) {
+std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(void* buffer, size_t length) {
   if (!buffer) {
     return nullptr;
   }
@@ -1572,7 +1569,7 @@ std::shared_ptr<CtxValue> V8Ctx::CreateByteBuffer(const void* buffer, size_t len
 #if V8_MAJOR_VERSION < 9
   v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_, buffer, length, v8::ArrayBufferCreationMode::kInternalized);
 #else
-  auto backingStore = v8::ArrayBuffer::NewBackingStore(const_cast<void*>(buffer), length, ArrayBufferDataDeleter,
+  auto backingStore = v8::ArrayBuffer::NewBackingStore(buffer, length, ArrayBufferDataDeleter,
                                                        nullptr);
   v8::Local<v8::ArrayBuffer> array_buffer = v8::ArrayBuffer::New(isolate_, std::move(backingStore));
 #endif //V8_MAJOR_VERSION >= 9
@@ -1731,7 +1728,6 @@ bool V8Ctx::GetValueBoolean(const std::shared_ptr<CtxValue>& value, bool* result
 
 bool V8Ctx::GetValueString(const std::shared_ptr<CtxValue>& value,
                            string_view* result) {
-  FOOTSTONE_DLOG(INFO) << "V8Ctx::GetValueString";
   if (!value || !result) {
     return false;
   }

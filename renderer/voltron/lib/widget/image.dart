@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,18 +23,17 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../common/voltron_map.dart';
+import '../common.dart';
 import '../render.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
 class ImageWidget extends FRStatefulWidget {
-  final ImageRenderViewModel viewModel;
+  final ImageRenderViewModel _viewModel;
 
-  ImageWidget(this.viewModel) : super(viewModel);
+  ImageWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
@@ -45,12 +44,9 @@ class ImageWidget extends FRStatefulWidget {
 class _ImageWidgetState extends FRState<ImageWidget> {
   @override
   Widget build(BuildContext context) {
-    LogUtils.dWidget(
-      "ImageWidget",
-      "image widget:(id: ${widget.viewModel.id}, name: ${widget.viewModel.name}, parent: ${widget.viewModel.parent?.id})",
-    );
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build image widget");
     return ChangeNotifierProvider.value(
-      value: widget.viewModel,
+      value: widget._viewModel,
       child: Consumer<ImageRenderViewModel>(
         builder: (context, viewModel, widget) {
           return PositionWidget(
@@ -63,6 +59,7 @@ class _ImageWidgetState extends FRState<ImageWidget> {
   }
 
   Widget imageChild(ImageRenderViewModel imageViewModel) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build image inner widget");
     var image = imageViewModel.image;
     var defaultImage = imageViewModel.defaultImage;
     late Widget imageWidget;

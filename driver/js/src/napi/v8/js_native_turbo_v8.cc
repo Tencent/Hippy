@@ -169,7 +169,9 @@ std::shared_ptr<HostObject> V8TurboEnv::GetHostObject(
   }
   return nullptr;
 }
-
+std::unique_ptr<TurboEnv> GetTurboEnvInstance(const std::shared_ptr<Ctx> &context) {
+  return std::make_unique<V8TurboEnv>(context);
+}
 } // namespace napi
 } // namespace driver
 } // namespace hippy
