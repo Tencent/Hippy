@@ -148,6 +148,8 @@ For custom fonts, refer to [custom font instructions](guide/custom-font)
 
 Font size
 
+> Default value is `14`
+
 | Type   | Required| Supported Platforms
 | ------ | -------- | --- |
 | number |No|  Android,iOS
