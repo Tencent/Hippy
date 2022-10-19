@@ -14,24 +14,23 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer;
+package com.tencent.renderer.node;
 
 import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.utils.ChoreographerUtils;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class RenderRootNode extends RenderNode {
+public class RootRenderNode extends RenderNode {
     private final int mRendererId;
     private final SparseArray<RenderNode> mNodes = new SparseArray<>();
     private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
 
-    public RenderRootNode(int rootId, int id, int rendererId, @NonNull String className,
+    public RootRenderNode(int rootId, int id, int rendererId, @NonNull String className,
             @NonNull ControllerManager controllerManager) {
         super(rootId, id, className, controllerManager);
         mRendererId = rendererId;

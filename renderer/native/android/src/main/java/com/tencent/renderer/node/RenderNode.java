@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.uimanager;
+package com.tencent.renderer.node;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REUSE_VIEW_HAS_ABANDONED_NODE_ERR;
 
@@ -27,6 +27,8 @@ import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
+import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
@@ -359,7 +361,7 @@ public class RenderNode {
     }
 
     @Nullable
-    protected View createView(boolean createNow) {
+    public View createView(boolean createNow) {
         deleteSubviewIfNeeded();
         if (shouldCreateView() && !TextUtils.equals(NodeProps.ROOT_NODE, mClassName)
                 && mParent != null) {
@@ -561,13 +563,13 @@ public class RenderNode {
         }
     }
 
-    protected void batchStart() {
+    public void batchStart() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchStart(mRootId, mId, mClassName);
         }
     }
 
-    protected void batchComplete() {
+    public void batchComplete() {
         if (!isDeleted() && !isLazyLoad()) {
             mControllerManager.onBatchComplete(mRootId, mId, mClassName);
             if (mHostViewRef == null || mHostViewRef.get() == null) {

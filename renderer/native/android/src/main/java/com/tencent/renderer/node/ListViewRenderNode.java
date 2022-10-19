@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.uimanager;
+package com.tencent.renderer.node;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import java.util.Map;
 
-public class PullHeaderRenderNode extends ListItemRenderNode {
+public class ListViewRenderNode extends RenderNode {
 
-    public PullHeaderRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
-            @NonNull String className, @NonNull ControllerManager componentManager, boolean isLazyLoad) {
+    public ListViewRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            String className, ControllerManager componentManager, boolean isLazyLoad) {
         super(rootId, id, props, className, componentManager, isLazyLoad);
     }
 
     @Override
-    public boolean shouldSticky() {
-        return false;
+    protected void addChildToPendingList(RenderNode node) {
+        // Since the recycler view of the system will automatically complete add sub views,
+        // we don't need to deal with it in this function
     }
 
     @Override
-    public int getItemViewType() {
-        return this.getClassName().hashCode();
-    }
-
-    @Override
-    public boolean isPullHeader() {
-        return true;
+    public boolean removeChild(RenderNode node) {
+        if (node instanceof ListItemRenderNode) {
+            ListItemRenderNode listItemRenderNode = (ListItemRenderNode) node;
+            listItemRenderNode.setRecycleItemTypeChangeListener(null);
+        }
+        return super.removeChild(node);
     }
 }

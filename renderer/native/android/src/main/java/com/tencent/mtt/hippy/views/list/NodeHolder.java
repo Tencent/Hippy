@@ -15,7 +15,7 @@
  */
 package com.tencent.mtt.hippy.views.list;
 
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.supportui.views.recyclerview.ContentHolder;
 import com.tencent.mtt.supportui.views.recyclerview.RecyclerViewBase;
 

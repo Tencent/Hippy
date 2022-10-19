@@ -110,7 +110,8 @@ public class TextVirtualNode extends VirtualNode {
     @Nullable
     protected Map<String, Object> mUnusedProps;
 
-    public TextVirtualNode(int rootId, int id, int pid, int index, @NonNull NativeRender nativeRender) {
+    public TextVirtualNode(int rootId, int id, int pid, int index,
+            @NonNull NativeRender nativeRender) {
         super(rootId, id, pid, index);
         mFontAdapter = nativeRender.getFontAdapter();
         if (I18nUtil.isRTL()) {
@@ -529,14 +530,14 @@ public class TextVirtualNode extends VirtualNode {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return StaticLayout.Builder.obtain(source, 0, source.length(), paint, width)
-                .setAlignment(alignment)
-                .setLineSpacing(mLineSpacingExtra, getLineSpacingMultiplier())
-                .setIncludePad(true)
-                .setBreakStrategy(getBreakStrategy())
-                .build();
+                    .setAlignment(alignment)
+                    .setLineSpacing(mLineSpacingExtra, getLineSpacingMultiplier())
+                    .setIncludePad(true)
+                    .setBreakStrategy(getBreakStrategy())
+                    .build();
         } else {
             return new StaticLayout(source, paint, width, alignment, getLineSpacingMultiplier(),
-                mLineSpacingExtra, true);
+                    mLineSpacingExtra, true);
         }
     }
 
@@ -554,7 +555,8 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
-    private StaticLayout truncateLayoutWithNumberOfLine(Layout preLayout, int width, int numberOfLines) {
+    private StaticLayout truncateLayoutWithNumberOfLine(Layout preLayout, int width,
+            int numberOfLines) {
         int lineCount = preLayout.getLineCount();
         assert lineCount >= 2;
         CharSequence origin = preLayout.getText();
@@ -573,15 +575,20 @@ public class TextVirtualNode extends VirtualNode {
             measurePaint.set(paint);
             int start = preLayout.getLineStart(numberOfLines - 1);
             CharSequence formerLines = start > 0 ? origin.subSequence(0, start) : null;
-            boolean newLine = formerLines != null && formerLines.charAt(formerLines.length() - 1) != '\n';
+            boolean newLine =
+                    formerLines != null && formerLines.charAt(formerLines.length() - 1) != '\n';
             CharSequence lastLine;
             if (MODE_HEAD.equals(mEllipsizeMode)) {
-                float formerTextSize = numberOfLines >= 2 ? getLineHeight(preLayout, numberOfLines - 2) : paint.getTextSize();
-                float latterTextSize = Math.max(getLineHeight(preLayout, lineCount - 2), getLineHeight(preLayout, lineCount - 1));
+                float formerTextSize =
+                        numberOfLines >= 2 ? getLineHeight(preLayout, numberOfLines - 2)
+                                : paint.getTextSize();
+                float latterTextSize = Math.max(getLineHeight(preLayout, lineCount - 2),
+                        getLineHeight(preLayout, lineCount - 1));
                 measurePaint.setTextSize(Math.max(formerTextSize, latterTextSize));
                 lastLine = ellipsizeHead(origin, measurePaint, width, start);
             } else if (MODE_MIDDLE.equals(mEllipsizeMode)) {
-                measurePaint.setTextSize(Math.max(getLineHeight(preLayout, numberOfLines - 1), getLineHeight(preLayout, lineCount - 1)));
+                measurePaint.setTextSize(Math.max(getLineHeight(preLayout, numberOfLines - 1),
+                        getLineHeight(preLayout, lineCount - 1)));
                 lastLine = ellipsizeMiddle(origin, measurePaint, width, start);
             } else /*if (MODE_TAIL.equals(mEllipsizeMode))*/ {
                 measurePaint.setTextSize(getLineHeight(preLayout, numberOfLines - 1));
@@ -589,7 +596,8 @@ public class TextVirtualNode extends VirtualNode {
                 lastLine = ellipsizeTail(origin, measurePaint, width, start, end);
             }
             // concat everything
-            truncated = formerLines == null ? lastLine : TextUtils.concat(formerLines, newLine ? "\n" : "", lastLine);
+            truncated = formerLines == null ? lastLine
+                    : TextUtils.concat(formerLines, newLine ? "\n" : "", lastLine);
         }
 
         return buildStaticLayout(truncated, paint, width);
@@ -606,13 +614,15 @@ public class TextVirtualNode extends VirtualNode {
         return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.START);
     }
 
-    private CharSequence ellipsizeMiddle(CharSequence origin, TextPaint paint, int width, int start) {
+    private CharSequence ellipsizeMiddle(CharSequence origin, TextPaint paint, int width,
+            int start) {
         int leftEnd, rightStart;
         if ((leftEnd = TextUtils.indexOf(origin, '\n', start)) != -1) {
             rightStart = TextUtils.lastIndexOf(origin, '\n') + 1;
             assert leftEnd < rightStart;
             // "${first line of the rest part}…${last line of the rest part}"
-            CharSequence tmp = TextUtils.concat(origin.subSequence(start, leftEnd), ELLIPSIS, origin.subSequence(rightStart, origin.length()));
+            CharSequence tmp = TextUtils.concat(origin.subSequence(start, leftEnd), ELLIPSIS,
+                    origin.subSequence(rightStart, origin.length()));
             final int[] outRange = new int[2];
             TextUtils.EllipsizeCallback callback = new TextUtils.EllipsizeCallback() {
                 @Override
@@ -621,7 +631,8 @@ public class TextVirtualNode extends VirtualNode {
                     outRange[1] = r;
                 }
             };
-            CharSequence line = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE, false, callback);
+            CharSequence line = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.MIDDLE,
+                    false, callback);
             if (line != tmp) {
                 int pos0 = leftEnd - start;
                 int pos1 = pos0 + ELLIPSIS.length();
@@ -639,7 +650,8 @@ public class TextVirtualNode extends VirtualNode {
         }
     }
 
-    private CharSequence ellipsizeTail(CharSequence origin, TextPaint paint, int width, int start, int end) {
+    private CharSequence ellipsizeTail(CharSequence origin, TextPaint paint, int width, int start,
+            int end) {
         if (origin.charAt(end - 1) == '\n') {
             // there will be an unexpected blank line, if ends with a new line char, trim it
             --end;
