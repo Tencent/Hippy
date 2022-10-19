@@ -63,7 +63,6 @@ set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} dom)
 
 # region vfs
 GlobalPackages_Add(vfs)
-target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} vfs)
 # endregion
 
