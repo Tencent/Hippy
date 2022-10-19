@@ -63,9 +63,9 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region footstone
-GlobalPackages_Add(vfs)
-target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
+# region vfs
+add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_DIR}/vfs/native)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs_native)
 # endregion
 
 # region devtools
