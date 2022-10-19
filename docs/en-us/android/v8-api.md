@@ -1,6 +1,6 @@
 # V8 API
 
-Get V8 JS engine instance and operate it。
+Get V8 JS engine instance and operate it.
 
 ---
 
