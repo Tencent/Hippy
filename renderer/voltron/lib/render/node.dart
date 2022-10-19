@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -131,6 +131,8 @@ class RenderNode extends StyleNode {
 
   @override
   double get layoutHeight => _height;
+
+  RenderViewModel? get viewModel => _viewModel;
 
   bool get shouldCreateView => !_isLazyLoad && _viewModel == null;
 
@@ -340,7 +342,7 @@ class RenderNode extends StyleNode {
 
   void update() {
     LogUtils.dRenderNode(
-      "($hashCode) Id:$id start updateStyle, shouldUpdateView: ${_shouldUpdateView()}",
+      "ID:$id, updateStyle start, shouldUpdateView: ${_shouldUpdateView()}",
     );
 
     if (_shouldUpdateView()) {
@@ -381,12 +383,12 @@ class RenderNode extends StyleNode {
       _viewModel?.sortChildren();
 
       LogUtils.dRenderNode(
-        "($hashCode) Id:$id start update layout:$_hasUpdateLayout",
+        "ID:$id, update style, update layout start, hasUpdateLayout:$_hasUpdateLayout",
       );
       if (_hasUpdateLayout && !isRoot) {
         _controllerManager.updateLayout(this);
         LogUtils.dRenderNode(
-          "($hashCode) Id:$id end update layout:[$layoutX, $layoutY, $_width, $_height]",
+          "ID:$id, update style, update layout end, newLayout:[$layoutX, $layoutY, $_width, $_height]",
         );
         _hasUpdateLayout = false;
       }
@@ -422,7 +424,7 @@ class RenderNode extends StyleNode {
         _notifyManageChildren = false;
       }
     }
-    LogUtils.dRenderNode("($hashCode)  Id:$id end updateStyle");
+    LogUtils.dRenderNode("ID:$id, update style end");
   }
 
   void applyProps() {
@@ -437,7 +439,6 @@ class RenderNode extends StyleNode {
   }
 
   void updateLayout(double x, double y, double w, double h) {
-    LogUtils.dLayout("update ($hashCode id:$id) layout : ($x, $y), ($w, $h)");
     _x = x;
     _y = y;
     _width = w;

@@ -73,6 +73,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String LAYOUT_TOP = "top";
     private static final String LAYOUT_WIDTH = "width";
     private static final String LAYOUT_HEIGHT = "height";
+    private static final String EVENT_PREFIX = "on";
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 1000;
     @Nullable
     private FrameworkProxy mFrameworkProxy;
@@ -282,6 +283,10 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             @Nullable Object params, boolean useCapture, boolean useBubble, EventType eventType) {
         // Because the native(C++) DOM use lowercase names, convert to lowercase here before call JNI.
         String lowerCaseEventName = eventName.toLowerCase();
+        // Compatible with events prefixed with on in old version
+        if (lowerCaseEventName.startsWith(EVENT_PREFIX)) {
+            lowerCaseEventName = lowerCaseEventName.substring(EVENT_PREFIX.length());
+        }
         if (eventType != EventType.EVENT_TYPE_GESTURE && !mRenderManager.checkRegisteredEvent(
                 rootId, nodeId, lowerCaseEventName)) {
             return;

@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -199,10 +199,7 @@ class RenderManager
         InstanceLifeCycleDelegate,
         RenderExecutorDelegate,
         EventRenderDelegate
-    implements
-        Destroyable,
-        InstanceLifecycleEventListener,
-        EngineLifecycleEventListener {
+    implements Destroyable, InstanceLifecycleEventListener, EngineLifecycleEventListener {
   final List<RenderNode> _uiUpdateNodes = [];
   final List<RenderNode> _nullUiUpdateNodes = [];
   final List<int> _animationNodeIds = [];
@@ -218,8 +215,7 @@ class RenderManager
     this.context,
     List<ViewControllerGenerator>? generators,
   )   : _controllerManager = ControllerManager(context, generators),
-        _nativeRenderManagerId =
-            context.bridgeManager.createNativeRenderManager() {
+        _nativeRenderManagerId = context.bridgeManager.createNativeRenderManager() {
     context.addEngineLifecycleEventListener(this);
     context.addInstanceLifecycleEventListener(this);
   }
@@ -274,7 +270,7 @@ class RenderManager
         isLazy || parentNode.isLazyLoad,
       );
       LogUtils.dRender(
-        "createNode ID:$id pID:$pId index:$childIndex className:$name finish:${uiNode.hashCode} prop:$props",
+        " ID:$id, createNode, pID:$pId, index:$childIndex, className:$name finish:${uiNode.hashCode} prop:$props",
       );
       uiNode?.addEvent(nodeEvents(instanceId, id));
       parentNode.addChild(uiNode, childIndex);
@@ -282,7 +278,7 @@ class RenderManager
       addUpdateNodeIfNeeded(uiNode);
     } else {
       LogUtils.dRender(
-        "createNode error ID:$id pID:$pId index:$childIndex className:$name, tree: ${tree?.id}, parent: ${parentNode?.id}",
+        "ID:$id, createNode error, pID:$pId index:$childIndex className:$name, tree: ${tree?.id}, parent: ${parentNode?.id}",
       );
     }
   }
@@ -345,7 +341,7 @@ class RenderManager
   ) {
     var uiNode = controllerManager.findNode(instanceId, id);
     LogUtils.dLayout(
-      "updateLayout ID:$id, ($x, $y, $w, $h), uiNode:${uiNode?.id}, ${uiNode?.hashCode}",
+      "ID:$id, updateLayout, x:$x, y:$y, w:$w, h:$h",
     );
     if (uiNode != null) {
       uiNode.updateLayout(x, y, w, h);
@@ -381,8 +377,7 @@ class RenderManager
 
   RenderBox? getRenderBox(int? instanceId, int? nodeId) {
     final node = getNode(instanceId, nodeId);
-    final renderBox =
-        node?.renderViewModel.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox = node?.renderViewModel.currentContext?.findRenderObject() as RenderBox?;
 
     return renderBox;
   }
@@ -395,7 +390,7 @@ class RenderManager
   }
 
   void updateNode(int instanceId, int id, VoltronMap map) {
-    LogUtils.dRender("update node ID:$id, param:($map)");
+    LogUtils.dRender("ID:$id, update node, param:($map)");
     var uiNode = controllerManager.findNode(instanceId, id);
     if (uiNode != null) {
       uiNode.updateNode(map);
@@ -414,7 +409,8 @@ class RenderManager
         var renderNode = controllerManager.findNode(instanceId, moveId);
         if (renderNode != null) {
           LogUtils.dRender(
-              "move node ID:$moveId from ${parentNode.id} to ${newParent.id}");
+            "ID:$moveId, move node ID:$moveId from ${parentNode.id} to ${newParent.id}",
+          );
           arrayList.add(renderNode);
           parentNode.removeChild(renderNode, needRemoveChild: false);
           newParent.addChild(renderNode, i);
@@ -428,7 +424,7 @@ class RenderManager
   }
 
   void updateExtra(int instanceId, int id, Object object) {
-    LogUtils.dRender("updateExtra ID:$id");
+    LogUtils.dRender("ID:$id, updateExtra");
     var uiNode = controllerManager.findNode(instanceId, id);
     if (uiNode != null) {
       uiNode.updateExtra(object);
@@ -438,7 +434,7 @@ class RenderManager
   }
 
   void setEventListener(int instanceId, int id, String eventName) {
-    LogUtils.dRender("set event ID:$id, event:$eventName");
+    LogUtils.dRender("ID:$id, set event, event:$eventName");
     bool needAdd = addEvent(instanceId, id, eventName);
     if (needAdd) {
       var uiNode = controllerManager.findNode(instanceId, id);
@@ -490,9 +486,9 @@ class RenderManager
         addUpdateNodeIfNeeded(uiNode);
       }
       _deleteSelfFromParent(uiNode);
-      LogUtils.dRender("delete node ID:$id finish, ${uiNode.hashCode}");
+      LogUtils.dRender("ID:$id, delete node success");
     } else {
-      LogUtils.w(_kTag, "delete node id:$id error, node not found");
+      LogUtils.dRender("ID:$id, delete node error, node not found");
     }
   }
 

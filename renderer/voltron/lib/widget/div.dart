@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,12 +29,12 @@ import '../controller.dart';
 import '../style.dart';
 import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
+import '../widget.dart';
 
 class DivWidget extends FRStatefulWidget {
-  final DivRenderViewModel viewModel;
+  final DivRenderViewModel _viewModel;
 
-  DivWidget(this.viewModel) : super(viewModel);
+  DivWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
@@ -45,9 +45,11 @@ class DivWidget extends FRStatefulWidget {
 class _DivWidgetState extends FRState<DivWidget> {
   @override
   Widget build(BuildContext context) {
-    LogUtils.dWidget('div', "type: DivWidget(${widget.viewModel.idDesc})");
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build div widget",
+    );
     return ChangeNotifierProvider.value(
-      value: widget.viewModel,
+      value: widget._viewModel,
       child: divChild(),
     );
   }
@@ -58,7 +60,12 @@ class _DivWidgetState extends FRState<DivWidget> {
         viewModel,
         child: Selector<DivRenderViewModel, DivContainerViewModel>(
           selector: (context, viewModel) => DivContainerViewModel(viewModel),
-          builder: (context, viewModel, _) => DivContainerWidget(viewModel),
+          builder: (context, viewModel, _) {
+            LogUtils.dWidget(
+              "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build div inner widget",
+            );
+            return DivContainerWidget(viewModel);
+          },
         ),
       );
     });
@@ -134,13 +141,15 @@ class _BoxWidgetState extends FRState<BoxWidget> {
 
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build box widget, width:${widget._viewModel.width}, height:${widget._viewModel.height}",
+    );
     var engineMonitor = widget._viewModel.context.engineMonitor;
     if (!(engineMonitor.hasAddPostFrameCall)) {
       engineMonitor.hasAddPostFrameCall = true;
       WidgetsBinding.instance.addPostFrameCallback((duration) {
         LogUtils.dWidget(
-          "div",
-          'addPostFrameCallback ${widget._viewModel.id.toString()}',
+          "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, addPostFrameCallback",
         );
         var engineMonitor = widget._viewModel.context.engineMonitor;
         engineMonitor.postFrameCallback();
@@ -149,13 +158,11 @@ class _BoxWidgetState extends FRState<BoxWidget> {
     if (!kReleaseMode && debugProfileBuildsEnabled) {
       Timeline.startSync('[b]_BoxWidgetState', arguments: timelineArgumentsIndicatingLandmarkEvent);
     }
-
     final width = widget._viewModel.width;
     final height = widget._viewModel.height;
     if (widget._viewModel.noSize) {
-      LogUtils.d(
-        "BoxWidget",
-        "build box widget error, wrong size:($width, $height), node:${widget._viewModel.idDesc}",
+      LogUtils.dWidget(
+        "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build box widget error, wrong size",
       );
       if (!kReleaseMode && debugProfileBuildsEnabled) Timeline.finishSync();
       return const SizedBox(
@@ -223,8 +230,6 @@ class _BoxWidgetState extends FRState<BoxWidget> {
         child: current,
       );
     }
-
-
 
     /// 4. use UnconstrainedBox make child is able to bugger than parent
     /// exclude waterfallItem (waterfallItem has tight constraints)
@@ -358,8 +363,7 @@ class PositionWidget extends FRBaseStatelessWidget {
       );
     }
     LogUtils.dWidget(
-      "PositionWidget",
-      "build position widget(${_viewModel.layoutX}, ${_viewModel.layoutY}, ${_viewModel.width}, ${_viewModel.height}) , node:${_viewModel.idDesc}",
+      "ID:${_viewModel.id}, node:${_viewModel.idDesc}, build position widget(${_viewModel.layoutX}, ${_viewModel.layoutY}, ${_viewModel.width}, ${_viewModel.height})",
     );
     Widget result;
     var node = child;
@@ -368,9 +372,8 @@ class PositionWidget extends FRBaseStatelessWidget {
     if (parent?.useStackLayout ?? false) {
       if (_viewModel.noSize || _viewModel.noPosition) {
         if (_viewModel.isShow) {
-          LogUtils.d(
-            "PositionWidget",
-            "build box widget error, wrong size:(${_viewModel.layoutX}, ${_viewModel.layoutY}), node:${_viewModel.idDesc}",
+          LogUtils.dWidget(
+            "ID:${_viewModel.id}, node:${_viewModel.idDesc}, build position widget error, wrong position or wrong size",
           );
         }
         result = const Positioned(

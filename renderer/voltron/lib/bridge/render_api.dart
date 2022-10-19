@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -255,7 +255,7 @@ class VoltronRenderApi {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var eventU16 = eventName.toNativeUtf16();
-    LogUtils.i('Voltron::Bridge', 'call native event $eventName');
+    LogUtils.i('Voltron::Bridge', 'ID:$nodeId, call native event $eventName');
     var encodeParamsByteData =
         const StandardMessageCodec().encodeMessage(params);
     if (encodeParamsByteData != null) {

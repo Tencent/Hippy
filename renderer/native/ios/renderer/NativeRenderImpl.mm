@@ -20,28 +20,28 @@
  * limitations under the License.
  */
 
-#import "NativeRenderImpl.h"
-
-#import <AVFoundation/AVFoundation.h>
 #import "NativeRenderAnimationType.h"
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderComponentData.h"
 #import "NativeRenderConvert.h"
 #import "NativeRenderObjectRootView.h"
 #import "NativeRenderObjectView.h"
+#import "NativeRenderImpl.h"
 #import "NativeRenderUtils.h"
 #import "NativeRenderView.h"
 #import "NativeRenderViewManager.h"
-#import "UIView+NativeRender.h"
-#import "OCTypeToDomArgument.h"
-#import "UIView+DomEvent.h"
-#import "objc/runtime.h"
-#import "UIView+Render.h"
-#import "NativeRenderErrorHandler.h"
-#import "RenderVsyncManager.h"
-#include <mutex>
+
 #import "NativeRenderComponentMap.h"
-#import "dom/root_node.h"
+#import "NativeRenderErrorHandler.h"
+#import "OCTypeToDomArgument.h"
+#import "RenderVsyncManager.h"
+#import "UIView+DomEvent.h"
+#import "UIView+NativeRender.h"
+#import "UIView+Render.h"
+
+#include <mutex>
+#include "dom/root_node.h"
+#include "objc/runtime.h"
 
 using HippyValue = footstone::value::HippyValue;
 using DomArgument = hippy::dom::DomArgument;

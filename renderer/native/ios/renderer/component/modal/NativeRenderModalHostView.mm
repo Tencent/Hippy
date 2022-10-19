@@ -83,7 +83,7 @@
 - (void)dismissModalViewController {
     if (_isPresented) {
         [_delegate dismissModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
-        [[UIApplication sharedApplication] setStatusBarStyle:originStyle];
+        [_modalViewController setPreferredStatusBarStyle:originStyle];
         _isPresented = NO;
     }
 }
@@ -104,9 +104,9 @@
         }
         [_delegate presentModalHostView:self withViewController:_modalViewController animated:[self hasAnimationType]];
         _isPresented = YES;
-        originStyle = [UIApplication sharedApplication].statusBarStyle;
+        originStyle = _modalViewController.preferredStatusBarStyle;
         UIStatusBarStyle theStyle = self.darkStatusBarText ? UIStatusBarStyleDefault : UIStatusBarStyleLightContent;
-        [[UIApplication sharedApplication] setStatusBarStyle:theStyle];
+        [_modalViewController setPreferredStatusBarStyle:theStyle];
     }
 }
 

@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,6 +110,12 @@ class NativeGestureDispatcher implements GestureHandleCallback {
       case GestureType.interceptTouchEvent:
         break;
       case GestureType.interceptPullUpEvent:
+        break;
+      case GestureType.click:
+      // ignore, already resolve by other
+        break;
+      case GestureType.longClick:
+        // ignore, already resolve by other
         break;
     }
   }

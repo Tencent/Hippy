@@ -18,7 +18,7 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.view.MotionEvent;
 import androidx.annotation.NonNull;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.utils.EventUtils;
 import java.util.HashMap;

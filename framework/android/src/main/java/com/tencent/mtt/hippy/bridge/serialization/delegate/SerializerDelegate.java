@@ -21,6 +21,7 @@ import com.tencent.mtt.hippy.runtime.builtins.JSSharedArrayBuffer;
 import com.tencent.mtt.hippy.runtime.builtins.JSValue;
 import com.tencent.mtt.hippy.runtime.builtins.wasm.WasmModule;
 import com.tencent.mtt.hippy.serialization.recommend.Serializer;
+import com.tencent.mtt.hippy.serialization.recommend.SharedValueConveyor;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,6 +44,11 @@ public class SerializerDelegate implements Serializer.Delegate, SerializerDelega
 
   @Override
   public boolean writeHostObject(Serializer serializer, Object object) {
+    return false;
+  }
+
+  @Override
+  public boolean adoptSharedValueConveyor(Serializer serializer, SharedValueConveyor conveyor) {
     return false;
   }
 

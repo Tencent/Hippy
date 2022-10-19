@@ -35,9 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FlexNode implements FlexNodeAPI<FlexNode> {
-	static {
-		LibraryLoader.loadLibraryIfNeed("flexbox");
-	}
 	  private FlexNode mParent;
 	  private List<FlexNode> mChildren;  
 	  private long mNativeFlexNode;

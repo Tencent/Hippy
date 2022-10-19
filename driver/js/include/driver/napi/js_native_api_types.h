@@ -201,7 +201,7 @@ class Ctx {
   virtual std::shared_ptr<CtxValue> CreateError(
       const string_view& msg) = 0;
   virtual std::shared_ptr<CtxValue> CreateByteBuffer(
-      const void* buffer, size_t length) = 0;
+      void* buffer, size_t length) = 0;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(
@@ -256,7 +256,7 @@ class Ctx {
   virtual bool IsFunction(const std::shared_ptr<CtxValue>& value) = 0;
   virtual string_view CopyFunctionName(
       const std::shared_ptr<CtxValue>& value) = 0;
-
+  
   virtual std::shared_ptr<CtxValue> RunScript(
       const string_view& data,
       const string_view& file_name) = 0;

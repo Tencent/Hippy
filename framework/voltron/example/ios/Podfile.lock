@@ -28,7 +28,7 @@ PODS:
   - system_proxy (0.0.1):
     - Flutter
   - Toast (4.0.0)
-  - voltron_render (0.0.1):
+  - voltron (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
@@ -45,7 +45,7 @@ DEPENDENCIES:
   - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
   - system_proxy (from `.symlinks/plugins/system_proxy/ios`)
-  - voltron_render (from `.symlinks/plugins/voltron_render/ios`)
+  - voltron (from `.symlinks/plugins/voltron/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
 SPEC REPOS:
@@ -77,8 +77,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/ios"
   system_proxy:
     :path: ".symlinks/plugins/system_proxy/ios"
-  voltron_render:
-    :path: ".symlinks/plugins/voltron_render/ios"
+  voltron:
+    :path: ".symlinks/plugins/voltron/ios"
   webview_flutter_wkwebview:
     :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
 
@@ -97,7 +97,7 @@ SPEC CHECKSUMS:
   sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
   system_proxy: bec1a5c5af67dd3e3ebf43979400a8756c04cc44
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  voltron_render: f78fa7bdb216b804bea16b216c7453c52973b6af
+  voltron: 573e6755e966a450ea768ab1074d237ad0f41d82
   webview_flutter_wkwebview: b7e70ef1ddded7e69c796c7390ee74180182971f
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c

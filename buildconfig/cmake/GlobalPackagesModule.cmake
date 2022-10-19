@@ -76,6 +76,13 @@ function(GlobalPackages_Add_jni)
   endif()
 endfunction()
 
+function(GlobalPackages_Add_vfs)
+  if (NOT TARGET vfs)
+    InfraPackage_Add(VFS
+            LOCAL "${PROJECT_ROOT_DIR}/modules/vfs")
+  endif()
+endfunction()
+
 function(GlobalPackages_Add)
   foreach (packageName IN LISTS ARGN)
     cmake_language(CALL GlobalPackages_Add_${packageName})

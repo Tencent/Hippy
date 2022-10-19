@@ -18,6 +18,8 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-param-reassign */
+
 const nodeCache = new Map();
 
 /**
@@ -143,6 +145,27 @@ const relativeToRefType = {
   AFTER: 1,
 };
 
+/**
+ * isStyleMatched - judge whether selector matching
+ * @param matchedSelector
+ * @param targetNode
+ * @returns {boolean|*}
+ */
+function isStyleMatched(matchedSelector, targetNode) {
+  if (!targetNode || !matchedSelector) return false;
+  const nodeScopeId = targetNode.styleScopeId;
+  // set scopeId as element node attribute for style matching
+  if (nodeScopeId) {
+    targetNode.attributes[nodeScopeId] = true;
+  }
+  const isMatched = matchedSelector.match(targetNode);
+  // delete scopeId attr after selector matching check
+  if (nodeScopeId) {
+    delete targetNode.attributes[nodeScopeId];
+  }
+  return isMatched;
+}
+
 export {
   translateToNativeEventName,
   isNativeGesture,
@@ -157,4 +180,5 @@ export {
   unCacheNode,
   getNodeById,
   unCacheNodeOnIdle,
+  isStyleMatched,
 };

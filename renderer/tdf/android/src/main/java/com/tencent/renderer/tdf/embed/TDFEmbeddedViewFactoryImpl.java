@@ -21,7 +21,7 @@ import android.view.View;
 
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.ArgumentUtils;
 import com.tencent.renderer.pool.NativeRenderPool;
 import com.tencent.tdf.embed.EmbeddedView;

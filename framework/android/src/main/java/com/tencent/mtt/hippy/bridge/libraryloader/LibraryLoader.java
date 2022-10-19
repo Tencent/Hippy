@@ -16,27 +16,39 @@
 
 package com.tencent.mtt.hippy.bridge.libraryloader;
 
+import android.text.TextUtils;
 import com.tencent.mtt.hippy.BuildConfig;
+import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 
 public class LibraryLoader {
 
-  private static boolean hasLoaded = false;
-  private final static String[] SO_NAME_LIST = new String[]{
-      "hippy"
-  };
+    private static boolean hasLoaded = false;
+    private final static String[] SO_NAME_LIST = new String[]{ "hippy" };
 
-  public static synchronized void loadLibraryIfNeed() {
-    if (hasLoaded || BuildConfig.ENABLE_SO_DOWNLOAD) {
-      return;
+    public static void loadLibraryIfNeed(HippySoLoaderAdapter soLoaderAdapter) {
+        if (hasLoaded || BuildConfig.ENABLE_SO_DOWNLOAD) {
+            return;
+        }
+        synchronized (LibraryLoader.class) {
+            if (hasLoaded) {
+                return;
+            }
+            try {
+                for (String name : SO_NAME_LIST) {
+                    String tinkerSoPath = null;
+                    if (soLoaderAdapter != null) {
+                        tinkerSoPath = soLoaderAdapter.loadSoPath(name);
+                    }
+                    if (!TextUtils.isEmpty(tinkerSoPath)) {
+                        System.load(tinkerSoPath);
+                    } else {
+                        System.loadLibrary(name);
+                    }
+                }
+                hasLoaded = true;
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+        }
     }
-
-    try {
-      for (String name : SO_NAME_LIST) {
-        System.loadLibrary(name);
-      }
-      hasLoaded = true;
-    } catch (Throwable e) {
-      e.printStackTrace();
-    }
-  }
 }

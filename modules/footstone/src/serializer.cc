@@ -29,6 +29,8 @@
 namespace footstone {
 inline namespace value {
 
+constexpr uint32_t kVersion = 13;
+
 Serializer::Serializer() = default;
 
 Serializer::~Serializer() {
@@ -43,7 +45,7 @@ void Serializer::WriteValue(const HippyValue& dom_value) {
 
 void Serializer::WriteHeader() {
   WriteTag(SerializationTag::kVersion);
-  WriteVarint(kLatestVersion);
+  WriteVarint(kVersion);
 }
 
 std::pair<uint8_t*, size_t> Serializer::Release() {

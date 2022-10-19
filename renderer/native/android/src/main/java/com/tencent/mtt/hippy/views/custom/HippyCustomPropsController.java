@@ -18,7 +18,7 @@ package com.tencent.mtt.hippy.views.custom;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRendererManager;
 

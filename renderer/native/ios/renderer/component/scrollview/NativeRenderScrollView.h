@@ -21,13 +21,12 @@
  */
 
 #import <UIKit/UIScrollView.h>
-#import "NativeRenderAutoInsetsProtocol.h"
 #import "NativeRenderScrollableProtocol.h"
 #import "NativeRenderView.h"
 
 @protocol UIScrollViewDelegate;
 
-@interface NativeRenderScrollView : NativeRenderView <UIScrollViewDelegate, NativeRenderScrollableProtocol, NativeRenderAutoInsetsProtocol>
+@interface NativeRenderScrollView : NativeRenderView <UIScrollViewDelegate, NativeRenderScrollableProtocol>
 
 /**
  * The `NativeRenderScrollView` may have at most one single subview. This will ensure
@@ -49,8 +48,7 @@
  */
 @property (nonatomic, readonly) UIScrollView *scrollView;
 
-@property (nonatomic, assign) UIEdgeInsets contentInset;
-@property (nonatomic, assign) BOOL automaticallyAdjustContentInsets;
+@property (nonatomic, assign, readonly) UIEdgeInsets contentInset;
 @property (nonatomic, assign) NSTimeInterval scrollEventThrottle;
 @property (nonatomic, assign) BOOL centerContent;
 @property (nonatomic, assign) int snapToInterval;

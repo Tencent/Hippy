@@ -27,8 +27,6 @@
 #import "NativeRenderPointerEvents.h"
 #import "NativeRenderTouchesView.h"
 
-@protocol NativeRenderAutoInsetsProtocol;
-
 @class NativeRenderGradientObject;
 
 @interface NativeRenderView : NativeRenderTouchesView
@@ -37,15 +35,6 @@
  * Used to control how touch events are processed.
  */
 @property (nonatomic, assign) NativeRenderPointerEvents pointerEvents;
-
-+ (void)autoAdjustInsetsForView:(UIView<NativeRenderAutoInsetsProtocol> *)parentView
-                 withScrollView:(UIScrollView *)scrollView
-                   updateOffset:(BOOL)updateOffset;
-
-/**
- * Find the first view controller whose view, or any subview is the specified view.
- */
-+ (UIEdgeInsets)contentInsetsForView:(UIView *)curView;
 
 /**
  * z-index, used to override sibling order in didUpdateHippySubviews. This is

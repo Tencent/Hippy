@@ -29,6 +29,7 @@
 #import "NativeRenderUtils.h"
 #import "HippyJSStackFrame.h"
 #import "HippyAssert.h"
+#import "HippyLog.h"
 
 #if HIPPY_DEBUG
 
@@ -419,7 +420,7 @@ HIPPY_EXPORT_METHOD(dismiss) {
 
 - (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HippyJSStackFrame *)stackFrame {
     if (![_bridge.bundleURL.scheme hasPrefix:@"http"]) {
-        NativeRenderLogWarn(@"Cannot open stack frame in editor because you're not connected to the packager.");
+        HippyLogWarn(self.bridge, @"Cannot open stack frame in editor because you're not connected to the packager.");
         return;
     }
 

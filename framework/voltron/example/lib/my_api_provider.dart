@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,9 @@
 // limitations under the License.
 //
 
-import 'package:voltron_render/engine.dart';
-import 'package:voltron_render_example/module/test_module.dart';
+import 'package:voltron/voltron.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
+import './module/test_module.dart';
 
 class MyAPIProvider implements APIProvider {
   @override

@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,11 +34,16 @@ class DevServerHelper {
     }
   }
 
-  String createBundleURL(String host,
-      String bundleName,
-      bool devMode,
-      bool hmr,
-      bool jsMinify,) {
+  String createBundleURL(
+    String host,
+    String bundleName,
+    bool devMode,
+    bool hmr,
+    bool jsMinify,
+  ) {
+    if (_remoteServerData.isValid()) {
+      return "${_remoteServerData.getScheme()}://${_remoteServerData.getHost()}${_remoteServerData.getPath()}?dev=$devMode&hot=$hmr&minify=$jsMinify";
+    }
     return "http://$host/$bundleName?dev=$devMode&hot=$hmr&minify=$jsMinify";
   }
 
@@ -58,7 +63,6 @@ class DevServerHelper {
         debugHost = _remoteServerData.getHost()!;
       }
     }
-    var debugServerHost = host;
     return "ws://$debugHost/debugger-proxy?role=android_client&clientId=$debugClientId&hash=$debugHash&contextName=$debugComponentName";
   }
 }

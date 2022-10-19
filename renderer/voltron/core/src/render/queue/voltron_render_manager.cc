@@ -55,7 +55,7 @@ void VoltronRenderManager::UpdateRenderNode(
   }
   auto root_id = root_node_ptr->GetId();
   for (const auto &n: nodes) {
-    if (n->GetTagName() == "Text") {
+    if (n->GetViewName() == "Text") {
       MarkTextDirty(root_node, n->GetId());
     }
   }

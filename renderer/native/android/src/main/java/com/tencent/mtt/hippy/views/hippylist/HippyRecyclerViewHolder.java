@@ -19,11 +19,8 @@ package com.tencent.mtt.hippy.views.hippylist;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
 
-/**
- * Created  on 2020/12/22. Description
- */
 public class HippyRecyclerViewHolder extends ViewHolder {
 
     public ListItemRenderNode bindNode;

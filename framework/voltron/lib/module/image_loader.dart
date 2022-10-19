@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,12 +19,11 @@
 //
 
 import 'package:flutter/material.dart';
-import 'package:voltron_render/engine/js_engine_context.dart';
 import 'package:voltron_renderer/common/voltron_map.dart';
 import 'package:voltron_renderer/util/image_util.dart';
 
-import 'module.dart';
-import 'promise.dart';
+import '../engine.dart';
+import '../module.dart';
 
 class ImageLoaderModule extends VoltronNativeModule {
   static const String kImageLoaderModuleName = "ImageLoaderModule";

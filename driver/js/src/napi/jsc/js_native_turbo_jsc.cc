@@ -250,6 +250,10 @@ std::shared_ptr <CtxValue> ObjcTurboEnv::CreateFunction(const std::shared_ptr <C
   return jscValue;
 }
 
+std::unique_ptr<TurboEnv> GetTurboEnvInstance(const std::shared_ptr<Ctx> &context) {
+  return std::make_unique<ObjcTurboEnv>(context);
+}
+
 } // namespace napi
 } // namespace driver
 } // namespace hippy

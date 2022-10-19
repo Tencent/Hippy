@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -94,7 +94,7 @@ class VoltronJSLoaderManager {
       case EngineState.initError:
       case EngineState.destroyed:
       case EngineState.inited:
-        LogUtils.i("flutter_render", "run executor success");
+        LogUtils.dBridge("start to run executor");
         executor();
         break;
     }
@@ -133,6 +133,7 @@ class VoltronJSLoader with RendererLoader {
 
   @override
   void load(RootWidgetViewModel viewModel) {
+    LogUtils.dBridge("load module ready");
     _instance = viewModel;
     _jsLoaderManager._execute(() {
       _jsLoaderManager._engine.loadModule(

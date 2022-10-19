@@ -181,7 +181,7 @@ class JSCCtx : public Ctx {
   }
   virtual std::shared_ptr<CtxValue> CreateError(
       const string_view& msg) override;
-  virtual std::shared_ptr<CtxValue> CreateByteBuffer(const void* buffer, size_t length) override;
+  virtual std::shared_ptr<CtxValue> CreateByteBuffer(void* buffer, size_t length) override;
 
   // Get From Value
   virtual std::shared_ptr<CtxValue> CallFunction(

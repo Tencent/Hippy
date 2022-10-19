@@ -63,6 +63,11 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
+# region footstone
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
+# endregion
+
 # region devtools
 if (ENABLE_INSPECTOR)
   add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-backend ${CMAKE_CURRENT_BINARY_DIR}/devtools/devtools-backend)
@@ -77,7 +82,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 
 # region source set
 set(SOURCE_SET
-    src/base/file.cc
     src/base/js_value_wrapper.cc
     src/engine.cc
     src/modules/animation_module.cc

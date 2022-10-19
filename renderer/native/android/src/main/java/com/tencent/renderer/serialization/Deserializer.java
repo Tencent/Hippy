@@ -19,9 +19,9 @@ package com.tencent.renderer.serialization;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.DESERIALIZE_NOT_SUPPORTED_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.DESERIALIZE_READ_LENGTH_ERR;
 
+import com.tencent.mtt.hippy.serialization.PrimitiveSerializationTag;
 import com.tencent.mtt.hippy.serialization.exception.DataCloneOutOfRangeException;
 import com.tencent.mtt.hippy.serialization.PrimitiveValueDeserializer;
-import com.tencent.mtt.hippy.serialization.SerializationTag;
 import com.tencent.mtt.hippy.serialization.StringLocation;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.string.StringTable;
@@ -32,6 +32,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class Deserializer extends PrimitiveValueDeserializer {
@@ -47,34 +48,64 @@ public class Deserializer extends PrimitiveValueDeserializer {
     }
 
     @Override
-    protected Object readJSBoolean(boolean value) {
+    protected int getSupportedVersion() {
+        return -1;
+    }
+
+    @Override
+    @SuppressWarnings("fallthrough")
+    protected Object readValue(byte tag, StringLocation location, Object relatedKey) {
+        Object object = super.readValue(tag, location, relatedKey);
+        if (object != Nothing) {
+            return object;
+        }
+
+        switch (tag) {
+            case SerializationTag.TRUE_OBJECT:
+                return readBooleanObject(true);
+            case SerializationTag.FALSE_OBJECT:
+                return readBooleanObject(false);
+            case SerializationTag.NUMBER_OBJECT:
+                return readNumberObject();
+            case SerializationTag.BIG_INT_OBJECT:
+                return readBigIntObject();
+            case SerializationTag.STRING_OBJECT:
+                return readStringObject(location, relatedKey);
+            case SerializationTag.BEGIN_OBJECT:
+                return readObject();
+            case SerializationTag.BEGIN_MAP:
+                return readMap();
+            case SerializationTag.BEGIN_DENSE_ARRAY:
+                return readDenseArray();
+            default:
+                throw createUnsupportedTagException(tag);
+        }
+    }
+
+    private Object readBooleanObject(boolean value) {
         return assignId(value);
     }
 
-    @Override
-    protected Number readJSNumber() {
+    private Number readNumberObject() {
         return assignId(reader.getDouble());
     }
 
-    @Override
-    protected BigInteger readJSBigInt() {
+    private BigInteger readBigIntObject() {
         return assignId(readBigInt());
     }
 
-    @Override
-    protected String readJSString(StringLocation location, Object relatedKey) {
+    private String readStringObject(StringLocation location, Object relatedKey) {
         return assignId(readString(location, relatedKey));
     }
 
-    @Override
-    protected Map<String, Object> readJSObject() {
+    private Map<String, Object> readObject() {
         Map<String, Object> map = new HashMap<>();
         assignId(map);
         int read = readObjectProperties(map);
         int expected = (int) reader.getVarint();
         if (read != expected) {
             throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
-                    TAG + ": readJSObject: unexpected number of properties");
+                    TAG + ": readObject: unexpected number of properties");
         }
         return map;
     }
@@ -87,9 +118,9 @@ public class Deserializer extends PrimitiveValueDeserializer {
         final StringLocation keyLocation = StringLocation.DENSE_ARRAY_KEY;
         final StringLocation valueLocation = StringLocation.DENSE_ARRAY_ITEM;
 
-        SerializationTag tag;
+        byte tag;
         int count = 0;
-        while ((tag = readTag()) != SerializationTag.END_DENSE_JS_ARRAY) {
+        while ((tag = readTag()) != SerializationTag.END_DENSE_ARRAY) {
             count++;
             Object key = readValue(tag, keyLocation, null);
             Object value = readValue(valueLocation, key);
@@ -102,9 +133,9 @@ public class Deserializer extends PrimitiveValueDeserializer {
         final StringLocation keyLocation = StringLocation.OBJECT_KEY;
         final StringLocation valueLocation = StringLocation.OBJECT_VALUE;
 
-        SerializationTag tag;
+        byte tag;
         int count = 0;
-        while ((tag = readTag()) != SerializationTag.END_JS_OBJECT) {
+        while ((tag = readTag()) != SerializationTag.END_OBJECT) {
             count++;
             Object key = readValue(tag, keyLocation, null);
             Object value = readValue(valueLocation, key);
@@ -118,13 +149,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
         return count;
     }
 
-    @Override
-    protected Map<Object, Object> readJSMap() {
+    private Map<Object, Object> readMap() {
         Map<Object, Object> map = new HashMap<>();
         assignId(map);
-        SerializationTag tag;
+        byte tag;
         int read = 0;
-        while ((tag = readTag()) != SerializationTag.END_JS_MAP) {
+        while ((tag = readTag()) != SerializationTag.END_MAP) {
             read++;
             Object key = readValue(tag, StringLocation.MAP_KEY, null);
             Object value = readValue(StringLocation.MAP_VALUE, key);
@@ -133,13 +163,12 @@ public class Deserializer extends PrimitiveValueDeserializer {
         int expected = (int) reader.getVarint();
         if (2 * read != expected) {
             throw new NativeRenderException(DESERIALIZE_READ_LENGTH_ERR,
-                    TAG + ": readJSMap: unexpected number of entries");
+                    TAG + ": readMap: unexpected number of entries");
         }
         return map;
     }
 
-    @Override
-    protected List<Object> readDenseArray() {
+    private List<Object> readDenseArray() {
         int totalLength = (int) reader.getVarint();
         if (totalLength < 0) {
             throw new DataCloneOutOfRangeException(totalLength);
@@ -147,8 +176,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
         List<Object> array = new ArrayList<>(totalLength);
         assignId(array);
         for (int i = 0; i < totalLength; i++) {
-            SerializationTag tag = readTag();
-            if (tag != SerializationTag.THE_HOLE) {
+            byte tag = readTag();
+            if (tag != PrimitiveSerializationTag.THE_HOLE) {
                 array.add(readValue(tag, StringLocation.DENSE_ARRAY_ITEM, i));
             }
         }
@@ -181,63 +210,8 @@ public class Deserializer extends PrimitiveValueDeserializer {
         return null;
     }
 
-    @Override
-    protected Object readJSRegExp() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readJSRegExp: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readJSArrayBuffer() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readJSArrayBuffer: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readJSSet() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readJSSet: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readSparseArray() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readSparseArray: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readJSError() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readJSError: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readHostObject() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readHostObject: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readTransferredJSArrayBuffer() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readTransferredJSArrayBuffer: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readSharedArrayBuffer() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readSharedArrayBuffer: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readTransferredWasmModule() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readTransferredWasmModule: native renderer not support for this object type");
-    }
-
-    @Override
-    protected Object readTransferredWasmMemory() {
-        throw new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
-                TAG + ": readTransferredWasmMemory: native renderer not support for this object type");
+    private NativeRenderException createUnsupportedTagException(byte tag) {
+        return new NativeRenderException(DESERIALIZE_NOT_SUPPORTED_ERR,
+                String.format(Locale.US, "%s: %d: native renderer not support for this object type", TAG, tag));
     }
 }
