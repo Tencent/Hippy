@@ -1,6 +1,10 @@
 package com.tencent.mtt.hippy.devsupport.inspector;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.text.TextUtils;
+import com.tencent.mtt.hippy.BuildConfig;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DebugWebSocketClient;
 import com.tencent.mtt.hippy.devsupport.inspector.domain.CSSDomain;
@@ -146,8 +150,21 @@ public class Inspector implements BatchListener {
     try {
       JSONObject contextObj = new JSONObject();
       contextObj.put("contextName", name);
+
+      Context context = mContextRef.get().getGlobalConfigs().getContext();
+      String packageName = "";
+      String versionName = "";
+      if (context != null) {
+        PackageManager packageManager = context.getPackageManager();
+        PackageInfo packageInfo = packageManager.getPackageInfo(context.getPackageName(), 0);
+        packageName = packageInfo.packageName;
+        versionName = packageInfo.versionName;
+      }
+      contextObj.put("bundleId", packageName);
+      contextObj.put("hostVersion", versionName);
+      contextObj.put("sdkVersion", BuildConfig.LIBRARY_VERSION);
       sendEventToFrontend(new InspectEvent("TDFRuntime.updateContextInfo", contextObj));
-    } catch (JSONException e) {
+    } catch (Exception e) {
       LogUtils.e(TAG, "updateContextName, exception:", e);
     }
   }
