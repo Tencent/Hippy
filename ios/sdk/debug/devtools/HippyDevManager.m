@@ -29,6 +29,9 @@
 #import "HippyUIManager.h"
 #import "HippyInspector.h"
 
+NSString *const HippyRuntimeDomainName = @"TDFRuntime";
+NSString *const HippyRuntimeMethodUpdateContextInfo = @"updateContextInfo";
+
 @interface HippyDevManager ()<HippyDevClientProtocol> {
     HippyDevWebSocketClient *_devWSClient;
     HippyInspector *_inspector;
@@ -49,8 +52,28 @@
                                                                clientId:clientId];
         _devWSClient.delegate = self;
         _inspector = [[HippyInspector alloc] initWithDevManager:self];
+        self.contextName = contextName;
     }
     return self;
+}
+
+- (void)devClientDidConnect:(HippyDevWebSocketClient *)devClient {
+    [self updateContextInfoWithName:self.contextName];
+}
+
+- (void)updateContextInfoWithName:(NSString *)contextName {
+    NSString *methodName = [NSString stringWithFormat:@"%@.%@", HippyRuntimeDomainName, HippyRuntimeMethodUpdateContextInfo];
+    NSString *bundleId = [[NSBundle mainBundle] bundleIdentifier];
+    NSString *hostVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+
+    NSDictionary *params = @{
+        @"contextName": contextName ? : @"",
+        @"bundleId": bundleId ? : @"Unknown",
+        @"hostVersion": hostVersion ? : @"",
+        @"sdkVersion": _HippySDKVersion
+    };
+    [_inspector sendDataToFrontendWithMethod:methodName
+                                          params:params];
 }
 
 - (void)sendDataToFrontendWithData:(NSString *)dataString {
