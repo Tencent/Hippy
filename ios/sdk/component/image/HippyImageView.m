@@ -357,9 +357,12 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
 
 static inline void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProviderProtocol> instance,
                                            NSString *imageUrl, BOOL isAnimatedImage) {
-    __weak __typeof(imageView)weakSelf = imageView;
+    __weak HippyImageView *weakSelf = imageView;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        __strong HippyImageView *strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
         if (isAnimatedImage) {
             if (strongSelf->_animatedImageOperation) {
                 [strongSelf->_animatedImageOperation cancel];
