@@ -80,6 +80,6 @@ export default {
   line-height: 40px;
 }
 .async-com-wrapper {
-  marginTop: 20px
+  margin-top: 20px;
 }
 </style>
