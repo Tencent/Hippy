@@ -47,6 +47,11 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PUBLIC footstone)
 # endregion
 
+# region vfs
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PUBLIC vfs)
+# endregion
+
 # region tdfcore
 # Consider iOS intergration in the future
 if (ANDROID)
