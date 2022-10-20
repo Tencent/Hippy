@@ -185,7 +185,7 @@ void ScrollViewNode::InitDragEndListener() {
   };
 }
 
-#define RegisterListener(Event, listener)                                                             \
+#define REGISTER_LISTENER(Event, listener)                                                             \
   void ScrollViewNode::Register##Event##Listener(std::shared_ptr<tdfcore::ScrollView> scroll_view) {  \
     if (listener##id_ == kUninitializedId) {                                                          \
       if (listener == nullptr) {                                                                      \
@@ -195,27 +195,27 @@ void ScrollViewNode::InitDragEndListener() {
     }                                                                                                 \
   }                                                                                                   \
 
-  // Called by CreateView
-RegisterListener(ScrollStart, scroll_start_listener_)
-RegisterListener(ScrollUpdate, scroll_update_listener_)
-RegisterListener(ScrollEnd, scroll_end_listener_)
-RegisterListener(DragStart, drag_start_listener_)
-RegisterListener(DragEnd, drag_end_listener_)
-#undef RegisterListener
+// Called by CreateView
+REGISTER_LISTENER(ScrollStart, scroll_start_listener_)
+REGISTER_LISTENER(ScrollUpdate, scroll_update_listener_)
+REGISTER_LISTENER(ScrollEnd, scroll_end_listener_)
+REGISTER_LISTENER(DragStart, drag_start_listener_)
+REGISTER_LISTENER(DragEnd, drag_end_listener_)
+#undef REGISTER_LISTENER
 
-#define RemoveListener(Event, listener)                                                            \
+#define REMOVE_LISTENER(Event, listener)                                                            \
   void ScrollViewNode::Remove##Event##Listener(std::shared_ptr<tdfcore::ScrollView> scroll_view) { \
     if (listener##id_ != kUninitializedId) {                                                       \
       scroll_view->Remove##Event##Listener(listener##id_);                                         \
     }                                                                                              \
   }
 
-RemoveListener(ScrollStart, scroll_start_listener_)
-RemoveListener(ScrollUpdate, scroll_update_listener_)
-RemoveListener(ScrollEnd, scroll_end_listener_)
-RemoveListener(DragStart, drag_start_listener_)
-RemoveListener(DragEnd, drag_end_listener_)
-#undef RemoveListener
+REMOVE_LISTENER(ScrollStart, scroll_start_listener_)
+REMOVE_LISTENER(ScrollUpdate, scroll_update_listener_)
+REMOVE_LISTENER(ScrollEnd, scroll_end_listener_)
+REMOVE_LISTENER(DragStart, drag_start_listener_)
+REMOVE_LISTENER(DragEnd, drag_end_listener_)
+#undef REMOVE_LISTENER
 
 void ScrollViewNode::HandleInnerEvent(std::string type) {
   DomValueObjectType param;
