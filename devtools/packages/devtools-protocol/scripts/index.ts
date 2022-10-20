@@ -7,6 +7,9 @@ import path from 'path';
 const globAsync = util.promisify(glob);
 
 (async () => {
+  checkFileDir(`../@types`);
+  checkFileDir(`../types`);
+
   await generateDts({
     inputFileNames: ['js_protocol.json', 'browser_protocol.json'],
     outputTypeFileName: 'protocol-chrome',
@@ -36,6 +39,14 @@ const globAsync = util.promisify(glob);
 
   await writeEnumIndexFile();
 })();
+
+function checkFileDir(dirPath: string) {
+  const dir = path.join(__dirname, dirPath);
+  if (!fs.existsSync(dir)) {
+    console.warn('checkFileDir to make dir')
+    fs.mkdirSync(dir)
+  }
+}
 
 async function writeEnumIndexFile() {
   const enumFiles = await globAsync('./**/*.ts', {

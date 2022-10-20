@@ -626,6 +626,18 @@
             {
               "name": "contextName",
               "type": "string"
+            },
+            {
+              "name": "bundleId",
+              "type": "string"
+            },
+            {
+              "name": "hostVersion",
+              "type": "string"
+            },
+            {
+              "name": "sdkVersion",
+              "type": "string"
             }
           ]
         }
