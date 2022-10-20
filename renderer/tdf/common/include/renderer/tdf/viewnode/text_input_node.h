@@ -32,7 +32,6 @@
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
-
 #include "tdfui/view/text/text_input_view.h"
 #pragma clang diagnostic pop
 

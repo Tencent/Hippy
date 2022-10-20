@@ -31,7 +31,6 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
-
 #include "tdfui/view/refresh_header.h"
 #pragma clang diagnostic pop
 

@@ -18,7 +18,6 @@
  * limitations under the License.
  */
 
-#pragma clang diagnostic ignored "-Wextra-semi"
 #include "renderer/tdf/viewnode/base64_image_loader.h"
 #include "core/common/base64.h"
 

@@ -29,7 +29,6 @@
 #pragma clang diagnostic ignored "-Wimplicit-float-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
-
 #include "tdfui/view/embedded_view.h"
 #pragma clang diagnostic pop
 

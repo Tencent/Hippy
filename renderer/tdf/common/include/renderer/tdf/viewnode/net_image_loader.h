@@ -19,12 +19,13 @@
  */
 
 #pragma once
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
-
 #include "core/common/time.h"
 #include "core/engine/schedule/task_runner.h"
 #include "core/engine/schedule/thread_task_driver.h"
 #include "tdfui/image/image_load_manager.h"
+#pragma clang diagnostic pop
 #include "footstone//string_view_utils.h"
 
 namespace hippy {

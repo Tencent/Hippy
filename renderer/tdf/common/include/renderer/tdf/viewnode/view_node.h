@@ -32,7 +32,6 @@
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
 #pragma clang diagnostic ignored "-Wdeprecated-copy"
-
 #include "tdfui/view/view.h"
 #pragma clang diagnostic pop
 #include "core/common/listener.h"

@@ -18,9 +18,6 @@
  * limitations under the License.
  */
 
-#pragma clang diagnostic ignored "-Wdeprecated-copy"
-#pragma clang diagnostic ignored "-Wextra-semi"
-
 #include "renderer/tdf/viewnode/view_node.h"
 
 #include <algorithm>
@@ -28,9 +25,12 @@
 
 #include "core/common/color.h"
 #include "core/support/text/UTF.h"
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wextra-semi"
 #include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
 #include "core/support/gesture/recognizer/long_press_gesture_recognizer.h"
+#pragma clang diagnostic pop
 #include "dom/node_props.h"
 #include "dom/scene.h"
 #include "footstone/hippy_value.h"
