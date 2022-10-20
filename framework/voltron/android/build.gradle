@@ -60,9 +60,9 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-  compileSdkVersion 28
-  ndkVersion "23.1.7779620"
+  compileSdkVersion 32
   publishNonDefault true
+  ndkVersion = NDK_VERSION
 
   defaultConfig {
     minSdkVersion 21
@@ -115,7 +115,7 @@ android {
   if (enableLocalCmake) {
     externalNativeBuild {
       cmake {
-        version "3.18.1"
+        version CMAKE_VERSION
         path "../core/CMakeLists.txt"
       }
     }
