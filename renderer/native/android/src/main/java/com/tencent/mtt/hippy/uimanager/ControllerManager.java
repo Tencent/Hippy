@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.uimanager;
 
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
 import static com.tencent.renderer.node.RenderNode.FLAG_ALREADY_UPDATED;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.ADD_CHILD_VIEW_FAILED_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.REMOVE_CHILD_VIEW_FAILED_ERR;
@@ -23,6 +24,7 @@ import static com.tencent.renderer.NativeRenderException.ExceptionCode.REMOVE_CH
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -31,6 +33,7 @@ import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewController;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
@@ -54,7 +57,8 @@ import com.tencent.mtt.hippy.views.webview.HippyWebViewController;
 import com.tencent.renderer.NativeRender;
 
 import com.tencent.renderer.NativeRenderException;
-import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.pool.NativeRenderPool.PoolType;
 import com.tencent.renderer.pool.Pool;
@@ -370,12 +374,12 @@ public class ControllerManager {
 
     public boolean checkLazy(@NonNull String className) {
         ControllerHolder holder = mControllerRegistry.getControllerHolder(className);
-        return holder != null ? holder.isLazy() : false;
+        return holder != null && holder.isLazy();
     }
 
     public boolean checkFlatten(@NonNull String className) {
         ControllerHolder holder = mControllerRegistry.getControllerHolder(className);
-        return holder != null ? holder.supportFlatten() : false;
+        return holder != null && holder.supportFlatten();
     }
 
     public void replaceId(int rootId, @NonNull View view, int newId, boolean shouldRemove) {
@@ -458,10 +462,32 @@ public class ControllerManager {
         }
     }
 
+    private void checkAndRemoveSnapshotView() {
+        final View snapshotRootView = getRootView(SCREEN_SNAPSHOT_ROOT_ID);
+        if (snapshotRootView == null) {
+            return;
+        }
+        UIThreadUtils.runOnUiThreadDelayed(new Runnable() {
+            @Override
+            public void run() {
+                ViewParent parent = snapshotRootView.getParent();
+                if (parent instanceof ViewGroup) {
+                    ((ViewGroup) parent).removeView(snapshotRootView);
+                }
+                NativeRendererManager.removeSnapshotRootNode();
+                deleteRootView(SCREEN_SNAPSHOT_ROOT_ID);
+            }
+        }, 50);
+
+    }
+
     public void onBatchEnd(int rootId) {
         Pool<Integer, View> pool = mPreCreateViewPools.get(rootId);
         if (pool != null) {
             pool.clear();
+        }
+        if (rootId != SCREEN_SNAPSHOT_ROOT_ID) {
+            checkAndRemoveSnapshotView();
         }
     }
 

@@ -29,12 +29,15 @@ import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.image.ImageComponentController;
+import com.tencent.renderer.node.TextRenderNode;
+import com.tencent.renderer.node.TextVirtualNode;
 import com.tencent.renderer.utils.PropertyUtils;
 import com.tencent.renderer.utils.PropertyUtils.PropertyMethodHolder;
 import com.tencent.renderer.node.RenderNode;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,6 +45,7 @@ public class ControllerUpdateManger<T, G> {
 
     private static final Map<Class<?>, Map<String, PropertyMethodHolder>> sViewPropsMethodMap = new HashMap<>();
     private static final Map<String, PropertyMethodHolder> sComponentPropsMethodMap = new HashMap<>();
+    private static final Set<String> sTextPropsMap = new HashSet<>();
     @NonNull
     private final Renderer mRenderer;
     @Nullable
@@ -53,7 +57,7 @@ public class ControllerUpdateManger<T, G> {
 
     public ControllerUpdateManger(@NonNull Renderer renderer) {
         mRenderer = renderer;
-        findComponentPropsMethod();
+        initPropsMap();
     }
 
     public void setCustomPropsController(T controller) {
@@ -84,10 +88,16 @@ public class ControllerUpdateManger<T, G> {
         return sComponentPropsMethodMap.containsKey(key);
     }
 
-    private void findComponentPropsMethod() {
-        if (sComponentPropsMethodMap.isEmpty()) {
-            collectMethodHolder(ComponentController.class, sComponentPropsMethodMap);
-            collectMethodHolder(ImageComponentController.class, sComponentPropsMethodMap);
+    private void initPropsMap() {
+        collectMethodHolder(ComponentController.class, sComponentPropsMethodMap);
+        collectMethodHolder(ImageComponentController.class, sComponentPropsMethodMap);
+        Method[] methods = TextVirtualNode.class.getMethods();
+        for (Method method : methods) {
+            HippyControllerProps controllerProps = method
+                    .getAnnotation(HippyControllerProps.class);
+            if (controllerProps != null) {
+                sTextPropsMap.add(controllerProps.name());
+            }
         }
     }
 
@@ -185,6 +195,11 @@ public class ControllerUpdateManger<T, G> {
         }
         Set<String> keySet = props.keySet();
         for (String key : keySet) {
+            if (node instanceof TextRenderNode && sTextPropsMap.contains(key)) {
+                // The text related attributes have been processed in the build layout,
+                // so the following process no longer needs to be executed.
+                continue;
+            }
             PropertyMethodHolder methodHolder = methodHolderMap.get(key);
             if (methodHolder != null) {
                 Object arg = (view == null) ? node.createView(true) : view;

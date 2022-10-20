@@ -50,7 +50,7 @@ import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
-import com.tencent.renderer.component.text.TextVirtualNode;
+import com.tencent.renderer.node.TextVirtualNode;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.LinkedList;

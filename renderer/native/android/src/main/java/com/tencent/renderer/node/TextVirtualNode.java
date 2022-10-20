@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.component.text;
+package com.tencent.renderer.node;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_SHADOW_COLOR;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_SHADOW_OFFSET;
@@ -42,11 +42,16 @@ import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.component.text.TextForegroundColorSpan;
+import com.tencent.renderer.component.text.TextGestureSpan;
+import com.tencent.renderer.component.text.TextLetterSpacingSpan;
+import com.tencent.renderer.component.text.TextLineHeightSpan;
+import com.tencent.renderer.component.text.TextShadowSpan;
+import com.tencent.renderer.component.text.TextStyleSpan;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class TextVirtualNode extends VirtualNode {
 
@@ -107,8 +112,6 @@ public class TextVirtualNode extends VirtualNode {
     protected final FontAdapter mFontAdapter;
     @Nullable
     protected Layout mLayout;
-    @Nullable
-    protected Map<String, Object> mUnusedProps;
 
     public TextVirtualNode(int rootId, int id, int pid, int index,
             @NonNull NativeRender nativeRender) {
@@ -335,25 +338,6 @@ public class TextVirtualNode extends VirtualNode {
     @HippyControllerProps(name = "enableScale", defaultType = HippyControllerProps.BOOLEAN)
     public void setEnableScale(boolean enable) {
         mEnableScale = enable;
-    }
-
-    public void addUnusedProps(@NonNull String key, @Nullable Object value) {
-        // Only top level text node need to reserved unused attributes.
-        if (mParent != null) {
-            return;
-        }
-        if (mUnusedProps == null) {
-            mUnusedProps = new HashMap<>();
-        }
-        mUnusedProps.put(key, value);
-    }
-
-    public void resetProps(@NonNull Map<String, Object> props) {
-        props.clear();
-        if (mUnusedProps != null) {
-            props.putAll(mUnusedProps);
-            mUnusedProps.clear();
-        }
     }
 
     private SpannableStringBuilder createSpan(@Nullable CharSequence text, boolean useChild) {

@@ -17,6 +17,7 @@
 package com.tencent.link_supplier.proxy.framework;
 
 import androidx.annotation.Nullable;
+import java.util.concurrent.Executor;
 
 public interface FrameworkProxy {
 
@@ -25,6 +26,9 @@ public interface FrameworkProxy {
 
     @Nullable
     FontAdapter getFontAdapter();
+
+    @Nullable
+    Executor getBackgroundExecutor();
 
     void onFirstViewAdded();
 

@@ -17,7 +17,6 @@
 package com.tencent.renderer;
 
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -29,10 +28,11 @@ import com.tencent.link_supplier.proxy.renderer.RenderExceptionHandler;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 
-import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.node.VirtualNode;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 public interface NativeRender extends RenderExceptionHandler {
 
@@ -52,6 +52,9 @@ public interface NativeRender extends RenderExceptionHandler {
 
     @Nullable
     FontAdapter getFontAdapter();
+
+    @Nullable
+    Executor getBackgroundExecutor();
 
     /**
      * Post invalidate to target view delayed by milliseconds, this method should only be called on

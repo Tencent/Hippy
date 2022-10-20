@@ -16,12 +16,15 @@
 
 package com.tencent.mtt.hippy.views.viewpager;
 
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
+
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
+import com.tencent.mtt.hippy.views.scroll.HippyScrollView;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
 
 import android.content.Context;
@@ -32,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import com.tencent.renderer.NativeRenderContext;
 
 @SuppressWarnings({"unused"})
 public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChildrenView {
@@ -67,6 +71,12 @@ public class HippyViewPager extends ViewPager implements HippyViewBase, ClipChil
 
         if (I18nUtil.isRTL()) {
             setRotationY(180f);
+        }
+        if (context instanceof NativeRenderContext) {
+            int rootId = ((NativeRenderContext) context).getRootId();
+            if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
+                setScrollEnabled(false);
+            }
         }
     }
 

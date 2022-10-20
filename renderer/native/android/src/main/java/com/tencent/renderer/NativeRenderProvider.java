@@ -77,7 +77,7 @@ public class NativeRenderProvider {
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @NonNull
-    private List<Object> bytesToArgument(ByteBuffer buffer) {
+    List<Object> bytesToArgument(ByteBuffer buffer) {
         final BinaryReader binaryReader;
         if (mSafeHeapReader == null) {
             mSafeHeapReader = new SafeHeapReader();
@@ -122,11 +122,15 @@ public class NativeRenderProvider {
     @CalledByNative
     @SuppressWarnings("unused")
     private void createNode(int rootId, byte[] buffer) {
-        try {
-            final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
-            mRenderDelegate.createNode(rootId, list);
-        } catch (NativeRenderException e) {
-            mRenderDelegate.handleRenderException(e);
+        // Replay snapshots are executed in the UI thread, which may generate multithreaded problem with
+        // the create node of the dom thread, so synchronized with native renderer object here.
+        synchronized(mRenderDelegate) {
+            try {
+                final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
+                mRenderDelegate.createNode(rootId, list);
+            } catch (NativeRenderException e) {
+                mRenderDelegate.handleRenderException(e);
+            }
         }
     }
 
@@ -336,6 +340,7 @@ public class NativeRenderProvider {
      * @param density screen displayMetrics density
      * @return the unique id of native (C++) render manager
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native int onCreateNativeRenderProvider(float density);
 
     /**
@@ -343,6 +348,7 @@ public class NativeRenderProvider {
      *
      * @param instanceId the unique id of native (C++) render manager
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void onDestroyNativeRenderProvider(int instanceId);
 
     /**
@@ -354,6 +360,7 @@ public class NativeRenderProvider {
      * @param width new width of root view, use dp unit
      * @param height new height of root view, use dp unit
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void updateRootSize(int instanceId, int rootId, float width, float height);
 
     /**
@@ -368,6 +375,7 @@ public class NativeRenderProvider {
      * @param isSync {@code true} call from create node on dom thread {@code false} call from
      * onSizeChanged on UI thread
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void updateNodeSize(int instanceId, int rootId, int nodeId, float width,
             float height, boolean isSync);
 
@@ -384,6 +392,7 @@ public class NativeRenderProvider {
      * @param useCapture enable event capture
      * @param useBubble enable event bubble
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void onReceivedEvent(int instanceId, int rootId, int nodeId, String eventName,
             byte[] params, int offset, int length, boolean useCapture, boolean useBubble);
 
@@ -401,6 +410,7 @@ public class NativeRenderProvider {
      * @param offset start position of params buffer
      * @param length available total length of params buffer
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void doCallBack(int instanceId, int result, String functionName, int rootId,
             int nodeId, long callbackId, byte[] params, int offset, int length);
 }

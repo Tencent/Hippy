@@ -1,5 +1,5 @@
 /* Tencent is pleased to support the open source community by making Hippy available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2021 THL A29 Limited, a Tencent company. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.mtt.hippy.common;
 
-/**
- * FileName: Callback Description： History：
- */
-@SuppressWarnings({"TypeParameterExplicitlyExtendsObject", "UnusedReturnValue"})
-public interface Callback<T extends Object> {
+package com.tencent.renderer.serialization;
 
-  void callback(T param, Throwable e);
+public class Oddball {
+
+    public enum valueType {
+        Hole,
+        Undefined,
+        Null
+    }
+
+    private final valueType mType;
+
+    public Oddball(valueType type) {
+        mType = type;
+    }
+
+    public boolean isUndefined() {
+        return mType == valueType.Undefined;
+    }
+
+    public boolean isNull() {
+        return mType == valueType.Null;
+    }
+
+    public boolean isHole() {
+        return mType == valueType.Hole;
+    }
 }

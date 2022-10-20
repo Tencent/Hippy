@@ -16,6 +16,8 @@
 
 package com.tencent.mtt.hippy.views.scroll;
 
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
+
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.hippypager.HippyPager;
 import com.tencent.mtt.hippy.views.view.HippyViewGroup;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.utils.ArrayUtils;
 
 import java.util.List;
@@ -61,6 +64,12 @@ public class HippyScrollViewController<T extends ViewGroup & HippyScrollView> ex
             scrollView = new HippyHorizontalScrollView(context);
         } else {
             scrollView = new HippyVerticalScrollView(context);
+        }
+        if (context instanceof NativeRenderContext) {
+            int rootId = ((NativeRenderContext) context).getRootId();
+            if (rootId == SCREEN_SNAPSHOT_ROOT_ID && scrollView instanceof HippyScrollView) {
+                ((HippyScrollView) scrollView).setScrollEnabled(false);
+            }
         }
         return scrollView;
     }

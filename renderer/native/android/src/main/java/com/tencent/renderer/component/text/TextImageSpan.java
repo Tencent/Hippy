@@ -47,6 +47,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.image.ImageDataHolder;
+import com.tencent.renderer.node.ImageVirtualNode;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
 
@@ -81,17 +82,17 @@ public class TextImageSpan extends ImageSpan {
 
     public TextImageSpan(Drawable drawable, String source, @NonNull ImageVirtualNode node,
             @NonNull NativeRender nativeRenderer) {
-        super(drawable, source, node.mVerticalAlignment);
+        super(drawable, source, node.getVerticalAlignment());
         mNativeRenderer = nativeRenderer;
-        mRootId = node.mRootId;
-        mId = node.mId;
+        mRootId = node.getRootId();
+        mId = node.getId();
         mAncestorId = node.getAncestorId();
-        mWidth = node.mWidth;
-        mHeight = node.mHeight;
-        mLeft = node.mLeft;
-        mTop = node.mTop;
+        mWidth = node.getWidth();
+        mHeight = node.getHeight();
+        mLeft = node.getLeft();
+        mTop = node.getTop();
         setUrl(source);
-        mAlignConfig = createAlignConfig(node.mVerticalAlignment);
+        mAlignConfig = createAlignConfig(node.getVerticalAlignment());
     }
 
     public void setVerticalAlignment(int verticalAlignment) {

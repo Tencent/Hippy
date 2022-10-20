@@ -27,6 +27,7 @@ import com.tencent.mtt.hippy.serialization.PrimitiveValueSerializer;
 import com.tencent.mtt.hippy.serialization.nio.writer.BinaryWriter;
 
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.serialization.Oddball.valueType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import java.util.Map;
 public class Serializer extends PrimitiveValueSerializer {
 
     private static final String TAG = "Serializer";
+    private static final Object NULL_ODDBALL = new Oddball(valueType.Null);
 
     public Serializer() {
         this(null, 13);
@@ -63,15 +65,14 @@ public class Serializer extends PrimitiveValueSerializer {
 
     @Override
     protected Object getNull() {
-        return null;
+        return NULL_ODDBALL;
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     public boolean writeValue(@Nullable Object object) throws NativeRenderException {
         if (object == null) {
-            throw new NativeRenderException(SERIALIZER_NOT_SUPPORTED_ERR,
-                    TAG + ": Cannot write an empty object");
+            object = NULL_ODDBALL;
         }
         //Compatible HippyMap with old versions, will be removed in the future.
         if (object instanceof HippyMap) {

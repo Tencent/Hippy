@@ -36,6 +36,7 @@ import com.tencent.renderer.NativeRendererManager;
 import java.util.Map;
 
 import static android.content.res.Configuration.ORIENTATION_UNDEFINED;
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
 
 public class HippyRootView extends FrameLayout {
 
@@ -49,8 +50,10 @@ public class HippyRootView extends FrameLayout {
         setId(rootId);
         Map<String, Object> tagMap = NativeViewTag.createViewTag(NodeProps.ROOT_NODE, rootId);
         setTag(tagMap);
-        getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
-        setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
+        if (rootId != SCREEN_SNAPSHOT_ROOT_ID) {
+            getViewTreeObserver().addOnGlobalLayoutListener(getGlobalLayoutListener());
+            setOnSystemUiVisibilityChangeListener(getGlobalLayoutListener());
+        }
     }
 
     @Override

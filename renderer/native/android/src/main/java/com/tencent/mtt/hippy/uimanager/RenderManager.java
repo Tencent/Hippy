@@ -27,8 +27,9 @@ import androidx.annotation.NonNull;
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
-import com.tencent.renderer.node.RootRenderNode; 
-import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.node.RootRenderNode;
+import com.tencent.renderer.node.VirtualNode;
+import com.tencent.renderer.node.TextRenderNode;
 import com.tencent.renderer.pool.NativeRenderPool.PoolType;
 import com.tencent.renderer.node.RenderNode;
 import java.util.ArrayList;
@@ -106,13 +107,29 @@ public class RenderManager {
         }
     }
 
+    public void onVirtualNodeUpdated(int rootId, int id, int pid,
+            @NonNull Map<String, Object> childInfo) {
+        RenderNode parentNode = getRenderNode(rootId, pid);
+        if (parentNode instanceof TextRenderNode) {
+            ((TextRenderNode) parentNode).onVirtualChildUpdated(id, childInfo);
+        }
+    }
+
+    public void onVirtualNodeDeleted(int rootId, int id, int pid) {
+        RenderNode parentNode = getRenderNode(rootId, pid);
+        if (parentNode instanceof TextRenderNode) {
+            ((TextRenderNode) parentNode).onVirtualChildDeleted(id);
+        }
+    }
+
     public void createNode(int rootId, int id, int pid, int index,
             @NonNull String className, @NonNull Map<String, Object> props) {
         boolean isLazy = mControllerManager.checkLazy(className);
         RootRenderNode rootNode = NativeRendererManager.getRootNode(rootId);
         RenderNode parentNode = getRenderNode(rootId, pid);
         if (rootNode == null || parentNode == null) {
-            LogUtils.w(TAG, "createNode: parentNode == null, pid=" + pid);
+            LogUtils.w(TAG,
+                    "appendVirtualChild: rootNode=" + rootNode + " parentNode=" + parentNode);
             return;
         }
         RenderNode node = mControllerManager.createRenderNode(rootId, id, props, className,
@@ -124,6 +141,7 @@ public class RenderManager {
         // New created node should use total props, therefore set this flag for
         // update node not need to diff props in this batch cycle.
         node.setNodeFlag(FLAG_UPDATE_TOTAL_PROPS);
+        node.setIndex(index);
         rootNode.addRenderNode(node);
         parentNode.addChild(node, index);
         addUpdateNodeIfNeeded(rootId, parentNode);
