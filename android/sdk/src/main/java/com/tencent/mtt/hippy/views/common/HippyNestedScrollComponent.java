@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.common;
 
 import androidx.core.view.NestedScrollingChild;
@@ -22,43 +23,47 @@ import androidx.core.view.NestedScrollingParent2;
 
 public interface HippyNestedScrollComponent {
 
-  String PROP_PRIORITY = "nestedScrollPriority";
-  String PROP_LEFT_PRIORITY = "nestedScrollLeftPriority";
-  String PROP_TOP_PRIORITY = "nestedScrollTopPriority";
-  String PROP_RIGHT_PRIORITY = "nestedScrollRightPriority";
-  String PROP_BOTTOM_PRIORITY = "nestedScrollBottomPriority";
+    String PROP_PRIORITY = "nestedScrollPriority";
+    String PROP_LEFT_PRIORITY = "nestedScrollLeftPriority";
+    String PROP_TOP_PRIORITY = "nestedScrollTopPriority";
+    String PROP_RIGHT_PRIORITY = "nestedScrollRightPriority";
+    String PROP_BOTTOM_PRIORITY = "nestedScrollBottomPriority";
 
-  String PRIORITY_PARENT = "parent";
-  String PRIORITY_SELF = "self";
-  String PRIORITY_NONE = "none";
+    String PRIORITY_PARENT = "parent";
+    String PRIORITY_SELF = "self";
+    String PRIORITY_NONE = "none";
 
-  int DIRECTION_INVALID = -1;
-  int DIRECTION_ALL = 0;
-  int DIRECTION_LEFT = 1;
-  int DIRECTION_TOP = 2;
-  int DIRECTION_RIGHT = 3;
-  int DIRECTION_BOTTOM = 4;
+    int DIRECTION_INVALID = -1;
+    int DIRECTION_ALL = 0;
+    int DIRECTION_LEFT = 1;
+    int DIRECTION_TOP = 2;
+    int DIRECTION_RIGHT = 3;
+    int DIRECTION_BOTTOM = 4;
 
-  void setNestedScrollPriority(int direction, Priority priority);
+    void setNestedScrollPriority(int direction, Priority priority);
 
-  Priority getNestedScrollPriority(int direction);
+    Priority getNestedScrollPriority(int direction);
 
-  enum Priority {
-    NOT_SET,
-    PARENT,
-    SELF,
-    NONE,
-  }
+    enum Priority {
+        NOT_SET,
+        PARENT,
+        SELF,
+        NONE,
+    }
 
-  /**
-   * 嵌套滚动接口声明
-   */
-  interface HippyNestedScrollTarget extends HippyNestedScrollComponent, NestedScrollingParent, NestedScrollingChild {
-  }
+    /**
+     * Nested scroll interface declaration
+     */
+    interface HippyNestedScrollTarget extends HippyNestedScrollComponent, NestedScrollingParent,
+        NestedScrollingChild {
 
-  /**
-   * 比{@link HippyNestedScrollTarget}增加了惯性滚动类型
-   */
-  interface HippyNestedScrollTarget2 extends HippyNestedScrollTarget, NestedScrollingParent2, NestedScrollingChild2 {
-  }
+    }
+
+    /**
+     * Added non-touch scrolling type than {@link HippyNestedScrollTarget}
+     */
+    interface HippyNestedScrollTarget2 extends HippyNestedScrollTarget, NestedScrollingParent2,
+        NestedScrollingChild2 {
+
+    }
 }

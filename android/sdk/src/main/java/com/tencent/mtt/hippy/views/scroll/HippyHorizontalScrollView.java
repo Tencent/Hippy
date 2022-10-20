@@ -21,12 +21,10 @@ import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.HorizontalScrollView;
-
 import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingChildHelper;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
-
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.common.HippyMap;
@@ -38,7 +36,6 @@ import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.supportui.views.ScrollChecker;
-
 import java.util.HashMap;
 
 @SuppressWarnings("deprecation")
@@ -163,7 +160,9 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   @Override
   public boolean dispatchTouchEvent(MotionEvent ev) {
     if (hasNestedScrollingParent() && mNestedXOffset != 0) {
-      // 发生nested scroll后，当前控件位置改变了，ev.getX()和mLastTouchDownX的坐标原点不同，需要对ev偏移修正
+      // After the nested scroll occurs, the current View position has changed. The coordinate
+      // origin of ev.getX() and mLastTouchDownX is different, and the ev offset needs to be
+      // corrected.
       MotionEvent transformEv = MotionEvent.obtain(ev);
       transformEv.offsetLocation(mNestedXOffset, 0);
       boolean result = super.dispatchTouchEvent(transformEv);
@@ -188,10 +187,6 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
             LogUtils.d("HippyHorizontalScrollView", "emitScrollBeginDragEvent");
             HippyScrollViewEventHelper.emitScrollBeginDragEvent(this);
           }
-          // 若自己能水平滚动
-//          if (canScrollHorizontally(-1) || canScrollHorizontally(1)) {
-//            requestDisallowInterceptTouchEvent(true);
-//          }
         }
         result = super.onTouchEvent(event);
         if (result) {
@@ -238,6 +233,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   @Override
   public boolean onInterceptTouchEvent(MotionEvent event) {
+    // noinspection WrongConstant
     if (!mScrollEnabled || getNestedScrollAxes() != SCROLL_AXIS_NONE) {
       return false;
     }
@@ -274,7 +270,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   @Override
   public int getOverScrollMode() {
-    // 如果正在嵌套滚动，则屏蔽overScrollMode效果，避免误触发回弹状态
+    // If nested scrolling occurs, remove the overScrollMode to avoid triggering the rebound effect
+    // by mistake
     if (!hasNestedScrollingParent() || getNestedScrollPriority(DIRECTION_LEFT) == Priority.NONE
       && getNestedScrollPriority(DIRECTION_RIGHT) == Priority.NONE) {
       return super.getOverScrollMode();
@@ -283,10 +280,13 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
   }
 
   @Override
-  protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX, int scrollRangeY,
-                                 int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
-    if (!isTouchEvent || !hasNestedScrollingParent() || HippyNestedScrollHelper.priorityOfX(this, deltaX) == Priority.NONE) {
-      return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
+  protected boolean overScrollBy(int deltaX, int deltaY, int scrollX, int scrollY, int scrollRangeX,
+      int scrollRangeY, int maxOverScrollX, int maxOverScrollY, boolean isTouchEvent) {
+    if (!isTouchEvent || !hasNestedScrollingParent()
+        || HippyNestedScrollHelper.priorityOfX(this, deltaX) == Priority.NONE) {
+      // without nested scrolling
+      return super.overScrollBy(deltaX, deltaY, scrollX, scrollY, scrollRangeX, scrollRangeY,
+          maxOverScrollX, maxOverScrollY, isTouchEvent);
     }
     int consumed = 0;
     int unConsumed = deltaX;
@@ -300,9 +300,11 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         return false;
       }
     }
-    int myDx = unConsumed < 0 ? Math.max(unConsumed, -scrollX) : Math.min(unConsumed, scrollRangeX - scrollX - 1);
+    int myDx = unConsumed < 0 ? Math.max(unConsumed, -scrollX)
+        : Math.min(unConsumed, scrollRangeX - scrollX - 1);
     if (myDx != 0) {
-      super.overScrollBy(myDx, 0, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX, maxOverScrollY, isTouchEvent);
+      super.overScrollBy(myDx, 0, scrollX, scrollY, scrollRangeX, scrollRangeY, maxOverScrollX,
+          maxOverScrollY, true);
       consumed += myDx;
       unConsumed -= myDx;
     }
@@ -338,7 +340,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
         if (mScrollMinOffset > 0 && offsetX >= mScrollMinOffset) {
           mLastX = x;
           sendOnScrollEvent();
-        } else if ((mScrollMinOffset == 0) && ((currTime = SystemClock.elapsedRealtime()) - mLastScrollEventTimeStamp >= mScrollEventThrottle)) {
+        } else if ((mScrollMinOffset == 0) && ((currTime = SystemClock.elapsedRealtime())
+            - mLastScrollEventTimeStamp >= mScrollEventThrottle)) {
           mLastScrollEventTimeStamp = currTime;
           sendOnScrollEvent();
         } else {
@@ -570,7 +573,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     if (mPagingEnabled && type == ViewCompat.TYPE_NON_TOUCH) {
       return;
     }
-    // 先给当前节点处理
+    // Process the current View first
     if (HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF) {
       final int oldScrollX = getScrollX();
       scrollBy(dxUnconsumed, 0);
@@ -578,7 +581,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       dxConsumed += myConsumed;
       dxUnconsumed -= myConsumed;
     }
-    // 再分发给父级处理
+    // Then dispatch to the parent for processing
     int parentDx = HippyNestedScrollHelper.priorityOfX(this, dxUnconsumed) == Priority.NONE ? 0 : dxUnconsumed;
     int parentDy = HippyNestedScrollHelper.priorityOfY(this, dyUnconsumed) == Priority.NONE ? 0 : dyUnconsumed;
     if (parentDx != 0 || parentDy != 0) {
@@ -603,11 +606,11 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       }
       return;
     }
-    // 先分发给父级处理
+    // Dispatch to the parent for processing first
     int parentDx = HippyNestedScrollHelper.priorityOfX(this, dx) == Priority.NONE ? 0 : dx;
     int parentDy = HippyNestedScrollHelper.priorityOfY(this, dy) == Priority.NONE ? 0 : dy;
     if (parentDx != 0 || parentDy != 0) {
-      // 把consumed暂存下来，以复用数组
+      // Temporarily store `consumed` to reuse the Array
       int consumedX = consumed[0];
       int consumedY = consumed[1];
       consumed[0] = 0;
@@ -621,7 +624,7 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       consumed[0] += consumedX;
       consumed[1] += consumedY;
     }
-    // 再给当前节点处理
+    // Then process the current View
     if (HippyNestedScrollHelper.priorityOfX(target, dx) == Priority.PARENT) {
       final int oldScrollX = getScrollX();
       scrollBy(dx, 0);

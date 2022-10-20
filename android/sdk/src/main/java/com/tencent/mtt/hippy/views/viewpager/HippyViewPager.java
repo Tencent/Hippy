@@ -29,7 +29,6 @@ import com.tencent.mtt.hippy.uimanager.HippyViewBase;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.I18nUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollHelper;
 import com.tencent.mtt.supportui.views.viewpager.ViewPager;
@@ -56,6 +55,10 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   private final Handler mHandler = new Handler(Looper.getMainLooper());
   private Promise mCallBackPromise;
   private int mAxes;
+  /**
+   * Captured means scrolling occurs, consume the entire scrolling (or nested scrolling) event and
+   * do not dispatch to parent in this state
+   */
   private boolean mCaptured = false;
 
   private void init(Context context, boolean isVertical) {
@@ -67,6 +70,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     setAdapter(createAdapter(context));
     setLeftDragOutSizeEnabled(false);
     setRightDragOutSizeEnabled(false);
+    // enable nested scrolling
     setNestedScrollingEnabled(true);
     mAxes = isVertical ? SCROLL_AXIS_VERTICAL : SCROLL_AXIS_HORIZONTAL;
 
@@ -179,6 +183,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
           break;
         case MotionEvent.ACTION_CANCEL:
         case MotionEvent.ACTION_UP:
+          mCaptured = false;
           stopNestedScroll();
           break;
         default:
@@ -276,13 +281,13 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   @Override
   public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
     super.onNestedScrollAccepted(child, target, axes);
-    requestDisallowInterceptTouchEvent(true);
-    // beginFakeDrag();
+    startNestedScroll(axes);
   }
 
   @Override
   public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
-    // viewpager不支持嵌套滚动，不会继续派发事件，但可以响应子节点的嵌套滚动事件
+    // viewpager does not support nested scrolling, only when it cannot scroll, will the event from
+    // child be passed to the ancestor
     if (!mCaptured) {
       if (mAxes == SCROLL_AXIS_HORIZONTAL && dx != 0) {
         if (HippyNestedScrollHelper.priorityOfX(target, dx) == Priority.PARENT) {
@@ -302,44 +307,95 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
         fakeDragBy(-dy);
         consumed[1] += dy;
       }
+    } else if (dx != 0 || dy != 0) {
+      dispatchNestedPreScroll(dx, dy, consumed, null);
     }
   }
 
   @Override
   public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed) {
-    // viewpager不支持嵌套滚动，不会继续派发事件，但可以响应子节点的嵌套滚动事件
-    HippyNestedScrollTarget cc = (HippyNestedScrollTarget) target;
-    if (mAxes == SCROLL_AXIS_HORIZONTAL && dxUnconsumed != 0) {
-      if (HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF) {
+    // viewpager does not support nested scrolling, only when it cannot scroll, will the event from
+    // child be passed to the ancestor
+    if (!mCaptured) {
+      if (mAxes == SCROLL_AXIS_HORIZONTAL && dxUnconsumed != 0) {
+        if (HippyNestedScrollHelper.priorityOfX(target, dxUnconsumed) == Priority.SELF) {
+          mCaptured = canScrollHorizontally(dxUnconsumed);
+        }
+      } else if (mAxes == SCROLL_AXIS_VERTICAL && dyUnconsumed != 0) {
+        if (HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
+          mCaptured = canScrollVertically(dyUnconsumed);
+        }
+      }
+    }
+    if (mCaptured) {
+      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
         fakeDragBy(-dxUnconsumed);
-        mCaptured = true;
-      }
-    } else if (mAxes == SCROLL_AXIS_VERTICAL && dyUnconsumed != 0) {
-      if (HippyNestedScrollHelper.priorityOfY(target, dyUnconsumed) == Priority.SELF) {
+      } else {
         fakeDragBy(-dyUnconsumed);
-        mCaptured = true;
       }
+    } else if (dxUnconsumed != 0 || dyUnconsumed != 0) {
+      dispatchNestedScroll(dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, null);
     }
   }
 
   @Override
   public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
-    // 消费子节点的fling事件，防止endDrag时子节点同时触发惯性滚动
+    // Consume any fling event from child to prevent the child View from triggering non-touch
+    // scrolling at the same time when endFakeDrag()
     return mCaptured;
   }
 
   @Override
   public void onStopNestedScroll(View child) {
+    // Nested scrolling API may trigger out of order, check fake dragging state to prevent
+    // ViewPager from throwing IllegalStateException
     if (isFakeDragging()) {
       endFakeDrag();
     }
     mCaptured = false;
+    stopNestedScroll();
   }
 
   @Override
   public void fakeDragBy(float offset) {
+    // Nested scrolling API may trigger out of order, check fake dragging state to prevent
+    // ViewPager from throwing IllegalStateException
     if (isFakeDragging() || beginFakeDrag()) {
       super.fakeDragBy(offset);
     }
+  }
+
+  @Override
+  protected boolean onStartDrag(boolean start) {
+    if (super.onStartDrag(start)) {
+      mCaptured = true;
+      return true;
+    }
+    return hasNestedScrollingParent();
+  }
+
+  @Override
+  protected boolean performDrag(float x) {
+    // Dispatch nested scrolling event only when it cannot scroll
+    int dx = 0;
+    int dy = 0;
+    if (!mCaptured) {
+      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
+        dx = Math.round(mLastMotionX - x);
+      } else {
+        dy = Math.round(mLastMotionY - x);
+      }
+      if ((dx != 0 || dy != 0) && dispatchNestedPreScroll(dx, dy ,null, null)) {
+        return true;
+      }
+    }
+    if (super.performDrag(x)) {
+      mCaptured = true;
+      return true;
+    }
+    if (!mCaptured && (dx != 0 || dy != 0)) {
+      return dispatchNestedScroll(0, 0, dx, dy, null);
+    }
+    return false;
   }
 }

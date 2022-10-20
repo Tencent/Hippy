@@ -18,13 +18,13 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import android.content.Context;
 import android.os.Build.VERSION_CODES;
+import android.view.View;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
+import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.HippyRecyclerExtension;
 import androidx.recyclerview.widget.HippyRecyclerPool;
-import android.view.View;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyInstanceContext;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
@@ -146,13 +146,13 @@ public class HippyRecyclerViewWrapper<HRCV extends HippyRecyclerView> extends Fr
         recyclerView.onBatchComplete();
     }
 
-  @Override
-  public void setNestedScrollPriority(int direction, Priority priority) {
-    recyclerView.setNestedScrollPriority(direction, priority);
-  }
+    @Override
+    public void setNestedScrollPriority(int direction, Priority priority) {
+        recyclerView.setNestedScrollPriority(direction, priority);
+    }
 
-  @Override
-  public Priority getNestedScrollPriority(int direction) {
-    return recyclerView.getNestedScrollPriority(direction);
-  }
+    @Override
+    public Priority getNestedScrollPriority(int direction) {
+        return recyclerView.getNestedScrollPriority(direction);
+    }
 }

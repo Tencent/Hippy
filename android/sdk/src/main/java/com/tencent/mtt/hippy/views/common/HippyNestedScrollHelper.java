@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.views.common;
 
 import static com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.DIRECTION_BOTTOM;
@@ -25,41 +26,48 @@ import static com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.PRIO
 import static com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.Priority;
 
 import android.view.View;
-
 import com.tencent.mtt.hippy.views.common.HippyNestedScrollComponent.HippyNestedScrollTarget;
 
 public class HippyNestedScrollHelper {
 
-  public static Priority priorityOf(String name) {
-    switch (name) {
-      case PRIORITY_SELF:
-        return Priority.SELF;
-      case PRIORITY_PARENT:
-        return Priority.PARENT;
-      case PRIORITY_NONE:
-        return Priority.NONE;
-      default:
-        throw new RuntimeException("Invalid priority: " + name);
+    public static Priority priorityOf(String name) {
+        switch (name) {
+            case PRIORITY_SELF:
+                return Priority.SELF;
+            case PRIORITY_PARENT:
+                return Priority.PARENT;
+            case PRIORITY_NONE:
+                return Priority.NONE;
+            default:
+                throw new RuntimeException("Invalid priority: " + name);
+        }
     }
-  }
 
-  public static Priority priorityOfX(View target, int dx) {
-    if (dx == 0) {
-      return Priority.NONE;
+    public static Priority priorityOfX(View target, int dx) {
+        // not scrolling, priority is NONE
+        if (dx == 0) {
+            return Priority.NONE;
+        }
+        // non-HippyNestedScrollTarget View, priority is SELF
+        if (!(target instanceof HippyNestedScrollTarget)) {
+            return Priority.SELF;
+        }
+        // get priority from target by direction
+        return ((HippyNestedScrollTarget) target).getNestedScrollPriority(
+            dx > 0 ? DIRECTION_LEFT : DIRECTION_RIGHT);
     }
-    if (!(target instanceof HippyNestedScrollTarget)) {
-      return Priority.SELF;
-    }
-    return ((HippyNestedScrollTarget) target).getNestedScrollPriority(dx > 0 ? DIRECTION_LEFT : DIRECTION_RIGHT);
-  }
 
-  public static Priority priorityOfY(View target, int dy) {
-    if (dy == 0) {
-      return Priority.NONE;
+    public static Priority priorityOfY(View target, int dy) {
+        // not scrolling, priority is NONE
+        if (dy == 0) {
+            return Priority.NONE;
+        }
+        // non-HippyNestedScrollTarget View, priority is SELF
+        if (!(target instanceof HippyNestedScrollTarget)) {
+            return Priority.SELF;
+        }
+        // get priority from target by direction
+        return ((HippyNestedScrollTarget) target).getNestedScrollPriority(
+            dy > 0 ? DIRECTION_TOP : DIRECTION_BOTTOM);
     }
-    if (!(target instanceof HippyNestedScrollTarget)) {
-      return Priority.SELF;
-    }
-    return ((HippyNestedScrollTarget) target).getNestedScrollPriority(dy > 0 ? DIRECTION_TOP : DIRECTION_BOTTOM);
-  }
 }

@@ -42,10 +42,8 @@ import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
-
 import com.tencent.mtt.supportui.utils.ViewCompatTool;
 import com.tencent.mtt.supportui.views.ScrollChecker;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -2866,7 +2864,7 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 					if (DEBUG)
 						Log.v(TAG, "Starting drag!");
 
-					if (onStartDrag(dx < 0))
+					if (onStartDrag((mIsVertical ? dy : dx) < 0))
 					{
 						mIsBeingDragged = true;
 						setScrollState(SCROLL_STATE_DRAGGING);
@@ -3895,13 +3893,13 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 		return verticalCanScroll(direction);
 	}
 
-	protected boolean onStartDrag(boolean start) {
-    if (mIsVertical) {
-      return verticalCanScroll(start ? 1 : -1);
-    } else {
-      return horizontalCanScroll(start ? 1 : -1);
+    protected boolean onStartDrag(boolean start) {
+        if (mIsVertical) {
+            return verticalCanScroll(start ? 1 : -1);
+        } else {
+            return horizontalCanScroll(start ? 1 : -1);
+        }
     }
-	}
 
 	/**
 	 * Start a fake drag of the pager.
@@ -3993,18 +3991,18 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			throw new IllegalStateException("No fake drag in progress. Call beginFakeDrag first.");
 		}
 
-    if (mIsVertical) {
-      mLastMotionY += offset;
-    } else {
-      mLastMotionX += offset;
-    }
+        if (mIsVertical) {
+            mLastMotionY += offset;
+        } else {
+            mLastMotionX += offset;
+        }
 
-		float oldScrollPos = mIsVertical ? getScrollY() : getScrollX();
-		float scrollPos = oldScrollPos - offset;
-		final int range = mIsVertical ? getClientHeight() : getClientWidth();
+        float oldScrollPos = mIsVertical ? getScrollY() : getScrollX();
+        float scrollPos = oldScrollPos - offset;
+        final int range = mIsVertical ? getClientHeight() : getClientWidth();
 
-		float startBound = range * mFirstOffset;
-		float endBound = range * mLastOffset;
+        float startBound = range * mFirstOffset;
+        float endBound = range * mLastOffset;
 
 		final ItemInfo firstItem = mItems.get(0);
 		final ItemInfo lastItem = mItems.get(mItems.size() - 1);
@@ -4026,20 +4024,20 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 			scrollPos = endBound;
 		}
 		// Don't lose the rounded component
-    if (mIsVertical) {
-      mLastMotionY += scrollPos - (int) scrollPos;
-      scrollTo(getScrollX(), (int) scrollPos);
-    } else {
-      mLastMotionX += scrollPos - (int) scrollPos;
-      scrollTo((int) scrollPos, getScrollY());
-    }
-		pageScrolled((int) scrollPos);
+        if (mIsVertical) {
+            mLastMotionY += scrollPos - (int) scrollPos;
+            scrollTo(getScrollX(), (int) scrollPos);
+        } else {
+            mLastMotionX += scrollPos - (int) scrollPos;
+            scrollTo((int) scrollPos, getScrollY());
+        }
+        pageScrolled((int) scrollPos);
 
 		// Synthesize an event for the VelocityTracker.
 		final long time = SystemClock.uptimeMillis();
-    final float x = mIsVertical ? 0 : mLastMotionX;
-    final float y = mIsVertical ? mLastMotionY : 0;
-		final MotionEvent ev = MotionEvent.obtain(mFakeDragBeginTime, time, MotionEvent.ACTION_MOVE, x, y, 0);
+        final float x = mIsVertical ? 0 : mLastMotionX;
+        final float y = mIsVertical ? mLastMotionY : 0;
+        final MotionEvent ev = MotionEvent.obtain(mFakeDragBeginTime, time, MotionEvent.ACTION_MOVE, x, y, 0);
 		mVelocityTracker.addMovement(ev);
 		ev.recycle();
 	}
@@ -4731,14 +4729,14 @@ public class ViewPager extends ViewGroup implements ScrollChecker.IScrollCheck
 	@Override
 	public boolean verticalCanScroll(int dis)
 	{
-    if (!mCanScroll || !mIsVertical) {
-      return false;
-    }
-    if (dis < 0) {
-      return mCurItem > 0;
-    } else if (dis > 0) {
-      return mCurItem < getPageCount() - 1;
-    }
+        if (!mCanScroll || !mIsVertical) {
+            return false;
+        }
+        if (dis < 0) {
+            return mCurItem > 0;
+        } else if (dis > 0) {
+            return mCurItem < getPageCount() - 1;
+        }
 		return false;
 	}
 
