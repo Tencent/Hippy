@@ -34,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 
-import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.drawable.BackgroundDrawable;
 import com.tencent.renderer.component.drawable.BackgroundDrawable.BorderArc;
@@ -44,6 +43,7 @@ import com.tencent.renderer.component.drawable.ContentDrawable;
 import com.tencent.renderer.component.drawable.TextDrawable;
 import com.tencent.renderer.component.text.TextGestureSpan;
 
+import com.tencent.renderer.node.RenderNode;
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
@@ -329,6 +329,22 @@ public class Component implements Drawable.Callback {
 
     public void setBorderStyle(BorderStyle style) {
         ensureBackgroundDrawable().setBorderStyle(style);
+    }
+
+    public void setLeftBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.LEFT);
+    }
+
+    public void setTopBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.TOP);
+    }
+
+    public void setRightBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.RIGHT);
+    }
+
+    public void setBottomBorderStyle(BorderStyle style) {
+        ensureBackgroundDrawable().setBorderStyle(style, BorderSide.BOTTOM);
     }
 
     public void setBorderRadius(@Px float radius) {

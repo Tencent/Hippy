@@ -89,11 +89,9 @@ public class ComponentController {
         component.setBorderWidth(PixelUtil.dp2px(borderWidth));
     }
 
-    @SuppressWarnings("unused")
-    @HippyControllerProps(name = NodeProps.BORDER_STYLES, defaultType = HippyControllerProps.STRING)
-    public void setBorderStyle(@NonNull Component component, String style) {
-        if (TextUtils.isEmpty(style)) {
-            return;
+    private BorderStyle getBorderStyle(String style) {
+        if (style == null) {
+            return BorderStyle.SOLID;
         }
         BorderStyle borderStyle;
         switch (style) {
@@ -111,7 +109,37 @@ public class ComponentController {
             default:
                 borderStyle = BorderStyle.SOLID;
         }
-        component.setBorderStyle(borderStyle);
+        return borderStyle;
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_STYLE, defaultType = HippyControllerProps.STRING)
+    public void setBorderStyle(@NonNull Component component, String style) {
+        component.setBorderStyle(getBorderStyle(style));
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_BOTTOM_STYLE, defaultType = HippyControllerProps.STRING)
+    public void setBottomBorderStyle(@NonNull Component component, String style) {
+        component.setBottomBorderStyle(getBorderStyle(style));
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_LEFT_STYLE, defaultType = HippyControllerProps.STRING)
+    public void setLeftBorderStyle(@NonNull Component component, String style) {
+        component.setLeftBorderStyle(getBorderStyle(style));
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_TOP_STYLE, defaultType = HippyControllerProps.STRING)
+    public void setTopBorderStyle(@NonNull Component component, String style) {
+        component.setTopBorderStyle(getBorderStyle(style));
+    }
+
+    @SuppressWarnings("unused")
+    @HippyControllerProps(name = NodeProps.BORDER_RIGHT_STYLE, defaultType = HippyControllerProps.STRING)
+    public void setRightBorderStyle(@NonNull Component component, String style) {
+        component.setRightBorderStyle(getBorderStyle(style));
     }
 
     @SuppressWarnings({"unused", "deprecation"})

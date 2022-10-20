@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,8 +104,8 @@ class PlatformManager {
           _osVersion = deviceData['systemVersion'] ?? '1.0';
           _device = deviceData['utsname.machine'] ?? '';
           _model = deviceData['model'] ?? '';
-          _deviceId = deviceData['id'];
-          _codeName = deviceData['codename'];
+          _deviceId = deviceData['id'] ?? '';
+          _codeName = deviceData['codename'] ?? '';
           _appName = info.appName;
           _appVersion = info.version;
           _packageName = info.packageName;

@@ -34,7 +34,6 @@ NSString *const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObje
 NSString *const NativeRenderIsHighlightedAttributeName = @"IsHighlightedAttributeName";
 NSString *const NativeRenderComponentTagAttributeName = @"NativeRenderTagAttributeName";
 
-// CGFloat const NativeRenderTextAutoSizeDefaultMinimumFontScale       = 0.5f;
 CGFloat const NativeRenderTextAutoSizeWidthErrorMargin = 0.05f;
 CGFloat const NativeRenderTextAutoSizeHeightErrorMargin = 0.025f;
 CGFloat const NativeRenderTextAutoSizeGranularity = 0.001f;
@@ -175,7 +174,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (void)amendLayoutBeforeMount {
     @try {
-        NSTextStorage *textStorage = [self buildTextStorageForWidth:self.frame.size.width widthMode:hippy::Exactly];
+        UIEdgeInsets padding = self.paddingAsInsets;
+        CGFloat width = self.frame.size.width - (padding.left + padding.right);
+        NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::Exactly];
+        CGRect textFrame = [self calculateTextFrame:textStorage];
+        
         NSLayoutManager *layoutManager = textStorage.layoutManagers.firstObject;
         NSTextContainer *textContainer = layoutManager.textContainers.firstObject;
         NSRange glyphRange = [layoutManager glyphRangeForTextContainer:textContainer];
@@ -198,7 +201,9 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 CGFloat roundedHeight = NativeRenderRoundPixelValue(height);
                 CGFloat roundedWidth = NativeRenderRoundPixelValue(width);
                 CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
-                CGRect childFrameToSet = CGRectMake(NativeRenderRoundPixelValue(location.x), NativeRenderRoundPixelValue(positionY), roundedWidth, roundedHeight);
+                CGRect childFrameToSet = CGRectMake(NativeRenderRoundPixelValue(textFrame.origin.x + location.x),
+                                                    NativeRenderRoundPixelValue(textFrame.origin.y + positionY),
+                                                    roundedWidth, roundedHeight);
                 CGRect childFrame = child.frame;
 #define ChildFrameParamNearlyEqual(x, y) (fabs((x) - (y)) < 0.00001f)
                 if (!ChildFrameParamNearlyEqual(childFrame.origin.x, childFrameToSet.origin.x) ||

@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,15 +19,15 @@
 //
 
 import 'package:flutter/material.dart';
-import 'package:voltron_render/engine.dart';
-import 'package:voltron_render/module.dart';
-
-import '../page_test.dart';
+import 'package:voltron/engine.dart';
+import 'package:voltron/module.dart';
+import '../view/base_voltron_page.dart';
 
 class TestModule extends VoltronNativeModule {
   static const String kModuleName = "TestModule";
 
   static const String kDebugMethodName = "debug";
+  static const String kRemoteDebugMethodName = "remoteDebug";
 
   TestModule(EngineContext context) : super(context);
 
@@ -38,7 +38,27 @@ class TestModule extends VoltronNativeModule {
       Navigator.push(
         rootBuildContext,
         MaterialPageRoute(
-          builder: (context) => PageTestWidget('http://localhost:38989/index.bundle', true),
+          builder: (context) => BaseVoltronPage(
+            debugMode: true,
+            remoteServerUrl: 'http://localhost:38989/index.bundle',
+          ),
+        ),
+      );
+    }
+    return true;
+  }
+
+  @VoltronMethod(kDebugMethodName)
+  bool remoteDebug(int instanceId, String bundleUrl, JSPromise promise) {
+    var rootBuildContext = context.renderContext.getInstance(instanceId)?.currentContext;
+    if (rootBuildContext != null) {
+      Navigator.push(
+        rootBuildContext,
+        MaterialPageRoute(
+          builder: (context) => BaseVoltronPage(
+            debugMode: true,
+            remoteServerUrl: bundleUrl,
+          ),
         ),
       );
     }
@@ -48,6 +68,7 @@ class TestModule extends VoltronNativeModule {
   @override
   Map<String, Function> get extraFuncMap => {
         kDebugMethodName: debug,
+        kRemoteDebugMethodName: remoteDebug,
       };
 
   @override

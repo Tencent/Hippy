@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,13 +22,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../util.dart';
+import '../widget.dart';
 
 class RefreshWrapperItemWidget extends FRStatefulWidget {
-  final RefreshWrapperItemRenderViewModel viewModel;
+  final RefreshWrapperItemRenderViewModel _viewModel;
 
-  RefreshWrapperItemWidget(this.viewModel) : super(viewModel);
+  RefreshWrapperItemWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
@@ -39,7 +39,13 @@ class RefreshWrapperItemWidget extends FRStatefulWidget {
 class _RefreshWrapperItemWidgetState extends FRState<RefreshWrapperItemWidget> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(value: widget.viewModel, child: _boxContent());
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build refresh item widget",
+    );
+    return ChangeNotifierProvider.value(
+      value: widget._viewModel,
+      child: _boxContent(),
+    );
   }
 
   Widget _boxContent() {
@@ -49,7 +55,12 @@ class _RefreshWrapperItemWidgetState extends FRState<RefreshWrapperItemWidget> {
           viewModel,
           child: Selector<RefreshWrapperItemRenderViewModel, DivContainerViewModel>(
             selector: (context, viewModel) => DivContainerViewModel(viewModel),
-            builder: (context, viewModel, _) => DivContainerWidget(viewModel),
+            builder: (context, viewModel, _) {
+              LogUtils.dWidget(
+                "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build refresh item inner widget",
+              );
+              return DivContainerWidget(viewModel);
+            },
           ),
         );
       },

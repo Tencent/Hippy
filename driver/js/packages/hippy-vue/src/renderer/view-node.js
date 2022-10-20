@@ -115,7 +115,6 @@ class ViewNode {
   }
 
   set isMounted(isMounted) {
-    // TODO: Maybe need validation, maybe not.
     this._isMounted = isMounted;
   }
 
@@ -203,7 +202,6 @@ class ViewNode {
     if (this.childNodes[oldIndex + 1]) {
       this.childNodes[oldIndex + 1].prevSibling = this.childNodes[oldIndex - 1];
     }
-
     this.childNodes.splice(oldIndex, 1);
     const newIndex = this.childNodes.indexOf(referenceNode);
     this.childNodes.splice(newIndex, 0, childNode);

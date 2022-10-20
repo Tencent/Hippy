@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,68 +24,77 @@ import 'package:provider/provider.dart';
 
 import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
-class ModalContainerWidget extends FRStatefulWidget {
+class ModalWidget extends FRStatefulWidget {
   final ModalRenderViewModel _viewModel;
 
-  ModalContainerWidget(this._viewModel) : super(_viewModel);
+  ModalWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
-    return _ModalContainerWidgetState();
+    return _ModalWidgetState();
   }
 }
 
-class _ModalContainerWidgetState extends FRState<ModalContainerWidget> {
+class _ModalWidgetState extends FRState<ModalWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build modal widget",
+    );
     return ChangeNotifierProvider.value(
       value: widget._viewModel,
       child: Selector<ModalRenderViewModel, _ModalContainerModel>(
-          selector: (context, renderViewModel) {
-        return _ModalContainerModel(
-          canShowDialog: renderViewModel.canDialogShow,
-          aniType: renderViewModel.animationType,
-          transparent: renderViewModel.transparent,
-          immersionStatusBar: renderViewModel.immersionStatusBar,
-          statusBarTextDarkColor: renderViewModel.statusBarTextDarkColor,
-          animationDuration: renderViewModel.animationDuration,
-          barrierColor: renderViewModel.barrierColor,
-        );
-      }, builder: (context, modalViewModel, widget) {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          if (modalViewModel.canShowDialog) {
-            showDialog();
-          } else {
-            dismissDialog();
-          }
-        });
-
-        return Container();
-      }),
+        selector: (context, renderViewModel) {
+          return _ModalContainerModel(
+            canShowDialog: renderViewModel.canDialogShow,
+            aniType: renderViewModel.animationType,
+            transparent: renderViewModel.transparent,
+            immersionStatusBar: renderViewModel.immersionStatusBar,
+            statusBarTextDarkColor: renderViewModel.statusBarTextDarkColor,
+            animationDuration: renderViewModel.animationDuration,
+            barrierColor: renderViewModel.barrierColor,
+          );
+        },
+        builder: (context, modalViewModel, widget) {
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            if (modalViewModel.canShowDialog) {
+              showDialog();
+            } else {
+              dismissDialog();
+            }
+          });
+          return Container();
+        },
+      ),
     );
   }
 
   void showDialog() {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, show modal",
+    );
     widget._viewModel.showDialog();
   }
 
   void dismissDialog() {
+    LogUtils.dWidget(
+      "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, dismiss modal",
+    );
     widget._viewModel.dismissDialog();
   }
 
   @override
   void deactivate() {
-    LogUtils.dWidget("ModalWidget", "deactivate");
+    LogUtils.dWidget("ID:${widget._viewModel.id}, deactivate modal widget");
     dismissDialog();
     super.deactivate();
   }
 
   @override
   void dispose() {
-    LogUtils.dWidget("ModalWidget", "dispose");
+    LogUtils.dWidget("ID:${widget._viewModel.id}, dispose modal widget");
     dismissDialog();
     super.dispose();
   }
@@ -125,18 +134,18 @@ class _ModalContainerModel {
       barrierColor == other.barrierColor;
 }
 
-class ModalDialogWidget extends StatefulWidget {
+class ModalContainerWidget extends StatefulWidget {
   final ModalRenderViewModel _viewModel;
 
-  ModalDialogWidget(this._viewModel) : super(key: _viewModel.modalKey);
+  ModalContainerWidget(this._viewModel) : super(key: _viewModel.modalKey);
 
   @override
   State<StatefulWidget> createState() {
-    return _ModalDialogWidgetState();
+    return _ModalContainerWidgetState();
   }
 }
 
-class _ModalDialogWidgetState extends State<ModalDialogWidget> {
+class _ModalContainerWidgetState extends State<ModalContainerWidget> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(

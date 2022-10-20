@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@ class LogUtils {
 
   static bool kDebugLogDomEnable = true;
   static bool kDebugLogWidgetEnable = true;
+  static bool kDebugLogOperateEnable = true;
   static bool kDebugLogRenderEnable = true;
   static bool kDebugLogRenderNodeEnable = true;
   static bool kDebugLogBridgeEnable = true;
@@ -56,6 +57,12 @@ class LogUtils {
     }
   }
 
+  static void dOperate(String msg) {
+    if (kDebugLogOperateEnable && _kDebugEnable) {
+      printLog("Operate", LogLevel.debug, msg);
+    }
+  }
+
   static void dRender(String msg) {
     if (kDebugLogRenderEnable && _kDebugEnable) {
       printLog("Render", LogLevel.debug, msg);
@@ -74,9 +81,9 @@ class LogUtils {
     }
   }
 
-  static void dWidget(String tag, String msg) {
+  static void dWidget(String msg) {
     if (kDebugLogWidgetEnable && _kDebugEnable) {
-      printLog(tag, LogLevel.debug, msg);
+      printLog("Widget", LogLevel.debug, msg);
     }
   }
 

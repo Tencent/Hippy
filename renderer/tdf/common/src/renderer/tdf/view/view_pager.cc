@@ -23,7 +23,6 @@
 #include "core/common/point.h"
 #include "core/common/rect.h"
 #include "core/common/scalar.h"
-#include "footstone/logging.h"
 
 namespace hippy {
 inline namespace render {

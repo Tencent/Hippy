@@ -33,6 +33,7 @@ inline namespace value {
 
 using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
+constexpr uint32_t kSupportedVersion = 15;
 
 Deserializer::Deserializer(const std::vector<const uint8_t>& data)
     : position_(&data[0]), end_(&data[0] + data.size()) {}
@@ -51,7 +52,7 @@ void Deserializer::ReadHeader() {
     SerializationTag tag;
     ReadTag(tag);
     version_ = ReadVarint<uint32_t>();
-    FOOTSTONE_DCHECK(version_ <= kLatestVersion);
+    FOOTSTONE_CHECK(version_ <= kSupportedVersion);
   }
 }
 
@@ -231,18 +232,19 @@ bool Deserializer::ReadDenseJSArray(HippyValue& dom_value) {
 }
 
 bool Deserializer::ReadJSObject(HippyValue& dom_value) {
-  bool ret = true;
   uint32_t num_properties;
   HippyValueObjectType object;
-  ret = ReadObjectProperties(object, num_properties, SerializationTag::kEndJSObject);
-  if (!ret) return false;
+  if (!ReadObjectProperties(object, num_properties, SerializationTag::kEndJSObject)) {
+    return false;
+  }
 
-  uint32_t expected_num_properties;
-  expected_num_properties = ReadVarint<uint32_t>();
-  if (num_properties != expected_num_properties) return false;
+  auto expected_num_properties = ReadVarint<uint32_t>();
+  if (num_properties != expected_num_properties) {
+    return false;
+  }
 
   dom_value = object;
-  return ret;
+  return true;
 }
 
 template <typename T>

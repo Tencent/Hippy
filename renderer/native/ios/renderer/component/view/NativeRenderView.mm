@@ -21,7 +21,6 @@
  */
 
 #import "NativeRenderView.h"
-#import "NativeRenderAutoInsetsProtocol.h"
 #import "NativeRenderBorderDrawing.h"
 #import "NativeRenderConvert.h"
 #import "NativeRenderUtils.h"
@@ -169,49 +168,6 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
     NSRange semicolonRange = [superDescription rangeOfString:@";"];
     NSString *replacement = [NSString stringWithFormat:@"; componentTag: %@;", self.componentTag];
     return [superDescription stringByReplacingCharactersInRange:semicolonRange withString:replacement];
-}
-
-#pragma mark - Statics for dealing with layoutGuides
-
-+ (void)autoAdjustInsetsForView:(UIView<NativeRenderAutoInsetsProtocol> *)parentView
-                 withScrollView:(UIScrollView *)scrollView
-                   updateOffset:(BOOL)updateOffset {
-    UIEdgeInsets baseInset = parentView.contentInset;
-    CGFloat previousInsetTop = scrollView.contentInset.top;
-    CGPoint contentOffset = scrollView.contentOffset;
-
-    if (parentView.automaticallyAdjustContentInsets) {
-        UIEdgeInsets autoInset = [self contentInsetsForView:parentView];
-        baseInset.top += autoInset.top;
-        baseInset.bottom += autoInset.bottom;
-        baseInset.left += autoInset.left;
-        baseInset.right += autoInset.right;
-    }
-    scrollView.contentInset = baseInset;
-    scrollView.scrollIndicatorInsets = baseInset;
-
-    if (updateOffset) {
-        // If we're adjusting the top inset, then let's also adjust the contentOffset so that the view
-        // elements above the top guide do not cover the content.
-        // This is generally only needed when your views are initially laid out, for
-        // manual changes to contentOffset, you can optionally disable this step
-        CGFloat currentInsetTop = scrollView.contentInset.top;
-        if (currentInsetTop != previousInsetTop) {
-            contentOffset.y -= (currentInsetTop - previousInsetTop);
-            scrollView.contentOffset = contentOffset;
-        }
-    }
-}
-
-+ (UIEdgeInsets)contentInsetsForView:(UIView *)view {
-    while (view) {
-        UIViewController *controller = view.nativeRenderViewController;
-        if (controller) {
-            return (UIEdgeInsets) { controller.topLayoutGuide.length, 0, controller.bottomLayoutGuide.length, 0 };
-        }
-        view = view.superview;
-    }
-    return UIEdgeInsetsZero;
 }
 
 #pragma mark - Borders

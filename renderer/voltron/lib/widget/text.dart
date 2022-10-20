@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,14 +23,14 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import '../style.dart';
+import '../util.dart';
 import '../viewmodel.dart';
-import 'base.dart';
-import 'div.dart';
+import '../widget.dart';
 
 class TextWidget extends FRStatefulWidget {
-  final TextRenderViewModel renderViewModel;
+  final TextRenderViewModel _viewModel;
 
-  TextWidget(this.renderViewModel) : super(renderViewModel);
+  TextWidget(this._viewModel) : super(_viewModel);
 
   @override
   State<StatefulWidget> createState() {
@@ -41,8 +41,9 @@ class TextWidget extends FRStatefulWidget {
 class _TextWidgetState extends FRState<TextWidget> {
   @override
   Widget build(BuildContext context) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build text widget");
     return ChangeNotifierProvider.value(
-      value: widget.renderViewModel,
+      value: widget._viewModel,
       child: Consumer<TextRenderViewModel>(
         builder: (context, viewModel, widget) {
           return PositionWidget(
@@ -55,6 +56,7 @@ class _TextWidgetState extends FRState<TextWidget> {
   }
 
   Widget textView(TextRenderViewModel textModel) {
+    LogUtils.dWidget("ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build text inner widget");
     var data = textModel.data;
     if (data != null) {
       return Container(
@@ -75,9 +77,6 @@ class _TextWidgetState extends FRState<TextWidget> {
   @override
   void dispose() {
     super.dispose();
-    if (!widget.renderViewModel.isDispose) {
-      widget.renderViewModel.onDispose();
-    }
   }
 }
 

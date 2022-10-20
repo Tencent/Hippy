@@ -33,7 +33,7 @@
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, weak, readonly) NativeRenderViewManager *manager;
 
-- (instancetype)initWithViewManager:(NativeRenderViewManager *)viewManager viewName:(NSString *)viewName NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithViewManager:(NativeRenderViewManager *)viewManager viewName:(NSString *)viewName;
 
 - (UIView *)createViewWithTag:(NSNumber *)tag;
 

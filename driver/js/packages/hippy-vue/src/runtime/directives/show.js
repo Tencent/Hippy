@@ -32,7 +32,7 @@ function toggle(el, value, vNode, originalDisplay) {
 
 const show = {
   bind(el, { value }, vNode) {
-    // Set the display be block when undefined
+    // Set the display to 'block' when undefined
     if (el.style.display === undefined) {
       el.style.display = 'block';
     }

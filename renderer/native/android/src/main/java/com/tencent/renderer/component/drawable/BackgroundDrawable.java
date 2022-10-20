@@ -18,6 +18,7 @@ package com.tencent.renderer.component.drawable;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -26,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import java.util.List;
 
 public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder {
@@ -44,6 +46,12 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
     private BorderWidth mBorderWidths;
     @Nullable
     private BorderColor mBorderColors;
+    @Nullable
+    private BorderStyles mBorderStyles;
+    @Nullable
+    private DashPathEffect mDashPathEffect;
+    @Nullable
+    private DashPathEffect mDotPathEffect;
     @Nullable
     private Path mBorderPath;
     @Nullable
@@ -81,8 +89,9 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         if (mPaint == null) {
             mPaint = new Paint();
+        } else {
+            mPaint.reset();
         }
-        mPaint.reset();
         drawShadow(canvas);
         updatePath();
         if (hasBorderRadius()) {
@@ -133,23 +142,19 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
                 || mBorderRadii.bottomLeft > 0 || mBorderRadii.topLeft > 0);
     }
 
-    private boolean hasTransparentBorderColor() {
+    private boolean hasTransparentColorOnAllSides() {
         if (mBorderColor == Color.TRANSPARENT && mBorderColors == null) {
             return true;
         }
-        return mBorderColors != null && mBorderColors.left == Color.TRANSPARENT
-                && mBorderColors.top == Color.TRANSPARENT
-                && mBorderColors.right == Color.TRANSPARENT
-                && mBorderColors.bottom == Color.TRANSPARENT;
+        return mBorderColors != null && mBorderColors.hasTransparentColorOnAllSides();
     }
 
-    private boolean hasSingleBorderColor() {
-        if (mBorderColors == null && mBorderColor != Color.TRANSPARENT) {
-            return true;
-        }
-        return mBorderColors != null && mBorderColors.left == mBorderColors.top
-                && mBorderColors.top == mBorderColors.right
-                && mBorderColors.right == mBorderColors.bottom;
+    private boolean hasSameColorOnAllSides() {
+        return mBorderColors == null || mBorderColors.hasSameColorOnAllSides();
+    }
+
+    private boolean hasSameStyleOnAllSides() {
+        return mBorderStyles == null || mBorderStyles.hasSameStyleOnAllSides();
     }
 
     protected void updatePath() {
@@ -229,24 +234,23 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
     }
 
     protected void drawBorder(@NonNull Canvas canvas) {
-        if (mBorderStyle == BorderStyle.NONE || hasTransparentBorderColor()) {
-            return;
-        }
         final int leftWidth = (mBorderWidths == null) ? mBorderWidth : mBorderWidths.left;
         final int topWidth = (mBorderWidths == null) ? mBorderWidth : mBorderWidths.top;
         final int rightWidth = (mBorderWidths == null) ? mBorderWidth : mBorderWidths.right;
         final int bottomWidth = (mBorderWidths == null) ? mBorderWidth : mBorderWidths.bottom;
-        if (leftWidth == 0 && topWidth == 0 && rightWidth == 0 && bottomWidth == 0) {
+        if (hasSameColorOnAllSides()) {
+            final int borderColor = (mBorderColors == null) ? mBorderColor : mBorderColors.left;
+            drawBorderWithSingleColor(canvas, borderColor, leftWidth, topWidth, rightWidth,
+                    bottomWidth);
             return;
         }
+        // Rectangles with different color borders currently do not support dash effect,
+        // so setDashPathEffect will not be called in the following drawing
+        // TODO: support dash effect with different border color of rectangle
         final int leftColor = (mBorderColors == null) ? mBorderColor : mBorderColors.left;
         final int topColor = (mBorderColors == null) ? mBorderColor : mBorderColors.top;
         final int rightColor = (mBorderColors == null) ? mBorderColor : mBorderColors.right;
         final int bottomColor = (mBorderColors == null) ? mBorderColor : mBorderColors.bottom;
-        float top = mRect.top;
-        float left = mRect.left;
-        float width = mRect.width();
-        float height = mRect.height();
         if (mBorderPath == null) {
             mBorderPath = new Path();
         }
@@ -254,42 +258,92 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         if (leftWidth > 0 && leftColor != Color.TRANSPARENT) {
             mPaint.setColor(leftColor);
             mBorderPath.rewind();
-            mBorderPath.moveTo(left, top);
-            mBorderPath.lineTo(left + leftWidth, top + topWidth);
-            mBorderPath.lineTo(left + leftWidth, top + height - bottomWidth);
-            mBorderPath.lineTo(left, top + height);
-            mBorderPath.lineTo(left, top);
+            mBorderPath.moveTo(mRect.left, mRect.top);
+            mBorderPath.lineTo(mRect.left + leftWidth, mRect.top + topWidth);
+            mBorderPath.lineTo(mRect.left + leftWidth, mRect.bottom - bottomWidth);
+            mBorderPath.lineTo(mRect.left, mRect.bottom);
+            mBorderPath.lineTo(mRect.left, mRect.top);
             canvas.drawPath(mBorderPath, mPaint);
         }
         if (topWidth > 0 && topColor != Color.TRANSPARENT) {
             mPaint.setColor(topColor);
             mBorderPath.rewind();
-            mBorderPath.moveTo(left, top);
-            mBorderPath.lineTo(left + leftWidth, top + topWidth);
-            mBorderPath.lineTo(left + width - rightWidth, top + topWidth);
-            mBorderPath.lineTo(left + width, top);
-            mBorderPath.lineTo(left, top);
+            mBorderPath.moveTo(mRect.left, mRect.top);
+            mBorderPath.lineTo(mRect.left + leftWidth, mRect.top + topWidth);
+            mBorderPath.lineTo(mRect.right - rightWidth, mRect.top + topWidth);
+            mBorderPath.lineTo(mRect.right, mRect.top);
+            mBorderPath.lineTo(mRect.left, mRect.top);
             canvas.drawPath(mBorderPath, mPaint);
         }
         if (rightWidth > 0 && rightColor != Color.TRANSPARENT) {
             mPaint.setColor(rightColor);
             mBorderPath.rewind();
-            mBorderPath.moveTo(left + width, top);
-            mBorderPath.lineTo(left + width, top + height);
-            mBorderPath.lineTo(left + width - rightWidth, top + height - bottomWidth);
-            mBorderPath.lineTo(left + width - rightWidth, top + topWidth);
-            mBorderPath.lineTo(left + width, top);
+            mBorderPath.moveTo(mRect.right, mRect.top);
+            mBorderPath.lineTo(mRect.right, mRect.bottom);
+            mBorderPath.lineTo(mRect.right - rightWidth, mRect.bottom - bottomWidth);
+            mBorderPath.lineTo(mRect.right - rightWidth, mRect.top + topWidth);
+            mBorderPath.lineTo(mRect.right, mRect.top);
             canvas.drawPath(mBorderPath, mPaint);
         }
         if (bottomWidth > 0 && bottomColor != Color.TRANSPARENT) {
             mPaint.setColor(bottomColor);
             mBorderPath.rewind();
-            mBorderPath.moveTo(left, top + height);
-            mBorderPath.lineTo(left + width, top + height);
-            mBorderPath.lineTo(left + width - rightWidth, top + height - bottomWidth);
-            mBorderPath.lineTo(left + leftWidth, top + height - bottomWidth);
-            mBorderPath.lineTo(left, top + height);
+            mBorderPath.moveTo(mRect.left, mRect.bottom);
+            mBorderPath.lineTo(mRect.right, mRect.bottom);
+            mBorderPath.lineTo(mRect.right - rightWidth, mRect.bottom - bottomWidth);
+            mBorderPath.lineTo(mRect.left + leftWidth, mRect.bottom - bottomWidth);
+            mBorderPath.lineTo(mRect.left, mRect.bottom);
             canvas.drawPath(mBorderPath, mPaint);
+        }
+    }
+
+    protected void drawBorderWithSingleColor(@NonNull Canvas canvas, int borderColor, int leftWidth,
+            int topWidth, int rightWidth, int bottomWidth) {
+        if (borderColor == Color.TRANSPARENT) {
+            return;
+        }
+        assert mPaint != null;
+        mPaint.setColor(borderColor);
+        mPaint.setStyle(Paint.Style.STROKE);
+        if (leftWidth > 0) {
+            mPaint.setStrokeWidth(leftWidth);
+            setDashPathEffect(BorderSide.LEFT);
+            canvas.drawLine(
+                    mRect.left + leftWidth / 2.0f,
+                    mRect.top,
+                    mRect.left + leftWidth / 2.0f,
+                    mRect.bottom - bottomWidth,
+                    mPaint);
+        }
+        if (topWidth > 0) {
+            mPaint.setStrokeWidth(topWidth);
+            setDashPathEffect(BorderSide.TOP);
+            canvas.drawLine(
+                    mRect.left + leftWidth,
+                    mRect.top + topWidth / 2.0f,
+                    mRect.right,
+                    mRect.top + topWidth / 2.0f,
+                    mPaint);
+        }
+        if (rightWidth > 0) {
+            mPaint.setStrokeWidth(rightWidth);
+            setDashPathEffect(BorderSide.RIGHT);
+            canvas.drawLine(
+                    mRect.right - rightWidth / 2.0f,
+                    mRect.top + topWidth,
+                    mRect.right - rightWidth / 2.0f,
+                    mRect.bottom,
+                    mPaint);
+        }
+        if (bottomWidth > 0) {
+            mPaint.setStrokeWidth(bottomWidth);
+            setDashPathEffect(BorderSide.BOTTOM);
+            canvas.drawLine(
+                    mRect.left,
+                    mRect.bottom - bottomWidth / 2.0f,
+                    mRect.right - rightWidth,
+                    mRect.bottom - bottomWidth / 2.0f,
+                    mPaint);
         }
     }
 
@@ -300,6 +354,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
+        setDashPathEffect(BorderSide.LEFT);
         mBorderPath.rewind();
         mBorderPath.moveTo(mRect.left + halfWidth, mRect.top + topLeft);
         mBorderPath.lineTo(mRect.left + halfWidth, mRect.bottom - bottomLeft);
@@ -325,6 +380,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
+        setDashPathEffect(BorderSide.TOP);
         mBorderPath.rewind();
         mBorderPath.moveTo(mRect.left + topLeft, mRect.top + halfWidth);
         mBorderPath.lineTo(mRect.right - topRight, mRect.top + halfWidth);
@@ -350,6 +406,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
+        setDashPathEffect(BorderSide.RIGHT);
         mBorderPath.rewind();
         mBorderPath.moveTo(mRect.right - halfWidth, mRect.top + topRight);
         mBorderPath.lineTo(mRect.right - halfWidth, mRect.bottom - bottomRight);
@@ -375,6 +432,7 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
         }
         assert mPaint != null;
         mPaint.setColor(color);
+        setDashPathEffect(BorderSide.BOTTOM);
         mBorderPath.rewind();
         mBorderPath.moveTo(mRect.left + bottomLeft, mRect.bottom - halfWidth);
         mBorderPath.lineTo(mRect.right - bottomRight, mRect.bottom - halfWidth);
@@ -394,40 +452,94 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
     }
 
     private void drawBorderWithRadiusAndColor(@NonNull Canvas canvas) {
-        if (mBorderRadii == null || mBorderColors == null) {
-            return;
-        }
+        assert mBorderColors != null;
         if (mBorderPath == null) {
             mBorderPath = new Path();
         }
+        final float topLeft = (mBorderRadii == null) ? mBorderRadius : mBorderRadii.topLeft;
+        final float topRight = (mBorderRadii == null) ? mBorderRadius : mBorderRadii.topRight;
+        final float bottomRight = (mBorderRadii == null) ? mBorderRadius : mBorderRadii.bottomRight;
+        final float bottomLeft = (mBorderRadii == null) ? mBorderRadius : mBorderRadii.bottomLeft;
         float halfWidth = mBorderWidth / 2.0f;
-        drawLeftBorderWithRadiusAndColor(canvas, mBorderRadii.topLeft, mBorderRadii.bottomLeft,
+        drawLeftBorderWithRadiusAndColor(canvas, topLeft, bottomLeft,
                 mBorderColors.left, halfWidth);
-        drawTopBorderWithRadiusAndColor(canvas, mBorderRadii.topLeft, mBorderRadii.topRight,
+        drawTopBorderWithRadiusAndColor(canvas, topLeft, topRight,
                 mBorderColors.top, halfWidth);
-        drawRightBorderWithRadiusAndColor(canvas, mBorderRadii.topRight, mBorderRadii.bottomRight,
+        drawRightBorderWithRadiusAndColor(canvas, topRight, bottomRight,
                 mBorderColors.right, halfWidth);
-        drawBottomBorderWithRadiusAndColor(canvas, mBorderRadii.bottomLeft,
-                mBorderRadii.bottomRight, mBorderColors.bottom, halfWidth);
+        drawBottomBorderWithRadiusAndColor(canvas, bottomLeft, bottomRight,
+                mBorderColors.bottom, halfWidth);
     }
 
     protected void drawBorderWithRadius(@NonNull Canvas canvas) {
-        if (mBorderStyle == BorderStyle.NONE || mBorderWidth == 0 || hasTransparentBorderColor()) {
+        if (mBorderStyle == BorderStyle.NONE || mBorderWidth == 0
+                || hasTransparentColorOnAllSides()) {
             return;
         }
         assert mPaint != null;
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeWidth(mBorderWidth);
-        if (hasSingleBorderColor()) {
+        if (hasSameColorOnAllSides() && hasSameStyleOnAllSides()) {
             int borderColor = (mBorderColors != null) ? mBorderColors.left : mBorderColor;
             mPaint.setColor(borderColor);
+            setDashPathEffect(BorderSide.ALL);
             canvas.drawPath(mBorderRadiusPath, mPaint);
         } else {
             drawBorderWithRadiusAndColor(canvas);
         }
     }
 
+    private void setDashPathEffect(BorderSide side) {
+        assert mPaint != null;
+        if (mBorderStyles == null && mBorderStyle == BorderStyle.SOLID) {
+            mPaint.setPathEffect(null);
+            return;
+        }
+        BorderStyle style = mBorderStyle;
+        if (mBorderStyles != null) {
+            switch (side) {
+                case LEFT:
+                    style = mBorderStyles.left;
+                    break;
+                case TOP:
+                    style = mBorderStyles.top;
+                    break;
+                case RIGHT:
+                    style = mBorderStyles.right;
+                    break;
+                case BOTTOM:
+                    style = mBorderStyles.bottom;
+                    break;
+                default:
+                    LogUtils.w(TAG, "Unknown border side: " + side);
+            }
+        }
+        DashPathEffect effect = null;
+        if (style == BorderStyle.DOTTED) {
+            if (mDotPathEffect == null) {
+                final float dotWidth = PixelUtil.dp2px(2.0f);
+                mDotPathEffect = new DashPathEffect(new float[]{2 * dotWidth, 2 * dotWidth}, 0);
+            }
+            effect = mDotPathEffect;
+        } else if (style == BorderStyle.DASHED) {
+            if (mDashPathEffect == null) {
+                final float dashWidth = PixelUtil.dp2px(2.0f);
+                mDashPathEffect = new DashPathEffect(new float[]{4 * dashWidth, 2 * dashWidth}, 0);
+            }
+            effect = mDashPathEffect;
+        }
+        mPaint.setPathEffect(effect);
+    }
+
     public void setBorderStyle(BorderStyle style) {
+        mBorderStyle = style;
+    }
+
+    public void setBorderStyle(BorderStyle style, BorderSide side) {
+        if (mBorderStyles == null) {
+            mBorderStyles = new BorderStyles(mBorderStyle);
+        }
+        mBorderStyles.setBorderStyle(style, side);
     }
 
     public void setBorderRadius(@Px float radius) {
@@ -535,6 +647,10 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
             bottom = width;
         }
 
+        public boolean hasSameWidthOnAllSides() {
+            return left == top && top == right && right == bottom;
+        }
+
         public void setBorderWith(@Px int width, BorderSide side) {
             switch (side) {
                 case LEFT:
@@ -615,6 +731,17 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
             bottom = color;
         }
 
+        public boolean hasSameColorOnAllSides() {
+            return left == top && top == right && right == bottom;
+        }
+
+        public boolean hasTransparentColorOnAllSides() {
+            return left == Color.TRANSPARENT
+                    && top == Color.TRANSPARENT
+                    && right == Color.TRANSPARENT
+                    && bottom == Color.TRANSPARENT;
+        }
+
         public void setBorderColor(@ColorInt int color, BorderSide side) {
             switch (side) {
                 case LEFT:
@@ -637,6 +764,50 @@ public class BackgroundDrawable extends BaseDrawable implements BackgroundHolder
                     break;
                 default:
                     LogUtils.w(TAG, "setBorderColor: Unknown side: " + side);
+            }
+        }
+    }
+
+    public static class BorderStyles {
+
+        public BorderStyle left;
+        public BorderStyle top;
+        public BorderStyle right;
+        public BorderStyle bottom;
+
+        public BorderStyles(BorderStyle style) {
+            left = style;
+            top = style;
+            right = style;
+            bottom = style;
+        }
+
+        public boolean hasSameStyleOnAllSides() {
+            return left == top && top == right && right == bottom;
+        }
+
+        public void setBorderStyle(BorderStyle style, BorderSide side) {
+            switch (side) {
+                case LEFT:
+                    left = style;
+                    break;
+                case TOP:
+                    top = style;
+                    break;
+                case RIGHT:
+                    right = style;
+                    break;
+                case BOTTOM:
+                    bottom = style;
+                    break;
+                case ALL:
+                    left = style;
+                    top = style;
+                    right = style;
+                    bottom = style;
+                    break;
+                default:
+                    LogUtils.w(TAG, "setBorderStyle: Unknown side: " + side);
             }
         }
     }

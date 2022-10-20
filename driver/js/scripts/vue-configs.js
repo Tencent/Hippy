@@ -98,8 +98,12 @@ const builds = {
     banner: banner('@hippy/vue', hippyVuePackage.version),
   },
   '@hippy/vue-css-loader': {
-    entry: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
-    dest: resolvePackage('hippy-vue-css-loader', 'dist/index.js'),
+    entry: {
+      index: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
+      'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.js'),
+    },
+    dir: resolvePackage('hippy-vue-css-loader', 'dist'),
+    entryFileNames: '[name].js',
     format: 'cjs',
     moduleName: 'hippy-vue-css-loader',
     banner: banner('@hippy/vue-css-loader', cssLoaderPackage.version),
@@ -175,6 +179,8 @@ function genConfig(name) {
       }),
     ].concat(opts.plugins || []),
     output: {
+      entryFileNames: opts.entryFileNames,
+      dir: opts.dir,
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,

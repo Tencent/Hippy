@@ -37,6 +37,7 @@
 #import "HippyAssert.h"
 #import "HippyLog.h"
 #import "MyViewManager.h"
+#import "HippyDemoLoader.h"
 
 @interface ViewController ()<HippyBridgeDelegate, NativeRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
@@ -101,13 +102,14 @@
     [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
           frameworkProxy:bridge rootView:rootView.contentView
              screenScale:[UIScreen mainScreen].scale];
-    [bridge loadBundleURLs:bundleURLs completion:^{
-    }];
+    [bridge loadBundleURLs:bundleURLs];
     [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
     bridge.methodInterceptor = self;
+    //set custom vfs loader
+    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
     _bridge = bridge;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];

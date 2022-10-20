@@ -20,7 +20,7 @@ import android.graphics.Canvas;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

@@ -26,10 +26,10 @@ import androidx.annotation.Nullable;
 import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.node.RenderNode;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.GET_VIEW_CONTROLLER_FAILED_ERR;
 

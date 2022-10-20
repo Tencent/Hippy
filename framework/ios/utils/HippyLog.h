@@ -125,4 +125,4 @@ HIPPY_EXTERN void HippyPerformBlockWithLogPrefix(void (^block)(void), NSString *
     } while (0)
 #endif
 
-HIPPY_EXTERN void HippyLogNativeInternal(HippyLogLevel, __weak HippyBridge *, const char *, int, NSString *, ...) NS_FORMAT_FUNCTION(5, 6);
+HIPPY_EXTERN void HippyLogNativeInternal(HippyLogLevel, const char *, int, __weak HippyBridge *, NSString *, ...) NS_FORMAT_FUNCTION(5, 6);

@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -54,13 +54,10 @@ class RenderTree {
       _rootWidgetViewModel.onViewAdd();
     }
     _nodeMap[node.id] = node;
-    LogUtils.dRenderNode(
-        "$hashCode render tree add node(${node.id}, ${node.hashCode})");
   }
 
   void unregisterNode(RenderNode node) {
-    LogUtils.dRenderNode(
-        "$hashCode render tree remove node(${node.id}, ${node.hashCode})");
+    LogUtils.dRenderNode("$hashCode render tree remove node(${node.id}, ${node.hashCode})");
     _nodeMap.remove(node.id);
   }
 

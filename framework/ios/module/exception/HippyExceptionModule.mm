@@ -21,7 +21,6 @@
  */
 
 #import "HippyExceptionModule.h"
-#import "NativeRenderLog.h"
 #import "HippyAssert.h"
 #import "HippyBridge.h"
 

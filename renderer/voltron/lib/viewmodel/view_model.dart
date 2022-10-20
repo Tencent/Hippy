@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,7 @@
 import 'package:flutter/material.dart';
 
 // ignore: import_of_legacy_library_into_null_safe
-import 'package:gradient_like_css/gradient_like_css.dart';
+import 'package:gradient_like_css/gradient_like_css.dart' as gradient_like_css;
 
 import '../common.dart';
 import '../gesture.dart';
@@ -402,12 +402,12 @@ class RenderViewModel extends ChangeNotifier {
   }
 
   void updateLayout(double x, double y, double width, double height) {
-    LogUtils.dRender("render view model, before update layout($this)");
+    LogUtils.dRender("ID:$id, before update layout($this)");
     _x = x;
     _y = y;
     _width = width;
     _height = height;
-    LogUtils.dRender("render view model, after update layout($this)");
+    LogUtils.dRender("ID:$id, after update layout($this)");
   }
 
   void update() {
@@ -677,7 +677,7 @@ class RenderViewModel extends ChangeNotifier {
       var side = _getGradientSide(gradientData?.get<String>('side'));
       var stops = _getGradientStops(gradientData?.get<String>('stops'));
       if (stops != null) {
-        return CssLike.linearGradient(side, stops);
+        return gradient_like_css.linearGradient(side, stops);
       }
     }
     return null;

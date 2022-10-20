@@ -20,9 +20,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.LayoutManager;
-import com.tencent.mtt.hippy.uimanager.ListItemRenderNode;
-import com.tencent.mtt.hippy.uimanager.ListViewRenderNode;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.ListViewRenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.NativeRender;
 
 /**

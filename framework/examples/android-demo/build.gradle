@@ -62,39 +62,6 @@ android {
     }
 }
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:$AGP_VERSION"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-allprojects {
-    ext {
-        MAVEN_USER = System.getenv('maven_username')
-        MAVEN_PWD = System.getenv('maven_password')
-        MAVEN_URL = System.getenv('maven_url')
-    }
-    repositories {
-        if (MAVEN_URL != null) {
-            maven {
-                url MAVEN_URL
-                credentials {
-                    username MAVEN_USER
-                    password MAVEN_PWD
-                }
-            }
-        }
-        google()
-        mavenCentral()
-    }
-}
-
 dependencies {
     if (verifyReleaseAar) {
         // options for maven packages or local libs integration
@@ -110,8 +77,17 @@ dependencies {
             api project(path: ':renderer-tdf')
         }
         api project(path: ':serialization')
+        api project(path: ':vfs')
     }
     // noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'
     api 'androidx.legacy:legacy-support-v4:1.0.0'
+}
+
+project.afterEvaluate {
+    delete 'src/main/assets'
+    copy{
+        from "res"
+        into "src/main/assets"
+    }
 }

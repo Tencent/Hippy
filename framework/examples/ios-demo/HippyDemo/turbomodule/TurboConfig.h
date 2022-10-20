@@ -22,7 +22,6 @@
 
 #import <Foundation/Foundation.h>
 #import "HippyTurboModule.h"
-#import <JavaScriptCore/JSExport.h>
 #import "HippyOCTurboModule.h"
 
 @interface TurboConfig : HippyOCTurboModule

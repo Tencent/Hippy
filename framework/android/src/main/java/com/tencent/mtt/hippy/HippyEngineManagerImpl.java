@@ -61,6 +61,8 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.vfs.DefaultProcessor;
+import com.tencent.vfs.VfsManager;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -691,6 +693,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         private Map<String, Object> mNativeParams;
         private final HippyModuleManager mModuleManager;
         private final HippyBridgeManager mBridgeManager;
+        private final VfsManager mVfsManager;
         private final LinkHelper mLinkHelper;
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
@@ -727,6 +730,16 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 }
             }
             mLinkHelper.getRenderer().init(controllers, mRootView);
+            mVfsManager = new VfsManager();
+            initVfsManager();
+        }
+
+        private void initVfsManager() {
+            assert mVfsManager != null;
+            mVfsManager.setId(onCreateVfs(mVfsManager));
+            DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(
+                    getGlobalConfigs().getHttpAdapter(), getGlobalConfigs().getExecutorSupplierAdapter()));
+            mVfsManager.addProcessor(processor);
         }
 
         @Override
@@ -770,6 +783,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public HippyGlobalConfigs getGlobalConfigs() {
             return mGlobalConfigs;
+        }
+
+        @Override
+        @NonNull
+        public VfsManager getVfsManager() {
+            return mVfsManager;
         }
 
         @Override
@@ -877,6 +896,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
+        public int getVfsId() {
+            return mVfsManager.getId();
+        }
+
+        @Override
         public ViewGroup getRootView() {
             return mRootView;
         }
@@ -919,10 +943,18 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mEngineLifecycleEventListeners != null) {
                 mEngineLifecycleEventListeners.clear();
             }
+            if (mVfsManager != null) {
+                mVfsManager.destroy();
+                onDestroyVfs(mVfsManager.getId());
+            }
             if (mNativeParams != null) {
                 mNativeParams.clear();
             }
             mLinkHelper.destroy(onReLoad);
         }
     }
+
+    private native int onCreateVfs(VfsManager vfsManager);
+
+    private native void onDestroyVfs(int id);
 }

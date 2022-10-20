@@ -35,6 +35,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.node.RenderNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

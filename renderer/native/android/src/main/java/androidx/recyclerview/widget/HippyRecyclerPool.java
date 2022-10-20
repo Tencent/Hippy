@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.view.ViewGroup;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
-import com.tencent.mtt.hippy.uimanager.RenderNode;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.views.hippylist.HippyRecyclerViewHolder;
 import com.tencent.mtt.hippy.views.hippylist.NodePositionHelper;
 import com.tencent.renderer.NativeRender;

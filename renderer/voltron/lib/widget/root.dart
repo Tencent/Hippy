@@ -2,7 +2,7 @@
 // Tencent is pleased to support the open source community by making
 // Hippy available.
 //
-// Copyright (C) 2019 THL A29 Limited, a Tencent company.
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
 // All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -90,7 +90,7 @@ class RootWidgetViewModel extends ChangeNotifier {
     checkUpdateDimension(-1, -1, false, false);
   }
 
-  void onLoadError(errCode) {
+  void onLoadError(int errCode) {
     _loadErrCode = errCode;
     _loadError = true;
     _loadCompleted = true;
@@ -206,7 +206,7 @@ class RootWidgetViewModel extends ChangeNotifier {
     if (_context == null && uiContext != null) {
       return;
     }
-
+    if (uiContext != null) {
     var dimensionMap = getDimensions(
       windowWidth,
       windowHeight,
@@ -214,7 +214,7 @@ class RootWidgetViewModel extends ChangeNotifier {
       uiContext,
     );
     _context?.dimensionChecker.checkUpdateDimension(
-      uiContext!,
+        uiContext,
       dimensionMap,
       windowWidth,
       windowHeight,
@@ -222,6 +222,7 @@ class RootWidgetViewModel extends ChangeNotifier {
       systemUiVisibilityChanged,
     );
   }
+}
 }
 
 class VoltronWidget extends StatefulWidget {
@@ -289,7 +290,7 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    LogUtils.i("root_widget", "build root widget");
+    LogUtils.dWidget("ID:${viewModel.id}, build root widget");
     return LayoutBuilder(builder: (context, constraints) {
       if (hasDispose) {
         return _empty(context);
@@ -358,15 +359,14 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
     return Consumer<RootWidgetViewModel>(
       builder: (context, viewModel, widget) {
         var model = LoadingModel(!(viewModel.loadFinish), viewModel.loadError);
-        LogUtils.dWidget("root_widget", "build content start");
         if (model.isLoading) {
-          LogUtils.dWidget("root_widget", "build content loading");
+          LogUtils.dWidget("ID:${viewModel.id}, build root widget, build content loading");
           return _loading(context);
         } else if (model.isError) {
-          LogUtils.dWidget("root_widget", "build content error");
+          LogUtils.dWidget("ID:${viewModel.id}, build root widget, build content error");
           return _error(context, viewModel);
         } else {
-          LogUtils.dWidget("root_widget", "build content");
+          LogUtils.dWidget("ID:${viewModel.id}, build root widget, build content");
           return _content(viewModel);
         }
       },
@@ -409,7 +409,6 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   }
 
   Widget _content(RootWidgetViewModel viewModel) {
-    LogUtils.dWidget("root_widget", "create root widget content, build");
     var nodeList = <RenderNode>[];
     var tree = viewModel.renderTree;
     if (tree != null) {
@@ -518,7 +517,6 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   }
 
   void _loadModule() {
-    LogUtils.i("root_widget", "start to load module");
     widget.loader.load(viewModel);
   }
 

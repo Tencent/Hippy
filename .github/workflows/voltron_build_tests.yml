@@ -1,0 +1,37 @@
+name: '[voltron] build tests'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - v3.0-dev
+      - v3.0
+    paths:
+      - 'renderer/voltron/**'
+      - 'framework/voltron/**'
+defaults:
+  run:
+    working-directory: framework/voltron/example
+jobs:
+  flutter_build_android_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.5'
+          channel: 'stable'
+      - name: Build for Android
+        run: flutter build apk
+  flutter_build_ios_tests:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.5'
+          channel: 'stable'
+          architecture: x64
+      - name: Build for iOS
+        run: flutter build ios --release --no-codesign
