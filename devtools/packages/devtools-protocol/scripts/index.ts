@@ -38,6 +38,7 @@ const globAsync = util.promisify(glob);
   );
 
   await writeEnumIndexFile();
+  await writeProtocolIndexFile();
 })();
 
 function checkFileDir(dirPath: string) {
@@ -62,6 +63,20 @@ async function writeEnumIndexFile() {
     })
     .join('');
   return fs.promises.writeFile(path.join(__dirname, '../types/index.ts'), fileData);
+}
+
+async function writeProtocolIndexFile() {
+  const indexFiles = await globAsync('./**/*.ts', {
+    cwd: path.join(__dirname, '../@types'),
+    ignore: './index.d.ts',
+  });
+  const fileData = indexFiles
+      .map((file) => {
+        return `/// <reference path="${file}" />\n`;
+      })
+      .join('') +
+    `\ndeclare module \'*.node\';\n`;
+  return fs.promises.writeFile(path.join(__dirname, '../@types/index.d.ts'), fileData);
 }
 
 function isIosEnumFile(file: string) {
