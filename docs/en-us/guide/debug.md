@@ -101,7 +101,7 @@ We recommend leaving a backdoor in the native code to enter debug mode after bei
    {
      "scripts": {
         // -c or --config provides the webpack config path
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
@@ -260,7 +260,7 @@ After the developer has modified the front-end code, we can refresh the componen
    {
      "scripts": {
          // -c or --config provides webpack config path
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"     }  
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"     }  
    } 
    ```
 
@@ -353,7 +353,7 @@ After the developer has modified the front-end code, we can refresh the componen
    {
       "scripts": {
         // -c or --config provide Webpack config path
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux,Darwin\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
       }
    }
    ```
