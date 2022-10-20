@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.component.text;
+package com.tencent.renderer.node;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.IMAGE_SPAN_TEXT;
 
@@ -38,6 +38,8 @@ import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
 
+import com.tencent.renderer.component.text.TextGestureSpan;
+import com.tencent.renderer.component.text.TextImageSpan;
 import java.util.List;
 
 public class ImageVirtualNode extends VirtualNode {
@@ -61,6 +63,26 @@ public class ImageVirtualNode extends VirtualNode {
             @NonNull NativeRender nativeRender) {
         super(rootId, id, pid, index);
         mNativeRenderer = nativeRender;
+    }
+
+    public int getWidth() {
+        return mWidth;
+    }
+
+    public int getHeight() {
+        return mHeight;
+    }
+
+    public int getLeft() {
+        return mLeft;
+    }
+
+    public int getTop() {
+        return mTop;
+    }
+
+    public int getVerticalAlignment() {
+        return mVerticalAlignment;
     }
 
     @NonNull

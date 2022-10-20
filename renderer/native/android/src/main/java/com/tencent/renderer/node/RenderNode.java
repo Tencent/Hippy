@@ -64,6 +64,7 @@ public class RenderNode {
     protected int mY;
     protected int mWidth;
     protected int mHeight;
+    protected int mIndex;
     protected final int mId;
     protected final int mRootId;
     protected final String mClassName;
@@ -98,12 +99,12 @@ public class RenderNode {
     }
 
     public RenderNode(int rootId, int id, @Nullable Map<String, Object> props,
-            @NonNull String className, @NonNull ControllerManager componentManager,
+            @NonNull String className, @NonNull ControllerManager controllerManager,
             boolean isLazyLoad) {
         mId = id;
         mClassName = className;
         mRootId = rootId;
-        mControllerManager = componentManager;
+        mControllerManager = controllerManager;
         mProps = props;
         mPropsToUpdate = null;
         if (isLazyLoad) {
@@ -191,6 +192,14 @@ public class RenderNode {
 
     public int getHeight() {
         return mHeight;
+    }
+
+    public int getIndex() {
+        return mIndex;
+    }
+
+    public void setIndex(int index) {
+        mIndex = index;
     }
 
     protected int indexFromParent() {
@@ -517,10 +526,10 @@ public class RenderNode {
     }
 
     public void updateLayout(int x, int y, int w, int h) {
-        this.mX = x;
-        this.mY = y;
-        this.mWidth = w;
-        this.mHeight = h;
+        mX = x;
+        mY = y;
+        mWidth = w;
+        mHeight = h;
         setNodeFlag(FLAG_UPDATE_LAYOUT);
     }
 

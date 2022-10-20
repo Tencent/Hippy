@@ -16,9 +16,12 @@
 
 package com.tencent.renderer;
 
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
+
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.node.RootRenderNode;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,6 +62,14 @@ public class NativeRendererManager {
 
     public static void addRootNode(@NonNull RootRenderNode node) {
         sRootNodeMap.put(node.getId(), node);
+    }
+
+    public static void removeSnapshotRootNode() {
+        RootRenderNode root = getRootNode(SCREEN_SNAPSHOT_ROOT_ID);
+        if (root != null) {
+            root.clear();
+            removeRootNode(SCREEN_SNAPSHOT_ROOT_ID);
+        }
     }
 
     public static void removeRootNode(Integer rootId) {

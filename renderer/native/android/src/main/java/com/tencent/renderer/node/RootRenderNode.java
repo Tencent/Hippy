@@ -20,15 +20,14 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
-import com.tencent.renderer.component.text.VirtualNode;
 import com.tencent.renderer.utils.ChoreographerUtils;
 import java.util.Map;
 import java.util.Map.Entry;
 
 public class RootRenderNode extends RenderNode {
     private final int mRendererId;
-    private final SparseArray<RenderNode> mNodes = new SparseArray<>();
-    private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>();
+    private final SparseArray<RenderNode> mNodes = new SparseArray<>(80);
+    private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>(40);
 
     public RootRenderNode(int rootId, int id, int rendererId, @NonNull String className,
             @NonNull ControllerManager controllerManager) {
@@ -51,6 +50,11 @@ public class RootRenderNode extends RenderNode {
 
     public void removeRenderNode(int id) {
         mNodes.delete(id);
+    }
+
+    public void clear() {
+        mNodes.clear();
+        mVirtualNodes.clear();
     }
 
     @Nullable

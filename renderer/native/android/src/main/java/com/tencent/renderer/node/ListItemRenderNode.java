@@ -36,6 +36,8 @@ public class ListItemRenderNode extends RenderNode {
     public static final String ITEM_VIEW_TYPE = "type";
     public static final String ITEM_STICKY = "sticky";
     public static final String ITEM_VIEW_TYPE_NEW = "itemViewType";
+    private int mLeft;
+    private int mTop;
     private boolean mShouldSticky;
     private IRecycleItemTypeChange mRecycleItemTypeChangeListener;
 
@@ -113,9 +115,19 @@ public class ListItemRenderNode extends RenderNode {
         mountHostViewRecursive();
     }
 
+    public int getLeft() {
+        return mLeft;
+    }
+
+    public int getTop() {
+        return mTop;
+    }
+
     @Override
     public void updateLayout(int x, int y, int w, int h) {
         super.updateLayout(x, y, w, h);
+        mLeft = x;
+        mTop = y;
         View view = mControllerManager.findView(mRootId, mId);
         mY = view != null ? view.getTop() : 0;
         if (getParent() != null) {

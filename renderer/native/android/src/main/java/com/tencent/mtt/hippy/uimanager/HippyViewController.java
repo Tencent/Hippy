@@ -34,7 +34,7 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
-import com.tencent.renderer.component.text.VirtualNode;
+import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.RenderNode;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -308,7 +308,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         }
     }
 
-    public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+    protected RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
             @NonNull String className, @NonNull ControllerManager controllerManager,
             boolean isLazy) {
         return new RenderNode(rootId, id, props, className, controllerManager, isLazy);

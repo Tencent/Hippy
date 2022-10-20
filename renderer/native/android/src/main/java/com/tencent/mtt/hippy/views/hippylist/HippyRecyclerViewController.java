@@ -17,6 +17,7 @@
 package com.tencent.mtt.hippy.views.hippylist;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.OVER_PULL;
+import static com.tencent.renderer.NativeRenderer.SCREEN_SNAPSHOT_ROOT_ID;
 
 import android.content.Context;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
+import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.node.ListViewRenderNode;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -109,7 +111,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
                 initDefault(context, props, new HippyRecyclerView(context)));
     }
 
-    public static HippyRecyclerView initDefault(Context context,
+    public static HippyRecyclerView initDefault(@NonNull Context context,
             @Nullable Map<String, Object> props, HippyRecyclerView recyclerView) {
         LinearLayoutManager layoutManager = new HippyLinearLayoutManager(context);
         recyclerView.setItemAnimator(null);
@@ -129,6 +131,12 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
         recyclerView.getRecyclerViewEventHelper().setOnScrollEventEnable(enableScrollEvent);
         if (HippyListUtils.isVerticalLayout(recyclerView)) {
             recyclerView.setEnableOverPull(enableOverPull);
+        }
+        if (context instanceof NativeRenderContext) {
+            int rootId = ((NativeRenderContext) context).getRootId();
+            if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
+                recyclerView.setScrollEnable(false);
+            }
         }
         return recyclerView;
     }

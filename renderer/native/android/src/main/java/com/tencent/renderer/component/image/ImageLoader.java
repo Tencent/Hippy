@@ -26,6 +26,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.pool.ImageDataPool;
 import com.tencent.renderer.pool.Pool;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,8 +34,6 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
 
     @NonNull
     private final Pool<Integer, ImageDataSupplier> mImagePool = new ImageDataPool();
-    @Nullable
-    private ExecutorService mExecutorService;
 
     @Override
     public void saveImageToCache(@NonNull ImageDataSupplier data) {
@@ -48,35 +47,34 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
 
     @Override
     public void getLocalImage(@NonNull final String source,
-            @NonNull final ImageRequestListener listener, final int width, final int height) {
-        if (!UIThreadUtils.isOnUiThread()) {
+            @NonNull final ImageRequestListener listener, @Nullable Executor executor,
+            final int width, final int height) {
+        if (!UIThreadUtils.isOnUiThread() || executor == null) {
             ImageDataSupplier supplier = getLocalImageImpl(source, width, height);
             if (supplier == null) {
                 listener.onRequestFail(null);
             } else {
                 listener.onRequestSuccess(supplier);
             }
-            return;
-        }
-        if (mExecutorService == null) {
-            mExecutorService = Executors.newSingleThreadExecutor();
-        }
-        mExecutorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                final ImageDataSupplier supplier = getLocalImageImpl(source, width, height);
-                UIThreadUtils.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (supplier == null) {
-                            listener.onRequestFail(null);
-                        } else {
-                            listener.onRequestSuccess(supplier);
+        } else {
+            Runnable task = new Runnable() {
+                @Override
+                public void run() {
+                    final ImageDataSupplier supplier = getLocalImageImpl(source, width, height);
+                    UIThreadUtils.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (supplier == null) {
+                                listener.onRequestFail(null);
+                            } else {
+                                listener.onRequestSuccess(supplier);
+                            }
                         }
-                    }
-                });
-            }
-        });
+                    });
+                }
+            };
+            executor.execute(task);
+        }
     }
 
     @Override
@@ -103,9 +101,5 @@ public abstract class ImageLoader implements ImageLoaderAdapter {
 
     public void destroyIfNeed() {
         clear();
-        if (mExecutorService != null && !mExecutorService.isShutdown()) {
-            mExecutorService.shutdown();
-            mExecutorService = null;
-        }
     }
 }

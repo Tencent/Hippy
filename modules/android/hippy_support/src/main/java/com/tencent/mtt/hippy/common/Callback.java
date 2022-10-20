@@ -14,29 +14,11 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.framework;
+package com.tencent.mtt.hippy.common;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import java.util.concurrent.Executor;
 
-public interface ImageLoaderAdapter {
+public interface Callback<T extends Object> {
 
-    void fetchImage(@NonNull String url, @NonNull ImageRequestListener listener,
-            @Nullable Object params);
-
-    void getLocalImage(@NonNull String source, @NonNull ImageRequestListener listener,
-            @Nullable Executor executor, int width, int height);
-
-    @Nullable
-    ImageDataSupplier getLocalImage(@NonNull String source, int width, int height);
-
-    void saveImageToCache(@NonNull ImageDataSupplier data);
-
-    @Nullable
-    ImageDataSupplier getImageFromCache(@NonNull String source);
-
-    void destroyIfNeed();
-
-    void clear();
+    void callback(@Nullable T result, @Nullable Throwable e);
 }

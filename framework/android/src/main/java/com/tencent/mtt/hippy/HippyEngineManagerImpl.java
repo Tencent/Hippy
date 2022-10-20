@@ -36,6 +36,7 @@ import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.link_supplier.proxy.renderer.RenderProxy;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
+import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
@@ -68,6 +69,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 
 @SuppressWarnings({"deprecation", "unused"})
 public abstract class HippyEngineManagerImpl extends HippyEngineManager implements
@@ -277,6 +279,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         return mEngineContext.getGlobalConfigs().getFontScaleAdapter();
     }
 
+    @Nullable
+    public Executor getBackgroundExecutor() {
+        HippyExecutorSupplierAdapter adapter = mEngineContext.getGlobalConfigs().getExecutorSupplierAdapter();
+        return (adapter != null) ? adapter.getBackgroundTaskExecutor() : null;
+    }
+
     @Override
     public Object getCustomViewCreator() {
         if (moduleLoadParams != null && moduleLoadParams.nativeParams != null) {
@@ -299,6 +307,35 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public void handleNativeException(Exception exception) {
         mGlobalConfigs.getExceptionHandler().handleNativeException(exception, true);
+    }
+
+    public void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback) {
+        if (mEngineContext != null) {
+            RenderProxy renderProxy = mEngineContext.getRenderProxy();
+            if (renderProxy instanceof NativeRenderProxy) {
+                ((NativeRenderProxy) renderProxy).recordSnapshot(rootId, callback);
+            }
+        }
+    }
+
+    public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
+        if (mEngineContext != null) {
+            RenderProxy renderProxy = mEngineContext.getRenderProxy();
+            if (renderProxy instanceof NativeRenderProxy) {
+                return ((NativeRenderProxy) renderProxy).replaySnapshot(context, buffer);
+            }
+        }
+        return null;
+    }
+
+    public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap) {
+        if (mEngineContext != null) {
+            RenderProxy renderProxy = mEngineContext.getRenderProxy();
+            if (renderProxy instanceof NativeRenderProxy) {
+                return ((NativeRenderProxy) renderProxy).replaySnapshot(context, snapshotMap);
+            }
+        }
+        return null;
     }
 
     private void checkModuleLoadParams(ModuleLoadParams loadParams) {
@@ -757,6 +794,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             }
         }
 
+        RenderProxy getRenderProxy() {
+            return mLinkHelper.getRenderer();
+        }
+
         public void removeRootView(int rootId) {
             onInstanceDestroy(rootId);
         }
@@ -954,7 +995,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
     }
 
+    @SuppressWarnings("JavaJniMissingFunction")
     private native int onCreateVfs(VfsManager vfsManager);
 
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void onDestroyVfs(int id);
 }

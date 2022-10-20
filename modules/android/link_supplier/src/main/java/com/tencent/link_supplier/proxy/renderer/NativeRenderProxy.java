@@ -16,6 +16,12 @@
 
 package com.tencent.link_supplier.proxy.renderer;
 
+import android.content.Context;
+import android.view.View;
+import androidx.annotation.NonNull;
+import com.tencent.mtt.hippy.common.Callback;
+import java.util.Map;
+
 public interface NativeRenderProxy extends RenderProxy {
 
     /**
@@ -27,4 +33,16 @@ public interface NativeRenderProxy extends RenderProxy {
      * Notify renderer the js bridger has been initialized.
      */
     void onRuntimeInitialized(int rootId);
+
+    /**
+     * Notify renderer to record node tree snapshot.
+     */
+    void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback);
+
+    /**
+     * Notify renderer to replay node tree snapshot.
+     */
+    View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer);
+
+    View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
 }

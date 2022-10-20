@@ -16,11 +16,16 @@
 
 package com.tencent.renderer;
 
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_BOTTOM;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_LEFT;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_RIGHT;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_TOP;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_ADD_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_NODE_DATA_ERR;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.UI_TASK_QUEUE_UNAVAILABLE_ERR;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.text.Layout;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,15 +40,28 @@ import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
 import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
 import com.tencent.link_supplier.proxy.renderer.Renderer;
+import com.tencent.mtt.hippy.common.Callback;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
+import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
+import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
+import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
 import com.tencent.renderer.component.text.TextRenderSupplier;
-import com.tencent.renderer.component.text.VirtualNode;
-import com.tencent.renderer.component.text.VirtualNodeManager;
+import com.tencent.renderer.node.ListItemRenderNode;
+import com.tencent.renderer.node.RenderNode;
+import com.tencent.renderer.node.RootRenderNode;
+import com.tencent.renderer.node.TextRenderNode;
+import com.tencent.renderer.node.VirtualNode;
+import com.tencent.renderer.node.VirtualNodeManager;
 
+import com.tencent.renderer.serialization.Deserializer;
+import com.tencent.renderer.serialization.Serializer;
+import com.tencent.renderer.utils.DisplayUtils;
 import com.tencent.renderer.utils.EventUtils.EventType;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +69,9 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -63,6 +84,7 @@ import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 public class NativeRenderer extends Renderer implements NativeRender, NativeRenderProxy,
         NativeRenderDelegate {
 
+    public static final int SCREEN_SNAPSHOT_ROOT_ID = 1000;
     private static final String TAG = "NativeRenderer";
     private static final String NODE_ID = "id";
     private static final String NODE_PID = "pId";
@@ -74,6 +96,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String LAYOUT_WIDTH = "width";
     private static final String LAYOUT_HEIGHT = "height";
     private static final String EVENT_PREFIX = "on";
+    private static final String SNAPSHOT_CREATE_NODE = "createNode";
+    private static final String SNAPSHOT_UPDATE_LAYOUT = "updateLayout";
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 1000;
     @Nullable
     private FrameworkProxy mFrameworkProxy;
@@ -87,6 +111,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private final RenderManager mRenderManager;
     @NonNull
     private final VirtualNodeManager mVirtualNodeManager;
+    @Nullable
+    private ExecutorService mBackgroundExecutor;
 
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
@@ -152,6 +178,21 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         return null;
     }
 
+    @Override
+    @Nullable
+    public Executor getBackgroundExecutor() {
+        if (mFrameworkProxy != null) {
+            Executor executor = mFrameworkProxy.getBackgroundExecutor();
+            if (executor != null) {
+                return executor;
+            }
+        }
+        if (mBackgroundExecutor == null) {
+            mBackgroundExecutor = Executors.newSingleThreadExecutor();
+        }
+        return mBackgroundExecutor;
+    }
+
     @MainThread
     @Override
     public void postInvalidateDelayed(int roodId, int id, long delayMilliseconds) {
@@ -182,6 +223,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     public void destroy() {
+        if (mBackgroundExecutor != null) {
+            if (!mBackgroundExecutor.isShutdown()) {
+                mBackgroundExecutor.shutdown();
+            }
+            mBackgroundExecutor = null;
+        }
         mRenderProvider.destroy();
         mRenderManager.destroy();
         if (mInstanceLifecycleEventListeners != null) {
@@ -363,7 +410,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": createNode: invalid node object");
             }
-            Map node = (Map) element;
+            final Map node = (Map) element;
             int nodeId;
             int nodePid;
             int nodeIndex;
@@ -382,35 +429,51 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                         TAG + ": createNode: id=" + nodeId + ", pId=" + nodePid + ", index="
                                 + nodeIndex);
             }
+            final int id = nodeId;
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
             mVirtualNodeManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
-            if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
-                // If the node has a virtual parent, no need to create corresponding render node,
-                // so don't add create task to the ui task queue.
+            // If multiple level are nested, the parent is outermost text node.
+            VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
+            // If restoring snapshots, create node is called directly on the UI thread,
+            // and do not need to use the UI task
+            if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
+                if (parent == null) {
+                    mRenderManager.createNode(rootId, nodeId, nodePid, nodeIndex, className, props);
+                }
                 continue;
             }
-            final int id = nodeId;
-            final int pid = nodePid;
-            final int index = nodeIndex;
-            final String name = className;
-            UITaskExecutor createNodeTask = new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.createNode(rootId, id, pid, index, name, props);
-                }
-            };
-            createNodeTaskList.add(createNodeTask);
-            if (!className.equals(HippyImageViewController.CLASS_NAME) && !className.equals(
-                    HippyTextViewController.CLASS_NAME)) {
-                UITaskExecutor createViewTask = new UITaskExecutor() {
+            if (parent != null) {
+                final int pid = parent.getId();
+                // If the node has a virtual parent, no need to create corresponding render node,
+                // but need set the node data to the parent, for render node snapshot.
+                createNodeTaskList.add(new UITaskExecutor() {
                     @Override
                     public void exec() {
-                        mRenderManager.preCreateView(rootId, id, pid, name, props);
+                        mRenderManager.onVirtualNodeUpdated(rootId, id, pid, node);
                     }
-                };
-                createViewTaskList.add(createViewTask);
+                });
+            } else {
+                final int pid = nodePid;
+                final int index = nodeIndex;
+                final String name = className;
+                createNodeTaskList.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.createNode(rootId, id, pid, index, name, props);
+                    }
+                });
+                // Because image and text may be rendered flat, it is not necessary to pre create a view.
+                if (!className.equals(HippyImageViewController.CLASS_NAME) && !className.equals(
+                        HippyTextViewController.CLASS_NAME)) {
+                    createViewTaskList.add(new UITaskExecutor() {
+                        @Override
+                        public void exec() {
+                            mRenderManager.preCreateView(rootId, id, pid, name, props);
+                        }
+                    });
+                }
             }
         }
         if (!createNodeTaskList.isEmpty()) {
@@ -440,7 +503,7 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateNode: invalid node object");
             }
-            Map<String, Object> node = (Map) element;
+            final Map<String, Object> node = (Map) element;
             int nodeId;
             try {
                 nodeId = ((Number) Objects.requireNonNull(node.get(NODE_ID))).intValue();
@@ -452,23 +515,29 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": updateNode: invalid negative id=" + nodeId);
             }
+            final int id = nodeId;
             element = node.get(NODE_PROPS);
             final Map<String, Object> props =
                     (element instanceof HashMap) ? (Map) element : new HashMap<String, Object>();
             mVirtualNodeManager.updateNode(rootId, nodeId, props);
-            if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
-                // If the node has a virtual parent, no corresponding render node exists,
-                // so don't add update task to the ui task queue.
-                continue;
+            // If multiple level are nested, the parent is outermost text node.
+            VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
+            if (parent != null) {
+                final int pid = parent.getId();
+                taskList.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.onVirtualNodeUpdated(rootId, id, pid, node);
+                    }
+                });
+            } else {
+                taskList.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.updateNode(rootId, id, props);
+                    }
+                });
             }
-            final int id = nodeId;
-            UITaskExecutor task = new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.updateNode(rootId, id, props);
-                }
-            };
-            taskList.add(task);
         }
         if (!taskList.isEmpty()) {
             addUITask(getMassTaskExecutor(taskList));
@@ -484,20 +553,25 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
                 throw new NativeRenderException(INVALID_NODE_DATA_ERR,
                         TAG + ": deleteNode: invalid negative id=" + nodeId);
             }
-            if (mVirtualNodeManager.hasVirtualParent(rootId, nodeId)) {
-                // If the node has a virtual parent, no corresponding render node exists,
-                // just delete the virtual node, not need to add UI delete task.
-                mVirtualNodeManager.deleteNode(rootId, nodeId);
-                continue;
-            }
+            // If multiple level are nested, the parent is outermost text node.
+            VirtualNode parent = mVirtualNodeManager.checkVirtualParent(rootId, nodeId);
             mVirtualNodeManager.deleteNode(rootId, nodeId);
-            UITaskExecutor task = new UITaskExecutor() {
-                @Override
-                public void exec() {
-                    mRenderManager.deleteNode(rootId, nodeId);
-                }
-            };
-            taskList.add(task);
+            if (parent != null) {
+                final int pid = parent.getId();
+                taskList.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.onVirtualNodeDeleted(rootId, nodeId, pid);
+                    }
+                });
+            } else {
+                taskList.add(new UITaskExecutor() {
+                    @Override
+                    public void exec() {
+                        mRenderManager.deleteNode(rootId, nodeId);
+                    }
+                });
+            }
         }
         if (!taskList.isEmpty()) {
             addUITask(getMassTaskExecutor(taskList));
@@ -507,13 +581,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     @Override
     public void moveNode(final int rootId, final int[] ids, final int newPid, final int oldPid)
             throws NativeRenderException {
-        UITaskExecutor task = new UITaskExecutor() {
+        addUITask(new UITaskExecutor() {
             @Override
             public void exec() {
                 mRenderManager.moveNode(rootId, ids, newPid, oldPid);
             }
-        };
-        addUITask(task);
+        });
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -563,6 +636,15 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             final int height = Math.round(layoutHeight);
             final TextRenderSupplier supplier = mVirtualNodeManager
                     .updateLayout(rootId, nodeId, layoutWidth, layoutInfo);
+            // If restoring snapshots, update layout is called directly on the UI thread,
+            // and do not need to use the UI task
+            if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
+                if (supplier != null) {
+                    mRenderManager.updateExtra(rootId, id, supplier);
+                }
+                mRenderManager.updateLayout(rootId, id, left, top, width, height);
+                continue;
+            }
             UITaskExecutor task = new UITaskExecutor() {
                 @Override
                 public void exec() {
@@ -607,13 +689,12 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             mVirtualNodeManager.updateEventListener(rootId, nodeId, eventProps);
             final int id = nodeId;
             final Map<String, Object> props = eventProps;
-            UITaskExecutor task = new UITaskExecutor() {
+            taskList.add(new UITaskExecutor() {
                 @Override
                 public void exec() {
                     mRenderManager.updateEventListener(rootId, id, props);
                 }
-            };
-            taskList.add(task);
+            });
         }
         if (!taskList.isEmpty()) {
             addUITask(getMassTaskExecutor(taskList));
@@ -668,23 +749,29 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
             for (Entry<Integer, Layout> entry : layoutToUpdate.entrySet()) {
                 final int id = entry.getKey();
                 final Layout layout = entry.getValue();
-                UITaskExecutor task = new UITaskExecutor() {
-                    @Override
-                    public void exec() {
-                        mRenderManager.updateExtra(rootId, id, layout);
-                    }
-                };
-                addUITask(task);
+                if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
+                    mRenderManager.updateExtra(rootId, id, layout);
+                } else {
+                    addUITask(new UITaskExecutor() {
+                        @Override
+                        public void exec() {
+                            mRenderManager.updateExtra(rootId, id, layout);
+                        }
+                    });
+                }
             }
         }
-        UITaskExecutor task = new UITaskExecutor() {
-            @Override
-            public void exec() {
-                mRenderManager.batch(rootId);
-            }
-        };
-        addUITask(task);
-        executeUITask();
+        if (rootId == SCREEN_SNAPSHOT_ROOT_ID) {
+            mRenderManager.batch(rootId);
+        } else {
+            addUITask(new UITaskExecutor() {
+                @Override
+                public void exec() {
+                    mRenderManager.batch(rootId);
+                }
+            });
+            executeUITask();
+        }
     }
 
     @Override
@@ -732,5 +819,182 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     private boolean checkJSFrameworkProxy() {
         return mFrameworkProxy instanceof JSFrameworkProxy;
+    }
+
+    /**
+     * Decode snapshot buffer, can be called without waiting for the engine initialization to
+     * complete,
+     *
+     * <p>
+     * As the decoding time will increase with large number of nodes, it is recommended to call this
+     * method in the sub thread
+     * <p/>
+     *
+     * @param buffer the byte array of snapshot that save by host
+     * @return the snapshot map {@link HashMap} of deserialize
+     */
+    @Nullable
+    public static Map<String, Object> decodeSnapshot(@NonNull byte[] buffer) {
+        try {
+            final BinaryReader binaryReader = new SafeHeapReader();
+            Deserializer deserializer = new Deserializer(null, new InternalizedStringTable());
+            binaryReader.reset(ByteBuffer.wrap(buffer));
+            deserializer.setReader(binaryReader);
+            deserializer.reset();
+            deserializer.readHeader();
+            Object paramsObj = deserializer.readValue();
+            deserializer.getStringTable().release();
+            return (paramsObj instanceof HashMap) ? (HashMap<String, Object>) paramsObj : null;
+        } catch (Exception e) {
+            LogUtils.e(TAG, "decodeSnapshot: " + e.getMessage());
+            return null;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    @Nullable
+    public synchronized View replaySnapshot(@NonNull Context context,
+            @NonNull Map<String, Object> snapshotMap) {
+        View rootView;
+        List<Object> nodeList;
+        List<Object> layoutList;
+        try {
+            nodeList = (List<Object>) Objects.requireNonNull(snapshotMap.get(SNAPSHOT_CREATE_NODE));
+            layoutList = (List<Object>) Objects.requireNonNull(
+                    snapshotMap.get(SNAPSHOT_UPDATE_LAYOUT));
+            rootView = new HippyRootView(context, mRenderProvider.getInstanceId(),
+                    SCREEN_SNAPSHOT_ROOT_ID);
+            mRenderManager.createRootNode(SCREEN_SNAPSHOT_ROOT_ID);
+            mRenderManager.addRootView(rootView);
+            createNode(SCREEN_SNAPSHOT_ROOT_ID, nodeList);
+            updateLayout(SCREEN_SNAPSHOT_ROOT_ID, layoutList);
+            endBatch(SCREEN_SNAPSHOT_ROOT_ID);
+        } catch (Exception e) {
+            LogUtils.e(TAG, "replaySnapshot: " + e.getMessage());
+            return null;
+        }
+        return rootView;
+    }
+
+    @Override
+    @Nullable
+    public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
+        final Map<String, Object> snapshotMap = decodeSnapshot(buffer);
+        if (snapshotMap != null) {
+            return replaySnapshot(context, snapshotMap);
+        }
+        return null;
+    }
+
+    @Override
+    public void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback) {
+        RenderNode rootNode = NativeRendererManager.getRootNode(rootId);
+        if (rootNode == null) {
+            return;
+        }
+        List<Map<String, Object>> nodeInfoList = new ArrayList<>(80);
+        List<Map<String, Object>> layoutInfoList = new ArrayList<>(80);
+        int displayWidth = DisplayUtils.getScreenWidth();
+        int displayHeight = DisplayUtils.getScreenHeight();
+        View rootView = mRenderManager.getRootView(rootId);
+        if (rootView != null && rootView.getWidth() > 0 && rootView.getHeight() > 0) {
+            displayWidth = rootView.getWidth();
+            displayHeight = rootView.getHeight();
+        }
+        Rect displayArea = new Rect(0, 0, displayWidth, displayHeight);
+        performNodeTreeTraversals(rootNode, 0, 0, displayArea, nodeInfoList, layoutInfoList);
+        final Map<String, Object> snapshot = new HashMap<>();
+        snapshot.put(SNAPSHOT_CREATE_NODE, nodeInfoList);
+        snapshot.put(SNAPSHOT_UPDATE_LAYOUT, layoutInfoList);
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ByteBuffer buffer = encodeSnapshot(snapshot);
+                    callback.callback(buffer.array(), null);
+                } catch (Exception e) {
+                    callback.callback(null, e);
+                }
+            }
+        };
+        Executor executor = getBackgroundExecutor();
+        if (executor == null) {
+            task.run();
+        } else {
+            executor.execute(task);
+        }
+    }
+
+    private ByteBuffer encodeSnapshot(@NonNull Map<String, Object> snapshot)
+            throws NativeRenderException {
+        SafeHeapWriter safeHeapWriter = new SafeHeapWriter();
+        Serializer serializer = new Serializer();
+        serializer.setWriter(safeHeapWriter);
+        serializer.reset();
+        serializer.writeHeader();
+        serializer.writeValue(snapshot);
+        return safeHeapWriter.chunked();
+    }
+
+    private void performNodeTreeTraversals(@NonNull RenderNode parent, int left, int top,
+            Rect displayArea, @NonNull List<Map<String, Object>> nodeInfoList,
+            @NonNull List<Map<String, Object>> layoutInfoList) {
+        int childCount = parent.getChildCount();
+        int pid = (parent instanceof RootRenderNode) ? SCREEN_SNAPSHOT_ROOT_ID : parent.getId();
+        for (int i = 0; i < childCount; i++) {
+            RenderNode child = parent.getChildAt(i);
+            if (child == null) {
+                continue;
+            }
+            // If the parent node display area is no longer in the screen, do not need to
+            // traverse the child node
+            if (collectNodeInfo(child, pid, left, top, displayArea, nodeInfoList, layoutInfoList)) {
+                performNodeTreeTraversals(child, left + child.getX(), top + child.getY(),
+                        displayArea, nodeInfoList, layoutInfoList);
+            }
+        }
+    }
+
+    private boolean collectNodeInfo(@NonNull RenderNode child, int pid, int outerLeft, int outerTop,
+            Rect displayArea, @NonNull List<Map<String, Object>> nodeInfoList,
+            @NonNull List<Map<String, Object>> layoutInfoList) {
+        int left = (child instanceof ListItemRenderNode) ? ((ListItemRenderNode) child).getLeft()
+                : child.getX();
+        int top = (child instanceof ListItemRenderNode) ? ((ListItemRenderNode) child).getTop()
+                : child.getY();
+        int width = child.getWidth() == 0 ? displayArea.width() : child.getWidth();
+        int height = child.getHeight() == 0 ? displayArea.height() : child.getHeight();
+        if (!displayArea.intersects(left + outerLeft, top + outerTop,
+                left + outerLeft + width, top + outerTop + height)) {
+            // If the display area of this node is no longer in the screen,
+            // do not need to cache the node information.
+            return false;
+        }
+        Map<String, Object> layoutInfo = new HashMap<>();
+        layoutInfo.put(NODE_ID, child.getId());
+        layoutInfo.put(LAYOUT_WIDTH, child.getWidth());
+        layoutInfo.put(LAYOUT_HEIGHT, child.getHeight());
+        layoutInfo.put(LAYOUT_LEFT, left);
+        layoutInfo.put(LAYOUT_TOP, top);
+        if (child instanceof TextRenderNode) {
+            layoutInfo.put(PADDING_LEFT, ((TextRenderNode) child).getPaddingLeft());
+            layoutInfo.put(PADDING_RIGHT, ((TextRenderNode) child).getPaddingRight());
+            layoutInfo.put(PADDING_TOP, ((TextRenderNode) child).getPaddingTop());
+            layoutInfo.put(PADDING_BOTTOM, ((TextRenderNode) child).getPaddingBottom());
+        }
+        layoutInfoList.add(layoutInfo);
+
+        Map<String, Object> nodeInfo = new HashMap<>();
+        nodeInfo.put(NODE_ID, child.getId());
+        nodeInfo.put(NODE_PID, pid);
+        nodeInfo.put(NODE_INDEX, child.getIndex());
+        nodeInfo.put(CLASS_NAME, child.getClassName());
+        nodeInfo.put(NODE_PROPS, child.getProps());
+        nodeInfoList.add(nodeInfo);
+        if (child instanceof TextRenderNode) {
+            ((TextRenderNode) child).recordVirtualChildren(nodeInfoList);
+        }
+        return true;
     }
 }

@@ -25,12 +25,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.annotation.HippyController;
+import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
 import com.tencent.mtt.hippy.uimanager.NativeGestureDispatcher;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextRenderSupplier;
+import com.tencent.renderer.node.RenderNode;
+import com.tencent.renderer.node.TextRenderNode;
+import java.util.Map;
 
 @HippyController(name = HippyTextViewController.CLASS_NAME, dispatchWithStandardType = true, supportFlatten = true)
 public class HippyTextViewController extends HippyViewController<HippyTextView> {
@@ -48,7 +52,9 @@ public class HippyTextViewController extends HippyViewController<HippyTextView> 
     }
 
     @Override
-    protected void setGestureType(HippyTextView view, String type, boolean flag) {
-
+    protected RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props,
+            @NonNull String className, @NonNull ControllerManager controllerManager,
+            boolean isLazy) {
+        return new TextRenderNode(rootId, id, props, className, controllerManager, isLazy);
     }
 }

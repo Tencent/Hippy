@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.component.text;
+package com.tencent.renderer.node;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -49,6 +49,10 @@ public abstract class VirtualNode {
 
     public int getId() {
         return mId;
+    }
+
+    public int getRootId() {
+        return mRootId;
     }
 
     public int getAncestorId() {

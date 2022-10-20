@@ -33,6 +33,8 @@ import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRenderer;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.component.Component;
@@ -44,6 +46,7 @@ import com.tencent.vfs.UrlUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 public class ImageComponent extends Component {
 
@@ -246,7 +249,12 @@ public class ImageComponent extends Component {
     private void doFetchLocalImage(final String uri, final ImageSourceType sourceType) {
         int width = (mHostRef.get() != null) ? mHostRef.get().getWidth() : 0;
         int height = (mHostRef.get() != null) ? mHostRef.get().getHeight() : 0;
+        Executor executor = null;
         assert mImageLoaderAdapter != null;
+        if (mHostRef.get() != null) {
+            NativeRender nativeRender = mHostRef.get().getNativeRender();
+            executor = nativeRender.getBackgroundExecutor();
+        }
         mImageLoaderAdapter.getLocalImage(uri, new ImageRequestListener() {
             @Override
             public void onRequestStart(ImageDataSupplier imageData) {
@@ -269,7 +277,7 @@ public class ImageComponent extends Component {
                     mDefaultImageFetchState = ImageFetchState.UNLOAD;
                 }
             }
-        }, width, height);
+        }, executor, width, height);
     }
 
     private void doFetchRemoteImage(final String uri, final ImageSourceType sourceType) {

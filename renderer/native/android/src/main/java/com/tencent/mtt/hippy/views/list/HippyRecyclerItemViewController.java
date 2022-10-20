@@ -23,7 +23,7 @@ import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.uimanager.ControllerManager;
 import com.tencent.mtt.hippy.uimanager.HippyViewController;
-import com.tencent.renderer.node.RecyclerItemRenderNode;
+import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.RenderNode;
 import java.util.Map;
 
@@ -40,6 +40,6 @@ public class HippyRecyclerItemViewController extends HippyViewController<HippyLi
     @Override
     public RenderNode createRenderNode(int rootId, int id, @Nullable Map<String, Object> props, @NonNull String className,
             @NonNull ControllerManager controllerManager, boolean isLazyLoad) {
-        return new RecyclerItemRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
+        return new ListItemRenderNode(rootId, id, props, className, controllerManager, isLazyLoad);
     }
 }

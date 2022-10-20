@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.tencent.renderer.component.text;
+package com.tencent.renderer.node;
 
 import static com.tencent.mtt.hippy.dom.node.NodeProps.IMAGE_CLASS_NAME;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_BOTTOM;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_LEFT;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_RIGHT;
+import static com.tencent.mtt.hippy.dom.node.NodeProps.PADDING_TOP;
 import static com.tencent.mtt.hippy.dom.node.NodeProps.TEXT_CLASS_NAME;
 import static com.tencent.renderer.NativeRenderException.ExceptionCode.INVALID_MEASURE_STATE_ERR;
 
@@ -31,7 +35,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
-import com.tencent.renderer.node.RootRenderNode; 
+import com.tencent.renderer.component.text.TextRenderSupplier;
 import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
 import com.tencent.renderer.utils.PropertyUtils;
@@ -50,10 +54,6 @@ public class VirtualNodeManager {
 
     private static final String TAG = "VirtualNodeManager";
     private static final Map<Class<?>, Map<String, PropertyMethodHolder>> sClassPropertyMethod = new HashMap<>();
-    private static final String PADDING_LEFT = "paddingLeft";
-    private static final String PADDING_TOP = "paddingTop";
-    private static final String PADDING_RIGHT = "paddingRight";
-    private static final String PADDING_BOTTOM = "paddingBottom";
     /**
      * Reserved the node id whose node attribute has been updated.
      */
@@ -73,6 +73,19 @@ public class VirtualNodeManager {
     public boolean hasVirtualParent(int rootId, int nodeId) {
         VirtualNode node = getVirtualNode(rootId, nodeId);
         return (node != null && node.mParent != null);
+    }
+
+    @Nullable
+    public VirtualNode checkVirtualParent(int rootId, int nodeId) {
+        VirtualNode node = getVirtualNode(rootId, nodeId);
+        VirtualNode parent = null;
+        if (node != null) {
+            while (node.mParent != null) {
+                parent = node.mParent;
+                node = node.mParent;
+            }
+        }
+        return parent;
     }
 
     /**
@@ -204,10 +217,7 @@ public class VirtualNodeManager {
             @NonNull String key, @Nullable PropertyMethodHolder methodHolder) {
         if (methodHolder == null) {
             if (key.equals(NodeProps.STYLE) && (props.get(key) instanceof Map)) {
-                updateProps(node, (Map) props.get(key), false);
-            } else if (node instanceof TextVirtualNode) {
-                // Some unused attributes are reserved and may be used by render node.
-                ((TextVirtualNode) node).addUnusedProps(key, props.get(key));
+                updateProps(node, (Map) props.get(key));
             }
             return;
         }
@@ -247,8 +257,7 @@ public class VirtualNodeManager {
     }
 
     @SuppressWarnings("rawtypes")
-    private void updateProps(@NonNull VirtualNode node, @Nullable Map<String, Object> props,
-            Boolean needToReset) {
+    private void updateProps(@NonNull VirtualNode node, @Nullable Map<String, Object> props) {
         if (props == null) {
             return;
         }
@@ -263,15 +272,11 @@ public class VirtualNodeManager {
             PropertyMethodHolder methodHolder = methodMap.get(key);
             invokePropertyMethod(node, props, key, methodHolder);
         }
-        if (needToReset && node instanceof TextVirtualNode) {
-            ((TextVirtualNode) node).resetProps(props);
-        }
     }
 
     @Nullable
     private VirtualNode createVirtualNode(int rootId, int id, int pid, int index,
-            @NonNull String className,
-            @Nullable Map<String, Object> props) {
+            @NonNull String className, @Nullable Map<String, Object> props) {
         VirtualNode node = mNativeRenderer.createVirtualNode(rootId, id, pid, index, className,
                 props);
         VirtualNode parent = getVirtualNode(rootId, pid);
@@ -303,22 +308,23 @@ public class VirtualNodeManager {
         if (parent != null) {
             parent.addChildAt(node, index);
         }
-        updateProps(node, props, true);
+        updateProps(node, props);
     }
 
     public void updateNode(int rootId, int id, @Nullable Map<String, Object> props) {
         VirtualNode node = getVirtualNode(rootId, id);
-        if (node != null) {
-            updateProps(node, props, true);
-            if (node.mParent == null) {
-                List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
-                if (updateNodes == null) {
-                    updateNodes = new ArrayList<>();
-                    updateNodes.add(node);
-                    mUpdateNodes.put(rootId, updateNodes);
-                } else if (!updateNodes.contains(node)) {
-                    updateNodes.add(node);
-                }
+        if (node == null) {
+            return;
+        }
+        updateProps(node, props);
+        if (node.mParent == null) {
+            List<VirtualNode> updateNodes = mUpdateNodes.get(rootId);
+            if (updateNodes == null) {
+                updateNodes = new ArrayList<>();
+                updateNodes.add(node);
+                mUpdateNodes.put(rootId, updateNodes);
+            } else if (!updateNodes.contains(node)) {
+                updateNodes.add(node);
             }
         }
     }

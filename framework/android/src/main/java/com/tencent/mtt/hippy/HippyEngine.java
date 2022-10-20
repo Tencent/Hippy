@@ -18,8 +18,10 @@ package com.tencent.mtt.hippy;
 import android.content.Context;
 import android.text.TextUtils;
 
+import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
@@ -45,6 +47,7 @@ import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.bridge.HippyCoreAPI;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.libraryloader.LibraryLoader;
+import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModulePromise.BridgeTransferType;
@@ -188,6 +191,12 @@ public abstract class HippyEngine {
   public abstract boolean onBackPressed(BackPressHandler handler);
 
   public abstract HippyEngineContext getEngineContext();
+
+  public abstract void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback);
+
+  public abstract View replaySnapshot(@NonNull Context context, byte[] buffer);
+
+  public abstract View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap);
 
   public interface BackPressHandler {
 
