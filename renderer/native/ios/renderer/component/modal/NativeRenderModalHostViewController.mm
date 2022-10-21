@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderModalHostViewController.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 
 @interface NativeRenderModalHostViewController () {
     CGRect _lastViewFrame;
@@ -36,7 +36,7 @@
     self = [super init];
     if (self) {
         if (@available(iOS 13.0, *)) {
-            _preferredStatusBarStyle = [[[NativeRenderKeyWindow() windowScene] statusBarManager] statusBarStyle];
+            _preferredStatusBarStyle = [[[HPKeyWindow() windowScene] statusBarManager] statusBarStyle];
         }
         else {
             _preferredStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
@@ -76,13 +76,13 @@
     if (_hideStatusBar) {
         return [_hideStatusBar boolValue];
     }
-    BOOL hidden = [NativeRenderKeyWindow().rootViewController prefersStatusBarHidden];
+    BOOL hidden = [HPKeyWindow().rootViewController prefersStatusBarHidden];
     return hidden;
 }
 
-#if NATIVE_RENDER_DEBUG
+#if HP_DEBUG
 - (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    UIWindow *keyWindow = NativeRenderKeyWindow();
+    UIWindow *keyWindow = HPKeyWindow();
     UIInterfaceOrientationMask appSupportedOrientationsMask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow:keyWindow];
     if (!(_supportedInterfaceOrientations & appSupportedOrientationsMask)) {
         return UIInterfaceOrientationMaskAll;
@@ -90,6 +90,6 @@
 
     return _supportedInterfaceOrientations;
 }
-#endif  // NATIVE_RENDER_DEBUG
+#endif  // HP_DEBUG
 
 @end

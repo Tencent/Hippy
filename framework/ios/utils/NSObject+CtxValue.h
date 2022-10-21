@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 #import "driver/napi/js_native_api_types.h"
-#import "HippyDefines.h"
+#import "MacroDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -59,6 +59,6 @@ using CtxPtr = std::shared_ptr<hippy::napi::Ctx>;
 
 @end
 
-HIPPY_EXTERN id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
+HP_EXTERN id ObjectFromCtxValue(CtxPtr context, CtxValuePtr value);
 
 NS_ASSUME_NONNULL_END

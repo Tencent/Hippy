@@ -39,7 +39,7 @@
  */
 @property (nonatomic, readonly) NSTimeInterval deltaTime;
 
-- (instancetype)initWithDisplayLink:(CADisplayLink *)displayLink NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithDisplayLink:(CADisplayLink *)displayLink;
 
 @end
 

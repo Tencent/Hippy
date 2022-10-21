@@ -164,11 +164,11 @@ void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     }
 }
 
-void NativeRenderManager::SetFrameworkProxy(id<NativeRenderFrameworkProxy> proxy) {
+void NativeRenderManager::SetFrameworkProxy(id<HPRenderFrameworkProxy> proxy) {
     renderImpl_.frameworkProxy = proxy;
 }
 
-id<NativeRenderFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
+id<HPRenderFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
     return renderImpl_.frameworkProxy;
 }
 

@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderFont.h"
-#import "NativeRenderLog.h"
+#import "HPLog.h"
 
 #import <CoreText/CoreText.h>
 
@@ -121,18 +121,18 @@ static UIFont *cachedSystemFont(CGFloat size, NativeRenderFontWeight weight) {
     return font;
 }
 
-@implementation NativeRenderConvert (NativeRenderFont)
+@implementation HPConvert (NativeRenderFont)
 
 + (UIFont *)UIFont:(id)json {
     json = [self NSDictionary:json];
-    return [NativeRenderFont updateFont:nil withFamily:[NativeRenderConvert NSString:json[@"fontFamily"]] size:[NativeRenderConvert NSNumber:json[@"fontSize"]]
-                          weight:[NativeRenderConvert NSString:json[@"fontWeight"]]
-                           style:[NativeRenderConvert NSString:json[@"fontStyle"]]
-                         variant:[NativeRenderConvert NSStringArray:json[@"fontVariant"]]
+    return [NativeRenderFont updateFont:nil withFamily:[HPConvert NSString:json[@"fontFamily"]] size:[HPConvert NSNumber:json[@"fontSize"]]
+                          weight:[HPConvert NSString:json[@"fontWeight"]]
+                           style:[HPConvert NSString:json[@"fontStyle"]]
+                         variant:[HPConvert NSStringArray:json[@"fontVariant"]]
                  scaleMultiplier:1];
 }
 
-NATIVE_RENDER_ENUM_CONVERTER(NativeRenderFontWeight, (@{
+HP_ENUM_CONVERTER(NativeRenderFontWeight, (@{
     @"normal": @(UIFontWeightRegular),
     @"bold": @(UIFontWeightBold),
     @"100": @(UIFontWeightUltraLight),
@@ -148,7 +148,7 @@ NATIVE_RENDER_ENUM_CONVERTER(NativeRenderFontWeight, (@{
     UIFontWeightRegular, doubleValue)
 
 typedef BOOL NativeRenderFontStyle;
-NATIVE_RENDER_ENUM_CONVERTER(NativeRenderFontStyle, (@{
+HP_ENUM_CONVERTER(NativeRenderFontStyle, (@{
     @"normal": @NO,
     @"italic": @YES,
     @"oblique": @YES,
@@ -184,14 +184,14 @@ typedef NSDictionary NativeRenderFontVariantDescriptor;
         };
     });
     NativeRenderFontVariantDescriptor *value = mapping[json];
-    if (NATIVE_RENDER_DEBUG && !value && [json description].length > 0) {
-        NativeRenderLogError(@"Invalid NativeRenderFontVariantDescriptor '%@'. should be one of: %@", json,
+    if (HP_DEBUG && !value && [json description].length > 0) {
+        HPLogError(@"Invalid NativeRenderFontVariantDescriptor '%@'. should be one of: %@", json,
             [[mapping allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)]);
     }
     return value;
 }
 
-NATIVE_RENDER_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
+HP_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
     @end
 
@@ -235,13 +235,13 @@ NATIVE_RENDER_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     }
 
     // Get font attributes
-    fontSize = [NativeRenderConvert CGFloat:size] ?: fontSize;
+    fontSize = [HPConvert CGFloat:size] ?: fontSize;
     if (scaleMultiplier > 0.0 && scaleMultiplier != 1.0) {
         fontSize = round(fontSize * scaleMultiplier);
     }
-    familyName = [NativeRenderConvert NSString:family] ?: familyName;
-    isItalic = style ? [NativeRenderConvert NativeRenderFontStyle:style] : isItalic;
-    fontWeight = weight ? [NativeRenderConvert NativeRenderFontWeight:weight] : fontWeight;
+    familyName = [HPConvert NSString:family] ?: familyName;
+    isItalic = style ? [HPConvert NativeRenderFontStyle:style] : isItalic;
+    fontWeight = weight ? [HPConvert NativeRenderFontWeight:weight] : fontWeight;
 
     BOOL didFindFont = NO;
 
@@ -294,7 +294,7 @@ NATIVE_RENDER_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
 
         } else {
             // Not a valid font or family
-            NativeRenderLogError(@"Unrecognized font family '%@'", familyName);
+            HPLogError(@"Unrecognized font family '%@'", familyName);
             if (@available(iOS 8.2, *)) {
                 font = [UIFont systemFontOfSize:fontSize weight:fontWeight];
             } else if (fontWeight > UIFontWeightRegular) {
@@ -321,7 +321,7 @@ NATIVE_RENDER_ARRAY_CONVERTER(NativeRenderFontVariantDescriptor)
     }
     // Apply font variants to font object
     if (variant) {
-        NSArray *fontFeatures = [NativeRenderConvert NativeRenderFontVariantDescriptorArray:variant];
+        NSArray *fontFeatures = [HPConvert NativeRenderFontVariantDescriptorArray:variant];
         UIFontDescriptor *fontDescriptor =
             [font.fontDescriptor fontDescriptorByAddingAttributes:@{ UIFontDescriptorFeatureSettingsAttribute: fontFeatures }];
         font = [UIFont fontWithDescriptor:fontDescriptor size:fontSize];

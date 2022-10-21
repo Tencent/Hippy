@@ -38,6 +38,6 @@
 
 - (instancetype)initWithMethodSignature:(NSString *)objCMethodName
                            JSMethodName:(NSString *)JSMethodName
-                            moduleClass:(Class)moduleClass NS_DESIGNATED_INITIALIZER;
+                            moduleClass:(Class)moduleClass;
 
 @end

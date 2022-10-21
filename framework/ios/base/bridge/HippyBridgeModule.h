@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HippyDefines.h"
+#import "MacroDefines.h"
 
 @class HippyBridge;
 @protocol HippyBridgeMethod;
@@ -49,7 +49,7 @@ extern dispatch_queue_t HippyJSThread;
  * match the Objective-C class name.
  */
 #define HIPPY_EXPORT_MODULE(js_name)              \
-    HIPPY_EXTERN void HippyRegisterModule(Class); \
+    HP_EXTERN void HippyRegisterModule(Class); \
     +(NSString *)moduleName {                     \
         return @ #js_name;                        \
     }                                             \
@@ -198,7 +198,7 @@ extern dispatch_queue_t HippyJSThread;
  * Like HIPPY_EXTERN_REMAP_METHOD, but allows setting a custom JavaScript name.
  */
 #define HIPPY_EXTERN_REMAP_METHOD(js_name, method)                                                                       \
-    +(NSArray<NSString *> *)HIPPY_CONCAT(__hippy_export__, HIPPY_CONCAT(js_name, HIPPY_CONCAT(__LINE__, __COUNTER__))) { \
+    +(NSArray<NSString *> *)HP_CONCAT(__hippy_export__, HP_CONCAT(js_name, HP_CONCAT(__LINE__, __COUNTER__))) { \
         return @[@ #js_name, @ #method];                                                                                 \
     }
 

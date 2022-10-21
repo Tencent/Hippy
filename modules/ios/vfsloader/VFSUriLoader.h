@@ -28,7 +28,7 @@ extern NSString *const VFSErrorDomain;
 extern NSString *const VFSParamsMethod;
 extern NSString *const VFSParamsHeaders;
 extern NSString *const VFSParamsBody;
-//todo rename it
+
 class VFSUriLoader : public hippy::vfs::UriLoader {
   public:
     VFSUriLoader();

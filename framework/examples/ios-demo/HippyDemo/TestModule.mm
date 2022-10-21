@@ -20,17 +20,22 @@
 * limitations under the License.
 */
 
-#import "TestModule.h"
-#import "HippyRootView.h"
 #import "AppDelegate.h"
-#import "HippyBundleURLProvider.h"
 #import "DemoConfigs.h"
-#import "UIView+NativeRender.h"
-#import "HippyBridgeDelegate.h"
+#import "TestModule.h"
 #import "HippyBridge.h"
+#import "HippyBridgeDelegate.h"
+#import "HippyBundleURLProvider.h"
+#import "HippyDemoLoader.h"
+#import "HippyJSEnginesMapper.h"
+#import "NativeRenderManager.h"
+#import "NativeRenderRootView.h"
+#import "UIView+NativeRender.h"
 
 @interface TestModule ()<HippyBridgeDelegate> {
     HippyBridge *_bridge;
+    std::shared_ptr<NativeRenderManager> _nativeRenderManager;
+    std::shared_ptr<hippy::RootNode> _rootNode;
 }
 
 @end
@@ -46,8 +51,8 @@ HIPPY_EXPORT_MODULE()
 HIPPY_EXPORT_METHOD(debug:(nonnull NSNumber *)instanceId) {
 }
 
-HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnull NSString *)bundleUrl)
-{
+HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnull NSString *)bundleUrl) {
+    static NSString *const engineKey = @"Demo";
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     UIViewController *rootViewController = delegate.window.rootViewController;
     UIViewController *vc = [[UIViewController alloc] init];
@@ -60,7 +65,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
         urlString = bundleUrl;
     }
     NSURL *url = [NSURL URLWithString:bundleUrl];
-    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:rootViewController.view.bounds];
+    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:rootViewController.view.bounds];
     NSNumber *rootTag = rootView.componentTag;
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};;
     NSArray<NSURL *> *bundleURLs = @[url];
@@ -69,9 +74,39 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
                                                  moduleProvider:nil
                                                   launchOptions:launchOptions
                                                     engineKey:@"Demo"];
-    [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
-          frameworkProxy:bridge rootView:rootView.contentView
-             screenScale:[UIScreen mainScreen].scale];
+    
+    //Get DomManager from HippyJSEnginesMapper with Engine key
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:engineKey];
+    auto domManager = engineResource->GetDomManager();
+    
+    //Create a RootNode instance with a root tag
+    auto rootNode = std::make_shared<hippy::RootNode>([rootTag unsignedIntValue]);
+    //Set RootNode for AnimationManager in RootNode
+    rootNode->GetAnimationManager()->SetRootNode(rootNode);
+    //Set DomManager for RootNode
+    rootNode->SetDomManager(domManager);
+    //Set screen scale factor and size for Layout system in RooNode
+    rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
+    rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
+    
+    //Create NativeRenderManager
+    auto renderManager = std::make_shared<NativeRenderManager>();
+    //Set frameproxy for render manager
+    renderManager->SetFrameworkProxy(bridge);
+    //bind rootview and root node
+    renderManager->RegisterRootView(rootView, rootNode);
+    //set dom manager
+    renderManager->SetDomManager(domManager);
+    
+    //set rendermanager for dommanager
+    domManager->SetRenderManager(renderManager);
+    id<HPRenderContext> renderContext = renderManager->GetRenderContext();
+    
+    //setup necessary params for bridge
+    [bridge setupDomManager:domManager rootNode:rootNode renderContext:renderContext];
+    //set custom vfs loader
+    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
+    
     [bridge loadBundleURLs:bundleURLs];
     [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
     bridge.sandboxDirectory = sandboxDirectory;
@@ -82,6 +117,11 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     [vc.view addSubview:rootView];
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     [rootViewController presentViewController:vc animated:YES completion:NULL];
+    
+    _rootNode = rootNode;
+    _nativeRenderManager = renderManager;
+    _bridge = bridge;
+
 }
 
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {

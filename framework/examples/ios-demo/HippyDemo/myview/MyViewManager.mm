@@ -34,7 +34,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[reactTag];
         if (view == nil || ![view isKindOfClass:[MyView class]]) {
-            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
+            HPLogError(@"tried to setPage: on an error viewPager %@ "
                         "with tag #%@", view, reactTag);
         }
         [(MyView *)view setBackgroundColor:[self colorWithHexString:color alpha:1] ];

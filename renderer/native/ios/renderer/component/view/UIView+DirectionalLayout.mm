@@ -22,7 +22,7 @@
 
 #import "UIView+DirectionalLayout.h"
 #import "objc/runtime.h"
-#import "NativeRenderI18nUtils.h"
+#import "HPI18nUtils.h"
 #import "UIView+NativeRender.h"
 
 @implementation UIView (DirectionalLayout)
@@ -54,7 +54,7 @@
 - (void)checkLayoutDirection:(NSMutableSet<UIView *> *)viewsSet direction:(HPDirection *)direction{
     if (DirectionInherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        [[self nativeRenderSuperview] checkLayoutDirection:viewsSet direction:direction];
+        [(UIView *)[self parentComponent] checkLayoutDirection:viewsSet direction:direction];
     }
     else if (direction) {
         *direction = self.confirmedLayoutDirection;
@@ -64,7 +64,7 @@
 - (void)superviewLayoutDirectionChangedTo:(HPDirection)direction {
     if (DirectionInherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
-        for (UIView *subview in self.nativeRenderSubviews) {
+        for (UIView *subview in self.subcomponents) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }

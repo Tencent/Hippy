@@ -21,7 +21,7 @@
  */
 
 #import "NSObject+CtxValue.h"
-#import "HippyAssert.h"
+#import "HPAsserts.h"
 #import "footstone/string_view.h"
 #import "footstone/string_view_utils.h"
 
@@ -29,7 +29,7 @@
 
 - (CtxValuePtr)convertToCtxValue:(const CtxPtr &)context; {
     @autoreleasepool {
-        HippyAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
+        HPAssert(NO, @"%@ must implemente convertToCtxValue method", NSStringFromClass([self class]));
         std::unordered_map<CtxValuePtr, CtxValuePtr> valueMap;
         return context->CreateObject(valueMap);
     }

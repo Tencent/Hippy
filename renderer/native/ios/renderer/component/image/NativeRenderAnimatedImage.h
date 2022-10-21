@@ -21,16 +21,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderImageProviderProtocol.h"
+#import "HPImageProviderProtocol.h"
 #import "NativeRenderAnimatedImageView.h"
-
-#ifndef NS_DESIGNATED_INITIALIZER
-#if __has_attribute(objc_designated_initializer)
-#define NS_DESIGNATED_INITIALIZER __attribute((objc_designated_initializer))
-#else
-#define NS_DESIGNATED_INITIALIZER
-#endif
-#endif
 
 extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 
@@ -64,11 +56,11 @@ extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 
 - (UIImage *)imageAtIndex:(NSUInteger)index;
 
-- (instancetype)initWithAnimatedImageProvider:(id<NativeRenderImageProviderProtocol>)imageProvider;
-- (instancetype)initWithAnimatedImageProvider:(id<NativeRenderImageProviderProtocol>)imageProvider
+- (instancetype)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider;
+- (instancetype)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider
                         optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize
                             predrawingEnabled:(BOOL)isPredrawingEnabled;
-+ (instancetype)animatedImageWithAnimatedImageProvider:(id<NativeRenderImageProviderProtocol>)imageProvider;
++ (instancetype)animatedImageWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider;
 
 // On success, the initializers return an `NativeRenderAnimatedImage` with all fields initialized, on failure they return `nil` and an error will be logged.
 - (instancetype)initWithAnimatedGIFData:(NSData *)data;
@@ -79,7 +71,7 @@ extern const NSTimeInterval kAnimatedImageDelayTimeIntervalMinimum;
 + (instancetype)animatedImageWithGIFData:(NSData *)data;
 
 @property (nonatomic, strong, readonly) NSData *data;  // The data the receiver was initialized with; read-only
-@property (nonatomic, strong, readonly) id<NativeRenderImageProviderProtocol> imageProvider;
+@property (nonatomic, strong, readonly) id<HPImageProviderProtocol> imageProvider;
 
 @end
 

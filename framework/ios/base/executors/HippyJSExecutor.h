@@ -20,12 +20,13 @@
  * limitations under the License.
  */
 
-#import "HippyDefines.h"
 #import "HippyBridgeModule.h"
-#import "NativeRenderInvalidating.h"
-#import "js_native_api_types.h"
+#import "HippyDefines.h"
+#import "MacroDefines.h"
+#import "HPInvalidating.h"
 
 #include <memory>
+#include "driver/napi/js_native_api_types.h"
 #include "vfs/uri_loader.h"
 
 namespace hippy {
@@ -44,12 +45,12 @@ typedef void (^HippyContextCreatedBlock)(id<HippyContextWrapper>);
 /**
  * Default name for the JS thread
  */
-HIPPY_EXTERN NSString *const HippyJSCThreadName;
+HP_EXTERN NSString *const HippyJSCThreadName;
 
 /**
  * Uses a JavaScriptCore context as the execution engine.
  */
-@interface HippyJSExecutor : NSObject<NativeRenderInvalidating>
+@interface HippyJSExecutor : NSObject<HPInvalidating>
 
 @property (nonatomic, strong) HippyBridge *bridge;
 

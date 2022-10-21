@@ -23,9 +23,9 @@
 #import <JavaScriptCore/JavaScriptCore.h>
 
 #import "NSObject+JSValue.h"
-#import "HippyAssert.h"
+#import "HPAsserts.h"
 #import "HippyJSCContextWrapper.h"
-#import "HippyJSStackFrame.h"
+#import "HPDriverStackFrame.h"
 
 #include <memory.h>
 #include "driver/napi/jsc/js_native_api_jsc.h"
@@ -70,7 +70,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
     self = [super init];
     if (self) {
         auto strongContext = context.lock();
-        HippyAssert(strongContext, @"context must be available");
+        HPAssert(strongContext, @"context must be available");
         if (strongContext) {
             auto jscontext = std::static_pointer_cast<hippy::napi::JSCCtx>(strongContext);
             _napiContext = jscontext;
@@ -92,9 +92,9 @@ static BOOL IsJSValueFunction(JSValue *value) {
                     double lineNumber = JSValueToNumber(contextRef, [exception objectForKeyedSubscript:@"line"].JSValueRef, NULL);
                     double column = JSValueToNumber(contextRef, [exception objectForKeyedSubscript:@"column"].JSValueRef, NULL);
                     NSArray<NSString *> *stacksArray = [stacksString componentsSeparatedByString:@"\n"];
-                    NSMutableArray<HippyJSStackFrame *> *stackFrames = [NSMutableArray arrayWithCapacity:[stacksArray count]];
+                    NSMutableArray<HPDriverStackFrame *> *stackFrames = [NSMutableArray arrayWithCapacity:[stacksArray count]];
                     for (NSString *line in stacksArray) {
-                        HippyJSStackFrame *stackFrame = [[HippyJSStackFrame alloc] initWithMethodName:line file:@"" lineNumber:lineNumber column:column];
+                        HPDriverStackFrame *stackFrame = [[HPDriverStackFrame alloc] initWithMethodName:line file:@"" lineNumber:lineNumber column:column];
                         [stackFrames addObject:stackFrame];
                     }
                     exceptionHandler(strongSelf, message, [stackFrames copy]);
@@ -289,7 +289,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
         }
         JSContext *context = _context;
         JSValue *batchedbridgeValue = context[@"__hpBatchedBridge"];
-        HippyAssert(batchedbridgeValue && ![batchedbridgeValue isUndefined] && ![batchedbridgeValue isNull], @"__hpBatchedBridge must not be null or undefined");
+        HPAssert(batchedbridgeValue && ![batchedbridgeValue isUndefined] && ![batchedbridgeValue isNull], @"__hpBatchedBridge must not be null or undefined");
         if (!batchedbridgeValue || [batchedbridgeValue isUndefined]) {
             _context.exception = [JSValue valueWithNewErrorFromMessage:@"cannot find __hpBatchedBridge" inContext:context];
             return nil;
@@ -340,7 +340,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
 
 - (std::shared_ptr<hippy::napi::CtxValue>)createNumber:(NSNumber *)number {
     @autoreleasepool {
-        HippyAssert(number, @"number must not be null");
+        HPAssert(number, @"number must not be null");
         if (number) {
             JSValueRef valueRef = [number toJSValueInContext:_context].JSValueRef;
             return std::make_shared<hippy::napi::JSCCtxValue>(_context.JSGlobalContextRef, valueRef);
@@ -351,7 +351,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
 
 - (std::shared_ptr<hippy::napi::CtxValue>)createBool:(NSNumber *)number {
     @autoreleasepool {
-        HippyAssert(number, @"number must not be null");
+        HPAssert(number, @"number must not be null");
         if (number) {
             JSValueRef valueRef = [number toJSValueInContext:_context].JSValueRef;
             return std::make_shared<hippy::napi::JSCCtxValue>(_context.JSGlobalContextRef, valueRef);
@@ -362,7 +362,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
 
 - (std::shared_ptr<hippy::napi::CtxValue>)createString:(NSString *)string {
     @autoreleasepool {
-        HippyAssert(string, @"string must not be null");
+        HPAssert(string, @"string must not be null");
         if (string) {
             JSValueRef valueRef = [string toJSValueInContext:_context].JSValueRef;
             return std::make_shared<hippy::napi::JSCCtxValue>(_context.JSGlobalContextRef, valueRef);
@@ -381,7 +381,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
 
 - (std::shared_ptr<hippy::napi::CtxValue>)createObject:(NSDictionary *)dictionary {
     @autoreleasepool {
-        HippyAssert(dictionary, @"dictionary must not be null");
+        HPAssert(dictionary, @"dictionary must not be null");
         if (dictionary) {
             JSValueRef valueRef = [dictionary toJSValueInContext:_context].JSValueRef;
             return std::make_shared<hippy::napi::JSCCtxValue>(_context.JSGlobalContextRef, valueRef);
@@ -392,7 +392,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
 
 - (std::shared_ptr<hippy::napi::CtxValue>)createObjectFromJsonString:(NSString *)JsonString {
     @autoreleasepool {
-        HippyAssert(JsonString, @"JsonString must not be null");
+        HPAssert(JsonString, @"JsonString must not be null");
         id obj = StringJSONToObject(JsonString);
         if (obj) {
             JSValueRef valueRef = [obj toJSValueInContext:_context].JSValueRef;
@@ -404,7 +404,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
 
 - (std::shared_ptr<hippy::napi::CtxValue>)createArray:(NSArray *)array {
     @autoreleasepool {
-        HippyAssert(array, @"array must not be null");
+        HPAssert(array, @"array must not be null");
         if (array) {
             JSValueRef valueRef = [array toJSValueInContext:_context].JSValueRef;
             return std::make_shared<hippy::napi::JSCCtxValue>(_context.JSGlobalContextRef, valueRef);
@@ -415,7 +415,7 @@ static BOOL IsJSValueFunction(JSValue *value) {
 
 - (std::shared_ptr<hippy::napi::CtxValue>)createError:(NSString *)description {
     @autoreleasepool {
-        HippyAssert(description, @"description must not be null");
+        HPAssert(description, @"description must not be null");
         description = description?:@"";
         JSValueRef arguments[1];
         arguments[0] = [description toJSValueInContext:_context].JSValueRef;

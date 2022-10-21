@@ -20,11 +20,12 @@
  * limitations under the License.
  */
 
-#import "HippyDefines.h"
+#import "MacroDefines.h"
 #import "HippyWebSocketManager.h"
-#import "NativeRenderConvert.h"
-#import "NativeRenderUtils.h"
+#import "HPConvert.h"
+#import "HPToolUtils.h"
 #import "HippySRWebSocket.h"
+#import "HippyDefines.h"
 
 static NSUInteger socketIndex = 0;
 

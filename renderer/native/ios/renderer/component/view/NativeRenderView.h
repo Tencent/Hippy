@@ -22,9 +22,8 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderBorderStyle.h"
+#import "HPConvert+NativeRender.h"
 #import "NativeRenderComponentProtocol.h"
-#import "NativeRenderPointerEvents.h"
 #import "NativeRenderTouchesView.h"
 
 @class NativeRenderGradientObject;

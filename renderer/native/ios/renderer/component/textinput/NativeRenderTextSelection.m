@@ -34,7 +34,7 @@
 
 @end
 
-@implementation NativeRenderConvert (NativeRenderTextSelection)
+@implementation HPConvert (NativeRenderTextSelection)
 
 + (NativeRenderTextSelection *)NativeRenderTextSelection:(id)json {
     if ([json isKindOfClass:[NSDictionary class]]) {

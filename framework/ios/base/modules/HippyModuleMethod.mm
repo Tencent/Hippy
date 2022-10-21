@@ -24,12 +24,12 @@
 
 #import <objc/message.h>
 
-#import "HippyAssert.h"
+#import "HPAsserts.h"
 #import "HippyBridge.h"
-#import "NativeRenderConvert.h"
-#import "HippyLog.h"
-#import "NativeRenderParserUtils.h"
-#import "NativeRenderUtils.h"
+#import "HPConvert.h"
+#import "HPLog.h"
+#import "HPParserUtils.h"
+#import "HPToolUtils.h"
 #import "HippyTurboModuleManager.h"
 
 typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
@@ -62,48 +62,46 @@ typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
 
 @synthesize arguments = _arguments;
 
-static void HippyLogArgumentError(
+static void HPLogArgumentError(
     __unused HippyModuleMethod *method, __unused NSUInteger index, __unused id valueOrType, __unused const char *issue) {
-    HippyLogError(nil,
+    HPLogError(nil,
                   @"Argument %tu (%@) of %@.%@ %s", index, valueOrType, HippyBridgeModuleNameForClass(method->_moduleClass), method.JSMethodName, issue);
 }
-
-HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 // returns YES if the selector ends in a colon (indicating that there is at
 // least one argument, and maybe more selector parts) or NO if it doesn't.
 static BOOL HippyParseSelectorPart(const char **input, NSMutableString *selector) {
     NSString *selectorPart;
-    if (NativeRenderParseIdentifier(input, &selectorPart)) {
+    if (HPParseIdentifier(input, &selectorPart)) {
         [selector appendString:selectorPart];
     }
-    NativeRenderSkipWhitespace(input);
-    if (NativeRenderReadChar(input, ':')) {
+    HPParseSkipWhitespace(input);
+    if (HPParseReadChar(input, ':')) {
         [selector appendString:@":"];
-        NativeRenderSkipWhitespace(input);
+        HPParseSkipWhitespace(input);
         return YES;
     }
     return NO;
 }
 
 static BOOL HippyParseUnused(const char **input) {
-    return NativeRenderReadString(input, "__unused") || NativeRenderReadString(input, "__attribute__((unused))")
-           || NativeRenderReadString(input, "__attribute__((__unused__))");
+    return HPParseReadString(input, "__unused") || HPParseReadString(input, "__attribute__((unused))")
+           || HPParseReadString(input, "__attribute__((__unused__))");
 }
 
 static HippyNullability HippyParseNullability(const char **input) {
-    if (NativeRenderReadString(input, "nullable")) {
+    if (HPParseReadString(input, "nullable")) {
         return HippyNullable;
-    } else if (NativeRenderReadString(input, "nonnull")) {
+    } else if (HPParseReadString(input, "nonnull")) {
         return HippyNonnullable;
     }
     return HippyNullabilityUnspecified;
 }
 
 static HippyNullability HippyParseNullabilityPostfix(const char **input) {
-    if (NativeRenderReadString(input, "_Nullable")) {
+    if (HPParseReadString(input, "_Nullable")) {
         return HippyNullable;
-    } else if (NativeRenderReadString(input, "_Nonnull")) {
+    } else if (HPParseReadString(input, "_Nonnull")) {
         return HippyNonnullable;
     }
     return HippyNullabilityUnspecified;
@@ -112,7 +110,7 @@ static HippyNullability HippyParseNullabilityPostfix(const char **input) {
 SEL HippyParseMethodSignature(NSString *, NSArray<HippyMethodArgument *> **);
 SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgument *> **arguments) {
     const char *input = methodSignature.UTF8String;
-    NativeRenderSkipWhitespace(&input);
+    HPParseSkipWhitespace(&input);
 
     NSMutableArray *args;
     NSMutableString *selector = [NSMutableString new];
@@ -122,32 +120,32 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         }
 
         // Parse type
-        if (NativeRenderReadChar(&input, '(')) {
-            NativeRenderSkipWhitespace(&input);
+        if (HPParseReadChar(&input, '(')) {
+            HPParseSkipWhitespace(&input);
 
             BOOL unused = HippyParseUnused(&input);
-            NativeRenderSkipWhitespace(&input);
+            HPParseSkipWhitespace(&input);
 
             HippyNullability nullability = HippyParseNullability(&input);
-            NativeRenderSkipWhitespace(&input);
+            HPParseSkipWhitespace(&input);
 
-            NSString *type = NativeRenderParseType(&input);
-            NativeRenderSkipWhitespace(&input);
+            NSString *type = HPParseType(&input);
+            HPParseSkipWhitespace(&input);
             if (nullability == HippyNullabilityUnspecified) {
                 nullability = HippyParseNullabilityPostfix(&input);
             }
             [args addObject:[[HippyMethodArgument alloc] initWithType:type nullability:nullability unused:unused]];
-            NativeRenderSkipWhitespace(&input);
-            NativeRenderReadChar(&input, ')');
-            NativeRenderSkipWhitespace(&input);
+            HPParseSkipWhitespace(&input);
+            HPParseReadChar(&input, ')');
+            HPParseSkipWhitespace(&input);
         } else {
             // Type defaults to id if unspecified
             [args addObject:[[HippyMethodArgument alloc] initWithType:@"id" nullability:HippyNullable unused:NO]];
         }
 
         // Argument name
-        NativeRenderParseIdentifier(&input, NULL);
-        NativeRenderSkipWhitespace(&input);
+        HPParseIdentifier(&input, NULL);
+        HPParseSkipWhitespace(&input);
     }
 
     *arguments = [args copy];
@@ -168,11 +166,11 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
     NSArray<HippyMethodArgument *> *arguments;
     _selector = HippyParseMethodSignature(_methodSignature, &arguments);
     _arguments = [arguments copy];
-    HippyAssert(_selector, @"%@ is not a valid selector", _methodSignature);
+    HPAssert(_selector, @"%@ is not a valid selector", _methodSignature);
 
     // Create method invocation
     NSMethodSignature *methodSignature = [_moduleClass instanceMethodSignatureForSelector:_selector];
-    HippyAssert(methodSignature, @"%@ is not a recognized Objective-C method.", _methodSignature);
+    HPAssert(methodSignature, @"%@ is not a recognized Objective-C method.", _methodSignature);
     NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
     invocation.selector = _selector;
     _invocation = invocation;
@@ -196,8 +194,8 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 
     __weak HippyModuleMethod *weakSelf = self;
     void (^addBlockArgument)(void) = ^{
-        HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
-            HippyLogArgumentError(weakSelf, index, json, "should be a function");
+        HIPPY_ARG_BLOCK(if (HP_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
+            HPLogArgumentError(weakSelf, index, json, "should be a function");
             return NO;
         }
         __weak HippyBridge *weakBridge = bridge;
@@ -227,13 +225,13 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         BOOL isNullableType = NO;
         HippyMethodArgument *argument = arguments[i - 2];
         NSString *typeName = argument.type;
-        SEL selector = NativeRenderConvertSelectorForType(typeName);
-        if ([NativeRenderConvert respondsToSelector:selector]) {
+        SEL selector = HPConvertSelectorForType(typeName);
+        if ([HPConvert respondsToSelector:selector]) {
             switch (objcType[0]) {
 #define HIPPY_CASE(_value, _type)                                                           \
     case _value: {                                                                          \
         _type (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;                    \
-        HIPPY_ARG_BLOCK(_type value = convert([NativeRenderConvert class], selector, json);)\
+        HIPPY_ARG_BLOCK(_type value = convert([HPConvert class], selector, json);)\
         break;                                                                              \
     }
 
@@ -255,7 +253,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
     case _value: {                                                                    \
         isNullableType = YES;                                                         \
         _type (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;                \
-        HIPPY_ARG_BLOCK(_type value = convert([NativeRenderConvert class], selector, json);) \
+        HIPPY_ARG_BLOCK(_type value = convert([HPConvert class], selector, json);) \
         break;                                                                        \
     }
 
@@ -266,15 +264,15 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 case _C_ID: {
                     isNullableType = YES;
                     id (*convert)(id, SEL, id) = (__typeof(convert))objc_msgSend;
-                    HIPPY_ARG_BLOCK(id value = convert([NativeRenderConvert class], selector, json); CFBridgingRetain(value);)
+                    HIPPY_ARG_BLOCK(id value = convert([HPConvert class], selector, json); CFBridgingRetain(value);)
                     break;
                 }
 
                 case _C_STRUCT_B: {
-                    NSMethodSignature *typeSignature = [NativeRenderConvert methodSignatureForSelector:selector];
+                    NSMethodSignature *typeSignature = [HPConvert methodSignatureForSelector:selector];
                     NSInvocation *typeInvocation = [NSInvocation invocationWithMethodSignature:typeSignature];
                     typeInvocation.selector = selector;
-                    typeInvocation.target = [NativeRenderConvert class];
+                    typeInvocation.target = [HPConvert class];
 
                     [argumentBlocks addObject:^(__unused HippyBridge *bridge, NSUInteger index, id json) {
                         void *returnValue = malloc(typeSignature.methodReturnLength);
@@ -294,7 +292,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                     if (!strcmp(objcType, blockType)) {
                         addBlockArgument();
                     } else {
-                        HippyLogError(nil, @"Unsupported argument type '%@' in method %@.", typeName, [self methodName]);
+                        HPLogError(nil, @"Unsupported argument type '%@' in method %@.", typeName, [self methodName]);
                     }
                 }
             }
@@ -303,8 +301,8 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         } else if ([typeName isEqualToString:@"HippyResponseErrorBlock"]) {
             HIPPY_ARG_BLOCK(
 
-                if (HIPPY_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
-                    HippyLogArgumentError(weakSelf, index, json, "should be a function");
+                if (HP_DEBUG && json && ![json isKindOfClass:[NSNumber class]]) {
+                    HPLogArgumentError(weakSelf, index, json, "should be a function");
                     return NO;
                 }
                 __weak HippyBridge *weakBridge = bridge;
@@ -314,7 +312,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                     if (!strongBridge || !strongSelf) {
                         return;
                     }
-                    NSArray *errorArgs = @[NativeRenderJSErrorFromNSError(error)];
+                    NSArray *errorArgs = @[HPJSErrorFromNSError(error)];
                     BOOL shouldEnqueueCallback = YES;
                     if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
                         NSString *moduleName = HippyBridgeModuleNameForClass(strongSelf->_moduleClass);
@@ -329,9 +327,9 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                     }
                 });)
         } else if ([typeName isEqualToString:@"HippyPromiseResolveBlock"]) {
-            HippyAssert(i == numberOfArguments - 2, @"The HippyPromiseResolveBlock must be the second to last parameter in -[%@ %@]", _moduleClass, _methodSignature);
-            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
-                HippyLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
+            HPAssert(i == numberOfArguments - 2, @"The HippyPromiseResolveBlock must be the second to last parameter in -[%@ %@]", _moduleClass, _methodSignature);
+            HIPPY_ARG_BLOCK(if (HP_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
+                HPLogArgumentError(weakSelf, index, json, "should be a promise resolver function");
                 return NO;
             }
             __weak HippyBridge *weakBridge = bridge;
@@ -356,10 +354,10 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 }
             });)
         } else if ([typeName isEqualToString:@"HippyPromiseRejectBlock"]) {
-            HippyAssert(
+            HPAssert(
                 i == numberOfArguments - 1, @"The HippyPromiseRejectBlock must be the last parameter in -[%@ %@]", _moduleClass, _methodSignature);
-            HIPPY_ARG_BLOCK(if (HIPPY_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
-                HippyLogArgumentError(weakSelf, index, json, "should be a promise rejecter function");
+            HIPPY_ARG_BLOCK(if (HP_DEBUG && ![json isKindOfClass:[NSNumber class]]) {
+                HPLogArgumentError(weakSelf, index, json, "should be a promise rejecter function");
                 return NO;
             }
             __weak HippyBridge *weakBridge = bridge;
@@ -369,7 +367,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 if (!strongBridge || !strongSelf) {
                     return;
                 }
-                NSDictionary *errorJSON = NativeRenderJSErrorFromCodeMessageAndNSError(code, message, error);
+                NSDictionary *errorJSON = HPJSErrorFromCodeMessageAndNSError(code, message, error);
                 NSArray *args = @[errorJSON];
                 BOOL shouldEnqueueCallback = YES;
                 if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
@@ -392,16 +390,16 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             }];
         } else {
             // Unknown argument type
-            HippyLogError(nil, @"Unknown argument type '%@' in method %@. Extend HippyConvert"
+            HPLogError(nil, @"Unknown argument type '%@' in method %@. Extend HippyConvert"
                            " to support this type.",
                 typeName, [self methodName]);
         }
 
-        if (HIPPY_DEBUG) {
+        if (HP_DEBUG) {
             HippyNullability nullability = argument.nullability;
             if (!isNullableType) {
                 if (nullability == HippyNullable) {
-                    HippyLogArgumentError(weakSelf, i - 2, typeName,
+                    HPLogArgumentError(weakSelf, i - 2, typeName,
                         "is marked as "
                         "nullable, but is not a nullable type.");
                 }
@@ -415,7 +413,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             if ([typeName isEqualToString:@"NSNumber"]) {
                 BOOL unspecified = (nullability == HippyNullabilityUnspecified);
                 if (!argument.unused && (nullability == HippyNullable || unspecified)) {
-                    HippyLogArgumentError(weakSelf, i - 2, typeName,
+                    HPLogArgumentError(weakSelf, i - 2, typeName,
                         [unspecified ? @"has unspecified nullability" : @"is marked as nullable"
                             stringByAppendingString:@" but Hippy requires that all NSNumber "
                                                      "arguments are explicitly marked as `nonnull` to ensure "
@@ -443,7 +441,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                         }
                         return YES;
                     }
-                    HippyLogArgumentError(weakSelf, index, typeName, "must not be null");
+                    HPLogArgumentError(weakSelf, index, typeName, "must not be null");
                     return NO;
                 };
             }
@@ -455,10 +453,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
 
 - (SEL)selector {
     if (_selector == NULL) {
-        // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"", (@{ @"module": NSStringFromClass(_moduleClass),
-        //                                                          @"method": _methodSignature }));
         [self processMethodSignature];
-        // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
     }
     return _selector;
 }
@@ -473,7 +468,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         }
         methodName = [methodName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         _JSMethodName = methodName;
-        HippyAssert(methodName.length,
+        HPAssert(methodName.length,
             @"%@ is not a valid JS function name, please"
              " supply an alternative using HIPPY_REMAP_METHOD()",
             _methodSignature);
@@ -498,9 +493,9 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
         [self processMethodSignature];
     }
 
-    if (HIPPY_DEBUG) {
+    if (HP_DEBUG) {
         // Sanity check
-        HippyAssert([module class] == _moduleClass, @"Attempted to invoke method \
+        HPAssert([module class] == _moduleClass, @"Attempted to invoke method \
                   %@ on a module of class %@", [self methodName], [module class]);
 
         // Safety check
@@ -514,7 +509,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 expectedCount -= 2;
             }
 
-            HippyLogError(bridge, @"%@.%@ was called with %ld arguments, but expects %ld. \
+            HPLogError(bridge, @"%@.%@ was called with %ld arguments, but expects %ld. \
                         If you haven\'t changed this method "
                           @"yourself, this usually means that \
                         your versions of the native code and JavaScript code are out "
@@ -534,9 +529,9 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
             break;
         }
         HippyArgumentBlock block = _argumentBlocks[index];
-        if (!block(bridge, index, NativeRenderNilIfNull(json))) {
+        if (!block(bridge, index, HPNilIfNull(json))) {
             // Invalid argument, abort
-            HippyLogArgumentError(self, index, json, "could not be processed. Aborting method call.");
+            HPLogArgumentError(self, index, json, "could not be processed. Aborting method call.");
             return nil;
         }
         index++;
@@ -545,7 +540,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
     // Invoke method
     [_invocation invokeWithTarget:module];
 
-    HippyAssert(@encode(HippyArgumentBlock)[0] == _C_ID,
+    HPAssert(@encode(HippyArgumentBlock)[0] == _C_ID,
         @"Block type encoding has changed, it won't be released. A check for the block"
          "type encoding (%s) has to be added below.",
         @encode(HippyArgumentBlock));

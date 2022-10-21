@@ -22,8 +22,8 @@
 
 #import "NativeRenderView.h"
 #import "NativeRenderBorderDrawing.h"
-#import "NativeRenderConvert.h"
-#import "NativeRenderUtils.h"
+#import "HPConvert.h"
+#import "HPToolUtils.h"
 #import "UIView+NativeRender.h"
 #import "NativeRenderGradientObject.h"
 
@@ -145,7 +145,7 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
         case NativeRenderPointerEventsBoxNone:
             return hitSubview;
         default:
-            NativeRenderLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
+            HPLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
             return hitSubview ?: hitView;
     }
 }
@@ -211,10 +211,10 @@ static NSString *NativeRenderRecursiveAccessibilityLabel(UIView *view) {
 
     // Get scale factors required to prevent radii from overlapping
     const CGSize size = self.bounds.size;
-    const CGFloat topScaleFactor = NativeRenderZeroIfNaN(MIN(1, size.width / (topLeftRadius + topRightRadius)));
-    const CGFloat bottomScaleFactor = NativeRenderZeroIfNaN(MIN(1, size.width / (bottomLeftRadius + bottomRightRadius)));
-    const CGFloat rightScaleFactor = NativeRenderZeroIfNaN(MIN(1, size.height / (topRightRadius + bottomRightRadius)));
-    const CGFloat leftScaleFactor = NativeRenderZeroIfNaN(MIN(1, size.height / (topLeftRadius + bottomLeftRadius)));
+    const CGFloat topScaleFactor = HPZeroIfNaN(MIN(1, size.width / (topLeftRadius + topRightRadius)));
+    const CGFloat bottomScaleFactor = HPZeroIfNaN(MIN(1, size.width / (bottomLeftRadius + bottomRightRadius)));
+    const CGFloat rightScaleFactor = HPZeroIfNaN(MIN(1, size.height / (topRightRadius + bottomRightRadius)));
+    const CGFloat leftScaleFactor = HPZeroIfNaN(MIN(1, size.height / (topLeftRadius + bottomLeftRadius)));
 
     // Return scaled radii
     return (NativeRenderCornerRadii) {
@@ -308,7 +308,7 @@ void NativeRenderBoarderColorsRelease(NativeRenderBorderColors c) {
     const NativeRenderBorderColors borderColors = [self borderColors];
     UIColor *backgroundColor = self.backgroundColor;
 
-    BOOL useIOSBorderRendering = !NativeRenderRunningInTestEnvironment() && NativeRenderCornerRadiiAreEqual(cornerRadii) && NativeRenderBorderInsetsAreEqual(borderInsets)
+    BOOL useIOSBorderRendering = !HPRunningInTestEnvironment() && NativeRenderCornerRadiiAreEqual(cornerRadii) && NativeRenderBorderInsetsAreEqual(borderInsets)
                                  && NativeRenderBorderColorsAreEqual(borderColors) && (_borderStyle == NativeRenderBorderStyleSolid || _borderStyle == NativeRenderBorderStyleNone) &&
 
                                  // iOS draws borders in front of the content whereas CSS draws them behind

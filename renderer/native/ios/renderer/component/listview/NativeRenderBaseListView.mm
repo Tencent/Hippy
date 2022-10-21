@@ -163,7 +163,7 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.nativeRenderObjectView.nativeRenderSubviews containBannerView:NO];
+    [self.dataSource setDataSource:self.nativeRenderObjectView.subcomponents containBannerView:NO];
 }
 
 #pragma mark -Scrollable

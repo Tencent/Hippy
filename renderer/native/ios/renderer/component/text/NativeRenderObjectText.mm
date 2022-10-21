@@ -21,12 +21,12 @@
  */
 
 #import "NativeRenderObjectText.h"
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 #import "NativeRenderFont.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
-#import "NativeRenderUtils.h"
-#import "NativeRenderI18nUtils.h"
+#import "HPToolUtils.h"
+#import "HPI18nUtils.h"
 #import "dom/layout_node.h"
 #include "dom/taitank_layout_node.h"
 
@@ -111,7 +111,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
         _fontSizeMultiplier = 1.0;
         _lineHeightMultiple = 1.0f;
         _textAlign = NSTextAlignmentLeft;
-        if (NSWritingDirectionRightToLeft ==  [[NativeRenderI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
+        if (NSWritingDirectionRightToLeft ==  [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage]) {
             self.textAlign = NSTextAlignmentRight;
         }
     }
@@ -137,7 +137,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
 - (NSDictionary<NSString *, id> *)processUpdatedProperties:(NSMutableSet<NativeRenderApplierBlock> *)applierBlocks
                                           parentProperties:(NSDictionary<NSString *, id> *)parentProperties {
-    if ([[self nativeRenderSuperview] isKindOfClass:[NativeRenderObjectText class]]) {
+    if ([[self parentComponent] isKindOfClass:[NativeRenderObjectText class]]) {
         return parentProperties;
     }
 
@@ -146,7 +146,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     UIEdgeInsets padding = self.paddingAsInsets;
     CGFloat width = self.frame.size.width - (padding.left + padding.right);
 
-    NSNumber *parentTag = [[self nativeRenderSuperview] componentTag];
+    NSNumber *parentTag = [[self parentComponent] componentTag];
     // MTTlayout
     NSTextStorage *textStorage = [self buildTextStorageForWidth:width widthMode:hippy::Exactly];
     CGRect textFrame = [self calculateTextFrame:textStorage];
@@ -188,7 +188,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (child) {
                 float width = child.frame.size.width, height = child.frame.size.height;
                 if (isnan(width) || isnan(height)) {
-                    NativeRenderLogError(@"Views nested within a <Text> must have a width and height");
+                    HPLogError(@"Views nested within a <Text> must have a width and height");
                 }
 
                 /**
@@ -198,11 +198,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 //rect for attachment at its line fragment
                 CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
                 CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
-                CGFloat roundedHeight = NativeRenderRoundPixelValue(height);
-                CGFloat roundedWidth = NativeRenderRoundPixelValue(width);
+                CGFloat roundedHeight = HPRoundPixelValue(height);
+                CGFloat roundedWidth = HPRoundPixelValue(width);
                 CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
-                CGRect childFrameToSet = CGRectMake(NativeRenderRoundPixelValue(textFrame.origin.x + location.x),
-                                                    NativeRenderRoundPixelValue(textFrame.origin.y + positionY),
+                CGRect childFrameToSet = CGRectMake(HPRoundPixelValue(textFrame.origin.x + location.x),
+                                                    HPRoundPixelValue(textFrame.origin.y + positionY),
                                                     roundedWidth, roundedHeight);
                 CGRect childFrame = child.frame;
 #define ChildFrameParamNearlyEqual(x, y) (fabs((x) - (y)) < 0.00001f)
@@ -360,7 +360,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
 
     CGFloat heightOfTallestSubview = 0.0;
     NSMutableAttributedString *attributedString = [[NSMutableAttributedString alloc] initWithString:self.text ?: @""];
-    for (NativeRenderObjectView *child in [self nativeRenderSubviews]) {
+    for (NativeRenderObjectView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             NativeRenderObjectText *shadowText = (NativeRenderObjectText *)child;
             [attributedString appendAttributedString:[shadowText _attributedStringWithFontFamily:fontFamily fontSize:fontSize fontWeight:fontWeight
@@ -387,7 +387,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 }
             }
             if (isnan(width) || isnan(height)) {
-                NativeRenderLogError(@"Views nested within a <Text> must have a width and height");
+                HPLogError(@"Views nested within a <Text> must have a width and height");
             }
             static UIImage *placehoderImage = nil;
             static dispatch_once_t onceToken;
@@ -577,7 +577,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     // Vertically center draw position for new text sizing.
-    frame.origin.y = self.paddingAsInsets.top + NativeRenderRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f);
+    frame.origin.y = self.paddingAsInsets.top + HPRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f);
     return frame;
 }
 
@@ -769,7 +769,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 
 - (void)setAllowFontScaling:(BOOL)allowFontScaling {
     _allowFontScaling = allowFontScaling;
-    for (NativeRenderObjectView *child in [self nativeRenderSubviews]) {
+    for (NativeRenderObjectView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).allowFontScaling = allowFontScaling;
         }
@@ -780,10 +780,10 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 - (void)setFontSizeMultiplier:(CGFloat)fontSizeMultiplier {
     _fontSizeMultiplier = fontSizeMultiplier;
     if (_fontSizeMultiplier == 0) {
-        NativeRenderLogError(@"fontSizeMultiplier value must be > zero.");
+        HPLogError(@"fontSizeMultiplier value must be > zero.");
         _fontSizeMultiplier = 1.0;
     }
-    for (NativeRenderObjectView *child in [self nativeRenderSubviews]) {
+    for (NativeRenderObjectView *child in [self subcomponents]) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             ((NativeRenderObjectText *)child).fontSizeMultiplier = fontSizeMultiplier;
         }

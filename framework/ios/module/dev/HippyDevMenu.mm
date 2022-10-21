@@ -21,18 +21,16 @@
  */
 
 #import "HippyDevMenu.h"
-
-#import <objc/runtime.h>
-
-#import "HippyAssert.h"
-#import "HippyDefines.h"
 #import "HippyEventDispatcher.h"
 #import "HippyKeyCommands.h"
-#import "HippyRootView.h"
-#import "NativeRenderUtils.h"
 #import "HippyWebSocketProxy.h"
+#import "HPAsserts.h"
+#import "HPToolUtils.h"
+#import "MacroDefines.h"
 
-#if HIPPY_DEV
+#include <objc/runtime.h>
+
+#if HP_DEV
 
 static NSString *const HippyShowDevMenuNotification = @"HippyShowDevMenuNotification";
 static NSString *const HippyDevMenuSettingsKey = @"HippyDevMenu";
@@ -79,8 +77,6 @@ typedef NS_ENUM(NSInteger, HippyDevMenuType) { HippyDevMenuTypeButton, HippyDevM
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
-
 + (instancetype)buttonItemWithTitle:(NSString *)title handler:(void (^)(void))handler {
     return [[self alloc] initWithType:HippyDevMenuTypeButton key:nil title:title selectedTitle:nil handler:handler];
 }
@@ -111,7 +107,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 @end
 
-@interface HippyDevMenu () <HippyBridgeModule, NativeRenderInvalidating> {
+@interface HippyDevMenu () <HippyBridgeModule, HPInvalidating> {
     __weak UIAlertController *_actionSheet;
     NSUserDefaults *_defaults;
 }
@@ -128,7 +124,7 @@ HIPPY_EXPORT_MODULE()
     // We're swizzling here because it's poor form to override methods in a category,
     // however UIWindow doesn't actually implement motionEnded:withEvent:, so there's
     // no need to call the original implementation.
-    NativeRenderSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
+    HPSwapInstanceMethods([UIWindow class], @selector(motionEnded:withEvent:), @selector(hippy_motionEnded:withEvent:));
 }
 
 - (instancetype)init {
@@ -213,7 +209,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)addItem:(__unused HippyDevMenuItem *)item {
-    HippyAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
+    HPAssert(NO, @"[HippyDevMenu addItem:]方法没有实现，怎么没问题？");
 }
 
 - (NSArray<HippyDevMenuItem *> *)menuItems {
@@ -237,7 +233,7 @@ HIPPY_EXPORT_METHOD(reload) {
 
 // clang-format off
 HIPPY_EXPORT_METHOD(show) {
-    if (_actionSheet || !_bridge || NativeRenderRunningInAppExtension()) {
+    if (_actionSheet || !_bridge || HPRunningInAppExtension()) {
         return;
     }
     
@@ -271,7 +267,7 @@ HIPPY_EXPORT_METHOD(show) {
                                                    handler:^(__unused UIAlertAction *action) {
     }]];
     
-    [NativeRenderPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
+    [HPPresentedViewController() presentViewController:_actionSheet animated:YES completion:^(void){}];
 }
 // clang-format on
 
@@ -297,7 +293,7 @@ HIPPY_EXPORT_METHOD(show) {
 @implementation HippyBridge (HippyDevMenu)
 
 - (HippyDevMenu *)devMenu {
-#if HIPPY_DEV
+#if HP_DEV
     return [self moduleForClass:[HippyDevMenu class]];
 #else
     return nil;
