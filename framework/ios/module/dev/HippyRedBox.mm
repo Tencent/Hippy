@@ -20,24 +20,25 @@
  * limitations under the License.
  */
 
+#import "HippyBridge.h"
+#import "HippyErrorInfo.h"
 #import "HippyRedBox.h"
 
-#import "HippyBridge.h"
-#import "NativeRenderConvert.h"
-#import "HippyDefines.h"
-#import "HippyErrorInfo.h"
-#import "NativeRenderUtils.h"
-#import "HippyJSStackFrame.h"
-#import "HippyAssert.h"
-#import "HippyLog.h"
+#import "HPAsserts.h"
+#import "HPConvert.h"
+#import "HPDriverStackFrame.h"
+#import "HPLog.h"
+#import "HPToolUtils.h"
 
-#if HIPPY_DEBUG
+#import "MacroDefines.h"
+
+#if HP_DEBUG
 
 @class HippyRedBoxWindow;
 
 @protocol HippyRedBoxWindowActionDelegate <NSObject>
 
-- (void)redBoxWindow:(HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HippyJSStackFrame *)stackFrame;
+- (void)redBoxWindow:(HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HPDriverStackFrame *)stackFrame;
 - (void)reloadFromRedBoxWindow:(HippyRedBoxWindow *)redBoxWindow;
 
 @end
@@ -49,7 +50,7 @@
 @implementation HippyRedBoxWindow {
     UITableView *_stackTraceTableView;
     NSString *_lastErrorMessage;
-    NSArray<HippyJSStackFrame *> *_lastStackTrace;
+    NSArray<HPDriverStackFrame *> *_lastStackTrace;
     __weak UIWindow *_previousKeyWindow;
 }
 
@@ -129,15 +130,13 @@
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
-
 - (void)dealloc {
     _stackTraceTableView.dataSource = nil;
     _stackTraceTableView.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)showErrorMessage:(NSString *)message withStack:(NSArray<HippyJSStackFrame *> *)stack isUpdate:(BOOL)isUpdate {
+- (void)showErrorMessage:(NSString *)message withStack:(NSArray<HPDriverStackFrame *> *)stack isUpdate:(BOOL)isUpdate {
     // Show if this is a new message, or if we're updating the previous message
     if ((self.hidden && !isUpdate) || (!self.hidden && isUpdate && [_lastErrorMessage isEqualToString:message])) {
         _lastStackTrace = stack;
@@ -151,7 +150,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
             [_stackTraceTableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop
                                                 animated:NO];
         }
-        _previousKeyWindow = NativeRenderKeyWindow();
+        _previousKeyWindow = HPKeyWindow();
         [self makeKeyAndVisible];
         [self becomeFirstResponder];
     }
@@ -177,7 +176,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
         fullStackTrace = [NSMutableString string];
     }
 
-    for (HippyJSStackFrame *stackFrame in _lastStackTrace) {
+    for (HPDriverStackFrame *stackFrame in _lastStackTrace) {
         [fullStackTrace appendString:[NSString stringWithFormat:@"%@\n", stackFrame.methodName]];
         if (stackFrame.file) {
             [fullStackTrace appendFormat:@"    %@\n", [self formatFrameSource:stackFrame]];
@@ -187,7 +186,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     [pb setString:fullStackTrace];
 }
 
-- (NSString *)formatFrameSource:(HippyJSStackFrame *)stackFrame {
+- (NSString *)formatFrameSource:(HPDriverStackFrame *)stackFrame {
     NSString *lineInfo = [NSString stringWithFormat:@"%@:%zd", [stackFrame.file lastPathComponent], (long)stackFrame.lineNumber];
 
     if (stackFrame.column != 0) {
@@ -213,7 +212,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     }
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
     NSUInteger index = indexPath.row;
-    HippyJSStackFrame *stackFrame = _lastStackTrace[index];
+    HPDriverStackFrame *stackFrame = _lastStackTrace[index];
     return [self reuseCell:cell forStackFrame:stackFrame];
 }
 
@@ -235,7 +234,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
     return cell;
 }
 
-- (UITableViewCell *)reuseCell:(UITableViewCell *)cell forStackFrame:(HippyJSStackFrame *)stackFrame {
+- (UITableViewCell *)reuseCell:(UITableViewCell *)cell forStackFrame:(HPDriverStackFrame *)stackFrame {
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"cell"];
         cell.textLabel.textColor = [UIColor colorWithWhite:1 alpha:0.9];
@@ -277,7 +276,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.section == 1) {
         NSUInteger row = indexPath.row;
-        HippyJSStackFrame *stackFrame = _lastStackTrace[row];
+        HPDriverStackFrame *stackFrame = _lastStackTrace[row];
         [_actionDelegate redBoxWindow:self openStackFrameInEditor:stackFrame];
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -311,7 +310,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder *)aDecoder)
 
 @end
 
-@interface HippyRedBox () <NativeRenderInvalidating, HippyRedBoxWindowActionDelegate>
+@interface HippyRedBox () <HPInvalidating, HippyRedBoxWindowActionDelegate>
 @end
 
 @implementation HippyRedBox {
@@ -344,7 +343,7 @@ HIPPY_EXPORT_MODULE()
 
 // WARNING: Should only be called from the main thread/dispatch queue.
 - (HippyErrorInfo *)_customizeError:(HippyErrorInfo *)error {
-    HippyAssertMainQueue();
+    HPAssertMainQueue();
 
     if (!self->_errorCustomizers) {
         return error;
@@ -375,7 +374,7 @@ HIPPY_EXPORT_MODULE()
 }
 
 - (void)showErrorMessage:(NSString *)message withRawStack:(NSString *)rawStack {
-    NSArray<HippyJSStackFrame *> *stack = [HippyJSStackFrame stackFramesWithLines:rawStack];
+    NSArray<HPDriverStackFrame *> *stack = [HPDriverStackFrame stackFramesWithLines:rawStack];
     [self showErrorMessage:message withStack:stack isUpdate:NO];
 }
 
@@ -391,8 +390,8 @@ HIPPY_EXPORT_MODULE()
     if (!_showEnabled) {
         return;
     }
-    if (![[stack firstObject] isKindOfClass:[HippyJSStackFrame class]]) {
-        stack = [HippyJSStackFrame stackFramesWithDictionaries:stack];
+    if (![[stack firstObject] isKindOfClass:[HPDriverStackFrame class]]) {
+        stack = [HPDriverStackFrame stackFramesWithDictionaries:stack];
     }
 
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -418,13 +417,13 @@ HIPPY_EXPORT_METHOD(dismiss) {
     [self dismiss];
 }
 
-- (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HippyJSStackFrame *)stackFrame {
+- (void)redBoxWindow:(__unused HippyRedBoxWindow *)redBoxWindow openStackFrameInEditor:(HPDriverStackFrame *)stackFrame {
     if (![_bridge.bundleURL.scheme hasPrefix:@"http"]) {
-        HippyLogWarn(self.bridge, @"Cannot open stack frame in editor because you're not connected to the packager.");
+        HPLogWarn(self.bridge, @"Cannot open stack frame in editor because you're not connected to the packager.");
         return;
     }
 
-    NSData *stackFrameJSON = [NativeRenderJSONStringify([stackFrame toDictionary], NULL) dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *stackFrameJSON = [HPJSONStringify([stackFrame toDictionary], NULL) dataUsingEncoding:NSUTF8StringEncoding];
     NSString *postLength = [NSString stringWithFormat:@"%tu", stackFrameJSON.length];
     NSMutableURLRequest *request = [NSMutableURLRequest new];
     request.URL = [NSURL URLWithString:@"/open-stack-frame" relativeToURL:_bridge.bundleURL];

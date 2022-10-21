@@ -20,12 +20,13 @@
  * limitations under the License.
  */
 
-#import "HippyAssert.h"
+#import "HPAsserts.h"
 #import "HippyBridge.h"
 #import "HippyModuleData.h"
 #import "HippyModulesSetup.h"
 #import "HippyTurboModule.h"
-#import "HippyLog.h"
+#import "HPLog.h"
+#import "HPToolUtils.h"
 
 #include "objc/runtime.h"
 
@@ -38,14 +39,14 @@ NSArray<Class> *HippyGetModuleClasses(void) {
  * Register the given class as a bridge module. All modules must be registered
  * prior to the first bridge initialization.
  */
-HIPPY_EXTERN void HippyRegisterModule(Class);
+HP_EXTERN void HippyRegisterModule(Class);
 void HippyRegisterModule(Class moduleClass) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         HippyModuleClasses = [NSMutableArray new];
     });
 
-    HippyAssert([moduleClass conformsToProtocol:@protocol(HippyBridgeModule)], @"%@ does not conform to the HippyBridgeModule protocol", moduleClass);
+    HPAssert([moduleClass conformsToProtocol:@protocol(HippyBridgeModule)], @"%@ does not conform to the HippyBridgeModule protocol", moduleClass);
 
     // Register module
     [HippyModuleClasses addObject:moduleClass];
@@ -55,8 +56,8 @@ void HippyRegisterModule(Class moduleClass) {
  * This function returns the module name for a given class.
  */
 NSString *HippyBridgeModuleNameForClass(Class cls) {
-#if HIPPY_DEBUG
-    HippyAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)] || [cls conformsToProtocol:@protocol(HippyTurboModule)],
+#if HP_DEBUG
+    HPAssert([cls conformsToProtocol:@protocol(HippyBridgeModule)] || [cls conformsToProtocol:@protocol(HippyTurboModule)],
                 @"Bridge module `%@` does not conform to HippyBridgeModule or HippyTurboModule", cls);
 #endif
     NSString *name = nil;
@@ -79,7 +80,7 @@ NSString *HippyBridgeModuleNameForClass(Class cls) {
     return name;
 }
 
-#if HIPPY_DEBUG
+#if HP_DEBUG
 void HippyVerifyAllModulesExported(NSArray *extraModules) {
     // Check for unexported modules
     unsigned int classCount;
@@ -109,7 +110,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                 if (isModuleSuperClass) {
                     break;
                 }
-                HippyLogWarn(@"Class %@ was not exported. Did you forget to use HIPPY_EXPORT_MODULE()?", cls);
+                HPLogWarn(@"Class %@ was not exported. Did you forget to use HIPPY_EXPORT_MODULE()?", cls);
                 break;
             }
             superclass = class_getSuperclass(superclass);
@@ -155,14 +156,14 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 }
 
 - (void)setupModulesCompletion:(dispatch_block_t)completion {
-    HippyLogInfo(@"Begin Modules Setup");
+    HPLogInfo(@"Begin Modules Setup");
     NSArray<id<HippyBridgeModule>> *extraModules = _providerBlock ? _providerBlock() : @[];
-#if HIPPY_DEBUG
+#if HP_DEBUG
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         HippyVerifyAllModulesExported(extraModules);
     });
-#endif //HIPPY_DEBUG
+#endif //HP_DEBUG
     NSMutableArray<Class> *moduleClassesByID = [NSMutableArray new];
     NSMutableArray<HippyModuleData *> *moduleDataByID = [NSMutableArray new];
     NSMutableDictionary<NSString *, HippyModuleData *> *moduleDataByName = [NSMutableDictionary new];
@@ -170,11 +171,11 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     for (id<HippyBridgeModule> module in extraModules) {
         Class moduleClass = [module class];
         NSString *moduleName = HippyBridgeModuleNameForClass(moduleClass);
-        if (HIPPY_DEBUG) {
+        if (HP_DEBUG) {
             // Check for name collisions between preregistered modules
             HippyModuleData *moduleData = moduleDataByName[moduleName];
             if (moduleData) {
-                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                HPLogError(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
                 continue;
@@ -200,7 +201,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                 continue;
             } else if ([moduleData.moduleClass new] != nil) {
                 // Both modules were non-nil, so it's unclear which should take precedence
-                HippyLogError(@"Attempted to register HippyBridgeModule class %@ for the "
+                HPLogError(@"Attempted to register HippyBridgeModule class %@ for the "
                                "name '%@', but name was already registered by class %@",
                     moduleClass, moduleName, moduleData.moduleClass);
             }
@@ -218,7 +219,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     _moduleClassesByID = [moduleClassesByID copy];
     [self prepareModules];
     self.moduleSetupComplete = YES;
-    HippyLogInfo(@"End Modules Setup");
+    HPLogInfo(@"End Modules Setup");
     if (completion) {
         completion();
     }
@@ -240,7 +241,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
                 (void)[moduleData instance];
                 [moduleData gatherConstants];
             };
-            if (NativeRenderIsMainQueue()) {
+            if (HPIsMainQueue()) {
                 block();
             } else {
                 dispatch_async(dispatch_get_main_queue(), block);
@@ -265,13 +266,13 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
 }
 
 - (id)moduleForName:(NSString *)moduleName {
-    HippyAssert(moduleName, @"module name must not be null for [HippyModulesSetup moduleForName:]");
+    HPAssert(moduleName, @"module name must not be null for [HippyModulesSetup moduleForName:]");
     id module = _moduleDataByName[moduleName].instance;
     return module;
 }
 
 - (id)moduleForClass:(Class)cls {
-    HippyAssert(cls, @"class must not be null for [HippyModulesSetup moduleForClass:]");
+    HPAssert(cls, @"class must not be null for [HippyModulesSetup moduleForClass:]");
     return [self moduleForName:HippyBridgeModuleNameForClass(cls)];
 }
 

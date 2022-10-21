@@ -22,17 +22,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NativeRenderInvalidating.h"
+#import "HPInvalidating.h"
 
 @protocol HippyBridgeMethod;
 @protocol HippyBridgeModule;
 @class HippyBridge;
 
-@interface HippyModuleData : NSObject <NativeRenderInvalidating>
+@interface HippyModuleData : NSObject <HPInvalidating>
 
-- (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge;
 
-- (instancetype)initWithModuleInstance:(id<HippyBridgeModule>)instance bridge:(HippyBridge *)bridge NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithModuleInstance:(id<HippyBridgeModule>)instance bridge:(HippyBridge *)bridge;
 
 /**
  * Calls `constantsToExport` on the module and stores the result. Note that

@@ -27,7 +27,7 @@
 #include <memory>
 #include "dom/render_manager.h"
 #include "dom/root_node.h"
-#import "NativeRenderFrameworkProxy.h"
+#import "HPRenderFrameworkProxy.h"
 #import "NativeRenderContext.h"
 
 @class UIView, NativeRenderImpl;
@@ -137,9 +137,9 @@ public:
     
     void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
     
-    void SetFrameworkProxy(id<NativeRenderFrameworkProxy> proxy);
+    void SetFrameworkProxy(id<HPRenderFrameworkProxy> proxy);
     
-    id<NativeRenderFrameworkProxy> GetFrameworkProxy();
+    id<HPRenderFrameworkProxy> GetFrameworkProxy();
     
     void SetUICreationLazilyEnabled(bool enabled);
         

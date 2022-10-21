@@ -20,9 +20,9 @@
  *
  */
 
-#import "HippyAssert.h"
 #import "HippyModuleMethod.h"
-#import "NativeRenderUtils.h"
+#import "HPAsserts.h"
+#import "HPToolUtils.h"
 #import "NSObject+HippyTurbo.h"
 
 #include <objc/message.h>

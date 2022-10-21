@@ -20,18 +20,17 @@
  *
  */
 
-#import "HippyAssert.h"
-#import "HippyLog.h"
-#import "HippyModuleMethod.h"
-#import "NSObject+HippyTurbo.h"
 #import "HippyJSExecutor.h"
 #import "HippyOCTurboModule.h"
 #import "HippyTurboModuleManager.h"
-#import "NativeRenderUtils.h"
+#import "HPAsserts.h"
+#import "HPLog.h"
+#import "HPToolUtils.h"
 #import "NSObject+CtxValue.h"
 #import "NSObject+HippyTurbo.h"
 
-#include "objc/message.h"
+#include <objc/message.h>
+
 #include "footstone/string_view_utils.h"
 #include "driver/napi/js_native_turbo.h"
 
@@ -120,8 +119,8 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         }
     }
 
-    if (HIPPY_DEBUG && !method) {
-        HippyLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
+    if (HP_DEBUG && !method) {
+        HPLogError(@"Unknown methodID: %@ for module:%@", methodName, obj);
         return nil;
     }
 
@@ -130,14 +129,14 @@ HIPPY_EXPORT_TURBO_MODULE(HippyOCTurboModule)
         return value;
     } @catch (NSException *exception) {
         // Pass on JS exceptions
-        if ([exception.name hasPrefix:HippyFatalExceptionName]) {
+        if ([exception.name hasPrefix:HPFatalExceptionName]) {
             @throw exception;
         }
 
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on target %@ with params %@", exception,
                                       method.JSMethodName, NSStringFromClass([self class]) ,argumentArray];
-        NSError *error = NativeRenderErrorWithMessageAndModuleName(message, self.bridge.moduleName);
-        HippyFatal(error, self.bridge);
+        NSError *error = HPErrorWithMessageAndModuleName(message, self.bridge.moduleName);
+        HippyBridgeFatal(error, self.bridge);
         return nil;
     }
 }
@@ -265,7 +264,7 @@ static id convertJSIObjectToNSObject(const std::shared_ptr<napi::Ctx> &context,
     NSError *error;
     id objcObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
     if (error) {
-        HippyLogError(@"JSONObjectWithData error:%@", error);
+        HPLogError(@"JSONObjectWithData error:%@", error);
     }
     return objcObject;
 }

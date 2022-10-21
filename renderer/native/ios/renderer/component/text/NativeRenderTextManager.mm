@@ -21,14 +21,14 @@
  */
 
 #import "NativeRenderTextManager.h"
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
 #import "UIView+NativeRender.h"
 
 static void collectDirtyNonTextDescendants(NativeRenderObjectText *renderObject, NSMutableArray *nonTextDescendants) {
-    for (NativeRenderObjectView *child in renderObject.nativeRenderSubviews) {
+    for (NativeRenderObjectView *child in renderObject.subcomponents) {
         if ([child isKindOfClass:[NativeRenderObjectText class]]) {
             collectDirtyNonTextDescendants((NativeRenderObjectText *)child, nonTextDescendants);
         } else if ([child isTextDirty]) {
@@ -97,7 +97,7 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
         for (NSInteger i = 0; i < queue.count; i++) {
             NativeRenderObjectView *renderObject = queue[i];
             if (!renderObject) {
-                NativeRenderLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
+                HPLogWarn(@"renderObject is nil, please remain xcode state and call rainywan");
                 continue;
             }
             NSAssert([renderObject isTextDirty], @"Don't process any nodes that don't have dirty text");
@@ -107,7 +107,7 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
                 [(NativeRenderObjectText *)renderObject recomputeText];
                 collectDirtyNonTextDescendants((NativeRenderObjectText *)renderObject, queue);
             } else {
-                for (NativeRenderObjectView *child in [renderObject nativeRenderSubviews]) {
+                for (NativeRenderObjectView *child in [renderObject subcomponents]) {
                     if ([child isTextDirty]) {
                         [queue addObject:child];
                     }

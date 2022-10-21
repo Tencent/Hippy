@@ -20,19 +20,20 @@
  * limitations under the License.
  */
 
-#import "NativeRenderViewManager.h"
-#import "NativeRenderBorderStyle.h"
-#import "NativeRenderConvert.h"
-#import "NativeRenderObjectView.h"
-#import "NativeRenderUtils.h"
-#import "NativeRenderView.h"
-#import "UIView+NativeRender.h"
-#import "NativeRenderConvert+Transform.h"
-#import "NativeRenderGradientObject.h"
+#import "HPAsserts.h"
+#import "HPConvert.h"
+#import "HPConvert+NativeRender.h"
+#import "HPDefaultImageProvider.h"
+#import "HPToolUtils.h"
 #import "NativeRenderContext.h"
-#import "NativeRenderDefaultImageProvider.h"
-#import "objc/runtime.h"
+#import "NativeRenderGradientObject.h"
+#import "NativeRenderObjectView.h"
+#import "NativeRenderViewManager.h"
+#import "NativeRenderView.h"
 #import "UIView+DirectionalLayout.h"
+#import "UIView+NativeRender.h"
+
+#include <objc/runtime.h>
 
 @interface NativeRenderViewManager () {
     NSUInteger _sequence;
@@ -153,7 +154,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(backgroundPositionY, CGFloat)
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) {
     if (json) {
-        NSString *imagePath = [NativeRenderConvert NSString:json];
+        NSString *imagePath = [HPConvert NSString:json];
         [self loadImageSource:imagePath forView:view];
     }
     else {
@@ -169,10 +170,11 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
     if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
         standardizeAssetUrlString = [self.renderContext.frameworkProxy standardizeAssetUrlString:path forRenderContext:self.renderContext];
     }
-    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
+    NSURL *url = HPURLWithString(standardizeAssetUrlString, nil);
     __weak NativeRenderView *weakView = view;
+    HPAssert([self.renderContext.frameworkProxy respondsToSelector:@selector(URILoader)], @"frameworkproxy must respond to selector URILoader");
     self.renderContext.frameworkProxy.URILoader->loadContentsAsynchronously(url, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
-        NativeRenderDefaultImageProvider *imageProvider = [[NativeRenderDefaultImageProvider alloc] init];
+        HPDefaultImageProvider *imageProvider = [[HPDefaultImageProvider alloc] init];
         imageProvider.imageDataPath = standardizeAssetUrlString;
         [imageProvider setImageData:data];
         imageProvider.scale = [[UIScreen mainScreen] scale];
@@ -188,7 +190,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundImage, NSString, NativeRenderView) 
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, NativeRenderView) {
     if (json) {
-        NSDictionary *linearGradientObject = [NativeRenderConvert NSDictionary:json];
+        NSDictionary *linearGradientObject = [HPConvert NSDictionary:json];
         view.gradientObject = [[NativeRenderGradientObject alloc] initWithGradientObject:linearGradientObject];
         [view.layer setNeedsDisplay];
     }
@@ -201,7 +203,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(linearGradient, NSDictionary, NativeRenderVie
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, NativeRenderView) {
     NSString *bgSize = @"auto";
     if (json) {
-        bgSize = [NativeRenderConvert NSString:json];
+        bgSize = [HPConvert NSString:json];
     }
     view.backgroundSize = bgSize;
     [view.layer setNeedsDisplay];
@@ -209,7 +211,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(backgroundSize, NSString, NativeRenderView) {
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, NativeRenderView) {
     if (json) {
-        view.layer.shadowColor = [NativeRenderConvert UIColor:json].CGColor;
+        view.layer.shadowColor = [HPConvert UIColor:json].CGColor;
     } else {
         view.layer.shadowColor = defaultView.layer.shadowColor;
     }
@@ -218,7 +220,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowColor, UIColor, NativeRenderView) {
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, NativeRenderView) {
     CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
-        shadowOffset.width = [NativeRenderConvert CGFloat:json];
+        shadowOffset.width = [HPConvert CGFloat:json];
     }
     else {
         shadowOffset.width = defaultView.layer.shadowOffset.width;
@@ -229,7 +231,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetX, CGFloat, NativeRenderView) {
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, NativeRenderView) {
     CGSize shadowOffset = view.layer.shadowOffset;
     if (json) {
-        shadowOffset.height = [NativeRenderConvert CGFloat:json];
+        shadowOffset.height = [HPConvert CGFloat:json];
     }
     else {
         shadowOffset.height = defaultView.layer.shadowOffset.height;
@@ -239,7 +241,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffsetY, CGFloat, NativeRenderView) {
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, NativeRenderView) {
     if (json) {
-        NSDictionary *offset = [NativeRenderConvert NSDictionary:json];
+        NSDictionary *offset = [HPConvert NSDictionary:json];
         NSNumber *width = offset[@"width"];
         if (nil == width) {
             width = offset[@"x"];
@@ -257,23 +259,23 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shadowOffset, NSDictionary, NativeRenderView)
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(overflow, OverflowType, NativeRenderView) {
     if (json) {
-        view.clipsToBounds = [NativeRenderConvert OverflowType:json] != OverflowVisible;
+        view.clipsToBounds = [HPConvert OverflowType:json] != OverflowVisible;
     } else {
         view.clipsToBounds = defaultView.clipsToBounds;
     }
 }
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(shouldRasterizeIOS, BOOL, NativeRenderView) {
-    view.layer.shouldRasterize = json ? [NativeRenderConvert BOOL:json] : defaultView.layer.shouldRasterize;
+    view.layer.shouldRasterize = json ? [HPConvert BOOL:json] : defaultView.layer.shouldRasterize;
     view.layer.rasterizationScale = view.layer.shouldRasterize ? [UIScreen mainScreen].scale : defaultView.layer.rasterizationScale;
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(transform, CATransform3D, NativeRenderView) {
-    view.layer.transform = json ? [NativeRenderConvert CATransform3D:json] : defaultView.layer.transform;
+    view.layer.transform = json ? [HPConvert CATransform3D:json] : defaultView.layer.transform;
     view.layer.allowsEdgeAntialiasing = !CATransform3DIsIdentity(view.layer.transform);
 }
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, NativeRenderView) {
     if ([view respondsToSelector:@selector(setPointerEvents:)]) {
-        view.pointerEvents = json ? [NativeRenderConvert NativeRenderPointerEvents:json] : defaultView.pointerEvents;
+        view.pointerEvents = json ? [HPConvert NativeRenderPointerEvents:json] : defaultView.pointerEvents;
         return;
     }
 
@@ -282,7 +284,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, Nat
         return;
     }
 
-    switch ([NativeRenderConvert NativeRenderPointerEvents:json]) {
+    switch ([HPConvert NativeRenderPointerEvents:json]) {
         case NativeRenderPointerEventsUnspecified:
             // Pointer events "unspecified" acts as if a stylesheet had not specified,
             // which is different than "auto" in CSS (which cannot and will not be
@@ -295,48 +297,48 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(pointerEvents, NativeRenderPointerEvents, Nat
             view.userInteractionEnabled = NO;
             break;
         default:
-            NativeRenderLogError(@"UIView base class does not support pointerEvent value: %@", json);
+            HPLogError(@"UIView base class does not support pointerEvent value: %@", json);
             break;
     }
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderRadius, CGFloat, NativeRenderView) {
     if ([view respondsToSelector:@selector(setBorderRadius:)]) {
-        view.borderRadius = json ? [NativeRenderConvert CGFloat:json] : defaultView.borderRadius;
+        view.borderRadius = json ? [HPConvert CGFloat:json] : defaultView.borderRadius;
     } else {
-        view.layer.cornerRadius = json ? [NativeRenderConvert CGFloat:json] : defaultView.layer.cornerRadius;
+        view.layer.cornerRadius = json ? [HPConvert CGFloat:json] : defaultView.layer.cornerRadius;
     }
 }
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderColor, CGColor, NativeRenderView) {
     if ([view respondsToSelector:@selector(setBorderColor:)]) {
-        view.borderColor = json ? [NativeRenderConvert CGColor:json] : defaultView.borderColor;
+        view.borderColor = json ? [HPConvert CGColor:json] : defaultView.borderColor;
     } else {
-        view.layer.borderColor = json ? [NativeRenderConvert CGColor:json] : defaultView.layer.borderColor;
+        view.layer.borderColor = json ? [HPConvert CGColor:json] : defaultView.layer.borderColor;
     }
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderWidth, CGFloat, NativeRenderView) {
     if ([view respondsToSelector:@selector(setBorderWidth:)]) {
-        view.borderWidth = json ? [NativeRenderConvert CGFloat:json] : defaultView.borderWidth;
+        view.borderWidth = json ? [HPConvert CGFloat:json] : defaultView.borderWidth;
     } else {
-        view.layer.borderWidth = json ? [NativeRenderConvert CGFloat:json] : defaultView.layer.borderWidth;
+        view.layer.borderWidth = json ? [HPConvert CGFloat:json] : defaultView.layer.borderWidth;
     }
 }
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(borderStyle, NativeRenderBorderStyle, NativeRenderView) {
     if ([view respondsToSelector:@selector(setBorderStyle:)]) {
-        view.borderStyle = json ? [NativeRenderConvert NativeRenderBorderStyle:json] : defaultView.borderStyle;
+        view.borderStyle = json ? [HPConvert NativeRenderBorderStyle:json] : defaultView.borderStyle;
     }
 }
 
 #define NATIVE_RENDER_VIEW_BORDER_PROPERTY(SIDE)                                                                    \
     NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Width, CGFloat, NativeRenderView) {                            \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Width:)]) {                                         \
-            view.border##SIDE##Width = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Width; \
+            view.border##SIDE##Width = json ? [HPConvert CGFloat:json] : defaultView.border##SIDE##Width; \
         }                                                                                                           \
     }                                                                                                               \
     NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Color, UIColor, NativeRenderView) {                            \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Color:)]) {                                         \
-            view.border##SIDE##Color = json ? [NativeRenderConvert CGColor:json] : defaultView.border##SIDE##Color; \
+            view.border##SIDE##Color = json ? [HPConvert CGColor:json] : defaultView.border##SIDE##Color; \
         }                                                                                                           \
     }
 
@@ -348,7 +350,7 @@ NATIVE_RENDER_VIEW_BORDER_PROPERTY(Left)
 #define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
     NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderView) {                               \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
-            view.border##SIDE##Radius = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
+            view.border##SIDE##Radius = json ? [HPConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
         }                                                                                                               \
     }
 

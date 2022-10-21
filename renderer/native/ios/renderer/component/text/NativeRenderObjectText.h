@@ -20,9 +20,10 @@
  * limitations under the License.
  */
 
+#import "HPConvert+NativeRender.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderTextDecorationLineType.h"
-#import "dom/layout_node.h"
+
+#include "dom/layout_node.h"
 
 typedef NS_ENUM(NSInteger, NativeRenderSizeComparison) {
     NativeRenderSizeTooLarge,
@@ -34,7 +35,7 @@ extern NSString *const NativeRenderIsHighlightedAttributeName;
 extern NSString *const NativeRenderComponentTagAttributeName;
 extern NSString *const NativeRenderRenderObjectAttributeName;
 
-NATIVE_RENDER_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
+HP_EXTERN hippy::LayoutSize textMeasureFunc(float width, hippy::LayoutMeasureMode widthMeasureMode, __unused float height, __unused hippy::LayoutMeasureMode heightMeasureMode, void *layoutContext);
 
 @interface NativeRenderObjectText : NativeRenderObjectView {
 @protected

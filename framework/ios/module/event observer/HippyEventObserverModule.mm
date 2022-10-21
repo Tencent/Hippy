@@ -21,8 +21,8 @@
 */
 
 #import "HippyEventObserverModule.h"
-#import "HippyAssert.h"
 #import "HippyEventDispatcher.h"
+#import "HPAsserts.h"
 
 @implementation HippyEventObserverModule {
     NSMutableDictionary *_config;
@@ -47,7 +47,7 @@ HIPPY_EXPORT_MODULE(EventObserver)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(addListener:(NSString *)eventName) {
-    HippyAssertParam(eventName);
+    HPAssertParam(eventName);
     NSNumber *value = _config[eventName];
     if (value == nil) {
         value = @(1);
@@ -91,7 +91,7 @@ HIPPY_EXPORT_METHOD(removeListener:(NSString *)eventName) {
 
 - (void)sendEvent:(NSString *)eventName params:(NSDictionary *)params
 {
-	HippyAssertParam(eventName);
+	HPAssertParam(eventName);
 	[self.bridge.eventDispatcher dispatchEvent:@"EventDispatcher" methodName:@"receiveNativeEvent" args:@{@"eventName": eventName, @"extra": params ? : @{}}];
 }
 @end

@@ -21,7 +21,7 @@
  */
 
 #include <string>
-#import "NativeRenderDefines.h"
+#import "MacroDefines.h"
 
 typedef NS_ENUM(NSInteger, NativeRenderViewEventType) {
     //touche event
@@ -46,4 +46,4 @@ typedef NS_ENUM(NSInteger, NativeRenderViewEventType) {
     NativeRenderViewEventTypeUnknown = -1,
 };
 
-NATIVE_RENDER_EXTERN NativeRenderViewEventType viewEventTypeFromName(const std::string &name);
+HP_EXTERN NativeRenderViewEventType viewEventTypeFromName(const std::string &name);

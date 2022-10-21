@@ -135,7 +135,7 @@ MeasureResult* HPLayoutCache::useMeasureCacheIfPossible(HPSize availableSize,
 
     if (widthCanUse && heightCanUse) {
 #ifdef __DEBUG__
-      HPLogd("cache: action:%d\n", cacheMeasure.layoutAction);
+      HPLayoutLogd("cache: action:%d\n", cacheMeasure.layoutAction);
 #endif
       return &cacheMeasure;
     }
@@ -155,7 +155,7 @@ MeasureResult* HPLayoutCache::useLayoutCacheIfPossible(HPSize availableSize,
       cachedLayout.widthMeasureMode == measureMode.widthMeasureMode &&
       cachedLayout.heightMeasureMode == measureMode.heightMeasureMode) {
 #ifdef __DEBUG__
-    HPLogd("cache: action:%d\n", LayoutActionLayout);
+    HPLayoutLogd("cache: action:%d\n", LayoutActionLayout);
 #endif
     return &cachedLayout;
   }

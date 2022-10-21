@@ -20,16 +20,12 @@
  * limitations under the License.
  */
 
-#import "NativeRenderComponentProtocol.h"
-
 @class HippyBridge;
 @protocol HippyBridgeModule;
 
 @protocol HippyBridgeDelegate <NSObject>
 
 @optional
-
-- (void)componentWillBePurged:(id<NativeRenderComponentProtocol>)component;
 
 - (void)bridge:(HippyBridge *)bridge willLoadBundle:(NSURL *)bundle;
 

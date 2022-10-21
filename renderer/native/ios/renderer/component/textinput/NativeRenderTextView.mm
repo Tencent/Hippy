@@ -22,10 +22,10 @@
 
 #import "NativeRenderTextView.h"
 
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 #import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 #import "NativeRenderTextSelection.h"
 #import "UIView+NativeRender.h"
 
@@ -127,7 +127,7 @@
     [super insertNativeRenderSubview:subview atIndex:index];
     if ([subview isKindOfClass:[NativeRenderText class]]) {
         if (_richTextView) {
-            NativeRenderLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
+            HPLogError(@"Tried to insert a second <Text> into <TextInput> - there can only be one.");
         }
         _richTextView = (NativeRenderText *)subview;
 

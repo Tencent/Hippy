@@ -21,7 +21,7 @@
  */
 
 #import "NSObject+JSValue.h"
-#import "HippyLog.h"
+#import "HPLog.h"
 
 @implementation NSObject (JSValue)
 
@@ -34,7 +34,7 @@
             [self isKindOfClass:NSClassFromString(@"NSNull")]) {
         }
         else {
-            HippyLogError(@"unsupport type to JSValue:%@", NSStringFromClass([self class]));
+            HPLogError(@"unsupport type to JSValue:%@", NSStringFromClass([self class]));
         }
 #endif //DEBUG
         return [JSValue valueWithObject:self inContext:context];
@@ -86,15 +86,14 @@ static void JSCCtx_dataBufferFree(void* bytes, void* deallocatorContext) {
         size_t length = [self length];
         void *data = malloc(length);
         if (!data) {
-            HippyLogError(@"out of memory, NSData to JSValue memory allocation failure");
+            HPLogError(@"out of memory, NSData to JSValue memory allocation failure");
             return [JSValue valueWithObject:self inContext:context];
         }
         [self getBytes:data length:length];
         JSValueRef exception = NULL;
         JSValueRef value_ref = JSObjectMakeArrayBufferWithBytesNoCopy(context.JSGlobalContextRef, data, length, JSCCtx_dataBufferFree, NULL, &exception);
         if (exception) {
-            JSValue *error = [JSValue valueWithJSValueRef:value_ref inContext:context];
-            HippyLogError(@"create array buffer failed, reason:%@", error);
+            HPLogError(@"create array buffer failed, reason:%@", error);
             return [JSValue valueWithUndefinedInContext:context];
         }
         return [JSValue valueWithJSValueRef:value_ref inContext:context];

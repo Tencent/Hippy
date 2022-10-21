@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderObjectTextView.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 #import "dom/layout_node.h"
 
 @interface NativeRenderObjectTextView ()

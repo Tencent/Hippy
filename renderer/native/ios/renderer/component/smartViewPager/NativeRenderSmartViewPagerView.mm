@@ -315,8 +315,8 @@ static NSString *const kListViewItem = @"ListViewItem";
 }
 
 - (void)refreshItemNodes {
-    [self.dataSource setDataSource:self.nativeRenderObjectView.nativeRenderSubviews containBannerView:NO];
-    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.nativeRenderObjectView.nativeRenderSubviews.count];
+    [self.dataSource setDataSource:self.nativeRenderObjectView.subcomponents containBannerView:NO];
+    _itemIndexArray = [self refreshItemIndexArrayWithOldArrayLength:self.nativeRenderObjectView.subcomponents.count];
     [self setPreviousMargin:_previousMargin nextMargin:_nextMargin pageGap:_pageGap];
 }
 

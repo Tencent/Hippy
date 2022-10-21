@@ -20,14 +20,15 @@
  * limitations under the License.
  */
 
+#import "HPAsserts.h"
+#import "HPDefaultImageProvider.h"
+#import "HPToolUtils.h"
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
-#import "NativeRenderDefaultImageProvider.h"
-#import "NativeRenderUtils.h"
 #import "TypeConverter.h"
 
 @interface NativeRenderImageViewManager () {
-    Class<NativeRenderImageProviderProtocol> _imageProviderClass;
+    Class<HPImageProviderProtocol> _imageProviderClass;
     NSUInteger _sequence;
 }
 
@@ -47,12 +48,12 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onLoadEnd, NativeRenderDirectEventBlock)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(downSample, BOOL)
 NATIVE_RENDER_EXPORT_VIEW_PROPERTY(shape, NativeRenderShapeMode)
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(src, NSString, NativeRenderImageView) {
-    NSString *path = [NativeRenderConvert NSString:json];
+    NSString *path = [HPConvert NSString:json];
     [self loadImageSource:path forView:view];
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
-    NSArray *pathSources = [NativeRenderConvert NSArray:json];
+    NSArray *pathSources = [HPConvert NSArray:json];
     if ([pathSources isKindOfClass:[NSArray class]]) {
         NSDictionary *dicSource = [pathSources firstObject];
         NSString *path = dicSource[@"uri"];
@@ -68,14 +69,15 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
     if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
         standardizeAssetUrlString = [self.renderContext.frameworkProxy standardizeAssetUrlString:path forRenderContext:self.renderContext];
     }
-    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
+    NSURL *url = HPURLWithString(standardizeAssetUrlString, nil);
     __weak NativeRenderImageView *weakView = view;
+    HPAssert([self.renderContext.frameworkProxy respondsToSelector:@selector(URILoader)], @"frameworkproxy must respond to selector URILoader");
     self.renderContext.frameworkProxy.URILoader->loadContentsAsynchronously(url, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             NativeRenderImageView *strongView = weakView;
             if (strongView) {
                 Class cls = [self imageProviderClass];
-                id<NativeRenderImageProviderProtocol> imageProvider = [[cls alloc] init];
+                id<HPImageProviderProtocol> imageProvider = [[cls alloc] init];
                 imageProvider.scale = [[UIScreen mainScreen] scale];
                 imageProvider.imageDataPath = standardizeAssetUrlString;
                 [imageProvider setImageData:data];
@@ -87,19 +89,19 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
-    view.tintColor = [NativeRenderConvert UIColor:json] ?: defaultView.tintColor;
+    view.tintColor = [HPConvert UIColor:json] ?: defaultView.tintColor;
     view.renderingMode = json ? UIImageRenderingModeAlwaysTemplate : defaultView.renderingMode;
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageView) {
-    NSString *source = [NativeRenderConvert NSString:json];
+    NSString *source = [HPConvert NSString:json];
     [self loadImageSource:source forView:view];
 }
 
 #define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
     NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(border##SIDE##Radius, CGFloat, NativeRenderImageView) {                          \
         if ([view respondsToSelector:@selector(setBorder##SIDE##Radius:)]) {                                            \
-            view.border##SIDE##Radius = json ? [NativeRenderConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
+            view.border##SIDE##Radius = json ? [HPConvert CGFloat:json] : defaultView.border##SIDE##Radius;   \
         }                                                                                                               \
     }
 
@@ -112,19 +114,19 @@ NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
     return [[NativeRenderImageView alloc] init];
 }
 
-- (Class<NativeRenderImageProviderProtocol>)imageProviderClass {
+- (Class<HPImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {
         if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
             _imageProviderClass = [self.renderContext.frameworkProxy imageProviderClassForRenderContext:self.renderContext];
         }
         else {
-            _imageProviderClass = [NativeRenderDefaultImageProvider class];
+            _imageProviderClass = [HPDefaultImageProvider class];
         }
     }
     return _imageProviderClass;
 }
 
-- (id<NativeRenderImageProviderProtocol>)getNewImageProviderInstance {
+- (id<HPImageProviderProtocol>)getNewImageProviderInstance {
     Class cls = [self imageProviderClass];
     return [[cls alloc] init];
 }

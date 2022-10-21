@@ -20,11 +20,9 @@
  * limitations under the License.
  */
 
-#import <SystemConfiguration/SystemConfiguration.h>
-
 #import "HippyEventObserverModule.h"
-#import "NativeRenderInvalidating.h"
+#import "HPInvalidating.h"
 
-@interface HippyNetInfo : HippyEventObserverModule <NativeRenderInvalidating>
+@interface HippyNetInfo : HippyEventObserverModule <HPInvalidating>
 
 @end
