@@ -18,17 +18,15 @@
  * limitations under the License.
  */
 
-/* eslint-disable no-undef */
-/* eslint-disable no-underscore-dangle */
+import { Native } from '../runtime/native';
 
-const MemoryModule = internalBinding('MemoryModule');
-
-global.performance = global.performance || {};
-!Object.prototype.hasOwnProperty.call(global.performance, 'memory')
-&& Object.defineProperties(global.performance, {
-  memory: {
-    get() {
-      return MemoryModule ? MemoryModule.Get() : undefined;
-    },
-  },
-});
+/**
+ * Determine if it is a right-to-left device
+ */
+export function isRTL(): boolean {
+  const { Localization: localization } = Native;
+  if (localization) {
+    return localization.direction === 1;
+  }
+  return false;
+}

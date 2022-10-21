@@ -101,14 +101,13 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    ```json
    {
      "scripts": {
-        "hippy:debug": "hippy-debug",
         // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
 
-   !> Node 17+ 在 Windows 和 Linux 上不再支持 `md4` hash，此处为了兼容 Webpack 的 hash 算法，通过 `cross-env-os` 设置环境变量解决
+   !> Node 17+ 不再支持 `md4` hash，此处为了兼容 Webpack 的 hash 算法，暂时通过 `env-polyfill.js` 脚本判断环境来解决，若出现错误将 `node ./scripts/env-polyfill.js` 移除即可
 
 4. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
 
@@ -260,9 +259,8 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
    ```json
    {
      "scripts": {
-        "hippy:debug": "hippy-debug",
          // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
@@ -355,9 +353,8 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
    ```json
    {
       "scripts": {
-        "hippy:debug": "hippy-debug",
         // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
       }
    }
    ```
@@ -615,6 +612,6 @@ webpack(webpackConfig, (err, stats) => {
 
 无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法。当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
 
-如果需要关闭日志，可以在 hippy-react 的 `new Hippy` 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+如果需要关闭日志，可以在 hippy-react 的 `new Hippy` 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`，或者在 hippy-vue-next 项目的 `createApp` 初始化参数中增加 `silent: true`。
 
 <img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>

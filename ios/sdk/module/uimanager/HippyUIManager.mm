@@ -115,22 +115,28 @@ HIPPY_EXPORT_MODULE()
 
 - (void)didReceiveMemoryWarning {
     for (UIView *view in [self->_viewRegistry allValues]) {
-        if ([view conformsToProtocol:@protocol(HippyMemoryOpt)]) {
-            [(id<HippyMemoryOpt>)view didReceiveMemoryWarning];
+//        if ([view conformsToProtocol:@protocol(HippyMemoryOpt)]) {
+//            [(id<HippyMemoryOpt>)view didReceiveMemoryWarning];
+//        }
+        //https://github.com/apple-oss-distributions/objc4/blob/8701d5672d3fd3cd817aeb84db1077aafe1a1604/runtime/objc-runtime-new.mm#L7108
+        //[NSObject conformsToProtocol:] uses a global mutex_t runtimeLock to lock, which may case lag in main thread
+        if ([view respondsToSelector:@selector(didReceiveMemoryWarning)]) {
+            [view performSelector:@selector(didReceiveMemoryWarning)];
         }
     }
 }
+
 - (void)appDidEnterBackground {
     for (UIView *view in [self->_viewRegistry allValues]) {
-        if ([view conformsToProtocol:@protocol(HippyMemoryOpt)]) {
-            [(id<HippyMemoryOpt>)view appDidEnterBackground];
+        if ([view respondsToSelector:@selector(appDidEnterBackground)]) {
+            [view performSelector:@selector(appDidEnterBackground)];
         }
     }
 }
 - (void)appWillEnterForeground {
     for (UIView *view in [self->_viewRegistry allValues]) {
-        if ([view conformsToProtocol:@protocol(HippyMemoryOpt)]) {
-            [(id<HippyMemoryOpt>)view appWillEnterForeground];
+        if ([view respondsToSelector:@selector(appWillEnterForeground)]) {
+            [view performSelector:@selector(appWillEnterForeground)];
         }
     }
 }
@@ -1146,9 +1152,7 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
         }
     }];
 
-#ifdef QBNativeListENABLE
     [self flushVirtualNodeBlocks];
-#endif
 
     [self flushUIBlocks];
 

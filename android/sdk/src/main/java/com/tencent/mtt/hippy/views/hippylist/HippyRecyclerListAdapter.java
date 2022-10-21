@@ -56,13 +56,11 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     protected int positionToCreateHolder;
     protected PullFooterRefreshHelper footerRefreshHelper;
     protected PullHeaderRefreshHelper headerRefreshHelper;
-    protected PreloadHelper preloadHelper;
 
     public HippyRecyclerListAdapter(HRCV hippyRecyclerView, HippyEngineContext hpContext) {
         this.hpContext = hpContext;
         this.hippyRecyclerView = hippyRecyclerView;
         hippyItemTypeHelper = new HippyItemTypeHelper(hippyRecyclerView);
-        preloadHelper = new PreloadHelper(hippyRecyclerView);
     }
 
     /**
@@ -469,14 +467,6 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             return getChildNodeByAdapterPosition(0).isPullHeader();
         }
         return false;
-    }
-
-    public PreloadHelper getPreloadHelper() {
-        return preloadHelper;
-    }
-
-    public void setPreloadItemNumber(int preloadItemNumber) {
-        preloadHelper.setPreloadItemNumber(preloadItemNumber);
     }
 
     @Override

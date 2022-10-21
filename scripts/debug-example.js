@@ -53,6 +53,14 @@ if (!test('-d', DEMO_PATH)) {
 pushd(DEMO_PATH);
 
 const execOptions = { stdio: 'inherit' };
+function runScript(scriptStr) {
+  const result = exec(scriptStr, execOptions);
+  if (result.code !== 0) {
+    console.error(`❌ debug example - ${example} error: ${result.stderr}`);
+    process.exit(1);
+  }
+}
+
 if (!fs.existsSync(path.resolve(DEMO_PATH, 'node_modules'))) {
   console.error(`❌ ${example} dependencies have not been installed, please execute 'npm run init:example ${example}' first.`);
   process.exit(1);
@@ -60,4 +68,4 @@ if (!fs.existsSync(path.resolve(DEMO_PATH, 'node_modules'))) {
 }
 
 console.log(`Start to start ${example} with cmd 'npm run hippy:${cmd}'.`);
-exec(`npm run hippy:${cmd}`, execOptions); // start to build dev js
+runScript(`npm run hippy:${cmd}`); // start to build dev js

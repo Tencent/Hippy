@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Text,
   Dimensions,
-  Platform,
   RefreshWrapper,
 } from '@hippy/react';
 
@@ -158,7 +157,7 @@ export default class ListExample extends React.Component {
 
   // render banner(it is not supported on Android yet)
   renderBanner() {
-    if (Platform.OS === 'android' || this.state.dataSource.length === 0) return null;
+    if (this.state.dataSource.length === 0) return null;
     return (<View style={{
       backgroundColor: 'grey',
       height: 100,

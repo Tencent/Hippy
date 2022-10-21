@@ -29,7 +29,7 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/compiler_toolchain.cmake")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN on)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS off)
 
 # region library
@@ -79,7 +79,11 @@ set(SOURCE_SET
     src/jni/turbo_module_manager.cc
     src/jni/uri.cc
     src/loader/adr_loader.cc
-    src/performance/memory.cc)
+    src/performance/memory.cc
+    src/v8/heap_limit.cc
+    src/v8/request_interrupt.cc
+    src/v8/interrupt_queue.cc
+    src/v8/stack_trace.cc)
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE.
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})

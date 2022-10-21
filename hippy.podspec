@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   puts 'hippy.podspec read begins'
   s.name             = 'hippy'
-  s.version          = 'unspecified'
+  s.version          = '2.0.0'
   s.summary          = 'Hippy Cross Platform Framework'
 
 # This description is used to generate tags and improve search results.
@@ -29,13 +29,15 @@ Pod::Spec.new do |s|
   s.source_files = 'ios/sdk/**/*.{h,m,c,mm,s,cpp,cc}'
   s.public_header_files = 'ios/sdk/**/*.h'
   s.default_subspec = 'core'
+  s.framework = 'JavaScriptCore'
+  s.libraries = 'c++'
+
 
   s.subspec 'core' do |cores|
     puts 'hippy subspec \'core\' read begins'
     cores.source_files = 'core/**/*.{h,cc}'
     cores.public_header_files = 'core/include/**/*.h'
     cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr', 'core/include/core/inspector', 'core/src/inspector']
-    cores.libraries = 'c++'
     #this setting causes 'There are header files outside of the header_mappings_dir'
     # cores.header_mappings_dir = 'core/include/'
     cores.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/'}

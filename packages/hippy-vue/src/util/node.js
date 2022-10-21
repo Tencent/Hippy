@@ -18,6 +18,10 @@
  * limitations under the License.
  */
 
+/* eslint-disable no-param-reassign */
+
+import { isScopedEnabled } from './index';
+
 const nodeCache = new Map();
 
 /**
@@ -103,6 +107,28 @@ function cancelIdleCallback(id) {
   }
 }
 
+/**
+ * isStyleMatched - judge whether selector matching
+ * @param matchedSelector
+ * @param targetNode
+ * @returns {boolean|*}
+ */
+function isStyleMatched(matchedSelector, targetNode) {
+  if (!isScopedEnabled()) return true;
+  if (!targetNode || !matchedSelector) return false;
+  const nodeScopeId = targetNode.styleScopeId;
+  // set scopeId as element node attribute for style matching
+  if (nodeScopeId) {
+    targetNode.attributes[nodeScopeId] = true;
+  }
+  const isMatched = matchedSelector.match(targetNode);
+  // delete scopeId attr after selector matching check
+  if (nodeScopeId) {
+    delete targetNode.attributes[nodeScopeId];
+  }
+  return isMatched;
+}
+
 export {
   recursivelyUnCacheNode,
   requestIdleCallback,
@@ -111,4 +137,5 @@ export {
   unCacheNode,
   getNodeById,
   unCacheNodeOnIdle,
+  isStyleMatched,
 };
