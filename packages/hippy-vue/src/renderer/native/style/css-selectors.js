@@ -447,36 +447,24 @@ class Selector extends SelectorCore {
     let siblingGroup = [];
     let lastGroup = [];
     const groups = [];
-    const handledSelectors = [...selectors];
-    const length = handledSelectors.length - 1;
-    this.specificity = 0;
-    this.dynamic = false;
-
-    for (let i = length; i >= 0; i--) {
-      const sel = handledSelectors[i];
+    const reverseSelectors = [...selectors].reverse();
+    reverseSelectors.forEach((sel) => {
       if (supportedCombinator.indexOf(sel.combinator) === -1) {
         console.error(`Unsupported combinator "${sel.combinator}".`);
         throw new Error(`Unsupported combinator "${sel.combinator}".`);
       }
-
       if (sel.combinator === undefined || sel.combinator === ' ') {
         groups.push(lastGroup = [(siblingGroup = [])]);
       }
       if (sel.combinator === '>') {
-        lastGroup.push((siblingGroup = []));
+        lastGroup.push(siblingGroup = []);
       }
-
-      this.specificity += sel.specificity;
-
-      if (sel.dynamic) {
-        this.dynamic = true;
-      }
-
       siblingGroup.push(sel);
-    }
-
-    this.groups = groups.map(g => new ChildGroup(g.map(sg => new SiblingGroup(sg))));
-    this.last = handledSelectors[length];
+    });
+    this.groups = groups.map(g => new Selector.ChildGroup(g.map(sg => new Selector.SiblingGroup(sg))));
+    this.last = reverseSelectors[0];
+    this.specificity = reverseSelectors.reduce((sum, sel) => sel.specificity + sum, 0);
+    this.dynamic = reverseSelectors.some(sel => sel.dynamic);
   }
 
   toString() {
