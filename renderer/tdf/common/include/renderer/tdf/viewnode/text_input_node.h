@@ -74,6 +74,7 @@ constexpr const char kLetterSpacing[] = "letterSpacing";                  // flo
 constexpr const char kMaxLength[] = "maxLength";                          // int
 constexpr const char kMultiline[] = "multiline";                          // boolean
 constexpr const char kNumberOfLines[] = "numberOfLines";                  // int
+// TODO: Fix event name
 constexpr const char kOnBlur[] = "onBlur";                                // boolean
 constexpr const char kOnChangeText[] = "changetext";                      // boolean
 constexpr const char kOnContentSizeChange[] = "onContentSizeChange";      // boolean
@@ -196,6 +197,8 @@ class TextInputNode : public ViewNode {
   void UpdateFontStyle(TextStyle& text_style);
 
   void SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event);
+
+  void HandleEventInfoUpdate() override;
 
   std::weak_ptr<TextInputView> text_input_view_;
   std::shared_ptr<tdfcore::TextEditingController> edit_controller_;
