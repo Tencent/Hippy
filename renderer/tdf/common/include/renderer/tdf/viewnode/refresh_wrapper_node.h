@@ -30,7 +30,8 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
-#include "tdfview/refresh_header.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#include "tdfui/view/refresh_header.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/list_view_node.h"
@@ -44,6 +45,7 @@ constexpr const char kRefreshWrapper[] = "RefreshWrapper";
 constexpr const char kBounceTime[] = "bounceTime";                    // int
 constexpr const char kOnScrollEnable[] = "onScrollEnable";            // boolean
 constexpr const char kScrollEventThrottle[] = "scrollEventThrottle";  // int
+constexpr const char kStartRefresh[] = "startRefresh";
 constexpr const char kRefreshComplected[] = "refreshComplected";
 }  // namespace refreshwrapper
 
@@ -88,7 +90,8 @@ class RefreshWrapperNode : public ViewNode {
   void HandleOffsetListener(int32_t position, double offset);
   std::shared_ptr<RefreshWrapperItemNode> item_node_;
   std::shared_ptr<HippyRefreshHeader> refresh_header_;
-  uint32_t refresh_header_node_id_;
+  uint32_t item_node_id_;
+  uint32_t list_view_node_id_;
   std::shared_ptr<ListViewNode> list_node_;
 };
 

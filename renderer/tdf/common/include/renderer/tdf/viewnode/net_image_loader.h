@@ -19,11 +19,13 @@
  */
 
 #pragma once
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi"
 #include "core/common/time.h"
 #include "core/engine/schedule/task_runner.h"
 #include "core/engine/schedule/thread_task_driver.h"
-#include "core/support/image/image_load_manager.h"
+#include "tdfui/image/image_load_manager.h"
+#pragma clang diagnostic pop
 #include "footstone//string_view_utils.h"
 
 namespace hippy {
@@ -39,7 +41,9 @@ class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_fr
   ~NetImageLoader() override = default;
   NetImageLoader(std::string_view scheme, UriDataGetter uri_data_getter);
 
-  std::shared_ptr<tdfcore::Task> Load(const std::string &url, const LoadCallback &loader_callback) override;
+  std::shared_ptr<tdfcore::Task> Load(const std::string &url,
+                                      const ProgressCallback &progress_callback,
+                                      const FinishCallback &finish_callback) override;
 
  private:
   std::string scheme_;

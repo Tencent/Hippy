@@ -69,6 +69,8 @@ void ViewPager::Init() {
 
   AddScrollEndListener([WEAK_THIS]() {
     DEFINE_AND_CHECK_SELF(ViewPager)
+    auto page = self->CalculateCurrentPage();
+    self->UpdateCurrentPage(page);
     self->SetScrollStateType(ScrollStateType::kScrollStateIdle);
   });
 }
@@ -124,13 +126,42 @@ void ViewPager::LayoutChildrenFrame() {
 }
 
 void ViewPager::SetCurrentPage(int32_t page) {
+  UpdateCurrentPage(page);
+  ScrollTo(current_page_, false);
+}
+
+void ViewPager::UpdateCurrentPage(int32_t page) {
   auto max = static_cast<int32_t>(GetChildren().size() - 1);
   int32_t real_page = std::max(0, std::min(page, max));
 
   if (real_page != current_page_ && selected_listener_) {
-    selected_listener_(page);
+    selected_listener_(real_page);
   }
   current_page_ = real_page;
+}
+
+int32_t ViewPager::CalculateCurrentPage() {
+  int page = 0;
+  auto offset = GetOffset();
+  auto delta = (IsHorizontal() ? offset.x : offset.y) + 1.f;
+  auto children = GetChildren();
+  for (auto& child : children) {
+    TRect rect = child->GetFrame();
+    if (IsHorizontal()) {
+      delta -= rect.Width();
+    } else {
+      delta -= rect.Height();
+    }
+
+    if(delta > 0) {
+      ++page;
+    } else {
+      break;
+    }
+
+    delta -= page_margin_;
+  }
+  return page;
 }
 
 void ViewPager::ScrollTo(int32_t target_page, bool animated) {
@@ -164,7 +195,10 @@ void ViewPager::SetScrollStateType(ScrollStateType new_state) {
   scroll_state_ = new_state;
 }
 
-void ViewPager::SwitchToPage(int32_t target_page, bool animated) { ScrollTo(target_page, animated); }
+void ViewPager::SwitchToPage(int32_t target_page, bool animated) {
+  UpdateCurrentPage(target_page);
+  ScrollTo(current_page_, animated);
+}
 
 void ViewPager::SwitchNextPage() { SwitchToPage(current_page_ + 1, true); }
 

@@ -134,6 +134,16 @@ void TDFRenderManager::RegisterShell(uint32_t root_id, const std::shared_ptr<tdf
       tdf::TextViewNode::RegisterMeasureFunction(node, text_view_node);
   )
 
+  FOOTSTONE_LOG(INFO) << "ModelView: Set LayoutSize";
+  for (auto const& node : nodes) {
+    if (node->GetViewName() == kModaViewName) {
+      auto size = root_node.lock()->GetRootSize();
+      node->SetLayoutSize(
+          static_cast<float>(std::get<0>(size)),
+          static_cast<float>(std::get<1>(size)));
+    }
+  }
+
   GET_SHELL();
   shell->GetUITaskRunner()->PostTask([nodes, shell, root_view_node] {
     FOOTSTONE_LOG(INFO) << "CreateNode: BEGIN";

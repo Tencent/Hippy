@@ -20,10 +20,13 @@
 
 #pragma once
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wextra-semi"
 #include "core/common/time.h"
 #include "core/engine/schedule/task_runner.h"
 #include "core/engine/schedule/thread_task_driver.h"
-#include "core/support/image/image_load_manager.h"
+#include "tdfui/image/image_load_manager.h"
+#pragma clang diagnostic pop
 
 namespace hippy {
 inline namespace render {
@@ -37,7 +40,9 @@ class Base64ImageLoader : public tdfcore::ImageLoader, public std::enable_shared
 
   Base64ImageLoader() = default;
 
-  std::shared_ptr<tdfcore::Task> Load(const std::string &url, const LoadCallback &loader_callback) override;
+  std::shared_ptr<tdfcore::Task> Load(const std::string &url,
+                                      const ProgressCallback &progress_callback,
+                                      const FinishCallback &finish_callback) override;
 
   static std::string GetScheme() { return kBase64Scheme; }
 

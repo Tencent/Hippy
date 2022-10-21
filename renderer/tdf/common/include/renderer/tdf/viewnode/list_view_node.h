@@ -30,9 +30,10 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
-#include "tdfview/custom_layout_view.h"
-#include "tdfview/linear_custom_layout.h"
-#include "tdfview/refresh_header.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#include "tdfui/view/custom_layout_view.h"
+#include "tdfui/view/linear_custom_layout.h"
+#include "tdfui/view/refresh_header.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/scroll_view_node.h"
@@ -59,6 +60,9 @@ constexpr const char kScrollEventThrottle[] = "scrollEventThrottle";      // int
 constexpr const char kSuspendViewListener[] = "suspendViewListener";      // int
 constexpr const char kEndreached[] = "endreached";
 constexpr const char kLoadmore[] = "loadmore";
+constexpr const char kScrollToIndex[] = "scrollToIndex";
+constexpr const char kScrollToContentOffset[] = "scrollToContentOffset";
+
 }  // namespace listview
 
 class ListViewItemNode : public ViewNode {
@@ -72,6 +76,8 @@ class ListViewItemNode : public ViewNode {
    * @brief ListViewItemNode's CreateView is Public, can be called by ListViewDataSource.
    */
   std::shared_ptr<tdfcore::View> CreateView() override;
+
+  static int64_t GetViewType(const DomStyleMap& dom_style);
 
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
@@ -111,6 +117,8 @@ class ListViewNode : public ScrollViewNode {
 
   static node_creator GetCreator();
 
+  void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) override;
+
  protected:
   void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
   void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
@@ -124,10 +132,19 @@ class ListViewNode : public ScrollViewNode {
 
  private:
   void HandleEndReachedEvent();
+  int64_t GetItemViewType(int64_t index);
+  void SetItemViewTypeToCaches(int64_t index, int64_t type);
+  int64_t GetItemViewTypeFromCaches(int64_t index);
+  uint64_t GetItemViewTypeCachesSize();
+  int64_t GetChildIndex(ListViewItemNode *child);
   bool should_reload_ = false;
   uint64_t on_reach_end_listener_id_;
   uint64_t batch_end_listener_id_;
   bool has_reached_end_ = false;
+  std::vector<int64_t> item_type_caches_;
+
+  friend class ListViewDataSource;
+  friend class ListViewItemNode;
 };
 
 }  // namespace tdf

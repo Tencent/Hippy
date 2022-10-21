@@ -46,15 +46,19 @@ void ListViewNode::OnAttach() {
   list_view->SetItemChangeCallback(
       [WEAK_THIS](int64_t index, const std::shared_ptr<tdfcore::View>& item, tdfcore::ItemAction action) {
         DEFINE_AND_CHECK_SELF(ListViewNode)
-        FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < self->GetChildren().size());
         auto new_index = static_cast<uint32_t>(index);
-        auto node = std::static_pointer_cast<ListViewItemNode>(self->GetChildren()[new_index]);
         if (action == tdfcore::ItemAction::kAdd) {
-          // attach when updateItem (before add to listview)
-          FOOTSTONE_DCHECK(node->IsAttached());
+          FOOTSTONE_DCHECK(new_index >= 0 && new_index < self->GetChildren().size());
+          auto node = self->GetChildren()[new_index];
+          FOOTSTONE_DCHECK(!node->IsAttached());
+          node->Attach(item);
         } else {
-          FOOTSTONE_DCHECK(self->GetChildren()[new_index]->IsAttached());
-          self->GetChildren()[new_index]->Detach(false);
+          FOOTSTONE_DCHECK(new_index >= 0);
+          if (new_index < self->GetChildren().size()) {
+            auto node = self->GetChildren()[new_index];
+            FOOTSTONE_DCHECK(node->IsAttached());
+            node->Detach(false);
+          }
         }
       });
   batch_end_listener_id_ = GetRootNode()->AddEndBatchListener([WEAK_THIS]() {
@@ -98,6 +102,37 @@ void ListViewNode::HandleEndReachedEvent() {
   ViewNode::SendUIDomEvent(kLoadmore);
 }
 
+void ListViewNode::CallFunction(const std::string &function_name,
+                                const DomArgument &param,
+                                const uint32_t call_back_id) {
+  ViewNode::CallFunction(function_name, param, call_back_id);
+  auto list_view = GetView<tdfcore::CustomLayoutView>();
+  footstone::HippyValue value;
+  param.ToObject(value);
+  footstone::value::HippyValue::DomValueArrayType dom_value_array;
+  auto result = value.ToArray(dom_value_array);
+  FOOTSTONE_CHECK(result);
+  if (!result) {
+    return;
+  }
+  if (function_name == kScrollToIndex) {
+    auto x_offset = dom_value_array.at(0).ToInt32Checked();
+    auto y_offset = dom_value_array.at(1).ToInt32Checked();
+    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    auto scroll_direction = list_view->GetScrollDirection();
+    if (scroll_direction == tdfcore::ScrollDirection::kHorizontal) {
+      list_view->ScrollToIndex(x_offset, animated);
+    } else {
+      list_view->ScrollToIndex(y_offset, animated);
+    }
+  } else if (function_name == kScrollToContentOffset) {
+    auto x = static_cast<float>(dom_value_array.at(0).ToDoubleChecked());
+    auto y = static_cast<float>(dom_value_array.at(1).ToDoubleChecked());
+    auto animated = dom_value_array.at(2).ToBooleanChecked();
+    list_view->SetOffset({x, y}, animated);
+  }
+}
+
 void ListViewItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   TDF_RENDER_CHECK_ATTACH
   auto origin_left = GetView()->GetFrame().left;
@@ -107,28 +142,80 @@ void ListViewItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   ViewNode::HandleLayoutUpdate(layout_result);
 }
 
-void ListViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) { should_reload_ = true; }
+void ListViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
+  should_reload_ = true;
+  SetItemViewTypeToCaches(index, GetItemViewType(index));
+}
 
 void ListViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { should_reload_ = true; }
 
+int64_t ListViewNode::GetItemViewType(int64_t index) {
+  auto new_index = static_cast<uint64_t>(index);
+  FOOTSTONE_DCHECK(new_index >= 0 && new_index < GetChildren().size());
+  auto node = GetChildren()[new_index];
+  auto dom_node = node->GetDomNode();
+  auto dom_style = GenerateStyleInfo(dom_node);
+  int64_t view_type = ListViewItemNode::GetViewType(dom_style);
+  return view_type;
+}
+
+void ListViewNode::SetItemViewTypeToCaches(int64_t index, int64_t type) {
+  auto new_index = static_cast<uint64_t>(index);
+  auto len = item_type_caches_.size();
+  if(new_index >= len) {
+    auto inc_len = new_index + 1 - len;
+    std::vector<int64_t> inc_caches(inc_len, 0);
+    item_type_caches_.insert(item_type_caches_.end(), inc_caches.begin(), inc_caches.end());
+  }
+  item_type_caches_[new_index] = type;
+}
+
+int64_t ListViewNode::GetItemViewTypeFromCaches(int64_t index) {
+  return item_type_caches_[static_cast<uint64_t>(index)];
+}
+
+uint64_t ListViewNode::GetItemViewTypeCachesSize() {
+  return item_type_caches_.size();
+}
+
+int64_t ListViewNode::GetChildIndex(ListViewItemNode *child) {
+  auto children_nodes = GetChildren();
+  for (uint64_t i = 0; i < children_nodes.size(); i++) {
+    if (children_nodes[i].get() == child) {
+      return static_cast<int64_t>(i);
+    }
+  }
+  return 0;
+}
+
 std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() { return TDF_MAKE_SHARED(tdfcore::View); }
+
+int64_t ListViewItemNode::GetViewType(const DomStyleMap& dom_style) {
+  int64_t view_type = 0;
+  if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
+    if (it->second->IsString()) {
+      view_type = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
+    } else if (it->second->IsNumber()) {
+      view_type = static_cast<int64_t>(it->second->ToDoubleChecked());
+    }
+  }
+  if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
+    FOOTSTONE_DCHECK(it->second->IsInt32());
+    view_type = it->second->ToInt32Checked();
+  }
+  return view_type;
+}
 
 void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   ViewNode::HandleStyleUpdate(dom_style);
   if (auto it = dom_style.find(listviewitem::kSticky); it != dom_style.cend()) {
     is_sticky_ = it->second->ToBooleanChecked();
   }
-  if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
-    if (it->second->IsString()) {
-      view_type_ = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
-    } else if (it->second->IsNumber()) {
-      view_type_ = static_cast<int64_t>(it->second->ToDoubleChecked());
-    }
-  }
-  if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
-    FOOTSTONE_DCHECK(it->second->IsInt32());
-    view_type_ = it->second->ToInt32Checked();
-  }
+  view_type_ = GetViewType(dom_style);
+
+  auto list_view_node = std::static_pointer_cast<ListViewNode>(GetParent());
+  auto index = list_view_node->GetChildIndex(this);
+  list_view_node->SetItemViewTypeToCaches(static_cast<int64_t>(index), view_type_);
 }
 
 std::shared_ptr<tdfcore::View> ListViewDataSource::GetItem(
@@ -148,17 +235,13 @@ void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore
                                     const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
-  auto node =
-      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
-  node->Attach(item);
 }
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
-  auto node =
-      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
-  return node->GetViewType();
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetItemViewTypeCachesSize());
+  auto type = list_view_node_.lock()->GetItemViewTypeFromCaches(index);
+  return type;
 }
 
 bool ListViewDataSource::IsItemSticky(int64_t index) {

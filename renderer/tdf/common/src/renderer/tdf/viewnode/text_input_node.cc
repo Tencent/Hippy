@@ -61,6 +61,7 @@ void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   auto text_style = text_input_view->GetAttributes().text_style;
   auto attributes = text_input_view->GetAttributes();
 
+  SetValue(dom_style, text_style);
   SetCaretColor(dom_style, text_style);
   SetColor(dom_style, text_style);
   SetDefaultValue(dom_style, text_input_view);
@@ -156,12 +157,11 @@ void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& ev
 }
 
 void TextInputNode::DidChangeTextEditingValue(std::shared_ptr<TextInputView> text_input_view) {
-  auto text_u16 = edit_controller_->GetText();
-  if (edit_controller_->GetText() != text_u16) {
-    text_input_view->SetText(text_u16);
-    if (event_callback_.on_change_text_flag) {
-      auto unicode_str =
-          StringViewUtils::ConvertEncoding(text_u16.c_str(), unicode_string_view::Encoding::Utf8).utf8_value();
+  if (edit_controller_->GetText() != text_) {
+    text_ = edit_controller_->GetText();
+    auto unicode_str =
+        StringViewUtils::ConvertEncoding(text_.c_str(), unicode_string_view::Encoding::Utf8).utf8_value();
+    if (event_callback_.on_change_text) {
       event_callback_.on_change_text(StringViewUtils::ToStdString(unicode_str));
     }
   }
@@ -179,31 +179,82 @@ void TextInputNode::CallFunction(const std::string& function_name, const DomArgu
   auto func = input_event_callback_map_.find(function_name);
   FOOTSTONE_LOG(INFO) << "TextInputNode::CallFunction function_name = " << function_name;
   if (func != input_event_callback_map_.end()) {
-    func->second(call_back_id, param);
+    func->second(function_name, call_back_id, param);
   }
 }
 
 void TextInputNode::InitCallBackMap() {
-  input_event_callback_map_[kBlurTextInput] = [this](const uint32_t callback_id, const DomArgument& param) {
-    auto fn = [](std::shared_ptr<tdfcore::View> view) { std::static_pointer_cast<TextInputView>(view)->ClearFocus(); };
+  input_event_callback_map_[kBlurTextInput] = [this](const std::string &function_name,
+                                                     const uint32_t callback_id,
+                                                     const DomArgument &param) {
+    auto fn = [](std::shared_ptr<tdfcore::View> view) {
+      std::static_pointer_cast<TextInputView>(view)->ClearFocus();
+    };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  input_event_callback_map_[kClear] = [this](const uint32_t callback_id, const DomArgument& param) {
-    auto fn = [](std::shared_ptr<View> view) { std::static_pointer_cast<TextInputView>(view)->SetText(u""); };
+
+  input_event_callback_map_[kClear] = [this](const std::string &function_name,
+                                             const uint32_t callback_id,
+                                             const DomArgument &param) {
+    auto fn = [](std::shared_ptr<View> view) {
+      std::static_pointer_cast<TextInputView>(view)->SetText(u"");
+    };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  input_event_callback_map_[kFocusTextInput] = [this](const uint32_t callback_id, const DomArgument& param) {
-    auto fn = [](std::shared_ptr<View> view) { std::static_pointer_cast<TextInputView>(view)->RequestFocus(); };
+  input_event_callback_map_[kFocusTextInput] = [this](const std::string &function_name,
+                                                      const uint32_t callback_id,
+                                                      const DomArgument &param) {
+    auto fn = [](std::shared_ptr<View> view) {
+      std::static_pointer_cast<TextInputView>(view)->RequestFocus();
+    };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  input_event_callback_map_[kGetValue] = [](const uint32_t callback_id, const DomArgument& param) {};
-  input_event_callback_map_[kHideInputMethod] = [this](const uint32_t callback_id, const DomArgument& param) {
+
+  input_event_callback_map_[kGetValue] = [this](const std::string &function_name,
+                                                const uint32_t callback_id,
+                                                const DomArgument &param) {
+    auto fn = [this, function_name, callback_id](std::shared_ptr<tdfcore::View> view) {
+      auto u16text = std::static_pointer_cast<TextInputView>(view)->GetTextEditingValue().GetText();
+      auto text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>{}.to_bytes(u16text);
+      DomValueObjectType param;
+      param["text"] = footstone::HippyValue(text);
+      DoCallback(function_name, callback_id, std::make_shared<footstone::HippyValue>(param));
+    };
+    INVOKE_IF_VIEW_IS_VALIDATE(fn);
+  };
+
+  input_event_callback_map_[kSetValue] = [this](const std::string &function_name,
+                                                const uint32_t callback_id,
+                                                const DomArgument &param) {
+
+    auto fn = [param] (std::shared_ptr<View> view) {
+      footstone::HippyValue value;
+      param.ToObject(value);
+      footstone::value::HippyValue::DomValueArrayType dom_value_array;
+      auto result = value.ToArray(dom_value_array);
+      FOOTSTONE_CHECK(result);
+      if (!result) {
+        return;
+      }
+      auto unicode_str = footstone::string_view::new_from_utf8(dom_value_array.at(0).ToStringChecked().c_str());
+      auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
+      std::static_pointer_cast<TextInputView>(view)->SetText(text_u16);
+    };
+    INVOKE_IF_VIEW_IS_VALIDATE(fn);
+  };
+
+  input_event_callback_map_[kHideInputMethod] = [this](const std::string &function_name,
+                                                       const uint32_t callback_id,
+                                                       const DomArgument &param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) {
       std::static_pointer_cast<tdfcore::TextInputView>(view)->TryHidingInputMethod();
     };
     INVOKE_IF_VIEW_IS_VALIDATE(fn);
   };
-  input_event_callback_map_[kShowInputMethod] = [this](const uint32_t callback_id, const DomArgument& param) {
+
+  input_event_callback_map_[kShowInputMethod] = [this](const std::string &function_name,
+                                                       const uint32_t callback_id,
+                                                       const DomArgument &param) {
     auto fn = [](std::shared_ptr<tdfcore::View> view) {
       std::static_pointer_cast<tdfcore::TextInputView>(view)->TryShowingInputMethod();
     };
@@ -219,8 +270,8 @@ void TextInputNode::InitCallback() {
   event_callback_.on_change_text = [WEAK_THIS](const std::string& value) {
     DEFINE_AND_CHECK_SELF(TextInputNode)
     DomValueObjectType param;
-    param[kText] = value;
-    self->SendUIDomEvent(textinput::kOnChangeText, std::make_shared<footstone::HippyValue>(param));
+    param[kText] = footstone::HippyValue(value);
+    self->SendUIDomEvent(kOnChangeText, std::make_shared<footstone::HippyValue>(param));
   };
   event_callback_.on_keyboard_height_change = [WEAK_THIS](float keyboard_height) {
     DEFINE_AND_CHECK_SELF(TextInputNode)
@@ -265,6 +316,16 @@ void TextInputNode::UnregisterViewportListener() {
   if (viewport_listener_id_ != kViewportListenerInvalidID) {
     ViewContext::GetCurrent()->GetShell()->GetEventCenter()->RemoveListener(ViewportEvent::ClassType(),
                                                                             viewport_listener_id_);
+  }
+}
+
+void TextInputNode::SetValue(const DomStyleMap& dom_style, TextStyle& text_style) {
+  if (auto iter = dom_style.find(kValue); iter != dom_style.end()) {
+    if (auto text_input_view = text_input_view_.lock()) {
+      auto unicode_str = footstone::string_view::new_from_utf8(iter->second->ToStringChecked().c_str());
+      auto text_u16 = StringViewUtils::ConvertEncoding(unicode_str, unicode_string_view::Encoding::Utf16).utf16_value();
+      text_input_view->SetText(text_u16);
+    }
   }
 }
 

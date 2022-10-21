@@ -30,10 +30,12 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+
 #include "core/support/text/text_base.h"
-#include "tdfview/text/cupertino_text_selection_control.h"
-#include "tdfview/text/text_view.h"
-#include "tdfview/view_context.h"
+#include "tdfui/view/text/cupertino_text_selection_control.h"
+#include "tdfui/view/text/text_view.h"
+#include "tdfui/view/view_context.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/view_names.h"

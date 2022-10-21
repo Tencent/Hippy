@@ -47,6 +47,11 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PUBLIC footstone)
 # endregion
 
+# region vfs
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PUBLIC vfs)
+# endregion
+
 # region tdfcore
 # Consider iOS intergration in the future
 if (ANDROID)
@@ -79,6 +84,7 @@ set(SRC_SET
         src/renderer/tdf/viewnode/view_node.cc
         src/renderer/tdf/view/modal_view.cc
         src/renderer/tdf/view/view_pager.cc
+        src/renderer/tdf/gesture/touch_recognizer.cc
         )
 target_sources(${PROJECT_NAME} PRIVATE ${SRC_SET})
 # endregion

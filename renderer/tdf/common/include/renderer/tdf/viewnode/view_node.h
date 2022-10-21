@@ -31,7 +31,8 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
-#include "tdfview/view.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#include "tdfui/view/view.h"
 #pragma clang diagnostic pop
 #include "core/common/listener.h"
 #include "dom/dom_argument.h"
@@ -138,7 +139,7 @@ constexpr const char kRefreshColors[] = "refreshColors";                      //
 }  // namespace waterfallview
 
 inline namespace defaultvalue {
-constexpr const float kDefaultFontSize = 16.0;
+constexpr const float kDefaultFontSize = 14.0;
 constexpr const float kDefaultLineHeight = 16.0;
 constexpr const tdfcore::Color kDefaultTextColor = tdfcore::Color::Black();
 }  // namespace defaultvalue
@@ -200,7 +201,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   virtual std::string GetViewName() const { return "View"; }
 
-  virtual void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) {}
+  virtual void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id);
 
   void SetRootNode(std::weak_ptr<RootViewNode> root_node) { root_node_ = root_node; }
 
@@ -240,6 +241,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   void SetCorrectedIndex(int32_t index) { corrected_index_ = index; }
 
+  bool GetInterceptTouchEventFlag() { return intercept_touch_event_flag_; }
+  bool GetInterceptPullUpEventFlag() { return intercept_pullup_event_flag_; }
+
  protected:
   /**
    * @brief notify after the attach action
@@ -268,6 +272,10 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   void SendUIDomEvent(std::string type, const std::shared_ptr<footstone::HippyValue> &value = nullptr,
                       bool can_capture = false, bool can_bubble = false);
+
+  void DoCallback(const std::string &function_name,
+                  const uint32_t callback_id,
+                  const std::shared_ptr<footstone::HippyValue> &value);
 
   /**
    * @brief Be called in ViewNode::OnCreate(mount in the ViewNode Tree immediately after create)
@@ -318,12 +326,17 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   tdfcore::TM44 GenerateAnimationTransform(const DomStyleMap &dom_style, std::shared_ptr<tdfcore::View> view);
 
+  float GetDensity();
+
  private:
   void RegisterClickEvent();
   void RegisterLongClickEvent();
+  void RegisterTouchEvent();
 
   void RemoveGestureEvent(std::string &&event_type);
   void RemoveAllEventInfo();
+
+  void HandleInterceptEvent(const DomStyleMap& dom_style);
 
   /**
    * @brief DomNode's RenderInfo.index is not always the related View's index, it may need to be corrected.
@@ -339,6 +352,9 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   std::set<std::string> supported_events_;
   std::unordered_map<std::string, std::shared_ptr<tdfcore::GestureRecognizer>> gestures_map_;
+
+  bool intercept_touch_event_flag_ = false;
+  bool intercept_pullup_event_flag_ = false;
 };
 
 }  // namespace tdf

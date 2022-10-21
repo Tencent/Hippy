@@ -31,7 +31,8 @@
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
 #pragma clang diagnostic ignored "-Wdeprecated-copy-with-dtor"
-#include "tdfview/text/text_input_view.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#include "tdfui/view/text/text_input_view.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/view_node.h"
@@ -54,7 +55,9 @@ using OnChangeText = std::function<void(std::string)>;
 using OnKeyboardHeightChange = std::function<void(float)>;
 using OnEndEditing = std::function<void(std::u16string)>;
 using OnSelectionChange = std::function<void(size_t, size_t)>;
-using InputEventCallBack = std::function<void(const uint32_t callback_id, const ViewNode::DomArgument& dom_value)>;
+using InputEventCallBack = std::function<void(const std::string &function_name,
+                                              const uint32_t callback_id,
+                                              const ViewNode::DomArgument &dom_value)>;
 
 inline namespace textinput {
 constexpr const char kTextInput[] = "TextInput";
@@ -71,8 +74,9 @@ constexpr const char kLetterSpacing[] = "letterSpacing";                  // flo
 constexpr const char kMaxLength[] = "maxLength";                          // int
 constexpr const char kMultiline[] = "multiline";                          // boolean
 constexpr const char kNumberOfLines[] = "numberOfLines";                  // int
+// TODO: Fix event name
 constexpr const char kOnBlur[] = "onBlur";                                // boolean
-constexpr const char kOnChangeText[] = "onChangeText";                    // boolean
+constexpr const char kOnChangeText[] = "changetext";                      // boolean
 constexpr const char kOnContentSizeChange[] = "onContentSizeChange";      // boolean
 constexpr const char kOnEndEditing[] = "onEndEditing";                    // boolean
 constexpr const char kOnFocus[] = "onFocus";                              // boolean
@@ -95,6 +99,7 @@ constexpr const char kBlurTextInput[] = "blurTextInput";
 constexpr const char kClear[] = "clear";
 constexpr const char kFocusTextInput[] = "focusTextInput";
 constexpr const char kGetValue[] = "getValue";
+constexpr const char kSetValue[] = "setValue";
 constexpr const char kHideInputMethod[] = "hideInputMethod";
 constexpr const char kShowInputMethod[] = "showInputMethod";
 
@@ -158,6 +163,7 @@ class TextInputNode : public ViewNode {
   void UnregisterViewportListener();
   void DidChangeTextEditingValue(std::shared_ptr<TextInputView> text_input_view);
 
+  void SetValue(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetCaretColor(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetColor(const DomStyleMap& dom_style, TextStyle& text_style);
   void SetDefaultValue(const DomStyleMap& dom_style, std::shared_ptr<TextInputView>& text_input_view);
@@ -192,11 +198,14 @@ class TextInputNode : public ViewNode {
 
   void SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event);
 
+  void HandleEventInfoUpdate() override;
+
   std::weak_ptr<TextInputView> text_input_view_;
   std::shared_ptr<tdfcore::TextEditingController> edit_controller_;
   std::shared_ptr<tdfcore::TextSelectionControl> selection_control_;
   std::map<std::string, InputEventCallBack> input_event_callback_map_;
   tdfcore::TextSelection text_selection_;
+  std::u16string text_ = u"";
   std::string font_style_ = "";
   std::string font_weight_ = "";
   float font_size_ = kDefaultFontSize;

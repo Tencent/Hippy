@@ -33,11 +33,12 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
 #include "core/support/animation/ticker.h"
 #include "core/support/physics/scroll_physics.h"
-#include "tdfview/scroll_view.h"
-#include "tdfview/view.h"
-#include "tdfview/view_context.h"
+#include "tdfui/view/scroll_view.h"
+#include "tdfui/view/view.h"
+#include "tdfui/view/view_context.h"
 #pragma clang diagnostic pop
 
 namespace hippy {
@@ -184,6 +185,10 @@ class ViewPager : public ScrollView {
 
   void SetScrollStateType(ScrollStateType state);
 
+  void UpdateCurrentPage(int32_t page);
+
+  int32_t CalculateCurrentPage();
+
   ScrollAxis axis_ = ScrollAxis::kNone;
 
   float content_extent_size_ = 0.0;
@@ -195,7 +200,7 @@ class ViewPager : public ScrollView {
   ScrollStateChangedListener state_changed_listener_;
   ScrollStateType scroll_state_ = ScrollStateType::kScrollStateIdle;
 
-  FRIEND_OF_TDF_ALLOC;
+  FRIEND_OF_TDF_ALLOC
 };
 
 }  // namespace view
