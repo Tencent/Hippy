@@ -21,8 +21,6 @@
  */
 
 #import "HippyBridge+VFSLoader.h"
-#import "VFSUriLoader.h"
-
 
 @implementation HippyBridge (VFSLoader)
 

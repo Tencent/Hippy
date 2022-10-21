@@ -27,10 +27,10 @@
 #include <mutex>
 
 #import "HippyBridge.h"
-#import "HippyAssert.h"
+#import "HPAsserts.h"
 #import "HippyModuleMethod.h"
-#import "HippyLog.h"
-#import "NativeRenderUtils.h"
+#import "HPLog.h"
+#import "HPToolUtils.h"
 
 @implementation HippyModuleData {
     NSDictionary<NSString *, id> *_constantsToExport;
@@ -61,7 +61,7 @@
 
     // If a module overrides `constantsToExport` then we must assume that it
     // must be called on the main thread, because it may need to access UIKit.
-    _hasConstantsToExport = NativeRenderClassOverridesInstanceMethod(_moduleClass, @selector(constantsToExport));
+    _hasConstantsToExport = HPClassOverridesInstanceMethod(_moduleClass, @selector(constantsToExport));
 }
 
 - (instancetype)initWithModuleClass:(Class)moduleClass bridge:(HippyBridge *)bridge {
@@ -83,13 +83,9 @@
     return self;
 }
 
-HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
-
 #pragma mark - private setup methods
 
 - (void)setUpInstanceAndBridge {
-    // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData setUpInstanceAndBridge] [_instanceLock lock]", @{ @"moduleClass":
-    // NSStringFromClass(_moduleClass) });
     {
         std::unique_lock<std::mutex> lock(_instanceLock);
         // hippy will send 'destroyInstance' event to JS.
@@ -97,19 +93,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
         // so ModuleData needs to be valid
         if (!_setupComplete) {
             if (!_instance) {
-                if (HIPPY_DEBUG && _requiresMainQueueSetup) {
-                    HippyAssertMainQueue();
+                if (HP_DEBUG && _requiresMainQueueSetup) {
+                    HPAssertMainQueue();
                 }
-                // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData setUpInstanceAndBridge] [_moduleClass new]",  @{
-                // @"moduleClass": NSStringFromClass(_moduleClass) });
                 _instance = [_moduleClass new];
-                // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
                 if (!_instance) {
                     // Module init returned nil, probably because automatic instantatiation
                     // of the module is not supported, and it is supposed to be passed in to
                     // the bridge constructor. Mark setup complete to avoid doing more work.
                     _setupComplete = YES;
-                    HippyLogWarn(@"The module %@ is returning nil from its constructor. You "
+                    HPLogWarn(@"The module %@ is returning nil from its constructor. You "
                                   "may need to instantiate it yourself and pass it into the "
                                   "bridge.",
                         _moduleClass);
@@ -124,8 +117,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 
         [self setUpMethodQueue];
     }
-    // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
-
     // This is called outside of the lock in order to prevent deadlock issues
     // because the logic in `finishSetupForInstance` can cause
     // `moduleData.instance` to be accessed re-entrantly.
@@ -147,16 +138,14 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 
 - (void)setBridgeForInstance {
     if ([_instance respondsToSelector:@selector(bridge)] && _instance.bridge != _bridge) {
-        // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData setBridgeForInstance]", nil);
         @try {
             [(id)_instance setValue:_bridge forKey:@"bridge"];
         } @catch (NSException *exception) {
-            HippyLogError(@"%@ has no setter or ivar for its bridge, which is not "
+            HPLogError(@"%@ has no setter or ivar for its bridge, which is not "
                            "permitted. You must either @synthesize the bridge property, "
                            "or provide your own setter method.",
                 self.name);
         }
-        // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
     }
 }
 
@@ -176,7 +165,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
     // JS may call actions after that.
     // so ModuleData needs to be valid
     if (_instance && ![self methodQueueWithoutInstance]) {
-        // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData setUpMethodQueue]", nil);
         BOOL implementsMethodQueue = [_instance respondsToSelector:@selector(methodQueue)];
         if (implementsMethodQueue) {
             self.methodQueue = _instance.methodQueue;
@@ -191,7 +179,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
                 @try {
                     [(id)_instance setValue:[self methodQueueWithoutInstance] forKey:@"methodQueue"];
                 } @catch (NSException *exception) {
-                    HippyLogError(@"%@ is returning nil for its methodQueue, which is not "
+                    HPLogError(@"%@ is returning nil for its methodQueue, which is not "
                                    "permitted. You must either return a pre-initialized "
                                    "queue, or @synthesize the methodQueue to let the bridge "
                                    "create a queue for you.",
@@ -199,7 +187,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
                 }
             }
         }
-        // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
     }
 }
 
@@ -211,25 +198,20 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 
 - (id<HippyBridgeModule>)instance {
     if (!_setupComplete) {
-        // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, ([NSString stringWithFormat:@"[HippyModuleData instanceForClass:%@]", _moduleClass]),
-        // nil);
         if (_requiresMainQueueSetup) {
             // The chances of deadlock here are low, because module init very rarely
             // calls out to other threads, however we can't control when a module might
             // get accessed by client code during bridge setup, and a very low risk of
             // deadlock is better than a fairly high risk of an assertion being thrown.
-            // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, @"[HippyModuleData instance] main thread setup", nil);
-            if (!NativeRenderIsMainQueue()) {
-                HippyLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
+            if (!HPIsMainQueue()) {
+                HPLogWarn(@"HippyBridge required dispatch_sync to load %@. This may lead to deadlocks", _moduleClass);
             }
-            NativeRenderExecuteOnMainQueue(^{
+            HPExecuteOnMainQueue(^{
                 [self setUpInstanceAndBridge];
             });
-            // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
         } else {
             [self setUpInstanceAndBridge];
         }
-        // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
     }
     return _instance;
 }
@@ -275,15 +257,13 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
 
 - (void)gatherConstants {
     if (_hasConstantsToExport && !_constantsToExport) {
-        // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, ([NSString stringWithFormat:@"[HippyModuleData gatherConstants] %@", _moduleClass]), nil);
         (void)[self instance];
-        if (!NativeRenderIsMainQueue()) {
-            HippyLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
+        if (!HPIsMainQueue()) {
+            HPLogWarn(@"Required dispatch_sync to load constants for %@. This may lead to deadlocks", _moduleClass);
         }
-        NativeRenderExecuteOnMainQueue(^{
+        HPExecuteOnMainQueue(^{
             self->_constantsToExport = [self->_instance constantsToExport] ?: @ {};
         });
-        // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, @"");
     }
 }
 
@@ -295,9 +275,6 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
     if (constants.count == 0 && self.methods.count == 0) {
         return (id)kCFNull;  // Nothing to export
     }
-
-    // HIPPY_PROFILE_BEGIN_EVENT(HippyProfileTagAlways, ([NSString stringWithFormat:@"[HippyModuleData config] %@", _moduleClass]), nil);
-
     NSMutableArray<NSString *> *methods = self.methods.count ? [NSMutableArray new] : nil;
     NSMutableArray<NSNumber *> *promiseMethods = nil;
     NSMutableArray<NSNumber *> *syncMethods = nil;
@@ -317,8 +294,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init);
         [methods addObject:method.JSMethodName];
     }
 
-    NSArray *config = @[self.name, NativeRenderNullIfNil(constants), NativeRenderNullIfNil(methods), NativeRenderNullIfNil(promiseMethods), NativeRenderNullIfNil(syncMethods)];
-    // HIPPY_PROFILE_END_EVENT(HippyProfileTagAlways, ([NSString stringWithFormat:@"[HippyModuleData config] %@", _moduleClass]));
+    NSArray *config = @[self.name, HPNullIfNil(constants), HPNullIfNil(methods), HPNullIfNil(promiseMethods), HPNullIfNil(syncMethods)];
     return config;
 }
 

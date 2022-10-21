@@ -20,12 +20,14 @@
  * limitations under the License.
  */
 
-#import "HippyNetWork.h"
-#import "HippyAssert.h"
 #import <WebKit/WKHTTPCookieStore.h>
 #import <WebKit/WKWebsiteDataStore.h>
-#import "NativeRenderUtils.h"
+
 #import "HippyBridge+VFSLoader.h"
+#import "HippyDefines.h"
+#import "HippyNetWork.h"
+#import "HPAsserts.h"
+#import "HPToolUtils.h"
 
 static NSStringEncoding GetStringEncodingFromURLResponse(NSURLResponse *response) {
     NSString *textEncoding = [response textEncodingName];
@@ -53,8 +55,8 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     NSDictionary *header = params[@"headers"];
     NSString *body = params[@"body"];
   
-    HippyAssertParam(url);
-    HippyAssertParam(method);
+    HPAssertParam(url);
+    HPAssertParam(method);
 
     NSMutableDictionary *vfsParams = [NSMutableDictionary new];
     [header enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL *stop) {
@@ -71,7 +73,7 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
     if (body) {
         [vfsParams setObject:body forKey:@"body"];
     }
-    NSURL *requestURL = NativeRenderURLWithString(url, NULL);
+    NSURL *requestURL = HPURLWithString(url, NULL);
     [self.bridge loadContentsAsynchronouslyFromUrl:requestURL params:vfsParams completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSStringEncoding encoding = GetStringEncodingFromURLResponse(response);
         NSString *dataStr = [[NSString alloc] initWithData:data encoding:encoding];

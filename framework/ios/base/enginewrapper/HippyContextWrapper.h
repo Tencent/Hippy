@@ -25,13 +25,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HippyJSStackFrame;
+@class HPDriverStackFrame;
 
 typedef id __nullable (^FunctionImplementationBlock)(NSArray *arguments);
 
 @protocol HippyContextWrapper <NSObject>
 
-typedef void (^ExceptionHandler)(id<HippyContextWrapper>wrapper, NSString *message, NSArray<HippyJSStackFrame *> *stackFrames);
+typedef void (^ExceptionHandler)(id<HippyContextWrapper>wrapper, NSString *message, NSArray<HPDriverStackFrame *> *stackFrames);
 
 @required
 

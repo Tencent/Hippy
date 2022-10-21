@@ -24,7 +24,7 @@
 #import <objc/runtime.h>
 #import "NativeRenderObjectView.h"
 #import "UIView+MountEvent.h"
-#import "NativeRenderLog.h"
+#import "HPLog.h"
 
 @implementation UIView (NativeRender)
 
@@ -68,14 +68,6 @@
     objc_setAssociatedObject(self, @selector(tagName), tagName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
-- (void)setParent:(id<NativeRenderComponentProtocol>)parent {
-//    self.superview = parent;
-}
-
-- (id<NativeRenderComponentProtocol>)parent {
-    return self.superview;
-}
-
 - (__kindof NativeRenderObjectView *)nativeRenderObjectView {
     NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
     return [hashTable anyObject];
@@ -101,24 +93,24 @@
     return view.componentTag;
 }
 
-- (NSArray<UIView *> *)nativeRenderSubviews {
+- (NSArray<UIView *> *)subcomponents {
     return objc_getAssociatedObject(self, _cmd);
 }
 
-- (UIView *)nativeRenderSuperview {
+- (UIView *)parentComponent {
     return self.superview;
 }
 
 - (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex {
     // We access the associated object directly here in case someone overrides
-    // the `nativeRenderSubviews` getter method and returns an immutable array.
+    // the `subcomponents` getter method and returns an immutable array.
     if (nil == subview) {
         return;
     }
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(nativeRenderSubviews));
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
     if (!subviews) {
         subviews = [NSMutableArray new];
-        objc_setAssociatedObject(self, @selector(nativeRenderSubviews), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(subcomponents), subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 
     if (atIndex <= [subviews count]) {
@@ -131,19 +123,19 @@
 
 - (void)removeNativeRenderSubview:(UIView *)subview {
     // We access the associated object directly here in case someone overrides
-    // the `nativeRenderSubviews` getter method and returns an immutable array.
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(nativeRenderSubviews));
+    // the `subcomponents` getter method and returns an immutable array.
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
     [subviews removeObject:subview];
     [subview sendDetachedFromWindowEvent];
     [subview removeFromSuperview];
 }
 
 - (void)removeFromNativeRenderSuperview {
-    [self.nativeRenderSuperview removeNativeRenderSubview:self];
+    [(UIView *)self.parentComponent removeNativeRenderSubview:self];
 }
 
 - (void)resetNativeRenderSubviews {
-    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(nativeRenderSubviews));
+    NSMutableArray *subviews = objc_getAssociatedObject(self, @selector(subcomponents));
     if (subviews) {
         [subviews makeObjectsPerformSelector:@selector(sendDetachedFromWindowEvent)];
         [subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
@@ -183,13 +175,13 @@
     if (!subviews) {
         // Check if sorting is required - in most cases it won't be
         BOOL sortingRequired = NO;
-        for (UIView *subview in self.nativeRenderSubviews) {
+        for (UIView *subview in self.subcomponents) {
             if (subview.nativeRenderZIndex != 0) {
                 sortingRequired = YES;
                 break;
             }
         }
-        subviews = sortingRequired ? [self.nativeRenderSubviews sortedArrayUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
+        subviews = sortingRequired ? [self.subcomponents sortedArrayUsingComparator:^NSComparisonResult(UIView *a, UIView *b) {
             if (a.nativeRenderZIndex > b.nativeRenderZIndex) {
                 return NSOrderedDescending;
             } else {
@@ -197,7 +189,7 @@
                 // that original order is preserved
                 return NSOrderedAscending;
             }
-        }] : self.nativeRenderSubviews;
+        }] : self.subcomponents;
         objc_setAssociatedObject(self, _cmd, subviews, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return subviews;
@@ -227,7 +219,7 @@
     // Avoid crashes due to nan coords
     if (isnan(position.x) || isnan(position.y) || isnan(bounds.origin.x) || isnan(bounds.origin.y) || isnan(bounds.size.width)
         || isnan(bounds.size.height)) {
-        NativeRenderLogError(
+        HPLogError(
             @"Invalid layout for (%@)%@. position: %@. bounds: %@", self.componentTag, self, NSStringFromCGPoint(position), NSStringFromCGRect(bounds));
         return;
     }
@@ -259,14 +251,14 @@
 
 - (void)NativeRenderAddControllerToClosestParent:(UIViewController *)controller {
     if (!controller.parentViewController) {
-        UIView *parentView = (UIView *)self.nativeRenderSuperview;
+        UIView *parentView = (UIView *)self.parentComponent;
         while (parentView) {
             if (parentView.nativeRenderViewController) {
                 [parentView.nativeRenderViewController addChildViewController:controller];
                 [controller didMoveToParentViewController:parentView.nativeRenderViewController];
                 break;
             }
-            parentView = (UIView *)parentView.nativeRenderSuperview;
+            parentView = (UIView *)parentView.parentComponent;
         }
         return;
     }

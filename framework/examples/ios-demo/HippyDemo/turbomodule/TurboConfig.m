@@ -22,6 +22,7 @@
 
 #import "TurboConfig.h"
 #import "HippyDefines.h"
+#import "MacroDefines.h"
 
 @interface TurboConfig ()
 

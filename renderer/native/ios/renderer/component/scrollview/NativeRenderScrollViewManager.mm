@@ -24,9 +24,9 @@
 #import "NativeRenderScrollView.h"
 #import "NativeRenderObjectView.h"
 
-@implementation NativeRenderConvert (UIScrollView)
+@implementation HPConvert (UIScrollView)
 
-NATIVE_RENDER_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
+HP_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
     @"none": @(UIScrollViewKeyboardDismissModeNone),
     @"on-drag": @(UIScrollViewKeyboardDismissModeOnDrag),
     @"interactive": @(UIScrollViewKeyboardDismissModeInteractive),
@@ -35,7 +35,7 @@ NATIVE_RENDER_ENUM_CONVERTER(UIScrollViewKeyboardDismissMode, (@{
 }),
     UIScrollViewKeyboardDismissModeNone, integerValue)
 
-NATIVE_RENDER_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
+HP_ENUM_CONVERTER(UIScrollViewIndicatorStyle, (@{
     @"default": @(UIScrollViewIndicatorStyleDefault),
     @"black": @(UIScrollViewIndicatorStyleBlack),
     @"white": @(UIScrollViewIndicatorStyleWhite),
@@ -116,7 +116,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
         if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
             [(id<NativeRenderScrollableProtocol>)view scrollToOffset:(CGPoint){[x floatValue], [y floatValue]} animated:[animated boolValue]];
         } else {
-            NativeRenderLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
+            HPLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
                           "with tag #%@", view, componentTag);
         }
     }];
@@ -146,7 +146,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)co
                 [(id<NativeRenderScrollableProtocol>)view scrollToOffset:(CGPoint){x,y} animated:NO];
             }];
         } else {
-            NativeRenderLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
+            HPLogError(@"tried to scrollTo: on non-NativeRenderScrollableProtocol view %@ "
                           "with tag #%@", view, componentTag);
         }
     }];

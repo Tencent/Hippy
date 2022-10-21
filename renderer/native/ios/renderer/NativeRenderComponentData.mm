@@ -22,9 +22,9 @@
 
 #import "NativeRenderComponentData.h"
 #import <objc/message.h>
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 #import "UIView+NativeRender.h"
 
 typedef void (^NativeRenderPropBlock)(id<NativeRenderComponentProtocol> view, id json);
@@ -88,7 +88,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         while (cls != [NativeRenderViewManager class]) {
             _implementsUIBlockToAmendWithRenderObjectRegistry
                 = _implementsUIBlockToAmendWithRenderObjectRegistry
-                  || NativeRenderClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistry:));
+                  || HPClassOverridesInstanceMethod(cls, @selector(uiBlockToAmendWithRenderObjectRegistry:));
             cls = [cls superclass];
         }
     }
@@ -96,7 +96,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (UIView *)createViewWithTag:(NSNumber *)tag {
-    NSAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread");
+    NSAssert(HPIsMainQueue(), @"This function must be called on the main thread");
     UIView *view = [self.manager view];
     view.componentTag = tag;
     view.multipleTouchEnabled = YES;
@@ -106,7 +106,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
 }
 
 - (UIView *)createViewWithTag:(NSNumber *)tag initProps:(NSDictionary *)props {
-    NSAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread");
+    NSAssert(HPIsMainQueue(), @"This function must be called on the main thread");
     self.manager.props = props;
     UIView *view = [self.manager view];
     view.componentTag = tag;
@@ -137,7 +137,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
         NSAssert(selector, @"no propConfig setter selector found for property %@", name);
         if ([_managerClass respondsToSelector:selector]) {
             NSArray<NSString *> *typeAndKeyPath = ((NSArray<NSString *> * (*)(id, SEL)) objc_msgSend)(_managerClass, selector);
-            type = NativeRenderConvertSelectorForType(typeAndKeyPath[0]);
+            type = HPConvertSelectorForType(typeAndKeyPath[0]);
             keyPath = typeAndKeyPath.count > 1 ? typeAndKeyPath[1] : nil;
         } else {
             propBlock = ^(__unused id view, __unused id json) {
@@ -162,7 +162,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 if (!strongSelf) {
                     return;
                 }
-                json = NativeRenderNilIfNull(json);
+                json = HPNilIfNull(json);
                 if (!renderObject) {
                     if (!json && !strongSelf->_defaultView) {
                         // Only create default view if json is null
@@ -197,9 +197,9 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 //The component event response logic no longer executes this code
             } else {
                 // Ordinary property handlers
-                NSMethodSignature *typeSignature = [[NativeRenderConvert class] methodSignatureForSelector:type];
+                NSMethodSignature *typeSignature = [[HPConvert class] methodSignatureForSelector:type];
                 if (!typeSignature) {
-                    NativeRenderLogError(@"No +[NativeRenderConvert %@] function found.", NSStringFromSelector(type));
+                    HPLogError(@"No +[HPConvert %@] function found.", NSStringFromSelector(type));
                     return ^(__unused id<NativeRenderComponentProtocol> view, __unused id json) {
                     };
                 }
@@ -220,7 +220,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                     setDefaultValue = YES;                                                  \
                 }                                                                           \
                 if ([target respondsToSelector:setter]) {                                   \
-                    set(target, setter, convert([NativeRenderConvert class], type, json));  \
+                    set(target, setter, convert([HPConvert class], type, json));  \
                 }                                                                           \
             } else if (setDefaultValue) {                                                   \
                 if ([target respondsToSelector:setter]) {                                   \
@@ -253,7 +253,7 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                     default: {
                         NSInvocation *typeInvocation = [NSInvocation invocationWithMethodSignature:typeSignature];
                         typeInvocation.selector = type;
-                        typeInvocation.target = [NativeRenderConvert class];
+                        typeInvocation.target = [HPConvert class];
 
                         __block NSInvocation *targetInvocation = nil;
                         __block NSMutableData *defaultValue = nil;
@@ -322,22 +322,21 @@ static NSDictionary<NSString *, NSString *> *gBaseViewManagerDic = nil;
                 }
                 // Set property with json
                 if (setterBlock) {
-                    setterBlock(target, NativeRenderNilIfNull(json));
+                    setterBlock(target, HPNilIfNull(json));
                 }
             };
         }
 
-        if (NATIVE_RENDER_DEBUG) {
+        if (HP_DEBUG) {
             // Provide more useful log feedback if there's an error
             NativeRenderPropBlock unwrappedBlock = propBlock;
             propBlock = ^(id<NativeRenderComponentProtocol> view, id json) {
                 NSString *logPrefix =
                     [NSString stringWithFormat:@"Error setting property '%@' of %@ with tag #%@: ", name, weakSelf.name, view.componentTag];
 
-                NativeRenderPerformBlockWithLogPrefix(
-                    ^{
-                        unwrappedBlock(view, json);
-                    }, logPrefix);
+                HPPerformBlockWithLogPrefix(^{
+                    unwrappedBlock(view, json);
+                }, logPrefix);
             };
         }
 

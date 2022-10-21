@@ -37,7 +37,7 @@ static NSString *kCellIdentifier = @"cellIdentifier";
 
 static NSString *kWaterfallItemName = @"WaterfallItem";
 
-@interface NativeRenderWaterfallView () <NativeRenderInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
+@interface NativeRenderWaterfallView () <HPInvalidating, NativeRenderRefreshDelegate, NativeRenderListTableViewLayoutProtocol> {
     NSHashTable<id<UIScrollViewDelegate>> *_scrollListeners;
     BOOL _isInitialListReady;
     UIColor *_backgroundColor;
@@ -171,7 +171,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 }
 
 - (void)refreshItemNodes {
-    [_dataSource setDataSource:self.nativeRenderObjectView.nativeRenderSubviews containBannerView:_containBannerView];
+    [_dataSource setDataSource:self.nativeRenderObjectView.subcomponents containBannerView:_containBannerView];
 }
 
 #pragma mark Setter & Getter
@@ -302,7 +302,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     }
 }
 
-- (NSArray<UIView *> *)nativeRenderSubviews {
+- (NSArray<UIView *> *)subcomponents {
     return [[_weakItemMap dictionaryRepresentation] allValues];
 }
 

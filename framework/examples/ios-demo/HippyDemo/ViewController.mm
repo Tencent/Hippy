@@ -20,25 +20,27 @@
 * limitations under the License.
 */
 
-#import "ViewController.h"
-#import "HippyRootView.h"
+#import "DemoConfigs.h"
 #import "HippyBundleURLProvider.h"
+#import "HippyDemoLoader.h"
+#import "HippyJSEnginesMapper.h"
+#import "HippyRedBox.h"
+#import "HPAsserts.h"
+#import "HPDefaultImageProvider.h"
+#import "HPLog.h"
+#import "HPRenderFrameworkProxy.h"
+#import "TypeConverter.h"
+#import "NativeRenderManager.h"
+#import "NativeRenderRootView.h"
 #import "UIView+NativeRender.h"
+#import "ViewController.h"
+
 #include "dom/dom_manager.h"
-#include "NativeRenderManager.h"
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
-#import "DemoConfigs.h"
-#import "NativeRenderFrameworkProxy.h"
-#import "NativeRenderDomNodeUtils.h"
-#import "NativeRenderDefaultImageProvider.h"
-#import "HippyRedBox.h"
-#import "HippyAssert.h"
-#import "HippyLog.h"
-#import "MyViewManager.h"
-#import "HippyDemoLoader.h"
 
-@interface ViewController ()<HippyBridgeDelegate, NativeRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
+
+@interface ViewController ()<HippyBridgeDelegate, HPRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     std::shared_ptr<hippy::RootNode> _rootNode;
@@ -52,11 +54,11 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    HippySetLogFunction(^(HippyLogLevel level, NSString *fileName, NSNumber *lineNumber,
-                                 NSString *message, NSArray<NSDictionary *> *stack, __weak HippyBridge *bridge) {
-        if (HippyLogLevelError <= level && bridge) {
+    HPSetLogFunction(^(HPLogLevel level, NSString *fileName, NSNumber *lineNumber,
+                       NSString *message, NSArray<NSDictionary *> *stack, NSDictionary *userInfo) {
+        if (HPLogLevelError <= level && userInfo) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                HippyBridge *strongBridge = bridge;
+                HippyBridge *strongBridge = [userInfo objectForKey:@"bridge"];
                 if (strongBridge) {
                     [strongBridge.redBox showErrorMessage:message withStack:stack];
                 }
@@ -73,10 +75,11 @@
     #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
     #endif
-//release macro below if use debug mode
+//release macro below for debug mode
 //#define HIPPYDEBUG
-    
-    HippyRootView *rootView = [[HippyRootView alloc] initWithFrame:self.view.bounds];
+    //JS Contexts holding the same engine key will share VM
+    static NSString *const engineKey = @"Demo";
+    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.view.bounds];
     NSNumber *rootTag = [rootView componentTag];
     NSDictionary *launchOptions = nil;
     NSArray<NSURL *> *bundleURLs = nil;
@@ -97,10 +100,36 @@
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
                                                  moduleProvider:nil
                                                   launchOptions:launchOptions
-                                                    engineKey:@"Demo"];
-    [bridge setupRootTag:rootView.componentTag rootSize:rootView.bounds.size
-          frameworkProxy:bridge rootView:rootView.contentView
-             screenScale:[UIScreen mainScreen].scale];
+                                                    engineKey:engineKey];
+    //Get DomManager from HippyJSEnginesMapper with Engine key
+    auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:engineKey];
+    auto domManager = engineResource->GetDomManager();
+    
+    //Create a RootNode instance with a root tag
+    auto rootNode = std::make_shared<hippy::RootNode>([rootTag unsignedIntValue]);
+    //Set RootNode for AnimationManager in RootNode
+    rootNode->GetAnimationManager()->SetRootNode(rootNode);
+    //Set DomManager for RootNode
+    rootNode->SetDomManager(domManager);
+    //Set screen scale factor and size for Layout system in RooNode
+    rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
+    rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
+    
+    //Create NativeRenderManager
+    auto renderManager = std::make_shared<NativeRenderManager>();
+    //Set frameproxy for render manager
+    renderManager->SetFrameworkProxy(bridge);
+    //bind rootview and root node
+    renderManager->RegisterRootView(rootView, rootNode);
+    //set dom manager
+    renderManager->SetDomManager(domManager);
+    
+    //set rendermanager for dommanager
+    domManager->SetRenderManager(renderManager);
+    id<HPRenderContext> renderContext = renderManager->GetRenderContext();
+    
+    //setup necessary params for bridge
+    [bridge setupDomManager:domManager rootNode:rootNode renderContext:renderContext];
     //set custom vfs loader
     bridge.uriLoader = std::make_shared<HippyDemoLoader>();
     [bridge loadBundleURLs:bundleURLs];
@@ -109,9 +138,12 @@
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
     bridge.methodInterceptor = self;
-    _bridge = bridge;
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
+    
+    _rootNode = rootNode;
+    _nativeRenderManager = renderManager;
+    _bridge = bridge;
 }
 
 #define StatusBarOffset 20
@@ -194,7 +226,7 @@ std::string mock;
 
 - (void)initRenderContextWithRootView:(UIView *)rootView {
     int componentTag = [[rootView componentTag] intValue];
-    HippyAssert(0 != componentTag && 0 == componentTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
+    HPAssert(0 != componentTag && 0 == componentTag % 10, @"Root view's tag must not be 0 and must be a multiple of 10");
     if (rootView && componentTag) {
         _rootNode = std::make_shared<hippy::RootNode>(componentTag);
         _rootNode->GetAnimationManager()->SetRootNode(_rootNode);
@@ -298,30 +330,34 @@ std::string mock;
     return bridge.bundleURL;
 }
 
-#pragma mark NativeRenderFrameworkProxy Delegate Implementation
+#pragma mark HPRenderFrameworkProxy Delegate Implementation
 - (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<NativeRenderContext>)renderContext {
     //这里将对应的URL转换为标准URL
     //比如将相对地址根据沙盒路径为转换绝对地址
     return UrlString;
 }
 
-- (Class<NativeRenderImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext {
-    //设置NativeRenderImageProviderProtocol类。
-    //NativeRenderImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
+- (Class<HPImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext {
+    //设置HPImageProviderProtocol类。
+    //HPImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
     //默认使用NativeRenderDefaultImageProvider
-    return [NativeRenderDefaultImageProvider class];
+    return [HPDefaultImageProvider class];
 }
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
-    HippyAssert(moduleName, @"module name must not be null");
-    HippyAssert(methodName, @"method name must not be null");
+    HPAssert(moduleName, @"module name must not be null");
+    HPAssert(methodName, @"method name must not be null");
     return YES;
 }
 
 - (BOOL)shouldCallbackBeInvokedWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName callbackId:(NSNumber *)cbId arguments:(id)arguments {
-    HippyAssert(moduleName, @"module name must not be null");
-    HippyAssert(methodName, @"method name must not be null");
+    HPAssert(moduleName, @"module name must not be null");
+    HPAssert(methodName, @"method name must not be null");
     return YES;
+}
+
+- (std::shared_ptr<VFSUriLoader>)URILoader {
+    return _bridge.uriLoader;
 }
 
 @end

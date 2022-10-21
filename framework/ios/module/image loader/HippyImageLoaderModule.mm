@@ -24,15 +24,16 @@
 
 #import "HippyBridge+VFSLoader.h"
 #import "HippyImageLoaderModule.h"
-#import "NativeRenderDefaultImageProvider.h"
-#import "NativeRenderUtils.h"
+#import "HPDefaultImageProvider.h"
+#import "HPToolUtils.h"
+#import "HippyDefines.h"
 
 static NSString *const kImageLoaderModuleErrorDomain = @"kImageLoaderModuleErrorDomain";
 static NSUInteger const ImageLoaderErrorParseError = 2;
 static NSUInteger const ImageLoaderErrorRequestError = 3;
 
 @interface HippyImageLoaderModule () {
-    Class<NativeRenderImageProviderProtocol> _imageProviderClass;
+    Class<HPImageProviderProtocol> _imageProviderClass;
 }
 
 @end
@@ -49,13 +50,13 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
     if ([self.bridge.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
         standardizeAssetUrlString = [self.bridge.frameworkProxy standardizeAssetUrlString:standardizeAssetUrlString forRenderContext:[self.bridge renderContext]];
     }
-    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
+    NSURL *url = HPURLWithString(standardizeAssetUrlString, nil);
     [self.bridge loadContentsAsynchronouslyFromUrl:url params:nil completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (!error) {
             UIImage *retImage = nil;
-            Class<NativeRenderImageProviderProtocol> imageProviderClass = [self imageProviderClass];
+            Class<HPImageProviderProtocol> imageProviderClass = [self imageProviderClass];
             if ([imageProviderClass canHandleData:data]) {
-                id <NativeRenderImageProviderProtocol> imageProvider = [[(Class) imageProviderClass alloc] init];
+                id <HPImageProviderProtocol> imageProvider = [[(Class) imageProviderClass alloc] init];
                 imageProvider.scale = [[UIScreen mainScreen] scale];
                 imageProvider.imageDataPath = [url absoluteString];
                 [imageProvider setImageData:data];
@@ -86,20 +87,20 @@ HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
     if ([self.bridge.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
         standardizeAssetUrlString = [self.bridge.frameworkProxy standardizeAssetUrlString:standardizeAssetUrlString forRenderContext:[self.bridge renderContext]];
     }
-    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
+    NSURL *url = HPURLWithString(standardizeAssetUrlString, nil);
     [self.bridge loadContentsAsynchronouslyFromUrl:url params:nil completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 
     }];
 }
 // clang-format on
 
-- (Class<NativeRenderImageProviderProtocol>)imageProviderClass {
+- (Class<HPImageProviderProtocol>)imageProviderClass {
     if (!_imageProviderClass) {
         if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
             _imageProviderClass = [self.bridge.frameworkProxy imageProviderClassForRenderContext:self.bridge.renderContext];
         }
         if (!_imageProviderClass) {
-            _imageProviderClass = [NativeRenderDefaultImageProvider class];
+            _imageProviderClass = [HPDefaultImageProvider class];
         }
     }
     return _imageProviderClass;

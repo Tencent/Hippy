@@ -22,9 +22,9 @@
 
 #import <UIKit/UIKit.h>
 #import "NativeRenderComponentProtocol.h"
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 #import "NativeRenderAnimatedImageView.h"
-#import "NativeRenderImageProviderProtocol.h"
+#import "HPImageProviderProtocol.h"
 
 @class NativeRenderImageView;
 
@@ -32,11 +32,11 @@
     NSData *_animatedImageData;
     NSString *_url;
     __weak NativeRenderImageView *_imageView;
-    id<NativeRenderImageProviderProtocol> _imageProvider;
+    id<HPImageProviderProtocol> _imageProvider;
 }
 
 - (id)initWithAnimatedImageData:(NSData *)data imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
-- (id)initWithAnimatedImageProvider:(id<NativeRenderImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
+- (id)initWithAnimatedImageProvider:(id<HPImageProviderProtocol>)imageProvider imageView:(NativeRenderImageView *)imageView imageURL:(NSString *)url;
 
 @end
 
@@ -79,14 +79,14 @@ typedef NS_ENUM(NSInteger, NativeRenderShapeMode) {
 
 - (void)updateImage:(UIImage *)image;
 
-- (void)setImageProvider:(id<NativeRenderImageProviderProtocol>)imageProvider;
+- (void)setImageProvider:(id<HPImageProviderProtocol>)imageProvider;
 
 - (void)clearImageIfDetached;
 
 - (BOOL)needsUpdateCornerRadiusManully;
 @end
 
-@interface NativeRenderConvert (NativeRenderResizeMode)
+@interface HPConvert (NativeRenderResizeMode)
 
 + (NativeRenderResizeMode)NativeRenderResizeMode:(id)json;
 + (NativeRenderShapeMode)NativeRenderShapeMode:(id)json;

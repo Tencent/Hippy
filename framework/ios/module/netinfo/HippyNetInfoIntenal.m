@@ -20,12 +20,13 @@
  * limitations under the License.
  */
 
-#import "HippyNetInfoIntenal.h"
-#import "HippyAssert.h"
-#import "netinet/in.h"
-#import <SystemConfiguration/SystemConfiguration.h>
-#import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import <SystemConfiguration/SystemConfiguration.h>
+
+#import "HippyNetInfoIntenal.h"
+#import "HPAsserts.h"
+
+#include <netinet/in.h>
 
 NSString *const HippyNetworkTypeUnknown = @"UNKNOWN";
 NSString *const HippyNetworkTypeNone = @"NONE";
@@ -204,7 +205,7 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
 }
 
 - (HippyNetworkTypeObject *)addNetworkTypeChangeObserver:(id<HippyNetworkTypeChangedDelegate>)observer {
-    HippyAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
+    HPAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
     if (observer) {
         [_observers addObject:observer];
     }
@@ -233,7 +234,7 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
 - (void)notifyObserversNetworkTypeChanged:(HippyNetworkTypeObject *)object {
     NSArray<id<HippyNetworkTypeChangedDelegate>> *observers = [_observers allObjects];
     for (id<HippyNetworkTypeChangedDelegate> observer in observers) {
-        HippyAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
+        HPAssert([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)], @"observer shoud conform HippyNetworkTypeChangedDelegate");
         if ([observer respondsToSelector:@selector(hippyNetworkTypeChanged:)]) {
             [observer hippyNetworkTypeChanged:object];
         }

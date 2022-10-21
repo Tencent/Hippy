@@ -20,21 +20,22 @@
  *
  */
 
-#import "HippyAssert.h"
 #import "HippyJSExecutor.h"
 #import "HippyModuleData.h"
 #import "HippyTurboModuleManager.h"
+#import "HPAsserts.h"
 
 #include <unordered_map>
+
 #include "driver/scope.h"
 #include "objc/runtime.h"
 
 static NSMutableDictionary<NSString *, Class> *HippyTurboModuleMap;
 
-HIPPY_EXTERN void HippyRegisterTurboModule(NSString *, Class);
+HP_EXTERN void HippyRegisterTurboModule(NSString *, Class);
 void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
     if (!moduleClass || !moduleName || moduleName.length == 0) {
-        HippyAssert(NO, @"moduleName or moduleClass is nil or empty!");
+        HPAssert(NO, @"moduleName or moduleClass is nil or empty!");
         return;
     }
     
@@ -43,11 +44,11 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
         HippyTurboModuleMap = [NSMutableDictionary dictionary];
     });
 
-    HippyAssert([moduleClass conformsToProtocol:@protocol(HippyTurboModule)],
+    HPAssert([moduleClass conformsToProtocol:@protocol(HippyTurboModule)],
                 @"%@ does not conform to the HippyTurboModule protocol", moduleClass);
 
     if ([HippyTurboModuleMap objectForKey:moduleName]) {
-        HippyAssert(NO, @"dumplicate regist the moduleName(%@) for %@ and %@",
+        HPAssert(NO, @"dumplicate regist the moduleName(%@) for %@ and %@",
                     moduleName,
                     NSStringFromClass(moduleClass),
                     NSStringFromClass([HippyTurboModuleMap objectForKey:moduleName]));
@@ -108,7 +109,7 @@ void HippyRegisterTurboModule(NSString *moduleName, Class moduleClass) {
             module = [[moduleCls alloc] initWithName:name bridge:_bridge];
             [self.turboModuleCache setObject:module forKey:name];
         } else {
-            HippyAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
+            HPAssert(NO, @"moduleClass of %@ is not conformsToProtocol(HippyTurboModuleImpProtocol)!", name);
         }
     }
     return module;

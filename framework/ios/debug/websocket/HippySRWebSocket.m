@@ -22,8 +22,8 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "HippyAssert.h"
-#import "HippyLog.h"
+#import "HPAsserts.h"
+#import "HPLog.h"
 #import "HippySRSIMDHelpers.h"
 
 typedef NS_ENUM(NSInteger, HippySROpCode) {
@@ -50,7 +50,7 @@ static NSString *const HippySRWebSocketAppendToSecKeyString = @"258EAFA5-E914-47
 
 //#define HippySR_ENABLE_LOG
 #ifdef HippySR_ENABLE_LOG
-#define HippySRLog(format...) HippyLogInfo(format)
+#define HippySRLog(format...) HPLogInfo(format)
 #else
 #define HippySRLog(...) \
     do {                \
@@ -145,7 +145,7 @@ typedef void (^data_callback)(HippySRWebSocket *webSocket, NSData *data);
 // This class is not thread-safe, and is expected to always be run on the same queue.
 @interface HippySRIOConsumerPool : NSObject
 
-- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithBufferCapacity:(NSUInteger)poolSize;
 
 - (HippySRIOConsumer *)consumerWithScanner:(stream_scanner)scanner
                                    handler:(data_callback)handler
@@ -257,7 +257,7 @@ static __strong NSData *CRLFCRLF;
 { CRLFCRLF = [[NSData alloc] initWithBytes:"\r\n\r\n" length:4]; }
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request protocols:(NSArray<NSString *> *)protocols {
-    HippyAssertParam(request);
+    HPAssertParam(request);
 
     if ((self = [super init])) {
         _url = request.URL;
@@ -269,8 +269,6 @@ static __strong NSData *CRLFCRLF;
     }
     return self;
 }
-
-HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (instancetype)initWithURLRequest:(NSURLRequest *)request;
 { return [self initWithURLRequest:request protocols:nil]; }
@@ -373,7 +371,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 - (void)open;
 {
     assert(_url);
-    HippyAssert(_readyState == HippySR_CONNECTING, @"Cannot call -(void)open on HippySRWebSocket more than once");
+    HPAssert(_readyState == HippySR_CONNECTING, @"Cannot call -(void)open on HippySRWebSocket more than once");
 
     _selfRetain = self;
 
@@ -678,7 +676,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (void)send:(id)data;
 {
-    HippyAssert(self.readyState != HippySR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
+    HPAssert(self.readyState != HippySR_CONNECTING, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy];
     dispatch_async(_workQueue, ^{
@@ -696,7 +694,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (void)sendPing:(NSData *)data;
 {
-    HippyAssert(self.readyState == HippySR_OPEN, @"Invalid State: Cannot call send: until connection is open");
+    HPAssert(self.readyState == HippySR_OPEN, @"Invalid State: Cannot call send: until connection is open");
     // TODO: maybe not copy this for performance
     data = [data copy] ?: [NSData data];  // It's okay for a ping to be empty
     dispatch_async(_workQueue, ^{

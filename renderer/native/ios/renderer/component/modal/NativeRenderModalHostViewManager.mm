@@ -23,7 +23,7 @@
 #import "NativeRenderModalHostViewManager.h"
 #import "NativeRenderModalHostViewController.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 #import "NativeRenderModalTransitioningDelegate.h"
 
 @interface NativeRenderObjectModalHost : NativeRenderObjectView
@@ -34,7 +34,7 @@
 
 - (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
-    CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
+    CGRect frame = { .origin = CGPointZero, .size = HPScreenSize() };
     [self setLayoutFrame:frame];
 }
 

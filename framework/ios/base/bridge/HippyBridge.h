@@ -24,17 +24,17 @@
 
 #import "HippyBridgeDelegate.h"
 #import "HippyBridgeModule.h"
-#import "HippyDefines.h"
+#import "MacroDefines.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyModulesSetup.h"
-#import "NativeRenderContext.h"
-#import "NativeRenderFrameworkProxy.h"
-#import "NativeRenderManager.h"
-#import "NativeRenderInvalidating.h"
+#import "HPRenderContext.h"
+#import "HPRenderFrameworkProxy.h"
+#import "HPInvalidating.h"
 
 #include <memory>
 #include "dom/animation/animation_manager.h"
 #include "dom/dom_manager.h"
+#include "dom/render_manager.h"
 #include "footstone/worker_manager.h"
 #include "vfs/uri_loader.h"
 
@@ -47,23 +47,23 @@ class VFSUriLoader;
 /**
  * Indicate hippy sdk version
  */
-HIPPY_EXTERN NSString *const HippySDKVersion;
+HP_EXTERN NSString *const HippySDKVersion;
 /**
  * This notification triggers a reload of all bridges currently running.
  * Deprecated, use HippyBridge::requestReload instead.
  */
-HIPPY_EXTERN NSString *const HippyReloadNotification;
+HP_EXTERN NSString *const HippyReloadNotification;
 
 /**
  * This notification fires when the bridge has finished loading the JS bundle.
  */
-HIPPY_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
+HP_EXTERN NSString *const HippyJavaScriptDidLoadNotification;
 
 /**
  * This notification fires when the bridge failed to load the JS bundle. The
  * `error` key can be used to determine the error that occured.
  */
-HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
+HP_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
 
 /**
  * This notification fires each time a native module is instantiated. The
@@ -71,17 +71,17 @@ HIPPY_EXTERN NSString *const HippyJavaScriptDidFailToLoadNotification;
  * Note that this notification may be fired before the module is available via
  * the `[bridge moduleForClass:]` method.
  */
-HIPPY_EXTERN NSString *const HippyDidInitializeModuleNotification;
+HP_EXTERN NSString *const HippyDidInitializeModuleNotification;
 
 /**
  * This function returns the module name for a given class.
  */
-HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
+HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 /**
  * Async batched bridge used to communicate with the JavaScript application.
  */
-@interface HippyBridge : NSObject <NativeRenderInvalidating, NativeRenderFrameworkProxy>
+@interface HippyBridge : NSObject <HPInvalidating, HPRenderFrameworkProxy>
 
 @property (nonatomic, weak, readonly) id<HippyBridgeDelegate> delegate;
 
@@ -121,24 +121,18 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs;
 
-@property (nonatomic, weak) id<NativeRenderFrameworkProxy> frameworkProxy;
-@property (nonatomic, weak) id<NativeRenderContext> renderContext;
-@property (nonatomic, readonly) std::shared_ptr<NativeRenderManager> renderManager;
-@property (nonatomic, readonly) std::shared_ptr<hippy::AnimationManager> animationManager;
-@property (nonatomic, readonly) std::shared_ptr<hippy::RootNode> rootNode;
+@property (nonatomic, weak) id<HPRenderFrameworkProxy> frameworkProxy;
+@property (nonatomic, weak) id<HPRenderContext> renderContext;
 
 /**
  * Set basic configuration for native render
- * @param tag Tag for root view
- * @param size Size for root view
- * @param proxy Native render proxy
- * @param view Root view
- * @param scale Screen scale
+ * @param domManager DomManager
+ * @param rootNode RootNode
+ * @param renderContext HPRenderContext instance
  */
-- (void)setupRootTag:(NSNumber *)tag rootSize:(CGSize)size
-      frameworkProxy:(id<NativeRenderFrameworkProxy>)proxy
-            rootView:(UIView *)view
-         screenScale:(CGFloat)scale;
+- (void)setupDomManager:(const std::shared_ptr<hippy::DomManager> &)domManager
+               rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
+          renderContext:(id<HPRenderContext>)renderContext;
 
 /**
  *  Load instance for root view and show views
@@ -210,7 +204,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 - (BOOL)moduleIsInitialized:(Class)moduleClass;
 
 /** A red box will show when error occurs by default
- *  only work on HIPPY_DEBUG mode
+ *  only work on HP_DEBUG mode
  */
 - (void)setRedBoxShowEnabled:(BOOL)enabled;
 
@@ -245,7 +239,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, strong) NSString *appVerson;  //
 
-@property (nonatomic, assign) NativeRenderInvalidateReason invalidateReason;
+@property (nonatomic, assign) HPInvalidateReason invalidateReason;
 
 @property (nonatomic, weak) id<HippyMethodInterceptorProtocol> methodInterceptor;
 
@@ -272,3 +266,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 + (BOOL)isHippyLocalFileURLString:(NSString *)string;
 
 @end
+
+extern void HippyBridgeFatal(NSError *, HippyBridge *);
+
+extern void HippyBridgeHandleException(NSException *exception, HippyBridge *bridge);

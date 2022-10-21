@@ -22,7 +22,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 
 @interface NativeRenderFont : NSObject
 
@@ -46,7 +46,7 @@
 
 @end
 
-@interface NativeRenderConvert (NativeRenderFont)
+@interface HPConvert (NativeRenderFont)
 
 + (UIFont *)UIFont:(id)json;
 

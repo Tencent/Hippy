@@ -42,17 +42,17 @@
 #define NanAsINF(n) (std::isnan(n) ? INFINITY : n)
 
 typedef enum {
-  LogLevelInfo,
-  LogLevelVerbose,
-  LogLevelDebug,
-  LogLevelWarn,
-  LogLevelError,
-  LogLevelFatal,
-} LogLevel;
+  LayoutLogLevelInfo,
+  LayoutLogLevelVerbose,
+  LayoutLogLevelDebug,
+  LayoutLogLevelWarn,
+  LayoutLogLevelError,
+  LayoutLogLevelFatal,
+} LayoutLogLevel;
 
-#define HPLogd(...) HPLog(LogLevelDebug, __VA_ARGS__)
-#define HPLogdStr(...) HPLog(LogLevelDebug, "%s", __VA_ARGS__)
-void HPLog(LogLevel level, const char *format, ...);
+#define HPLayoutLogd(...) HPLayoutLog(LayoutLogLevelDebug, __VA_ARGS__)
+#define HPLayoutLogdStr(...) HPLayoutLog(LayoutLogLevelDebug, "%s", __VA_ARGS__)
+void HPLayoutLog(LayoutLogLevel level, const char *format, ...);
 
 bool FloatIsEqual(const float a, const float b);
 bool FloatIsEqualInScale(float a, float b, float scale);

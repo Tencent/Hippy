@@ -21,7 +21,7 @@
  */
 
 #import "NativeRenderSimpleWebView.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 
 @implementation NativeRenderSimpleWebView
 
@@ -44,7 +44,7 @@
 
 - (void)loadUrl:(NSString *)urlString {
     _url = urlString;
-    NSURL *url = NativeRenderURLWithString(urlString, NULL);
+    NSURL *url = HPURLWithString(urlString, NULL);
     if (!url) {
         return;
     }

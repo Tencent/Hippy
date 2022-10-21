@@ -22,12 +22,10 @@
 
 #import <QuartzCore/CADisplayLink.h>
 #import "HippyFrameUpdate.h"
-#import "NativeRenderUtils.h"
-#import "HippyDefines.h"
+#import "HPToolUtils.h"
+#import "MacroDefines.h"
 
 @implementation HippyFrameUpdate
-
-HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
 
 - (instancetype)initWithDisplayLink:(CADisplayLink *)displayLink {
     if ((self = [super init])) {

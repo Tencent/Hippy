@@ -21,10 +21,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "NativeRenderFrameworkProxy.h"
+
+#import "HPRenderFrameworkProxy.h"
 #import "UIView+Render.h"
-#import "dom/dom_manager.h"
-#import "dom/root_node.h"
+#import "HPRenderContext.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,35 +35,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef void (^NativeRenderRenderUIBlock)(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry);
 
-@protocol NativeRenderContext <NSObject>
+@protocol NativeRenderContext <HPRenderContext>
 
 @property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
 
-@property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
-
-@property(nonatomic, weak) id<NativeRenderFrameworkProxy> frameworkProxy;
-
-- (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
-
-- (void)unregisterRootViewFromTag:(NSNumber *)rootTag;
-
 - (__kindof NativeRenderViewManager *)renderViewManagerForViewName:(NSString *)viewName;
-
-- (NSArray<__kindof UIView *> *)rootViews;
-
-- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
 
 - (__kindof UIView *)createViewRecursivelyFromRenderObject:(NativeRenderObjectView *)renderObject;
 
-- (void)purgeViewsFromComponentTags:(NSArray<NSNumber *> *)componentTag onRootTag:(NSNumber *)rootTag;
-
 - (void)addUIBlock:(NativeRenderRenderUIBlock)block;
-
-- (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
-
-- (void)setFrame:(CGRect)frame forRootView:(UIView *)view;
-
-- (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag;
 
 @end
 

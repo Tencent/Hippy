@@ -45,7 +45,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         UIView *view = viewRegistry[componentTag];
 
         if (view == nil || ![view isKindOfClass:[NativeRenderViewPager class]]) {
-            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
+            HPLogError(@"tried to setPage: on an error viewPager %@ "
                         "with tag #%@", view, componentTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;
@@ -60,7 +60,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber 
     [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil || ![view isKindOfClass:[NativeRenderViewPager class]]) {
-            NativeRenderLogError(@"tried to setPage: on an error viewPager %@ "
+            HPLogError(@"tried to setPage: on an error viewPager %@ "
                         "with tag #%@", view, componentTag);
         }
         NSInteger pageNumberInteger = pageNumber.integerValue;

@@ -20,10 +20,10 @@
  * limitations under the License.
  */
 
-#import "NativeRenderGradientObject.h"
-#import "NativeRenderUtils.h"
+#import "HPAsserts.h"
+#import "HPToolUtils.h"
 #import "NativeRenderBorderDrawing.h"
-#import "NativeRenderErrorHandler.h"
+#import "NativeRenderGradientObject.h"
 
 @interface NativeRenderGradientLocationParser () {
     NSPointerArray *_locations;
@@ -273,7 +273,7 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
             for (NSUInteger i = 0; i < [colorStopList count]; i++) {
                 NSDictionary *colorStop = [colorStopList objectAtIndex:i];
                 NSNumber *colorNumber = [colorStop objectForKey:@"color"];
-                UIColor *color = NativeRenderConvertNumberToColor([colorNumber integerValue]);
+                UIColor *color = HPConvertNumberToColor([colorNumber integerValue]);
                 [colors addObject:color];
                 NSNumber *stop = [colorStop objectForKey:@"ratio"];
                 if (stop) {
@@ -284,8 +284,8 @@ static LinearGradientPoints pointsFromDirection(NativeRenderGradientObject *obje
             self.locations = [locationParser computeLocations];
         } @catch (NSException *exception) {
             NSString *errorString = [NSString stringWithFormat:@"gradient parse error:%@", [exception reason]];
-            NSError *error = NativeRenderErrorWithMessageAndModuleName(errorString, nil);
-            NativeRenderFatal(error);
+            NSError *error = HPErrorWithMessageAndModuleName(errorString, nil);
+            HPFatal(error, nil);
             return self;
         }
     }
@@ -355,7 +355,7 @@ void NativeRenderDrawLinearGradientInContext(NativeRenderGradientObject *object,
     CGContextRestoreGState(context);
 }
 
-NATIVE_RENDER_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize size) {
+HP_EXTERN void NativeRenderDrawRadialGradientInContext(NativeRenderGradientObject *object, CGContextRef context, CGSize size) {
     NSCAssert(context, @"context cannot be null for drawing radial gradient");
     NSCAssert(NO, @"NativeRenderDrawRadialGradientInContext not implemented");
 }

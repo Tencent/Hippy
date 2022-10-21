@@ -21,8 +21,8 @@
  */
 
 #import "NativeRenderObjectRootView.h"
-#import "NativeRenderUtils.h"
-#import "NativeRenderI18nUtils.h"
+#import "HPToolUtils.h"
+#import "HPI18nUtils.h"
 
 @implementation NativeRenderObjectRootView
 
@@ -30,7 +30,7 @@
 }
 
 - (void)amendLayoutBeforeMount {
-    for (NativeRenderObjectView *renderObject in self.nativeRenderSubviews) {
+    for (NativeRenderObjectView *renderObject in self.subcomponents) {
         [renderObject amendLayoutBeforeMount];
     }
 }
