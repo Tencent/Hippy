@@ -60,6 +60,9 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
    * do not dispatch to parent in this state
    */
   private boolean mCaptured = false;
+  // Reusable int array to be passed to method calls that mutate it in order to "return" two ints.
+  private final int[] mScrollOffsetPair = new int[2];
+  private int mNestedScrollOffset = 0;
 
   private void init(Context context, boolean isVertical) {
     setCallPageChangedOnFirstLayout(true);
@@ -162,12 +165,43 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   }
 
   @Override
+  public boolean dispatchTouchEvent(MotionEvent ev) {
+    if (hasNestedScrollingParent() && mNestedScrollOffset != 0) {
+      // After the nested scroll occurs, the current View position has changed. The coordinate
+      // origin of ev.getX() and mLastMotionX/Y is different, and the ev offset needs to be
+      // corrected.
+      MotionEvent transformEv = MotionEvent.obtain(ev);
+      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
+          transformEv.offsetLocation(mNestedScrollOffset, 0);
+      } else {
+          transformEv.offsetLocation(0, mNestedScrollOffset);
+      }
+      boolean result = super.dispatchTouchEvent(transformEv);
+      transformEv.recycle();
+      return result;
+    }
+    return super.dispatchTouchEvent(ev);
+  }
+
+  @Override
   public boolean onInterceptTouchEvent(MotionEvent ev) {
     if (!isScrollEnabled() || getNestedScrollAxes() != SCROLL_AXIS_NONE) {
       return false;
     }
-
-    return super.onInterceptTouchEvent(ev);
+    boolean result = super.onInterceptTouchEvent(ev);
+    switch (ev.getAction() & MotionEvent.ACTION_MASK) {
+        case MotionEvent.ACTION_DOWN:
+            mNestedScrollOffset = 0;
+            startNestedScroll(mAxes);
+            break;
+        case MotionEvent.ACTION_CANCEL:
+        case MotionEvent.ACTION_UP:
+            stopNestedScroll();
+            break;
+        default:
+            break;
+    }
+    return result;
   }
 
   @Override
@@ -179,6 +213,7 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
     if (result) {
       switch (ev.getAction() & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_DOWN:
+          mNestedScrollOffset = 0;
           startNestedScroll(mAxes);
           break;
         case MotionEvent.ACTION_CANCEL:
@@ -377,25 +412,42 @@ public class HippyViewPager extends ViewPager implements HippyViewBase {
   @Override
   protected boolean performDrag(float x) {
     // Dispatch nested scrolling event only when it cannot scroll
-    int dx = 0;
-    int dy = 0;
     if (!mCaptured) {
-      if (mAxes == SCROLL_AXIS_HORIZONTAL) {
+      int dx = 0;
+      int dy = 0;
+      boolean horizontal = mAxes == SCROLL_AXIS_HORIZONTAL;
+      if (horizontal) {
         dx = Math.round(mLastMotionX - x);
       } else {
         dy = Math.round(mLastMotionY - x);
       }
-      if ((dx != 0 || dy != 0) && dispatchNestedPreScroll(dx, dy ,null, null)) {
-        return true;
+      if (dx == 0 && dy == 0) {
+        return false;
+      }
+      if (dispatchNestedPreScroll(dx, dy ,null, mScrollOffsetPair)) {
+        if (horizontal) {
+          mNestedScrollOffset += mScrollOffsetPair[0];
+          mLastMotionX = x;
+        } else {
+          mNestedScrollOffset += mScrollOffsetPair[1];
+          mLastMotionY = x;
+        }
+        return false;
+      }
+      mCaptured = horizontal ? horizontalCanScroll(dx) : verticalCanScroll(dy);
+      if (!mCaptured) {
+        if (dispatchNestedScroll(0, 0, dx, dy, mScrollOffsetPair)) {
+          if (horizontal) {
+            mNestedScrollOffset += mScrollOffsetPair[0];
+            mLastMotionX = x;
+          } else {
+            mNestedScrollOffset += mScrollOffsetPair[1];
+            mLastMotionY = x;
+          }
+        }
+        return false;
       }
     }
-    if (super.performDrag(x)) {
-      mCaptured = true;
-      return true;
-    }
-    if (!mCaptured && (dx != 0 || dy != 0)) {
-      return dispatchNestedScroll(0, 0, dx, dy, null);
-    }
-    return false;
+    return super.performDrag(x);
   }
 }

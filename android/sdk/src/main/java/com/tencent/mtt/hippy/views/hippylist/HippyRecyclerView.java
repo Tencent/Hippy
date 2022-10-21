@@ -625,7 +625,8 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     protected boolean handlePullRefresh(int dx, int dy, int[] consumed) {
-        if (listAdapter.headerRefreshHelper == null && listAdapter.footerRefreshHelper == null) {
+        if (listAdapter == null ||
+            (listAdapter.headerRefreshHelper == null && listAdapter.footerRefreshHelper == null)) {
             return false;
         }
         boolean isHorizontal = HippyListUtils.isHorizontalLayout(this);
@@ -651,6 +652,9 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     protected void endPullRefresh() {
+        if (listAdapter == null) {
+            return;
+        }
         if (listAdapter.headerRefreshHelper != null) {
             listAdapter.headerRefreshHelper.endDrag();
         }

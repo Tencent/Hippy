@@ -80,8 +80,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   private HashMap<Integer, Integer> scrollOffsetForReuse = new HashMap<>();
   private final Priority[] mNestedScrollPriority = { Priority.SELF, Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET };
-  private final int[] mScrollConsumed = new int[2];
-  private final int[] mScrollOffset = new int[2];
+  private final int[] mScrollConsumedPair = new int[2];
+  private final int[] mScrollOffsetPair = new int[2];
   private final NestedScrollingChildHelper mChildHelper = new NestedScrollingChildHelper(this);
   private int mNestedXOffset;
   private int mNestedScrollAxesNonTouch;
@@ -292,12 +292,12 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
     }
     int consumed = 0;
     int unConsumed = deltaX;
-    mScrollConsumed[0] = 0;
-    mScrollConsumed[1] = 0;
-    if (dispatchNestedPreScroll(unConsumed, 0, mScrollConsumed, mScrollOffset)) {
-      consumed = mScrollConsumed[0];
-      unConsumed -= mScrollConsumed[0];
-      mNestedXOffset += mScrollOffset[0];
+    mScrollConsumedPair[0] = 0;
+    mScrollConsumedPair[1] = 0;
+    if (dispatchNestedPreScroll(unConsumed, 0, mScrollConsumedPair, mScrollOffsetPair)) {
+      consumed = mScrollConsumedPair[0];
+      unConsumed -= mScrollConsumedPair[0];
+      mNestedXOffset += mScrollOffsetPair[0];
       if (unConsumed == 0) {
         return false;
       }
@@ -311,8 +311,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
       unConsumed -= myDx;
     }
     if (unConsumed != 0) {
-      dispatchNestedScroll(consumed, 0, unConsumed, 0, mScrollOffset);
-      mNestedXOffset += mScrollOffset[0];
+      dispatchNestedScroll(consumed, 0, unConsumed, 0, mScrollOffsetPair);
+      mNestedXOffset += mScrollOffsetPair[0];
     }
     return false;
   }
@@ -551,7 +551,8 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
   @Override
   public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
-    onNestedScrollAccepted(child, target, axes, ViewCompat.TYPE_TOUCH);
+    super.onNestedScrollAccepted(child, target, axes);
+    startNestedScroll(SCROLL_AXIS_HORIZONTAL);
   }
 
   @Override
