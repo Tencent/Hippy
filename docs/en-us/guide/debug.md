@@ -1,5 +1,7 @@
 # Debug
 
+---
+
 # Hippy Debugging Principles
 
 Hippy runs directly in real device's JS engine, using WebSocket on Android to communicate with Chrome on the computer via [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) debugging, while iOS uses the built-in [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) to connect with [Safari](//www.apple.com.cn/cn/safari/) for debugging, and in the newer Hippy versions of iOS, it can also be debugged using Chrome DevTools.
@@ -98,9 +100,8 @@ We recommend leaving a backdoor in the native code to enter debug mode after bei
    ```json
    {
      "scripts": {
-        "hippy:debug": "hippy-debug",
         // -c or --config provides the webpack config path
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
@@ -171,8 +172,8 @@ Android uses the [adb](//developer.android.com/studio/command-line/adb) port map
 Specific procedure: 
 
 1. Download and install [Android Studio](//developer.android.com/studio)
-2. through Android Studio open [Hippy Android example project](//github.com/Tencent/Hippy/tree/master/examples/android-demo), when prompted "ToolChain need to update", choose to reject for all options, install SDK, NDK, and cmake 3.6.4.
-3. Plug in your real Android device via the data cable and click Run in Android Studio. Normally, the device should already be running the `Hippy Demo` app. *See [#39](//github.com/Tencent/Hippy/issues/39) for compilation problems.*
+2. Using Android Studio to open `Hippy Repo` root directory, which will load [Hippy Android example project](//github.com/Tencent/Hippy/tree/master/examples/android-demo).
+3. Plug in your real Android device via the data cable and click Run in Android Studio. Normally, the device should already be running the `Hippy Demo` app.
 4. Go back to your device and make sure that `USB debug mode` is turned on - you can enter `Developer mode`' by clicking `Build` in succession on the About page, and then turn on `USB debug mode` after you enter the `Developer mode` screen.
 5. Run `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` to make sure port 38389 is not occupied.
 6. Open the front-end example project [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) or [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo), use npm run hippy:dev to start building and debugging service.
@@ -186,7 +187,7 @@ Specific procedure:
 
 Hippy implements node and property mapping from front-end to native, allowing visual inspection of Elements on Chrome DevTools.
 
-<video width="80%" controls>
+<video width="80%" controls preload="none">
   <source src="../assets/img/elements-inspect.webm" type="video/webm">
   Elements Visualization Inspection example
 </video>
@@ -258,9 +259,8 @@ After the developer has modified the front-end code, we can refresh the componen
    ```json
    {
      "scripts": {
-        "hippy:debug": "hippy-debug",
          // -c or --config provides webpack config path
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"     }  
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"     }  
    } 
    ```
 
@@ -352,9 +352,8 @@ After the developer has modified the front-end code, we can refresh the componen
    ```json
    {
       "scripts": {
-        "hippy:debug": "hippy-debug",
         // -c or --config provide Webpack config path
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
       }
    }
    ```
@@ -379,8 +378,8 @@ After the developer has modified the front-end code, we can refresh the componen
 
 Support for debugging Vue component trees, component state, routes, store, and event performance
 
-<video width="80%" controls>
-  <source src="../assets/img/hippy-vue-devtools-x2.mp4" type="video/mp4">
+<video width="80%" controls preload="none">
+  <source src="../assets/img/hippy-vue-devtools.webm" type="video/webm">
   Vue Devtools example
 </video>
 
@@ -415,8 +414,8 @@ Support for debugging Vue component trees, component state, routes, store, and e
 
 Support for debugging React component tree, component state, route, performance, etc.
 
-<video width="80%" controls>
-  <source src=".. /assets/img/hippy-react-devtools.mp4" type="video/mp4">
+<video width="80%" controls preload="none">
+  <source src="../assets/img/hippy-react-devtools.webm" type="video/webm">
   React Devtools Demo
 </video>
 
@@ -506,7 +505,7 @@ Local debugging has two pain points.
 
 Then we can consider using remote debugging for these scenarios, with the following preview.
 
-<video width="80%" controls>
+<video width="80%" controls preload="none">
   <source src="../assets/img/remote-debug-demo.webm" type="video/webm">
   Remote debug example
 </video>
@@ -610,6 +609,6 @@ Set Host App debugMode to true and pass in the bundleUrl generated by front-end 
 
 Both hippy-react and hippy-vue will output the information of communicating with native, including the js-native node operations, events sent/received. These logs are actually very helpful for business debugging, allowing developers to understand how the front-end framework translates code into a syntax that the native can understand. When you encounter problems, please first check the framework communication logs, as they can basically locate most of the problems.
 
-If you need to turn off the logs, you can add `silent: true` to hippy-react's `new Hippy` startup parameters, or  turn on `Vue.config.silent = true;` in hippy-vue project entry file.
+If you need to turn off the logs, you can add `silent: true` to hippy-react's `new Hippy` startup parameters, or  turn on `Vue.config.silent = true;` in hippy-vue project entry file, or add `silent: true` to hippy-vue-next's `createApp` init options.
 
 <img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>

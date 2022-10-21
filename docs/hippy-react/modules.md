@@ -1,5 +1,4 @@
 <!-- markdownlint-disable no-duplicate-header  -->
-<!-- markdownlint-disable no-blacks-blockquote -->
 
 # 模块
 
@@ -63,7 +62,7 @@
 
 ### updateAnimation
 
-`(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数
+`(options: Object) => void` 修改动画的配置参数，只需要填入需要修改的配置项即可，不需要重复填入所有的动画参数。注意，如果动画已经 start 或 destroy，更新操作将不会生效
 
 > - options: Object: 实例化参数
 

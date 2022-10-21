@@ -231,7 +231,7 @@ function registerAnimation(Vue) {
             [key]: transformAnimations[key],
           }));
         }
-        // Turn to be true at first startAnimation, and be false again when destroy.
+        // Turn to be true at first startAnimation, and be false again when destroyed.
         this.$alreadyStarted = false;
         // Generated style
         this.style = style;

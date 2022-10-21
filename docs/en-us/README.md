@@ -1,12 +1,12 @@
 <div id='custom-homepage'>
-    <div><img alt="logo" data-origin="_media/logo.svg" src="/_media/logo.svg" style="max-width: 100%;"></div>
+    <div><img alt="logo" data-origin="_media/hippy-logo.png" src="/_media/hippy-logo.png" style="min-width: 165px;min-height: 165px;max-height: 22vh;max-width: 22vw"></div>
     <div class="custom-homepage-container">
         <h1 id="hippy">
             <a class="anchor" data-id="hippy" href="#/?id=hippy">
                 <span>Hippy</span>
             </a>
         </h1>
-        <div class="sub-title"><span>Cross-Platform Framework for Front-End Developers</span></div>
+        <div class="sub-title"><span>Cross-Platform Framework for Developers</span></div>
         <a href="https://github.com/Tencent/Hippy/stargazers" rel="noopener" target="_blank"><img
                 alt="GitHub Repo stars" src="https://img.shields.io/github/stars/Tencent/Hippy?color=50c52a"></a>
         <a href="https://github.com/Tencent/Hippy/releases"
@@ -94,6 +94,10 @@ Hippy has also made a lot of optimizations in the development experience, includ
   <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://im.qq.com/mobileqq/" title="Mobile QQ">Mobile QQ</a></p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_5613_1660103898/96" width="50" alt="Tencent News" />
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://news.qq.com/mobile/" title="Tencent News">Tencent News</a></p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
   <img src="//pp.myapp.com/ma_icon/0/icon_10966186_1533019715/128" alt="WeSing" width="50" />
   <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kg.qq.com/html/contest/kg-intro.html" title="WeSing">WeSing</a>
@@ -106,9 +110,29 @@ Hippy has also made a lot of optimizations in the development experience, includ
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_10237_1659521178/256" width="50" alt="Tencent Map" />
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://map.qq.com/mobile/index.html" title="Tencent Map">Tencent Map</a></p>
+</span>
+<span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_42287337_1659540466/96" width="50" alt="Camps of Kings" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.gamehelper.smoba" title="Camps of Kings">Camps of Kings</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_54036620_1658836879/96" width="50" alt="shanxian" />
+  <p style="font-size:16px"><a target="_blank" style="text-decoration:none;color:#34495e" href="https://shanxian.qq.com/" title="shanxian">ShanXian</a></p>
+</span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
   <img src="assets/img/tv.png" width="50" alt="Tencent TV" />
   <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://tv.qq.com/" title="Tencent TV">Tencent TV</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_54136949_1658385381/256" width="50" alt="Tencent Start(TV)" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://start.qq.com/download.html?terminal=tv" title="Tencent Start(TV)">Tencent Start(TV)</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
@@ -124,15 +148,21 @@ Hippy has also made a lot of optimizations in the development experience, includ
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_42270933_1551941158/128" width="50" alt="NOW Live" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_52775028_1660135770/256" width="50" alt="Tencent Wealth Management" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://now.qq.com/" title="NOW Live">NOW Live</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://a.app.qq.com/o/simple.jsp?pkgname=com.tencent.fortuneplat" title="Tencent Wealth Management">Tencent WM</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="assets/img/voov.png" width="50" alt="VOOV Live" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_206354_1558415148/128" width="50" alt="Tencent ZXG App" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.voovlive.com/" title="VOOV Live">VOOV Live</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.portfolio" title="Tencent ZXG App">Tencent ZXG App</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="//pp.myapp.com/ma_icon/0/icon_42270933_1551941158/128" width="50" alt="NOW Live" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://now.qq.com/" title="NOW Live">NOW Live</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
@@ -142,33 +172,27 @@ Hippy has also made a lot of optimizations in the development experience, includ
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_42287337_1556173463/128" width="50" alt="Camps of Kings" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.gamehelper.smoba" title="Camps of Kings">Camps of Kings</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_12082013_1545355964/128" width="50" alt="Daily Express" />
-  <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://kuaibao.qq.com/download.html" title="Daily Express">Daily Express</a>
-  </p>
- </span>
- <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
   <img src="//pp.myapp.com/ma_icon/0/icon_12259403_1545708417/128" width="50" alt="Wi-Fi Butler" />
    <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://wifi.qq.com/" title="Wi-Fi Butler">Wi-Fi Butler</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
-  <img src="//pp.myapp.com/ma_icon/0/icon_206354_1558415148/128" width="50" alt="Tencent Zixuangu" />
+  <img src="//pp.myapp.com/ma_icon/0/icon_52754761_1557837008/128" width="50" alt="DaFeng App" />
   <p style="font-size:16px">
-  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://sj.qq.com/myapp/detail.htm?apkName=com.tencent.portfolio" title="Tencent Stock App">Tencent Stock App</a>
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.dafenghk.com/hk_web/download.shtml" title="DaFeng App">DaFeng App</a>
   </p>
  </span>
  <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
   <img src="//pp.myapp.com/ma_icon/0/icon_52797852_1545191305/128" width="50" alt="Tencent OM" />
   <p style="font-size:16px">
   <a target="_blank" style="text-decoration:none;color:#34495e" href="https://android.myapp.com/myapp/detail.htm?apkName=com.tencent.omapp" title="Tencent OM">Tencent OM</a>
+  </p>
+ </span>
+ <span style="display:flex;flex-direction:column;justify-content:flex-start;align-items: center;margin: 20px">
+  <img src="assets/img/voov.png" width="50" alt="VOOV Live" />
+  <p style="font-size:16px">
+  <a target="_blank" style="text-decoration:none;color:#34495e" href="https://www.voovlive.com/" title="VOOV Live">VOOV Live</a>
   </p>
  </span>
  </div>
@@ -262,10 +286,9 @@ Hippy has also made a lot of optimizations in the development experience, includ
 ## Communication
 
 * [Article Column](https://cloud.tencent.com/developer/column/84006)
-* QQ Group: [784894901](//shang.qq.com/wpa/qunwpa?idkey=7bff52aca3aac75a4f1ba96c1844a5e3b62000351890182eb60311542d75fa1a)-click the link to start QQ to join, or copy the group number to join manually.
-* QQ Group QR code, use Mobile QQ scan to join.
+* WeCom Group, use WeChat or WeCom scan to join.
 
- ![QQ group QR code](assets/img/qq-group.png)
+ ![WeCom Group QR code](assets/img/wechat-group.jpeg)
 
 ## Summary
 

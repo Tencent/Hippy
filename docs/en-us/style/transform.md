@@ -2,6 +2,8 @@
 
 This type of style can make some basic deformations to the component elements, such as scaling, rotating, twisting, and so on.
 
+---
+
 # transform
 
 `transform` You can pass in multiple deformed parameter arrays to complete the transform of the original element. For example:

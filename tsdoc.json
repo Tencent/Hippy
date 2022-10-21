@@ -1,0 +1,25 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
+  "tagDefinitions": [
+    {
+      "tagName": "@author",
+      "syntaxKind": "block"
+    },
+    {
+      "tagName": "@priority",
+      "syntaxKind": "block"
+    },
+    {
+      "tagName": "@casetype",
+      "syntaxKind": "block"
+    },
+    {
+      "tagName": "@description",
+      "syntaxKind": "block"
+    },
+    {
+      "tagName": "@implements",
+      "syntaxKind": "block"
+    }
+  ]
+}

@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 
@@ -60,7 +80,7 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
 
         __GLOBAL__.appRegister[callObj.name].run(callObj.params);
       } else {
-        throw Error(`error: ${callObj.name} is not regist in js`);
+        throw Error(`native2js error: native ${callObj.name} is not registered in js`);
       }
     } else if (method === 'unmountApplicationComponentAtRootTag') {
       const rootViewId = args[0];
@@ -68,11 +88,15 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
       Hippy.bridge.callNative('UIManagerModule', 'startBatch');
       Hippy.bridge.callNative('UIManagerModule', 'removeRootView', rootViewId);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch');
+      // compatible for hippy1.x
+      delete __GLOBAL__.nodeIdCache[rootViewId];
+      delete __GLOBAL__.nodeTreeCache[rootViewId];
+      delete __GLOBAL__.nodeParamCache[rootViewId];
+      __GLOBAL__.destroyInstanceList[rootViewId] = true;
     }
   } else if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];
-    if (!targetModule || !targetModule[method] || typeof targetModule[method] !== 'function') {
-    } else {
+    if (targetModule && typeof targetModule[method] === 'function') {
       targetModule[method].call(targetModule, args[1].params);
     }
   } else if (module === 'JSTimersExecution') {

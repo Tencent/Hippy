@@ -138,7 +138,7 @@ HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 - (void)_immediatelyCallTimer:(NSNumber *)timer;
 
 /**
- * Get  the turbo module for a given name.
+ * Get the turbo module for a given name.
  */
 - (HippyOCTurboModule *)turboModuleWithName:(NSString *)name;
 

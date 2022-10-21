@@ -1,7 +1,7 @@
 /*
  * Tencent is pleased to support the open source community by making Hippy
  * available.
- * Copyright (C) 2018 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2018-2022 THL A29 Limited, a Tencent company. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,6 +25,8 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
+
+import com.tencent.mtt.hippy.BuildConfig;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
@@ -36,7 +38,6 @@ import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager;
 import com.tencent.mtt.hippy.common.Callback;
-import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -72,6 +73,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     static final int FUNCTION_ACTION_DESTROY_INSTANCE = 4;
     static final int FUNCTION_ACTION_CALLBACK = 5;
     static final int FUNCTION_ACTION_CALL_JSMODULE = 6;
+
+    public static final long V8_RUNTIME_ID_EMPTY = -1;
 
     public static final int BRIDGE_TYPE_SINGLE_THREAD = 2;
     public static final int BRIDGE_TYPE_NORMAL = 1;
@@ -275,39 +278,40 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                                     String info =
                                             "initJSBridge error: result=" + result + ", reason="
                                                     + reason;
-                                    reportException(new Throwable(info));
+                                    RuntimeException exception = new RuntimeException(info);
+                                    if (callback != null) {
+                                        callback.callback(false, exception);
+                                    }
+                                    return;
                                 }
-
                                 if (enableTurbo()) {
                                     mTurboModuleManager = new TurboModuleManager(mContext);
                                     mTurboModuleManager.install(mHippyBridge.getV8RuntimeId());
                                 }
-
                                 if (mThirdPartyAdapter != null) {
                                     mThirdPartyAdapter.onRuntimeInit(mHippyBridge.getV8RuntimeId());
                                 }
                                 mContext.getStartTimeMonitor()
                                         .startEvent(
                                                 HippyEngineMonitorEvent.ENGINE_LOAD_EVENT_LOAD_COMMONJS);
-
+                                mIsInit = true;
                                 if (mCoreBundleLoader != null) {
                                     mCoreBundleLoader
                                             .load(mHippyBridge, new NativeCallback(mHandler) {
                                                 @Override
                                                 public void Call(long result, Message message,
                                                         String action, String reason) {
-                                                    mIsInit = result == 0;
                                                     RuntimeException exception = null;
-                                                    if (!mIsInit) {
+                                                    boolean ret = (result == 0);
+                                                    if (!ret) {
                                                         exception = new RuntimeException(
                                                                 "load coreJsBundle failed, check your core jsBundle:"
                                                                         + reason);
                                                     }
-                                                    callback.callback(mIsInit, exception);
+                                                    callback.callback(ret, exception);
                                                 }
                                             });
                                 } else {
-                                    mIsInit = true;
                                     callback.callback(mIsInit, null);
                                 }
                             }
@@ -419,6 +423,10 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         }
         Message message = mHandler.obtainMessage(MSG_CODE_RUN_SCRIPT, script);
         mHandler.sendMessage(message);
+    }
+
+    public void runInJsThread(Callback<Void> callback) {
+      mHippyBridge.runInJsThread(callback);
     }
 
     @Override
@@ -657,6 +665,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         platformParams.pushString("VersionName", (versionName == null) ? "" : versionName);
         platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
         platformParams.pushBoolean("NightMode", getNightMode());
+        platformParams.pushString("SDKVersion", BuildConfig.LIBRARY_VERSION);
 
         HippyMap Localization = new HippyMap();
         Localization.pushString("language", I18nUtil.getLanguage());
@@ -706,7 +715,15 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         return mThirdPartyAdapter;
     }
 
-    private boolean enableTurbo() {
+  @Override
+  public long getV8RuntimeId() {
+    if (!mIsInit || mHippyBridge == null) {
+      return V8_RUNTIME_ID_EMPTY;
+    }
+    return mHippyBridge.getV8RuntimeId();
+  }
+
+  private boolean enableTurbo() {
         return mContext.getGlobalConfigs() != null && mContext.getGlobalConfigs().enableTurbo();
     }
 }

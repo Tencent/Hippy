@@ -30,6 +30,7 @@ import {
   getCssMap,
 } from '../renderer/native/index';
 
+import { isStyleMatched } from '../util/node';
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
 
@@ -96,6 +97,7 @@ const getElemCss = function getElemCss(element) {
   const style = Object.create(null);
   try {
     getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      if (!isStyleMatched(matchedSelector, element)) return;
       matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
         style[cssStyle.property] = cssStyle.value;
       });
@@ -131,6 +133,11 @@ const Native = {
   UIManagerModule,
 
   /**
+   * console log to native
+   */
+  ConsoleModule: global.ConsoleModule || global.console,
+
+  /**
    * Global device event listener
    */
   on,
@@ -162,7 +169,7 @@ const Native = {
    */
   Cookie: {
     /**
-     * Get all of cookies by string
+     * Get all cookies by string
      * @param {string} url - Get the cookies by specific url.
      * @return {Promise<string>} - Cookie string, like `name=someone;gender=female`.
      */
@@ -256,7 +263,6 @@ const Native = {
 
   /**
    * Get the OS version
-   * TODO: the API is iOS only so far.
    */
   get OSVersion() {
     if (Platform !== 'ios') {
@@ -272,7 +278,6 @@ const Native = {
 
   /**
    * Get the SDK version
-   * TODO: the API is iOS only so far.
    */
   get SDKVersion() {
     if (Platform !== 'ios') {
@@ -288,7 +293,6 @@ const Native = {
 
   /**
    * Get the API version
-   * TODO: the API is Android only so far.
    */
   get APILevel() {
     if (Platform !== 'android') {
@@ -395,6 +399,9 @@ const Native = {
    * @returns { Number } int32Color
    */
   parseColor(color, options = { platform: Native.Platform }) {
+    if (Number.isInteger(color)) {
+      return color;
+    }
     const cache = CACHE.COLOR_PARSER || (CACHE.COLOR_PARSER = Object.create(null));
     if (!cache[color]) {
       // cache the calculation result
@@ -406,7 +413,7 @@ const Native = {
   /**
    * Key-Value storage system
    */
-  AsyncStorage: global.localStorage,
+  AsyncStorage: global.Hippy.asyncStorage,
   /**
    * Android hardware back button event listener.
    */
@@ -425,7 +432,7 @@ const Native = {
     },
 
     /**
-     * Prefetch image, to make rendering in next more faster.
+     * Prefetch image, to make rendering faster.
      *
      * @param {string} url - Prefetch image url.
      */
@@ -437,10 +444,6 @@ const Native = {
    * Network operations
    */
   NetInfo,
-  /**
-   * console log to native
-   */
-  ConsoleModule: global.ConsoleModule || global.console,
   getElemCss,
 };
 

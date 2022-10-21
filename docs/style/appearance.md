@@ -2,6 +2,8 @@
 
 包含了前景、背景、边框、透明度、字体等外观样式
 
+---
+
 # borderColor
 
 > Android 默认值为 `transparent`，iOS 默认值为 `black`
@@ -145,6 +147,8 @@
 # fontSize
 
 字体大小
+
+> 默认值为 `14`
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
@@ -320,5 +324,5 @@
 
 | 类型   | 必需 | 支持平台
 | ------ | -------- | --- |
-| enum('visible'[default]， 'hidden') | 否 | iOS（2.9.0）
+| enum('visible'[default]， 'hidden') | 否 | Android(2.14.5)、iOS（2.9.0）
 

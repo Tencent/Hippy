@@ -2,7 +2,9 @@
 
 Gesture system of hippy is relatively more convenient to use. The main difference is that it does not need to rely on other event components. All components including View, Text, Image or various custom controls can listen to click events and touch events.
 
-## Click Events
+---
+
+# Click Events
 
 Click events include four types: long press, click, press and finger lift, which are notified by the following four interfaces:
 
@@ -11,7 +13,7 @@ Click events include four types: long press, click, press and finger lift, which
 3. onPressOut: this function is called when the user finishes touching the screen (that is, when the user lifts his finger) when the control is long pressed or clicked.
 4. onLongClick： this function is called when the control is long pressed.
 
-### Example
+## Example
 
 The click state effect can be achieved by using onPressIn and onPressOut together. For example, the following example code realizes the function of changing the background color when clicked:
 
@@ -38,7 +40,7 @@ render()
 }
 ```
 
-## Touch Events
+# Touch Events
 
 Touch events are handled similarly to click events and can be used on any React component. Touch events are mainly composed of the following callback functions:
 
@@ -67,7 +69,7 @@ The x and y coordinates in the above structure have been converted to units inde
 }
 ```
 
-## Event Bubble
+# Event Bubble
 
 [[Event bubble example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/components/ListView)
 
@@ -139,7 +141,7 @@ new Hippy({
 }).start();
 ````
 
-## Event Capture
+# Event Capture
 
 > Minimum supported version 2.11.5
 
@@ -190,7 +192,7 @@ render()
 }
 ```
 
-## Event Interception
+# Event Interception
 
 In some scenarios, the parent control needs to intercept the gesture events of the child control first, so Hippy also provides a gesture event interception mechanism, which is controlled by two properties of the parent control: `onInterceptTouchEvent` and `onInterceptPullUpEvent`. These two properties are only valid for components that can contain child controls. Controls such as `<Image/>` do not support these two properties:
 

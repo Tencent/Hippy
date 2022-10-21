@@ -32,9 +32,9 @@ interface NetInfoRevoker {
 }
 
 const DEVICE_CONNECTIVITY_EVENT = 'networkStatusDidChange';
-const subScriptions = new Map();
+const subscriptions = new Map();
 
-let NetInfoEventEmitter: HippyEventEmitter;
+const NetInfoEventEmitter: HippyEventEmitter = new HippyEventEmitter();
 
 class NetInfoRevoker implements NetInfoRevoker {
   public constructor(eventName: string, listener: (data: any) => void) {
@@ -60,7 +60,6 @@ class NetInfoRevoker implements NetInfoRevoker {
  * @returns {object} NetInfoRevoker - The event revoker for destroy the network info event listener.
  */
 function addEventListener(eventName: string, listener: NetworkInfoCallback): NetInfoRevoker {
-  NetInfoEventEmitter = new HippyEventEmitter();
   let event = eventName;
   if (event && event === 'change') {
     event = DEVICE_CONNECTIVITY_EVENT;
@@ -75,8 +74,7 @@ function addEventListener(eventName: string, listener: NetworkInfoCallback): Net
       listener(data);
     },
   );
-  // FIXME: Seems only accept one callback for each event, should support multiple callback.
-  subScriptions.set(listener, handler);
+  subscriptions.set(listener, handler);
   return new NetInfoRevoker(event, listener);
 }
 
@@ -97,16 +95,16 @@ function removeEventListener(eventName: string, listener?: NetInfoRevoker | Netw
   if (eventName === 'change') {
     event = DEVICE_CONNECTIVITY_EVENT;
   }
-  const count = NetInfoEventEmitter.listenerSize(event);
-  if (count <= 1) {
-    Bridge.callNative('NetInfo', 'removeListener', event);
-  }
-  const handler = subScriptions.get(listener);
+  const handler = subscriptions.get(listener);
   if (!handler) {
     return;
   }
   handler.remove();
-  subScriptions.delete(listener);
+  subscriptions.delete(listener);
+  const count = NetInfoEventEmitter.listenerSize(event);
+  if (count < 1) {
+    Bridge.callNative('NetInfo', 'removeListener', event);
+  }
 }
 
 /**

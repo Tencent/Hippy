@@ -201,7 +201,7 @@ public class HippyRecyclerViewController<HRW extends HippyRecyclerViewWrapper> e
 
     @HippyControllerProps(name = "preloadItemNumber")
     public void setPreloadItemNumber(HRW view, int preloadItemNumber) {
-        getAdapter(view).setPreloadItemNumber(preloadItemNumber);
+        view.getRecyclerViewEventHelper().setPreloadItemNumber(preloadItemNumber);
     }
 
     @HippyControllerProps(name = "suspendViewListener", defaultType = HippyControllerProps.NUMBER, defaultNumber = 0)

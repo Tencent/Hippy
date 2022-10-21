@@ -87,8 +87,7 @@ export default {
   },
 };
 </script>
-
-<style scoped>
+<style>
   #root {
     flex: 1;
     background-color: white;
@@ -215,11 +214,6 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-  }
-  .bottom-tab:not(:last-child) {
-    border-right-width: 1px;
-    border-right-color: #eee;
-    border-style: solid;
   }
   .bottom-tab.activated .bottom-tab-text {
     color: #4c9afa;

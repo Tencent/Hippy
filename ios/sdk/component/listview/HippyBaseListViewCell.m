@@ -84,4 +84,9 @@
     return _cellShowState;
 }
 
+- (void)prepareForReuse {
+    [self setCellShowState:CellNotShowState];
+    [super prepareForReuse];
+}
+
 @end

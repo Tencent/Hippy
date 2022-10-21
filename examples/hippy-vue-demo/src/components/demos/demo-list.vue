@@ -11,8 +11,14 @@
       :bounces="true"
       :rowShouldSticky="true"
       :overScrollEnabled="true"
+      :scrollEventThrottle="1000"
       @endReached="onEndReached"
       @delete="onDelete"
+      @scroll="onScroll"
+      @momentumScrollBegin="onMomentumScrollBegin"
+      @momentumScrollEnd="onMomentumScrollEnd"
+      @scrollBeginDrag="onScrollBeginDrag"
+      @scrollEndDrag="onScrollEndDrag"
     >
       <li
         v-for="(ui, index) in dataSource"
@@ -197,6 +203,29 @@ export default {
       const newData = await this.mockFetchData();
       this.dataSource = dataSource.concat(newData);
       this.isLoading = false;
+    },
+    onScroll(event) {
+      console.log('onScroll', event.offsetY);
+      if (event.offsetY <= 0) {
+        if (!this.topReached) {
+          this.topReached = true;
+          console.log('onTopReached');
+        }
+      } else {
+        this.topReached = false;
+      }
+    },
+    onMomentumScrollBegin(event) {
+      console.log('momentumScrollBegin', event);
+    },
+    onMomentumScrollEnd(event) {
+      console.log('momentumScrollEnd', event);
+    },
+    onScrollBeginDrag(event) {
+      console.log('onScrollBeginDrag', event);
+    },
+    onScrollEndDrag(event) {
+      console.log('onScrollEndDrag', event);
     },
   },
 };

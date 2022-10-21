@@ -9,15 +9,15 @@ on:
       - 'packages/**'
       - 'package*.json'
       - 'examples/hippy-*-demo/**'
-      - 'scripts/**/*.js'
-      - 'core/js/**/*.js'
+      - 'scripts/**'
+      - 'core/js/**'
 
 jobs:
   frontend_build_tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 14.x, 17.x ]
+        node: [ 16.x, 17.x ]
     steps:
       - name: Build Test Bypass
         run: |

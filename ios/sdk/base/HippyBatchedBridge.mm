@@ -149,7 +149,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithDelegate
         sourceCode = source;
         dispatch_group_leave(initModulesAndLoadSource);
     } onProgress:^(HippyLoadingProgress *progressData) {
-#ifdef HIPPY_DEV
+#if HIPPY_DEV
         HippyDevLoadingView *loadingView = [weakSelf moduleForClass:[HippyDevLoadingView class]];
         [loadingView updateProgress:progressData];
 #endif

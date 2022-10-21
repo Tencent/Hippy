@@ -1,5 +1,7 @@
 # 调试
 
+---
+
 # Hippy 调试原理
 
 Hippy 是直接运行于手机的 JS 引擎中的，在 Android 上使用 WebSocket 通过 [Chrome DevTools Protocol](//chromedevtools.github.io/devtools-protocol/) 与电脑上的 Chrome 进行通讯调试，而 iOS 上使用内置 的 [JavaScriptCore](//developer.apple.com/documentation/javascriptcore) 与 [Safari](//www.apple.com.cn/cn/safari/) 连接进行调试，在较新的 Hippy 版本 iOS 也可以使用 Chrome DevTools 进行调试。
@@ -15,9 +17,9 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    !> Hippy 仓库使用 [git-lfs](https://git-lfs.github.com/) 来管理 so, gz, otf, png, jpg 文件, 请确保你已经安装 [git-lfs](https://git-lfs.github.com/)。
 
 2. 项目根目录运行命令 `npm install` 安装前端依赖。
-3. 项目根目录运行命令 `npx lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库，如果出现 `lerna command is not found`, 先执行 `npm install lerna -g`）
+3. 项目根目录运行命令 `npx lerna bootstrap` 安装前端每一个 package 依赖。（Hippy 采用 [Lerna](https://lerna.js.org/) 管理多JS仓库)
 4. 项目根目录运行命令 `npm run build` 编译前端 SDK 包。
-5. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample -- [hippy-react-demo|hippy-vue-demo]`。
+5. 选择一个前端范例项目来进行编译，项目根目录运行 `npm run buildexample [hippy-react-demo|hippy-vue-demo]`。
 
 # 终端环境准备
 
@@ -99,14 +101,13 @@ Hippy 中运行的 JS 代码可以来源于本地文件(local file)，或者远�
    ```json
    {
      "scripts": {
-        "hippy:debug": "hippy-debug",
         // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
 
-   !> Node 17+ 在 Windows 和 Linux 上不再支持 `md4` hash，此处为了兼容 Webpack 的 hash 算法，通过 `cross-env-os` 设置环境变量解决
+   !> Node 17+ 不再支持 `md4` hash，此处为了兼容 Webpack 的 hash 算法，暂时通过 `env-polyfill.js` 脚本判断环境来解决，若出现错误将 `node ./scripts/env-polyfill.js` 移除即可
 
 4. 运行 `npm run hippy:dev` 启动编译并按需开启用于 `HMR` 和 `Live-Reload` 的 Dev Server，编译结束后打印出 bundleUrl 和调试首页地址
 
@@ -171,8 +172,8 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 具体流程：
 
 1. 下载安装 [Android Studio](//developer.android.com/studio)。
-2. 通过 Android Studio 打开 [Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)，当提示 ToolChain 需要更新时全部选择拒绝，安装好 SDK、NDK、和 cmake 3.6.4。
-3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。*编译如果出现问题请参考 [#39](//github.com/Tencent/Hippy/issues/39)*。
+2. 通过 Android Studio 直接打开 Hippy 项目根目录，即可加载 [Hippy Android 范例工程](//github.com/Tencent/Hippy/tree/master/examples/android-demo)
+3. 通过数据线插上 Android 手机，并在 Android Studio 中点击运行，正常情况下手机应该已经运行起 `Hippy Demo` app。
 4. 回到手机上，首先确保手机的 `USB 调试模式` 已经打开 -- 一般在关于手机页面里连续点击 `Build` 可以进入`开发者模式`，再进入`开发者模式`界面后打开 `USB 调试模式`。
 5. 执行 `adb reverse --remove-all && adb reverse tcp:38989 tcp:38989` 确保 38389 端口不被占用。
 6. 打开前端范例工程 [hippy-react-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo) 或者 [hippy-vue-demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo)，通过 `npm i` 安装完依赖之后，使用 `npm run hippy:dev` 启动编译和调试服务。
@@ -186,7 +187,7 @@ Android 使用了 [adb](//developer.android.com/studio/command-line/adb) 的端�
 
 Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome DevTools 上进行 Elements 的可视化检查。
 
-<video width="80%" controls>
+<video width="80%" controls preload="none">
   <source src="../assets/img/elements-inspect.webm" type="video/webm">
   Elements 可视化审查示例(您的浏览器不支持webm视频格式)
 </video>
@@ -258,9 +259,8 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
    ```json
    {
      "scripts": {
-        "hippy:debug": "hippy-debug",
          // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
      }  
    } 
    ```
@@ -353,9 +353,8 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
    ```json
    {
       "scripts": {
-        "hippy:debug": "hippy-debug",
         // -c 或 --config 提供 webpack config 配置路径
-        "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev -c ./scripts/hippy-webpack.dev.js"
+        "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev -c ./scripts/hippy-webpack.dev.js"
       }
    }
    ```
@@ -380,9 +379,9 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 
 支持调试 Vue 组件树、组件状态、路由、store、以及事件性能等
 
-<video width="80%" controls>
-  <source src="../assets/img/hippy-vue-devtools-x2.mp4" type="video/mp4">
-  Vue Devtools示例(您的浏览器不支持mp4视频格式)
+<video width="80%" controls preload="none">
+ <source src="../assets/img/hippy-vue-devtools.webm" type="video/webm">
+  Vue Devtools示例(您的浏览器不支持webm视频格式)
 </video>
 
 使用配置：
@@ -419,9 +418,9 @@ Hippy 实现了节点和属性从前端到终端的映射，可以在 Chrome Dev
 
 支持调试 React 组件树、组件状态、路由以及性能等
 
-<video width="80%" controls>
-  <source src="../assets/img/hippy-react-devtools.mp4" type="video/mp4">
-  React Devtools示例(您的浏览器不支持mp4视频格式)
+<video width="80%" controls preload="none" preload="none">
+ <source src="../assets/img/hippy-react-devtools.webm" type="video/webm">
+  React Devtools示例(您的浏览器不支持webm视频格式)
 </video>
 
 使用配置：
@@ -508,7 +507,7 @@ webpack(webpackConfig, (err, stats) => {
 
 那么这些场景我们可以考虑使用远程调试，效果预览：
 
-<video width="80%" controls>
+<video width="80%" controls preload="none">
   <source src="../assets/img/remote-debug-demo.webm" type="video/webm">
   远程调试实例(您的浏览器不支持webm视频格式)
 </video>
@@ -613,6 +612,6 @@ webpack(webpackConfig, (err, stats) => {
 
 无论是 hippy-react 还是 hippy-vue 都将和终端通讯的信息进行输出，包含了前终端的节点操作、事件收发。这些日志对于业务调试其实很有帮助，可以让开发了解到前端框架是如何将代码转译成终端可以理解的语法。当遇到问题时应先检查框架通信日志，基本可以定位到大部分问题。
 
-如果需要关闭日志，可以在 hippy-react 的 `new Hippy` 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`。
+如果需要关闭日志，可以在 hippy-react 的 `new Hippy` 启动参数中增加 `silent: true`，或者 hippy-vue 项目的入口文件中，开启 `Vue.config.silent = true;`，或者在 hippy-vue-next 项目的 `createApp` 初始化参数中增加 `silent: true`。
 
 <img src="../assets/img/inspectDebugInfo.png" alt="Communication Info" width="60%"/>

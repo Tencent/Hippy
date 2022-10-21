@@ -63,7 +63,7 @@ export default class ClipboardDemo extends React.Component {
     const { hasCopied, text, clipboardText } = this.state;
     const copiedText = hasCopied ? '   (已复制)   ' : '';
     return (
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView style={{ paddingHorizontal: 10 }}>
         {renderTitle('文本复制到剪贴板')}
         <Text style={styles.defaultText}>{text}</Text>
         <View

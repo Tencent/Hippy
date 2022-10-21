@@ -39,7 +39,7 @@ export default function ImageExpo() {
       <Text style={styles.info_style}>Contain:</Text>
       <Image
         style={[styles.image_style]}
-        resizeMode={Image.resizeMode.cover}
+        resizeMode={Image.resizeMode.contain}
         defaultSource={defaultSource}
         source={{ uri: imageUrl }}
         onProgress={(e) => {

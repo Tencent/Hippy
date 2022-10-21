@@ -68,30 +68,29 @@ function getBeforeLoadStyle() {
 }
 
 const infoTrace = once(() => {
-  console.log('Hippy-Vue has "Vue.config.silent" set to true, to see output logs set it to false.');
+  console.log('Hippy-Vue has "Vue.config.silent" to control trace log output, to see output logs if set it to false.');
 });
 
+function isDev() {
+  return process.env.NODE_ENV !== 'production';
+}
+
+function isTraceEnabled() {
+  return !(!isDev()
+    || (process && process.release)
+    || (_Vue && _Vue.config.silent));
+}
+
 function trace(...context) {
-  // In production build
-  if (process.env.NODE_ENV === 'production') {
-    return;
-  }
-
-  // Not in debugger mode or running in NodeJS
-  if (process && process.release) {
-    return;
-  }
-
-  // Print message while keeps silent
-  if (_Vue && _Vue.config.silent) {
+  if (isTraceEnabled()) {
+    console.log(...context);
+  } else if (_Vue && _Vue.config.silent) {
     infoTrace();
-    return;
   }
-  console.log(...context);
 }
 
 function warn(...context) {
-  if (process.env.NODE_ENV === 'production') {
+  if (!isDev()) {
     return null;
   }
   return console.warn(...context);
@@ -185,7 +184,7 @@ function endsWith(str, search, length) {
 function convertImageLocalPath(originalUrl) {
   let url = originalUrl;
   if (/^assets/.test(url)) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (isDev()) {
       url = `${HIPPY_DEBUG_ADDRESS}${url}`;
     } else {
       url = `${HIPPY_STATIC_PROTOCOL}./${url}`;
@@ -194,9 +193,58 @@ function convertImageLocalPath(originalUrl) {
   return url;
 }
 
+function deepCopy(data, hash = new WeakMap()) {
+  if (typeof data !== 'object' || data === null) {
+    throw new TypeError('deepCopy data is object');
+  }
+  // is it data existed in WeakMap
+  if (hash.has(data)) {
+    return hash.get(data);
+  }
+  const newData = {};
+  const dataKeys = Object.keys(data);
+  dataKeys.forEach((value) => {
+    const currentDataValue = data[value];
+    if (typeof currentDataValue !== 'object' || currentDataValue === null) {
+      newData[value] = currentDataValue;
+    } else if (Array.isArray(currentDataValue)) {
+      newData[value] = [...currentDataValue];
+    } else if (currentDataValue instanceof Set) {
+      newData[value] = new Set([...currentDataValue]);
+    } else if (currentDataValue instanceof Map) {
+      newData[value] = new Map([...currentDataValue]);
+    } else {
+      hash.set(data, data);
+      newData[value] = deepCopy(currentDataValue, hash);
+    }
+  });
+  return newData;
+}
+
+/**
+ * Detect if the param is falsy or empty
+ * @param {any} any
+ */
+function isEmpty(any) {
+  if (!any || typeof any !== 'object') {
+    return true;
+  }
+  return Object.keys(any).length === 0;
+}
+
+function isNullOrUndefined(value) {
+  return typeof value === 'undefined' || value === null;
+}
+
+function isScopedEnabled() {
+  return !!(_Vue && _Vue.config.scoped);
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
+  isEmpty,
+  isDev,
   setVue,
   getVue,
   setApp,
@@ -205,6 +253,9 @@ export {
   getBeforeLoadStyle,
   trace,
   warn,
+  isTraceEnabled,
+  isScopedEnabled,
+  isNullOrUndefined,
   capitalizeFirstLetter,
   tryConvertNumber,
   unicodeToChar,
@@ -213,4 +264,5 @@ export {
   setsAreEqual,
   endsWith,
   convertImageLocalPath,
+  deepCopy,
 };

@@ -140,7 +140,7 @@ export default class TextExpo extends React.Component {
       </View>
     );
     return (
-      <ScrollView style={{ padding: 10 }}>
+      <ScrollView style={{ paddingHorizontal: 10 }}>
         {renderTitle('shadow')}
         <View style={[styles.itemContent, { height: 60 }]} onClick={() => {
           let textShadowColor = 'red';
@@ -207,6 +207,7 @@ export default class TextExpo extends React.Component {
             { lineHeight: undefined, backgroundColor: '#4c9afa', marginBottom: 10,  paddingHorizontal: 10, paddingVertical: 5 }]}>
             <Image style={{ width: 24, height: 24 }} source={{ uri: imgURL2 }} />
             <Image style={{ width: 24, height: 24 }} source={{ uri: imgURL3 }} />
+            <Text>Text + Attachment</Text>
           </Text>
           <View style={styles.buttonBar}>
             <View style={styles.button} onClick={this.incrementLine}>
@@ -263,12 +264,24 @@ export default class TextExpo extends React.Component {
           <Text numberOfLines={1} style={styles.customFont}>Hippy 跨端框架</Text>
         </View>
         {renderTitle('Text Nested')}
-        <View style={[styles.itemContent, { height: 100 }]}>
+        <View style={[styles.itemContent, { height: 150 }]}>
           <Text style={{ height: 100, lineHeight: 50 }}>
             <Text numberOfLines={1} style={styles.normalText}>后面有张图片</Text>
             <Image style={{ width: 70, height: 35 }} source={{ uri: imgURL }} />
             <Text numberOfLines={1} style={styles.customFont}>前面有张图片</Text>
           </Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              paddingHorizontal: 10,
+              paddingVertical: 5,
+              backgroundColor: '#4c9afa',
+            }}>
+            <Image style={{ width: 24, height: 24, alignSelf: 'center' }} source={{ uri: imgURL2 }} />
+            <Text style={{ fontSize: 15, alignItems: 'center', justifyContent: 'center' }}>Image+Text</Text>
+          </View>
         </View>
         {Platform.OS === 'android' && renderTitle('breakStrategy')}
         {Platform.OS === 'android' && (

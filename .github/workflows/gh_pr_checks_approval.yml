@@ -6,55 +6,82 @@ on:
       - master
       - main
 
+env:
+  greetings_message: |
+    👋 Thanks for your contributing!
+
+    Our collaborators will review your pull request after all status checks have been passed.
+  safety_changes_message: |
+    After a quick scan, I have approved%sworkflow%s to run.
+  risky_changes_message: |
+    Sorry, due to risky changes, I can\'t approve%sworkflow%s to run.
+
+    Don\'t worry about it, our collaborators will handle it asap.
+
 jobs:
   pull_request_checks_approval:
+    if: github.repository == 'Tencent/Hippy'
     permissions:
       actions: write
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - name: Checks approval
+    - name: Greetings
+      if: github.event.action == 'opened'
       uses: actions/github-script@v6.1.0
       with:
         script: |
           const { owner, repo } = context.repo;
           const { pull_request } = context.payload;
-          const { actions, pulls, issues } = github.rest;
+          const { issues } = github.rest;
 
-          let { data: { workflow_runs } } = await actions.listWorkflowRunsForRepo({
+          await issues.createComment({
             owner,
             repo,
+            issue_number: pull_request.number,
+            body: process.env['greetings_message'],
+          });
+    - name: Token
+      uses: navikt/github-app-token-generator@v1
+      id: get-token
+      with:
+        private-key: ${{ secrets.BOT_APP_KEY }}
+        app-id: ${{ secrets.BOT_APP_ID }}
+    - name: Checks
+      uses: actions/github-script@v6.1.0
+      with:
+        github-token: ${{ steps.get-token.outputs.token }}
+        script: |
+          const { owner, repo } = context.repo;
+          const { pull_request } = context.payload;
+          const { actions, pulls, issues } = github.rest;
+          const util = require('util');
+
+          const per_page = 100;
+
+          let workflow_runs = (await github.paginate(actions.listWorkflowRunsForRepo, {
+            owner,
+            repo,
+            per_page,
             event: 'pull_request',
             status: 'action_required'
-          });
-          workflow_runs = workflow_runs.filter(workflow_run => workflow_run.head_sha === pull_request.head.sha)
-
+          })).filter(workflow_run => workflow_run.head_sha === pull_request.head.sha);
           if (workflow_runs.length === 0) {
             return;
           }
 
-          let includeRiskFiles = false;
-          let page = 1;
-          const kMaxPage = 100;
-          const kMaxPerPage = 100;
-          for (; page < kMaxPage; page += 1) {
-            const { data: files } = await pulls.listFiles({
-              owner,
-              repo,
-              pull_number: pull_request.number,
-              per_page: kMaxPerPage,
-              page,
-            });
-
-            includeRiskFiles = files.some(f => f.filename.startsWith('.github/workflows'));
-
-            if (includeRiskFiles || files.length < kMaxPerPage) {
-              break;
+          const [includeRiskFiles] = await github.paginate(pulls.listFiles, {
+            owner,
+            repo,
+            per_page,
+            pull_number: pull_request.number
+          }, ({ data: files }, done) => {
+            if (files.some(file => file.filename.startsWith('.github/workflows'))) {
+              done();
+              return [true];
             }
-          }
-          if (page === kMaxPage) {
-            includeRiskFiles = true;
-          }
+            return [];
+          });
 
           if (!includeRiskFiles) {
             await Promise.all(workflow_runs.map(workflow_run => actions.approveWorkflowRun({
@@ -64,16 +91,9 @@ jobs:
             })));
           }
 
-          let body = '👋 Thanks for your contributing!\n\n';
-          if (includeRiskFiles) {
-            body += `🤖: "Sorry, due to risky changes, I can\'t approve${workflow_runs.length === 1 ? " the " : " "}workflow${workflow_runs.length > 1 ? "s" : ""} to run."\n`;
-            body += '🤖: "Don\'t worry about it, our collaborators will handle it asap."';
-          } else {
-            body += `🤖: "After a quick scan, I have approved${workflow_runs.length === 1 ? " the " : " "}workflow${workflow_runs.length > 1 ? "s" : ""} to run."`;
-          }
           await issues.createComment({
             owner,
             repo,
             issue_number: pull_request.number,
-            body,
+            body: util.format(process.env[includeRiskFiles ? 'risky_changes_message' : 'safety_changes_message'], workflow_runs.length === 1 ? " the " : " ", workflow_runs.length > 1 ? "s" : ""),
           });

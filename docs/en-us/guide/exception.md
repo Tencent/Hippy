@@ -1,6 +1,8 @@
 # Exception Handler
 
-## uncaughtException
+---
+
+# uncaughtException
 
 Hippy can catch unexpected errors that are not handled in JS code by listening `uncaughtException` events.
 
@@ -11,13 +13,13 @@ Hippy can catch unexpected errors that are not handled in JS code by listening `
     });
 ```
 
-## unhandledRejection
+# unhandledRejection
 
 The `unhandledRejection` event is sent to the global scope of a script when a JavaScript Promise that has no rejection handler is rejected.
 
 !> Currently only support iOS(JSCore) to capture `unhandledRejection` error by js polyfill ，Android(V8) not supported yet.
 
-### iOS
+## iOS
 
 > Minimum supported version `2.14.1`
 

@@ -1,3 +1,23 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2017-2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 const path = require('path');
 const alias = require('@rollup/plugin-alias');
 const { babel } = require('@rollup/plugin-babel');
@@ -78,8 +98,12 @@ const builds = {
     banner: banner('@hippy/vue', hippyVuePackage.version),
   },
   '@hippy/vue-css-loader': {
-    entry: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
-    dest: resolvePackage('hippy-vue-css-loader', 'dist/index.js'),
+    entry: {
+      index: resolvePackage('hippy-vue-css-loader', 'src/index.js'),
+      'css-loader': resolvePackage('hippy-vue-css-loader', 'src/css-loader.js'),
+    },
+    dir: resolvePackage('hippy-vue-css-loader', 'dist'),
+    entryFileNames: '[name].js',
     format: 'cjs',
     moduleName: 'hippy-vue-css-loader',
     banner: banner('@hippy/vue-css-loader', cssLoaderPackage.version),
@@ -155,6 +179,8 @@ function genConfig(name) {
       }),
     ].concat(opts.plugins || []),
     output: {
+      entryFileNames: opts.entryFileNames,
+      dir: opts.dir,
       file: opts.dest,
       format: opts.format,
       banner: opts.banner,

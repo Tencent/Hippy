@@ -125,8 +125,8 @@ static const void *HippyBridgeLoadedBundlesKey = &HippyBridgeLoadedBundlesKey;
 
         [[NSNotificationCenter defaultCenter] postNotificationName:HippySecondaryBundleDidStartLoadNotification object:self
                                                           userInfo:@{ @"url": key }];
-
-        dispatch_queue_t bridgeQueue = dispatch_queue_create("mtt.bussiness.HippyBridgeQueue", DISPATCH_QUEUE_CONCURRENT);
+        dispatch_queue_attr_t queueAttr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_DEFAULT, 0);
+        dispatch_queue_t bridgeQueue = dispatch_queue_create("mtt.bussiness.HippyBridgeQueue", queueAttr);
         dispatch_group_t initModulesAndLoadSource = dispatch_group_create();
         dispatch_group_enter(initModulesAndLoadSource);
         __block NSData *sourceCode = nil;

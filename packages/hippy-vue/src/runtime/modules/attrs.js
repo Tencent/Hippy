@@ -37,8 +37,10 @@ function updateAttrs(oldVNode, vNode) {
     vNode.data.attrs = attrs;
   }
   Object.keys(oldAttrs).forEach((key) => {
+    const oldPropValue = oldAttrs[key];
     const newPropValue = attrs[key];
-    if (newPropValue === null || newPropValue === undefined) {
+    if ((oldPropValue !== null && oldPropValue !== undefined)
+    && (newPropValue === null || newPropValue === undefined)) {
       updatePayload[key] = undefined;
     }
   });
@@ -51,6 +53,26 @@ function updateAttrs(oldVNode, vNode) {
   });
   Object.keys(updatePayload).forEach((key) => {
     elm.setAttribute(key, updatePayload[key]);
+  });
+}
+
+export function setAttrs(vNode, customElem, options = {}) {
+  if (!vNode || !vNode.data) {
+    return;
+  }
+  let { elm } = vNode;
+  if (customElem) {
+    elm = customElem;
+  }
+  if (!elm) return;
+  let attrs = (vNode.data && vNode.data.attrs) || {};
+  // clone observed objects, as the user probably wants to mutate it
+  if (attrs.__ob__) {
+    attrs = extend({}, attrs);
+    vNode.data.attrs = attrs;
+  }
+  Object.keys(attrs).forEach((key) => {
+    elm.setAttribute(key, attrs[key], { notToNative: !!options.notToNative });
   });
 }
 

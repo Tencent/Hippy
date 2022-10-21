@@ -166,6 +166,7 @@ public class NodeProps {
   public static final String REQUEST_FOCUS = "requestFocus";
 
   public static final String VISIBLE = "visible";
+  public static final String HIDDEN = "hidden";
   public static final String REPEAT_COUNT = "repeatCount";
   public static final String ATTRIBUTES	= "attributes";
   public static final String BACKGROUND_RIPPLE	= "nativeBackgroundAndroid";

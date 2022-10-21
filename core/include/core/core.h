@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2019-2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -47,6 +47,7 @@
 #ifdef JS_V8
 #include "core/napi/v8/js_native_api_v8.h"
 #include "core/napi/v8/js_native_turbo_v8.h"
+#include "core/napi/v8/memory_module.h"
 #include "core/inspector/bridge.h"
 #ifndef V8_WITHOUT_INSPECTOR
 #include "core/inspector/v8_inspector_client_impl.h"

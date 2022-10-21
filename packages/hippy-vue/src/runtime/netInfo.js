@@ -71,7 +71,7 @@ function addEventListener(eventName, listener) {
 }
 
 /**
- * Remove network status event event listener
+ * Remove network status event listener
  *
  * @param {string} eventName - Event name will listen for NetInfo module,
  *                             use `change` for listen network change.
@@ -86,9 +86,6 @@ function removeEventListener(eventName, listener) {
   if (eventName === 'change') {
     event = DEVICE_CONNECTIVITY_EVENT;
   }
-  if (subscriptions.size <= 1) {
-    Native.callNative('NetInfo', 'removeListener', event);
-  }
   const handler = subscriptions.get(listener);
   if (!handler) {
     return;
@@ -101,6 +98,9 @@ function removeEventListener(eventName, listener) {
     handler,
   );
   subscriptions.delete(listener);
+  if (subscriptions.size < 1) {
+    Native.callNative('NetInfo', 'removeListener', event);
+  }
 }
 
 /**
