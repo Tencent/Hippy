@@ -22,9 +22,18 @@
 
 #import <Foundation/Foundation.h>
 
-#import "HippyUtils.h"
-#import "HippyDefaultUriHandler.h"
+#import "VFSUriHandler.h"
 #import "NSURLResponse+ToUnorderedMap.h"
+#import "TypeConverter.h"
+
+static NSMutableSet *set() {
+    static NSMutableSet *set = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        set = [NSMutableSet setWithCapacity:3];
+    });
+    return set;
+}
 
 static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri,
                                                      const std::unordered_map<std::string, std::string> &headers) {
@@ -90,7 +99,7 @@ static hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
     return retCode;
 }
 
-void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx,
+void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx,
                                                std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
     NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
     if (!request) {
@@ -117,17 +126,22 @@ void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs:
     dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 }
 
-void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
+void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
                                                std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
     NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
     if (!request) {
-        ctx->cb(hippy::vfs::UriHandler::RetCode::UriError, std::unordered_map<std::string, std::string>(), "");
+        std::unordered_map<std::string, std::string> map;
+        bytes contents = "";
+        ctx->cb(hippy::vfs::UriHandler::RetCode::UriError, map, contents);
         return;
     }
     typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
     DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
         if (error) {
-            ctx->cb(RetCodeFromNSError(error), std::unordered_map<std::string, std::string>(), "");
+            std::unordered_map<std::string, std::string> map;
+            map["key"] = "value";
+            bytes contents = "123";
+            ctx->cb(RetCodeFromNSError(error), map, contents);
         }
         else {
             std::string content(reinterpret_cast<const char *>([data bytes]) , [data length]);
@@ -137,4 +151,5 @@ void HippyDefaultUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs:
     };
     NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
     [dataTask resume];
+    [set() addObject:dataTask];
 }

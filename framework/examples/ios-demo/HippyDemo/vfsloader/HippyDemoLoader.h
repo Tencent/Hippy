@@ -18,16 +18,15 @@
  * limitations under the License.
  */
 
-#import "HippyDefaultUriHandler.h"
+#import "VFSUriHandler.h"
+#import "VFSUriLoader.h"
 
-#include "vfs/uri_loader.h"
-
-class HippyDemoLoader : public hippy::vfs::UriLoader {
+class HippyDemoLoader : public VFSUriLoader {
   public:
     HippyDemoLoader();
 };
 
 
-class HippyDemoHandler : public HippyDefaultUriHandler {
+class HippyDemoHandler : public VFSUriHandler {
 
 };

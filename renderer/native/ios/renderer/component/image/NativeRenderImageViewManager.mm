@@ -22,13 +22,11 @@
 
 #import "NativeRenderImageViewManager.h"
 #import "NativeRenderImageView.h"
-#import "NativeRenderImageDataLoader.h"
 #import "NativeRenderDefaultImageProvider.h"
 #import "NativeRenderUtils.h"
-#import "UIView+Sequence.h"
+#import "TypeConverter.h"
 
 @interface NativeRenderImageViewManager () {
-    id<NativeRenderImageDataLoaderProtocol> _imageDataLoader;
     Class<NativeRenderImageProviderProtocol> _imageProviderClass;
     NSUInteger _sequence;
 }
@@ -63,40 +61,29 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
 }
 
 - (void)loadImageSource:(NSString *)path forView:(NativeRenderImageView *)view {
-    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
-        path = [self.renderContext.frameworkProxy standardizeAssetUrlString:path forRenderContext:self.renderContext];
+    if (!path || !view) {
+        return;
     }
-    id<NativeRenderImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
+    NSString *standardizeAssetUrlString = path;
+    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
+        standardizeAssetUrlString = [self.renderContext.frameworkProxy standardizeAssetUrlString:path forRenderContext:self.renderContext];
+    }
+    NSURL *url = NativeRenderURLWithString(standardizeAssetUrlString, nil);
     __weak NativeRenderImageView *weakView = view;
-    NSURL *url = NativeRenderURLWithString(path, nil);
-    NSUInteger sequence = _sequence++;
-    weakView.sequence = sequence;
-    [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
-    } completion:^(NSUInteger seq, id result, NSURL *url, NSError *error) {
-        if (!error && weakView) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (weakView) {
-                    NativeRenderImageView *strongView = weakView;
-                    NSUInteger viewSeq = strongView.sequence;
-                    if (seq == viewSeq) {
-                        if ([result isKindOfClass:[UIImage class]]) {
-                            [strongView updateImage:(UIImage *)result];
-                        }
-                        else if ([result isKindOfClass:[NSData class]]) {
-                            Class cls = [self imageProviderClass];
-                            id<NativeRenderImageProviderProtocol> imageProvider = [[cls alloc] init];
-                            imageProvider.scale = [[UIScreen mainScreen] scale];
-                            imageProvider.imageDataPath = path;
-                            [imageProvider setImageData:(NSData *)result];
-                            [strongView setImageProvider:imageProvider];
-                            [strongView reloadImage];
-                        }
-                    }
-                }
-            });
-        }
-    }];
-
+    self.renderContext.frameworkProxy.URILoader->loadContentsAsynchronously(url, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NativeRenderImageView *strongView = weakView;
+            if (strongView) {
+                Class cls = [self imageProviderClass];
+                id<NativeRenderImageProviderProtocol> imageProvider = [[cls alloc] init];
+                imageProvider.scale = [[UIScreen mainScreen] scale];
+                imageProvider.imageDataPath = standardizeAssetUrlString;
+                [imageProvider setImageData:data];
+                [strongView setImageProvider:imageProvider];
+                [strongView reloadImage];
+            }
+        });
+    });
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
@@ -106,33 +93,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(defaultSource, NSString, NativeRenderImageView) {
     NSString *source = [NativeRenderConvert NSString:json];
-    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
-        source = [self.renderContext.frameworkProxy standardizeAssetUrlString:source forRenderContext:self.renderContext];
-    }
-    id<NativeRenderImageDataLoaderProtocol> imageDataLoader = [self imageDataLoader];
-    __weak NativeRenderImageView *weakView = view;
-    NSURL *url = NativeRenderURLWithString(source, nil);
-    NSUInteger sequence = _sequence++;
-    [imageDataLoader loadImageAtUrl:url sequence:sequence progress:^(NSUInteger current, NSUInteger total) {
-    } completion:^(NSUInteger seq, id result, NSURL *url, NSError *error) {
-        if (!error && weakView) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (weakView) {
-                    NativeRenderImageView *strongView = weakView;
-                    if ([result isKindOfClass:[NSData class]]) {
-                        Class cls = [self imageProviderClass];
-                        id<NativeRenderImageProviderProtocol> imageProvider = [[cls alloc] init];
-                        imageProvider.scale = [UIScreen mainScreen].scale;
-                        [imageProvider setImageData:(NSData *)result];
-                        strongView.defaultImage = [imageProvider image];
-                    }
-                    else if ([result isKindOfClass:[UIImage class]]) {
-                        strongView.defaultImage = (UIImage *)result;
-                    }
-                }
-            });
-        }
-    }];
+    [self loadImageSource:source forView:view];
 }
 
 #define NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(SIDE)                                                                 \
@@ -166,18 +127,6 @@ NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 - (id<NativeRenderImageProviderProtocol>)getNewImageProviderInstance {
     Class cls = [self imageProviderClass];
     return [[cls alloc] init];
-}
-
-- (id<NativeRenderImageDataLoaderProtocol>)imageDataLoader {
-    if (!_imageDataLoader) {
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageDataLoaderForRenderContext:)]) {
-            _imageDataLoader = [self.renderContext.frameworkProxy imageDataLoaderForRenderContext:self.renderContext];
-        }
-        if (!_imageDataLoader) {
-            _imageDataLoader = [[NativeRenderImageDataLoader alloc] init];
-        }
-    }
-    return _imageDataLoader;
 }
 
 @end

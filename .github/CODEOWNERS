@@ -15,14 +15,20 @@
 *.vue @zoomchan-cxj
 *.ts @zoomchan-cxj
 *.tsx @zoomchan-cxj
-*.java @siguangli @medns
+*.java @siguangli
 *.cc @churchill-zhang @medns @ilikethese
 *.h @ozonelmy @churchill-zhang
 *.m @ozonelmy
 *.mm @ozonelmy
 
-CMakeLists.txt @medns
+# android gradle related
+*.gradle @siguangli
+gradle.properties @siguangli
+
+# cmake related
 *.cmake @medns
+CMakeLists.txt @medns
+
 
 # ci, build & doc related
 /.github/ @zoomchan-cxj
