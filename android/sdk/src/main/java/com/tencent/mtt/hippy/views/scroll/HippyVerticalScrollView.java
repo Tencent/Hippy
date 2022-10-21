@@ -76,6 +76,10 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
   private final Priority[] mNestedScrollPriority = {Priority.SELF, Priority.NOT_SET,
       Priority.NOT_SET, Priority.NOT_SET, Priority.NOT_SET};
 
+  private final Runnable mDoPageScrollRunnable = this::doPageScroll;
+
+  private final Runnable mComputeScrollRunnable = HippyVerticalScrollView.super::computeScroll;
+
   public HippyVerticalScrollView(Context context) {
     super(context);
     mHippyOnScrollHelper = new HippyOnScrollHelper();
@@ -154,13 +158,7 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
       }
 
       if(mPagingEnabled) {
-        post(new Runnable() {
-               @Override
-               public void run() {
-                 doPageScroll();
-               }
-             }
-        );
+        post(mDoPageScrollRunnable);
       }
       mDragging = false;
     }
@@ -518,14 +516,12 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
   public void onStopNestedScroll(@NonNull View target, int type) {
     super.onStopNestedScroll(target, type);
     if (mPagingEnabled) {
-      post(new Runnable() {
-        @Override
-        public void run() {
-          doPageScroll();
-        }
-      });
+      post(mDoPageScrollRunnable);
     }
   }
+
+
+
 
   @Override
   public void computeScroll() {
@@ -533,14 +529,21 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
     // the NestedScrollingParent chain, methods such as onNestedScroll may be called, causing the
     // RecyclerView to removeView and causing NPE, so post execution is required.
     if (hasNestedScrollingParent(ViewCompat.TYPE_NON_TOUCH)) {
-      post(new Runnable() {
-        @Override
-        public void run() {
-          HippyVerticalScrollView.super.computeScroll();
-        }
-      });
+      post(mComputeScrollRunnable);
     } else {
       super.computeScroll();
     }
+  }
+
+  @Override
+  protected void onDetachedFromWindow() {
+    super.onDetachedFromWindow();
+    /*
+     * post task is main thread,but node handle(add or remove) is in js thread，
+     * it may lead to use after free bugs in some case,such as inconsistency in recyclerView
+     */
+    removeCallbacks(mComputeScrollRunnable);
+    removeCallbacks(mDoPageScrollRunnable);
+
   }
 }

@@ -240,20 +240,22 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
     int action = event.getAction() & MotionEvent.ACTION_MASK;
     boolean result;
+    try {
+      result = super.onInterceptTouchEvent(event);
+    } catch (Exception e) {
+      result = false;
+    }
     switch (action) {
       case MotionEvent.ACTION_DOWN:
         startScrollX = getScrollX();
         mNestedXOffset = 0;
-        result = super.onInterceptTouchEvent(event);
         startNestedScroll(SCROLL_AXIS_HORIZONTAL);
         break;
       case MotionEvent.ACTION_CANCEL:
       case MotionEvent.ACTION_UP:
-        result = super.onInterceptTouchEvent(event);
         stopNestedScroll();
         break;
       default:
-        result = super.onInterceptTouchEvent(event);
         break;
     }
 
