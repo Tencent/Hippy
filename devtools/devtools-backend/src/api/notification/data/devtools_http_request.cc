@@ -45,13 +45,42 @@ constexpr char kHttpRequestIsLinkPreload[] = "isLinkPreload";
 constexpr char kHttpRequestIsSameSite[] = "isSameSite";
 constexpr char kHttpRequestType[] = "type";
 constexpr char kHttpRequestBytes[] = "bytes";
+constexpr char kReqMetaBody[] = "body";
+constexpr char kDefaultMethod[] = "GET";
 
 namespace hippy::devtools {
+Request::Request(std::string url, const std::unordered_map<std::string, std::string>& req_meta) : url_(
+    std::move(url)), method_(kDefaultMethod) {
+  headers_ = "{";
+  auto has_header = false;
+  for(auto &meta: req_meta) {
+    if (meta.first == kHttpRequestMethod) {
+      method_ = meta.second;
+      continue;
+    }
+    if (meta.first == kReqMetaBody) {
+      has_post_data_ = true;
+      post_data_ = meta.second;
+      continue;
+    }
+    headers_ += "\"";
+    headers_ += meta.first;
+    headers_ += "\":\"";
+    headers_ += meta.second;
+    headers_ += "\",";
+    has_header = true;
+  }
+  if (has_header) {
+    headers_ = headers_.substr(0, this->headers_.length() - 1);  // remove last ","
+  }
+  headers_ += "}";
+}
+
 std::string Initiator::Serialize() const {
   std::string result = "{\"";
   result += kHttpRequestType;
   result += "\":\"";
-  result += type;
+  result += type_;
   result += "\"";
   result += "}";
   return result;
@@ -63,61 +92,61 @@ std::string Request::Serialize() const {
   std::string result = "{\"";
   result += kHttpRequestUrl;
   result += "\":\"";
-  result += url;
+  result += url_;
   result += "\",\"";
   result += kHttpRequestUrlFragment;
   result += "\":\"";
-  result += url_fragment;
+  result += url_fragment_;
   result += "\",\"";
   result += kHttpRequestMethod;
   result += "\":\"";
-  result += method;
+  result += method_;
   result += "\",\"";
   result += kHttpRequestHeaders;
   result += "\":";
-  result += headers;
+  result += headers_;
   result += ",\"";
   result += kHttpRequestPostData;
   result += "\":\"";
-  result += post_data;
+  result += post_data_;
   result += "\",\"";
   result += kHttpRequestHasPostData;
   result += "\":";
-  result += has_post_data ? "true" : "false";
+  result += has_post_data_ ? "true" : "false";
   result += ",\"";
   result += kHttpRequestPostDataEntries;
   result += "\":[";
-  for (auto& entry : post_data_entries) {
+  for (auto& entry : post_data_entries_) {
     result += "{\"";
     result += kHttpRequestBytes;
     result += "\":\"";
     result += entry;
     result += "\"}";
   }
-  if (!post_data_entries.empty()) {
+  if (!post_data_entries_.empty()) {
     result = result.substr(0, result.length() - 1);  // remove last ","
   }
   result += "],\"";
   result += kHttpRequestMixedContentType;
   result += "\":\"";
   result += TransformStringUtil::ReplaceUnderLine(
-      TransformStringUtil::ToLower(SecurityMixedContentTypeToString(mixed_content_type)));
+      TransformStringUtil::ToLower(SecurityMixedContentTypeToString(mixed_content_type_)));
   result += "\",\"";
   result += kHttpRequestInitialPriority;
   result += "\":\"";
-  result += ResourcePriorityToString(initial_priority);
+  result += ResourcePriorityToString(initial_priority_);
   result += "\",\"";
   result += kHttpRequestReferrerPolicy;
   result += "\":\"";
-  result += referrer_policy;
+  result += referrer_policy_;
   result += "\",\"";
   result += kHttpRequestIsLinkPreload;
   result += "\":";
-  result += is_link_preload ? "true" : "false";
+  result += is_link_preload_ ? "true" : "false";
   result += ",\"";
   result += kHttpRequestIsSameSite;
   result += "\":";
-  result += is_same_site ? "true" : "false";
+  result += is_same_site_ ? "true" : "false";
   result += "}";
   return result;
 }
@@ -145,11 +174,11 @@ std::string DevtoolsHttpRequest::Serialize() const {
   result += ",\"";
   result += kHttpRequestTimestamp;
   result += "\":";
-  result += std::to_string(timestamp_);
+  result += std::to_string(static_cast<double>(timestamp_)/1000);
   result += ",\"";
   result += kHttpRequestWallTime;
   result += "\":";
-  result += std::to_string(wall_time_);
+  result += std::to_string(static_cast<double>(wall_time_)/1000);
   result += ",\"";
   result += kHttpRequestInitiator;
   result += "\":";

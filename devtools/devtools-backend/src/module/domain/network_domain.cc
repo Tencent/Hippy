@@ -19,7 +19,9 @@
  */
 
 #include "module/domain/network_domain.h"
+
 #include "footstone/logging.h"
+#include "module/util/base64.h"
 #include "module/domain_register.h"
 #include "nlohmann/json.hpp"
 
@@ -33,8 +35,8 @@ void NetworkDomain::RegisterMethods() {
   REGISTER_DOMAIN(NetworkDomain, GetResponseBody, NetworkResponseBodyRequest)
 }
 
-void NetworkDomain::OnResponseReceived(const std::string& request_id, std::string&& body_data) {
-  response_map_[request_id] = std::move(body_data);
+void NetworkDomain::OnResponseReceived(const std::string& request_id, DevtoolsHttpResponse&& response) {
+  response_map_[request_id] = std::move(response);
 }
 
 void NetworkDomain::RegisterCallback() {}
@@ -44,10 +46,16 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
   std::string request_id = request.GetRequestId();
   auto find_response = response_map_.find(request_id);
   if (find_response != response_map_.end()) {
-    if (!find_response->second.empty()) {
+    auto response = find_response->second;
+    if (!response.GetBodyData().empty()) {
       nlohmann::json response_json = nlohmann::json::object();
-      response_json[kResponseBody] = find_response->second;
-      response_json[kResponseBase64Encoded] = false;
+      auto is_encode_base64 = response.IsBodyBase64();
+      auto body_data = response.GetBodyData();
+      response_json[kResponseBase64Encoded] = is_encode_base64;
+      if (is_encode_base64) {
+        body_data = footstone::Base64::Encode(reinterpret_cast<const uint8_t*>(body_data.c_str()), body_data.length());
+      }
+      response_json[kResponseBody] = body_data;
       ResponseResultToFrontend(request.GetId(), response_json.dump());
       response_map_.erase(find_response);
     }

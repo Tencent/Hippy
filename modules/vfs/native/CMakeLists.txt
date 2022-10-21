@@ -40,9 +40,20 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
+# region devtools
+if (ENABLE_INSPECTOR)
+    GlobalPackages_Add(devtools_backend)
+    target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
+endif ()
+# endregion
+
 # region source set
 set(SOURCE_SET
   src/file.cc
   src/uri_loader.cc)
+if (ENABLE_INSPECTOR)
+    list(APPEND SOURCE_SET
+            src/handler/devtools_handler.cc)
+endif ()
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

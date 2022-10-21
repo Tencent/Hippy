@@ -238,6 +238,8 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 
 @property (nonatomic, assign) BOOL debugMode;
 
+@property (nonatomic, assign) NSURL *debugURL;
+
 @property (nonatomic, strong) NSString *appVerson;  //
 
 @property (nonatomic, assign) HPInvalidateReason invalidateReason;

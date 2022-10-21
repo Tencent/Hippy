@@ -50,6 +50,13 @@ add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_D
 target_link_libraries(${PROJECT_NAME} PUBLIC vfs_native)
 # endregion
 
+# region devtools
+if (ENABLE_INSPECTOR)
+    GlobalPackages_Add(devtools_backend)
+    target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
+endif ()
+# endregion
+
 # region source set
 set(SOURCE_SET src/handler/asset_handler.cc
   src/handler/file_handler.cc

@@ -30,6 +30,9 @@
 #include "vfs/uri_loader.h"
 #include "vfs/handler/asset_handler.h"
 #include "vfs/handler/file_handler.h"
+#ifdef ENABLE_INSPECTOR
+#include "vfs/handler/devtools_handler.h"
+#endif
 
 namespace hippy {
 inline namespace vfs {
@@ -51,6 +54,18 @@ REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
              "doNativeTraversalsSync",
              "(ILcom/tencent/vfs/ResourceDataHolder;)V",
              OnJniDelegateInvokeSync)
+
+// call from java
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+             "onNetworkRequest",
+             "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
+             OnNetworkRequestInvoke)
+
+// call from java
+REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
+             "onNetworkResponse",
+             "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
+             OnNetworkResponseInvoke)
 
 static jclass j_vfs_manager_clazz;
 static jmethodID j_call_jni_delegate_sync_method_id;
@@ -101,9 +116,6 @@ JniDelegateHandler::AsyncWrapperMap JniDelegateHandler::wrapper_map_;
 std::atomic<uint32_t> JniDelegateHandler::request_id_ = 1;
 
 std::atomic<uint32_t> g_delegate_id = 1;
-
-constexpr char kCallFromKey[] = "__Hippy_call_from";
-constexpr char kCallFromJavaValue[] = "java";
 
 bool JniDelegateHandler::Init(JNIEnv* j_env) {
   j_resource_data_holder_clazz = reinterpret_cast<jclass>(
@@ -486,6 +498,60 @@ void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id
     j_env->SetObjectField(j_holder, j_holder_transfer_type_field_id, j_transfer_type_normal_value);
   }
   j_env->SetIntField(j_holder, j_holder_ret_code_field_id, static_cast<jint>(CovertToFetchResultCode(code)));
+  JNIEnvironment::ClearJEnvException(j_env);
+}
+
+// call from java
+void OnNetworkRequestInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id, jstring j_request_id, jobject j_holder) {
+#ifdef ENABLE_INSPECTOR
+  auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
+  auto j_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
+  auto req_meta = JavaMapToUnorderedMap(j_env, j_map);
+  auto uri = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
+      JniUtils::ToStrView(j_env, j_uri), footstone::string_view::Encoding::Utf8).utf8_value());
+  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
+      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
+  // call devtools
+  auto loader = GetUriLoader(j_id);
+  SentRequest(loader->GetNetworkNotification(), request_id, uri, req_meta);
+#endif
+  JNIEnvironment::ClearJEnvException(j_env);
+}
+
+// call from java
+void OnNetworkResponseInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id, jstring j_request_id, jobject j_holder) {
+#ifdef ENABLE_INSPECTOR
+  // code, rsp_meta, content
+  auto code = static_cast<int>(j_env->GetIntField(j_holder, j_holder_ret_code_field_id));
+  auto j_req_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
+  auto req_meta = JavaMapToUnorderedMap(j_env, j_req_map);
+  auto j_rsp_map = j_env->GetObjectField(j_holder, j_holder_rsp_header_field_id);
+  auto rsp_meta = JavaMapToUnorderedMap(j_env, j_rsp_map);
+  std::string content;
+  auto j_type = j_env->GetObjectField(j_holder, j_holder_transfer_type_field_id);
+  if (j_env->IsSameObject(j_type, j_transfer_type_normal_value)) {
+    auto j_bytes = reinterpret_cast<jbyteArray>(j_env->GetObjectField(j_holder, j_holder_bytes_field_id));
+    content = JniUtils::AppendJavaByteArrayToBytes(j_env, j_bytes);
+  } else if (j_env->IsSameObject(j_type, j_transfer_type_nio_value)) {
+    auto j_buffer = j_env->GetObjectField(j_holder, j_holder_buffer_field_id);
+    if (j_buffer) {
+      char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
+      FOOTSTONE_CHECK(buffer_address);
+      auto capacity = j_env->GetDirectBufferCapacity(j_buffer);
+      if (capacity >= 0) {
+        content = std::string(buffer_address, footstone::checked_numeric_cast<jlong, size_t>(capacity));
+        return;
+      }
+    }
+  } else {
+    FOOTSTONE_UNREACHABLE();
+  }
+  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
+      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
+  // call devtools
+  auto loader = GetUriLoader(j_id);
+  ReceivedResponse(loader->GetNetworkNotification(), request_id, code, content, rsp_meta, req_meta);
+#endif
   JNIEnvironment::ClearJEnvException(j_env);
 }
 

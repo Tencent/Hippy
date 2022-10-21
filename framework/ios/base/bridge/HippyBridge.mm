@@ -58,6 +58,10 @@
 #include "dom/scene.h"
 #include "driver/scope.h"
 
+#ifdef ENABLE_INSPECTOR
+#include "vfs/handler/devtools_handler.h"
+#endif
+
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNotification";
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
@@ -131,6 +135,7 @@ dispatch_queue_t HippyBridgeQueue() {
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _debugURL = launchOptions[@"DebugURL"];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
+        _debugURL = launchOptions[@"DebugURL"];
         _engineKey = engineKey;
         _invalidateReason = HPInvalidateReasonDealloc;
         _valid = YES;
@@ -388,6 +393,20 @@ dispatch_queue_t HippyBridgeQueue() {
         _uriLoader = uriLoader;
         [_javaScriptExecutor setUriLoader:uriLoader];
     }
+#ifdef ENABLE_INSPECTOR
+  auto devtools_data_source = _javaScriptExecutor.pScope->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+      auto notification = devtools_data_source->GetNotificationCenter()->network_notification;
+      _uriLoader->SetNetworkNotification(notification);
+      auto devtools_handler = std::make_shared<hippy::DevtoolsHandler>();
+      devtools_handler->SetNetworkNotification(notification);
+      auto default_handler = _uriLoader->GetDefaultHandler();
+      _uriLoader->RegisterUriHandler(hippy::kHttpSchemep, devtools_handler);
+      _uriLoader->RegisterUriHandler(hippy::kHttpSchemep, default_handler);
+      _uriLoader->RegisterUriHandler(hippy::kHttpsSchemep, devtools_handler);
+      _uriLoader->RegisterUriHandler(hippy::kHttpsSchemep, default_handler);
+  }
+#endif
 }
 
 - (std::shared_ptr<VFSUriLoader>)uriLoader {
@@ -761,6 +780,9 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (NSURL *)bundleURL {
+    if (_debugURL) {
+        return _debugURL;
+    }
     return [_bundleURLs firstObject];
 }
 

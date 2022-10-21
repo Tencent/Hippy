@@ -63,8 +63,12 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.vfs.DefaultProcessor;
+import com.tencent.vfs.DevToolsProcessor;
+import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.VfsManager;
+import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -777,6 +781,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(
                     getGlobalConfigs().getHttpAdapter(), getGlobalConfigs().getExecutorSupplierAdapter()));
             mVfsManager.addProcessor(processor);
+            if (isDebugMode()) {
+                mVfsManager.addProcessorAtFirst(new DevToolsProcessor(mVfsManager));
+            }
         }
 
         @Override

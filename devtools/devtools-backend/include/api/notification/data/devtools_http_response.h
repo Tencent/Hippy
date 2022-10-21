@@ -58,32 +58,38 @@ struct ResourceTiming {
  */
 struct Response : public Serializable {
   std::string Serialize() const override;
-  std::string url;
-  int32_t status;
-  std::string status_text;
+  explicit Response() {}
+  explicit Response(int32_t code,
+                    uint64_t encoded_data_length,
+                    const std::unordered_map<std::string, std::string>& rsp_meta,
+                    const std::unordered_map<std::string, std::string>& req_meta);
+  std::string url_;
+  int32_t status_;
+  std::string status_text_;
   /**
    * headers as keys / values of JSON object.
    */
-  std::string headers;
-  std::string mime_type;
-  std::string request_headers;
-  bool connection_reused;
-  uint64_t connection_id;
-  std::string remote_ip_address;
-  uint32_t remote_port;
-  bool from_disk_cache;
-  bool from_service_worker;
-  bool from_prefetch_cache;
-  uint32_t encoded_data_length;
-  ResourceTiming timing;
-  ServiceWorkerResponseSource source;
+  std::string headers_;
+  std::string mime_type_;
+  std::string request_headers_;
+  bool connection_reused_ = false;
+  uint64_t connection_id_{};
+  std::string remote_ip_address_;
+  uint32_t remote_port_{};
+  bool from_disk_cache_ = false;
+  bool from_service_worker_ = false;
+  bool from_prefetch_cache_ = false;
+  uint64_t encoded_data_length_;
+  ResourceTiming timing_{};
+  ServiceWorkerResponseSource source_ = ServiceWorkerResponseSource::kNetwork;
   /**
    * UTC time in seconds, counted from January 1, 1970.
    */
-  uint64_t response_time = static_cast<uint64_t>(std::time(0));
-  std::string cache_storage_cache_name;
-  std::string protocol;
-  SecurityState security_state;
+  uint64_t response_time_ = static_cast<uint64_t>(std::chrono::time_point_cast<std::chrono::milliseconds>(
+      std::chrono::system_clock::now()).time_since_epoch().count());
+  std::string cache_storage_cache_name_;
+  std::string protocol_;
+  SecurityState security_state_ = SecurityState::kSecure;
 };
 
 /**
@@ -94,11 +100,13 @@ class DevtoolsHttpResponse : public Serializable {
   DevtoolsHttpResponse(std::string request_id, Response&& response)
       : request_id_(request_id),
         loader_id_(request_id),
-        timestamp_(0),
+        timestamp_(static_cast<uint64_t>(std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now()).time_since_epoch().count())),
         type_(ResourceType::kFetch),
         response_(std::move(response)),
         has_extra_info_(false),
-        frame_id_(response.url) {}
+        frame_id_(response.url_) {}
+  DevtoolsHttpResponse(){}
   explicit DevtoolsHttpResponse(std::string content) : content_(std::move(content)) {}
   inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
   inline void SetHasExtraInfo(bool has_extra_info) { has_extra_info_ = has_extra_info; }
@@ -106,6 +114,7 @@ class DevtoolsHttpResponse : public Serializable {
   inline void SetFrameId(std::string frame_id) { frame_id_ = frame_id; }
   inline void SetBodyData(std::string&& body_data) { body_data_ = std::move(body_data); }
   inline std::string GetBodyData() const { return body_data_; }
+  bool IsBodyBase64() const;
   std::string Serialize() const override;
 
  private:

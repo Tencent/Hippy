@@ -29,6 +29,8 @@
 
 namespace hippy {
 inline namespace vfs {
+constexpr char kCallFromKey[] = "__Hippy_call_from";
+constexpr char kCallFromJavaValue[] = "java";
 
 class UriHandler {
  public:

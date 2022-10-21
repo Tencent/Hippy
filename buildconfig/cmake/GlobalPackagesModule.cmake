@@ -83,6 +83,13 @@ function(GlobalPackages_Add_vfs)
   endif()
 endfunction()
 
+function(GlobalPackages_Add_devtools_backend)
+  if (NOT TARGET devtools_backend)
+    InfraPackage_Add(DEVTOOLS_BACKEND
+            LOCAL "${PROJECT_ROOT_DIR}/devtools/devtools-backend")
+  endif ()
+endfunction()
+
 function(GlobalPackages_Add)
   foreach (packageName IN LISTS ARGN)
     cmake_language(CALL GlobalPackages_Add_${packageName})

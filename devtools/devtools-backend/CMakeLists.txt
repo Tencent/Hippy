@@ -141,6 +141,7 @@ set(SOURCE_SET
     src/module/request/selected_render_object_request.cc
     src/module/request/dom_push_nodes_request.cc
     src/module/request/dom_push_node_by_path_request.cc
+    src/module/util/base64.cc
     src/tunnel/net_channel.cc
     src/tunnel/tcp/frame_codec.cc
     src/tunnel/tcp/tcp_channel.cc
