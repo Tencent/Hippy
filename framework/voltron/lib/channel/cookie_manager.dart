@@ -21,22 +21,78 @@
 import 'dart:io';
 
 import 'package:cookie_jar/cookie_jar.dart';
+import 'package:webview_cookie_manager/webview_cookie_manager.dart';
 
 CookieJar cookieJar = CookieJar();
 
+enum CookieDelegateType {
+  dio, // dio_cookie_manager
+  native, // webview_cookie_manager
+  origin // 自定义cookie_manager
+}
+
 class CookieManager {
   static final CookieManager _singleton = CookieManager();
-  CookieJar cookieJar = CookieJar();
+  CookieDelegate? _delegate;
 
   static CookieManager getInstance() {
     return _singleton;
   }
 
+  void setCookieDelegate(CookieDelegateType type, {CookieDelegate? originDelegate}) {
+    switch(type) {
+      case CookieDelegateType.dio:
+        _delegate = _CookieJarDelegateImpl();
+        break;
+      case CookieDelegateType.native:
+        _delegate = _WebviewCookieDelegateImpl();
+        break;
+      case CookieDelegateType.origin:
+        _delegate = originDelegate??  _CookieJarDelegateImpl();
+        break;
+    }
+  }
+
+  void setCookie(String url, List<Cookie> cookies) {
+    _delegate?.setCookie(url, cookies);
+  }
+
+  Future<List<Cookie>> getCookie(String url) {
+    return _delegate?.getCookie(url) ?? Future.value([]);
+  }
+}
+
+mixin CookieDelegate {
+  void setCookie(String url, List<Cookie> cookies);
+
+  Future<List<Cookie>> getCookie(String url);
+}
+
+class _CookieJarDelegateImpl with CookieDelegate {
+  CookieJar cookieJar = CookieJar();
+
+  @override
   void setCookie(String url, List<Cookie> cookies) {
     cookieJar.saveFromResponse(Uri.parse(url), cookies);
   }
 
+  @override
   Future<List<Cookie>> getCookie(String url) {
     return cookieJar.loadForRequest(Uri.parse(url));
+  }
+
+}
+
+class _WebviewCookieDelegateImpl with CookieDelegate {
+  final cookieManager = WebviewCookieManager();
+
+  @override
+  void setCookie(String url, List<Cookie> cookies) {
+    cookieManager.setCookies(cookies, origin: url);
+  }
+
+  @override
+  Future<List<Cookie>> getCookie(String url) {
+    return cookieManager.getCookies(url);
   }
 }
