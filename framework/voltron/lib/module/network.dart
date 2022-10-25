@@ -18,6 +18,7 @@
 // limitations under the License.
 //
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -109,7 +110,13 @@ class NetworkModule extends VoltronNativeModule {
   VoltronMap _handleHttpResponse(Response response) {
     var respMap = VoltronMap();
     respMap.push("statusCode", response.statusCode);
-    respMap.push("respBody", response.toString());
+    var rspBody = '';
+    try {
+      rspBody = json.encode(response.data);
+    } catch(e) {
+      rspBody = response.data.toString();
+    }
+    respMap.push("respBody", rspBody);
     respMap.push("statusLine", response.statusMessage);
     var headerMap = VoltronMap();
     var headers = response.headers;

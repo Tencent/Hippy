@@ -18,6 +18,7 @@
 // limitations under the License.
 //
 
+import 'package:voltron/channel.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import '../adapter.dart';
@@ -67,6 +68,10 @@ class EngineInitParams {
 
   // 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
   String codeCacheTag = "";
+
+  // 可选参数，使用的cookieManager种类，origin时将使用业务方提供的 originDelegate
+  CookieDelegateType cookieDelegateType = CookieDelegateType.dio;
+  CookieDelegate? originDelegate;
 
   // 自定义日志
   LogListener? logListener;
