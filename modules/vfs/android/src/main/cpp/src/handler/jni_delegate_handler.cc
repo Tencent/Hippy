@@ -99,7 +99,6 @@ using SyncContext = hippy::vfs::UriHandler::SyncContext;
 
 JniDelegateHandler::AsyncWrapperMap JniDelegateHandler::wrapper_map_;
 std::atomic<uint32_t> JniDelegateHandler::request_id_ = 1;
-JniDelegateHandler::JniDelegateHandlerMap JniDelegateHandler::delegate_map_;
 
 std::atomic<uint32_t> g_delegate_id = 1;
 
