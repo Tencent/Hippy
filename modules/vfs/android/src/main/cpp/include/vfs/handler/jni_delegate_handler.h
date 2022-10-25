@@ -59,15 +59,11 @@ class JniDelegateHandler : public UriHandler, public std::enable_shared_from_thi
   static inline AsyncWrapperMap& GetAsyncWrapperMap() {
     return wrapper_map_;
   }
-  static inline JniDelegateHandlerMap& GetJniDelegateHandlerMap() {
-    return delegate_map_;
-  }
 
  private:
   std::shared_ptr<JavaRef> delegate_;
   static std::atomic<uint32_t> request_id_;
   static AsyncWrapperMap wrapper_map_;
-  static JniDelegateHandlerMap delegate_map_;
 };
 
 void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_holder);
