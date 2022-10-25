@@ -365,18 +365,6 @@ export function deepCopy(data: NeedToTyped, hash = new WeakMap()): NeedToTyped {
  */
 export function isStyleMatched(matchedSelector: NeedToTyped, element: HippyElement): boolean {
   if (!element || !matchedSelector) return false;
-
-  const styleScopedId = element.styleScopeId;
-  if (styleScopedId) {
-    // set element's attribute for style scoped determine
-    element.attributes[styleScopedId] = true;
-  }
-  // determine if element matched
-  const isMatched = matchedSelector.match(element);
-  // remove scoped attribute after match determine
-  if (styleScopedId) {
-    delete element.attributes[styleScopedId];
-  }
-  return isMatched;
+  return matchedSelector.match(element);
 }
 
