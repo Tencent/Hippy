@@ -200,7 +200,7 @@ class ElementNode extends ViewNode {
     // style attribute in template.
     this.style = {};
     // Vue style scope id.
-    this._styleScopeId = null;
+    this._styleScopeId = undefined;
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
     // Other attributes in template.
