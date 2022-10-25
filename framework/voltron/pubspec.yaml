@@ -47,6 +47,7 @@ dependencies:
   dio: ^4.0.0
   sqflite: ^2.0.0+3
   dio_cookie_manager: ^2.0.0
+  webview_cookie_manager: ^2.0.6
   cookie_jar: ^3.0.1
   web_socket_channel: ^2.0.0
   system_proxy: ^0.1.0
