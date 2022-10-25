@@ -33,15 +33,13 @@ cmake_policy(VERSION 3.0)
 project("voltron_core")
 
 add_definitions("-DVOLTRON")
-set(VOLTRON true)
+set(VOLTRON TRUE)
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
 
 set(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(FRAMEWORK_DIR ${PROJECT_ROOT_DIR}/framework/)
 set(RENDER_DIR ${PROJECT_ROOT_DIR}/renderer/voltron/core)
-
-message("PROJECT_ROOT_DIR: ${PROJECT_ROOT_DIR}")
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/compile_option.cmake)

@@ -32,6 +32,7 @@
 #include "render/ffi/render_bridge_ffi_impl.h"
 #include "render/queue/voltron_render_manager.h"
 #include "standard_message_codec.h"
+#include "vfs/handler/file_handler.h"
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #  include "bridge_impl.h"

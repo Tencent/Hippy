@@ -32,7 +32,6 @@ include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 
 add_compile_options(-fexceptions)
 
-message("voltron vfs target add")
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
@@ -51,7 +50,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC vfs_native)
 
 # region source set
 set(VFS_SOURCE_SET src/url.cc
-        src/handler/file_handler.cc)
+        src/handler/file_handler.cc
+        src/handler/ffi_delegate_handler.cc)
 
 target_sources(${PROJECT_NAME} PRIVATE ${VFS_SOURCE_SET})
 # endregion

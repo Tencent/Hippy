@@ -31,6 +31,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
           -fno-short-enums
           -fno-unique-section-names
           -fno-trigraphs
+          -fexceptions
           -Werror
           -Wall
           -Wextra
