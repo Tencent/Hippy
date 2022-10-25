@@ -21,20 +21,31 @@
 #pragma once
 
 #include "vfs/handler/uri_handler.h"
+#include "footstone/task_runner.h"
 
 namespace voltron {
 inline namespace vfs {
 
-class FfiDelegateHandler: public hippy::UriHandler {
-  FfiDelegateHandler() = default;
-   virtual ~FfiDelegateHandler() = default;
+class FfiDelegateHandler : public hippy::UriHandler {
+ public:
+  using TaskRunner = footstone::TaskRunner;
 
-   virtual void RequestUntrustedContent(
-       std::shared_ptr<SyncContext> ctx,
-       std::function<std::shared_ptr<UriHandler>()> next) override;
-   virtual void RequestUntrustedContent(
-       std::shared_ptr<ASyncContext> ctx,
-       std::function<std::shared_ptr<UriHandler>()> next) override;
+  FfiDelegateHandler() = default;
+  virtual ~FfiDelegateHandler() = default;
+
+  inline void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
+    runner_ = runner;
+  }
+
+  virtual void RequestUntrustedContent(
+      std::shared_ptr<SyncContext> ctx,
+      std::function<std::shared_ptr<UriHandler>()> next) override;
+  virtual void RequestUntrustedContent(
+      std::shared_ptr<ASyncContext> ctx,
+      std::function<std::shared_ptr<UriHandler>()> next) override;
+
+ private:
+  std::weak_ptr<TaskRunner> runner_;
 };
 
 }
