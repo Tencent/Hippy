@@ -1,7 +1,6 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const pkg = require('../package.json');
 
@@ -27,9 +26,6 @@ module.exports = {
       inject: true,
       scriptLoading: 'blocking',
       template: path.resolve('./public/index.html'),
-    }),
-    new MiniCssExtractPlugin({
-      filename: '[name].[hash].css',
     }),
     new CaseSensitivePathsPlugin(),
   ],

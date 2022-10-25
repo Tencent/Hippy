@@ -16,9 +16,6 @@
       <p class="toolbar-text">
         当前第 {{ currentSlideNum + 1 }} 页
       </p>
-      <p class="toolbar-text">
-        滚屏状态：{{ state }}
-      </p>
     </div>
     <!--
       swiper 组件参数

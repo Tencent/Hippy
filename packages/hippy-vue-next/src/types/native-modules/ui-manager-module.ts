@@ -17,10 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { NeedToTyped, CallbackType } from '../index';
 
 // The parameter lists of android and ios are inconsistent
-import type { NeedToTyped, CallbackType } from '../../../config/index';
-
 type CallUIFunctionArgs =
   | [nodeId: number, funcName: string, args: NeedToTyped]
   | [

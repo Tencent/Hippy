@@ -32,6 +32,7 @@ import {
 } from '@vue/runtime-core';
 import { isFunction } from '@vue/shared';
 
+import type { NeedToTyped, CallbackType, CommonMapParams, NativeInterfaceMap } from './types';
 import { BackAndroid } from './android-back';
 import BuiltInComponent from './built-in-component';
 import { drawIphoneStatusBar } from './iphone';
@@ -48,7 +49,6 @@ import { Native } from './runtime/native';
 import type { NativeApiType } from './runtime/native';
 import './runtime/event/hippy-event-dispatcher';
 import './runtime/websocket/websocket';
-import { NativeInterfaceMap } from './runtime/native/modules';
 import type { HippyNode } from './runtime/node/hippy-node';
 import { setBeforeLoadStyle, setSilent, trace } from './util';
 import type { HippyCachedInstanceType } from './util/instance';
@@ -58,7 +58,6 @@ import {
   setHippyCachedInstanceParams,
 } from './util/instance';
 import { setScreenSize } from './util/screen';
-import type { CallbackType, NeedToTyped } from './config';
 
 /**
  * Hippy App type, override the mount method of Vue
@@ -272,6 +271,10 @@ export type {
   CssNodeType,
   TagComponent,
   ElementComponent,
+  CallbackType,
+  CommonMapParams,
+  NeedToTyped,
+  NativeInterfaceMap,
 };
 
 export {
@@ -282,9 +285,6 @@ export {
   HIPPY_GLOBAL_STYLE_NAME,
   HIPPY_GLOBAL_DISPOSE_STYLE_NAME,
   HIPPY_VUE_VERSION,
-  type CallbackType,
-  type CommonMapParams,
-  type NeedToTyped,
 } from './config';
 export {
   HippyEvent,
@@ -309,7 +309,6 @@ export {
   BackAndroid,
   translateColor,
   parseCSS,
-  NativeInterfaceMap,
   setScreenSize,
   getTagComponent,
   registerElement,

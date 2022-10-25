@@ -17,17 +17,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import type { AnimationModule } from './animation-module';
-import type { ClipboardModule } from './clip-board-module';
-import type { DeviceEventModule } from './device-event-module';
-import type { Http } from './http';
-import type { ImageLoaderModule } from './image-loader-module';
-import type { NetInfo } from './net-info';
-import type { Network } from './network';
-import type { TestModule } from './test-module';
-import type { UiManagerModule } from './ui-manager-module';
-import type { Websocket } from './websocket';
+import type { AnimationModule, AnimationStyle } from './native-modules/animation-module';
+import type { ClipboardModule } from './native-modules/clip-board-module';
+import type { DeviceEventModule } from './native-modules/device-event-module';
+import type { Http } from './native-modules/http';
+import type { ImageLoaderModule } from './native-modules/image-loader-module';
+import type { NetInfo } from './native-modules/net-info';
+import type { Network } from './native-modules/network';
+import type { TestModule } from './native-modules/test-module';
+import type { UiManagerModule } from './native-modules/ui-manager-module';
+import type { Websocket } from './native-modules/websocket';
 
 export interface NativeInterfaceMap {
   // The key here is the module name set by the native and cannot be changed at will.
@@ -42,3 +41,7 @@ export interface NativeInterfaceMap {
   http: Http;
   TestModule: TestModule;
 }
+
+export type {
+  AnimationStyle,
+};

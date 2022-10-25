@@ -348,10 +348,26 @@ class PseudoClassSelector extends SimpleSelector {
   }
 }
 
+
+/**
+ * get node attribute or styleScopeId value
+ * @param node
+ * @param attribute
+ * @returns {*}
+ */
+const getNodeAttrVal = (node, attribute) => {
+  const attr = node.attributes[attribute];
+  if (typeof attr !== 'undefined') {
+    return attr;
+  }
+  if (!isNullOrUndefined(node.styleScopeId) && node.styleScopeId === attribute) {
+    return attribute;
+  }
+};
+
 /**
  * Attribute Selector
  */
-
 class AttributeSelector extends SimpleSelector {
   // attribute of node
   public attribute = '';
@@ -380,7 +396,7 @@ class AttributeSelector extends SimpleSelector {
           return false;
         }
 
-        return !isNullOrUndefined(node.attributes[attribute]);
+        return !isNullOrUndefined(getNodeAttrVal(node, attribute));
       };
       return;
     }
@@ -394,7 +410,7 @@ class AttributeSelector extends SimpleSelector {
       if (!node || !node.attributes) {
         return false;
       }
-      const attr = `${node.attributes[attribute]}`;
+      const attr = `${getNodeAttrVal(node, attribute)}`;
       if (test === '=') {
         // Equal
         return attr === value;
@@ -720,14 +736,14 @@ class Selector extends SelectorCore {
         continue;
       }
       const bound = bounds[i];
-      let leftBound = bound.left;
+      let node = bound.left;
       do {
-        if (group.mayMatch(leftBound)) {
-          group.trackChanges(leftBound, map);
+        if (group.mayMatch(node)) {
+          group.trackChanges(node, map);
         }
       } while (
-        leftBound !== bound.right
-        && (leftBound = node.parentNode as HippyElement)
+        node !== bound.right
+        && (node = node.parentNode as HippyElement)
       );
     }
 

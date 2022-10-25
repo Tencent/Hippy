@@ -21,14 +21,13 @@
 import { translateColor } from '@hippy-vue-next-style-parser/index';
 import { isFunction } from '@vue/shared';
 
-import { CallbackType, NATIVE_COMPONENT_MAP, type NeedToTyped, HIPPY_VUE_VERSION } from '../../config';
+import type { NeedToTyped, CallbackType, NativeInterfaceMap } from '../../types';
+import { NATIVE_COMPONENT_MAP, HIPPY_VUE_VERSION } from '../../config';
 import { isStyleMatched, trace, warn } from '../../util';
 import { type HippyElement } from '../element/hippy-element';
 import { EventBus } from '../event/event-bus';
 import { type HippyNode } from '../node/hippy-node';
 import { getCssMap } from '../style/css-map';
-
-import { type NativeInterfaceMap } from './modules';
 
 // Extend the global interface definition
 declare global {
