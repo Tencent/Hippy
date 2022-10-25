@@ -76,6 +76,9 @@ static HippyNetInfoIntenal *instance = nil;
     NSString *_host;
     CTTelephonyNetworkInfo *_cellNetType;
     NSHashTable *_observers;
+    
+    NSString *_cachedCellType;
+    BOOL _isRadioAccessTechnologyDirty;
 }
 
 @end
@@ -87,8 +90,10 @@ static NSString *radioAccessNameIn(CTTelephonyNetworkInfo *networkInfo) {
         if (networkInfo.dataServiceIdentifier) {
             return [networkInfo.serviceCurrentRadioAccessTechnology objectForKey:networkInfo.dataServiceIdentifier];
         }
+        return nil;
+    } else {
+        return networkInfo.currentRadioAccessTechnology;
     }
-    return networkInfo.currentRadioAccessTechnology;
 }
 
 static NSString *hippyReachabilityGetCellType(NSString *cellType) {
@@ -153,7 +158,7 @@ static NSString *currentReachabilityType(SCNetworkReachabilityRef reachabilityRe
 static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNetworkReachabilityFlags flags, void *info) {
     HippyNetInfoIntenal *netinfo = (__bridge  HippyNetInfoIntenal *)info;
     NSString *networkType = hippyReachabilityTypeFromFlags(flags);
-    NSString *cellType = hippyReachabilityGetCellType(radioAccessNameIn(netinfo->_cellNetType));
+    NSString *cellType = [netinfo currentCellType];
     HippyNetworkTypeObject *obj = [[HippyNetworkTypeObject alloc] initWithNetworkType:networkType cellType:cellType];
     [netinfo notifyObserversNetworkTypeChanged:obj];
 }
@@ -175,19 +180,19 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
     _observers = [NSHashTable weakObjectsHashTable];
     _reachability = createReachabilityRefWithZeroAddress();
     _cellNetType = [[CTTelephonyNetworkInfo alloc] init];
+    _isRadioAccessTechnologyDirty = YES;
     
     [self registerNetworkChangedListener];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(radioAccessTechnologyDidChange:) name:CTRadioAccessTechnologyDidChangeNotification object:nil];
 }
 
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 - (void)radioAccessTechnologyDidChange:(NSNotification *)notification {
-    HippyNetworkTypeObject *object = [self currentNetworkType];
-    [self notifyObserversNetworkTypeChanged:object];
+    _isRadioAccessTechnologyDirty = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        HippyNetworkTypeObject *object = [self currentNetworkType];
+        [self notifyObserversNetworkTypeChanged:object];
+    });
 }
 
 - (void)registerNetworkChangedListener {
@@ -210,9 +215,17 @@ static void reachabilityCallback(__unused SCNetworkReachabilityRef target, SCNet
 
 - (HippyNetworkTypeObject *)currentNetworkType {
     NSString *networkType = currentReachabilityType(_reachability);
-    NSString *cellType = hippyReachabilityGetCellType(radioAccessNameIn(_cellNetType));
+    NSString *cellType = [self currentCellType];
     HippyNetworkTypeObject *obj = [[HippyNetworkTypeObject alloc] initWithNetworkType:networkType cellType:cellType];
     return obj;
+}
+
+- (NSString *)currentCellType {
+    if (_isRadioAccessTechnologyDirty) {
+        _cachedCellType = hippyReachabilityGetCellType(radioAccessNameIn(_cellNetType));
+        _isRadioAccessTechnologyDirty = NO;
+    }
+    return _cachedCellType;
 }
 
 - (void)notifyObserversNetworkTypeChanged:(HippyNetworkTypeObject *)object {
