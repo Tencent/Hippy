@@ -41,6 +41,7 @@ typedef NS_ENUM(NSInteger, HippyDevCloseType) {
 - (void)closeWebSocket:(HippyDevCloseType)type;
 
 @property(nonatomic, weak) HippyBridge *bridge;
+@property(nonatomic, readwrite) NSString *contextName;
 
 @end
 

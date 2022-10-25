@@ -205,7 +205,7 @@ export class HippyElement extends HippyNode {
   protected polyFillNativeEvents?: (type: string) => string;
 
   // style scoped id for element
-  private scopedId = '';
+  private scopedId?: string | undefined = undefined;
 
   constructor(tagName: string) {
     super(NodeType.ElementNode);
