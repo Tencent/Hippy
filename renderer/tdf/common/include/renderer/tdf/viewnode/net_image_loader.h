@@ -25,16 +25,13 @@
 #include "core/engine/schedule/task_runner.h"
 #include "core/engine/schedule/thread_task_driver.h"
 #include "tdfui/image/image_load_manager.h"
+#include "renderer/tdf/viewnode/root_view_node.h"
 #pragma clang diagnostic pop
 #include "footstone//string_view_utils.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace tdf {
-
-using StringView = footstone::string_view;
-using DataCb = std::function<void(StringView::u8string)>;
-using UriDataGetter = std::function<void(const StringView &uri, const DataCb cb)>;
 
 class NetImageLoader : public tdfcore::ImageLoader, public std::enable_shared_from_this<NetImageLoader> {
  public:
