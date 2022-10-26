@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.1](https://github.com/Tencent/Hippy/compare/2.15.0...2.15.1) (2022-10-26)
+
+
+### Performance Improvements
+
+* **react:** assign initialListSize if not undefined ([8634501](https://github.com/Tencent/Hippy/commit/8634501c6d5849efa3ecf3725bf1219fcc13fde7))
+
+
+
+
+
 # [2.15.0](https://github.com/Tencent/Hippy/compare/2.14.7...2.15.0) (2022-10-14)
 
 

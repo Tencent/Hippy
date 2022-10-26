@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.1](https://github.com/Tencent/Hippy/compare/2.15.0...2.15.1) (2022-10-26)
+
+
+### Bug Fixes
+
+* **android:** sticky item has incorrect height after refresh ([76694c5](https://github.com/Tencent/Hippy/commit/76694c50ca438880da36f6862d02b45417826b3a))
+* **homepage:** fix Bad HTML filtering regexp ([2575799](https://github.com/Tencent/Hippy/commit/2575799f9d10a602abc7762c765dede2baf08792))
+* **ios:** avoid a thread race for image component ([8541e28](https://github.com/Tencent/Hippy/commit/8541e28303e2af883e2c7a9b389f4a4b955b118a))
+* **ios:** avoid CTTelephony's occasional  crash ([c2536f3](https://github.com/Tencent/Hippy/commit/c2536f3096508701463130810fba190374df3562))
+* **ios:** fix image view dangling pointer ([60b17db](https://github.com/Tencent/Hippy/commit/60b17dbbec2082d81403481dfed3d88f11c1e492))
+* **ios:** no animation for frame reset ([ba43d47](https://github.com/Tencent/Hippy/commit/ba43d470b8eb3fbf8b5537fe0052f1eda710d3b3))
+* **ios:** virtual nodes need to be flushed ([be96c20](https://github.com/Tencent/Hippy/commit/be96c20fbb7fefcbd43c671c7c814bc1e4dacefa))
+
+
+### Features
+
+* **devtools:** devtools report ([#2556](https://github.com/Tencent/Hippy/issues/2556)) ([37eb1c2](https://github.com/Tencent/Hippy/commit/37eb1c29ce92e2675ea9fdf8bf19958c857f95e5))
+* **vue:** fix attribute selector & support deep selector ([87ce13e](https://github.com/Tencent/Hippy/commit/87ce13e80369a067b04af5b43371976a95fe75d6))
+
+
+### Performance Improvements
+
+* **react:** assign initialListSize if not undefined ([8634501](https://github.com/Tencent/Hippy/commit/8634501c6d5849efa3ecf3725bf1219fcc13fde7))
+* **vue:** refer native script source code to reduce number of loops ([#2571](https://github.com/Tencent/Hippy/issues/2571)) ([21900d0](https://github.com/Tencent/Hippy/commit/21900d0f0b494dc78ba33b4c1bae9934d587ecfd))
+
+
+
+
+
 # [2.15.0](https://github.com/Tencent/Hippy/compare/2.14.7...2.15.0) (2022-10-14)
 
 
