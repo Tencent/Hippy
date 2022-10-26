@@ -446,7 +446,9 @@ class ListView extends React.Component<ListViewProps, ListViewState> {
       if (Device.platform.OS === 'ios') {
         nativeProps.numberOfRows = itemList.length;
       }
-      (nativeProps as ListViewProps).initialListSize = initialListSize;
+      if (typeof initialListSize !== 'undefined') {
+        (nativeProps as ListViewProps).initialListSize = initialListSize;
+      }
       (nativeProps as ListViewProps).style = {
         overflow: 'scroll',
         ...style,
