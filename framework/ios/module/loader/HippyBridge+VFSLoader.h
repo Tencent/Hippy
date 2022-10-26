@@ -24,13 +24,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString *const VFSErrorDomain;
-
 @interface HippyBridge (VFSLoader)
 
-- (void)loadContentsAsynchronouslyFromUrl:(NSURL *)url
-                                   params:(NSDictionary *)params
-                        completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler;
+- (void)loadContentsAsynchronouslyFromUrl:(NSURL *_Nonnull)url
+                                   params:(NSDictionary *_Nullable)params
+                        completionHandler:(void (^)(NSData *_Nullable data, NSURLResponse *_Nullable response, NSError *_Nullable error))completionHandler;
 
 - (NSData *)loadContentsSynchronouslyFromUrl:(NSURL *)url
                                       params:(NSDictionary *)params

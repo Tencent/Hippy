@@ -22,12 +22,14 @@
 
 #include "footstone/persistent_object_map.h"
 #include "renderer/tdf/viewnode/view_node.h"
-
 #include "dom/dom_node.h"
 #include "dom/render_manager.h"
 #include "footstone/serializer.h"
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wextra-semi"
 #include "core/platform/android/tdf_engine_android.h"
+#pragma clang diagnostic pop
 #include "renderer/tdf/viewnode/root_view_node.h"
 
 namespace hippy {

@@ -30,21 +30,26 @@ NetImageLoader::NetImageLoader(std::string_view scheme, UriDataGetter uri_data_g
   FOOTSTONE_DCHECK(uri_data_getter);
 }
 
-std::shared_ptr<tdfcore::Task> NetImageLoader::Load(const std::string &url, const LoadCallback &loader_callback) {
-  return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, loader_callback] {
+std::shared_ptr<tdfcore::Task> NetImageLoader::Load(const std::string &url,
+                                                    const ProgressCallback &progress_callback,
+                                                    const FinishCallback &finish_callback) {
+  return TDF_MAKE_SHARED(tdfcore::FutureTask<void>, [WEAK_THIS, url, progress_callback, finish_callback] {
     DEFINE_AND_CHECK_SELF(NetImageLoader)
     StringView src_uri = footstone::string_view(url);
     FOOTSTONE_LOG(INFO) << "---NetImageLoader::Load--- src = " << src_uri;
-    self->uri_data_getter_(src_uri, [self, loader_callback](StringView::u8string data) {
+    self->uri_data_getter_(src_uri, [self, progress_callback, finish_callback](StringView::u8string data) {
       if (!data.empty()) {
         auto bytes = data.data();
         auto buffer = tdfcore::TData::MakeWithCopy(bytes, data.length());
-        if (loader_callback) {
-          loader_callback(buffer, tdfcore::ImageLoadStatus::kCompleted, 1);
+        if (progress_callback) {
+          progress_callback(1.0);
+        }
+        if (finish_callback) {
+          finish_callback(buffer, tdfcore::ImageLoadError::kNone);
         }
       } else {
-        if (loader_callback) {
-          loader_callback(nullptr, tdfcore::ImageLoadStatus::kCompleted, 0);
+        if (finish_callback) {
+          finish_callback(nullptr, tdfcore::ImageLoadError::kLoadFailed);
         }
       }
     });

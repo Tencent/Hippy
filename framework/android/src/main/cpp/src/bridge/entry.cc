@@ -285,14 +285,12 @@ void DoConnect(__unused JNIEnv* j_env,
   }
 #endif
 
-  // GetDensity()方法应该抽象到RenderManager里面去，目前只有NativeRenderManager才有这个方法
-#ifndef ENABLE_TDF_RENDER
-  std::shared_ptr<NativeRenderManager> render_manager =
-      std::static_pointer_cast<NativeRenderManager>(scope->GetRenderManager().lock());
-  float density = render_manager->GetDensity();
-  auto layout_node = root_node->GetLayoutNode();
-  layout_node->SetScaleFactor(density);
-#endif
+  auto render_manager = scope->GetRenderManager().lock();
+  if (render_manager) {
+    float density = render_manager->GetDensity();
+    auto layout_node = root_node->GetLayoutNode();
+    layout_node->SetScaleFactor(density);
+  }
 }
 
 jint CreateWorkerManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
@@ -424,11 +422,12 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   auto bridge = std::any_cast<std::shared_ptr<Bridge>>(runtime->GetData(kBridgeSlot));
   auto ref = bridge->GetRef();
   runtime->GetScope()->SetUriLoader(loader);
-  FOOTSTONE_CHECK(j_aasset_manager);
-  auto asset_handler = std::make_shared<hippy::AssetHandler>();
-  asset_handler->SetAAssetManager(j_env, j_aasset_manager);
-  asset_handler->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
-  loader->RegisterUriHandler(kAssetSchema, asset_handler);
+  if (j_aasset_manager) {
+    auto asset_handler = std::make_shared<hippy::AssetHandler>();
+    asset_handler->SetAAssetManager(j_env, j_aasset_manager);
+    asset_handler->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
+    loader->RegisterUriHandler(kAssetSchema, asset_handler);
+  }
   auto save_object = std::make_shared<JavaRef>(j_env, j_cb);
   auto is_local_file = j_aasset_manager != nullptr;
   auto func = [runtime, save_object_ = std::move(save_object), script_name,
@@ -442,7 +441,7 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
         .time_since_epoch()
         .count();
 
-    FOOTSTONE_DLOG(INFO) << "runScriptFromUri = " << (time_end - time_begin) << ", uri = " << uri;
+    FOOTSTONE_DLOG(INFO) << "runScriptFromUri time = " << (time_end - time_begin) << ", uri = " << uri;
     if (flag) {
       hippy::bridge::CallJavaMethod(save_object_->GetObj(), INIT_CB_STATE::SUCCESS);
     } else {
@@ -586,7 +585,7 @@ jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager
 
 void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) {
   auto id = footstone::checked_numeric_cast<jint, uint32_t>(j_id);
-  bool flag = JniDelegateHandler::GetJniDelegateHandlerMap().Erase(id);
+  bool flag = hippy::global_data_holder.Erase(id);
   FOOTSTONE_DCHECK(flag);
 }
 

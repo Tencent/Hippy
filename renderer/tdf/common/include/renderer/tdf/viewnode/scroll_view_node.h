@@ -32,7 +32,8 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
-#include "tdfview/scroll_view.h"
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#include "tdfui/view/scroll_view.h"
 #pragma clang diagnostic pop
 
 #include "renderer/tdf/viewnode/view_node.h"
@@ -59,6 +60,8 @@ constexpr const char kEventTypeScroll[] = "scroll";
 constexpr const char kEventTypeMomentumBegin[] = "momentumscrollbegin";
 constexpr const char kEventTypeMomentumEnd[] = "momentumscrollend";
 constexpr const char kEventTypeAnimationEnd[] = "scrollanimationend";
+constexpr const char kScrollTo[] = "scrollTo";
+constexpr const char kScrollToWithOptions[] = "scrollToWithOptions";
 }  // namespace scrollview
 
 class ScrollViewNode : public ViewNode {
@@ -73,6 +76,10 @@ class ScrollViewNode : public ViewNode {
   void OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) override;
 
   void OnChildRemove(const std::shared_ptr<ViewNode>& child) override;
+
+  void HandleEventInfoUpdate() override;
+
+  void CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) override;
 
  private:
   void InitScrollStartListener();

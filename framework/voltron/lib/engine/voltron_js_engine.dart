@@ -126,6 +126,9 @@ class VoltronJSEngine
       }
     }
 
+    CookieManager.getInstance().setCookieDelegate(params.cookieDelegateType,
+        originDelegate: params.originDelegate);
+
     var configs = GlobalConfigs(params);
     _globalConfigs = configs;
     _coreBundleLoader = coreBundleLoader;

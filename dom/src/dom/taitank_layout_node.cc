@@ -1,7 +1,28 @@
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "dom/taitank_layout_node.h"
 
 #include <map>
 #include <mutex>
+#include <cmath>
 
 #include "footstone/logging.h"
 #include "dom/node_props.h"
@@ -189,22 +210,22 @@ void TaitankLayoutNode::SetLayoutStyles(
 
 void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map) {
   if (style_map.find(kWidth) != style_map.end()) {
-    SET_STYLE_VALUE(Width, 0)
+    SET_STYLE_VALUE(Width, NAN)
   }
   if (style_map.find(kMinWidth) != style_map.end()) {
-    SET_STYLE_VALUE(MinWidth, 0)
+    SET_STYLE_VALUE(MinWidth, NAN)
   }
   if (style_map.find(kMaxWidth) != style_map.end()) {
-    SET_STYLE_VALUE(MaxWidth, 0)
+    SET_STYLE_VALUE(MaxWidth, NAN)
   }
   if (style_map.find(kHeight) != style_map.end()) {
-    SET_STYLE_VALUE(Height, 0)
+    SET_STYLE_VALUE(Height, NAN)
   }
   if (style_map.find(kMinHeight) != style_map.end()) {
-    SET_STYLE_VALUE(MinHeight, 0)
+    SET_STYLE_VALUE(MinHeight, NAN)
   }
   if (style_map.find(kMaxHeight) != style_map.end()) {
-    SET_STYLE_VALUE(MaxHeight, 0)
+    SET_STYLE_VALUE(MaxHeight, NAN)
   }
   if (style_map.find(kFlex) != style_map.end()) {
     SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDoubleChecked()));
@@ -300,16 +321,16 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<f
     SET_STYLE_VALUES(Border, BorderBottomWidth, 0)
   }
   if (style_map.find(kLeft) != style_map.end()) {
-    SET_STYLE_VALUES(Position, Left, 0)
+    SET_STYLE_VALUES(Position, Left, NAN)
   }
   if (style_map.find(kRight) != style_map.end()) {
-    SET_STYLE_VALUES(Position, Right, 0)
+    SET_STYLE_VALUES(Position, Right, NAN)
   }
   if (style_map.find(kTop) != style_map.end()) {
-    SET_STYLE_VALUES(Position, Top, 0)
+    SET_STYLE_VALUES(Position, Top, NAN)
   }
   if (style_map.find(kBottom) != style_map.end()) {
-    SET_STYLE_VALUES(Position, Bottom, 0)
+    SET_STYLE_VALUES(Position, Bottom, NAN)
   }
   if (style_map.find(kPosition) != style_map.end()) {
     SetPositionType(GetStylePositionType(style_map.find(kPosition)->second->ToStringChecked()));

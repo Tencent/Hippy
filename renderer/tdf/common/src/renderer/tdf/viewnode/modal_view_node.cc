@@ -46,11 +46,6 @@ void ModalViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
 
 void ModalViewNode::OnCreate() {
   ViewNode::OnCreate();
-  auto metrics = GetRootNode()->GetShell()->GetViewportMetrics();
-  auto device_pixel_ratio = metrics.device_pixel_ratio;
-  GetDomNode()->SetLayoutSize(
-      static_cast<float>(metrics.width / device_pixel_ratio),
-      static_cast<float>(metrics.height / device_pixel_ratio));
 }
 
 void ModalViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {

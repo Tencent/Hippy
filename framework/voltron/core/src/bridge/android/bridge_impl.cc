@@ -25,7 +25,7 @@
 #include <future>
 #include <utility>
 
-#include "driver/base/file.h"
+#include "vfs/file.h"
 #include "driver/runtime/v8/runtime.h"
 #include "driver/runtime/v8/v8_bridge_utils.h"
 #include "bridge_impl.h"
@@ -40,7 +40,7 @@ using u8string = string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
 using RegisterFunction = hippy::base::RegisterFunction;
 using Ctx = hippy::napi::Ctx;
-using HippyFile = hippy::base::HippyFile;
+using HippyFile = hippy::vfs::HippyFile;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 using voltron::VoltronBridge;
 using V8BridgeUtils = hippy::runtime::V8BridgeUtils;

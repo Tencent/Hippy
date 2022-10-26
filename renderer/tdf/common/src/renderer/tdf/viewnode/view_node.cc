@@ -25,14 +25,19 @@
 
 #include "core/common/color.h"
 #include "core/support/text/UTF.h"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-copy"
+#pragma clang diagnostic ignored "-Wextra-semi"
 #include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
 #include "core/support/gesture/recognizer/long_press_gesture_recognizer.h"
+#pragma clang diagnostic pop
 #include "dom/node_props.h"
 #include "dom/scene.h"
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
+#include "renderer/tdf/gesture/touch_recognizer.h"
 
 namespace hippy {
 inline namespace render {
@@ -70,8 +75,8 @@ void ViewNode::OnUpdate(hippy::DomNode& dom_node) {
     return;
   }
   // only update the different part
-  if (GetDomNode()->GetDiffStyle() != nullptr) {
-    HandleStyleUpdate(*(GetDomNode()->GetDiffStyle()));
+  if (dom_node.GetDiffStyle() != nullptr) {
+    HandleStyleUpdate(*(dom_node.GetDiffStyle()));
   }
 }
 
@@ -101,6 +106,16 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
     view->SetOpacity(static_cast<float>(it->second->ToDoubleChecked()));
   }
 
+  if (auto it = dom_style.find(hippy::dom::kOverflow); it != map_end) {
+    FOOTSTONE_DCHECK(it->second->IsString());
+    auto overflow_value = it->second->ToStringChecked();
+    if (overflow_value == "visible") {
+      view->SetClipToBounds(false);
+    } else if(overflow_value == "hidden") {
+      view->SetClipToBounds(true);
+    }
+  }
+
   util::ParseShadowInfo(*view, dom_style);
 
   // animation
@@ -109,6 +124,9 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(hippy::dom::kZIndex); it != map_end) {
     view->SetZIndex(it->second->ToInt32Checked());
   }
+
+  // kIntercepttouchevent / kInterceptpullupevent
+  HandleInterceptEvent(dom_style);
 }
 
 tdfcore::TM44 ViewNode::GenerateAnimationTransform(const DomStyleMap& dom_style, std::shared_ptr<tdfcore::View> view) {
@@ -275,6 +293,14 @@ void ViewNode::HandleEventInfoUpdate() {
   if (supported_events_.find(hippy::kLongClickEvent) != supported_events_.end()) {
     RegisterLongClickEvent();
   }
+
+  RemoveGestureEvent(hippy::kTouchStartEvent);
+  if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end() ||
+      supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end() ||
+      supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end() ||
+      supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
+    RegisterTouchEvent();
+  }
 }
 
 void ViewNode::RegisterClickEvent() {
@@ -319,6 +345,40 @@ void ViewNode::RegisterLongClickEvent() {
   GetView()->AddGesture(gesture_recognizer);
 }
 
+void ViewNode::RegisterTouchEvent() {
+  auto gesture_recognizer = TDF_MAKE_SHARED(TouchRecognizer);
+  if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchStart([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchDown", details);
+      self->SendGestureDomEvent(kTouchStartEvent, value);
+    });
+  }
+  if (supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchMove([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchMove", details);
+      self->SendGestureDomEvent(kTouchMoveEvent, value);
+    });
+  }
+  if (supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchEnd([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchEnd", details);
+      self->SendGestureDomEvent(kTouchEndEvent, value);
+    });
+  }
+  if (supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
+    gesture_recognizer->SetTouchCancel([WEAK_THIS](const TouchDetails &details) {
+      DEFINE_AND_CHECK_SELF(ViewNode)
+      auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchCancel", details);
+      self->SendGestureDomEvent(kTouchCancelEvent, value);
+    });
+  }
+  gestures_map_.emplace(kTouchStartEvent, gesture_recognizer);
+  GetView()->AddGesture(gesture_recognizer);
+}
+
 void ViewNode::RemoveGestureEvent(std::string&& event_type) {
   if (gestures_map_.find(event_type) != gestures_map_.end()) {
     GetView()->RemoveGesture(gestures_map_.find(event_type)->second);
@@ -329,6 +389,23 @@ void ViewNode::RemoveGestureEvent(std::string&& event_type) {
 void ViewNode::RemoveAllEventInfo() {
   RemoveGestureEvent(hippy::kClickEvent);
   RemoveGestureEvent(hippy::kLongClickEvent);
+  RemoveGestureEvent(hippy::kTouchStartEvent);
+}
+
+void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
+  if (auto it = dom_style.find("onInterceptTouchEvent"); it != dom_style.cend()) {
+    intercept_touch_event_flag_ = it->second->ToBooleanChecked();
+    if (intercept_touch_event_flag_) {
+      auto children_views = GetView()->GetChildren();
+      for (const auto& child_view : children_views) {
+        child_view->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
+      }
+    }
+  }
+  if (auto it = dom_style.find("onInterceptPullUpEvent"); it != dom_style.cend()) {
+    intercept_pullup_event_flag_ = it->second->ToBooleanChecked();
+    // TDF not support
+  }
 }
 
 std::shared_ptr<hippy::DomNode> ViewNode::GetDomNode() const { return GetRootNode()->FindDomNode(render_info_.id); }
@@ -353,6 +430,25 @@ void ViewNode::SendUIDomEvent(std::string type, const std::shared_ptr<footstone:
   auto event = std::make_shared<hippy::DomEvent>(type, dom_node, can_capture, can_bubble, value);
   std::vector<std::function<void()>> ops = {[dom_node, event] { dom_node->HandleEvent(event); }};
   GetRootNode()->GetDomManager()->PostTask(hippy::Scene(std::move(ops)));
+}
+
+void ViewNode::DoCallback(const std::string &function_name,
+                          const uint32_t callback_id,
+                          const std::shared_ptr<footstone::HippyValue> &value) {
+  auto dom_node = GetDomNode();
+  if (!dom_node) {
+    return;
+  }
+  auto callback = GetDomNode()->GetCallback(function_name, callback_id);
+  if (callback) {
+    if(value) {
+      callback(std::make_shared<DomArgument>(*value));
+    } else {
+      FOOTSTONE_LOG(ERROR) << "ViewNode::DoCallback value is null, function_name: " << function_name;
+    }
+  } else {
+    FOOTSTONE_LOG(ERROR) << "ViewNode::DoCallback callback not found: " << function_name << ", " << callback_id;
+  }
 }
 
 std::shared_ptr<RootViewNode> ViewNode::GetRootNode() const {
@@ -405,19 +501,25 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   is_attached_ = true;
   if (view) {
     view->SetId(render_info_.id);
+    if (parent_.lock()->GetInterceptTouchEventFlag()) {
+      view->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
+    }
     attached_view_ = view;
   } else {
     // this should be the only caller of CreateView.
     auto v = CreateView();
-    v->SetHitTestBehavior(tdfcore::HitTestBehavior::kTranslucent);
     v->SetId(render_info_.id);
+    v->SetHitTestBehavior(tdfcore::HitTestBehavior::kTranslucent);
+    if (parent_.lock()->GetInterceptTouchEventFlag()) {
+      v->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
+    }
     // must add to parent_, otherwise the view will be freed immediately.
     parent_.lock()->GetView()->AddView(v, GetCorrectedIndex());
     attached_view_ = v;
   }
 
   // Sync style/listener/etc
-  HandleStyleUpdate(GenerateStyleInfo(GetDomNode()));
+  HandleStyleUpdate(GenerateStyleInfo(dom_node));
   HandleLayoutUpdate(dom_node->GetRenderLayoutResult());
   HandleEventInfoUpdate();
   // recursively attach the sub ViewNode tree(sycn the tdfcore::View Tree)
@@ -450,6 +552,21 @@ void ViewNode::Detach(bool sync_to_view_tree) {
   }
   attached_view_.reset();
   is_attached_ = false;
+}
+
+void ViewNode::CallFunction(const std::string &name, const DomArgument &param, const uint32_t call_back_id) {
+  if (name == "measureInWindow") {
+    auto frame = GetView()->GetFrame();
+    FOOTSTONE_LOG(INFO) << "ViewNode::CallFunction measureInWindow result: "
+      << frame.X() << "," << frame.Y() << "," << frame.Width() << "," << frame.Height();
+
+    DomValueObjectType obj;
+    obj["x"] = frame.X();
+    obj["y"] = frame.Y();
+    obj["width"] = frame.Width();
+    obj["height"] = frame.Height();
+    DoCallback(name, call_back_id, std::make_shared<footstone::HippyValue>(obj));
+  }
 }
 
 }  // namespace tdf

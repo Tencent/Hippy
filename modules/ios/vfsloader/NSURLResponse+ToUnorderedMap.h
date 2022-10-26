@@ -20,13 +20,25 @@
  *
  */
 
-#include "vfs/uri_loader.h"
+#import <Foundation/Foundation.h>
 
-class UriHandler;
+#include <unordered_map>
 
-class HippyDefaultUriLoader : public hippy::vfs::UriLoader {
-  public:
-    HippyDefaultUriLoader();
-    HippyDefaultUriLoader(const std::shared_ptr<hippy::vfs::UriHandler> &);
-    ~HippyDefaultUriLoader() = default;
-};
+constexpr char kURL[] = "URL";
+constexpr char kMIMEType[] = "MIMEType";
+constexpr char kExpectedContentLength[] = "expectedContentLength";
+constexpr char kTextEncodingName[] = "textEncodingName";
+constexpr char kSuggestedFilename[] = "suggestedFilename";
+constexpr char kStatusCode[] = "statusCode";
+
+@interface NSURLResponse (ToUnorderedMap)
+
+- (std::unordered_map<std::string, std::string>)toUnorderedMap;
+
+@end
+
+@interface NSHTTPURLResponse (ToUnorderedMap)
+
+- (std::unordered_map<std::string, std::string>)toUnorderedMap;
+
+@end

@@ -29,7 +29,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-float-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshadow"
-#include "tdfview/embedded_view.h"
+#include "tdfui/view/embedded_view.h"
 #pragma clang diagnostic pop
 
 namespace hippy {

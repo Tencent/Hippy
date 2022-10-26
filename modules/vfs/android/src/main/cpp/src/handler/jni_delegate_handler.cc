@@ -99,7 +99,6 @@ using SyncContext = hippy::vfs::UriHandler::SyncContext;
 
 JniDelegateHandler::AsyncWrapperMap JniDelegateHandler::wrapper_map_;
 std::atomic<uint32_t> JniDelegateHandler::request_id_ = 1;
-JniDelegateHandler::JniDelegateHandlerMap JniDelegateHandler::delegate_map_;
 
 std::atomic<uint32_t> g_delegate_id = 1;
 
@@ -311,7 +310,11 @@ std::shared_ptr<UriLoader> GetUriLoader(jint j_id) {
 void JniDelegateHandler::RequestUntrustedContent(
     std::shared_ptr<SyncContext> ctx,
     std::function<std::shared_ptr<UriHandler>()> next) {
-  FOOTSTONE_DCHECK(ctx);
+  FOOTSTONE_DCHECK(!next()) << "jni delegate must be the last handler";
+  if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java
+    ctx->code = RetCode::SchemeNotRegister;
+    return;
+  }
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_uri = JniUtils::StrViewToJString(j_env, ctx->uri);
   auto j_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
@@ -353,7 +356,7 @@ void JniDelegateHandler::RequestUntrustedContent(
 void JniDelegateHandler::RequestUntrustedContent(
     std::shared_ptr<ASyncContext> ctx,
     std::function<std::shared_ptr<UriHandler>()> next) {
-  FOOTSTONE_DCHECK(!next());
+  FOOTSTONE_DCHECK(!next()) << "jni delegate must be the last handler";
   if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java
     ctx->cb(UriHandler::RetCode::SchemeNotRegister, {}, {});
     return;

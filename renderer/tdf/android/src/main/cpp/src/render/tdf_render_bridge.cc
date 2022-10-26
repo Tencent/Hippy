@@ -22,6 +22,10 @@
 #include "core/platform/android/jni/jni_platform_android.h"
 #include "jni/jni_register.h"
 #include "renderer/tdf/tdf_render_manager.h"
+#include "vfs/uri_loader.h"
+
+using string_view = footstone::stringview::string_view;
+using UriLoader = hippy::vfs::UriLoader;
 
 void TDFRenderBridge::Init(JavaVM *j_vm, __unused void *reserved) {
   // Init TDF Core: TDF Core was a static library for Hippy, so we need to do
@@ -32,18 +36,27 @@ void TDFRenderBridge::Init(JavaVM *j_vm, __unused void *reserved) {
 
 void TDFRenderBridge::RegisterScopeForUriLoader(
     uint32_t render_id, const std::shared_ptr<hippy::driver::Scope> &scope) {
-  hippy::TDFRenderManager::SetUriDataGetter(
-      render_id, [scope](hippy::render::tdf::RootViewNode::StringView uri,
-                         hippy::render::tdf::RootViewNode::DataCb cb) {
-        FOOTSTONE_DCHECK(scope->GetUriLoader());
-        return scope->GetUriLoader()->RequestUntrustedContent(uri, cb);
-      });
+    hippy::TDFRenderManager::SetUriDataGetter(
+        render_id, [scope](string_view uri, hippy::render::tdf::RootViewNode::DataCb cb) {
+          FOOTSTONE_DCHECK(scope->GetUriLoader().lock());
+          UriLoader::RetCode code;
+          std::unordered_map<std::string, std::string> meta;
+          UriLoader::bytes content;
+          scope->GetUriLoader().lock()->RequestUntrustedContent(uri, {}, code, meta, content);
+          string_view string_view{};
+          if (code == hippy::UriLoader::RetCode::Success) {
+            string_view = string_view::new_from_utf8(content.c_str(), content.length());
+          }
+          cb(string_view.utf8_value());
+        });
 }
 
 void TDFRenderBridge::Destroy() {}
 
 jint OnCreateTDFRender(JNIEnv *j_env, jobject j_obj, jfloat j_density) {
   auto render = std::make_shared<hippy::TDFRenderManager>();
+  auto density = static_cast<float>(j_density);
+  render->SetDensity(density);
   auto &map = hippy::TDFRenderManager::PersistentMap();
   bool ret = map.Insert(static_cast<uint32_t>(render->GetId()), render);
   if (!ret) {

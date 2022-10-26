@@ -61,6 +61,11 @@ GlobalPackages_Add(dom)
 set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} dom)
 # endregion
 
+# region vfs
+GlobalPackages_Add(vfs)
+set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} vfs)
+# endregion
+
 # region voltron renderer
 add_subdirectory(${RENDER_DIR} render_core)
 include_directories(${RENDER_DIR}/include)

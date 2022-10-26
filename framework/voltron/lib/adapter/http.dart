@@ -22,7 +22,6 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:system_proxy/system_proxy.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
@@ -72,7 +71,7 @@ class HttpAdapter with Destroyable {
       };
     }
 
-    dio.interceptors.add(CookieManager(channel.CookieManager.getInstance().cookieJar));
+    dio.interceptors.add(channel.CookieManager.getInstance());
     try {
       var response = await dio.request(request.url ?? '', data: request.getBody());
       LogUtils.i("HttpAdapter sendRequest", response.toString());

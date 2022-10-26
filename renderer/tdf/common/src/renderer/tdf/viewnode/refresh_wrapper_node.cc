@@ -57,6 +57,7 @@ void RefreshWrapperNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int6
   FOOTSTONE_DCHECK(IsAttached());
   if (child_dom_node->GetViewName() == kRefreshWrapperItemViewName) {
     item_node_ = std::static_pointer_cast<RefreshWrapperItemNode>(child->GetSharedPtr());
+    item_node_id_ = child->GetRenderInfo().id;
     refresh_header_ = TDF_MAKE_SHARED(HippyRefreshHeader, item_node_->CreateView());
     child->Attach(refresh_header_->GetView());
     return;
@@ -67,7 +68,7 @@ void RefreshWrapperNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int6
   child->SetCorrectedIndex(static_cast<int32_t>(index - 1));
   ViewNode::OnChildAdd(child, index);
   if (child_dom_node->GetViewName() == kListViewName) {
-    refresh_header_node_id_ = child->GetRenderInfo().id;
+    list_view_node_id_ = child->GetRenderInfo().id;
     list_node_ = std::static_pointer_cast<ListViewNode>(child->GetSharedPtr());
     FOOTSTONE_DCHECK(item_node_ != nullptr && item_node_->IsAttached());
     list_node_->GetView<tdfcore::CustomLayoutView>()->SetHeader(refresh_header_);
@@ -78,19 +79,25 @@ void RefreshWrapperNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int6
   }
 }
 void RefreshWrapperNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) {
-  if (child->GetRenderInfo().id == refresh_header_node_id_) {
-    refresh_header_ = nullptr;
+  uint32_t id = child->GetRenderInfo().id;
+  if (id == list_view_node_id_) {
     list_node_->GetView<tdfcore::CustomLayoutView>()->SetHeader(nullptr);
+  } else  if (id == item_node_id_) {
+    child->Detach(false);
     return;
   }
+
   ViewNode::OnChildRemove(child);
 }
 
 void RefreshWrapperNode::CallFunction(const std::string& name, const DomArgument& param, const uint32_t call_back_id) {
+  ViewNode::CallFunction(name, param, call_back_id);
   if (name == kRefreshComplected) {
     if (refresh_header_ && refresh_header_->GetState() == tdfcore::RefreshHeaderState::kRefreshing) {
       refresh_header_->FinishRefresh();
     }
+  } else if (name == kStartRefresh) {
+    // TDF not support
   }
 }
 

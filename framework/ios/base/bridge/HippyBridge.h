@@ -42,6 +42,8 @@
 @class HippyJSExecutor;
 @class HippyModuleData;
 
+class VFSUriLoader;
+
 /**
  * Indicate hippy sdk version
  */
@@ -149,7 +151,7 @@ HIPPY_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  * Set URI loader for Hippy instance
  * Default handler is HippyDefaultUriHandler
  */
-@property(nonatomic, assign)std::shared_ptr<hippy::vfs::UriLoader> uriLoader;
+@property(nonatomic, assign)std::shared_ptr<VFSUriLoader> uriLoader;
 
 /**
  * Access the underlying JavaScript executor. You can use this in unit tests to detect

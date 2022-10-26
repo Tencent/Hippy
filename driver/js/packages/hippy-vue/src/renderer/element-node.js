@@ -21,7 +21,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import colorParser from '@css-loader/color-parser';
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
 import {
@@ -73,11 +72,11 @@ function convertToDegree(value, unit = DEGREE_UNIT.DEG) {
     result = convertedNumValue.toFixed(2);
   }
   switch (unit) {
-    // turn unit
+      // turn unit
     case DEGREE_UNIT.TURN:
       result = `${(convertedNumValue * 360).toFixed(2)}`;
       break;
-    // radius unit
+      // radius unit
     case DEGREE_UNIT.RAD:
       result = `${(180 / Math.PI * convertedNumValue).toFixed(2)}`;
       break;
@@ -118,14 +117,14 @@ function getLinearGradientColorStop(value) {
   const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
   if (color && !percentageCheckReg.exec(color) && !percentage) {
     return {
-      color: colorParser(color),
+      color: Native.parseColor(color),
     };
   }
   if (color && percentageCheckReg.exec(percentage)) {
     return {
       // color stop ratio
       ratio: parseFloat(percentage.split('%')[0]) / 100,
-      color: colorParser(color),
+      color: Native.parseColor(color),
     };
   }
   warn('linear-gradient color stop is invalid');
@@ -227,7 +226,7 @@ class ElementNode extends ViewNode {
     // style attribute in template.
     this.style = {};
     // Vue style scope id.
-    this._styleScopeId = null;
+    this._styleScopeId = undefined;
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
     // Other attributes in template.
@@ -304,7 +303,7 @@ class ElementNode extends ViewNode {
           // update current node and child nodes
           !options.notToNative && updateWithChildren(this);
           return;
-        // Convert text related to character for interface.
+          // Convert text related to character for interface.
         case 'text':
         case 'value':
         case 'defaultValue':
@@ -430,7 +429,7 @@ class ElementNode extends ViewNode {
           value = value.trim();
           // Convert inline color style to int
           if (key.toLowerCase().indexOf('color') >= 0) {
-            value = colorParser(value, Native.Platform);
+            value = Native.parseColor(value);
             // Convert inline length style, drop the px unit
           } else if (endsWith(value, 'px')) {
             value = parseFloat(value.slice(0, value.length - 2));

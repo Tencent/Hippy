@@ -62,6 +62,9 @@ class UriHandler {
       this->req_meta = meta;
       this->cb = cb;
     }
+      ~ASyncContext() {
+          printf("11111\n");
+      }
   };
 
   UriHandler() = default;
