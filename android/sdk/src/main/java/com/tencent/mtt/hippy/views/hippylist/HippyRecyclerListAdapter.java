@@ -27,7 +27,6 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.DiffUtils.PatchType;
@@ -86,7 +85,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             initFooterRefreshHelper(renderView, renderNode);
             return new HippyRecyclerViewHolder(footerRefreshHelper.getView(), renderNode);
         } else if (isStickyPosition(positionToCreateHolder)) {
-            return new HippyRecyclerViewHolder(getStickyContainer(parent, renderView), renderNode);
+            View stickyView = hippyRecyclerView.getStickyContainer(parent.getContext(), renderView);
+            return new HippyRecyclerViewHolder(stickyView, renderNode);
         } else {
             if (renderView == null) {
                 throw new IllegalArgumentException("createRenderView error!"
@@ -156,14 +156,6 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             hpContext.getRenderManager().getControllerManager().removeViewFromRegistry(renderNode.getId());
         }
         renderNode.setRecycleItemTypeChangeListener(null);
-    }
-
-    private FrameLayout getStickyContainer(ViewGroup parent, View renderView) {
-        FrameLayout container = new FrameLayout(parent.getContext());
-        if (renderView != null) {
-            container.addView(renderView, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
-        }
-        return container;
     }
 
     @Override
