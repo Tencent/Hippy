@@ -17,27 +17,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { NeedToTyped } from '../types';
-import type { HippyElement } from '../runtime/element/hippy-element';
+import type { NeedToTyped } from '../index';
 
-/**
- * set element attribute value
- *
- * @param el - element
- * @param key - key
- * @param prevValue - before value
- * @param nextValue - after value
- */
-export function patchAttr(
-  el: HippyElement,
-  key: string,
-  prevValue: NeedToTyped,
-  nextValue: NeedToTyped,
-): void {
-  // set attr when next value is not equal before value
-  if (nextValue === null) {
-    el.removeAttribute(key);
-  } else if (prevValue !== nextValue) {
-    el.setAttribute(key, nextValue);
-  }
+export interface ConnectArgs {
+  headers: {
+    [x: string]: NeedToTyped;
+  };
+  url: string;
+}
+
+export interface ConnectResp {
+  id: number;
+  code: number;
+}
+
+export interface CloseArgs {
+  id: number;
+  reason: string;
+  code: number;
+}
+
+export interface SendArgs {
+  id: number;
+  data: string;
+}
+
+export interface Websocket {
+  connect: (args: ConnectArgs) => ConnectResp;
+  send: (args: SendArgs) => void;
+  close: (args: CloseArgs) => void;
 }

@@ -27,11 +27,9 @@
  * TODO Is it better to obtain component information in the node or where it is used?
  *
  */
-
-import type { NeedToTyped } from '../../config';
+import type { NeedToTyped, NativeNodeProps } from '../../types';
 import { normalizeTagName } from '../../util';
 import type { EventsUnionType, HippyEvent } from '../event/hippy-event';
-import type { NativeNodeProps } from '../native/native-node';
 
 export interface TagComponent {
   // the type of component that Native actually renders, such as View, TextView, etc.

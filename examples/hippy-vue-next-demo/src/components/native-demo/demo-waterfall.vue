@@ -2,7 +2,7 @@
   <div id="demo-waterfall">
     <ul-refresh-wrapper
       ref="header"
-      style="flex: 1"
+      style="flex:1;"
       @refresh="onRefresh"
     >
       <ul-refresh class="refresh-header">
@@ -19,7 +19,7 @@
         :inter-item-spacing="interItemSpacing"
         :number-of-columns="numberOfColumns"
         :preload-item-number="0"
-        :style="{ flex: 1 }"
+        :style="{flex: 1}"
         @endReached="onEndReached"
         @scroll="onScroll"
       >
@@ -31,7 +31,7 @@
         <waterfall-item
           v-for="(ui, index) in dataSource"
           :key="index"
-          :style="{ width: itemWidth }"
+          :style="{width: itemWidth}"
           :type="ui.style"
           @click.stop="() => onClickItem(index)"
         >
@@ -204,7 +204,7 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
 #demo-waterfall {
   flex: 1;
 }
@@ -228,68 +228,68 @@ export default defineComponent({
   align-items: center;
 }
 
-#demo-waterfall .list-view-item {
-  background-color: #eeeeee;
-}
-
-#demo-waterfall .article-title {
-  font-size: 12px;
-  line-height: 16px;
-  color: #242424;
-}
-
-#demo-waterfall .normal-text {
-  font-size: 10px;
-  color: #aaa;
-  align-self: center;
-}
-
-#demo-waterfall .image {
-  flex: 1;
-  height: 120px;
-  resize: both;
-}
-
-#demo-waterfall .style-one-image-container {
-  flex-direction: row;
-  justify-content: center;
-  margin-top: 8px;
-  flex: 1;
-}
-
-#demo-waterfall .style-one-image {
-  height: 60px;
-}
-
-#demo-waterfall .style-two {
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-#demo-waterfall .style-two-left-container {
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  margin-right: 8px;
-}
-
-#demo-waterfall .style-two-image-container {
-  flex: 1;
-}
-
-#demo-waterfall .style-two-image {
-  height: 80px;
-}
-
-#demo-waterfall .refresh {
-  background-color: #40b883;
-}
-
 #demo-waterfall .pull-footer {
   flex: 1;
   height: 40px;
   background-color: #40b883;
   justify-content: center;
   align-items: center;
+}
+
+#demo-waterfall :deep(.list-view-item) {
+  background-color: #eeeeee;
+}
+
+#demo-waterfall :deep(.article-title) {
+  font-size: 12px;
+  line-height: 16px;
+  color: #242424;
+}
+
+#demo-waterfall :deep(.normal-text) {
+  font-size: 10px;
+  color: #aaa;
+  align-self: center;
+}
+
+#demo-waterfall :deep(.image) {
+  flex: 1;
+  height: 120px;
+  resize: both;
+}
+
+#demo-waterfall :deep(.style-one-image-container) {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
+
+#demo-waterfall :deep(.style-one-image) {
+  height: 60px;
+}
+
+#demo-waterfall :deep(.style-two) {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#demo-waterfall :deep(.style-two-left-container) {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+#demo-waterfall :deep(.style-two-image-container) {
+  flex: 1;
+}
+
+#demo-waterfall :deep(.style-two-image) {
+  height: 80px;
+}
+
+#demo-waterfall :deep(.refresh) {
+  background-color: #40b883;
 }
 </style>

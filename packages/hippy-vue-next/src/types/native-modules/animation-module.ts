@@ -18,10 +18,15 @@
  * limitations under the License.
  */
 
-import type { NeedToTyped } from '../../../config';
-import type { AnimationStyle } from '../../../native-component/animation';
+import type { NeedToTyped } from '../index';
 
-interface CreateAnimationSetOptions {
+// type of animation style
+export interface AnimationStyle {
+  animationId: number;
+  follow?: boolean;
+}
+
+export interface CreateAnimationSetOptions {
   repeatCount: string | number;
   children: AnimationStyle[];
 }

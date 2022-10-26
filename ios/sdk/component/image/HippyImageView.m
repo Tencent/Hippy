@@ -355,20 +355,26 @@ NSError *imageErrorFromParams(NSInteger errorCode, NSString *errorDescription) {
     return NO;
 }
 
-static inline void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProviderProtocol> instance,
+static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProviderProtocol> instance,
                                            NSString *imageUrl, BOOL isAnimatedImage) {
-    __weak __typeof(imageView)weakSelf = imageView;
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __strong __typeof(weakSelf)strongSelf = weakSelf;
-        if (isAnimatedImage) {
-            if (strongSelf->_animatedImageOperation) {
-                [strongSelf->_animatedImageOperation cancel];
+    if (!imageView) {
+        return;
+    }
+    if (isAnimatedImage) {
+        if (imageView->_animatedImageOperation) {
+            [imageView->_animatedImageOperation cancel];
+        }
+        imageView->_animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance
+                                                                                                       imageView:imageView
+                                                                                                        imageURL:imageUrl];
+        [animated_image_queue() addOperation:imageView->_animatedImageOperation];
+    } else {
+        __weak HippyImageView *weakSelf = imageView;
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            __strong HippyImageView *strongSelf = weakSelf;
+            if (!strongSelf) {
+                return;
             }
-            strongSelf->_animatedImageOperation = [[HippyAnimatedImageOperation alloc] initWithAnimatedImageProvider:instance
-                                                                                                           imageView:strongSelf
-                                                                                                            imageURL:imageUrl];
-            [animated_image_queue() addOperation:strongSelf->_animatedImageOperation];
-        } else {
             UIImage *image = [instance image];
             if (image) {
                 [strongSelf loadImage:image url:imageUrl error:nil needBlur:YES needCache:YES];
@@ -377,8 +383,8 @@ static inline void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyIm
                 NSError *theError = imageErrorFromParams(ImageDataUnavailable, errorMessage);
                 [strongSelf loadImage:nil url:imageUrl error:theError needBlur:YES needCache:NO];
             }
-        }
-    });
+        });
+    }
 }
 
 - (void)reloadImage {
