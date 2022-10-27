@@ -63,14 +63,18 @@
     if (!value) {
         return;
     }
+    NSOperation *op = (NSOperation *)object;
+    if (![op isKindOfClass:[NSOperation class]]) {
+        return;
+    }
     BOOL status = [value boolValue];
     if ([keyPath isEqualToString:@"ready"] && status) {
-        [object removeObserver:self forKeyPath:@"ready" context:NULL];
-        [object start];
+        [op removeObserver:self forKeyPath:@"ready" context:NULL];
+        [op start];
     }
     else if ([keyPath isEqualToString:@"finished"] && status) {
         [_ops removeObject:object];
-        [object removeObserver:self forKeyPath:@"finished" context:NULL];
+        [op removeObserver:self forKeyPath:@"finished" context:NULL];
     }
 }
 
