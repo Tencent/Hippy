@@ -22,6 +22,7 @@ import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpRequest;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpResponse;
 import com.tencent.mtt.hippy.utils.ContextHolder;
+import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.ResourceDataHolder.FetchResultCode;
 import com.tencent.vfs.ResourceDataHolder.TransferType;
@@ -40,9 +41,11 @@ import java.util.Map;
 
 public class HippyResourceLoader implements ResourceLoader {
 
+    private static final String TAG = "HippyResourceLoader";
     private static final String PREFIX_FILE = "file://";
     private static final String PREFIX_ASSETS = "assets://";
-    private static final int MAX_HEAP_BYTE_BUFFER_SIZE = 4*1024*1024;
+    private static final int MAX_HEAP_BYTE_BUFFER_SIZE = 8 * 1024 * 1024;
+    private final Object mRemoteSyncObject = new Object();
     private final HippyHttpAdapter mHttpAdapter;
     private final HippyExecutorSupplierAdapter mExecutorAdapter;
 
@@ -149,7 +152,27 @@ public class HippyResourceLoader implements ResourceLoader {
             return true;
         }
         if (UrlUtils.isWebUrl(holder.uri)) {
-            holder.resultCode = FetchResultCode.ERR_NOT_SUPPORT_SYNC_REMOTE.ordinal();
+            loadRemoteResource(holder, new ProcessorCallback() {
+                @Override
+                public void goNext() {
+
+                }
+
+                @Override
+                public void onHandleCompleted() {
+                    synchronized (mRemoteSyncObject) {
+                        mRemoteSyncObject.notify();
+                    }
+                }
+            });
+            try {
+                synchronized (mRemoteSyncObject) {
+                    mRemoteSyncObject.wait();
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return true;
+            }
         } else {
             holder.resultCode = FetchResultCode.ERR_UNKNOWN_SCHEME.ordinal();
         }
