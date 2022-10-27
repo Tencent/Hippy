@@ -129,10 +129,6 @@ static NSString *const _VoltronSDKVersion = @"1.0.0";
         return nil;
     }
 
-    if ([method isEqualToString:@"log"]) {
-        VoltronLog(@"%@", params);
-        return nil;
-    }
     VoltronLog(@"callNativeModule:%@ method:%@ params:%@ callId:%@", module, method, params, callId);
     if (!self.platformRuntime) {
         return nil;

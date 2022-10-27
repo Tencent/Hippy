@@ -109,6 +109,13 @@ class PlatformManager {
           _appName = info.appName;
           _appVersion = info.version;
           _packageName = info.packageName;
+        } else if (Platform.isMacOS) {
+          deviceData = _readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo);
+          _os = 'macos';
+          _osVersion = deviceData['osRelease'] ?? '1.0';
+          _model = deviceData['model'] ?? '';
+        } else if (Platform.isWindows) {
+          deviceData = _readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo);
         }
         _hasInit = true;
       } on PlatformException {
@@ -150,50 +157,116 @@ class PlatformManager {
 
   Map<String, dynamic> _readAndroidBuildData(AndroidDeviceInfo build) {
     return <String, dynamic>{
+      /// 2022-10-05
       'version.securityPatch': build.version.securityPatch,
+      /// 33
       'version.sdkInt': build.version.sdkInt,
+      /// 13
       'version.release': build.version.release,
+      /// 0
       'version.previewSdkInt': build.version.previewSdkInt,
+      /// 9012097
       'version.incremental': build.version.incremental,
+      /// REL
       'version.codename': build.version.codename,
+      ///
       'version.baseOS': build.version.baseOS,
+      /// coral
       'board': build.board,
+      /// c2f2-0.5-8906123
       'bootloader': build.bootloader,
+      /// google
       'brand': build.brand,
+      /// coral
       'device': build.device,
+      /// TP1A.221005.002
       'display': build.display,
+      /// google/coral/coral:13/TP1A.221005.002/9012097:user/release-keys
       'fingerprint': build.fingerprint,
+      /// coral
       'hardware': build.hardware,
+      /// abfarm-release-rbe-64-00057
       'host': build.host,
+      /// TP1A.221005.002
       'id': build.id,
+      /// Google
       'manufacturer': build.manufacturer,
+      /// Pixel 4 XL
       'model': build.model,
+      /// coral
       'product': build.product,
+      /// armeabi-v7a armeabi
       'supported32BitAbis': build.supported32BitAbis,
+      /// arm64-v8a
       'supported64BitAbis': build.supported64BitAbis,
+      /// arm64-v8a armeabi-v7a armeabi
       'supportedAbis': build.supportedAbis,
+      /// release-keys
       'tags': build.tags,
+      /// user
       'type': build.type,
+      /// true false
       'isPhysicalDevice': build.isPhysicalDevice,
+      /// f5d2b31131cab4ec
       'androidId': build.id,
+      /// List include feature some like android.hardware.sensor.proximity、com.verizon.hardware.telephony.lte and so on
       'systemFeatures': build.systemFeatures,
     };
   }
 
   Map<String, dynamic> _readIosDeviceInfo(IosDeviceInfo data) {
     return <String, dynamic>{
+      /// iPhone 13
       'name': data.name,
+      /// iOS
       'systemName': data.systemName,
+      /// 15.5
+      /// 16.1
       'systemVersion': data.systemVersion,
+      /// iPhone
       'model': data.model,
+      /// iPhone
       'localizedModel': data.localizedModel,
+      /// AFCBDC68-4DF0-4E0E-B326-FABB9A6D0E63
       'identifierForVendor': data.identifierForVendor,
+      /// true false
       'isPhysicalDevice': data.isPhysicalDevice,
+      /// Darwin
       'utsname.sysname': data.utsname.sysname,
+      /// HENRYJIN-MC0.local - simulator
+      /// iPhone-11 - real machine
       'utsname.nodename': data.utsname.nodename,
+      /// 21.6.0
       'utsname.release': data.utsname.release,
+      /// Darwin Kernel Version 21.6.0: Mon Aug 22 20:17:10 PDT 2022; root:xnu-8020.140.49~2/RELEASE_X86_64
+      /// Darwin Kernel Version 22.1.0: Thu Oct  6 19:32:38 PDT 2022; root:xnu-8792.42.7~1/RELEASE_ARM64_T8030
       'utsname.version': data.utsname.version,
+      /// x86_64 - simulator
+      /// iPhone12,1 - real machine
       'utsname.machine': data.utsname.machine,
+    };
+  }
+
+  Map<String, dynamic> _readMacOsDeviceInfo(MacOsDeviceInfo data) {
+    return <String, dynamic>{
+      'computerName': data.computerName,
+      'hostName': data.hostName,
+      'arch': data.arch,
+      'model': data.model,
+      'kernelVersion': data.kernelVersion,
+      'osRelease': data.osRelease,
+      'activeCPUs': data.activeCPUs,
+      'memorySize': data.memorySize,
+      'cpuFrequency': data.cpuFrequency,
+      'systemGUID': data.systemGUID,
+    };
+  }
+
+  Map<String, dynamic> _readWindowsDeviceInfo(WindowsDeviceInfo data) {
+    return <String, dynamic>{
+      'numberOfCores': data.numberOfCores,
+      'computerName': data.computerName,
+      'systemMemoryInMegabytes': data.systemMemoryInMegabytes,
     };
   }
 }
