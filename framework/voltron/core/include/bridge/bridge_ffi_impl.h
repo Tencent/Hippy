@@ -23,10 +23,10 @@
 #pragma once
 
 #if defined(__ANDROID__) || defined(_WIN32)
-#  include "bridge/bridge_runtime.h"
+#  include "bridge_runtime.h"
 #elif __APPLE__
 #  include "bridge/bridge_runtime.h"
-#  include "render/ffi/common_header.h"
+#  include "render/bridge/common_header.h"
 #endif
 
 #ifdef __cplusplus

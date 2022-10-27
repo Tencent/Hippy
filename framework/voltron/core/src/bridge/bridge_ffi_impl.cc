@@ -24,15 +24,14 @@
 
 #include "footstone/string_view_utils.h"
 #include "dom/dom_manager.h"
-#include "ffi/bridge_ffi_impl.h"
-#include "ffi/ffi_bridge_runtime.h"
-#include "render/ffi/bridge_manager.h"
-#include "render/ffi/callback_manager.h"
-#include "render/ffi/common_header.h"
-#include "render/ffi/render_bridge_ffi_impl.h"
+#include "bridge/bridge_ffi_impl.h"
+#include "bridge/ffi_bridge_runtime.h"
+#include "render/bridge/bridge_manager.h"
+#include "callback_manager.h"
+#include "common_header.h"
+#include "render/bridge/render_bridge_ffi_impl.h"
 #include "render/queue/voltron_render_manager.h"
 #include "standard_message_codec.h"
-#include "vfs/handler/file_handler.h"
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #  include "bridge_impl.h"
@@ -93,12 +92,6 @@ EXTERN_C void UnloadInstanceFFI(int32_t engine_id, const char* params, int32_t p
   auto runtime_id = runtime->GetRuntimeId();
   std::string param_str(params, static_cast<unsigned int>(params_length));
   BridgeImpl::UnloadInstance(runtime_id, std::move(param_str));
-}
-
-EXTERN_C void InitBridge() {
-  if (ex_register_func == nullptr) {
-      ex_register_func = RegisterCallFuncEx;
-  }
 }
 
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,

@@ -25,12 +25,10 @@
 #include <functional>
 
 #include "encodable_value.h"
-#include "render/ffi/bridge_define.h"
-#include "render/ffi/callback_manager.h"
-#include "render/ffi/common_header.h"
+#include "callback_manager.h"
+#include "common_header.h"
+#include "render/bridge/bridge_define.h"
 #include "render/queue/voltron_render_manager.h"
-#include "footstone/worker_manager.h"
-#include "footstone/persistent_object_map.h"
 
 namespace voltron {
 using hippy::DomManager;

@@ -22,12 +22,12 @@
 
 #pragma once
 
-#include <cstdint>
+#include "../../../../../../../../../Users/longquan/Library/Android/sdk/ndk/25.0.8775105/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/cstdint"
 
-#include "render/ffi/common_header.h"
+#include "../../../../../modules/voltron/ffi/include/common_header.h"
 
 enum FFIRegisterFuncType {
-  kCallNative = 3,
+  kCallNative,
   kReportJsonException,
   kReportJsException,
   kDestroy
@@ -40,16 +40,12 @@ typedef void (*call_native)(int32_t engine_id, const char16_t* module_name, cons
 typedef void (*report_json_exception)(int32_t engine_id, const char* json_value);
 typedef void (*report_js_exception)(int32_t engine_id, const char16_t* description_stream,
                                     const char16_t* stack_stream);
-typedef void (*send_response)(int32_t engine_id, const uint16_t* source, int32_t len);
-typedef void (*send_notification)(int32_t engine_id, const uint16_t* source, int32_t len);
 // 销毁
 typedef void (*destroy_function)(int32_t engine_id);
 
 extern call_native call_native_func;
 extern report_json_exception report_json_exception_func;
 extern report_js_exception report_js_exception_func;
-extern send_response send_response_func;
-extern send_notification send_notification_func;
 extern destroy_function destroy_func;
 
-int32_t RegisterCallFuncEx(int32_t type, void *func);
+EXTERN_C int32_t RegisterCallFuncEx(int32_t type, void *func);

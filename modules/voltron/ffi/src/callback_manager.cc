@@ -20,31 +20,47 @@
  *
  */
 
-#include "render/ffi/callback_manager.h"
+#include "callback_manager.h"
+#include "ffi_define.h"
+#include "footstone/logging.h"
 
-Dart_PostCObjectType dartPostCObject = NULL;
-Dart_Port callbackPort = 0;
+dart_post_c_object_type dart_post_c_object_ = NULL;
+Dart_Port callback_port = 0;
 
-EXTERN_C void VoltronRegisterDartPostCObject(Dart_PostCObjectType _dartPostCObject, int64_t port) {
-  dartPostCObject = _dartPostCObject;
-  callbackPort = port;
+void VoltronRegisterDartPostCObject(dart_post_c_object_type dart_post_c_object, int64_t port) {
+  dart_post_c_object_ = dart_post_c_object;
+  callback_port = port;
 }
 
-EXTERN_C void VoltronExecuteCallback(Work* work_ptr) {
+EXTERN_C void VoltronExecuteCallback(Work *work_ptr) {
   const Work work = *work_ptr;
   work();
   delete work_ptr;
 }
 
-bool PostWorkToDart(const Work* work) {
-  if (callbackPort != 0) {
+bool PostWorkToDart(const Work *work) {
+  if (callback_port != 0) {
     const auto workAddress = reinterpret_cast<intptr_t>(work);
     Dart_CObject dart_object;
     dart_object.type = Dart_CObject_kInt64;
     dart_object.value.as_int64 = workAddress;
 
-    const bool result = dartPostCObject(callbackPort, &dart_object);
+    const bool result = dart_post_c_object_(callback_port, &dart_object);
     return result;
+  }
+  return false;
+}
+
+bool CallGlobalCallback(int32_t callback_id, int64_t value) {
+  if (global_callback_func) {
+    const Work work = [value, callback_id]() {
+      global_callback_func(callback_id, value);
+    };
+    const Work *work_ptr = new Work(work);
+    PostWorkToDart(work_ptr);
+    return true;
+  } else {
+    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
   }
   return false;
 }

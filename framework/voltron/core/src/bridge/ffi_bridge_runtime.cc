@@ -22,8 +22,8 @@
 #include <mutex>
 #include <cassert>
 
-#include "render/ffi/callback_manager.h"
-#include "ffi/ffi_bridge_runtime.h"
+#include "callback_manager.h"
+#include "bridge/ffi_bridge_runtime.h"
 
 namespace voltron {
 JSBridgeRuntime::JSBridgeRuntime(int32_t engine_id): BridgeRuntime(engine_id) {}
@@ -57,36 +57,6 @@ void FFIJSBridgeRuntime::ReportJSException(std::u16string &description_stream, s
   assert(report_js_exception_func != nullptr);
   const Work work = [engine_id = engine_id_, description_stream_ = std::move(description_stream), stack_stream_ = std::move(stack_stream)]() {
     report_js_exception_func(engine_id, description_stream_.c_str(), stack_stream_.c_str());
-  };
-  const Work* work_ptr = new Work(work);
-  PostWorkToDart(work_ptr);
-}
-
-void FFIJSBridgeRuntime::SendResponse(const uint16_t* source, int len) {
-  if (len <= 0) {
-    return;
-  }
-  std::u16string sour_str(reinterpret_cast<const char16_t *>(source),
-                          static_cast<unsigned int>(len));
-  assert(send_response_func != nullptr);
-  const Work work = [engine_id = engine_id_, sour_str = std::move(sour_str)]() {
-    send_response_func(engine_id, reinterpret_cast<const uint16_t *>(sour_str.c_str()),
-                       static_cast<int32_t>(sour_str.length()));
-  };
-  const Work* work_ptr = new Work(work);
-  PostWorkToDart(work_ptr);
-}
-
-void FFIJSBridgeRuntime::SendNotification(const uint16_t* source, int len) {
-  if (len <= 0) {
-    return;
-  }
-  std::u16string sour_str(reinterpret_cast<const char16_t *>(source),
-                          static_cast<unsigned int>(len));
-  assert(send_notification_func != nullptr);
-  const Work work = [engine_id = engine_id_, sour_str = std::move(sour_str)]() {
-    send_notification_func(engine_id, reinterpret_cast<const uint16_t *>(sour_str.c_str()),
-                           static_cast<int32_t>(sour_str.length()));
   };
   const Work* work_ptr = new Work(work);
   PostWorkToDart(work_ptr);

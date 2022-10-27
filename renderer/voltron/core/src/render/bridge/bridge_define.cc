@@ -19,25 +19,7 @@
  * limitations under the License.
  *
  */
+#include "render/bridge/bridge_define.h"
 
-#pragma once
-
-#include "render/bridge/common_header.h"
-
-namespace voltron {
-
-enum VoltronRenderOpType {
-  ADD_NODE,
-  DELETE_NODE,
-  MOVE_NODE,
-  UPDATE_NODE,
-  UPDATE_LAYOUT,
-  LAYOUT_BEFORE,
-  LAYOUT_FINISH,
-  BATCH,
-  DISPATCH_UI_FUNC,
-  ADD_EVENT,
-  REMOVE_EVENT,
-};
-
-} // namespace voltron
+post_render_op post_render_op_func = nullptr;
+calculate_node_layout calculate_node_layout_func = nullptr;

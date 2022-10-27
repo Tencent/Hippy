@@ -20,7 +20,7 @@
  *
  */
 
-#include "render/ffi/bridge_manager.h"
+#include "render/bridge/bridge_manager.h"
 
 #include <iterator>
 

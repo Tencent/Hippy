@@ -20,16 +20,14 @@
  *
  */
 
-#include "ffi/bridge_define.h"
+#include "bridge/bridge_define.h"
 
 call_native call_native_func = nullptr;
 report_json_exception report_json_exception_func = nullptr;
 report_js_exception report_js_exception_func = nullptr;
-send_response send_response_func = nullptr;
-send_notification send_notification_func = nullptr;
 destroy_function destroy_func = nullptr;
 
-int32_t RegisterCallFuncEx(int32_t type, void *func) {
+EXTERN_C int32_t RegisterCallFuncEx(int32_t type, void *func) {
   FOOTSTONE_DLOG(INFO) << "start register func, type " << type;
   if (type == FFIRegisterFuncType::kCallNative) {
     call_native_func = reinterpret_cast<call_native>(func);

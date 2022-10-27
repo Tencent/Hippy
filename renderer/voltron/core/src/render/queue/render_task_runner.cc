@@ -22,11 +22,12 @@
 
 #include <memory>
 
-#include "render/ffi/bridge_manager.h"
+#include "render/bridge/bridge_manager.h"
+
+#include "callback_manager.h"
 #include "dom/taitank_layout_node.h"
 #include "encodable_value.h"
-#include "render/ffi/bridge_define.h"
-#include "render/ffi/callback_manager.h"
+#include "render/bridge/bridge_define.h"
 #include "render/queue/const.h"
 #include "render/queue/render_task_runner.h"
 
@@ -37,12 +38,12 @@ VoltronRenderTaskRunner::~VoltronRenderTaskRunner() {
 }
 
 VoltronRenderTaskRunner::VoltronRenderTaskRunner(uint32_t id)
-    : render_manager_id_(id){
+    : render_manager_id_(id) {
 }
 
 void VoltronRenderTaskRunner::RunCreateDomNode(uint32_t root_id, const Sp<DomNode> &node) {
   FOOTSTONE_DLOG(INFO) << "RunCreateDomNode id" << node->GetId() << " pid"
-                      << node->GetPid();
+                       << node->GetPid();
   auto view_name = node->GetViewName();
   if (view_name == "Text") {
     SetNodeCustomMeasure(root_id, node);
@@ -96,9 +97,9 @@ void VoltronRenderTaskRunner::RunUpdateLayout(uint32_t root_id, const SpList<Dom
   if (!nodes.empty()) {
     auto args_map = EncodableMap();
     auto render_node_list = EncodableList();
-    for (const auto &node : nodes) {
+    for (const auto &node: nodes) {
       FOOTSTONE_DLOG(INFO) << "RunUpdateLayout id" << node->GetId();
-      const auto& result = node->GetRenderLayoutResult();
+      const auto &result = node->GetRenderLayoutResult();
       auto node_layout_prop_list = EncodableList();
       node_layout_prop_list.emplace_back(node->GetId());
       // x
@@ -110,10 +111,10 @@ void VoltronRenderTaskRunner::RunUpdateLayout(uint32_t root_id, const SpList<Dom
       // h
       node_layout_prop_list.emplace_back(result.height);
       if (node->GetViewName() == "Text") {
-          node_layout_prop_list.emplace_back(result.paddingLeft);
-          node_layout_prop_list.emplace_back(result.paddingTop);
-          node_layout_prop_list.emplace_back(result.paddingRight);
-          node_layout_prop_list.emplace_back(result.paddingBottom);
+        node_layout_prop_list.emplace_back(result.paddingLeft);
+        node_layout_prop_list.emplace_back(result.paddingTop);
+        node_layout_prop_list.emplace_back(result.paddingRight);
+        node_layout_prop_list.emplace_back(result.paddingBottom);
       }
       render_node_list.emplace_back(std::move(node_layout_prop_list));
     }
@@ -132,7 +133,7 @@ void VoltronRenderTaskRunner::RunMoveDomNode(uint32_t root_id, std::vector<int32
   auto args_map = EncodableMap();
   if (!ids.empty()) {
     auto id_list = EncodableList();
-    for (const auto &item_id : ids) {
+    for (const auto &item_id: ids) {
       id_list.emplace_back(item_id);
     }
     args_map[EncodableValue(kMoveIdListKey)] = id_list;
@@ -168,7 +169,7 @@ EncodableValue VoltronRenderTaskRunner::DecodeDomValue(const HippyValue &value) 
     return EncodableValue(value.ToStringChecked());
   } else if (value.IsArray()) {
     auto parse_list = EncodableList();
-    for (const auto &item : value.ToArrayChecked()) {
+    for (const auto &item: value.ToArrayChecked()) {
       auto parse_item_value = DecodeDomValue(item);
       if (!parse_item_value.IsNull()) {
         parse_list.emplace_back(parse_item_value);
@@ -177,7 +178,7 @@ EncodableValue VoltronRenderTaskRunner::DecodeDomValue(const HippyValue &value) 
     return EncodableValue(std::move(parse_list));
   } else if (value.IsObject()) {
     auto parse_map = EncodableMap();
-    for (const auto &entry : value.ToObjectChecked()) {
+    for (const auto &entry: value.ToObjectChecked()) {
       auto encode_entry_value = DecodeDomValue(entry.second);
       if (!encode_entry_value.IsNull()) {
         auto encode_entry_key = EncodableValue(entry.first);
@@ -220,7 +221,7 @@ VoltronRenderTaskRunner::HippyValue VoltronRenderTaskRunner::EncodeDomValue(cons
   auto list_value = std::get_if<EncodableList>(&value);
   if (list_value) {
     std::vector<VoltronRenderTaskRunner::HippyValue> parse_list;
-    for (const auto &item : *list_value) {
+    for (const auto &item: *list_value) {
       auto parse_item_value = EncodeDomValue(item);
       if (!parse_item_value.IsNull()) {
         parse_list.emplace_back(parse_item_value);
@@ -232,7 +233,7 @@ VoltronRenderTaskRunner::HippyValue VoltronRenderTaskRunner::EncodeDomValue(cons
   auto map_value = std::get_if<EncodableMap>(&value);
   if (map_value) {
     std::unordered_map<std::string, VoltronRenderTaskRunner::HippyValue> parse_map;
-    for (const auto &entry : *map_value) {
+    for (const auto &entry: *map_value) {
       auto key = std::get_if<std::string>(&entry.first);
       if (key) {
         auto encode_entry_value = EncodeDomValue(entry.second);
@@ -253,7 +254,7 @@ EncodableValue
 VoltronRenderTaskRunner::DecodeDomValueMap(const SpMap<HippyValue> &value_map) {
   auto encode_map = EncodableMap();
 
-  for (const auto &entry : value_map) {
+  for (const auto &entry: value_map) {
     auto encode_entry_value = DecodeDomValue(*entry.second);
     if (!encode_entry_value.IsNull()) {
       auto encode_entry_key = EncodableValue(entry.first);
@@ -285,8 +286,10 @@ void VoltronRenderTaskRunner::ConsumeQueue(uint32_t root_id) {
 }
 
 void VoltronRenderTaskRunner::RunCallFunction(uint32_t root_id,
-    const std::weak_ptr<DomNode> &dom_node, const std::string &name,
-    const DomArgument &param, uint32_t cb_id) {
+                                              const std::weak_ptr<DomNode> &dom_node,
+                                              const std::string &name,
+                                              const DomArgument &param,
+                                              uint32_t cb_id) {
   auto node = dom_node.lock();
   auto bridge_manager = BridgeManager::Find(engine_id_);
   if (node && bridge_manager) {
@@ -358,7 +361,7 @@ void VoltronRenderTaskRunner::RunRemoveEventListener(uint32_t root_id, const uin
 }
 
 void VoltronRenderTaskRunner::SetNodeCustomMeasure(uint32_t root_id,
-    const Sp<DomNode> &dom_node) const {
+                                                   const Sp<DomNode> &dom_node) const {
   if (dom_node) {
     auto layout_node = dom_node->GetLayoutNode();
     if (layout_node) {
@@ -377,7 +380,7 @@ void VoltronRenderTaskRunner::SetNodeCustomMeasure(uint32_t root_id,
                     heightMeasureMode);
                 int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
                 int32_t h_bits = 0xFFFFFFFF & measure_result;
-                return VoltronRenderTaskRunner::LayoutSize{(float)w_bits, (float)h_bits};
+                return VoltronRenderTaskRunner::LayoutSize{(float) w_bits, (float) h_bits};
               }
             }
             return LayoutSize{0, 0};
@@ -390,7 +393,7 @@ Sp<DomManager> VoltronRenderTaskRunner::GetDomManager() {
   return dom_manager_.lock();
 }
 
-void VoltronRenderTaskRunner::SetDomManager(const Sp<DomManager>& dom_manager) {
+void VoltronRenderTaskRunner::SetDomManager(const Sp<DomManager> &dom_manager) {
   dom_manager_ = dom_manager;
 }
 

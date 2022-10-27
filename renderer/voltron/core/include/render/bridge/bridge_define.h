@@ -20,9 +20,20 @@
  *
  */
 
-#include "render/ffi/bridge_define.h"
+#pragma once
 
-global_callback global_callback_func = nullptr;
-post_render_op post_render_op_func = nullptr;
-calculate_node_layout calculate_node_layout_func = nullptr;
-register_call_func_ex ex_register_func = nullptr;
+#include <cstdint>
+
+enum class RenderFFIRegisterFuncType {
+  kPostRenderOp,
+  kCalculateNodeLayout
+};
+
+typedef void (*post_render_op)(int32_t engine_id, uint32_t root_id, const void* data, int64_t length);
+typedef int64_t* (*calculate_node_layout)(int32_t engine_id, int32_t root_id, int32_t node_id, double width,
+                                          int32_t width_mode, double height, int32_t height_mode);
+
+extern post_render_op post_render_op_func;
+extern calculate_node_layout calculate_node_layout_func;
+
+

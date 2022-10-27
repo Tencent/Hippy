@@ -45,7 +45,14 @@ class FfiDelegateHandler : public hippy::UriHandler {
       std::function<std::shared_ptr<UriHandler>()> next) override;
 
  private:
+  void Lock();
+  void Unlock();
+
+ private:
   std::weak_ptr<TaskRunner> runner_;
+  std::mutex mutex_;
+  std::condition_variable cv_;
+  bool notified_ = false;
 };
 
 }
