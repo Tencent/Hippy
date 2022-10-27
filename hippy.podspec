@@ -59,6 +59,12 @@ Pod::Spec.new do |s|
     puts 'hippy subspec \'vfs\' read end'
   end
 
+  s.subspec 'iosutils' do |iosutils|
+    puts 'hippy subspec \'iosutils\' read begin'
+    iosutils.source_files = 'modules/ios/**/*.{h,m,mm}'
+    puts 'hippy subspec \'iosutils\' read end'
+  end
+
 
   s.subspec 'driver' do |driver|
     puts 'hippy subspec \'driver\' read begin'
