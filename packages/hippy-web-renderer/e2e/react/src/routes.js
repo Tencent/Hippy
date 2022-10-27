@@ -19,4 +19,5 @@ function getKebabCase2(str) {
     });
   }
 }());
+console.log(off);
 export default off;
