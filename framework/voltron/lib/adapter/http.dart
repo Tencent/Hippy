@@ -178,25 +178,18 @@ class HttpRequest {
 
   void _initUserAgent() {
     if (_userAgent == null) {
-      var info = '';
       final platInfo = channel.PlatformManager.getInstance();
-      info += '${platInfo.osVersion}; ';
-
-      info += (platInfo.language);
-      info += "-${platInfo.country}";
-
-      if (platInfo.apiLevel > 3 && platInfo.codeName == 'REL' && platInfo.model.isNotEmpty) {
-        info += '; ${platInfo.model}';
+      const trailStr = 'Hippy/Voltron';
+      if (Platform.isAndroid) {
+        _userAgent = 'Mozilla/5.0 (Linux; Android ${platInfo.osVersion}; ${platInfo.model} Build/${platInfo.deviceId}; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/106.0.5249.126 Mobile Safari/537.36 $trailStr';
+      } else if (Platform.isIOS) {
+        _userAgent = 'Mozilla/5.0 (iPhone; CPU ${platInfo.model} OS ${platInfo.osVersion.replaceAll('.', '_')} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/${platInfo.osVersion} Mobile/15E148 $trailStr';
+      } else if (Platform.isMacOS) {
+        _userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X ${platInfo.osVersion.replaceAll('.', '_')}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Version/${platInfo.osVersion} $trailStr';
+      } else if (Platform.isWindows) {
+        /// TODO wait to perfect
+        _userAgent = 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko $trailStr';
       }
-
-      if (platInfo.deviceId.isNotEmpty) {
-        info += " Build/${platInfo.deviceId}";
-      }
-
-      final userAgent =
-          'Mozilla/5.0 (Linux; U; Android $info) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1';
-
-      _userAgent = userAgent;
     }
   }
 }
