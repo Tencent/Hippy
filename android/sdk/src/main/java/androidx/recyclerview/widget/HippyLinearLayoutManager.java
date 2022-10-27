@@ -161,4 +161,10 @@ public class HippyLinearLayoutManager extends LinearLayoutManager {
         }
         return super.computeVerticalScrollRange(state);
     }
+
+    public void resetCache() {
+        itemBottomMarginMaps.clear();
+        itemTopMarginMaps.clear();
+        itemHeightMaps.clear();
+    }
 }

@@ -16,3 +16,6 @@ trim_trailing_whitespace = false
 
 [COMMIT_EDITMSG]
 max_line_length = 0
+
+[*.java]
+indent_size = 4
