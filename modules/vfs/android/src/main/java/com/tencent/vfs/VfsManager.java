@@ -89,11 +89,11 @@ public class VfsManager {
             holder.index = index;
             Processor processor = mProcessorChain.get(index);
             if (isSync) {
-                boolean goNext = processor.handleRequestSync(holder);
-                if(goNext) {
-                    traverseForward(holder, true);
-                } else {
+                boolean goBack = processor.handleRequestSync(holder);
+                if (goBack) {
                     traverseGoBack(holder, true);
+                } else {
+                    traverseForward(holder, true);
                 }
             } else {
                 processor.handleRequestAsync(holder, new ProcessorCallback() {
@@ -214,14 +214,17 @@ public class VfsManager {
     /**
      * Request from JAVA, after java chain traversals end, continue traverse native (C++) chain.
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void doNativeTraversalsAsync(int id, ResourceDataHolder holder,
             FetchResourceCallback callback);
 
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void doNativeTraversalsSync(int id, ResourceDataHolder holder);
 
     /**
      * Request from native (C++), after java chain traversals end, asynchronously return the result
      * to native (C++).
      */
+    @SuppressWarnings("JavaJniMissingFunction")
     private native void onTraversalsEndAsync(ResourceDataHolder holder);
 }

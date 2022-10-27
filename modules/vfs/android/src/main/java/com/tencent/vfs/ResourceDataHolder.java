@@ -28,7 +28,6 @@ public class ResourceDataHolder {
     public enum FetchResultCode {
         OK,
         ERR_OPEN_LOCAL_FILE,
-        ERR_NOT_SUPPORT_SYNC_REMOTE,
         ERR_UNKNOWN_SCHEME,
         ERR_REMOTE_REQUEST_FAILED,
     }
