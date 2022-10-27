@@ -229,12 +229,10 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info) {
     return;
   }
 
-  v8::Local<v8::FunctionTemplate> constructor =
-      v8::FunctionTemplate::New(isolate);
+  v8::Local<v8::FunctionTemplate> constructor = v8::FunctionTemplate::New(isolate);
   for (const auto& fn : module_class->second) {
     const string_view& fn_name = fn.first;
-    std::unique_ptr<FunctionData> fn_data =
-        std::make_unique<FunctionData>(scope, fn.second);
+    std::unique_ptr<FunctionData> fn_data = std::make_unique<FunctionData>(scope, fn.second);
     v8::Local<v8::FunctionTemplate> function_template =
         v8::FunctionTemplate::New(
             isolate, JsCallbackFunc,
