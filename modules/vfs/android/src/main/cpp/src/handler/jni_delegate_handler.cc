@@ -323,8 +323,6 @@ void JniDelegateHandler::RequestUntrustedContent(
   if (ret_code != RetCode::Success) {
     return;
   }
-  auto next_delegate = next();
-  FOOTSTONE_CHECK(!next_delegate);
   auto j_type = j_env->GetObjectField(j_holder, j_holder_transfer_type_field_id);
   if (j_env->IsSameObject(j_type, j_transfer_type_normal_value)) {
     auto j_bytes = reinterpret_cast<jbyteArray>(j_env->GetObjectField(j_holder, j_holder_bytes_field_id));

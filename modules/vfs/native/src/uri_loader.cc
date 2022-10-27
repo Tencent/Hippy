@@ -132,6 +132,7 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
 std::shared_ptr<UriHandler> UriLoader::GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
                                                       const std::list<std::shared_ptr<UriHandler>>::iterator& end) {
   std::lock_guard<std::mutex> lock(mutex_);
+  FOOTSTONE_CHECK(cur != end);
   ++cur;
   if (cur == end) {
     return nullptr;
