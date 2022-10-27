@@ -37,14 +37,10 @@ set(SRC_FILES
         ${RENDER_CORE_SRC_DIR}/render/queue/render_task.cc
         ${RENDER_CORE_SRC_DIR}/render/queue/render_task_runner.cc
         ${RENDER_CORE_SRC_DIR}/render/queue/voltron_render_manager.cc
-        ${RENDER_CORE_SRC_DIR}/render/ffi/bridge_manager.cc
-        ${RENDER_CORE_SRC_DIR}/render/ffi/bridge_define.cc
-        ${RENDER_CORE_SRC_DIR}/render/ffi/callback_manager.cc
-        ${RENDER_CORE_SRC_DIR}/render/ffi/render_bridge_ffi_impl.cc
-        ${RENDER_CORE_SRC_DIR}/render/ffi/string_convert.cc
-        ${CODEC_SRC_DIR}/standard_codec.cc)
+        ${RENDER_CORE_SRC_DIR}/render/bridge/bridge_manager.cc
+        ${RENDER_CORE_SRC_DIR}/render/bridge/bridge_define.cc
+        ${RENDER_CORE_SRC_DIR}/render/bridge/render_bridge_ffi_impl.cc)
 
-include_directories(${RENDER_CORE_DIR}/third_party/codec/include)
 include_directories(${RENDER_CORE_DIR}/include)
 
 set(DOM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../dom)
@@ -61,7 +57,7 @@ if ("${BUILD_SHARED_LIB}" STREQUAL "true")
     set(FRAMEWORK_CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../driver/js/core)
 
     if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-        cmake_minimum_required(VERSION 3.4.1)
+        cmake_minimum_required(VERSION 3.14.0)
     elseif ((CMAKE_SYSTEM_NAME STREQUAL "Darwin") OR (CMAKE_SYSTEM_NAME STREQUAL "iOS"))
         cmake_minimum_required(VERSION 3.19.0)
     elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -97,3 +93,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 
 GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
+
+# region voltron_ffi
+add_subdirectory(${PROJECT_ROOT_DIR}/modules/voltron/ffi ${CMAKE_CURRENT_BINARY_DIR}/voltron/ffi)
+target_link_libraries(${PROJECT_NAME} PUBLIC voltron_ffi)
+# endregion

@@ -20,10 +20,11 @@
  *
  */
 
-#include <dom/dom_manager.h>
-#include "render/ffi/render_bridge_ffi_impl.h"
-#include "standard_message_codec.h"
+#include "render/bridge/render_bridge_ffi_impl.h"
+
+#include "dom/dom_manager.h"
 #include "encodable_value.h"
+#include "standard_message_codec.h"
 
 using voltron::StandardMessageCodec;
 using voltron::EncodableValue;
@@ -39,34 +40,15 @@ extern "C" {
 constexpr char kDomRunnerName[] = "hippy_dom";
 
 EXTERN_C int32_t RegisterCallFunc(int32_t type, void *func) {
-  FOOTSTONE_DLOG(INFO) << "start register func, type " << type;
-  if (type == static_cast<int>(RenderFFIRegisterFuncType::kGlobalCallback)) {
-    global_callback_func = reinterpret_cast<global_callback>(func);
-    return true;
-  } else if (type == static_cast<int>(RenderFFIRegisterFuncType::kPostRenderOp)) {
+  FOOTSTONE_DLOG(INFO) << "start register render func, type " << type;
+  if (type == static_cast<int>(RenderFFIRegisterFuncType::kPostRenderOp)) {
     post_render_op_func = reinterpret_cast<post_render_op>(func);
     return true;
   } else if (type == static_cast<int>(RenderFFIRegisterFuncType::kCalculateNodeLayout)) {
     calculate_node_layout_func = reinterpret_cast<calculate_node_layout>(func);
     return true;
-  } else if (ex_register_func != nullptr) {
-    return ex_register_func(type, func);
   }
-  FOOTSTONE_DLOG(ERROR) << "register func error, unknown type " << type;
-  return false;
-}
-
-bool CallGlobalCallback(int32_t callback_id, int64_t value) {
-  if (global_callback_func) {
-    const Work work = [value, callback_id]() {
-      global_callback_func(callback_id, value);
-    };
-    const Work *work_ptr = new Work(work);
-    PostWorkToDart(work_ptr);
-    return true;
-  } else {
-    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
-  }
+  FOOTSTONE_DLOG(ERROR) << "register render func error, unknown type " << type;
   return false;
 }
 

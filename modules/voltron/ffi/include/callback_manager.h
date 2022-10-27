@@ -50,10 +50,11 @@ typedef enum {
   Dart_TypedData_kInvalid
 } Dart_TypedData_Type;
 
-typedef struct _Dart_WeakPersistentHandle* Dart_WeakPersistentHandle;
+typedef struct _Dart_WeakPersistentHandle *Dart_WeakPersistentHandle;
 
-typedef void (*Dart_WeakPersistentHandleFinalizer)(void* isolate_callback_data, Dart_WeakPersistentHandle handle,
-                                                   void* peer);
+typedef void
+(*Dart_WeakPersistentHandleFinalizer)(void *isolate_callback_data, Dart_WeakPersistentHandle handle,
+                                      void *peer);
 
 // dart_native_api.h
 typedef enum {
@@ -79,7 +80,7 @@ typedef struct _Dart_CObject {
     int32_t as_int32;
     int64_t as_int64;
     double as_double;
-    char* as_string;
+    char *as_string;
     struct {
       Dart_Port id;
       Dart_Port origin_id;
@@ -89,33 +90,35 @@ typedef struct _Dart_CObject {
     } as_capability;
     struct {
       intptr_t length;
-      struct _Dart_CObject** values;
+      struct _Dart_CObject **values;
     } as_array;
     struct {
       Dart_TypedData_Type type;
       intptr_t length;
-      uint8_t* values;
+      uint8_t *values;
     } as_typed_data;
     struct {
       Dart_TypedData_Type type;
       intptr_t length;
-      uint8_t* data;
-      void* peer;
+      uint8_t *data;
+      void *peer;
       Dart_WeakPersistentHandleFinalizer callback;
     } as_external_typed_data;
   } value;
 } Dart_CObject;
 
-typedef bool (*Dart_PostCObjectType)(Dart_Port port_id, Dart_CObject* message);
+typedef bool (*dart_post_c_object_type)(Dart_Port port_id, Dart_CObject *message);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-EXTERN_C void VoltronRegisterDartPostCObject(Dart_PostCObjectType _dartPostCObject, int64_t port);
+void VoltronRegisterDartPostCObject(dart_post_c_object_type dart_post_c_object, int64_t port);
 
-EXTERN_C void VoltronExecuteCallback(Work* work_ptr);
+EXTERN_C void VoltronExecuteCallback(Work *work_ptr);
 
-bool PostWorkToDart(const Work* work);
+bool PostWorkToDart(const Work *work);
+
+bool CallGlobalCallback(int32_t callback_id, int64_t value);
 #ifdef __cplusplus
 }
 #endif

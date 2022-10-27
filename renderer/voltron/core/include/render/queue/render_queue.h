@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "render/ffi/common_header.h"
+#include "common_header.h"
 #include "render_task.h"
 
 namespace voltron {

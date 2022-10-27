@@ -24,7 +24,7 @@
 #include <fstream>
 #include <string>
 
-#include "render/ffi/string_convert.h"
+#include "string_convert.h"
 
 namespace voltron {
 

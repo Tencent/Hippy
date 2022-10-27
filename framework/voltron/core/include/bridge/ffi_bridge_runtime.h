@@ -23,10 +23,10 @@
 #pragma once
 
 #if defined(__ANDROID__) || defined(_WIN32)
-#  include "bridge/bridge_runtime.h"
+#  include "bridge_runtime.h"
 #elif __APPLE__
 #  include "bridge/bridge_runtime.h"
-#  include "render/ffi/common_header.h"
+#  include "render/bridge/common_header.h"
 #endif
 #include "bridge_define.h"
 
@@ -43,8 +43,6 @@ class FFIJSBridgeRuntime : public JSBridgeRuntime {
                 std::string params, bool bridgeParamJson, std::function<void()> callback) override;
   void ReportJSONException(const char* jsonValue) override;
   void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) override;
-  void SendResponse(const uint16_t* source, int len) override;
-  void SendNotification(const uint16_t* source, int len) override;
   void Destroy() override;
   void SetRuntimeId(int64_t runtime_id) override;
   int64_t GetRuntimeId() override;

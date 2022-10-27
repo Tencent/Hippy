@@ -23,9 +23,9 @@
 #pragma once
 
 #include "common_header.h"
-#include "render/ffi/callback_manager.h"
-#include "render/ffi/bridge_define.h"
-#include "render/ffi/bridge_manager.h"
+#include "callback_manager.h"
+#include "render/bridge/bridge_define.h"
+#include "render/bridge/bridge_manager.h"
 #include "render/queue/voltron_render_manager.h"
 
 #ifdef __cplusplus
@@ -65,8 +65,6 @@ EXTERN_C void DestroyDomInstance(uint32_t dom_manager_id);
 EXTERN_C void AddRoot(uint32_t dom_manager_id, uint32_t root_id);
 
 EXTERN_C void RemoveRoot(uint32_t dom_manager_id, uint32_t root_id);
-
-bool CallGlobalCallback(int32_t callback_id, int64_t value);
 
 #ifdef __cplusplus
 }
