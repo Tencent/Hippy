@@ -21,9 +21,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
@@ -46,8 +44,6 @@ public abstract class PullRefreshHelper {
 
     public static final int DURATION = 200;
     public static final float PULL_RATIO = 2.4f;
-    protected float mLastPosition = -1;
-    protected float mStartPosition = -1;
     protected final HippyRecyclerView mRecyclerView;
     protected final LinearLayout mContainer;
     protected final RenderNode mRenderNode;
@@ -63,7 +59,33 @@ public abstract class PullRefreshHelper {
         mContainer = new LinearLayout(recyclerView.getContext());
     }
 
-    protected abstract void handleTouchMoveEvent(MotionEvent event);
+    protected abstract int handleDrag(int distance);
+
+    protected void endDrag() {
+        if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_FOLDED) {
+            return;
+        }
+        int nodeSize = getNodeSize();
+        int visibleSize = getVisibleSize();
+        if (visibleSize >= nodeSize) { // fully showing
+            if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_DRAGGING) {
+                mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
+                sendReleasedEvent();
+            }
+            smoothScrollTo(getVisibleSize(), nodeSize, DURATION);
+        } else { // only partially showing
+            if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_DRAGGING) {
+                mRefreshStatus = PullRefreshStatus.PULL_STATUS_FOLDED;
+            }
+            if (visibleSize > 0) {
+                smoothScrollTo(getVisibleSize(), 0, DURATION);
+            }
+        }
+    }
+
+    protected int getNodeSize() {
+        return isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
+    }
 
     protected abstract void sendReleasedEvent();
 
@@ -78,6 +100,7 @@ public abstract class PullRefreshHelper {
     public void onRefreshCompleted() {
         if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_REFRESHING) {
             mRefreshStatus = PullRefreshStatus.PULL_STATUS_FOLDED;
+            endAnimation();
             setVisibleSize(0);
         }
     }
@@ -100,39 +123,6 @@ public abstract class PullRefreshHelper {
 
     public View getView() {
         return mContainer;
-    }
-
-    public void onTouch(View v, MotionEvent event) {
-        if (mLastPosition == -1) {
-            mLastPosition = isVertical() ? event.getRawY() : event.getRawX();
-            mStartPosition = mLastPosition;
-        }
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                mLastPosition = isVertical() ? event.getRawY() : event.getRawX();
-                mStartPosition = mLastPosition;
-                break;
-            case MotionEvent.ACTION_MOVE:
-                handleTouchMoveEvent(event);
-                break;
-            default:
-                mLastPosition = -1;
-                mStartPosition = -1;
-                int nodeSize = isVertical() ? mRenderNode.getHeight() : mRenderNode.getWidth();
-                if (getVisibleSize() >= nodeSize) {
-                    if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_DRAGGING) {
-                        mRefreshStatus = PullRefreshStatus.PULL_STATUS_REFRESHING;
-                        sendReleasedEvent();
-                    }
-                    smoothScrollTo(getVisibleSize(), nodeSize, DURATION);
-                } else if (mRefreshStatus == PullRefreshStatus.PULL_STATUS_DRAGGING) {
-                    mRefreshStatus = PullRefreshStatus.PULL_STATUS_FOLDED;
-                    if (getVisibleSize() > 0) {
-                        smoothScrollTo(getVisibleSize(), 0, DURATION);
-                    }
-                }
-                break;
-        }
     }
 
     protected void endAnimation() {
@@ -253,10 +243,5 @@ public abstract class PullRefreshHelper {
             orientation = ((LinearLayoutManager) layoutManager).getOrientation();
         }
         return orientation == RecyclerView.VERTICAL;
-    }
-
-    protected int getTouchSlop() {
-        final ViewConfiguration vc = ViewConfiguration.get(mRecyclerView.getContext());
-        return vc.getScaledTouchSlop();
     }
 }
