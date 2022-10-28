@@ -36,7 +36,7 @@ dependencies:
   path_provider: ^2.0.10
   ffi: ^1.0.0
   sprintf: ^6.0.0
-  provider: ^5.0.0
+  provider: ^6.0.0
   pull_to_refresh: ^2.0.0
   collection: ^1.15.0
   path: ^1.8.0

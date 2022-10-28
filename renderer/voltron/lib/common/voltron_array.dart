@@ -85,6 +85,21 @@ class VoltronArray {
     }).toList();
   }
 
+  /// ensure deep to Voltron
+  VoltronArray toDeepVoltronArray() {
+    var voltronArray = VoltronArray();
+    for (var element in data) {
+      if (element is Map) {
+        voltronArray.push(element.toVoltronMap());
+      } else if (element is List) {
+        voltronArray.push(element.toVoltronArray());
+      } else {
+        voltronArray.push(element);
+      }
+    }
+    return voltronArray;
+  }
+
   VoltronArray();
 
   VoltronArray.copy(VoltronArray old) {

@@ -20,6 +20,7 @@
 
 library common;
 
+export 'common/convert.dart';
 export 'common/destroy.dart';
 export 'common/error.dart';
 export 'common/lru_cache.dart';

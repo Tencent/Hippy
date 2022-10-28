@@ -86,7 +86,7 @@ class EngineInitParams {
   ShredPreferenceAdapter? sharedPreferencesAdapter;
 
   // 可选参数 Http request adapter
-  HttpAdapter? httpAdapter;
+  VoltronHttpAdapter? httpAdapter;
 
   // 可选参数 Storage adapter 设置相关
   StorageAdapter? storageAdapter;
@@ -106,7 +106,7 @@ class EngineInitParams {
   void check() {
     sharedPreferencesAdapter ??= ShredPreferenceAdapter();
     exceptionHandler ??= ExceptionHandlerAdapter();
-    httpAdapter ??= HttpAdapter();
+    httpAdapter ??= DefaultHttpAdapter();
     storageAdapter ??= StorageAdapter();
     engineMonitor ??= EngineMonitor();
     fontScaleAdapter ??= FontScaleAdapter();

@@ -75,11 +75,16 @@ class VoltronRenderBridgeManager implements Destroyable {
 
   Future destroyNativeRenderManager() async {
     await VoltronRenderApi.destroyNativeRender(
-        _context.renderManager.getNativeId());
+      _context.renderManager.getNativeId(),
+    );
   }
 
-  Future updateNodeSize(int rootId,
-      {int nodeId = 0, double width = 0, double height = 0}) async {
+  Future updateNodeSize(
+    int rootId, {
+    int nodeId = 0,
+    double width = 0,
+    double height = 0,
+  }) async {
     if (!_isBridgeInit) {
       return false;
     }
@@ -106,35 +111,32 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
+    var convertParams = _convertEventParams(params);
     VoltronRenderApi.callNativeFunction(
       _engineId,
       _context.renderManager.getNativeId(),
       callbackId,
-      params,
+      convertParams,
       true,
     );
   }
 
-  Future<dynamic> execNativeCallback(
-    String callbackId,
-    Object params,
-  ) async {
-    if (!_isBridgeInit) {
-      return false;
-    }
+  Object _convertEventParams(Object params) {
     var convertParams = params;
     if (params is VoltronMap) {
       convertParams = params.toMap();
     } else if (params is VoltronArray) {
       convertParams = params.toList();
+    } else if (params is Map) {
+      convertParams = params.toDeepMap();
+    } else if (params is List) {
+      convertParams = params.toDeepList();
     }
-    await callNativeFunction(
-      callbackId,
-      convertParams,
-    );
+    return convertParams;
   }
 
-  Future<dynamic> execNativeEvent(
+  /// dispatch root event, such as frameUpdate
+  Future<dynamic> sendRootEvent(
     int rootId,
     int id,
     String event,
@@ -143,19 +145,14 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    var convertParams = params;
-    if (params is VoltronMap) {
-      convertParams = params.toMap();
-    } else if (params is VoltronArray) {
-      convertParams = params.toList();
-    }
+    var convertParams = _convertEventParams(params);
     await VoltronRenderApi.callNativeEvent(
       _context.renderManager.getNativeId(),
       rootId,
       id,
       event,
-      true,
-      true,
+      false,
+      false,
       convertParams,
     );
   }
@@ -170,12 +167,7 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    var convertParams = params;
-    if (params is VoltronMap) {
-      convertParams = params.toMap();
-    } else if (params is VoltronArray) {
-      convertParams = params.toList();
-    }
+    var convertParams = _convertEventParams(params);
     var lowerCaseEventName = event.toLowerCase();
     await VoltronRenderApi.callNativeEvent(
       _context.renderManager.getNativeId(),
@@ -198,12 +190,7 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    var convertParams = params;
-    if (params is VoltronMap) {
-      convertParams = params.toMap();
-    } else if (params is VoltronArray) {
-      convertParams = params.toList();
-    }
+    var convertParams = _convertEventParams(params);
     var lowerCaseEventName = event.toLowerCase();
     await VoltronRenderApi.callNativeEvent(
       _context.renderManager.getNativeId(),

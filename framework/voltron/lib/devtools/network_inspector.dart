@@ -99,8 +99,8 @@ class NetworkInspector {
 
   /// on network request response callback invoke with httpResponse
   /// more details, see https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-responseReceived
-  void onResponseReceived(EngineContext context, String requestId, Response? httpResponse) {
-    final responseHeader = httpResponse?.headers.map.map((key, value) => MapEntry(key, value.join(';'))) ?? {};
+  void onResponseReceived(EngineContext context, String requestId, VoltronHttpResponse? httpResponse) {
+    final responseHeader = httpResponse?.headerMap.map((key, value) => MapEntry(key, value.join(';'))) ?? {};
     final requestHeader = httpResponse?.requestOptions.headers.map((key, value) {
           if (value is List) {
             return MapEntry(key, value.join(';'));
@@ -149,18 +149,18 @@ class NetworkInspector {
 
   /// on network request will be sent to server invoke width HttpRequest
   /// more details, see https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-requestWillBeSent
-  void onRequestWillBeSent(EngineContext context, String requestId, HttpRequest request) {
+  void onRequestWillBeSent(EngineContext context, String requestId, VoltronHttpRequest request) {
     final Map<String, String> requestHeader = request.getHeaders().map((key, value) {
       if (value is List) {
         return MapEntry(key, value.join(';'));
       }
       return MapEntry(key, value.toString());
     });
-    final postData = request.getBody() ?? '';
+    final postData = request.body;
     final entryMap = {kHttpRequestBytes: base64Encode(utf8.encode(postData))};
     final requestMap = {
-      kHttpRequestUrl: request.url ?? "",
-      kHttpRequestMethod: request.getMethod().toUpperCase(),
+      kHttpRequestUrl: request.url,
+      kHttpRequestMethod: request.method.toUpperCase(),
       kHttpRequestHeaders: requestHeader,
       kHttpRequestPostData: postData,
       kHttpRequestHasPostData: postData.isNotEmpty,

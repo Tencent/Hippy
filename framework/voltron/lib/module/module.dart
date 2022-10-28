@@ -144,7 +144,7 @@ class ModuleManager implements Destroyable {
   ) {
     final params = _prepareArguments(args, promise);
     final result = Function.apply(function, params);
-    if (!promise.hasCall && !result) {
+    if (result == null || (!promise.hasCall && !result)) {
       promise.resolve("");
     }
   }
