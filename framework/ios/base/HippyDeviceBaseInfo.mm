@@ -23,8 +23,8 @@
 #import "HippyDeviceBaseInfo.h"
 #import <UIKit/UIApplication.h>
 #import "HippyEventDispatcher.h"
-#import "HippyAssert.h"
-#import "NativeRenderUtils.h"
+#import "HPAsserts.h"
+#import "HPToolUtils.h"
 
 static BOOL isiPhoneX() {
     if (@available(iOS 11.0, *)) {
@@ -48,15 +48,14 @@ NSDictionary *HippyExportedDimensions() {
         
         dispatch_block_t block = ^(void){
             screenSize = [UIScreen mainScreen].bounds.size;
-            windowSize = NativeRenderKeyWindow() ? NativeRenderKeyWindow().bounds.size : screenSize;
+            windowSize = HPKeyWindow() ? HPKeyWindow().bounds.size : screenSize;
             statusBarHeight = [[UIApplication sharedApplication] statusBarFrame].size.height;
             if (statusBarHeight == 0) {
                 statusBarHeight = isiPhoneX() ? 44 : 20;
             }
             screenScale = @([UIScreen mainScreen].scale);
         };
-        NativeRenderExecuteOnMainThread(block, YES);
-        
+        HPExecuteOnMainThread(block, YES);
         dimensions = @{
             // 备注，window和screen的区别在于有没有底bar虚拟导航栏，而iOS没有这个东西，所以window和screen是一样的
             @"window":

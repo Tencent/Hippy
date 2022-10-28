@@ -244,7 +244,7 @@ static inline BOOL CGPointIsNull(CGPoint point) {
     }
 }
 
-- (NSArray<UIView *> *)nativeRenderSubviews {
+- (NSArray<UIView *> *)subcomponents {
     return _contentView ? [NSMutableArray arrayWithObject:_contentView] : nil;
 }
 

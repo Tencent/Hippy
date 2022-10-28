@@ -22,16 +22,15 @@
 
 #import <UIKit/UIKit.h>
 
-#import "NativeRenderInvalidating.h"
+#import "HPInvalidating.h"
 #import "NativeRenderViewManager.h"
 #include <memory>
 #include <unordered_map>
-#import "NativeRenderDomNodeUtils.h"
+#import "TypeConverter.h"
 #include "footstone/hippy_value.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
-#import "NativeRenderDomNodeUtils.h"
 #import "NativeRenderContext.h"
 
 @class NativeRenderAnimationViewParams, NativeRenderObjectView;
@@ -40,27 +39,27 @@
  * Posted whenever a new root view is registered with NativeRenderUIManager. The userInfo property
  * will contain a NativeRenderUIManagerRootViewKey with the registered root view.
  */
-NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidRegisterRootViewNotification;
+HP_EXTERN NSString *const NativeRenderUIManagerDidRegisterRootViewNotification;
 
 /**
  * Key for the root view property in the above notifications
  */
-NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerRootViewTagKey;
+HP_EXTERN NSString *const NativeRenderUIManagerRootViewTagKey;
 
 /**
  * Key for Render UIManager
  */
-NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerKey;
+HP_EXTERN NSString *const NativeRenderUIManagerKey;
 
 /**
  * Posted whenever endBatch is called
  */
-NATIVE_RENDER_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotification;
+HP_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotification;
 
 /**
  * The NativeRenderUIManager is the module responsible for updating the view hierarchy.
  */
-@interface NativeRenderImpl : NSObject <NativeRenderInvalidating, NativeRenderContext>
+@interface NativeRenderImpl : NSObject <HPInvalidating, NativeRenderContext>
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
 

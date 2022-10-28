@@ -22,15 +22,15 @@
 
 #import <Foundation/Foundation.h>
 
-@class HippyJSStackFrame;
+@class HPDriverStackFrame;
 
 /**
  * An ObjC wrapper for Hippy Native errors.
  */
 @interface HippyErrorInfo : NSObject
 @property (nonatomic, copy, readonly) NSString *errorMessage;
-@property (nonatomic, copy, readonly) NSArray<HippyJSStackFrame *> *stack;
+@property (nonatomic, copy, readonly) NSArray<HPDriverStackFrame *> *stack;
 
-- (instancetype)initWithErrorMessage:(NSString *)errorMessage stack:(NSArray<HippyJSStackFrame *> *)stack;
+- (instancetype)initWithErrorMessage:(NSString *)errorMessage stack:(NSArray<HPDriverStackFrame *> *)stack;
 
 @end

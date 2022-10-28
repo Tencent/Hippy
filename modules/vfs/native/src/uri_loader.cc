@@ -93,6 +93,9 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
     default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
       return nullptr;
     });
+    code = ctx->code;
+    rsp_meta = std::move(ctx->rsp_meta);
+    content = std::move(ctx->content);
     return;
   }
 
@@ -106,6 +109,9 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
       default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
         return nullptr;
       });
+      code = ctx->code;
+      rsp_meta = std::move(ctx->rsp_meta);
+      content = std::move(ctx->content);
       return;
     }
     FOOTSTONE_DCHECK(!scheme_it->second.empty());
@@ -126,6 +132,7 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
 std::shared_ptr<UriHandler> UriLoader::GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
                                                       const std::list<std::shared_ptr<UriHandler>>::iterator& end) {
   std::lock_guard<std::mutex> lock(mutex_);
+  FOOTSTONE_CHECK(cur != end);
   ++cur;
   if (cur == end) {
     return nullptr;
@@ -136,7 +143,7 @@ std::shared_ptr<UriHandler> UriLoader::GetNextHandler(std::list<std::shared_ptr<
 std::string UriLoader::GetScheme(const UriLoader::string_view& uri) {
   auto u8_uri = StringViewUtils::ConvertEncoding(uri, string_view::Encoding::Utf8)
       .utf8_value();
-  size_t pos = u8_uri.find_last_of(':');
+  size_t pos = u8_uri.find_first_of(':');
   if (pos != std::string::npos) {
     return {reinterpret_cast<const char*>(u8_uri.c_str()), pos};
   }

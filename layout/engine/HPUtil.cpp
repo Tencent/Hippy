@@ -19,27 +19,27 @@
 
 #ifdef ANDROID
 #include <android/log.h>
-void HPLog(LogLevel level, const char *format, ...) {
+void HPLayoutLog(LayoutLogLevel level, const char *format, ...) {
   va_list args;
   va_start(args, format);
-  int androidLevel = LogLevelDebug;
+  int androidLevel = LayoutLogLevelDebug;
   switch (level) {
-    case LogLevelInfo:
+    case LayoutLogLevelInfo:
       androidLevel = ANDROID_LOG_INFO;
       break;
-    case LogLevelVerbose:
+    case LayoutLogLevelVerbose:
       androidLevel = ANDROID_LOG_VERBOSE;
       break;
-    case LogLevelDebug:
+    case LayoutLogLevelDebug:
       androidLevel = ANDROID_LOG_DEBUG;
       break;
-    case LogLevelWarn:
+    case LayoutLogLevelWarn:
       androidLevel = ANDROID_LOG_WARN;
       break;
-    case LogLevelError:
+    case LayoutLogLevelError:
       androidLevel = ANDROID_LOG_ERROR;
       break;
-    case LogLevelFatal:
+    case LayoutLogLevelFatal:
       androidLevel = ANDROID_LOG_FATAL;
       break;
     default:
@@ -49,10 +49,10 @@ void HPLog(LogLevel level, const char *format, ...) {
   va_end(args);
 }
 #else
-void HPLog(LogLevel level, const char *format, ...) {
+void HPLayoutLog(LayoutLogLevel level, const char *format, ...) {
   va_list args;
   va_start(args, format);
-  if (level >= LogLevelError) {
+  if (level >= LayoutLogLevelError) {
     vfprintf(stderr, format, args);
   } else {
     vprintf(format, args);

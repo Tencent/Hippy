@@ -20,7 +20,7 @@
  * limitations under the License.
  */
 
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 
 /**
  * Object containing information about a TextInput's selection.
@@ -34,7 +34,7 @@
 
 @end
 
-@interface NativeRenderConvert (NativeRenderTextSelection)
+@interface HPConvert (NativeRenderTextSelection)
 
 + (NativeRenderTextSelection *)NativeRenderTextSelection:(id)json;
 

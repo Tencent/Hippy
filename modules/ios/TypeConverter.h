@@ -21,25 +21,52 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-#include <unordered_map>
+#import "MacroDefines.h"
+
 #include <string>
+#include <unordered_map>
+
 #include "footstone/string_view.h"
+#include "footstone/hippy_value.h"
+#include "dom/dom_listener.h"
+#include "dom/dom_node.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-footstone::string_view NSStringToU8StringView(NSString *str);
+extern footstone::string_view NSStringToU8StringView(NSString *str);
 
 footstone::string_view NSStringToU16StringView(NSString *string);
 
-NSString *StringViewToNSString(const footstone::string_view &view);
+HP_EXTERN NSString *StringViewToNSString(const footstone::string_view &view);
 
-NSURL *StringViewToNSURL(const footstone::string_view &uri);
+HP_EXTERN NSURL *StringViewToNSURL(const footstone::string_view &uri);
 
-NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
+HP_EXTERN NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &);
 
 std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NSDictionary<NSString *, NSString *> *dictionary);
 
-NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
+HP_EXTERN NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength);
+
+HP_EXTERN id domValueToOCType(const footstone::value::HippyValue *const pDomValue);
+
+extern footstone::value::HippyValue OCTypeToDomValue(id value);
+
+HP_EXTERN NSDictionary *unorderedMapDomValueToDictionary(const std::shared_ptr<std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>> &domValuesObject);
+
+extern std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> dictionaryToUnorderedMapDomValue(NSDictionary *dictionary);
+
+HP_EXTERN CGRect CGRectMakeFromLayoutResult(hippy::LayoutResult result);
+
+HP_EXTERN UIEdgeInsets UIEdgeInsetsFromLayoutResult(hippy::LayoutResult result);
+
+HP_EXTERN CGSize CGSizeMakeFromLayoutResult(hippy::LayoutResult result);
+
+HP_EXTERN CGRect CGRectMakeFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
+
+HP_EXTERN NSNumber *domValueToNumber(const footstone::value::HippyValue *const pDomValue);
+
+HP_EXTERN NSDictionary *stylesFromDomNode(const std::shared_ptr<hippy::DomNode> &domNode);
 
 NS_ASSUME_NONNULL_END

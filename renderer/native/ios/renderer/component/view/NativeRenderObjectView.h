@@ -21,7 +21,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "NativeRenderDomNodeUtils.h"
+#import "TypeConverter.h"
 #import "NativeRenderComponentProtocol.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_node.h"
@@ -71,12 +71,12 @@ extern NSString *const NativeRenderShadowViewDiffTag;
 /**
  * Get all native render object
  */
-- (NSArray<NativeRenderObjectView *> *)nativeRenderSubviews NS_REQUIRES_SUPER;
+- (NSArray<NativeRenderObjectView *> *)subcomponents;
 
 /**
  * Get super render object
  */
-- (NativeRenderObjectView *)nativeRenderSuperview NS_REQUIRES_SUPER;
+- (NativeRenderObjectView *)parentComponent;
 
 /**
  * Insert native render object at index.

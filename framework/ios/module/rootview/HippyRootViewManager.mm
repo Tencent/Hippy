@@ -20,8 +20,8 @@
  * limitations under the License.
  */
 
-#import "HippyRootViewManager.h"
 #import "HippyBridge.h"
+#import "HippyRootViewManager.h"
 
 NSString *const HippyDidDidRemoveRootViewNotification = @"HippyDidDidRemoveRootViewNotification";
 NSString *const HippyRootViewTagKey = @"HippyRootViewTagKey";
@@ -33,9 +33,9 @@ NSString *const HippyRootViewTagKey = @"HippyRootViewTagKey";
 HIPPY_EXPORT_MODULE(RootViewManager)
 
 HIPPY_EXPORT_METHOD(removeRootView:(nonnull NSNumber *)rootTag) {
-    __weak id<NativeRenderContext> weakContext = self.bridge.renderContext;
+    __weak id<HPRenderContext> weakContext = self.bridge.renderContext;
     dispatch_async(dispatch_get_main_queue(), ^{
-        id<NativeRenderContext> strongContext = weakContext;
+        id<HPRenderContext> strongContext = weakContext;
         if (strongContext) {
             [strongContext unregisterRootViewFromTag:rootTag];
         }

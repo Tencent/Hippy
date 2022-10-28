@@ -135,7 +135,9 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         if (!mInit) {
             return false;
         }
-
+        if (assetManager == null) {
+            assetManager = mContext.getGlobalConfigs().getContext().getAssets();
+        }
         if (!TextUtils.isEmpty(codeCacheTag) && !TextUtils.isEmpty(mCodeCacheRootDir)) {
             String codeCacheDir = mCodeCacheRootDir + codeCacheTag + File.separator;
             File codeCacheFile = new File(codeCacheDir);

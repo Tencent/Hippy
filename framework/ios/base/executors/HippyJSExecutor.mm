@@ -22,10 +22,10 @@
 
 #import <UIKit/UIDevice.h>
 #import "VFSUriHandler.h"
-#import "HippyAssert.h"
+#import "HPAsserts.h"
 #import "HippyBundleURLProvider.h"
 #import "HippyContextWrapper.h"
-#import "HippyDefines.h"
+#import "MacroDefines.h"
 #import "HippyDevInfo.h"
 #import "HippyDevMenu.h"
 #import "HippyJSEnginesMapper.h"
@@ -34,8 +34,8 @@
 #import "HippyPerformanceLogger.h"
 #import "HippyRedBox.h"
 #import "HippyTurboModuleManager.h"
-#import "HippyLog.h"
-#import "NativeRenderUtils.h"
+#import "HPLog.h"
+#import "HPToolUtils.h"
 #import "NSObject+CtxValue.h"
 #import "TypeConverter.h"
 
@@ -117,7 +117,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 
         self.ready = NO;
         _pendingCalls = [NSMutableArray arrayWithCapacity:4];
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, engineKey:%@", self, engineKey);
+        HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor Init %p, engineKey:%@", self, engineKey);
     }
 
     return self;
@@ -157,7 +157,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 context->RegisterGlobalInJs();
                 context->RegisterClasses(scope);
                 id<HippyContextWrapper> contextWrapper = CreateContextWrapper(context);
-                contextWrapper.excpetionHandler = ^(id<HippyContextWrapper>  _Nonnull wrapper, NSString * _Nonnull message, NSArray<HippyJSStackFrame *> * _Nonnull stackFrames) {
+                contextWrapper.excpetionHandler = ^(id<HippyContextWrapper>  _Nonnull wrapper, NSString * _Nonnull message, NSArray<HPDriverStackFrame *> * _Nonnull stackFrames) {
                     HippyJSExecutor *strongSelf = weakSelf;
                     if (!strongSelf) {
                         return;
@@ -167,18 +167,18 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                         return;
                     }
                     NSDictionary *userInfo = @{
-                        HippyFatalModuleName: bridge.moduleName?:@"unknown",
+                        HPFatalModuleName: bridge.moduleName?:@"unknown",
                         NSLocalizedDescriptionKey:message?:@"unknown",
                         NSLocalizedFailureErrorKey:message?:@"unknown",
-                        HippyJSStackTraceKey:stackFrames
+                        HPJSStackTraceKey:stackFrames
                     };
-                    NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:userInfo];
-                    HippyFatal(error, bridge);
+                    NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:userInfo];
+                    HippyBridgeFatal(error, bridge);
                 };
                 strongSelf->_contextWrapper = contextWrapper;
                 NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionaryWithDictionary:[bridge deviceInfo]];
                 NSString *deviceName = [[UIDevice currentDevice] name];
-                NSString *clientId = NativeRenderMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, strongSelf]);
+                NSString *clientId = HPMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, strongSelf]);
                 NSDictionary *debugInfo = @{@"Debug" : @{@"debugClientId" : clientId}};
                 [deviceInfo addEntriesFromDictionary:debugInfo];
                 
@@ -187,8 +187,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                 if (JSONSerializationError) {
                     NSString *errorString =
                         [NSString stringWithFormat:@"device parse error:%@, deviceInfo:%@", [JSONSerializationError localizedFailureReason], deviceInfo];
-                    NSError *error = NativeRenderErrorWithMessageAndModuleName(errorString, bridge.moduleName);
-                    HippyFatal(error, bridge);
+                    NSError *error = HPErrorWithMessageAndModuleName(errorString, bridge.moduleName);
+                    HippyBridgeFatal(error, bridge);
                 }
                 NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                 [contextWrapper createGlobalObject:@"__HIPPYNATIVEGLOBAL__" withJsonValue:string];
@@ -204,7 +204,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                             return nil;
                         }
                         NSArray *result = [bridge configForModuleName:moduleName];
-                        return NativeRenderNullIfNil(result);
+                        return HPNullIfNil(result);
                     }
                     return nil;
                 }];
@@ -278,8 +278,8 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             if (!strongSelf) {
                 return;
             }
-            HippyAssert(strongSelf.pScope, @"scope must not be null");
-            HippyAssert(strongSelf.pScope->GetContext(), @"context must not be null");
+            HPAssert(strongSelf.pScope, @"scope must not be null");
+            HPAssert(strongSelf.pScope->GetContext(), @"context must not be null");
             strongSelf.pScope->GetContext()->SetGlobalStrVar("__HIPPYCURDIR__", NSStringToU8StringView(directory));
         }];
     }
@@ -309,11 +309,11 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 #ifdef ENABLE_INSPECTOR
     auto devtools_data_source = self.pScope->GetDevtoolsDataSource();
     if (devtools_data_source) {
-        bool reload = self.bridge.invalidateReason == NativeRenderInvalidateReasonReload ? true : false;
+        bool reload = self.bridge.invalidateReason == HPInvalidateReasonReload ? true : false;
         devtools_data_source->Destroy(reload);
     }
 #endif
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
+    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor invalide %p", self);
     _valid = NO;
 #ifdef JS_USE_JSC
     auto scope = self.pScope;
@@ -329,7 +329,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", enginekey);
+        HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor remove engine %@", enginekey);
         [[HippyJSEnginesMapper defaultInstance] removeEngineResourceForKey:enginekey];
     });
 }
@@ -351,7 +351,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
         auto jsc_context = std::static_pointer_cast<hippy::napi::JSCCtx>(self.pScope->GetContext());
         jsc_context->SetName([contextName UTF8String]);
         if (tryCatch->HasCaught()) {
-            HippyLogWarn(@"set context throw exception");
+            HPLogWarn(@"set context throw exception");
         }
     }];
 #endif //JS_USE_JSC
@@ -359,7 +359,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 // clang-format on
 
 - (void)dealloc {
-    HippyLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
+    HPLogInfo(@"[Hippy_OC_Log][Life_Circle],HippyJSCExecutor dealloc %p", self);
     [self invalidate];
 }
 
@@ -367,7 +367,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     string_view str("__HIPPYNATIVEGLOBAL__");
     const SharedCtxPtr &napi_context = self.pScope->GetContext();
     SharedCtxValuePtr hippyNativeGlobalObj = napi_context->GetGlobalObjVar(str);
-    HippyAssert(hippyNativeGlobalObj, @"__HIPPYNATIVEGLOBAL__ must not be null");
+    HPAssert(hippyNativeGlobalObj, @"__HIPPYNATIVEGLOBAL__ must not be null");
     if (hippyNativeGlobalObj) {
         for (NSString *key in addInfoDict) {
             id value = addInfoDict[key];
@@ -401,7 +401,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
 - (void)_executeJSCall:(NSString *)method
              arguments:(NSArray *)arguments
               callback:(HippyJavaScriptCallback)onComplete {
-    HippyAssert(onComplete != nil, @"onComplete block should not be nil");
+    HPAssert(onComplete != nil, @"onComplete block should not be nil");
     __weak HippyJSExecutor *weakSelf = self;
     [self executeBlockOnJavaScriptQueue:^{
         @autoreleasepool {
@@ -435,19 +435,19 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
                             }
                         } else {
                             executeError
-                                = NativeRenderErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
+                                = HPErrorWithMessageAndModuleName([NSString stringWithFormat:@"%@ is not a function", method], moduleName);
                         }
                     } else {
-                        executeError = NativeRenderErrorWithMessageAndModuleName(
+                        executeError = HPErrorWithMessageAndModuleName(
                             [NSString stringWithFormat:@"property/function %@ not found in __hpBatchedBridge", method], moduleName);
                     }
                 } else {
-                    executeError = NativeRenderErrorWithMessageAndModuleName(@"__hpBatchedBridge not found", moduleName);
+                    executeError = HPErrorWithMessageAndModuleName(@"__hpBatchedBridge not found", moduleName);
                 }
                 if (!StringViewUtils::IsEmpty(exception) || executeError) {
                     if (!StringViewUtils::IsEmpty(exception)) {
                         NSString *string = StringViewToNSString(exception);
-                        executeError = NativeRenderErrorWithMessageAndModuleName(string, moduleName);
+                        executeError = HPErrorWithMessageAndModuleName(string, moduleName);
                     }
                 } else if (resultValue) {
                     objcValue = ObjectFromCtxValue(context, resultValue);
@@ -456,23 +456,23 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
             } @catch (NSException *exception) {
                 NSString *moduleName = strongSelf.bridge.moduleName?:@"unknown";
                 NSMutableDictionary *userInfo = [exception.userInfo mutableCopy]?:[NSMutableDictionary dictionary];
-                [userInfo setObject:moduleName forKey:HippyFatalModuleName];
+                [userInfo setObject:moduleName forKey:HPFatalModuleName];
                 [userInfo setObject:arguments?:[NSArray array] forKey:@"arguments"];
                 NSException *reportException = [NSException exceptionWithName:exception.name reason:exception.reason userInfo:userInfo];
-                HippyHandleException(reportException, self.bridge);
+                HippyBridgeHandleException(reportException, self.bridge);
             }
         }
     }];
 }
 
 - (void)executeApplicationScript:(NSString *)script sourceURL:(NSURL *)sourceURL onComplete:(HippyJavaScriptCallback)onComplete {
-    HippyAssertParam(script);
-    HippyAssertParam(sourceURL);
+    HPAssertParam(script);
+    HPAssertParam(sourceURL);
     // HippyProfileBeginFlowEvent();
     [self executeBlockOnJavaScriptQueue:^{
         // HippyProfileEndFlowEvent();
         if (!self.isValid) {
-            onComplete(nil, NativeRenderErrorWithMessageAndModuleName(@"jsexecutor is not invalid", self.bridge.moduleName));
+            onComplete(nil, HPErrorWithMessageAndModuleName(@"jsexecutor is not invalid", self.bridge.moduleName));
             return;
         }
         NSError *error = nil;
@@ -509,7 +509,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
             [lock unlock];
         }
         [performanceLogger markStopForTag:HippyPLScriptExecution];
-        *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
+        *error = !StringViewUtils::IsEmpty(errorMsg) ? [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
             NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}] : nil;
         id objcResult = ObjectFromCtxValue(context, result);
         return objcResult;
@@ -544,17 +544,17 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
 }
 
 - (void)injectJSONText:(NSString *)script asGlobalObjectNamed:(NSString *)objectName callback:(HippyJavaScriptCallback)onComplete {
-    HippyAssert(nil != script, @"param 'script' can't be nil");
+    HPAssert(nil != script, @"param 'script' can't be nil");
     if (nil == script) {
         if (onComplete) {
             NSString *errorMessage = [NSString stringWithFormat:@"param 'script' is nil"];
-            NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
+            NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{ NSLocalizedDescriptionKey: errorMessage }];
             onComplete(@(NO), error);
         }
         return;
     }
-    if (HIPPY_DEBUG) {
-        HippyAssert(NativeRenderJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
+    if (HP_DEBUG) {
+        HPAssert(HPJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
     }
 
     __weak HippyJSExecutor *weakSelf = self;
@@ -570,7 +570,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         context->SetGlobalJsonVar(name_view, json_view);
         if (tryCatch->HasCaught()) {
             string_view errorMsg = tryCatch->GetExceptionMsg();
-            NSError *error = [NSError errorWithDomain:HippyErrorDomain code:2 userInfo:@{
+            NSError *error = [NSError errorWithDomain:HPErrorDomain code:2 userInfo:@{
                 NSLocalizedDescriptionKey: StringViewToNSString(errorMsg)}];
             onComplete(@(NO), error);
         }
@@ -604,7 +604,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         devInfo.wsURL = bundleURLProvider.wsURL;
     }
     NSString *deviceName = [[UIDevice currentDevice] name];
-    NSString *clientId = NativeRenderMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, bridge]);
+    NSString *clientId = HPMD5Hash([NSString stringWithFormat:@"%@%p", deviceName, bridge]);
     return [devInfo assembleFullWSURLWithClientId:clientId];
 }
 

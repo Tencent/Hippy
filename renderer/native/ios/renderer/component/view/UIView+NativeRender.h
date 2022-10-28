@@ -21,7 +21,10 @@
  */
 
 #import <UIKit/UIKit.h>
+
+#import "HPComponentTag.h"
 #import "NativeRenderComponentProtocol.h"
+
 #include "dom/dom_node.h"
 
 @class NativeRenderObjectView;
@@ -31,8 +34,6 @@
 /**
  * NativeRenderComponent interface.
  */
-- (NSArray<UIView *> *)nativeRenderSubviews;
-- (UIView *)nativeRenderSuperview;
 - (void)insertNativeRenderSubview:(UIView *)subview atIndex:(NSInteger)atIndex;
 - (void)removeNativeRenderSubview:(UIView *)subview;
 - (void)resetNativeRenderSubviews;

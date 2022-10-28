@@ -20,11 +20,10 @@
  * limitations under the License.
  */
 
-#import "HippyTiming.h"
-
-#import "HippyAssert.h"
 #import "HippyBridge.h"
-#import "NativeRenderUtils.h"
+#import "HippyTiming.h"
+#import "HPAsserts.h"
+#import "HPToolUtils.h"
 
 static const NSTimeInterval kMinimumSleepInterval = 1;
 
@@ -108,7 +107,7 @@ static const NSTimeInterval kIdleCallbackFrameDeadline = 0.001;
 HIPPY_EXPORT_MODULE()
 
 - (void)setBridge:(HippyBridge *)bridge {
-    HippyAssert(!_bridge, @"Should never be initialized twice!");
+    HPAssert(!_bridge, @"Should never be initialized twice!");
 
     _paused = YES;
     _timers = [NSMutableDictionary new];

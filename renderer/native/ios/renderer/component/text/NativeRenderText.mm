@@ -22,12 +22,12 @@
 
 #import "NativeRenderText.h"
 #import "NativeRenderObjectText.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 #import "UIView+NativeRender.h"
-#import "NativeRenderLog.h"
+#import "HPLog.h"
 
 static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *nonTextDescendants) {
-    for (UIView *child in view.nativeRenderSubviews) {
+    for (UIView *child in view.subcomponents) {
         if ([child isKindOfClass:[NativeRenderText class]]) {
             collectNonTextDescendants((NativeRenderText *)child, nonTextDescendants);
         } else {
@@ -65,11 +65,11 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 }
 
 - (void)removeNativeRenderSubview:(UIView *)subview {
-    if ([[self nativeRenderSubviews] containsObject:subview]) {
+    if ([[self subcomponents] containsObject:subview]) {
         [super removeNativeRenderSubview:subview];
     }
     else {
-        NSArray<UIView *> *hippySubviews = [self nativeRenderSubviews];
+        NSArray<UIView *> *hippySubviews = [self subcomponents];
         for (UIView *hippySubview in hippySubviews) {
             [hippySubview removeNativeRenderSubview:subview];
         }
@@ -223,7 +223,7 @@ static void collectNonTextDescendants(NativeRenderText *view, NSMutableArray *no
 }
 
 - (void)setBackgroundImageUrl:(NSString *)backgroundImageUrl {
-    NativeRenderLogWarn(@"Warning: backgroundImage is not available in NativeRenderText.");
+    HPLogWarn(@"Warning: backgroundImage is not available in NativeRenderText.");
 }
 
 @end

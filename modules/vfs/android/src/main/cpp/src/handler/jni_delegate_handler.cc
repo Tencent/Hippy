@@ -198,7 +198,6 @@ JniDelegateHandler::JniDelegateHandler(JNIEnv* j_env, jobject j_delegate) {
 enum class FetchResultCode {
   OK,
   ERR_OPEN_LOCAL_FILE,
-  ERR_NOT_SUPPORT_SYNC_REMOTE,
   ERR_UNKNOWN_SCHEME,
   ERR_REMOTE_REQUEST_FAILED
 };
@@ -210,9 +209,6 @@ UriHandler::RetCode CovertToUriHandlerRetCode(jint code) {
     }
     case static_cast<int>(FetchResultCode::ERR_OPEN_LOCAL_FILE): {
       return UriHandler::RetCode::Failed;
-    }
-    case static_cast<int>(FetchResultCode::ERR_NOT_SUPPORT_SYNC_REMOTE): {
-      return UriHandler::RetCode::SchemeNotRegister;
     }
     case static_cast<int>(FetchResultCode::ERR_UNKNOWN_SCHEME): {
       return UriHandler::RetCode::SchemeError;
@@ -242,9 +238,6 @@ FetchResultCode CovertToFetchResultCode(UriHandler::RetCode code) {
     case UriHandler::RetCode::UriError:
     case UriHandler::RetCode::Failed: {
       return FetchResultCode::ERR_REMOTE_REQUEST_FAILED;
-    }
-    case UriHandler::RetCode::SchemeNotRegister: {
-      return FetchResultCode::ERR_NOT_SUPPORT_SYNC_REMOTE;
     }
     default: {
       FOOTSTONE_UNREACHABLE();
@@ -330,8 +323,6 @@ void JniDelegateHandler::RequestUntrustedContent(
   if (ret_code != RetCode::Success) {
     return;
   }
-  auto next_delegate = next();
-  FOOTSTONE_CHECK(!next_delegate);
   auto j_type = j_env->GetObjectField(j_holder, j_holder_transfer_type_field_id);
   if (j_env->IsSameObject(j_type, j_transfer_type_normal_value)) {
     auto j_bytes = reinterpret_cast<jbyteArray>(j_env->GetObjectField(j_holder, j_holder_bytes_field_id));

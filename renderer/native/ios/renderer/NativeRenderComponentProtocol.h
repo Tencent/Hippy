@@ -23,6 +23,8 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
 
+#import "HPComponentTag.h"
+
 /**
  * These block types can be used for mapping input event handlers from JS to view
  * properties. Unlike JS method callbacks, these can be called multiple times.
@@ -34,22 +36,16 @@ typedef void (^NativeRenderDirectEventBlock)(NSDictionary *body);
  * `UIView` conforms to this. Allows us to write utilities that reason about
  * trees generally.
  */
-@protocol NativeRenderComponentProtocol <NSObject>
+@protocol NativeRenderComponentProtocol <NSObject, HPComponentTag>
 
-@property (nonatomic, copy) NSNumber *componentTag;
-@property (nonatomic, copy) NSNumber *rootTag;
 @property (nonatomic, copy) NSString *viewName;
-@property (nonatomic, copy) NSString *tagName;
 @property (nonatomic, copy) NSDictionary *props;
 @property (nonatomic, assign) CGRect frame;
-@property (nonatomic, weak) id<NativeRenderComponentProtocol> parent;
 
 - (void)insertNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview atIndex:(NSInteger)atIndex;
 - (void)removeNativeRenderSubview:(id<NativeRenderComponentProtocol>)subview;
 - (void)removeFromNativeRenderSuperview;
 - (void)nativeRenderSetFrame:(CGRect)frame;
-- (NSArray<id<NativeRenderComponentProtocol>> *)nativeRenderSubviews;
-- (id<NativeRenderComponentProtocol>)nativeRenderSuperview;
 - (NSNumber *)componentTagAtPoint:(CGPoint)point;
 
 // View/NativeRenderObjectView is a root view

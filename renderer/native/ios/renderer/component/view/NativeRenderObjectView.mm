@@ -21,9 +21,9 @@
  */
 
 #import "NativeRenderObjectView.h"
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 #import "UIView+NativeRender.h"
-#import "NativeRenderI18nUtils.h"
+#import "HPI18nUtils.h"
 #import "UIView+DirectionalLayout.h"
 #include "dom/layout_node.h"
 #include "dom/render_manager.h"
@@ -58,13 +58,12 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 @synthesize componentTag = _componentTag;
 @synthesize props = _props;
 @synthesize rootTag = _rootTag;
-@synthesize parent = _parent;
 @synthesize tagName =_tagName;
 
 - (void)amendLayoutBeforeMount {
     if (NativeRenderUpdateLifecycleDirtied == _propagationLifecycle || _visibilityChanged) {
         _visibilityChanged = NO;
-        for (NativeRenderObjectView *renderObjectView in self.nativeRenderSubviews) {
+        for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
             [renderObjectView amendLayoutBeforeMount];
         }
     }
@@ -159,7 +158,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (void)dirtyDescendantPropagation {
     [self dirtySelfPropagation];
-    for (NativeRenderObjectView *renderObjectView in self.nativeRenderSubviews) {
+    for (NativeRenderObjectView *renderObjectView in self.subcomponents) {
         [renderObjectView dirtyDescendantPropagation];
     }
 }
@@ -181,7 +180,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (NativeRenderCreationType)creationType {
     if (NativeRenderCreationTypeUndetermined == _creationType) {
-        NativeRenderObjectView *superRenderObject = [self nativeRenderSuperview];
+        NativeRenderObjectView *superRenderObject = [self parentComponent];
         if (superRenderObject && ![superRenderObject isNativeRenderRootView]) {
             _creationType = [superRenderObject creationType];
         }
@@ -205,7 +204,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
             if (weakSelf) {
                 NativeRenderObjectView *strongSelf = weakSelf;
                 strongSelf.creationType = NativeRenderCreationTypeInstantly;
-                for (NativeRenderObjectView *subRenderObject in strongSelf.nativeRenderSubviews) {
+                for (NativeRenderObjectView *subRenderObject in strongSelf.subcomponents) {
                     [subRenderObject synchronousRecusivelySetCreationTypeToInstant];
                 }
             }
@@ -216,15 +215,15 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (void)synchronousRecusivelySetCreationTypeToInstant {
     self.creationType = NativeRenderCreationTypeInstantly;
-    for (NativeRenderObjectView *subShadowView in self.nativeRenderSubviews) {
+    for (NativeRenderObjectView *subShadowView in self.subcomponents) {
         [subShadowView synchronousRecusivelySetCreationTypeToInstant];
     }
 }
 
 - (UIView *)createView:(NativeRenderViewCreationBlock)creationBlock insertChildren:(NativeRenderViewInsertionBlock)insertionBlock {
     UIView *container = creationBlock(self);
-    NSMutableArray *children = [NSMutableArray arrayWithCapacity:[self.nativeRenderSubviews count]];
-    for (NativeRenderObjectView *subviews in self.nativeRenderSubviews) {
+    NSMutableArray *children = [NSMutableArray arrayWithCapacity:[self.subcomponents count]];
+    for (NativeRenderObjectView *subviews in self.subcomponents) {
         UIView *subview = [subviews createView:creationBlock insertChildren:insertionBlock];
         if (subview) {
             [children addObject:subview];
@@ -267,15 +266,15 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 }
 
 - (void)removeFromNativeRenderSuperview {
-    id superview = [self nativeRenderSuperview];
+    id superview = [self parentComponent];
     [superview removeNativeRenderSubview:self];
 }
 
-- (NSArray<NativeRenderObjectView *> *)nativeRenderSubviews {
+- (NSArray<NativeRenderObjectView *> *)subcomponents {
     return _objectSubviews;
 }
 
-- (NativeRenderObjectView *)nativeRenderSuperview {
+- (NativeRenderObjectView *)parentComponent {
     return _superview;
 }
 
@@ -454,7 +453,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 
 - (void)applyConfirmedLayoutDirectionToSubviews:(HPDirection)confirmedLayoutDirection {
     _confirmedLayoutDirection = confirmedLayoutDirection;
-    for (NativeRenderObjectView *subviews in self.nativeRenderSubviews) {
+    for (NativeRenderObjectView *subviews in self.subcomponents) {
         [subviews applyConfirmedLayoutDirectionToSubviews:confirmedLayoutDirection];
     }
 }
@@ -467,11 +466,11 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 - (void)checkLayoutDirection:(NSMutableSet<NativeRenderObjectView *> *)viewsSet direction:(HPDirection *)direction{
     if (DirectionInherit == self.confirmedLayoutDirection) {
         [viewsSet addObject:self];
-        NativeRenderObjectView *shadowSuperview = [self nativeRenderSuperview];
+        NativeRenderObjectView *shadowSuperview = [self parentComponent];
         if (!shadowSuperview) {
             if (direction) {
                 NSWritingDirection writingDirection =
-                    [[NativeRenderI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
+                    [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
                 *direction = NSWritingDirectionRightToLeft == writingDirection ? DirectionRTL : DirectionLTR;
             }
         }
@@ -487,7 +486,7 @@ NSString *const NativeRenderShadowViewDiffTag = @"NativeRenderShadowViewDiffTag"
 - (void)superviewLayoutDirectionChangedTo:(HPDirection)direction {
     if (DirectionInherit == self.layoutDirection) {
         self.confirmedLayoutDirection = [self superview].confirmedLayoutDirection;
-        for (NativeRenderObjectView *subview in self.nativeRenderSubviews) {
+        for (NativeRenderObjectView *subview in self.subcomponents) {
             [subview superviewLayoutDirectionChangedTo:self.confirmedLayoutDirection];
         }
     }

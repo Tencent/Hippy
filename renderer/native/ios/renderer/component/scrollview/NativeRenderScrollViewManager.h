@@ -21,9 +21,9 @@
  */
 
 #import "NativeRenderViewManager.h"
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 
-@interface NativeRenderConvert (UIScrollView)
+@interface HPConvert (UIScrollView)
 
 + (UIScrollViewKeyboardDismissMode)UIScrollViewKeyboardDismissMode:(id)json;
 

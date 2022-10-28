@@ -23,15 +23,15 @@
 #import <Foundation/Foundation.h>
 
 #import "HippyBridgeModule.h"
-#import "HippyDefines.h"
-#import "NativeRenderInvalidating.h"
+#import "MacroDefines.h"
+#import "HPInvalidating.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN NSArray<Class> *HippyGetModuleClasses(void);
+HP_EXTERN NSArray<Class> *HippyGetModuleClasses(void);
 
-#if HIPPY_DEBUG
-HIPPY_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
+#if HP_DEBUG
+HP_EXTERN void HippyVerifyAllModulesExported(NSArray *extraModules);
 #endif
 
 /**
@@ -46,7 +46,7 @@ typedef NSArray<id<HippyBridgeModule>> *_Nullable(^HippyBridgeModuleProviderBloc
 
 @class HippyBridge, HippyModuleData, HippyModuleData;
 
-@interface HippyModulesSetup : NSObject<NativeRenderInvalidating>
+@interface HippyModulesSetup : NSObject<HPInvalidating>
 
 @property(nonatomic, copy, readonly) HippyBridgeModuleProviderBlock moduleProvider;
 

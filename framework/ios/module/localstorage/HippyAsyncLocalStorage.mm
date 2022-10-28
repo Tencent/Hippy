@@ -20,17 +20,15 @@
  * limitations under the License.
  */
 
-#import "HippyAsyncLocalStorage.h"
-
 #import <Foundation/Foundation.h>
 
-#import <CommonCrypto/CommonCryptor.h>
-#import <CommonCrypto/CommonDigest.h>
+#import "HippyAsyncLocalStorage.h"
 #import "HippyBridge.h"
-#import "NativeRenderConvert.h"
-#import "HippyLog.h"
-#import "NativeRenderUtils.h"
-#import "HippyAssert.h"
+#import "HippyDefines.h"
+#import "HPAsserts.h"
+#import "HPConvert.h"
+#import "HPLog.h"
+#import "HPToolUtils.h"
 
 NSString *const HippyStorageDirectory = @"HippyAsyncLocalStorage_V1";
 static NSString *const HippyManifestFileName = @"manifest.json";
@@ -44,9 +42,9 @@ NSUInteger HPLOCALSTORAGEIOTYPEWRITE = 1001;
 
 static NSDictionary *HippyErrorForKey(NSString *key) {
     if (![key isKindOfClass:[NSString class]]) {
-        return NativeRenderMakeAndLogError(@"Invalid key - must be a string.  Key: ", key, @ { @"key": key });
+        return HPMakeAndLogError(@"Invalid key - must be a string.  Key: ", key, @ { @"key": key });
     } else if (key.length < 1) {
-        return NativeRenderMakeAndLogError(@"Invalid key - must be at least one character.  Key: ", key, @ { @"key": key });
+        return HPMakeAndLogError(@"Invalid key - must be at least one character.  Key: ", key, @ { @"key": key });
     } else {
         return nil;
     }
@@ -176,7 +174,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtPath:[self HippyGetStorageDirectory] error:&error];
     _HippyHasCreatedStorageDirectory = NO;
-    return error ? NativeRenderMakeError(@"Failed to delete storage directory.", error, nil) : nil;
+    return error ? HPMakeError(@"Failed to delete storage directory.", error, nil) : nil;
 }
 
 - (NSString *)HippyGetManifestFilePath {
@@ -205,19 +203,19 @@ HIPPY_EXPORT_MODULE(StorageModule)
 }
 
 - (NSString *)_filePathForKey:(NSString *)key {
-    NSString *safeFileName = NativeRenderMD5Hash(key);
+    NSString *safeFileName = HPMD5Hash(key);
     return [[self HippyGetStorageDirectory] stringByAppendingPathComponent:safeFileName];
 }
 
 - (NSDictionary *)_ensureSetup {
-    HippyAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
+    HPAssertThread(HippyGetMethodQueue(), @"Must be executed on storage thread");
 
     NSError *error = nil;
     if (!_HippyHasCreatedStorageDirectory) {
         [[NSFileManager defaultManager] createDirectoryAtPath:[self HippyGetStorageDirectory] withIntermediateDirectories:YES attributes:nil
                                                         error:&error];
         if (error) {
-            return NativeRenderMakeError(@"Failed to create storage directory.", error, nil);
+            return HPMakeError(@"Failed to create storage directory.", error, nil);
         }
         _HippyHasCreatedStorageDirectory = YES;
     }
@@ -227,9 +225,9 @@ HIPPY_EXPORT_MODULE(StorageModule)
         if (created) {
             NSDictionary *errorOut;
             NSString *serialized = [self _readFileFromPath:[self HippyGetManifestFilePath] key:nil error:&errorOut];
-            NSMutableDictionary *tmpDic = serialized ? NativeRenderJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
+            NSMutableDictionary *tmpDic = serialized ? HPJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
             if (error) {
-                HippyLogWarn(self.bridge, @"Failed to parse manifest - creating new one.\n\n%@", error);
+                HPLogWarn(self.bridge, @"Failed to parse manifest - creating new one.\n\n%@", error);
                 tmpDic = [NSMutableDictionary new];
             }
             [_manifest addEntriesFromDictionary:tmpDic];
@@ -241,11 +239,11 @@ HIPPY_EXPORT_MODULE(StorageModule)
 
 - (NSDictionary *)_writeManifest:(NSMutableArray<NSDictionary *> **)errors {
     NSError *error;
-    NSString *serialized = NativeRenderJSONStringify(_manifest, &error);
+    NSString *serialized = HPJSONStringify(_manifest, &error);
     [serialized writeToFile:[self HippyGetManifestFilePath] atomically:YES encoding:NSUTF8StringEncoding error:&error];
     NSDictionary *errorOut;
     if (error) {
-        errorOut = NativeRenderMakeError(@"Failed to write manifest file.", error, nil);
+        errorOut = HPMakeError(@"Failed to write manifest file.", error, nil);
         HippyAppendError(errorOut, errors);
     }
     return errorOut;
@@ -272,7 +270,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
 
 - (NSDictionary *)_writeEntry:(NSArray<NSString *> *)entry changedManifest:(BOOL *)changedManifest {
     if (entry.count != 2) {
-        return NativeRenderMakeAndLogError(@"Entries must be arrays of the form [key: string, value: string], got: ", entry, nil);
+        return HPMakeAndLogError(@"Entries must be arrays of the form [key: string, value: string], got: ", entry, nil);
     }
     NSString *key = entry[0];
     NSDictionary *errorOut = HippyErrorForKey(key);
@@ -295,13 +293,13 @@ HIPPY_EXPORT_MODULE(StorageModule)
     NSInteger maxLimit = [self maxWriteDataSize];
     if ([value length] > maxLimit) {
         if (![self handleDataSizeExceedForIOType:HPLOCALSTORAGEIOTYPEWRITE moduleName:self.bridge.moduleName key:key dataLength:[value length]]) {
-            return NativeRenderMakeError(@"write data length exceed range", error, @{ @"key": key?:@"nilkey" , @"length": @([value length])});;
+            return HPMakeError(@"write data length exceed range", error, @{ @"key": key?:@"nilkey" , @"length": @([value length])});;
         }
     }
     [value writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
     [HippyGetCache() setObject:value forKey:key cost:value.length];
     if (error) {
-        errorOut = NativeRenderMakeError(@"Failed to write value.", error, @{ @"key": key });
+        errorOut = HPMakeError(@"Failed to write value.", error, @{ @"key": key });
     } else if (_manifest[key] != (id)kCFNull) {
         *changedManifest = YES;
         _manifest[key] = (id)kCFNull;
@@ -319,7 +317,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
         if (fileSize > maxReadFileSize) {
             if (![self handleDataSizeExceedForIOType:HPLOCALSTORAGEIOTYPEREAD moduleName:self.bridge.moduleName
                                                  key:key dataLength:fileSize]) {
-                *errorOut = NativeRenderMakeError(@"read data length exceed range", nil, @{ @"key": key?:@"nilkey" , @"length": @(fileSize)});;
+                *errorOut = HPMakeError(@"read data length exceed range", nil, @{ @"key": key?:@"nilkey" , @"length": @(fileSize)});;
                 return nil;
             }
         }
@@ -327,9 +325,9 @@ HIPPY_EXPORT_MODULE(StorageModule)
         NSStringEncoding encoding;
         NSString *entryString = [NSString stringWithContentsOfFile:filePath usedEncoding:&encoding error:&error];
         if (error) {
-            *errorOut = NativeRenderMakeError(@"Failed to read storage file.", error, @ { @"key": key });
+            *errorOut = HPMakeError(@"Failed to read storage file.", error, @ { @"key": key });
         } else if (encoding != NSUTF8StringEncoding) {
-            *errorOut = NativeRenderMakeError(@"Incorrect encoding of storage file: ", @(encoding), @ { @"key": key });
+            *errorOut = HPMakeError(@"Incorrect encoding of storage file: ", @(encoding), @ { @"key": key });
         } else {
             return entryString;
         }
@@ -380,10 +378,10 @@ HIPPY_EXPORT_METHOD(multiGet:(NSArray<NSString *> *)keys
     for (NSString *key in keys) {
         id keyError;
         id value = [self _getValueForKey:key errorOut:&keyError];
-        [result addObject:@[key, NativeRenderNullIfNil(value)]];
+        [result addObject:@[key, HPNullIfNil(value)]];
         HippyAppendError(keyError, &errors);
     }
-    callback(@[NativeRenderNullIfNil(errors), result]);
+    callback(@[HPNullIfNil(errors), result]);
 }
 // clang-format on
 
@@ -404,7 +402,7 @@ HIPPY_EXPORT_METHOD(multiSet:(NSArray<NSArray<NSString *> *> *)kvPairs
     if (changedManifest) {
         [self _writeManifest:&errors];
     }
-    callback(@[NativeRenderNullIfNil(errors)]);
+    callback(@[HPNullIfNil(errors)]);
 }
 // clang-format on
 
@@ -424,12 +422,12 @@ HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
         if (!keyError) {
             if (value) {
                 NSError *jsonError;
-                NSMutableDictionary *mergedVal = NativeRenderJSONParseMutable(value, &jsonError);
-                if (HippyMergeRecursive(mergedVal, NativeRenderJSONParse(entry[1], &jsonError))) {
-                    entry = @[entry[0], NativeRenderNullIfNil(NativeRenderJSONStringify(mergedVal, NULL))];
+                NSMutableDictionary *mergedVal = HPJSONParseMutable(value, &jsonError);
+                if (HippyMergeRecursive(mergedVal, HPJSONParse(entry[1], &jsonError))) {
+                    entry = @[entry[0], HPNullIfNil(HPJSONStringify(mergedVal, NULL))];
                 }
                 if (jsonError) {
-                    keyError = NativeRenderJSErrorFromNSError(jsonError);
+                    keyError = HPJSErrorFromNSError(jsonError);
                 }
             }
             if (!keyError) {
@@ -441,7 +439,7 @@ HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
     if (changedManifest) {
         [self _writeManifest:&errors];
     }
-    callback(@[NativeRenderNullIfNil(errors)]);
+    callback(@[HPNullIfNil(errors)]);
 }
 // clang-format on
 
@@ -475,7 +473,7 @@ HIPPY_EXPORT_METHOD(multiRemove:(NSArray<NSString *> *)keys
     if (changedManifest) {
         [self _writeManifest:&errors];
     }
-    callback(@[NativeRenderNullIfNil(errors)]);
+    callback(@[HPNullIfNil(errors)]);
 }
 // clang-format on
 
@@ -484,7 +482,7 @@ HIPPY_EXPORT_METHOD(clear:(HippyResponseSenderBlock)callback) {
     [_manifest removeAllObjects];
     [HippyGetCache() removeAllObjects];
     NSDictionary *error = [self HippyDeleteStorageDirectory];
-    callback(@[NativeRenderNullIfNil(error)]);
+    callback(@[HPNullIfNil(error)]);
 }
 // clang-format on
 

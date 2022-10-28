@@ -26,7 +26,7 @@
 #import "UIView+NativeRender.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+MountEvent.h"
-#import "NativeRenderLog.h"
+#import "HPLog.h"
 
 @interface NativeRenderViewPager ()
 @property (nonatomic, strong) NSMutableArray<UIView *> *viewPagerItems;
@@ -86,7 +86,7 @@
 
 - (void)insertNativeRenderSubview:(UIView *)view atIndex:(NSInteger)atIndex {
     if (atIndex > self.viewPagerItems.count) {
-        NativeRenderLogWarn(@"Error In NativeRenderViewPager: addSubview —— out of bound of array");
+        HPLogWarn(@"Error In NativeRenderViewPager: addSubview —— out of bound of array");
         return;
     }
     if (atIndex < [self.viewPagerItems count]) {
@@ -154,7 +154,7 @@
 #pragma mark native render js call methods
 - (void)setPage:(NSInteger)pageNumber animated:(BOOL)animated {
     if (pageNumber >= self.viewPagerItems.count || pageNumber < 0) {
-        NativeRenderLogWarn(@"Error In ViewPager setPage: pageNumber invalid");
+        HPLogWarn(@"Error In ViewPager setPage: pageNumber invalid");
         return;
     }
 
@@ -412,14 +412,14 @@
     }
 
     if (self.initialPage >= self.viewPagerItems.count) {
-        NativeRenderLogWarn(@"Error In NativeRenderViewPager: layoutSubviews");
+        HPLogWarn(@"Error In NativeRenderViewPager: layoutSubviews");
         self.contentSize = CGSizeZero;
         return;
     }
 
     UIView *lastViewPagerItem = self.viewPagerItems.lastObject;
     if (!lastViewPagerItem) {
-        NativeRenderLogWarn(@"Error In NativeRenderViewPager: addSubview");
+        HPLogWarn(@"Error In NativeRenderViewPager: addSubview");
         self.contentSize = CGSizeZero;
         return;
     }
@@ -457,7 +457,7 @@
     }
 
     if (thePage < 0) {
-        NativeRenderLogWarn(@"Error In ViewPager nowPage: thePage invalid");
+        HPLogWarn(@"Error In ViewPager nowPage: thePage invalid");
         return 0;
     } else {
         return (NSUInteger)thePage;

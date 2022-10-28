@@ -21,13 +21,14 @@
  */
 
 #import <Foundation/Foundation.h>
+
 #import "HippyBridgeModule.h"
-#import "HippyDefines.h"
+#import "MacroDefines.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-HIPPY_EXTERN NSString *const HippyDidDidRemoveRootViewNotification;
-HIPPY_EXTERN NSString *const HippyRootViewTagKey;
+HP_EXTERN NSString *const HippyDidDidRemoveRootViewNotification;
+HP_EXTERN NSString *const HippyRootViewTagKey;
 
 @interface HippyRootViewManager : NSObject<HippyBridgeModule>
 

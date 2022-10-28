@@ -20,12 +20,13 @@
  * limitations under the License.
  */
 
-#import "HippyNetInfo.h"
-
-#import "HippyAssert.h"
 #import "HippyBridge.h"
+#import "HippyDefines.h"
 #import "HippyEventDispatcher.h"
+#import "HippyNetInfo.h"
 #import "HippyNetInfoIntenal.h"
+
+#import "HPAsserts.h"
 
 @interface HippyNetInfo ()<HippyNetworkTypeChangedDelegate> {
 }

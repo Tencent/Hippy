@@ -46,7 +46,7 @@ void HPNode::printNode(uint32_t indent) {
   std::string indentStr = getIndentString(static_cast<int>(indent));
   std::string startStr;
   startStr = indentStr + "<div layout=\"width:%s; height:%s; left:%s; top:%s;\" style=\"%s\">\n";
-  HPLogd(startStr.c_str(), toString(result.dim[0]).c_str(), toString(result.dim[1]).c_str(),
+  HPLayoutLogd(startStr.c_str(), toString(result.dim[0]).c_str(), toString(result.dim[1]).c_str(),
          toString(result.position[0]).c_str(), toString(result.position[1]).c_str(),
          style.toString().c_str());
 
@@ -55,7 +55,7 @@ void HPNode::printNode(uint32_t indent) {
     item->printNode(indent + 4);
   }
   std::string endStr = indentStr + "</div>\n";
-  HPLogd(endStr.c_str());
+  HPLayoutLogd(endStr.c_str());
 }
 
 HPNode::HPNode(HPConfigRef config) {

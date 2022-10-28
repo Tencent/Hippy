@@ -20,19 +20,18 @@
  * limitations under the License.
  */
 
-#import "NativeRenderAnimationType.h"
+#import "HPAsserts.h"
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderComponentData.h"
-#import "NativeRenderConvert.h"
+#import "HPConvert.h"
 #import "NativeRenderObjectRootView.h"
 #import "NativeRenderObjectView.h"
 #import "NativeRenderImpl.h"
-#import "NativeRenderUtils.h"
+#import "HPToolUtils.h"
 #import "NativeRenderView.h"
 #import "NativeRenderViewManager.h"
 
 #import "NativeRenderComponentMap.h"
-#import "NativeRenderErrorHandler.h"
 #import "OCTypeToDomArgument.h"
 #import "RenderVsyncManager.h"
 #import "UIView+DomEvent.h"
@@ -123,13 +122,13 @@ constexpr char kVSyncKey[] = "frameupdate";
 static void NativeRenderTraverseViewNodes(id<NativeRenderComponentProtocol> view, void (^block)(id<NativeRenderComponentProtocol>)) {
     if (view.componentTag) {
         block(view);
-        for (id<NativeRenderComponentProtocol> subview in view.nativeRenderSubviews) {
+        for (id<NativeRenderComponentProtocol> subview in view.subcomponents) {
             NativeRenderTraverseViewNodes(subview, block);
         }
     }
 }
 
-#define AssertMainQueue() NSAssert(NativeRenderIsMainQueue(), @"This function must be called on the main thread")
+#define AssertMainQueue() NSAssert(HPIsMainQueue(), @"This function must be called on the main thread")
 
 NSString *const NativeRenderUIManagerDidRegisterRootViewNotification = @"NativeRenderUIManagerDidRegisterRootViewNotification";
 NSString *const NativeRenderUIManagerRootViewTagKey = @"NativeRenderUIManagerRootViewKey";
@@ -280,7 +279,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     NSNumber *componentTag = rootView.componentTag;
     NSAssert(NativeRenderIsRootView(componentTag), @"View %@ with tag #%@ is not a root view", rootView, componentTag);
 
-#if NATIVE_RENDER_DEBUG
+#if HP_DEBUG
     NSAssert(![_viewRegistry containRootComponentWithTag:componentTag], @"RootView Tag already exists. Added %@ twice", componentTag);
 #endif
     // Register view
@@ -442,7 +441,7 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
 - (UIView *)createViewRecursiveFromRenderObjectWithNOLock:(NativeRenderObjectView *)renderObject {
     UIView *view = [self createViewFromRenderObject:renderObject];
     NSUInteger index = 0;
-    for (NativeRenderObjectView *subRenderObject in renderObject.nativeRenderSubviews) {
+    for (NativeRenderObjectView *subRenderObject in renderObject.subcomponents) {
         UIView *subview = [self createViewRecursiveFromRenderObjectWithNOLock:subRenderObject];
         [view insertNativeRenderSubview:subview atIndex:index];
         index++;
@@ -874,8 +873,8 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         return nil;
     } @catch (NSException *exception) {
         NSString *message = [NSString stringWithFormat:@"Exception '%@' was thrown while invoking %@ on component target %@ with params %@", exception, name, nativeModuleName, finalParams];
-        NSError *error = NativeRenderErrorWithMessage(message);
-        NativeRenderFatal(error);
+        NSError *error = HPErrorWithMessage(message);
+        HPFatal(error, nil);
         return nil;
     }
 }
