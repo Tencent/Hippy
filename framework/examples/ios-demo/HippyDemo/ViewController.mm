@@ -146,6 +146,20 @@
     _bridge = bridge;
 }
 
+/**
+ * Remove hippy root view example
+ */
+- (void)removeRootView {
+    //1.remove root view from UI hierarchy
+    [[[self.view subviews] firstObject] removeFromSuperview];
+    //2.unregister root node from render context by id.
+    [_bridge.renderContext unregisterRootViewFromTag:@(_rootNode->GetId())];
+    //3.set elements holding by user to nil
+    _nativeRenderManager = nil;
+    _rootNode = nil;
+    _domManager = nil;
+}
+
 #define StatusBarOffset 20
 #define btnHeight 100
 
