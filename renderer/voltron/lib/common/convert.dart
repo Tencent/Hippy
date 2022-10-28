@@ -39,9 +39,6 @@ extension VoltronMapParsing on Map {
         throw 'type: ${value.runtimeType} is not support';
       }
     }
-    forEach((key, value) {
-
-    });
     return voltronMap;
   }
 
