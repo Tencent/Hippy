@@ -17,7 +17,7 @@ package com.tencent.mtt.hippy.bridge.bundleloader;
 
 import android.text.TextUtils;
 import com.tencent.mtt.hippy.bridge.HippyBridge;
-import com.tencent.mtt.hippy.bridge.NativeCallback;
+import com.openhippy.connector.NativeCallback;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings("unused")

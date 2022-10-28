@@ -19,6 +19,8 @@ package com.tencent.mtt.hippy.bridge;
 import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
+import com.openhippy.connector.NativeCallback;
+import com.openhippy.connector.JsDriver.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -70,7 +72,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     private String mDebugGlobalConfig;
     private NativeCallback mDebugInitJSFrameworkCallback;
     private HippyEngineContext mContext;
-    private final HippyEngine.V8InitParams v8InitParams;
+    private final V8InitParams v8InitParams;
 
     public HippyBridgeImpl(HippyEngineContext engineContext, BridgeCallback callback,
             boolean singleThreadMode, boolean enableV8Serialization, boolean isDevModule,
@@ -283,6 +285,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
         destroy(mV8RuntimeId, mSingleThreadMode, isReload, callback);
     }
 
+<<<<<<< HEAD
     public native long initJSFramework(byte[] globalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
             long groupId, int workerManagerId, int domManagerId,
@@ -307,6 +310,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     public native void onResourceReady(ByteBuffer output, long runtimeId, long resId);
 
+=======
+>>>>>>> 3346e2512 (feat(connector): add dom jsdriver renderer connector)
     public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
         callNatives(moduleName, moduleFunc, callId, ByteBuffer.wrap(buffer));
     }
