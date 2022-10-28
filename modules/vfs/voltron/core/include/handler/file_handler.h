@@ -23,7 +23,7 @@
 #include "vfs/handler/uri_handler.h"
 #include "footstone/task_runner.h"
 
-namespace voltron {
+namespace hippy {
 inline namespace vfs {
 
 class FileHandler : public hippy::UriHandler {

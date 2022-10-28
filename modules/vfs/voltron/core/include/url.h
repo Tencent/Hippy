@@ -27,7 +27,7 @@
 #include <iostream>
 #include <vector>
 
-namespace voltron {
+namespace hippy {
 
 class KeyValPair {
  public:
