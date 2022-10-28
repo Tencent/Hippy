@@ -39,7 +39,7 @@ public class ClipboardModule extends HippyNativeModuleBase {
             ClipboardManager clipboard = getClipboardService();
             ClipData clipData = clipboard.getPrimaryClip();
             if (clipData != null && clipData.getItemCount() >= 1) {
-                ClipData.Item firstItem = clipboard.getPrimaryClip().getItemAt(0);
+                ClipData.Item firstItem = clipData.getItemAt(0);
                 promise.resolve("" + firstItem.getText());
             } else {
                 promise.resolve("");
