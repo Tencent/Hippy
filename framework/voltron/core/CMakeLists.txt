@@ -33,6 +33,7 @@ cmake_policy(VERSION 3.0)
 project("voltron_core")
 
 add_definitions("-DVOLTRON")
+set(VOLTRON true)
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
 
