@@ -25,7 +25,7 @@ project("vfs")
 set(CMAKE_CXX_STANDARD 17)
 
 if (VOLTRON)
-  add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_DIR}/vfs/native)
+  add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/voltron/core)
 elseif (ANDROID)
   add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/android/src/main/cpp)
 endif ()
