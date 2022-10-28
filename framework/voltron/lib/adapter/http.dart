@@ -25,13 +25,14 @@ import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:system_proxy/system_proxy.dart';
+import 'package:voltron/adapter.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import '../channel.dart' as channel;
 import '../engine.dart';
 import '../module.dart';
 
-class VoltronHttpAdapter with Destroyable {
+abstract class VoltronHttpAdapter with Destroyable {
   EngineContext? context;
   TRequestWillBeSentHook? requestWillBeSentHook;
   TResponseReceivedHook? responseReceivedHook;
@@ -46,35 +47,81 @@ class VoltronHttpAdapter with Destroyable {
     responseReceivedHook = responseReceivedHook;
   }
 
-  void fetch(final VoltronMap request, final JSPromise promise) {}
+  void doFetch(final VoltronMap requestParams, final JSPromise promise) async {
+    VoltronHttpRequest httpRequest;
+    VoltronHttpResponse httpResponse;
+    try {
+      httpRequest = await generateHttpRequest(requestParams);
+    } catch (e) {
+      promise.reject(e.toString());
+      return;
+    }
+    callBeforeRequestSend(httpRequest);
+    try {
+      httpResponse = await sendRequest(httpRequest);
+      callAfterResponseReceive(httpRequest, httpResponse);
+      onSuccess(httpRequest, httpResponse, promise);
+    } catch (e) {
+      if (e is DioError) {
+        httpResponse = VoltronHttpResponse(
+          statusCode: e.response?.statusCode ?? VoltronHttpResponse.unknownStatus,
+          statusMessage: e.response?.statusMessage ?? '',
+          headerMap: e.response?.headers.map ?? {},
+          requestOptions: e.requestOptions,
+          data: e.response?.data,
+        );
+      } else {
+        httpResponse = VoltronHttpResponse(
+          statusCode: VoltronHttpResponse.unknownStatus,
+          statusMessage: e.toString(),
+          headerMap: {},
+          requestOptions: null,
+          data: '',
+        );
+      }
+      callAfterResponseReceive(httpRequest, httpResponse);
+      onFailed(httpRequest, httpResponse, promise);
+      return;
+    }
+  }
 
-  @mustCallSuper
-  void sendRequest(VoltronHttpRequest request, JSPromise promise) {
+  /// construct http request object
+  Future<VoltronHttpRequest> generateHttpRequest(VoltronMap request);
+
+  /// send request
+  Future<VoltronHttpResponse> sendRequest(VoltronHttpRequest request);
+
+  /// success callback
+  void onSuccess(
+    VoltronHttpRequest request,
+    VoltronHttpResponse response,
+    JSPromise promise,
+  );
+
+  /// fail callback
+  void onFailed(
+    VoltronHttpRequest httpRequest,
+    VoltronHttpResponse httpResponse,
+    JSPromise promise,
+  );
+
+  void callBeforeRequestSend(VoltronHttpRequest request) {
     var _context = context;
     if (_context != null) {
       requestWillBeSentHook?.call(_context, request.requestId, request);
     }
   }
 
-  @mustCallSuper
-  void onSuccess(VoltronHttpRequest request, VoltronHttpResponse response, JSPromise promise) {
+  void callAfterResponseReceive(VoltronHttpRequest request, VoltronHttpResponse response) {
     var _context = context;
     if (_context != null) {
       responseReceivedHook?.call(_context, request.requestId, response);
     }
   }
 
-  @mustCallSuper
-  void onFailed(VoltronHttpRequest request, VoltronHttpResponse response, JSPromise promise) {
-    var _context = context;
-    if (_context != null) {
-      responseReceivedHook?.call(_context, request.requestId, response);
-    }
-  }
+  void getCookie(String url, JSPromise promise);
 
-  void getCookie(String url, JSPromise promise) {}
-
-  void setCookie(String url, String keyValue, String expires, JSPromise promise) {}
+  void setCookie(String url, String keyValue, String expires, JSPromise promise);
 
   @override
   void destroy() {}
@@ -82,19 +129,11 @@ class VoltronHttpAdapter with Destroyable {
 
 class DefaultHttpAdapter extends VoltronHttpAdapter {
   @override
-  void fetch(final VoltronMap request, final JSPromise promise) {
-    VoltronHttpRequest? httpRequest = generateHttpRequest(request, promise);
-    if (httpRequest != null) {
-      sendRequest(httpRequest, promise);
-    }
-  }
-
-  VoltronHttpRequest? generateHttpRequest(VoltronMap request, JSPromise promise) {
+  Future<VoltronHttpRequest> generateHttpRequest(VoltronMap request) async {
     var url = request.get<String>('url') ?? '';
     final method = request.get<String>("method") ?? '';
     if (isEmpty(url) || isEmpty(method)) {
-      promise.reject("no valid url for request");
-      return null;
+      throw 'no valid url for request';
     }
     var body = request.get<String>('body') ?? '';
     var httpRequest = VoltronHttpRequest(
@@ -137,8 +176,7 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
   }
 
   @override
-  void sendRequest(VoltronHttpRequest request, JSPromise promise) async {
-    super.sendRequest(request, promise);
+  Future<VoltronHttpResponse> sendRequest(VoltronHttpRequest request) async {
     var headers = _fillHeader(request);
     var proxy = await SystemProxy.getProxySettings().catchError((e) {
       LogUtils.i("HttpAdapter getProxySettings", e.toString());
@@ -167,28 +205,14 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
       };
     }
     dio.interceptors.add(channel.CookieManager.getInstance());
-    try {
-      var dioResponse = await dio.request(request.url, data: request.body);
-      LogUtils.i("HttpAdapter sendRequest", dioResponse.toString());
-      var voltronHttpResponse = VoltronHttpResponse(
-        statusCode: dioResponse.statusCode ?? VoltronHttpResponse.unknownStatus,
-        statusMessage: dioResponse.statusMessage ?? '',
-        headerMap: dioResponse.headers.map,
-        requestOptions: dioResponse.requestOptions,
-        data: dioResponse.data,
-      );
-      onSuccess(request, voltronHttpResponse, promise);
-    } on DioError catch (e) {
-      LogUtils.e("HttpAdapter sendRequest error", e.toString());
-      var voltronHttpResponse = VoltronHttpResponse(
-        statusCode: e.response?.statusCode ?? VoltronHttpResponse.unknownStatus,
-        statusMessage: e.error.toString(),
-        headerMap: e.response?.headers.map ?? {},
-        requestOptions: e.requestOptions,
-        data: e.response?.data ?? {},
-      );
-      onFailed(request, voltronHttpResponse, promise);
-    }
+    var dioResponse = await dio.request(request.url, data: request.body);
+    return VoltronHttpResponse(
+      statusCode: dioResponse.statusCode ?? VoltronHttpResponse.unknownStatus,
+      statusMessage: dioResponse.statusMessage ?? '',
+      headerMap: dioResponse.headers.map,
+      requestOptions: dioResponse.requestOptions,
+      data: dioResponse.data,
+    );
   }
 
   Map<String, dynamic> _fillHeader(VoltronHttpRequest request) {
@@ -209,7 +233,6 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
 
   @override
   void onSuccess(VoltronHttpRequest request, VoltronHttpResponse response, JSPromise promise) {
-    super.onSuccess(request, response, promise);
     var respMap = VoltronMap();
     respMap.push("statusCode", response.statusCode);
     var rspBody = '';
@@ -233,7 +256,6 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
 
   @override
   void onFailed(VoltronHttpRequest request, VoltronHttpResponse response, JSPromise promise) {
-    super.onFailed(request, response, promise);
     promise.reject(response.statusMessage);
   }
 
@@ -330,17 +352,17 @@ class VoltronHttpRequest {
       const trailStr = 'Hippy/Voltron';
       if (Platform.isAndroid) {
         _userAgent =
-        'Mozilla/5.0 (Linux; Android ${platInfo.osVersion}; ${platInfo.model} Build/${platInfo.deviceId}; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/106.0.5249.126 Mobile Safari/537.36 $trailStr';
+            'Mozilla/5.0 (Linux; Android ${platInfo.osVersion}; ${platInfo.model} Build/${platInfo.deviceId}; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/106.0.5249.126 Mobile Safari/537.36 $trailStr';
       } else if (Platform.isIOS) {
         _userAgent =
-        'Mozilla/5.0 (iPhone; CPU ${platInfo.model} OS ${platInfo.osVersion.replaceAll('.', '_')} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/${platInfo.osVersion} Mobile/15E148 $trailStr';
+            'Mozilla/5.0 (iPhone; CPU ${platInfo.model} OS ${platInfo.osVersion.replaceAll('.', '_')} like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/${platInfo.osVersion} Mobile/15E148 $trailStr';
       } else if (Platform.isMacOS) {
         _userAgent =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X ${platInfo.osVersion.replaceAll('.', '_')}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Version/${platInfo.osVersion} $trailStr';
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X ${platInfo.osVersion.replaceAll('.', '_')}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36 Version/${platInfo.osVersion} $trailStr';
       } else if (Platform.isWindows) {
         /// TODO wait to perfect
         _userAgent =
-        'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko $trailStr';
+            'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko $trailStr';
       }
     }
   }
@@ -352,7 +374,7 @@ class VoltronHttpResponse {
   final Map<String, dynamic> headerMap;
   final String statusMessage;
   final Object data;
-  final RequestOptions requestOptions;
+  final RequestOptions? requestOptions;
 
   VoltronHttpResponse({
     required this.statusCode,

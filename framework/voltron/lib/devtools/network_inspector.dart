@@ -101,7 +101,7 @@ class NetworkInspector {
   /// more details, see https://chromedevtools.github.io/devtools-protocol/tot/Network/#event-responseReceived
   void onResponseReceived(EngineContext context, String requestId, VoltronHttpResponse? httpResponse) {
     final responseHeader = httpResponse?.headerMap.map((key, value) => MapEntry(key, value.join(';'))) ?? {};
-    final requestHeader = httpResponse?.requestOptions.headers.map((key, value) {
+    final requestHeader = httpResponse?.requestOptions?.headers.map((key, value) {
           if (value is List) {
             return MapEntry(key, value.join(';'));
           }
@@ -109,11 +109,11 @@ class NetworkInspector {
         }) ?? {};
     String mimeType = responseHeader[kContentType] ?? "";
     if (mimeType.isEmpty) {
-      mimeType = MimeType.getType(httpResponse?.requestOptions.responseType);
+      mimeType = MimeType.getType(httpResponse?.requestOptions?.responseType);
     }
 
     final responseContentMap = {
-      kHttpResponseUrl: httpResponse?.requestOptions.path,
+      kHttpResponseUrl: httpResponse?.requestOptions?.path ?? '',
       kHttpResponseStatus: httpResponse?.statusCode ?? HttpStatus.ok,
       kHttpResponseStatusText: httpResponse?.statusMessage ?? '',
       kHttpResponseHeaders: responseHeader,

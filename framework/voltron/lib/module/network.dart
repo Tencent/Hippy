@@ -62,7 +62,7 @@ class NetworkModule extends VoltronNativeModule {
       requestWillBeSentHook: requestWillBeSentHook,
       responseReceivedHook: responseReceivedHook,
     );
-    adapter.fetch(request, promise);
+    adapter.doFetch(request, promise);
     return true;
   }
 
