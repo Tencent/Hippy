@@ -18,6 +18,8 @@
 // limitations under the License.
 //
 
+import 'package:voltron_renderer/common.dart';
+
 import 'voltron_array.dart';
 
 class VoltronMap {
@@ -172,5 +174,20 @@ class VoltronMap {
       }
     }
     return ret;
+  }
+
+  /// ensure deep to Voltron
+  VoltronMap toDeepVoltronMap() {
+    var voltronMap = VoltronMap();
+    for (final entry in entrySet()) {
+      if (entry.value is Map) {
+        voltronMap.push(entry.key, (entry.value as Map).toVoltronMap());
+      } else if (entry.value is List) {
+        voltronMap.push(entry.key, (entry.value as List).toVoltronArray());
+      } else {
+        voltronMap.push(entry.key, entry.value);
+      }
+    }
+    return voltronMap;
   }
 }

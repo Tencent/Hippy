@@ -573,7 +573,7 @@ class RenderManager
     }
 
     for (final id in _animationNodeIds) {
-      context.bridgeManager.execNativeEvent(
+      context.bridgeManager.sendRootEvent(
         id,
         id,
         RootNodeController.kDoFrame,

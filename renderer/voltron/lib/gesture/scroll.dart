@@ -109,7 +109,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   }
 
   void handleScrollReachedEnd(RenderViewModel view) {
-    view.context.bridgeManager.execNativeEvent(
+    view.context.bridgeManager.sendComponentEvent(
       _rootId,
       view.id,
       "endreached",

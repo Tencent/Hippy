@@ -24,6 +24,9 @@ import '../adapter.dart';
 import 'js_init_params.dart';
 
 class GlobalConfigs implements Destroyable {
+  // Http request adapter
+  late final VoltronHttpAdapter _httpAdapter;
+
   // device adapter
   DeviceAdapter? _deviceAdapter;
 
@@ -32,9 +35,6 @@ class GlobalConfigs implements Destroyable {
 
   // Crash Handler
   ExceptionHandlerAdapter? _exceptionHandlerAdapter;
-
-  // Http request adapter
-  HttpAdapter? _httpAdapter;
 
   // Storage adapter
   StorageAdapter? _storageAdapter;
@@ -55,7 +55,7 @@ class GlobalConfigs implements Destroyable {
   ExceptionHandlerAdapter? get exceptionHandlerAdapter =>
       _exceptionHandlerAdapter;
 
-  HttpAdapter? get httpAdapter => _httpAdapter;
+  VoltronHttpAdapter get httpAdapter => _httpAdapter;
 
   StorageAdapter? get storageAdapter => _storageAdapter;
 
@@ -66,7 +66,7 @@ class GlobalConfigs implements Destroyable {
   GlobalConfigs(EngineInitParams params) {
     _sharedPreferencesAdapter = params.sharedPreferencesAdapter;
     _exceptionHandlerAdapter = params.exceptionHandler;
-    _httpAdapter = params.httpAdapter;
+    _httpAdapter = params.httpAdapter ?? DefaultHttpAdapter();
     _storageAdapter = params.storageAdapter;
     _engineMonitor = params.engineMonitor;
     _fontScaleAdapter = params.fontScaleAdapter;
@@ -76,7 +76,7 @@ class GlobalConfigs implements Destroyable {
   @override
   void destroy() {
     try {
-      _httpAdapter?.destroy();
+      _httpAdapter.destroy();
       _storageAdapter?.destroy();
     } catch (e) {
       LogUtils.e("GlobalConfigs", "destroy error: $e");
