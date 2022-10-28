@@ -73,7 +73,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
 
 @interface HippyBridge() {
     NSSet<Class<HPImageProviderProtocol>> *_imageProviders;
-    id<HippyMethodInterceptorProtocol> _methodInterceptor;
+    __weak id<HippyMethodInterceptorProtocol> _methodInterceptor;
     HippyModulesSetup *_moduleSetup;
     __weak NSOperation *_lastOperation;
     BOOL _wasBatchActive;
