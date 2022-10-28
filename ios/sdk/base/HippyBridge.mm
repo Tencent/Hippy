@@ -145,7 +145,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     id<HippyCustomTouchHandlerProtocol> _customTouchHandler;
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
-    id<HippyMethodInterceptorProtocol> _methodInterceptor;
+    __weak id<HippyMethodInterceptorProtocol> _methodInterceptor;
 }
 
 dispatch_queue_t HippyJSThread;
