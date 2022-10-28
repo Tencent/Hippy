@@ -24,15 +24,15 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 
+import com.openhippy.connector.JsDriver.V8InitParams;
+import com.openhippy.connector.NativeCallback;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
-import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.bridge.jsi.TurboModuleManager;
 import com.tencent.mtt.hippy.common.Callback;
-import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyJsException;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
@@ -97,7 +97,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializer;
     HippyEngine.ModuleListener mLoadModuleListener;
     private TurboModuleManager mTurboModuleManager;
-    private HippyEngine.V8InitParams v8InitParams;
+    private V8InitParams v8InitParams;
     private NativeCallback mCallFunctionCallback;
 
     public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,

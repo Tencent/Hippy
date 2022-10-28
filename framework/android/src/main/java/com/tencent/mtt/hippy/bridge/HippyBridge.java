@@ -18,7 +18,7 @@ package com.tencent.mtt.hippy.bridge;
 
 import android.content.res.AssetManager;
 
-import com.tencent.mtt.hippy.common.HippyArray;
+import com.openhippy.connector.NativeCallback;
 
 import java.nio.ByteBuffer;
 

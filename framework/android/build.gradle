@@ -145,6 +145,9 @@ dependencies {
   compileOnly project(path: ':link_supplier')
   compileOnly project(path: ':vfs')
   compileOnly project(path: ':devtools-integration')
+  compileOnly project(path: ':connector-dom')
+  compileOnly project(path: ':connector-driver-js')
+  compileOnly project(path: ':connector-renderer-native')
   //noinspection GradleDependency
   implementation deps.annotation
 

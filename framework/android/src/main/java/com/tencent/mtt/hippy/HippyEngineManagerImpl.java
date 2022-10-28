@@ -66,6 +66,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.devtools.vfs.DevtoolsProcessor;
 import com.tencent.vfs.VfsManager;
+import com.openhippy.connector.JsDriver.V8InitParams;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;

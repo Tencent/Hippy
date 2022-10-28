@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import com.openhippy.connector.JsDriver.V8InitParams;
 import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
@@ -211,11 +212,6 @@ public abstract class HippyEngine {
     INITERRORED,
     INITED,
     DESTROYED
-  }
-
-  public static class V8InitParams {
-    public long initialHeapSize;
-    public long maximumHeapSize;
   }
 
   // Hippy 引擎初始化时的参数设置

@@ -24,6 +24,15 @@ project(':vfs').projectDir = new File('modules/vfs/android')
 include 'devtools-integration'
 project(':devtools-integration').projectDir = new File('devtools/devtools-integration/android')
 
+include 'connector-dom'
+project(':connector-dom').projectDir = new File('framework/android/connector/dom')
+
+include 'connector-driver-js'
+project(':connector-driver-js').projectDir = new File('framework/android/connector/driver/js')
+
+include 'connector-renderer-native'
+project(':connector-renderer-native').projectDir = new File('framework/android/connector/renderer/native')
+
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
 include ':android'

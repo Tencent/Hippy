@@ -79,6 +79,9 @@ dependencies {
         api project(path: ':serialization')
         api project(path: ':vfs')
         api project(path: ':devtools-integration')
+        api project(path: ':connector-dom')
+        api project(path: ':connector-driver-js')
+        api project(path: ':connector-renderer-native')
     }
     // noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'
