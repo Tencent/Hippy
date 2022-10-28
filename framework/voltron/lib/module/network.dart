@@ -56,7 +56,7 @@ class NetworkModule extends VoltronNativeModule {
   /// *
   @VoltronMethod(kFetchMethodName)
   bool fetch(final VoltronMap request, final JSPromise promise) {
-    VoltronHttpAdapter adapter = context.globalConfigs.httpAdapter ?? DefaultHttpAdapter();
+    VoltronHttpAdapter adapter = context.globalConfigs.httpAdapter;
     adapter.init(
       context: context,
       requestWillBeSentHook: requestWillBeSentHook,
@@ -74,7 +74,7 @@ class NetworkModule extends VoltronNativeModule {
   /// *
   @VoltronMethod(kSetCookieMethodName)
   bool setCookie(String url, String keyValue, String expires, JSPromise promise) {
-    VoltronHttpAdapter adapter = context.globalConfigs.httpAdapter ?? DefaultHttpAdapter();
+    VoltronHttpAdapter adapter = context.globalConfigs.httpAdapter;
     adapter.setCookie(url, keyValue, expires, promise);
     return true;
   }
@@ -85,7 +85,7 @@ class NetworkModule extends VoltronNativeModule {
   /// *
   @VoltronMethod(kGetCookieMethodName)
   bool getCookie(String url, JSPromise promise) {
-    VoltronHttpAdapter adapter = context.globalConfigs.httpAdapter ?? DefaultHttpAdapter();
+    VoltronHttpAdapter adapter = context.globalConfigs.httpAdapter;
     adapter.getCookie(url, promise);
     return true;
   }

@@ -308,17 +308,8 @@ class VoltronBridgeManager implements Destroyable {
   }
 
   Future<dynamic> execJsCallback(Object params) async {
-    if (params is Map) {
-      params = params.toVoltronMap();
-    } else if (params is List) {
-      params = params.toVoltronArray();
-    } else if (params is VoltronMap) {
-      params = params.toDeepVoltronMap();
-    } else if (params is VoltronArray) {
-      params = params.toDeepVoltronArray();
-    }
     var action = "callBack";
-    await callJsFunction(params, action);
+    await callJsFunction(params.toVoltronObject(), action);
   }
 
   @override

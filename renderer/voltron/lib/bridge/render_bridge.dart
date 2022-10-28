@@ -111,28 +111,13 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    var convertParams = _convertEventParams(params);
     VoltronRenderApi.callNativeFunction(
       _engineId,
       _context.renderManager.getNativeId(),
       callbackId,
-      convertParams,
+      params.toOriginObject(),
       true,
     );
-  }
-
-  Object _convertEventParams(Object params) {
-    var convertParams = params;
-    if (params is VoltronMap) {
-      convertParams = params.toMap();
-    } else if (params is VoltronArray) {
-      convertParams = params.toList();
-    } else if (params is Map) {
-      convertParams = params.toDeepMap();
-    } else if (params is List) {
-      convertParams = params.toDeepList();
-    }
-    return convertParams;
   }
 
   /// dispatch root event, such as frameUpdate
@@ -145,7 +130,6 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    var convertParams = _convertEventParams(params);
     await VoltronRenderApi.callNativeEvent(
       _context.renderManager.getNativeId(),
       rootId,
@@ -153,7 +137,7 @@ class VoltronRenderBridgeManager implements Destroyable {
       event,
       false,
       false,
-      convertParams,
+      params.toOriginObject(),
     );
   }
 
@@ -167,16 +151,14 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    var convertParams = _convertEventParams(params);
-    var lowerCaseEventName = event.toLowerCase();
     await VoltronRenderApi.callNativeEvent(
       _context.renderManager.getNativeId(),
       rootId,
       id,
-      lowerCaseEventName,
+      event.toLowerCase(),
       true,
       true,
-      convertParams,
+      params.toOriginObject(),
     );
   }
 
@@ -190,16 +172,14 @@ class VoltronRenderBridgeManager implements Destroyable {
     if (!_isBridgeInit) {
       return false;
     }
-    var convertParams = _convertEventParams(params);
-    var lowerCaseEventName = event.toLowerCase();
     await VoltronRenderApi.callNativeEvent(
       _context.renderManager.getNativeId(),
       rootId,
       id,
-      lowerCaseEventName,
+      event.toLowerCase(),
       false,
       false,
-      convertParams,
+      params.toOriginObject(),
     );
   }
 

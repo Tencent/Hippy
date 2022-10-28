@@ -23,9 +23,7 @@ import 'dart:io';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
 import 'package:system_proxy/system_proxy.dart';
-import 'package:voltron/adapter.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import '../channel.dart' as channel;
@@ -232,7 +230,11 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
   }
 
   @override
-  void onSuccess(VoltronHttpRequest request, VoltronHttpResponse response, JSPromise promise) {
+  void onSuccess(
+    VoltronHttpRequest request,
+    VoltronHttpResponse response,
+    JSPromise promise,
+  ) {
     var respMap = VoltronMap();
     respMap.push("statusCode", response.statusCode);
     var rspBody = '';
@@ -255,8 +257,12 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
   }
 
   @override
-  void onFailed(VoltronHttpRequest request, VoltronHttpResponse response, JSPromise promise) {
-    promise.reject(response.statusMessage);
+  void onFailed(
+    VoltronHttpRequest httpRequest,
+    VoltronHttpResponse httpResponse,
+    JSPromise promise,
+  ) {
+    promise.reject(httpResponse.statusMessage);
   }
 
   @override
