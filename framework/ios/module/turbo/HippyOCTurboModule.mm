@@ -150,7 +150,9 @@ static std::shared_ptr<napi::CtxValue> convertObjcObjectToCtxValue(const std::sh
     std::shared_ptr<napi::CtxValue> result;
 
     if ([objcObject isKindOfClass:[NSString class]]) {
-        result = context->CreateString([((NSString *)objcObject) UTF8String]);
+        std::string str = [((NSString *)objcObject) UTF8String];
+        string_view str_view(reinterpret_cast<const string_view::char8_t_*>(str.c_str()));
+        result = context->CreateString(str_view);
     } else if ([objcObject isKindOfClass:[NSNumber class]]) {
       if ([objcObject isKindOfClass:[@YES class]]) {
           result = context->CreateBoolean(((NSNumber *)objcObject).boolValue);
