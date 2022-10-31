@@ -376,9 +376,16 @@ bool HippyValue::IsUInt32() const noexcept { return type_ == Type::kNumber && nu
 bool HippyValue::IsDouble() const noexcept { return type_ == Type::kNumber && number_type_ == NumberType::kDouble; }
 
 bool HippyValue::ToInt32(int32_t& i32) const {
-  bool is_int32 = IsInt32();
-  if (is_int32) i32 = num_.i32_;
-  return is_int32;
+  if (IsInt32()) {
+    i32 = num_.i32_;
+    return true;
+  } else if (IsDouble()) {
+    i32 = static_cast<int32_t>(num_.d_);
+    if (i32 == num_.d_) {
+      return true;
+    }
+  }
+  return false;
 }
 
 int32_t HippyValue::ToInt32Checked() const {
