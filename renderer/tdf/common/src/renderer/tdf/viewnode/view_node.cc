@@ -251,6 +251,14 @@ void ViewNode::OnDelete() {
 
 void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   TDF_RENDER_CHECK_ATTACH
+
+  if (use_view_layout_origin_) {
+    auto origin_left = GetView()->GetFrame().left;
+    auto origin_top = GetView()->GetFrame().top;
+    layout_result.left = origin_left;
+    layout_result.top = origin_top;
+  }
+
   auto new_frame =
       tdfcore::TRect::MakeXYWH(layout_result.left, layout_result.top, layout_result.width, layout_result.height);
   GetView()->SetFrame(new_frame);
