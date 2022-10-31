@@ -25,19 +25,12 @@
 
 #include "core/common/color.h"
 #include "core/support/text/UTF.h"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-copy"
-#pragma clang diagnostic ignored "-Wextra-semi"
-#include "core/support/gesture/recognizer/tap_gesture_recognizer.h"
-#include "core/support/gesture/recognizer/long_press_gesture_recognizer.h"
-#pragma clang diagnostic pop
 #include "dom/node_props.h"
 #include "dom/scene.h"
 #include "footstone/hippy_value.h"
 #include "footstone/logging.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
-#include "renderer/tdf/gesture/touch_recognizer.h"
 
 namespace hippy {
 inline namespace render {
@@ -290,19 +283,16 @@ void ViewNode::OnRemoveEventListener(uint32_t id, const std::string& name) {
 }
 
 void ViewNode::HandleEventInfoUpdate() {
-  RemoveGestureEvent(hippy::kClickEvent);
   if (supported_events_.find(hippy::kClickEvent) != supported_events_.end() ||
       supported_events_.find(hippy::kPressIn) != supported_events_.end() ||
       supported_events_.find(hippy::kPressOut) != supported_events_.end()) {
     RegisterClickEvent();
   }
 
-  RemoveGestureEvent(hippy::kLongClickEvent);
   if (supported_events_.find(hippy::kLongClickEvent) != supported_events_.end()) {
     RegisterLongClickEvent();
   }
 
-  RemoveGestureEvent(hippy::kTouchStartEvent);
   if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end() ||
       supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end() ||
       supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end() ||
@@ -312,79 +302,123 @@ void ViewNode::HandleEventInfoUpdate() {
 }
 
 void ViewNode::RegisterClickEvent() {
-  auto gesture_recognizer = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
+  if (tap_recognizer_ == nullptr) {
+    tap_recognizer_ = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
+    gestures_map_.emplace(kClickEvent, tap_recognizer_);
+    tap_view_ = GetView();
+    tap_view_.lock()->AddGesture(tap_recognizer_);
+  }
+
+  if (GetView() != tap_view_.lock()) {
+    tap_view_ = GetView();
+    tap_view_.lock()->AddGesture(tap_recognizer_);
+  }
+
   if (supported_events_.find(hippy::kClickEvent) != supported_events_.end()) {
-    gesture_recognizer->SetTap([WEAK_THIS]() {
+    tap_recognizer_->SetTap([WEAK_THIS]() {
       DEFINE_AND_CHECK_SELF(ViewNode)
       self->SendGestureDomEvent(kClickEvent, nullptr);
     });
+  } else {
+    tap_recognizer_->SetTap(nullptr);
   }
 
   if (supported_events_.find(hippy::kPressIn) != supported_events_.end()) {
-    gesture_recognizer->SetTapDown([WEAK_THIS](const tdfcore::TapDetails& detail) {
+    tap_recognizer_->SetTapDown([WEAK_THIS](const tdfcore::TapDetails& detail) {
       DEFINE_AND_CHECK_SELF(ViewNode)
       self->SendGestureDomEvent(kPressIn, nullptr);
     });
+  } else {
+    tap_recognizer_->SetTapDown(nullptr);
   }
 
   if (supported_events_.find(hippy::kPressOut) != supported_events_.end()) {
-    gesture_recognizer->SetTapUp([WEAK_THIS](const tdfcore::TapDetails& detail) {
+    tap_recognizer_->SetTapUp([WEAK_THIS](const tdfcore::TapDetails& detail) {
       DEFINE_AND_CHECK_SELF(ViewNode)
       self->SendGestureDomEvent(kPressOut, nullptr);
     });
-    gesture_recognizer->SetTapCancel([WEAK_THIS]() {
+    tap_recognizer_->SetTapCancel([WEAK_THIS]() {
       DEFINE_AND_CHECK_SELF(ViewNode)
       self->SendGestureDomEvent(kPressOut, nullptr);
     });
+  } else {
+    tap_recognizer_->SetTapUp(nullptr);
+    tap_recognizer_->SetTapCancel(nullptr);
   }
-
-  gestures_map_.emplace(kClickEvent, gesture_recognizer);
-  GetView()->AddGesture(gesture_recognizer);
 }
 
 void ViewNode::RegisterLongClickEvent() {
-  auto gesture_recognizer = TDF_MAKE_SHARED(tdfcore::LongPressGestureRecognizer);
-  gesture_recognizer->on_long_press_end_ =
+  if (long_press_recognizer_ == nullptr) {
+    long_press_recognizer_ = TDF_MAKE_SHARED(tdfcore::LongPressGestureRecognizer);
+    gestures_map_.emplace(kLongClickEvent, long_press_recognizer_);
+    long_press_view_ = GetView();
+    long_press_view_.lock()->AddGesture(long_press_recognizer_);
+  }
+
+  if (GetView() != long_press_view_.lock()) {
+    long_press_view_ = GetView();
+    long_press_view_.lock()->AddGesture(long_press_recognizer_);
+  }
+
+  long_press_recognizer_->on_long_press_end_ =
   [WEAK_THIS](const tdfcore::LongPressEndDetails &long_press_end_details) -> void {
     DEFINE_AND_CHECK_SELF(ViewNode)
     self->SendGestureDomEvent(kLongClickEvent, nullptr);
   };
-  gestures_map_.emplace(kLongClickEvent, gesture_recognizer);
-  GetView()->AddGesture(gesture_recognizer);
 }
 
 void ViewNode::RegisterTouchEvent() {
-  auto gesture_recognizer = TDF_MAKE_SHARED(TouchRecognizer);
+  if (touch_recognizer_ == nullptr) {
+    touch_recognizer_ = TDF_MAKE_SHARED(TouchRecognizer);
+    gestures_map_.emplace(kTouchStartEvent, touch_recognizer_);
+    touch_view_ = GetView();
+    touch_view_.lock()->AddGesture(touch_recognizer_);
+  }
+
+  if (GetView() != touch_view_.lock()) {
+    touch_view_ = GetView();
+    touch_view_.lock()->AddGesture(touch_recognizer_);
+  }
+
   if (supported_events_.find(hippy::kTouchStartEvent) != supported_events_.end()) {
-    gesture_recognizer->SetTouchStart([WEAK_THIS](const TouchDetails &details) {
+    touch_recognizer_->SetTouchStart([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
       auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchDown", details);
       self->SendGestureDomEvent(kTouchStartEvent, value);
     });
+  } else {
+    touch_recognizer_->SetTouchStart(nullptr);
   }
+
   if (supported_events_.find(hippy::kTouchMoveEvent) != supported_events_.end()) {
-    gesture_recognizer->SetTouchMove([WEAK_THIS](const TouchDetails &details) {
+    touch_recognizer_->SetTouchMove([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
       auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchMove", details);
       self->SendGestureDomEvent(kTouchMoveEvent, value);
     });
+  } else {
+    touch_recognizer_->SetTouchMove(nullptr);
   }
+
   if (supported_events_.find(hippy::kTouchEndEvent) != supported_events_.end()) {
-    gesture_recognizer->SetTouchEnd([WEAK_THIS](const TouchDetails &details) {
+    touch_recognizer_->SetTouchEnd([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
       auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchEnd", details);
       self->SendGestureDomEvent(kTouchEndEvent, value);
     });
+  } else {
+    touch_recognizer_->SetTouchEnd(nullptr);
   }
+
   if (supported_events_.find(hippy::kTouchCancelEvent) != supported_events_.end()) {
-    gesture_recognizer->SetTouchCancel([WEAK_THIS](const TouchDetails &details) {
+    touch_recognizer_->SetTouchCancel([WEAK_THIS](const TouchDetails &details) {
       DEFINE_AND_CHECK_SELF(ViewNode)
       auto value = TouchRecognizer::TouchDetails2HippyValue(self->GetRenderInfo().id, "onTouchCancel", details);
       self->SendGestureDomEvent(kTouchCancelEvent, value);
     });
+  } else {
+    touch_recognizer_->SetTouchCancel(nullptr);
   }
-  gestures_map_.emplace(kTouchStartEvent, gesture_recognizer);
-  GetView()->AddGesture(gesture_recognizer);
 }
 
 void ViewNode::RemoveGestureEvent(std::string&& event_type) {
