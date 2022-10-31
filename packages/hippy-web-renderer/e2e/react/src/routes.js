@@ -1,6 +1,6 @@
 // import * as components from './components';
 // import * as modules from './modules';
-import * as text from './spec/text';
+import * as components from './spec';
 const off = [
 ];
 function getKebabCase2(str) {
@@ -11,13 +11,13 @@ function getKebabCase2(str) {
   return temp;
 }
 (function () {
-  for (const key in text) {
+  for (const key in components) {
     off.push({
       path: `/${getKebabCase2(key)}`,
       name: `/${getKebabCase2(key)}`,
-      component: text[key],
+      component: components[key],
     });
   }
 }());
-console.log(off);
+console.log(off,components);
 export default off;

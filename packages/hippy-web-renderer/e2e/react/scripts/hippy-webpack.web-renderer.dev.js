@@ -1,13 +1,57 @@
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
+const ejs = require('ejs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const HippyDynamicImportPlugin = require('@hippy/hippy-dynamic-import-plugin');
 const ReactRefreshWebpackPlugin = require('@hippy/hippy-react-refresh-webpack-plugin');
 const pkg = require('../package.json');
+const current = path.join(__dirname);
+const specPath = path.join(current, '../src/spec');
+
 
 const platform = 'web';
+function firstCase(str) {
+  return str.slice(0, 1).toUpperCase() + str.slice(1);
+}
+function camelCase(name) {
+  const SPECIAL_CHARS_REGEXP = /([\:\-\_]+(.))/g;
+  const MOZ_HACK_REGEXP = /^moz([A-Z])/;
+  return name.replace(SPECIAL_CHARS_REGEXP, (_, separator, letter, offset) => (offset ? letter.toUpperCase() : letter)).replace(MOZ_HACK_REGEXP, 'Moz$1');
+}
+function splitFileName(text) {
+  const pattern = /\.{1}[a-z]{1,}$/;
+  if (pattern.exec(text) !== null) {
+    return (text.slice(0, pattern.exec(text).index));
+  }
+  return text;
+}
+function getFileName(pathString) {
+  return splitFileName(path.basename(pathString));
+}
+
+let specDirList = fs.readdirSync(specPath);
+specDirList = specDirList.filter(item => fs.lstatSync(path.join(specPath, `./${item}`)).isDirectory());
+specDirList = specDirList.map(item => path.join(specPath, `./${item}`));
+specDirList.forEach((item) => {
+  let specDirItemList = fs.readdirSync(item);
+  specDirItemList = specDirItemList.filter(childItem => fs.lstatSync(path.join(item, `./${childItem}`)).isFile() && childItem !== 'index.js');
+  const data = specDirItemList.map(childItem => ({ name: firstCase(camelCase(getFileName(childItem))),
+    path: path.basename(childItem) }));
+  const outputPath = path.join(item, './index.js');
+  ejs.renderFile(path.join(current, './template-export.ejs'), { fileList: data }, {}, (aa, bb) => {
+    console.log('--render data', aa, bb, data);
+    fs.writeFileSync(outputPath, bb);
+  });
+});
+const totalExportData = specDirList.map(item => ({ path: path.basename(item) }));
+const totalOutputPath = path.join(specPath, './index.js');
+ejs.renderFile(path.join(current, './template-total-export.ejs'), { fileList: totalExportData }, {}, (aa, bb) => {
+  console.log('--render data', aa, bb, totalExportData);
+  fs.writeFileSync(totalOutputPath, bb);
+});
+
 
 module.exports = {
   mode: 'development',
