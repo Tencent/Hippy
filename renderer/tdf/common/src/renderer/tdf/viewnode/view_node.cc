@@ -306,14 +306,9 @@ void ViewNode::HandleEventInfoUpdate() {
 }
 
 void ViewNode::RegisterClickEvent() {
-  if (tap_recognizer_ == nullptr) {
+  if (tap_recognizer_ == nullptr || GetView() != tap_view_.lock()) {
     tap_recognizer_ = TDF_MAKE_SHARED(tdfcore::TapGestureRecognizer);
-    gestures_map_.emplace(kClickEvent, tap_recognizer_);
-    tap_view_ = GetView();
-    tap_view_.lock()->AddGesture(tap_recognizer_);
-  }
-
-  if (GetView() != tap_view_.lock()) {
+    gestures_map_[kClickEvent] = tap_recognizer_;
     tap_view_ = GetView();
     tap_view_.lock()->AddGesture(tap_recognizer_);
   }
@@ -352,14 +347,9 @@ void ViewNode::RegisterClickEvent() {
 }
 
 void ViewNode::RegisterLongClickEvent() {
-  if (long_press_recognizer_ == nullptr) {
+  if (long_press_recognizer_ == nullptr || GetView() != long_press_view_.lock()) {
     long_press_recognizer_ = TDF_MAKE_SHARED(tdfcore::LongPressGestureRecognizer);
-    gestures_map_.emplace(kLongClickEvent, long_press_recognizer_);
-    long_press_view_ = GetView();
-    long_press_view_.lock()->AddGesture(long_press_recognizer_);
-  }
-
-  if (GetView() != long_press_view_.lock()) {
+    gestures_map_[kLongClickEvent] = long_press_recognizer_;
     long_press_view_ = GetView();
     long_press_view_.lock()->AddGesture(long_press_recognizer_);
   }
@@ -372,14 +362,9 @@ void ViewNode::RegisterLongClickEvent() {
 }
 
 void ViewNode::RegisterTouchEvent() {
-  if (touch_recognizer_ == nullptr) {
+  if (touch_recognizer_ == nullptr || GetView() != touch_view_.lock()) {
     touch_recognizer_ = TDF_MAKE_SHARED(TouchRecognizer);
-    gestures_map_.emplace(kTouchStartEvent, touch_recognizer_);
-    touch_view_ = GetView();
-    touch_view_.lock()->AddGesture(touch_recognizer_);
-  }
-
-  if (GetView() != touch_view_.lock()) {
+    gestures_map_[kTouchStartEvent] = touch_recognizer_;
     touch_view_ = GetView();
     touch_view_.lock()->AddGesture(touch_recognizer_);
   }
@@ -436,6 +421,9 @@ void ViewNode::RemoveAllEventInfo() {
   RemoveGestureEvent(hippy::kClickEvent);
   RemoveGestureEvent(hippy::kLongClickEvent);
   RemoveGestureEvent(hippy::kTouchStartEvent);
+  tap_recognizer_ = nullptr;
+  long_press_recognizer_ = nullptr;
+  touch_recognizer_ = nullptr;
 }
 
 void ViewNode::HandleInterceptEvent(const DomStyleMap& dom_style) {
