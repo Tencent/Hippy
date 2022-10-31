@@ -1,11 +1,11 @@
-import routes from '../routes';
-import Gallery from './gallery';
 import React from 'react';
 import {
   MemoryRouter,
   Route,
 } from 'react-router-dom';
 import { View } from '@hippy/react';
+import routes from '../routes';
+import Gallery from './gallery';
 
 const ALL_ROUTES = [{
   path: '/blank',
