@@ -20,7 +20,7 @@
 
 import { Property } from 'csstype';
 import { ComponentContext, HippyBaseView } from '../types';
-import { setElementStyle, warn } from '../common';
+import {convertHexToRgba, setElementStyle, warn} from '../common';
 import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
@@ -405,6 +405,7 @@ class SimpleAnimation {
     endFrame[this.useForSetProperty!] = animationCssEndValue;
     return { beginFrame, endFrame };
   }
+
   private createAnimationEndAndEndValue() {
     const animationCssBeginValue = this.buildCssValue(this.animationEndValue);
     const animationCssEndValue = animationCssBeginValue;
@@ -490,8 +491,11 @@ class SimpleAnimation {
     if (this.animationInfo.valueType) {
       unit = this.animationInfo.valueType;
     }
-    if (this.refCssProperty === 'scale' || this.refCssProperty === 'opacity') {
+    if (this.refCssProperty === 'scale' || this.refCssProperty === 'opacity' || this.refCssProperty === 'color') {
       unit = '';
+    }
+    if (this.refCssProperty === 'color') {
+      return `${convertHexToRgba(value)}`;
     }
     return `${value}${unit}`;
   }

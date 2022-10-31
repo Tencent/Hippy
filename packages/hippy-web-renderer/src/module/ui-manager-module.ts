@@ -52,6 +52,11 @@ export class UIManagerModule extends HippyWebModule {
         warn(`create component failed, not support the component ${tagName}`);
         continue;
       }
+      try {
+        await this.viewInit(view, props, index);
+      } catch (e) {
+        error(e);
+      }
       if (updateViewIdSet.has(id)) {
         continue;
       }
@@ -60,11 +65,6 @@ export class UIManagerModule extends HippyWebModule {
       }
       if (this.findViewById(pId)?.tagName === InnerNodeTag.LIST) {
         updateViewIdSet.add(pId);
-      }
-      try {
-        await this.viewInit(view, props, index);
-      } catch (e) {
-        error(e);
       }
     }
     for (const id of updateViewIdSet) {
@@ -197,6 +197,7 @@ export class UIManagerModule extends HippyWebModule {
   public addAfterCreateAction(callBack: () => void) {
     this.afterCreateAction.push(callBack);
   }
+
   public async viewInit(view: HippyBaseView, props: any, index: number) {
     if (!view.dom) {
       throw Error(`component init process failed ,component's dom must be exit after component create ${view.tagName ?? ''}`);
