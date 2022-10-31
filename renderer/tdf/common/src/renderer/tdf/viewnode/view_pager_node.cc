@@ -28,6 +28,7 @@ inline namespace tdf {
 
 void ViewPagerNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   ViewNode::OnChildAdd(child, index);
+  child->SetUseViewLayoutOrigin(true);
 }
 
 void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
