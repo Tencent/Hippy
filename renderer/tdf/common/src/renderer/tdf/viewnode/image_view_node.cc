@@ -71,6 +71,7 @@ constexpr const char kAssetPrex[] = "hpfile://./";
 
 std::shared_ptr<tdfcore::View> ImageViewNode::CreateView() {
   auto image_view = TDF_MAKE_SHARED(tdfcore::ImageView);
+  image_view->SetClipToBounds(true);
   image_view->SetScaleType(tdfcore::ScaleType::kAspectFill);
   return image_view;
 }
