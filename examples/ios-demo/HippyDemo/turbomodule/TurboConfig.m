@@ -81,7 +81,7 @@ HIPPY_EXPORT_TURBO_METHOD(nativeWithPromise:(nullable id)params
     if (self = [super init]) {
         self.enableVideo = YES;
         self.videoInfo = @{@"a": @"1"};
-        self.strInfo = @"It is a default string!";
+        self.strInfo = @"测试一下，It is a default string!";
     }
     return self;
 }
