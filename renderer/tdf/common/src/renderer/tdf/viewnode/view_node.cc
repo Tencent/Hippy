@@ -261,7 +261,11 @@ void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
   layout_listener_.Notify(new_frame);
 }
 
-std::shared_ptr<tdfcore::View> ViewNode::CreateView() { return TDF_MAKE_SHARED(tdfcore::View); }
+std::shared_ptr<tdfcore::View> ViewNode::CreateView() {
+  auto view = TDF_MAKE_SHARED(tdfcore::View);
+  view->SetClipToBounds(true);
+  return view;
+}
 
 tdfcore::Color ViewNode::ParseToColor(const std::shared_ptr<footstone::HippyValue>& value) {
   // Temp solution: https://km.woa.com/articles/show/526929

@@ -39,6 +39,7 @@ std::shared_ptr<tdfcore::View> ListViewNode::CreateView() {
   auto data_source = TDF_MAKE_SHARED(ListViewDataSource, std::static_pointer_cast<ListViewNode>(shared_from_this()));
   auto layout = TDF_MAKE_SHARED(tdfcore::LinearCustomLayout);
   auto view = TDF_MAKE_SHARED(tdfcore::CustomLayoutView, data_source, layout);
+  view->SetClipToBounds(true);
   view->SetScrollDirection(tdfcore::ScrollDirection::kVertical);
   return view;
 }
@@ -190,7 +191,11 @@ int64_t ListViewNode::GetChildIndex(ListViewItemNode *child) {
   return 0;
 }
 
-std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() { return TDF_MAKE_SHARED(tdfcore::View); }
+std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() {
+  auto view = TDF_MAKE_SHARED(tdfcore::View);
+  view->SetClipToBounds(true);
+  return view;
+}
 
 int64_t ListViewItemNode::GetViewType(const DomStyleMap& dom_style) {
   int64_t view_type = 0;
