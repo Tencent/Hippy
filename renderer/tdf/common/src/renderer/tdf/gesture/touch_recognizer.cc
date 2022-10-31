@@ -58,7 +58,8 @@ void TouchRecognizer::HandleEventUp(const std::shared_ptr<tdfcore::PointerData>&
     return;
   }
   up_position_ = data->position;
-  Accept();
+  // Touch not win other gestures, so do not use Accept() method
+  AcceptGesture(pointer);
   StopTrackingPointer(pointer);
 }
 
