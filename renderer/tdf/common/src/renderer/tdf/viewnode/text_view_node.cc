@@ -53,12 +53,22 @@ void TextViewNode::RegisterMeasureFunction(const std::shared_ptr<hippy::DomNode>
     hippy::LayoutSize layout_result{static_cast<float>(size.width), static_cast<float>(size.height)};
     return layout_result;
   });
+
+  // TODO(etkmao): for multithread reason
+  std::shared_ptr<TextViewNode> result;
+  auto find = persistent_map_.Find(dom_node->GetRenderInfo().id, result);
+  if (find) {
+    persistent_map_.Erase(dom_node->GetRenderInfo().id);
+  }
+
   persistent_map_.Insert(dom_node->GetRenderInfo().id, view_node);
 }
 
 void TextViewNode::UnregisterMeasureFunction(const std::shared_ptr<hippy::DomNode>& dom_node) {
   dom_node->GetLayoutNode()->SetMeasureFunction(nullptr);
-  persistent_map_.Erase(dom_node->GetRenderInfo().id);
+
+  // TODO(etkmao): for multithread reason
+  //persistent_map_.Erase(dom_node->GetRenderInfo().id);
 }
 
 std::shared_ptr<TextViewNode> TextViewNode::FindLayoutTextViewNode(const std::shared_ptr<hippy::DomNode> &dom_node) {
