@@ -69,9 +69,16 @@ void ViewPager::Init() {
 
   AddScrollEndListener([WEAK_THIS]() {
     DEFINE_AND_CHECK_SELF(ViewPager)
-    auto page = self->CalculateCurrentPage();
-    self->UpdateCurrentPage(page);
+    if (self->has_draged_) {
+      auto page = self->CalculateCurrentPage();
+      self->UpdateCurrentPage(page);
+    }
     self->SetScrollStateType(ScrollStateType::kScrollStateIdle);
+  });
+
+  AddDragEndListener([WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(ViewPager)
+    self->has_draged_ = true;
   });
 }
 
@@ -131,6 +138,8 @@ void ViewPager::SetCurrentPage(int32_t page) {
 }
 
 void ViewPager::UpdateCurrentPage(int32_t page) {
+  has_draged_ = false;
+
   auto max = static_cast<int32_t>(GetChildren().size() - 1);
   int32_t real_page = std::max(0, std::min(page, max));
 
