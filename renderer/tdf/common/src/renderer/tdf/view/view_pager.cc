@@ -88,8 +88,10 @@ void ViewPager::SetAxis(ScrollAxis axis) {
   }
   axis_ = axis;
   if (IsHorizontal()) {
+    SetScrollDirection(tdfcore::ScrollDirection::kHorizontal);
     SetHorizontalOverscrollEnabled(true);
   } else {
+    SetScrollDirection(tdfcore::ScrollDirection::kVertical);
     SetVerticalOverscrollEnabled(true);
   }
 }
