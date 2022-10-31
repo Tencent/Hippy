@@ -20,7 +20,7 @@
 
 import { Property } from 'csstype';
 import { ComponentContext, HippyBaseView } from '../types';
-import {setElementStyle, warn} from '../common';
+import { setElementStyle, warn } from '../common';
 import { HippyWebModule } from '../base';
 import AnimationFillMode = Property.AnimationFillMode;
 import AnimationIterationCount = Property.AnimationIterationCount;
@@ -55,7 +55,7 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public updateAnimation(animationId: number, param: AnimationOptions) {
-    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+    if (!this.isValidAnimationId(animationId)) {
       warn('hippy', 'animation update failed, animationId not find animation object', animationId);
       return;
     }
@@ -63,7 +63,7 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public startAnimation(animationId: number) {
-    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+    if (!this.isValidAnimationId(animationId)) {
       warn('hippy', 'animation start failed, animationId not find animation object', animationId);
       return;
     }
@@ -72,7 +72,7 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public pauseAnimation(animationId: number) {
-    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+    if (!this.isValidAnimationId(animationId)) {
       warn('hippy', 'animation stop failed, animationId not find animation object', animationId);
       return;
     }
@@ -81,7 +81,7 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public resumeAnimation(animationId: number) {
-    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+    if (!!this.isValidAnimationId(animationId)) {
       warn('hippy', 'animation resume failed, animationId not find animation object', animationId);
       return;
     }
@@ -90,7 +90,7 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public destroyAnimation(animationId: number) {
-    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+    if (!this.isValidAnimationId(animationId)) {
       warn('hippy', 'animation destroy failed, animationId not find animation object', animationId);
       return;
     }
@@ -98,39 +98,31 @@ export class AnimationModule extends HippyWebModule {
     this.animationPool[animationId]?.destroy();
   }
 
-  public linkInitAnimation2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
-    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+  public linkInitAnimation2Element(animationId: number, view: HippyBaseView, animationProperty: string|object) {
+    if (!this.isValidAnimationId(animationId)) {
       return;
     }
     if (this.animationSetPool[animationId]) {
-      this.linkAnimationSet2Element(animationId, component, animationProperty);
+      this.linkAnimationSet2Element(animationId, view, animationProperty);
       return;
     }
-    this.linkAnimationCheck(component, animationProperty);
-    this.animationPool[animationId]!.nodeId = component.id;
+    this.linkAnimationCheck(view, animationProperty);
+    this.animationPool[animationId]!.nodeId = view.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
-    this.animationPool[animationId]!.initAnimation(component.dom!);
+    this.animationPool[animationId]!.initAnimation(view.dom!);
   }
 
-  public linkAnimation2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
-    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
-      return;
-    }
-    if (this.animationSetPool[animationId]) {
-      this.linkAnimationSet2Element(animationId, component, animationProperty);
-      return;
-    }
-    this.linkAnimationCheck(component, animationProperty);
-    this.animationPool[animationId]!.nodeId = component.id;
+  public linkAnimation2Element(animationId: number, view: HippyBaseView, animationProperty: string|object) {
+    this.linkInitAnimation2Element(animationId, view, animationProperty);
     this.animationPool[animationId]!.animationProperty = animationProperty;
   }
 
-  public linkAnimationSet2Element(animationId: number, component: HippyBaseView, animationProperty: string|object) {
+  public linkAnimationSet2Element(animationId: number, view: HippyBaseView, animationProperty: string|object) {
     if (!this.animationSetPool[animationId]) {
       return;
     }
-    this.animationSetPool[animationId]!.nodeId = component.id;
-    this.animationSetPool[animationId]!.initAnimationSet(animationId, component, animationProperty);
+    this.animationSetPool[animationId]!.nodeId = view.id;
+    this.animationSetPool[animationId]!.initAnimationSet(animationId, view, animationProperty);
   }
 
   public getAnimationStartValue(animationId: number) {
@@ -144,10 +136,14 @@ export class AnimationModule extends HippyWebModule {
     return this.animationPool[animationId];
   }
 
-  private linkAnimationCheck(component: HippyBaseView, animationProperty: string|object) {
+  private isValidAnimationId(animationId: number) {
+    return this.animationPool[animationId] || this.animationSetPool[animationId];
+  }
+
+  private linkAnimationCheck(view: HippyBaseView, animationProperty: string|object) {
     for (const key of Object.keys(this.animationPool)) {
       const animation = this.animationPool[key];
-      if (animation?.hasLinkedView(component.id) && animation.refCssProperty === animationProperty && animation.state !== 'end' && !this.isAnimationSetChild(animation?.id)) {
+      if (animation?.hasLinkedView(view.id) && animation.refCssProperty === animationProperty && animation.state !== 'end' && !this.isAnimationSetChild(animation?.id)) {
         animation.clearLinkNode();
       }
     }
@@ -581,14 +577,14 @@ class SimpleAnimationSet {
     return animationModule.findAnimation(firstChild.animationId);
   }
 
-  public initAnimationSet(animationId: number, component: HippyBaseView, animationProperty: string|object) {
+  public initAnimationSet(animationId: number, view: HippyBaseView, animationProperty: string|object) {
     const animationModule = this.context.getModuleByName('AnimationModule') as AnimationModule;
     this.setOption.children.forEach((item, index) => {
       if (index === 0) {
-        animationModule.linkInitAnimation2Element(item.animationId, component, animationProperty);
+        animationModule.linkInitAnimation2Element(item.animationId, view, animationProperty);
         return;
       }
-      animationModule.linkAnimation2Element(item.animationId, component, animationProperty);
+      animationModule.linkAnimation2Element(item.animationId, view, animationProperty);
     });
   }
 

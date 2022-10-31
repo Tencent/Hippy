@@ -54,8 +54,8 @@ export class TextView extends HippyWebView<HTMLSpanElement> {
 
   public set ellipsizeMode(value) {
     this.props[NodeProps.ELLIPSIZE_MODE] = value;
-
-    if (this.dom && value) setElementStyle(this.dom, { ...HippyEllipsizeModeMap[value], overflow: 'hidden' });
+    if (this.dom && value) setElementStyle(this.dom, { ...HippyEllipsizeModeMap[value],
+      overflow: 'hidden', 'white-space': 'nowrap' });
   }
 
   public get ellipsizeMode() {

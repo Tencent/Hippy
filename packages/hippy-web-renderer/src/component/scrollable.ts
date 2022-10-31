@@ -24,7 +24,7 @@ const TIME_CHECK_LONG = 100;
 export const GESTURE_CAPTURE_THRESHOLD = 5;
 export interface TouchMoveListenerConfig {
   onBeginDrag?: (position: [number, number]) => void;
-  onEndDrag?: (position: [number, number]) => void;
+  onEndDrag?: (position: [number, number]) => Promise<void>;
   onScroll?: () => void;
   onBeginSliding?: () => void;
   onEndSliding?: () => void;

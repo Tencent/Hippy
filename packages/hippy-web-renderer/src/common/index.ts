@@ -20,11 +20,13 @@
 
 
 import {
+  HippyBaseView,
   STYLE_MARGIN_H,
   STYLE_MARGIN_V,
   STYLE_PADDING_H,
   STYLE_PADDING_V,
 } from '../types';
+import { HippyWebView } from '../component';
 
 export function hasOwnProperty(obj: Object, name: string | number | symbol) {
   return obj && Object.prototype.hasOwnProperty.call(obj, name);
@@ -87,6 +89,34 @@ export function setElementStyle(element: HTMLElement, object: any, animationProc
     styleUpdateWithCheck(element, 'text-shadow', textShadowProcess(shadowTextData));
   }
   backgroundProcess(background, element);
+}
+
+export function positionAssociate(
+  newStyle: {[prop: string]: any},
+  component: HippyBaseView, parent: HippyWebView<any>,
+) {
+  if (newStyle.position === 'absolute' && !parent?.props?.style?.position
+    && !parent?.defaultStyle().position) {
+    setElementStyle(parent!.dom!, { position: 'relative' });
+  }
+  if (newStyle.position === 'absolute' && !newStyle.width && !newStyle.height && !newStyle.overflow) {
+    setElementStyle(component.dom!, { overflow: 'visible' });
+  }
+}
+
+export function zIndexAssociate(
+  diffStyle: {[prop: string]: any},
+  component: HippyBaseView, parent: HippyWebView<any>,
+) {
+  if ((diffStyle.position === 'absolute' || diffStyle.position === 'relative')) {
+    parent?.changeStackContext(true);
+    (component as HippyWebView<any>).updateSelfStackContext(true);
+  } else if (diffStyle.position === null) {
+    parent?.changeStackContext(false);
+    (component as HippyWebView<any>).updateSelfStackContext(false);
+  } else if (parent?.exitChildrenStackContext && diffStyle.zIndex === null) {
+    (component as HippyWebView<any>).updateSelfStackContext(true);
+  }
 }
 
 function backgroundProcess(backgroundData: any, element: HTMLElement) {

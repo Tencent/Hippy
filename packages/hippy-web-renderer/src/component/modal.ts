@@ -23,7 +23,7 @@ import {
   ModalOrientations,
   InnerNodeTag,
   HippyBaseView,
-  UIProps,
+  UIProps, DefaultPropsProcess,
 } from '../types';
 
 import {  setElementStyle } from '../common';
@@ -127,7 +127,7 @@ export class Modal extends HippyWebView<HTMLDivElement> {
     };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }

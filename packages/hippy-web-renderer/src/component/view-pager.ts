@@ -18,7 +18,14 @@
  * limitations under the License.
  */
 import * as Hammer from 'hammerjs';
-import { NodeProps, SCROLL_STATE, HippyBaseView, InnerNodeTag, UIProps } from '../types';
+import {
+  NodeProps,
+  SCROLL_STATE,
+  HippyBaseView,
+  InnerNodeTag,
+  UIProps,
+  DefaultPropsProcess
+} from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
 import {
@@ -277,7 +284,7 @@ export class ViewPagerItem extends HippyWebView<HTMLDivElement> {
     return { flexShrink: 0, display: 'flex', boxSizing: 'border-box', position: 'static' };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     const newData = { ...data };
     if (data.style && data.style.position === 'absolute') {
       delete newData.style.position;

@@ -18,14 +18,20 @@
  * limitations under the License.
  */
 
-import { ImageResizeMode, NodeProps, InnerNodeTag, UIProps, HippyBaseView } from '../types';
+import {
+  ImageResizeMode,
+  NodeProps,
+  InnerNodeTag,
+  UIProps,
+  DefaultPropsProcess,
+} from '../types';
 import { convertHexToRgba, hasOwnProperty, setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
 
 export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
   private isLoadSuccess = false;
   private tintModeContainerDom: HTMLElement | null = null;
-  private renderImgDom: HTMLImageElement | null = null;
+  private readonly renderImgDom: HTMLImageElement | null = null;
   public constructor(context, id, pId) {
     super(context, id, pId);
     this.tagName = InnerNodeTag.IMAGE;
@@ -37,7 +43,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
 
   public updateProps(
     data: UIProps,
-    defaultProcess: (component: HippyBaseView, data: UIProps) => void,
+    defaultProcess: DefaultPropsProcess,
   ) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
@@ -204,7 +210,7 @@ export class Image extends HippyWebView<HTMLImageElement|HTMLElement> {
     this.dom = this.tintModeContainerDom!;
     newParent.appendChild(this.renderImgDom!);
     oldParent.insertBefore(this.dom, oldParent.childNodes[realIndex] ?? null);
-    this.context.getModuleByName('UIManagerModule').defaultUpdateComponentProps(this, this.props);
+    this.context.getModuleByName('UIManagerModule').defaultUpdateViewProps(this, this.props);
     this.imgDomFilterNoUseStyle();
   }
 

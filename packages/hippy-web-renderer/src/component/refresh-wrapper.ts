@@ -139,7 +139,8 @@ class PullRefresh {
   }
 
   public resetRefreshContentTop() {
-    setElementsStyle([this.refreshContent], { transform: buildTranslate(0, `${(-this.refreshContent.clientHeight) ?? 0}px`) });
+    setElementsStyle([this.refreshContent], { transform:
+        buildTranslate(0, `${(-this.refreshContent.clientHeight) ?? 0}px`) });
   }
 
   public finish() {
@@ -198,7 +199,8 @@ class PullRefresh {
         this.refreshHeadHeight = this.refreshContent.clientHeight;
         setElementStyle(this.refreshContent, { top: -this.refreshContent.clientHeight });
       }
-      setElementStyle(this.refreshContent, { transform: buildTranslate(0, `${(realMove - this.refreshContent.clientHeight) ?? 0}px`) });
+      setElementStyle(this.refreshContent, { transform:
+          buildTranslate(0, `${(realMove - this.refreshContent.clientHeight) ?? 0}px`) });
       this.refreshStatus = this.moveLengthRecord >= this.overScrollThreshold;
     }
     return realMove;

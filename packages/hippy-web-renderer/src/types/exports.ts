@@ -23,7 +23,7 @@ import { HippyTransferData } from './hippy-internal-types';
 export interface UIProps {
   [key: string]: any
 }
-
+export type DefaultPropsProcess = (component: HippyBaseView, data: UIProps) => void;
 export interface HippyBaseView {
   tagName: InnerNodeTag|string;
   id: number;
@@ -33,7 +33,7 @@ export interface HippyBaseView {
   dom: HTMLElement|null;
   onAttachedToWindow?: () => void;
   onLayout?: boolean;
-  updateProps?: (data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) => void;
+  updateProps?: (data: UIProps, defaultProcess: DefaultPropsProcess) => void;
   updateProperty?: (key: string, value: any) => void;
   beforeMount?: (parent: HippyBaseView, position: number) => Promise<void>;
   beforeChildMount?: (child: HippyBaseView, childPosition: number) => Promise<void>;

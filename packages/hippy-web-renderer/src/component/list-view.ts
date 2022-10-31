@@ -219,7 +219,7 @@ export class ListView extends HippyWebView<HTMLDivElement> {
       if (!uiManagerModule.findViewById(itemData.id)) {
         continue;
       }
-      await uiManagerModule.componentDeleteProcess(itemData);
+      await uiManagerModule.viewDelete(itemData);
     }
   }
 
@@ -448,7 +448,7 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     this.dom && this.onScrollBeginDrag(this.buildScrollEvent());
   }
 
-  private handleEndDrag() {
+  private async handleEndDrag() {
     this.scrollCaptureState = false;
     this.dom && this.onScrollEndDrag(this.buildScrollEvent());
   }
@@ -513,6 +513,7 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     setElementStyle(child.dom!, { visibility: 'visible', position: 'static', zIndex: 0 });
     return height;
   }
+
   private buildScrollEvent() {
     return { contentOffset: { x: 0, y: this.virtualList.getOffset() } };
   }

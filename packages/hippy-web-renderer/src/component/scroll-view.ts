@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 
-import { NodeProps, HippyBaseView, InnerNodeTag, UIProps } from '../types';
+import {NodeProps, HippyBaseView, InnerNodeTag, UIProps, DefaultPropsProcess} from '../types';
 import { setElementStyle } from '../common';
 import { HippyWebView } from './hippy-web-view';
 import {
@@ -57,11 +57,11 @@ export class ScrollView extends HippyWebView<HTMLDivElement> {
     this[NodeProps.SCROLL_ENABLED] = true;
   }
 
-  public defaultStyle(): { [p: string]: any } {
+  public defaultStyle(): { [p: string]: string|number } {
     return { display: 'flex', flexDirection: 'column', overflowX: 'hidden', overflowY: 'scroll' };
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
     }

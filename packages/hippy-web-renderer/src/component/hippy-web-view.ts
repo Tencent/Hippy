@@ -22,7 +22,15 @@
 
 import ResizeObserver from 'resize-observer-polyfill';
 import * as Hammer from 'hammerjs';
-import { NodeProps, HippyBaseView, ComponentContext, InnerNodeTag, UIProps, HippyTransferData } from '../types';
+import {
+  NodeProps,
+  HippyBaseView,
+  ComponentContext,
+  InnerNodeTag,
+  UIProps,
+  HippyTransferData,
+  DefaultPropsProcess,
+} from '../types';
 import { setElementStyle } from '../common';
 
 export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
@@ -61,10 +69,9 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
       this[key] = value;
       return;
     }
-    // if (!(key in this)) {
-    //   warn(`${this.tagName} is unsupported ${key}`);
-    // }
+    this.props[key] = value;
   }
+
   public initHammer() {
     if (!this.hammer) {
       this.hammer =  new Hammer.Manager(this.dom!, { inputClass: Hammer.TouchInput });
@@ -214,7 +221,7 @@ export class HippyWebView<T extends HTMLElement> implements HippyBaseView {
     this.updatedZIndex = false;
   }
 
-  public updateProps(data: UIProps, defaultProcess: (component: HippyBaseView, data: UIProps) => void) {
+  public updateProps(data: UIProps, defaultProcess: DefaultPropsProcess) {
     if (this.firstUpdateStyle) {
       defaultProcess(this, { style: this.defaultStyle() });
       this.firstUpdateStyle = false;

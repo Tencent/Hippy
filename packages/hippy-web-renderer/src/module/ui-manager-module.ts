@@ -20,9 +20,10 @@
 
 import { HippyWebEngineContext, HippyWebModule, HippyWebView } from '../base';
 import { HippyBaseView, HippyCallBack, InnerNodeTag, NodeData, UIProps } from '../types';
-import { setElementStyle, warn, error } from '../common';
+import { setElementStyle, warn, error, positionAssociate, zIndexAssociate } from '../common';
+import { AnimationModule } from './animation-module';
 
-
+let ENV_STYLE_INIT_FLAG = false;
 export class UIManagerModule extends HippyWebModule {
   public name = 'UIManagerModule';
 
@@ -36,40 +37,39 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   public init() {
-    stylePolyfill();
+    !ENV_STYLE_INIT_FLAG && stylePolyfill();
+    ENV_STYLE_INIT_FLAG = true;
   }
-
-  public startBatch() {}
 
   public async createNode(rootViewId: any, data: Array<NodeData>) {
     this.createNodePreCheck(rootViewId);
-    const updateComponentIdSet = new Set();
+    const updateViewIdSet = new Set();
     for (let c = 0; c < data.length; c++) {
       const nodeItemData = data[c];
       const { id, pId, index, props, name: tagName } = nodeItemData;
-      const component = mapComponent(this.context, tagName, id, pId);
-      if (!component) {
+      const view = mapView(this.context, tagName, id, pId);
+      if (!view) {
         warn(`create component failed, not support the component ${tagName}`);
         continue;
       }
-      if (updateComponentIdSet.has(id)) {
+      if (updateViewIdSet.has(id)) {
         continue;
       }
       if (tagName === InnerNodeTag.LIST || tagName === InnerNodeTag.VIEW_PAGER) {
-        updateComponentIdSet.add(id);
+        updateViewIdSet.add(id);
       }
       if (this.findViewById(pId)?.tagName === InnerNodeTag.LIST) {
-        updateComponentIdSet.add(pId);
+        updateViewIdSet.add(pId);
       }
       try {
-        await this.componentInitProcess(component, props, index);
+        await this.viewInit(view, props, index);
       } catch (e) {
         error(e);
       }
     }
-    for (const id of updateComponentIdSet) {
-      const component = this.findViewById(id as number);
-      (component as any)?.endBatch();
+    for (const id of updateViewIdSet) {
+      const view = this.findViewById(id as number);
+      (view as any)?.endBatch();
     }
     this.afterCreateAction.forEach(item => item());
     this.afterCreateAction = [];
@@ -78,22 +78,18 @@ export class UIManagerModule extends HippyWebModule {
   public async deleteNode(rootViewId: string, data: Array<{ id: number }>) {
     for (let i = 0; i < data.length; i++) {
       const deleteItem = data[i];
-      const deleteComponent = this.findViewById(deleteItem.id);
-      await this.componentDeleteProcess(deleteComponent);
+      const deleteView = this.findViewById(deleteItem.id);
+      await this.viewDelete(deleteView);
     }
   }
 
   public updateNode(rootViewId: string, data: Array<{ id: number, props: UIProps }>) {
     for (let i = 0; i < data.length; i++) {
       const updateItem = data[i];
-      const updateComponent = this.findViewById(updateItem.id);
-      this.componentUpdateProcess(updateComponent, updateItem.props);
+      const updateView = this.findViewById(updateItem.id);
+      this.viewUpdate(updateView, updateItem.props);
     }
   }
-
-  public flushBatch() {}
-
-  public endBatch() {}
 
   public callUIFunction(params: Array<any>, callBack: HippyCallBack) {
     if (!params || params.length < 3) {
@@ -103,16 +99,16 @@ export class UIManagerModule extends HippyWebModule {
     if (!nodeId || !this.findViewById(nodeId)) {
       return;
     }
-    componentFunctionCallProcess(this.findViewById(nodeId), functionName, paramList, callBack);
+    viewFunctionInvoke(this.findViewById(nodeId), functionName, paramList, callBack);
   }
 
   public measureInWindow(nodeId, callBack: HippyCallBack) {
     if (!nodeId || !this.findViewById(nodeId)?.dom) {
       return;
     }
-    const component = this.findViewById(nodeId);
-    if (component!.dom) {
-      const rect = component!.dom.getBoundingClientRect();
+    const view = this.findViewById(nodeId);
+    if (view!.dom) {
+      const rect = view!.dom.getBoundingClientRect();
       callBack.resolve({
         x: rect.x,
         y: rect.y,
@@ -131,13 +127,15 @@ export class UIManagerModule extends HippyWebModule {
   }
 
   public appendChild(parent: HippyBaseView, child: HippyBaseView, index: number) {
-    if (parent.dom && child.dom) parent.dom.insertBefore(child.dom, parent.dom!.childNodes[index] ?? null);
+    if (parent.dom && child.dom) {
+      parent.dom.insertBefore(child.dom, parent.dom.childNodes[index] ?? null);
+    }
     this.viewDictionary[child.id] = child;
   }
 
   public async removeChild(parent: HippyBaseView, childId: number) {
     const child = this.findViewById(childId);
-    const nodeList: string[] = [];
+    const nodeList: number[] = [];
     let currentNode: any;
     currentNode = child!.dom;
     const treeWalker = document.createTreeWalker(
@@ -152,17 +150,17 @@ export class UIManagerModule extends HippyWebModule {
     }
 
     for (const id of nodeList.reverse()) {
-      if (id === String(childId)) {
+      if (id === childId) {
         continue;
       }
-      const willRemoveComponent = this.findViewById(parseInt(id, 10));
-      if (!willRemoveComponent) {
+      const willRemoveView = this.findViewById(id);
+      if (!willRemoveView || willRemoveView === child) {
         continue;
       }
-      await willRemoveComponent.beforeRemove?.();
-      this.findViewById(willRemoveComponent.pId)?.beforeChildRemove?.(willRemoveComponent);
-      willRemoveComponent.destroy?.();
-      delete this.viewDictionary[willRemoveComponent.id];
+      await willRemoveView.beforeRemove?.();
+      this.findViewById(willRemoveView.pId)?.beforeChildRemove?.(willRemoveView);
+      willRemoveView.destroy?.();
+      delete this.viewDictionary[willRemoveView.id];
     }
 
     if (child?.dom && parent.dom && !parent.removeChild) {
@@ -171,47 +169,87 @@ export class UIManagerModule extends HippyWebModule {
     delete this.viewDictionary[childId];
   }
 
-  public defaultUpdateComponentProps(component: HippyBaseView, props: any) {
-    if (!component.dom) {
-      error(`component update props process failed ,component's dom must be exited ${component.tagName ?? ''}`);
+  public defaultUpdateViewProps(view: HippyBaseView, props: any) {
+    if (!view.dom) {
+      error(`component update props process failed ,component's dom must be exited ${view.tagName ?? ''}`);
     }
-
     const keys = Object.keys(props);
-    if (props.style) {
-      const oldPosition = component.props?.style?.position;
-      setElementStyle(component.dom!, props.style, (key: string, value: any) => {
-        this.animationProcess(key, value, component);
+    const [diffStyle, diffSize] = diffObject(props.style, view.props?.style ?? {});
+    if (props.style && diffSize > 0) {
+      setElementStyle(view.dom!, diffStyle, (key: string, value: any) => {
+        this.animationProcess(key, value, view);
       });
-      const parent = this.findViewById(component.pId) as HippyWebView<any>;
-      if (props.style.position === 'absolute' && !this.findViewById(component.pId)?.props?.style?.position
-        && !parent?.defaultStyle().position) {
-        setElementStyle(parent!.dom!, { position: 'relative' });
-      }
-      if (props.style.position === 'absolute' && !props.style.width && !props.style.height && !props.style.overflow) {
-        setElementStyle(component.dom!, { overflow: 'visible' });
-      }
-      component.updateProperty?.('style', props.style);
-
-      if ((props.style.position === 'absolute' ||  props.style.position === 'relative') && oldPosition !== props.style.position) {
-        parent?.changeStackContext(true);
-        (component as HippyWebView<any>).updateSelfStackContext(true);
-      } else if (oldPosition !== props.style.position && !props.style.position) {
-        parent?.changeStackContext(false);
-        (component as HippyWebView<any>).updateSelfStackContext(false);
-      } else if (parent?.exitChildrenStackContext && props.style.zIndex === undefined) {
-        (component as HippyWebView<any>).updateSelfStackContext(true);
-      }
+      const parent = this.findViewById(view.pId) as HippyWebView<any>;
+      positionAssociate(diffStyle, view, parent);
+      const styleCopy = {};
+      Object.assign(styleCopy, props.style);
+      view.updateProperty?.('style', styleCopy);
+      zIndexAssociate(diffStyle, view, parent);
     }
     for (const key of keys) {
       if (key === 'style' || key === 'attributes' || key.indexOf('__bind__') !== -1) {
         continue;
       }
-      component.updateProperty?.(key, props[key]);
+      view.updateProperty?.(key, props[key]);
     }
   }
 
   public addAfterCreateAction(callBack: () => void) {
     this.afterCreateAction.push(callBack);
+  }
+  public async viewInit(view: HippyBaseView, props: any, index: number) {
+    if (!view.dom) {
+      throw Error(`component init process failed ,component's dom must be exit after component create ${view.tagName ?? ''}`);
+    }
+    const { dom } = view;
+    dom.id = String(view.id);
+    this.updateViewProps(view, props);
+    const parent = this.findViewById(view.pId);
+    if (!parent || !parent.dom) {
+      warn(`component init process failed ,component's parent not exist or dom not exist, pid: ${view.pId}`);
+      return;
+    }
+    let realIndex = index;
+    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
+      realIndex = parent.dom?.childNodes?.length ?? index;
+    }
+    await view.beforeMount?.(parent, realIndex);
+    await parent.beforeChildMount?.(view, realIndex);
+    if (parent.insertChild) {
+      parent.insertChild(view, index);
+      this.viewDictionary[view.id] = view;
+    } else {
+      this.appendChild(parent, view, realIndex);
+    }
+    view.mounted?.();
+  }
+
+  public async viewDelete(view: HippyBaseView | undefined | null) {
+    const parentView = view ? this.findViewById(view.pId) : null;
+    if (!parentView) {
+      return;
+    }
+    await view!.beforeRemove?.();
+    await parentView.beforeChildRemove?.(view!);
+    if (parentView.removeChild) {
+      await parentView.removeChild(view!);
+    } else {
+      await this.removeChild(parentView, view!.id);
+    }
+    view!.destroy?.();
+    delete this.viewDictionary[view!.id];
+  }
+
+  public viewUpdate(view: HippyBaseView | undefined | null, props: UIProps) {
+    view && this.updateViewProps(view, props);
+  }
+
+  public updateViewProps(view: HippyBaseView, props: any) {
+    if (view.updateProps) {
+      view.updateProps(props, this.defaultUpdateViewProps.bind(this));
+    } else {
+      this.defaultUpdateViewProps(view, props);
+    }
   }
 
   private createNodePreCheck(rootViewId: any) {
@@ -221,7 +259,7 @@ export class UIManagerModule extends HippyWebModule {
 
     if (!this.contentDom) {
       let position = 0;
-      if (!window.document.getElementById(rootViewId)) {
+      if (!window.document.getElementById(rootViewId ?? '')) {
         this.contentDom = createRoot(rootViewId);
         this.rootDom.appendChild(this.contentDom);
         position = this.rootDom.childNodes.length - 1;
@@ -241,21 +279,13 @@ export class UIManagerModule extends HippyWebModule {
     }
   }
 
-  private updateComponentProps(component: HippyBaseView, props: any) {
-    if (component.updateProps) {
-      component.updateProps(props, this.defaultUpdateComponentProps.bind(this));
-    } else {
-      this.defaultUpdateComponentProps(component, props);
-    }
-  }
-
-  private animationProcess(key: string, value: any, component: HippyBaseView) {
-    const animationModule = this.context.getModuleByName('AnimationModule') as any;
+  private animationProcess(key: string, value: any, view: HippyBaseView) {
+    const animationModule = this.context.getModuleByName('AnimationModule') as AnimationModule;
     if (!animationModule) {
       return;
     }
     if (value.animationId) {
-      animationModule.linkInitAnimation2Element(value.animationId, component, key);
+      animationModule.linkInitAnimation2Element(value.animationId, view, key);
       return;
     }
     if (key !== 'transform') {
@@ -267,80 +297,34 @@ export class UIManagerModule extends HippyWebModule {
     for (const item of value) {
       for (const itemKey of Object.keys(item)) {
         if (item[itemKey].animationId) {
-          animationModule.linkInitAnimation2Element(item[itemKey].animationId, component, itemKey);
+          animationModule.linkInitAnimation2Element(item[itemKey].animationId, view, itemKey);
           continue;
         }
-        valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey]) || itemKey.startsWith('scale') ? '' : 'px'}) `;
+        valueString += `${itemKey}(${item[itemKey]}${isNaN(item[itemKey])
+        || itemKey.startsWith('scale') ? '' : 'px'}) `;
       }
     }
     if (!valueString) {
       return;
     }
     style.transform = valueString;
-    setElementStyle(component.dom!, style);
-  }
-
-  private async componentInitProcess(component: HippyBaseView, props: any, index: number) {
-    if (!component.dom) {
-      throw Error(`component init process failed ,component's dom must be exit after component create ${component.tagName ?? ''}`);
-    }
-    const { dom } = component;
-    dom.id = String(component.id);
-    this.updateComponentProps(component, props);
-    const parent = this.findViewById(component.pId);
-    if (!parent || !parent.dom) {
-      warn(`component init process failed ,component's parent not exist or dom not exist, pid: ${component.pId}`);
-      return;
-    }
-    let realIndex = index;
-    if (!parent.insertChild && parent.dom?.childNodes?.length !== undefined && index > parent.dom?.childNodes?.length) {
-      realIndex = parent.dom?.childNodes?.length ?? index;
-    }
-    await component.beforeMount?.(parent, realIndex);
-    await parent.beforeChildMount?.(component, realIndex);
-    if (parent.insertChild) {
-      parent.insertChild(component, index);
-      this.viewDictionary[component.id] = component;
-    } else {
-      this.appendChild(parent, component, realIndex);
-    }
-    component.mounted?.();
-  }
-
-  private async componentDeleteProcess(component: HippyBaseView | undefined | null) {
-    const parentComponent = component ? this.findViewById(component.pId) : null;
-    if (!parentComponent) {
-      return;
-    }
-    await component!.beforeRemove?.();
-    await parentComponent.beforeChildRemove?.(component!);
-    if (parentComponent.removeChild) {
-      await parentComponent.removeChild(component!);
-    } else {
-      await this.removeChild(parentComponent, component!.id);
-    }
-    component!.destroy?.();
-    delete this.viewDictionary[component!.id];
-  }
-
-  private componentUpdateProcess(component: HippyBaseView | undefined | null, props: UIProps) {
-    component && this.updateComponentProps(component, props);
+    setElementStyle(view.dom!, style);
   }
 }
 
-function componentFunctionCallProcess(
-  component: HippyBaseView | undefined | null, callName: string,
+function viewFunctionInvoke(
+  view: HippyBaseView | undefined | null, callName: string,
   params: Array<any>, callBack: HippyCallBack,
 ) {
   const executeParam = params ?? [];
-  if (callName && component?.[callName]) {
-    component?.[callName](...executeParam, callBack);
+  if (callName && view?.[callName]) {
+    view?.[callName](...executeParam, callBack);
     return;
   }
-  throw `call ui function failed,${component?.tagName} component not implement ${callName}()`;
+  throw `call ui function failed,${view?.tagName} component not implement ${callName}()`;
 }
 
-function mapComponent(
+function mapView(
   context: HippyWebEngineContext, tagName: string,
   id: number, pId: number,
 ): HippyBaseView | undefined {
@@ -349,12 +333,33 @@ function mapComponent(
   }
 }
 
+function diffObject(newObject: Object, oldObject: Object): [{[prop: string]: any}, number] {
+  const diff: {[prop: string]: any} = {};
+  let diffSize = 0;
+  Object.keys(newObject).forEach((key) => {
+    if (!oldObject[key] || oldObject[key] !== newObject[key]) {
+      diff[key] = newObject[key];
+      diffSize += 1;
+    }
+  });
+  const deleteKeys = Object.keys(newObject).concat(Object.keys(oldObject))
+    .filter(v => !Object.keys(oldObject).includes(v));
+  deleteKeys.forEach((item) => {
+    if (!newObject[item] && oldObject[item] !== undefined) {
+      diff[item] = null;
+      diffSize += 1;
+    }
+  });
+  return [diff, diffSize];
+}
+
 function createRoot(id: string) {
   const root = window.document.createElement('div');
   root.setAttribute('id', id);
   root.id = id;
   return root;
 }
+
 function setRootDefaultStyle(element: HTMLElement) {
   setElementStyle(element, {
     height: `${window.innerHeight}px`,
@@ -365,6 +370,7 @@ function setRootDefaultStyle(element: HTMLElement) {
     position: 'relative',
   });
 }
+
 function stylePolyfill() {
   const style = document.createElement('style');
   style.type = 'text/css';
