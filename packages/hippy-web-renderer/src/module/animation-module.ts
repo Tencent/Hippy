@@ -99,22 +99,24 @@ export class AnimationModule extends HippyWebModule {
   }
 
   public linkInitAnimation2Element(animationId: number, view: HippyBaseView, animationProperty: string|object) {
-    if (!this.isValidAnimationId(animationId)) {
+    if (this.linkAnimation2Element(animationId, view, animationProperty)) {
       return;
     }
-    if (this.animationSetPool[animationId]) {
-      this.linkAnimationSet2Element(animationId, view, animationProperty);
-      return;
-    }
-    this.linkAnimationCheck(view, animationProperty);
-    this.animationPool[animationId]!.nodeId = view.id;
-    this.animationPool[animationId]!.animationProperty = animationProperty;
     this.animationPool[animationId]!.initAnimation(view.dom!);
   }
 
   public linkAnimation2Element(animationId: number, view: HippyBaseView, animationProperty: string|object) {
-    this.linkInitAnimation2Element(animationId, view, animationProperty);
+    if (!this.animationPool[animationId] && !this.animationSetPool[animationId]) {
+      return true;
+    }
+    if (this.animationSetPool[animationId]) {
+      this.linkAnimationSet2Element(animationId, view, animationProperty);
+      return true;
+    }
+    this.linkAnimationCheck(view, animationProperty);
+    this.animationPool[animationId]!.nodeId = view.id;
     this.animationPool[animationId]!.animationProperty = animationProperty;
+    return false;
   }
 
   public linkAnimationSet2Element(animationId: number, view: HippyBaseView, animationProperty: string|object) {
@@ -491,10 +493,10 @@ class SimpleAnimation {
     if (this.animationInfo.valueType) {
       unit = this.animationInfo.valueType;
     }
-    if (this.refCssProperty === 'scale' || this.refCssProperty === 'opacity' || this.refCssProperty === 'color') {
+    if (this.refCssProperty === 'scale' || this.refCssProperty === 'opacity' || this.refCssProperty === 'color' || this.refCssProperty === 'backgroundColor') {
       unit = '';
     }
-    if (this.refCssProperty === 'color') {
+    if (this.refCssProperty === 'color' || this.refCssProperty === 'backgroundColor') {
       return `${convertHexToRgba(value)}`;
     }
     return `${value}${unit}`;
