@@ -28,6 +28,7 @@ inline namespace tdf {
 
 std::shared_ptr<tdfcore::View> ScrollViewNode::CreateView() {
   auto scroll_view = TDF_MAKE_SHARED(tdfcore::ScrollView);
+  scroll_view->SetClipToBounds(true);
   scroll_view->SetVerticalOverscrollEnabled(true);  // defaultValue
   return scroll_view;
 }
