@@ -41,14 +41,12 @@ specDirList.forEach((item) => {
     path: path.basename(childItem) }));
   const outputPath = path.join(item, './index.js');
   ejs.renderFile(path.join(current, './template-export.ejs'), { fileList: data }, {}, (aa, bb) => {
-    console.log('--render data', aa, bb, data);
     fs.writeFileSync(outputPath, bb);
   });
 });
 const totalExportData = specDirList.map(item => ({ path: path.basename(item) }));
 const totalOutputPath = path.join(specPath, './index.js');
 ejs.renderFile(path.join(current, './template-total-export.ejs'), { fileList: totalExportData }, {}, (aa, bb) => {
-  console.log('--render data', aa, bb, totalExportData);
   fs.writeFileSync(totalOutputPath, bb);
 });
 
