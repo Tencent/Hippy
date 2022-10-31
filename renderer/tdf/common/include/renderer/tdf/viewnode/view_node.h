@@ -244,6 +244,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   bool GetInterceptTouchEventFlag() { return intercept_touch_event_flag_; }
   bool GetInterceptPullUpEventFlag() { return intercept_pullup_event_flag_; }
 
+  void SetUseViewLayoutOrigin(bool flag) { use_view_layout_origin_ = flag; }
+
  protected:
   /**
    * @brief notify after the attach action
@@ -355,6 +357,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
 
   bool intercept_touch_event_flag_ = false;
   bool intercept_pullup_event_flag_ = false;
+
+  bool use_view_layout_origin_ = false;
 };
 
 }  // namespace tdf
