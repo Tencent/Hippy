@@ -22,12 +22,16 @@ cmake_minimum_required(VERSION 3.14)
 
 project("vfs")
 
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
+
 set(CMAKE_CXX_STANDARD 17)
 
-if (VOLTRON)
-  add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/voltron/core)
-elseif (ANDROID)
-  add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/android/src/main/cpp)
-elseif (IOS)
-  add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/ios)
-endif ()
+# region library
+add_library(${PROJECT_NAME} INTERFACE)
+target_include_directories(${PROJECT_NAME} INTERFACE include)
+# endregion
+
+# region vfs
+add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_DIR}/vfs/native)
+target_link_libraries(${PROJECT_NAME} INTERFACE vfs_native)
+# endregion
