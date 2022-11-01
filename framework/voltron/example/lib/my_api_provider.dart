@@ -19,16 +19,16 @@
 //
 
 import 'package:voltron/voltron.dart';
-import 'package:voltron_example/view/qr_view.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 import './module/test_module.dart';
+import './view/qr_view.dart';
 
 class MyAPIProvider implements APIProvider {
   @override
   List<ModuleGenerator> get nativeModuleGeneratorList => [
         ModuleGenerator(
           TestModule.kModuleName,
-          (context) => TestModule(context),
+          TestModule.new,
         ),
       ];
 
