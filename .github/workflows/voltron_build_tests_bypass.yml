@@ -1,0 +1,44 @@
+name: '[voltron] build tests'
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+      - v3.0-dev
+      - v3.0
+    paths-ignore:
+      - 'renderer/voltron/**'
+      - 'framework/voltron/**'
+
+jobs:
+  voltron_framework_flutter_analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Test Bypass
+        run: |
+          echo "No build test required"
+  voltron_renderer_flutter_analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Test Bypass
+        run: |
+          echo "No build test required"
+  voltron_renderer_flutter_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Test Bypass
+        run: |
+          echo "No build test required"
+  voltron_android_flutter_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build Test Bypass
+        run: |
+          echo "No build test required"
+  voltron_ios_flutter_build:
+    runs-on: macos-latest
+    steps:
+      - name: Build Test Bypass
+        run: |
+          echo "No build test required"
