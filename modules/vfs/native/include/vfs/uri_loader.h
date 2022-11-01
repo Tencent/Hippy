@@ -31,7 +31,7 @@
 namespace hippy {
 inline namespace vfs {
 
-class UriLoader: std::enable_shared_from_this<UriLoader> {
+class UriLoader: public std::enable_shared_from_this<UriLoader> {
  public:
   using string_view = footstone::string_view;
   using bytes = vfs::UriHandler::bytes;
