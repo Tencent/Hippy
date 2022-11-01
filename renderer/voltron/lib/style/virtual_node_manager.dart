@@ -53,7 +53,7 @@ abstract class VirtualNode with StyleMethodPropConsumer {
     mChildren.remove(child);
   }
 
-  addChildAt(VirtualNode child, int index) {
+  void addChildAt(VirtualNode child, int index) {
     if (child.mParent != null) {
       return;
     }

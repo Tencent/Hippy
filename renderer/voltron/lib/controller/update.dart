@@ -28,11 +28,13 @@ import 'props.dart';
 
 class ControllerUpdateUtil {
   static const String kTag = "ControllerUpdateUtil";
-  static HashMap<String, ControllerMethodPropProvider> sPropsMethodMap =
-      HashMap();
+  static HashMap<String, ControllerMethodPropProvider> sPropsMethodMap = HashMap();
 
   static void updateProps<T extends ControllerMethodPropConsumer>(
-      T? t, RenderNode node, VoltronMap? paramsMap) {
+    T? t,
+    RenderNode node,
+    VoltronMap? paramsMap,
+  ) {
     if (paramsMap == null || t == null) {
       return;
     }
@@ -75,7 +77,7 @@ class ControllerUpdateUtil {
       } else {
         if (value is VoltronMap && prop == NodeProps.kStyle) {
           updateProps(t, node, value);
-        } else if (value != null){
+        } else if (value != null) {
           t.setCustomProp(node, prop, value);
         }
       }

@@ -18,10 +18,7 @@
 // limitations under the License.
 //
 
-import 'dart:ffi';
 import 'dart:typed_data';
-
-import 'package:ffi/ffi.dart';
 import 'package:voltron_renderer/serialization/serializer.dart';
 
 import '../serialization.dart';

@@ -27,16 +27,13 @@ import '../style.dart';
 import '../viewmodel.dart';
 import '../widget.dart';
 
-class ScrollViewController
-    extends BaseGroupController<ScrollViewRenderViewModel> {
+class ScrollViewController extends BaseGroupController<ScrollViewRenderViewModel> {
   static const String kScrollTo = "scrollTo";
   static const String kScrollToWithOptions = "scrollToWithOptions";
 
   static const String kShowScrollIndicator = "showScrollIndicator";
-  static const String kShowsHorizontalScrollIndicator =
-      "showsHorizontalScrollIndicator";
-  static const String kShowsVerticalScrollIndicator =
-      "showsVerticalScrollIndicator";
+  static const String kShowsHorizontalScrollIndicator = "showsHorizontalScrollIndicator";
+  static const String kShowsVerticalScrollIndicator = "showsVerticalScrollIndicator";
   static const String kOnScrollAnimationEnd = "onScrollAnimationEnd";
   static const String kFlingEnabled = "flingEnabled";
   static const String kContentOffsetForReuse = "contentOffset4Reuse";
@@ -46,37 +43,35 @@ class ScrollViewController
   static const String kClassName = "ScrollView";
 
   @override
-  ScrollViewRenderViewModel createRenderViewModel(
-      RenderNode node, RenderContext context) {
+  ScrollViewRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
     var originProps = node.props;
     if (originProps != null &&
         originProps.containsKey("horizontal") &&
         originProps.get<bool>("horizontal") == true) {
-      return ScrollViewRenderViewModel(
-          node.id, node.rootId, node.name, context, true);
+      return ScrollViewRenderViewModel(node.id, node.rootId, node.name, context, true);
     }
     return ScrollViewRenderViewModel(node.id, node.rootId, node.name, context);
   }
 
   @override
-  Widget createWidget(
-      BuildContext context, ScrollViewRenderViewModel viewModel) {
+  Widget createWidget(BuildContext context, ScrollViewRenderViewModel viewModel) {
     return ScrollViewWidget(viewModel);
   }
 
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
-        NodeProps.kOnScrollBeginDrag:
-            ControllerMethodProp(setScrollBeginDragEventEnable, true),
-        NodeProps.kOnScrollEndDrag:
-            ControllerMethodProp(setScrollEndDragEventEnable, true),
-        NodeProps.kOnMomentumScrollBegin:
-            ControllerMethodProp(setMomentumScrollBeginEventEnable, true),
-        NodeProps.kOnMomentumScrollEnd:
-            ControllerMethodProp(setMomentumScrollEndEventEnable, true),
+        NodeProps.kOnScrollBeginDrag: ControllerMethodProp(
+            setScrollBeginDragEventEnable, true),
+        NodeProps.kOnScrollEndDrag: ControllerMethodProp(
+            setScrollEndDragEventEnable, true),
+        NodeProps.kOnMomentumScrollBegin: ControllerMethodProp(
+            setMomentumScrollBeginEventEnable, true),
+        NodeProps.kOnMomentumScrollEnd: ControllerMethodProp(
+            setMomentumScrollEndEventEnable, true),
         NodeProps.kOnScrollEnable:
             ControllerMethodProp(setScrollEventEnable, true),
-        NodeProps.kScrollEnable: ControllerMethodProp(setScrollEnabled, true),
+        NodeProps.kScrollEnable:
+            ControllerMethodProp(setScrollEnabled, true),
         NodeProps.kScrollEventThrottle:
             ControllerMethodProp(setScrollEventThrottle, 30),
         kShowScrollIndicator:
@@ -85,12 +80,13 @@ class ScrollViewController
             ControllerMethodProp(setShowScrollIndicator, false),
         kShowsVerticalScrollIndicator:
             ControllerMethodProp(setShowScrollIndicator, false),
-        kOnScrollAnimationEnd:
-            ControllerMethodProp(setScrollAnimationEndEventEnable, false),
+        kOnScrollAnimationEnd: ControllerMethodProp(
+            setScrollAnimationEndEventEnable, false),
         kFlingEnabled: ControllerMethodProp(setFlingEnabled, true),
-        kContentOffsetForReuse:
-            ControllerMethodProp(setContentOffset4Reuse, null),
-        kPagingEnabled: ControllerMethodProp(setPagingEnabled, false),
+        kContentOffsetForReuse: ControllerMethodProp(
+            setContentOffset4Reuse, null),
+        kPagingEnabled:
+            ControllerMethodProp(setPagingEnabled, false),
         kBounces: ControllerMethodProp(setBounces, true),
       };
 
@@ -103,8 +99,7 @@ class ScrollViewController
   }
 
   @ControllerProps(kShowScrollIndicator)
-  void setShowScrollIndicator(
-      ScrollViewRenderViewModel renderViewModel, bool flag) {
+  void setShowScrollIndicator(ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.showScrollIndicator = flag;
   }
 
@@ -117,33 +112,27 @@ class ScrollViewController
   }
 
   @ControllerProps(NodeProps.kOnScrollBeginDrag)
-  void setScrollBeginDragEventEnable(
-      ScrollViewRenderViewModel renderViewModel, bool flag) {
+  void setScrollBeginDragEventEnable(ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollBeginDragEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnScrollEndDrag)
-  void setScrollEndDragEventEnable(
-      ScrollViewRenderViewModel renderViewModel, bool flag) {
+  void setScrollEndDragEventEnable(ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.scrollEndDragEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnMomentumScrollBegin)
-  void setMomentumScrollBeginEventEnable(
-      ScrollViewRenderViewModel renderViewModel, bool flag) {
-    renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable =
-        flag;
+  void setMomentumScrollBeginEventEnable(ScrollViewRenderViewModel renderViewModel, bool flag) {
+    renderViewModel.scrollGestureDispatcher.momentumScrollBeginEventEnable = flag;
   }
 
   @ControllerProps(NodeProps.kOnMomentumScrollEnd)
-  void setMomentumScrollEndEventEnable(
-      ScrollViewRenderViewModel renderViewModel, bool flag) {
+  void setMomentumScrollEndEventEnable(ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollGestureDispatcher.momentumScrollEndEventEnable = flag;
   }
 
   @ControllerProps(kOnScrollAnimationEnd)
-  void setScrollAnimationEndEventEnable(
-      ScrollViewRenderViewModel renderViewModel, bool flag) {
+  void setScrollAnimationEndEventEnable(ScrollViewRenderViewModel renderViewModel, bool flag) {
     renderViewModel.scrollAnimationEndEventEnable = flag;
   }
 
@@ -159,8 +148,12 @@ class ScrollViewController
 
   @ControllerProps(kContentOffsetForReuse)
   void setContentOffset4Reuse(
-      ScrollViewRenderViewModel renderViewModel, VoltronMap offsetMap) {
-    renderViewModel.setInitOffset(offsetMap);
+    ScrollViewRenderViewModel renderViewModel,
+    VoltronMap? offsetMap,
+  ) {
+    if (offsetMap != null) {
+      renderViewModel.setInitOffset(offsetMap);
+    }
   }
 
   @ControllerProps(kPagingEnabled)
@@ -176,8 +169,7 @@ class ScrollViewController
     ScrollViewRenderViewModel renderViewModel,
     int scrollEventThrottle,
   ) {
-    renderViewModel.scrollGestureDispatcher.scrollEventThrottle =
-        scrollEventThrottle;
+    renderViewModel.scrollGestureDispatcher.scrollEventThrottle = scrollEventThrottle;
   }
 
   @override
@@ -201,10 +193,8 @@ class ScrollViewController
         orientation = 'horizontal';
       }
       // 再确定滚动值
-      final destX =
-          array.get<double>(0) ?? array.get<int>(0)?.toDouble() ?? 0.0;
-      final destY =
-          array.get<double>(1) ?? array.get<int>(1)?.toDouble() ?? 0.0;
+      final destX = array.get<double>(0) ?? array.get<int>(0)?.toDouble() ?? 0.0;
+      final destY = array.get<double>(1) ?? array.get<int>(1)?.toDouble() ?? 0.0;
       final animated = array.get<bool>(2) ?? true;
       var offset = destY;
       if (orientation == 'horizontal') {

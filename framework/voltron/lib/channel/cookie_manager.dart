@@ -39,7 +39,7 @@ class CookieManager extends Interceptor with CookieDelegate {
   }
 
   void setCookieDelegate(CookieDelegateType type, {CookieDelegate? originDelegate}) {
-    switch(type) {
+    switch (type) {
       case CookieDelegateType.dio:
         _delegate = _CookieJarDelegateImpl();
         break;
@@ -47,7 +47,7 @@ class CookieManager extends Interceptor with CookieDelegate {
         _delegate = _WebviewCookieDelegateImpl();
         break;
       case CookieDelegateType.origin:
-        _delegate = originDelegate??  _CookieJarDelegateImpl();
+        _delegate = originDelegate ?? _CookieJarDelegateImpl();
         break;
     }
   }
@@ -69,9 +69,7 @@ class CookieManager extends Interceptor with CookieDelegate {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    _saveCookies(response)
-        .then((_) => handler.next(response))
-        .catchError((e, stackTrace) {
+    _saveCookies(response).then((_) => handler.next(response)).catchError((e, stackTrace) {
       var err = DioError(requestOptions: response.requestOptions, error: e);
       err.stackTrace = stackTrace;
       handler.reject(err, true);
@@ -81,9 +79,7 @@ class CookieManager extends Interceptor with CookieDelegate {
   @override
   void onError(DioError err, ErrorInterceptorHandler handler) {
     if (err.response != null) {
-      _saveCookies(err.response!)
-          .then((_) => handler.next(err))
-          .catchError((e, stackTrace) {
+      _saveCookies(err.response!).then((_) => handler.next(err)).catchError((e, stackTrace) {
         var _err = DioError(
           requestOptions: err.response!.requestOptions,
           error: e,
@@ -102,7 +98,7 @@ class CookieManager extends Interceptor with CookieDelegate {
     if (cookies != null) {
       await setCookie(
         response.requestOptions.uri.toString(),
-        cookies.map((str) => Cookie.fromSetCookieValue(str)).toList(),
+        cookies.map(Cookie.fromSetCookieValue).toList(),
       );
     }
   }
@@ -140,7 +136,6 @@ class _CookieJarDelegateImpl with CookieDelegate {
   Future<List<Cookie>> getCookie(String url) {
     return cookieJar.loadForRequest(Uri.parse(url));
   }
-
 }
 
 class _WebviewCookieDelegateImpl with CookieDelegate {

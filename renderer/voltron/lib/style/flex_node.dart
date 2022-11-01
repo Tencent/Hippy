@@ -21,8 +21,8 @@
 import 'flex_define.dart';
 import 'flex_node_style.dart';
 
-typedef FlexMeasureFunc = int Function(FlexNodeAPI node, double width,
-    FlexMeasureMode widthMode, double height, FlexMeasureMode heightMode);
+typedef FlexMeasureFunc = int Function(FlexNodeAPI node, double width, FlexMeasureMode widthMode,
+    double height, FlexMeasureMode heightMode);
 
 abstract class FlexNodeAPI<T> {
   FlexNodeAPI();
@@ -81,9 +81,15 @@ abstract class FlexNodeAPI<T> {
 
   set wrap(FlexWrap flexWrap);
 
+  FlexWrap get wrap;
+
   set flex(double flex);
 
+  double get flex;
+
   set display(FlexDisplay display);
+
+  FlexDisplay get display;
 
   double get flexGrow;
 
@@ -160,7 +166,7 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
 
   // ignore: always_declare_return_types, type_annotate_public_apis
   @override
-  get data => _data;
+  Object get data => _data;
 
   @override
   set data(dynamic data) => {_data = data};
@@ -339,13 +345,13 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   }
 
   @override
-  double get styleMinHeight {
-    return _flexNodeStyle.minHeight;
+  set styleMinHeight(double minHeight) {
+    _flexNodeStyle.minHeight = minHeight;
   }
 
   @override
-  set styleMinHeight(double minHeight) {
-    _flexNodeStyle.minHeight = minHeight;
+  double get styleMinHeight {
+    return _flexNodeStyle.minHeight;
   }
 
   @override
@@ -354,14 +360,22 @@ class FlexNode extends FlexNodeAPI<FlexNode> {
   }
 
   @override
+  FlexWrap get wrap => _flexNodeStyle.flexWrap;
+
+  @override
   set flex(double flex) {
     _flexNodeStyle.flex = flex;
   }
 
   @override
+  double get flex => _flexNodeStyle.flex;
+
+  @override
   set display(FlexDisplay display) {
     _flexNodeStyle.display = display;
   }
+
+  FlexDisplay get display => _flexNodeStyle.display;
 
   @override
   double get flexGrow {

@@ -22,9 +22,9 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:voltron_renderer/bridge.dart';
 import 'package:voltron_renderer/common.dart';
-import 'package:voltron_renderer/render.dart';
 import 'package:voltron_renderer/controller.dart';
 import 'package:voltron_renderer/engine.dart';
+import 'package:voltron_renderer/render.dart';
 
 @GenerateMocks([VoltronRenderBridgeManager, DimensionChecker])
 import 'render_context.mocks.dart';
@@ -103,10 +103,6 @@ List<ViewControllerGenerator> controllerGeneratorList = [
     (object) => WaterfallItemViewController(),
   ),
   ViewControllerGenerator(
-    QrController.kClassName,
-    (object) => QrController(),
-  ),
-  ViewControllerGenerator(
     RootNodeController.kClassName,
     (object) => RootNodeController(),
   ),
@@ -117,23 +113,19 @@ class MockRenderContext extends RenderContext {
   MockDimensionChecker dimensionChecker = MockDimensionChecker();
 
   MockRenderContext(VoltronRenderBridgeManager bridgeManager)
-      : super(0, controllerGeneratorList, EngineMonitor(),
-            bridgetManager: bridgeManager);
+      : super(0, controllerGeneratorList, EngineMonitor(), bridgetManager: bridgeManager);
 
   @override
-  void removeInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener) {}
+  void removeInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) {}
 
   @override
   void addEngineLifecycleEventListener(EngineLifecycleEventListener listener) {}
 
   @override
-  void removeEngineLifecycleEventListener(
-      EngineLifecycleEventListener listener) {}
+  void removeEngineLifecycleEventListener(EngineLifecycleEventListener listener) {}
 
   @override
-  void addInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener) {}
+  void addInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) {}
 
   @override
   void handleNativeException(Error error, bool haveCaught) {

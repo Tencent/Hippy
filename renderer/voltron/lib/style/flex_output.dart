@@ -20,8 +20,8 @@
 
 class FlexOutput {
   static int makeMeasureResult(double width, double height) {
-    var w = width is double ? (width > 0 ? width : 0.0) : 0.0;
-    var h = height is double ? (height > 0 ? height : 0.0) : 0.0;
+    var w = width > 0 ? width : 0.0;
+    var h = height > 0 ? height : 0.0;
     return makeInt(w.toInt(), h.toInt());
   }
 

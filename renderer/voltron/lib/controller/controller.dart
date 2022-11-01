@@ -44,8 +44,8 @@ abstract class BaseViewController<T extends RenderViewModel>
   }
 }
 
-abstract class VoltronViewController<T extends RenderViewModel,
-    R extends RenderNode> implements ControllerMethodPropConsumer<T> {
+abstract class VoltronViewController<T extends RenderViewModel, R extends RenderNode>
+    implements ControllerMethodPropConsumer<T> {
   @override
   String get name;
 
@@ -61,60 +61,43 @@ abstract class VoltronViewController<T extends RenderViewModel,
 
   Map<String, ControllerMethodProp> get _baseRegisteredMethodProp => {
         NodeProps.kDisplay: ControllerMethodProp(setDisplay, ''),
-        NodeProps.kOverflow: ControllerMethodProp(
-            setOverflow, enumValueToString(ContainOverflow.visible)),
+        NodeProps.kOverflow:
+            ControllerMethodProp(setOverflow, enumValueToString(ContainOverflow.visible)),
         NodeProps.kTransform: ControllerMethodProp(setTransform, null),
-        NodeProps.kTransformOrigin:
-            ControllerMethodProp(setTransformOrigin, null),
-        NodeProps.kPropAccessibilityLabel:
-            ControllerMethodProp(setAccessibilityLabel, ""),
+        NodeProps.kTransformOrigin: ControllerMethodProp(setTransformOrigin, null),
+        NodeProps.kPropAccessibilityLabel: ControllerMethodProp(setAccessibilityLabel, ""),
         NodeProps.kBackgroundColor:
             ControllerMethodProp(setBackgroundColor, Colors.transparent.value),
-        NodeProps.kBackgroundImage:
-            ControllerMethodProp(setBackgroundImage, null),
-        NodeProps.kBackgroundSize: ControllerMethodProp(
-            setBackgroundImageSize, enumValueToString(ImageResizeMode.auto)),
-        NodeProps.kBackgroundPositionX:
-            ControllerMethodProp(setBackgroundImagePositionX, ''),
-        NodeProps.kBackgroundPositionY:
-            ControllerMethodProp(setBackgroundImagePositionY, ''),
-        NodeProps.kBackgroundRepeat:
-            ControllerMethodProp(setBackgroundImageRepeat, ''),
+        NodeProps.kBackgroundImage: ControllerMethodProp(setBackgroundImage, null),
+        NodeProps.kBackgroundSize:
+            ControllerMethodProp(setBackgroundImageSize, enumValueToString(ImageResizeMode.auto)),
+        NodeProps.kBackgroundPositionX: ControllerMethodProp(setBackgroundImagePositionX, ''),
+        NodeProps.kBackgroundPositionY: ControllerMethodProp(setBackgroundImagePositionY, ''),
+        NodeProps.kBackgroundRepeat: ControllerMethodProp(setBackgroundImageRepeat, ''),
         NodeProps.kOpacity: ControllerMethodProp(setOpacity, 1.0),
-        NodeProps.kNextFocusDownId:
-            ControllerMethodProp(setNextFocusDownId, 0.0),
-        NodeProps.kNextFocusUpId: ControllerMethodProp(setNextFocusUpId, 0.0),
-        NodeProps.kNextFocusLeftId:
-            ControllerMethodProp(setNextFocusLeftId, 0.0),
-        NodeProps.kNextFocusRightId:
-            ControllerMethodProp(setNextFocusRightId, 0.0),
+        NodeProps.kNextFocusDownId: ControllerMethodProp(setNextFocusDownId, 0),
+        NodeProps.kNextFocusUpId: ControllerMethodProp(setNextFocusUpId, 0),
+        NodeProps.kNextFocusLeftId: ControllerMethodProp(setNextFocusLeftId, 0),
+        NodeProps.kNextFocusRightId: ControllerMethodProp(setNextFocusRightId, 0),
         NodeProps.kBorderRadius: ControllerMethodProp(setBorderRadius, 0.0),
-        NodeProps.kBorderTopLeftRadius:
-            ControllerMethodProp(setTopLeftBorderRadius, 0.0),
-        NodeProps.kBorderTopRightRadius:
-            ControllerMethodProp(setTopRightBorderRadius, 0.0),
-        NodeProps.kBorderBottomRightRadius:
-            ControllerMethodProp(setBottomRightBorderRadius, 0.0),
-        NodeProps.kBorderBottomLeftRadius:
-            ControllerMethodProp(setBottomLeftBorderRadius, 0.0),
+        NodeProps.kBorderTopLeftRadius: ControllerMethodProp(setTopLeftBorderRadius, 0.0),
+        NodeProps.kBorderTopRightRadius: ControllerMethodProp(setTopRightBorderRadius, 0.0),
+        NodeProps.kBorderBottomRightRadius: ControllerMethodProp(setBottomRightBorderRadius, 0.0),
+        NodeProps.kBorderBottomLeftRadius: ControllerMethodProp(setBottomLeftBorderRadius, 0.0),
         NodeProps.kBorderWidth: ControllerMethodProp(setBorderWidth, 0.0),
-        NodeProps.kBorderLeftWidth:
-            ControllerMethodProp(setLeftBorderWidth, 0.0),
+        NodeProps.kBorderLeftWidth: ControllerMethodProp(setLeftBorderWidth, 0.0),
         NodeProps.kBorderTopWidth: ControllerMethodProp(setTopBorderWidth, 0.0),
-        NodeProps.kBorderRightWidth:
-            ControllerMethodProp(setRightBorderWidth, 0.0),
-        NodeProps.kBorderBottomWidth:
-            ControllerMethodProp(setBottomBorderWidth, 0.0),
-        NodeProps.kBorderColor:
-            ControllerMethodProp(setBorderColor, Colors.transparent.value),
+        NodeProps.kBorderRightWidth: ControllerMethodProp(setRightBorderWidth, 0.0),
+        NodeProps.kBorderBottomWidth: ControllerMethodProp(setBottomBorderWidth, 0.0),
+        NodeProps.kBorderColor: ControllerMethodProp(setBorderColor, Colors.transparent.value),
         NodeProps.kBorderLeftColor:
             ControllerMethodProp(setBorderLeftColor, Colors.transparent.value),
         NodeProps.kBorderTopColor:
             ControllerMethodProp(setBorderTopColor, Colors.transparent.value),
         NodeProps.kBorderRightColor:
             ControllerMethodProp(setBorderRightColor, Colors.transparent.value),
-        NodeProps.kBorderBottomColor: ControllerMethodProp(
-            setBorderBottomColor, Colors.transparent.value),
+        NodeProps.kBorderBottomColor:
+            ControllerMethodProp(setBorderBottomColor, Colors.transparent.value),
         NodeProps.kBorderStyle: ControllerMethodProp(setBorderStyle, ''),
         NodeProps.kBoxShadow: ControllerMethodProp(setBoxShadow, null),
         NodeProps.kFocusable: ControllerMethodProp(setFocusable, false),
@@ -127,8 +110,7 @@ abstract class VoltronViewController<T extends RenderViewModel,
         NodeProps.shadowOpacity: ControllerMethodProp(setShadowOpacity, 0.0),
         NodeProps.shadowRadius: ControllerMethodProp(setShadowRadius, 0.0),
         NodeProps.shadowSpread: ControllerMethodProp(setShadowSpread, 0.0),
-        NodeProps.shadowColor:
-            ControllerMethodProp(setShadowColor, Colors.transparent.value),
+        NodeProps.shadowColor: ControllerMethodProp(setShadowColor, Colors.transparent.value),
       };
 
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp;
@@ -207,9 +189,11 @@ abstract class VoltronViewController<T extends RenderViewModel,
   }
 
   @ControllerProps(NodeProps.kBackgroundColor)
-  void setBackgroundColor(T viewModel, int? backgroundColor) {
-    final color = backgroundColor == null ? null : Color(backgroundColor);
-    viewModel.backgroundColor = color;
+  void setBackgroundColor(T viewModel, Object? backgroundColor) {
+    if (backgroundColor is int) {
+      final color = Color(backgroundColor);
+      viewModel.backgroundColor = color;
+    }
   }
 
   @ControllerProps(NodeProps.kOverflow)
@@ -218,10 +202,9 @@ abstract class VoltronViewController<T extends RenderViewModel,
   }
 
   @ControllerProps(NodeProps.kBackgroundImage)
-  void setBackgroundImage(T viewModel, Object data) {
+  void setBackgroundImage(T viewModel, Object? data) {
     if (data is String) {
-      viewModel.backgroundImage =
-          viewModel.context.convertRelativePath(viewModel.rootId, data);
+      viewModel.backgroundImage = viewModel.context.convertRelativePath(viewModel.rootId, data);
     } else {
       viewModel.backgroundImage = data;
     }
@@ -442,10 +425,22 @@ abstract class VoltronViewController<T extends RenderViewModel,
     // empty
   }
 
-  R createRenderNode(int id, VoltronMap? props, String name, RenderTree tree,
-      ControllerManager controllerManager, bool lazy);
+  R createRenderNode(
+    int id,
+    VoltronMap? props,
+    String name,
+    RenderTree tree,
+    ControllerManager controllerManager,
+    bool lazy,
+  );
 
-  VirtualNode? createVirtualNode(id, pid, index, className, props) {
+  VirtualNode? createVirtualNode(
+    int id,
+    int pid,
+    int index,
+    String className,
+    VoltronMap props,
+  ) {
     return null;
   }
 
@@ -481,13 +476,12 @@ abstract class VoltronViewController<T extends RenderViewModel,
   }
 
   void measureInWindow(
-    T viewModel,
+    RenderViewModel viewModel,
     VoltronArray array,
     Promise? promise,
   ) {
     if (promise == null) return;
-    var renderObject =
-        viewModel.currentContext?.findRenderObject() as RenderBox?;
+    var renderObject = viewModel.currentContext?.findRenderObject() as RenderBox?;
     if (renderObject == null) {
       promise.reject("this view is null");
     } else {

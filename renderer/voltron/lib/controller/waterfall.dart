@@ -86,18 +86,20 @@ class WaterfallViewController extends BaseViewController<WaterfallViewModel> {
   }
 
   @ControllerProps(contentInset)
-  void setContentInset(WaterfallViewModel renderViewModel, VoltronMap contentInset) {
-    var top = contentInset.get<double>('top');
-    var right = contentInset.get<double>('right');
-    var bottom = contentInset.get<double>('bottom');
-    var left = contentInset.get<double>('left');
-    if (top != null || right != null || bottom != null || left != null) {
-      renderViewModel.contentInset = EdgeInsets.only(
-        top: top ?? 0.0,
-        right: right ?? 0.0,
-        bottom: bottom ?? 0.0,
-        left: left ?? 0.0,
-      );
+  void setContentInset(WaterfallViewModel renderViewModel, VoltronMap? contentInset) {
+    if (contentInset != null) {
+      var top = contentInset.get<double>('top');
+      var right = contentInset.get<double>('right');
+      var bottom = contentInset.get<double>('bottom');
+      var left = contentInset.get<double>('left');
+      if (top != null || right != null || bottom != null || left != null) {
+        renderViewModel.contentInset = EdgeInsets.only(
+          top: top ?? 0.0,
+          right: right ?? 0.0,
+          bottom: bottom ?? 0.0,
+          left: left ?? 0.0,
+        );
+      }
     }
   }
 

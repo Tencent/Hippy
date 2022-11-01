@@ -28,7 +28,6 @@ export 'widget/list_item.dart';
 export 'widget/modal.dart';
 export 'widget/pull_footer.dart';
 export 'widget/pull_header.dart';
-export 'widget/qr.dart';
 export 'widget/refresh.dart';
 export 'widget/refresh_item.dart';
 export 'widget/root.dart';

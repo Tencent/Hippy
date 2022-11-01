@@ -184,9 +184,9 @@ class DefaultHttpAdapter extends VoltronHttpAdapter {
         method: request.method,
         connectTimeout: request.connectTimeout,
         receiveTimeout: request.receiveTimeout,
-        sendTimeout: request.getSendTimeout(),
+        sendTimeout: request.sendTimeout,
         headers: headers,
-        followRedirects: request.getFollowRedirects(),
+        followRedirects: request.followRedirects,
       ),
     );
     if (proxy != null && proxy['host'] != null && proxy['port'] != null) {
@@ -303,9 +303,9 @@ class VoltronHttpRequest {
   static const int kDefaultTimeoutMs = 3000;
   int connectTimeout = kDefaultTimeoutMs;
   int receiveTimeout = kDefaultTimeoutMs;
-  int _sendTimeout = kDefaultTimeoutMs;
+  int sendTimeout = kDefaultTimeoutMs;
   bool useCaches = true;
-  bool _followRedirects = true;
+  bool followRedirects = true;
   final String method;
 
   final String url;
@@ -317,7 +317,7 @@ class VoltronHttpRequest {
   VoltronHttpRequest({
     required this.method,
     required this.url,
-    required this.body,
+    this.body = '',
     connectTimeout = kDefaultTimeoutMs,
     receiveTimeout = kDefaultTimeoutMs,
     useCaches = true,
@@ -334,22 +334,6 @@ class VoltronHttpRequest {
 
   Map<String, Object> getHeaders() {
     return headerMap;
-  }
-
-  set sendTimeout(int time) {
-    _sendTimeout = time;
-  }
-
-  int getSendTimeout() {
-    return _sendTimeout;
-  }
-
-  bool getFollowRedirects() {
-    return _followRedirects;
-  }
-
-  set followRedirects(bool followRedirects) {
-    _followRedirects = followRedirects;
   }
 
   void _initUserAgent() {

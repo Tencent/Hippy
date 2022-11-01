@@ -120,7 +120,15 @@ class _ModalContainerModel {
   });
 
   @override
-  int get hashCode => super.hashCode;
+  int get hashCode =>
+      super.hashCode |
+      canShowDialog.hashCode |
+      aniType.hashCode |
+      transparent.hashCode |
+      statusBarTextDarkColor.hashCode |
+      immersionStatusBar.hashCode |
+      animationDuration.hashCode |
+      barrierColor.hashCode;
 
   @override
   bool operator ==(Object other) =>

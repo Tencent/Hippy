@@ -21,13 +21,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import '../controller.dart';
-import '../viewmodel.dart';
-import '../util.dart';
-import '../widget.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 
 class RefreshWrapperWidget extends FRStatefulWidget {
   final RefreshWrapperRenderViewModel _viewModel;

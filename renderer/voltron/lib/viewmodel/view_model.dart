@@ -19,7 +19,6 @@
 //
 
 import 'package:flutter/material.dart';
-
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:gradient_like_css/gradient_like_css.dart' as gradient_like_css;
 
@@ -35,7 +34,7 @@ import '../widget.dart';
 int _kRenderModelInstanceId = 1;
 
 class RenderViewModel extends ChangeNotifier {
-  ContextWrapper? _wrapper;
+  ContextWrapper? wrapper;
 
   String display = '';
 
@@ -53,11 +52,7 @@ class RenderViewModel extends ChangeNotifier {
 
   RenderViewModel? parent;
 
-  set wrapper(ContextWrapper? wrapper) {
-    _wrapper = wrapper;
-  }
-
-  BuildContext? get currentContext => _wrapper?.call();
+  BuildContext? get currentContext => wrapper?.call();
 
   BoundingClientRect? get boundingClientRect {
     final renderBox = currentContext?.findRenderObject() as RenderBox?;
@@ -143,7 +138,7 @@ class RenderViewModel extends ChangeNotifier {
 
   String get name => _className;
 
-  ContextWrapper? get contextWrapper => _wrapper;
+  ContextWrapper? get contextWrapper => wrapper;
 
   Map<String, Object> get extraInfo => _extraInfo;
 
@@ -155,8 +150,7 @@ class RenderViewModel extends ChangeNotifier {
 
   double? get height => _height;
 
-  bool get noPosition =>
-      _x == null || _y == null || _x == double.nan || _y == double.nan;
+  bool get noPosition => _x == null || _y == null || _x == double.nan || _y == double.nan;
 
   bool get noSize =>
       _width == null ||
@@ -249,7 +243,7 @@ class RenderViewModel extends ChangeNotifier {
     focusable = viewModel.focusable;
     zIndex = viewModel.zIndex;
     _extraInfo = viewModel.extraInfo;
-    _wrapper = viewModel.contextWrapper;
+    wrapper = viewModel.contextWrapper;
     transform = viewModel.transform?.clone();
     transformOrigin = viewModel.transformOrigin.copy();
     backgroundColor = viewModel.backgroundColor;
@@ -267,14 +261,10 @@ class RenderViewModel extends ChangeNotifier {
       var layoutW = other.width;
       var h = height;
       var layoutH = other.height;
-      var xEqual = x == layoutX ||
-          (x != null && x.isNaN && layoutX != null && layoutX.isNaN);
-      var yEqual = y == layoutY ||
-          (y != null && y.isNaN && layoutY != null && layoutY.isNaN);
-      var wEqual = w == layoutW ||
-          (w != null && w.isNaN && layoutW != null && layoutW.isNaN);
-      var hEqual = h == layoutH ||
-          (h != null && h.isNaN && layoutH != null && layoutH.isNaN);
+      var xEqual = x == layoutX || (x != null && x.isNaN && layoutX != null && layoutX.isNaN);
+      var yEqual = y == layoutY || (y != null && y.isNaN && layoutY != null && layoutY.isNaN);
+      var wEqual = w == layoutW || (w != null && w.isNaN && layoutW != null && layoutW.isNaN);
+      var hEqual = h == layoutH || (h != null && h.isNaN && layoutH != null && layoutH.isNaN);
       sizeEqual = xEqual && yEqual && wEqual && hEqual;
     }
 
@@ -781,13 +771,7 @@ class RenderViewModel extends ChangeNotifier {
     var bgImg = backgroundImage;
     if (bgImg is! String || bgImg == '') return null;
     var imgFit = resizeModeToBoxFit(backgroundImgSize);
-    const alignMap = {
-      'left': -1.0,
-      'center': 0.0,
-      'right': 1.0,
-      'top': -1.0,
-      'bottom': 1.0
-    };
+    const alignMap = {'left': -1.0, 'center': 0.0, 'right': 1.0, 'top': -1.0, 'bottom': 1.0};
     var alignX = alignMap[backgroundPositionX] ?? -1.0;
     var alignY = alignMap[backgroundPositionY] ?? -1.0;
     var alignment = Alignment(alignX, alignY);
@@ -935,9 +919,7 @@ class TransformOrigin {
 
   @override
   bool operator ==(Object other) {
-    return other is TransformOrigin &&
-        offset == other.offset &&
-        alignment == other.alignment;
+    return other is TransformOrigin && offset == other.offset && alignment == other.alignment;
   }
 
   @override

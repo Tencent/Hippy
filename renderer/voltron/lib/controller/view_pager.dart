@@ -135,7 +135,11 @@ class ViewPagerItemController extends BaseViewController<ViewPagerItemRenderView
   @override
   ViewPagerItemRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
     return ViewPagerItemRenderViewModel(
-        id: node.id, instanceId: node.rootId, className: node.name, context: context);
+      id: node.id,
+      instanceId: node.rootId,
+      className: node.name,
+      context: context,
+    );
   }
 
   @override

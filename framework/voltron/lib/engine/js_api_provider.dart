@@ -127,10 +127,6 @@ class CoreApi implements APIProvider {
           (object) => WaterfallItemViewController(),
         ),
         ViewControllerGenerator(
-          QrController.kClassName,
-          (object) => QrController(),
-        ),
-        ViewControllerGenerator(
           RootNodeController.kClassName,
           (object) => RootNodeController(),
         ),
@@ -140,11 +136,11 @@ class CoreApi implements APIProvider {
   List<JavaScriptModuleGenerator> get javaScriptModuleGeneratorList => [
         JavaScriptModuleGenerator(
           EventDispatcher.kModuleName,
-          (context) => EventDispatcher(context),
+          EventDispatcher.new,
         ),
         JavaScriptModuleGenerator(
           Dimensions.kModuleName,
-          (context) => Dimensions(context),
+          Dimensions.new,
         ),
       ];
 
@@ -152,51 +148,51 @@ class CoreApi implements APIProvider {
   List<ModuleGenerator> get nativeModuleGeneratorList => [
         ModuleGenerator(
           TimeModule.kTimerModuleName,
-          (context) => TimeModule(context),
+          TimeModule.new,
         ),
         ModuleGenerator(
           ConsoleModule.kConsoleModuleName,
-          (context) => ConsoleModule(context),
+          ConsoleModule.new,
         ),
         ModuleGenerator(
           ExceptionModule.kExceptionModuleName,
-          (context) => ExceptionModule(context),
+          ExceptionModule.new,
         ),
         ModuleGenerator(
           DeviceEventModule.kDeviceModuleName,
-          (context) => DeviceEventModule(context),
+          DeviceEventModule.new,
         ),
         ModuleGenerator(
           NetworkModule.kNetworkModuleName,
-          (context) => NetworkModule(context),
+          NetworkModule.new,
         ),
         ModuleGenerator(
           NetInfoModule.kNetInfoModuleName,
-          (context) => NetInfoModule(context),
+          NetInfoModule.new,
         ),
         ModuleGenerator(
           StorageModule.kStorageModuleName,
-          (context) => StorageModule(context),
+          StorageModule.new,
         ),
         ModuleGenerator(
           UtilsModule.kUtilsModuleName,
-          (context) => UtilsModule(context),
+          UtilsModule.new,
         ),
         ModuleGenerator(
           DialogModule.kDialogModuleName,
-          (context) => DialogModule(context),
+          DialogModule.new,
         ),
         ModuleGenerator(
           WebsocketModule.kWebSocketModuleName,
-          (context) => WebsocketModule(context),
+          WebsocketModule.new,
         ),
         ModuleGenerator(
           ClipboardModule.kClipboardModuleName,
-          (context) => ClipboardModule(context),
+          ClipboardModule.new,
         ),
         ModuleGenerator(
           ImageLoaderModule.kImageLoaderModuleName,
-          (context) => ImageLoaderModule(context),
+          ImageLoaderModule.new,
         )
       ];
 }

@@ -21,8 +21,6 @@
 // @dart=2.9
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-
 import 'package:voltron_renderer/render.dart';
 import 'package:voltron_renderer/widget.dart';
 import './util/render_context.dart';

@@ -28,7 +28,6 @@ export 'viewmodel/list_item.dart';
 export 'viewmodel/modal.dart';
 export 'viewmodel/pull_footer.dart';
 export 'viewmodel/pull_header.dart';
-export 'viewmodel/qr.dart';
 export 'viewmodel/refresh.dart';
 export 'viewmodel/refresh_item.dart';
 export 'viewmodel/scroller.dart';

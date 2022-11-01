@@ -54,17 +54,17 @@ class WebViewViewController extends BaseViewController<WebViewModel> {
     extraMap[NodeProps.kSource] = ControllerMethodProp(setSource, null);
     extraMap[kUserAgent] = ControllerMethodProp(setUserAgent, '');
     extraMap[kMethod] = ControllerMethodProp(setMethod, '');
-    extraMap[kOnLoad] = ControllerMethodProp(setOnLoad, false);
-    extraMap[kOnLoadStart] = ControllerMethodProp(setOnLoadStart, false);
-    extraMap[kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, false);
-    extraMap[kOnError] = ControllerMethodProp(setOnError, false);
+    extraMap[kOnLoad] = ControllerMethodProp(setOnLoad, true);
+    extraMap[kOnLoadStart] = ControllerMethodProp(setOnLoadStart, true);
+    extraMap[kOnLoadEnd] = ControllerMethodProp(setOnLoadEnd, true);
+    extraMap[kOnError] = ControllerMethodProp(setOnError, true);
 
     return extraMap;
   }
 
   @ControllerProps(NodeProps.kSource)
-  void setSource(WebViewModel renderViewModel, VoltronMap source) {
-    String? src = source.get<String>('uri');
+  void setSource(WebViewModel renderViewModel, VoltronMap? source) {
+    String? src = source?.get<String>('uri');
     if (src != null && src != renderViewModel.src) {
       renderViewModel.src = src;
     }

@@ -20,8 +20,6 @@
 
 import 'package:voltron_renderer/common.dart';
 
-import 'voltron_array.dart';
-
 class VoltronMap {
   final Map<String, Object?> _data = {};
 

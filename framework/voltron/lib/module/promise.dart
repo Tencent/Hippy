@@ -30,8 +30,7 @@ class _JSPromiseImpl extends JSPromise {
   @override
   bool get hasCall => _hasCall;
 
-  _JSPromiseImpl(
-      this._context, this._moduleName, this._moduleFunc, String callId)
+  _JSPromiseImpl(this._context, this._moduleName, this._moduleFunc, String callId)
       : super(callId);
 
   @override
@@ -50,15 +49,16 @@ abstract class JSPromise extends Promise {
   static const int kPromiseCodeSuccess = 0;
   static const int kPromiseCodeNormanError = 1;
   static const int kPromiseCodeOtherError = 2;
+
   bool get hasCall => _hasCall;
   bool _hasCall = false;
 
   JSPromise(String callId) : super(callId);
 
   factory JSPromise.js(EngineContext context,
-          {required String module,
-          required String method,
-          required String callId}) =>
+      {required String module,
+        required String method,
+        required String callId}) =>
       _JSPromiseImpl(context, module, method, callId);
 
   @override

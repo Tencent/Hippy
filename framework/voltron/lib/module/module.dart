@@ -99,10 +99,12 @@ class ModuleManager implements Destroyable {
 
   void _doCallNative(VoltronNativeModule module, CallNativeParams params) {
     var id = _anrMonitor.startMonitor(params._moduleName, params._moduleFunc);
-    var promise = JSPromise.js(_context,
-        module: params._moduleName,
-        method: params._moduleFunc,
-        callId: params._callId);
+    var promise = JSPromise.js(
+      _context,
+      module: params._moduleName,
+      method: params._moduleFunc,
+      callId: params._callId,
+    );
     try {
       module.initialize();
       var function = module.funcMap[params._moduleFunc];
@@ -308,10 +310,7 @@ abstract class VoltronNativeModule implements Destroyable {
 
   Map<String, Function> get funcMap {
     if (_funcMap.isEmpty) {
-      _funcMap.addAll({
-        kModuleAddListener: addListener,
-        kModuleRemoveListener: removeListener
-      });
+      _funcMap.addAll({kModuleAddListener: addListener, kModuleRemoveListener: removeListener});
       _funcMap.addAll(extraFuncMap);
     }
     return _funcMap;

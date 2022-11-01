@@ -18,16 +18,18 @@
 // limitations under the License.
 //
 
+import 'package:voltron/adapter.dart';
+
 import '../engine.dart';
 import '../inspector.dart';
 
 class DevServerHelper {
-  final GlobalConfigs _configs;
+  final GlobalConfigs _globalConfigs;
   final String _serverHost;
   final String? _remoteServerUrl;
   late DevRemoteServerData _remoteServerData;
 
-  DevServerHelper(this._configs, this._serverHost, this._remoteServerUrl) {
+  DevServerHelper(this._globalConfigs, this._serverHost, this._remoteServerUrl) {
     var remoteServerUrl = _remoteServerUrl;
     if (remoteServerUrl != null) {
       _remoteServerData = DevRemoteServerData(remoteServerUrl);
@@ -54,7 +56,6 @@ class DevServerHelper {
     var debugComponentName = componentName;
     if (_remoteServerData.isValid()) {
       debugHash = _remoteServerData.getVersionId()!;
-
       var wsUrl = _remoteServerData.getWsUrl();
       if (wsUrl != null && wsUrl != '') {
         var split = wsUrl.contains('?') ? '&' : '?';
@@ -64,5 +65,20 @@ class DevServerHelper {
       }
     }
     return "ws://$debugHost/debugger-proxy?role=android_client&clientId=$debugClientId&hash=$debugHash&contextName=$debugComponentName";
+  }
+
+  String getLiveReloadURL() {
+    var host = _serverHost.split(":");
+    String newHost = "${host[0]}:38999";
+    return "ws://${newHost}/debugger-live-reload";
+  }
+
+  Future<VoltronHttpResponse> fetchBundleFromURL(final String url) {
+    VoltronHttpRequest request = new VoltronHttpRequest(
+      method: "GET",
+      url: url,
+    );
+    var httpAdapter = _globalConfigs.httpAdapter;
+    return httpAdapter.sendRequest(request);
   }
 }

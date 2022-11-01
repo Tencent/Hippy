@@ -38,28 +38,17 @@ class RenderOperatorRunner implements Destroyable {
   final RenderContext _renderContext;
 
   final Map<int, RenderOpTaskGenerator> _taskGeneratorMap = {
-    _RenderOpType.addNode.index: (instanceId, nodeId, params) =>
-        _AddNodeOpTask(instanceId, nodeId, params),
-    _RenderOpType.deleteNode.index: (instanceId, nodeId, params) =>
-        _DeleteNodeOpTask(instanceId, nodeId),
-    _RenderOpType.moveNode.index: (instanceId, nodeId, params) =>
-        _MoveNodeOpTask(instanceId, nodeId, params),
-    _RenderOpType.updateNode.index: (instanceId, nodeId, params) =>
-        _UpdateNodeOpTask(instanceId, nodeId, params),
-    _RenderOpType.updateLayout.index: (instanceId, nodeId, params) =>
-        _UpdateLayoutOpTask(instanceId, nodeId, params),
-    _RenderOpType.batch.index: (instanceId, nodeId, params) =>
-        _BatchOpTask(instanceId),
-    _RenderOpType.dispatchUiFunc.index: (instanceId, nodeId, params) =>
-        _CallUiFunctionOpTask(instanceId, nodeId, params),
-    _RenderOpType.addEvent.index: (instanceId, nodeId, params) =>
-        _AddEventOpTask(instanceId, nodeId, params),
-    _RenderOpType.removeEvent.index: (instanceId, nodeId, params) =>
-        _RemoveEventOpTask(instanceId, nodeId, params),
-    _RenderOpType.layoutBefore.index: (instanceId, nodeId, params) =>
-        _LayoutBeforeOpTask(instanceId),
-    _RenderOpType.layoutFinish.index: (instanceId, nodeId, params) =>
-        _LayoutFinishOpTask(instanceId),
+    _RenderOpType.addNode.index: _AddNodeOpTask.new,
+    _RenderOpType.deleteNode.index: (instanceId, nodeId, params) => _DeleteNodeOpTask(instanceId, nodeId),
+    _RenderOpType.moveNode.index: _MoveNodeOpTask.new,
+    _RenderOpType.updateNode.index: _UpdateNodeOpTask.new,
+    _RenderOpType.updateLayout.index: _UpdateLayoutOpTask.new,
+    _RenderOpType.batch.index: (instanceId, nodeId, params) => _BatchOpTask(instanceId),
+    _RenderOpType.dispatchUiFunc.index: _CallUiFunctionOpTask.new,
+    _RenderOpType.addEvent.index: _AddEventOpTask.new,
+    _RenderOpType.removeEvent.index: _RemoveEventOpTask.new,
+    _RenderOpType.layoutBefore.index: (instanceId, nodeId, params) => _LayoutBeforeOpTask(instanceId),
+    _RenderOpType.layoutFinish.index: (instanceId, nodeId, params) => _LayoutFinishOpTask(instanceId),
   };
 
   RenderOperatorRunner(this._renderContext);
@@ -150,7 +139,7 @@ class _AddNodeOpTask extends _NodeOpTask {
     });
   }
 
-  onCreateNode(int id, String className) {
+  void onCreateNode(int id, String className) {
     if (className == ModalController.kClassName) {
       var width = ScreenUtil.getInstance().screenWidth;
       var height = ScreenUtil.getInstance().screenHeight;
@@ -383,8 +372,6 @@ enum _RenderOpType {
 }
 
 class _RenderOpParamsKey {
-  static const String kParamsKey = 'params';
-
   static const String kParentNodeIdKey = "pid";
   static const String kChildIndexKey = "index";
   static const String kClassNameKey = "name";

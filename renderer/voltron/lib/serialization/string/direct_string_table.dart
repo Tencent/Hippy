@@ -40,13 +40,13 @@ class DirectStringTable extends StringTable {
     var dataList = byteData.buffer.asUint8List();
     if (encoding == StringEncoding.latin) {
       // iso-8896-1标准
-      return Latin1Codec().decode(dataList);
+      return const Latin1Codec().decode(dataList);
     } else if (encoding == StringEncoding.utf16Le) {
       // utf16-le标准
       var decoder = utf16.decoder as Utf16Decoder;
       return decoder.decodeUtf16Le(dataList);
     } else {
-      return Utf8Codec().decode(dataList);
+      return const Utf8Codec().decode(dataList);
     }
   }
 

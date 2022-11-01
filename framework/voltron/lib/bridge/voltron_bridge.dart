@@ -536,7 +536,7 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
-  onDestroy() {
+  void onDestroy() {
     if (!_isFrameWorkInit) {
       return;
     }

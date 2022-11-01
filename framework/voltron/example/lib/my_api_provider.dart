@@ -19,6 +19,7 @@
 //
 
 import 'package:voltron/voltron.dart';
+import 'package:voltron_example/view/qr_view.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 import './module/test_module.dart';
 
@@ -35,5 +36,10 @@ class MyAPIProvider implements APIProvider {
   List<JavaScriptModuleGenerator> get javaScriptModuleGeneratorList => [];
 
   @override
-  List<ViewControllerGenerator> get controllerGeneratorList => [];
+  List<ViewControllerGenerator> get controllerGeneratorList => [
+        ViewControllerGenerator(
+          QrController.kClassName,
+          (object) => QrController(),
+        )
+      ];
 }

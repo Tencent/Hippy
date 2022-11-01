@@ -134,12 +134,13 @@ class ScrollNotificationListener extends StatefulWidget {
   final bool isHorizontal;
   final RenderViewModel viewModel;
 
-  ScrollNotificationListener({
+  const ScrollNotificationListener({
     required this.scrollGestureDispatcher,
     required this.child,
     this.isHorizontal = false,
     required this.viewModel,
-  });
+    Key? key,
+  }): super(key: key);
 
   @override
   State<StatefulWidget> createState() {
