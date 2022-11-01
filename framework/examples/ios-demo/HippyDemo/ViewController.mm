@@ -115,18 +115,20 @@
     rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
     rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
     
-    //Create NativeRenderManager
-    auto renderManager = std::make_shared<NativeRenderManager>();
-    //Set frameproxy for render manager
-    renderManager->SetFrameworkProxy(bridge);
+    if (!_nativeRenderManager) {
+        //Create NativeRenderManager
+        _nativeRenderManager = std::make_shared<NativeRenderManager>();
+        //Set frameproxy for render manager
+        _nativeRenderManager->SetFrameworkProxy(bridge);
+        //set dom manager
+        _nativeRenderManager->SetDomManager(domManager);
+        
+        //set rendermanager for dommanager
+        domManager->SetRenderManager(_nativeRenderManager);
+    }
     //bind rootview and root node
-    renderManager->RegisterRootView(rootView, rootNode);
-    //set dom manager
-    renderManager->SetDomManager(domManager);
-    
-    //set rendermanager for dommanager
-    domManager->SetRenderManager(renderManager);
-    id<HPRenderContext> renderContext = renderManager->GetRenderContext();
+    _nativeRenderManager->RegisterRootView(rootView, rootNode);
+    id<HPRenderContext> renderContext = _nativeRenderManager->GetRenderContext();
     
     //setup necessary params for bridge
     [bridge setupDomManager:domManager rootNode:rootNode renderContext:renderContext];
@@ -142,7 +144,6 @@
     [self.view addSubview:rootView];
     
     _rootNode = rootNode;
-    _nativeRenderManager = renderManager;
     _bridge = bridge;
 }
 
@@ -155,9 +156,8 @@
     //2.unregister root node from render context by id.
     [_bridge.renderContext unregisterRootViewFromTag:@(_rootNode->GetId())];
     //3.set elements holding by user to nil
-    _nativeRenderManager = nil;
     _rootNode = nil;
-    _domManager = nil;
+    _bridge = nil;
 }
 
 #define StatusBarOffset 20
