@@ -14,7 +14,7 @@ defaults:
   run:
     working-directory: framework/voltron/example
 jobs:
-  flutter_build_framework_analyze:
+  voltron_framework_flutter_analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -25,7 +25,7 @@ jobs:
       - name: framework flutter analyze
         run: flutter analyze
         working-directory: framework/voltron
-  flutter_build_renderer_analyze:
+  voltron_renderer_flutter_analyze:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,7 +36,18 @@ jobs:
       - name: renderer flutter analyze
         run: flutter analyze
         working-directory: renderer/voltron
-  flutter_build_android_tests:
+  voltron_renderer_flutter_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.0.5'
+          channel: 'stable'
+      - name: renderer flutter test
+        run: flutter test
+        working-directory: renderer/voltron
+  voltron_android_flutter_build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +57,7 @@ jobs:
           channel: 'stable'
       - name: Build for Android
         run: flutter build apk
-  flutter_build_ios_tests:
+  voltron_ios_flutter_build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
