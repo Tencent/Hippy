@@ -77,7 +77,6 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     HippyModulesSetup *_moduleSetup;
     __weak NSOperation *_lastOperation;
     BOOL _wasBatchActive;
-    NSDictionary *_dimDic;
     HippyDisplayLink *_displayLink;
     HippyBridgeModuleProviderBlock _moduleProvider;
     NSString *_engineKey;
@@ -137,10 +136,9 @@ dispatch_queue_t HippyBridgeQueue() {
         _nativeSetupBlocks = [NSMutableArray arrayWithCapacity:8];
         _instanceBlocks = [NSMutableArray arrayWithCapacity:4];
         [self setUp];
-        HPExecuteOnMainQueue(^{
+        HPExecuteOnMainThread(^{
             [self bindKeys];
-            self->_dimDic = HippyExportedDimensions();
-        });
+        }, YES);
         HPLogInfo(self, @"[Hippy_OC_Log][Life_Circle],%@ Init %p", NSStringFromClass([self class]), self);
     }
     return self;
@@ -874,9 +872,7 @@ dispatch_queue_t HippyBridgeQueue() {
     [deviceInfo setValue:iosVersion forKey:@"OSVersion"];
     [deviceInfo setValue:deviceModel forKey:@"Device"];
     [deviceInfo setValue:HippySDKVersion forKey:@"SDKVersion"];
-    if (_dimDic) {
-        [deviceInfo setValue:_dimDic forKey:@"Dimensions"];
-    }
+    [deviceInfo setValue:HippyExportedDimensions() forKey:@"Dimensions"];
     NSString *countryCode = [[HPI18nUtils sharedInstance] currentCountryCode];
     NSString *lanCode = [[HPI18nUtils sharedInstance] currentAppLanguageCode];
     NSWritingDirection direction = [[HPI18nUtils sharedInstance] writingDirectionForCurrentAppLanguage];
