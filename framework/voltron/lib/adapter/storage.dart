@@ -21,7 +21,6 @@
 import 'dart:math';
 
 import 'package:sqflite/sqflite.dart';
-
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 typedef StorageCallback = void Function(
@@ -30,7 +29,17 @@ typedef StorageCallback = void Function(
   String errorMsg,
 );
 
-class StorageAdapter with Destroyable {
+abstract class VoltronStorageAdapter with Destroyable {
+  Future<List<StorageKeyValue>?> multiGet(VoltronArray keys);
+
+  Future<void> multiSet(List<StorageKeyValue> keyValues);
+
+  Future<void> multiRemove(VoltronArray keys);
+
+  Future<VoltronArray?> getAllKeys();
+}
+
+class DefaultStorageAdapter implements VoltronStorageAdapter {
   static const int kMaxSqlKeys = 999;
   late SQLiteHelper _sqLiteHelper;
 
@@ -39,7 +48,7 @@ class StorageAdapter with Destroyable {
   // @param keys
   // @param callback
   //
-  StorageAdapter() {
+  DefaultStorageAdapter() {
     _sqLiteHelper = SQLiteHelper();
   }
 
@@ -169,8 +178,8 @@ class StorageAdapter with Destroyable {
     }
     try {
       var resultList = VoltronArray();
-      dynamic result = await database.query(_sqLiteHelper.getTableName(),
-          columns: [SQLiteHelper.kColumnKey]);
+      dynamic result =
+          await database.query(_sqLiteHelper.getTableName(), columns: [SQLiteHelper.kColumnKey]);
       for (Map<String, dynamic> keyMap in result) {
         resultList.push(keyMap[SQLiteHelper.kColumnKey]);
       }
@@ -207,8 +216,7 @@ class SQLiteHelper {
   SQLiteHelper();
 
   Future<Database> open(String path) async {
-    var db =
-        await openDatabase(path, version: kDatabaseVersion, onCreate: onCreate);
+    var db = await openDatabase(path, version: kDatabaseVersion, onCreate: onCreate);
     return db;
   }
 
@@ -242,8 +250,7 @@ class SQLiteHelper {
     db = _db;
     if (db != null) {
       List<Map>? result = await db.rawQuery(
-          "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '$kTableStorage'",
-          null);
+          "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name = '$kTableStorage'", null);
       if (result.isNotEmpty) {
         return;
       }

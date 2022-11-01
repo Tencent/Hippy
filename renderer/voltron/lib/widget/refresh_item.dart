@@ -20,10 +20,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../viewmodel.dart';
-import '../util.dart';
-import '../widget.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 
 class RefreshWrapperItemWidget extends FRStatefulWidget {
   final RefreshWrapperItemRenderViewModel _viewModel;

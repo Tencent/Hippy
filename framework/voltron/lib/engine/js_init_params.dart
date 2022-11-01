@@ -80,7 +80,7 @@ class EngineInitParams {
   VoltronThirdPartyAdapter? thirdPartyAdapter;
 
   // 可选参数 接收异常
-  ExceptionHandlerAdapter? exceptionHandler;
+  DefaultExceptionHandlerAdapter? exceptionHandler;
 
   // 可选参数 设置相关
   ShredPreferenceAdapter? sharedPreferencesAdapter;
@@ -89,7 +89,7 @@ class EngineInitParams {
   VoltronHttpAdapter? httpAdapter;
 
   // 可选参数 Storage adapter 设置相关
-  StorageAdapter? storageAdapter;
+  VoltronStorageAdapter? storageAdapter;
 
   // 可选参数 Engine Monitor adapter
   EngineMonitor? engineMonitor;
@@ -105,9 +105,9 @@ class EngineInitParams {
 
   void check() {
     sharedPreferencesAdapter ??= ShredPreferenceAdapter();
-    exceptionHandler ??= ExceptionHandlerAdapter();
+    exceptionHandler ??= DefaultExceptionHandlerAdapter();
     httpAdapter ??= DefaultHttpAdapter();
-    storageAdapter ??= StorageAdapter();
+    storageAdapter ??= DefaultStorageAdapter();
     engineMonitor ??= EngineMonitor();
     fontScaleAdapter ??= FontScaleAdapter();
     deviceAdapter ??= DeviceAdapter();

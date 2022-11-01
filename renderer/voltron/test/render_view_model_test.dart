@@ -21,10 +21,7 @@
 // @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:voltron_renderer/render.dart';
-import 'package:voltron_renderer/widget.dart';
-import 'package:voltron_renderer/viewmodel/view_model.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 import './util/render_context.dart';
 import './util/render_op_util.dart';
 

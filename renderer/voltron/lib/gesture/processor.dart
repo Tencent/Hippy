@@ -28,7 +28,7 @@ class NativeGestureProcessor {
   static const int kPressIn = 1;
   static const int kPressOut = 2;
 
-  bool _noPressIn = false;
+  bool noPressIn = false;
   final GestureHandleCallback _gestureCallback;
 
   final _GestureHandler _handler = _GestureHandler();
@@ -40,16 +40,12 @@ class NativeGestureProcessor {
     required GestureHandleCallback callback,
   }) : _gestureCallback = callback;
 
-  set noPressIn(bool noPressIn) {
-    _noPressIn = noPressIn;
-  }
-
   bool onTouchEvent(PointerEvent event) {
     var handle = false;
     if (event is PointerDownEvent) {
       // down
       if (_gestureCallback.needHandle(GestureType.pressIn)) {
-        _noPressIn = false;
+        noPressIn = false;
         _lastPressInX = event.position.dx;
         _lastPressInY = event.position.dy;
         _handler.sendDelayMessage(GestureType.pressIn, () {
@@ -57,7 +53,7 @@ class NativeGestureProcessor {
         });
         handle = true;
       } else {
-        _noPressIn = true;
+        noPressIn = true;
       }
 
       if (_gestureCallback.needHandle(GestureType.touchDown)) {
@@ -99,12 +95,12 @@ class NativeGestureProcessor {
         handle = true;
       }
 
-      if (!_noPressIn) {
+      if (!noPressIn) {
         var distX = (event.position.dx - _lastPressInX).abs();
         var distY = (event.position.dy - _lastPressInY).abs();
         if (distX > kTouchSlop || distY > kTouchSlop) {
           _handler.removeMessage(GestureType.pressIn);
-          _noPressIn = true;
+          noPressIn = true;
         }
       }
     } else if (event is PointerUpEvent) {
@@ -118,14 +114,14 @@ class NativeGestureProcessor {
         handle = true;
       }
 
-      if (_noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
+      if (noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
         _gestureCallback.handle(
           GestureType.pressOut,
           event.position.dx,
           event.position.dy,
         );
         handle = true;
-      } else if (!_noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
+      } else if (!noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
         _handler.sendDelayMessage(GestureType.pressOut, () {
           _gestureCallback.handle(GestureType.pressOut, -1, -1);
         });
@@ -142,14 +138,14 @@ class NativeGestureProcessor {
         handle = true;
       }
 
-      if (_noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
+      if (noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
         _gestureCallback.handle(
           GestureType.pressOut,
           event.position.dx,
           event.position.dy,
         );
         handle = true;
-      } else if (!_noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
+      } else if (!noPressIn && _gestureCallback.needHandle(GestureType.pressOut)) {
         _handler.removeMessage(GestureType.pressIn);
         _handler.sendDelayMessage(GestureType.pressOut, () {
           _gestureCallback.handle(GestureType.pressOut, -1, -1);

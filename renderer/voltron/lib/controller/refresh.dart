@@ -19,16 +19,8 @@
 //
 
 import 'package:flutter/widgets.dart';
-
-// ignore: import_of_legacy_library_into_null_safe
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import '../common.dart';
-import '../controller.dart';
-import '../render.dart';
-import '../style.dart';
-import '../viewmodel.dart';
-import '../widget.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 
 enum RefreshState {
   init,
@@ -60,10 +52,8 @@ class RefreshWrapperController
   @override
   Map<String, ControllerMethodProp> get groupExtraMethodProp => {
         NodeProps.kBounceTime: ControllerMethodProp(bounceTime, 300),
-        NodeProps.kOnScrollEnable:
-            ControllerMethodProp(setOnScrollEventEnable, true),
-        NodeProps.kScrollEventThrottle:
-            ControllerMethodProp(setScrollEventThrottle, 400),
+        NodeProps.kOnScrollEnable: ControllerMethodProp(setOnScrollEventEnable, true),
+        NodeProps.kScrollEventThrottle: ControllerMethodProp(setScrollEventThrottle, 400),
         kPreloadItemSize: ControllerMethodProp(setPreloadItemSize, 0.0),
       };
 

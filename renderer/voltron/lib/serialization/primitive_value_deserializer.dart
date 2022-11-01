@@ -94,7 +94,7 @@ abstract class PrimitiveValueDeserializer extends SharedSerialization {
   }
 
   int readTag() {
-    var tag;
+    int tag;
     do {
       tag = reader.getByte();
     } while (tag == SerializationTag.kPadding);

@@ -98,7 +98,7 @@ class TextInputController extends BaseViewController<TextInputRenderViewModel> {
         NodeProps.kLineHeight: ControllerMethodProp(setLineHeight, 0.0),
         kMaxLengthProp: ControllerMethodProp(maxLength, -1),
         kOnSelectionChange: ControllerMethodProp(setOnSelectionChange, false),
-        NodeProps.kLetterSpacing: ControllerMethodProp(letterSpacing, -1),
+        NodeProps.kLetterSpacing: ControllerMethodProp(letterSpacing, -1.0),
         kValueProp: ControllerMethodProp(value, ""),
         kPlaceholder: ControllerMethodProp(placeHolder, ""),
         kPlaceholderTextColorVue: ControllerMethodProp(setTextHitColorVue, 0xFF888888),

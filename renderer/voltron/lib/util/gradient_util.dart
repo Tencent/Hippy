@@ -40,7 +40,7 @@ class GradientUtil {
     return radianToDegree(angrad).round();
   }
 
-  static int _calculategradientAngle (String angle, int oppositeDegree) {
+  static int _calculateGradientAngle (String angle, int oppositeDegree) {
     var gradientAngle = 180;
     if (angle == 'totopright') {
       gradientAngle = (90 - oppositeDegree);
@@ -54,7 +54,9 @@ class GradientUtil {
       try {
         var fa = double.parse(angle);
         gradientAngle = fa.round() % 360;
-      } catch(err) {}
+      } catch(err) {
+        //
+      }
     }
     return gradientAngle;
   }
@@ -85,7 +87,7 @@ class GradientUtil {
     return [begin, end];
   }
 
-  static List<Alignment> _caculateBeginAndEnd(double w, double h, int gradientAngle, int oppositeDegree) {
+  static List<Alignment> _calculateBeginAndEnd(double w, double h, int gradientAngle, int oppositeDegree) {
     Alignment begin;
     Alignment end;
     var tempDegree = gradientAngle%90;
@@ -121,11 +123,11 @@ class GradientUtil {
   static LinearGradient? generateHippyLinearGradient (double width, double height, String angle, VoltronArray colorStopList) {
     if (colorStopList.size() < 2) return null;
     var oppositeDegree = _getOppositeAngle(width, height);
-    var gradientAngle = _calculategradientAngle(angle, oppositeDegree);
+    var gradientAngle = _calculateGradientAngle(angle, oppositeDegree);
     var initBeginAndEnd = _checkSpecialAngle(gradientAngle);
     Alignment begin;
     Alignment end;
-    initBeginAndEnd ??= _caculateBeginAndEnd(width, height, gradientAngle, oppositeDegree);
+    initBeginAndEnd ??= _calculateBeginAndEnd(width, height, gradientAngle, oppositeDegree);
     begin = initBeginAndEnd[0];
     end = initBeginAndEnd[1];
 

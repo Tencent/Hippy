@@ -25,7 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:voltron/voltron.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
-import '../my_api_provider.dart';
+import 'my_api_provider.dart';
 
 enum PageStatus {
   init,
@@ -84,7 +84,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     _initVoltronData();
   }
 
-  _initVoltronData() async {
+  void _initVoltronData() async {
     IosDeviceInfo? deviceData;
     if (Platform.isIOS) {
       try {

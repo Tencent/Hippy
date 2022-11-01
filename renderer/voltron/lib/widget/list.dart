@@ -21,12 +21,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
-import '../common.dart';
-import '../controller.dart';
-import '../viewmodel.dart';
-import '../util.dart';
-import '../widget.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 
 class ListViewWidget extends FRStatefulWidget {
   final ListViewModel _viewModel;

@@ -71,16 +71,14 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
   }
 
-  void deleteChild(
-      RenderViewModel? parentViewModel, RenderViewModel? childViewModel,
+  void deleteChild(RenderViewModel? parentViewModel, RenderViewModel? childViewModel,
       {int childIndex = -1}) {
     if (parentViewModel is GroupViewModel && childViewModel != null) {
       deleteChildRecursive(parentViewModel, childViewModel, childIndex);
     }
   }
 
-  void deleteChildRecursive(
-      GroupViewModel? viewParent, RenderViewModel? child, int childIndex) {
+  void deleteChildRecursive(GroupViewModel? viewParent, RenderViewModel? child, int childIndex) {
     if (viewParent == null || child == null) {
       return;
     }
@@ -104,10 +102,21 @@ class ControllerManager implements InstanceLifecycleEventListener {
   }
 
   VirtualNode? createVirtualNode(
-      int id, int pid, int index, String className, VoltronMap props) {
+    int id,
+    int pid,
+    int index,
+    String className,
+    VoltronMap props,
+  ) {
     var controller = findController(className);
     if (controller != null) {
-      return controller.createVirtualNode(id, pid, index, className, props);
+      return controller.createVirtualNode(
+        id,
+        pid,
+        index,
+        className,
+        props,
+      );
     }
     return null;
   }
@@ -138,8 +147,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
     return _controllerRegistry.getRenderTree(instanceId);
   }
 
-  VoltronViewController? findController(String name,
-      {bool canFindRootNode = false}) {
+  VoltronViewController? findController(String name, {bool canFindRootNode = false}) {
     if (name == NodeProps.kRootNode && !canFindRootNode) {
       return null;
     }
@@ -222,8 +230,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
     }
   }
 
-  RenderNode? createRenderNode(
-      int id, VoltronMap? props, String name, RenderTree tree, bool lazy) {
+  RenderNode? createRenderNode(int id, VoltronMap? props, String name, RenderTree tree, bool lazy) {
     final controller = findController(name);
     if (controller != null) {
       return controller.createRenderNode(id, props, name, tree, this, lazy);
@@ -290,8 +297,7 @@ class ControllerManager implements InstanceLifecycleEventListener {
 
       var node = _controllerRegistry.getRenderNode(instanceId, instanceId);
       if (node == null) {
-        node =
-            RootRenderNode(instanceId, NodeProps.kRootNode, tree, this, null);
+        node = RootRenderNode(instanceId, NodeProps.kRootNode, tree, this, null);
         tree.init(node);
       }
 

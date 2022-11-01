@@ -100,11 +100,6 @@ class RefreshWrapperRenderViewModel extends ScrollableModel {
     }
     super.addViewModel(child, index);
   }
-
-  @override
-  void doDispose() {
-    super.doDispose();
-  }
 }
 
 class RefreshWrapperRenderContentViewModel {

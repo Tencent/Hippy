@@ -22,8 +22,6 @@ import 'dart:typed_data';
 
 import 'package:voltron_renderer/common.dart';
 
-import 'voltron_map.dart';
-
 class VoltronArray {
   final List<Object?> _data = [];
 

@@ -97,9 +97,9 @@ class Deserializer extends PrimitiveValueDeserializer {
 
   @override
   VoltronMap readJSError() {
-    var message;
-    var stack;
-    var errorType;
+    String message = '';
+    String stack = '';
+    String errorType = '';
 
     var done = false;
     while (!done) {

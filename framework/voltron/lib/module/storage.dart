@@ -26,7 +26,7 @@ import 'module.dart';
 import 'promise.dart';
 
 class StorageModule extends VoltronNativeModule {
-  StorageAdapter? _storageAdapter;
+  VoltronStorageAdapter? _storageAdapter;
   static const String kStorageModuleName = "StorageModule";
   static const String kFuncMultiGet = "multiGet";
   static const String kFuncMultiSet = "multiSet";
@@ -138,10 +138,7 @@ class StorageModule extends VoltronNativeModule {
       promise.reject("Database Null");
       return true;
     }
-    storageAdapter
-        .getAllKeys()
-        .then(promise.resolve)
-        .catchError(promise.reject);
+    storageAdapter.getAllKeys().then(promise.resolve).catchError(promise.reject);
     return true;
   }
 

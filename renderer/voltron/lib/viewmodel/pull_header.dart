@@ -18,10 +18,7 @@
 // limitations under the License.
 //
 
-import 'package:voltron_renderer/render.dart';
-
-import 'group.dart';
-import '../common.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 
 class ListPullHeaderViewModel extends GroupViewModel {
   ListPullHeaderViewModel(

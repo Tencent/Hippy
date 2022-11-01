@@ -27,17 +27,17 @@ class GlobalConfigs implements Destroyable {
   // Http request adapter
   late final VoltronHttpAdapter _httpAdapter;
 
+  // Crash Handler
+  late final VoltronExceptionHandlerAdapter _exceptionHandlerAdapter;
+
+  // Storage adapter
+  late final VoltronStorageAdapter _storageAdapter;
+
   // device adapter
   DeviceAdapter? _deviceAdapter;
 
   // Engine Monitor adapter
   EngineMonitor? _engineMonitor;
-
-  // Crash Handler
-  ExceptionHandlerAdapter? _exceptionHandlerAdapter;
-
-  // Storage adapter
-  StorageAdapter? _storageAdapter;
 
   // font scale adapter
   FontScaleAdapter? _fontScaleAdapter;
@@ -45,19 +45,17 @@ class GlobalConfigs implements Destroyable {
   // SharedPreferences
   ShredPreferenceAdapter? _sharedPreferencesAdapter;
 
-  ShredPreferenceAdapter? get sharedPreferencesAdapter =>
-      _sharedPreferencesAdapter;
+  ShredPreferenceAdapter? get sharedPreferencesAdapter => _sharedPreferencesAdapter;
 
   DeviceAdapter? get deviceAdapter => _deviceAdapter;
 
   EngineMonitor? get engineMonitor => _engineMonitor;
 
-  ExceptionHandlerAdapter? get exceptionHandlerAdapter =>
-      _exceptionHandlerAdapter;
+  VoltronExceptionHandlerAdapter? get exceptionHandlerAdapter => _exceptionHandlerAdapter;
 
   VoltronHttpAdapter get httpAdapter => _httpAdapter;
 
-  StorageAdapter? get storageAdapter => _storageAdapter;
+  VoltronStorageAdapter? get storageAdapter => _storageAdapter;
 
   FontScaleAdapter? get fontScaleAdapter => _fontScaleAdapter;
 
@@ -65,9 +63,9 @@ class GlobalConfigs implements Destroyable {
 
   GlobalConfigs(EngineInitParams params) {
     _sharedPreferencesAdapter = params.sharedPreferencesAdapter;
-    _exceptionHandlerAdapter = params.exceptionHandler;
+    _exceptionHandlerAdapter = params.exceptionHandler ?? DefaultExceptionHandlerAdapter();
     _httpAdapter = params.httpAdapter ?? DefaultHttpAdapter();
-    _storageAdapter = params.storageAdapter;
+    _storageAdapter = params.storageAdapter ?? DefaultStorageAdapter();
     _engineMonitor = params.engineMonitor;
     _fontScaleAdapter = params.fontScaleAdapter;
     _deviceAdapter = params.deviceAdapter;
@@ -77,7 +75,7 @@ class GlobalConfigs implements Destroyable {
   void destroy() {
     try {
       _httpAdapter.destroy();
-      _storageAdapter?.destroy();
+      _storageAdapter.destroy();
     } catch (e) {
       LogUtils.e("GlobalConfigs", "destroy error: $e");
     }

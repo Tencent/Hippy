@@ -22,7 +22,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'view/base_voltron_page.dart';
+import 'base_voltron_page.dart';
 
 void main() {
   _MyWidgetInspector.init();

@@ -21,9 +21,9 @@
 import '../render.dart';
 import '../viewmodel.dart';
 
-class ControllerMethodProp<T> {
+class ControllerMethodProp {
   final Function method;
-  final T defaultValue;
+  final Object? defaultValue;
   const ControllerMethodProp(this.method, this.defaultValue);
 }
 

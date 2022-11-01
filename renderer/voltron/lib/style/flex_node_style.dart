@@ -23,28 +23,28 @@ import 'flex_define.dart';
 import 'flex_value.dart';
 
 class FlexNodeStyle {
-  FlexDirection _direction = FlexDirection.inherit;
-  FlexCSSDirection _flexCSSDirection = FlexCSSDirection.row;
+  FlexDirection direction = FlexDirection.inherit;
+  FlexCSSDirection flexCSSDirection = FlexCSSDirection.row;
   FlexJustify _justifyContent = FlexJustify.flexStart;
-  FlexAlign _alignItems = FlexAlign.auto;
-  FlexAlign _alignSelf = FlexAlign.auto;
-  FlexAlign _alignContent = FlexAlign.auto;
-  FlexPositionType _positionType = FlexPositionType.relative;
-  FlexWrap _flexWrap = FlexWrap.noWrap;
-  FlexOverflow _overflow = FlexOverflow.visible;
-  FlexDisplay _display = FlexDisplay.displayNode;
+  FlexAlign alignItems = FlexAlign.auto;
+  FlexAlign alignSelf = FlexAlign.auto;
+  FlexAlign alignContent = FlexAlign.auto;
+  FlexPositionType positionType = FlexPositionType.relative;
+  FlexWrap flexWrap = FlexWrap.noWrap;
+  FlexOverflow overflow = FlexOverflow.visible;
+  FlexDisplay display = FlexDisplay.displayNode;
 
-  double _flex = 0;
-  double _flexGrow = 0;
-  double _flexShrink = 0;
-  double _flexBasis = 0;
-  double _width = 0;
-  double _height = 0;
-  double _minWidth = 0;
-  double _minHeight = 0;
-  double _maxWidth = 0;
-  double _maxHeight = 0;
-  double _aspectRadio = 0;
+  double flex = 0;
+  double flexGrow = 0;
+  double flexShrink = 0;
+  double flexBasis = 0;
+  double width = 0;
+  double height = 0;
+  double minWidth = 0;
+  double minHeight = 0;
+  double maxWidth = 0;
+  double maxHeight = 0;
+  double aspectRadio = 0;
 
   final _margin = List.filled(FlexStyleEdge.all.index + 1, 0.0);
   final _padding = List.filled(FlexStyleEdge.all.index + 1, 0.0);
@@ -55,8 +55,7 @@ class FlexNodeStyle {
   String toString() {
     var buffer = StringBuffer();
     buffer.write("style: {");
-    buffer.write(
-        "flex-direction: ${flexCSSDirection.toString().toLowerCase()}, ");
+    buffer.write("flex-direction: ${flexCSSDirection.toString().toLowerCase()}, ");
 
     if (flexGrow != 0) buffer.write("flex-grow: $flexGrow, ");
 
@@ -65,23 +64,19 @@ class FlexNodeStyle {
     if (flexShrink != 0) buffer.write("flex-shrink: $flexShrink, ");
 
     if (justifyContent != FlexJustify.flexStart) {
-      buffer.write(
-          "justify_content: ${enumValueToString(justifyContent).toLowerCase()}, ");
+      buffer.write("justify_content: ${enumValueToString(justifyContent).toLowerCase()}, ");
     }
 
     if (alignContent != FlexAlign.flexStart) {
-      buffer.write(
-          "align_content: ${enumValueToString(alignContent).toLowerCase()}, ");
+      buffer.write("align_content: ${enumValueToString(alignContent).toLowerCase()}, ");
     }
 
     if (alignItems != FlexAlign.stretch) {
-      buffer.write(
-          "align_items: ${enumValueToString(alignItems).toLowerCase()}, ");
+      buffer.write("align_items: ${enumValueToString(alignItems).toLowerCase()}, ");
     }
 
     if (alignSelf != FlexAlign.auto) {
-      buffer
-          .write("align_self: ${enumValueToString(alignSelf).toLowerCase()}, ");
+      buffer.write("align_self: ${enumValueToString(alignSelf).toLowerCase()}, ");
     }
 
     if (flexWrap != FlexWrap.noWrap) {
@@ -93,8 +88,7 @@ class FlexNodeStyle {
     }
 
     if (positionType != FlexPositionType.relative) {
-      buffer.write(
-          "positionType: ${enumValueToString(positionType).toLowerCase()}, ");
+      buffer.write("positionType: ${enumValueToString(positionType).toLowerCase()}, ");
     }
 
     if (width != 0) buffer.write("width: $width, ");
@@ -113,127 +107,19 @@ class FlexNodeStyle {
     return buffer.toString();
   }
 
-  double get aspectRadio => _aspectRadio;
+  FlexValue get maxHeightFlex => FlexValue.point(maxHeight);
 
-  set aspectRadio(double value) {
-    _aspectRadio = value;
-  }
+  FlexValue get maxWidthFlex => FlexValue.point(maxWidth);
 
-  FlexValue get maxHeightFlex => FlexValue.point(_maxHeight);
+  FlexValue get minHeightFlex => FlexValue.point(minHeight);
 
-  double get maxHeight => _maxHeight;
+  FlexValue get minWidthFlex => FlexValue.point(minWidth);
 
-  set maxHeight(double value) {
-    _maxHeight = value;
-  }
+  FlexValue get heightFlex => FlexValue.point(height);
 
-  FlexValue get maxWidthFlex => FlexValue.point(_maxWidth);
+  FlexValue get widthFlex => FlexValue.point(width);
 
-  double get maxWidth => _maxWidth;
-
-  set maxWidth(double value) {
-    _maxWidth = value;
-  }
-
-  FlexValue get minHeightFlex => FlexValue.point(_minHeight);
-
-  double get minHeight => _minHeight;
-
-  set minHeight(double value) {
-    _minHeight = value;
-  }
-
-  FlexValue get minWidthFlex => FlexValue.point(_minWidth);
-
-  double get minWidth => _minWidth;
-
-  set minWidth(double value) {
-    _minWidth = value;
-  }
-
-  FlexValue get heightFlex => FlexValue.point(_height);
-
-  double get height => _height;
-
-  set height(double value) {
-    _height = value;
-  }
-
-  FlexValue get widthFlex => FlexValue.point(_width);
-
-  double get width => _width;
-
-  set width(double value) {
-    _width = value;
-  }
-
-  FlexValue get flexBasisFlex => FlexValue.point(_flexBasis);
-
-  double get flexBasis => _flexBasis;
-
-  set flexBasis(double value) {
-    _flexBasis = value;
-  }
-
-  double get flexShrink => _flexShrink;
-
-  set flexShrink(double value) {
-    _flexShrink = value;
-  }
-
-  double get flexGrow => _flexGrow;
-
-  set flexGrow(double value) {
-    _flexGrow = value;
-  }
-
-  double get flex => _flex;
-
-  set flex(double value) {
-    _flex = value;
-  }
-
-  FlexDisplay get display => _display;
-
-  set display(FlexDisplay value) {
-    _display = value;
-  }
-
-  FlexOverflow get overflow => _overflow;
-
-  set overflow(FlexOverflow value) {
-    _overflow = value;
-  }
-
-  FlexWrap get flexWrap => _flexWrap;
-
-  set flexWrap(FlexWrap value) {
-    _flexWrap = value;
-  }
-
-  FlexPositionType get positionType => _positionType;
-
-  set positionType(FlexPositionType value) {
-    _positionType = value;
-  }
-
-  FlexAlign get alignContent => _alignContent;
-
-  set alignContent(FlexAlign value) {
-    _alignContent = value;
-  }
-
-  FlexAlign get alignSelf => _alignSelf;
-
-  set alignSelf(FlexAlign value) {
-    _alignSelf = value;
-  }
-
-  FlexAlign get alignItems => _alignItems;
-
-  set alignItems(FlexAlign value) {
-    _alignItems = value;
-  }
+  FlexValue get flexBasisFlex => FlexValue.point(flexBasis);
 
   FlexJustify get justifyContent => _justifyContent;
 
@@ -283,18 +169,6 @@ class FlexNodeStyle {
           break;
         }
     }
-  }
-
-  FlexCSSDirection get flexCSSDirection => _flexCSSDirection;
-
-  set flexCSSDirection(FlexCSSDirection value) {
-    _flexCSSDirection = value;
-  }
-
-  FlexDirection get direction => _direction;
-
-  set direction(FlexDirection value) {
-    _direction = value;
   }
 
   FlexValue getMargin(FlexStyleEdge edge) {

@@ -67,6 +67,12 @@ class RootWidgetViewModel extends ChangeNotifier {
 
   TimeMonitor? timeMonitor;
 
+  OnSizeChangedListener? onSizeChangedListener;
+
+  OnResumeAndPauseListener? onResumeAndPauseListener;
+
+  OnLoadCompleteListener? onLoadCompleteListener;
+
   RootWidgetViewModel() {
     viewExecutor = () {
       if (viewExecutorList.isNotEmpty) {
@@ -104,18 +110,6 @@ class RootWidgetViewModel extends ChangeNotifier {
   bool get loadFinish => _loadCompleted;
 
   RenderTree? get renderTree => _context?.renderManager.controllerManager.findTree(id);
-
-  set onSizeChangedListener(OnSizeChangedListener? listener) {
-    _sizeChangListener = listener;
-  }
-
-  set onResumeAndPauseListener(OnResumeAndPauseListener? listener) {
-    _onResumeAndPauseListener = listener;
-  }
-
-  set onLoadCompleteListener(OnLoadCompleteListener listener) {
-    _onLoadCompleteListener = listener;
-  }
 
   void onResume() {
     _onResumeAndPauseListener?.onInstanceResume(id);
@@ -207,22 +201,22 @@ class RootWidgetViewModel extends ChangeNotifier {
       return;
     }
     if (uiContext != null) {
-    var dimensionMap = getDimensions(
-      windowWidth,
-      windowHeight,
-      shouldUseScreenDisplay,
-      uiContext,
-    );
-    _context?.dimensionChecker.checkUpdateDimension(
+      var dimensionMap = getDimensions(
+        windowWidth,
+        windowHeight,
+        shouldUseScreenDisplay,
         uiContext,
-      dimensionMap,
-      windowWidth,
-      windowHeight,
-      shouldUseScreenDisplay,
-      systemUiVisibilityChanged,
-    );
+      );
+      _context?.dimensionChecker.checkUpdateDimension(
+        uiContext,
+        dimensionMap,
+        windowWidth,
+        windowHeight,
+        shouldUseScreenDisplay,
+        systemUiVisibilityChanged,
+      );
+    }
   }
-}
 }
 
 class VoltronWidget extends StatefulWidget {

@@ -25,14 +25,10 @@ import '../engine.dart';
 import '../inspector.dart';
 
 class DevServerImplDisable implements DevServerInterface {
-  late DevServerHelper _devServerHelper;
-
   DevServerImplDisable(
     GlobalConfigs configs,
     String serverHost,
-  ) {
-    _devServerHelper = DevServerHelper(configs, serverHost, null);
-  }
+  ) {}
 
   @override
   String createResourceUrl(String resName) {

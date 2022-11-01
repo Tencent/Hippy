@@ -163,8 +163,6 @@ class FileBundleLoader implements VoltronBundleLoader {
 class HttpBundleLoader implements VoltronBundleLoader {
   static const String kFileStr = "file://";
 
-  bool _isDebugMode = false;
-
   String? _filePath;
 
   final String? _url;
@@ -203,9 +201,7 @@ class HttpBundleLoader implements VoltronBundleLoader {
   @override
   String? get rawPath => _url;
 
-  void setIsDebugMode(bool isDebugMode) {
-    _isDebugMode = isDebugMode;
-  }
+  void setIsDebugMode(bool isDebugMode) {}
 
   @override
   Future<bool> load(VoltronBridgeManager bridge, Callback callback) async {

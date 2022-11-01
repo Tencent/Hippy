@@ -29,22 +29,21 @@ import '../viewmodel.dart';
 import '../widget.dart';
 
 class RootRenderNode extends RenderNode {
-  RootRenderNode(int id, String className, RenderTree root,
-      ControllerManager controllerManager, VoltronMap? props)
+  RootRenderNode(int id, String className, RenderTree root, ControllerManager controllerManager,
+      VoltronMap? props)
       : super(id, className, root, controllerManager, props);
 
   @override
   RenderViewModel createRenderViewModel(RenderContext context) {
-    return RootRenderViewModel(
-        id, rootId, name, context, context.getInstance(id));
+    return RootRenderViewModel(id, rootId, name, context, context.getInstance(id));
   }
 }
 
 class RootRenderViewModel extends GroupViewModel {
   final RootWidgetViewModel? _rootWidgetViewModel;
 
-  RootRenderViewModel(int id, int instanceId, String className,
-      RenderContext context, this._rootWidgetViewModel)
+  RootRenderViewModel(
+      int id, int instanceId, String className, RenderContext context, this._rootWidgetViewModel)
       : super(id, instanceId, className, context);
 
   @override
@@ -53,14 +52,9 @@ class RootRenderViewModel extends GroupViewModel {
   }
 }
 
-int _kRenderNodeInstanceInc = 1;
-
 class RenderNode extends StyleNode {
   // 唯一标识
   final int _id;
-
-  // 调试时候查看是否是同一个viewModel实例
-  final int _nodeInstanceId = _kRenderNodeInstanceInc++;
 
   /// 布局属性
   double _x = 0;
@@ -165,8 +159,7 @@ class RenderNode extends StyleNode {
 
   bool get isRoot => name == NodeProps.kRootNode;
 
-  RenderNode(this._id, this._className, this._root, this._controllerManager,
-      this._props,
+  RenderNode(this._id, this._className, this._root, this._controllerManager, this._props,
       [this._isLazyLoad = false, this._parent])
       : super(_className);
 
@@ -318,12 +311,11 @@ class RenderNode extends StyleNode {
   }
 
   void addEvent(Set<String> eventNameList) {
-    _eventHolders.addAll(eventNameList.map((e) => EventHolder(e)));
+    _eventHolders.addAll(eventNameList.map(EventHolder.new));
   }
 
   void removeEvent(Set<String> eventNameList) {
-    _eventHolders
-        .addAll(eventNameList.map((e) => EventHolder(e, isAdd: false)));
+    _eventHolders.addAll(eventNameList.map((e) => EventHolder(e, isAdd: false)));
   }
 
   RenderNode? getChildAt(int index) {
@@ -353,8 +345,7 @@ class RenderNode extends StyleNode {
 
         for (var i = 0; i < _childrenPendingList.length; i++) {
           var renderNode = _childrenPendingList[i];
-          _controllerManager.addChild(
-              this, renderNode, renderNode.indexFromParent);
+          _controllerManager.addChild(this, renderNode, renderNode.indexFromParent);
         }
         _childrenPendingList.clear();
         _notifyManageChildren = true;
@@ -373,8 +364,7 @@ class RenderNode extends StyleNode {
           });
 
           for (var node in moveHolder._moveRenders) {
-            _controllerManager.move(
-                node, moveHolder._moveToNode, node.indexFromParent);
+            _controllerManager.move(node, moveHolder._moveToNode, node.indexFromParent);
           }
         }
         _moveHolders.clear();
@@ -530,9 +520,7 @@ class EventHolder {
 
   @override
   bool operator ==(Object other) {
-    return other is EventHolder &&
-        eventName == other.eventName &&
-        isAdd == other.isAdd;
+    return other is EventHolder && eventName == other.eventName && isAdd == other.isAdd;
   }
 
   @override

@@ -20,7 +20,15 @@
 
 import 'package:voltron_renderer/voltron_renderer.dart';
 
-class ExceptionHandlerAdapter {
+abstract class VoltronExceptionHandlerAdapter {
+  void handleJsException(JsError exception);
+
+  void handleNativeException(Error error, bool haveCaught);
+
+  void handleBackgroundTracing(String details);
+}
+
+class DefaultExceptionHandlerAdapter implements VoltronExceptionHandlerAdapter {
   void handleJsException(JsError exception) {}
 
   void handleNativeException(Error error, bool haveCaught) {}

@@ -219,7 +219,7 @@ class NetworkUtil {
       }
       return json.encode(data).length;
     } catch (e) {
-      LogUtils.e(NetworkInspector.kLogTag, "getEncodedDataLength error:" +  e.toString());
+      LogUtils.e(NetworkInspector.kLogTag, "getEncodedDataLength error:$e");
       return 0;
     }
   }
