@@ -19,8 +19,7 @@
  * limitations under the License.
  *
  */
-#ifdef ENABLE_INSPECTOR
-#include "vfs/handler/devtools_handler.h"
+#include "module/vfs/devtools_handler.h"
 
 #include <utility>
 
@@ -29,8 +28,7 @@
 #include "footstone/string_view.h"
 #include "module/util/base64.h"
 
-namespace hippy {
-inline namespace vfs {
+namespace hippy::devtools {
 void DevtoolsHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
                                           std::function<std::shared_ptr<UriHandler>()> next) {
   auto handle_next = [](std::shared_ptr<SyncContext> ctx, const std::function<std::shared_ptr<UriHandler>()>& next) {
@@ -109,6 +107,4 @@ void ReceivedResponse(const std::shared_ptr<hippy::devtools::NetworkNotification
   }
 }
 
-}
-}
-#endif
+} // namespace hippy::devtools

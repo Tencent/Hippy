@@ -66,7 +66,7 @@
 #include "renderer/tdf/tdf_render_manager.h"
 #endif
 #ifdef ENABLE_INSPECTOR
-#include "vfs/handler/devtools_handler.h"
+#include "module/vfs/devtools_handler.h"
 #endif
 
 namespace hippy {
@@ -435,16 +435,16 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
   auto devtools_data_source = runtime->GetDevtoolsDataSource();
   if (devtools_data_source) {
     auto network_notification = devtools_data_source->GetNotificationCenter()->network_notification;
-    auto devtools_handler = std::make_shared<hippy::DevtoolsHandler>();
+    auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
     devtools_handler->SetNetworkNotification(network_notification);
     loader->SetNetworkNotification(network_notification);
     loader->RegisterFirstUriHandler(kAssetSchema, devtools_handler);
     loader->RegisterFirstUriHandler(kFileSchema, devtools_handler);
     auto default_handler = loader->GetDefaultHandler();
-    loader->RegisterUriHandler(kHttpSchemep, devtools_handler);
-    loader->RegisterUriHandler(kHttpSchemep, default_handler);
-    loader->RegisterUriHandler(kHttpsSchemep, devtools_handler);
-    loader->RegisterUriHandler(kHttpsSchemep, default_handler);
+    loader->RegisterUriHandler(hippy::devtools::kHttpSchemep, devtools_handler);
+    loader->RegisterUriHandler(hippy::devtools::kHttpSchemep, default_handler);
+    loader->RegisterUriHandler(hippy::devtools::kHttpsSchemep, devtools_handler);
+    loader->RegisterUriHandler(hippy::devtools::kHttpsSchemep, default_handler);
   }
 #endif
   auto save_object = std::make_shared<JavaRef>(j_env, j_cb);

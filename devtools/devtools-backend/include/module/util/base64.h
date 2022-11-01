@@ -22,12 +22,10 @@
 
 #include <string>
 
-namespace footstone {
-inline namespace base64 {
+namespace hippy::devtools {
 class Base64 {
  public:
   static std::string Encode(const uint8_t *bin, const size_t len);
   static std::string Decode(const std::string& input);
 };
-}  // namespace base64
-}  // namespace footstone
+}  // namespace hippy::devtools

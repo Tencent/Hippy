@@ -54,6 +54,11 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
+# region vfs
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
+# endregion
+
 # region asio
 InfraPackage_Add(asio
     REMOTE "devtools/backend/third_party/asio/1.22.1/asio.tar.gz"
@@ -142,6 +147,7 @@ set(SOURCE_SET
     src/module/request/dom_push_nodes_request.cc
     src/module/request/dom_push_node_by_path_request.cc
     src/module/util/base64.cc
+    src/module/vfs/devtools_handler.cc
     src/tunnel/net_channel.cc
     src/tunnel/tcp/frame_codec.cc
     src/tunnel/tcp/tcp_channel.cc

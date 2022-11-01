@@ -19,15 +19,12 @@
  * limitations under the License.
  *
  */
-#ifdef ENABLE_INSPECTOR
 #pragma once
 
 #include "vfs/handler/uri_handler.h"
 #include "api/notification/devtools_network_notification.h"
 
-namespace hippy {
-inline namespace vfs {
-
+namespace hippy::devtools {
 constexpr char kHttpSchemep[] = "http";
 constexpr char kHttpsSchemep[] = "https";
 
@@ -63,6 +60,4 @@ void ReceivedResponse(const std::shared_ptr<hippy::devtools::NetworkNotification
                       std::string content,
                       const std::unordered_map<std::string, std::string> &rsp_meta,
                       const std::unordered_map<std::string, std::string> &req_meta);
-}
-}
-#endif
+} // namespace hippy::devtools

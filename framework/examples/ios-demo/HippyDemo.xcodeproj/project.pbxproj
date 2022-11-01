@@ -16,7 +16,6 @@
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
 		41AD023B04DC30E3D93C3AB7 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41AD0893629285DF331A0011 /* TypeConverter.mm */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
-		9B9DDDCF290FF237002A2EF2 /* devtools_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B9DDDCE290FF237002A2EF2 /* devtools_handler.cc */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -267,8 +266,6 @@
 		41AD0893629285DF331A0011 /* TypeConverter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TypeConverter.mm; sourceTree = "<group>"; };
 		9252AE8A2809532F00B27E50 /* root_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = root_node.cc; sourceTree = "<group>"; };
 		9252AE8C2809534100B27E50 /* root_node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = root_node.h; sourceTree = "<group>"; };
-		9B9DDDCC290FF22B002A2EF2 /* devtools_handler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = devtools_handler.h; sourceTree = "<group>"; };
-		9B9DDDCE290FF237002A2EF2 /* devtools_handler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_handler.cc; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		D42D2C7A2833C84D0079B47B /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
@@ -803,14 +800,6 @@
 				067AB97423B5F309009D5EE2 /* MyView.m */,
 			);
 			path = myview;
-			sourceTree = "<group>";
-		};
-		9B9DDDCD290FF237002A2EF2 /* handler */ = {
-			isa = PBXGroup;
-			children = (
-				9B9DDDCE290FF237002A2EF2 /* devtools_handler.cc */,
-			);
-			path = handler;
 			sourceTree = "<group>";
 		};
 		AC63515223F922E5007FABA5 /* fonts */ = {
@@ -1883,7 +1872,6 @@
 			isa = PBXGroup;
 			children = (
 				F4E9B53128FEAAC200881750 /* uri_handler.h */,
-				9B9DDDCC290FF22B002A2EF2 /* devtools_handler.h */,
 			);
 			path = handler;
 			sourceTree = "<group>";
@@ -1891,7 +1879,6 @@
 		F4E9B53428FEAAC200881750 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				9B9DDDCD290FF237002A2EF2 /* handler */,
 				F4E9B53528FEAAC200881750 /* file.cc */,
 				F4E9B53628FEAAC200881750 /* uri_loader.cc */,
 			);
@@ -2309,7 +2296,6 @@
 				F4E998B228FEA9F500881750 /* HippyNetInfoIntenal.m in Sources */,
 				F45D268228067B6900CAB185 /* NativeRenderView.mm in Sources */,
 				F4E998AD28FEA9F500881750 /* HippyTurboModuleManager.mm in Sources */,
-				9B9DDDCF290FF237002A2EF2 /* devtools_handler.cc in Sources */,
 				F4E9B98A28FEAACA00881750 /* cv_driver.cc in Sources */,
 				F45D265328067B6900CAB185 /* NativeRenderScrollView.mm in Sources */,
 				F45D265F28067B6900CAB185 /* NativeRenderBaseTextInput.mm in Sources */,

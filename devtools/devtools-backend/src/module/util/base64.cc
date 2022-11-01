@@ -20,8 +20,7 @@
 
 #include "module/util/base64.h"
 
-namespace footstone {
-inline namespace base64 {
+namespace hippy::devtools {
 std::string Base64::Encode(const uint8_t *bin, const size_t len) {
   static constexpr char kEncodingTable[] = {
       'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
@@ -102,5 +101,4 @@ std::string Base64::Decode(const std::string &input) {
   }
   return out;
 }
-}  // namespace base64
-}  // namespace footstone
+}  // namespace hippy::devtools

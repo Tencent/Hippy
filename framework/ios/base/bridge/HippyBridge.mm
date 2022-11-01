@@ -59,7 +59,7 @@
 #include "driver/scope.h"
 
 #ifdef ENABLE_INSPECTOR
-#include "vfs/handler/devtools_handler.h"
+#include "module/vfs/devtools_handler.h"
 #endif
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
@@ -398,13 +398,13 @@ dispatch_queue_t HippyBridgeQueue() {
   if (devtools_data_source) {
       auto notification = devtools_data_source->GetNotificationCenter()->network_notification;
       _uriLoader->SetNetworkNotification(notification);
-      auto devtools_handler = std::make_shared<hippy::DevtoolsHandler>();
+      auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
       devtools_handler->SetNetworkNotification(notification);
       auto default_handler = _uriLoader->GetDefaultHandler();
-      _uriLoader->RegisterUriHandler(hippy::kHttpSchemep, devtools_handler);
-      _uriLoader->RegisterUriHandler(hippy::kHttpSchemep, default_handler);
-      _uriLoader->RegisterUriHandler(hippy::kHttpsSchemep, devtools_handler);
-      _uriLoader->RegisterUriHandler(hippy::kHttpsSchemep, default_handler);
+      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpSchemep, devtools_handler);
+      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpSchemep, default_handler);
+      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpsSchemep, devtools_handler);
+      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpsSchemep, default_handler);
   }
 #endif
 }

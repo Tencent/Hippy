@@ -53,7 +53,7 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
       auto body_data = response.GetBodyData();
       response_json[kResponseBase64Encoded] = is_encode_base64;
       if (is_encode_base64) {
-        body_data = footstone::Base64::Encode(reinterpret_cast<const uint8_t*>(body_data.c_str()), body_data.length());
+        body_data = Base64::Encode(reinterpret_cast<const uint8_t*>(body_data.c_str()), body_data.length());
       }
       response_json[kResponseBody] = body_data;
       ResponseResultToFrontend(request.GetId(), response_json.dump());

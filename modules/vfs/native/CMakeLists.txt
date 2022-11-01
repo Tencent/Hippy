@@ -51,9 +51,5 @@ endif ()
 set(SOURCE_SET
   src/file.cc
   src/uri_loader.cc)
-if (ENABLE_INSPECTOR)
-    list(APPEND SOURCE_SET
-            src/handler/devtools_handler.cc)
-endif ()
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

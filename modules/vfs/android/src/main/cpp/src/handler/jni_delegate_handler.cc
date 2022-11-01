@@ -31,7 +31,7 @@
 #include "vfs/handler/asset_handler.h"
 #include "vfs/handler/file_handler.h"
 #ifdef ENABLE_INSPECTOR
-#include "vfs/handler/devtools_handler.h"
+#include "module/vfs/devtools_handler.h"
 #endif
 
 namespace hippy {
@@ -513,7 +513,7 @@ void OnNetworkRequestInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id,
       JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   // call devtools
   auto loader = GetUriLoader(j_id);
-  SentRequest(loader->GetNetworkNotification(), request_id, uri, req_meta);
+  hippy::devtools::SentRequest(loader->GetNetworkNotification(), request_id, uri, req_meta);
 #endif
   JNIEnvironment::ClearJEnvException(j_env);
 }
@@ -540,7 +540,6 @@ void OnNetworkResponseInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id
       auto capacity = j_env->GetDirectBufferCapacity(j_buffer);
       if (capacity >= 0) {
         content = std::string(buffer_address, footstone::checked_numeric_cast<jlong, size_t>(capacity));
-        return;
       }
     }
   } else {
@@ -550,7 +549,7 @@ void OnNetworkResponseInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id
       JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   // call devtools
   auto loader = GetUriLoader(j_id);
-  ReceivedResponse(loader->GetNetworkNotification(), request_id, code, content, rsp_meta, req_meta);
+  hippy::devtools::ReceivedResponse(loader->GetNetworkNotification(), request_id, code, content, rsp_meta, req_meta);
 #endif
   JNIEnvironment::ClearJEnvException(j_env);
 }
