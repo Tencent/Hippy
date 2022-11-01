@@ -66,6 +66,10 @@ public class PullHeaderRefreshHelper extends PullRefreshHelper {
         if (consumed != 0) {
             endAnimation();
             sendPullingEvent(size);
+            // when header not visible, reduce value of changed size to scroll the header out
+            if (mRecyclerView.getFirstChildPosition() > 0) {
+                consumed -= Math.round(consumed / PULL_RATIO);
+            }
         }
         return consumed;
     }
