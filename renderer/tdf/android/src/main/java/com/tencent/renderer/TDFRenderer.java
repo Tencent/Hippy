@@ -55,6 +55,8 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     private FrameworkProxy mFrameworkProxy;
     private VfsManager mVfsManager;
 
+    private TDFHippyRootView mRootView;
+
     private final List<Class<?>> mControllers = new ArrayList<>();
 
     public TDFRenderer(int instanceId) {
@@ -83,18 +85,19 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         if (!(context instanceof Activity)) {
             throw new RuntimeException("Unsupported Host");
         }
-        TDFHippyRootView tdfHippyRootView = new TDFHippyRootView((Activity) context);
+
+        mRootView = new TDFHippyRootView((Activity) context);
         // When TDFHippyRootView's onAttachedToWindow is called, com.tencent.tdf.TDFEngine will be created.
         // So, set the creation callback here.
-        tdfHippyRootView.setEngineCallback(engine -> {
+        mRootView.setEngineCallback(engine -> {
             // Notify TDF Render in Native(C++) size to bind with TDF Shell, this is the key process for TDF Render.
             // At this time point, TDF Core's Shell is created but not started.
             registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
             engine.registerLifecycleListener(TDFRenderer.this);
-            registerControllers(mRootViewId, mControllers, tdfHippyRootView, TDFRenderer.this, engine);
+            registerControllers(mRootViewId, mControllers, mRootView, TDFRenderer.this, engine);
         });
-        tdfHippyRootView.setId(mRootViewId);
-        return tdfHippyRootView;
+        mRootView.setId(mRootViewId);
+        return mRootView;
     }
 
     @Override
@@ -104,7 +107,9 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
     }
 
     @Override
-    public void onWillShellDestroy() { }
+    public void onWillShellDestroy() {
+        LogUtils.d(TAG, "onWillShellDestroy");
+    }
 
     @Override
     public void onResume() { }
