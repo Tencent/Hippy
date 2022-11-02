@@ -163,8 +163,4 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     return bridge.debugMode;
 }
 
-- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
-    return bridge.bundleURL;
-}
-
 @end

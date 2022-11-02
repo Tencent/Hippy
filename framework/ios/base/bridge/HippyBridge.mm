@@ -780,9 +780,6 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (NSURL *)bundleURL {
-    if (_debugURL) {
-        return _debugURL;
-    }
     return [_bundleURLs firstObject];
 }
 

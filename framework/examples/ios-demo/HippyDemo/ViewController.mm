@@ -366,10 +366,6 @@ std::string mock;
     return bridge.debugMode;
 }
 
-- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
-    return bridge.bundleURL;
-}
-
 #pragma mark HPRenderFrameworkProxy Delegate Implementation
 - (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<NativeRenderContext>)renderContext {
     //这里将对应的URL转换为标准URL

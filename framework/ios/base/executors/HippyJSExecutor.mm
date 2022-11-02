@@ -593,14 +593,6 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         devInfo.port = [NSString stringWithFormat:@"%@", [debugURL port]];
         devInfo.versionId = [HippyBundleURLProvider parseVersionId:[debugURL path]];
         [devInfo parseWsURLWithURLQuery:[debugURL query]];
-    }
-    else if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
-        NSURL *debugURL = [bridge.delegate inspectorSourceURLForBridge:bridge];
-        devInfo.scheme = [debugURL scheme];
-        devInfo.ipAddress = [debugURL host];
-        devInfo.port = [NSString stringWithFormat:@"%@", [debugURL port]];
-        devInfo.versionId = [HippyBundleURLProvider parseVersionId:[debugURL path]];
-        [devInfo parseWsURLWithURLQuery:[debugURL query]];
     } else {
         HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
         devInfo.scheme = bundleURLProvider.scheme;
