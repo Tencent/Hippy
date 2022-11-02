@@ -1,0 +1,3 @@
+<% for(var i = 0; i < fileList.length; i++) { %>
+<% var file = fileList[i]; %>export { default as <%= file.name %> } from './<%= file.path %>';
+<% } %>

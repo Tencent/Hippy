@@ -35,4 +35,3 @@
   });
   mocha.timeout(5000);
 }());
-/* eslint-disable */

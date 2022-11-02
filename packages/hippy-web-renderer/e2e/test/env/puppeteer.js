@@ -45,7 +45,7 @@ const globalConfigPath = path.join(current, './global.js');
     isMobile: true,
   });
   const page = await browser.newPage();
-  await page.emulate(puppeteer.KnownDevices[DeviceType]);
+  await page.emulate(puppeteer.devices[DeviceType]);
   await page.goto(Entry, {
     waitUntil: 'networkidle2',
   });
@@ -87,6 +87,7 @@ async function snapshotAndCompare(delayTime, namePre, nameEnd, allPath, page) {
           path: imgPath,
         });
         resolve(true);
+        return;
       }
       await page.screenshot({
         path: imgTempPath,
@@ -111,6 +112,7 @@ async function snapshotAndCompare(delayTime, namePre, nameEnd, allPath, page) {
         const data = await compareImages(await mzfs.readFile(imgTempPath), await mzfs.readFile(imgPath), options);
         if (data.rawMisMatchPercentage > 0.01) {
           resolve(false);
+          return;
         }
         fs.unlinkSync(imgTempPath);
         resolve(true);
