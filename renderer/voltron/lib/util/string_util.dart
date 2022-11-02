@@ -134,7 +134,7 @@ Object? parseJsonString(String jsonString) {
   return null;
 }
 
-Object _parseJsonObject(Object object) {
+Object? _parseJsonObject(Object? object) {
   if (object is String || object is num || object is bool) {
     return object;
   } else if (object is Map) {
@@ -150,6 +150,5 @@ Object _parseJsonObject(Object object) {
     }
     return array;
   }
-
   return object;
 }
