@@ -126,7 +126,7 @@ bool Deserializer::ReadUtf8String(std::string& value) {
 
   const uint8_t* start = const_cast<uint8_t*>(position_);
   position_ += utf8_length;
-  string_view string_view(start, utf8_length);
+  string_view string_view(reinterpret_cast<const string_view::char8_t_ *>(start), utf8_length);
   value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       string_view, string_view::Encoding::Utf8).utf8_value());
   return true;
@@ -139,7 +139,7 @@ bool Deserializer::ReadUtf8String(HippyValue& dom_value) {
 
   const uint8_t* start = position_;
   position_ += utf8_length;
-  string_view string_view(start, utf8_length);
+  string_view string_view(reinterpret_cast<const string_view::char8_t_ *>(start), utf8_length);
   dom_value = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       string_view, string_view::Encoding::Utf8).utf8_value());
   return true;

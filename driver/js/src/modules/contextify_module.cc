@@ -72,7 +72,7 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo &info) {
   const auto &source_code = hippy::GetNativeSourceCode(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       key, string_view::Encoding::Utf8).utf8_value()));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
-  string_view str_view(source_code.data_, source_code.length_);
+  string_view str_view(reinterpret_cast<const string_view::char8_t_ *>(source_code.data_), source_code.length_);
 #ifdef JS_V8
   auto ret = context->RunScript(str_view, key, false, nullptr, false);
 #else
@@ -164,7 +164,7 @@ void ContextifyModule::LoadUntrustedContent(const CallbackInfo& info) {
         std::shared_ptr<TryCatch> try_catch =
             CreateTryCatchScope(true, scope->GetContext());
         try_catch->SetVerbose(true);
-        auto view_code = string_view::new_from_utf8(move_code.c_str(), move_code.length());
+        string_view view_code(reinterpret_cast<const string_view::char8_t_ *>(move_code.c_str()), move_code.length());
         scope->RunJS(view_code, file_name);
         ctx->SetGlobalObjVar(kHippyCurDirKey, last_dir_str_obj,
                              hippy::napi::PropertyAttribute::None);
