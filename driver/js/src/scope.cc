@@ -135,7 +135,8 @@ void Scope::Initialized() {
 
   auto source_code = hippy::GetNativeSourceCode(kHippyBootstrapJSName);
   FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
-  string_view str_view(source_code.data_, source_code.length_);
+  string_view str_view(reinterpret_cast<const string_view::char8_t_ *>(source_code.data_),
+                       source_code.length_);
   std::shared_ptr<CtxValue> function =
       context_->RunScript(str_view, kHippyBootstrapJSName);
 

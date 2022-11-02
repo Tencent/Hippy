@@ -562,7 +562,7 @@ void JSCCtx::HandleUncaughtException(const std::shared_ptr<CtxValue>& exception)
   if (!IsFunction(exception_handler)) {
     const auto& source_code = hippy::GetNativeSourceCode(kErrorHandlerJSName);
     FOOTSTONE_DCHECK(source_code.data_ && source_code.length_);
-    string_view content(source_code.data_, source_code.length_);
+    string_view content(reinterpret_cast<const string_view::char8_t_ *>(source_code.data_), source_code.length_);
     exception_handler = RunScript(content, kErrorHandlerJSName);
     bool is_func = IsFunction(exception_handler);
     FOOTSTONE_CHECK(is_func)
