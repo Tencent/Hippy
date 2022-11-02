@@ -436,7 +436,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
             return;
         }
         
-        __weak typeof(self) weakSelf = self;
+        __weak __typeof(self) weakSelf = self;
         typedef void (^HandleBase64CompletedBlock)(NSString *);
         HandleBase64CompletedBlock handleBase64CompletedBlock = ^void(NSString *base64Data) {
             HippyImageView *strongSelf = weakSelf;
@@ -628,7 +628,7 @@ static void decodeAndLoadImageAsync(HippyImageView *imageView, id<HippyImageProv
     if (!shouldContinue) {
         return;
     }
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     void (^setImageBlock)(UIImage *) = ^(UIImage *image) {
         HippyImageView *strongSelf = weakSelf;
         if (!strongSelf) {
