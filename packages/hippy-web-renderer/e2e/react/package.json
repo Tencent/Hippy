@@ -9,8 +9,7 @@
   "description": "Demo app for hippy-react",
   "repository": "https://github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo",
   "scripts": {
-    "web:dev": "webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js",
-    "web:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.web-renderer.js"
+    "web:dev": "webpack serve --config ./scripts/hippy-webpack.web-renderer.dev.js"
   },
   "keywords": [
     "Hippy",
