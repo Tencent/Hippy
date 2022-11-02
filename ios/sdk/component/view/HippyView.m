@@ -580,13 +580,13 @@ void HippyBoarderColorsRelease(HippyBorderColors c) {
         return;
     }
     
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     [self getLayerContentForColor:nil completionBlock:^(UIImage *contentImage) {
         if (nil == contentImage) {
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            __strong typeof(weakSelf) strongSelf = weakSelf;
+            __strong __typeof(weakSelf) strongSelf = weakSelf;
             if (!strongSelf) {
                 return;
             }
