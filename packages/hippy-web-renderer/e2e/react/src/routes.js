@@ -9,13 +9,12 @@ function getKebabCase2(str) {
   return temp;
 }
 (function () {
-  // eslint-disable-next-line no-restricted-syntax
-  for (const key in components) {
+  Object.keys(components).forEach((key) => {
     routes.push({
       path: `/${getKebabCase2(key)}`,
       name: `/${getKebabCase2(key)}`,
       component: components[key],
     });
-  }
+  });
 }());
 export default routes;
