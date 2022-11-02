@@ -14,29 +14,15 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.framework;
+package com.tencent.renderer;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import java.util.concurrent.Executor;
 
-public interface ImageLoaderAdapter {
-
-    void fetchImage(@NonNull String url, @NonNull ImageRequestListener listener,
-            @Nullable Object params);
-
-    void getLocalImage(@NonNull String source, @NonNull ImageRequestListener listener,
-            @Nullable Executor executor, int width, int height);
-
-    @Nullable
-    ImageDataSupplier getLocalImage(@NonNull String source, int width, int height);
-
-    void saveImageToCache(@NonNull ImageDataSupplier data);
-
-    @Nullable
-    ImageDataSupplier getImageFromCache(@NonNull String source);
-
-    void destroyIfNeed();
-
-    void clear();
+public interface RenderExceptionHandler {
+    /**
+     * Report render exception to host
+     *
+     * @param exception {@link Exception} the render exception
+     */
+    void handleRenderException(@NonNull Exception exception);
 }

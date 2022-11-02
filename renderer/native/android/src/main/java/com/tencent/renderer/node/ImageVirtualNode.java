@@ -30,14 +30,14 @@ import android.text.style.ImageSpan;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.renderer.NativeRender;
 
+import com.tencent.renderer.component.image.ImageDataSupplier;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import com.tencent.renderer.component.text.TextGestureSpan;
 import com.tencent.renderer.component.text.TextImageSpan;
 import java.util.List;

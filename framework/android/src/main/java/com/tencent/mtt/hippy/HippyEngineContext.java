@@ -61,8 +61,6 @@ public interface HippyEngineContext {
 
     int getEngineId();
 
-    int getWorkerManagerId();
-
     int getDomManagerId();
 
     int getVfsId();

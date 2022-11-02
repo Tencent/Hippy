@@ -17,7 +17,6 @@ package com.tencent.mtt.hippy;
 
 import android.content.Context;
 
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -39,7 +38,7 @@ import com.tencent.mtt.hippy.adapter.soloader.HippySoLoaderAdapter;
 import com.tencent.mtt.hippy.adapter.storage.DefaultStorageAdapter;
 import com.tencent.mtt.hippy.adapter.storage.HippyStorageAdapter;
 import com.tencent.mtt.hippy.utils.LogUtils;
-import com.tencent.renderer.component.image.ImageLoader;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class HippyGlobalConfigs {

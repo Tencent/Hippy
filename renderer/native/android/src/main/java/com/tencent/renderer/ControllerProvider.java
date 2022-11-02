@@ -14,15 +14,11 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.renderer;
+package com.tencent.renderer;
 
-import androidx.annotation.NonNull;
+import java.util.List;
 
-public interface RenderExceptionHandler {
-    /**
-     * Report render exception to host
-     *
-     * @param exception {@link Exception} the render exception
-     */
-    void handleRenderException(@NonNull Exception exception);
+public interface ControllerProvider {
+
+    List<Class<?>> getControllers();
 }

@@ -18,7 +18,6 @@ package com.tencent.renderer;
 
 import androidx.annotation.NonNull;
 
-import com.tencent.link_supplier.proxy.renderer.RenderExceptionHandler;
 import java.util.List;
 
 public interface NativeRenderDelegate extends RenderExceptionHandler {

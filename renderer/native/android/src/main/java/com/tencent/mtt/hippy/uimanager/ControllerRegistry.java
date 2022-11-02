@@ -23,9 +23,9 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRenderException;
+import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.RenderNode;
 
 import java.util.HashMap;
@@ -59,7 +59,7 @@ public class ControllerRegistry {
 
     public boolean checkFlattening (@NonNull String className) {
         ControllerHolder holder = mControllers.get(className);
-        return holder != null ? holder.supportFlatten() : false;
+        return holder != null && holder.supportFlatten();
     }
 
     @SuppressWarnings({"rawtypes"})

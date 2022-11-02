@@ -15,8 +15,6 @@
 
 package com.tencent.mtt.hippy;
 
-import static com.tencent.link_supplier.LinkHelper.RenderMode.NATIVE_RENDER;
-
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Handler;
@@ -27,15 +25,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.devtools.DevtoolsManager;
-import com.tencent.link_supplier.LinkHelper;
-import com.tencent.link_supplier.Linker;
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
-import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
-import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
-import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
-import com.tencent.link_supplier.proxy.renderer.RenderProxy;
+import com.openhippy.connector.DomManager;
+import com.openhippy.connector.JsDriver;
+import com.openhippy.connector.NativeRenderer;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
@@ -63,6 +55,10 @@ import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
+import com.tencent.renderer.ControllerProvider;
+import com.tencent.renderer.JSFrameworkProxy;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.devtools.vfs.DevtoolsProcessor;
 import com.tencent.vfs.VfsManager;
@@ -71,7 +67,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 
@@ -123,7 +118,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     boolean mHasReportEngineLoadResult = false;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
-    private int mWorkerManagerId = -1;
     private int mDomInstanceId = -1;
 
     final Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -226,10 +220,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             moduleLoadParams = null;
         }
 
-        if (mGlobalConfigs != null) {
-            mGlobalConfigs.destroyIfNeed();
-        }
-
+        mGlobalConfigs.destroyIfNeed();
         moduleListener = null;
         mRootView = null;
         mExtendDatas.clear();
@@ -313,30 +304,21 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     }
 
     public void recordSnapshot(int rootId, @NonNull final Callback<byte[]> callback) {
-        if (mEngineContext != null) {
-            RenderProxy renderProxy = mEngineContext.getRenderProxy();
-            if (renderProxy instanceof NativeRenderProxy) {
-                ((NativeRenderProxy) renderProxy).recordSnapshot(rootId, callback);
-            }
+        if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
+            mEngineContext.getNativeRenderer().recordSnapshot(rootId, callback);
         }
     }
 
     public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
-        if (mEngineContext != null) {
-            RenderProxy renderProxy = mEngineContext.getRenderProxy();
-            if (renderProxy instanceof NativeRenderProxy) {
-                return ((NativeRenderProxy) renderProxy).replaySnapshot(context, buffer);
-            }
+        if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
+            mEngineContext.getNativeRenderer().replaySnapshot(context, buffer);
         }
         return null;
     }
 
     public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap) {
-        if (mEngineContext != null) {
-            RenderProxy renderProxy = mEngineContext.getRenderProxy();
-            if (renderProxy instanceof NativeRenderProxy) {
-                return ((NativeRenderProxy) renderProxy).replaySnapshot(context, snapshotMap);
-            }
+        if (mEngineContext != null && mEngineContext.getNativeRenderer() != null) {
+            mEngineContext.getNativeRenderer().replaySnapshot(context, snapshotMap);
         }
         return null;
     }
@@ -723,38 +705,33 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     public class HippyEngineContextImpl implements HippyEngineContext,
             HippyInstanceLifecycleEventListener {
 
-        private long mRuntimeId = -1;
         private String componentName;
         private HashMap<String, Object> mNativeParams;
         private final HippyModuleManager mModuleManager;
         private final HippyBridgeManager mBridgeManager;
         private final VfsManager mVfsManager;
-        private final LinkHelper mLinkHelper;
-        private final DevtoolsManager mDevtoolsManager;
+        private final DomManager mDomManager;
+        private final JsDriver mJsDriver;
+        private final NativeRenderer mNativeRenderer;
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
-            if (mDebugMode && mWorkerManagerId != -1) {
-                mLinkHelper = new Linker(mWorkerManagerId);
-            } else {
-                mLinkHelper = new Linker();
-                mWorkerManagerId = mLinkHelper.getWorkerManagerId();
-            }
-            if (mDebugMode && mRootView != null) {
-                mLinkHelper.createDomHolder(mRootView.getId(), mDomInstanceId);
-            } else {
-                mLinkHelper.createDomHolder();
-                mDomInstanceId =  Objects.requireNonNull(mLinkHelper.getDomHolder()).getInstanceId();
-            }
             mModuleManager = new HippyModuleManagerImpl(this, mMouduleProviders,
                     enableV8Serialization);
+            mJsDriver = new JsDriver();
             mBridgeManager = new HippyBridgeManagerImpl(this, mCoreBundleLoader,
                     getBridgeType(), enableV8Serialization, mDebugMode,
-                    mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams);
-            // If in debug mode, root view will be reused after reload,
-            // so not need to generate root id again.
-            mLinkHelper.createRenderer(NATIVE_RENDER);
-            mLinkHelper.setFrameworkProxy(HippyEngineManagerImpl.this);
+                    mServerHost, mGroupId, mThirdPartyAdapter, v8InitParams, mJsDriver);
+            if (mDebugMode && mRootView != null) {
+                mDomManager = new DomManager(mDomInstanceId, mRootView.getId());
+            } else {
+                mDomManager = new DomManager();
+                mDomInstanceId = mDomManager.getInstanceId();
+            }
+            mJsDriver.setDom(mDomManager);
+            mNativeRenderer = new NativeRenderer();
+            mDomManager.setRenderer(mNativeRenderer);
+            mNativeRenderer.setFrameworkProxy(HippyEngineManagerImpl.this);
             List<Class<?>> controllers = null;
             if (mControllerProviders != null) {
                 for (ControllerProvider provider : mControllerProviders) {
@@ -765,7 +742,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     }
                 }
             }
-            mLinkHelper.getRenderer().init(controllers, mRootView);
+            mNativeRenderer.init(controllers, mRootView);
             mVfsManager = new VfsManager();
             initVfsManager();
             mDevtoolsManager = new DevtoolsManager(mDebugMode);
@@ -790,23 +767,24 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onRuntimeInitialized(long runtimeId) {
-            mRuntimeId = runtimeId;
+            mJsDriver.setInstanceId((int) runtimeId);
             // Call linker to bind framework until get v8 runtime id after js bridge initialized,
             // and use v8 runtime id to represent framework id.
-            mLinkHelper.bind((int) runtimeId);
             if (mDebugMode && mRootView != null) {
-                mLinkHelper.connect((int) runtimeId, mRootView.getId());
-                RenderProxy renderProxy = mLinkHelper.getRenderer();
-                if (renderProxy instanceof NativeRenderProxy) {
-                    ((NativeRenderProxy) renderProxy).onRuntimeInitialized(mRootView.getId());
-                }
-                // add network processor for waiting runtime id
-                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
+//                mLinkHelper.connect((int) runtimeId, mRootView.getId());
+//                RenderProxy renderProxy = mLinkHelper.getRenderer();
+//                if (renderProxy instanceof NativeRenderProxy) {
+//                    ((NativeRenderProxy) renderProxy).onRuntimeInitialized(mRootView.getId());
+//                }
+//                // add network processor for waiting runtime id
+//                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
+                mJsDriver.setRoot(mRootView.getId());
+                mNativeRenderer.onRuntimeInitialized(mRootView.getId());
             }
         }
 
-        RenderProxy getRenderProxy() {
-            return mLinkHelper.getRenderer();
+        NativeRenderer getNativeRenderer() {
+            return mNativeRenderer;
         }
 
         public void removeRootView(int rootId) {
@@ -894,9 +872,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstanceResume() {
-            if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
-                mLinkHelper.getRenderer().onResume();
-            }
+            mNativeRenderer.onResume();
             if (getBridgeManager() != null && mRootView != null) {
                 getBridgeManager().resumeInstance(mRootView.getId());
             }
@@ -904,9 +880,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstancePause() {
-            if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
-                mLinkHelper.getRenderer().onPause();
-            }
+            mNativeRenderer.onPause();
             if (getBridgeManager() != null && mRootView != null) {
                 getBridgeManager().pauseInstance(mRootView.getId());
             }
@@ -914,10 +888,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Override
         public void onInstanceDestroy(int rootId) {
-            if (mLinkHelper.getRenderer() instanceof NativeRenderProxy) {
-                ((NativeRenderProxy) mLinkHelper.getRenderer()).onRootDestroy(rootId);
-            }
-            mLinkHelper.destroyRootView(rootId);
+            mNativeRenderer.onRootDestroy(rootId);
+            mDomManager.removeRoot(rootId);
         }
 
         @Override
@@ -943,13 +915,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
-        public int getWorkerManagerId() {
-            return mLinkHelper.getWorkerManagerId();
-        }
-
-        @Override
         public int getDomManagerId() {
-            return Objects.requireNonNull(mLinkHelper.getDomHolder()).getInstanceId();
+            return mDomManager.getInstanceId();
         }
 
         @Override
@@ -968,8 +935,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         @Nullable
         public View createRootView(@NonNull Context context) {
-            View rootView = mLinkHelper.createRootView(context);
-            mLinkHelper.connect((int) mRuntimeId, rootView.getId());
+            View rootView = mNativeRenderer.createRootView(context);
+            mDomManager.setRoot(rootView.getId());
+            mJsDriver.setRoot(rootView.getId());
             return rootView;
         }
 
@@ -995,15 +963,18 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (onReLoad && mRootView != null) {
                 onInstanceDestroy(mRootView.getId());
             }
-            if (mBridgeManager != null) {
-                mBridgeManager.destroy();
+            mBridgeManager.destroy();
+            mModuleManager.destroy();
+            if (!onReLoad) {
+                mDomManager.destroy();
             }
-            if (mModuleManager != null) {
-                mModuleManager.destroy();
-            }
+            mNativeRenderer.destroy();
+            mVfsManager.destroy();
+            onDestroyVfs(mVfsManager.getId());
             if (mEngineLifecycleEventListeners != null) {
                 mEngineLifecycleEventListeners.clear();
             }
+
             if (mVfsManager != null) {
                 mVfsManager.destroy();
                 onDestroyVfs(mVfsManager.getId());
@@ -1011,10 +982,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mDevtoolsManager != null) {
                 mDevtoolsManager.destroy(onReLoad);
             }
+
             if (mNativeParams != null) {
                 mNativeParams.clear();
             }
-            mLinkHelper.destroy(onReLoad);
         }
     }
 

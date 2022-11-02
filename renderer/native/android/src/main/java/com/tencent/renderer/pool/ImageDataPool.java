@@ -16,11 +16,11 @@
 
 package com.tencent.renderer.pool;
 
+import android.util.LruCache;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.collection.LruCache;
-import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.renderer.component.image.ImageDataHolder;
+import com.tencent.renderer.component.image.ImageDataSupplier;
 
 public class ImageDataPool extends NativeRenderPool<Integer, ImageDataSupplier> {
 

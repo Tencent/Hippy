@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.framework;
+package com.tencent.renderer;
 
-public interface JSFrameworkProxy extends FrameworkProxy {
+public abstract class Renderer implements RenderProxy, RenderExceptionHandler {
 
-    void updateDimension(int width, int height, boolean shouldUseScreenDisplay,
-            boolean systemUiVisibilityChanged);
-
-    Object getCustomViewCreator();
-
-    String getBundlePath();
+    /**
+     * Return the custom view creator of renderer
+     *
+     * @return custom view creator object
+     */
+    public abstract Object getCustomViewCreator();
 }

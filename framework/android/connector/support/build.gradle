@@ -38,9 +38,5 @@ android {
 }
 
 dependencies {
-    compileOnly project(path: ':connector-support')
-    compileOnly project(path: ':renderer-native')
-    compileOnly project(path: ':hippy-support')
-
     implementation 'androidx.annotation:annotation:1.0.0'
 }

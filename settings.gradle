@@ -33,6 +33,9 @@ project(':connector-driver-js').projectDir = new File('framework/android/connect
 include 'connector-renderer-native'
 project(':connector-renderer-native').projectDir = new File('framework/android/connector/renderer/native')
 
+include 'connector-support'
+project(':connector-support').projectDir = new File('framework/android/connector/support')
+
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
 include ':android'
