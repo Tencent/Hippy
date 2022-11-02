@@ -55,7 +55,7 @@ class HippyFile {
   static bool ReadFile(const unicode_string_view& file_path,
                        std::basic_string<CharType>& bytes,
                        bool is_auto_fill) {
-    unicode_string_view owner(""_u8s);
+    unicode_string_view owner(u8""_u8s);
     const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
     std::ifstream file(path);
     if (!file.fail()) {

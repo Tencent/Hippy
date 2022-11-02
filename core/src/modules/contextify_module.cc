@@ -68,7 +68,8 @@ void ContextifyModule::RunInThisContext(const hippy::napi::CallbackInfo& info) {
   const auto& source_code =
       hippy::GetNativeSourceCode(StringViewUtils::ToU8StdStr(key));
   std::shared_ptr<TryCatch> try_catch = CreateTryCatchScope(true, context);
-  unicode_string_view str_view(source_code.data_, source_code.length_);
+  unicode_string_view str_view(reinterpret_cast<const unicode_string_view::char8_t_ *>(source_code.data_),
+                               source_code.length_);
 #ifdef JS_V8
   auto ret = context->RunScript(str_view, key, false, nullptr, false);
 #else
