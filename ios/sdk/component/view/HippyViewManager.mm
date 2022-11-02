@@ -362,11 +362,24 @@ HIPPY_CUSTOM_SHADOW_PROPERTY(direction, MTTDirection, HippyShadowView) {
     }
 }
 
-HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlignment, HippyTextAttachmentVerticalAlign, HippyShadowView) {
-    if (json) {
-        view.verticalAlignment = (HippyTextAttachmentVerticalAlign)[HippyConvert int:json];;
+HIPPY_CUSTOM_SHADOW_PROPERTY(verticalAlign, HippyTextAttachmentVerticalAlign, HippyShadowView) {
+    if (json && [json isKindOfClass:NSString.class]) {
+        if ([json isEqualToString:@"middle"]) {
+            view.verticalAlignType = HippyTextAttachmentVerticalAlignMiddle;
+        } else if ([json isEqualToString:@"bottom"]) {
+            view.verticalAlignType = HippyTextAttachmentVerticalAlignBottom;
+        } else if ([json isEqualToString:@"top"]) {
+            view.verticalAlignType = HippyTextAttachmentVerticalAlignTop;
+        } else if ([json isEqualToString:@"baseline"]) {
+            view.verticalAlignType = HippyTextAttachmentVerticalAlignBaseline;
+        } else {
+            HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);
+        }
+    } else if ([json isKindOfClass:NSNumber.class]) {
+        view.verticalAlignType = HippyTextAttachmentVerticalAlignMiddle;
+        view.verticalAlignOffset = [HippyConvert CGFloat:json];
     } else {
-        view.verticalAlignment = HippyTextAttachmentVerticalAlignBottom;
+        HippyLogError(@"Unsupported value for verticalAlign of Text Attachment: %@, type: %@", json, [json classForCoder]);
     }
 }
 

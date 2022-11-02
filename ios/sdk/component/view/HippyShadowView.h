@@ -104,10 +104,6 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
 
 @property (nonatomic, assign) CGRect frame;
 
-/// Vertical Alignment as Text Attachment,
-/// Note that this property only takes effect under this condition.
-@property (nonatomic, assign) NSInteger verticalAlignment;
-
 - (void)setTopLeft:(CGPoint)topLeft;
 - (void)setSize:(CGSize)size;
 
@@ -176,6 +172,19 @@ typedef void (^HippyApplierVirtualBlock)(NSDictionary<NSNumber *, HippyVirtualNo
  * Clipping properties
  */
 @property (nonatomic, assign) OverflowType overflow;
+
+
+#pragma mark - Text Attachment Properties
+
+/// Vertical Alignment as Text Attachment,
+/// Note that this property only takes effect under this condition.
+@property (nonatomic, assign) HippyTextAttachmentVerticalAlign verticalAlignType;
+/// Vertical Align Offset as Text Attachment,
+/// Note that this property only takes effect under this condition.
+@property (nonatomic, assign) CGFloat verticalAlignOffset;
+
+
+#pragma mark -
 
 /**
  * Calculate property changes that need to be propagated to the view.

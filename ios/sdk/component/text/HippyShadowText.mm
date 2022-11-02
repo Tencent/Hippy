@@ -272,33 +272,33 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 if (isnan(width) || isnan(height)) {
                     HippyLogError(@"Views nested within a <Text> must have a width and height");
                 }
-                
-                //rect for attachment at its line fragment
-                CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
+                // Use line fragment's rect instead of glyph rect for calculation,
+                // since we have changed the baselineOffset.
+                CGRect lineRect = [layoutManager lineFragmentRectForGlyphAtIndex:range.location effectiveRange:nil withoutAdditionalLayout:YES];
                 CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
                 CGFloat roundedHeight = x5RoundPixelValue(height);
                 CGFloat roundedWidth = x5RoundPixelValue(width);
                 
                 CGFloat positionY;
-                switch (child.verticalAlignment) {
-                    case HippyTextAttachmentVerticalAlignCenter: {
-                        positionY = (CGRectGetMaxY(glyphRect) - roundedHeight) / 2.0f;
+                switch (child.verticalAlignType) {
+                    case HippyTextAttachmentVerticalAlignBottom: {
+                        positionY = CGRectGetMaxY(lineRect) - roundedHeight;
                         break;
                     }
                     case HippyTextAttachmentVerticalAlignBaseline: {
                         // get baseline-bottom distance from HippyVerticalAlignBaselineOffsetAttributeName
                         NSNumber *baselineToBottom = [layoutManager.textStorage attribute:HippyVerticalAlignBaselineOffsetAttributeName
                                                                                   atIndex:range.location effectiveRange:nullptr];
-                        positionY = CGRectGetMaxY(glyphRect) - roundedHeight - baselineToBottom.doubleValue;
+                        positionY = CGRectGetMaxY(lineRect) - roundedHeight - baselineToBottom.doubleValue;
                         break;
                     }
                     case HippyTextAttachmentVerticalAlignTop: {
-                        positionY = 0;
+                        positionY = CGRectGetMinY(lineRect);
                         break;
                     }
                     default: {
-                        // default is at bottom
-                        positionY = CGRectGetMaxY(glyphRect) - roundedHeight;
+                        // default is middle
+                        positionY = CGRectGetMinY(lineRect) + (CGRectGetHeight(lineRect) - roundedHeight) / 2.0f - child.verticalAlignOffset;
                         break;
                     }
                 }
@@ -458,12 +458,6 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
             [attachmentString addAttribute:HippyShadowViewAttributeName
                                      value:child range:(NSRange) { 0, attachmentString.length }];
-            
-            // ray test code
-            CGFloat hue = (arc4random() % 256) / 255.0;
-            UIColor *randomColor = [UIColor colorWithHue:hue saturation:1.0 brightness:1.0 alpha:1.0];
-            [attachmentString addAttribute:NSBackgroundColorAttributeName value:randomColor range:(NSRange) { 0, attachmentString.length }];
-
             
             [attributedString appendAttributedString:attachmentString];
             if (height > heightOfTallestSubview) {
@@ -839,7 +833,6 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
 - (BOOL)layoutManager:(NSLayoutManager *)layoutManager shouldSetLineFragmentRect:(inout CGRect *)lineFragmentRect
  lineFragmentUsedRect:(inout CGRect *)lineFragmentUsedRect baselineOffset:(inout CGFloat *)baselineOffset
       inTextContainer:(NSTextContainer *)textContainer forGlyphRange:(NSRange)glyphRange {
-    
     if (_hasTextAttachment) {
         __block CGFloat maxAttachmentHeight = .0f;
         __block BOOL isAlignBaseline = NO;
@@ -847,7 +840,7 @@ HIPPY_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
                                               inRange:glyphRange options:0
                                            usingBlock:^(HippyShadowView *child, NSRange range, __unused BOOL *_) {
             if (child) {
-                if (HippyTextAttachmentVerticalAlignBaseline == child.verticalAlignment) {
+                if (HippyTextAttachmentVerticalAlignBaseline == child.verticalAlignType) {
                     isAlignBaseline = YES;
                 }
                 float height = MTTNodeLayoutGetHeight(child.nodeRef);
