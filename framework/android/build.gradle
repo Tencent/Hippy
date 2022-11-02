@@ -148,6 +148,7 @@ dependencies {
   compileOnly project(path: ':connector-dom')
   compileOnly project(path: ':connector-driver-js')
   compileOnly project(path: ':connector-renderer-native')
+  compileOnly project(path: ':connector-support')
   //noinspection GradleDependency
   implementation deps.annotation
 

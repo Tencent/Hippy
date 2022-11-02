@@ -82,6 +82,7 @@ dependencies {
         api project(path: ':connector-dom')
         api project(path: ':connector-driver-js')
         api project(path: ':connector-renderer-native')
+        api project(path: ':connector-support')
     }
     // noinspection GradleDependency
     api 'com.github.bumptech.glide:glide:3.6.1'

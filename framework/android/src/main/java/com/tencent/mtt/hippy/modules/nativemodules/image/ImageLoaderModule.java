@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.modules.nativemodules.image;
 
-import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
-import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.tencent.renderer.component.image.ImageDataSupplier;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.image.ImageRequestListener;
 
 @SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "ImageLoaderModule")

@@ -22,12 +22,11 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
-import com.tencent.link_supplier.proxy.renderer.RenderExceptionHandler;
 import com.tencent.mtt.hippy.HippyInstanceLifecycleEventListener;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.renderer.node.VirtualNode;
 
 import com.tencent.renderer.utils.EventUtils.EventType;

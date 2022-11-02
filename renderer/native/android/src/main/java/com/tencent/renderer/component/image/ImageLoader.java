@@ -19,16 +19,11 @@ package com.tencent.renderer.component.image;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
-import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.renderer.pool.ImageDataPool;
 import com.tencent.renderer.pool.Pool;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public abstract class ImageLoader implements ImageLoaderAdapter {
 

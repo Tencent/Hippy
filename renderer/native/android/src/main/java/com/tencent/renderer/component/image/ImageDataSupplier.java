@@ -14,10 +14,44 @@
  * limitations under the License.
  */
 
-package com.tencent.mtt.hippy.adapter.font;
+package com.tencent.renderer.component.image;
 
-import com.tencent.renderer.component.text.FontAdapter;
+import android.graphics.Bitmap;
+import android.graphics.Movie;
+import android.graphics.drawable.Drawable;
 
-public interface HippyFontScaleAdapter extends FontAdapter {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+public interface ImageDataSupplier {
+
+    @Nullable
+    Drawable getDrawable();
+
+    @Nullable
+    Bitmap getBitmap();
+
+    @Nullable
+    Movie getGifMovie();
+
+    boolean checkImageData();
+
+    boolean isRecyclable();
+
+    @NonNull
+    String getSource();
+
+    int getImageWidth();
+
+    int getImageHeight();
+
+    void clear();
+
+    void attached();
+
+    void detached();
+
+    void cached();
+
+    void evicted();
 }

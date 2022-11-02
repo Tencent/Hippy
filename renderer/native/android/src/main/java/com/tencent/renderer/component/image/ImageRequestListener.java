@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.framework;
+package com.tencent.renderer.component.image;
 
 public interface ImageRequestListener {
 

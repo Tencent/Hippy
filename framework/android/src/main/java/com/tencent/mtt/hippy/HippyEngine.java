@@ -23,8 +23,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import com.openhippy.connector.JsDriver.V8InitParams;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
-import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.HippyLogAdapter;
 import com.tencent.mtt.hippy.adapter.device.DefaultDeviceAdapter;
@@ -57,6 +55,8 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 
+import com.tencent.renderer.ControllerProvider;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

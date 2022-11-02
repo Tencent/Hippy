@@ -21,11 +21,11 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
 import com.tencent.mtt.hippy.views.custom.HippyCustomPropsController;
+import com.tencent.renderer.Renderer;
 import com.tencent.renderer.component.Component;
 import com.tencent.renderer.component.ComponentController;
 import com.tencent.renderer.component.image.ImageComponentController;

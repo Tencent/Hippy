@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.renderer;
+package com.tencent.renderer;
 
 import android.content.Context;
 import android.view.View;

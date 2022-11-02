@@ -34,12 +34,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
-import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
-import com.tencent.link_supplier.proxy.framework.JSFrameworkProxy;
-import com.tencent.link_supplier.proxy.renderer.NativeRenderProxy;
-import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.common.Callback;
 import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
@@ -48,6 +42,8 @@ import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.text.FontAdapter;
 import com.tencent.renderer.component.text.TextRenderSupplier;
 import com.tencent.renderer.node.ListItemRenderNode;
 import com.tencent.renderer.node.RenderNode;
@@ -80,6 +76,7 @@ import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.renderer.utils.FlexUtils;
 import com.tencent.renderer.utils.FlexUtils.FlexMeasureMode;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class NativeRenderer extends Renderer implements NativeRender, NativeRenderProxy,
         NativeRenderDelegate {
@@ -101,6 +98,8 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
     private static final String SNAPSHOT_UPDATE_LAYOUT = "updateLayout";
     /** The max capacity of UI task queue */
     private static final int MAX_UI_TASK_QUEUE_CAPACITY = 1000;
+    private static final int ROOT_VIEW_ID_INCREMENT = 10;
+    private static final AtomicInteger sRootIdCounter = new AtomicInteger(0);
     @Nullable
     private FrameworkProxy mFrameworkProxy;
     @Nullable
@@ -242,13 +241,11 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     @Override
     @NonNull
-    public View createRootView(@NonNull Context context, int rootId) {
-        View rootView = mRenderManager.getRootView(rootId);
-        if (rootView == null) {
-            rootView = new HippyRootView(context, mRenderProvider.getInstanceId(), rootId);
-            mRenderManager.createRootNode(rootId);
-            mRenderManager.addRootView(rootView);
-        }
+    public View createRootView(@NonNull Context context) {
+        int rootId = sRootIdCounter.addAndGet(ROOT_VIEW_ID_INCREMENT);
+        HippyRootView rootView = new HippyRootView(context, mRenderProvider.getInstanceId(), rootId);
+        mRenderManager.createRootNode(rootId);
+        mRenderManager.addRootView(rootView);
         return rootView;
     }
 

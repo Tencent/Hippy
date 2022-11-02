@@ -14,44 +14,25 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.framework;
+package com.tencent.renderer;
 
-import android.graphics.Bitmap;
-import android.graphics.Movie;
-import android.graphics.drawable.Drawable;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.text.FontAdapter;
+import java.util.concurrent.Executor;
 
-public interface ImageDataSupplier {
-
-    @Nullable
-    Drawable getDrawable();
-
-    @Nullable
-    Bitmap getBitmap();
+public interface FrameworkProxy {
 
     @Nullable
-    Movie getGifMovie();
+    ImageLoaderAdapter getImageLoaderAdapter();
 
-    boolean checkImageData();
+    @Nullable
+    FontAdapter getFontAdapter();
 
-    boolean isRecyclable();
+    @Nullable
+    Executor getBackgroundExecutor();
 
-    @NonNull
-    String getSource();
+    void onFirstViewAdded();
 
-    int getImageWidth();
-
-    int getImageHeight();
-
-    void clear();
-
-    void attached();
-
-    void detached();
-
-    void cached();
-
-    void evicted();
+    void handleNativeException(Exception exception);
 }

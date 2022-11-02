@@ -17,26 +17,83 @@
 package com.openhippy.connector;
 
 import android.content.res.AssetManager;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
 @SuppressWarnings("JavaJniMissingFunction")
-public class JsDriver {
+public class JsDriver implements Connector {
+
+    private int mRuntimeId;
+    @Nullable
+    private WeakReference<JSBridgeProxy> mBridgeProxy;
 
     public static class V8InitParams {
+
         public long initialHeapSize;
         public long maximumHeapSize;
     }
 
+    public void setBridgeProxy(@NonNull JSBridgeProxy bridgeProxy) {
+        mBridgeProxy = new WeakReference<>(bridgeProxy);
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
+    @Override
+    public int getInstanceId() {
+        return mRuntimeId;
+    }
+
+    public void setInstanceId(int runtimeId) {
+        mRuntimeId = runtimeId;
+    }
+
+    public void setDom(@NonNull Connector domConnector) {
+        connectToDom(domConnector.getInstanceId());
+    }
+
+    public void setRoot(int rootId) {
+        connectToRoot(mRuntimeId, rootId);
+    }
+
+    public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
+        if (mBridgeProxy != null && mBridgeProxy.get() != null) {
+            mBridgeProxy.get().callNatives(moduleName, moduleFunc, callId, buffer);
+        }
+    }
+
+    public void callNatives(String moduleName, String moduleFunc, String callId,
+            ByteBuffer buffer) {
+        if (mBridgeProxy != null && mBridgeProxy.get() != null) {
+            mBridgeProxy.get().callNatives(moduleName, moduleFunc, callId, buffer);
+        }
+    }
+
+    /**
+     * Will call native jni to connect driver runtime with root node.
+     *
+     * @param runtimeId driver runtime id
+     * @param rootId root node id
+     */
+    private native void connectToRoot(int runtimeId, int rootId);
+
+    private native void connectToDom(int domId);
+
     public native long initJSFramework(byte[] globalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
-            long groupId, int workerManagerId, int domManagerId,
-            V8InitParams v8InitParams, String dataDir, String wsUrl);
+            long groupId, int domManagerId, V8InitParams v8InitParams, String dataDir, String wsUrl);
 
     public native boolean runScriptFromUri(String uri, AssetManager assetManager,
             boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId, int vfsId,
             NativeCallback callback);
 
-    public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload, NativeCallback callback);
+    public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload,
+            NativeCallback callback);
 
     public native void callFunction(String action, long V8RuntimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);

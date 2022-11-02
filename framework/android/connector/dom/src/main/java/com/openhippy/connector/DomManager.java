@@ -16,35 +16,79 @@
 
 package com.openhippy.connector;
 
+import androidx.annotation.NonNull;
+
 @SuppressWarnings("JavaJniMissingFunction")
-public class DomManager {
+public class DomManager implements Connector {
 
     private final int mInstanceId;
 
-    public DomManager(int workerManagerId) {
-        mInstanceId = createDomInstance(workerManagerId);
+    public DomManager() {
+        mInstanceId = createDomInstance();
     }
 
-    public void destroy(int workerManagerId) {
-        destroyDomInstance(workerManagerId, mInstanceId);
+    public DomManager(int instanceId, int rootId) {
+        mInstanceId = instanceId;
+        setRoot(rootId);
     }
 
+    @Override
+    public void destroy() {
+        destroyDomInstance(mInstanceId);
+    }
+
+    @Override
     public int getInstanceId() {
         return mInstanceId;
     }
+
+    public void setRenderer(@NonNull Connector rendererConnector) {
+        connectToRenderer(rendererConnector.getInstanceId());
+    }
+
+    public void setRoot(int rootId) {
+        connectToRoot(mInstanceId, rootId);
+    }
+
+    public void removeRoot(int rootId) {
+        disconnectFromRoot(mInstanceId, rootId);
+    }
+
+    /**
+     * Connect to renderer with unique id.
+     *
+     * @param rendererId the unique id of renderer
+     */
+    private native void connectToRenderer(int rendererId);
+
+    /**
+     * Add the specified root id to native (C++) dom manager.
+     *
+     * @param domId the unique id of native (C++) dom manager
+     * @param rootId the root node id
+     */
+    private native void connectToRoot(int domId, int rootId);
+
+    /**
+     * Remove the specified root id from native (C++) dom manager.
+     *
+     * @param domId the unique id of native (C++) dom manager
+     * @param rootId the root node id
+     */
+    private native void disconnectFromRoot(int domId, int rootId);
 
     /**
      * Create native (C++) dom manager instance.
      *
      * @return the unique id of native (C++) dom manager
      */
-    private native int createDomInstance(int workerManagerId);
+    private native int createDomInstance();
 
     /**
      * Release native (C++) dom manager instance.
-     * @param workerManagerId the unique id of native (C++) worker manager
+     *
      * @param domManagerId the unique id of native (C++) dom manager
      */
-    private native void destroyDomInstance(int workerManagerId, int domManagerId);
+    private native void destroyDomInstance(int domManagerId);
 
 }

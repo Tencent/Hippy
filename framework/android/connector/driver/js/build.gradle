@@ -38,5 +38,7 @@ android {
 }
 
 dependencies {
+    compileOnly project(path: ':connector-support')
+
     implementation 'androidx.annotation:annotation:1.0.0'
 }

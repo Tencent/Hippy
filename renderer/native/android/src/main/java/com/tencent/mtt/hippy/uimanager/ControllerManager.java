@@ -28,7 +28,6 @@ import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.mtt.hippy.annotation.HippyController;
 import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
@@ -58,6 +57,7 @@ import com.tencent.renderer.NativeRender;
 
 import com.tencent.renderer.NativeRenderException;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.RenderNode;
 import com.tencent.renderer.pool.NativeRenderPool.PoolType;

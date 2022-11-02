@@ -24,7 +24,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 
 import android.graphics.Bitmap;

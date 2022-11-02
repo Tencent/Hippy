@@ -24,9 +24,9 @@ import android.content.Context;
 import android.view.View;
 import androidx.annotation.NonNull;
 
-import com.tencent.link_supplier.proxy.renderer.Renderer;
 import com.tencent.renderer.NativeRenderContext;
 import com.tencent.renderer.NativeRendererManager;
+import com.tencent.renderer.Renderer;
 import com.tencent.renderer.node.RootRenderNode;
 import com.tencent.renderer.node.VirtualNode;
 import com.tencent.renderer.node.TextRenderNode;

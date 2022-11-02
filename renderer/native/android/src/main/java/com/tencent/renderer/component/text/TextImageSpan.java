@@ -37,9 +37,6 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.framework.ImageDataSupplier;
-import com.tencent.link_supplier.proxy.framework.ImageLoaderAdapter;
-import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.utils.ContextHolder;
@@ -47,6 +44,9 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
 import com.tencent.renderer.NativeRender;
 import com.tencent.renderer.component.image.ImageDataHolder;
+import com.tencent.renderer.component.image.ImageDataSupplier;
+import com.tencent.renderer.component.image.ImageLoaderAdapter;
+import com.tencent.renderer.component.image.ImageRequestListener;
 import com.tencent.renderer.node.ImageVirtualNode;
 
 import com.tencent.renderer.utils.EventUtils.EventType;
@@ -196,6 +196,7 @@ public class TextImageSpan extends ImageSpan {
             props.pushInt(NodeProps.HEIGHT, mHeight);
             doFetchImage(url, props, adapter);
         } else {
+            assert url != null;
             ImageDataSupplier supplier = adapter.getLocalImage(url, mWidth, mHeight);
             if (supplier instanceof ImageDataHolder) {
                 shouldReplaceDrawable((ImageDataHolder) supplier);

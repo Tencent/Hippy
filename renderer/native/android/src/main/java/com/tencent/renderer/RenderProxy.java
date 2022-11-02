@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.link_supplier.proxy.renderer;
+package com.tencent.renderer;
 
 import android.app.Activity;
 import android.content.Context;
@@ -23,12 +23,21 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tencent.link_supplier.LinkHelper;
-import com.tencent.link_supplier.proxy.LinkProxy;
-import com.tencent.link_supplier.proxy.framework.FrameworkProxy;
-import java.util.ArrayList;
 import java.util.List;
 
-public interface RenderProxy extends LinkProxy {
+public interface RenderProxy {
+
+    /**
+     * Get renderer instance identify.
+     *
+     * @return the instance id of renderer.
+     */
+    int getInstanceId();
+
+    /**
+     * Will destroy renderer instance.
+     */
+    void destroy();
 
     /**
      * Set framework proxy to renderer
@@ -41,11 +50,10 @@ public interface RenderProxy extends LinkProxy {
      * Create root view by renderer
      *
      * @param context {@link Context} the root view container context, such as {@link Activity}
-     * @param rootId the root view id
      * @return the rootView {@link ViewGroup} will attach to host view tree
      */
     @NonNull
-    View createRootView(@NonNull Context context, int rootId);
+    View createRootView(@NonNull Context context);
 
 
     /**

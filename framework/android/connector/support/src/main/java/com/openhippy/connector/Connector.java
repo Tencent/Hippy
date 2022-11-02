@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tencent.link_supplier.proxy.renderer;
 
-import java.util.List;
+package com.openhippy.connector;
 
-public interface ControllerProvider {
+public interface Connector {
 
-  List<Class<?>> getControllers();
+    int getInstanceId();
+
+    void destroy();
 }

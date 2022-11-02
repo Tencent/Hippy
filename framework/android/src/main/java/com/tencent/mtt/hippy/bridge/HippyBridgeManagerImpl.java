@@ -24,6 +24,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import com.openhippy.connector.JsDriver;
 import com.openhippy.connector.JsDriver.V8InitParams;
 import com.openhippy.connector.NativeCallback;
 import com.tencent.mtt.hippy.HippyEngine;
@@ -80,14 +82,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
     final HippyEngineContext mContext;
     final HippyBundleLoader mCoreBundleLoader;
-    HippyBridge mHippyBridge;
+    private final HippyBridge mHippyBridge;
     volatile boolean mIsInit = false;
     Handler mHandler;
-    final int mBridgeType;
-    final boolean enableV8Serialization;
+    final boolean mEnableV8Serialization;
     ArrayList<String> mLoadedBundleInfo = null;
-    private final boolean mIsDevModule;
-    private final String mDebugServerHost;
     private final int mGroupId;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private StringBuilder mStringBuilder;
@@ -97,23 +96,19 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     private com.tencent.mtt.hippy.serialization.recommend.Serializer recommendSerializer;
     HippyEngine.ModuleListener mLoadModuleListener;
     private TurboModuleManager mTurboModuleManager;
-    private V8InitParams v8InitParams;
     private NativeCallback mCallFunctionCallback;
 
     public HippyBridgeManagerImpl(HippyEngineContext context, HippyBundleLoader coreBundleLoader,
             int bridgeType, boolean enableV8Serialization, boolean isDevModule,
-            String debugServerHost,
-            int groupId, HippyThirdPartyAdapter thirdPartyAdapter, V8InitParams v8InitParams) {
+            String debugServerHost, int groupId, HippyThirdPartyAdapter thirdPartyAdapter,
+            V8InitParams v8InitParams, @NonNull JsDriver jsDriver) {
         mContext = context;
         mCoreBundleLoader = coreBundleLoader;
-        mBridgeType = bridgeType;
-        mIsDevModule = isDevModule;
-        mDebugServerHost = debugServerHost;
         mGroupId = groupId;
         mThirdPartyAdapter = thirdPartyAdapter;
-        this.enableV8Serialization = enableV8Serialization;
-        this.v8InitParams = v8InitParams;
-
+        mEnableV8Serialization = enableV8Serialization;
+        mHippyBridge = new HippyBridgeImpl(context, this, bridgeType == BRIDGE_TYPE_SINGLE_THREAD,
+                enableV8Serialization, isDevModule, debugServerHost, v8InitParams, jsDriver);
         if (enableV8Serialization) {
             compatibleSerializer = new Serializer();
             recommendSerializer = new com.tencent.mtt.hippy.serialization.recommend.Serializer();
@@ -140,7 +135,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 recommendSerializer : compatibleSerializer;
         if (msg.arg1 == BridgeTransferType.BRIDGE_TRANSFER_TYPE_NIO.value()) {
             ByteBuffer buffer;
-            if (enableV8Serialization) {
+            if (mEnableV8Serialization) {
                 if (safeDirectWriter == null) {
                     safeDirectWriter = new SafeDirectWriter(SafeDirectWriter.INITIAL_CAPACITY, 0);
                 } else {
@@ -161,7 +156,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
 
             mHippyBridge.callFunction(functionId, mCallFunctionCallback, buffer);
         } else {
-            if (enableV8Serialization) {
+            if (mEnableV8Serialization) {
                 if (safeHeapWriter == null) {
                     safeHeapWriter = new SafeHeapWriter();
                 } else {
@@ -174,7 +169,8 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
                 ByteBuffer buffer = safeHeapWriter.chunked();
                 int offset = buffer.arrayOffset() + buffer.position();
                 int length = buffer.limit() - buffer.position();
-                mHippyBridge.callFunction(functionId, mCallFunctionCallback, buffer.array(), offset, length);
+                mHippyBridge.callFunction(functionId, mCallFunctionCallback, buffer.array(), offset,
+                        length);
             } else {
                 mStringBuilder.setLength(0);
                 byte[] bytes = ArgumentUtils.objectToJsonOpt(msg.obj, mStringBuilder).getBytes(
@@ -218,16 +214,12 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
     }
 
     @Override
-    public boolean handleMessage(@SuppressWarnings("NullableProblems") Message msg) {
+    public boolean handleMessage(Message msg) {
         try {
             switch (msg.what) {
                 case MSG_CODE_INIT_BRIDGE: {
                     @SuppressWarnings("unchecked") final com.tencent.mtt.hippy.common.Callback<Boolean> callback = (com.tencent.mtt.hippy.common.Callback<Boolean>) msg.obj;
                     try {
-                        mHippyBridge = new HippyBridgeImpl(mContext, HippyBridgeManagerImpl.this,
-                                mBridgeType == BRIDGE_TYPE_SINGLE_THREAD, enableV8Serialization,
-                                this.mIsDevModule, this.mDebugServerHost, v8InitParams);
-
                         mHippyBridge.initJSBridge(getGlobalConfigs(), new NativeCallback(mHandler) {
                             @Override
                             public void Call(long result, Message message, String action,
