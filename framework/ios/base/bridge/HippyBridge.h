@@ -24,12 +24,12 @@
 
 #import "HippyBridgeDelegate.h"
 #import "HippyBridgeModule.h"
-#import "MacroDefines.h"
 #import "HippyMethodInterceptorProtocol.h"
 #import "HippyModulesSetup.h"
+#import "HPInvalidating.h"
 #import "HPRenderContext.h"
 #import "HPRenderFrameworkProxy.h"
-#import "HPInvalidating.h"
+#import "MacroDefines.h"
 
 #include <memory>
 #include "dom/animation/animation_manager.h"
@@ -110,10 +110,11 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
 @property (nonatomic, strong) NSString *moduleName;
 
 /**
- * URL of the script that was loaded into the bridge.
+ * URL of the script that was first loaded into the bridge.
  */
 @property (nonatomic, strong, readonly) NSURL *bundleURL;
 
+@property (nonatomic, strong, readonly) NSURL *debugURL;
 
 /**
  *  Load js bundles from urls

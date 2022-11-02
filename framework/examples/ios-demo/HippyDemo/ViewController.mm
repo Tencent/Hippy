@@ -85,9 +85,9 @@
     NSArray<NSURL *> *bundleURLs = nil;
     NSURL *sandboxDirectory = nil;
 #ifdef HIPPYDEBUG
-    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};
     NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
     NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
     bundleURLs = @[bundleUrl];
     sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
 #else

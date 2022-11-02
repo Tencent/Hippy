@@ -581,20 +581,26 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
 }
 
 - (NSString *)completeWSURLWithBridge:(HippyBridge *)bridge {
-    if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)]) {
-        return @"";
-    }
-    if (![bridge.delegate shouldStartInspector:bridge]) {
+    if (![bridge.delegate respondsToSelector:@selector(shouldStartInspector:)] ||
+        ![bridge.delegate shouldStartInspector:bridge]) {
         return @"";
     }
     HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
-    if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
-        NSURL *url = [bridge.delegate inspectorSourceURLForBridge:bridge];
-        devInfo.scheme = [url scheme];
-        devInfo.ipAddress = [url host];
-        devInfo.port = [NSString stringWithFormat:@"%@", [url port]];
-        devInfo.versionId = [HippyBundleURLProvider parseVersionId:[url path]];
-        [devInfo parseWsURLWithURLQuery:[url query]];
+    if (bridge.debugURL) {
+        NSURL *debugURL = [bridge.delegate inspectorSourceURLForBridge:bridge];
+        devInfo.scheme = [debugURL scheme];
+        devInfo.ipAddress = [debugURL host];
+        devInfo.port = [NSString stringWithFormat:@"%@", [debugURL port]];
+        devInfo.versionId = [HippyBundleURLProvider parseVersionId:[debugURL path]];
+        [devInfo parseWsURLWithURLQuery:[debugURL query]];
+    }
+    else if ([bridge.delegate respondsToSelector:@selector(inspectorSourceURLForBridge:)]) {
+        NSURL *debugURL = [bridge.delegate inspectorSourceURLForBridge:bridge];
+        devInfo.scheme = [debugURL scheme];
+        devInfo.ipAddress = [debugURL host];
+        devInfo.port = [NSString stringWithFormat:@"%@", [debugURL port]];
+        devInfo.versionId = [HippyBundleURLProvider parseVersionId:[debugURL path]];
+        [devInfo parseWsURLWithURLQuery:[debugURL query]];
     } else {
         HippyBundleURLProvider *bundleURLProvider = [HippyBundleURLProvider sharedInstance];
         devInfo.scheme = bundleURLProvider.scheme;
