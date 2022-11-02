@@ -737,7 +737,7 @@ dispatch_queue_t HippyBridgeQueue() {
     return _methodInterceptor;
 }
 
-- (void)setupDomManager:(const std::shared_ptr<hippy::DomManager> &)domManager
+- (void)setupDomManager:(std::shared_ptr<hippy::DomManager>)domManager
                   rootNode:(std::weak_ptr<hippy::RootNode>)rootNode
              renderContext:(id<HPRenderContext>)renderContext {
     __weak HippyBridge *weakSelf = self;
