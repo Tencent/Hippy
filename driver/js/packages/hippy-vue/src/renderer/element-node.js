@@ -225,8 +225,8 @@ class ElementNode extends ViewNode {
     this.id = '';
     // style attribute in template.
     this.style = {};
-    // Vue style scope id.
-    this._styleScopeId = undefined;
+    // Vue style scope id list.
+    this.scopeIdList = [];
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
     // Other attributes in template.
@@ -469,11 +469,13 @@ class ElementNode extends ViewNode {
     if (typeof styleScopeId !== 'string') {
       styleScopeId = styleScopeId.toString();
     }
-    this._styleScopeId = styleScopeId;
+    if (styleScopeId && !this.scopeIdList.includes(styleScopeId)) {
+      this.scopeIdList.push(styleScopeId);
+    }
   }
 
   get styleScopeId() {
-    return this._styleScopeId;
+    return this.scopeIdList;
   }
 
   appendChild(childNode) {
