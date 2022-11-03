@@ -240,10 +240,10 @@ describe('node-ops.ts', () => {
   it('setScopeId method should work correct', () => {
     const element = nodeOps.createElement('div');
     element.setStyleScope('style-scoped-id-1');
-    expect(element.styleScopeId).toEqual('style-scoped-id-1');
+    expect(element.styleScopeId).toEqual(['style-scoped-id-1']);
     element.setStyleScope({});
-    expect(element.styleScopeId).toEqual('[object Object]');
+    expect(element.styleScopeId).toEqual(['style-scoped-id-1', '[object Object]']);
     element.setStyleScope(123456);
-    expect(element.styleScopeId).toEqual('123456');
+    expect(element.styleScopeId).toEqual(['style-scoped-id-1', '[object Object]', '123456']);
   });
 });
