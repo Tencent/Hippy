@@ -43,7 +43,7 @@ void UriLoader::RegisterUriHandler(const std::string& scheme,
 
 void UriLoader::RegisterUriInterceptor(const std::shared_ptr<UriHandler>& handler) {
   std::lock_guard<std::mutex> lock(mutex_);
-  interceptor_.push_back(handler);
+  interceptor_.push_front(handler);
   for (auto [name, list]: router_) {
     list.push_front(handler);
   }
