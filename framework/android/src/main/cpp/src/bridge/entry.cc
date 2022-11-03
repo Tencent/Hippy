@@ -577,7 +577,7 @@ jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager
   auto loader = std::make_shared<UriLoader>();
   auto file_delegate = std::make_shared<FileHandler>();
   loader->RegisterUriHandler(kFileSchema, file_delegate);
-  loader->SetDefaultHandler(delegate);
+  loader->PushDefaultHandler(delegate);
 
   hippy::global_data_holder.Insert(id, loader);
   return footstone::checked_numeric_cast<uint32_t, jint>(id);

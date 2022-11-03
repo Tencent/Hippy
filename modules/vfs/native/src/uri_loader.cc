@@ -34,9 +34,18 @@ void UriLoader::RegisterUriHandler(const std::string& scheme,
   std::lock_guard<std::mutex> lock(mutex_);
   auto it = router_.find(scheme);
   if (it == router_.end()) {
-    router_.insert({scheme, std::list<std::shared_ptr<UriHandler>>{handler}});
+    router_[scheme] = interceptor_;
+    router_[scheme].push_back(handler);
   } else {
     it->second.push_back(handler);
+  }
+}
+
+void UriLoader::RegisterUriInterceptor(const std::shared_ptr<UriHandler>& handler) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  interceptor_.push_back(handler);
+  for (auto [name, list]: router_) {
+    list.push_front(handler);
   }
 }
 
@@ -45,30 +54,21 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
                                         std::function<void(RetCode, std::unordered_map<std::string, std::string>, bytes)> cb) {
   auto scheme = GetScheme(uri);
   auto ctx = std::make_shared<ASyncContext>(uri, meta, cb);
-  if (scheme.empty()) { // get scheme failed
-    FOOTSTONE_CHECK(default_handler_);
-    default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
-      return nullptr;
-    });
-    return;
-  }
-
   std::shared_ptr<std::list<std::shared_ptr<UriHandler>>::iterator> cur_it;
   std::shared_ptr<std::list<std::shared_ptr<UriHandler>>::iterator> end_it;
   bytes content;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     const auto& scheme_it = router_.find(scheme);
-    if (scheme_it == router_.end()) { // scheme not register
-      FOOTSTONE_CHECK(default_handler_);
-      default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
-        return nullptr;
-      });
-      return;
+    if (scheme.empty() || scheme_it == router_.end()) { // get scheme failed or scheme not register
+      FOOTSTONE_CHECK(!default_handler_list_.empty());
+      cur_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(default_handler_list_.begin());
+      end_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(default_handler_list_.end());
+    } else {
+      FOOTSTONE_DCHECK(!scheme_it->second.empty());
+      cur_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(scheme_it->second.begin());
+      end_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(scheme_it->second.end());
     }
-    FOOTSTONE_DCHECK(!scheme_it->second.empty());
-    cur_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(scheme_it->second.begin());
-    end_it = std::make_shared<std::list<std::shared_ptr<UriHandler>>::iterator>(scheme_it->second.end());
   }
   auto weak = weak_from_this();
   std::function<std::shared_ptr<UriHandler>()> next = [weak, cur_it, end_it]() mutable -> std::shared_ptr<UriHandler> {
@@ -88,35 +88,20 @@ void UriLoader::RequestUntrustedContent(const string_view& uri,
                                         bytes& content) {
   auto ctx = std::make_shared<SyncContext>(uri, req_meta);
   auto scheme = GetScheme(uri);
-  if (scheme.empty()) { // get scheme failed
-    FOOTSTONE_CHECK(default_handler_);
-    default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
-      return nullptr;
-    });
-    code = ctx->code;
-    rsp_meta = std::move(ctx->rsp_meta);
-    content = std::move(ctx->content);
-    return;
-  }
-
   std::list<std::shared_ptr<UriHandler>>::iterator cur_it;
   std::list<std::shared_ptr<UriHandler>>::iterator end_it;
   {
     std::lock_guard<std::mutex> lock(mutex_);
     const auto& scheme_it = router_.find(scheme);
-    if (scheme_it == router_.end()) { // scheme not register
-      FOOTSTONE_CHECK(default_handler_);
-      default_handler_->RequestUntrustedContent(ctx, []() -> std::shared_ptr<UriHandler> {
-        return nullptr;
-      });
-      code = ctx->code;
-      rsp_meta = std::move(ctx->rsp_meta);
-      content = std::move(ctx->content);
-      return;
+    if (scheme.empty() || scheme_it == router_.end()) { // get scheme failed or scheme not register
+      FOOTSTONE_CHECK(!default_handler_list_.empty());
+      cur_it = default_handler_list_.begin();
+      end_it = default_handler_list_.end();
+    } else {
+      FOOTSTONE_DCHECK(!scheme_it->second.empty());
+      cur_it = scheme_it->second.begin();
+      end_it = scheme_it->second.end();
     }
-    FOOTSTONE_DCHECK(!scheme_it->second.empty());
-    cur_it = scheme_it->second.begin();
-    end_it = scheme_it->second.end();
   }
 
   std::function<std::shared_ptr<UriHandler>()> next = [this, &cur_it, end_it]() -> std::shared_ptr<UriHandler> {
