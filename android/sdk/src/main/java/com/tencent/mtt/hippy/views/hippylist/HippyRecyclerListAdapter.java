@@ -18,8 +18,6 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-import android.view.MotionEvent;
-import android.view.View.OnTouchListener;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
 import androidx.recyclerview.widget.ItemLayoutParams;
@@ -46,7 +44,7 @@ import java.util.ArrayList;
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
-        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams, OnTouchListener {
+        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams {
 
     private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HippyEngineContext hpContext;
@@ -467,16 +465,5 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             return;
         }
         lp.height = getItemHeight(position);
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (headerRefreshHelper != null) {
-            headerRefreshHelper.onTouch(v, event);
-        }
-        if (footerRefreshHelper != null) {
-            footerRefreshHelper.onTouch(v, event);
-        }
-        return false;
     }
 }

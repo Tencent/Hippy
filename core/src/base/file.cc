@@ -34,7 +34,7 @@ bool HippyFile::SaveFile(const unicode_string_view& file_path,
                          const std::string& content,
                          std::ios::openmode mode) {
   TDF_BASE_DLOG(INFO) << "SaveFile file_path = " << file_path;
-  unicode_string_view owner(""_u8s);
+  unicode_string_view owner(u8""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(file_path, owner);
   std::ofstream file(path, mode);
   if (file.is_open()) {
@@ -52,7 +52,7 @@ bool HippyFile::SaveFile(const unicode_string_view& file_path,
 
 int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
   TDF_BASE_DLOG(INFO) << "RmFullPath dir_full_path = " << dir_full_path;
-  unicode_string_view owner(""_u8s);
+  unicode_string_view owner(u8""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(dir_full_path, owner);
   DIR* dir_parent = opendir(path);
   if (!dir_parent) {
@@ -97,21 +97,21 @@ int HippyFile::RmFullPath(const unicode_string_view& dir_full_path) {
 
 int HippyFile::CreateDir(const unicode_string_view& path, mode_t mode) {
   TDF_BASE_DLOG(INFO) << "CreateDir path = " << path;
-  unicode_string_view owner(""_u8s);
+  unicode_string_view owner(u8""_u8s);
   const char* dir_path = StringViewUtils::ToConstCharPointer(path, owner);
   return mkdir(dir_path, mode);
 }
 
 int HippyFile::CheckDir(const unicode_string_view& path, int mode) {
   TDF_BASE_DLOG(INFO) << "CheckDir path = " << path;
-  unicode_string_view owner(""_u8s);
+  unicode_string_view owner(u8""_u8s);
   const char* dir_path = StringViewUtils::ToConstCharPointer(path, owner);
   return access(dir_path, mode);
 }
 
 uint64_t HippyFile::GetFileModifytime(const unicode_string_view& file_path) {
   TDF_BASE_DLOG(INFO) << "GetFileModifytime file_path = " << file_path;
-  unicode_string_view view_owner(""_u8s);
+  unicode_string_view view_owner(u8""_u8s);
   const char* path = StringViewUtils::ToConstCharPointer(file_path, view_owner);
   struct stat statInfo{};
   FILE* fp = fopen(path, "r");

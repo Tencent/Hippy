@@ -56,7 +56,7 @@
 
     // Don't access the module instance via moduleData, as this will cause deadlock
     id<HippyFrameUpdateObserver> observer = (id<HippyFrameUpdateObserver>)module;
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     observer.pauseCallback = ^{
         typeof(self) strongSelf = weakSelf;
         if (!strongSelf) {

@@ -153,8 +153,6 @@
 		7882DFDC272929D300C12149 /* HippyCSSPropsDefine.m in Sources */ = {isa = PBXBuildFile; fileRef = 7882DFDB272929D300C12149 /* HippyCSSPropsDefine.m */; };
 		789AD030278EDC3200A18C62 /* HippyDevInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 789AD02F278EDC3200A18C62 /* HippyDevInfo.m */; };
 		851AD1F626564568007AF2B0 /* unicode_string_view.cc in Sources */ = {isa = PBXBuildFile; fileRef = 851AD1F526564568007AF2B0 /* unicode_string_view.cc */; };
-		854FC5DC262F0D88002EAD41 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 854FC5CC262F0D88002EAD41 /* .gitignore */; };
-		854FC5DD262F0D88002EAD41 /* .clang-format in Resources */ = {isa = PBXBuildFile; fileRef = 854FC5CD262F0D88002EAD41 /* .clang-format */; };
 		854FC5E2262F0D88002EAD41 /* logging.cc in Sources */ = {isa = PBXBuildFile; fileRef = 854FC5D6262F0D88002EAD41 /* logging.cc */; };
 		854FC5E3262F0D88002EAD41 /* log_settings_state.cc in Sources */ = {isa = PBXBuildFile; fileRef = 854FC5D8262F0D88002EAD41 /* log_settings_state.cc */; };
 		854FC5E5262F0D88002EAD41 /* log_settings.cc in Sources */ = {isa = PBXBuildFile; fileRef = 854FC5DA262F0D88002EAD41 /* log_settings.cc */; };
@@ -530,8 +528,6 @@
 		854FC5C9262F0D88002EAD41 /* log_level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_level.h; sourceTree = "<group>"; };
 		854FC5CA262F0D88002EAD41 /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		854FC5CB262F0D88002EAD41 /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
-		854FC5CC262F0D88002EAD41 /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		854FC5CD262F0D88002EAD41 /* .clang-format */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ".clang-format"; sourceTree = "<group>"; };
 		854FC5D6262F0D88002EAD41 /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
 		854FC5D8262F0D88002EAD41 /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
 		854FC5DA262F0D88002EAD41 /* log_settings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings.cc; sourceTree = "<group>"; };
@@ -552,7 +548,6 @@
 		85BCD3FD2578C57F00638DB4 /* uri_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uri_loader.h; sourceTree = "<group>"; };
 		85BCD3FE2578C57F00638DB4 /* task.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task.h; sourceTree = "<group>"; };
 		85BCD3FF2578C57F00638DB4 /* file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file.h; sourceTree = "<group>"; };
-		85BCD4002578C57F00638DB4 /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = logging.h; sourceTree = "<group>"; };
 		85BCD4012578C57F00638DB4 /* task_runner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = task_runner.h; sourceTree = "<group>"; };
 		85BCD4022578C57F00638DB4 /* thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = thread.h; sourceTree = "<group>"; };
 		85BCD4032578C57F00638DB4 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -1336,8 +1331,6 @@
 			isa = PBXGroup;
 			children = (
 				854FC5C6262F0D88002EAD41 /* include */,
-				854FC5CC262F0D88002EAD41 /* .gitignore */,
-				854FC5CD262F0D88002EAD41 /* .clang-format */,
 				854FC5CE262F0D88002EAD41 /* src */,
 			);
 			path = base;
@@ -1374,17 +1367,9 @@
 		854FC5D0262F0D88002EAD41 /* platform */ = {
 			isa = PBXGroup;
 			children = (
-				854FC5D1262F0D88002EAD41 /* adr */,
 				854FC5D4262F0D88002EAD41 /* ios */,
 			);
 			path = platform;
-			sourceTree = "<group>";
-		};
-		854FC5D1262F0D88002EAD41 /* adr */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = adr;
 			sourceTree = "<group>";
 		};
 		854FC5D4262F0D88002EAD41 /* ios */ = {
@@ -1469,7 +1454,6 @@
 				85BCD3FD2578C57F00638DB4 /* uri_loader.h */,
 				85BCD3FE2578C57F00638DB4 /* task.h */,
 				85BCD3FF2578C57F00638DB4 /* file.h */,
-				85BCD4002578C57F00638DB4 /* logging.h */,
 				85BCD4012578C57F00638DB4 /* task_runner.h */,
 				85BCD4022578C57F00638DB4 /* thread.h */,
 				85BCD4032578C57F00638DB4 /* common.h */,
@@ -1706,8 +1690,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				854FC5DC262F0D88002EAD41 /* .gitignore in Resources */,
-				854FC5DD262F0D88002EAD41 /* .clang-format in Resources */,
 				AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */,
 				064C5AF023AB1A70001E80DD /* res in Resources */,
 			);

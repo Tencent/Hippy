@@ -25,6 +25,7 @@ import android.view.KeyEvent;
 import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.HippyRecyclerViewBase;
 import androidx.recyclerview.widget.IHippyViewAboundListener;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -62,6 +63,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     private int mInitialContentOffset;
     private boolean isTvPlatform = false;
     private HippyRecycleViewFocusHelper mFocusHelper = null;
+    private final int[] mScrollConsumedPair = new int[2];
 
     public HippyRecyclerView(Context context) {
         super(context);
@@ -88,9 +90,6 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     @Override
     public void setAdapter(@Nullable Adapter adapter) {
         listAdapter = (ADP) adapter;
-        if (adapter != null) {
-            setOnTouchListener(listAdapter);
-        }
         super.setAdapter(adapter);
     }
 
@@ -192,21 +191,33 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     /**
-     * 内容偏移，返回recyclerView顶部被滑出去的内容 1、找到顶部第一个View前面的逻辑内容高度 2、加上第一个View被遮住的区域
+     * Vertical offset of the content, might be different than the
+     * {@link #computeVerticalScrollOffset()} if pullHeader exist.
      */
     public int getContentOffsetY() {
-        return computeVerticalScrollOffset();
+        if (HippyListUtils.isVerticalLayout(this)) {
+            int offset = computeVerticalScrollOffset();
+            if (listAdapter.headerRefreshHelper != null) {
+                offset -= listAdapter.headerRefreshHelper.getVisibleSize();
+            }
+            return offset;
+        }
+        return 0;
     }
 
     /**
-     * 内容偏移，返回recyclerView被滑出去的内容 1、找到顶部第一个View前面的逻辑内容宽度 2、加上第一个View被遮住的区域
+     * Horizontal offset of the content, might be different than the
+     * {@link #computeHorizontalScrollOffset()} if pullHeader exist.
      */
     public int getContentOffsetX() {
-        int firstChildPosition = getFirstChildPosition();
-        int totalWidthBeforePosition = getTotalWithBefore(firstChildPosition);
-        int firstChildOffset =
-                listAdapter.getItemWidth(firstChildPosition) - getVisibleWidth(getChildAt(0));
-        return totalWidthBeforePosition + firstChildOffset;
+        if (HippyListUtils.isHorizontalLayout(this)) {
+            int offset = computeHorizontalScrollOffset();
+            if (listAdapter.headerRefreshHelper != null) {
+                offset -= listAdapter.headerRefreshHelper.getVisibleSize();
+            }
+            return offset;
+        }
+        return 0;
     }
 
     /**
@@ -295,14 +306,25 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     public int getNodePositionInAdapter(int position) {
+        if (listAdapter.headerRefreshHelper != null) {
+            // pullHeader exist and occupy position #0, skip it
+            return position + 1;
+        }
         return position;
     }
 
-    public void scrollToIndex(int xIndex, int yPosition, boolean animated, int duration) {
-        int positionInAdapter = getNodePositionInAdapter(yPosition);
+    public void scrollToIndex(int xIndex, int yIndex, boolean animated, int duration) {
+        boolean isHorizontal = HippyListUtils.isHorizontalLayout(this);
+        int positionInAdapter = getNodePositionInAdapter(isHorizontal ? xIndex : yIndex);
         if (animated) {
-            doSmoothScrollY(duration,
-                    getTotalHeightBefore(positionInAdapter) - getContentOffsetY());
+            int deltaX = 0;
+            int deltaY = 0;
+            if (isHorizontal) {
+                deltaX = getTotalHeightBefore(positionInAdapter) - computeHorizontalScrollOffset();
+            } else {
+                deltaY = getTotalHeightBefore(positionInAdapter) - computeVerticalScrollOffset();
+            }
+            doSmoothScrollBy(deltaX, deltaY, duration);
             postDispatchLayout();
         } else {
             scrollToPositionWithOffset(positionInAdapter, 0);
@@ -322,13 +344,15 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         if (!canScrollToContentOffset()) {
             return;
         }
+        int xOffsetInPixel = (int) PixelUtil.dp2px(xOffset);
+        int deltaX = xOffsetInPixel - getContentOffsetX();
         int yOffsetInPixel = (int) PixelUtil.dp2px(yOffset);
         int deltaY = yOffsetInPixel - getContentOffsetY();
         //增加异常保护
         if (animated) {
-            doSmoothScrollY(duration, deltaY);
+            doSmoothScrollBy(deltaX, deltaY, duration);
         } else {
-            scrollBy(0, deltaY);
+            scrollBy(deltaX, deltaY);
         }
     }
 
@@ -344,14 +368,17 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
         return renderNodeCount == getAdapter().getRenderNodeCount();
     }
 
-    private void doSmoothScrollY(int duration, int scrollToYPos) {
+    private void doSmoothScrollBy(int dx, int dy, int duration) {
+        if (dx == 0 && dy == 0) {
+            return;
+        }
         if (duration != 0) {
-            if (scrollToYPos != 0 && !didStructureChange()) {
-                smoothScrollBy(0, scrollToYPos, duration);
+            if (!didStructureChange()) {
+                smoothScrollBy(dx, dy, duration);
                 postDispatchLayout();
             }
         } else {
-            smoothScrollBy(0, scrollToYPos);
+            smoothScrollBy(dx, dy);
             postDispatchLayout();
         }
     }
@@ -366,8 +393,7 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
     }
 
     public void scrollToTop() {
-        LayoutManager layoutManager = getLayoutManager();
-        if (layoutManager.canScrollHorizontally()) {
+        if (HippyListUtils.isHorizontalLayout(this)) {
             smoothScrollBy(-getContentOffsetX(), 0);
         } else {
             smoothScrollBy(0, -getContentOffsetY());
@@ -535,6 +561,89 @@ public class HippyRecyclerView<ADP extends HippyRecyclerListAdapter> extends Hip
 
     /*package*/ ViewGroup.LayoutParams generateStickyLayoutParams() {
         return new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
+    }
+
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {
+        mScrollConsumedPair[0] = 0;
+        mScrollConsumedPair[1] = 0;
+        boolean result = super.dispatchNestedPreScroll(dx, dy, mScrollConsumedPair, offsetInWindow);
+        if (result) {
+            dx -= mScrollConsumedPair[0];
+            dy -= mScrollConsumedPair[1];
+            if (consumed != null) {
+                consumed[0] += mScrollConsumedPair[0];
+                consumed[1] += mScrollConsumedPair[1];
+            }
+        }
+        return handlePullRefresh(dx, dy, consumed) || result;
+    }
+
+    @Override
+    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,
+        int type) {
+        mScrollConsumedPair[0] = 0;
+        mScrollConsumedPair[1] = 0;
+        boolean result = super.dispatchNestedPreScroll(dx, dy, mScrollConsumedPair, offsetInWindow, type);
+        if (result) {
+            dx -= mScrollConsumedPair[0];
+            dy -= mScrollConsumedPair[1];
+            if (consumed != null) {
+                consumed[0] += mScrollConsumedPair[0];
+                consumed[1] += mScrollConsumedPair[1];
+            }
+        }
+        return type == ViewCompat.TYPE_TOUCH && handlePullRefresh(dx, dy, consumed) || result;
+    }
+
+    @Override
+    public void stopNestedScroll() {
+        super.stopNestedScroll();
+        endPullRefresh();
+    }
+
+    @Override
+    public void stopNestedScroll(int type) {
+        super.stopNestedScroll(type);
+        if (type == ViewCompat.TYPE_TOUCH) {
+            endPullRefresh();
+        }
+    }
+
+    protected boolean handlePullRefresh(int dx, int dy, int[] consumed) {
+        if (listAdapter.headerRefreshHelper == null && listAdapter.footerRefreshHelper == null) {
+            return false;
+        }
+        boolean isHorizontal = HippyListUtils.isHorizontalLayout(this);
+        int diff = isHorizontal ? dx : dy;
+        if (diff == 0) {
+            return false;
+        }
+        if (listAdapter.headerRefreshHelper != null) {
+            int myConsumed = listAdapter.headerRefreshHelper.handleDrag(diff);
+            if (myConsumed != 0) {
+                consumed[isHorizontal ? 0 : 1] += myConsumed;
+                return true;
+            }
+        }
+        if (listAdapter.footerRefreshHelper != null) {
+            int myConsumed = listAdapter.footerRefreshHelper.handleDrag(diff);
+            if (myConsumed != 0) {
+                consumed[isHorizontal ? 0 : 1] += myConsumed;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected void endPullRefresh() {
+        if (listAdapter.headerRefreshHelper != null) {
+            listAdapter.headerRefreshHelper.endDrag();
+        }
+        if (listAdapter.footerRefreshHelper != null) {
+            listAdapter.footerRefreshHelper.endDrag();
+        }
     }
 
 }
