@@ -587,7 +587,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
     }
     HippyDevInfo *devInfo = [[HippyDevInfo alloc] init];
     if (bridge.debugURL) {
-        NSURL *debugURL = [bridge.delegate inspectorSourceURLForBridge:bridge];
+        NSURL *debugURL = bridge.debugURL;
         devInfo.scheme = [debugURL scheme];
         devInfo.ipAddress = [debugURL host];
         devInfo.port = [NSString stringWithFormat:@"%@", [debugURL port]];

@@ -217,30 +217,11 @@ dispatch_queue_t HippyBridgeQueue() {
 }
 
 - (void)reload {
-    NSArray<NSURL *> *bundleURLs = [_bundleURLs copy];
-    NSArray<dispatch_block_t> *setupBlocks = [_nativeSetupBlocks copy];
-    NSURL *dir = [self sandboxDirectory];
-    NSString *contextName = _contextName;
-    __weak HippyBridge *weakSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
-        HippyBridge *strongSelf = weakSelf;
-        if (!strongSelf) {
-            return;
-        }
-        strongSelf.invalidateReason = HPInvalidateReasonReload;
-        [strongSelf invalidate];
-        [strongSelf setUp];
-        for (dispatch_block_t block in setupBlocks) {
-            block();
-        }
-        [strongSelf beginLoadingBundles:bundleURLs];
-        if (dir) {
-            [strongSelf.javaScriptExecutor setSandboxDirectory:[dir absoluteString]];
-        }
-        if (contextName) {
-            [strongSelf.javaScriptExecutor setContextName:contextName];
-        }
-    });
+    if ([self.delegate respondsToSelector:@selector(reload:)]) {
+        [self invalidate];
+        [self setUp];
+        [self.delegate reload:self];
+    }
 }
 
 - (void)requestReload {
@@ -795,8 +776,12 @@ dispatch_queue_t HippyBridgeQueue() {
         HippyInstanceLoadBlock *blockInstance = blocks[i];
         blockInstance.loaded = NO;
     }
-
-    [[self.renderContext rootViews] enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [_bundleURLs removeAllObjects];
+    [_nativeSetupBlocks removeAllObjects];
+    [_instanceBlocks removeAllObjects];
+    id<HPRenderContext> renderContext = self.renderContext;
+    self.renderContext = nil;
+    [[renderContext rootViews] enumerateObjectsUsingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([obj respondsToSelector:@selector(invalidate)]) {
             [obj performSelector:@selector(invalidate)];
         }

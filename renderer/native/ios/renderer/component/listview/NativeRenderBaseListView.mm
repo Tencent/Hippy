@@ -20,16 +20,17 @@
  * limitations under the License.
  */
 
+#import "HPAsserts.h"
 #import "NativeRenderBaseListView.h"
-#import "UIView+NativeRender.h"
-#import "NativeRenderObjectView.h"
-#import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderFooterRefresh.h"
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
 #import "NativeRenderCollectionViewFlowLayout.h"
 #import "NativeRenderContext.h"
+#import "NativeRenderFooterRefresh.h"
+#import "NativeRenderHeaderRefresh.h"
+#import "NativeRenderObjectView.h"
 #import "UIView+DirectionalLayout.h"
+#import "UIView+NativeRender.h"
 
 static NSString *const kCellIdentifier = @"cellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
@@ -301,6 +302,10 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
+    HPAssert(self.renderContext, @"no rendercontext detected");
+    if (!self.renderContext) {
+        return;
+    }
     NativeRenderObjectView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
     NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
     UIView *cellView = [self.renderContext viewFromRenderViewTag:cellRenderObject.componentTag  onRootTag:cellRenderObject.rootTag];
@@ -310,7 +315,7 @@ referenceSizeForHeaderInSection:(NSInteger)section {
     else {
         cellView = [self.renderContext createViewRecursivelyFromRenderObject:cellRenderObject];
     }
-    NSAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
+    HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");
     //TODO NativeRenderBaseListViewCell.shadow and NativeRenderShadowView.cell can remove
     hpCell.cellView = cellView;
