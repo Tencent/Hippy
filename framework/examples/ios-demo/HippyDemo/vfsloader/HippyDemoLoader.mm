@@ -22,5 +22,5 @@
 #import "HippyDemoLoader.h"
 
 HippyDemoLoader::HippyDemoLoader() {
-    SetDefaultHandler(std::make_shared<VFSUriHandler>());
+    PushDefaultHandler(std::make_shared<VFSUriHandler>());
 }

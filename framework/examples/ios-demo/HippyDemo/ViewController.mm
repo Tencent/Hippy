@@ -116,7 +116,6 @@ static NSString *const engineKey = @"Demo";
 }
 
 - (void)setupBridge:(HippyBridge *)bridge rootView:(UIView *)rootView bundleURLs:(NSArray<NSURL *> *)bundleURLs props:(NSDictionary *)props {
-    static NSString *const engineKey = @"Demo";
     //Get DomManager from HippyJSEnginesMapper with Engine key
     auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:engineKey];
     auto domManager = engineResource->GetDomManager();

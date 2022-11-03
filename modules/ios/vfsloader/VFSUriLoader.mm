@@ -30,11 +30,11 @@ NSString *const VFSParamsHeaders = @"VFSParamsHeaders";
 NSString *const VFSParamsBody = @"VFSParamsBody";
 
 VFSUriLoader::VFSUriLoader() {
-    SetDefaultHandler(std::make_shared<VFSUriHandler>());
+    PushDefaultHandler(std::make_shared<VFSUriHandler>());
 }
 
 VFSUriLoader::VFSUriLoader(const std::shared_ptr<hippy::vfs::UriHandler> &handler) {
-    SetDefaultHandler(handler);
+    PushDefaultHandler(handler);
 }
 
 void VFSUriLoader::loadContentsAsynchronously(NSURL *url, NSDictionary *headers, URILoaderCompletion completion) {
