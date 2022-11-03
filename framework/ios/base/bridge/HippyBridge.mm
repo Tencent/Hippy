@@ -399,11 +399,7 @@ dispatch_queue_t HippyBridgeQueue() {
       auto notification = devtools_data_source->GetNotificationCenter()->network_notification;
       auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
       devtools_handler->SetNetworkNotification(notification);
-      auto default_handler = _uriLoader->GetDefaultHandler();
-      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpSchemep, devtools_handler);
-      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpSchemep, default_handler);
-      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpsSchemep, devtools_handler);
-      _uriLoader->RegisterUriHandler(hippy::devtools::kHttpsSchemep, default_handler);
+      _uriLoader->RegisterUriInterceptor(devtools_handler);
   }
 #endif
 }

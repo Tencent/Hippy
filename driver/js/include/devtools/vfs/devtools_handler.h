@@ -25,8 +25,6 @@
 #include "api/notification/devtools_network_notification.h"
 
 namespace hippy::devtools {
-constexpr char kHttpSchemep[] = "http";
-constexpr char kHttpsSchemep[] = "https";
 
 class DevtoolsHandler: public UriHandler {
   using NetworkNotification = hippy::devtools::NetworkNotification;

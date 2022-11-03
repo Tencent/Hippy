@@ -60,9 +60,6 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   inline void PushDefaultHandler(std::shared_ptr<UriHandler> handler) {
     default_handler_list_.push_back(handler);
   }
-  inline std::shared_ptr<UriHandler> GetDefaultHandler() {
-    return default_handler_;
-  }
 
  private:
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
