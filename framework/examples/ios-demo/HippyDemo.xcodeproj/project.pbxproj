@@ -16,7 +16,6 @@
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
 		41AD023B04DC30E3D93C3AB7 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41AD0893629285DF331A0011 /* TypeConverter.mm */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
-		9B131517291395A60001F545 /* devtools_handler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B131516291395A60001F545 /* devtools_handler.cc */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -274,8 +273,6 @@
 		41AD0893629285DF331A0011 /* TypeConverter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TypeConverter.mm; sourceTree = "<group>"; };
 		9252AE8A2809532F00B27E50 /* root_node.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = root_node.cc; sourceTree = "<group>"; };
 		9252AE8C2809534100B27E50 /* root_node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = root_node.h; sourceTree = "<group>"; };
-		9B13150C2913958C0001F545 /* devtools_handler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = devtools_handler.h; sourceTree = "<group>"; };
-		9B131516291395A60001F545 /* devtools_handler.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_handler.cc; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		D42D2C7A2833C84D0079B47B /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
@@ -812,22 +809,6 @@
 			path = myview;
 			sourceTree = "<group>";
 		};
-		9B13150B2913958C0001F545 /* vfs */ = {
-			isa = PBXGroup;
-			children = (
-				9B13150C2913958C0001F545 /* devtools_handler.h */,
-			);
-			path = vfs;
-			sourceTree = "<group>";
-		};
-		9B131515291395A60001F545 /* vfs */ = {
-			isa = PBXGroup;
-			children = (
-				9B131516291395A60001F545 /* devtools_handler.cc */,
-			);
-			path = vfs;
-			sourceTree = "<group>";
-		};
 		AC63515223F922E5007FABA5 /* fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -1272,7 +1253,6 @@
 			children = (
 				F48D37A9289BA661007BD6FE /* trace_control.cc */,
 				F48D37AA289BA661007BD6FE /* devtools_data_source.cc */,
-				9B131515291395A60001F545 /* vfs */,
 				F48D37AB289BA661007BD6FE /* adapter */,
 				F48D37B0289BA661007BD6FE /* devtools_utils.cc */,
 			);
@@ -1414,7 +1394,6 @@
 		F48D37F6289BA662007BD6FE /* devtools */ = {
 			isa = PBXGroup;
 			children = (
-				9B13150B2913958C0001F545 /* vfs */,
 				F48D37F7289BA662007BD6FE /* trace_control.h */,
 				F48D37F8289BA662007BD6FE /* devtools_data_source.h */,
 				F48D37F9289BA662007BD6FE /* adapter */,
@@ -2174,7 +2153,6 @@
 				F45D265728067B6900CAB185 /* NativeRenderRefreshWrapperViewManager.mm in Sources */,
 				F45D265628067B6900CAB185 /* NativeRenderRefreshWrapper.mm in Sources */,
 				F45D268428067B6900CAB185 /* NativeRenderObjectView.mm in Sources */,
-				9B131517291395A60001F545 /* devtools_handler.cc in Sources */,
 				F4E998AF28FEA9F500881750 /* HippyNetWork.mm in Sources */,
 				0612F02923A8BE320079E622 /* ViewController.mm in Sources */,
 				F4E998CC28FEA9F600881750 /* HippyJSExecutor.mm in Sources */,
