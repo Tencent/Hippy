@@ -56,10 +56,10 @@ public class HippyTextView extends FlatViewGroup implements HippyViewBase {
                 layout = component.getTextLayout();
             }
         }
-        if (layout == null || !(layout.getText() instanceof SpannableStringBuilder)) {
+        if (layout == null || !(layout.getText() instanceof Spannable)) {
             return;
         }
-        SpannableStringBuilder textSpan = (SpannableStringBuilder) layout.getText();
+        Spannable textSpan = (Spannable) layout.getText();
         TextForegroundColorSpan[] spans = textSpan
                 .getSpans(0, layout.getText().length(), TextForegroundColorSpan.class);
         if (spans == null || spans.length == 0) {

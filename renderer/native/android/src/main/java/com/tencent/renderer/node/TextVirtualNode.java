@@ -26,11 +26,14 @@ import android.os.Build;
 import android.text.BidiFormatter;
 import android.text.BoringLayout;
 import android.text.Layout;
+import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.text.style.AbsoluteSizeSpan;
+import android.text.style.ImageSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.UnderlineSpan;
 import androidx.annotation.NonNull;
@@ -558,9 +561,23 @@ public class TextVirtualNode extends VirtualNode {
             TextPaint measurePaint = new TextPaint();
             measurePaint.set(paint);
             int start = preLayout.getLineStart(numberOfLines - 1);
-            CharSequence formerLines = start > 0 ? origin.subSequence(0, start) : null;
-            boolean newLine =
-                    formerLines != null && formerLines.charAt(formerLines.length() - 1) != '\n';
+            CharSequence formerLines;
+            if (start > 0) {
+                boolean newline = origin.charAt(start - 1) != '\n';
+                if (origin instanceof Spanned) {
+                    formerLines = new SpannableStringBuilder().append(origin, 0, start);
+                    if (newline) {
+                        ((SpannableStringBuilder) formerLines).append('\n');
+                    }
+                } else {
+                    formerLines = new StringBuilder().append(origin, 0, start);
+                    if (newline) {
+                        ((StringBuilder) formerLines).append('\n');
+                    }
+                }
+            } else {
+                formerLines = null;
+            }
             CharSequence lastLine;
             if (MODE_HEAD.equals(mEllipsizeMode)) {
                 float formerTextSize =
@@ -581,7 +598,9 @@ public class TextVirtualNode extends VirtualNode {
             }
             // concat everything
             truncated = formerLines == null ? lastLine
-                    : TextUtils.concat(formerLines, newLine ? "\n" : "", lastLine);
+                    : formerLines instanceof SpannableStringBuilder
+                            ? ((SpannableStringBuilder) formerLines).append(lastLine)
+                            : ((StringBuilder) formerLines).append(lastLine);
         }
 
         return buildStaticLayout(truncated, paint, width);
@@ -594,8 +613,32 @@ public class TextVirtualNode extends VirtualNode {
     private CharSequence ellipsizeHead(CharSequence origin, TextPaint paint, int width, int start) {
         start = Math.max(start, TextUtils.lastIndexOf(origin, '\n') + 1);
         // "…${last line of the rest part}"
-        CharSequence tmp = TextUtils.concat(ELLIPSIS, origin.subSequence(start, origin.length()));
-        return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.START);
+        CharSequence tmp;
+        if (origin instanceof Spanned) {
+            tmp = new SpannableStringBuilder()
+                    .append(ELLIPSIS)
+                    .append(origin, start, origin.length());
+        } else {
+            tmp = new StringBuilder(ELLIPSIS.length() + origin.length() - start)
+                    .append(ELLIPSIS)
+                    .append(origin, start, origin.length());
+        }
+        CharSequence result = TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.START);
+        if (result instanceof Spannable) {
+            // make spans cover the "…"
+            Spannable sp = (Spannable) result;
+            int spanStart = ELLIPSIS.length();
+            Object[] spans = sp.getSpans(spanStart, spanStart, Object.class);
+            for (Object span : spans) {
+                if (!(span instanceof ImageSpan) && sp.getSpanStart(span) == spanStart) {
+                    int flag = sp.getSpanFlags(span);
+                    int spanEnd = sp.getSpanEnd(span);
+                    sp.removeSpan(span);
+                    sp.setSpan(span, 0, spanEnd, flag);
+                }
+            }
+        }
+        return result;
     }
 
     private CharSequence ellipsizeMiddle(CharSequence origin, TextPaint paint, int width,
@@ -605,8 +648,19 @@ public class TextVirtualNode extends VirtualNode {
             rightStart = TextUtils.lastIndexOf(origin, '\n') + 1;
             assert leftEnd < rightStart;
             // "${first line of the rest part}…${last line of the rest part}"
-            CharSequence tmp = TextUtils.concat(origin.subSequence(start, leftEnd), ELLIPSIS,
-                    origin.subSequence(rightStart, origin.length()));
+            CharSequence tmp;
+            if (origin instanceof Spanned) {
+                tmp = new SpannableStringBuilder()
+                        .append(origin, start, leftEnd)
+                        .append(ELLIPSIS)
+                        .append(origin, rightStart, origin.length());
+            } else {
+                int len = leftEnd - start + ELLIPSIS.length() + origin.length() - rightStart;
+                tmp = new StringBuilder(len)
+                        .append(origin, start, leftEnd)
+                        .append(ELLIPSIS)
+                        .append(origin, rightStart, origin.length());
+            }
             final int[] outRange = new int[2];
             TextUtils.EllipsizeCallback callback = new TextUtils.EllipsizeCallback() {
                 @Override
@@ -621,9 +675,13 @@ public class TextVirtualNode extends VirtualNode {
                 int pos0 = leftEnd - start;
                 int pos1 = pos0 + ELLIPSIS.length();
                 if (outRange[0] > pos0) {
-                    line = new SpannableStringBuilder(tmp).replace(pos0, outRange[1], ELLIPSIS);
+                    line = tmp instanceof SpannableStringBuilder
+                            ? ((SpannableStringBuilder) tmp).replace(pos0, outRange[1], ELLIPSIS)
+                            : ((StringBuilder) tmp).replace(pos0, outRange[1], ELLIPSIS);
                 } else if (outRange[1] < pos1) {
-                    line = new SpannableStringBuilder(tmp).replace(outRange[0], pos1, ELLIPSIS);
+                    line = tmp instanceof SpannableStringBuilder
+                            ? ((SpannableStringBuilder) tmp).replace(outRange[0], pos1, ELLIPSIS)
+                            : ((StringBuilder) tmp).replace(outRange[0], pos1, ELLIPSIS);
                 }
             }
             return line;
@@ -641,7 +699,14 @@ public class TextVirtualNode extends VirtualNode {
             --end;
         }
         // "${first line of the rest part}…"
-        CharSequence tmp = TextUtils.concat(origin.subSequence(start, end), ELLIPSIS);
+        CharSequence tmp;
+        if (origin instanceof Spanned) {
+            tmp = new SpannableStringBuilder()
+                    .append(origin, start, end).append(ELLIPSIS);
+        } else {
+            tmp = new StringBuilder(end - start + ELLIPSIS.length())
+                    .append(origin, start, end).append(ELLIPSIS);
+        }
         return TextUtils.ellipsize(tmp, paint, width, TextUtils.TruncateAt.END);
     }
 }
