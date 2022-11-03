@@ -39,6 +39,7 @@
 #include "dom/dom_node.h"
 #include "footstone/hippy_value.h"
 
+static NSString *const engineKey = @"Demo";
 
 @interface ViewController ()<HippyBridgeDelegate, HPRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
@@ -50,6 +51,9 @@
 @end
 
 @implementation ViewController
+
+//release macro below for debug mode
+#define HIPPYDEBUG
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -75,12 +79,8 @@
     #if TARGET_IPHONE_SIMULATOR
         isSimulator = YES;
     #endif
-//release macro below for debug mode
-//#define HIPPYDEBUG
     //JS Contexts holding the same engine key will share VM
-    static NSString *const engineKey = @"Demo";
     NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.view.bounds];
-    NSNumber *rootTag = [rootView componentTag];
     NSDictionary *launchOptions = nil;
     NSArray<NSURL *> *bundleURLs = nil;
     NSURL *sandboxDirectory = nil;
@@ -101,10 +101,26 @@
                                                  moduleProvider:nil
                                                   launchOptions:launchOptions
                                                     engineKey:engineKey];
+
+    [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
+    //set custom vfs loader
+    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
+    bridge.sandboxDirectory = sandboxDirectory;
+    bridge.contextName = @"Demo";
+    bridge.moduleName = @"Demo";
+    bridge.methodInterceptor = self;
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [self.view addSubview:rootView];
+    
+    _bridge = bridge;
+}
+
+- (void)setupBridge:(HippyBridge *)bridge rootView:(UIView *)rootView bundleURLs:(NSArray<NSURL *> *)bundleURLs props:(NSDictionary *)props {
+    static NSString *const engineKey = @"Demo";
     //Get DomManager from HippyJSEnginesMapper with Engine key
     auto engineResource = [[HippyJSEnginesMapper defaultInstance] createJSEngineResourceForKey:engineKey];
     auto domManager = engineResource->GetDomManager();
-    
+    NSNumber *rootTag = [rootView componentTag];
     //Create a RootNode instance with a root tag
     auto rootNode = std::make_shared<hippy::RootNode>([rootTag unsignedIntValue]);
     //Set RootNode for AnimationManager in RootNode
@@ -115,36 +131,25 @@
     rootNode->GetLayoutNode()->SetScaleFactor([UIScreen mainScreen].scale);
     rootNode->SetRootSize(rootView.frame.size.width, rootView.frame.size.height);
     
-    if (!_nativeRenderManager) {
-        //Create NativeRenderManager
-        _nativeRenderManager = std::make_shared<NativeRenderManager>();
-        //Set frameproxy for render manager
-        _nativeRenderManager->SetFrameworkProxy(bridge);
-        //set dom manager
-        _nativeRenderManager->SetDomManager(domManager);
-        
-        //set rendermanager for dommanager
-        domManager->SetRenderManager(_nativeRenderManager);
-    }
+    //Create NativeRenderManager
+    _nativeRenderManager = std::make_shared<NativeRenderManager>();
+    //Set frameproxy for render manager
+    _nativeRenderManager->SetFrameworkProxy(bridge);
+    //set dom manager
+    _nativeRenderManager->SetDomManager(domManager);
+    
+    //set rendermanager for dommanager
+    domManager->SetRenderManager(_nativeRenderManager);
     //bind rootview and root node
     _nativeRenderManager->RegisterRootView(rootView, rootNode);
     id<HPRenderContext> renderContext = _nativeRenderManager->GetRenderContext();
     
     //setup necessary params for bridge
     [bridge setupDomManager:domManager rootNode:rootNode renderContext:renderContext];
-    //set custom vfs loader
-    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
     [bridge loadBundleURLs:bundleURLs];
-    [bridge loadInstanceForRootView:rootTag  withProperties:@{@"isSimulator": @(isSimulator)}];
-    bridge.sandboxDirectory = sandboxDirectory;
-    bridge.contextName = @"Demo";
-    bridge.moduleName = @"Demo";
-    bridge.methodInterceptor = self;
-    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    [self.view addSubview:rootView];
+    [bridge loadInstanceForRootView:rootTag withProperties:props];
     
     _rootNode = rootNode;
-    _bridge = bridge;
 }
 
 /**
@@ -157,7 +162,29 @@
     [_bridge.renderContext unregisterRootViewFromTag:@(_rootNode->GetId())];
     //3.set elements holding by user to nil
     _rootNode = nil;
-    _bridge = nil;
+}
+
+- (void)reload:(HippyBridge *)bridge {
+    [self removeRootView];
+    NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:self.view.bounds];
+    NSArray<NSURL *> *bundleURLs = nil;
+#ifdef HIPPYDEBUG
+    NSString *bundleStr = [HippyBundleURLProvider sharedInstance].bundleURLString;
+    NSURL *bundleUrl = [NSURL URLWithString:bundleStr];
+    bundleURLs = @[bundleUrl];
+#else
+    NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
+    NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
+    bundleURLs = @[[NSURL fileURLWithPath:commonBundlePath], [NSURL fileURLWithPath:businessBundlePath]];
+#endif
+    BOOL isSimulator = NO;
+#if TARGET_IPHONE_SIMULATOR
+    isSimulator = YES;
+#endif
+
+    [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
+    rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    [self.view addSubview:rootView];
 }
 
 #define StatusBarOffset 20
@@ -175,7 +202,6 @@
     [loadButton addTarget:self action:@selector(loadBtnClick) forControlEvents:UIControlEventTouchUpInside];
     [loadButton setTitle:@"load nodes" forState:UIControlStateNormal];
     [self.view addSubview:loadButton];
-
 }
 
 std::string mock;

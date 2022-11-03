@@ -50,4 +50,6 @@
 
 - (void)cachedCodeCreated:(NSData *)cachedCode ForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
 
+- (void)reload:(HippyBridge *)bridge;
+
 @end
