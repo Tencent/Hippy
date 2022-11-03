@@ -252,7 +252,7 @@ const getNodeAttrVal = (node, attribute) => {
   if (typeof attr !== 'undefined') {
     return attr;
   }
-  if (!isNullOrUndefined(node.styleScopeId) && node.styleScopeId === attribute) {
+  if (Array.isArray(node.styleScopeId) && node.styleScopeId.includes(attribute)) {
     return attribute;
   }
 };

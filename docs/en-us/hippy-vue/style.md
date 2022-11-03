@@ -28,7 +28,7 @@ At present, the basic `Universal`, `Type`, `ID`, `Class`, `Grouping` selectors h
 
 ## Scoped & Attribute
 
-> `2.15.0` support Vue `scoped` style.
+> `2.15.0` support Vue `scoped` style, `2.15.2` support to merge styles on root element of child component.
 
 > `2.15.1` support `Attribute` selector and Vue `deep` selector.
 
