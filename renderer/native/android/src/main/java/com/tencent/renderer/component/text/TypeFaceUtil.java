@@ -22,7 +22,6 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
 

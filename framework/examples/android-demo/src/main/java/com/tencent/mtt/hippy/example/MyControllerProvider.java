@@ -15,10 +15,10 @@
  */
 package com.tencent.mtt.hippy.example;
 
-import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.example.view.MyCustomViewController;
 import com.tencent.mtt.hippy.example.view.MyViewController;
 
+import com.tencent.renderer.ControllerProvider;
 import java.util.ArrayList;
 import java.util.List;
 

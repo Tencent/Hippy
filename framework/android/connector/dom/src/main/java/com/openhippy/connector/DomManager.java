@@ -29,7 +29,7 @@ public class DomManager implements Connector {
 
     public DomManager(int instanceId, int rootId) {
         mInstanceId = instanceId;
-        setRoot(rootId);
+        attachToRoot(rootId);
     }
 
     @Override
@@ -42,40 +42,40 @@ public class DomManager implements Connector {
         return mInstanceId;
     }
 
-    public void setRenderer(@NonNull Connector rendererConnector) {
-        connectToRenderer(rendererConnector.getInstanceId());
+    public void attachToRenderer(@NonNull Connector rendererConnector) {
+        onAttachToRenderer(rendererConnector.getInstanceId());
     }
 
-    public void setRoot(int rootId) {
-        connectToRoot(mInstanceId, rootId);
+    public void attachToRoot(int rootId) {
+        onAttachToRoot(mInstanceId, rootId);
     }
 
-    public void removeRoot(int rootId) {
-        disconnectFromRoot(mInstanceId, rootId);
+    public void detachFromRoot(int rootId) {
+        onDetachFromRoot(mInstanceId, rootId);
     }
 
     /**
-     * Connect to renderer with unique id.
+     * Attach to renderer with specified id.
      *
      * @param rendererId the unique id of renderer
      */
-    private native void connectToRenderer(int rendererId);
+    private native void onAttachToRenderer(int rendererId);
 
     /**
-     * Add the specified root id to native (C++) dom manager.
+     * Attach the specified root id to native (C++) dom manager.
      *
      * @param domId the unique id of native (C++) dom manager
      * @param rootId the root node id
      */
-    private native void connectToRoot(int domId, int rootId);
+    private native void onAttachToRoot(int domId, int rootId);
 
     /**
-     * Remove the specified root id from native (C++) dom manager.
+     * Detach the specified root id from native (C++) dom manager.
      *
      * @param domId the unique id of native (C++) dom manager
      * @param rootId the root node id
      */
-    private native void disconnectFromRoot(int domId, int rootId);
+    private native void onDetachFromRoot(int domId, int rootId);
 
     /**
      * Create native (C++) dom manager instance.

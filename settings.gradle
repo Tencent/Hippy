@@ -15,9 +15,6 @@ project(':hippy-framework').projectDir = new File('framework/android')
 include 'serialization'
 project(':serialization').projectDir = new File('modules/android/serialization')
 
-include 'link_supplier'
-project(':link_supplier').projectDir = new File('modules/android/link_supplier')
-
 include 'vfs'
 project(':vfs').projectDir = new File('modules/vfs/android')
 

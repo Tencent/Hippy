@@ -142,7 +142,6 @@ dependencies {
     compileOnly project(path: ':renderer-tdf')
   }
   compileOnly project(path: ':serialization')
-  compileOnly project(path: ':link_supplier')
   compileOnly project(path: ':vfs')
   compileOnly project(path: ':devtools-integration')
   compileOnly project(path: ':connector-dom')

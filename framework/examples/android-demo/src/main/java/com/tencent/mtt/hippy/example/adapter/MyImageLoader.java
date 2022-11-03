@@ -28,7 +28,6 @@ import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.tencent.link_supplier.proxy.framework.ImageRequestListener;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 
@@ -38,6 +37,7 @@ import com.tencent.mtt.hippy.views.image.HippyImageView;
 import com.tencent.renderer.component.image.ImageDataHolder;
 import com.tencent.renderer.component.image.ImageLoader;
 
+import com.tencent.renderer.component.image.ImageRequestListener;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;

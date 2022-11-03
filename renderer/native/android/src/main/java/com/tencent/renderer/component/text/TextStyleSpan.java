@@ -18,7 +18,6 @@ package com.tencent.renderer.component.text;
 
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
-import com.tencent.link_supplier.proxy.framework.FontAdapter;
 
 public class TextStyleSpan extends MetricAffectingSpan {
 
