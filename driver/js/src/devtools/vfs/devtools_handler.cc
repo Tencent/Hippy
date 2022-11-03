@@ -26,7 +26,6 @@
 #include "vfs/uri_loader.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/string_view.h"
-#include "module/util/base64.h"
 
 namespace hippy::devtools {
 constexpr char kCallFromKey[] = "__Hippy_call_from";

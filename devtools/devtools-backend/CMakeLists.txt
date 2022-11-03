@@ -59,6 +59,13 @@ GlobalPackages_Add(vfs)
 target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 # endregion
 
+# region base64
+InfraPackage_Add(base64
+        REMOTE "global_packages/base64/v0.5.0/git-repo.tgz"
+        LOCAL "third_party/base64")
+target_link_libraries(${PROJECT_NAME} PRIVATE base64)
+# endregion
+
 # region asio
 InfraPackage_Add(asio
     REMOTE "devtools/backend/third_party/asio/1.22.1/asio.tar.gz"
@@ -146,7 +153,6 @@ set(SOURCE_SET
     src/module/request/selected_render_object_request.cc
     src/module/request/dom_push_nodes_request.cc
     src/module/request/dom_push_node_by_path_request.cc
-    src/module/util/base64.cc
     src/tunnel/net_channel.cc
     src/tunnel/tcp/frame_codec.cc
     src/tunnel/tcp/tcp_channel.cc

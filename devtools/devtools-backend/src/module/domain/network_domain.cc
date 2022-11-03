@@ -21,9 +21,9 @@
 #include "module/domain/network_domain.h"
 
 #include "footstone/logging.h"
-#include "module/util/base64.h"
 #include "module/domain_register.h"
 #include "nlohmann/json.hpp"
+#include "libbase64.h"
 
 namespace hippy::devtools {
 constexpr char kResponseBody[] = "body";
@@ -53,9 +53,13 @@ void NetworkDomain::GetResponseBody(const NetworkResponseBodyRequest& request) {
       auto body_data = response.GetBodyData();
       response_json[kResponseBase64Encoded] = is_encode_base64;
       if (is_encode_base64) {
-        body_data = Base64::Encode(reinterpret_cast<const uint8_t*>(body_data.c_str()), body_data.length());
+        size_t out_len = 4 * ((body_data.length() + 2) / 3);
+        std::string encode_body_data(out_len, '\0');
+        base64_encode(body_data.c_str(), body_data.length(), encode_body_data.data(), &out_len, 0);
+        response_json[kResponseBody] = encode_body_data;
+      } else {
+        response_json[kResponseBody] = body_data;
       }
-      response_json[kResponseBody] = body_data;
       ResponseResultToFrontend(request.GetId(), response_json.dump());
       response_map_.erase(find_response);
     }
