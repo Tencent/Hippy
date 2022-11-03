@@ -127,6 +127,7 @@ set(SOURCE_SET
     src/api/notification/default/default_log_notification.cc
     src/api/notification/default/default_network_notification.cc
     src/api/notification/default/default_runtime_notification.cc
+    src/integrations/devtools_handler.cc
     src/module/domain/base_domain.cc
     src/module/domain/css_domain.cc
     src/module/domain/dom_domain.cc

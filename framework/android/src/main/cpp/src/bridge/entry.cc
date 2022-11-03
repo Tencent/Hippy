@@ -67,7 +67,7 @@
 #include "renderer/tdf/tdf_render_manager.h"
 #endif
 #ifdef ENABLE_INSPECTOR
-#include "devtools/vfs/devtools_handler.h"
+#include "integrations/devtools_handler.h"
 #endif
 
 namespace hippy {

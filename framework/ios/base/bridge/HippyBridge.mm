@@ -59,7 +59,7 @@
 #include "driver/scope.h"
 
 #ifdef ENABLE_INSPECTOR
-#include "devtools/vfs/devtools_handler.h"
+#include "integrations/devtools_handler.h"
 #endif
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
@@ -135,7 +135,6 @@ dispatch_queue_t HippyBridgeQueue() {
         _debugMode = [launchOptions[@"DebugMode"] boolValue];
         _debugURL = launchOptions[@"DebugURL"];
         _enableTurbo = !!launchOptions[@"EnableTurbo"] ? [launchOptions[@"EnableTurbo"] boolValue] : YES;
-        _debugURL = launchOptions[@"DebugURL"];
         _engineKey = engineKey;
         _invalidateReason = HPInvalidateReasonDealloc;
         _valid = YES;
