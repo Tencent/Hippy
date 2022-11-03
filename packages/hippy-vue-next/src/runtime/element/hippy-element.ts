@@ -205,7 +205,7 @@ export class HippyElement extends HippyNode {
   protected polyFillNativeEvents?: (type: string) => string;
 
   // style scoped id for element
-  private scopedId?: string | undefined = undefined;
+  private scopedIdList: NeedToTyped[] = [];
 
   constructor(tagName: string) {
     super(NodeType.ElementNode);
@@ -789,14 +789,17 @@ export class HippyElement extends HippyNode {
    * @param scopeStyleId - scoped style id
    */
   public setStyleScope(scopeStyleId: NeedToTyped): void {
-    this.scopedId = typeof scopeStyleId !== 'string' ? scopeStyleId.toString() : scopeStyleId;
+    const scopedId = typeof scopeStyleId !== 'string' ? scopeStyleId.toString() : scopeStyleId;
+    if (scopedId && !this.scopedIdList.includes(scopedId)) {
+      this.scopedIdList.push(scopedId);
+    }
   }
 
   /**
    * get style scoped id
    */
   public get styleScopeId() {
-    return this.scopedId;
+    return this.scopedIdList;
   }
 
   /**
