@@ -579,10 +579,10 @@ describe('runtime/element/hippy-element', () => {
   it('setStyleScopedId method should work correct', () => {
     const element = new HippyElement('div');
     element.setStyleScope('style-scoped-id');
-    expect(element.styleScopeId).toEqual('style-scoped-id');
+    expect(element.styleScopeId).toEqual(['style-scoped-id']);
     element.setStyleScope({});
-    expect(element.styleScopeId).toEqual('[object Object]');
+    expect(element.styleScopeId).toEqual(['style-scoped-id', '[object Object]']);
     element.setStyleScope(12345);
-    expect(element.styleScopeId).toEqual('12345');
+    expect(element.styleScopeId).toEqual(['style-scoped-id', '[object Object]', '12345']);
   });
 });
