@@ -10,7 +10,7 @@
       v-if="loaded"
       class="async-com-wrapper"
     >
-      <AsyncComponentFromLocal />
+      <AsyncComponentFromLocal class="async-component-outer-local"/>
       <AsyncComponentFromHttp />
     </div>
   </div>
@@ -67,7 +67,11 @@ export default defineComponent({
 });
 </script>
 
-<style>
+<style scoped>
+.async-component-outer-local {
+  height: 200px;
+  width: 300px;
+}
 #demo-dynamicimport {
   flex: 1;
   display: flex;
@@ -92,6 +96,6 @@ export default defineComponent({
   line-height: 40px;
 }
 .async-com-wrapper {
-  marginTop: 20px
+  margin-top: 20px
 }
 </style>

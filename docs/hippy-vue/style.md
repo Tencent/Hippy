@@ -25,7 +25,7 @@ HippyVue 提供了 `beforeLoadStyle` 的 Vue options 勾子函数，供开发者
 
 ## Scoped & Attribute
 
-> `2.15.0` 版本增加支持 Vue `scoped` 样式能力
+> `2.15.0` 版本增加支持 Vue `scoped` 样式能力, `2.15.2` 支持子组件根元素样式合并
 
 > `2.15.1` 版本增加支持 `Attribute` 选择器和 Vue `deep` 深度选择器
 
