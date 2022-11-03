@@ -95,6 +95,8 @@ static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::functi
         [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if (error) {
                 HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], error:%@", [error description]);
+                u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>(""));
+                cb(content);
             }
             else {
                 NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
