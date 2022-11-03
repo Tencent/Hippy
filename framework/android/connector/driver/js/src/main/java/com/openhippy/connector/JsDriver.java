@@ -53,12 +53,12 @@ public class JsDriver implements Connector {
         mRuntimeId = runtimeId;
     }
 
-    public void setDom(@NonNull Connector domConnector) {
-        connectToDom(domConnector.getInstanceId());
+    public void attachToDom(@NonNull Connector domConnector) {
+        onAttachToDom(domConnector.getInstanceId());
     }
 
-    public void setRoot(int rootId) {
-        connectToRoot(mRuntimeId, rootId);
+    public void attachToRoot(int rootId) {
+        onAttachToRoot(mRuntimeId, rootId);
     }
 
     public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
@@ -80,9 +80,9 @@ public class JsDriver implements Connector {
      * @param runtimeId driver runtime id
      * @param rootId root node id
      */
-    private native void connectToRoot(int runtimeId, int rootId);
+    private native void onAttachToRoot(int runtimeId, int rootId);
 
-    private native void connectToDom(int domId);
+    private native void onAttachToDom(int domId);
 
     public native long initJSFramework(byte[] globalConfig, boolean useLowMemoryMode,
             boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,

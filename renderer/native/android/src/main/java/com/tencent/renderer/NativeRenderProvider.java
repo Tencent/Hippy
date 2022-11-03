@@ -65,7 +65,6 @@ public class NativeRenderProvider {
 
     public void destroy() {
         mDeserializer.getStringTable().release();
-        onDestroyNativeRenderProvider(mInstanceId);
     }
 
     /**
@@ -335,21 +334,13 @@ public class NativeRenderProvider {
     }
 
     /**
-     * Notify native (C++) to build render manager when build provider instance.
+     * Set screen displayMetrics density to native (C++) render manager.
      *
      * @param density screen displayMetrics density
      * @return the unique id of native (C++) render manager
      */
     @SuppressWarnings("JavaJniMissingFunction")
     private native int onCreateNativeRenderProvider(float density);
-
-    /**
-     * Notify native (C++) to destroy render manager when release provider instance.
-     *
-     * @param instanceId the unique id of native (C++) render manager
-     */
-    @SuppressWarnings("JavaJniMissingFunction")
-    private native void onDestroyNativeRenderProvider(int instanceId);
 
     /**
      * Call back from Android system when size changed, just like horizontal and vertical screen

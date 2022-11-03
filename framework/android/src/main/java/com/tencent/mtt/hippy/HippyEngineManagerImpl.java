@@ -728,9 +728,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDomManager = new DomManager();
                 mDomInstanceId = mDomManager.getInstanceId();
             }
-            mJsDriver.setDom(mDomManager);
+            mJsDriver.attachToDom(mDomManager);
             mNativeRenderer = new NativeRenderer();
-            mDomManager.setRenderer(mNativeRenderer);
+            mDomManager.attachToRenderer(mNativeRenderer);
             mNativeRenderer.setFrameworkProxy(HippyEngineManagerImpl.this);
             List<Class<?>> controllers = null;
             if (mControllerProviders != null) {
@@ -778,7 +778,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 //                }
 //                // add network processor for waiting runtime id
 //                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
-                mJsDriver.setRoot(mRootView.getId());
+                mJsDriver.attachToRoot(mRootView.getId());
                 mNativeRenderer.onRuntimeInitialized(mRootView.getId());
             }
         }
@@ -889,7 +889,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public void onInstanceDestroy(int rootId) {
             mNativeRenderer.onRootDestroy(rootId);
-            mDomManager.removeRoot(rootId);
+            mDomManager.detachFromRoot(rootId);
         }
 
         @Override
@@ -936,8 +936,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Nullable
         public View createRootView(@NonNull Context context) {
             View rootView = mNativeRenderer.createRootView(context);
-            mDomManager.setRoot(rootView.getId());
-            mJsDriver.setRoot(rootView.getId());
+            mDomManager.attachToRoot(rootView.getId());
+            mJsDriver.attachToRoot(rootView.getId());
             return rootView;
         }
 

@@ -19,17 +19,13 @@ package com.tencent.mtt.hippy.example;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import com.tencent.link_supplier.proxy.renderer.ControllerProvider;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyAPIProvider;
 import com.tencent.mtt.hippy.HippyEngine.EngineInitStatus;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
-import com.tencent.mtt.hippy.HippyRootView;
-import com.tencent.mtt.hippy.IHippyNativeLogHandler;
 import com.tencent.mtt.hippy.adapter.DefaultLogAdapter;
 import com.tencent.mtt.hippy.adapter.exception.HippyExceptionHandlerAdapter;
 import com.tencent.mtt.hippy.common.HippyJsException;
@@ -37,6 +33,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.example.adapter.MyImageLoader;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
+import com.tencent.renderer.ControllerProvider;
 import java.util.ArrayList;
 import java.util.List;
 

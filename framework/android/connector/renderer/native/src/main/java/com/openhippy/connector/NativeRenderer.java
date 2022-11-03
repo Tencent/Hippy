@@ -61,6 +61,7 @@ public class NativeRenderer implements Connector {
         }
     }
 
+    @Nullable
     public View replaySnapshot(@NonNull Context context, @NonNull byte[] buffer) {
         if (mRenderer != null) {
             return mRenderer.replaySnapshot(context, buffer);
@@ -68,6 +69,7 @@ public class NativeRenderer implements Connector {
         return null;
     }
 
+    @Nullable
     public View replaySnapshot(@NonNull Context context, @NonNull Map<String, Object> snapshotMap) {
         if (mRenderer != null) {
             return mRenderer.replaySnapshot(context, snapshotMap);
@@ -81,7 +83,7 @@ public class NativeRenderer implements Connector {
         }
     }
 
-    @NonNull
+    @Nullable
     public View createRootView(@NonNull Context context) {
         if (mRenderer != null) {
             return mRenderer.createRootView(context);
