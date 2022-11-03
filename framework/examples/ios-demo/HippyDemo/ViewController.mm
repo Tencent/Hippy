@@ -53,7 +53,7 @@ static NSString *const engineKey = @"Demo";
 @implementation ViewController
 
 //release macro below for debug mode
-#define HIPPYDEBUG
+//#define HIPPYDEBUG
 
 - (void)viewDidLoad {
     [super viewDidLoad];
