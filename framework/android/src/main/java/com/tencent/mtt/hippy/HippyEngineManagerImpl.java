@@ -781,9 +781,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(
                     getGlobalConfigs().getHttpAdapter(), getGlobalConfigs().getExecutorSupplierAdapter()));
             mVfsManager.addProcessor(processor);
-            if (isDebugMode()) {
-                mVfsManager.addProcessorAtFirst(new DevToolsProcessor(mVfsManager));
-            }
         }
 
         @Override
@@ -798,6 +795,8 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 if (renderProxy instanceof NativeRenderProxy) {
                     ((NativeRenderProxy) renderProxy).onRuntimeInitialized(mRootView.getId());
                 }
+                // add network processor for waiting runtime id
+                mVfsManager.addProcessorAtFirst(new DevToolsProcessor(mRuntimeId));
             }
         }
 

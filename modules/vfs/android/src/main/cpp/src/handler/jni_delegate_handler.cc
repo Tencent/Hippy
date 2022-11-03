@@ -30,9 +30,7 @@
 #include "vfs/uri_loader.h"
 #include "vfs/handler/asset_handler.h"
 #include "vfs/handler/file_handler.h"
-#ifdef ENABLE_INSPECTOR
-#include "module/vfs/devtools_handler.h"
-#endif
+#include "vfs/vfs_resource_holder.h"
 
 namespace hippy {
 inline namespace vfs {
@@ -55,59 +53,13 @@ REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
              "(ILcom/tencent/vfs/ResourceDataHolder;)V",
              OnJniDelegateInvokeSync)
 
-// call from java
-REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
-             "onNetworkRequest",
-             "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
-             OnNetworkRequestInvoke)
-
-// call from java
-REGISTER_JNI("com/tencent/vfs/VfsManager", // NOLINT(cert-err58-cpp)
-             "onNetworkResponse",
-             "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
-             OnNetworkResponseInvoke)
-
 static jclass j_vfs_manager_clazz;
 static jmethodID j_call_jni_delegate_sync_method_id;
 static jmethodID j_call_jni_delegate_async_method_id;
 
-static jclass j_resource_data_holder_clazz;
-static jmethodID j_resource_data_holder_init_method_id;
-static jfieldID j_holder_uri_field_id;
-static jfieldID j_holder_buffer_field_id;
-static jfieldID j_holder_bytes_field_id;
-static jfieldID j_holder_req_header_field_id;
-static jfieldID j_holder_rsp_header_field_id;
-static jfieldID j_holder_transfer_type_field_id;
-static jfieldID j_holder_ret_code_field_id;
-static jfieldID j_holder_native_id_field_id;
-
 static jclass j_util_map_clazz;
 static jmethodID j_map_init_method_id;
-static jmethodID j_map_get_method_id;
 static jmethodID j_map_put_method_id;
-static jmethodID j_map_size_method_id;
-static jmethodID j_map_entry_set_method_id;
-
-static jclass j_util_map_entry_clazz;
-static jmethodID j_map_entry_get_key_method_id;
-static jmethodID j_map_entry_get_value_method_id;
-
-static jclass j_util_set_clazz;
-static jmethodID j_set_iterator_method_id;
-
-static jclass j_set_iterator_clazz;
-static jmethodID j_set_iterator_has_next_method_id;
-static jmethodID j_set_iterator_next_method_id;
-
-static jclass j_fetch_resource_cb_interface_clazz;
-static jmethodID j_interface_cb_method_id;
-
-static jobject j_request_from_native_value;
-static jobject j_request_from_local_value;
-
-static jobject j_transfer_type_normal_value;
-static jobject j_transfer_type_nio_value;
 
 using ASyncContext = hippy::vfs::UriHandler::ASyncContext;
 using SyncContext = hippy::vfs::UriHandler::SyncContext;
@@ -117,66 +69,15 @@ std::atomic<uint32_t> JniDelegateHandler::request_id_ = 1;
 
 std::atomic<uint32_t> g_delegate_id = 1;
 
+constexpr char kCallFromKey[] = "__Hippy_call_from";
+constexpr char kCallFromJavaValue[] = "java";
+
 bool JniDelegateHandler::Init(JNIEnv* j_env) {
-  j_resource_data_holder_clazz = reinterpret_cast<jclass>(
-      j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/ResourceDataHolder")));
-  j_resource_data_holder_init_method_id =
-      j_env->GetMethodID(j_resource_data_holder_clazz,
-                         "<init>",
-                         "(Ljava/lang/String;Ljava/util/HashMap;Lcom/tencent/vfs/ResourceDataHolder$RequestFrom;)V");
-  j_holder_uri_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "uri", "Ljava/lang/String;");
-  j_holder_buffer_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "buffer", "Ljava/nio/ByteBuffer;");
-  j_holder_bytes_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "bytes", "[B");
-  j_holder_transfer_type_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "transferType",
-                                                      "Lcom/tencent/vfs/ResourceDataHolder$TransferType;");
-  j_holder_req_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestHeader", "Ljava/util/HashMap;");
-  j_holder_rsp_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "responseHeader", "Ljava/util/HashMap;");
-  j_holder_ret_code_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "resultCode", "I");
-  j_holder_native_id_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "nativeId", "I");
-  auto j_request_from_clazz = reinterpret_cast<jclass>(
-      j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/ResourceDataHolder$RequestFrom")));
-  auto j_request_from_native_field_id = j_env->GetStaticFieldID(j_request_from_clazz, "NATIVE",
-                                                           "Lcom/tencent/vfs/ResourceDataHolder$RequestFrom;");
-  j_request_from_native_value = j_env->NewGlobalRef(
-      j_env->GetStaticObjectField(j_request_from_clazz, j_request_from_native_field_id));
-  auto j_request_from_local_field_id = j_env->GetStaticFieldID(j_request_from_clazz, "LOCAL",
-                                                          "Lcom/tencent/vfs/ResourceDataHolder$RequestFrom;");
-  j_request_from_local_value = j_env->NewGlobalRef(
-      j_env->GetStaticObjectField(j_request_from_clazz, j_request_from_local_field_id));
-
-  auto j_transfer_type_clazz = reinterpret_cast<jclass>(
-      j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/ResourceDataHolder$TransferType")));
-  auto j_transfer_type_normal_field_id = j_env->GetStaticFieldID(j_transfer_type_clazz, "NORMAL",
-                                                            "Lcom/tencent/vfs/ResourceDataHolder$TransferType;");
-  j_transfer_type_normal_value = j_env->NewGlobalRef(
-      j_env->GetStaticObjectField(j_transfer_type_clazz, j_transfer_type_normal_field_id));
-
-  auto j_transfer_type_nio_field_id = j_env->GetStaticFieldID(j_transfer_type_clazz, "NIO",
-                                                         "Lcom/tencent/vfs/ResourceDataHolder$TransferType;");
-  j_transfer_type_nio_value = j_env->NewGlobalRef(
-      j_env->GetStaticObjectField(j_transfer_type_clazz, j_transfer_type_nio_field_id));
-
   j_util_map_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("java/util/HashMap")));
   j_map_init_method_id = j_env->GetMethodID(j_util_map_clazz, "<init>", "()V");
-  j_map_get_method_id = j_env->GetMethodID(j_util_map_clazz, "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
   j_map_put_method_id = j_env->GetMethodID(j_util_map_clazz, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-  j_map_size_method_id = j_env->GetMethodID(j_util_map_clazz, "size", "()I");
-  j_map_entry_set_method_id = j_env->GetMethodID(j_util_map_clazz, "entrySet", "()Ljava/util/Set;");
-
-  j_util_map_entry_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("java/util/Map$Entry")));
-  j_map_entry_get_key_method_id = j_env->GetMethodID(j_util_map_entry_clazz, "getKey", "()Ljava/lang/Object;");
-  j_map_entry_get_value_method_id = j_env->GetMethodID(j_util_map_entry_clazz, "getValue", "()Ljava/lang/Object;");
-
-  j_util_set_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("java/util/Set")));
-  j_set_iterator_method_id = j_env->GetMethodID(j_util_set_clazz, "iterator", "()Ljava/util/Iterator;");
-
-  j_set_iterator_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("java/util/Iterator")));
-  j_set_iterator_has_next_method_id = j_env->GetMethodID(j_set_iterator_clazz, "hasNext", "()Z");
-  j_set_iterator_next_method_id = j_env->GetMethodID(j_set_iterator_clazz, "next", "()Ljava/lang/Object;");
 
   j_vfs_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/VfsManager")));
-  j_fetch_resource_cb_interface_clazz = j_env->FindClass("com/tencent/vfs/VfsManager$FetchResourceCallback");
-  j_interface_cb_method_id = j_env->GetMethodID(j_fetch_resource_cb_interface_clazz, "onFetchCompleted", "(Lcom/tencent/vfs/ResourceDataHolder;)V");
   j_call_jni_delegate_sync_method_id = j_env->GetMethodID(j_vfs_manager_clazz,"doLocalTraversalsSync",
     "(Ljava/lang/String;Ljava/util/HashMap;)Lcom/tencent/vfs/ResourceDataHolder;");
   j_call_jni_delegate_async_method_id = j_env->GetMethodID(j_vfs_manager_clazz, "doLocalTraversalsAsync",
@@ -190,117 +91,12 @@ bool JniDelegateHandler::Destroy() {
 
   j_env->DeleteGlobalRef(j_vfs_manager_clazz);
   j_env->DeleteGlobalRef(j_util_map_clazz);
-  j_env->DeleteGlobalRef(j_util_map_entry_clazz);
-  j_env->DeleteGlobalRef(j_resource_data_holder_clazz);
-  j_env->DeleteGlobalRef(j_fetch_resource_cb_interface_clazz);
-  j_env->DeleteGlobalRef(j_util_set_clazz);
-  j_env->DeleteGlobalRef(j_set_iterator_clazz);
-  j_env->DeleteGlobalRef(j_request_from_native_value);
-  j_env->DeleteGlobalRef(j_request_from_local_value);
-  j_env->DeleteGlobalRef(j_transfer_type_normal_value);
-  j_env->DeleteGlobalRef(j_transfer_type_nio_value);
 
   return true;
 }
 
 JniDelegateHandler::JniDelegateHandler(JNIEnv* j_env, jobject j_delegate) {
   delegate_ = std::make_shared<JavaRef>(j_env, j_delegate);
-}
-
-enum class FetchResultCode {
-  OK,
-  ERR_OPEN_LOCAL_FILE,
-  ERR_UNKNOWN_SCHEME,
-  ERR_REMOTE_REQUEST_FAILED
-};
-
-UriHandler::RetCode CovertToUriHandlerRetCode(jint code) {
-  switch (static_cast<int>(code)) {
-    case static_cast<int>(FetchResultCode::OK): {
-      return UriHandler::RetCode::Success;
-    }
-    case static_cast<int>(FetchResultCode::ERR_OPEN_LOCAL_FILE): {
-      return UriHandler::RetCode::Failed;
-    }
-    case static_cast<int>(FetchResultCode::ERR_UNKNOWN_SCHEME): {
-      return UriHandler::RetCode::SchemeError;
-    }
-    case static_cast<int>(FetchResultCode::ERR_REMOTE_REQUEST_FAILED): {
-      return UriHandler::RetCode::Failed;
-    }
-    default: {
-      FOOTSTONE_UNREACHABLE();
-    }
-  }
-}
-
-FetchResultCode CovertToFetchResultCode(UriHandler::RetCode code) {
-  switch (code) {
-    case UriHandler::RetCode::Success: {
-      return FetchResultCode::OK;
-    }
-    case UriHandler::RetCode::SchemeError: {
-      return FetchResultCode::ERR_UNKNOWN_SCHEME;
-    }
-    case UriHandler::RetCode::DelegateError:
-    case UriHandler::RetCode::PathError:
-    case UriHandler::RetCode::PathNotMatch:
-    case UriHandler::RetCode::ResourceNotFound:
-    case UriHandler::RetCode::Timeout:
-    case UriHandler::RetCode::UriError:
-    case UriHandler::RetCode::Failed: {
-      return FetchResultCode::ERR_REMOTE_REQUEST_FAILED;
-    }
-    default: {
-      FOOTSTONE_UNREACHABLE();
-    }
-  }
-}
-
-std::unordered_map<std::string, std::string> JavaMapToUnorderedMap(JNIEnv* j_env, jobject j_map) {
-  if (!j_map) {
-    return {};
-  }
-  auto size = j_env->CallIntMethod(j_map, j_map_size_method_id);
-  if (!size) {
-    return {};
-  }
-  std::unordered_map<std::string, std::string> ret_map;
-  auto j_set = j_env->CallObjectMethod(j_map, j_map_entry_set_method_id);
-  auto j_iterator = j_env->CallObjectMethod(j_set, j_set_iterator_method_id);
-  while (j_env->CallBooleanMethod(j_iterator, j_set_iterator_has_next_method_id)) {
-    auto j_entry = j_env->CallObjectMethod(j_iterator, j_set_iterator_next_method_id);
-    auto j_key = reinterpret_cast<jstring>(j_env->CallObjectMethod(j_entry, j_map_entry_get_key_method_id));
-    if (!j_key) {
-      continue;
-    }
-    auto u8_key_str = footstone::StringViewUtils::ConvertEncoding(JniUtils::ToStrView(j_env, j_key),
-                                                                  footstone::string_view::Encoding::Utf8).utf8_value();
-    auto j_value = reinterpret_cast<jstring>(j_env->CallObjectMethod(j_entry, j_map_entry_get_value_method_id));
-    if (!j_value) {
-      continue;
-    }
-    auto u8_value_str = footstone::StringViewUtils::ConvertEncoding(
-        JniUtils::ToStrView(j_env, j_value),
-        footstone::string_view::Encoding::Utf8).utf8_value();
-    auto key_str = std::string(reinterpret_cast<const char*>(u8_key_str.c_str()), u8_key_str.length());
-    auto value_str = std::string(reinterpret_cast<const char*>(u8_value_str.c_str()), u8_value_str.length());
-    ret_map[key_str] = value_str;
-  }
-  return ret_map;
-}
-
-jobject UnorderedMapToJavaMap(JNIEnv* j_env, const std::unordered_map<std::string, std::string>& map) {
-  auto j_map = j_env->NewObject(j_util_map_clazz,
-                                j_map_init_method_id);
-  for (const auto& p: map) {
-    auto j_key = JniUtils::StrViewToJString(j_env,footstone::string_view::new_from_utf8(
-        p.first.c_str(), p.first.length()));
-    auto j_value = JniUtils::StrViewToJString(j_env,footstone::string_view::new_from_utf8(
-        p.second.c_str(), p.second.length()));
-    j_env->CallObjectMethod(j_map, j_map_put_method_id, j_key, j_value);
-  }
-  return j_map;
 }
 
 std::shared_ptr<UriLoader> GetUriLoader(jint j_id) {
@@ -329,31 +125,14 @@ void JniDelegateHandler::RequestUntrustedContent(
     j_env->CallObjectMethod(j_map, j_map_put_method_id, j_key, j_value);
   }
   auto j_holder = j_env->CallObjectMethod(delegate_->GetObj(), j_call_jni_delegate_sync_method_id, j_uri, j_map);
-  auto j_ret_code = j_env->GetIntField(j_holder, j_holder_ret_code_field_id);
-  RetCode ret_code = CovertToUriHandlerRetCode(j_ret_code);
+  auto resource_holder = ResourceHolder::Create(j_holder);
+  RetCode ret_code = resource_holder->GetCode();
   ctx->code = ret_code;
   if (ret_code != RetCode::Success) {
     return;
   }
-  auto j_type = j_env->GetObjectField(j_holder, j_holder_transfer_type_field_id);
-  if (j_env->IsSameObject(j_type, j_transfer_type_normal_value)) {
-    auto j_bytes = reinterpret_cast<jbyteArray>(j_env->GetObjectField(j_holder, j_holder_bytes_field_id));
-    ctx->content = JniUtils::AppendJavaByteArrayToBytes(j_env, j_bytes);
-  } else if (j_env->IsSameObject(j_type, j_transfer_type_nio_value)) {
-    auto j_buffer = j_env->GetObjectField(j_holder, j_holder_buffer_field_id);
-    if (j_buffer) {
-      char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
-      FOOTSTONE_CHECK(buffer_address);
-      auto capacity = j_env->GetDirectBufferCapacity(j_buffer);
-      if (capacity >= 0) {
-        ctx->content = bytes(buffer_address, footstone::checked_numeric_cast<jlong, size_t>(capacity));
-        return;
-      }
-    }
-    ctx->code = RetCode::DelegateError;
-  } else {
-    FOOTSTONE_UNREACHABLE();
-  }
+  ctx->rsp_meta = resource_holder->GetRspMeta();
+  ctx->content = resource_holder->GetContent();
 }
 
 void JniDelegateHandler::RequestUntrustedContent(
@@ -385,8 +164,8 @@ void JniDelegateHandler::RequestUntrustedContent(
 
 // call from c++
 void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_holder) {
-  auto j_native_id = j_env->GetIntField(j_holder, j_holder_native_id_field_id);
-  auto request_id = footstone::checked_numeric_cast<jint, uint32_t>(j_native_id);
+  auto resource_holder = ResourceHolder::Create(j_holder);
+  auto request_id = resource_holder->GetNativeId();
   std::shared_ptr<JniDelegateHandler::JniDelegateHandlerAsyncWrapper> wrapper;
   auto flag = JniDelegateHandler::GetAsyncWrapperMap().Find(request_id, wrapper);
   if (!flag) {
@@ -401,158 +180,52 @@ void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_h
   auto ctx = wrapper->context;
   auto cb = ctx->cb;
   FOOTSTONE_CHECK(cb);
-  auto j_ret_code = j_env->GetIntField(j_holder, j_holder_ret_code_field_id);
-  UriHandler::RetCode ret_code = CovertToUriHandlerRetCode(j_ret_code);
+  UriHandler::RetCode ret_code = resource_holder->GetCode();
   if (ret_code != UriHandler::RetCode::Success) {
     cb(ret_code, {}, UriHandler::bytes());
     return;
   }
-  auto rsp_map = JavaMapToUnorderedMap(
-      j_env, j_env->GetObjectField(j_holder, j_holder_rsp_header_field_id));
-  auto j_type = j_env->GetObjectField(j_holder, j_holder_transfer_type_field_id);
-  if (j_env->IsSameObject(j_type, j_transfer_type_normal_value)) {
-    auto j_bytes = reinterpret_cast<jbyteArray>(j_env->GetObjectField(j_holder, j_holder_bytes_field_id));
-    cb(ret_code, rsp_map, JniUtils::AppendJavaByteArrayToBytes(j_env, j_bytes));
-    return;
-  } else if (j_env->IsSameObject(j_type, j_transfer_type_nio_value)) {
-    auto j_buffer = j_env->GetObjectField(j_holder, j_holder_buffer_field_id);
-    if (j_buffer) {
-      char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
-      FOOTSTONE_CHECK(buffer_address);
-      auto capacity = j_env->GetDirectBufferCapacity(j_buffer);
-      if (capacity >= 0) {
-        cb(ret_code, rsp_map, UriHandler::bytes(buffer_address,
-                                                footstone::checked_numeric_cast<jlong, size_t>(capacity)));
-        return;
-      }
-    }
-    cb(UriHandler::RetCode::DelegateError, rsp_map, {});
-  } else {
-    FOOTSTONE_UNREACHABLE();
-  }
+  auto rsp_map = resource_holder->GetRspMeta();
+  auto content = resource_holder->GetContent();
+  cb(ret_code, rsp_map, content);
 }
 
 // call from java
 void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder, jobject j_cb) {
-  auto loader = GetUriLoader(j_id);
-  auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
-  auto uri = JniUtils::ToStrView(j_env, j_uri);
-  auto req_meta = JavaMapToUnorderedMap(j_env,
-                                        j_env->GetObjectField(j_holder, j_holder_req_header_field_id));
+  auto resource_holder_req = ResourceHolder::Create(j_holder);
+  auto uri = resource_holder_req->GetUri();
+  auto req_meta = resource_holder_req->GetReqMeta();
   req_meta[kCallFromKey] = kCallFromJavaValue;
   auto java_cb = std::make_shared<JavaRef>(j_env, j_cb);
-  auto cb = [java_cb, j_uri](
-      UriLoader::RetCode, const std::unordered_map<std::string, std::string>& rsp_meta, const UriLoader::bytes& content) {
+  auto cb = [java_cb, j_holder](
+      UriLoader::RetCode code, const std::unordered_map<std::string, std::string>& rsp_meta, const UriLoader::bytes& content) {
+    auto resource_holder = ResourceHolder::CreateNewHolder(j_holder);
+    resource_holder->SetContent(content);
+    resource_holder->SetRspMeta(rsp_meta);
+    resource_holder->SetCode(code);
+    resource_holder->FetchComplete(java_cb->GetObj());
     auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-    auto j_rsp_meta = UnorderedMapToJavaMap(j_env, rsp_meta);
-    auto j_holder = j_env->NewObject(j_resource_data_holder_clazz, j_resource_data_holder_init_method_id,
-                                     j_uri, j_rsp_meta, j_request_from_native_value);
-    bool is_direct_buffer = content.length() >= std::numeric_limits<uint32_t>::max();
-    if (is_direct_buffer) {
-      auto j_buffer = j_env->NewDirectByteBuffer(const_cast<void*>(reinterpret_cast<const void*>(content.c_str())),
-                                                 footstone::check::checked_numeric_cast<size_t, jsize>(content.length()));
-      j_env->SetObjectField(j_holder, j_holder_buffer_field_id, j_buffer);
-      j_env->SetObjectField(j_holder, j_holder_transfer_type_field_id, j_transfer_type_nio_value);
-    } else {
-      auto len = footstone::check::checked_numeric_cast<size_t, jsize>(content.length());
-      auto j_bytes = j_env->NewByteArray(len);
-      j_env->SetByteArrayRegion(
-          reinterpret_cast<jbyteArray>(j_bytes), 0, len,
-          reinterpret_cast<const jbyte*>(content.c_str()));
-      j_env->SetObjectField(j_holder, j_holder_bytes_field_id, j_bytes);
-      j_env->SetObjectField(j_holder, j_holder_transfer_type_field_id, j_transfer_type_normal_value);
-    }
-    j_env->CallVoidMethod(java_cb->GetObj(), j_interface_cb_method_id, j_holder);
     JNIEnvironment::ClearJEnvException(j_env);
   };
+  auto loader = GetUriLoader(j_id);
   loader->RequestUntrustedContent(uri, req_meta, cb);
-
 }
 
 // call from java
 void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder) {
-  auto loader = GetUriLoader(j_id);
-  auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
-  auto uri = JniUtils::ToStrView(j_env, j_uri);
-  auto j_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
-  auto req_meta = JavaMapToUnorderedMap(j_env, j_map);
+  auto resource_holder = ResourceHolder::Create(j_holder);
+  auto uri = resource_holder->GetUri();
+  auto req_meta = resource_holder->GetReqMeta();
   UriLoader::RetCode code;
   std::unordered_map<std::string, std::string> rsp_meta;
   UriLoader::bytes content;
   req_meta[kCallFromKey] = kCallFromJavaValue;
+  auto loader = GetUriLoader(j_id);
   loader->RequestUntrustedContent(uri, req_meta, code, rsp_meta, content);
-  j_env->SetObjectField(j_holder, j_holder_rsp_header_field_id, UnorderedMapToJavaMap(j_env, rsp_meta));
-  bool is_direct_buffer = content.length() >= std::numeric_limits<uint32_t>::max();;
-  if (is_direct_buffer) {
-    auto j_buffer = j_env->NewDirectByteBuffer(const_cast<void*>(reinterpret_cast<const void*>(content.c_str())),
-                                             footstone::check::checked_numeric_cast<size_t, jsize>(content.length()));
-    j_env->SetObjectField(j_holder, j_holder_buffer_field_id, j_buffer);
-    j_env->SetObjectField(j_holder, j_holder_transfer_type_field_id, j_transfer_type_nio_value);
-  } else {
-    auto len = footstone::check::checked_numeric_cast<size_t, jsize>(content.length());
-    auto j_bytes = j_env->NewByteArray(len);
-    j_env->SetByteArrayRegion(
-        reinterpret_cast<jbyteArray>(j_bytes), 0, len,
-        reinterpret_cast<const jbyte*>(content.c_str()));
-    j_env->SetObjectField(j_holder, j_holder_bytes_field_id, j_bytes);
-    j_env->SetObjectField(j_holder, j_holder_transfer_type_field_id, j_transfer_type_normal_value);
-  }
-  j_env->SetIntField(j_holder, j_holder_ret_code_field_id, static_cast<jint>(CovertToFetchResultCode(code)));
+  resource_holder->SetRspMeta(rsp_meta);
+  resource_holder->SetContent(content);
+  resource_holder->SetCode(code);
   JNIEnvironment::ClearJEnvException(j_env);
 }
-
-// call from java
-void OnNetworkRequestInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id, jstring j_request_id, jobject j_holder) {
-#ifdef ENABLE_INSPECTOR
-  auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
-  auto j_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
-  auto req_meta = JavaMapToUnorderedMap(j_env, j_map);
-  auto uri = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-      JniUtils::ToStrView(j_env, j_uri), footstone::string_view::Encoding::Utf8).utf8_value());
-  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
-  // call devtools
-  auto loader = GetUriLoader(j_id);
-  hippy::devtools::SentRequest(loader->GetNetworkNotification(), request_id, uri, req_meta);
-#endif
-  JNIEnvironment::ClearJEnvException(j_env);
-}
-
-// call from java
-void OnNetworkResponseInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id, jstring j_request_id, jobject j_holder) {
-#ifdef ENABLE_INSPECTOR
-  // code, rsp_meta, content
-  auto code = static_cast<int>(j_env->GetIntField(j_holder, j_holder_ret_code_field_id));
-  auto j_req_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
-  auto req_meta = JavaMapToUnorderedMap(j_env, j_req_map);
-  auto j_rsp_map = j_env->GetObjectField(j_holder, j_holder_rsp_header_field_id);
-  auto rsp_meta = JavaMapToUnorderedMap(j_env, j_rsp_map);
-  std::string content;
-  auto j_type = j_env->GetObjectField(j_holder, j_holder_transfer_type_field_id);
-  if (j_env->IsSameObject(j_type, j_transfer_type_normal_value)) {
-    auto j_bytes = reinterpret_cast<jbyteArray>(j_env->GetObjectField(j_holder, j_holder_bytes_field_id));
-    content = JniUtils::AppendJavaByteArrayToBytes(j_env, j_bytes);
-  } else if (j_env->IsSameObject(j_type, j_transfer_type_nio_value)) {
-    auto j_buffer = j_env->GetObjectField(j_holder, j_holder_buffer_field_id);
-    if (j_buffer) {
-      char* buffer_address = static_cast<char*>(j_env->GetDirectBufferAddress(j_buffer));
-      FOOTSTONE_CHECK(buffer_address);
-      auto capacity = j_env->GetDirectBufferCapacity(j_buffer);
-      if (capacity >= 0) {
-        content = std::string(buffer_address, footstone::checked_numeric_cast<jlong, size_t>(capacity));
-      }
-    }
-  } else {
-    FOOTSTONE_UNREACHABLE();
-  }
-  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
-  // call devtools
-  auto loader = GetUriLoader(j_id);
-  hippy::devtools::ReceivedResponse(loader->GetNetworkNotification(), request_id, code, content, rsp_meta, req_meta);
-#endif
-  JNIEnvironment::ClearJEnvException(j_env);
-}
-
 }
 }

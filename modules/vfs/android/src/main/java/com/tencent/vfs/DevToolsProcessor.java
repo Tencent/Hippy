@@ -22,10 +22,10 @@ import com.tencent.vfs.VfsManager.ProcessorCallback;
 
 public class DevToolsProcessor extends Processor {
 
-    private final VfsManager mVfsManager;
+    private final long mRuntimeId;
 
-    public DevToolsProcessor(VfsManager vfsManager) {
-        mVfsManager = vfsManager;
+    public DevToolsProcessor(long runtimeId) {
+        mRuntimeId = runtimeId;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DevToolsProcessor extends Processor {
             return;
         }
         holder.requestId = String.valueOf(System.currentTimeMillis());
-        mVfsManager.onNetworkRequest(mVfsManager.getId(), holder.requestId, holder);
+        onNetworkRequest(mRuntimeId, holder.requestId, holder);
     }
 
     private void onNetworkResponse(ResourceDataHolder holder) {
@@ -66,6 +66,18 @@ public class DevToolsProcessor extends Processor {
             // native 的 response 由 native 的 DevToolsProcessor 处理
             return;
         }
-        mVfsManager.onNetworkResponse(mVfsManager.getId(), holder.requestId, holder);
+        onNetworkResponse(mRuntimeId, holder.requestId, holder);
     }
+
+    /**
+     * Network Request notification for devtools
+     */
+    @SuppressWarnings("JavaJniMissingFunction")
+    public native void onNetworkRequest(long id, String requestId, ResourceDataHolder holder);
+
+    /**
+     * Network Response notification for devtools
+     */
+    @SuppressWarnings("JavaJniMissingFunction")
+    public native void onNetworkResponse(long id, String requestId, ResourceDataHolder holder);
 }

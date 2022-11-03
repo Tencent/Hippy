@@ -69,8 +69,6 @@ class JniDelegateHandler : public UriHandler, public std::enable_shared_from_thi
 void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_holder);
 void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder, jobject j_cb);
 void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder);
-void OnNetworkRequestInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id, jstring j_request_id, jobject j_holder);
-void OnNetworkResponseInvoke(JNIEnv* j_env, __unused jobject j_object, jint j_id, jstring j_request_id, jobject j_holder);
 
 }
 }

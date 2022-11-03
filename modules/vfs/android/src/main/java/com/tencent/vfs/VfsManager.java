@@ -227,14 +227,4 @@ public class VfsManager {
      */
     @SuppressWarnings("JavaJniMissingFunction")
     private native void onTraversalsEndAsync(ResourceDataHolder holder);
-
-    /**
-     * Network Request notification for devtools
-     */
-    public native void onNetworkRequest(int id, String requestId, ResourceDataHolder holder);
-
-    /**
-     * Network Response notification for devtools
-     */
-    public native void onNetworkResponse(int id, String requestId, ResourceDataHolder holder);
 }

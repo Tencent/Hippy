@@ -98,7 +98,8 @@ if (ENABLE_INSPECTOR)
       src/devtools/adapter/impl/hippy_screen_adapter.cc
       src/devtools/adapter/impl/hippy_tracing_adapter.cc
       src/devtools/devtools_data_source.cc
-      src/devtools/devtools_utils.cc)
+      src/devtools/devtools_utils.cc
+      src/devtools/vfs/devtools_handler.cc)
 endif ()
 if ("${JS_ENGINE}" STREQUAL "V8")
   list(APPEND SOURCE_SET

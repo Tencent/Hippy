@@ -21,9 +21,6 @@
 #pragma once
 
 #include "vfs/handler/uri_handler.h"
-#ifdef ENABLE_INSPECTOR
-#include "api/notification/devtools_network_notification.h"
-#endif
 
 #include <list>
 #include <mutex>
@@ -39,9 +36,6 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   using string_view = footstone::string_view;
   using bytes = vfs::UriHandler::bytes;
   using RetCode = vfs::UriHandler::RetCode;
-#ifdef ENABLE_INSPECTOR
-  using NetworkNotification = hippy::devtools::NetworkNotification;
-#endif
 
   UriLoader() = default;
   virtual ~UriLoader() = default;
@@ -70,15 +64,6 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
     return default_handler_;
   }
 
-#ifdef ENABLE_INSPECTOR
-  inline void SetNetworkNotification(std::shared_ptr<NetworkNotification> notification) {
-    network_notification_ = notification;
-  }
-  inline std::shared_ptr<NetworkNotification> GetNetworkNotification() {
-    return network_notification_;
-  }
-#endif
-
  private:
   std::shared_ptr<UriHandler> GetNextHandler(std::list<std::shared_ptr<UriHandler>>::iterator& cur,
                                              const std::list<std::shared_ptr<UriHandler>>::iterator& end);
@@ -91,9 +76,6 @@ class UriLoader: public std::enable_shared_from_this<UriLoader> {
   std::list<std::shared_ptr<UriHandler>> default_handler_list_;
   std::list<std::shared_ptr<UriHandler>> interceptor_;
   std::mutex mutex_;
-#ifdef ENABLE_INSPECTOR
-  std::shared_ptr<NetworkNotification> network_notification_;
-#endif
 };
 
 }

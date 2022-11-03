@@ -59,7 +59,7 @@
 #include "driver/scope.h"
 
 #ifdef ENABLE_INSPECTOR
-#include "module/vfs/devtools_handler.h"
+#include "devtools/vfs/devtools_handler.h"
 #endif
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
@@ -397,7 +397,6 @@ dispatch_queue_t HippyBridgeQueue() {
   auto devtools_data_source = _javaScriptExecutor.pScope->GetDevtoolsDataSource();
   if (devtools_data_source) {
       auto notification = devtools_data_source->GetNotificationCenter()->network_notification;
-      _uriLoader->SetNetworkNotification(notification);
       auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
       devtools_handler->SetNetworkNotification(notification);
       auto default_handler = _uriLoader->GetDefaultHandler();

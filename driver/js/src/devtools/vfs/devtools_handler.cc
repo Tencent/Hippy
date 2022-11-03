@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  */
-#include "module/vfs/devtools_handler.h"
+#include "devtools/vfs/devtools_handler.h"
 
 #include <utility>
 
@@ -29,6 +29,9 @@
 #include "module/util/base64.h"
 
 namespace hippy::devtools {
+constexpr char kCallFromKey[] = "__Hippy_call_from";
+constexpr char kCallFromJavaValue[] = "java";
+
 void DevtoolsHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
                                           std::function<std::shared_ptr<UriHandler>()> next) {
   auto handle_next = [](std::shared_ptr<SyncContext> ctx, const std::function<std::shared_ptr<UriHandler>()>& next) {
@@ -106,5 +109,4 @@ void ReceivedResponse(const std::shared_ptr<hippy::devtools::NetworkNotification
     notification->LoadingFinished(request_id, hippy::devtools::DevtoolsLoadingFinished(request_id, data_length));
   }
 }
-
 } // namespace hippy::devtools
