@@ -1,0 +1,25 @@
+name: "[project] code lines"
+
+on:
+  workflow_dispatch:
+    inputs:
+      git_ref:
+        description: 'Git Ref'
+        type: string
+        default: 'master'
+        required: true
+
+jobs:
+  cloc:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install
+      run: sudo apt-get install cloc
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.inputs.git_ref }}
+        lfs: true
+    - name: Cloc
+      run: |
+        cloc . --md  | sed -E '1,4d' >> $GITHUB_STEP_SUMMARY
