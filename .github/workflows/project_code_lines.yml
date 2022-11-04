@@ -8,11 +8,6 @@ on:
         type: string
         default: 'master'
         required: true
-      exclude_files:
-        description: 'Exclude files(split by |)'
-        type: string
-        default: 'yarn.lock|package-lock.json|pnpm-lock.yaml'
-        required: false
 
 jobs:
   cloc:
@@ -26,7 +21,5 @@ jobs:
         ref: ${{ github.event.inputs.git_ref }}
         lfs: true
     - name: Cloc
-      env:
-        EXCLUDE_FILES: ${{ github.event.inputs.exclude_files }}
       run: |
-        cloc . --md --not-match-f="$EXCLUDE_FILES" | sed -E '1,4d' >> $GITHUB_STEP_SUMMARY
+        cloc . --md  | sed -E '1,4d' >> $GITHUB_STEP_SUMMARY
