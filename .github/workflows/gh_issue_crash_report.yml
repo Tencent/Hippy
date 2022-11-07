@@ -42,7 +42,7 @@ jobs:
       repository_owner: ${{ steps.triage-result.outputs.repository_owner }}
     steps:
     - name: Greetings
-      uses: actions/github-script@v6.1.0
+      uses: actions/github-script@v6.3.3
       with:
         script: |
           const { owner, repo } = context.repo;
@@ -63,7 +63,7 @@ jobs:
     - run: npm install markdown-it
     - name: Triage
       id: triage-result
-      uses: actions/github-script@v6.1.0
+      uses: actions/github-script@v6.3.3
       env:
         issue_body: ${{ github.event.issue.body }}
       with:
@@ -71,6 +71,7 @@ jobs:
           const MarkdownIt = require('markdown-it');
           const os = require('os');
           const path = require('path');
+          const fs = require('fs');
 
           function parse(markdown) {
             const tokens = (new MarkdownIt()).parse(markdown, {});
@@ -115,11 +116,11 @@ jobs:
                 value = value.replaceAll(/[^0-9a-z\-_\.]/ig, '');
               }
               value = value.replaceAll('%', '%25').replaceAll('\n', '%0A').replaceAll('\r', '%0D');
-              console.log(`::set-output name=${key.toLowerCase()}::${value}`);
+              fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key.toLowerCase()}=${value}${os.EOL}`, { encoding: 'utf8' });
             }
           });
 
-          console.log(`::set-output name=repository_owner::${'${{ github.repository_owner }}'.toLowerCase()}`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `repository_owner=${'${{ github.repository_owner }}'.toLowerCase()}${os.EOL}`, { encoding: 'utf8' });
 
   android-translates-addresses:
     needs:
@@ -144,7 +145,7 @@ jobs:
         app-id: ${{ secrets.BOT_APP_ID }}
     - name: Backtrace
       id: backtrace_parsed
-      uses: actions/github-script@v6.1.0
+      uses: actions/github-script@v6.3.3
       env:
         triage_logs: ${{ needs.triage.outputs.logs }}
       with:
@@ -152,6 +153,8 @@ jobs:
         script: |
           const { owner, repo } = context.repo;
           const { issues } = github.rest;
+          const { appendFileSync } = require('fs');
+          const { EOL } = require('os');
 
           function parse(log) {
             const stack = [];
@@ -163,7 +166,7 @@ jobs:
 
           const backtrace = parse(process.env.triage_logs);
           if (backtrace.length > 0) {
-            console.log(`::set-output name=backtrace::${JSON.stringify(backtrace)}`);
+            appendFileSync(process.env.GITHUB_OUTPUT, `backtrace=${JSON.stringify(backtrace)}${EOL}`, { encoding: 'utf8' });
           }
 
           await issues.createComment({
@@ -194,8 +197,8 @@ jobs:
         mkdir symbols
         unzip -d symbols $ZIP_FILE
         rm $ZIP_FILE
-        echo "::set-output name=success::1"
-    - uses: actions/github-script@v6.1.0
+        echo "success=1" >> $GITHUB_OUTPUT
+    - uses: actions/github-script@v6.3.3
       if: ${{ !steps.symbols_fetched.outputs.success }}
       with:
         github-token: ${{ steps.get-token.outputs.token }}
@@ -212,7 +215,7 @@ jobs:
           });
     - name: Translates
       if: steps.symbols_fetched.outputs.success
-      uses: actions/github-script@v6.1.0
+      uses: actions/github-script@v6.3.3
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
