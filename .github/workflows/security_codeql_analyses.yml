@@ -55,7 +55,7 @@ jobs:
           let has_hit = false;
 
           try {
-            await github.paginate(pulls.listFiles, {
+            const count = (await github.paginate(pulls.listFiles, {
               owner,
               repo,
               per_page: 100,
@@ -69,9 +69,14 @@ jobs:
                 } else {
                   has_hit |= all_exts.includes(ext);
                 }
-                return [];
               }
-            });
+              return [files.length];
+            })).reduce((a, b) => a + b, 0);
+
+            if (count === 3_000) { // The paginated response include a maximum of 3000 files
+              console.log("::set-output name=language::${{ matrix.language }}"); // Fallback to all language
+              return;
+            }
           } catch (e) {
             console.error(e);
             console.log("::set-output name=language::${{ matrix.language }}"); // Fallback to all language
