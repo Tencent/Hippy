@@ -23,6 +23,7 @@
 #include <ctime>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "api/adapter/data/serializable.h"
 #include "api/notification/data/devtools_network_enum.h"
 
@@ -36,14 +37,14 @@ struct Initiator : public Serializable {
   /**
    * Type of this initiator. Allowed Values: parser, script, preload, SignedExchange, preflight, other
    */
-  std::string type = "other";
-  std::string url;
-  uint32_t line_number;
-  uint32_t column_number;
+  std::string type_ = "other";
+  std::string url_;
+  uint32_t line_number_;
+  uint32_t column_number_;
   /**
    * Set if another request triggered this request (e.g. preflight).
    */
-  std::string request_id;
+  std::string request_id_;
 };
 
 /**
@@ -53,9 +54,9 @@ struct Initiator : public Serializable {
  */
 struct TrustTokenParams : public Serializable {
   std::string Serialize() const override;
-  std::string type;
-  std::string refresh_policy;
-  std::vector<std::string> issuers;
+  std::string type_;
+  std::string refresh_policy_;
+  std::vector<std::string> issuers_;
 };
 
 /**
@@ -64,27 +65,29 @@ struct TrustTokenParams : public Serializable {
  */
 struct Request : public Serializable {
   std::string Serialize() const override;
-  std::string url;
-  std::string url_fragment;
-  std::string method;
+  explicit Request() {}
+  explicit Request(std::string url, const std::unordered_map<std::string, std::string>& req_meta);
+  std::string url_;
+  std::string url_fragment_;
+  std::string method_;
   /**
    * headers as keys / values of JSON object.
    */
-  std::string headers;
-  std::string post_data;
-  bool has_post_data;
-  std::vector<std::string> post_data_entries;
-  SecurityMixedContentType mixed_content_type = SecurityMixedContentType::kNone;
-  ResourcePriority initial_priority = ResourcePriority::kVeryHigh;
-  bool is_link_preload;
-  TrustTokenParams trust_token_params;
+  std::string headers_;
+  std::string post_data_;
+  bool has_post_data_ = false;
+  std::vector<std::string> post_data_entries_;
+  SecurityMixedContentType mixed_content_type_ = SecurityMixedContentType::kNone;
+  ResourcePriority initial_priority_ = ResourcePriority::kVeryHigh;
+  bool is_link_preload_ = false;
+  TrustTokenParams trust_token_params_;
   /**
    * The referrer policy of the request, as defined in https://www.w3.org/TR/referrer-policy/ Allowed Values:
    * unsafe-url, no-referrer-when-downgrade, no-referrer, origin, origin-when-cross-origin, same-origin, strict-origin,
    * strict-origin-when-cross-origin
    */
-  std::string referrer_policy;
-  bool is_same_site;
+  std::string referrer_policy_;
+  bool is_same_site_ = false;
 };
 
 /**
@@ -96,12 +99,13 @@ class DevtoolsHttpRequest : public Serializable {
       : request_id_(request_id),
         request_(std::move(request)),
         loader_id_(request_id),
-        timestamp_(static_cast<uint64_t>(std::time(nullptr))),
-        wall_time_(static_cast<uint64_t>(std::time(nullptr))),
+        timestamp_(static_cast<uint64_t>(std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now()).time_since_epoch().count())),
+        wall_time_(timestamp_),
         initiator_({}),
         redirect_has_extra_info_(false),
-        type_(ResourceType::kFetch),
-        frame_id_(request.url),
+        type_(ResourceType::kOther),
+        frame_id_(request.url_),
         has_user_gesture_(false) {}
   inline void SetDocumentUrl(std::string document_url) { document_url_ = document_url; }
   inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }

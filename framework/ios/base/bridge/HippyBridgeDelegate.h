@@ -39,11 +39,6 @@
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge;
 
 /**
- * ask delegate URL for web inspector
- */
-- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge;
-
-/**
  * Cache code delegate
  */
 - (NSData *)cachedCodeForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;

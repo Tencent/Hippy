@@ -71,8 +71,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:vfs,INTERFA
 
 # region devtools
 if (ENABLE_INSPECTOR)
-  add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-backend ${CMAKE_CURRENT_BINARY_DIR}/devtools/devtools-backend)
-  target_link_libraries(${PROJECT_NAME} PUBLIC devtools_backend)
+  GlobalPackages_Add(devtools_backend)
+  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
 endif ()
 # endregion
 

@@ -16,6 +16,7 @@
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
 		41AD023B04DC30E3D93C3AB7 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41AD0893629285DF331A0011 /* TypeConverter.mm */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
+		9B876A042914F1BA000B2EBE /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B8769F42914E690000B2EBE /* libbase64.a */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -231,6 +232,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		9B1315132913958C0001F545 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = C96140645CDE48CDB27FFC63;
+			remoteInfo = vfs_native;
+		};
+		9B8769F32914E690000B2EBE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 390A1E83901D4B668035D7F2;
+			remoteInfo = base64;
+		};
 		F48D38F7289BA876007BD6FE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
@@ -740,6 +755,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9B876A042914F1BA000B2EBE /* libbase64.a in Frameworks */,
 				F4FC1600289BBBCA00A35F4A /* libdevtools_backend.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -761,6 +777,7 @@
 				F42E711D27D0684C0099248B /* render */,
 				0612F02023A8BE320079E622 /* HippyDemo */,
 				0612F01F23A8BE320079E622 /* Products */,
+				9B8769FC2914F1BA000B2EBE /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -800,6 +817,13 @@
 				067AB97423B5F309009D5EE2 /* MyView.m */,
 			);
 			path = myview;
+			sourceTree = "<group>";
+		};
+		9B8769FC2914F1BA000B2EBE /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		AC63515223F922E5007FABA5 /* fonts */ = {
@@ -1436,8 +1460,10 @@
 		F48D38F0289BA876007BD6FE /* Products */ = {
 			isa = PBXGroup;
 			children = (
+				9B8769F42914E690000B2EBE /* libbase64.a */,
 				F48D38F8289BA876007BD6FE /* libdevtools_backend.a */,
 				F48D38FA289BA876007BD6FE /* libfootstone.a */,
+				9B1315142913958C0001F545 /* libvfs_native.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2090,6 +2116,20 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		9B1315142913958C0001F545 /* libvfs_native.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libvfs_native.a;
+			remoteRef = 9B1315132913958C0001F545 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9B8769F42914E690000B2EBE /* libbase64.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libbase64.a;
+			remoteRef = 9B8769F32914E690000B2EBE /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		F48D38F8289BA876007BD6FE /* libdevtools_backend.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;

@@ -37,7 +37,7 @@ std::string DevtoolsLoadingFinished::Serialize() const {
   result += "\",\"";
   result += kLoadingFinishedTimestamp;
   result += "\":";
-  result += std::to_string(timestamp_);
+  result += std::to_string(static_cast<double>(timestamp_)/1000);
   result += ",\"";
   result += kLoadingFinishedEncodeDataLength;
   result += "\":";

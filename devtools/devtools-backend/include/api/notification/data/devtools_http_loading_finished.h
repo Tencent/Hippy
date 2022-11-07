@@ -32,10 +32,11 @@ namespace hippy::devtools {
  */
 class DevtoolsLoadingFinished : public Serializable {
  public:
-  DevtoolsLoadingFinished(std::string request_id, uint32_t length)
+  DevtoolsLoadingFinished(std::string request_id, uint64_t length)
       : request_id_(request_id),
         encoded_data_length_(length),
-        timestamp_(static_cast<uint64_t>(std::time(nullptr))),
+        timestamp_(static_cast<uint64_t>(std::chrono::time_point_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now()).time_since_epoch().count())),
         should_report_corb_blocking_(false) {}
 
   inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
@@ -47,7 +48,7 @@ class DevtoolsLoadingFinished : public Serializable {
  private:
   std::string content_;
   std::string request_id_;
-  uint32_t encoded_data_length_;
+  uint64_t encoded_data_length_;
   uint64_t timestamp_;
   bool should_report_corb_blocking_;
 };

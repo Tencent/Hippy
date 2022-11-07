@@ -84,6 +84,13 @@ GlobalPackages_Add(vfs)
 target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 # endregion
 
+# region devtools
+if (ENABLE_INSPECTOR)
+  GlobalPackages_Add(devtools_backend)
+  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
+endif ()
+# endregion
+
 # region native renderer
 add_subdirectory(${PROJECT_ROOT_DIR}/renderer/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/renderer/native)
 target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)

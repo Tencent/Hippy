@@ -90,6 +90,7 @@ static NSString *const engineKey = @"Demo";
     launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
     bundleURLs = @[bundleUrl];
     sandboxDirectory = [bundleUrl URLByDeletingLastPathComponent];
+    launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": bundleUrl};
 #else
     NSString *commonBundlePath = [[NSBundle mainBundle] pathForResource:@"vendor.ios" ofType:@"js" inDirectory:@"res"];
     NSString *businessBundlePath = [[NSBundle mainBundle] pathForResource:@"index.ios" ofType:@"js" inDirectory:@"res"];
@@ -363,10 +364,6 @@ std::string mock;
 
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
     return bridge.debugMode;
-}
-
-- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
-    return bridge.bundleURL;
 }
 
 #pragma mark HPRenderFrameworkProxy Delegate Implementation

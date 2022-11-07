@@ -58,6 +58,10 @@
 #include "dom/scene.h"
 #include "driver/scope.h"
 
+#ifdef ENABLE_INSPECTOR
+#include "integrations/devtools_handler.h"
+#endif
+
 NSString *const HippyReloadNotification = @"HippyReloadNotification";
 NSString *const HippyJavaScriptDidLoadNotification = @"HippyJavaScriptDidLoadNotification";
 NSString *const HippyJavaScriptDidFailToLoadNotification = @"HippyJavaScriptDidFailToLoadNotification";
@@ -388,6 +392,15 @@ dispatch_queue_t HippyBridgeQueue() {
         _uriLoader = uriLoader;
         [_javaScriptExecutor setUriLoader:uriLoader];
     }
+#ifdef ENABLE_INSPECTOR
+  auto devtools_data_source = _javaScriptExecutor.pScope->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+      auto notification = devtools_data_source->GetNotificationCenter()->network_notification;
+      auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
+      devtools_handler->SetNetworkNotification(notification);
+      _uriLoader->RegisterUriInterceptor(devtools_handler);
+  }
+#endif
 }
 
 - (std::shared_ptr<VFSUriLoader>)uriLoader {

@@ -128,6 +128,17 @@ void UnloadInstance(JNIEnv* j_env,
 jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager);
 void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id);
 
+void OnNetworkRequestInvoke(JNIEnv *j_env,
+                            __unused jobject j_object,
+                            jlong j_runtime_id,
+                            jstring j_request_id,
+                            jobject j_holder);
+void OnNetworkResponseInvoke(JNIEnv *j_env,
+                             __unused jobject j_object,
+                             jlong j_runtime_id,
+                             jstring j_request_id,
+                             jobject j_holder);
+
 } // namespace bridge
 } // namespace framework
 } // namespace hippy

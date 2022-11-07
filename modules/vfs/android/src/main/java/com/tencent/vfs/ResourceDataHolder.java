@@ -60,6 +60,7 @@ public class ResourceDataHolder {
     public int resultCode = FetchResultCode.OK.ordinal();
     public int nativeId;
     public int index = -1;
+    public String requestId;
 
     public ResourceDataHolder(@NonNull String uri, @Nullable HashMap<String, String> params,
             RequestFrom from) {

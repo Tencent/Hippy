@@ -54,6 +54,18 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
+# region vfs
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
+# endregion
+
+# region base64
+InfraPackage_Add(base64
+        REMOTE "global_packages/base64/v0.5.0/git-repo.tgz"
+        LOCAL "third_party/base64")
+target_link_libraries(${PROJECT_NAME} PRIVATE base64)
+# endregion
+
 # region asio
 InfraPackage_Add(asio
     REMOTE "devtools/backend/third_party/asio/1.22.1/asio.tar.gz"
@@ -115,6 +127,7 @@ set(SOURCE_SET
     src/api/notification/default/default_log_notification.cc
     src/api/notification/default/default_network_notification.cc
     src/api/notification/default/default_runtime_notification.cc
+    src/integrations/devtools_handler.cc
     src/module/domain/base_domain.cc
     src/module/domain/css_domain.cc
     src/module/domain/dom_domain.cc

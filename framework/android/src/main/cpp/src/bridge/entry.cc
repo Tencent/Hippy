@@ -56,6 +56,7 @@
 #include "vfs/handler/jni_delegate_handler.h"
 #include "vfs/uri_loader.h"
 #include "vfs/uri.h"
+#include "vfs/vfs_resource_holder.h"
 
 #ifdef ANDROID_NATIVE_RENDER
 #include "render/native_render_manager.h"
@@ -64,6 +65,9 @@
 #ifdef ENABLE_TDF_RENDER
 #include "render/tdf_render_bridge.h"
 #include "renderer/tdf/tdf_render_manager.h"
+#endif
+#ifdef ENABLE_INSPECTOR
+#include "integrations/devtools_handler.h"
 #endif
 
 namespace hippy {
@@ -151,6 +155,16 @@ REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err5
              "onDestroyVfs",
              "(I)V",
              OnDestroyVfs)
+
+REGISTER_JNI("com/tencent/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
+             "onNetworkRequest",
+             "(JLjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
+             OnNetworkRequestInvoke)
+
+REGISTER_JNI("com/tencent/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
+             "onNetworkResponse",
+             "(JLjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
+             OnNetworkResponseInvoke)
 
 using string_view = footstone::stringview::string_view;
 using TaskRunner = footstone::runner::TaskRunner;
@@ -428,6 +442,15 @@ jboolean RunScriptFromUri(JNIEnv* j_env,
     asset_handler->SetWorkerTaskRunner(runtime->GetEngine()->GetWorkerTaskRunner());
     loader->RegisterUriHandler(kAssetSchema, asset_handler);
   }
+#ifdef ENABLE_INSPECTOR
+  auto devtools_data_source = runtime->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+    auto network_notification = devtools_data_source->GetNotificationCenter()->network_notification;
+    auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
+    devtools_handler->SetNetworkNotification(network_notification);
+    loader->RegisterUriInterceptor(devtools_handler);
+  }
+#endif
   auto save_object = std::make_shared<JavaRef>(j_env, j_cb);
   auto is_local_file = j_aasset_manager != nullptr;
   auto func = [runtime, save_object_ = std::move(save_object), script_name,
@@ -589,6 +612,64 @@ void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) 
   FOOTSTONE_DCHECK(flag);
 }
 
+void OnNetworkRequestInvoke(JNIEnv *j_env,
+                            __unused jobject j_object,
+                            jlong j_runtime_id,
+                            jstring j_request_id,
+                            jobject j_holder) {
+  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
+      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
+  auto resource_holder = ResourceHolder::Create(j_holder);
+  auto uri = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
+      resource_holder->GetUri(j_env), footstone::string_view::Encoding::Utf8).utf8_value());
+  auto req_meta = resource_holder->GetReqMeta(j_env);
+  // call devtools
+  std::shared_ptr<Runtime> runtime = Runtime::Find(
+      footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING)<< "DevToolsProcessor OnNetworkResponseInvoke, j_runtime_id invalid";
+    return;
+  }
+  auto devtools_data_source = runtime->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+    hippy::devtools::SentRequest(devtools_data_source->GetNotificationCenter()->network_notification,
+                                 request_id,
+                                 uri,
+                                 req_meta);
+  }
+  JNIEnvironment::ClearJEnvException(j_env);
+}
+
+void OnNetworkResponseInvoke(JNIEnv *j_env,
+                             __unused jobject j_object,
+                             jlong j_runtime_id,
+                             jstring j_request_id,
+                             jobject j_holder) {
+  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
+      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
+  auto resource_holder = ResourceHolder::Create(j_holder);
+  auto code = static_cast<int>(resource_holder->GetCode(j_env));
+  auto req_meta = resource_holder->GetReqMeta(j_env);
+  auto rsp_meta = resource_holder->GetRspMeta(j_env);
+  auto content = resource_holder->GetContent(j_env);
+  std::shared_ptr<Runtime> runtime = Runtime::Find(
+      footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING)<< "DevToolsProcessor OnNetworkResponseInvoke, j_runtime_id invalid";
+    return;
+  }
+  auto devtools_data_source = runtime->GetDevtoolsDataSource();
+  if (devtools_data_source) {
+    hippy::devtools::ReceivedResponse(devtools_data_source->GetNotificationCenter()->network_notification,
+                                      request_id,
+                                      code,
+                                      content,
+                                      rsp_meta,
+                                      req_meta);
+  }
+  JNIEnvironment::ClearJEnvException(j_env);
+}
+
 } // namespace bridge
 } // namespace framework
 } // namespace hippy
@@ -616,6 +697,7 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   hippy::TurboModuleManager::Init();
   hippy::Uri::Init();
   hippy::JniDelegateHandler::Init(j_env);
+  hippy::ResourceHolder::Init();
 
 #ifdef ANDROID_NATIVE_RENDER
   hippy::NativeRenderJni::Init();
@@ -640,6 +722,7 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
 #endif
 
   hippy::JniDelegateHandler::Destroy();
+  hippy::ResourceHolder::Destroy();
   hippy::Uri::Destroy();
   hippy::TurboModuleManager::Destroy();
   hippy::JavaTurboModule::Destroy();

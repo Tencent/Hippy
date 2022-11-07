@@ -54,7 +54,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC vfs_native)
 set(SOURCE_SET src/handler/asset_handler.cc
   src/handler/file_handler.cc
   src/handler/jni_delegate_handler.cc
-  src/handler/uri.cc)
+  src/handler/uri.cc
+  src/vfs_resource_holder.cc)
 
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

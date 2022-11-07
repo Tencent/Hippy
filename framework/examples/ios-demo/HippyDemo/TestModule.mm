@@ -69,7 +69,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     NSURL *url = [NSURL URLWithString:bundleUrl];
     NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:rootViewController.view.bounds];
     NSNumber *rootTag = rootView.componentTag;
-    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES)};;
+    NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
     NSArray<NSURL *> *bundleURLs = @[url];
     NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
     HippyBridge *bridge = [[HippyBridge alloc] initWithDelegate:self
@@ -161,10 +161,6 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
 
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
     return bridge.debugMode;
-}
-
-- (NSURL *)inspectorSourceURLForBridge:(HippyBridge *)bridge {
-    return bridge.bundleURL;
 }
 
 @end
