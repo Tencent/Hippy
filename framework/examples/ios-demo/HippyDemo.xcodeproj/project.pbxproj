@@ -16,7 +16,6 @@
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
 		41AD023B04DC30E3D93C3AB7 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41AD0893629285DF331A0011 /* TypeConverter.mm */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
-		9B876A042914F1BA000B2EBE /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B8769F42914E690000B2EBE /* libbase64.a */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -111,6 +110,10 @@
 		F468DE9D2812ACEA00319196 /* NativeRenderComponentData.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE962812ACEA00319196 /* NativeRenderComponentData.mm */; };
 		F468DE9E2812ACEA00319196 /* NativeRenderObjectRootView.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE972812ACEA00319196 /* NativeRenderObjectRootView.mm */; };
 		F468DE9F2812ACEA00319196 /* NativeRenderFont.mm in Sources */ = {isa = PBXBuildFile; fileRef = F468DE992812ACEA00319196 /* NativeRenderFont.mm */; };
+		F46B4297291B892E0023083E /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F46B4292291B892E0023083E /* libbase64.a */; };
+		F46B429A291B8D2C0023083E /* HippyFileHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = F46B4299291B8D2C0023083E /* HippyFileHandler.mm */; };
+		F46F07262914F967004CD085 /* HPUriLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F46F07252914F967004CD085 /* HPUriLoader.mm */; };
+		F46F072E2914FA35004CD085 /* HPUriHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = F46F072D2914FA35004CD085 /* HPUriHandler.mm */; };
 		F473F1452859C37100422C1A /* NativeRenderComponentMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = F473F13F2859C37100422C1A /* NativeRenderComponentMap.mm */; };
 		F4810954277062AD005C221B /* layer_optimized_render_manager.cc in Sources */ = {isa = PBXBuildFile; fileRef = F4810953277062AD005C221B /* layer_optimized_render_manager.cc */; };
 		F48D3802289BA662007BD6FE /* scope.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D379E289BA661007BD6FE /* scope.cc */; };
@@ -232,19 +235,26 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		9B1315132913958C0001F545 /* PBXContainerItemProxy */ = {
+		F46B4291291B892E0023083E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = C96140645CDE48CDB27FFC63;
-			remoteInfo = vfs_native;
-		};
-		9B8769F32914E690000B2EBE /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 390A1E83901D4B668035D7F2;
+			remoteGlobalIDString = A1148AAA19F540CB83BC3E1D;
 			remoteInfo = base64;
+		};
+		F46B4293291B892E0023083E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 043B128681C3468B82C114C8;
+			remoteInfo = "base64-bin";
+		};
+		F46B4295291B892E0023083E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F48D38EF289BA876007BD6FE /* devtools_backend.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2C00D9ACEB7C4B4F9459DF6F;
+			remoteInfo = vfs_native;
 		};
 		F48D38F7289BA876007BD6FE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -480,7 +490,14 @@
 		F468DE992812ACEA00319196 /* NativeRenderFont.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderFont.mm; sourceTree = "<group>"; };
 		F468DE9B2812ACEA00319196 /* NativeRenderFont.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderFont.h; sourceTree = "<group>"; };
 		F468DE9C2812ACEA00319196 /* NativeRenderObjectRootView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderObjectRootView.h; sourceTree = "<group>"; };
+		F46B4266291B4A710023083E /* VFSDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VFSDefines.h; sourceTree = "<group>"; };
+		F46B4298291B8D2C0023083E /* HippyFileHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HippyFileHandler.h; sourceTree = "<group>"; };
+		F46B4299291B8D2C0023083E /* HippyFileHandler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HippyFileHandler.mm; sourceTree = "<group>"; };
 		F46D6F30290167F900C8C418 /* MacroDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MacroDefines.h; sourceTree = "<group>"; };
+		F46F07242914F967004CD085 /* HPUriLoader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPUriLoader.h; sourceTree = "<group>"; };
+		F46F07252914F967004CD085 /* HPUriLoader.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPUriLoader.mm; sourceTree = "<group>"; };
+		F46F072C2914FA35004CD085 /* HPUriHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HPUriHandler.h; sourceTree = "<group>"; };
+		F46F072D2914FA35004CD085 /* HPUriHandler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = HPUriHandler.mm; sourceTree = "<group>"; };
 		F473F13F2859C37100422C1A /* NativeRenderComponentMap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = NativeRenderComponentMap.mm; sourceTree = "<group>"; };
 		F473F1442859C37100422C1A /* NativeRenderComponentMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NativeRenderComponentMap.h; sourceTree = "<group>"; };
 		F4810952277062A1005C221B /* layer_optimized_render_manager.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; path = layer_optimized_render_manager.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -755,7 +772,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9B876A042914F1BA000B2EBE /* libbase64.a in Frameworks */,
+				F46B4297291B892E0023083E /* libbase64.a in Frameworks */,
 				F4FC1600289BBBCA00A35F4A /* libdevtools_backend.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -954,6 +971,11 @@
 				F454D2AB2913CB3700687B67 /* VFSUriHandler.mm */,
 				F454D2AC2913CB3700687B67 /* VFSUriLoader.mm */,
 				F454D2AD2913CB3700687B67 /* VFSUriHandler.h */,
+				F46F07242914F967004CD085 /* HPUriLoader.h */,
+				F46F07252914F967004CD085 /* HPUriLoader.mm */,
+				F46F072C2914FA35004CD085 /* HPUriHandler.h */,
+				F46F072D2914FA35004CD085 /* HPUriHandler.mm */,
+				F46B4266291B4A710023083E /* VFSDefines.h */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -1460,10 +1482,11 @@
 		F48D38F0289BA876007BD6FE /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9B8769F42914E690000B2EBE /* libbase64.a */,
+				F46B4292291B892E0023083E /* libbase64.a */,
+				F46B4294291B892E0023083E /* base64 */,
 				F48D38F8289BA876007BD6FE /* libdevtools_backend.a */,
 				F48D38FA289BA876007BD6FE /* libfootstone.a */,
-				9B1315142913958C0001F545 /* libvfs_native.a */,
+				F46B4296291B892E0023083E /* libvfs_native.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1633,6 +1656,8 @@
 			children = (
 				F4E9646B28FEA9D700881750 /* HippyBridge+VFSLoader.h */,
 				F4E9646C28FEA9D700881750 /* HippyBridge+VFSLoader.mm */,
+				F46B4298291B8D2C0023083E /* HippyFileHandler.h */,
+				F46B4299291B8D2C0023083E /* HippyFileHandler.mm */,
 			);
 			path = loader;
 			sourceTree = "<group>";
@@ -2116,18 +2141,26 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		9B1315142913958C0001F545 /* libvfs_native.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libvfs_native.a;
-			remoteRef = 9B1315132913958C0001F545 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		9B8769F42914E690000B2EBE /* libbase64.a */ = {
+		F46B4292291B892E0023083E /* libbase64.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libbase64.a;
-			remoteRef = 9B8769F32914E690000B2EBE /* PBXContainerItemProxy */;
+			remoteRef = F46B4291291B892E0023083E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F46B4294291B892E0023083E /* base64 */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			name = base64;
+			path = base64.app;
+			remoteRef = F46B4293291B892E0023083E /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		F46B4296291B892E0023083E /* libvfs_native.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libvfs_native.a;
+			remoteRef = F46B4295291B892E0023083E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		F48D38F8289BA876007BD6FE /* libdevtools_backend.a */ = {
@@ -2166,6 +2199,7 @@
 				F4E998C828FEA9F500881750 /* HippyDeviceBaseInfo.mm in Sources */,
 				F4E998B128FEA9F500881750 /* HippyNetInfo.mm in Sources */,
 				F48D3891289BA6E3007BD6FE /* Hippy.cpp in Sources */,
+				F46F072E2914FA35004CD085 /* HPUriHandler.mm in Sources */,
 				F4BD045827D5AE2500339A2C /* UIView+Render.mm in Sources */,
 				F48D380A289BA662007BD6FE /* devtools_data_source.cc in Sources */,
 				F4E9B98B28FEAACA00881750 /* repeating_timer.cc in Sources */,
@@ -2218,6 +2252,7 @@
 				F4E998AE28FEA9F500881750 /* NSObject+HippyTurbo.mm in Sources */,
 				F4E7C6B32907B94500A9C73B /* HPLog.mm in Sources */,
 				067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */,
+				F46B429A291B8D2C0023083E /* HippyFileHandler.mm in Sources */,
 				F4E998BD28FEA9F500881750 /* HippyClipboardModule.m in Sources */,
 				F4810954277062AD005C221B /* layer_optimized_render_manager.cc in Sources */,
 				F4E9B98928FEAACA00881750 /* idle_task.cc in Sources */,
@@ -2343,6 +2378,7 @@
 				F4E998C028FEA9F500881750 /* NSObject+CtxValue.mm in Sources */,
 				F45D268928067B6900CAB185 /* NativeRenderSmartViewPagerViewManager.mm in Sources */,
 				F4E9B98828FEAACA00881750 /* serializer.cc in Sources */,
+				F46F07262914F967004CD085 /* HPUriLoader.mm in Sources */,
 				F45D265828067B6900CAB185 /* NativeRenderRefreshWrapperItemViewManager.mm in Sources */,
 				F45D269728067B6900CAB185 /* NativeRenderModalTransitioningDelegate.mm in Sources */,
 				F45D266D28067B6900CAB185 /* NativeRenderWaterfallItemViewManager.mm in Sources */,

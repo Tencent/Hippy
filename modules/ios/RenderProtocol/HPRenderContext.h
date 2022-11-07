@@ -23,18 +23,22 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+#import "HPRenderFrameworkProxy.h"
+
+#include <memory>
+
 #include "dom/dom_manager.h"
 #include "dom/root_node.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol HPRenderFrameworkProxy;
+class VFSUriLoader;
 
-@protocol HPRenderContext <NSObject>
+@class HPUriLoader;
+
+@protocol HPRenderContext <NSObject, HPRenderFrameworkProxy>
 
 @property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
-
-@property(nonatomic, weak) id<HPRenderFrameworkProxy> frameworkProxy;
 
 - (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 

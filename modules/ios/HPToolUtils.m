@@ -807,6 +807,14 @@ NSURL *__nullable HPURLWithString(NSString *URLString, NSString *baseURLString) 
     return nil;
 }
 
+NSString *HPSchemeFromURLString(NSString *urlString) {
+    NSUInteger location = [urlString rangeOfString:@":"].location;
+    if (NSNotFound == location || 0 == location) {
+        return @"";
+    }
+    return [urlString substringToIndex:location];
+}
+
 NSStringEncoding HPGetStringEncodingFromURLResponse(NSURLResponse *response) {
     NSString *textEncoding = [response textEncodingName];
     if (!textEncoding) {

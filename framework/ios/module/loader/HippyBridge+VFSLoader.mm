@@ -21,26 +21,68 @@
  */
 
 #import "HippyBridge+VFSLoader.h"
+#import "HPUriLoader.h"
 
 @implementation HippyBridge (VFSLoader)
 
-- (void)loadContentsAsynchronouslyFromUrl:(NSURL *)url
-                                   params:(NSDictionary *)params
-                        completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
-    if (!url || !completionHandler) {
-        return;
+static NSDictionary *AssembleParams(NSDictionary<NSString *, NSString *> *_Nullable httpHeaders, NSString *_Nullable method, NSData *_Nullable body) {
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:8];
+    if (httpHeaders) {
+        [params addEntriesFromDictionary:params];
     }
-    VFSUriLoader::URILoaderCompletion completion = [completionHandler](NSData * retData, NSURLResponse *retResponse, NSError *retError) {
-        completionHandler(retData, retResponse, retError);
-    };
-    self.uriLoader->loadContentsAsynchronously(url, params, completion);
+    if (method) {
+        NSString *m = method?:body?@"post":@"get";
+        [params setObject:m forKey:@"method"];
+    }
+    if (body) {
+        [params setObject:body forKey:@"body"];
+    }
+    return [params copy];
 }
 
-- (NSData *)loadContentsSynchronouslyFromUrl:(NSURL *)url
-                                      params:(NSDictionary *)params
+- (void)loadContentsAsynchronouslyFromUrl:(NSString *)urlString
+                                   method:(NSString *_Nullable)method
+                                   params:(NSDictionary<NSString *, NSString *> *)httpHeaders
+                                     body:(NSData *)body
+                        completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))completionHandler {
+    if (!urlString || !completionHandler) {
+        return;
+    }
+    
+    HPUriLoader *loader = [self HPUriLoader];
+    if (loader) {
+        [loader requestContentAsync:urlString method:method headers:httpHeaders body:body result:completionHandler];
+    }
+    else {
+        auto loader = [self VFSUriLoader].lock();
+        if (loader) {
+            VFSUriLoader::URILoaderCompletion completion = [completionHandler](NSData * retData, NSURLResponse *retResponse, NSError *retError) {
+                completionHandler(retData, retResponse, retError);
+            };
+            NSDictionary *params = AssembleParams(httpHeaders, method, body);
+            loader->loadContentsAsynchronously(urlString, params, completion);
+        }
+    }
+}
+
+- (NSData *)loadContentsSynchronouslyFromUrl:(NSString *)urlString
+                                      method:(NSString *_Nullable)method
+                                      params:(NSDictionary<NSString *, NSString *> *_Nullable)httpHeaders
+                                        body:(NSData *)body
                            returningResponse:(NSURLResponse * _Nullable * _Nullable)response
                                        error:(NSError *_Nullable * _Nullable)error {
-    return self.uriLoader->loadContentsSynchronously(url, params, response, error);
+    HPUriLoader *loader = [self HPUriLoader];
+    if (loader) {
+        [loader requestContentSync:urlString method:method headers:httpHeaders body:body response:response error:error];
+    }
+    else {
+        auto loader = [self VFSUriLoader].lock();
+        if (loader) {
+            NSDictionary *params = AssembleParams(httpHeaders, method, body);
+            return loader->loadContentsSynchronously(urlString, params, response, error);
+        }
+    }
+    return nil;
 }
 
 @end

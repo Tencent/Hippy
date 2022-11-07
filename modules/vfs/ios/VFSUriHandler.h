@@ -22,6 +22,11 @@
 
 #include "vfs/handler/uri_handler.h"
 
+@class NSError;
+@class HPUriLoader;
+
+hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error);
+
 class VFSUriHandler : public hippy::vfs::UriHandler {
   public:
     virtual void RequestUntrustedContent(
@@ -30,4 +35,12 @@ class VFSUriHandler : public hippy::vfs::UriHandler {
     virtual void RequestUntrustedContent(
         std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
         std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next);
+
+    inline HPUriLoader *GetLoader(){return loader_;}
+    inline void SetLoader(HPUriLoader *loader){loader_ = loader;}
+    
+  private:
+    void ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx);
+    void ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx);
+    __weak HPUriLoader *loader_;
 };

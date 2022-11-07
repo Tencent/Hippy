@@ -105,7 +105,7 @@ static NSString *const engineKey = @"Demo";
 
     [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
     //set custom vfs loader
-    bridge.uriLoader = std::make_shared<HippyDemoLoader>();
+    RegisterVFSLoaderForBridge(bridge);
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
@@ -133,8 +133,6 @@ static NSString *const engineKey = @"Demo";
     
     //Create NativeRenderManager
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
-    //Set frameproxy for render manager
-    _nativeRenderManager->SetFrameworkProxy(bridge);
     //set dom manager
     _nativeRenderManager->SetDomManager(domManager);
     
@@ -285,7 +283,6 @@ std::string mock;
         _domManager->PostTask(hippy::Scene({func}));
 
         _nativeRenderManager = std::make_shared<NativeRenderManager>();
-        _nativeRenderManager->SetFrameworkProxy(self);
         _nativeRenderManager->RegisterRootView(rootView, _rootNode);
         _nativeRenderManager->SetDomManager(_domManager);
 
@@ -367,18 +364,6 @@ std::string mock;
 }
 
 #pragma mark HPRenderFrameworkProxy Delegate Implementation
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<NativeRenderContext>)renderContext {
-    //这里将对应的URL转换为标准URL
-    //比如将相对地址根据沙盒路径为转换绝对地址
-    return UrlString;
-}
-
-- (Class<HPImageProviderProtocol>)imageProviderClassForRenderContext:(id<NativeRenderContext>)renderContext {
-    //设置HPImageProviderProtocol类。
-    //HPImageProviderProtocol负责将NSData转换为UIImage，用于处理ios系统无法处理的图片格式数据
-    //默认使用NativeRenderDefaultImageProvider
-    return [HPDefaultImageProvider class];
-}
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
     HPAssert(moduleName, @"module name must not be null");
@@ -393,7 +378,7 @@ std::string mock;
 }
 
 - (std::shared_ptr<VFSUriLoader>)URILoader {
-    return _bridge.uriLoader;
+    return [_bridge VFSUriLoader].lock();
 }
 
 @end

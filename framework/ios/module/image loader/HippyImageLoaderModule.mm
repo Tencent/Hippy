@@ -46,19 +46,18 @@ HIPPY_EXPORT_MODULE(ImageLoaderModule)
 
 // clang-format off
 HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveBlock)resolve rejecter:(HippyPromiseRejectBlock)reject) {
-    NSString *standardizeAssetUrlString = urlString;
-    if ([self.bridge.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
-        standardizeAssetUrlString = [self.bridge.frameworkProxy standardizeAssetUrlString:standardizeAssetUrlString forRenderContext:[self.bridge renderContext]];
-    }
-    NSURL *url = HPURLWithString(standardizeAssetUrlString, nil);
-    [self.bridge loadContentsAsynchronouslyFromUrl:url params:nil completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    [self.bridge loadContentsAsynchronouslyFromUrl:urlString
+                                            method:@"Get"
+                                            params:nil
+                                              body:nil
+                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         if (!error) {
             UIImage *retImage = nil;
             Class<HPImageProviderProtocol> imageProviderClass = [self imageProviderClass];
             if ([imageProviderClass canHandleData:data]) {
                 id <HPImageProviderProtocol> imageProvider = [[(Class) imageProviderClass alloc] init];
                 imageProvider.scale = [[UIScreen mainScreen] scale];
-                imageProvider.imageDataPath = [url absoluteString];
+                imageProvider.imageDataPath = urlString;
                 [imageProvider setImageData:data];
                 retImage = [imageProvider image];
             }
@@ -83,27 +82,18 @@ HIPPY_EXPORT_METHOD(getSize:(NSString *)urlString resolver:(HippyPromiseResolveB
 
 // clang-format off
 HIPPY_EXPORT_METHOD(prefetch:(NSString *)urlString) {
-    NSString *standardizeAssetUrlString = urlString;
-    if ([self.bridge.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
-        standardizeAssetUrlString = [self.bridge.frameworkProxy standardizeAssetUrlString:standardizeAssetUrlString forRenderContext:[self.bridge renderContext]];
-    }
-    NSURL *url = HPURLWithString(standardizeAssetUrlString, nil);
-    [self.bridge loadContentsAsynchronouslyFromUrl:url params:nil completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    [self.bridge loadContentsAsynchronouslyFromUrl:urlString
+                                            method:@"Get"
+                                            params:nil
+                                              body:nil
+                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
 
     }];
 }
 // clang-format on
 
 - (Class<HPImageProviderProtocol>)imageProviderClass {
-    if (!_imageProviderClass) {
-        if ([self.bridge.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
-            _imageProviderClass = [self.bridge.frameworkProxy imageProviderClassForRenderContext:self.bridge.renderContext];
-        }
-        if (!_imageProviderClass) {
-            _imageProviderClass = [HPDefaultImageProvider class];
-        }
-    }
-    return _imageProviderClass;
+    return self.bridge.imageProviderClass;
 }
 
 @end

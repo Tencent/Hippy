@@ -29,20 +29,22 @@ extern NSString *const VFSParamsMethod;
 extern NSString *const VFSParamsHeaders;
 extern NSString *const VFSParamsBody;
 
+@class HPUriLoader;
+
+extern NSError *GetVFSError(hippy::vfs::UriHandler::RetCode retCode, NSString *urlString, NSURLResponse *response);
+
 class VFSUriLoader : public hippy::vfs::UriLoader {
   public:
-    VFSUriLoader();
-    VFSUriLoader(const std::shared_ptr<hippy::vfs::UriHandler> &);
+    VFSUriLoader() = default;
     ~VFSUriLoader() = default;
 
     //Foundation API convenient methods
     using URILoaderCompletion = std::function<void(NSData *, NSURLResponse *, NSError *)>;
-    void loadContentsAsynchronously(NSURL *url, NSDictionary *headers, URILoaderCompletion completion);
+    virtual void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletion completion);
     
     typedef void(^URILoaderCompletionBlock)(NSData *, NSURLResponse *, NSError *);
-    void loadContentsAsynchronously(NSURL *url, NSDictionary *headers, URILoaderCompletionBlock block);
-    NSData *loadContentsSynchronously(NSURL *url, NSDictionary *headers, NSURLResponse **response, NSError **error);
+    void loadContentsAsynchronously(NSString *urlString, NSDictionary *headers, URILoaderCompletionBlock block);
+    virtual NSData *loadContentsSynchronously(NSString *urlString, NSDictionary *headers, NSURLResponse **response, NSError **error);
     
-  public:
-    static NSError *GetVFSError(RetCode retCode, NSURL *url, NSURLResponse *response);
+    bool enableForward_;
 };
