@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.2](https://github.com/Tencent/Hippy/compare/2.15.1...2.15.2) (2022-11-07)
+
+
+### Bug Fixes
+
+* **android:** add copyright header for ClipboardModule ([d82ba9b](https://github.com/Tencent/Hippy/commit/d82ba9b424f24887486003dfaaa6f285c808c848))
+* **android:** fix setTextColor not working ([a533c22](https://github.com/Tencent/Hippy/commit/a533c2213ce021b679a163a75e7c2a98b6970f03))
+* **android:** pull header not showing for horizontal list ([3496fe4](https://github.com/Tencent/Hippy/commit/3496fe4d90404ec093bea85bee220c21d2381a22))
+* **android:** remove redundant getPrimaryClip ([4b3ff38](https://github.com/Tencent/Hippy/commit/4b3ff38cc990f8e1d5102cd09d0cbbd1f0e6be4e))
+* **iOS:** jsi convert Chinese string error ([321f738](https://github.com/Tencent/Hippy/commit/321f738029c14b26400116243a4874744c95181b))
+* **ios:** need to callback when url loading error ([d140593](https://github.com/Tencent/Hippy/commit/d14059382e0601c9b703ccdfd60b686c44444f2e))
+* **iOS:** retain cycle with vc and bridge ([#2591](https://github.com/Tencent/Hippy/issues/2591)) ([ecafb62](https://github.com/Tencent/Hippy/commit/ecafb62ed33ec74c99b32a26d072dfb68e299fd0))
+
+
+### Features
+
+* **vue:** support to merge styles on root element of child component ([efea081](https://github.com/Tencent/Hippy/commit/efea081cf9bec979fbe73aabf5bee3380440e4d7))
+
+
+
+
+
 ## [2.15.1](https://github.com/Tencent/Hippy/compare/2.15.0...2.15.1) (2022-10-26)
 
 

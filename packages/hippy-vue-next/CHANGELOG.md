@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.2](https://github.com/Tencent/Hippy/compare/2.15.1...2.15.2) (2022-11-07)
+
+
+### Features
+
+* **vue:** support to merge styles on root element of child component ([efea081](https://github.com/Tencent/Hippy/commit/efea081cf9bec979fbe73aabf5bee3380440e4d7))
+
+
+
+
+
 ## [2.15.1](https://github.com/Tencent/Hippy/compare/2.15.0...2.15.1) (2022-10-26)
 
 
