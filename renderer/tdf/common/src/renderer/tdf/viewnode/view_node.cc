@@ -81,6 +81,8 @@ void ViewNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(view::kBackgroundColor); it != map_end) {
     FOOTSTONE_DCHECK(it->second->IsDouble());
     view->SetBackgroundColor(ViewNode::ParseToColor(it->second));
+  } else {
+    view->SetBackgroundColor(tdfcore::Color::Transparent());
   }
 
   // Border Width / Border Color / Border Radius ,All in On Method
