@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Greetings
       if: github.event.action == 'opened'
-      uses: actions/github-script@v6.1.0
+      uses: actions/github-script@v6.3.3
       with:
         script: |
           const { owner, repo } = context.repo;
@@ -48,7 +48,7 @@ jobs:
         private-key: ${{ secrets.BOT_APP_KEY }}
         app-id: ${{ secrets.BOT_APP_ID }}
     - name: Checks
-      uses: actions/github-script@v6.1.0
+      uses: actions/github-script@v6.3.3
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
