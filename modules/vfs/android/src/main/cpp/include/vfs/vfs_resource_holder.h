@@ -45,17 +45,17 @@ class ResourceHolder {
   static bool Init();
   static bool Destroy();
 
-  uint32_t GetNativeId();
-  string_view GetUri();
-  RetCode GetCode();
-  void SetCode(RetCode);
-  std::unordered_map<std::string, std::string> GetReqMeta();
-  std::unordered_map<std::string, std::string> GetRspMeta();
-  void SetRspMeta(std::unordered_map<std::string, std::string> rsp_meta);
-  byte_string GetContent();
-  void SetContent(byte_string content);
+  uint32_t GetNativeId(JNIEnv* j_env);
+  string_view GetUri(JNIEnv* j_env);
+  RetCode GetCode(JNIEnv* j_env);
+  void SetCode(JNIEnv* j_env, RetCode);
+  std::unordered_map<std::string, std::string> GetReqMeta(JNIEnv* j_env);
+  std::unordered_map<std::string, std::string> GetRspMeta(JNIEnv* j_env);
+  void SetRspMeta(JNIEnv* j_env, std::unordered_map<std::string, std::string> rsp_meta);
+  byte_string GetContent(JNIEnv* j_env);
+  void SetContent(JNIEnv* j_env, byte_string content);
 
-  void FetchComplete(jobject obj);
+  void FetchComplete(JNIEnv* j_env, jobject obj);
 
  private:
   jobject j_holder_;

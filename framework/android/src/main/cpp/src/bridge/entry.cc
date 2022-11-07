@@ -621,8 +621,8 @@ void OnNetworkRequestInvoke(JNIEnv *j_env,
       JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   auto resource_holder = ResourceHolder::Create(j_holder);
   auto uri = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-      resource_holder->GetUri(), footstone::string_view::Encoding::Utf8).utf8_value());
-  auto req_meta = resource_holder->GetReqMeta();
+      resource_holder->GetUri(j_env), footstone::string_view::Encoding::Utf8).utf8_value());
+  auto req_meta = resource_holder->GetReqMeta(j_env);
   // call devtools
   std::shared_ptr<Runtime> runtime = Runtime::Find(
       footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
@@ -648,10 +648,10 @@ void OnNetworkResponseInvoke(JNIEnv *j_env,
   auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
       JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   auto resource_holder = ResourceHolder::Create(j_holder);
-  auto code = static_cast<int>(resource_holder->GetCode());
-  auto req_meta = resource_holder->GetReqMeta();
-  auto rsp_meta = resource_holder->GetRspMeta();
-  auto content = resource_holder->GetContent();
+  auto code = static_cast<int>(resource_holder->GetCode(j_env));
+  auto req_meta = resource_holder->GetReqMeta(j_env);
+  auto rsp_meta = resource_holder->GetRspMeta(j_env);
+  auto content = resource_holder->GetContent(j_env);
   std::shared_ptr<Runtime> runtime = Runtime::Find(
       footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
   if (!runtime) {

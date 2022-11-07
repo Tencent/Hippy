@@ -126,13 +126,13 @@ void JniDelegateHandler::RequestUntrustedContent(
   }
   auto j_holder = j_env->CallObjectMethod(delegate_->GetObj(), j_call_jni_delegate_sync_method_id, j_uri, j_map);
   auto resource_holder = ResourceHolder::Create(j_holder);
-  RetCode ret_code = resource_holder->GetCode();
+  RetCode ret_code = resource_holder->GetCode(j_env);
   ctx->code = ret_code;
   if (ret_code != RetCode::Success) {
     return;
   }
-  ctx->rsp_meta = resource_holder->GetRspMeta();
-  ctx->content = resource_holder->GetContent();
+  ctx->rsp_meta = resource_holder->GetRspMeta(j_env);
+  ctx->content = resource_holder->GetContent(j_env);
 }
 
 void JniDelegateHandler::RequestUntrustedContent(
@@ -165,7 +165,7 @@ void JniDelegateHandler::RequestUntrustedContent(
 // call from c++
 void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_holder) {
   auto resource_holder = ResourceHolder::Create(j_holder);
-  auto request_id = resource_holder->GetNativeId();
+  auto request_id = resource_holder->GetNativeId(j_env);
   std::shared_ptr<JniDelegateHandler::JniDelegateHandlerAsyncWrapper> wrapper;
   auto flag = JniDelegateHandler::GetAsyncWrapperMap().Find(request_id, wrapper);
   if (!flag) {
@@ -180,31 +180,31 @@ void OnJniDelegateCallback(JNIEnv* j_env, __unused jobject j_object, jobject j_h
   auto ctx = wrapper->context;
   auto cb = ctx->cb;
   FOOTSTONE_CHECK(cb);
-  UriHandler::RetCode ret_code = resource_holder->GetCode();
+  UriHandler::RetCode ret_code = resource_holder->GetCode(j_env);
   if (ret_code != UriHandler::RetCode::Success) {
     cb(ret_code, {}, UriHandler::bytes());
     return;
   }
-  auto rsp_map = resource_holder->GetRspMeta();
-  auto content = resource_holder->GetContent();
+  auto rsp_map = resource_holder->GetRspMeta(j_env);
+  auto content = resource_holder->GetContent(j_env);
   cb(ret_code, rsp_map, content);
 }
 
 // call from java
 void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder, jobject j_cb) {
   auto resource_holder_req = ResourceHolder::Create(j_holder);
-  auto uri = resource_holder_req->GetUri();
-  auto req_meta = resource_holder_req->GetReqMeta();
+  auto uri = resource_holder_req->GetUri(j_env);
+  auto req_meta = resource_holder_req->GetReqMeta(j_env);
   req_meta[kCallFromKey] = kCallFromJavaValue;
   auto java_cb = std::make_shared<JavaRef>(j_env, j_cb);
   auto cb = [java_cb, j_holder](
       UriLoader::RetCode code, const std::unordered_map<std::string, std::string>& rsp_meta, const UriLoader::bytes& content) {
-    auto resource_holder = ResourceHolder::CreateNewHolder(j_holder);
-    resource_holder->SetContent(content);
-    resource_holder->SetRspMeta(rsp_meta);
-    resource_holder->SetCode(code);
-    resource_holder->FetchComplete(java_cb->GetObj());
     auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    auto resource_holder = ResourceHolder::CreateNewHolder(j_holder);
+    resource_holder->SetContent(j_env, content);
+    resource_holder->SetRspMeta(j_env, rsp_meta);
+    resource_holder->SetCode(j_env, code);
+    resource_holder->FetchComplete(j_env, java_cb->GetObj());
     JNIEnvironment::ClearJEnvException(j_env);
   };
   auto loader = GetUriLoader(j_id);
@@ -214,17 +214,17 @@ void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_i
 // call from java
 void OnJniDelegateInvokeSync(JNIEnv* j_env, __unused jobject j_object, jint j_id, jobject j_holder) {
   auto resource_holder = ResourceHolder::Create(j_holder);
-  auto uri = resource_holder->GetUri();
-  auto req_meta = resource_holder->GetReqMeta();
+  auto uri = resource_holder->GetUri(j_env);
+  auto req_meta = resource_holder->GetReqMeta(j_env);
   UriLoader::RetCode code;
   std::unordered_map<std::string, std::string> rsp_meta;
   UriLoader::bytes content;
   req_meta[kCallFromKey] = kCallFromJavaValue;
   auto loader = GetUriLoader(j_id);
   loader->RequestUntrustedContent(uri, req_meta, code, rsp_meta, content);
-  resource_holder->SetRspMeta(rsp_meta);
-  resource_holder->SetContent(content);
-  resource_holder->SetCode(code);
+  resource_holder->SetRspMeta(j_env, rsp_meta);
+  resource_holder->SetContent(j_env, content);
+  resource_holder->SetCode(j_env, code);
   JNIEnvironment::ClearJEnvException(j_env);
 }
 }

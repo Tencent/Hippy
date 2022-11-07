@@ -262,58 +262,50 @@ jobject UnorderedMapToJavaMap(JNIEnv* j_env, const std::unordered_map<std::strin
   return j_map;
 }
 
-uint32_t ResourceHolder::GetNativeId() {
+uint32_t ResourceHolder::GetNativeId(JNIEnv* j_env) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_native_id = j_env->GetIntField(j_holder_, j_holder_native_id_field_id);
   return footstone::checked_numeric_cast<jint, uint32_t>(j_native_id);
 }
 
-string_view ResourceHolder::GetUri() {
+string_view ResourceHolder::GetUri(JNIEnv* j_env) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder_, j_holder_uri_field_id));
   return JniUtils::ToStrView(j_env, j_uri);
 }
 
-RetCode ResourceHolder::GetCode() {
+RetCode ResourceHolder::GetCode(JNIEnv* j_env) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_ret_code = j_env->GetIntField(j_holder_, j_holder_ret_code_field_id);
   return CovertToUriHandlerRetCode(j_ret_code);
 }
 
-void ResourceHolder::SetCode(RetCode code) {
+void ResourceHolder::SetCode(JNIEnv* j_env, RetCode code) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   j_env->SetIntField(j_holder_, j_holder_ret_code_field_id, static_cast<jint>(CovertToFetchResultCode(code)));
 }
 
-std::unordered_map<std::string, std::string> ResourceHolder::GetReqMeta() {
+std::unordered_map<std::string, std::string> ResourceHolder::GetReqMeta(JNIEnv* j_env) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_req_map = j_env->GetObjectField(j_holder_, j_holder_req_header_field_id);
   return JavaMapToUnorderedMap(j_env, j_req_map);
 }
 
-std::unordered_map<std::string, std::string> ResourceHolder::GetRspMeta(){
+std::unordered_map<std::string, std::string> ResourceHolder::GetRspMeta(JNIEnv* j_env){
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_rsp_map = j_env->GetObjectField(j_holder_, j_holder_rsp_header_field_id);
   return JavaMapToUnorderedMap(j_env, j_rsp_map);
 }
 
-void ResourceHolder::SetRspMeta(std::unordered_map<std::string, std::string> rsp_meta) {
+void ResourceHolder::SetRspMeta(JNIEnv* j_env, std::unordered_map<std::string, std::string> rsp_meta) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_map = UnorderedMapToJavaMap(j_env, rsp_meta);
   j_env->SetObjectField(j_holder_, j_holder_rsp_header_field_id, j_map);
   j_env->DeleteLocalRef(j_map);
 }
 
-byte_string ResourceHolder::GetContent(){
+byte_string ResourceHolder::GetContent(JNIEnv* j_env){
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   byte_string content;
   auto j_type = j_env->GetObjectField(j_holder_, j_holder_transfer_type_field_id);
   if (j_env->IsSameObject(j_type, j_transfer_type_normal_value)) {
@@ -335,9 +327,8 @@ byte_string ResourceHolder::GetContent(){
   return content;
 }
 
-void ResourceHolder::SetContent(byte_string content) {
+void ResourceHolder::SetContent(JNIEnv* j_env, byte_string content) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   bool is_direct_buffer = content.length() >= std::numeric_limits<uint32_t>::max();;
   if (is_direct_buffer) {
     auto j_buffer = j_env->NewDirectByteBuffer(const_cast<void*>(reinterpret_cast<const void*>(content.c_str())),
@@ -357,9 +348,8 @@ void ResourceHolder::SetContent(byte_string content) {
   }
 }
 
-void ResourceHolder::FetchComplete(jobject obj) {
+void ResourceHolder::FetchComplete(JNIEnv* j_env, jobject obj) {
   FOOTSTONE_DCHECK(j_holder_);
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   j_env->CallVoidMethod(obj, j_interface_cb_method_id, j_holder_);
 }
 
