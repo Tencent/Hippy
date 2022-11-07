@@ -617,6 +617,7 @@ void OnNetworkRequestInvoke(JNIEnv *j_env,
                             jlong j_runtime_id,
                             jstring j_request_id,
                             jobject j_holder) {
+#ifdef ENABLE_INSPECTOR
   auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
       JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   auto resource_holder = ResourceHolder::Create(j_holder);
@@ -638,6 +639,7 @@ void OnNetworkRequestInvoke(JNIEnv *j_env,
                                  req_meta);
   }
   JNIEnvironment::ClearJEnvException(j_env);
+#endif
 }
 
 void OnNetworkResponseInvoke(JNIEnv *j_env,
@@ -645,6 +647,7 @@ void OnNetworkResponseInvoke(JNIEnv *j_env,
                              jlong j_runtime_id,
                              jstring j_request_id,
                              jobject j_holder) {
+#ifdef ENABLE_INSPECTOR
   auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
       JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   auto resource_holder = ResourceHolder::Create(j_holder);
@@ -668,6 +671,7 @@ void OnNetworkResponseInvoke(JNIEnv *j_env,
                                       req_meta);
   }
   JNIEnvironment::ClearJEnvException(j_env);
+#endif
 }
 
 } // namespace bridge
