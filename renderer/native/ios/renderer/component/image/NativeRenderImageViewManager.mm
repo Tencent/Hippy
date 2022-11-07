@@ -66,26 +66,26 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(source, NSArray, NativeRenderImageView) {
         return;
     }
     NSString *standardizeAssetUrlString = path;
-    if ([self.renderContext.frameworkProxy respondsToSelector:@selector(standardizeAssetUrlString:forRenderContext:)]) {
-        standardizeAssetUrlString = [self.renderContext.frameworkProxy standardizeAssetUrlString:path forRenderContext:self.renderContext];
-    }
-    NSURL *url = HPURLWithString(standardizeAssetUrlString, nil);
     __weak NativeRenderImageView *weakView = view;
-    HPAssert([self.renderContext.frameworkProxy respondsToSelector:@selector(URILoader)], @"frameworkproxy must respond to selector URILoader");
-    self.renderContext.frameworkProxy.URILoader->loadContentsAsynchronously(url, nil, ^(NSData *data, NSURLResponse *response, NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            NativeRenderImageView *strongView = weakView;
-            if (strongView) {
-                Class cls = [self imageProviderClass];
-                id<HPImageProviderProtocol> imageProvider = [[cls alloc] init];
-                imageProvider.scale = [[UIScreen mainScreen] scale];
-                imageProvider.imageDataPath = standardizeAssetUrlString;
-                [imageProvider setImageData:data];
-                [strongView setImageProvider:imageProvider];
-                [strongView reloadImage];
-            }
-        });
-    });
+    HPAssert([self.renderContext respondsToSelector:@selector(HPUriLoader)], @"frameworkproxy must respond to selector HPUriLoader");
+    if ([self.renderContext respondsToSelector:@selector(HPUriLoader)]) {
+        HPUriLoader *loader = [self.renderContext HPUriLoader];
+        [loader requestContentAsync:path method:nil headers:nil body:nil
+                             result:^(NSData * _Nullable data, NSURLResponse * _Nonnull response, NSError * _Nullable error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NativeRenderImageView *strongView = weakView;
+                if (strongView) {
+                    Class cls = [self imageProviderClass];
+                    id<HPImageProviderProtocol> imageProvider = [[cls alloc] init];
+                    imageProvider.scale = [[UIScreen mainScreen] scale];
+                    imageProvider.imageDataPath = standardizeAssetUrlString;
+                    [imageProvider setImageData:data];
+                    [strongView setImageProvider:imageProvider];
+                    [strongView reloadImage];
+                }
+            });
+        }];
+    }
 }
 
 NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(tintColor, UIColor, NativeRenderImageView) {
@@ -115,15 +115,7 @@ NATIVE_RENDER_VIEW_BORDER_RADIUS_PROPERTY(BottomRight)
 }
 
 - (Class<HPImageProviderProtocol>)imageProviderClass {
-    if (!_imageProviderClass) {
-        if ([self.renderContext.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
-            _imageProviderClass = [self.renderContext.frameworkProxy imageProviderClassForRenderContext:self.renderContext];
-        }
-        else {
-            _imageProviderClass = [HPDefaultImageProvider class];
-        }
-    }
-    return _imageProviderClass;
+    return self.renderContext.imageProviderClass;
 }
 
 - (id<HPImageProviderProtocol>)getNewImageProviderInstance {

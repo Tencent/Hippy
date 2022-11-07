@@ -68,7 +68,6 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     }
     NSURL *url = [NSURL URLWithString:bundleUrl];
     NativeRenderRootView *rootView = [[NativeRenderRootView alloc] initWithFrame:rootViewController.view.bounds];
-    NSNumber *rootTag = rootView.componentTag;
     NSDictionary *launchOptions = @{@"EnableTurbo": @(DEMO_ENABLE_TURBO), @"DebugMode": @(YES), @"DebugURL": url};
     NSArray<NSURL *> *bundleURLs = @[url];
     NSURL *sandboxDirectory = [url URLByDeletingLastPathComponent];
@@ -77,6 +76,7 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
                                                   launchOptions:launchOptions
                                                     engineKey:@"Demo"];
     [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
+    RegisterVFSLoaderForBridge(bridge);
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
@@ -105,8 +105,6 @@ HIPPY_EXPORT_METHOD(remoteDebug:(nonnull NSNumber *)instanceId bundleUrl:(nonnul
     
     //Create NativeRenderManager
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
-    //Set frameproxy for render manager
-    _nativeRenderManager->SetFrameworkProxy(bridge);
     //set dom manager
     _nativeRenderManager->SetDomManager(domManager);
     

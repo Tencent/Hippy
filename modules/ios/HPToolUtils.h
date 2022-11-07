@@ -152,6 +152,7 @@ HP_EXTERN NSString *HPUIKitLocalizedString(NSString *string);
 HP_EXTERN NSString *__nullable HPGetURLQueryParam(NSURL *__nullable URL, NSString *param);
 HP_EXTERN NSURL *__nullable HPURLByReplacingQueryParam(NSURL *__nullable URL, NSString *param, NSString *__nullable value);
 HP_EXTERN NSURL *__nullable HPURLWithString(NSString *__nonnull URLString, NSString *__nullable baseURLString);
+HP_EXTERN NSString *HPSchemeFromURLString(NSString *urlString);
 
 //Get String Encoding From HTTP URL Response
 HP_EXTERN NSStringEncoding HPGetStringEncodingFromURLResponse(NSURLResponse *response);

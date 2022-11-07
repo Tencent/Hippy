@@ -22,6 +22,7 @@
 
 #import "NSURLResponse+ToUnorderedMap.h"
 #import "TypeConverter.h"
+#import "HPToolUtils.h"
 
 #include "footstone/string_view_utils.h"
 
@@ -77,7 +78,7 @@ NSURL *StringViewToNSURL(const footstone::string_view &uri) {
     if (!uriString) {
         return nil;
     }
-    return [NSURL URLWithString:uriString];
+    return HPURLWithString(uriString, nil);
 }
 
 NSDictionary<NSString *, NSString *> *StringUnorderedMapToNSDictionary(const std::unordered_map<std::string, std::string> &map) {

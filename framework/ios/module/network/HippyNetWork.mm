@@ -69,12 +69,15 @@ HIPPY_EXPORT_METHOD(fetch:(NSDictionary *)params resolver:(__unused HippyPromise
         
         [vfsParams setValue: value forKey: key];
     }];
-    [vfsParams setObject:method?:@"Get" forKey:@"method"];
+    NSData *data = nil;
     if (body) {
-        [vfsParams setObject:body forKey:@"body"];
+        data = [body dataUsingEncoding:NSUTF8StringEncoding];
     }
-    NSURL *requestURL = HPURLWithString(url, NULL);
-    [self.bridge loadContentsAsynchronouslyFromUrl:requestURL params:vfsParams completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+    [self.bridge loadContentsAsynchronouslyFromUrl:url
+                                            method:method?:@"Get"
+                                            params:vfsParams
+                                              body:data
+                                 completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         NSStringEncoding encoding = GetStringEncodingFromURLResponse(response);
         NSString *dataStr = [[NSString alloc] initWithData:data encoding:encoding];
         NSUInteger statusCode = 0;

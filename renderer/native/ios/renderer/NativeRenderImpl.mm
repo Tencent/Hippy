@@ -21,17 +21,18 @@
  */
 
 #import "HPAsserts.h"
+#import "HPConvert.h"
+#import "HPDefaultImageProvider.h"
+#import "HPImageProviderProtocol.h"
+#import "HPToolUtils.h"
 #import "NativeRenderComponentProtocol.h"
 #import "NativeRenderComponentData.h"
-#import "HPConvert.h"
+#import "NativeRenderComponentMap.h"
+#import "NativeRenderImpl.h"
 #import "NativeRenderObjectRootView.h"
 #import "NativeRenderObjectView.h"
-#import "NativeRenderImpl.h"
-#import "HPToolUtils.h"
 #import "NativeRenderView.h"
 #import "NativeRenderViewManager.h"
-
-#import "NativeRenderComponentMap.h"
 #import "OCTypeToDomArgument.h"
 #import "RenderVsyncManager.h"
 #import "UIView+DomEvent.h"
@@ -39,6 +40,7 @@
 #import "UIView+Render.h"
 
 #include <mutex>
+
 #include "dom/root_node.h"
 #include "objc/runtime.h"
 
@@ -150,13 +152,16 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
     std::mutex _renderQueueLock;
     NSMutableDictionary<NSString *, id> *_viewManagers;
     NSDictionary<NSString *, Class> *_extraComponent;
+    
+    __weak HPUriLoader *_HPUriLoader;
+    std::weak_ptr<VFSUriLoader> _VFSUriLoader;
+    Class<HPImageProviderProtocol> _imageProviderCls;
 }
 
 @end
 
 @implementation NativeRenderImpl
 
-@synthesize frameworkProxy = _frameworkProxy;
 @synthesize domManager = _domManager;
 
 #pragma mark Life cycle
@@ -1275,6 +1280,34 @@ NSString *const NativeRenderUIManagerDidEndBatchNotification = @"NativeRenderUIM
         }
     }];
     return tmpProps;
+}
+
+- (void)setImageProviderClass:(Class<HPImageProviderProtocol>)cls {
+    if (_imageProviderCls != cls) {
+        _imageProviderCls = cls;
+    }
+}
+
+- (Class<HPImageProviderProtocol>)imageProviderClass {
+    return _imageProviderCls?:[HPDefaultImageProvider class];
+}
+
+- (void)setHPUriLoader:(HPUriLoader *)loader {
+    if (_HPUriLoader != loader) {
+        _HPUriLoader = loader;
+    }
+}
+
+- (HPUriLoader *)HPUriLoader {
+    return _HPUriLoader;
+}
+
+- (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)loader {
+    _VFSUriLoader = loader;
+}
+
+- (std::weak_ptr<VFSUriLoader>)VFSUriLoader {
+    return _VFSUriLoader;
 }
 
 @end

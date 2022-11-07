@@ -23,14 +23,18 @@
 #ifndef NativeRenderManager_h
 #define NativeRenderManager_h
 
-#include <vector>
-#include <memory>
-#include "dom/render_manager.h"
-#include "dom/root_node.h"
 #import "HPRenderFrameworkProxy.h"
 #import "NativeRenderContext.h"
 
+#include <memory>
+#include <vector>
+
+#include "dom/render_manager.h"
+#include "dom/root_node.h"
+
 @class UIView, NativeRenderImpl;
+
+@protocol HPImageProviderProtocol;
 
 /**
  * NativeRenderManager is used to manager view creation, update and delete for Native UI
@@ -136,15 +140,11 @@ public:
     void RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node);
     
     void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
-    
-    void SetFrameworkProxy(id<HPRenderFrameworkProxy> proxy);
-    
-    id<HPRenderFrameworkProxy> GetFrameworkProxy();
-    
+        
     void SetUICreationLazilyEnabled(bool enabled);
         
     id<NativeRenderContext> GetRenderContext();
-        
+            
 private:
     NativeRenderImpl *renderImpl_;
 };
