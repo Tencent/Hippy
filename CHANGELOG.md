@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.8](https://github.com/Tencent/Hippy/compare/2.14.7...2.14.8) (2022-11-07)
+
+
+### Bug Fixes
+
+* **android:** fix setTextColor not working ([6c72a7c](https://github.com/Tencent/Hippy/commit/6c72a7ccf05978136b18f342cb78280abee7c7d3))
+* **core:** revert hippy1.x compatible code ([1ec5d85](https://github.com/Tencent/Hippy/commit/1ec5d8582b00d2bd7159d956a8465ce50bbea77e))
+
+
+
+
+
 ## [2.14.7](https://github.com/Tencent/Hippy/compare/2.14.6...2.14.7) (2022-09-08)
 
 
