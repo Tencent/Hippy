@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.14.9](https://github.com/Tencent/Hippy/compare/2.14.8...2.14.9) (2022-11-07)
+
+
+### Bug Fixes
+
+* **android:** empty text node height compatibility ([f9bf570](https://github.com/Tencent/Hippy/commit/f9bf5709833f1702e5e41ae0e2fac7505ed9c651))
+
+
+
+
+
 ## [2.14.8](https://github.com/Tencent/Hippy/compare/2.14.7...2.14.8) (2022-11-07)
 
 
