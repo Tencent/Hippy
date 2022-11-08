@@ -102,7 +102,7 @@ EXTERN_C int32_t CreateVfsWrapper() {
   auto loader = std::make_shared<hippy::UriLoader>();
   auto file_delegate = std::make_shared<voltron::FileHandler>();
   loader->RegisterUriHandler(voltron::kFileSchema, file_delegate);
-  loader->SetDefaultHandler(delegate);
+  loader->PushDefaultHandler(delegate);
 
   voltron::global_data_holder.Insert(id, loader);
   return footstone::checked_numeric_cast<uint32_t, int32_t>(id);
