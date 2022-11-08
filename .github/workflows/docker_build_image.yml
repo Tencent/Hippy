@@ -26,10 +26,12 @@ jobs:
     steps:
       - name: Get changed images
         id: changed_images
-        uses: actions/github-script@v6.1.0
+        uses: actions/github-script@v6.3.3
         with:
           script: |
             const { basename, sep } = require('path');
+            const { appendFileSync } = require('fs');
+            const { EOL } = require('os');
             const { eventName } = context;
             const { owner, repo } = context.repo;
             const { repos } = github.rest;
@@ -66,7 +68,8 @@ jobs:
               }
             }
 
-            console.log(`::set-output name=changed_images::${JSON.stringify(Array.from(changedImages))}`);
+            appendFileSync(process.env.GITHUB_OUTPUT, `changed_images=${JSON.stringify(Array.from(changedImages))}${EOL}`, { encoding: 'utf8' });
+
   build_images:
     needs: changed_images
     runs-on: ${{ github.repository == 'Tencent/Hippy' && fromJson('[''self-hosted'', ''linux'']') || 'ubuntu-latest' }}
