@@ -88,7 +88,7 @@ jobs:
           if (has_hit) {
             fs.appendFileSync(process.env.GITHUB_OUTPUT, `language=${{ matrix.language }}${os.EOL}`, { encoding: 'utf8' });
           } else if (!match_all && "${{ matrix.language }}" === "typescript") { // Default Run
-            fs.appendFileSync(process.env.GITHUB_OUTPUT, `default-run::1${os.EOL}`, { encoding: 'utf8' });
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `default-run=1${os.EOL}`, { encoding: 'utf8' });
           }
     - name: Checkout
       if: steps.detect_languages.outputs.language
