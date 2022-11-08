@@ -85,7 +85,7 @@ StandardCodecSerializer::~StandardCodecSerializer() = default;
 const StandardCodecSerializer& StandardCodecSerializer::GetInstance() {
   static StandardCodecSerializer sInstance;
   return sInstance;
-};
+}
 
 EncodableValue StandardCodecSerializer::ReadValue(
     ByteStreamReader* stream) const {

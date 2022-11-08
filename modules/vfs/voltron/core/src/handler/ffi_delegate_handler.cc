@@ -24,7 +24,6 @@
 #include "footstone/logging.h"
 
 namespace voltron {
-inline namespace vfs {
 
 void FfiDelegateHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
                                           std::function<std::shared_ptr<UriHandler>()> next) {
@@ -117,5 +116,4 @@ void FfiDelegateHandler::Unlock() {
   }
 }
 
-}
 }

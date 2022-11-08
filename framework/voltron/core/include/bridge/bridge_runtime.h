@@ -38,7 +38,6 @@ class EXPORT JSBridgeRuntime : public BridgeRuntime {
                                 std::function<void()> callback) = 0;
   EXPORT virtual void ReportJSONException(const char* jsonValue) = 0;
   EXPORT virtual void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) = 0;
-  EXPORT virtual void Destroy() = 0;
   virtual void SetRuntimeId(int64_t runtime_id) = 0;
   virtual int64_t GetRuntimeId() = 0;
 };

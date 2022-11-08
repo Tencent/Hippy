@@ -28,29 +28,29 @@
 
 namespace voltron {
 
-char16_t *CopyChar16(const char16_t *source_char, int length) {
+char16_t *CopyChar16(const char16_t *source_char, unsigned int length) {
   if (source_char == nullptr) {
     return nullptr;
   }
-  int byteLength = (length + 1) * sizeof(char16_t);
+  unsigned int byteLength = (length + 1) * sizeof(char16_t);
   auto *temp_char = (char16_t *)malloc(byteLength);
   std::copy(source_char, source_char + length, temp_char);
   temp_char[length] = 0;
   return temp_char;
 }
 
-char16_t *CopyCharToChar16(const char *source_char, int length) {
+char16_t *CopyCharToChar16(const char *source_char, unsigned int length) {
   if (source_char == nullptr) {
     return nullptr;
   }
-  int byteLength = (length + 1) * sizeof(char16_t);
+  unsigned int byteLength = (length + 1) * sizeof(char16_t);
   auto *temp_char = (char16_t *)malloc(byteLength);
   std::copy(source_char, source_char + length, temp_char);
   temp_char[length] = 0;
   return temp_char;
 }
 
-char *CopyCharToChar(const char *source_char, int length) {
+char *CopyCharToChar(const char *source_char, unsigned int length) {
   if (source_char == nullptr) {
     return nullptr;
   }
@@ -61,7 +61,7 @@ char *CopyCharToChar(const char *source_char, int length) {
   return temp_char;
 }
 
-uint8_t *CopyBytes(const uint8_t *source_bytes, int length) {
+uint8_t *CopyBytes(const uint8_t *source_bytes, unsigned int length) {
   if (source_bytes == nullptr) {
     return nullptr;
   }

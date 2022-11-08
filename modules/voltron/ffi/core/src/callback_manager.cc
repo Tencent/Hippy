@@ -21,8 +21,10 @@
  */
 
 #include "callback_manager.h"
+
 #include "ffi_define.h"
 #include "footstone/logging.h"
+#include "footstone/check.h"
 
 dart_post_c_object_type dart_post_c_object_ = NULL;
 Dart_Port callback_port = 0;
@@ -54,7 +56,29 @@ bool PostWorkToDart(const Work *work) {
 bool CallGlobalCallback(int32_t callback_id, int64_t value) {
   if (global_callback_func) {
     const Work work = [value, callback_id]() {
-      global_callback_func(callback_id, value);
+      auto encode_params =
+          voltron::StandardMessageCodec::GetInstance().EncodeMessage(voltron::EncodableValue(value));
+      global_callback_func(callback_id,
+                           encode_params->data(),
+                           footstone::checked_numeric_cast<size_t, int32_t>(encode_params->size()));
+    };
+    const Work *work_ptr = new Work(work);
+    PostWorkToDart(work_ptr);
+    return true;
+  } else {
+    FOOTSTONE_DLOG(ERROR) << "call callback error, func not found";
+  }
+  return false;
+}
+
+bool CallGlobalCallbackWithValue(int32_t callback_id, const voltron::EncodableValue& value) {
+  if (global_callback_func) {
+    const Work work = [value, callback_id]() {
+      auto encode_params =
+          voltron::StandardMessageCodec::GetInstance().EncodeMessage(value);
+      global_callback_func(callback_id,
+                           encode_params->data(),
+                           footstone::checked_numeric_cast<size_t, int32_t>(encode_params->size()));
     };
     const Work *work_ptr = new Work(work);
     PostWorkToDart(work_ptr);

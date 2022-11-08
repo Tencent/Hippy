@@ -25,7 +25,6 @@
 #include "render/bridge/bridge_manager.h"
 
 #include "callback_manager.h"
-#include "dom/taitank_layout_node.h"
 #include "encodable_value.h"
 #include "render/bridge/bridge_define.h"
 #include "render/queue/const.h"
@@ -376,10 +375,16 @@ void VoltronRenderTaskRunner::SetNodeCustomMeasure(uint32_t root_id,
               auto runtime = bridge_manager->GetRuntime();
               if (runtime) {
                 auto measure_result = runtime->CalculateNodeLayout(
-                    root_id, node_id, width, widthMeasureMode, height,
+                    footstone::checked_numeric_cast<uint32_t, int32_t>(root_id),
+                    footstone::checked_numeric_cast<uint32_t, int32_t>(node_id),
+                    width,
+                    widthMeasureMode,
+                    height,
                     heightMeasureMode);
-                int32_t w_bits = 0xFFFFFFFF & (measure_result >> 32);
-                int32_t h_bits = 0xFFFFFFFF & measure_result;
+                int32_t w_bits = footstone::checked_numeric_cast<long long, int32_t>(
+                    0xFFFFFFFF & (measure_result >> 32));
+                int32_t h_bits = footstone::checked_numeric_cast<long long, int32_t>(
+                    0xFFFFFFFF & measure_result);
                 return VoltronRenderTaskRunner::LayoutSize{(float) w_bits, (float) h_bits};
               }
             }

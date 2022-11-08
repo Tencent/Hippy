@@ -25,8 +25,7 @@ import 'package:ffi/ffi.dart';
 enum LoaderFuncType {
   callNative,
   reportJsonException,
-  reportJsException,
-  destroy
+  reportJsException
 }
 
 typedef InitBridgeFfiNativeType = Void Function();
@@ -164,28 +163,8 @@ typedef DestroyFfiNativeType = Void Function(
 typedef DestroyFfiDartType = void Function(
     int engineId, int callbackId, int isReload);
 
-typedef RegisterCallNativeFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<CallNativeFfiNativeType>> func);
-typedef RegisterCallNativeFfiDartType = int Function(
-    int type, Pointer<NativeFunction<CallNativeFfiNativeType>> func);
 
-typedef RegisterReportJsonFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<ReportJsonExceptionNativeType>> func);
-typedef RegisterReportJsonFfiDartType = int Function(
-    int type, Pointer<NativeFunction<ReportJsonExceptionNativeType>> func);
-
-typedef RegisterReportJsFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<ReportJsExceptionNativeType>> func);
-typedef RegisterReportJsFfiDartType = int Function(
-    int type, Pointer<NativeFunction<ReportJsExceptionNativeType>> func);
-
-typedef RegisterDestroyFfiNativeType = Int32 Function(
-    Int32 type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
-typedef RegisterDestroyFfiDartType = int Function(
-    int type, Pointer<NativeFunction<DestroyFunctionNativeType>> func);
-
-
-typedef CallNativeFfiNativeType = Void Function(
+typedef CallNativeFfi = Void Function(
     Int32 engineId,
     Pointer<Utf16> moduleName,
     Pointer<Utf16> moduleFunc,
@@ -194,10 +173,8 @@ typedef CallNativeFfiNativeType = Void Function(
     Uint32 paramsLen,
     Int32 bridgeParamJson);
 
-typedef ReportJsonExceptionNativeType = Void Function(
+typedef ReportJsonException = Void Function(
     Int32 engineId, Pointer<Utf8> jsonValue);
 
-typedef ReportJsExceptionNativeType = Void Function(Int32 engineId,
+typedef ReportJsException = Void Function(Int32 engineId,
     Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream);
-
-typedef DestroyFunctionNativeType = Void Function(Int32 engineId);

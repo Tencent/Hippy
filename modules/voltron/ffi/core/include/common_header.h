@@ -25,7 +25,6 @@
 #include <map>
 #include <unordered_map>
 #include "string_convert.h"
-#include "dom/dom_manager.h"
 
 #if defined(_WIN32)
 #  define EXTERN_C extern "C" __declspec(dllexport)

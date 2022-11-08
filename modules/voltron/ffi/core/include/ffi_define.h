@@ -3,7 +3,7 @@
  * Tencent is pleased to support the open source community by making
  * Hippy available.
  *
- * Copyright (C) 2019 THL A29 Limited, a Tencent company.
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
  * All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,22 +22,31 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "common_header.h"
+#include "callback_manager.h"
 
-namespace voltron {
-
-enum VoltronRenderOpType {
-  ADD_NODE,
-  DELETE_NODE,
-  MOVE_NODE,
-  UPDATE_NODE,
-  UPDATE_LAYOUT,
-  LAYOUT_BEFORE,
-  LAYOUT_FINISH,
-  BATCH,
-  DISPATCH_UI_FUNC,
-  ADD_EVENT,
-  REMOVE_EVENT,
+enum class DefaultRegisterFuncType {
+  kGlobalCallback
 };
 
-} // namespace voltron
+typedef void (*global_callback)(int32_t callback_id, const uint8_t* params, int32_t params_len);
+typedef int32_t (*register_call_func_ex)(int32_t type, void *func);
+
+extern global_callback global_callback_func;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+EXTERN_C int32_t InitFfi(dart_post_c_object_type dart_post_c_object, int64_t port);
+
+EXTERN_C int32_t AddCallFunc(const char16_t *register_header, int32_t type, void *func);
+
+EXTERN_C int32_t AddCallFuncRegister(const char16_t *register_header, register_call_func_ex func);
+
+#ifdef __cplusplus
+}
+#endif
+

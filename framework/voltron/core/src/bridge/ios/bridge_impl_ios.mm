@@ -225,9 +225,6 @@ bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id, bool can_use_code_cache
 }
 
 void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload) {
-
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    bridge.platformRuntime->Destroy();
     [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
 #if ENABLE_INSPECTOR
     // destory devtools

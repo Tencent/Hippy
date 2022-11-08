@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include "../../../../../../../../../Users/longquan/Library/Android/sdk/ndk/25.0.8775105/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/include/c++/v1/cstdint"
+#include <cstdint>
 
-#include "../../../../../modules/voltron/ffi/include/common_header.h"
+#include "common_header.h"
 
 enum FFIRegisterFuncType {
   kCallNative,
@@ -48,4 +48,4 @@ extern report_json_exception report_json_exception_func;
 extern report_js_exception report_js_exception_func;
 extern destroy_function destroy_func;
 
-EXTERN_C int32_t RegisterCallFuncEx(int32_t type, void *func);
+EXTERN_C int32_t RegisterVoltronCoreCallFuncEx(int32_t type, void *func);

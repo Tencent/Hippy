@@ -39,7 +39,11 @@ extern "C" {
 
 constexpr char kDomRunnerName[] = "hippy_dom";
 
-EXTERN_C int32_t RegisterCallFunc(int32_t type, void *func) {
+EXTERN_C const char *KeepLibStr() {
+  return "keep_render_lib";
+}
+
+EXTERN_C int32_t RegisterRenderCallFunc(int32_t type, void *func) {
   FOOTSTONE_DLOG(INFO) << "start register render func, type " << type;
   if (type == static_cast<int>(RenderFFIRegisterFuncType::kPostRenderOp)) {
     post_render_op_func = reinterpret_cast<post_render_op>(func);
@@ -93,14 +97,18 @@ EXTERN_C void CallNativeFunctionFFI(int32_t engine_id, uint32_t render_manager_i
   }
 
   std::string call_id_str = voltron::C16CharToString(call_id);
-  auto copy_params = voltron::CopyBytes(params, params_len);
+  auto copy_params = voltron::CopyBytes(params,
+                                        footstone::checked_numeric_cast<int32_t, unsigned int>(
+                                            params_len));
   std::vector<std::function<void()>> ops = {[keep, params_len, copy_params, bridge_manager,
                                                 call_id_str]() {
     bool is_keep = keep;
     FOOTSTONE_DLOG(INFO) << "CallNativeFunctionFFI call_id" << call_id_str;
     std::unique_ptr<EncodableValue> decode_params =
         StandardMessageCodec::GetInstance().DecodeMessage(copy_params,
-                                                          params_len);
+                                                          footstone::checked_numeric_cast<int32_t,
+                                                                                          unsigned int>(
+                                                              params_len));
     voltron::ReleaseCopy(copy_params);
     bridge_manager->CallNativeCallback(call_id_str,
                                        std::move(decode_params), is_keep);
@@ -134,16 +142,22 @@ EXTERN_C void CallNativeEventFFI(uint32_t render_manager_id, uint32_t root_id,
 
   std::string event_name = voltron::C16CharToString(event);
   if (params && params_len > 0) {
-    auto copy_params = voltron::CopyBytes(params, params_len);
+    auto copy_params = voltron::CopyBytes(params,
+                                          footstone::checked_numeric_cast<int32_t, unsigned int>(
+                                              params_len));
     std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name,
-                                                use_capture = capture, use_bubble = bubble,
-                                                copy_params, params_len, root_node]() {
+                                                  use_capture = capture, use_bubble = bubble,
+                                                  copy_params, params_len, root_node]() {
       auto decode_params =
           StandardMessageCodec::GetInstance().DecodeMessage(copy_params,
-                                                            params_len);
+                                                            footstone::checked_numeric_cast<int32_t,
+                                                                                            unsigned int>(
+                                                                params_len));
       voltron::ReleaseCopy(copy_params);
 
-      auto dom_node = dom_manager->GetNode(root_node, node_id);
+      auto dom_node = dom_manager->GetNode(root_node,
+                                           footstone::checked_numeric_cast<int32_t, uint32_t>(
+                                               node_id));
       FOOTSTONE_DLOG(INFO) << "CallNativeEventFFI event_name:" << event_name
                            << " node_id:" << node_id << " node:" << dom_node;
       if (dom_node) {
@@ -152,12 +166,16 @@ EXTERN_C void CallNativeEventFFI(uint32_t render_manager_id, uint32_t root_id,
     }};
     dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
   } else {
-    std::vector<std::function<void()>> ops = {[dom_manager, render_manager, node_id, event_name, use_capture = capture, use_bubble = bubble, root_node]() {
-      auto dom_node = dom_manager->GetNode(root_node, node_id);
-      if (dom_node) {
-        render_manager->CallEvent(dom_node, event_name, use_capture, use_bubble, nullptr);
-      }
-    }};
+    std::vector<std::function<void()>> ops =
+        {[dom_manager, render_manager, node_id, event_name, use_capture = capture,
+             use_bubble = bubble, root_node]() {
+          auto dom_node = dom_manager->GetNode(root_node,
+                                               footstone::checked_numeric_cast<int32_t, uint32_t>(
+                                                   node_id));
+          if (dom_node) {
+            render_manager->CallEvent(dom_node, event_name, use_capture, use_bubble, nullptr);
+          }
+        }};
     dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
   }
 }
@@ -188,7 +206,8 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
     if (node_id == 0) {
       dom_manager->SetRootSize(root_node, (float) width, (float) height);
     } else {
-      auto node = dom_manager->GetNode(root_node, node_id);
+      auto node = dom_manager->GetNode(root_node,
+                                       footstone::checked_numeric_cast<int32_t, uint32_t>(node_id));
 
       if (!node) {
         FOOTSTONE_DLOG(WARNING) << "UpdateNodeSize DomNode not found for id: " << node_id;

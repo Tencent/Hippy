@@ -24,7 +24,7 @@ cmake_minimum_required(VERSION 3.14.0)
 
 project("voltron_ffi")
 
-get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../.." REALPATH)
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 
@@ -52,8 +52,6 @@ set(FFI_SOURCE_SET
         src/callback_manager.cc
         src/string_convert.cc
         ${CODEC_SRC_DIR}/standard_codec.cc)
-
-
 
 target_sources(${PROJECT_NAME} PRIVATE ${FFI_SOURCE_SET})
 # endregion

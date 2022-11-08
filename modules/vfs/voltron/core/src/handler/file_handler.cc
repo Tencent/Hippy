@@ -25,8 +25,7 @@
 #include "vfs/file.h"
 #include "url.h"
 
-namespace hippy {
-inline namespace vfs {
+namespace voltron {
 
 void FileHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
                                            std::function<std::shared_ptr<UriHandler>()> next) {
@@ -95,5 +94,4 @@ void FileHandler::LoadByFile(const std::string& path,
   });
 }
 
-}
 }

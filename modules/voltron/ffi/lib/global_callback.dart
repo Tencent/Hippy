@@ -19,8 +19,10 @@
 //
 
 import 'dart:collection';
+import 'dart:ffi';
 
-typedef CallbackType = void Function(int value);
+import 'package:flutter/services.dart';
+import 'package:voltron_ffi/define.dart';
 
 class _GlobalCallbackManager {
   static _GlobalCallbackManager? _instance;
@@ -40,34 +42,43 @@ class _GlobalCallbackManager {
 
   _GlobalCallbackManager._internal();
 
-  void _addCallback(_GlobalCallback _globalCallback) {
-    _callbackMap[_globalCallback._callbackId] = _globalCallback;
+  void _addCallback(_GlobalCallback globalCallback) {
+    _callbackMap[globalCallback._callbackId] = globalCallback;
   }
 
-  void _removeCallback(_GlobalCallback _globalCallback) {
-    _callbackMap.remove(_globalCallback);
+  void _removeCallback(_GlobalCallback globalCallback) {
+    _callbackMap.remove(globalCallback);
   }
 }
 
 class _GlobalCallback {
   static int _id = 0;
   final int _callbackId = _id++;
-  final CallbackType _callback;
+  final CommonCallback _callback;
 
   _GlobalCallback.newCallback(this._callback) {
     _GlobalCallbackManager.instance._addCallback(this);
   }
 
-  void _doAction(int value) {
+  void _doAction(dynamic value) {
     _callback(value);
     _GlobalCallbackManager.instance._removeCallback(this);
   }
 }
 
-int generateCallback(CallbackType callback) {
+int generateCallback(CommonCallback callback) {
   return _GlobalCallback.newCallback(callback)._callbackId;
 }
 
-void globalCallback(int callbackId, int value) {
-  _GlobalCallbackManager.instance._callbackMap[callbackId]?._doAction(value);
+Object? decodeObject(Pointer<Uint8> buffer, int length) {
+  var dataList = buffer.cast<Uint8>().asTypedList(length);
+  if (dataList.isNotEmpty) {
+    return const StandardMessageCodec()
+        .decodeMessage(dataList.buffer.asByteData());
+  }
+  return null;
+}
+
+void globalCallback(int callbackId, Pointer<Uint8> result, int length) {
+  _GlobalCallbackManager.instance._callbackMap[callbackId]?._doAction(decodeObject(result, length));
 }

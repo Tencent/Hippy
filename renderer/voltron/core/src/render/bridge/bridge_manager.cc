@@ -78,7 +78,7 @@ std::shared_ptr<BridgeManager> BridgeManager::Create(int32_t engine_id, const Sp
     bridge_manager->BindRuntime(runtime);
     return bridge_manager;
   } else {
-    auto new_bridge_manager = std::make_shared<BridgeManager>(engine_id);
+    auto new_bridge_manager = std::make_shared<BridgeManager>();
     bridge_map_.Insert(engine_id, new_bridge_manager);
     new_bridge_manager->BindRuntime(runtime);
     return new_bridge_manager;
@@ -153,7 +153,7 @@ BridgeManager::~BridgeManager() {
   native_callback_map_.clear();
 }
 
-BridgeManager::BridgeManager(int32_t engine_id) : engine_id_(engine_id) {}
+BridgeManager::BridgeManager(){}
 
 std::shared_ptr<BridgeRuntime> BridgeManager::GetRuntime() { return runtime_.lock(); }
 

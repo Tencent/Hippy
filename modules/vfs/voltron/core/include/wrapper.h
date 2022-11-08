@@ -22,31 +22,33 @@
 
 #pragma once
 
-#include <cstdint>
+#include <any>
 
 #include "common_header.h"
-#include "callback_manager.h"
+#include "footstone/persistent_object_map.h"
 
-enum class DefaultRegisterFuncType {
-  kGlobalCallback
-};
+namespace voltron {
 
-typedef void (*global_callback)(int32_t callback_id, int64_t value);
-typedef int32_t (*register_call_func_ex)(int32_t type, void *func);
+extern std::atomic<uint32_t> global_data_holder_key;
+extern footstone::utils::PersistentObjectMap<uint32_t, std::any> global_data_holder;
 
-extern global_callback global_callback_func;
+}
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-EXTERN_C int32_t InitFfi(dart_post_c_object_type dart_post_c_object, int64_t port);
 
-EXTERN_C int32_t RegisterCallFunc(const char16_t *register_header, int32_t type, void *func);
+EXTERN_C int32_t CreateVfsWrapper();
 
-EXTERN_C int32_t AddRegisterCallFuncEx(const char16_t *register_header, register_call_func_ex func);
+EXTERN_C void DestroyVfsWrapper(int32_t id);
+
+EXTERN_C void OnDartInvokeAsync(int32_t id,
+                                       const uint8_t *params,
+                                       int32_t params_len,
+                                       int32_t
+                                       callback_id);
 
 #ifdef __cplusplus
 }
 #endif
-

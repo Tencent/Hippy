@@ -24,7 +24,6 @@
 #include "footstone/task_runner.h"
 
 namespace voltron {
-inline namespace vfs {
 
 class FfiDelegateHandler : public hippy::UriHandler {
  public:
@@ -55,5 +54,4 @@ class FfiDelegateHandler : public hippy::UriHandler {
   bool notified_ = false;
 };
 
-}
 }
