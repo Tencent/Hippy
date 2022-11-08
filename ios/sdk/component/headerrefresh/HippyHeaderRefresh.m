@@ -58,6 +58,7 @@
         UIEdgeInsets inset = self.scrollView.contentInset;
         inset.top = insetT;
         self.scrollView.contentInset = inset;
+        NSLog(@"state resetInset: %f", insetT);
     }
 }
 
