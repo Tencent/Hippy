@@ -27,22 +27,21 @@ import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:voltron_ffi/voltron_ffi.dart';
 
 import 'bridge_define.dart';
 import 'voltron_bridge.dart';
 
 /// 管理dart to c++方法调用以及c++ to dart方法注册逻辑
 class _BridgeFFIManager {
+  static const String _kVoltronCoreRegisterHeader = 'voltron_core';
   static _BridgeFFIManager? _instance;
 
   factory _BridgeFFIManager() => _getInstance();
 
   static _BridgeFFIManager get instance => _getInstance();
 
-  final DynamicLibrary _library = loadLibrary("voltron_core", isStatic: false);
-
-  // ffi bridge native侧的一些初始化
-  late InitBridgeFfiDartType initBridge;
+  final DynamicLibrary _library = FfiManager().library;
 
   // 初始化js framework
   late InitJsFrameworkFfiDartType initJsFramework;
@@ -75,16 +74,6 @@ class _BridgeFFIManager {
 
   late NotifyNetworkEventFfiDartType notifyNetworkEvent;
 
-  // 向c侧注册dart方法
-  late RegisterCallNativeFfiDartType registerCallNative;
-  late RegisterReportJsonFfiDartType registerReportJson;
-  late RegisterReportJsFfiDartType registerReportJs;
-  late RegisterDestroyFfiDartType registerDestroy;
-  late RemoveRootFfiDartType removeRoot;
-
-  // 注册回调port和post指针
-  late RegisterDartPostCObjectDartType registerDartPostCObject;
-
   // 执行回调任务
   late ExecuteCallbackDartType executeCallback;
 
@@ -96,9 +85,6 @@ class _BridgeFFIManager {
   }
 
   _BridgeFFIManager._internal() {
-    initBridge = _library.lookupFunction<InitBridgeFfiNativeType, InitBridgeFfiDartType>(
-      "InitBridge",
-    );
     initJsFramework =
         _library.lookupFunction<InitJsFrameworkFfiNativeType, InitJsFrameworkFfiDartType>(
       "InitJSFrameworkFFI",
@@ -146,29 +132,8 @@ class _BridgeFFIManager {
       "GetCrashMessageFFI",
     );
 
-    destroy = _library.lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>(
-      "DestroyFFI",
-    );
-
-    registerCallNative =
-        _library.lookupFunction<RegisterCallNativeFfiNativeType, RegisterCallNativeFfiDartType>(
-      "RegisterCallFunc",
-    );
-    registerReportJson =
-        _library.lookupFunction<RegisterReportJsonFfiNativeType, RegisterReportJsonFfiDartType>(
-      "RegisterCallFunc",
-    );
-    registerReportJs =
-        _library.lookupFunction<RegisterReportJsFfiNativeType, RegisterReportJsFfiDartType>(
-      "RegisterCallFunc",
-    );
-    registerDestroy =
-        _library.lookupFunction<RegisterDestroyFfiNativeType, RegisterDestroyFfiDartType>(
-      "RegisterCallFunc",
-    );
-    removeRoot = _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>(
-      "RemoveRoot",
-    );
+    destroy = _library
+        .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
   }
 }
 
@@ -499,37 +464,43 @@ class VoltronApi {
 
   // 初始化bridge层
   static Future<dynamic> initBridge() async {
-    _BridgeFFIManager.instance.initBridge();
+    // 添加自定义c++ call dart方法注册器
+    FfiManager().addFuncExRegister(_BridgeFFIManager._kVoltronCoreRegisterHeader, 'RegisterVoltronCoreCallFuncEx');
 
     // 注册callNative回调
-    var callNativeFunc = Pointer.fromFunction<CallNativeFfiNativeType>(callNative);
-    _BridgeFFIManager.instance.registerCallNative(
-      LoaderFuncType.callNative.index + kRenderFuncTypeSize,
-      callNativeFunc,
-    );
+    var callNativeRegisterFunc = FfiManager().library.lookupFunction<
+        AddCallFuncNativeType<CallNativeFfi>,
+        AddCallFuncDartType<CallNativeFfi>>(
+        FfiManager().registerFuncName);
+    var callNativeFunc =
+        Pointer.fromFunction<CallNativeFfi>(callNative);
+    FfiManager().addRegisterFunc(_BridgeFFIManager._kVoltronCoreRegisterHeader,
+        LoaderFuncType.callNative.index, callNativeFunc, callNativeRegisterFunc);
 
     // 注册reportJsonException回调
+    var reportJsonExceptionRegisterFunc = FfiManager().library.lookupFunction<
+        AddCallFuncNativeType<ReportJsonException>,
+        AddCallFuncDartType<ReportJsonException>>(
+        FfiManager().registerFuncName);
     var reportJsonExceptionFunc =
         Pointer.fromFunction<ReportJsonExceptionNativeType>(reportJsonException);
     _BridgeFFIManager.instance.registerReportJson(
       LoaderFuncType.reportJsonException.index + kRenderFuncTypeSize,
       reportJsonExceptionFunc,
     );
+        Pointer.fromFunction<ReportJsonException>(reportJsonException);
+    FfiManager().addRegisterFunc(_BridgeFFIManager._kVoltronCoreRegisterHeader,
+        LoaderFuncType.reportJsonException.index, reportJsonExceptionFunc, reportJsonExceptionRegisterFunc);
 
     // 注册reportJSException回调
+    var reportJsExceptionRegisterFunc = FfiManager().library.lookupFunction<
+        AddCallFuncNativeType<ReportJsException>,
+        AddCallFuncDartType<ReportJsException>>(
+        FfiManager().registerFuncName);
     var reportJSExceptionFunc =
-        Pointer.fromFunction<ReportJsExceptionNativeType>(reportJSException);
-    _BridgeFFIManager.instance.registerReportJs(
-      LoaderFuncType.reportJsException.index + kRenderFuncTypeSize,
-      reportJSExceptionFunc,
-    );
-
-    // 注册onDestroy回调
-    var onDestroyFunc = Pointer.fromFunction<DestroyFunctionNativeType>(onDestroy);
-    _BridgeFFIManager.instance.registerDestroy(
-      LoaderFuncType.destroy.index + kRenderFuncTypeSize,
-      onDestroyFunc,
-    );
+        Pointer.fromFunction<ReportJsException>(reportJSException);
+    FfiManager().addRegisterFunc(_BridgeFFIManager._kVoltronCoreRegisterHeader,
+        LoaderFuncType.reportJsException.index, reportJSExceptionFunc, reportJsExceptionRegisterFunc);
   }
 }
 
@@ -594,10 +565,6 @@ VoltronBridgeManager? getCurrentBridge(int engineId) {
   var bridge = VoltronBridgeManager.bridgeMap[engineId];
   bridge ??= VoltronBridgeManager.bridgeMap[0];
   return bridge;
-}
-
-void onDestroy(int engineId) {
-  // empty
 }
 
 // ------------------ native call dart方法 end ---------------------

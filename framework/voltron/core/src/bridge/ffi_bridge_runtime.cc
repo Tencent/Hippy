@@ -62,14 +62,6 @@ void FFIJSBridgeRuntime::ReportJSException(std::u16string &description_stream, s
   PostWorkToDart(work_ptr);
 }
 
-void FFIJSBridgeRuntime::Destroy() {
-  if (destroy_func) {
-    const Work work = [engine_id = engine_id_]() { destroy_func(engine_id); };
-    const Work* work_ptr = new Work(work);
-    PostWorkToDart(work_ptr);
-  }
-}
-
 FFIJSBridgeRuntime::FFIJSBridgeRuntime(int32_t engine_id) : JSBridgeRuntime(engine_id), engine_id_(engine_id) {}
 
 void FFIJSBridgeRuntime::SetRuntimeId(int64_t runtime_id) { runtime_id_ = runtime_id; }

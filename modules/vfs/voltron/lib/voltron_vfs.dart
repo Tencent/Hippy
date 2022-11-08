@@ -19,3 +19,7 @@
 //
 
 library voltron_vfs;
+
+export 'processor.dart';
+export 'manager.dart';
+export 'resource_data_holder.dart';

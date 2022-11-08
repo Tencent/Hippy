@@ -39,8 +39,6 @@ enum class NetworkEventType {
   kLoadingFinished
 };
 
-EXTERN_C void InitBridge();
-
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
                                     uint32_t work_manager_id, uint32_t dom_manager_id,

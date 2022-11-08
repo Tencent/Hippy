@@ -22,7 +22,8 @@
 
 #pragma once
 
-#  include "common_header.h"
+#include "common_header.h"
+#include "standard_message_codec.h"
 
 #if defined(_WIN32)
 #  define EXTERN_C extern "C" __declspec(dllexport)
@@ -119,6 +120,8 @@ EXTERN_C void VoltronExecuteCallback(Work *work_ptr);
 bool PostWorkToDart(const Work *work);
 
 bool CallGlobalCallback(int32_t callback_id, int64_t value);
+
+bool CallGlobalCallbackWithValue(int32_t callback_id, const voltron::EncodableValue& value);
 #ifdef __cplusplus
 }
 #endif

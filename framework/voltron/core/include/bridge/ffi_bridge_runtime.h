@@ -43,7 +43,6 @@ class FFIJSBridgeRuntime : public JSBridgeRuntime {
                 std::string params, bool bridgeParamJson, std::function<void()> callback) override;
   void ReportJSONException(const char* jsonValue) override;
   void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) override;
-  void Destroy() override;
   void SetRuntimeId(int64_t runtime_id) override;
   int64_t GetRuntimeId() override;
 };

@@ -37,10 +37,11 @@ constexpr char kDefaultRegisterHeader[] = "default";
 
 EXTERN_C int32_t InitFfi(dart_post_c_object_type dart_post_c_object, int64_t port) {
   VoltronRegisterDartPostCObject(dart_post_c_object, port);
+  return 0;
 }
 
-EXTERN_C int32_t RegisterCallFunc(const char16_t *register_header, int32_t type, void *func) {
-  FOOTSTONE_DLOG(INFO) << "start register func header: " << register_header << ", type: " << type;
+EXTERN_C int32_t AddCallFunc(const char16_t *register_header, int32_t type, void *func) {
+  FOOTSTONE_DLOG(INFO) << "start register func header: " << register_header << ", type: " << type << ", func:" << func;
   auto header_str = voltron::C16CharToString(register_header);
   if (header_str == kDefaultRegisterHeader) {
     if (type == static_cast<int>(DefaultRegisterFuncType::kGlobalCallback)) {
@@ -54,6 +55,7 @@ EXTERN_C int32_t RegisterCallFunc(const char16_t *register_header, int32_t type,
     register_call_func_ex_map_.Find(header_str, register_call_func_ex);
     if (register_call_func_ex) {
       register_call_func_ex(type, func);
+      return true;
     }
   }
 
@@ -61,7 +63,7 @@ EXTERN_C int32_t RegisterCallFunc(const char16_t *register_header, int32_t type,
   return false;
 }
 
-EXTERN_C int32_t AddRegisterCallFuncEx(const char16_t *register_header, register_call_func_ex func) {
+EXTERN_C int32_t AddCallFuncRegister(const char16_t *register_header, register_call_func_ex func) {
   FOOTSTONE_DLOG(INFO) << "start func register extension  header: " << register_header;
   auto header_str = voltron::C16CharToString(register_header);
   return register_call_func_ex_map_.Insert(header_str, func);

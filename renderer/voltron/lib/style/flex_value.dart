@@ -20,7 +20,7 @@
 
 import 'dart:ffi';
 
-import '../util.dart';
+import 'package:voltron_ffi/voltron_ffi.dart';
 
 // ignore: constant_identifier_names
 enum FlexUnit { UNDEFINED, POINT, PERCENT, AUTO }

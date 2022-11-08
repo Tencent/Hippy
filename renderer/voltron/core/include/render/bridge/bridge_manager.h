@@ -72,13 +72,12 @@ public:
                           std::unique_ptr<EncodableValue> params, bool keep);
 
   ~BridgeManager();
-  explicit BridgeManager(int32_t engine_id);
+  explicit BridgeManager();
 
 private:
   std::weak_ptr<BridgeRuntime> runtime_;
   Map<String, NativeCallback> native_callback_map_;
 
-  int32_t engine_id_;
   int callback_id_increment_ = 0;
 };
 } // namespace voltron

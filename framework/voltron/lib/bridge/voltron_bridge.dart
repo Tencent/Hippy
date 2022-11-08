@@ -27,6 +27,7 @@ import 'dart:ui';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:voltron_ffi/voltron_ffi.dart';
 
 import '../adapter.dart';
 import '../bridge.dart';

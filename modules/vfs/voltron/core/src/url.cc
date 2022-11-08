@@ -22,7 +22,7 @@
 
 #include "url.h"
 
-namespace hippy {
+namespace voltron {
 
 #define CHECK_LEN_END(POS, LEN) if (POS >= LEN) { error_code = 100; goto __PARSE_END; }
 #define WALK_SP(POS, LEN, BUF) for (; POS < LEN && BUF[POS] == ' '; POS++)

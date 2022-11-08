@@ -27,13 +27,13 @@
 #include <string>
 
 namespace voltron {
-char16_t *CopyChar16(const char16_t *source_char, int length);
+char16_t *CopyChar16(const char16_t *source_char, unsigned int length);
 
-char16_t *CopyCharToChar16(const char *source_char, int length);
+char16_t *CopyCharToChar16(const char *source_char, unsigned int length);
 
-char *CopyCharToChar(const char *source_char, int length);
+char *CopyCharToChar(const char *source_char, unsigned int length);
 
-uint8_t *CopyBytes(const uint8_t *source_bytes, int length);
+uint8_t *CopyBytes(const uint8_t *source_bytes, unsigned int length);
 
 void ReleaseCopy(void *copy_pointer);
 
