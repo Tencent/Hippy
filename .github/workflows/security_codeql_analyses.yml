@@ -110,11 +110,11 @@ jobs:
       env:
         skipCmakeAndNinja: 1
       run: |
-        ./gradlew example::assembleDebug
+        ./gradlew assembleDebug
     - name: Build C++
       if: steps.detect_languages.outputs.language == 'cpp'
       run: |
-        ./gradlew hippy-framework::buildCMakeRelease
+        ./gradlew buildCMakeDebug -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
     - name: Perform CodeQL Analysis
       if: steps.detect_languages.outputs.language
       uses: github/codeql-action/analyze@v2
