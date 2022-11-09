@@ -78,7 +78,7 @@ constexpr const char kNumberOfLines[] = "numberOfLines";                  // int
 constexpr const char kOnBlur[] = "onBlur";                                // boolean
 constexpr const char kOnChangeText[] = "changetext";                      // boolean
 constexpr const char kOnContentSizeChange[] = "onContentSizeChange";      // boolean
-constexpr const char kOnEndEditing[] = "onEndEditing";                    // boolean
+constexpr const char kOnEndEditing[] = "endediting";                      // boolean
 constexpr const char kOnFocus[] = "onFocus";                              // boolean
 constexpr const char kOnSelectionChange[] = "onSelectionChange";          // boolean
 constexpr const char kPlaceholder[] = "placeholder";                      // String
@@ -210,10 +210,11 @@ class TextInputNode : public ViewNode {
   float line_height_ = kDefaultLineHeight;
   bool has_shadow_ = true;
   std::string place_holder_;
-  Color place_holder_color_ = kDefaultTextColor;
+  Color place_holder_color_ = tdfcore::Color::Gray();
   tdfcore::KeyboardAction keyboard_action_ = tdfcore::KeyboardAction::kDone;
   uint64_t viewport_listener_id_ = kViewportListenerInvalidID;
   EventCallback event_callback_;
+  bool callback_inited_ = false;
 };
 
 }  // namespace tdf
