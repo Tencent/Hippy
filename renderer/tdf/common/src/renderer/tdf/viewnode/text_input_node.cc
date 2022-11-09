@@ -46,13 +46,17 @@ using unicode_string_view = footstone::stringview::string_view;
 using footstone::stringview::StringViewUtils;
 
 TextInputNode::TextInputNode(const RenderInfo info) : ViewNode(info), text_selection_(-1, -1) {
-  InitCallBackMap();
-  InitCallback();
 }
 
 TextInputNode::~TextInputNode() { UnregisterViewportListener(); }
 
 void TextInputNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
+  if (!callback_inited_) {
+    callback_inited_ = true;
+    InitCallBackMap();
+    InitCallback();
+  }
+
   auto text_input_view = text_input_view_.lock();
   if (!text_input_view) {
     return;
@@ -124,8 +128,11 @@ std::shared_ptr<View> TextInputNode::CreateView() {
 void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& event) {
   auto keyboard_action_event = std::static_pointer_cast<tdfcore::KeyboardActionEvent>(event);
   auto key_action = keyboard_action_event->GetKeyboardAction();
+  if (key_action != KeyboardAction::kNewLine) {
+    return;
+  }
   std::string action_name;
-  switch (key_action) {
+  switch (keyboard_action_) {
     case KeyboardAction::kDone:
       action_name = kKeyboardAction_Done;
       break;
@@ -154,6 +161,12 @@ void TextInputNode::SendKeyActionEvent(const std::shared_ptr<tdfcore::Event>& ev
   DomValueObjectType param;
   param[kKeyActionName] = action_name;
   SendUIDomEvent(kOnEditorAction, std::make_shared<footstone::HippyValue>(param));
+
+  DomValueObjectType param2;
+  auto u16text = GetView<tdfcore::TextInputView>()->GetTextEditingValue().GetText();
+  auto u8text = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t >{}.to_bytes(u16text);
+  param2[kText] = u8text;
+  SendUIDomEvent(kOnEndEditing, std::make_shared<footstone::HippyValue>(param2));
 }
 
 void TextInputNode::DidChangeTextEditingValue(std::shared_ptr<TextInputView> text_input_view) {
@@ -494,19 +507,19 @@ void TextInputNode::SetKeyBoardAction(const DomStyleMap& dom_style, std::shared_
   if (auto iter = dom_style.find(textinput::kReturnKeyType); iter != dom_style.end()) {
     auto action_name = iter->second->ToStringChecked();
     if (action_name == kKeyboardAction_Done) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kDone);
+      keyboard_action_ = KeyboardAction::kDone;
     } else if (action_name == kKeyboardAction_Go) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kGo);
+      keyboard_action_ = KeyboardAction::kGo;
     } else if (action_name == kKeyboardAction_Next) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kNext);
+      keyboard_action_ = KeyboardAction::kNext;
     } else if (action_name == kKeyboardAction_Search) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kSearch);
+      keyboard_action_ = KeyboardAction::kSearch;
     } else if (action_name == kKeyboardAction_Send) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kSend);
+      keyboard_action_ = KeyboardAction::kSend;
     } else if (action_name == kKeyboardAction_None) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kNone);
+      keyboard_action_ = KeyboardAction::kNone;
     } else if (action_name == kKeyboardAction_Previous) {
-      text_input_view->SetKeyboardAction(KeyboardAction::kPrevious);
+      keyboard_action_ = KeyboardAction::kPrevious;
     } else {
       FOOTSTONE_LOG(INFO) << "TextInputNode::SetKeyBoardAction action_name = " << action_name;
     }
