@@ -34,6 +34,7 @@ jobs:
     strategy:
       matrix:
         type: [debug, release]
+        v8: [v8_min, v8_target]
         include:
           - type: debug
             task: assembleDebug
@@ -47,4 +48,4 @@ jobs:
         lfs: true
     - name: Run ${{ matrix.task }}
       run: |
-        ./gradlew ${{ matrix.task }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+        ./gradlew ${{ matrix.task }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true ${{ (matrix.v8 == 'v8_min') && '-PV8_COMPONENT=7.7.299.15' || '' }}
