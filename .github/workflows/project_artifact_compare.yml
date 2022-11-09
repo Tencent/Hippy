@@ -8,9 +8,9 @@ on:
         type: string
         required: true
       git_ref_b:
-        description: 'Git Ref B'
+        description: 'Git Ref B(contrast)'
         type: string
-        required: true
+        required: false
       is_compare_for_android:
         description: 'Compare for Android artifact'
         type: boolean
@@ -19,7 +19,7 @@ on:
       is_compare_for_ios:
         description: 'Compare for iOS artifact'
         type: boolean
-        default: false
+        default: true
         required: true
 
 jobs:
@@ -36,23 +36,32 @@ jobs:
             source: ref_a
           - ref: ${{ github.event.inputs.git_ref_b }}
             source: ref_b
+    defaults:
+      run:
+        shell: bash
     outputs:
       ref_a: ${{ steps.get_size.outputs.ref_a }}
       ref_b: ${{ steps.get_size.outputs.ref_b }}
       artifact: Android(android-sdk.aar)
     steps:
     - name: Checkout
+      if: ${{ matrix.ref }}
       uses: actions/checkout@v3
       with:
         ref: ${{ matrix.ref }}
         lfs: true
     - name: Build
+      if: ${{ matrix.ref }}
       run: |
         ./gradlew assembleRelease -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
     - name: Size
       id: get_size
       run: |
-        echo "${{ matrix.source }}=$(ls -l ./android/sdk/build/outputs/aar/android-sdk.aar | awk '{print $5}')" >> $GITHUB_OUTPUT
+        if [[ "${{ matrix.ref }}" ]]; then
+          echo "${{ matrix.source }}=$(ls -l ./android/sdk/build/outputs/aar/android-sdk.aar | awk '{print $5}')" >> $GITHUB_OUTPUT
+        else
+          echo "${{ matrix.source }}=-1" >> $GITHUB_OUTPUT
+        fi
 
   ios:
     if: ${{ github.event.inputs.is_compare_for_ios == 'true' }}
@@ -71,17 +80,33 @@ jobs:
       artifact: iOS(libhippy.a)
     steps:
     - name: Checkout
+      if: ${{ matrix.ref }}
       uses: actions/checkout@v3
       with:
         ref: ${{ matrix.ref }}
         lfs: true
     - name: Build
+      if: ${{ matrix.ref }}
+      working-directory: examples/ios-demo
       run: |
-        echo "Stub"
+        xcodebuild build \
+          -destination 'generic/platform=iOS' \
+          -scheme 'HippyDemo' \
+          -target 'hippy' \
+          -configuration 'Release' \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO
     - name: Size
       id: get_size
       run: |
-        echo "${{ matrix.source }}=1" >> $GITHUB_OUTPUT
+        if [[ "${{ matrix.ref }}" ]]; then
+          pushd examples/ios-demo
+          echo "${{ matrix.source }}=$(ls -l $(xcodebuild -showBuildSettings | grep -m 1 TARGET_BUILD_DIR | grep -oEi "\/.*")/libhippy.a | awk '{print $5}')" >> $GITHUB_OUTPUT
+          popd
+        else
+          echo "${{ matrix.source }}=-1" >> $GITHUB_OUTPUT
+        fi
 
   collector:
     needs: [ android, ios ]
@@ -113,9 +138,17 @@ jobs:
             if "artifact" in result:
               ref_a = int(result["ref_a"])
               ref_b = int(result["ref_b"])
-              file.write("## %s Artifact Compare\n" % result["artifact"])
-              file.write("| Ref  | Size | Delta |\n")
-              file.write("|------|------|-------|\n")
-              file.write("| %s   | %s   | %s    |\n" % ("${{ github.event.inputs.git_ref_a }}", sizeof_fmt(ref_a), delta(ref_a, ref_b)))
-              file.write("| %s   | %s   | %s    |\n" % ("${{ github.event.inputs.git_ref_b }}", sizeof_fmt(ref_b), delta(ref_b, ref_a)))
-              file.write("\n")
+              if ref_a > 0 and ref_b > 0:
+                file.write("## %s Artifact Compare\n" % result["artifact"])
+                file.write("| Ref  | Size | Delta |\n")
+                file.write("|------|------|-------|\n")
+                file.write("| %s   | %s   | %s    |\n" % ("${{ github.event.inputs.git_ref_a }}", sizeof_fmt(ref_a), delta(ref_a, ref_b)))
+                file.write("| %s   | %s   | %s    |\n" % ("${{ github.event.inputs.git_ref_b }}", sizeof_fmt(ref_b), delta(ref_b, ref_a)))
+                file.write("\n")
+              elif ref_a > 0:
+                ref_a = int(result["ref_a"])
+                file.write("## %s Artifact\n" % result["artifact"])
+                file.write("| Ref  | Size |\n")
+                file.write("|------|------|\n")
+                file.write("| %s   | %s   |\n" % ("${{ github.event.inputs.git_ref_a }}", sizeof_fmt(ref_a)))
+                file.write("\n")
