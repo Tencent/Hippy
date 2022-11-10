@@ -1,20 +1,18 @@
 {
-  "name": "@tencent/camp-hippy-web-renderer",
-  "version": "0.1.15",
+  "name": "@hippy/web-renderer",
+  "version": "0.0.4",
   "description": "hippy web renderer",
   "main": "lib/index.js",
   "module": "es/index.js",
   "typings": "es/index.d.ts",
   "license": "Apache-2.0",
-  "source": "example/index.html",
   "keywords": [
     "Hippy",
     "Web"
   ],
   "scripts": {
     "watch": "father-build --watch",
-    "build": "father-build",
-    "start": "parcel"
+    "build": "father-build"
   },
   "dependencies": {
     "@types/hammerjs": "^2.0.41",
@@ -24,7 +22,6 @@
     "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
-    "father-build": "^1.22.1",
-    "parcel": "^2.4.0"
+    "father-build": "^1.22.1"
   }
 }

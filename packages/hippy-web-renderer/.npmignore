@@ -2,3 +2,4 @@ node_modules
 example
 .parcel-cache
 dist
+e2e
