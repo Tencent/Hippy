@@ -31,6 +31,7 @@ jobs:
         run: |
           xcodebuild build \
             -destination 'generic/platform=iOS' \
+            -workspace 'Hippy.xcworkspace' \
             -scheme 'HippyDemo' \
             -configuration '${{ matrix.configuration }}' \
             CODE_SIGN_IDENTITY="" \
