@@ -17,20 +17,22 @@ package com.tencent.mtt.hippy.dom.node;
 
 
 import android.text.style.ImageSpan;
-
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
-
 import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
 import java.util.ArrayList;
 
 @SuppressWarnings({"unused"})
 public class ImageNode extends StyleNode {
 
+  @Deprecated
   public static final String PROP_VERTICAL_ALIGNMENT = "verticalAlignment";
+  public static final String PROP_VERTICAL_ALIGN = "verticalAlign";
 
   private final boolean mIsVirtual;
   private HippyImageSpan mImageSpan = null;
+  @Deprecated
   private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
+  private String mVerticalAlign;
   private final boolean[] shouldSendImageEvent;
 
   private ArrayList<String> mGestureTypes = null;
@@ -48,8 +50,16 @@ public class ImageNode extends StyleNode {
     return shouldSendImageEvent[event.ordinal()];
   }
 
+  /**
+   * @deprecated use {@link #getVerticalAlign} instead
+   */
+  @Deprecated
   public int getVerticalAlignment() {
     return mVerticalAlignment;
+  }
+
+  public String getVerticalAlign() {
+      return mVerticalAlign;
   }
 
   public boolean isVirtual() {
@@ -140,9 +150,28 @@ public class ImageNode extends StyleNode {
     }
   }
 
+  /**
+   * @deprecated use {@link #setVerticalAlign} instead
+   */
+  @Deprecated
   @HippyControllerProps(name = PROP_VERTICAL_ALIGNMENT, defaultType = HippyControllerProps.NUMBER, defaultNumber = ImageSpan.ALIGN_BASELINE)
   public void setVerticalAlignment(int verticalAlignment) {
     mVerticalAlignment = verticalAlignment;
+  }
+
+  @HippyControllerProps(name = PROP_VERTICAL_ALIGN, defaultType = HippyControllerProps.STRING)
+  public void setVerticalAlign(String align) {
+      switch (align) {
+          case HippyImageSpan.V_ALIGN_TOP:
+          case HippyImageSpan.V_ALIGN_MIDDLE:
+          case HippyImageSpan.V_ALIGN_BASELINE:
+          case HippyImageSpan.V_ALIGN_BOTTOM:
+              mVerticalAlign = align;
+              break;
+          default:
+              mVerticalAlign = HippyImageSpan.V_ALIGN_BASELINE;
+              break;
+      }
   }
 
   @HippyControllerProps(name = "src", defaultType = HippyControllerProps.STRING)

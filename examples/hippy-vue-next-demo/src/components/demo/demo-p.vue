@@ -194,6 +194,87 @@
           </button>
         </div>
       </div>
+      <label>vertical-align</label>
+      <div class="p-demo-content">
+        <p :style="{ lineHeight: 50, backgroundColor: '#40b883', paddingHorizontal: 10, paddingVertical: 5 }">
+          <span :style="{ fontSize: 16 }">png</span>
+          <img
+            :style="{ width: 24, height: 24, verticalAlign: 'top' }"
+            :src="img2"
+          >
+          <img
+            :style="{ width: 18, height: 12, verticalAlign: 'middle' }"
+            :src="img2"
+          >
+          <img
+            :style="{ width: 24, height: 12, verticalAlign: 'baseline' }"
+            :src="img2"
+          >
+          <img
+            :style="{ width: 36, height: 24, verticalAlign: 'bottom' }"
+            :src="img2"
+          >
+          <span :style="{ fontSize: 30 }">GIF</span>
+          <img
+            :style="{ width: 24, height: 24, verticalAlign: 'top' }"
+            :src="img3"
+          >
+          <img
+            :style="{ width: 18, height: 12, verticalAlign: 'middle' }"
+            :src="img3"
+          >
+          <img
+            :style="{ width: 24, height: 12, verticalAlign: 'baseline' }"
+            :src="img3"
+          >
+          <img
+            :style="{ width: 36, height: 24, verticalAlign: 'bottom' }"
+            :src="img3"
+          >
+        </p>
+        <p v-if="Platform === 'android'">
+          legacy verticalAlignment
+        </p>
+        <p
+          v-if="Platform === 'android'"
+          :style="{ lineHeight: 50, backgroundColor: '#40b883', paddingHorizontal: 10, paddingVertical: 5 }"
+        >
+          <span :style="{ fontSize: 16 }">png</span>
+          <img
+            :style="{ width: 24, height: 24, verticalAlignment: 0 }"
+            :src="img2"
+          >
+          <img
+            :style="{ width: 18, height: 12, verticalAlignment: 1 }"
+            :src="img2"
+          >
+          <img
+            :style="{ width: 24, height: 12, verticalAlignment: 2 }"
+            :src="img2"
+          >
+          <img
+            :style="{ width: 36, height: 24, verticalAlignment: 3 }"
+            :src="img2"
+          >
+          <span :style="{ fontSize: 30 }">GIF</span>
+          <img
+            :style="{ width: 24, height: 24, top: -10 }"
+            :src="img3"
+          >
+          <img
+            :style="{ width: 18, height: 12, top: -5 }"
+            :src="img3"
+          >
+          <img
+            :style="{ width: 24, height: 12 }"
+            :src="img3"
+          >
+          <img
+            :style="{ width: 36, height: 24, top: 5 }"
+            :src="img3"
+          >
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -275,6 +356,7 @@ export default defineComponent({
         SWxLDIAh0RcFXTHL/yzZSO01LMpP9WJEVUNA9gfdXTioCSKE/kQQTQmf/ArRYva+xAcuPP37seFII2L7FN4BmXdHzlEPIpDHiZ0A7eIViPc
         w2QwqipkvMSdNEFBUE1bmMNOyE7FyFaIkAP4jHhhG80lvgkzBODTKpwhRMcexuR7fXzcp08UDq6GRbootp4oRtO3NNpd4NKtnR9hB6oaefw
         eIFQU0EfnGDRoQAAAAASUVORK5CYII=`,
+      img3: 'https://user-images.githubusercontent.com/12878546/148736255-7193f89e-9caf-49c0-86b0-548209506bd6.gif',
       longText: 'The 58-letter name Llanfairpwllgwyngyllgogerychwyrndrobwllllantysiliogogogoch is the name of a town on Anglesey, an island of Wales.',
       labelTouchStatus,
       textMode,
