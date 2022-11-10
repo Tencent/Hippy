@@ -16,27 +16,31 @@
 
 package com.tencent.mtt.hippy.adapter.http;
 
-import com.tencent.mtt.hippy.common.HippyMap;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.modules.Promise;
-import java.util.Map;
+import com.tencent.vfs.ResourceDataHolder;
+import com.tencent.vfs.VfsManager.ProcessorCallback;
+import java.util.HashMap;
 
 public interface HippyHttpAdapter {
 
-  void destroyIfNeed();
+    void destroyIfNeed();
 
-  void sendRequest(final HippyHttpRequest request, final HttpTaskCallback callback);
+    void sendRequest(final HippyHttpRequest request, final HttpTaskCallback callback);
 
-  void fetch(final HippyMap initParams, final Promise promise, Map nativeParams);
+    void fetch(@NonNull final ResourceDataHolder holder,
+            @Nullable HashMap<String, Object> nativeParams, @NonNull final ProcessorCallback callback);
 
-  void getCookie(String url, Promise promise);
+    void getCookie(String url, Promise promise);
 
-  void setCookie(String url, String keyValue, String expires);
+    void setCookie(String url, String keyValue, String expires);
 
-  interface HttpTaskCallback {
+    interface HttpTaskCallback {
 
-    void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
+        void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response) throws Exception;
 
-    @SuppressWarnings("unused")
-    void onTaskFailed(HippyHttpRequest request, Throwable error);
-  }
+        @SuppressWarnings("unused")
+        void onTaskFailed(HippyHttpRequest request, Throwable error);
+    }
 }

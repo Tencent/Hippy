@@ -13,67 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.http;
 
 import android.os.Build;
 
+import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@SuppressWarnings({"unused"})
 public class HippyHttpRequest {
 
     public static final int DEFAULT_TIMEOUT_MS = 3000;
+    public static final String HTTP_HEADERS = "headers";
+    public static final String HTTP_HEADERS_SEPARATOR = ",";
+    public static final String HTTP_URL = "url";
+    public static final String HTTP_METHOD = "method";
+    public static final String HTTP_REDIRECT = "redirect";
+    public static final String HTTP_BODY = "body";
 
     private static String USER_AGENT = null;
     private int mConnectTimeout = DEFAULT_TIMEOUT_MS;
     private int mReadTimeout = DEFAULT_TIMEOUT_MS;
-    private final Map<String, Object> mHeaderMap;
-    private String mUrl;
     private boolean mUseCaches = true;
-    private String mMethod = "GET";
-    private boolean mInstanceFollowRedirects = false;
-    private String mBody;
     @Nullable
-    private HippyMap mInitParams;
+    private String mUrl;
+    @NonNull
+    private final HashMap<String, String> mHeaders;
     @Nullable
-    private HippyArray mRequestCookies;
+    private final HashMap<String, String> mInitParams;
     @Nullable
-    private Map<String, Object> mNativeParams;
+    private final Map<String, Object> mNativeParams;
 
-    public HippyHttpRequest() {
-        //noinspection unchecked,rawtypes
-        mHeaderMap = new HashMap();
-        initUserAgent();
-
-        if (USER_AGENT != null) {
-            addHeader(HttpHeader.REQ.USER_AGENT, USER_AGENT);
-        } else {
-            System.err.println("user_agent is null!");
-        }
-    }
-
-    @Nullable
-    public HippyMap getInitParams() {
-        return mInitParams;
-    }
-
-    public void setInitParams(@Nullable HippyMap initParams) {
+    public HippyHttpRequest(@Nullable HashMap<String, String> headers,
+            @Nullable HashMap<String, String> initParams,
+            @Nullable Map<String, Object> nativeParams) {
+        mHeaders = (headers == null) ? new HashMap<>() : headers;
         mInitParams = initParams;
+        mNativeParams = nativeParams;
+        initUserAgent();
     }
 
     @Nullable
-    public HippyArray getRequestCookies() {
-        return mRequestCookies;
-    }
-
-    public void setRequestCookies(@Nullable HippyArray requestCookies) {
-        mRequestCookies = requestCookies;
+    public String getRequestCookies() {
+        return mHeaders.get(HttpHeader.REQ.COOKIE);
     }
 
     @Nullable
@@ -81,28 +67,25 @@ public class HippyHttpRequest {
         return mNativeParams;
     }
 
-    public void setNativeParams(@Nullable Map<String, Object> nativeParams) {
-        mNativeParams = nativeParams;
-    }
-
-    public String getUrl() {
-        return mUrl;
-    }
-
     public void setUrl(String url) {
-        this.mUrl = url;
+        mUrl = url;
+    }
+
+    @Nullable
+    public String getUrl() {
+        if (mUrl != null) {
+            return mUrl;
+        }
+        return (mInitParams != null) ? mInitParams.get(HTTP_URL) : null;
     }
 
     public void addHeader(String name, String value) {
-        mHeaderMap.put(name, value);
+        mHeaders.put(name, value);
     }
 
-    public void addHeader(String name, List<String> value) {
-        mHeaderMap.put(name, value);
-    }
-
-    public Map<String, Object> getHeaders() {
-        return mHeaderMap;
+    @NonNull
+    public HashMap<String, String> getHeaders() {
+        return mHeaders;
     }
 
     public int getConnectTimeout() {
@@ -129,34 +112,31 @@ public class HippyHttpRequest {
         this.mUseCaches = useCaches;
     }
 
+    @NonNull
     public String getMethod() {
-        return mMethod;
-    }
-
-    public void setMethod(String method) {
-        this.mMethod = method;
+        if (mInitParams != null) {
+            String method = mInitParams.get(HTTP_METHOD);
+            if (!TextUtils.isEmpty(method)) {
+                return method;
+            }
+        }
+        return "GET";
     }
 
     public boolean isInstanceFollowRedirects() {
-        return mInstanceFollowRedirects;
+        String redirect = (mInitParams != null) ? mInitParams.get(HTTP_REDIRECT) : null;
+        return !TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect);
     }
 
-    public void setInstanceFollowRedirects(boolean instanceFollowRedirects) {
-        this.mInstanceFollowRedirects = instanceFollowRedirects;
-    }
-
+    @Nullable
     public String getBody() {
-        return mBody;
-    }
-
-    public void setBody(String body) {
-        this.mBody = body;
+        return (mInitParams != null) ? mInitParams.get(HTTP_BODY) : null;
     }
 
     private void initUserAgent() {
         if (USER_AGENT == null) {
             Locale locale = Locale.getDefault();
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             // Add version
             final String version = Build.VERSION.RELEASE;
             if (version.length() > 0) {
@@ -174,5 +154,6 @@ public class HippyHttpRequest {
             final String base = "Mozilla/5.0 (Linux; U; Android %s) AppleWebKit/533.1 (KHTML, like Gecko) Mobile Safari/533.1";
             USER_AGENT = String.format(base, buffer);
         }
+        addHeader(HttpHeader.REQ.USER_AGENT, USER_AGENT);
     }
 }

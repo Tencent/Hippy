@@ -16,6 +16,8 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import java.util.UUID;
 
@@ -60,8 +62,12 @@ public class DevSupportManager {
     mDevImp.handleException(throwable);
   }
 
-  public void loadRemoteResource(String url, DevServerCallBack serverCallBack) {
-    mDevImp.loadRemoteResource(url, serverCallBack);
+  public void onLoadResourceSucceeded() {
+    mDevImp.onLoadResourceSucceeded();
+  }
+
+  public void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage) {
+    mDevImp.onLoadResourceFailed(url, errorMessage);
   }
 
 	public String getDevInstanceUUID() {

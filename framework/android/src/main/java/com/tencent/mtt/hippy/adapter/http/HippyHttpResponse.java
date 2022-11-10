@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.tencent.mtt.hippy.adapter.http;
 
 import android.text.TextUtils;
@@ -22,10 +23,11 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings({"unused"})
 public class HippyHttpResponse {
 
   public static final Integer UNKNOWN_STATUS = -1;
+  public static final String HTTP_RESPONSE_STATUS_CODE = "statusCode";
+  public static final String HTTP_RESPONSE_RESPONSE_MESSAGE = "responseMessage";
 
   private Integer mStatusCode = UNKNOWN_STATUS;
 

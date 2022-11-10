@@ -79,9 +79,9 @@ bool JniDelegateHandler::Init(JNIEnv* j_env) {
 
   j_vfs_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/VfsManager")));
   j_call_jni_delegate_sync_method_id = j_env->GetMethodID(j_vfs_manager_clazz,"doLocalTraversalsSync",
-    "(Ljava/lang/String;Ljava/util/HashMap;)Lcom/tencent/vfs/ResourceDataHolder;");
+    "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;)Lcom/tencent/vfs/ResourceDataHolder;");
   j_call_jni_delegate_async_method_id = j_env->GetMethodID(j_vfs_manager_clazz, "doLocalTraversalsAsync",
-    "(Ljava/lang/String;Ljava/util/HashMap;I)V");
+    "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;I)V");
 
   return true;
 }
@@ -118,13 +118,14 @@ void JniDelegateHandler::RequestUntrustedContent(
   }
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_uri = JniUtils::StrViewToJString(j_env, ctx->uri);
-  auto j_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
+  auto j_headers_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
+  auto j_params_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
   for (auto [key, value]: ctx->req_meta) {
     auto j_key = JniUtils::StrViewToJString(j_env, string_view::new_from_utf8(key.c_str(), key.length()));
     auto j_value = JniUtils::StrViewToJString(j_env, string_view::new_from_utf8(value.c_str(), value.length()));
-    j_env->CallObjectMethod(j_map, j_map_put_method_id, j_key, j_value);
+    j_env->CallObjectMethod(j_headers_map, j_map_put_method_id, j_key, j_value);
   }
-  auto j_holder = j_env->CallObjectMethod(delegate_->GetObj(), j_call_jni_delegate_sync_method_id, j_uri, j_map);
+  auto j_holder = j_env->CallObjectMethod(delegate_->GetObj(), j_call_jni_delegate_sync_method_id, j_uri, j_headers_map, j_params_map);
   auto resource_holder = ResourceHolder::Create(j_holder);
   RetCode ret_code = resource_holder->GetCode(j_env);
   ctx->code = ret_code;
@@ -149,16 +150,18 @@ void JniDelegateHandler::RequestUntrustedContent(
   auto wrapper = std::make_shared<JniDelegateHandlerAsyncWrapper>(shared_from_this(),ctx);
   auto flag = GetAsyncWrapperMap().Insert(id, wrapper);
   FOOTSTONE_CHECK(flag);
-  jobject j_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
+  auto j_headers_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
+  auto j_params_map = j_env->NewObject(j_util_map_clazz, j_map_init_method_id);
   for (auto [key, value]: ctx->req_meta) {
     auto j_key = JniUtils::StrViewToJString(j_env, string_view::new_from_utf8(key.c_str(), key.length()));
     auto j_value = JniUtils::StrViewToJString(j_env, string_view::new_from_utf8(value.c_str(), value.length()));
-    j_env->CallObjectMethod(j_map, j_map_put_method_id, j_key, j_value);
+    j_env->CallObjectMethod(j_headers_map, j_map_put_method_id, j_key, j_value);
   }
   j_env->CallVoidMethod(delegate_->GetObj(),
                         j_call_jni_delegate_async_method_id,
                         j_uri,
-                        j_map,
+                        j_headers_map,
+                        j_params_map,
                         footstone::checked_numeric_cast<uint32_t, jint>(id));
 }
 
@@ -200,7 +203,7 @@ void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_i
   auto cb = [java_cb, j_holder](
       UriLoader::RetCode code, const std::unordered_map<std::string, std::string>& rsp_meta, const UriLoader::bytes& content) {
     auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-    auto resource_holder = ResourceHolder::CreateNewHolder(j_holder);
+    auto resource_holder = ResourceHolder::Create(j_holder);
     resource_holder->SetContent(j_env, content);
     resource_holder->SetRspMeta(j_env, rsp_meta);
     resource_holder->SetCode(j_env, code);
