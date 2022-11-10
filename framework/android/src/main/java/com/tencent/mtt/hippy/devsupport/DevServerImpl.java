@@ -26,6 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
@@ -115,32 +117,21 @@ public class DevServerImpl implements View.OnClickListener, DevServerInterface,
   }
 
   @Override
-  public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
-    mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack() {
-      @Override
-      public void onSuccess(InputStream inputStream) {
-        if (mProgressDialog != null) {
-          mProgressDialog.dismiss();
-        }
+  public void onLoadResourceSucceeded() {
+    if (mProgressDialog != null) {
+      mProgressDialog.dismiss();
+    }
+  }
 
-        if (serverCallBack != null) {
-          serverCallBack.onDevBundleLoadReady(inputStream);
-        }
-      }
-
-      @Override
-      public void onFail(Exception exception) {
-        if (serverCallBack != null) {
-          serverCallBack.onInitDevError(exception);
-        }
-
-        if (mDebugButtonStack.isEmpty()) {
-          mServerCallBack.onInitDevError(exception);
-        } else {
-          handleException(exception);
-        }
-      }
-    }, url);
+  @Override
+  public void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage) {
+    DevServerException exception = new DevServerException("Could not connect to development server." + "URL: " + url
+            + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + errorMessage);
+    if (mDebugButtonStack.isEmpty()) {
+      mServerCallBack.onInitDevError(exception);
+    } else {
+      handleException(exception);
+    }
   }
 
   @Override

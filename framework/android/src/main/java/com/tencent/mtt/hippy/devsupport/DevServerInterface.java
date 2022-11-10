@@ -16,6 +16,8 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 @SuppressWarnings("unused")
 public interface DevServerInterface {
@@ -24,7 +26,9 @@ public interface DevServerInterface {
 
   String createResourceUrl(String resName);
 
-  void loadRemoteResource(String url, DevServerCallBack serverCallBack);
+  void onLoadResourceSucceeded();
+
+  void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage);
 
   String createDebugUrl(String host, String componentName, String debugClientId);
 

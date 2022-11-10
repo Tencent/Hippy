@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.modules.HippyModuleManager;
 import com.tencent.vfs.VfsManager;
+import java.util.HashMap;
 import java.util.Map;
 
 public interface HippyEngineContext {
@@ -32,7 +33,7 @@ public interface HippyEngineContext {
     String getComponentName();
 
     @Nullable
-    Map<String, Object> getNativeParams();
+    HashMap<String, Object> getNativeParams();
 
     @NonNull
     VfsManager getVfsManager();

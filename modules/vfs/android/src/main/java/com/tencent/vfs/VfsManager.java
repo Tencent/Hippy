@@ -56,30 +56,40 @@ public class VfsManager {
         mProcessorChain.clear();
     }
 
-    public void fetchResourceAsync(@NonNull String uri, @Nullable HashMap<String, String> params,
+    public void fetchResourceAsync(@NonNull String uri,
+            @Nullable HashMap<String, String> requestHeaders,
+            @Nullable HashMap<String, String> requestParams,
             @Nullable FetchResourceCallback callback) {
         onFetchResourceStart();
-        fetchResourceAsyncImpl(uri, params, callback, RequestFrom.LOCAL, -1);
+        fetchResourceAsyncImpl(uri, requestHeaders, requestParams, callback,
+                RequestFrom.LOCAL, -1);
     }
 
     public ResourceDataHolder fetchResourceSync(@NonNull String uri,
-            @Nullable HashMap<String, String> params) {
+            @Nullable HashMap<String, String> requestHeaders,
+            @Nullable HashMap<String, String> requestParams) {
         onFetchResourceStart();
-        ResourceDataHolder holder = fetchResourceSyncImpl(uri, params, RequestFrom.LOCAL);
+        ResourceDataHolder holder = fetchResourceSyncImpl(uri, requestHeaders, requestParams,
+                RequestFrom.LOCAL);
         onFetchResourceEnd(holder);
         return holder;
     }
 
     private ResourceDataHolder fetchResourceSyncImpl(@NonNull String uri,
-            @Nullable HashMap<String, String> params, RequestFrom from) {
-        ResourceDataHolder holder = new ResourceDataHolder(uri, params, from);
+            @Nullable HashMap<String, String> requestHeaders,
+            @Nullable HashMap<String, String> requestParams,
+            RequestFrom from) {
+        ResourceDataHolder holder = new ResourceDataHolder(uri, requestHeaders, requestParams, from);
         traverseForward(holder, true);
         return holder;
     }
 
-    private void fetchResourceAsyncImpl(@NonNull String uri, @Nullable HashMap<String, String> params,
+    private void fetchResourceAsyncImpl(@NonNull String uri,
+            @Nullable HashMap<String, String> requestHeaders,
+            @Nullable HashMap<String, String> requestParams,
             @Nullable FetchResourceCallback callback, RequestFrom from, int nativeId) {
-        ResourceDataHolder holder = new ResourceDataHolder(uri, params, callback, from, nativeId);
+        ResourceDataHolder holder = new ResourceDataHolder(uri, requestHeaders, requestParams,
+                callback, from, nativeId);
         traverseForward(holder, false);
     }
 
@@ -156,7 +166,7 @@ public class VfsManager {
     private void performNativeTraversals(@NonNull final ResourceDataHolder holder) {
         doNativeTraversalsAsync(mId, holder, new FetchResourceCallback() {
             @Override
-            public void onFetchCompleted(ResourceDataHolder dataHolder) {
+            public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
                 traverseGoBack(holder, false);
             }
         });
@@ -192,23 +202,27 @@ public class VfsManager {
 
     public interface FetchResourceCallback {
 
-        void onFetchCompleted(ResourceDataHolder dataHolder);
+        void onFetchCompleted(@NonNull ResourceDataHolder dataHolder);
     }
 
-    public void doLocalTraversalsAsync(@NonNull String uri, @Nullable HashMap<String, String> params,
+    public void doLocalTraversalsAsync(@NonNull String uri,
+            @Nullable HashMap<String, String> requestHeaders,
+            @Nullable HashMap<String, String> requestParams,
             int nativeId) {
         FetchResourceCallback callback = new FetchResourceCallback() {
             @Override
-            public void onFetchCompleted(ResourceDataHolder dataHolder) {
+            public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
                 onTraversalsEndAsync(dataHolder);
             }
         };
-        fetchResourceAsyncImpl(uri, params, callback, RequestFrom.NATIVE, nativeId);
+        fetchResourceAsyncImpl(uri, requestHeaders, requestParams, callback, RequestFrom.NATIVE,
+                nativeId);
     }
 
     public ResourceDataHolder doLocalTraversalsSync(@NonNull String uri,
-            @Nullable HashMap<String, String> params) {
-        return fetchResourceSyncImpl(uri, params, RequestFrom.NATIVE);
+            @Nullable HashMap<String, String> requestHeaders,
+            @Nullable HashMap<String, String> requestParams) {
+        return fetchResourceSyncImpl(uri, requestHeaders, requestParams, RequestFrom.NATIVE);
     }
 
     /**

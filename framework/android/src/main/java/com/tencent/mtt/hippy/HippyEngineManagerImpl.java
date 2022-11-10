@@ -64,9 +64,7 @@ import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.vfs.DefaultProcessor;
 import com.tencent.vfs.DevToolsProcessor;
-import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.VfsManager;
-import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +117,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private ViewGroup mRootView;
     final boolean enableV8Serialization;
 
-    boolean mDevManagerInited = false;
     final TimeMonitor mStartTimeMonitor;
     boolean mHasReportEngineLoadResult = false;
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
@@ -401,10 +398,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         mDevSupportManager.attachToHost(loadParams.context);
-        if (!mDevManagerInited && mDebugMode) {
-            mDevManagerInited = true;
-        }
-
         LogUtils.d(TAG, "internalLoadInstance start...");
         if (mCurrentState == EngineState.INITED) {
             loadJsInstance();
@@ -685,7 +678,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     @Override
     public void onInitDevError(Throwable e) {
         mCurrentState = EngineState.INITED;
-        mDevManagerInited = false;
         notifyEngineInitialized(EngineInitStatus.STATUS_ERR_DEVSERVER, e);
     }
 
@@ -731,7 +723,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
 
         private long mRuntimeId = -1;
         private String componentName;
-        private Map<String, Object> mNativeParams;
+        private HashMap<String, Object> mNativeParams;
         private final HippyModuleManager mModuleManager;
         private final HippyBridgeManager mBridgeManager;
         private final VfsManager mVfsManager;
@@ -778,8 +770,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         private void initVfsManager() {
             assert mVfsManager != null;
             mVfsManager.setId(onCreateVfs(mVfsManager));
-            DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(
-                    getGlobalConfigs().getHttpAdapter(), getGlobalConfigs().getExecutorSupplierAdapter()));
+            DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(this));
             mVfsManager.addProcessor(processor);
         }
 
@@ -817,13 +808,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return componentName;
         }
 
-        public void setNativeParams(Map<String, Object> nativeParams) {
+        public void setNativeParams(HashMap<String, Object> nativeParams) {
             mNativeParams = nativeParams;
         }
 
         @Override
         @Nullable
-        public Map<String, Object> getNativeParams() {
+        public HashMap<String, Object> getNativeParams() {
             return mNativeParams;
         }
 

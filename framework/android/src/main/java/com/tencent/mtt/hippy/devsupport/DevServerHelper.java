@@ -77,47 +77,4 @@ public class DevServerHelper {
     String newHost = host[0] + ":38999";
     return String.format(Locale.US, WEBSOCKET_LIVERELOAD_URL_FORMAT, newHost);
   }
-
-  public void fetchBundleFromURL(final BundleFetchCallBack bundleFetchCallBack, final String url) {
-    HippyHttpRequest request = new HippyHttpRequest();
-    request.setUrl(url);
-    mGlobalConfigs.getHttpAdapter().sendRequest(request, new HippyHttpAdapter.HttpTaskCallback() {
-      @Override
-      public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
-          throws Exception {
-        if (bundleFetchCallBack == null) {
-          return;
-        }
-        if (response.getStatusCode() == 200 && response.getInputStream() != null) {
-          bundleFetchCallBack.onSuccess(response.getInputStream());
-        } else {
-          String message = "unknown";
-          if (response.getErrorStream() != null) {
-            StringBuilder sb = new StringBuilder();
-            String readLine;
-            //noinspection CharsetObjectCanBeUsed
-            BufferedReader bfReader = new BufferedReader(
-                new InputStreamReader(response.getErrorStream(), "UTF-8"));
-            while ((readLine = bfReader.readLine()) != null) {
-              sb.append(readLine);
-              sb.append("\r\n");
-            }
-            message = sb.toString();
-          }
-          bundleFetchCallBack.onFail(
-              new DevServerException("Could not connect to development server." + "URL: " + url
-                  + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + message));
-        }
-      }
-
-      @Override
-      public void onTaskFailed(HippyHttpRequest request, Throwable error) {
-        if (bundleFetchCallBack != null) {
-          bundleFetchCallBack.onFail(
-              new DevServerException("Could not connect to development server." + "URL: " + url
-                  + "  try to :adb reverse tcp:38989 tcp:38989 , message : " + error.getMessage()));
-        }
-      }
-    });
-  }
 }

@@ -16,18 +16,20 @@
 
 package com.tencent.mtt.hippy.adapter.http;
 
-import android.os.Build;
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpRequest.HTTP_HEADERS_SEPARATOR;
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpResponse.HTTP_RESPONSE_RESPONSE_MESSAGE;
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpResponse.HTTP_RESPONSE_STATUS_CODE;
+
 import android.text.TextUtils;
 
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import com.tencent.mtt.hippy.common.HippyArray;
-import com.tencent.mtt.hippy.common.HippyMap;
+import com.tencent.mtt.hippy.HippyResourceLoader.FetchResultCode;
 import com.tencent.mtt.hippy.modules.Promise;
-import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.LogUtils;
+import com.tencent.vfs.ResourceDataHolder;
+import com.tencent.vfs.VfsManager.ProcessorCallback;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -37,9 +39,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,7 +51,6 @@ import java.util.zip.GZIPInputStream;
 public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     private static final String TAG = "DefaultHttpAdapter";
-    private static CookieSyncManager mCookieSyncManager;
     private ExecutorService mExecutorService;
 
     protected void execute(Runnable runnable) {
@@ -58,13 +60,13 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
         mExecutorService.execute(runnable);
     }
 
-    @Override
-    public void fetch(final HippyMap initParams, final Promise promise, Map nativeParams) {
-        final HippyHttpRequest httpRequest = generateHttpRequest(initParams, promise, nativeParams);
-        if (httpRequest != null) {
-            handleRequestCookie(httpRequest);
-            sendRequest(httpRequest, new HttpTaskCallbackImpl(promise));
-        }
+    public void fetch(@NonNull final ResourceDataHolder holder,
+            @Nullable HashMap<String, Object> nativeParams,
+            @NonNull final ProcessorCallback callback) {
+        holder.processorTag = DefaultHttpAdapter.class.getName();
+        final HippyHttpRequest httpRequest = generateHttpRequest(holder, nativeParams);
+        handleRequestCookie(httpRequest);
+        sendRequest(httpRequest, new HttpTaskCallbackImpl(holder, callback));
     }
 
     @Override
@@ -90,13 +92,11 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
     }
 
     @Override
-    public void sendRequest(final HippyHttpRequest request, final HttpTaskCallback callback) {
+    public void sendRequest(@NonNull final HippyHttpRequest request,
+            @NonNull final HttpTaskCallback callback) {
         execute(new Runnable() {
             @Override
             public void run() {
-                if (callback == null) {
-                    return;
-                }
                 HippyHttpResponse response = null;
                 HttpURLConnection connection = null;
                 try {
@@ -104,7 +104,6 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                     fillHeader(connection, request);
                     fillPostBody(connection, request);
                     response = createResponse(connection);
-
                     callback.onTaskSuccess(request, response);
                 } catch (Throwable e) {
                     callback.onTaskFailed(request, e);
@@ -122,83 +121,60 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     protected HippyHttpResponse createResponse(HttpURLConnection urlConnection) throws Exception {
         HippyHttpResponse response = new HippyHttpResponse();
-        parseResponseHeaders(urlConnection, response);
+        response.setStatusCode(urlConnection.getResponseCode());
+        response.setRspHeaderMap(urlConnection.getHeaderFields());
         boolean isException = false;
         InputStream inputStream = null;
+        InputStream errorStream = null;
         try {
             inputStream = urlConnection.getInputStream();
-        } catch (IOException ie) {
-            ie.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
             isException = true;
         }
-
-        InputStream errorStream = null;
         if (isException || urlConnection.getResponseCode() >= 400) {
-            try {
-                errorStream = urlConnection.getErrorStream();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (isException) {
-            inputStream = errorStream;
+            errorStream = urlConnection.getErrorStream();
         }
         response.setInputStream(inputStream);
         response.setErrorStream(errorStream);
-        response.setResponseMessage(urlConnection.getResponseMessage());
-
+        try {
+            response.setResponseMessage(urlConnection.getResponseMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return response;
     }
 
-    protected HttpURLConnection createConnection(HippyHttpRequest request) throws Exception {
-        if (TextUtils.isEmpty(request.getUrl())) {
-            throw new RuntimeException("url is null");
-        }
+    protected HttpURLConnection createConnection(HippyHttpRequest request) throws IOException {
         URL url = toURL(request.getUrl());
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-        if (TextUtils.isEmpty(request.getMethod())) {
-            request.setMethod("GET");
-        }
-        connection.setRequestMethod(request.getMethod());
+        String method = request.getMethod();
+        connection.setRequestMethod(method);
         connection.setUseCaches(request.isUseCaches());
         connection.setInstanceFollowRedirects(request.isInstanceFollowRedirects());
-
         connection.setConnectTimeout(request.getConnectTimeout());
         connection.setReadTimeout(request.getReadTimeout());
-
-        if (request.getMethod().equalsIgnoreCase("POST") || request.getMethod()
-                .equalsIgnoreCase("PUT")
-                || request.getMethod().equalsIgnoreCase("PATCH")) {
-
+        if (method.equalsIgnoreCase("POST")
+                || method.equalsIgnoreCase("PUT")
+                || method.equalsIgnoreCase("PATCH")) {
             connection.setDoOutput(true);
         }
-
         return connection;
     }
 
     protected void fillHeader(URLConnection urlConnection, HippyHttpRequest request) {
-        Map<String, Object> headerMap = request.getHeaders();
-        if (headerMap == null || headerMap.isEmpty()) {
+        HashMap<String, String> headerMap = request.getHeaders();
+        if (headerMap.isEmpty()) {
             return;
         }
-        Set<String> keySets = headerMap.keySet();
-        for (String key : keySets) {
-            Object obj = headerMap.get(key);
-            if (obj instanceof String) {
-                urlConnection.setRequestProperty(key, (String) obj);
-            } else if (obj instanceof List) {
-                @SuppressWarnings("unchecked") List<String> requestProperties = (List<String>) obj;
-                if (requestProperties.isEmpty()) {
-                    continue;
-                }
-                for (String oneReqProp : requestProperties) {
-                    if (!TextUtils.isEmpty(oneReqProp)) {
-                        urlConnection.addRequestProperty(key, oneReqProp);
-                    }
-                }
+        Set<Entry<String, String>> entrySet = headerMap.entrySet();
+        for (Entry<String, String> entry : entrySet) {
+            String key = entry.getKey();
+            String property = entry.getValue();
+            if (key == null || TextUtils.isEmpty(property)) {
+                continue;
             }
+            urlConnection.setRequestProperty(key, property);
         }
     }
 
@@ -215,15 +191,6 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
         out.close();
     }
 
-    protected void parseResponseHeaders(HttpURLConnection httpConn, HippyHttpResponse response)
-            throws Exception {
-        if (httpConn == null) {
-            return;
-        }
-        response.setStatusCode(httpConn.getResponseCode());
-        response.setRspHeaderMap(httpConn.getHeaderFields());
-    }
-
     public void destroyIfNeed() {
         if (mExecutorService != null && !mExecutorService.isShutdown()) {
             mExecutorService.shutdown();
@@ -233,11 +200,11 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     protected void handleRequestCookie(HippyHttpRequest httpRequest) {
         String url = httpRequest.getUrl();
-        HippyArray requestCookies = httpRequest.getRequestCookies();
-        if (url == null || requestCookies == null) {
+        String cookies = httpRequest.getRequestCookies();
+        if (url == null || cookies == null) {
             return;
         }
-        saveCookie2Manager(url, requestCookies);
+        saveCookie2Manager(url, cookies, null);
         CookieManager cookieManager = getCookieManager();
         if (cookieManager != null) {
             String cookie = cookieManager.getCookie(url);
@@ -247,76 +214,22 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
         }
     }
 
-    protected HippyHttpRequest generateHttpRequest(HippyMap initParams, Promise promise,
-            @Nullable Map nativeParams) {
-        if (initParams == null) {
-            promise.reject("invalid request param");
-            return null;
-        }
-        String url = initParams.getString("url");
-        final String method = initParams.getString("method");
-        if (TextUtils.isEmpty(url) || TextUtils.isEmpty(method)) {
-            promise.reject("no valid url for request");
-            return null;
-        }
-        HippyHttpRequest httpRequest = new HippyHttpRequest();
+    @NonNull
+    protected HippyHttpRequest generateHttpRequest(@NonNull final ResourceDataHolder holder,
+            @Nullable HashMap<String, Object> nativeParams) {
+        HippyHttpRequest httpRequest = new HippyHttpRequest(holder.requestHeaders,
+                holder.requestParams, nativeParams);
+        httpRequest.setUrl(holder.uri);
         httpRequest.setConnectTimeout(10 * 1000);
         httpRequest.setReadTimeout(10 * 1000);
-        String redirect = initParams.getString("redirect");
-        httpRequest.setInstanceFollowRedirects(
-                !TextUtils.isEmpty(redirect) && TextUtils.equals("follow", redirect));
         httpRequest.setUseCaches(false);
-        httpRequest.setMethod(method);
-        httpRequest.setUrl(url);
-        HippyMap headers = initParams.getMap("headers");
-        if (headers != null) {
-            httpRequest.setRequestCookies(headers.getArray("Cookie"));
-            hippyMapToRequestHeaders(httpRequest, headers);
-        }
-        String body = initParams.getString("body");
-        httpRequest.setBody(body);
-        httpRequest.setNativeParams(nativeParams);
-        httpRequest.setInitParams(initParams);
         return httpRequest;
     }
 
-    protected void hippyMapToRequestHeaders(HippyHttpRequest request, HippyMap map) {
-        if (request == null || map == null) {
-            return;
-        }
-        Set<String> keys = map.keySet();
-        for (String oneKey : keys) {
-            Object valueObj = map.get(oneKey);
-            if (valueObj instanceof HippyArray) {
-                HippyArray oneHeaderArray = (HippyArray) valueObj;
-                List<String> headerValueArray = new ArrayList<>();
-                for (int i = 0; i < oneHeaderArray.size(); i++) {
-                    Object oneHeaderValue = oneHeaderArray.get(i);
-                    if (oneHeaderValue instanceof Number) {
-                        headerValueArray.add(oneHeaderValue + "");
-                    } else if (oneHeaderValue instanceof Boolean) {
-                        headerValueArray.add(oneHeaderValue + "");
-                    } else if (oneHeaderValue instanceof String) {
-                        headerValueArray.add((String) oneHeaderValue);
-                    } else {
-                        LogUtils.e("hippy_console", "Unsupported Request Header List Type");
-                    }
-                }
-
-                if (!headerValueArray.isEmpty()) {
-                    request.addHeader(oneKey, headerValueArray);
-                }
-            } else {
-                LogUtils.e("hippy_console",
-                        "Unsupported Request Header Type, Header Field Should All be an Array!!!");
-            }
-        }
-    }
-
-    protected void saveCookie2Manager(String url, @NonNull HippyArray cookieArr) {
-        for (int i = 0; i < cookieArr.size(); i++) {
-            String cookies = (String) cookieArr.get(i);
-            saveCookie2Manager(url, cookies, null);
+    protected void saveCookie2Manager(String url, @NonNull List<String> cookies) {
+        for (int i = 0; i < cookies.size(); i++) {
+            String cookie = cookies.get(i);
+            saveCookie2Manager(url, cookie, null);
         }
     }
 
@@ -345,7 +258,7 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
         for (String cookie : cookieItems) {
             cookieManager.setCookie(url, (cookie + ";Max-Age=0"));
         }
-        syncCookie();
+        cookieManager.flush();
     }
 
     protected void saveCookie2Manager(@NonNull String url, @Nullable String cookies,
@@ -362,24 +275,11 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
                 cookieManager.setCookie(url, newCookie);
             }
         }
-        syncCookie();
-    }
-
-    protected void syncCookie() {
-        if (getCookieManager() != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                getCookieManager().flush();
-            } else if (mCookieSyncManager != null) {
-                mCookieSyncManager.sync();
-            }
-        }
+        cookieManager.flush();
     }
 
     @Nullable
     protected CookieManager getCookieManager() {
-        if (mCookieSyncManager == null) {
-            mCookieSyncManager = CookieSyncManager.createInstance(ContextHolder.getAppContext());
-        }
         CookieManager cookieManager;
         try {
             cookieManager = CookieManager.getInstance();
@@ -405,97 +305,108 @@ public class DefaultHttpAdapter implements HippyHttpAdapter {
 
     protected class HttpTaskCallbackImpl implements HippyHttpAdapter.HttpTaskCallback {
 
-        private final Promise mPromise;
+        @NonNull
+        private final ProcessorCallback mCallback;
+        @NonNull
+        private final ResourceDataHolder mDataHolder;
 
-        public HttpTaskCallbackImpl(Promise promise) {
-            mPromise = promise;
+        public HttpTaskCallbackImpl(@NonNull ResourceDataHolder holder,
+                @NonNull ProcessorCallback callback) {
+            mCallback = callback;
+            mDataHolder = holder;
         }
 
-        @SuppressWarnings("CharsetObjectCanBeUsed")
         @Override
         public void onTaskSuccess(HippyHttpRequest request, HippyHttpResponse response)
                 throws Exception {
-            String respBody = null;
-            if (response.getInputStream() != null) {
-                InputStream inputStream = response.getInputStream();
-                if (isGzipRequest(request)) {
-                    inputStream = new GZIPInputStream(inputStream); // gzip解压
+            mDataHolder.addResponseHeaderProperty(HTTP_RESPONSE_STATUS_CODE,
+                    response.getStatusCode().toString());
+            mDataHolder.addResponseHeaderProperty(HTTP_RESPONSE_RESPONSE_MESSAGE,
+                    response.getResponseMessage());
+            InputStream inputStream = response.getInputStream();
+            if (response.getStatusCode() != 200 || inputStream == null) {
+                if (response.getErrorStream() != null) {
+                    StringBuilder sb = new StringBuilder();
+                    String readLine;
+                    //noinspection CharsetObjectCanBeUsed
+                    BufferedReader bfReader = new BufferedReader(
+                            new InputStreamReader(response.getErrorStream(), "UTF-8"));
+                    while ((readLine = bfReader.readLine()) != null) {
+                        sb.append(readLine);
+                        sb.append("\r\n");
+                    }
+                    mDataHolder.errorMessage = sb.toString();
                 }
-                StringBuilder sb = new StringBuilder();
-                String readLine;
-                BufferedReader bfReader = new BufferedReader(
-                        new InputStreamReader(inputStream, "UTF-8"));
-                while ((readLine = bfReader.readLine()) != null) {
-                    sb.append(readLine).append("\r\n");
-                }
-                respBody = sb.toString();
+                mDataHolder.resultCode = FetchResultCode.ERR_REMOTE_REQUEST_FAILED.ordinal();
+                mCallback.onHandleCompleted();
+                return;
             }
-
-            CookieManager cookieManager = getCookieManager();
-            HippyMap respMap = new HippyMap();
-            respMap.pushInt("statusCode", response.getStatusCode());
-            respMap.pushString("statusLine", response.getResponseMessage());
-
-            HippyMap headerMap = new HippyMap();
-            if (response.getRspHeaderMaps() != null && !response.getRspHeaderMaps().isEmpty()) {
-                Set<String> keys = response.getRspHeaderMaps().keySet();
-                for (String oneKey : keys) {
-                    List<String> value = response.getRspHeaderMaps().get(oneKey);
-                    HippyArray oneHeaderFiled = new HippyArray();
-                    if (value != null && !value.isEmpty()) {
-                        boolean hasSetCookie = false;
-                        for (int i = 0; i < value.size(); i++) {
-                            String valueStr = value.get(i);
-                            oneHeaderFiled.pushString(valueStr);
-                            if (HttpHeader.RSP.SET_COOKIE.equalsIgnoreCase(oneKey)) {
-                                if (cookieManager != null) {
-                                    hasSetCookie = true;
-                                    cookieManager.setCookie(request.getUrl(), valueStr);
-                                }
+            try {
+                if (isGzipRequest(request)) {
+                    inputStream = new GZIPInputStream(inputStream);
+                }
+                mDataHolder.readResourceDataFromStream(inputStream);
+            } catch (IOException e) {
+                mDataHolder.resultCode = FetchResultCode.ERR_REMOTE_REQUEST_FAILED.ordinal();
+                mDataHolder.errorMessage = e.getMessage();
+                mCallback.onHandleCompleted();
+                return;
+            }
+            Map<String, List<String>> headers = response.getRspHeaderMaps();
+            if (headers != null && !headers.isEmpty()) {
+                boolean hasCookie = false;
+                CookieManager cookieManager = getCookieManager();
+                for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+                    String key = entry.getKey();
+                    List<String> list = entry.getValue();
+                    if (list != null && !list.isEmpty()) {
+                        if (HttpHeader.RSP.SET_COOKIE.equalsIgnoreCase(key)
+                                && cookieManager != null) {
+                            hasCookie = true;
+                            for (int i = 0; i < list.size(); i++) {
+                                cookieManager.setCookie(request.getUrl(), list.get(i));
                             }
                         }
-                        if (hasSetCookie) {
-                            syncCookie();
+                        if (list.size() == 1) {
+                            mDataHolder.addResponseHeaderProperty(key, list.get(0));
+                        } else if (list.size() > 1) {
+                            mDataHolder.addResponseHeaderProperty(key,
+                                    String.join(HTTP_HEADERS_SEPARATOR, list));
                         }
                     }
-                    headerMap.pushArray(oneKey, oneHeaderFiled);
+                }
+                if (hasCookie) {
+                    cookieManager.flush();
                 }
             }
-            respMap.pushMap("respHeaders", headerMap);
-            if (respBody == null) {
-                respBody = "";
-            }
-            respMap.pushString("respBody", respBody);
-            mPromise.resolve(respMap);
+            mDataHolder.resultCode = FetchResultCode.OK.ordinal();
+            mCallback.onHandleCompleted();
         }
 
         @Override
         public void onTaskFailed(HippyHttpRequest request, Throwable error) {
+            mDataHolder.resultCode = FetchResultCode.ERR_REMOTE_REQUEST_FAILED.ordinal();
             if (error != null) {
-                mPromise.resolve(error.getMessage());
+                mDataHolder.errorMessage = error.getMessage();
             }
+            mCallback.onHandleCompleted();
         }
     }
 
-    private boolean isGzipRequest(HippyHttpRequest request) {
-        if (request == null) {
-            return false;
-        }
-        Map<String, Object> headers = request.getHeaders();
-        if (headers == null) {
-            return false;
-        }
-        for (Map.Entry<String, Object> header : headers.entrySet()) {
+    private boolean isGzipRequest(@NonNull HippyHttpRequest request) {
+        HashMap<String, String> headers = request.getHeaders();
+        for (Map.Entry<String, String> header : headers.entrySet()) {
             String key = header.getKey();
             if (key != null && key.equalsIgnoreCase(HttpHeader.REQ.ACCEPT_ENCODING)) {
-                Object value = header.getValue();
-                if (value instanceof ArrayList) {
-                    //noinspection unchecked
-                    for (String valueItem : (ArrayList<String>) value) {
-                        if (valueItem.equalsIgnoreCase("gzip") || valueItem.equalsIgnoreCase(
-                                "deflate")) {
-                            return true;
-                        }
+                String value = header.getValue();
+                if (TextUtils.isEmpty(value)) {
+                    return false;
+                }
+                String[] encodings = value.split(HTTP_HEADERS_SEPARATOR);
+                for (String valueItem : encodings) {
+                    if (valueItem.equalsIgnoreCase("gzip") || valueItem.equalsIgnoreCase(
+                            "deflate")) {
+                        return true;
                     }
                 }
             }
