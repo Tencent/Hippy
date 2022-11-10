@@ -20,11 +20,12 @@
 
 #include "dom/taitank_layout_node.h"
 
+#include <cmath>
 #include <map>
 #include <mutex>
-#include <cmath>
 
 #include "footstone/logging.h"
+
 #include "dom/node_props.h"
 
 namespace hippy {
@@ -130,19 +131,27 @@ TAITANK_GET_STYLE_DECL(DisplayType, DisplayType, DisplayType::DisplayTypeFlex)
 
 TAITANK_GET_STYLE_DECL(Direction, HPDirection, HPDirection::DirectionLTR)
 
-#define SET_STYLE_VALUE(NAME, DEFAULT)                                                 \
-  auto dom_value = style_map.find(k##NAME)->second;                                    \
-  CheckValueType(dom_value->GetType());                                                \
-  float value = DEFAULT;                                                               \
-  if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDoubleChecked()); \
-  Set##NAME(value);
+#define SET_STYLE_VALUE(NAME, DEFAULT)                                                   \
+  auto dom_value = style_map.find(k##NAME)->second;                                      \
+  if (dom_value == nullptr) {                                                            \
+    Set##NAME(DEFAULT);                                                                  \
+  } else {                                                                               \
+    CheckValueType(dom_value->GetType());                                                \
+    float value = DEFAULT;                                                               \
+    if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDoubleChecked()); \
+    Set##NAME(value);                                                                    \
+  }
 
-#define SET_STYLE_VALUES(NAME, STYLENAME, DEFAULT)                                     \
-  auto dom_value = style_map.find(k##STYLENAME)->second;                               \
-  CheckValueType(dom_value->GetType());                                                \
-  float value = DEFAULT;                                                               \
-  if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDoubleChecked()); \
-  Set##NAME(GetStyle##NAME(k##STYLENAME), value);
+#define SET_STYLE_VALUES(NAME, STYLENAME, DEFAULT)                                       \
+  auto dom_value = style_map.find(k##STYLENAME)->second;                                 \
+  if (dom_value == nullptr) {                                                            \
+    Set##NAME(GetStyle##NAME(k##STYLENAME), DEFAULT);                                    \
+  } else {                                                                               \
+    CheckValueType(dom_value->GetType());                                                \
+    float value = DEFAULT;                                                               \
+    if (dom_value->IsNumber()) value = static_cast<float>(dom_value->ToDoubleChecked()); \
+    Set##NAME(GetStyle##NAME(k##STYLENAME), value);                                      \
+  }
 
 static void CheckValueType(footstone::value::HippyValue::Type type) {
   FOOTSTONE_DCHECK(type == footstone::value::HippyValue::Type::kNumber || type == footstone::value::HippyValue::Type::kObject);
@@ -228,37 +237,79 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<f
     SET_STYLE_VALUE(MaxHeight, NAN)
   }
   if (style_map.find(kFlex) != style_map.end()) {
-    SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDoubleChecked()));
+    if (style_map.find(kFlex)->second == nullptr) {
+      SetFlex(0);
+    } else {
+      SetFlex(static_cast<float>(style_map.find(kFlex)->second->ToDoubleChecked()));
+    }
   }
   if (style_map.find(kFlexGrow) != style_map.end()) {
-    SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDoubleChecked()));
+    if (style_map.find(kFlexGrow)->second == nullptr) {
+      SetFlexGrow(0);
+    } else {
+      SetFlexGrow(static_cast<float>(style_map.find(kFlexGrow)->second->ToDoubleChecked()));
+    }
   }
   if (style_map.find(kFlexShrink) != style_map.end()) {
-    SetFlexShrink(static_cast<float>(style_map.find(kFlexShrink)->second->ToDoubleChecked()));
+    if (style_map.find(kFlexShrink)->second == nullptr) {
+      SetFlexShrink(0);
+    } else {
+      SetFlexShrink(static_cast<float>(style_map.find(kFlexShrink)->second->ToDoubleChecked()));
+    }
   }
   if (style_map.find(kFlexBasis) != style_map.end()) {
-    SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDoubleChecked()));
+    if (style_map.find(kFlexBasis)->second == nullptr) {
+      SetFlexBasis(NAN);
+    } else {
+      SetFlexBasis(static_cast<float>(style_map.find(kFlexBasis)->second->ToDoubleChecked()));
+    }
   }
   if (style_map.find(kDirection) != style_map.end()) {
-    SetDirection(GetStyleDirection(style_map.find(kDirection)->second->ToStringChecked()));
+    if (style_map.find(kDirection)->second != nullptr) {
+      SetDirection(GetStyleDirection(style_map.find(kDirection)->second->ToStringChecked()));
+    }
   }
   if (style_map.find(kFlexDirection) != style_map.end()) {
-    SetFlexDirection(GetStyleFlexDirection(style_map.find(kFlexDirection)->second->ToStringChecked()));
+    if (style_map.find(kFlexDirection)->second == nullptr) {
+      SetFlexDirection(FlexDirection::FLexDirectionColumn);
+    } else {
+      SetFlexDirection(GetStyleFlexDirection(style_map.find(kFlexDirection)->second->ToStringChecked()));
+    }
   }
   if (style_map.find(kFlexWrap) != style_map.end()) {
-    SetFlexWrap(GetStyleWrapMode(style_map.find(kFlexWrap)->second->ToStringChecked()));
+    if (style_map.find(kFlexWrap)->second == nullptr) {
+      SetFlexWrap(FlexWrapMode::FlexNoWrap);
+    } else {
+      SetFlexWrap(GetStyleWrapMode(style_map.find(kFlexWrap)->second->ToStringChecked()));
+    }
   }
   if (style_map.find(kAilgnSelf) != style_map.end()) {
-    SetAlignSelf(GetStyleAlign(style_map.find(kAilgnSelf)->second->ToStringChecked()));
+    if (style_map.find(kAilgnSelf)->second == nullptr) {
+      SetAlignSelf(FlexAlign::FlexAlignAuto);
+    } else {
+      SetAlignSelf(GetStyleAlign(style_map.find(kAilgnSelf)->second->ToStringChecked()));
+    }
   }
   if (style_map.find(kAlignItems) != style_map.end()) {
-    SetAlignItems(GetStyleAlign(style_map.find(kAlignItems)->second->ToStringChecked()));
+    if (style_map.find(kAlignItems)->second == nullptr) {
+      SetAlignItems(FlexAlign::FlexAlignStretch);
+    } else {
+      SetAlignItems(GetStyleAlign(style_map.find(kAlignItems)->second->ToStringChecked()));
+    }
   }
   if (style_map.find(kJustifyContent) != style_map.end()) {
-    SetJustifyContent(GetStyleJustify(style_map.find(kJustifyContent)->second->ToStringChecked()));
+    if (style_map.find(kJustifyContent)->second == nullptr) {
+      SetJustifyContent(FlexAlign::FlexAlignStart);
+    } else {
+      SetJustifyContent(GetStyleJustify(style_map.find(kJustifyContent)->second->ToStringChecked()));
+    }
   }
   if (style_map.find(kOverflow) != style_map.end()) {
-    SetOverflow(GetStyleOverflow(style_map.find(kOverflow)->second->ToStringChecked()));
+    if (style_map.find(kOverflow)->second == nullptr) {
+      SetOverflow(OverflowType::OverflowVisible);
+    } else {
+      SetOverflow(GetStyleOverflow(style_map.find(kOverflow)->second->ToStringChecked()));
+    }
   }
   if (style_map.find(kDisplay) != style_map.end()) {
     SetDisplay(GetStyleDisplayType(style_map.find(kDisplay)->second->ToStringChecked()));
@@ -333,7 +384,11 @@ void TaitankLayoutNode::Parser(std::unordered_map<std::string, std::shared_ptr<f
     SET_STYLE_VALUES(Position, Bottom, NAN)
   }
   if (style_map.find(kPosition) != style_map.end()) {
-    SetPositionType(GetStylePositionType(style_map.find(kPosition)->second->ToStringChecked()));
+    if (style_map.find(kPosition)->second == nullptr) {
+      SetPositionType(PositionType::PositionTypeRelative);
+    } else {
+      SetPositionType(GetStylePositionType(style_map.find(kPosition)->second->ToStringChecked()));
+    }
   }
 }
 
