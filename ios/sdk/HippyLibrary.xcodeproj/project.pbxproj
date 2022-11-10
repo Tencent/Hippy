@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 53;
+	objectVersion = 56;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -243,6 +243,7 @@
 		F4C928E6291C9B3A0078351C /* log_settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log_settings.h; sourceTree = "<group>"; };
 		F4C928E7291C9B3A0078351C /* persistent_object_map.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = persistent_object_map.h; sourceTree = "<group>"; };
 		F4C928E8291C9B3A0078351C /* unicode_string_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicode_string_view.h; sourceTree = "<group>"; };
+		F4C928F2291C9B3A0078351C /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		F4C928F3291C9B3A0078351C /* logging.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cc; sourceTree = "<group>"; };
 		F4C928F5291C9B3A0078351C /* log_settings_state.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings_state.cc; sourceTree = "<group>"; };
 		F4C928F7291C9B3A0078351C /* log_settings.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log_settings.cc; sourceTree = "<group>"; };
@@ -800,6 +801,7 @@
 		F4C928F1291C9B3A0078351C /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				F4C928F2291C9B3A0078351C /* CMakeLists.txt */,
 				F4C928F3291C9B3A0078351C /* logging.cc */,
 			);
 			path = ios;
@@ -1576,9 +1578,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F4C9286B291C96010078351C /* StaticLibrary */ = {
+		F4C9286B291C96010078351C /* hippy */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "StaticLibrary" */;
+			buildConfigurationList = F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "hippy" */;
 			buildPhases = (
 				F4C92868291C96010078351C /* Sources */,
 				F4C92869291C96010078351C /* Frameworks */,
@@ -1588,7 +1590,7 @@
 			);
 			dependencies = (
 			);
-			name = StaticLibrary;
+			name = hippy;
 			productName = HippyLibrary;
 			productReference = F4C9286C291C96010078351C /* libhippy.a */;
 			productType = "com.apple.product-type.library.static";
@@ -1608,7 +1610,7 @@
 				};
 			};
 			buildConfigurationList = F4C92867291C96010078351C /* Build configuration list for PBXProject "HippyLibrary" */;
-			compatibilityVersion = "Xcode 10.0";
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1620,7 +1622,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F4C9286B291C96010078351C /* StaticLibrary */,
+				F4C9286B291C96010078351C /* hippy */,
 			);
 		};
 /* End PBXProject section */
@@ -1931,14 +1933,13 @@
 		F4C92876291C96010078351C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../../core/include",
 					"$(SRCROOT)/../../core/third_party/base/include",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = hippy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1947,7 +1948,6 @@
 		F4C92877291C96010078351C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				GCC_PREPROCESSOR_DEFINITIONS = "NDEBUG=1";
 				HEADER_SEARCH_PATHS = (
@@ -1955,7 +1955,7 @@
 					"$(SRCROOT)/../../core/third_party/base/include",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = hippy;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1973,7 +1973,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "StaticLibrary" */ = {
+		F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "hippy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F4C92876291C96010078351C /* Debug */,
