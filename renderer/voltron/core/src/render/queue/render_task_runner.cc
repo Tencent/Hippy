@@ -150,17 +150,10 @@ void VoltronRenderTaskRunner::RunBatch(uint32_t root_id) {
 }
 
 void VoltronRenderTaskRunner::RunLayoutBefore(uint32_t root_id) {
-  auto batch_task =
-      std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_BEFORE, 0);
-  queue(root_id)->ProduceRenderOp(batch_task);
   ConsumeQueue(root_id);
 }
 
-void VoltronRenderTaskRunner::RunLayoutFinish(uint32_t root_id) {
-  auto batch_task =
-      std::make_shared<RenderTask>(VoltronRenderOpType::LAYOUT_FINISH, 0);
-  queue(root_id)->ProduceRenderOp(batch_task);
-}
+void VoltronRenderTaskRunner::RunLayoutFinish(uint32_t root_id) {}
 
 EncodableValue VoltronRenderTaskRunner::DecodeDomValue(const HippyValue &value) {
   if (value.IsBoolean()) {
@@ -409,23 +402,6 @@ Sp<VoltronRenderQueue> VoltronRenderTaskRunner::queue(uint32_t root_id) {
     auto queue = std::make_shared<VoltronRenderQueue>();
     queue_map_.emplace(root_id, queue);
     return queue;
-  }
-}
-
-void VoltronRenderTaskRunner::Lock(uint32_t root_id) {
-  auto queue_iter = queue_map_.find(root_id);
-  if (queue_iter != queue_map_.end()) {
-    queue_iter->second->Lock();
-  }
-}
-
-void VoltronRenderTaskRunner::UnlockAll() {
-  auto end = queue_map_.rbegin();
-  auto begin = queue_map_.rend();
-  while (end != begin) {
-    auto queue = end->second;
-    queue->Unlock();
-    end++;
   }
 }
 

@@ -48,6 +48,7 @@ public:
 
 protected:
   int32_t engine_id_ = 0;
+  std::mutex mutex_;
 };
 
 class BridgeManager {

@@ -26,16 +26,19 @@ import '../viewmodel.dart';
 
 class RootNodeController extends BaseViewController<RootRenderViewModel> {
   static const String kClassName = 'RootNode';
-  static const String kDoFrame = 'frameupdate';
 
   @override
   String get name => kClassName;
 
   @override
-  RootRenderViewModel createRenderViewModel(
-      RenderNode node, RenderContext context) {
+  RootRenderViewModel createRenderViewModel(RenderNode node, RenderContext context) {
     return RootRenderViewModel(
-        node.id, node.rootId, node.name, context, context.getInstance(node.id));
+      node.id,
+      node.rootId,
+      node.name,
+      context,
+      context.getInstance(node.id),
+    );
   }
 
   @override
@@ -47,19 +50,5 @@ class RootNodeController extends BaseViewController<RootRenderViewModel> {
   Map<String, ControllerMethodProp> get extendRegisteredMethodProp {
     final extraMap = <String, ControllerMethodProp>{};
     return extraMap;
-  }
-
-  @override
-  void handleExtraEvent(
-      RenderViewModel renderViewModel, EventHolder eventHolder) {
-    if (eventHolder.eventName == kDoFrame) {
-      final id = renderViewModel.id;
-      final renderManager = renderViewModel.context.renderManager;
-      if (eventHolder.isAdd) {
-        renderManager.addAnimationNodeId(id);
-      } else {
-        renderManager.removeAnimationNodeId(id);
-      }
-    }
   }
 }

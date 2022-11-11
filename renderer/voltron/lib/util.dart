@@ -20,6 +20,7 @@
 
 library util;
 
+export 'util/choreographer_util.dart';
 export 'util/diff.dart';
 export 'util/dimension_util.dart';
 export 'util/enum_util.dart';

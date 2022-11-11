@@ -33,6 +33,7 @@ void main() {
 
   RenderOpUtil renderOpUtil;
   setUp(() {
+    WidgetsFlutterBinding.ensureInitialized();
     renderContext = getRenderContext();
     renderOpRuner = RenderOperatorRunner(renderContext);
     rootWidgetViewModel = RootWidgetViewModel();

@@ -34,33 +34,4 @@ class TextRenderNode extends RenderNode {
     ControllerManager controllerManager,
     VoltronMap? props,
   ) : super(id, className, root, controllerManager, props);
-
-  @override
-  int calculateLayout(FlexLayoutParams layoutParams) {
-    TextPainter? painter;
-    var exception = false;
-
-    var virtualNode = renderContext.virtualNodeManager.mVirtualNodes[id];
-    if (virtualNode is TextVirtualNode) {
-      try {
-        painter = virtualNode.createPainter(
-          layoutParams.width,
-          layoutParams.widthMode,
-        );
-      } catch (e) {
-        LogUtils.dRenderNode('ID:$id, calculate layout error, error:${e.toString()}');
-        exception = true;
-      }
-    }
-
-    if (exception || painter == null) {
-      return FlexOutput.makeMeasureResult(
-        layoutParams.width,
-        layoutParams.height,
-      );
-    } else {
-      LogUtils.dRenderNode('ID:$id, calculate layout success, width:${painter.width}, height:${painter.height}');
-      return FlexOutput.makeMeasureResult(painter.width, painter.height);
-    }
-  }
 }
