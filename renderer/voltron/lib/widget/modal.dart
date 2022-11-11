@@ -43,32 +43,16 @@ class _ModalWidgetState extends FRState<ModalWidget> {
     LogUtils.dWidget(
       "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build modal widget",
     );
-    return ChangeNotifierProvider.value(
-      value: widget._viewModel,
-      child: Selector<ModalRenderViewModel, _ModalContainerModel>(
-        selector: (context, renderViewModel) {
-          return _ModalContainerModel(
-            canShowDialog: renderViewModel.canDialogShow,
-            aniType: renderViewModel.animationType,
-            transparent: renderViewModel.transparent,
-            immersionStatusBar: renderViewModel.immersionStatusBar,
-            statusBarTextDarkColor: renderViewModel.statusBarTextDarkColor,
-            animationDuration: renderViewModel.animationDuration,
-            barrierColor: renderViewModel.barrierColor,
-          );
-        },
-        builder: (context, modalViewModel, widget) {
-          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-            if (modalViewModel.canShowDialog) {
-              showDialog();
-            } else {
-              dismissDialog();
-            }
-          });
-          return Container();
-        },
-      ),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        if (widget._viewModel.canDialogShow) {
+          showDialog();
+        } else {
+          dismissDialog();
+        }
+      });
+    });
+    return Container();
   }
 
   void showDialog() {
@@ -98,48 +82,6 @@ class _ModalWidgetState extends FRState<ModalWidget> {
     dismissDialog();
     super.dispose();
   }
-}
-
-class _ModalContainerModel {
-  final bool canShowDialog;
-  final String aniType;
-  bool immersionStatusBar;
-  bool statusBarTextDarkColor;
-  bool transparent;
-  int animationDuration;
-  int barrierColor;
-
-  _ModalContainerModel({
-    required this.canShowDialog,
-    required this.aniType,
-    required this.immersionStatusBar,
-    required this.statusBarTextDarkColor,
-    required this.transparent,
-    required this.animationDuration,
-    required this.barrierColor,
-  });
-
-  @override
-  int get hashCode =>
-      super.hashCode |
-      canShowDialog.hashCode |
-      aniType.hashCode |
-      transparent.hashCode |
-      statusBarTextDarkColor.hashCode |
-      immersionStatusBar.hashCode |
-      animationDuration.hashCode |
-      barrierColor.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _ModalContainerModel &&
-      other.canShowDialog == canShowDialog &&
-      other.aniType == aniType &&
-      transparent == other.transparent &&
-      statusBarTextDarkColor == other.statusBarTextDarkColor &&
-      immersionStatusBar == other.immersionStatusBar &&
-      animationDuration == other.animationDuration &&
-      barrierColor == other.barrierColor;
 }
 
 class ModalContainerWidget extends StatefulWidget {

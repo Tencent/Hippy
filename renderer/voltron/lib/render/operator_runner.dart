@@ -269,8 +269,6 @@ class _LayoutBeforeOpTask extends RenderOpTask {
 
   @override
   void _run() {
-    LogUtils.dOperate('layoutBefore');
-    renderManager.layoutBefore();
   }
 }
 
@@ -279,10 +277,6 @@ class _LayoutFinishOpTask extends RenderOpTask {
 
   @override
   void _run() {
-    LogUtils.dOperate('layoutFinish');
-    renderManager.addUITask(() {
-      renderManager.layoutAfter();
-    });
   }
 }
 

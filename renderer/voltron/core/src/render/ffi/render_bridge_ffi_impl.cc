@@ -219,22 +219,6 @@ EXTERN_C void UpdateNodeSize(uint32_t render_manager_id, uint32_t root_id,
   dom_manager->PostTask(hippy::dom::Scene(std::move(ops)));
 }
 
-EXTERN_C void Notify(int32_t engine_id, uint32_t render_manager_id) {
-  auto bridge_manager = BridgeManager::Find(engine_id);
-  if (!bridge_manager) {
-    FOOTSTONE_DLOG(WARNING) << "CallNativeEvent engine_id invalid";
-    return;
-  }
-
-  auto render_manager = BridgeManager::FindRenderManager(render_manager_id);
-  if (!render_manager) {
-    FOOTSTONE_DLOG(WARNING) << "CallNativeEvent render_manager_id invalid";
-    return;
-  }
-
-  render_manager->Notify();
-}
-
 EXTERN_C uint32_t CreateWorkerManager() {
   return voltron::BridgeManager::CreateWorkerManager();
 }

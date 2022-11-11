@@ -36,6 +36,9 @@ class VoltronRenderBridgeManager implements Destroyable {
   int _workerManagerId = 0;
 
   int get workerId => _workerManagerId;
+
+  int get engineId => _engineId;
+
   static HashMap<int, VoltronRenderBridgeManager> bridgeMap = HashMap();
 
   VoltronRenderBridgeManager(
@@ -95,13 +98,6 @@ class VoltronRenderBridgeManager implements Destroyable {
       width,
       height,
     );
-  }
-
-  Future notifyRender(int renderManagerId) async {
-    if (!_isBridgeInit) {
-      return;
-    }
-    await VoltronRenderApi.notifyRender(_engineId, renderManagerId);
   }
 
   Future<dynamic> callNativeFunction(
@@ -211,7 +207,7 @@ class VoltronRenderBridgeManager implements Destroyable {
       'ID:$nodeId, call calculate node layout, page:$instanceId, parent layout:$layoutParams',
     );
     if (_isBridgeInit) {
-      return _context.renderManager.calculateLayout(
+      return _context.virtualNodeManager.measure(
         instanceId,
         nodeId,
         layoutParams,

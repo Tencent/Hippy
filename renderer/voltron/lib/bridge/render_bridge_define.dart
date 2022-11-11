@@ -135,15 +135,6 @@ typedef UpdateNodeSizeFfiDartType = void Function(
   double height,
 );
 
-typedef NotifyRenderNativeType = Void Function(
-  Int32 engineId,
-  Uint32 renderManagerId,
-);
-typedef NotifyRenderDartType = void Function(
-  int engineId,
-  int renderManagerId,
-);
-
 typedef RegisterCallbackFfiNativeType = Int32 Function(
   Int32 type,
   Pointer<NativeFunction<GlobalCallbackNativeType>> func,

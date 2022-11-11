@@ -52,9 +52,6 @@ class _RenderBridgeFFIManager {
   // 更新节点宽高
   late UpdateNodeSizeFfiDartType updateNodeSize;
 
-  // 通知native的renderManager text layout完成
-  late NotifyRenderDartType notifyRender;
-
   // 创建voltron native render manager
   late CreateVoltronRenderDartType createNativeRender;
 
@@ -145,10 +142,6 @@ class _RenderBridgeFFIManager {
       'UpdateNodeSize',
     );
 
-    notifyRender = _library.lookupFunction<NotifyRenderNativeType, NotifyRenderDartType>(
-      'Notify',
-    );
-
     registerCallback =
         _library.lookupFunction<RegisterCallbackFfiNativeType, RegisterCallbackFfiDartType>(
       "RegisterCallFunc",
@@ -227,13 +220,6 @@ class VoltronRenderApi {
     var units = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     var result = utf8.decode(units);
     return result.toNativeUtf16();
-  }
-
-  static Future notifyRender(
-    int engineId,
-    int renderManagerId,
-  ) async {
-    _RenderBridgeFFIManager.instance.notifyRender(engineId, renderManagerId);
   }
 
   static Future<dynamic> callNativeFunction(

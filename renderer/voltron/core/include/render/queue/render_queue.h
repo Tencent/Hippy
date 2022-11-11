@@ -32,8 +32,6 @@ public:
   ~VoltronRenderQueue();
   void ProduceRenderOp(const Sp<RenderTask> &task);
   std::unique_ptr<std::vector<uint8_t>> ConsumeRenderOp();
-  void Lock();
-  void Unlock();
 
 private:
   List<Sp<RenderTask>> queue_;
