@@ -27,7 +27,6 @@ jobs:
         with:
           lfs: true
       - name: Build
-        working-directory: examples/ios-demo
         run: |
           xcodebuild build \
             -destination 'generic/platform=iOS' \
