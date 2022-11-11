@@ -2,7 +2,6 @@
   <div
     id="demo-vue-native"
     ref="rectRef"
-    @layout="onLayout"
   >
     <div>
       <!-- platform -->
@@ -177,8 +176,25 @@
         ref="measure-block"
         class="native-block"
       >
-        <label class="vue-native-title">Element.getBoundingClientRect</label>
-        <p>{{ rect }}</p>
+        <label class="vue-native-title">Native.getBoundingClientRect</label>
+        <div class="item-wrapper">
+          <button
+              class="item-button"
+              @click="() => getBoundingClientRect(false)"
+          >
+            <span>relative to App</span>
+          </button>
+          <span style="max-width: 200px">{{ rect1 }}</span>
+        </div>
+        <div class="item-wrapper">
+          <button
+              class="item-button"
+              @click="() => getBoundingClientRect(true)"
+          >
+            <span>relative to Container</span>
+          </button>
+          <span style="max-width: 200px">{{ rect2 }}</span>
+        </div>
       </div>
 
       <!-- local storage -->
@@ -341,7 +357,8 @@ export default defineComponent({
     const storageValue = ref('');
     const imageSize = ref('');
     const netInfoText = ref('正在获取...');
-    const rect = ref('');
+    const rect1 = ref('');
+    const rect2 = ref('');
     const superProps = ref('');
     const rectRef = ref(null);
     const fetchText = ref('请求网址中...');
@@ -417,16 +434,12 @@ export default defineComponent({
       }
     };
 
-    /**
-     * layout event triggered means node real render on native
-     */
-    const onLayout = () => {
-      // ref="rect" 可以移动到任一元素上测试尺寸，除了 measureInWindow 在 android 上拿不到，别的都可以正常获取。
-      if (!hasLayout && rectRef.value) {
-        hasLayout = true;
-        Native.measureInAppWindow(rectRef.value as HippyNode).then((rectInfo) => {
-          rect.value = `Container rect: ${JSON.stringify(rectInfo)}`;
-        });
+    const getBoundingClientRect = async (relToContainer = false) => {
+      const rect = await Native.getBoundingClientRect(rectRef.value as HippyNode, { relToContainer });
+      if (!relToContainer) {
+        rect1.value = `${JSON.stringify(rect)}`;
+      } else {
+        rect2.value = `${JSON.stringify(rect)}`;
       }
     };
 
@@ -461,7 +474,8 @@ export default defineComponent({
 
     return {
       Native,
-      rect,
+      rect1,
+      rect2,
       rectRef,
       storageValue,
       storageSetStatus,
@@ -481,7 +495,7 @@ export default defineComponent({
       getString,
       setCookie,
       getCookie,
-      onLayout,
+      getBoundingClientRect,
       triggerAppEvent,
       eventTriggeredTimes,
     };
@@ -557,5 +571,6 @@ export default defineComponent({
 }
 .item-button span {
   color: white;
+  text-align: center;
 }
 </style>

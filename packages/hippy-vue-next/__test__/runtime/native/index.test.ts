@@ -252,9 +252,86 @@ describe('runtime/native.ts', () => {
       height: 667,
     });
   });
+  it('test native bridge calls: getBoundingClientRect with successful response', async () => {
+    const el = new HippyListElement('ul');
+    Object.defineProperty(Native, 'callNative', {
+      value: (
+        moduleName: string,
+        methodName: string,
+        ...args: NeedToTyped[]
+      ) => {
+        const [,, callback] = args;
+        callback({
+          x: 0,
+          y: 0,
+          width: 375,
+          height: 667,
+        });
+      },
+    });
+    el.isMounted = true;
+    expect(await Native.getBoundingClientRect(el)).toEqual({
+      x: 0,
+      y: 0,
+      top: 0,
+      left: 0,
+      bottom: 667,
+      right: 375,
+      width: 375,
+      height: 667,
+    });
+  });
+  it('test native bridge calls: getBoundingClientRect error', async () => {
+    const el = new HippyListElement('ul');
+    Object.defineProperty(Native, 'callNative', {
+      value: (
+        moduleName: string,
+        methodName: string,
+        ...args: NeedToTyped[]
+      ) => {
+        const [, , callback] = args;
+        callback({
+          errorMsg: 'this view is null',
+        });
+      },
+    });
+    el.isMounted = true;
+    await expect(Native.getBoundingClientRect(el)).rejects.toThrow(new Error('this view is null'));
+  });
+  it('test native bridge calls: getBoundingClientRect with no response', async () => {
+    const el = new HippyListElement('ul');
+    Object.defineProperty(Native, 'callNative', {
+      value: (
+        moduleName: string,
+        methodName: string,
+        ...args: NeedToTyped[]
+      ) => {
+        const [, , callback] = args;
+        callback();
+      },
+    });
+    el.isMounted = true;
+    await expect(Native.getBoundingClientRect(el)).rejects.toThrow(new Error('getBoundingClientRect error with no response'));
+  });
+  it('test native bridge calls: getBoundingClientRect node not mounted', async () => {
+    const el = new HippyListElement('ul');
+    Object.defineProperty(Native, 'callNative', {
+      value: (
+        moduleName: string,
+        methodName: string,
+        ...args: NeedToTyped[]
+      ) => {
+        const [, , callback] = args;
+        callback({});
+      },
+    });
+    await expect(Native.getBoundingClientRect(el))
+      .rejects
+      .toThrow(new Error(`getBoundingClientRect cannot get nodeId of ${el} or ${el} is not mounted`));
+  });
 
   it('get element css should work correct', () => {
     expect(Native.getElemCss(new HippyListElement('ul'))).toEqual({});
-    // todo, add has css case
+    // todo, add css case
   });
 });
