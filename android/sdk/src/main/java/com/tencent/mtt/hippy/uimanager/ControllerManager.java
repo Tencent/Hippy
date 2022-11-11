@@ -426,6 +426,48 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
 
   }
 
+  /**
+   * @param id view id
+   * @param rootView
+   * @param relToContainer true is relative to the rootView, otherwise relative to the app frame
+   * @param promise
+   */
+  public void getBoundingClientRect(int id, HippyRootView rootView, boolean relToContainer, Promise promise) {
+      View v = mControllerRegistry.getView(id);
+      if (v == null) {
+          promise.reject("this view is null");
+          return;
+      }
+      int x;
+      int y;
+      int width = v.getWidth();
+      int height = v.getHeight();
+      int[] pair = new int[2];
+      if (relToContainer) {
+          if (rootView == null) {
+              promise.reject("container is null");
+              return;
+          }
+
+          v.getLocationInWindow(pair);
+          x = pair[0];
+          y = pair[1];
+          rootView.getLocationInWindow(pair);
+          x -= pair[0];
+          y -= pair[1];
+      } else {
+          v.getLocationOnScreen(pair);
+          x = pair[0];
+          y = pair[1];
+      }
+      HippyMap hippyMap = new HippyMap();
+      hippyMap.pushDouble("x", x);
+      hippyMap.pushDouble("y", y);
+      hippyMap.pushDouble("width", width);
+      hippyMap.pushDouble("height", height);
+      promise.resolve(hippyMap);
+  }
+
   public void onManageChildComplete(String className, int id) {
     HippyViewController hippyViewController = mControllerRegistry.getViewController(className);
     View view = mControllerRegistry.getView(id);

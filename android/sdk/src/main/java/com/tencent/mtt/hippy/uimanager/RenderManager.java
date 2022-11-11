@@ -252,12 +252,12 @@ public class RenderManager {
   }
 
 
-  public void measureInWindow(int id, Promise promise) {
+  public void measureInWindow(int id, HippyMap options, Promise promise) {
     RenderNode renderNode = mNodes.get(id);
     if (renderNode == null) {
-      promise.reject("this view is null");
+      promise.reject("this node is null");
     } else {
-      renderNode.measureInWindow(promise);
+      renderNode.measureInWindow(options, promise);
 
       addNullUINodeIfNeeded(renderNode);
     }

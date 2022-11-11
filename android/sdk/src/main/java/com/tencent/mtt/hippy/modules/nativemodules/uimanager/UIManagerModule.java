@@ -15,7 +15,6 @@
  */
 package com.tencent.mtt.hippy.modules.nativemodules.uimanager;
 
-import android.text.TextUtils;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.HippyRootView;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
@@ -25,6 +24,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 @SuppressWarnings({"deprecation", "unused"})
@@ -147,9 +147,23 @@ public class UIManagerModule extends HippyNativeModuleBase {
   public void measureInWindow(int id, Promise promise) {
     DomManager domManager = this.mContext.getDomManager();
     if (domManager != null) {
-      domManager.measureInWindow(id, promise);
+      HippyMap options = new HippyMap();
+      options.pushBoolean(RenderNode.KEY_COMPATIBLE, true);
+      domManager.measureInWindow(id, options, promise);
     }
-    LogUtils.d("UIManagerModule", id + "" + promise);
+    LogUtils.d("UIManagerModule", "measureInWindow" + id + " " + promise);
+  }
+
+  @HippyMethod(name = "getBoundingClientRect")
+  public void getBoundingClientRect(int id, HippyMap options, Promise promise) {
+      DomManager domManager = this.mContext.getDomManager();
+      if (domManager == null) {
+          promise.reject("DomManager is null");
+          return;
+      }
+      domManager.measureInWindow(id, options, promise);
+      LogUtils.d("UIManagerModule", "getBoundingClientRect" + id + " " + options + " " +
+          promise);
   }
 
   @HippyMethod(name = "startBatch")

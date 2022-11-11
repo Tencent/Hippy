@@ -917,11 +917,11 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     });
   }
 
-  public void measureInWindow(final int id, final Promise promise) {
+  public void measureInWindow(final int id, final HippyMap options, final Promise promise) {
     addNulUITask(new IDomExecutor() {
       @Override
       public void exec() {
-        mRenderManager.measureInWindow(id, promise);
+        mRenderManager.measureInWindow(id, options, promise);
       }
     });
   }
