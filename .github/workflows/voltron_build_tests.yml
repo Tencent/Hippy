@@ -10,6 +10,10 @@ on:
     paths:
       - 'renderer/voltron/**'
       - 'framework/voltron/**'
+      - 'devtools/**'
+      - 'dom/**'
+      - 'driver/js/include/**'
+      - 'driver/js/src/**'
 defaults:
   run:
     working-directory: framework/voltron/example

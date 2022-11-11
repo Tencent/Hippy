@@ -10,6 +10,10 @@ on:
     paths-ignore:
       - 'renderer/voltron/**'
       - 'framework/voltron/**'
+      - 'devtools/**'
+      - 'dom/**'
+      - 'driver/js/include/**'
+      - 'driver/js/src/**'
 
 jobs:
   voltron_framework_flutter_analyze:

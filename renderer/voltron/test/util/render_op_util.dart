@@ -78,12 +78,13 @@ class RenderOpUtil {
 
   void doFrame() {
     renderContext.renderManager.renderBatchEnd();
-    renderContext.renderManager.doFrame(Duration.zero);
   }
 
   void runRenderOp(List<RenderOp> ops, {bool immediately = true}) {
     renderOpRuner.consumeRenderOp(
-        rootWidgetViewModel.id, ops.map((e) => e.format()).toList());
+      rootWidgetViewModel.id,
+      ops.map((e) => e.format()).toList(),
+    );
     if (immediately) {
       doFrame();
     }
@@ -135,9 +136,7 @@ class RenderOpUtil {
 
   void updateNodeStyles(RenderNode node, Map<String, dynamic> styles) {
     var op = RenderOp(type: RenderOpType.updateNode, nodeId: node.id, props: {
-      "props": {
-        "style": styles
-      }
+      "props": {"style": styles}
     });
     renderOpRuner.consumeRenderOp(rootWidgetViewModel.id, [op.format()]);
     doFrame();

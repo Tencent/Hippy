@@ -44,7 +44,9 @@ class _ModalWidgetState extends FRState<ModalWidget> {
       "ID:${widget._viewModel.id}, node:${widget._viewModel.idDesc}, build modal widget",
     );
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      /// The first addPostFrameCallback mean to the next frame show dialog, without, an error will be reported
       WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+        /// The second addPostFrameCallback mean to ensure modal size, dom manager would update layout twice before show, so we try to avoid wrong ui transition
         if (widget._viewModel.canDialogShow) {
           showDialog();
         } else {
