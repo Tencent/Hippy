@@ -36,6 +36,7 @@ public class RenderNode {
 
   public static final String KEY_COMPATIBLE = "compatible";
   public static final String KEY_REL_TO_CONTAINER = "relToContainer";
+  public static final String KEY_ERR_MSG = "errMsg";
   final int mId;
   int mX;
   int mY;

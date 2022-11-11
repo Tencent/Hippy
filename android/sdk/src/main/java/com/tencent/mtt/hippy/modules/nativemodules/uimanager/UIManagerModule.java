@@ -158,7 +158,9 @@ public class UIManagerModule extends HippyNativeModuleBase {
   public void getBoundingClientRect(int id, HippyMap options, Promise promise) {
       DomManager domManager = this.mContext.getDomManager();
       if (domManager == null) {
-          promise.reject("DomManager is null");
+          HippyMap result = new HippyMap();
+          result.pushString(RenderNode.KEY_ERR_MSG, "DomManager is null");
+          promise.reject(result);
           return;
       }
       domManager.measureInWindow(id, options, promise);

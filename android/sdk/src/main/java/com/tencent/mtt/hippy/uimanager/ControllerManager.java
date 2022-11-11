@@ -435,7 +435,9 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   public void getBoundingClientRect(int id, HippyRootView rootView, boolean relToContainer, Promise promise) {
       View v = mControllerRegistry.getView(id);
       if (v == null) {
-          promise.reject("this view is null");
+          HippyMap result = new HippyMap();
+          result.pushString(RenderNode.KEY_ERR_MSG, "this view is null");
+          promise.reject(result);
           return;
       }
       int x;
@@ -445,7 +447,9 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       int[] pair = new int[2];
       if (relToContainer) {
           if (rootView == null) {
-              promise.reject("container is null");
+              HippyMap result = new HippyMap();
+              result.pushString(RenderNode.KEY_ERR_MSG, "container is null");
+              promise.reject(result);
               return;
           }
 
@@ -460,12 +464,12 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
           x = pair[0];
           y = pair[1];
       }
-      HippyMap hippyMap = new HippyMap();
-      hippyMap.pushDouble("x", x);
-      hippyMap.pushDouble("y", y);
-      hippyMap.pushDouble("width", width);
-      hippyMap.pushDouble("height", height);
-      promise.resolve(hippyMap);
+      HippyMap result = new HippyMap();
+      result.pushDouble("x", PixelUtil.px2dp(x));
+      result.pushDouble("y", PixelUtil.px2dp(y));
+      result.pushDouble("width", PixelUtil.px2dp(width));
+      result.pushDouble("height", PixelUtil.px2dp(height));
+      promise.resolve(result);
   }
 
   public void onManageChildComplete(String className, int id) {
