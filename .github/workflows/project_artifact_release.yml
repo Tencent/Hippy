@@ -25,6 +25,11 @@ on:
         type: boolean
         default: true
         required: false
+      is_release_for_ios:
+        description: 'Release for iOS'
+        type: boolean
+        default: true
+        required: false
 
 jobs:
   context_in_lowercase:
@@ -129,3 +134,22 @@ jobs:
         MAVEN_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
       run: |
         ./gradlew publish -PVERSION_NAME=${{ github.event.inputs.version_name }} -PPUBLISH_ARTIFACT_ID=${{ matrix.artifact_id }} -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
+
+  ios_release:
+    if: github.event.inputs.is_release_for_ios == 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout (${{ github.event.inputs.git_ref }})
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.git_ref }}
+          lfs: true
+      - name: Install Cocoapods
+        run: |
+          gem install cocoapods
+      - name: Publish to Cocoapods
+        if: github.event.inputs.registry_choice == 'Both' || github.event.inputs.registry_choice == 'Default'
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          pod trunk push hippy.podspec --allow-warnings --use-libraries --verbose
