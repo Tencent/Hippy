@@ -222,7 +222,16 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     // `hitSubview` is the topmost subview which was hit. The hit point can
     // be outside the bounds of `view` (e.g., if -clipsToBounds is NO).
     UIView *hitSubview = nil;
-    BOOL isPointInside = [self pointInside:point withEvent:event];
+    BOOL isPointInside = NO;
+    // use presentationLayer to adapt the view with animation
+    CALayer *presentationLayer = self.layer.presentationLayer;
+    if (presentationLayer) {
+        CGPoint layerPoint = [presentationLayer convertPoint:point fromLayer:self.layer];
+        if ([presentationLayer containsPoint:layerPoint]) {
+            isPointInside = YES;
+        }
+    }
+    
     BOOL needsHitSubview = !(_pointerEvents == HippyPointerEventsNone || _pointerEvents == HippyPointerEventsBoxOnly);
     if (needsHitSubview && (![self clipsToBounds] || isPointInside)) {
         // The default behaviour of UIKit is that if a view does not contain a point,
