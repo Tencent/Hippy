@@ -57,16 +57,6 @@ static CGSize makeSizeConstrainWithType(CGSize originSize, CGSize constrainSize,
     return originSize;
 }
 
-static bool isPointInsideView(UIView *view, CGPoint point) {
-    // use presentationLayer to adapt the view with animation
-    CALayer *presentationLayer = view.layer.presentationLayer;
-    if (presentationLayer) {
-        CGPoint layerPoint = [presentationLayer convertPoint:point fromLayer:view.layer];
-        return [presentationLayer containsPoint:layerPoint];
-    }
-    return false;
-}
-
 dispatch_queue_t global_hpview_queue(void) {
     static dispatch_queue_t g_background_queue = nil;
     static dispatch_once_t onceToken;
@@ -143,7 +133,7 @@ dispatch_queue_t global_hpview_queue(void) {
             for (NSInteger i = index - 1; i >= 0; i--) {
                 UIView *siblingView = subviews[i];
                 CGPoint pointInsiblingView = [self convertPoint:point toView:siblingView];
-                BOOL pointInside = isPointInsideView(siblingView, pointInsiblingView);
+                BOOL pointInside = [siblingView pointInside:pointInsiblingView withEvent:nil];
                 if (pointInside) {
                     UIView *hitTestView = [siblingView hitTest:pointInsiblingView withEvent:nil];
                     return hitTestView ? hitTestView : siblingView;
@@ -232,7 +222,15 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
     // `hitSubview` is the topmost subview which was hit. The hit point can
     // be outside the bounds of `view` (e.g., if -clipsToBounds is NO).
     UIView *hitSubview = nil;
-    BOOL isPointInside = isPointInsideView(self, point);
+    BOOL isPointInside = NO;
+    // use presentationLayer to adapt the view with animation
+    CALayer *presentationLayer = self.layer.presentationLayer;
+    if (presentationLayer) {
+        CGPoint layerPoint = [presentationLayer convertPoint:point fromLayer:self.layer];
+        if ([presentationLayer containsPoint:layerPoint]) {
+            isPointInside = YES;
+        }
+    }
     
     BOOL needsHitSubview = !(_pointerEvents == HippyPointerEventsNone || _pointerEvents == HippyPointerEventsBoxOnly);
     if (needsHitSubview && (![self clipsToBounds] || isPointInside)) {
@@ -266,6 +264,19 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)initWithCoder : unused)
             HippyLogError(@"Invalid pointer-events specified %ld on %@", (long)_pointerEvents, self);
             return hitSubview ?: hitView;
     }
+}
+
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
+    //require clickable when animating.
+    //we check presentationLayer frame.
+    //point inside presentationLayer means point inside view
+    if ([[self.layer animationKeys] count] > 0) {
+        CGRect presentationLayerFrame = self.layer.presentationLayer.frame;
+        CGRect convertPresentationLayerFrame = [self.superview convertRect:presentationLayerFrame toView:self];
+        return CGRectContainsPoint(convertPresentationLayerFrame, point);
+    }
+    BOOL pointInside = [super pointInside:point withEvent:event];
+    return pointInside;
 }
 
 - (NSString *)description {
