@@ -16,7 +16,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F4C9286B291C96010078351C"
                BuildableName = "libhippy.a"
-               BlueprintName = "hippy"
+               BlueprintName = "StaticLibrary"
                ReferencedContainer = "container:HippyLibrary.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -52,7 +52,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F4C9286B291C96010078351C"
             BuildableName = "libhippy.a"
-            BlueprintName = "hippy"
+            BlueprintName = "StaticLibrary"
             ReferencedContainer = "container:HippyLibrary.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
