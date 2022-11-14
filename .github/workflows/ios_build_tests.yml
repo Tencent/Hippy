@@ -28,11 +28,19 @@ jobs:
           lfs: true
       - name: Build
         run: |
-          xcodebuild build \
-            -destination 'generic/platform=iOS' \
-            -workspace 'Hippy.xcworkspace' \
-            -scheme 'HippyDemo' \
-            -configuration '${{ matrix.configuration }}' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          xcodebuild -workspace 'Hippy.xcworkspace' -list | \
+          sed -n '/Schemes/,/^$/p' | \
+          grep -v "Schemes:" | \
+          grep -v '^\s*$' | \
+          while read scheme; do
+            echo "Building ${scheme}…"
+
+            xcodebuild build \
+              -destination "generic/platform=iOS" \
+              -workspace "Hippy.xcworkspace" \
+              -scheme "${scheme}" \
+              -configuration "${{ matrix.configuration }}" \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
+          done
