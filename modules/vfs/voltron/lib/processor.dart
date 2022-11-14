@@ -18,6 +18,8 @@
 // limitations under the License.
 //
 
+import 'package:voltron_vfs/resource_loader.dart';
+
 import 'resource_data_holder.dart';
 
 mixin ProcessorCallback {
@@ -43,4 +45,38 @@ mixin Processor {
   void handleResponseSync(ResourceDataHolder holder) {
     // Need do nothing by default
   }
+}
+
+class DefaultProcessor with Processor {
+  final ResourceLoader _resourceLoader;
+
+  DefaultProcessor(this._resourceLoader);
+
+  @override
+  void handleRequestAsync(ResourceDataHolder holder, ProcessorCallback callback) {
+    if (_checkResourceData(holder)) {
+      callback.onHandleCompleted();
+    } else {
+      _resourceLoader.fetchResourceAsync(holder, callback);
+    }
+  }
+
+  @override
+  bool handleRequestSync(ResourceDataHolder holder) {
+    if (_checkResourceData(holder)) {
+      return true;
+    }
+    return _resourceLoader.fetchResourceSync(holder);
+  }
+
+  bool _checkResourceData(ResourceDataHolder holder) {
+    if (holder.resultCode != FetchResultCode.ok) {
+      return false;
+    }
+    if (holder.buffer != null && (holder.buffer?.length??0) > 0) {
+      return true;
+    }
+    return false;
+  }
+
 }
