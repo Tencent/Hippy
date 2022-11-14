@@ -21,13 +21,47 @@
  */
 
 #include "ffi_define.h"
+
 #include "footstone/logging.h"
 #include "footstone/persistent_object_map.h"
 
 global_callback global_callback_func = nullptr;
 
+namespace voltron{
 using RegisterCallFuncExMap = footstone::utils::PersistentObjectMap<std::string , register_call_func_ex>;
 static RegisterCallFuncExMap register_call_func_ex_map_;
+
+using WorkManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<footstone::WorkerManager>>;
+constexpr uint32_t kDefaultNumberOfThreads = 2;
+static WorkManagerMap worker_manager_map_;
+static std::atomic<uint32_t> global_worker_manager_key_{1};
+
+uint32_t FfiCreateWorkerManager() {
+  auto worker_manager = std::make_shared<footstone::WorkerManager>(kDefaultNumberOfThreads);
+  auto id = global_worker_manager_key_.fetch_add(1);
+  worker_manager_map_.Insert(id, worker_manager);
+  return id;
+}
+
+void FfiDestroyWorkerManager(uint32_t worker_manager_id) {
+  std::shared_ptr<footstone::WorkerManager> worker_manager;
+  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
+  if (flag && worker_manager) {
+    worker_manager->Terminate();
+    worker_manager_map_.Erase(worker_manager_id);
+  }
+}
+
+Sp<footstone::WorkerManager> FfiFindWorkerManager(uint32_t worker_manager_id) {
+  std::shared_ptr<footstone::WorkerManager> worker_manager;
+  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
+  if (flag && worker_manager) {
+    return worker_manager;
+  }
+  return nullptr;
+}
+}
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +86,7 @@ EXTERN_C int32_t AddCallFunc(const char16_t *register_header, int32_t type, void
     return false;
   } else {
     register_call_func_ex register_call_func_ex;
-    register_call_func_ex_map_.Find(header_str, register_call_func_ex);
+    voltron::register_call_func_ex_map_.Find(header_str, register_call_func_ex);
     if (register_call_func_ex) {
       register_call_func_ex(type, func);
       return true;
@@ -66,7 +100,7 @@ EXTERN_C int32_t AddCallFunc(const char16_t *register_header, int32_t type, void
 EXTERN_C int32_t AddCallFuncRegister(const char16_t *register_header, register_call_func_ex func) {
   FOOTSTONE_DLOG(INFO) << "start func register extension  header: " << register_header;
   auto header_str = voltron::C16CharToString(register_header);
-  return register_call_func_ex_map_.Insert(header_str, func);
+  return voltron::register_call_func_ex_map_.Insert(header_str, func);
 }
 
 #ifdef __cplusplus

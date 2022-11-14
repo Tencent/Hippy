@@ -25,16 +25,12 @@
 #include <iterator>
 
 #include "dom/dom_manager.h"
+#include "ffi_define.h"
 
 namespace voltron {
 
 using BridgeManagerMap = footstone::utils::PersistentObjectMap<int32_t, Sp<BridgeManager>>;
 static BridgeManagerMap bridge_map_;
-
-using WorkManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<footstone::WorkerManager>>;
-constexpr uint32_t kDefaultNumberOfThreads = 2;
-static WorkManagerMap worker_manager_map_;
-static std::atomic<uint32_t> global_worker_manager_key_{1};
 
 using RenderManagerMap = footstone::utils::PersistentObjectMap<uint32_t , std::shared_ptr<VoltronRenderManager>>;
 static std::atomic<uint32_t> global_render_manager_key_{1};
@@ -100,28 +96,15 @@ void BridgeManager::Destroy(int32_t engine_id) {
 }
 
 uint32_t BridgeManager::CreateWorkerManager() {
-  auto worker_manager = std::make_shared<footstone::WorkerManager>(kDefaultNumberOfThreads);
-  auto id = global_worker_manager_key_.fetch_add(1);
-  worker_manager_map_.Insert(id, worker_manager);
-  return id;
+  return FfiCreateWorkerManager();
 }
 
 void BridgeManager::DestroyWorkerManager(uint32_t worker_manager_id) {
-  std::shared_ptr<footstone::WorkerManager> worker_manager;
-  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
-  if (flag && worker_manager) {
-    worker_manager->Terminate();
-    worker_manager_map_.Erase(worker_manager_id);
-  }
+  FfiDestroyWorkerManager(worker_manager_id);
 }
 
 Sp<footstone::WorkerManager> BridgeManager::FindWorkerManager(uint32_t worker_manager_id) {
-  std::shared_ptr<footstone::WorkerManager> worker_manager;
-  auto flag = worker_manager_map_.Find(worker_manager_id, worker_manager);
-  if (flag && worker_manager) {
-    return worker_manager;
-  }
-  return nullptr;
+  return FfiFindWorkerManager(worker_manager_id);
 }
 
 Sp<VoltronRenderManager> BridgeManager::CreateRenderManager() {
@@ -150,7 +133,7 @@ Sp<VoltronRenderManager> BridgeManager::FindRenderManager(uint32_t render_manage
 }
 
 BridgeManager::~BridgeManager() {
-  native_callback_map_.clear();
+  native_callback_map_.Clear();
 }
 
 BridgeManager::BridgeManager(){}
@@ -163,21 +146,21 @@ void BridgeManager::BindRuntime(const voltron::Sp<BridgeRuntime>& runtime) {
 
 String BridgeManager::AddNativeCallback(const String& tag, const NativeCallback& callback) {
   auto callback_id = tag + std::to_string(++callback_id_increment_);
-  native_callback_map_[callback_id] = callback;
+  native_callback_map_.Insert(callback_id, callback);
   return callback_id;
 }
 
-void BridgeManager::RemoveNativeCallback(const String& callback_id) { native_callback_map_.erase(callback_id); }
+void BridgeManager::RemoveNativeCallback(const String& callback_id) { native_callback_map_.Erase(callback_id); }
 
-void BridgeManager::CallNativeCallback(const String& callback_id, std::unique_ptr<EncodableValue> params, bool keep) {
-  auto native_callback_iter = native_callback_map_.find(callback_id);
-  if (native_callback_iter != native_callback_map_.end()) {
-    auto callback = native_callback_iter->second;
-    if (callback) {
-      callback(*params);
-      if (!keep) {
-        RemoveNativeCallback(callback_id);
-      }
+void BridgeManager::CallNativeCallback(const String &callback_id,
+                                       std::unique_ptr<EncodableValue> params,
+                                       bool keep) {
+  NativeCallback callback;
+  auto flag = native_callback_map_.Find(callback_id, callback);
+  if (flag) {
+    callback(*params);
+    if (!keep) {
+      RemoveNativeCallback(callback_id);
     }
   }
 }

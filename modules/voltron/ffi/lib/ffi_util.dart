@@ -22,6 +22,9 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:ffi/ffi.dart';
+import 'package:flutter/services.dart';
+
+import 'pair.dart';
 
 String _platformPath(String name, {String? path}) {
   path ??= "";
@@ -49,4 +52,100 @@ Pointer<T> allocate<T extends NativeType>(int byteCount) {
 
 void free(Pointer pointer) {
   malloc.free(pointer);
+}
+
+Pair<Pointer<Uint8>, int>? encodeObject(Object? object) {
+  var encodeByteData = const StandardMessageCodec().encodeMessage(object);
+  if (encodeByteData != null) {
+    var length = encodeByteData.lengthInBytes;
+    final result = malloc<Uint8>(length);
+    final nativeParams = result.asTypedList(length);
+    nativeParams.setRange(0, length, encodeByteData.buffer.asUint8List());
+    return Pair(result, nativeParams.length);
+  }
+  return null;
+}
+
+Object? decodeObject(Pointer<Uint8> buffer, int length) {
+  var dataList = buffer.cast<Uint8>().asTypedList(length);
+  if (dataList.isNotEmpty) {
+    return const StandardMessageCodec()
+        .decodeMessage(dataList.buffer.asByteData());
+  }
+  return null;
+}
+
+extension ObjEx on Object {
+  T? safeAs<T>() {
+    if (this is T) {
+      return this as T;
+    } else {
+      return null;
+    }
+  }
+
+  Map<T, V>? safeAsMap<T, V>() {
+    if (this is Map) {
+      var origin = this as Map;
+      if (origin.isEmpty) {
+        return <T, V>{};
+      }
+      var realMap = <T, V>{};
+
+      origin.forEach((key, value) {
+        if (key is T && value is V) {
+          realMap[key] = value;
+        }
+      });
+      return realMap;
+    } else {
+      return null;
+    }
+  }
+}
+
+extension MapEx on Map {
+  T? safeGet<T>(dynamic key) {
+    var value = this[key];
+    if (value is T) {
+      return value;
+    } else {
+      return null;
+    }
+  }
+
+  Map<T, V>? safeGetMap<T, V>(dynamic key) {
+    var value = this[key];
+    if (value is Map) {
+      if (value.isEmpty) {
+        return <T, V>{};
+      }
+      var realMap = <T, V>{};
+
+      value.forEach((key, value) {
+        if (key is T && value is V) {
+          realMap[key] = value;
+        }
+      });
+      return realMap;
+    } else {
+      return null;
+    }
+  }
+
+  List<T>? safeGetList<T>(dynamic key) {
+    var value = this[key];
+    if (value is List) {
+      if (value.isEmpty) {
+        return List<T>.empty(growable: true);
+      }
+      return value
+          .whereType<T>()
+          .map((e) => e)
+          .toList(growable: true);
+    } else {
+      return null;
+    }
+  }
+
 }

@@ -24,61 +24,52 @@
 
 #include "vfs/uri_loader.h"
 #include "footstone/check.h"
+#include "footstone/string_view_utils.h"
+#include "ffi_define.h"
 #include "handler/file_handler.h"
 #include "handler/ffi_delegate_handler.h"
 #include "standard_message_codec.h"
+#include "callback_manager.h"
 
 namespace voltron {
 
 constexpr char kFileSchema[] = "file";
 constexpr char kUriKey[] = "url";
-//constexpr char kBufferKey[] = "buffer";
+constexpr char kBufferKey[] = "buffer";
 constexpr char kReqHeadersKey[] = "req_headers";
-//constexpr char kRspHeadersKey[] = "rsp_headers";
-//constexpr char kTransTypeKey[] = "trans_type";
-//constexpr char kCallFromKey[] = "from";
-//constexpr char kResultCodeKey[] = "result_code";
-//constexpr char kErrorMsgKey[] = "err_msg";
-//constexpr char kCallFromDart[] = "call_from_dart";
+constexpr char kRspHeadersKey[] = "rsp_headers";
+constexpr char kResultCodeKey[] = "result_code";
+
+constexpr char kVfsFileRunnerName[] = "vfs_file";
 
 std::atomic<uint32_t> global_data_holder_key{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::any> global_data_holder;
 
-std::shared_ptr<hippy::UriLoader> GetUriLoader(int32_t id) {
-  std::any loader_object;
-  bool flag = global_data_holder.Find(
-      footstone::checked_numeric_cast<int32_t, uint32_t>(id),
-      loader_object);
-  FOOTSTONE_CHECK(flag);
-  return std::any_cast<std::shared_ptr<hippy::UriLoader>>(loader_object);
-}
-
-std::unique_ptr<EncodableValue> DecodeBytes(const uint8_t* source_bytes, size_t length) {
+std::unique_ptr<EncodableValue> DecodeBytes(const uint8_t *source_bytes, size_t length) {
   return StandardMessageCodec::GetInstance().DecodeMessage(source_bytes, length);
 }
-std::unique_ptr<std::vector<uint8_t>> EncodeMessage(const EncodableValue& message) {
-  return StandardMessageCodec::GetInstance().EncodeMessage(message);
+
+std::unique_ptr<std::vector<uint8_t>> EncodeValue(const EncodableValue &value) {
+  return StandardMessageCodec::GetInstance().EncodeMessage(value);
 }
 
-std::unordered_map<std::string, std::string> ParseReqHeaders(voltron::EncodableMap* holder_map) {
-  if (!holder_map) {
-    return {};
-  }
-  auto size = holder_map->size();
+std::unordered_map<std::string,
+                   std::string> VfsWrapper::ParseHeaders(voltron::EncodableMap *meta_map, const char* header_key) {
+  auto size = meta_map->size();
   if (!size) {
     return {};
   }
-  auto d_req_headers_iter = holder_map->find(voltron::EncodableValue(voltron::kReqHeadersKey));
-  if (d_req_headers_iter != holder_map->end()) {
-    auto d_req_headers = std::get<voltron::EncodableMap>(d_req_headers_iter->second);
-    auto headers_length = d_req_headers.size();
+  auto d_headers_iter = meta_map->find(voltron::EncodableValue(header_key));
+  if (d_headers_iter != meta_map->end()) {
+    auto d_headers = std::get<voltron::EncodableMap>(d_headers_iter->second);
+    auto headers_length = d_headers.size();
     if (!headers_length) {
       return {};
     }
 
     std::unordered_map<std::string, std::string> ret_map;
-    auto headers_iter = d_req_headers.begin();
-    while (headers_iter != d_req_headers.end()) {
+    auto headers_iter = d_headers.begin();
+    while (headers_iter != d_headers.end()) {
       auto key = std::get<std::string>(headers_iter->first);
       auto value = std::get<std::string>(headers_iter->second);
       ret_map[key] = value;
@@ -89,6 +80,137 @@ std::unordered_map<std::string, std::string> ParseReqHeaders(voltron::EncodableM
   }
 }
 
+EncodableMap VfsWrapper::UnorderedMapToEncodableMap(const std::unordered_map<std::string,
+                                                                             std::string> &map) {
+  auto encodable_map = EncodableMap();
+  for (const auto &p: map) {
+    auto encodable_key = EncodableValue(p.first);
+    auto encodable_value = EncodableValue(p.second);
+    encodable_map[encodable_key] = encodable_value;
+  }
+  return encodable_map;
+}
+
+hippy::UriLoader::RetCode VfsWrapper::ParseResultCode(int32_t code) {
+  switch (static_cast<int>(code)) {
+    case static_cast<int>(FetchResultCode::OK): {
+      return hippy::UriHandler::RetCode::Success;
+    }
+    case static_cast<int>(FetchResultCode::ERR_UNKNOWN_SCHEME): {
+      return hippy::UriHandler::RetCode::SchemeError;
+    }
+    default: {
+      return hippy::UriHandler::RetCode::Failed;
+    }
+  }
+}
+
+VfsWrapper::VfsWrapper(uint32_t worker_manager_id) {
+  id_ = voltron::global_data_holder_key.fetch_add(1);
+  auto delegate = std::make_shared<voltron::FfiDelegateHandler>(id_);
+  loader_ = std::make_shared<hippy::UriLoader>();
+  auto file_delegate = std::make_shared<voltron::FileHandler>();
+  std::shared_ptr<footstone::WorkerManager>
+      worker_manager = FfiFindWorkerManager(worker_manager_id);
+  if (worker_manager) {
+    auto runner = worker_manager->CreateTaskRunner(kVfsFileRunnerName);
+    file_delegate->SetWorkerTaskRunner(runner);
+  }
+  loader_->RegisterUriHandler(voltron::kFileSchema, file_delegate);
+  loader_->PushDefaultHandler(delegate);
+}
+
+VfsWrapper::~VfsWrapper() {
+  loader_ = nullptr;
+  callback_map_.Clear();
+}
+
+uint32_t VfsWrapper::GetId() const {
+  return id_;
+}
+
+std::shared_ptr<VfsWrapper> VfsWrapper::GetWrapper(uint32_t id) {
+  std::any wrapper_object;
+  bool flag = global_data_holder.Find(
+      id,
+      wrapper_object);
+  FOOTSTONE_CHECK(flag);
+  return std::any_cast<std::shared_ptr<VfsWrapper>>(wrapper_object);
+}
+
+void VfsWrapper::InvokeNative(EncodableMap *req_map,
+                              int32_t callback_id) {
+  auto d_uri_iter = req_map->find(voltron::EncodableValue(voltron::kUriKey));
+  if (d_uri_iter != req_map->end()) {
+    auto d_uri = std::get<std::string>(d_uri_iter->second);
+    auto req_meta = ParseHeaders(req_map, kReqHeadersKey);
+    req_meta[voltron::kCallFromKey] = voltron::kCallFromDart;
+
+    auto cb = [callback_id](
+        hippy::UriLoader::RetCode ret_code,
+        const std::unordered_map<std::string, std::string> &rsp_meta,
+        const hippy::UriLoader::bytes &content) {
+      auto result_map = voltron::EncodableMap();
+      result_map[voltron::EncodableValue(voltron::kRspHeadersKey)] =
+          voltron::EncodableValue(UnorderedMapToEncodableMap(rsp_meta));
+      std::vector<uint8_t> buffer(content.begin(), content.end());
+      result_map[voltron::EncodableValue(voltron::kBufferKey)] = voltron::EncodableValue(buffer);
+      result_map[voltron::EncodableValue(voltron::kResultCodeKey)] =
+          voltron::EncodableValue(static_cast<int32_t>(ret_code));
+      CallGlobalCallbackWithValue(callback_id, voltron::EncodableValue(result_map));
+    };
+    loader_->RequestUntrustedContent(footstone::string_view::new_from_utf8(d_uri.c_str()),
+                                     req_meta,
+                                     cb);
+  }
+}
+
+void VfsWrapper::OnInvokeDartCallback(uint32_t request_id, EncodableMap *rsp_map) {
+  InvokeDartCallback callback;
+  auto flag = callback_map_.Find(request_id, callback);
+  if (flag) {
+    auto result_code = hippy::UriLoader::RetCode::Failed;
+    auto result_code_iter = rsp_map->find(EncodableValue(kResultCodeKey));
+    if (result_code_iter != rsp_map->end()) {
+      result_code = ParseResultCode(std::get<int32_t>(result_code_iter->second));
+    }
+
+    if (result_code == hippy::UriLoader::RetCode::Success) {
+      auto rsp_meta = ParseHeaders(rsp_map, kRspHeadersKey);
+      auto buffer_iter = rsp_map->find(EncodableValue(kBufferKey));
+      if (buffer_iter != rsp_map->end()) {
+        auto buffer = std::get<std::vector<uint8_t>>(buffer_iter->second);
+        char* buffer_address = reinterpret_cast<char*>(buffer.data());
+        auto content = std::string(buffer_address, buffer.size());
+        callback(result_code, rsp_meta, content);
+      } else {
+        FOOTSTONE_UNREACHABLE();
+      }
+    } else {
+      callback(result_code, {}, hippy::UriHandler::bytes());
+    }
+  } else {
+    FOOTSTONE_UNREACHABLE();
+  }
+}
+
+void VfsWrapper::InvokeDart(const footstone::string_view& uri,
+                            const std::unordered_map<std::string, std::string> &req_meta,
+                            const InvokeDartCallback& cb) {
+  auto request_id = request_id_.fetch_add(1);
+  callback_map_.Insert(request_id, cb);
+  auto work = [this, uri, req_meta, request_id]() {
+    auto uri_16 = footstone::StringViewUtils::CovertToUtf16(uri, uri.encoding()).utf16_value();
+    auto req_meta_data = EncodeValue(EncodableValue(UnorderedMapToEncodableMap(req_meta)));
+    invoke_dart_func(id_,
+                     request_id,
+                     uri_16.c_str(),
+                     req_meta_data->data(),
+                     footstone::checked_numeric_cast<size_t, int32_t>(req_meta_data->size()));
+  };
+  const Work *work_ptr = new Work(work);
+  PostWorkToDart(work_ptr);
+}
 
 }
 
@@ -96,64 +218,55 @@ std::unordered_map<std::string, std::string> ParseReqHeaders(voltron::EncodableM
 extern "C" {
 #endif
 
-EXTERN_C int32_t CreateVfsWrapper() {
-  auto delegate = std::make_shared<voltron::FfiDelegateHandler>();
-  auto id = voltron::global_data_holder_key.fetch_add(1);
-  auto loader = std::make_shared<hippy::UriLoader>();
-  auto file_delegate = std::make_shared<voltron::FileHandler>();
-  loader->RegisterUriHandler(voltron::kFileSchema, file_delegate);
-  loader->PushDefaultHandler(delegate);
+extern invoke_dart invoke_dart_func = nullptr;
 
-  voltron::global_data_holder.Insert(id, loader);
+EXTERN_C int32_t RegisterVoltronVfsCallFuncEx(int32_t type, void *func) {
+  FOOTSTONE_DLOG(INFO) << "start register vfs func, type " << type;
+  if (type == VfsFFIRegisterFuncType::kInvokeDart) {
+    invoke_dart_func = reinterpret_cast<invoke_dart>(func);
+    return true;
+  }
+  FOOTSTONE_DLOG(ERROR) << "register func error, unknown type " << type;
+  return false;
+}
+
+EXTERN_C int32_t CreateVfsWrapper(uint32_t worker_manager_id) {
+  auto wrapper = std::make_shared<voltron::VfsWrapper>(worker_manager_id);
+  auto id = wrapper->GetId();
+  voltron::global_data_holder.Insert(id, wrapper);
   return footstone::checked_numeric_cast<uint32_t, int32_t>(id);
 }
 
-EXTERN_C void DestroyVfsWrapper(int32_t id) {
-  auto id_ = footstone::checked_numeric_cast<int32_t , uint32_t>(id);
-  bool flag = voltron::global_data_holder.Erase(id_);
+EXTERN_C void DestroyVfsWrapper(uint32_t id) {
+  bool flag = voltron::global_data_holder.Erase(id);
   FOOTSTONE_DCHECK(flag);
 }
 
-EXTERN_C void OnDartInvokeAsync(int32_t id,
-                                const uint8_t *params,
-                                int32_t params_len,
-                                int32_t callback_id) {
-  auto loader = voltron::GetUriLoader(id);
-  auto params_value_ptr = voltron::DecodeBytes(params, footstone::checked_numeric_cast<int32_t , size_t>(params_len));
+EXTERN_C void OnDartInvoke(uint32_t id,
+                           const uint8_t *req_meta_data,
+                           int32_t req_meta_data_length,
+                           int32_t callback_id) {
+  auto wrapper = voltron::VfsWrapper::GetWrapper(id);
+  auto params_value_ptr = voltron::DecodeBytes(req_meta_data,
+                                               footstone::checked_numeric_cast<int32_t, size_t>(
+                                                   req_meta_data_length));
   auto holder_map = std::get_if<voltron::EncodableMap>(params_value_ptr.get());
-  if (holder_map && loader) {
-    auto d_uri_iter = holder_map->find(voltron::EncodableValue(voltron::kUriKey));
-    if (d_uri_iter != holder_map->end()) {
-//      auto d_uri = std::get<std::string>(d_uri_iter->second);
-//      auto req_meta = voltron::ParseReqHeaders(holder_map);
-//      req_meta[voltron::kCallFromKey] = voltron::kCallFromDart;
+  if (holder_map && wrapper) {
+    wrapper->InvokeNative(holder_map, callback_id);
+  }
+}
 
-//      auto cb = [callback_id, d_uri](
-//          hippy::UriLoader::RetCode, const std::unordered_map<std::string, std::string>& rsp_meta, const hippy::UriLoader::bytes& content) {
-//        auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
-//        auto j_rsp_meta = UnorderedMapToJavaMap(j_env, rsp_meta);
-//        auto j_holder = j_env->NewObject(j_resource_data_holder_clazz, j_resource_data_holder_init_method_id,
-//                                         j_uri, j_rsp_meta, j_request_from_native_value);
-//        bool is_direct_buffer = content.length() >= std::numeric_limits<uint32_t>::max();
-//        if (is_direct_buffer) {
-//          auto j_buffer = j_env->NewDirectByteBuffer(const_cast<void*>(reinterpret_cast<const void*>(content.c_str())),
-//                                                     footstone::check::checked_numeric_cast<size_t, jsize>(content.length()));
-//          j_env->SetObjectField(j_holder, j_holder_buffer_field_id, j_buffer);
-//          j_env->SetObjectField(j_holder, j_holder_transfer_type_field_id, j_transfer_type_nio_value);
-//        } else {
-//          auto len = footstone::check::checked_numeric_cast<size_t, jsize>(content.length());
-//          auto j_bytes = j_env->NewByteArray(len);
-//          j_env->SetByteArrayRegion(
-//              reinterpret_cast<jbyteArray>(j_bytes), 0, len,
-//              reinterpret_cast<const jbyte*>(content.c_str()));
-//          j_env->SetObjectField(j_holder, j_holder_bytes_field_id, j_bytes);
-//          j_env->SetObjectField(j_holder, j_holder_transfer_type_field_id, j_transfer_type_normal_value);
-//        }
-//        j_env->CallVoidMethod(java_cb->GetObj(), j_interface_cb_method_id, j_holder);
-//        JNIEnvironment::ClearJEnvException(j_env);
-//      };
-//      loader->RequestUntrustedContent(uri, req_meta, cb);
-    }
+EXTERN_C void OnInvokeDartCallback(uint32_t id,
+                                   uint32_t request_id,
+                                   const uint8_t *rsp_meta_data,
+                                   int32_t rsp_meta_data_length) {
+  auto wrapper = voltron::VfsWrapper::GetWrapper(id);
+  auto rsp_ptr = voltron::DecodeBytes(rsp_meta_data,
+                                      footstone::checked_numeric_cast<int32_t, size_t>(
+                                          rsp_meta_data_length));
+  auto rsp_map = std::get_if<voltron::EncodableMap>(rsp_ptr.get());
+  if (rsp_map && wrapper) {
+    wrapper->OnInvokeDartCallback(request_id, rsp_map);
   }
 }
 

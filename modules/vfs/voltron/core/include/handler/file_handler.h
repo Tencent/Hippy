@@ -32,7 +32,7 @@ class FileHandler : public hippy::UriHandler {
   FileHandler() = default;
   virtual ~FileHandler() = default;
 
-  inline void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
+  void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
     runner_ = runner;
   }
 
