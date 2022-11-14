@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "wrapper.h"
 #include "vfs/handler/uri_handler.h"
 #include "footstone/task_runner.h"
 
@@ -29,12 +30,8 @@ class FfiDelegateHandler : public hippy::UriHandler {
  public:
   using TaskRunner = footstone::TaskRunner;
 
-  FfiDelegateHandler() = default;
-  virtual ~FfiDelegateHandler() = default;
-
-  inline void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
-    runner_ = runner;
-  }
+  FfiDelegateHandler(uint32_t wrapper_id);
+  virtual ~FfiDelegateHandler();
 
   virtual void RequestUntrustedContent(
       std::shared_ptr<SyncContext> ctx,
@@ -44,14 +41,9 @@ class FfiDelegateHandler : public hippy::UriHandler {
       std::function<std::shared_ptr<UriHandler>()> next) override;
 
  private:
-  void Lock();
-  void Unlock();
-
- private:
-  std::weak_ptr<TaskRunner> runner_;
   std::mutex mutex_;
   std::condition_variable cv_;
-  bool notified_ = false;
+  uint32_t wrapper_id_;
 };
 
 }

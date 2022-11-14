@@ -27,6 +27,7 @@
 #include "encodable_value.h"
 #include "callback_manager.h"
 #include "common_header.h"
+#include "footstone/persistent_object_map.h"
 #include "render/bridge/bridge_define.h"
 #include "render/queue/voltron_render_manager.h"
 
@@ -76,7 +77,7 @@ public:
 
 private:
   std::weak_ptr<BridgeRuntime> runtime_;
-  Map<String, NativeCallback> native_callback_map_;
+  footstone::PersistentObjectMap<String, NativeCallback> native_callback_map_;
 
   int callback_id_increment_ = 0;
 };

@@ -26,6 +26,7 @@
 
 #include "common_header.h"
 #include "callback_manager.h"
+#include "footstone/worker_manager.h"
 
 enum class DefaultRegisterFuncType {
   kGlobalCallback
@@ -35,6 +36,16 @@ typedef void (*global_callback)(int32_t callback_id, const uint8_t* params, int3
 typedef int32_t (*register_call_func_ex)(int32_t type, void *func);
 
 extern global_callback global_callback_func;
+
+namespace voltron {
+
+uint32_t FfiCreateWorkerManager();
+
+void FfiDestroyWorkerManager(uint32_t worker_manager_id);
+
+Sp<footstone::WorkerManager> FfiFindWorkerManager(uint32_t worker_manager_id);
+
+}
 
 #ifdef __cplusplus
 extern "C" {

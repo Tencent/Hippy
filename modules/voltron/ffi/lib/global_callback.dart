@@ -21,8 +21,9 @@
 import 'dart:collection';
 import 'dart:ffi';
 
-import 'package:flutter/services.dart';
 import 'package:voltron_ffi/define.dart';
+
+import 'ffi_util.dart';
 
 class _GlobalCallbackManager {
   static _GlobalCallbackManager? _instance;
@@ -68,15 +69,6 @@ class _GlobalCallback {
 
 int generateCallback(CommonCallback callback) {
   return _GlobalCallback.newCallback(callback)._callbackId;
-}
-
-Object? decodeObject(Pointer<Uint8> buffer, int length) {
-  var dataList = buffer.cast<Uint8>().asTypedList(length);
-  if (dataList.isNotEmpty) {
-    return const StandardMessageCodec()
-        .decodeMessage(dataList.buffer.asByteData());
-  }
-  return null;
 }
 
 void globalCallback(int callbackId, Pointer<Uint8> result, int length) {

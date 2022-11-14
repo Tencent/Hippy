@@ -1,13 +1,40 @@
+//
+// Tencent is pleased to support the open source community by making
+// Hippy available.
+//
+// Copyright (C) 2022 THL A29 Limited, a Tencent company.
+// All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 import 'processor.dart';
 import 'resource_data_holder.dart';
+import 'vfs_wrapper.dart';
 
 class VfsManager {
+  static final Map<int, VfsManager> _vfsMap = {};
   final List<Processor> _processorChain = [];
   final NativeTraversalsWrapper _wrapper;
 
-  VfsManager({required NativeTraversalsWrapper customWrapper})
-      : _wrapper = customWrapper {
+  static VfsManager? find(int id) {
+    return _vfsMap[id];
+  }
+
+  VfsManager(int workerManagerId, {NativeTraversalsWrapper? customWrapper})
+      : _wrapper = customWrapper??DefaultVfsWrapper(workerManagerId) {
     _wrapper.initWrapper();
+    _vfsMap[_wrapper.id] = this;
   }
 
   void addProcessor(Processor processor) {
@@ -29,12 +56,19 @@ class VfsManager {
   void destroy() {
     _processorChain.clear();
     _wrapper.destroyWrapper();
+    _vfsMap.remove(_wrapper.id);
   }
 
   void fetchResourceAsync(
       String url, Map<String, String> params, FetchResourceCallback callback) {
     onFetchResourceStart();
     _fetchResourceAsyncImpl(url, params, callback, RequestFrom.local);
+  }
+
+  void nativeCallFetchResource(String url, Map<String, String> params, int requestId) {
+    ResourceDataHolder holder = ResourceDataHolder(
+        url: url, requestHeaders: params, requestFrom: RequestFrom.native, nativeRequestId: requestId);
+    _traverseForward(holder, true);
   }
 
   Future<ResourceDataHolder> fetchResourceSync(String url, Map<String, String> params) async {
@@ -179,6 +213,8 @@ class _BackProcessorCallback with ProcessorCallback {
 }
 
 mixin NativeTraversalsWrapper {
+  int get id;
+
   int initWrapper();
 
   void destroyWrapper();
