@@ -101,9 +101,6 @@ class _RenderBridgeFFIManager {
 
     updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
         UpdateNodeSizeFfiDartType>('UpdateNodeSize');
-
-    notifyRender = _library
-        .lookupFunction<NotifyRenderNativeType, NotifyRenderDartType>('Notify');
   }
 }
 
