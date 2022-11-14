@@ -1578,9 +1578,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F4C9286B291C96010078351C /* hippy */ = {
+		F4C9286B291C96010078351C /* StaticLibrary */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "hippy" */;
+			buildConfigurationList = F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "StaticLibrary" */;
 			buildPhases = (
 				F4C92868291C96010078351C /* Sources */,
 				F4C92869291C96010078351C /* Frameworks */,
@@ -1590,7 +1590,7 @@
 			);
 			dependencies = (
 			);
-			name = hippy;
+			name = StaticLibrary;
 			productName = HippyLibrary;
 			productReference = F4C9286C291C96010078351C /* libhippy.a */;
 			productType = "com.apple.product-type.library.static";
@@ -1622,7 +1622,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F4C9286B291C96010078351C /* hippy */,
+				F4C9286B291C96010078351C /* StaticLibrary */,
 			);
 		};
 /* End PBXProject section */
@@ -1939,7 +1939,7 @@
 					"$(SRCROOT)/../../core/third_party/base/include",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = hippy;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1955,7 +1955,7 @@
 					"$(SRCROOT)/../../core/third_party/base/include",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = hippy;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1973,7 +1973,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "hippy" */ = {
+		F4C92875291C96010078351C /* Build configuration list for PBXNativeTarget "StaticLibrary" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F4C92876291C96010078351C /* Debug */,
