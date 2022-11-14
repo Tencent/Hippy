@@ -150,7 +150,7 @@ Embedded web page container.
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
 | load           | Called when the web page is successfully loaded | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer`     |
 | loadStart           | Called when the web page starts loading | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer`     |
-| loadEnd           | Called when the page ends loading | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer`     |
+| loadEnd           | Called when the page ends loading (success and error parameters are available only on Android and iOS since version 2.15.3) | `(object: { url:string, success:bool, error:string }) => void`    | `Android、iOS、Web-Renderer`     |
 
 ---
 
