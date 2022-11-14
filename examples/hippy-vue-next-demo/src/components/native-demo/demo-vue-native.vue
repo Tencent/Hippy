@@ -365,7 +365,6 @@ export default defineComponent({
     const cookieString = ref('ready to set');
     const cookiesValue = ref('');
     const eventTriggeredTimes = ref(0);
-    let hasLayout = false;
 
     /**
        * set local storage
