@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.DomManager;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.uimanager.RenderNode;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
@@ -147,19 +148,19 @@ public class UIManagerModule extends HippyNativeModuleBase {
   public void measureInWindow(int id, Promise promise) {
     DomManager domManager = this.mContext.getDomManager();
     if (domManager != null) {
-      HippyMap options = new HippyMap();
-      options.pushBoolean(RenderNode.KEY_COMPATIBLE, true);
+      JSObject options = new JSObject();
+      options.set(RenderNode.KEY_COMPATIBLE, true);
       domManager.measureInWindow(id, options, promise);
     }
     LogUtils.d("UIManagerModule", "measureInWindow" + id + " " + promise);
   }
 
-  @HippyMethod(name = "getBoundingClientRect")
-  public void getBoundingClientRect(int id, HippyMap options, Promise promise) {
+  @HippyMethod(name = "getBoundingClientRect", useJSValueType = true)
+  public void getBoundingClientRect(int id, JSObject options, Promise promise) {
       DomManager domManager = this.mContext.getDomManager();
       if (domManager == null) {
-          HippyMap result = new HippyMap();
-          result.pushString(RenderNode.KEY_ERR_MSG, "DomManager is null");
+          JSObject result = new JSObject();
+          result.set(RenderNode.KEY_ERR_MSG, "DomManager is null");
           promise.reject(result);
           return;
       }

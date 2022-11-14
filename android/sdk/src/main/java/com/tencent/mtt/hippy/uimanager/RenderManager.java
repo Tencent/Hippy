@@ -25,6 +25,7 @@ import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.DomNode;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -250,14 +251,14 @@ public class RenderManager {
   }
 
 
-  public void measureInWindow(int id, HippyMap options, Promise promise) {
+  public void measureInWindow(int id, JSObject options, Promise promise) {
     RenderNode renderNode = mNodes.get(id);
     if (renderNode == null) {
-        if (options.getBoolean(RenderNode.KEY_COMPATIBLE)) {
+        if (options.get(RenderNode.KEY_COMPATIBLE) == Boolean.TRUE) {
             promise.reject("this node is null");
         } else {
-            HippyMap result = new HippyMap();
-            result.pushString(RenderNode.KEY_ERR_MSG, "this node is null");
+            JSObject result = new JSObject();
+            result.set(RenderNode.KEY_ERR_MSG, "this node is null");
             promise.reject(result);
         }
     } else {

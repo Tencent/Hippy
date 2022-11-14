@@ -24,6 +24,7 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.utils.LogUtils;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,7 +54,7 @@ public class RenderNode {
 
   SparseArray<Integer> mDeletedIdIndexMap;
 
-  List<Pair<HippyMap, Promise>> mMeasureInWindows = null;
+  List<Pair<JSObject, Promise>> mMeasureInWindows = null;
   Object mTextExtra;
   Object mTextExtraUpdate;
 
@@ -350,11 +351,11 @@ public class RenderNode {
       }
       if (mMeasureInWindows != null && mMeasureInWindows.size() > 0) {
         for (int i = 0; i < mMeasureInWindows.size(); i++) {
-            Pair<HippyMap, Promise> pair = mMeasureInWindows.get(i);
-            if (pair.first.getBoolean(KEY_COMPATIBLE)) {
+            Pair<JSObject, Promise> pair = mMeasureInWindows.get(i);
+            if (pair.first.get(KEY_COMPATIBLE) == Boolean.TRUE) {
                 mComponentManager.measureInWindow(mId, pair.second);
             } else {
-                boolean relToContainer = pair.first.getBoolean(KEY_REL_TO_CONTAINER);
+                boolean relToContainer = pair.first.get(KEY_REL_TO_CONTAINER) == Boolean.TRUE;
                 mComponentManager.getBoundingClientRect(mId, mRootView, relToContainer, pair.second);
             }
         }
@@ -380,7 +381,7 @@ public class RenderNode {
     mHasUpdateLayout = true;
   }
 
-  public void measureInWindow(HippyMap options, Promise promise) {
+  public void measureInWindow(JSObject options, Promise promise) {
     if (mMeasureInWindows == null) {
       mMeasureInWindows = new ArrayList<>();
     }
