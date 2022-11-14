@@ -35,8 +35,5 @@ public:
 
 private:
   List<Sp<RenderTask>> queue_;
-  std::mutex mutex_;
-  std::condition_variable cv_;
-  bool notified_ = false;
 };
 } // namespace voltron
