@@ -326,7 +326,7 @@ console.log(Vue.Native.getElemCss(this.demon1Point)) // => { height: 80, left: 0
 
 # getBoundingClientRect
 
-> 最低支持版本 `2.15.3`，原有 `measureInAppWindow` 将逐渐废弃
+> 最低支持版本 `2.15.3`，原有 `measureInWindow` 和 `measureInAppWindow` 将逐渐废弃
 
 测量元素在宿主容器（RootView）或者 App 窗口（屏幕）范围内的尺寸和位置。
 

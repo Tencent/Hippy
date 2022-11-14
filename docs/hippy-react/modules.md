@@ -474,7 +474,7 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 
 [[getBoundingClientRect 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/UIManagerModule/index.jsx)
 
-> `最低支持版本 2.15.3`，原有 `measureInAppWindow` 和 `measureInAppWindow` 将逐渐废弃
+> 最低支持版本 `2.15.3`，原有 `measureInWindow` 和 `measureInAppWindow` 将逐渐废弃
 
 测量元素在宿主容器（RootView) 或 App 窗口（屏幕）范围内的尺寸和位置。
 

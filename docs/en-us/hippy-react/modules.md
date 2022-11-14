@@ -468,4 +468,18 @@ Measure the size and position of a component within the scope of the App window.
 
 `(ref, callback: Function) => Promise`
 
->- callback: ({ x, y, width, height }|  string |-1) => void - Callback function, its parameters can get the coordinate value, width and height of the referenced component within the scope of the App window. May return -1 or a string with `this view is null` in case of error or [node is optimized (Android only)](hippy-react/components?id=样式内特殊属性).
+>- callback: ({ x, y, width, height }|  string |-1) => void - Callback function, its parameters can get the coordinate value, width and height of the referenced component within the scope of the App window. May return -1 or a string with `this view is null` in case of error or [node is optimized (Android only)](style/layout?id=collapsable).
+
+### UIManagerModule.getBoundingClientRect
+
+[[getBoundingClientRect example]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/UIManagerModule/index.jsx)
+
+> Minimum supported version `2.15.3`, `measureInWindow` and `measureInAppWindow` will be deprecated soon.
+
+Measure the size and position of a component within the scope of the App Container(RootView) or App Window(Screen).
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> - instance: reference of the element of component.
+> - options: optional，`relToContainer` indicates whether to be measured relative to the App Container(RootView), default is `false`, meaning relative to App Window(Screen).
+> - DOMRect: same with [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) introduction, which can get the size and position of a component. If something goes wrong or [the node is optimized (Android only)](style/layout?id=collapsable), `Promise.reject` error will be thrown.
