@@ -156,7 +156,7 @@ class _BoxWidgetState extends FRState<BoxWidget> {
       });
     }
     if (!kReleaseMode && debugProfileBuildsEnabled) {
-      Timeline.startSync('[b]_BoxWidgetState', arguments: timelineArgumentsIndicatingLandmarkEvent);
+      Timeline.startSync('[b]_BoxWidgetState');
     }
     final width = widget._viewModel.width;
     final height = widget._viewModel.height;
@@ -249,8 +249,6 @@ class _BoxWidgetState extends FRState<BoxWidget> {
       );
     }
 
-    if (!kReleaseMode && debugProfileBuildsEnabled) Timeline.finishSync();
-
     /// 6. add touch listener and gesture, necessary both or none because of event bubble
     if (widget._viewModel.gestureDispatcher.needListener()) {
       current = Listener(
@@ -289,6 +287,8 @@ class _BoxWidgetState extends FRState<BoxWidget> {
         child: current,
       );
     }
+
+    if (!kReleaseMode && debugProfileBuildsEnabled) Timeline.finishSync();
 
     return current;
   }
@@ -357,10 +357,7 @@ class PositionWidget extends FRBaseStatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!kReleaseMode && debugProfileBuildsEnabled) {
-      Timeline.startSync(
-        '[b]PositionWidget',
-        arguments: timelineArgumentsIndicatingLandmarkEvent,
-      );
+      Timeline.startSync('[b]PositionWidget');
     }
     LogUtils.dWidget(
       "ID:${_viewModel.id}, node:${_viewModel.idDesc}, build position widget(${_viewModel.layoutX}, ${_viewModel.layoutY}, ${_viewModel.width}, ${_viewModel.height})",
