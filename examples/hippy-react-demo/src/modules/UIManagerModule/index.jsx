@@ -135,7 +135,7 @@ const UIManagerModuleDemo = function UIManagerModuleDemo() {
       const response = await UIManagerModule.getBoundingClientRect(box.current, { relToContainer: isRelToContainer });
       setMeasuredPosition(response);
     } catch (err) {
-      // pass
+      console.error('getBoxPosition error', err);
     }
   };
 
