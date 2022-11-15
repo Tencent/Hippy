@@ -387,7 +387,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
   public void measureInWindow(int id, Promise promise) {
     View v = mControllerRegistry.getView(id);
     if (v == null) {
-      promise.reject("this view is null");
+      promise.resolve("this view is null");
     } else {
       int[] outputBuffer = new int[4];
       int statusBarHeight;
@@ -405,7 +405,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
         outputBuffer[2] = v.getWidth();
         outputBuffer[3] = v.getHeight();
       } catch (Throwable e) {
-        promise.reject("exception" + e.getMessage());
+        promise.resolve("exception" + e.getMessage());
         e.printStackTrace();
         return;
       }
@@ -438,7 +438,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       if (v == null) {
           JSObject result = new JSObject();
           result.set(RenderNode.KEY_ERR_MSG, "this view is null");
-          promise.reject(result);
+          promise.resolve(result);
           return;
       }
       int x;
@@ -450,7 +450,7 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
           if (rootView == null) {
               JSObject result = new JSObject();
               result.set(RenderNode.KEY_ERR_MSG, "container is null");
-              promise.reject(result);
+              promise.resolve(result);
               return;
           }
 
