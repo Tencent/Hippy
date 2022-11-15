@@ -345,27 +345,38 @@ export const measureInWindowByMethod = async (
     width: -1,
     height: -1,
   };
+
   if (!el.isMounted || !el.nodeId) {
     return Promise.resolve(empty);
   }
+
   const { nodeId } = el;
   return new Promise(resolve => Native.callNative(
     'UIManagerModule',
     method,
     nodeId,
     (pos: NativePosition | string) => {
-      if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
+      // Android error handler.
+      if (
+        !pos
+          || pos === 'this view is null'
+          || typeof nodeId === 'undefined'
+      ) {
         return resolve(empty);
       }
-      const { x, y, height, width } = pos;
-      return resolve({
-        top: y,
-        left: x,
-        width,
-        height,
-        bottom: y + height,
-        right: x + width,
-      });
+
+      if (typeof pos !== 'string') {
+        return resolve({
+          top: pos.y,
+          left: pos.x,
+          bottom: pos.y + pos.height,
+          right: pos.x + pos.width,
+          width: pos.width,
+          height: pos.height,
+        });
+      }
+
+      return resolve(empty);
     },
   ));
 };
@@ -637,8 +648,8 @@ export const Native: NativeApiType = {
       }
       trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
       Native.callNative('UIManagerModule', 'getBoundingClientRect', nodeId, options, (res) => {
-        if (!res || res.errMsg) {
-          return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));
+        if (!res || res.errorMsg) {
+          return reject(new Error((res?.errorMsg) || 'getBoundingClientRect error with no response'));
         }
         const { x, y, width, height } = res;
         let bottom: undefined | number = undefined;

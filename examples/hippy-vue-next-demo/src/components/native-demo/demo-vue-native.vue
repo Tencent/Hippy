@@ -434,15 +434,11 @@ export default defineComponent({
     };
 
     const getBoundingClientRect = async (relToContainer = false) => {
-      try {
-        const rect = await Native.getBoundingClientRect(rectRef.value as HippyNode, { relToContainer });
-        if (!relToContainer) {
-          rect1.value = `${JSON.stringify(rect)}`;
-        } else {
-          rect2.value = `${JSON.stringify(rect)}`;
-        }
-      } catch (err) {
-        console.error('getBoundingClientRect error', err);
+      const rect = await Native.getBoundingClientRect(rectRef.value as HippyNode, { relToContainer });
+      if (!relToContainer) {
+        rect1.value = `${JSON.stringify(rect)}`;
+      } else {
+        rect2.value = `${JSON.stringify(rect)}`;
       }
     };
 

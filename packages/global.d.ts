@@ -59,7 +59,7 @@ declare namespace HippyTypes {
     // The height of component
     height: number | undefined;
     // error message
-    errMsg?: string | undefined;
+    errorMsg?: string | undefined;
   }
 
   export interface DOMRect {

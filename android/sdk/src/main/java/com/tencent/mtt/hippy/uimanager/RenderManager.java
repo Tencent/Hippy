@@ -255,11 +255,11 @@ public class RenderManager {
     RenderNode renderNode = mNodes.get(id);
     if (renderNode == null) {
         if (options.get(RenderNode.KEY_COMPATIBLE) == Boolean.TRUE) {
-            promise.resolve("this view is null");
+            promise.reject("this node is null");
         } else {
             JSObject result = new JSObject();
             result.set(RenderNode.KEY_ERR_MSG, "this node is null");
-            promise.resolve(result);
+            promise.reject(result);
         }
     } else {
       renderNode.measureInWindow(options, promise);

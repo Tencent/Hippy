@@ -175,8 +175,8 @@ function measureInWindowByMethod(
       if (callback && isFunction(callback)) {
         callback(layout);
       }
-      if (!layout || typeof layout !== 'object') {
-        return reject(new Error(`${method} error with response: ${layout}`));
+      if (layout === 'this view is null') {
+        return reject(new Error('Android cannot get the node'));
       }
       return resolve(layout);
     });
@@ -225,8 +225,8 @@ function getBoundingClientRect(ref: Fiber, options: { relToContainer?: boolean }
     }
     trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
     return Bridge.callNative('UIManagerModule', 'getBoundingClientRect', nodeId, options, (res: HippyTypes.LayoutEvent) => {
-      if (!res || res.errMsg) {
-        return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));
+      if (!res || res.errorMsg) {
+        return reject(new Error((res?.errorMsg) || 'getBoundingClientRect error with no response'));
       }
       const { x, y, width, height } = res;
       let bottom: undefined | number = undefined;

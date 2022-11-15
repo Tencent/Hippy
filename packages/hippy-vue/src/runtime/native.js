@@ -26,7 +26,11 @@ import {
   trace,
   isFunction,
 } from '../util';
-import { getElemCss } from '../renderer/native/index';
+import {
+  getCssMap,
+} from '../renderer/native/index';
+
+import { isStyleMatched } from '../util/node';
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
 
@@ -69,19 +73,39 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
   }
   const { nodeId } = el;
   return new Promise(resolve => callNative.call(this, 'UIManagerModule', method, nodeId, (pos) => {
-    if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
+    // Android error handler.
+    if (!pos || pos === 'this view is null' || typeof nodeId === 'undefined') {
       return resolve(empty);
     }
-    const { x, y, height, width } = pos;
     return resolve({
-      top: y,
-      left: x,
-      width,
-      height,
-      bottom: y + height,
-      right: x + width,
+      top: pos.y,
+      left: pos.x,
+      bottom: pos.y + pos.height,
+      right: pos.x + pos.width,
+      width: pos.width,
+      height: pos.height,
     });
   }));
+};
+
+/**
+ * getElemCss
+ * @param {ElementNode} element
+ * @returns {{}}
+ */
+const getElemCss = function getElemCss(element) {
+  const style = Object.create(null);
+  try {
+    getCssMap().query(element).selectors.forEach((matchedSelector) => {
+      if (!isStyleMatched(matchedSelector, element)) return;
+      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
+        style[cssStyle.property] = cssStyle.value;
+      });
+    });
+  } catch (err) {
+    console.error('getDomCss Error:', err);
+  }
+  return style;
 };
 
 /**
@@ -378,8 +402,8 @@ const Native = {
       trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
       callNative.call(this, 'UIManagerModule', 'getBoundingClientRect', nodeId, options, (res) => {
         // Android error handler.
-        if (!res || res.errMsg) {
-          return reject(new Error((res && res.errMsg) || 'getBoundingClientRect error with no response'));
+        if (!res || res.errorMsg) {
+          return reject(new Error((res && res.errorMsg) || 'getBoundingClientRect error with no response'));
         }
         const { x, y, width, height } = res;
         let bottom = undefined;
