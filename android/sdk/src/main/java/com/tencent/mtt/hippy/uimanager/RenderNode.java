@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.uimanager;
 
 import android.text.TextUtils;
+import android.util.Pair;
 import android.util.SparseArray;
 import android.view.View;
 import com.tencent.mtt.hippy.HippyRootView;
@@ -23,13 +24,20 @@ import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.utils.LogUtils;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 @SuppressWarnings({"deprecation", "unused"})
 public class RenderNode {
 
+  public static final String KEY_COMPATIBLE = "compatible";
+  public static final String KEY_REL_TO_CONTAINER = "relToContainer";
+  public static final String KEY_ERR_MSG = "errMsg";
   final int mId;
   int mX;
   int mY;
@@ -46,7 +54,7 @@ public class RenderNode {
 
   SparseArray<Integer> mDeletedIdIndexMap;
 
-  List<Promise> mMeasureInWindows = null;
+  List<Pair<JSObject, Promise>> mMeasureInWindows = null;
   Object mTextExtra;
   Object mTextExtraUpdate;
 
@@ -343,8 +351,13 @@ public class RenderNode {
       }
       if (mMeasureInWindows != null && mMeasureInWindows.size() > 0) {
         for (int i = 0; i < mMeasureInWindows.size(); i++) {
-          Promise promise = mMeasureInWindows.get(i);
-          mComponentManager.measureInWindow(mId, promise);
+            Pair<JSObject, Promise> pair = mMeasureInWindows.get(i);
+            if (pair.first.get(KEY_COMPATIBLE) == Boolean.TRUE) {
+                mComponentManager.measureInWindow(mId, pair.second);
+            } else {
+                boolean relToContainer = pair.first.get(KEY_REL_TO_CONTAINER) == Boolean.TRUE;
+                mComponentManager.getBoundingClientRect(mId, mRootView, relToContainer, pair.second);
+            }
         }
         mMeasureInWindows.clear();
         mMeasureInWindows = null;
@@ -368,11 +381,11 @@ public class RenderNode {
     mHasUpdateLayout = true;
   }
 
-  public void measureInWindow(Promise promise) {
+  public void measureInWindow(JSObject options, Promise promise) {
     if (mMeasureInWindows == null) {
       mMeasureInWindows = new ArrayList<>();
     }
-    mMeasureInWindows.add(promise);
+    mMeasureInWindows.add(new Pair<>(options, promise));
   }
 
 
