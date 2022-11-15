@@ -1254,6 +1254,8 @@ HIPPY_EXPORT_METHOD(dispatchViewManagerCommand:(nonnull NSNumber *)hippyTag
     }
 }
 
+#pragma mark - Measure Functions
+
 // clang-format off
 HIPPY_EXPORT_METHOD(measure:(nonnull NSNumber *)hippyTag
                   callback:(HippyResponseSenderBlock)callback) {
@@ -1291,6 +1293,18 @@ HIPPY_EXPORT_METHOD(measure:(nonnull NSNumber *)hippyTag
 }
 // clang-format on
 
+static NSString * const HippyUIManagerGetBoundingRelToContainerKey = @"relToContainer";
+static NSString * const HippyUIManagerGetBoundingErrMsgrKey = @"errMsg";
+HIPPY_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
+                    options:(nullable NSDictionary *)options
+                    callback:(HippyResponseSenderBlock)callback ) {
+    if (options && [[options objectForKey:HippyUIManagerGetBoundingRelToContainerKey] boolValue]) {
+        [self measureInWindow:hippyTag callback:callback];
+    } else {
+        [self measureInAppWindow:hippyTag callback:callback];
+    }
+}
+
 // clang-format off
 HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
                   callback:(HippyResponseSenderBlock)callback) {
@@ -1298,14 +1312,18 @@ HIPPY_EXPORT_METHOD(measureInWindow:(nonnull NSNumber *)hippyTag
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
-            callback(@[]);
+            NSString *formatStr = @"measure cannot find view with tag #%@";
+            NSString *errMsg = [NSString stringWithFormat:formatStr, hippyTag];
+            HippyLogWarn(formatStr, hippyTag);
+            callback(@[@{HippyUIManagerGetBoundingErrMsgrKey : errMsg}]);
             return;
         }
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            HippyLogWarn(@"measure cannot find view's root view with tag #%@", hippyTag);
-            callback(@[]);
+            NSString *formatStr = @"measure cannot find view's root view with tag #%@";
+            NSString *errMsg = [NSString stringWithFormat:formatStr, hippyTag];
+            HippyLogWarn(formatStr, hippyTag);
+            callback(@[@{HippyUIManagerGetBoundingErrMsgrKey : errMsg}]);
             return;
         }
         
@@ -1325,8 +1343,10 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
         UIView *view = viewRegistry[hippyTag];
         if (!view) {
             // this view was probably collapsed out
-            HippyLogWarn(@"measure cannot find view with tag #%@", hippyTag);
-            callback(@[]);
+            NSString *formatStr = @"measure cannot find view with tag #%@";
+            NSString *errMsg = [NSString stringWithFormat:formatStr, hippyTag];
+            HippyLogWarn(formatStr, hippyTag);
+            callback(@[@{HippyUIManagerGetBoundingErrMsgrKey : errMsg}]);
             return;
         }
                 
@@ -1338,6 +1358,8 @@ HIPPY_EXPORT_METHOD(measureInAppWindow:(nonnull NSNumber *)hippyTag
     }];
 }
 // clang-format on
+
+#pragma mark -
 
 - (NSDictionary<NSString *, id> *)constantsToExport {
     NSMutableDictionary<NSString *, NSDictionary *> *allJSConstants = [NSMutableDictionary new];

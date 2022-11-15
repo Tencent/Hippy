@@ -377,6 +377,7 @@ const Native = {
 
   /**
    * Measure the component size and position.
+   * @deprecated
    */
   measureInWindow(el) {
     return measureInWindowByMethod(el, 'measureInWindow');
@@ -390,6 +391,41 @@ const Native = {
       return measureInWindowByMethod(el, 'measureInWindow');
     }
     return measureInWindowByMethod(el, 'measureInAppWindow');
+  },
+
+  getBoundingClientRect(el, options) {
+    const { nodeId } = el;
+    return new Promise((resolve, reject) => {
+      if (!el.isMounted || !nodeId) {
+        return reject(new Error(`getBoundingClientRect cannot get nodeId of ${el} or ${el} is not mounted`));
+      }
+      trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
+      callNative.call(this, 'UIManagerModule', 'getBoundingClientRect', nodeId, options, (res) => {
+        // Android error handler.
+        if (!res || res.errorMsg) {
+          return reject(new Error((res && res.errorMsg) || 'getBoundingClientRect error with no response'));
+        }
+        const { x, y, width, height } = res;
+        let bottom = undefined;
+        let right = undefined;
+        if (typeof y === 'number' && typeof height === 'number') {
+          bottom = y + height;
+        }
+        if (typeof x === 'number' && typeof width === 'number') {
+          right = x + width;
+        }
+        return resolve({
+          x,
+          y,
+          width,
+          height,
+          bottom,
+          right,
+          left: x,
+          top: y,
+        });
+      });
+    });
   },
 
   /**

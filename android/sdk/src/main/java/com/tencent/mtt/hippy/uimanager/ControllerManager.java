@@ -36,6 +36,7 @@ import com.tencent.mtt.hippy.common.HippyTag;
 import com.tencent.mtt.hippy.dom.node.NodeProps;
 import com.tencent.mtt.hippy.dom.node.StyleNode;
 import com.tencent.mtt.hippy.modules.Promise;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.utils.ContextHolder;
 import com.tencent.mtt.hippy.utils.DimensionsUtil;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -424,6 +425,52 @@ public class ControllerManager implements HippyInstanceLifecycleEventListener {
       promise.resolve(hippyMap);
     }
 
+  }
+
+  /**
+   * @param id view id
+   * @param rootView
+   * @param relToContainer true is relative to the rootView, otherwise relative to the app frame
+   * @param promise
+   */
+  public void getBoundingClientRect(int id, HippyRootView rootView, boolean relToContainer, Promise promise) {
+      View v = mControllerRegistry.getView(id);
+      if (v == null) {
+          JSObject result = new JSObject();
+          result.set(RenderNode.KEY_ERR_MSG, "this view is null");
+          promise.reject(result);
+          return;
+      }
+      int x;
+      int y;
+      int width = v.getWidth();
+      int height = v.getHeight();
+      int[] pair = new int[2];
+      if (relToContainer) {
+          if (rootView == null) {
+              JSObject result = new JSObject();
+              result.set(RenderNode.KEY_ERR_MSG, "container is null");
+              promise.reject(result);
+              return;
+          }
+
+          v.getLocationInWindow(pair);
+          x = pair[0];
+          y = pair[1];
+          rootView.getLocationInWindow(pair);
+          x -= pair[0];
+          y -= pair[1];
+      } else {
+          v.getLocationOnScreen(pair);
+          x = pair[0];
+          y = pair[1];
+      }
+      JSObject result = new JSObject();
+      result.set("x", PixelUtil.px2dp(x));
+      result.set("y", PixelUtil.px2dp(y));
+      result.set("width", PixelUtil.px2dp(width));
+      result.set("height", PixelUtil.px2dp(height));
+      promise.resolve(result);
   }
 
   public void onManageChildComplete(String className, int id) {
