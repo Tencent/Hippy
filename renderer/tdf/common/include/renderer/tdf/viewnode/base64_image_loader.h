@@ -22,6 +22,12 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wextra-semi"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-float-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-float-conversion"
+#pragma clang diagnostic ignored "-Wfloat-conversion"
+#pragma clang diagnostic ignored "-Wignored-qualifiers"
 #include "core/common/time.h"
 #include "core/engine/schedule/task_runner.h"
 #include "core/engine/schedule/thread_task_driver.h"
