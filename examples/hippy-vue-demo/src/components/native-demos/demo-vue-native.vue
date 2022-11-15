@@ -388,11 +388,15 @@ export default {
   },
   methods: {
     async getBoundingClientRect(relToContainer = false) {
-      const rect = await Vue.Native.getBoundingClientRect(this.$refs.rect, { relToContainer });
-      if (!relToContainer) {
-        this.rect1 = `${JSON.stringify(rect)}`;
-      } else {
-        this.rect2 = `${JSON.stringify(rect)}`;
+      try {
+        const rect = await Vue.Native.getBoundingClientRect(this.$refs.rect, { relToContainer });
+        if (!relToContainer) {
+          this.rect1 = `${JSON.stringify(rect)}`;
+        } else {
+          this.rect2 = `${JSON.stringify(rect)}`;
+        }
+      } catch (err) {
+        console.error('getBoundingClientRect error', err);
       }
     },
     triggerAppEvent() {

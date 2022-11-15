@@ -648,8 +648,8 @@ export const Native: NativeApiType = {
       }
       trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
       Native.callNative('UIManagerModule', 'getBoundingClientRect', nodeId, options, (res) => {
-        if (!res || res.errorMsg) {
-          return reject(new Error((res?.errorMsg) || 'getBoundingClientRect error with no response'));
+        if (!res || res.errMsg) {
+          return reject(new Error((res?.errMsg) || 'getBoundingClientRect error with no response'));
         }
         const { x, y, width, height } = res;
         let bottom: undefined | number = undefined;

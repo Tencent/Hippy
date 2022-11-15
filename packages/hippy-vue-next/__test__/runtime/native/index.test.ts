@@ -291,7 +291,7 @@ describe('runtime/native.ts', () => {
       ) => {
         const [, , callback] = args;
         callback({
-          errorMsg: 'this view is null',
+          errMsg: 'this view is null',
         });
       },
     });
