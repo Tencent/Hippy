@@ -34,8 +34,10 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.views.common.ClipChildrenView;
 import com.tencent.renderer.Renderer;
-import com.tencent.renderer.node.VirtualNode;
+import com.tencent.renderer.NativeRender;
+import com.tencent.renderer.NativeRendererManager;
 import com.tencent.renderer.node.RenderNode;
+import com.tencent.renderer.node.VirtualNode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,6 +48,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
 
     private static final String TAG = "HippyViewController";
     private static final String MEASURE_IN_WINDOW = "measureInWindow";
+    private static final String GET_BOUNDING_CLIENT_RECT = "getBoundingClientRect";
+    public static final String KEY_REL_TO_CONTAINER = "relToContainer";
+    public static final String KEY_ERR_MSG = "errMsg";
     private static final MatrixUtil.MatrixDecompositionContext sMatrixDecompositionContext = new MatrixUtil.MatrixDecompositionContext();
     private static final double[] sTransformDecompositionArray = new double[16];
     private boolean bUserChangeFocus = false;
@@ -372,6 +377,9 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
             case MEASURE_IN_WINDOW:
                 measureInWindow(view, promise);
                 break;
+            case GET_BOUNDING_CLIENT_RECT:
+                getBoundingClientRect(view, params, promise);
+                break;
             default:
                 break;
         }
@@ -435,7 +443,7 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
                 outputBuffer[1] -= statusBarHeight;
             }
         } catch (Exception e) {
-            promise.reject(
+            promise.resolve(
                     "An exception occurred when get view location on screen: " + e.getMessage());
             return;
         }
@@ -450,6 +458,49 @@ public abstract class HippyViewController<T extends View & HippyViewBase> implem
         result.put("width", PixelUtil.px2dp(view.getWidth()));
         result.put("height", PixelUtil.px2dp(view.getHeight()));
         result.put("statusBarHeight", PixelUtil.px2dp(statusBarHeight));
+        promise.resolve(result);
+    }
+
+    private void getBoundingClientRect(@NonNull View view, @NonNull List<?> params,
+            @NonNull Promise promise) {
+        boolean relToContainer = false;
+        if (!params.isEmpty()) {
+            Object param = params.get(0);
+            if (param instanceof HashMap) {
+                relToContainer = ((HashMap<?, ?>) param).get(KEY_REL_TO_CONTAINER) == Boolean.TRUE;
+            }
+        }
+        int x;
+        int y;
+        int width = view.getWidth();
+        int height = view.getHeight();
+        int[] pair = new int[2];
+        if (relToContainer) {
+            NativeRender renderer = NativeRendererManager.getNativeRenderer(view.getContext());
+            View rootView = renderer == null ? null : renderer.getRootView(view);
+            if (rootView == null) {
+                Map<String, Object> result = new HashMap<>();
+                result.put(KEY_ERR_MSG, "container is null");
+                promise.resolve(result);
+                return;
+            }
+
+            view.getLocationInWindow(pair);
+            x = pair[0];
+            y = pair[1];
+            rootView.getLocationInWindow(pair);
+            x -= pair[0];
+            y -= pair[1];
+        } else {
+            view.getLocationOnScreen(pair);
+            x = pair[0];
+            y = pair[1];
+        }
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("x", PixelUtil.px2dp(x));
+        result.put("y", PixelUtil.px2dp(y));
+        result.put("width", PixelUtil.px2dp(width));
+        result.put("height", PixelUtil.px2dp(height));
         promise.resolve(result);
     }
 }
