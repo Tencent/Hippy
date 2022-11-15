@@ -469,3 +469,17 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(ref, callback: Function) => Promise`
 
 > - callback: ({ x, y, width, height } | string | -1) => void - 回调函数, 参数可以获取到引用组件在 App 窗口范围内的坐标值和宽高，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)可能返回 -1 或者 `this view is null` 字符串
+
+### UIManagerModule.getBoundingClientRect
+
+[[getBoundingClientRect 范例]](//github.com/Tencent/Hippy/tree/master/examples/hippy-react-demo/src/modules/UIManagerModule/index.jsx)
+
+> 最低支持版本 `2.15.3`，原有 `measureInWindow` 和 `measureInAppWindow` 将逐渐废弃
+
+测量元素在宿主容器（RootView) 或 App 窗口（屏幕）范围内的尺寸和位置。
+
+`(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
+
+> - instance: 元素或组件的引用 Ref。
+> - options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。
+> - DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。

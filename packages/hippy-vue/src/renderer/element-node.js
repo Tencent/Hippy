@@ -542,12 +542,13 @@ class ElementNode extends ViewNode {
 
   /**
    * getBoundingClientRect
-   *
+   * @deprecated
    * Get the position and size of element
    * Because it's a async function, need await prefix.
    *
    * And if the element is out of visible area, result will be none.
    */
+
   getBoundingClientRect() {
     return Native.measureInWindow(this);
   }
