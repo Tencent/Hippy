@@ -35,4 +35,5 @@ export interface UiManagerModule {
   ) => void;
   measureInWindow: (nodeId: number, callback: CallbackType) => void;
   measureInAppWindow: (nodeId: number, callback: CallbackType) => void;
+  getBoundingClientRect: (nodeId: number, options: NeedToTyped, callback: CallbackType) => void;
 }

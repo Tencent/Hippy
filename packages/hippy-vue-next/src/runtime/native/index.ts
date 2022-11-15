@@ -64,6 +64,18 @@ interface MeasurePosition {
   height: number;
 }
 
+// DOM Bounding Rect
+interface DOMRect {
+  x: number | undefined;
+  y: number | undefined;
+  top: number | undefined;
+  left: number | undefined;
+  bottom: number | undefined;
+  right: number | undefined;
+  width: number | undefined;
+  height: number | undefined;
+}
+
 // Native location information type
 interface NativePosition {
   x: number;
@@ -274,6 +286,9 @@ export interface NativeApiType {
 
   // measure the position of an element within the window
   measureInAppWindow: (el: HippyNode) => Promise<MeasurePosition>;
+
+  // measure the position of an element within the window
+  getBoundingClientRect: (el: HippyNode, options?: { relToContainer?: boolean }) => Promise<DOMRect>;
 
   // convert the given color string to int32 recognized by Native
   parseColor: (color: string, options?: { platform: string }) => number;
@@ -617,6 +632,46 @@ export const Native: NativeApiType = {
       return measureInWindowByMethod(el, 'measureInWindow');
     }
     return measureInWindowByMethod(el, 'measureInAppWindow');
+  },
+
+  /**
+   * Returns a Promise with DOMRect object providing information
+   * about the size of an element and its position relative to the RootView or Container
+   * @param el
+   * @param options
+   */
+  getBoundingClientRect(el, options): Promise<DOMRect> {
+    const { nodeId } = el;
+    return new Promise((resolve, reject) => {
+      if (!el.isMounted || !nodeId) {
+        return reject(new Error(`getBoundingClientRect cannot get nodeId of ${el} or ${el} is not mounted`));
+      }
+      trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
+      Native.callNative('UIManagerModule', 'getBoundingClientRect', nodeId, options, (res) => {
+        if (!res || res.errorMsg) {
+          return reject(new Error((res?.errorMsg) || 'getBoundingClientRect error with no response'));
+        }
+        const { x, y, width, height } = res;
+        let bottom: undefined | number = undefined;
+        let right: undefined | number = undefined;
+        if (typeof y === 'number' && typeof height === 'number') {
+          bottom = y + height;
+        }
+        if (typeof x === 'number' && typeof width === 'number') {
+          right = x + width;
+        }
+        return resolve({
+          x,
+          y,
+          width,
+          height,
+          bottom,
+          right,
+          left: x,
+          top: y,
+        });
+      });
+    });
   },
   NetInfo: {
     /**
