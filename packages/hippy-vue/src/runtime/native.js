@@ -402,8 +402,8 @@ const Native = {
       trace('UIManagerModule', { nodeId, funcName: 'getBoundingClientRect', params: options });
       callNative.call(this, 'UIManagerModule', 'getBoundingClientRect', nodeId, options, (res) => {
         // Android error handler.
-        if (!res || res.errorMsg) {
-          return reject(new Error((res && res.errorMsg) || 'getBoundingClientRect error with no response'));
+        if (!res || res.errMsg) {
+          return reject(new Error((res && res.errMsg) || 'getBoundingClientRect error with no response'));
         }
         const { x, y, width, height } = res;
         let bottom = undefined;
