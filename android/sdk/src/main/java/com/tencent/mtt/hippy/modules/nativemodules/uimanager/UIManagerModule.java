@@ -161,7 +161,7 @@ public class UIManagerModule extends HippyNativeModuleBase {
       if (domManager == null) {
           JSObject result = new JSObject();
           result.set(RenderNode.KEY_ERR_MSG, "DomManager is null");
-          promise.reject(result);
+          promise.resolve(result);
           return;
       }
       domManager.measureInWindow(id, options, promise);
