@@ -20,7 +20,9 @@
 
 import 'dart:collection';
 
+import 'package:voltron/adapter/resource_loader.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:voltron_vfs/voltron_vfs.dart';
 
 import '../adapter.dart';
 import '../bridge.dart';
@@ -49,6 +51,9 @@ class EngineContext with RenderContextProxy {
   // Dev support manager
   late DevSupportManager _devSupportManager;
 
+  // vfs manager
+  late VfsManager _vfsManager;
+
   final TimeMonitor _startTimeMonitor;
 
   late JSRenderContext _renderContext;
@@ -75,6 +80,8 @@ class EngineContext with RenderContextProxy {
   EngineMonitor get engineMonitor => _renderContext.engineMonitor;
 
   JSRenderContext get renderContext => _renderContext;
+
+  VfsManager get vfsManager => _vfsManager;
 
   EngineContext(
     List<APIProvider>? apiProviders,
@@ -121,6 +128,7 @@ class EngineContext with RenderContextProxy {
       isDevModule: _isDevMode,
       debugServerHost: _debugServerHost,
     );
+    _initVfsManager();
     _devSupportManager = devSupportManager;
   }
 
@@ -137,6 +145,12 @@ class EngineContext with RenderContextProxy {
       }
     }
     return controllerGenerators;
+  }
+
+  void _initVfsManager() {
+    _vfsManager = VfsManager(_renderContext.workerId);
+    DefaultProcessor processor = DefaultProcessor(VoltronResourceLoader(_globalConfigs.httpAdapter));
+    _vfsManager.addProcessor(processor);
   }
 
   RootWidgetViewModel? getInstance(int id) {
@@ -215,6 +229,7 @@ class EngineContext with RenderContextProxy {
     }
     _bridgeManager.destroy();
     _moduleManager.destroy();
+    _vfsManager.destroy();
     _renderContext.destroy(isReload);
     _instanceLifecycleEventListeners.clear();
     _engineLifecycleEventListeners.clear();

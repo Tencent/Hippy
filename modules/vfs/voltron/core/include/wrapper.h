@@ -71,6 +71,7 @@ class VfsWrapper {
       EncodableMap *rsp_map);
 
   uint32_t GetId() const;
+  std::shared_ptr<hippy::UriLoader> GetLoader();
  private:
   static std::unordered_map<std::string,
                      std::string> ParseHeaders(voltron::EncodableMap *meta_map, const char* header_key);
@@ -101,7 +102,7 @@ typedef void(*invoke_dart)(uint32_t wrapper_id,
 
 extern invoke_dart invoke_dart_func;
 
-EXTERN_C int32_t RegisterVoltronVfsCallFuncEx(int32_t type, void *func);
+EXTERN_C int32_t RegisterVoltronVfsCallFunc(int32_t type, void *func);
 
 EXTERN_C int32_t CreateVfsWrapper(uint32_t worker_manager_id);
 

@@ -66,8 +66,16 @@ class AssetBundleLoader implements VoltronBundleLoader {
     var result = false;
     var watch = Stopwatch();
     watch.start();
+    String uri = _assetPath;
+    if (!_assetPath.startsWith('assets://')) {
+      if (_assetPath.startsWith("/")) {
+        uri = 'assets:/$_assetPath';
+      } else {
+        uri = 'assets://$_assetPath';
+      }
+    }
     try {
-      result = await bridge.runScriptFromAssets(_assetPath, canUseCodeCache, codeCacheTag, (value) {
+      result = await bridge.runScriptFromUri(uri, canUseCodeCache, codeCacheTag, (value) {
         watch.stop();
         LogUtils.profile("runScriptFromAssets", watch.elapsedMilliseconds);
         callback(value, null);
@@ -139,15 +147,19 @@ class FileBundleLoader implements VoltronBundleLoader {
 
   @override
   Future<bool> load(VoltronBridgeManager bridge, Callback callback) async {
-    if (isEmpty(_filePath)) {
+    var curFilePath = _filePath??'';
+    if (isEmpty(curFilePath)) {
       return false;
     }
     var result = false;
     var watch = Stopwatch();
     watch.start();
+    String uri = (!curFilePath.startsWith('file://'))
+        ? ('file://$curFilePath')
+        : curFilePath;
     try {
       result = await bridge
-          .runScriptFromFile(_filePath!, _filePath!, _canUseCodeCache, _codeCacheTag, (value) {
+          .runScriptFromUri(uri, _canUseCodeCache, _codeCacheTag, (value) {
         watch.stop();
         LogUtils.profile("runScriptFromFile", watch.elapsedMilliseconds);
         callback(value, null);
@@ -206,17 +218,16 @@ class HttpBundleLoader implements VoltronBundleLoader {
   @override
   Future<bool> load(VoltronBridgeManager bridge, Callback callback) async {
     var reg = RegExp(r"^https?:\/\/");
-    if (_url == null || isEmpty(_url) || !reg.hasMatch(_url!)) {
+    var curUrl = _url ?? '';
+    if (isEmpty(curUrl) || !reg.hasMatch(curUrl)) {
       return false;
     }
-    _filePath = await downloadFile(_url!);
     var result = false;
     var watch = Stopwatch();
     watch.start();
     try {
-      result = await bridge.runScriptFromFile(
-        _filePath!,
-        _filePath!,
+      result = await bridge.runScriptFromUri(
+        curUrl,
         _canUseCodeCache,
         _codeCacheTag,
         (value) {

@@ -30,7 +30,12 @@ import 'define.dart';
 import 'manager.dart';
 import 'resource_data_holder.dart';
 
+enum _VfsFuncType {
+  invokeDart,
+}
+
 class _VfsApi {
+  static const _kVfsRegisterHeader = "vfs_register";
   final DynamicLibrary _library = FfiManager().library;
 
   late final CreateVfsWrapperDartType _createVfsWrapper;
@@ -48,6 +53,17 @@ class _VfsApi {
     _onInvokeDartCallback = _library.lookupFunction<
         OnInvokeDartCallbackNativeType,
         OnInvokeDartCallbackDartType>('OnInvokeDartCallback');
+
+    // 添加自定义c++ call dart方法注册器
+    FfiManager().addFuncExRegister(_kVfsRegisterHeader, 'RegisterVoltronVfsCallFunc');
+    // 添加invokeDart回调
+    var invokeDartRegisterFunc = FfiManager().library.lookupFunction<
+            AddCallFuncNativeType<InvokeDartNativeType>,
+            AddCallFuncDartType<InvokeDartNativeType>>(
+        FfiManager().registerFuncName);
+    var invokeDartFunc = Pointer.fromFunction<InvokeDartNativeType>(invokeDart);
+    FfiManager().addRegisterFunc(_kVfsRegisterHeader,
+        _VfsFuncType.invokeDart.index, invokeDartFunc, invokeDartRegisterFunc);
   }
 }
 

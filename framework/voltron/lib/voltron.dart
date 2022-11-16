@@ -20,6 +20,9 @@
 
 library voltron;
 
+export 'package:voltron_ffi/voltron_ffi.dart';
+export 'package:voltron_vfs/voltron_vfs.dart';
+
 export 'adapter.dart';
 export 'bridge.dart';
 export 'channel.dart';
@@ -27,3 +30,4 @@ export 'engine.dart';
 export 'inspector.dart';
 export 'module.dart';
 export 'voltron/loader.dart';
+
