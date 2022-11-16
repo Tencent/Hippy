@@ -175,8 +175,8 @@ function measureInWindowByMethod(
       if (callback && isFunction(callback)) {
         callback(layout);
       }
-      if (layout === 'this view is null') {
-        return reject(new Error('Android cannot get the node'));
+      if (!layout || typeof layout !== 'object') {
+        return reject(new Error(`${method} error with response: ${layout}`));
       }
       return resolve(layout);
     });
