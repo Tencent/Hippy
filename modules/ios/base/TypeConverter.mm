@@ -20,7 +20,6 @@
  * limitations under the License.
  */
 
-#import "NSURLResponse+ToUnorderedMap.h"
 #import "TypeConverter.h"
 #import "HPToolUtils.h"
 
@@ -101,33 +100,6 @@ std::unordered_map<std::string, std::string> NSDictionaryToStringUnorderedMap(NS
         map[mapKey] = mapValue;
     }
     return map;
-}
-
-NSURLResponse *ResponseMapToURLResponse(NSURL *url, const std::unordered_map<std::string, std::string> &headerMap, size_t contentsLength) {
-    NSURLResponse *response = nil;
-    if ([[url absoluteString] hasPrefix:@"http"]) {
-        NSDictionary<NSString *, NSString *> *headers = StringUnorderedMapToNSDictionary(headerMap);
-        auto find = headerMap.find(kStatusCode);
-        NSInteger statusCode = 502;
-        if (headerMap.end() != find) {
-            statusCode = std::stoi(find->second);
-        }
-        response = [[NSHTTPURLResponse alloc] initWithURL:url statusCode:statusCode HTTPVersion:@"1.1" headerFields:headers];
-    }
-    else {
-        NSString *mimeType = @"";
-        auto find = headerMap.find(kMIMEType);
-        if (headerMap.end() != find) {
-            mimeType = [NSString stringWithUTF8String:find->second.c_str()];
-        }
-        NSString *textEncodingName = @"";
-        find = headerMap.find(kTextEncodingName);
-        if (headerMap.end() != find) {
-            textEncodingName = [NSString stringWithUTF8String:find->second.c_str()];
-        }
-        response = [[NSURLResponse alloc] initWithURL:url MIMEType:mimeType expectedContentLength:contentsLength textEncodingName:textEncodingName];
-    }
-    return response;
 }
 
 using HippyValue = footstone::value::HippyValue;

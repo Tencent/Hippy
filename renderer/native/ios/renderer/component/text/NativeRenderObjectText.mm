@@ -20,14 +20,16 @@
  * limitations under the License.
  */
 
-#import "NativeRenderObjectText.h"
 #import "HPConvert.h"
+#import "HPI18nUtils.h"
+#import "HPToolUtils.h"
 #import "NativeRenderFont.h"
+#import "NativeRenderObjectText.h"
 #import "NativeRenderText.h"
 #import "NativeRenderTextView.h"
-#import "HPToolUtils.h"
-#import "HPI18nUtils.h"
-#import "dom/layout_node.h"
+#import "NativeRenderUtils.h"
+
+#include "dom/layout_node.h"
 #include "dom/taitank_layout_node.h"
 
 NSString *const NativeRenderRenderObjectAttributeName = @"NativeRenderRenderObjectAttributeName";
@@ -198,11 +200,11 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 //rect for attachment at its line fragment
                 CGRect glyphRect = [layoutManager boundingRectForGlyphRange:range inTextContainer:textContainer];
                 CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
-                CGFloat roundedHeight = HPRoundPixelValue(height);
-                CGFloat roundedWidth = HPRoundPixelValue(width);
+                CGFloat roundedHeight = NativeRenderRoundPixelValue(height);
+                CGFloat roundedWidth = NativeRenderRoundPixelValue(width);
                 CGFloat positionY = glyphRect.origin.y + glyphRect.size.height - roundedHeight;
-                CGRect childFrameToSet = CGRectMake(HPRoundPixelValue(textFrame.origin.x + location.x),
-                                                    HPRoundPixelValue(textFrame.origin.y + positionY),
+                CGRect childFrameToSet = CGRectMake(NativeRenderRoundPixelValue(textFrame.origin.x + location.x),
+                                                    NativeRenderRoundPixelValue(textFrame.origin.y + positionY),
                                                     roundedWidth, roundedHeight);
                 CGRect childFrame = child.frame;
 #define ChildFrameParamNearlyEqual(x, y) (fabs((x) - (y)) < 0.00001f)
@@ -577,7 +579,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
     }
 
     // Vertically center draw position for new text sizing.
-    frame.origin.y = self.paddingAsInsets.top + HPRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f);
+    frame.origin.y = self.paddingAsInsets.top + NativeRenderRoundPixelValue((CGRectGetHeight(frame) - requiredSize.height) / 2.0f);
     return frame;
 }
 
@@ -716,7 +718,7 @@ NATIVE_RENDER_TEXT_PROPERTY(TextShadowColor, _textShadowColor, UIColor *);
     [self dirtyText];
 }
 
-- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
+- (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {

@@ -20,6 +20,7 @@
  * limitations under the License.
  */
 
+#import "NativeRenderImpl.h"
 #import "NativeRenderViewPagerManager.h"
 #import "NativeRenderViewPager.h"
 
@@ -41,7 +42,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounces, BOOL)
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
 
         if (view == nil || ![view isKindOfClass:[NativeRenderViewPager class]]) {
@@ -57,7 +58,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
         pageNumber:(__unused NSNumber *)pageNumber) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil || ![view isKindOfClass:[NativeRenderViewPager class]]) {
             HPLogError(@"tried to setPage: on an error viewPager %@ "

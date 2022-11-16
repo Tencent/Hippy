@@ -60,7 +60,7 @@ static hippy::LayoutSize x5MeasureFunc(
     return self;
 }
 
-- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
+- (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
     auto shared_domNode = domManager.lock();
     if (shared_domNode) {

@@ -21,23 +21,24 @@
  */
 
 #import "UIView+Render.h"
-#import "objc/runtime.h"
-#import "NativeRenderContext.h"
+#import "NativeRenderImpl.h"
+
+#include <objc/runtime.h>
 
 @implementation UIView (Render)
 
-- (void)setRenderContext:(id<NativeRenderContext>)renderContext {
+- (void)setRenderImpl:(NativeRenderImpl *)renderContext {
     if (renderContext) {
         NSHashTable *weakContainer = [NSHashTable weakObjectsHashTable];
         [weakContainer addObject:renderContext];
-        objc_setAssociatedObject(self, @selector(renderContext), weakContainer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(renderImpl), weakContainer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     else {
-        objc_setAssociatedObject(self, @selector(renderContext), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(renderImpl), nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
 }
 
-- (id<NativeRenderContext>)renderContext {
+- (NativeRenderImpl *)renderImpl {
     NSHashTable *hashTable = objc_getAssociatedObject(self, _cmd);
     return [hashTable anyObject];
 }

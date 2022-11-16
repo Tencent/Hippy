@@ -20,9 +20,10 @@
  * limitations under the License.
  */
 
+#import "NativeRenderImpl.h"
+#import "NativeRenderObjectView.h"
 #import "NativeRenderScrollViewManager.h"
 #import "NativeRenderScrollView.h"
-#import "NativeRenderObjectView.h"
 
 @implementation HPConvert (UIScrollView)
 
@@ -97,7 +98,7 @@ NATIVE_RENDER_CUSTOM_RENDER_OBJECT_PROPERTY(overflow, OverflowType, NativeRender
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getContentSize:(nonnull NSNumber *)componentTag
                     callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderScrollView *view = viewRegistry[componentTag];
         CGSize size = view.scrollView.contentSize;
         callback(@{@"width" : @(size.width),@"height" : @(size.height)});
@@ -110,7 +111,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
                     offsetX:(NSNumber *)x
                     offsetY:(NSNumber *)y
                     animated:(NSNumber *)animated) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {
@@ -126,7 +127,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollTo:(nonnull NSNumber *)componentTag
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToWithOptions:(nonnull NSNumber *)componentTag
                     options:(NSDictionary *)options) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil) return ;
         if ([view conformsToProtocol:@protocol(NativeRenderScrollableProtocol)]) {

@@ -23,6 +23,8 @@
 #import "HippyBridge+VFSLoader.h"
 #import "HPUriLoader.h"
 
+#include "VFSUriLoader.h"
+
 @implementation HippyBridge (VFSLoader)
 
 static NSDictionary *AssembleParams(NSDictionary<NSString *, NSString *> *_Nullable httpHeaders, NSString *_Nullable method, NSData *_Nullable body) {

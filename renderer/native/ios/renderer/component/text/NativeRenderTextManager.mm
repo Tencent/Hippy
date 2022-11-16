@@ -125,7 +125,7 @@ NATIVE_RENDER_EXPORT_RENDER_OBJECT_PROPERTY(autoLetterSpacing, BOOL)
     NSNumber *componentTag = renderObjectText.componentTag;
     UIEdgeInsets padding = renderObjectText.paddingAsInsets;
 
-    return ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, NativeRenderText *> *viewRegistry) {
+    return ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, NativeRenderText *> *viewRegistry) {
         NativeRenderText *text = viewRegistry[componentTag];
         text.contentInset = padding;
     };

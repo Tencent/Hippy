@@ -2,7 +2,7 @@
  * iOS SDK
  *
  * Tencent is pleased to support the open source community by making
- * Hippy available.
+ * NativeRender available.
  *
  * Copyright (C) 2019 THL A29 Limited, a Tencent company.
  * All rights reserved.
@@ -22,17 +22,20 @@
 
 #import <Foundation/Foundation.h>
 
+#import "MacroDefines.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol HPComponentTag <NSObject>
+// Get screen metrics in a thread-safe way
+HP_EXTERN CGFloat NativeRenderScreenScale(void);
+HP_EXTERN CGSize NativeRenderScreenSize(void);
 
-@property(nonatomic, strong) NSNumber *componentTag;
-@property (nonatomic, strong) NSNumber *rootTag;
-@property (nonatomic, copy) NSString *tagName;
+// Round float coordinates to nearest whole screen pixel (not point)
+HP_EXTERN CGFloat NativeRenderRoundPixelValue(CGFloat value);
+HP_EXTERN CGFloat NativeRenderCeilPixelValue(CGFloat value);
+HP_EXTERN CGFloat NativeRenderFloorPixelValue(CGFloat value);
 
-- (NSArray<id<HPComponentTag>> *)subcomponents;
-- (id<HPComponentTag>)parentComponent;
-
-@end
+// Convert a size in points to pixels, rounded up to the nearest integral size
+HP_EXTERN CGSize NativeRenderSizeInPixels(CGSize pointSize, CGFloat scale);
 
 NS_ASSUME_NONNULL_END

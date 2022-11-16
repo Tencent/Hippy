@@ -28,16 +28,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// JSON serialization/deserialization
-HP_EXTERN NSString *__nullable HPJSONStringify(id __nullable jsonObject, NSError **error);
-HP_EXTERN id __nullable HPJSONParse(NSString *__nullable jsonString, NSError **error);
-HP_EXTERN id __nullable HPJSONParseMutable(NSString *__nullable jsonString, NSError **error);
-
-// Sanitize a JSON object by stripping invalid types and/or NaN values
-HP_EXTERN id HPJSONClean(id object);
-
-// Get MD5 hash of a string
-HP_EXTERN NSString *HPMD5Hash(NSString *string);
 
 // Check is we are currently on the main queue (not to be confused with
 // the main thread, which is not neccesarily the same thing)
@@ -50,20 +40,6 @@ HP_EXTERN void HPExecuteOnMainQueue(dispatch_block_t block);
 
 // Deprecated - do not use.
 HP_EXTERN void HPExecuteOnMainThread(dispatch_block_t block, BOOL sync);
-//__deprecated_msg("Use HPExecuteOnMainQueue instead. HPExecuteOnMainQueue is "
-//                 "async. If you need to use the `sync` option... please don't.");
-
-// Get screen metrics in a thread-safe way
-HP_EXTERN CGFloat HPScreenScale(void);
-HP_EXTERN CGSize HPScreenSize(void);
-
-// Round float coordinates to nearest whole screen pixel (not point)
-HP_EXTERN CGFloat HPRoundPixelValue(CGFloat value);
-HP_EXTERN CGFloat HPCeilPixelValue(CGFloat value);
-HP_EXTERN CGFloat HPFloorPixelValue(CGFloat value);
-
-// Convert a size in points to pixels, rounded up to the nearest integral size
-HP_EXTERN CGSize HPSizeInPixels(CGSize pointSize, CGFloat scale);
 
 // Method swizzling
 HP_EXTERN void HPSwapClassMethods(Class cls, SEL original, SEL replacement);
@@ -72,17 +48,6 @@ HP_EXTERN void HPSwapInstanceMethods(Class cls, SEL original, SEL replacement);
 // Module subclass support
 HP_EXTERN BOOL HPClassOverridesClassMethod(Class cls, SEL selector);
 HP_EXTERN BOOL HPClassOverridesInstanceMethod(Class cls, SEL selector);
-
-// Creates a standardized error object to return in callbacks
-HP_EXTERN NSDictionary<NSString *, id> *HPMakeError(
-    NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
-HP_EXTERN NSDictionary<NSString *, id> *HPMakeAndLogError(
-    NSString *message, id __nullable toStringify, NSDictionary<NSString *, id> *__nullable extraData);
-HP_EXTERN NSDictionary<NSString *, id> *HPJSErrorFromNSError(NSError *error);
-HP_EXTERN NSDictionary<NSString *, id> *HPJSErrorFromCodeMessageAndNSError(NSString *code, NSString *message, NSError *__nullable error);
-
-// The default error code to use as the `code` property for callback error objects
-HP_EXTERN NSString *const HPErrorUnspecified;
 
 // Returns YES if HP is running in a test environment
 HP_EXTERN BOOL HPRunningInTestEnvironment(void);
@@ -119,19 +84,6 @@ HP_EXTERN NSError *HPErrorFromErrorAndModuleName(NSError *error, NSString *__nul
 
 // Convert NaN or infinite values to zero, as these aren't JSON-safe
 HP_EXTERN double HPZeroIfNaN(double value);
-
-// Convert data to a Base64-encoded data URL
-HP_EXTERN NSURL *HPDataURL(NSString *mimeType, NSData *data);
-
-// Returns the relative path within the main bundle for an absolute URL
-// (or nil, if the URL does not specify a path within the main bundle)
-HP_EXTERN NSString *__nullable HPBundlePathForURL(NSURL *__nullable URL);
-
-// Determines if a given image URL refers to a local image
-HP_EXTERN BOOL HPIsLocalAssetURL(NSURL *__nullable imageURL);
-
-// Creates a new, unique temporary file path with the specified extension
-HP_EXTERN NSString *__nullable HPTempFilePath(NSString *__nullable extension, NSError **error);
 
 // Converts a CGColor to a hex string
 HP_EXTERN NSString *HPColorToHexString(CGColorRef color);

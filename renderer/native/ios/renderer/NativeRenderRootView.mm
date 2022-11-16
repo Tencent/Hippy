@@ -27,7 +27,6 @@
 
 #include <objc/runtime.h>
 
-#include "driver/scope.h"
 #include "footstone/hippy_value.h"
 #include "TypeConverter.h"
 

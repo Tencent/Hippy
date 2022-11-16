@@ -20,6 +20,7 @@
  * limitations under the License.
  */
 
+#import "NativeRenderImpl.h"
 #import "NativeRenderSmartViewPagerViewManager.h"
 #import "NativeRenderSmartViewPagerView.h"
 
@@ -47,7 +48,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(autoplay, BOOL)
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
 
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
@@ -63,7 +64,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPage:(nonnull NSNumber *)componentTag
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber *)componentTag
         pageNumber:(NSNumber *)pageNumber) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[componentTag];
         if (view == nil || ![view isKindOfClass:[NativeRenderSmartViewPagerView class]]) {
             HPLogError(@"tried to setPage: on an error viewPager %@ "
@@ -78,7 +79,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setPageWithoutAnimation:(nonnull NSNumber 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getPageIndex:(nonnull NSNumber *)componentTag
                     callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderSmartViewPagerView *view = viewRegistry[componentTag];
         NSInteger currrentPage = [view getCurrentPage];
         callback(@(currrentPage));
