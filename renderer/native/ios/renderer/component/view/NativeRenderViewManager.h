@@ -22,13 +22,14 @@
 
 #import <UIKit/UIKit.h>
 #import "HPConvert.h"
-#import "NativeRenderContext.h"
+#import "NativeRenderDefines.h"
 
 @class NativeRenderObjectView;
+@class NativeRenderImpl;
 
 @interface NativeRenderViewManager : NSObject
 
-@property(nonatomic, weak)id<NativeRenderContext> renderContext;
+@property(nonatomic, weak)NativeRenderImpl *renderImpl;
 
 /**
  * This method instantiates a native view to be managed by the module. Override

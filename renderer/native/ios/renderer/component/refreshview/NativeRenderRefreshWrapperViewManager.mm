@@ -22,6 +22,7 @@
 
 #import "NativeRenderRefreshWrapperViewManager.h"
 #import "NativeRenderRefreshWrapper.h"
+#import "NativeRenderImpl.h"
 
 @implementation NativeRenderRefreshWrapperViewManager
 
@@ -34,7 +35,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(bounceTime, CGFloat)
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)componentTag) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView refreshCompleted];
     }];
@@ -43,7 +44,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshComplected:(NSNumber *__nonnull)com
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(NSNumber *__nonnull)componentTag) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderRefreshWrapper *wrapperView = viewRegistry[componentTag];
         [wrapperView startRefresh];
     }];

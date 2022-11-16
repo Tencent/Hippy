@@ -20,6 +20,7 @@
  * limitations under the License.
  */
 
+#import "NativeRenderImpl.h"
 #import "NativeRenderNavigatorViewManager.h"
 
 @interface NativeRenderNavigatorViewManager ()
@@ -36,7 +37,7 @@
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(push:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView push:params];
     }];
@@ -45,7 +46,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(push:(NSNumber *__nonnull)componentTag par
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(pop:(NSNumber *__nonnull)componentTag parms:(NSDictionary *__nonnull)params) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *,__kindof UIView *> *viewRegistry) {
         NativeRenderNavigatorHostView *navigatorHostView = viewRegistry[componentTag];
         [navigatorHostView pop:params];
     }];

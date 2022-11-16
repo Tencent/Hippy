@@ -159,6 +159,18 @@ void NativeRenderManager::RegisterRootView(UIView *view, std::weak_ptr<hippy::Ro
     }
 }
 
+void NativeRenderManager::UnregisterRootView(uint32_t id) {
+    @autoreleasepool {
+        [renderImpl_ unregisterRootViewFromTag:@(id)];
+    }
+}
+
+NSArray<UIView *> *NativeRenderManager::rootViews() {
+    @autoreleasepool {
+        return [renderImpl_ rootViews];
+    }
+}
+
 void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     @autoreleasepool {
         [renderImpl_ setDomManager:dom_manager];
@@ -169,11 +181,18 @@ void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {
     renderImpl_.uiCreationLazilyEnabled = enabled;
 }
 
-id<NativeRenderContext> NativeRenderManager::GetRenderContext() {
-    return renderImpl_;
+void NativeRenderManager::SetImageProviderClass(Class<HPImageProviderProtocol> cls) {
+    renderImpl_.imageProviderClass = cls;
+}
+void NativeRenderManager::SetHPUriLoader(HPUriLoader *loader) {
+    renderImpl_.HPUriLoader = loader;
+}
+void NativeRenderManager::SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader) {
+    renderImpl_.VFSUriLoader = loader;
 }
 
 NativeRenderManager::~NativeRenderManager() {
     [renderImpl_ invalidate];
     renderImpl_ = nil;
 }
+ 

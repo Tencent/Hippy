@@ -22,6 +22,7 @@
 
 #import "NativeRenderWaterfallViewManager.h"
 #import "NativeRenderWaterfallView.h"
+#import "NativeRenderImpl.h"
 
 @implementation NativeRenderWaterfallViewManager
 
@@ -50,7 +51,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)react
                                text:(nonnull NSString *)text
                                duration:(nonnull NSNumber *)duration
                                imageUrl:(nonnull NSString *)imageUrl) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -62,7 +63,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(refreshCompleted:(nonnull NSNumber *)react
 }
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(nonnull NSNumber *)reactTag) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -75,7 +76,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefresh:(nonnull NSNumber *)reactTag)
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefreshWithType:(nonnull NSNumber *)reactTag
                                type:(NSNumber *)type) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -87,7 +88,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startRefreshWithType:(nonnull NSNumber *)r
 }
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(callExposureReport:(nonnull NSNumber *)reactTag) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -102,7 +103,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)reactTag
                                xIndex:(nonnull NSNumber *)xIndex
                                yIndex:(nonnull NSNumber *)yIndex
                                animation:(nonnull NSNumber *)animation) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -117,7 +118,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)
                                x:(nonnull NSNumber *)x
                                y:(nonnull NSNumber *)y
                                animation:(nonnull NSNumber *)animation) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;
@@ -129,7 +130,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)
 }
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(startLoadMore:(nonnull NSNumber *)reactTag) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         NativeRenderWaterfallView *view = (NativeRenderWaterfallView *)viewRegistry[reactTag];
         if (view == nil)
             return;

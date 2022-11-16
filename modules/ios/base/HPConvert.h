@@ -121,24 +121,6 @@ typedef BOOL css_backface_visibility_t;
 
 @end
 
-@interface HPConvert (Deprecated)
-
-/**
- * Use lightweight generics syntax instead, e.g. NSArray<NSString *>
- */
-typedef NSArray NSArrayArray __deprecated_msg("Use NSArray<NSArray *>");
-typedef NSArray NSStringArray __deprecated_msg("Use NSArray<NSString *>");
-typedef NSArray NSStringArrayArray __deprecated_msg("Use NSArray<NSArray<NSString *> *>");
-typedef NSArray NSDictionaryArray __deprecated_msg("Use NSArray<NSDictionary *>");
-typedef NSArray NSURLArray __deprecated_msg("Use NSArray<NSURL *>");
-typedef NSArray NSNumberArray __deprecated_msg("Use NSArray<NSNumber *>");
-typedef NSArray UIColorArray __deprecated_msg("Use NSArray<UIColor *>");
-
-+ (UIImage *)UIImage:(id)json;
-+ (CGImageRef)CGImage:(id)json CF_RETURNS_NOT_RETAINED;
-
-@end
-
 HP_EXTERN NSNumber *HPConvertEnumValue(const char *, NSDictionary *, NSNumber *, id);
 HP_EXTERN NSNumber *HPConvertMultiEnumValue(const char *, NSDictionary *, NSNumber *, id);
 HP_EXTERN NSArray *HPConvertArrayValue(SEL, id);

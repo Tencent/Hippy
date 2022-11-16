@@ -11,6 +11,7 @@ build
 coverage
 dist
 node_modules
+xcuserdata
 
 *.log
 *.iml
@@ -39,7 +40,6 @@ framework/examples/android-demo/libs/*
 framework/examples/android-demo/maven-auth.properties
 framework/examples/android-demo/.cxx/
 framework/examples/ios-demo/HippyDemo.xcodeproj/project.xcworkspace/
-framework/examples/ios-demo/HippyDemo.xcodeproj/xcuserdata/*
 framework/examples/ios-demo/HippyDemo.xcodeproj/xcshareddata/*
 framework/examples/ios-demo/HippyDemo.xcworkspace/*
 framework/examples/ios-demo/Pods/*

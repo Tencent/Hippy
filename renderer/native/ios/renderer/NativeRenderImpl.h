@@ -23,7 +23,7 @@
 #import <UIKit/UIKit.h>
 
 #import "HPInvalidating.h"
-#import "NativeRenderContext.h"
+#import "NativeRenderDefines.h"
 #import "NativeRenderViewManager.h"
 #import "TypeConverter.h"
 
@@ -35,37 +35,24 @@
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
 
-@class NativeRenderAnimationViewParams, NativeRenderObjectView;
+@class NativeRenderAnimationViewParams, NativeRenderObjectView, HPUriLoader, NativeRenderImpl;
+
+class VFSUriLoader;
 
 @protocol HPImageProviderProtocol;
 
 /**
- * Posted whenever a new root view is registered with NativeRenderUIManager. The userInfo property
- * will contain a NativeRenderUIManagerRootViewKey with the registered root view.
- */
-HP_EXTERN NSString *const NativeRenderUIManagerDidRegisterRootViewNotification;
-
-/**
- * Key for the root view property in the above notifications
- */
-HP_EXTERN NSString *const NativeRenderUIManagerRootViewTagKey;
-
-/**
- * Key for Render UIManager
- */
-HP_EXTERN NSString *const NativeRenderUIManagerKey;
-
-/**
- * Posted whenever endBatch is called
- */
-HP_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotification;
-
-/**
  * The NativeRenderUIManager is the module responsible for updating the view hierarchy.
  */
-@interface NativeRenderImpl : NSObject <HPInvalidating, NativeRenderContext>
+@interface NativeRenderImpl : NSObject <HPInvalidating>
 
 @property(nonatomic, assign) BOOL uiCreationLazilyEnabled;
+
+@property(nonatomic, strong) Class<HPImageProviderProtocol> imageProviderClass;
+@property(nonatomic, strong) HPUriLoader *HPUriLoader;
+@property(nonatomic, assign) std::shared_ptr<VFSUriLoader> VFSUriLoader;
+@property(nonatomic, readonly) std::weak_ptr<hippy::DomManager> domManager;
+@property(nonatomic, readonly) NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry;
 
 /**
  * Gets the view associated with a componentTag.
@@ -97,6 +84,20 @@ HP_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotification;
  * NativeRender won't be aware of this, so we need to make sure it happens.
  */
 - (void)setNeedsLayoutForRootNodeTag:(NSNumber *)tag;
+
+- (void)registerRootView:(UIView *)rootView asRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
+
+- (void)unregisterRootViewFromTag:(NSNumber *)rootTag;
+
+- (NSArray<__kindof UIView *> *)rootViews;
+
+- (__kindof UIView *)viewFromRenderViewTag:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag;
+
+- (void)purgeViewsFromComponentTags:(NSArray<NSNumber *> *)componentTag onRootTag:(NSNumber *)rootTag;
+
+- (void)updateView:(NSNumber *)componentTag onRootTag:(NSNumber *)rootTag props:(NSDictionary *)pros;
+
+- (__kindof NativeRenderViewManager *)renderViewManagerForViewName:(NSString *)viewName;
 
 /**
  * Manully create views recursively from hippy tag
@@ -207,7 +208,7 @@ HP_EXTERN NSString *const NativeRenderUIManagerDidEndBatchNotification;
              onRootNode:(std::weak_ptr<hippy::RootNode>)rootNode;
 
 /**
- * clear all memories
+ * clear all resources
  */
 - (void)invalidate;
 

@@ -21,16 +21,16 @@
  */
 
 #import "HippyModuleMethod.h"
-
-#import <objc/message.h>
-
-#import "HPAsserts.h"
 #import "HippyBridge.h"
+#import "HippyTurboModuleManager.h"
+#import "HippyUtils.h"
+#import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPLog.h"
 #import "HPParserUtils.h"
 #import "HPToolUtils.h"
-#import "HippyTurboModuleManager.h"
+
+#include <objc/message.h>
 
 typedef BOOL (^HippyArgumentBlock)(HippyBridge *, NSUInteger, id);
 
@@ -312,7 +312,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                     if (!strongBridge || !strongSelf) {
                         return;
                     }
-                    NSArray *errorArgs = @[HPJSErrorFromNSError(error)];
+                    NSArray *errorArgs = @[HippyJSErrorFromNSError(error)];
                     BOOL shouldEnqueueCallback = YES;
                     if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {
                         NSString *moduleName = HippyBridgeModuleNameForClass(strongSelf->_moduleClass);
@@ -367,7 +367,7 @@ SEL HippyParseMethodSignature(NSString *methodSignature, NSArray<HippyMethodArgu
                 if (!strongBridge || !strongSelf) {
                     return;
                 }
-                NSDictionary *errorJSON = HPJSErrorFromCodeMessageAndNSError(code, message, error);
+                NSDictionary *errorJSON = HippyJSErrorFromCodeMessageAndNSError(code, message, error);
                 NSArray *args = @[errorJSON];
                 BOOL shouldEnqueueCallback = YES;
                 if ([[strongBridge methodInterceptor] respondsToSelector:@selector(shouldCallbackBeInvokedWithModuleName:methodName:callbackId:arguments:)]) {

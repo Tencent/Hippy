@@ -31,4 +31,15 @@ jobs:
           lfs: true
       - name: Build
         run: |
-          pushd framework/examples/ios-demo && ./cmakebuild.sh && xcodebuild build -destination 'name=iPhone 13' -scheme 'HippyDemo' -configuration 'Release' -project HippyDemo.xcodeproj && popd
+          pushd \
+          framework/examples/ios-demo && \
+          ./cmakebuild.sh && \
+          popd &&\
+          xcodebuild build \
+            -destination 'generic/platform=iOS' \
+            -workspace 'Hippy.xcworkspace' \
+            -scheme 'HippyDemo' \
+            -configuration 'Release' \
+            CODE_SIGN_IDENTITY='' \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO 

@@ -25,6 +25,7 @@
 #import "HippyAsyncLocalStorage.h"
 #import "HippyBridge.h"
 #import "HippyDefines.h"
+#import "HippyUtils.h"
 #import "HPAsserts.h"
 #import "HPConvert.h"
 #import "HPLog.h"
@@ -42,9 +43,9 @@ NSUInteger HPLOCALSTORAGEIOTYPEWRITE = 1001;
 
 static NSDictionary *HippyErrorForKey(NSString *key) {
     if (![key isKindOfClass:[NSString class]]) {
-        return HPMakeAndLogError(@"Invalid key - must be a string.  Key: ", key, @ { @"key": key });
+        return HippyMakeAndLogError(@"Invalid key - must be a string.  Key: ", key, @ { @"key": key });
     } else if (key.length < 1) {
-        return HPMakeAndLogError(@"Invalid key - must be at least one character.  Key: ", key, @ { @"key": key });
+        return HippyMakeAndLogError(@"Invalid key - must be at least one character.  Key: ", key, @ { @"key": key });
     } else {
         return nil;
     }
@@ -174,7 +175,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
     NSError *error;
     [[NSFileManager defaultManager] removeItemAtPath:[self HippyGetStorageDirectory] error:&error];
     _HippyHasCreatedStorageDirectory = NO;
-    return error ? HPMakeError(@"Failed to delete storage directory.", error, nil) : nil;
+    return error ? HippyMakeError(@"Failed to delete storage directory.", error, nil) : nil;
 }
 
 - (NSString *)HippyGetManifestFilePath {
@@ -215,7 +216,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
         [[NSFileManager defaultManager] createDirectoryAtPath:[self HippyGetStorageDirectory] withIntermediateDirectories:YES attributes:nil
                                                         error:&error];
         if (error) {
-            return HPMakeError(@"Failed to create storage directory.", error, nil);
+            return HippyMakeError(@"Failed to create storage directory.", error, nil);
         }
         _HippyHasCreatedStorageDirectory = YES;
     }
@@ -225,7 +226,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
         if (created) {
             NSDictionary *errorOut;
             NSString *serialized = [self _readFileFromPath:[self HippyGetManifestFilePath] key:nil error:&errorOut];
-            NSMutableDictionary *tmpDic = serialized ? HPJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
+            NSMutableDictionary *tmpDic = serialized ? HippyJSONParseMutable(serialized, &error) : [NSMutableDictionary new];
             if (error) {
                 HPLogWarn(self.bridge, @"Failed to parse manifest - creating new one.\n\n%@", error);
                 tmpDic = [NSMutableDictionary new];
@@ -239,11 +240,11 @@ HIPPY_EXPORT_MODULE(StorageModule)
 
 - (NSDictionary *)_writeManifest:(NSMutableArray<NSDictionary *> **)errors {
     NSError *error;
-    NSString *serialized = HPJSONStringify(_manifest, &error);
+    NSString *serialized = HippyJSONStringify(_manifest, &error);
     [serialized writeToFile:[self HippyGetManifestFilePath] atomically:YES encoding:NSUTF8StringEncoding error:&error];
     NSDictionary *errorOut;
     if (error) {
-        errorOut = HPMakeError(@"Failed to write manifest file.", error, nil);
+        errorOut = HippyMakeError(@"Failed to write manifest file.", error, nil);
         HippyAppendError(errorOut, errors);
     }
     return errorOut;
@@ -270,7 +271,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
 
 - (NSDictionary *)_writeEntry:(NSArray<NSString *> *)entry changedManifest:(BOOL *)changedManifest {
     if (entry.count != 2) {
-        return HPMakeAndLogError(@"Entries must be arrays of the form [key: string, value: string], got: ", entry, nil);
+        return HippyMakeAndLogError(@"Entries must be arrays of the form [key: string, value: string], got: ", entry, nil);
     }
     NSString *key = entry[0];
     NSDictionary *errorOut = HippyErrorForKey(key);
@@ -293,13 +294,13 @@ HIPPY_EXPORT_MODULE(StorageModule)
     NSInteger maxLimit = [self maxWriteDataSize];
     if ([value length] > maxLimit) {
         if (![self handleDataSizeExceedForIOType:HPLOCALSTORAGEIOTYPEWRITE moduleName:self.bridge.moduleName key:key dataLength:[value length]]) {
-            return HPMakeError(@"write data length exceed range", error, @{ @"key": key?:@"nilkey" , @"length": @([value length])});;
+            return HippyMakeError(@"write data length exceed range", error, @{ @"key": key?:@"nilkey" , @"length": @([value length])});;
         }
     }
     [value writeToFile:filePath atomically:YES encoding:NSUTF8StringEncoding error:&error];
     [HippyGetCache() setObject:value forKey:key cost:value.length];
     if (error) {
-        errorOut = HPMakeError(@"Failed to write value.", error, @{ @"key": key });
+        errorOut = HippyMakeError(@"Failed to write value.", error, @{ @"key": key });
     } else if (_manifest[key] != (id)kCFNull) {
         *changedManifest = YES;
         _manifest[key] = (id)kCFNull;
@@ -317,7 +318,7 @@ HIPPY_EXPORT_MODULE(StorageModule)
         if (fileSize > maxReadFileSize) {
             if (![self handleDataSizeExceedForIOType:HPLOCALSTORAGEIOTYPEREAD moduleName:self.bridge.moduleName
                                                  key:key dataLength:fileSize]) {
-                *errorOut = HPMakeError(@"read data length exceed range", nil, @{ @"key": key?:@"nilkey" , @"length": @(fileSize)});;
+                *errorOut = HippyMakeError(@"read data length exceed range", nil, @{ @"key": key?:@"nilkey" , @"length": @(fileSize)});;
                 return nil;
             }
         }
@@ -325,9 +326,9 @@ HIPPY_EXPORT_MODULE(StorageModule)
         NSStringEncoding encoding;
         NSString *entryString = [NSString stringWithContentsOfFile:filePath usedEncoding:&encoding error:&error];
         if (error) {
-            *errorOut = HPMakeError(@"Failed to read storage file.", error, @ { @"key": key });
+            *errorOut = HippyMakeError(@"Failed to read storage file.", error, @ { @"key": key });
         } else if (encoding != NSUTF8StringEncoding) {
-            *errorOut = HPMakeError(@"Incorrect encoding of storage file: ", @(encoding), @ { @"key": key });
+            *errorOut = HippyMakeError(@"Incorrect encoding of storage file: ", @(encoding), @ { @"key": key });
         } else {
             return entryString;
         }
@@ -422,12 +423,12 @@ HIPPY_EXPORT_METHOD(multiMerge:(NSArray<NSArray<NSString *> *> *)kvPairs
         if (!keyError) {
             if (value) {
                 NSError *jsonError;
-                NSMutableDictionary *mergedVal = HPJSONParseMutable(value, &jsonError);
-                if (HippyMergeRecursive(mergedVal, HPJSONParse(entry[1], &jsonError))) {
-                    entry = @[entry[0], HPNullIfNil(HPJSONStringify(mergedVal, NULL))];
+                NSMutableDictionary *mergedVal = HippyJSONParseMutable(value, &jsonError);
+                if (HippyMergeRecursive(mergedVal, HippyJSONParse(entry[1], &jsonError))) {
+                    entry = @[entry[0], HPNullIfNil(HippyJSONStringify(mergedVal, NULL))];
                 }
                 if (jsonError) {
-                    keyError = HPJSErrorFromNSError(jsonError);
+                    keyError = HippyJSErrorFromNSError(jsonError);
                 }
             }
             if (!keyError) {

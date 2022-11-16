@@ -33,6 +33,7 @@
 #import "HippyOCTurboModule+Inner.h"
 #import "HippyPerformanceLogger.h"
 #import "HippyRedBox.h"
+#import "HippyUtils.h"
 #import "HippyTurboModuleManager.h"
 #import "HPLog.h"
 #import "HPToolUtils.h"
@@ -554,7 +555,7 @@ static NSError *executeApplicationScript(NSString *script, NSURL *sourceURL, Hip
         return;
     }
     if (HP_DEBUG) {
-        HPAssert(HPJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
+        HPAssert(HippyJSONParse(script, NULL) != nil, @"%@ wasn't valid JSON!", script);
     }
 
     __weak HippyJSExecutor *weakSelf = self;

@@ -21,30 +21,62 @@
  */
 
 @class HippyBridge;
-@protocol HippyBridgeModule;
+
+#import "HPInvalidating.h"
 
 @protocol HippyBridgeDelegate <NSObject>
 
 @optional
 
-- (void)bridge:(HippyBridge *)bridge willLoadBundle:(NSURL *)bundle;
-
-- (void)bridge:(HippyBridge *)bridge endLoadingBundle:(NSURL *)bundle;
-
-- (BOOL)scriptWillBeExecuted:(NSString *)script sourceURL:(NSURL *)sourceURL;
-
 /**
- * ask delegate should bridge start a web inspector
+ * Ask delegate should bridge start a web inspector
+ *
+ * @return should start debug inspector for bridge
  */
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge;
 
 /**
- * Cache code delegate
+ * Get code cache, not working for Javascriptcore engine
+ *
+ * @param bridge HippyBridge requires code cache
+ * @param script js script for code cache
+ * @param sourceURL source url for code cache
+ * @return code cache data
  */
 - (NSData *)cachedCodeForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
 
+/**
+ * Invoke when code cache created, not working for Javascriptcore engine
+ *
+ * @param cachedCode code cache
+ * @param bridge HippyBridge requires code cache
+ * @param script js script for code cache
+ * @param sourceURL source url for code cache
+ */
 - (void)cachedCodeCreated:(NSData *)cachedCode ForBridge:(HippyBridge *)bridge script:(NSString *)script sourceURL:(NSURL *)sourceURL;
 
+//invalidate methods
+/**
+ * Invoke when HippyBridge requests reloading
+ *
+ * @param bridge HippyBridge that requests reloading
+ */
 - (void)reload:(HippyBridge *)bridge;
+
+/**
+ * Tell delegate to remove root node
+ *
+ * @param rootTag root tag for root node
+ * @discussion RootNode instance held by caller, so when root view dealloc, we should tell caller to remove root node
+ */
+- (void)removeRootNode:(NSNumber *)rootTag bridge:(HippyBridge *)bridge;
+
+/**
+ * Tell delegate to invalidate
+ *
+ * @param reason reson for HippyBridge invalidation, typically reload, or dealloc
+ * @param bridge HippyBridge to be invalidated
+ */
+- (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge;
 
 @end

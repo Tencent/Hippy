@@ -23,8 +23,9 @@
 #import "HPUriLoader.h"
 #import "HPUriHandler.h"
 #import "HippyFileHandler.h"
+#import "NativeRenderManager.h"
 
-void RegisterVFSLoaderForBridge(HippyBridge *bridge) {
+void RegisterVFSLoaderForBridge(HippyBridge *bridge, std::shared_ptr<NativeRenderManager> manager) {
     auto cpp_handler = std::make_shared<HippyDemoHandler>();
     auto cpp_loader = std::make_shared<HippyDemoLoader>();
     cpp_loader->PushDefaultHandler(cpp_handler);
@@ -42,4 +43,7 @@ void RegisterVFSLoaderForBridge(HippyBridge *bridge) {
     
     [bridge setHPUriLoader:oc_loader];
     [bridge setVFSUriLoader:cpp_loader];
+    
+    manager->SetHPUriLoader(oc_loader);
+    manager->SetVFSUriLoader(cpp_loader);
 }
