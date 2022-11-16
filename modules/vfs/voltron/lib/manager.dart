@@ -27,6 +27,8 @@ class VfsManager {
   final List<Processor> _processorChain = [];
   final NativeTraversalsWrapper _wrapper;
 
+  int get id => _wrapper.id;
+
   static VfsManager? find(int id) {
     return _vfsMap[id];
   }
@@ -68,7 +70,7 @@ class VfsManager {
   void nativeCallFetchResource(String url, Map<String, String> params, int requestId) {
     ResourceDataHolder holder = ResourceDataHolder(
         url: url, requestHeaders: params, requestFrom: RequestFrom.native, nativeRequestId: requestId);
-    _traverseForward(holder, true);
+    _traverseForward(holder, false);
   }
 
   Future<ResourceDataHolder> fetchResourceSync(String url, Map<String, String> params) async {
@@ -103,7 +105,7 @@ class VfsManager {
       holder.index = index;
       Processor processor = _processorChain[index];
       if (isSync) {
-        bool goBack = processor.handleRequestSync(holder);
+        bool goBack = await processor.handleRequestSync(holder);
         if (goBack) {
           _traverseGoBack(holder, true);
         } else {

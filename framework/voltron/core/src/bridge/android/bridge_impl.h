@@ -55,13 +55,8 @@ class BridgeImpl {
                               const char16_t* char_data_dir,
                               const char16_t* char_ws_url);
 
-  static bool RunScriptFromFile(int64_t runtime_id, const char16_t* script_path_str, const char16_t* script_name_str,
-                                const char16_t* code_cache_dir_str, bool can_use_code_cache,
-                                std::function<void(int64_t)> callback);
-
-  static bool RunScriptFromAssets(int64_t runtime_id, bool can_use_code_cache, const char16_t* asset_name_str,
-                                  const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback,
-                                  const char16_t* asset_content_str);
+  static bool RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_use_code_cache, bool is_local_file, const char16_t* uri,
+                                  const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback);
 
   static void Destroy(int64_t runtime_id, const std::function<void(int64_t)>& callback, bool is_reload);
 

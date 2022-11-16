@@ -18,16 +18,39 @@
 // limitations under the License.
 //
 
+const _kPrefixFile = 'file://';
+const _kPrefixAssets = 'assets://';
+const _kPrefixHttp = 'http://';
+const _kPrefixHttps = 'https://';
+
 bool isHttpUrl(String url) {
-  return url.isNotEmpty && url.substring(0, 7).toLowerCase() == "http://";
+  return url.isNotEmpty && url.substring(0, _kPrefixHttp.length).toLowerCase() == _kPrefixHttp;
 }
 
 bool isHttpsUrl(String url) {
-  return url.isNotEmpty && url.substring(0, 8).toLowerCase() == "https://";
+  return url.isNotEmpty && url.substring(0, _kPrefixHttps.length).toLowerCase() == _kPrefixHttps;
 }
 
 bool isFileUrl(String url) {
-  return url.isNotEmpty && url.substring(0, 7).toLowerCase() == "file://";
+  return url.isNotEmpty && url.substring(0, _kPrefixFile.length).toLowerCase() == _kPrefixFile;
+}
+
+String splitFileName(String url) {
+  if (isFileUrl(url)) {
+    return url.substring(_kPrefixFile.length);
+  }
+  return '';
+}
+
+bool isAssetsUrl(String url) {
+  return url.isNotEmpty && url.substring(0, _kPrefixAssets.length).toLowerCase() == _kPrefixAssets;
+}
+
+String splitAssetsName(String url) {
+  if (isAssetsUrl(url)) {
+    return url.substring(_kPrefixAssets.length);
+  }
+  return '';
 }
 
 bool isWebUrl(String url) {

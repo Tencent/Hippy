@@ -52,6 +52,14 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset
                                         int32_t can_use_code_cache, const char16_t* asset_str_char,
                                         int32_t callback_id);
 
+EXTERN_C int32_t RunScriptFromUriFFI(int32_t engine_id,
+                                     uint32_t vfs_id,
+                                     const char16_t *uri,
+                                     const char16_t *code_cache_dir,
+                                     int32_t can_use_code_cache,
+                                     int32_t is_local_file,
+                                     int32_t callback_id);
+
 EXTERN_C void LoadInstanceFFI(int32_t engine_id,
                               const char *params, int32_t params_length);
 

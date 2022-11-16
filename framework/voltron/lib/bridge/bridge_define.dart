@@ -56,6 +56,23 @@ typedef InitJsFrameworkFfiDartType = int Function(
     Pointer<Utf16> dataDir,
     Pointer<Utf16> wsUrl);
 
+typedef RunScriptFromUriFfiNativeType = Int32 Function(
+    Int32 engineId,
+    Uint32 vfsId,
+    Pointer<Utf16> uri,
+    Pointer<Utf16> codeCacheDir,
+    Int32 canUseCodeCache,
+    Int32 isLocalFile,
+    Int32 callbackId);
+typedef RunScriptFromUriFfiDartType = int Function(
+    int engineId,
+    int vfsId,
+    Pointer<Utf16> uri,
+    Pointer<Utf16> codeCacheDir,
+    int canUseCodeCache,
+    int isLocalFile,
+    int callbackId);
+
 typedef LoadInstanceFfiNativeType = Int64 Function(
     Int32 engineId,
     Pointer<Uint8> params,
@@ -72,21 +89,6 @@ typedef UnloadInstanceFfiDartType = int Function(
     int engineId, Pointer<Uint8> params,
     int paramsLength);
 
-typedef RunScriptFromFileFfiNativeType = Int32 Function(
-    Int32 engineId,
-    Pointer<Utf16> filePath,
-    Pointer<Utf16> scriptName,
-    Pointer<Utf16> codeCacheDir,
-    Int32 canUseCodeCache,
-    Int32 callbackId);
-typedef RunScriptFromFileFfiDartType = int Function(
-    int engineId,
-    Pointer<Utf16> filePath,
-    Pointer<Utf16> scriptName,
-    Pointer<Utf16> codeCacheDir,
-    int canUseCodeCache,
-    int callbackId);
-
 enum NetworkEventType { requestWillBeSent, responseReceived, loadingFinished }
 
 typedef NotifyNetworkEventFfiNativeType = Void Function(
@@ -101,21 +103,6 @@ typedef NotifyNetworkEventFfiDartType = void Function(
     int eventType,
     Pointer<Utf16> response,
     Pointer<Utf16> extra);
-
-typedef RunScriptFromAssetsFfiNativeType = Int32 Function(
-    Int32 engineId,
-    Pointer<Utf16> assetName,
-    Pointer<Utf16> codeCacheDir,
-    Int32 canUseCodeCache,
-    Pointer<Utf16> assetStr,
-    Int32 callbackId);
-typedef RunScriptFromAssetsFfiDartType = int Function(
-    int engineId,
-    Pointer<Utf16> assetName,
-    Pointer<Utf16> codeCacheDir,
-    int canUseCodeCache,
-    Pointer<Utf16> assetStr,
-    int callbackId);
 
 typedef CallFunctionFfiNativeType = Void Function(
     Int32 engineId,
@@ -162,7 +149,6 @@ typedef DestroyFfiNativeType = Void Function(
     Int32 engineId, Int32 callbackId, Int32 isReload);
 typedef DestroyFfiDartType = void Function(
     int engineId, int callbackId, int isReload);
-
 
 typedef CallNativeFfi = Void Function(
     Int32 engineId,

@@ -114,35 +114,13 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
   return result;
 }
 
-EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_path, const char16_t* script_name,
-                                      const char16_t* code_cache_dir, int32_t can_use_code_cache, int32_t callback_id) {
-  auto bridge_manager = BridgeManager::Find(engine_id);
-  if (!bridge_manager) {
-    FOOTSTONE_DLOG(WARNING) << "RunScriptFromFileFFI engine_id invalid";
-    return 0;
-  }
-
-  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
-  if (!runtime) {
-    FOOTSTONE_DLOG(WARNING) << "RunScriptFromFileFFI runtime unbind";
-    return 0;
-  }
-
-  auto runtime_id = runtime->GetRuntimeId();
-  return BridgeImpl::RunScriptFromFile(runtime_id,
-                                       file_path,
-                                       script_name,
-                                       code_cache_dir,
-                                       can_use_code_cache,
-                                       [callback_id](int64_t value) {
-                                         CallGlobalCallback(callback_id,
-                                                            value);
-                                       });
-}
-
-EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset_name, const char16_t* code_cache_dir,
-                                        int32_t can_use_code_cache, const char16_t* asset_str_char,
-                                        int32_t callback_id) {
+EXTERN_C int32_t RunScriptFromUriFFI(int32_t engine_id,
+                                     uint32_t vfs_id,
+                                     const char16_t *uri,
+                                     const char16_t *code_cache_dir,
+                                     int32_t can_use_code_cache,
+                                     int32_t is_local_file,
+                                     int32_t callback_id) {
   auto bridge_manager = BridgeManager::Find(engine_id);
   if (!bridge_manager) {
     FOOTSTONE_DLOG(WARNING) << "RunScriptFromAssetsFFI engine_id invalid";
@@ -156,12 +134,9 @@ EXTERN_C int32_t RunScriptFromAssetsFFI(int32_t engine_id, const char16_t* asset
   }
 
   auto runtime_id = runtime->GetRuntimeId();
-  bool result = BridgeImpl::RunScriptFromAssets(
-      runtime_id, can_use_code_cache, asset_name, code_cache_dir,
-      [callback_id](int value) { CallGlobalCallback(callback_id, value); }, asset_str_char);
-  if (!result) {
-    delete asset_str_char;
-  }
+  bool result = BridgeImpl::RunScriptFromUri(
+      runtime_id, vfs_id, can_use_code_cache, is_local_file, uri, code_cache_dir,
+      [callback_id](int value) { CallGlobalCallback(callback_id, value); });
   return result;
 }
 

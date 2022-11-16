@@ -32,7 +32,7 @@ mixin Processor {
     callback.next();
   }
 
-  bool handleRequestSync(ResourceDataHolder holder) {
+  Future<bool> handleRequestSync(ResourceDataHolder holder) async {
     return false;
   }
 
@@ -62,11 +62,11 @@ class DefaultProcessor with Processor {
   }
 
   @override
-  bool handleRequestSync(ResourceDataHolder holder) {
+  Future<bool> handleRequestSync(ResourceDataHolder holder) async {
     if (_checkResourceData(holder)) {
       return true;
     }
-    return _resourceLoader.fetchResourceSync(holder);
+    return await _resourceLoader.fetchResourceSync(holder);
   }
 
   bool _checkResourceData(ResourceDataHolder holder) {

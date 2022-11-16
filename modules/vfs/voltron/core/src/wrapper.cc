@@ -129,6 +129,10 @@ uint32_t VfsWrapper::GetId() const {
   return id_;
 }
 
+std::shared_ptr<hippy::UriLoader> VfsWrapper::GetLoader() {
+  return loader_;
+}
+
 std::shared_ptr<VfsWrapper> VfsWrapper::GetWrapper(uint32_t id) {
   std::any wrapper_object;
   bool flag = global_data_holder.Find(
@@ -198,15 +202,21 @@ void VfsWrapper::InvokeDart(const footstone::string_view& uri,
                             const std::unordered_map<std::string, std::string> &req_meta,
                             const InvokeDartCallback& cb) {
   auto request_id = request_id_.fetch_add(1);
+  auto vfs_id = id_;
   callback_map_.Insert(request_id, cb);
-  auto work = [this, uri, req_meta, request_id]() {
+  FOOTSTONE_LOG(INFO) << "start invoke dart";
+  auto work = [vfs_id, uri, req_meta, request_id]() {
+    FOOTSTONE_LOG(INFO) << "invoke dart inner";
     auto uri_16 = footstone::StringViewUtils::CovertToUtf16(uri, uri.encoding()).utf16_value();
+    FOOTSTONE_LOG(INFO) << "invoke dart convert uri_16";
     auto req_meta_data = EncodeValue(EncodableValue(UnorderedMapToEncodableMap(req_meta)));
-    invoke_dart_func(id_,
+    FOOTSTONE_LOG(INFO) << "invoke dart parse meta data";
+    invoke_dart_func(vfs_id,
                      request_id,
                      uri_16.c_str(),
                      req_meta_data->data(),
                      footstone::checked_numeric_cast<size_t, int32_t>(req_meta_data->size()));
+    FOOTSTONE_LOG(INFO) << "invoke dart end";
   };
   const Work *work_ptr = new Work(work);
   PostWorkToDart(work_ptr);
@@ -220,7 +230,7 @@ extern "C" {
 
 extern invoke_dart invoke_dart_func = nullptr;
 
-EXTERN_C int32_t RegisterVoltronVfsCallFuncEx(int32_t type, void *func) {
+EXTERN_C int32_t RegisterVoltronVfsCallFunc(int32_t type, void *func) {
   FOOTSTONE_DLOG(INFO) << "start register vfs func, type " << type;
   if (type == VfsFFIRegisterFuncType::kInvokeDart) {
     invoke_dart_func = reinterpret_cast<invoke_dart>(func);

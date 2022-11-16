@@ -18,7 +18,9 @@
 // limitations under the License.
 //
 
+import 'package:voltron/adapter/resource_loader.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:voltron_vfs/voltron_vfs.dart';
 
 import '../adapter.dart';
 import '../bridge.dart';
@@ -43,6 +45,9 @@ class EngineContext implements Destroyable {
 
   // Dev support manager
   late DevSupportManager _devSupportManager;
+
+  // vfs manager
+  late VfsManager _vfsManager;
 
   final TimeMonitor _startTimeMonitor;
 
@@ -69,6 +74,8 @@ class EngineContext implements Destroyable {
   EngineMonitor get engineMonitor => _renderContext.engineMonitor;
 
   JSRenderContext get renderContext => _renderContext;
+
+  VfsManager get vfsManager => _vfsManager;
 
   EngineContext(
     List<APIProvider>? apiProviders,
@@ -105,6 +112,7 @@ class EngineContext implements Destroyable {
       isDevModule: _isDevMode,
       debugServerHost: _debugServerHost,
     );
+    _initVfsManager();
     _devSupportManager = devSupportManager;
   }
 
@@ -121,6 +129,12 @@ class EngineContext implements Destroyable {
       }
     }
     return controllerGenerators;
+  }
+
+  void _initVfsManager() {
+    _vfsManager = VfsManager(_renderContext.workerId);
+    DefaultProcessor processor = DefaultProcessor(VoltronResourceLoader(_globalConfigs.httpAdapter));
+    _vfsManager.addProcessor(processor);
   }
 
   RootWidgetViewModel? getInstance(int id) {
@@ -178,6 +192,7 @@ class EngineContext implements Destroyable {
     _bridgeManager.destroy();
     _moduleManager.destroy();
     _renderContext.destroy();
+    _vfsManager.destroy();
     _instanceLifecycleEventListeners.clear();
     _engineLifecycleEventListeners.clear();
   }

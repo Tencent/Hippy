@@ -26,8 +26,8 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:voltron_renderer/voltron_renderer.dart';
 import 'package:voltron_ffi/voltron_ffi.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 
 import 'bridge_define.dart';
 import 'voltron_bridge.dart';
@@ -46,11 +46,8 @@ class _BridgeFFIManager {
   // 初始化js framework
   late InitJsFrameworkFfiDartType initJsFramework;
 
-  // 从本地文件中执行bundle
-  late RunScriptFromFileFfiDartType runScriptFromFile;
-
-  // 从apk资源文件中执行bundle
-  late RunScriptFromAssetsFfiDartType runScriptFromAsset;
+  // 执行js bundle
+  late RunScriptFromUriFfiDartType runScriptFromUri;
 
   // 调用js方法
   late CallFunctionFfiDartType callFunction;
@@ -88,10 +85,8 @@ class _BridgeFFIManager {
     initJsFramework =
         _library.lookupFunction<InitJsFrameworkFfiNativeType, InitJsFrameworkFfiDartType>(
             "InitJSFrameworkFFI");
-
-    runScriptFromFile =
-        _library.lookupFunction<RunScriptFromFileFfiNativeType, RunScriptFromFileFfiDartType>(
-            "RunScriptFromFileFFI");
+    runScriptFromUri = _library.lookupFunction<RunScriptFromUriFfiNativeType, RunScriptFromUriFfiDartType>(
+        "RunScriptFromUriFFI");
 
     notifyNetworkEvent =
         _library.lookupFunction<NotifyNetworkEventFfiNativeType, NotifyNetworkEventFfiDartType>(
@@ -109,10 +104,6 @@ class _BridgeFFIManager {
     unloadInstance =
         _library.lookupFunction<UnloadInstanceFfiNativeType, UnloadInstanceFfiDartType>(
             'UnloadInstanceFFI');
-
-    runScriptFromAsset =
-        _library.lookupFunction<RunScriptFromAssetsFfiNativeType, RunScriptFromAssetsFfiDartType>(
-            "RunScriptFromAssetsFFI");
 
     callFunction = _library
         .lookupFunction<CallFunctionFfiNativeType, CallFunctionFfiDartType>("CallFunctionFFI");
@@ -186,18 +177,20 @@ class VoltronApi {
     }
   }
 
-  static Future<bool> runScriptFromFile(int engineId, String filePath, String scriptName,
-      String codeCacheDir, bool canUseCodeCache, CommonCallback callback) async {
-    var filePathPtr = filePath.toNativeUtf16();
-    var scriptNamePtr = scriptName.toNativeUtf16();
+  static Future<bool> runScriptFromUri(int engineId, int vfsId, String uri,
+      String codeCacheDir, bool canUseCodeCache, bool isLocalFile, CommonCallback callback) async {
+    var uriPtr = uri.toNativeUtf16();
     var codeCacheDirPtr = codeCacheDir.toNativeUtf16();
-    var result = _BridgeFFIManager.instance.runScriptFromFile(
-        engineId, filePathPtr, scriptNamePtr, codeCacheDirPtr, canUseCodeCache ? 1 : 0,
-        generateCallback((value) {
+    var result = _BridgeFFIManager.instance.runScriptFromUri(
+        engineId,
+        vfsId,
+        uriPtr,
+        codeCacheDirPtr,
+        canUseCodeCache ? 1 : 0,
+        isLocalFile ? 1 : 0, generateCallback((value) {
       callback(value);
     }));
-    free(filePathPtr);
-    free(scriptNamePtr);
+    free(uriPtr);
     free(codeCacheDirPtr);
     return result == 1;
   }
@@ -233,65 +226,6 @@ class VoltronApi {
         engineId, requestIdPtr, NetworkEventType.loadingFinished.index, contentPtr, nullptr);
     free(contentPtr);
     free(requestIdPtr);
-  }
-
-  static Future<dynamic> runScriptFromAssetWithData(
-      int engineId,
-      String assetName,
-      String codeCacheDir,
-      bool canUseCodeCache,
-      ByteData assetData,
-      CommonCallback callback) async {
-    var stopwatch = Stopwatch();
-
-    stopwatch.reset();
-    stopwatch.start();
-    var assetNamePtr = assetName.toNativeUtf16();
-    var assetStrPtr = strByteDataToPointer(assetData);
-    var codeCacheDirPtr = codeCacheDir.toNativeUtf16();
-    stopwatch.stop();
-
-    LogUtils.profile("loadBundleEncodeStringUtf8", stopwatch.elapsedMilliseconds);
-
-    stopwatch.reset();
-    stopwatch.start();
-    _BridgeFFIManager.instance.runScriptFromAsset(
-        engineId, assetNamePtr, codeCacheDirPtr, canUseCodeCache ? 1 : 0, assetStrPtr,
-        generateCallback((value) {
-      stopwatch.stop();
-      LogUtils.profile("runScriptFromAssetCore", stopwatch.elapsedMilliseconds);
-      callback(value);
-    }));
-    free(assetNamePtr);
-    free(codeCacheDirPtr);
-  }
-
-  static Future<dynamic> runScriptFromAsset(
-    int engineId,
-    String assetName,
-    String codeCacheDir,
-    bool canUseCodeCache,
-    CommonCallback callback,
-  ) async {
-    ByteData? assetData;
-    var stopwatch = Stopwatch();
-    stopwatch.start();
-    try {
-      assetData = await rootBundle.load(assetName);
-    } catch (e) {
-      LogUtils.e("Voltron_bridge", "load asset error:$e");
-      rethrow;
-    }
-    stopwatch.stop();
-    LogUtils.profile("loadBundleFromAsset", stopwatch.elapsedMilliseconds);
-    runScriptFromAssetWithData(
-      engineId,
-      assetName,
-      codeCacheDir,
-      canUseCodeCache,
-      assetData,
-      callback,
-    );
   }
 
   static Pointer<Utf16> strByteDataToPointer(ByteData data) {
