@@ -345,38 +345,27 @@ export const measureInWindowByMethod = async (
     width: -1,
     height: -1,
   };
-
   if (!el.isMounted || !el.nodeId) {
     return Promise.resolve(empty);
   }
-
   const { nodeId } = el;
   return new Promise(resolve => Native.callNative(
     'UIManagerModule',
     method,
     nodeId,
     (pos: NativePosition | string) => {
-      // Android error handler.
-      if (
-        !pos
-          || pos === 'this view is null'
-          || typeof nodeId === 'undefined'
-      ) {
+      if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
         return resolve(empty);
       }
-
-      if (typeof pos !== 'string') {
-        return resolve({
-          top: pos.y,
-          left: pos.x,
-          bottom: pos.y + pos.height,
-          right: pos.x + pos.width,
-          width: pos.width,
-          height: pos.height,
-        });
-      }
-
-      return resolve(empty);
+      const { x, y, height, width } = pos;
+      return resolve({
+        top: y,
+        left: x,
+        width,
+        height,
+        bottom: y + height,
+        right: x + width,
+      });
     },
   ));
 };
