@@ -250,6 +250,8 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   void SetUseViewLayoutOrigin(bool flag) { use_view_layout_origin_ = flag; }
 
  protected:
+  virtual bool isRoot() { return false; }
+
   /**
    * @brief notify after the attach action
    */
