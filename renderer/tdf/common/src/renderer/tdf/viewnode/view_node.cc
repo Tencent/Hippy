@@ -244,9 +244,11 @@ void ViewNode::OnDelete() {
   for (auto it = children_.rbegin(); it != children_.rend(); it++) {
     (*it)->OnDelete();
   }
-  FOOTSTONE_DCHECK(!parent_.expired());
-  parent_.lock()->RemoveChild(shared_from_this());
-  GetRootNode()->UnregisterViewNode(render_info_.id);
+  if (!isRoot()) {
+    FOOTSTONE_DCHECK(!parent_.expired());
+    parent_.lock()->RemoveChild(shared_from_this());
+    GetRootNode()->UnregisterViewNode(render_info_.id);
+  }
 }
 
 void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
