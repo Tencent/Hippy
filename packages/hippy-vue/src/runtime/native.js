@@ -73,17 +73,17 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
   }
   const { nodeId } = el;
   return new Promise(resolve => callNative.call(this, 'UIManagerModule', method, nodeId, (pos) => {
-    // Android error handler.
-    if (!pos || pos === 'this view is null' || typeof nodeId === 'undefined') {
+    if (!pos || typeof pos !== 'object' || typeof nodeId === 'undefined') {
       return resolve(empty);
     }
+    const { x, y, height, width } = pos;
     return resolve({
-      top: pos.y,
-      left: pos.x,
-      bottom: pos.y + pos.height,
-      right: pos.x + pos.width,
-      width: pos.width,
-      height: pos.height,
+      top: y,
+      left: x,
+      width,
+      height,
+      bottom: y + height,
+      right: x + width,
     });
   }));
 };
