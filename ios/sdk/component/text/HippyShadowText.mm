@@ -278,18 +278,23 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                 CGPoint location = [layoutManager locationForGlyphAtIndex:range.location];
                 CGFloat roundedHeight = x5RoundPixelValue(height);
                 CGFloat roundedWidth = x5RoundPixelValue(width);
+                // take margin into account
+                float left = MTTNodeLayoutGetLeft(childNode);
+                float top = MTTNodeLayoutGetTop(childNode);
+                float marginV = MTTNodeLayoutGetMargin(child.nodeRef, CSSTop) + MTTNodeLayoutGetMargin(child.nodeRef, CSSBottom);
+                CGFloat roundedHeightWithMargin = x5RoundPixelValue(height + marginV);
                 
                 CGFloat positionY;
                 switch (child.verticalAlignType) {
                     case HippyTextAttachmentVerticalAlignBottom: {
-                        positionY = CGRectGetMaxY(lineRect) - roundedHeight;
+                        positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin;
                         break;
                     }
                     case HippyTextAttachmentVerticalAlignBaseline: {
                         // get baseline-bottom distance from HippyVerticalAlignBaselineOffsetAttributeName
                         NSNumber *baselineToBottom = [layoutManager.textStorage attribute:HippyVerticalAlignBaselineOffsetAttributeName
                                                                                   atIndex:range.location effectiveRange:nullptr];
-                        positionY = CGRectGetMaxY(lineRect) - roundedHeight - baselineToBottom.doubleValue;
+                        positionY = CGRectGetMaxY(lineRect) - roundedHeightWithMargin - baselineToBottom.doubleValue;
                         break;
                     }
                     case HippyTextAttachmentVerticalAlignTop: {
@@ -298,12 +303,14 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
                     }
                     default: {
                         // default is middle
-                        positionY = CGRectGetMinY(lineRect) + (CGRectGetHeight(lineRect) - roundedHeight) / 2.0f - child.verticalAlignOffset;
+                        positionY = CGRectGetMinY(lineRect) +
+                        (CGRectGetHeight(lineRect) - roundedHeightWithMargin) / 2.0f - child.verticalAlignOffset;
                         break;
                     }
                 }
                 
-                CGRect childFrame = CGRectMake(textFrame.origin.x + location.x, textFrame.origin.y + positionY,
+                CGRect childFrame = CGRectMake(textFrame.origin.x + location.x + left,
+                                               textFrame.origin.y + positionY + top,
                                                roundedWidth, roundedHeight);
                 NSRange truncatedGlyphRange = [layoutManager truncatedGlyphRangeInLineFragmentForGlyphAtIndex:range.location];
                 BOOL childIsTruncated = NSIntersectionRange(range, truncatedGlyphRange).length != 0;
@@ -446,6 +453,13 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             if (isnan(width) || isnan(height)) {
                 HippyLogError(@"Views nested within a <Text> must have a width and height");
             }
+            // take margin into account
+            float marginH = MTTNodeLayoutGetMargin(child.nodeRef, CSSLeft) + MTTNodeLayoutGetMargin(child.nodeRef, CSSRight);
+            float marginV = MTTNodeLayoutGetMargin(child.nodeRef, CSSTop) + MTTNodeLayoutGetMargin(child.nodeRef, CSSBottom);
+            width += marginH;
+            height += marginV;
+            
+            // create text attachment and append to attachmentString
             static UIImage *placehoderImage = nil;
             static dispatch_once_t onceToken;
             dispatch_once(&onceToken, ^{
@@ -456,9 +470,7 @@ static void resetFontAttribute(NSTextStorage *textStorage) {
             attachment.image = placehoderImage;
             NSMutableAttributedString *attachmentString = [NSMutableAttributedString new];
             [attachmentString appendAttributedString:[NSAttributedString attributedStringWithAttachment:attachment]];
-            [attachmentString addAttribute:HippyShadowViewAttributeName
-                                     value:child range:(NSRange) { 0, attachmentString.length }];
-            
+            [attachmentString addAttribute:HippyShadowViewAttributeName value:child range:(NSRange) { 0, attachmentString.length }];
             [attributedString appendAttributedString:attachmentString];
             if (height > heightOfTallestSubview) {
                 heightOfTallestSubview = height;
