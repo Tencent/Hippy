@@ -204,7 +204,9 @@ void VfsWrapper::InvokeDart(const footstone::string_view& uri,
   auto request_id = request_id_.fetch_add(1);
   auto vfs_id = id_;
   callback_map_.Insert(request_id, cb);
+  FOOTSTONE_DLOG(INFO) << "start invoke dart";
   auto work = [vfs_id, uri, req_meta, request_id]() {
+    FOOTSTONE_DLOG(INFO) << "invoke dart inner";
     auto uri_16 = footstone::StringViewUtils::CovertToUtf16(uri, uri.encoding()).utf16_value();
     auto req_meta_data = EncodeValue(EncodableValue(UnorderedMapToEncodableMap(req_meta)));
     invoke_dart_func(vfs_id,
@@ -212,6 +214,7 @@ void VfsWrapper::InvokeDart(const footstone::string_view& uri,
                      uri_16.c_str(),
                      req_meta_data->data(),
                      footstone::checked_numeric_cast<size_t, int32_t>(req_meta_data->size()));
+    FOOTSTONE_DLOG(INFO) << "invoke dart end";
   };
   const Work *work_ptr = new Work(work);
   PostWorkToDart(work_ptr);

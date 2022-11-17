@@ -26,7 +26,7 @@
 #  include "bridge_runtime.h"
 #elif __APPLE__
 #  include "bridge/bridge_runtime.h"
-#  include "render/bridge/common_header.h"
+#  include "common_header.h"
 #endif
 #include "bridge_define.h"
 
