@@ -85,17 +85,12 @@ public class TDFRenderer extends Renderer implements RenderProxy, TDFRenderEngin
         if (!(context instanceof Activity)) {
             throw new RuntimeException("Unsupported Host");
         }
-
-        mRootView = new TDFHippyRootView((Activity) context);
-        // When TDFHippyRootView's onAttachedToWindow is called, com.tencent.tdf.TDFEngine will be created.
-        // So, set the creation callback here.
-        mRootView.setEngineCallback(engine -> {
-            // Notify TDF Render in Native(C++) size to bind with TDF Shell, this is the key process for TDF Render.
-            // At this time point, TDF Core's Shell is created but not started.
-            registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
-            engine.registerLifecycleListener(TDFRenderer.this);
-            registerControllers(mRootViewId, mControllers, mRootView, TDFRenderer.this, engine);
-        });
+        mRootView = new TDFHippyRootView(context);
+        TDFRenderEngine engine = mRootView.getTDFEngine();
+        registerTDFEngine(mInstanceId, engine.getJNI().getnativeEngine(), mRootViewId);
+        LogUtils.d(TAG, "onTDFEngineCreate: " + engine.getJNI().getnativeEngine());
+        engine.registerLifecycleListener(TDFRenderer.this);
+        registerControllers(mRootViewId, mControllers, mRootView, TDFRenderer.this, engine);
         mRootView.setId(mRootViewId);
         return mRootView;
     }
