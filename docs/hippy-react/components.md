@@ -567,5 +567,5 @@ WebView组件。
 | method     | 请求方式， `get`、`post` | `string`   | `Android、iOS`    |
 | onLoadStart  | 网页开始加载时触发 | `(object: { url:string }) => void`   | `Android、iOS、Web-Renderer`  |
 | onLoad  | 网页加载时触发  | `(object: { url:string }) => void`   | `Android、iOS、Web-Renderer`  |
-| onLoadEnd  | 网页加载结束时触发 (success与error参数仅Android、iOS上可用，最低支持版本2.15.3) | `(object: { url:string, success:bool, error:string }) => void`   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onLoadEnd  | 网页加载结束时触发 (success与error参数仅Android、iOS上可用，最低支持版本2.15.3) | `(object: { url:string, success:boolean, error:string }) => void` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | style  | Webview 容器样式  | `Object`   | `Android、iOS、hippy-react-web、Web-Renderer` |

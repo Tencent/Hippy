@@ -430,6 +430,8 @@ const iframe: ElementComponent = {
       evtData: EventsUnionType,
       nativeEventParams: {
         url: string;
+        success: boolean;
+        error: string;
       },
     ) {
       const { handler: event, __evt: nativeEventName } = evtData;
@@ -437,8 +439,12 @@ const iframe: ElementComponent = {
       switch (nativeEventName) {
         case 'onLoad':
         case 'onLoadStart':
+          event.url = nativeEventParams.url;
+          break;
         case 'onLoadEnd':
           event.url = nativeEventParams.url;
+          event.success = nativeEventParams.success;
+          event.error = nativeEventParams.error;
           break;
 
         default:
