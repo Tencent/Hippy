@@ -18,9 +18,28 @@
 // limitations under the License.
 //
 
-library bridge;
+import '../engine.dart';
 
-export 'bridge/global_callback.dart';
-export 'bridge/render_api.dart';
-export 'bridge/render_bridge.dart';
-export 'bridge/render_bridge_define.dart';
+mixin RenderContextProxy {
+  void addEngineLifecycleEventListener(
+    EngineLifecycleEventListener listener,
+  );
+
+  void addInstanceLifecycleEventListener(
+    InstanceLifecycleEventListener listener,
+  );
+
+  DimensionChecker get dimensionChecker;
+
+  double get fontScale;
+
+  void removeEngineLifecycleEventListener(
+    EngineLifecycleEventListener listener,
+  );
+
+  void removeInstanceLifecycleEventListener(
+    InstanceLifecycleEventListener listener,
+  );
+
+  void handleNativeException(Error error, bool haveCaught);
+}

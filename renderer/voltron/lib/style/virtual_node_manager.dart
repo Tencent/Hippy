@@ -19,13 +19,8 @@
 //
 
 import 'package:flutter/material.dart';
-import 'package:voltron_renderer/common.dart';
-import 'package:voltron_renderer/gesture.dart';
-import 'package:voltron_renderer/render.dart';
-import 'package:voltron_renderer/style.dart';
 
-import '../controller.dart';
-import '../util.dart';
+import '../voltron_renderer.dart';
 
 abstract class VirtualNode with StyleMethodPropConsumer {
   final int rootId;
@@ -282,7 +277,7 @@ class VirtualNodeManager {
     node.updateEvent(EventHolder(eventName, isAdd: false));
   }
 
-  int measure (int instanceId, int nodeId, FlexLayoutParams layoutParams) {
+  int measure(int instanceId, int nodeId, FlexLayoutParams layoutParams) {
     TextPainter? painter;
     var exception = false;
 
@@ -305,8 +300,14 @@ class VirtualNodeManager {
         layoutParams.height,
       );
     } else {
-      LogUtils.dRenderNode('ID:$nodeId, calculate layout success, width:${painter.width}, height:${painter.height}');
+      LogUtils.dRenderNode(
+        'ID:$nodeId, calculate layout success, width:${painter.width}, height:${painter.height}',
+      );
       return FlexOutput.makeMeasureResult(painter.width, painter.height);
     }
+  }
+
+  void destroy() {
+    ///
   }
 }

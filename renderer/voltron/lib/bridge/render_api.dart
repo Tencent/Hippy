@@ -161,7 +161,7 @@ class _RenderBridgeFFIManager {
 class VoltronRenderApi {
   static Future init() async {
     _RenderBridgeFFIManager._getInstance();
-    await initBridge();
+    initBridge();
   }
 
   static int createNativeRender() {
@@ -309,7 +309,7 @@ class VoltronRenderApi {
 // ------------------ dart call native方法 end ---------------------
 
   // 初始化bridge层
-  static Future<dynamic> initBridge() async {
+  static void initBridge() {
     // 先注册回调的post指针和port端口号
     final nativePort = _RenderBridgeFFIManager.instance._interactiveCppRequests.sendPort.nativePort;
     _RenderBridgeFFIManager.instance.registerDartPostCObject(

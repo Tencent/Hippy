@@ -22,6 +22,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'base_voltron_page.dart';
 
 void main() {
@@ -54,6 +55,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: BaseVoltronPage(
+        isHome: true,
         coreBundle: "assets/jsbundle/vendor.android.js",
         indexBundle: "assets/jsbundle/index.android.js",
       ),

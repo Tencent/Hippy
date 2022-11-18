@@ -46,7 +46,7 @@ class NativeGestureHandle {
   static const String kDismiss = 'dismiss';
 
   static void handleClick(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kClick,
@@ -56,7 +56,7 @@ class NativeGestureHandle {
   }
 
   static void handleLongClick(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kLongClick,
@@ -65,7 +65,7 @@ class NativeGestureHandle {
   }
 
   static void handleAttachedToWindow(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kShow,
@@ -74,7 +74,7 @@ class NativeGestureHandle {
   }
 
   static void handleDetachedFromWindow(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kDismiss,
@@ -83,7 +83,7 @@ class NativeGestureHandle {
   }
 
   static void handlePressIn(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kPressIn,
@@ -93,7 +93,7 @@ class NativeGestureHandle {
   }
 
   static void handlePressOut(RenderContext context, int nodeId, int rootId) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kPressOut,
@@ -103,7 +103,7 @@ class NativeGestureHandle {
   }
 
   static void handleTouchDown(RenderContext context, int nodeId, int rootId, double x, double y) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kTouchDown,
@@ -121,7 +121,7 @@ class NativeGestureHandle {
     double x,
     double y,
   ) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kTouchMove,
@@ -139,7 +139,7 @@ class NativeGestureHandle {
     double x,
     double y,
   ) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kTouchEnd,
@@ -157,7 +157,7 @@ class NativeGestureHandle {
     double x,
     double y,
   ) {
-    context.bridgeManager.sendGestureEvent(
+    context.renderBridgeManager.sendGestureEvent(
       rootId,
       nodeId,
       kTouchCancel,

@@ -47,7 +47,7 @@ class RootRenderNode extends RenderNode {
     super.addEvent(eventNameList);
     for (var event in eventNameList) {
       if (event == ChoreographerUtil.kDoFrame.toLowerCase()) {
-        ChoreographerUtil.registerDoFrameListener(renderContext.bridgeManager.engineId, rootId);
+        ChoreographerUtil.registerDoFrameListener(renderContext.engineId, rootId);
       }
     }
   }
@@ -57,7 +57,7 @@ class RootRenderNode extends RenderNode {
     super.removeEvent(eventNameList);
     for (var event in eventNameList) {
       if (event == ChoreographerUtil.kDoFrame.toLowerCase()) {
-        ChoreographerUtil.unregisterDoFrameListener(renderContext.bridgeManager.engineId, rootId);
+        ChoreographerUtil.unregisterDoFrameListener(renderContext.engineId, rootId);
       }
     }
   }

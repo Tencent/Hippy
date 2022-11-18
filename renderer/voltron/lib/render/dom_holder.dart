@@ -20,29 +20,31 @@
 
 import 'package:voltron_renderer/voltron_renderer.dart';
 
-
 class DomHolder with Destroyable {
   final int _domInstanceId;
-  final RenderContext _context;
 
   int get id => _domInstanceId;
 
-  DomHolder(this._context): _domInstanceId = _context.bridgeManager.createDomInstance();
+  RenderContext? _renderContext;
+
+  DomHolder(this._domInstanceId);
+
+  void bindRenderContext(RenderContext renderContext) {
+    _renderContext = renderContext;
+  }
+
+  void addRoot(int domInstanceId, int rootId) {
+    _renderContext?.renderBridgeManager.addRoot(domInstanceId, rootId);
+  }
+
+  void removeRoot(int domInstanceId, int rootId) {
+    _renderContext?.renderBridgeManager.removeRoot(domInstanceId, rootId);
+  }
 
   @override
   void destroy() {
     if (_domInstanceId != 0) {
-      _context.bridgeManager.destroyDomInstance(_domInstanceId);
+      _renderContext?.renderBridgeManager.destroyDomInstance(_domInstanceId);
     }
   }
-
-  void addRoot(int rootId) {
-    assert(_domInstanceId != 0);
-    _context.bridgeManager.addRoot(_domInstanceId, rootId);
-  }
-
-  void removeRoot(int rootId) {
-    _context.bridgeManager.removeRoot(_domInstanceId, rootId);
-  }
-
 }

@@ -551,7 +551,7 @@ class TextInputDispatcher {
       selection.push("end", selEnd);
       var paramsMap = VoltronMap();
       paramsMap.push("selection", selection);
-      context.bridgeManager.sendComponentEvent(rootId, id, "selectionchange", paramsMap);
+      context.renderBridgeManager.sendComponentEvent(rootId, id, "selectionchange", paramsMap);
     }
   }
 
@@ -562,14 +562,14 @@ class TextInputDispatcher {
         var paramsMap = VoltronMap();
         paramsMap.push("text", text);
         if (hasFocus) {
-          context.bridgeManager.sendComponentEvent(
+          context.renderBridgeManager.sendComponentEvent(
             rootId,
             id,
             "focus",
             paramsMap,
           );
         } else {
-          context.bridgeManager.sendComponentEvent(
+          context.renderBridgeManager.sendComponentEvent(
             rootId,
             id,
             "blur",
@@ -584,7 +584,7 @@ class TextInputDispatcher {
     if (listenEndEditing) {
       var paramsMap = VoltronMap();
       paramsMap.push("text", text);
-      context.bridgeManager.sendComponentEvent(rootId, id, "endediting", paramsMap);
+      context.renderBridgeManager.sendComponentEvent(rootId, id, "endediting", paramsMap);
     }
   }
 
@@ -603,7 +603,7 @@ class TextInputDispatcher {
         //如果是前端设置下来的值,不再需要回调给前端.
         var paramsMap = VoltronMap();
         paramsMap.push("text", changeText);
-        context.bridgeManager.sendComponentEvent(rootId, id, "changetext", paramsMap);
+        context.renderBridgeManager.sendComponentEvent(rootId, id, "changetext", paramsMap);
         LogUtils.d(
           TextInputController.kTag,
           "afterTextChanged 1 通知前端文本变化=$changeText",
@@ -643,7 +643,7 @@ class TextInputDispatcher {
             //如果本次输入的内容是上一次重复的蓉蓉
             var paramsMap = VoltronMap();
             paramsMap.push("text", changeText);
-            context.bridgeManager.sendComponentEvent(
+            context.renderBridgeManager.sendComponentEvent(
               rootId,
               id,
               "changetext",
@@ -683,7 +683,7 @@ class TextInputDispatcher {
       // 这里设置时候也要通知到前端
       var paramsMap = VoltronMap();
       paramsMap.push("text", value);
-      context.bridgeManager.sendComponentEvent(
+      context.renderBridgeManager.sendComponentEvent(
         rootId,
         id,
         "changetext",
@@ -702,7 +702,7 @@ class TextInputDispatcher {
     if (listenKeyboardWillShow) {
       var paramsMap = VoltronMap();
       paramsMap.push<int>("keyboardHeight", height);
-      context.bridgeManager.sendComponentEvent(
+      context.renderBridgeManager.sendComponentEvent(
         rootId,
         id,
         "keyboardWillShow",
@@ -714,7 +714,7 @@ class TextInputDispatcher {
   void onKeyboardWillHide() {
     if (listenKeyboardWillShow) {
       var paramsMap = VoltronMap();
-      context.bridgeManager.sendComponentEvent(
+      context.renderBridgeManager.sendComponentEvent(
         rootId,
         id,
         "keyboardWillHide",

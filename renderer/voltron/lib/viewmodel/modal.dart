@@ -239,7 +239,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void onRequestClose() {
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       "requestClose",
@@ -248,7 +248,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void onShow() {
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       "show",

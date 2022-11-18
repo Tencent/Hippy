@@ -173,7 +173,7 @@ class RootWidgetViewModel extends ChangeNotifier {
   void updateRootSize() {
     var rootSize = Size.zero;
     rootSize = getSizeFromKey(rootKey);
-    _context?.bridgeManager.updateNodeSize(id, width: rootSize.width, height: rootSize.height);
+    _context?.renderBridgeManager.updateNodeSize(id, width: rootSize.width, height: rootSize.height);
   }
 
   void onGlobalLayout() {
@@ -324,16 +324,9 @@ class _VoltronWidgetState extends State<VoltronWidget> with TickerProviderStateM
   }
 
   Widget _contentWithHeight(double height) {
-    return WillPopScope(
-      onWillPop: () async {
-        return !(widget.loader.back(() {
-          Navigator.of(context).pop();
-        }));
-      },
-      child: ChangeNotifierProvider.value(
-        value: viewModel,
-        child: _contentWithHeightByRepaint(height),
-      ),
+    return ChangeNotifierProvider.value(
+      value: viewModel,
+      child: _contentWithHeightByRepaint(height),
     );
   }
 

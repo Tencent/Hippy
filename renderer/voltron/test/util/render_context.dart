@@ -18,18 +18,42 @@
 // limitations under the License.
 //
 
+import 'dart:collection';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:voltron_renderer/bridge.dart';
-import 'package:voltron_renderer/common.dart';
-import 'package:voltron_renderer/controller.dart';
-import 'package:voltron_renderer/engine.dart';
-import 'package:voltron_renderer/render.dart';
+import 'package:voltron_renderer/voltron_renderer.dart';
 
 @GenerateMocks([VoltronRenderBridgeManager, DimensionChecker])
 import 'render_context.mocks.dart';
 
 class MockLoadInstanceContext extends Mock implements LoadInstanceContext {}
+
+class MockEngineContext extends Mock with RenderContextProxy {
+  void addEngineLifecycleEventListener(
+    EngineLifecycleEventListener listener,
+  ) {}
+
+  void addInstanceLifecycleEventListener(
+    InstanceLifecycleEventListener listener,
+  ) {}
+
+  DimensionChecker get dimensionChecker => MockDimensionChecker();
+
+  double get fontScale => 1.0;
+
+  void removeEngineLifecycleEventListener(
+    EngineLifecycleEventListener listener,
+  ) {}
+
+  void removeInstanceLifecycleEventListener(
+    InstanceLifecycleEventListener listener,
+  ) {}
+
+  void handleNativeException(
+    Error error,
+    bool haveCaught,
+  ) {}
+}
 
 const int mockInstanceId = 1;
 
@@ -109,43 +133,33 @@ List<ViewControllerGenerator> controllerGeneratorList = [
 ];
 
 class MockRenderContext extends RenderContext {
-  @override
-  MockDimensionChecker dimensionChecker = MockDimensionChecker();
-
-  MockRenderContext(VoltronRenderBridgeManager bridgeManager)
-      : super(0, controllerGeneratorList, EngineMonitor(), bridgetManager: bridgeManager);
-
-  @override
-  void removeInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) {}
-
-  @override
-  void addEngineLifecycleEventListener(EngineLifecycleEventListener listener) {}
-
-  @override
-  void removeEngineLifecycleEventListener(EngineLifecycleEventListener listener) {}
-
-  @override
-  void addInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) {}
-
-  @override
-  void handleNativeException(Error error, bool haveCaught) {
-    print(error);
-  }
+  MockRenderContext(
+    VoltronRenderBridgeManager? initRenderBridgeManager,
+    DomHolder? initDomHolder,
+    HashMap<int, RootWidgetViewModel>? initRootViewModelMap,
+  ) : super(
+          0,
+          controllerGeneratorList,
+          EngineMonitor(),
+          false,
+          1,
+          initRenderBridgeManager,
+          initDomHolder,
+          initRootViewModelMap,
+          MockEngineContext(),
+        );
 
   @override
   String convertRelativePath(int rootId, String path) {
     return path;
   }
-
-  @override
-  double get fontScale => 1.0;
 }
 
 RenderContext getRenderContext() {
-  var bridgeManager = MockVoltronRenderBridgeManager();
-  when(bridgeManager.createDomInstance()).thenReturn(mockInstanceId);
-  when(bridgeManager.createNativeRenderManager()).thenReturn(mockInstanceId);
-  when(bridgeManager.notifyRender(any)).thenAnswer((_) => Future.value(1));
-  var renderContext = MockRenderContext(bridgeManager);
+  var renderBridgeManager = MockVoltronRenderBridgeManager();
+  when(renderBridgeManager.createDomInstance(any)).thenReturn(mockInstanceId);
+  when(renderBridgeManager.createNativeRenderManager()).thenReturn(mockInstanceId);
+  when(renderBridgeManager.notifyRender(any)).thenAnswer((_) => Future.value(1));
+  var renderContext = MockRenderContext(renderBridgeManager, null, HashMap());
   return renderContext;
 }
