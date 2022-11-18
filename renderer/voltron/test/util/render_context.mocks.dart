@@ -31,6 +31,7 @@ import 'package:voltron_renderer/bridge/render_bridge.dart' as _i2;
 import 'package:voltron_renderer/common.dart' as _i7;
 import 'package:voltron_renderer/engine/dimension.dart' as _i5;
 import 'package:voltron_renderer/style.dart' as _i4;
+import 'package:voltron_renderer/render/render_context.dart' as _i8;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -46,82 +47,121 @@ import 'package:voltron_renderer/style.dart' as _i4;
 /// A class which mocks [VoltronRenderBridgeManager].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockVoltronRenderBridgeManager extends _i1.Mock
-    implements _i2.VoltronRenderBridgeManager {
+class MockVoltronRenderBridgeManager extends _i1.Mock implements _i2.VoltronRenderBridgeManager {
   MockVoltronRenderBridgeManager() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  int get workerId =>
-      (super.noSuchMethod(Invocation.getter(#workerId), returnValue: 0) as int);
+  int get workerManagerId => (super.noSuchMethod(
+        Invocation.getter(#workerManagerId),
+        returnValue: 0,
+      ) as int);
+
   @override
-  void init() => super.noSuchMethod(Invocation.method(#init, []),
-      returnValueForMissingStub: null);
+  void init() => super.noSuchMethod(
+        Invocation.method(#init, []),
+        returnValueForMissingStub: null,
+      );
+
   @override
-  int createDomInstance() =>
-      (super.noSuchMethod(Invocation.method(#createDomInstance, []),
-          returnValue: 0) as int);
+  void bindRenderContext(_i8.RenderContext renderContext) => super.noSuchMethod(
+        Invocation.method(#bindRenderContext, []),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void initRenderApi() => super.noSuchMethod(
+        Invocation.method(#initRenderApi, []),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  int createWorkerManager() => super.noSuchMethod(
+        Invocation.method(#createWorkerManager, []),
+        returnValueForMissingStub: null,
+        returnValue: 1,
+      );
+
+  @override
+  void destroyWorkerManager(int workerManagerId) => super.noSuchMethod(
+        Invocation.method(#destroyWorkerManager, []),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  int createDomInstance(int? workerManagerId) => (super.noSuchMethod(
+        Invocation.method(#createDomInstance, [workerManagerId]),
+        returnValue: 0,
+      ) as int);
+
   @override
   void destroyDomInstance(int? domInstanceId) => super.noSuchMethod(
-      Invocation.method(#destroyDomInstance, [domInstanceId]),
-      returnValueForMissingStub: null);
+        Invocation.method(#destroyDomInstance, [domInstanceId]),
+        returnValueForMissingStub: null,
+      );
+
   @override
   void addRoot(int? domInstanceId, int? rootId) =>
       super.noSuchMethod(Invocation.method(#addRoot, [domInstanceId, rootId]),
           returnValueForMissingStub: null);
+
   @override
-  void removeRoot(int? domInstanceId, int? rootId) => super.noSuchMethod(
-      Invocation.method(#removeRoot, [domInstanceId, rootId]),
-      returnValueForMissingStub: null);
+  void removeRoot(int? domInstanceId, int? rootId) =>
+      super.noSuchMethod(Invocation.method(#removeRoot, [domInstanceId, rootId]),
+          returnValueForMissingStub: null);
+
   @override
   int createNativeRenderManager() =>
-      (super.noSuchMethod(Invocation.method(#createNativeRenderManager, []),
-          returnValue: 0) as int);
+      (super.noSuchMethod(Invocation.method(#createNativeRenderManager, []), returnValue: 0)
+          as int);
+
   @override
   _i3.Future<dynamic> destroyNativeRenderManager() =>
       (super.noSuchMethod(Invocation.method(#destroyNativeRenderManager, []),
           returnValue: _i3.Future<dynamic>.value()) as _i3.Future<dynamic>);
+
   @override
   _i3.Future<dynamic> updateNodeSize(int? rootId,
           {int? nodeId = 0, double? width = 0.0, double? height = 0.0}) =>
       (super.noSuchMethod(
-          Invocation.method(#updateNodeSize, [rootId],
-              {#nodeId: nodeId, #width: width, #height: height}),
+          Invocation.method(
+              #updateNodeSize, [rootId], {#nodeId: nodeId, #width: width, #height: height}),
           returnValue: _i3.Future<dynamic>.value()) as _i3.Future<dynamic>);
+
   @override
   _i3.Future<dynamic> notifyRender(int? renderManagerId) =>
       (super.noSuchMethod(Invocation.method(#notifyRender, [renderManagerId]),
           returnValue: _i3.Future<dynamic>.value()) as _i3.Future<dynamic>);
+
   @override
   _i3.Future<dynamic> callNativeFunction(String? callbackId, Object? params) =>
-      (super.noSuchMethod(
-          Invocation.method(#callNativeFunction, [callbackId, params]),
+      (super.noSuchMethod(Invocation.method(#callNativeFunction, [callbackId, params]),
           returnValue: _i3.Future<dynamic>.value()) as _i3.Future<dynamic>);
+
   @override
   _i3.Future<dynamic> execNativeCallback(String? callbackId, Object? params) =>
-      (super.noSuchMethod(
-          Invocation.method(#execNativeCallback, [callbackId, params]),
+      (super.noSuchMethod(Invocation.method(#execNativeCallback, [callbackId, params]),
           returnValue: _i3.Future<dynamic>.value()) as _i3.Future<dynamic>);
+
   @override
-  _i3.Future<dynamic> execNativeEvent(
-          int? rootId, int? id, String? event, Object? params) =>
-      (super.noSuchMethod(
-          Invocation.method(#execNativeEvent, [rootId, id, event, params]),
+  _i3.Future<dynamic> execNativeEvent(int? rootId, int? id, String? event, Object? params) =>
+      (super.noSuchMethod(Invocation.method(#execNativeEvent, [rootId, id, event, params]),
           returnValue: _i3.Future<dynamic>.value()) as _i3.Future<dynamic>);
+
   @override
-  void destroy() => super.noSuchMethod(Invocation.method(#destroy, []),
-      returnValueForMissingStub: null);
+  void destroy() =>
+      super.noSuchMethod(Invocation.method(#destroy, []), returnValueForMissingStub: null);
+
   @override
   void postRenderOp(int? rootId, dynamic renderOp) =>
       super.noSuchMethod(Invocation.method(#postRenderOp, [rootId, renderOp]),
           returnValueForMissingStub: null);
+
   @override
-  int calculateNodeLayout(
-          int? instanceId, int? nodeId, _i4.FlexLayoutParams? layoutParams) =>
+  int calculateNodeLayout(int? instanceId, int? nodeId, _i4.FlexLayoutParams? layoutParams) =>
       (super.noSuchMethod(
-          Invocation.method(
-              #calculateNodeLayout, [instanceId, nodeId, layoutParams]),
+          Invocation.method(#calculateNodeLayout, [instanceId, nodeId, layoutParams]),
           returnValue: 0) as int);
 }
 
@@ -135,20 +175,25 @@ class MockDimensionChecker extends _i1.Mock implements _i5.DimensionChecker {
 
   @override
   void checkUpdateDimension(
-          _i6.BuildContext? uiContext,
-          _i7.VoltronMap? dimensionMap,
-          int? windowWidth,
-          int? windowHeight,
-          bool? shouldUseScreenDisplay,
-          bool? systemUiVisibilityChanged) =>
+    _i6.BuildContext? uiContext,
+    _i7.VoltronMap? dimensionMap,
+    int? windowWidth,
+    int? windowHeight,
+    bool? shouldUseScreenDisplay,
+    bool? systemUiVisibilityChanged,
+  ) =>
       super.noSuchMethod(
-          Invocation.method(#checkUpdateDimension, [
+        Invocation.method(
+          #checkUpdateDimension,
+          [
             uiContext,
             dimensionMap,
             windowWidth,
             windowHeight,
             shouldUseScreenDisplay,
             systemUiVisibilityChanged
-          ]),
-          returnValueForMissingStub: null);
+          ],
+        ),
+        returnValueForMissingStub: null,
+      );
 }

@@ -48,7 +48,7 @@ class ListPullFooterViewModel extends GroupViewModel {
   int get hashCode => super.hashCode;
 
   void sendEvent(String eventName, VoltronMap params) {
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       eventName,

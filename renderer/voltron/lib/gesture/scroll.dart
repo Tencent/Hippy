@@ -109,7 +109,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   }
 
   void handleScrollReachedEnd(RenderViewModel view) {
-    view.context.bridgeManager.sendComponentEvent(
+    view.context.renderBridgeManager.sendComponentEvent(
       _rootId,
       view.id,
       "endreached",
@@ -148,7 +148,7 @@ class NativeScrollGestureDispatcher extends NativeGestureDispatcher {
   }
 
   void sendExposureEvent(RenderViewModel viewModel, String eventName) {
-    _context.bridgeManager.sendComponentEvent(
+    _context.renderBridgeManager.sendComponentEvent(
       _rootId,
       _id,
       eventName,
@@ -263,7 +263,7 @@ class _ScrollEventHelper {
 
     var params = VoltronMap.fromMap(event);
 
-    viewModel.context.bridgeManager.sendComponentEvent(
+    viewModel.context.renderBridgeManager.sendComponentEvent(
       viewModel.rootId,
       viewModel.id,
       scrollEventType,

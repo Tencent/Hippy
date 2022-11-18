@@ -153,7 +153,9 @@ void VoltronRenderTaskRunner::RunLayoutBefore(uint32_t root_id) {
   ConsumeQueue(root_id);
 }
 
-void VoltronRenderTaskRunner::RunLayoutFinish(uint32_t root_id) {}
+void VoltronRenderTaskRunner::RunLayoutFinish(uint32_t root_id) {
+  // empty
+}
 
 EncodableValue VoltronRenderTaskRunner::DecodeDomValue(const HippyValue &value) {
   if (value.IsBoolean()) {

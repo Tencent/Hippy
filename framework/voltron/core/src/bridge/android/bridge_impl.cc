@@ -265,8 +265,13 @@ void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t *action, std::s
 
 void BridgeImpl::Destroy(int64_t runtimeId,
                          const std::function<void(int64_t)> &callback, bool is_reload) {
-  V8BridgeUtils::DestroyInstance(runtimeId, [](bool ret) {}, is_reload);
-  callback(1);
+  V8BridgeUtils::DestroyInstance(runtimeId, [callback](bool ret) {
+    if (ret) {
+      callback(0);
+    } else {
+      callback(-2);
+    }
+  }, is_reload);
 }
 
 void BridgeImpl::LoadInstance(int64_t runtime_id,
