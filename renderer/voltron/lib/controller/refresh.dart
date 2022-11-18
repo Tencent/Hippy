@@ -132,6 +132,6 @@ class RefreshEventDispatcher {
 
   void startRefresh() {
     _refreshController.requestRefresh(needMove: true);
-    _context.bridgeManager.sendComponentEvent(_rootId, _id, "refresh", {});
+    _context.renderBridgeManager.sendComponentEvent(_rootId, _id, "refresh", {});
   }
 }

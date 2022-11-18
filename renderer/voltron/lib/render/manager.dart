@@ -164,18 +164,20 @@ class RenderManager
   final Set<RenderNode> _updateRenderNodes = {};
 
   final ControllerManager _controllerManager;
-  final RenderContext context;
+  final RenderContext renderContext;
   final int _nativeRenderManagerId;
+
+  int get nativeRenderManagerId => _nativeRenderManagerId;
 
   ControllerManager get controllerManager => _controllerManager;
 
   RenderManager(
-    this.context,
+    this.renderContext,
     List<ViewControllerGenerator>? generators,
-  )   : _controllerManager = ControllerManager(context, generators),
-        _nativeRenderManagerId = context.bridgeManager.createNativeRenderManager() {
-    context.addEngineLifecycleEventListener(this);
-    context.addInstanceLifecycleEventListener(this);
+  )   : _controllerManager = ControllerManager(renderContext, generators),
+        _nativeRenderManagerId = renderContext.renderBridgeManager.createNativeRenderManager() {
+    renderContext.addEngineLifecycleEventListener(this);
+    renderContext.addInstanceLifecycleEventListener(this);
   }
 
   @override
@@ -184,13 +186,9 @@ class RenderManager
     createInstance(instanceId);
   }
 
-  int getNativeId() {
-    return _nativeRenderManagerId;
-  }
-
   @override
   void createRootNode(int instanceId) async {
-    var viewModel = context.getInstance(instanceId);
+    var viewModel = renderContext.getInstance(instanceId);
     if (viewModel != null) {
       controllerManager.createRootNode(instanceId);
       var executor = viewModel.executor;
@@ -453,9 +451,10 @@ class RenderManager
   @override
   void destroy() {
     super.destroy();
+    renderContext.renderBridgeManager.destroyNativeRenderManager();
     controllerManager.destroy();
-    context.removeInstanceLifecycleEventListener(this);
-    context.removeEngineLifecycleEventListener(this);
+    renderContext.removeInstanceLifecycleEventListener(this);
+    renderContext.removeEngineLifecycleEventListener(this);
   }
 
   @override
@@ -502,7 +501,7 @@ class RenderManager
 
   @override
   void onInstanceDestroy(int instanceId) {
-    var viewModel = context.getInstance(instanceId);
+    var viewModel = renderContext.getInstance(instanceId);
     if (viewModel != null) {
       if (viewModel.executor != null) {
         _pageUpdateTasks.remove(viewModel.executor);

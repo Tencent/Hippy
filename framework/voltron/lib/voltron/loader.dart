@@ -76,7 +76,7 @@ class VoltronJSLoaderManager {
   }
 
   void destroy() {
-    // _engine.destroyEngine();
+    _engine.destroyEngine();
   }
 
   void sendData(String event, Object params) {

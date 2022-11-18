@@ -26,15 +26,14 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:path_provider/path_provider.dart';
-import 'package:voltron_renderer/bridge/render_bridge_define.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
 import '../adapter.dart';
+import '../bridge.dart';
 import '../channel.dart';
 import '../devtools/network_inspector.dart';
 import '../engine.dart';
 import '../module.dart';
-import 'voltron_api.dart';
 
 const bool useNewCommType = false;
 
@@ -90,7 +89,6 @@ class VoltronBridgeManager implements Destroyable {
         _thirdPartyAdapter = thirdPartyAdapter,
         _isSingleThread = bridgeType == kBridgeTypeSingleThread {
     initCodeCacheDir();
-    _context.renderContext.bridgeManager.init();
   }
 
   void _handleVoltronInspectorInit() {
@@ -103,13 +101,26 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
-  void bindDomAndRender(
-      {required int domInstanceId, required int engineId, required int renderManagerId}) {
-    VoltronApi.bindDomAndRender(domInstanceId, engineId, renderManagerId);
+  void bindDomAndRender({
+    required int domInstanceId,
+    required int engineId,
+    required int renderManagerId,
+  }) {
+    VoltronApi.bindDomAndRender(
+      domInstanceId,
+      engineId,
+      renderManagerId,
+    );
   }
 
-  void connectRootViewAndRuntime(int engineId, int rootId) {
-    VoltronApi.connectRootViewAndRuntime(engineId, rootId);
+  void connectRootViewAndRuntime(
+    int engineId,
+    int rootId,
+  ) {
+    VoltronApi.connectRootViewAndRuntime(
+      engineId,
+      rootId,
+    );
   }
 
   Future<dynamic> initBridge(Callback callback) async {
@@ -123,8 +134,8 @@ class VoltronBridgeManager implements Destroyable {
         isDevModule: _isDevModule,
         groupId: _groupId,
         engineId: _engineId,
-        workerManagerId: _context.renderContext.workerId,
-        domId: _context.renderContext.domId,
+        workerManagerId: _context.renderContext.workerManagerId,
+        domId: _context.renderContext.domHolder.id,
         callback: (value) async {
           _isFrameWorkInit = true;
           _thirdPartyAdapter?.setVoltronBridgeId(value);
@@ -146,6 +157,7 @@ class VoltronBridgeManager implements Destroyable {
                   );
                 } else {
                   bridgeMap[_engineId] = this;
+                  _context.renderContext.renderBridgeManager.init();
                 }
                 callback(_isFrameWorkInit, error);
               });
@@ -157,8 +169,9 @@ class VoltronBridgeManager implements Destroyable {
             }
           } else {
             _isFrameWorkInit = true;
-            callback(_isFrameWorkInit, null);
             bridgeMap[_engineId] = this;
+            _context.renderContext.renderBridgeManager.init();
+            callback(_isFrameWorkInit, null);
           }
         },
         dataDir: tracingDataDir,

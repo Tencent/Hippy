@@ -18,6 +18,7 @@
 // limitations under the License.
 //
 
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:voltron_renderer/voltron_renderer.dart';
@@ -27,47 +28,27 @@ import 'js_engine_context.dart';
 import 'js_instance_context.dart';
 
 class JSRenderContext extends RenderContext<JSLoadInstanceContext> {
-  final EngineContext _engineContext;
-
-  final JSDimensionChecker _dimensionChecker;
-
   JSRenderContext(
-    this._engineContext,
+    RenderContextProxy proxy,
     int id,
     List<ViewControllerGenerator>? generators,
     EngineMonitor engineMonitor,
-  )   : _dimensionChecker = JSDimensionChecker(_engineContext),
-        super(id, generators, engineMonitor);
-
-  @override
-  void addEngineLifecycleEventListener(EngineLifecycleEventListener listener) {
-    _engineContext.addEngineLifecycleEventListener(listener);
-  }
-
-  @override
-  void addInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener) {
-    _engineContext.addInstanceLifecycleEventListener(listener);
-  }
-
-  @override
-  DimensionChecker get dimensionChecker => _dimensionChecker;
-
-  @override
-  double get fontScale =>
-      _engineContext.globalConfigs.fontScaleAdapter?.getFontScale() ?? 1.0;
-
-  @override
-  void removeEngineLifecycleEventListener(
-      EngineLifecycleEventListener listener) {
-    _engineContext.removeEngineLifecycleEventListener(listener);
-  }
-
-  @override
-  void removeInstanceLifecycleEventListener(
-      InstanceLifecycleEventListener listener) {
-    _engineContext.removeInstanceLifecycleEventListener(listener);
-  }
+    bool debugMode,
+    int workerManagerId,
+    VoltronRenderBridgeManager? voltronRenderBridgeManager,
+    DomHolder? domHolder,
+    HashMap<int, RootWidgetViewModel>? rootViewModelMap,
+  ) : super(
+          id,
+          generators,
+          engineMonitor,
+          debugMode,
+          workerManagerId,
+          voltronRenderBridgeManager,
+          domHolder,
+          rootViewModelMap,
+          proxy,
+        );
 
   @override
   String convertRelativePath(int rootId, String path) {
@@ -82,13 +63,5 @@ class JSRenderContext extends RenderContext<JSLoadInstanceContext> {
       }
     }
     return path;
-  }
-
-  @override
-  void handleNativeException(Error error, bool haveCaught) {
-    _engineContext.globalConfigs.exceptionHandlerAdapter?.handleNativeException(
-      error,
-      haveCaught,
-    );
   }
 }

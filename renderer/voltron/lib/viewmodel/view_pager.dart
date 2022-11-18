@@ -147,7 +147,7 @@ class ViewPagerRenderViewModel extends GroupViewModel {
   void setScrollState(String pageScrollState) {
     var params = VoltronMap();
     params.push("pageScrollState", pageScrollState);
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       "pageScrollStateChanged",
@@ -158,7 +158,7 @@ class ViewPagerRenderViewModel extends GroupViewModel {
   void onPageSelect(int page) {
     var params = VoltronMap();
     params.push("position", page);
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       "pageSelected",
@@ -170,7 +170,7 @@ class ViewPagerRenderViewModel extends GroupViewModel {
     var params = VoltronMap();
     params.push("position", position);
     params.push("offset", offset);
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       "pageScroll",
