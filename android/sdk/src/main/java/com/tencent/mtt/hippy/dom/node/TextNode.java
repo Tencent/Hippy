@@ -68,8 +68,7 @@ public class TextNode extends StyleNode {
   protected float mLineSpacingExtra;
 
   protected int mColor = Color.BLACK;
-  private final boolean mIsBackgroundColorSet = false;
-  private int mBackgroundColor;
+  private int mBackgroundColor = Color.TRANSPARENT;
   private String mFontFamily = null;
 
   public static final int DEFAULT_TEXT_SHADOW_COLOR = 0x55000000;
@@ -462,6 +461,11 @@ public class TextNode extends StyleNode {
     }
   }
 
+  @HippyControllerProps(name = NodeProps.BACKGROUND_COLOR, defaultType = HippyControllerProps.NUMBER)
+  public void setBackgroundColor(int backgroundColor) {
+      mBackgroundColor = backgroundColor;
+  }
+
   protected HippyFontScaleAdapter mFontScaleAdapter;
   protected HippyEngineContext engineContext;
   protected HippyImageLoader mImageAdapter;
@@ -569,7 +573,7 @@ public class TextNode extends StyleNode {
     if (start <= end) {
       ops
         .add(new SpanOperation(start, end, createForegroundColorSpan(textNode.mColor, textNode)));
-      if (textNode.mIsBackgroundColorSet) {
+      if (textNode.isVirtual() && textNode.mBackgroundColor != Color.TRANSPARENT) {
         ops.add(new SpanOperation(start, end, new BackgroundColorSpan(textNode.mBackgroundColor)));
       }
       if (textNode.mLetterSpacing != UNSET) {
