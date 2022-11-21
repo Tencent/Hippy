@@ -50,7 +50,7 @@ import type { NativeApiType } from './runtime/native';
 import './runtime/event/hippy-event-dispatcher';
 import './runtime/websocket/websocket';
 import type { HippyNode } from './runtime/node/hippy-node';
-import { setBeforeLoadStyle, setSilent, trace } from './util';
+import { setBeforeLoadStyle, setSilent, setTrimWhitespace, trace } from './util';
 import type { HippyCachedInstanceType } from './util/instance';
 import {
   getHippyCachedInstance,
@@ -112,6 +112,8 @@ export interface HippyAppOptions {
   };
   // do not print trace info if set to true
   silent?: boolean;
+  // set whether to trim text whitespace
+  trimWhitespace?: boolean;
 }
 
 // base screen width
@@ -196,6 +198,9 @@ export const createApp = (
   if (options.silent) {
     setSilent(options.silent);
   }
+
+  // set whether to trim whitespace
+  setTrimWhitespace(options.trimWhitespace);
 
   // save the original mount method
   const { mount } = hippyApp;

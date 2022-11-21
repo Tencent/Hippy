@@ -77,6 +77,8 @@ module.exports = {
               compilerOptions: {
                 // disable vue3 dom patch flag，because hippy do not support innerHTML
                 hoistStatic: false,
+                // whitespace handler, default is 'condense', it can be set 'preserve'
+                whitespace: 'condense',
               },
             },
           },
