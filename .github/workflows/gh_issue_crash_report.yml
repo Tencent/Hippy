@@ -158,7 +158,7 @@ jobs:
 
           function parse(log) {
             const stack = [];
-            for (const [_, pc, file, func] of log.matchAll(/#[0-9]+\s+pc\s+([0-9a-f]{${{ contains(needs.triage.outputs.architecture, '64') && 16 || 8}}})\s+([^\s]+)(?:\s+\(([^\+]+\+[0-9]+)\))*/ig)) {
+            for (const [_, pc, file, func] of log.matchAll(/#[0-9a-f]+\s+pc\s+(?:0x)?([0-9a-f]{${{ contains(needs.triage.outputs.architecture, '64') && 16 || 8}}})\s+([^\s]+)(?:\s+\(([^\+]+\+[0-9]+)\))*/ig)) {
               stack.push({pc, func, file});
             }
             return stack;
@@ -199,7 +199,7 @@ jobs:
         rm $ZIP_FILE
         echo "success=1" >> $GITHUB_OUTPUT
     - uses: actions/github-script@v6.3.3
-      if: ${{ !steps.symbols_fetched.outputs.success }}
+      if: steps.symbols_fetched.result == 'success' && !steps.symbols_fetched.outputs.success
       with:
         github-token: ${{ steps.get-token.outputs.token }}
         script: |
@@ -253,7 +253,7 @@ jobs:
 
               return stack;
             }).map(({ pc, func, file, source }, i) => {
-              return `#${i} PC ${pc}  ${file} (${func})${source ? ` [${source}]` : ''}`;
+              return `#${i} PC ${pc}  ${file} ${func ? `(${func})` : ''}${source ? ` [${source}]` : ''}`;
             });
 
             body = util.format(process.env.translate_success_message, [`translated backtrace:`, ...formatted.map(line => `  ${line}`)].join(os.EOL));
