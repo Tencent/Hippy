@@ -16,6 +16,7 @@
 package com.tencent.mtt.hippy.dom.node;
 
 
+import android.graphics.Color;
 import android.text.style.ImageSpan;
 import com.tencent.mtt.hippy.annotation.HippyControllerProps;
 import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
@@ -33,6 +34,8 @@ public class ImageNode extends StyleNode {
   @Deprecated
   private int mVerticalAlignment = ImageSpan.ALIGN_BASELINE;
   private String mVerticalAlign;
+  private int mTintColor = Color.TRANSPARENT;
+  private int mBackgroundColor = Color.TRANSPARENT;
   private final boolean[] shouldSendImageEvent;
 
   private ArrayList<String> mGestureTypes = null;
@@ -191,5 +194,37 @@ public class ImageNode extends StyleNode {
   @HippyControllerProps(name = "onError", defaultType = HippyControllerProps.BOOLEAN)
   public void setOnError(boolean enable) {
     shouldSendImageEvent[ImageEvent.ONERROR.ordinal()] = enable;
+  }
+
+  @HippyControllerProps(name = "tintColor", defaultType = HippyControllerProps.NUMBER)
+  public void setTintColor(int tintColor) {
+      mTintColor = tintColor;
+      if (mImageSpan != null) {
+          mImageSpan.setTintColor(tintColor);
+      }
+  }
+
+  public boolean hasTintColor() {
+      return mTintColor != Color.TRANSPARENT;
+  }
+
+  public int getTintColor() {
+      return mTintColor;
+  }
+
+  @HippyControllerProps(name = NodeProps.BACKGROUND_COLOR, defaultType = HippyControllerProps.NUMBER)
+  public void setBackgroundColor(int color) {
+      mBackgroundColor = color;
+      if (mImageSpan != null) {
+          mImageSpan.setBackgroundColor(color);
+      }
+  }
+
+  public boolean hasBackgroundColor() {
+      return mBackgroundColor != Color.TRANSPARENT;
+  }
+
+  public int getBackgroundColor() {
+      return mBackgroundColor;
   }
 }

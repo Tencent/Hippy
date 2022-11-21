@@ -338,6 +338,46 @@ export default class TextExpo extends React.Component {
             </Text>
           </>)}
         </View>
+        {renderTitle('tintColor & backgroundColor')}
+        <View style={[styles.itemContent]}>
+          <Text style={[styles.normalText,
+            { lineHeight: 50, backgroundColor: '#4c9afa', paddingHorizontal: 10, paddingVertical: 5 }]}>
+            <Text style={{ color: '#900' }}>legacy:</Text>
+            <Image style={{ width: 24, height: 24, tintColor: 'orange' }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, tintColor: 'orange', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+            <Text style={{ backgroundColor: '#090' }}>new:</Text>
+            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', tintColor: 'orange' }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', tintColor: 'orange', backgroundColor: '#ccc' }} source={{ uri: imgURL2 }} />
+          </Text>
+        </View>
+        {renderTitle('margin & padding')}
+        <View style={[styles.itemContent]}>
+          <Text style={[styles.normalText,
+            { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 5 }]}>
+            <Text>legacy:</Text>
+            <Image style={{ width: 24, height: 24, margin: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, padding: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, margin: 5, padding: 5 }} source={{ uri: imgURL2 }} />
+          </Text>
+          <Text style={[styles.normalText,
+            { lineHeight: 50, backgroundColor: '#4c9afa', marginBottom: 5 }]}>
+            <Text>margin:</Text>
+            <Image style={{ width: 24, height: 24, verticalAlign: 'top', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'baseline', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'bottom', backgroundColor: '#ccc', margin: 5 }} source={{ uri: imgURL2 }} />
+          </Text>
+          <Text style={[styles.normalText,
+            { lineHeight: 50, backgroundColor: '#4c9afa' }]}>
+            <Text>padding:</Text>
+            <Image style={{ width: 24, height: 24, verticalAlign: 'top', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'middle', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'baseline', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
+            <Image style={{ width: 24, height: 24, verticalAlign: 'bottom', backgroundColor: '#ccc', padding: 5 }} source={{ uri: imgURL2 }} />
+          </Text>
+        </View>
       </ScrollView>
     );
   }

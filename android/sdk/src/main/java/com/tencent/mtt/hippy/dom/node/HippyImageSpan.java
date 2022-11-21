@@ -20,9 +20,13 @@ import static com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent.ONLOAD
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.graphics.Movie;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -41,6 +45,7 @@ import com.tencent.mtt.hippy.uimanager.HippyViewEvent;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.utils.UrlUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageView.ImageEvent;
+import com.tencent.smtt.flexbox.FlexNodeStyle.Edge;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
@@ -73,9 +78,20 @@ public class HippyImageSpan extends ImageSpan {
   private final HippyEngineContext engineContext;
   private Drawable mSrcDrawable = null;
   private Movie mGifMovie = null;
+  private Paint mGifPaint = null;
   private long mGifProgress = 0;
   private long mGifLastPlayTime = -1;
   private float mHeightRate = 0;
+  private Paint mBackgroundPaint = null;
+  private int mMarginLeft;
+  private int mMarginTop;
+  private int mMarginRight;
+  private int mMarginBottom;
+  private int mPaddingLeft;
+  private int mPaddingTop;
+  private int mPaddingRight;
+  private int mPaddingBottom;
+
   @Deprecated
   private LegacyIAlignConfig alignConfig;
 
@@ -92,6 +108,12 @@ public class HippyImageSpan extends ImageSpan {
     setUrl(source);
     if (mUseLegacy) {
         alignConfig = LegacyIAlignConfig.fromVerticalAlignment(node.getVerticalAlignment());
+    } else {
+        if (node.hasBackgroundColor()) {
+            mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mBackgroundPaint.setColor(node.getBackgroundColor());
+        }
+        initEdge(node);
     }
   }
 
@@ -220,7 +242,7 @@ public class HippyImageSpan extends ImageSpan {
     float y = (mGifScaleY != 0) ? top / mGifScaleY : top;
     canvas.save();
     canvas.scale(mGifScaleX, mGifScaleY);
-    mGifMovie.draw(canvas, x, y);
+    mGifMovie.draw(canvas, x, y, mGifPaint);
     canvas.restore();
     postInvalidateDelayed(40);
   }
@@ -243,16 +265,15 @@ public class HippyImageSpan extends ImageSpan {
           mMeasuredWidth = mWidth;
           mMeasuredHeight = mHeight;
       }
-      // TODO pel deal margin
       if (fm != null) {
-          fm.ascent = -mMeasuredHeight;
+          fm.ascent = -(mMeasuredHeight + mMarginTop + mMarginBottom);
           fm.descent = 0;
 
           fm.top = fm.ascent;
           fm.bottom = 0;
       }
 
-      return mMeasuredWidth;
+      return mMeasuredWidth + mMarginLeft + mMarginRight;
   }
 
   private int legacyGetSize(@NonNull Paint paint, CharSequence text, int start, int end,
@@ -282,13 +303,13 @@ public class HippyImageSpan extends ImageSpan {
       int transY;
       switch (mVerticalAlign) {
           case V_ALIGN_TOP:
-              transY = top;
+              transY = top + mMarginTop;
               break;
           case V_ALIGN_MIDDLE:
               transY = top + (bottom - top) / 2 - mMeasuredHeight / 2;
               break;
           case V_ALIGN_BOTTOM:
-              transY = bottom - mMeasuredHeight;
+              transY = bottom - mMeasuredHeight - mMarginBottom;
               break;
           case V_ALIGN_BASELINE:
           default:
@@ -296,19 +317,25 @@ public class HippyImageSpan extends ImageSpan {
               break;
       }
 
-      canvas.translate(x, transY);
+      if (mBackgroundPaint != null) {
+          canvas.translate(x + mMarginLeft, transY);
+          canvas.drawRect(0, 0, mMeasuredWidth, mMeasuredHeight, mBackgroundPaint);
+          canvas.translate(mPaddingLeft, mPaddingTop);
+      } else {
+          canvas.translate(x + mMarginLeft + mPaddingLeft, transY + mPaddingTop);
+      }
       if (mGifMovie != null) {
           updateGifTime();
-          float scaleX = mMeasuredWidth / (float) mGifMovie.width();
-          float scaleY = mMeasuredHeight / (float) mGifMovie.height();
+          float scaleX = (mMeasuredWidth - mPaddingLeft - mPaddingRight) / (float) mGifMovie.width();
+          float scaleY = (mMeasuredHeight - mPaddingTop - mPaddingBottom) / (float) mGifMovie.height();
           canvas.scale(scaleX, scaleY, 0, 0);
-          mGifMovie.draw(canvas, 0, 0);
+          mGifMovie.draw(canvas, 0, 0, mGifPaint);
           postInvalidateDelayed(40);
       } else {
           Drawable drawable = mSrcDrawable == null ? super.getDrawable() : mSrcDrawable;
           Rect rect = drawable.getBounds();
-          float scaleX = mMeasuredWidth / (float) rect.right;
-          float scaleY = mMeasuredHeight / (float) rect.bottom;
+          float scaleX = (mMeasuredWidth - mPaddingLeft - mPaddingRight) / (float) rect.right;
+          float scaleY = (mMeasuredHeight - mPaddingTop - mPaddingBottom) / (float) rect.bottom;
           canvas.scale(scaleX, scaleY, 0, 0);
           drawable.draw(canvas);
       }
@@ -355,15 +382,25 @@ public class HippyImageSpan extends ImageSpan {
       }
       mSrcDrawable = null;
       mGifMovie = null;
+      mGifPaint = null;
       if (hippyDrawable != null) {
           Bitmap bitmap = hippyDrawable.getBitmap();
           if (bitmap != null) {
               BitmapDrawable drawable = new BitmapDrawable(bitmap);
+              ImageNode node = mImageNodeWeakRefrence.get();
+              if (node != null && node.hasTintColor()) {
+                  drawable.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+              }
               drawable.setBounds(0, 0, mWidth, mHeight);
               mSrcDrawable = drawable;
               mImageLoadState = STATE_LOADED;
           } else if (hippyDrawable.isAnimated()) {
               mGifMovie = hippyDrawable.getGIF();
+              ImageNode node = mImageNodeWeakRefrence.get();
+              if (node != null && node.hasTintColor()) {
+                  mGifPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                  mGifPaint.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+              }
               mImageLoadState = STATE_LOADED;
           } else {
               mImageLoadState = STATE_UNLOAD;
@@ -379,6 +416,10 @@ public class HippyImageSpan extends ImageSpan {
       Bitmap bitmap = hippyDrawable.getBitmap();
       if (bitmap != null) {
         BitmapDrawable drawable = new BitmapDrawable(bitmap);
+        ImageNode node = mImageNodeWeakRefrence.get();
+        if (node != null && node.hasTintColor()) {
+          drawable.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+        }
 
         int w = (mWidth == 0) ? drawable.getIntrinsicWidth() : mWidth;
         int h = (mHeight == 0) ? drawable.getIntrinsicHeight() : mHeight;
@@ -402,6 +443,11 @@ public class HippyImageSpan extends ImageSpan {
         mImageLoadState = STATE_LOADED;
       } else if (hippyDrawable.isAnimated()) {
         mGifMovie = hippyDrawable.getGIF();
+        ImageNode node = mImageNodeWeakRefrence.get();
+        if (node != null && node.hasTintColor()) {
+            mGifPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mGifPaint.setColorFilter(new PorterDuffColorFilter(node.getTintColor(), PorterDuff.Mode.SRC_ATOP));
+        }
         mImageLoadState = STATE_LOADED;
       } else {
         mImageLoadState = STATE_UNLOAD;
@@ -457,4 +503,65 @@ public class HippyImageSpan extends ImageSpan {
     }, props);
   }
 
+  public void setTintColor(int tintColor) {
+      Runnable action = () -> {
+          ColorFilter colorFilter = tintColor == Color.TRANSPARENT ? null
+                : new PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_ATOP);
+          if (mSrcDrawable != null) {
+              mSrcDrawable.setColorFilter(colorFilter);
+          } else if (mGifMovie != null) {
+              mGifPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              mGifPaint.setColorFilter(colorFilter);
+          } else if (mUseLegacy) {
+              Drawable drawable = getDrawable();
+              drawable.setColorFilter(colorFilter);
+          }
+      };
+      if (UIThreadUtils.isOnUiThread()) {
+          action.run();
+      } else {
+          UIThreadUtils.runOnUiThread(action);
+      }
+  }
+
+  public void setBackgroundColor(int color) {
+      if (mUseLegacy) {
+          return;
+      }
+      Runnable action = () -> {
+          if (color == Color.TRANSPARENT) {
+              mBackgroundPaint = null;
+          } else {
+              mBackgroundPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+              mBackgroundPaint.setColor(color);
+          }
+      };
+      if (UIThreadUtils.isOnUiThread()) {
+          action.run();
+      } else {
+          UIThreadUtils.runOnUiThread(action);
+      }
+  }
+
+  private void initEdge(ImageNode node) {
+      int margin = Math.round(node.getMargin(Edge.EDGE_ALL.ordinal()));
+      int marginHorizontal = getValue(Math.round(node.getMargin(Edge.EDGE_HORIZONTAL.ordinal())), margin);
+      int marginVertical = getValue(Math.round(node.getMargin(Edge.EDGE_VERTICAL.ordinal())), margin);
+      mMarginLeft = getValue(Math.round(node.getMargin(Edge.EDGE_LEFT.ordinal())), marginHorizontal);
+      mMarginRight = getValue(Math.round(node.getMargin(Edge.EDGE_RIGHT.ordinal())), marginHorizontal);
+      mMarginTop = getValue(Math.round(node.getMargin(Edge.EDGE_TOP.ordinal())), marginVertical);
+      mMarginBottom = getValue(Math.round(node.getMargin(Edge.EDGE_BOTTOM.ordinal())), marginVertical);
+
+      int padding = Math.round(node.getPadding(Edge.EDGE_ALL.ordinal()));
+      int paddingHorizontal = getValue(Math.round(node.getPadding(Edge.EDGE_HORIZONTAL.ordinal())), padding);
+      int paddingVertical = getValue(Math.round(node.getPadding(Edge.EDGE_VERTICAL.ordinal())), padding);
+      mPaddingLeft = getValue(Math.round(node.getPadding(Edge.EDGE_LEFT.ordinal())), paddingHorizontal);
+      mPaddingRight = getValue(Math.round(node.getPadding(Edge.EDGE_RIGHT.ordinal())), paddingHorizontal);
+      mPaddingTop = getValue(Math.round(node.getPadding(Edge.EDGE_TOP.ordinal())), paddingVertical);
+      mPaddingBottom = getValue(Math.round(node.getPadding(Edge.EDGE_BOTTOM.ordinal())), paddingVertical);
+  }
+
+  private static int getValue(int primary, int secondary) {
+      return primary == 0 ? secondary : primary;
+  }
 }
