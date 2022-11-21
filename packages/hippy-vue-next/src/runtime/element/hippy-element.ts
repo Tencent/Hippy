@@ -38,6 +38,7 @@ import {
   isEmpty,
   deepCopy,
   isStyleMatched,
+  whitespaceFilter,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { getHippyCachedInstance } from '../../util/instance';
@@ -383,8 +384,7 @@ export class HippyElement extends HippyNode {
           }
           if (!options || !options.textUpdate) {
             // Only when non-text nodes are automatically updated,
-            // need to deal with leading and trailing whitespace characters, etc.
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            value = whitespaceFilter(value);
           }
           value = unicodeToChar(value);
           break;
