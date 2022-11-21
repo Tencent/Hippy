@@ -66,6 +66,10 @@ class _BridgeFFIManager {
   // 链接rootView和jsRuntime
   late ConnectRootViewAndRuntimeDartType connectRootViewAndRuntime;
 
+  // devtools 请求拦截
+  late OnNetworkRequestInvokeDartType onNetworkRequestInvoke;
+  late OnNetworkResponseInvokeDartType onNetworkResponseInvoke;
+
   // 销毁
   late DestroyFfiDartType destroy;
 
@@ -112,6 +116,13 @@ class _BridgeFFIManager {
         .lookupFunction<GetCrashMessageFfiType, GetCrashMessageFfiType>("GetCrashMessageFFI");
 
     destroy = _library.lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
+
+    onNetworkRequestInvoke = _library.lookupFunction<
+        OnNetworkRequestInvokeNativeType,
+        OnNetworkRequestInvokeDartType>('OnNetworkRequestInvoke');
+    onNetworkResponseInvoke = _library.lookupFunction<
+        OnNetworkResponseInvokeNativeType,
+        OnNetworkResponseInvokeDartType>('OnNetworkResponseInvoke');
   }
 }
 
