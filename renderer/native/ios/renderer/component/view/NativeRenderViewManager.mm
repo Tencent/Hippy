@@ -67,28 +67,68 @@
     return _renderImpl;
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+static NSString * const NativeRenderViewManagerGetBoundingRelToContainerKey = @"relToContainer";
+static NSString * const NativeRenderViewManagerGetBoundingErrMsgrKey = @"errMsg";
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getBoundingClientRect:(nonnull NSNumber *)hippyTag
+                                      options:(nullable NSDictionary *)options
+                                      callback:(RenderUIResponseSenderBlock)callback ) {
+    if (options && [[options objectForKey:NativeRenderViewManagerGetBoundingRelToContainerKey] boolValue]) {
+        [self measureInWindow:hippyTag withErrMsg:YES callback:callback];
+    } else {
+        [self measureInAppWindow:hippyTag withErrMsg:YES callback:callback];
+    }
+}
+
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInWindow:(NSNumber *)componentTag
+                                      callback:(RenderUIResponseSenderBlock)callback) {
+    [self measureInWindow:componentTag withErrMsg:NO callback:callback];
+}
+
+- (void)measureInWindow:(NSNumber *)componentTag
+             withErrMsg:(BOOL)withErrMsg
+               callback:(RenderUIResponseSenderBlock)callback {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext,
+                                     NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (!view) {
-            callback(@{});
+            if (withErrMsg) {
+                NSString *formatStr = @"measure cannot find view with tag #%@";
+                NSString *errMsg = [NSString stringWithFormat:formatStr, componentTag];
+                callback(@{NativeRenderViewManagerGetBoundingErrMsgrKey : errMsg});
+            } else {
+                callback(@{});
+            }
             return;
         }
         UIView *rootView = viewRegistry[view.rootTag];
         if (!rootView) {
-            callback(@{});
+            if (withErrMsg) {
+                NSString *formatStr = @"measure cannot find view's root view with tag #%@";
+                NSString *errMsg = [NSString stringWithFormat:formatStr, componentTag];
+                callback(@{NativeRenderViewManagerGetBoundingErrMsgrKey : errMsg});
+            } else {
+                callback(@{});
+            }
             return;
         }
         CGRect windowFrame = [rootView convertRect:view.frame fromView:view.superview];
         callback(@{@"width":@(CGRectGetWidth(windowFrame)),
-                     @"height": @(CGRectGetHeight(windowFrame)),
-                     @"x":@(windowFrame.origin.x),
-                     @"y":@(windowFrame.origin.y)});
+                   @"height": @(CGRectGetHeight(windowFrame)),
+                   @"x":@(windowFrame.origin.x),
+                   @"y":@(windowFrame.origin.y)});
     }];
 }
 
-NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry) {
+NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTag
+                                      callback:(RenderUIResponseSenderBlock)callback) {
+    [self measureInAppWindow:componentTag withErrMsg:NO callback:callback];
+}
+
+- (void)measureInAppWindow:(NSNumber *)componentTag
+                withErrMsg:(BOOL)withErrMsg
+                  callback:(RenderUIResponseSenderBlock)callback {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext,
+                                     NSDictionary<NSNumber *, UIView *> *viewRegistry) {
         UIView *view = viewRegistry[componentTag];
         if (!view) {
             callback(@{});
@@ -96,9 +136,9 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(measureInAppWindow:(NSNumber *)componentTa
         }
         CGRect windowFrame = [view.window convertRect:view.frame fromView:view.superview];
         callback(@{@"width":@(CGRectGetWidth(windowFrame)),
-                     @"height": @(CGRectGetHeight(windowFrame)),
-                     @"x":@(windowFrame.origin.x),
-                     @"y":@(windowFrame.origin.y)});
+                   @"height": @(CGRectGetHeight(windowFrame)),
+                   @"x":@(windowFrame.origin.x),
+                   @"y":@(windowFrame.origin.y)});
     }];
 }
 
