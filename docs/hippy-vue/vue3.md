@@ -265,6 +265,39 @@ const router: Router = createRouter({
     ```
 
     更多信息可以参考 demo 里的 [extend.ts](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/extend.ts).
+  
+- whitespace 处理
+
+  Vue2.x Vue-Loader `compilerOptions.whitespace` 默认值为 `preserve`， Vue3.x 默认值为 `condense`（可参考 [Vue3 whitespace说明](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace)）。
+
+  关闭 `trim` 能力的配置方式也有所不同，改在了 `createApp` 的参数中进行设置。
+
+  ```javascript
+    // entry file
+    const app: HippyApp = createApp(App, {
+     // hippy native module name
+     appName: 'Demo',
+     // trimWhitespace default is true
+     trimWhitespace: false,
+    });
+
+    //  webpack script
+    rules: [
+    {
+        test: /\.vue$/,
+        use: [
+        {
+          loader: vueLoader,
+          options: {
+              compilerOptions: {
+                // whitespace handler, default is 'condense'
+                whitespace: 'condense',
+              },
+          },
+        }],
+     },
+    ]
+  ```
 
 # 示例
 

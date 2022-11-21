@@ -268,6 +268,39 @@ const router = createRouter({
 
   For more information, please refer to [extend.ts](https://github.com/Tencent/Hippy/blob/master/examples/hippy-vue-next-demo/src/extend.ts).
 
+- whitespace handler
+
+  Vue2.x Vue-Loader `compilerOptions.whitespace` default is `preserve`, Vue3.x default is  `condense`(refer to [Vue3 whitespace introduction](https://vuejs.org/api/application.html#app-config-compileroptions-whitespace)).
+
+  Disable `trim` is different from Vue2.x, which will be set in `createApp` options.
+
+  ```javascript
+    // entry file
+    const app: HippyApp = createApp(App, {
+     // hippy native module name
+     appName: 'Demo',
+     // trimWhitespace default is true
+     trimWhitespace: false,
+    });
+
+    //  webpack script
+    rules: [
+    {
+        test: /\.vue$/,
+        use: [
+        {
+          loader: vueLoader,
+          options: {
+              compilerOptions: {
+                // whitespace handler, default is 'condense'
+                whitespace: 'condense',
+              },
+          },
+        }],
+     },
+    ]
+  ```
+
 # Examples
 
 For more details, please check [example project](https://github.com/Tencent/Hippy/tree/master/examples/hippy-vue-next-demo) directly.

@@ -42,8 +42,12 @@ const app: HippyApp = createApp(App, {
   },
   // do not print trace info when set to true
   // silent: true,
+  /**
+   * whether to trim whitespace on text element,
+   * default is true, if set false, it will follow vue-loader compilerOptions whitespace setting
+   */
+  trimWhitespace: true,
 });
-
 // create router
 const router = createRouter();
 app.use(router);
