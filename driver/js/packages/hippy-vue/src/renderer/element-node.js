@@ -33,6 +33,7 @@ import {
   warn,
   isDev,
   isEmpty,
+  whitespaceFilter,
 } from '../util';
 import Native from '../runtime/native';
 import { eventHandlerType } from '../util/node';
@@ -72,11 +73,11 @@ function convertToDegree(value, unit = DEGREE_UNIT.DEG) {
     result = convertedNumValue.toFixed(2);
   }
   switch (unit) {
-      // turn unit
+    // turn unit
     case DEGREE_UNIT.TURN:
       result = `${(convertedNumValue * 360).toFixed(2)}`;
       break;
-      // radius unit
+    // radius unit
     case DEGREE_UNIT.RAD:
       result = `${(180 / Math.PI * convertedNumValue).toFixed(2)}`;
       break;
@@ -303,7 +304,7 @@ class ElementNode extends ViewNode {
           // update current node and child nodes
           !options.notToNative && updateWithChildren(this);
           return;
-          // Convert text related to character for interface.
+        // Convert text related to character for interface.
         case 'text':
         case 'value':
         case 'defaultValue':
@@ -316,7 +317,8 @@ class ElementNode extends ViewNode {
             }
           }
           if (!options || !options.textUpdate) {
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            // white space handler
+            value = whitespaceFilter(value);
           }
           value = unicodeToChar(value);
           break;
