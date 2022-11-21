@@ -445,6 +445,38 @@ ul 的子节点，终端层节点回收和复用的最小颗粒度。
   * `high_quality`：高质量折行，针对整段文本的折行进行布局优化，必要时会自动折断单词，比其他两种策略略微影响性能，通常比较适合只读文本；
   * `balanced`：平衡折行，尽可能保证一个段落的每一行的宽度相同，必要时会折断单词。
 
+## whitespace 处理
+
+`2.15.3` 版本前，Hippy 对模板中文本空格的处理行为默认采用 `trim` 的处理，即会将元素中开头和结尾的空格（包括特殊 `&nbsp;`）均去除。
+
+`2.15.3` 版本后，增加 `Vue.config.trimWhitespace` 配置，设为 `false` 可关闭 `trim` 的处理，其余遵循 [Vue-Loader compilerOptions](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace) 本身的配置。
+
+!> 注意：Vue2.x compilerOptions.whitespace 的默认值为 `preserve`
+
+```javascript
+// entry file
+// trimWhitespace default is  true
+Vue.config.trimWhitespace = false; // close trim handler
+
+// webpack script
+rules: [
+  {
+    test: /\.vue$/,
+    use: [
+      {
+        loader: vueLoader,
+        options: {
+          compilerOptions: {
+            // whitespace handler, default is 'preserve'
+            whitespace: 'condense',
+          },
+        },
+      },
+    ],
+  },
+]
+```
+
 ---
 
 # span

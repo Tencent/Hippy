@@ -29,6 +29,7 @@ import { type HippyElement } from '../runtime/element/hippy-element';
 let uniqueId = 0;
 
 let isSilent = false;
+let isNeedTrimWhitespace = true;
 
 // rootViewId initial value
 export const DEFAULT_ROOT_ID = 1;
@@ -366,5 +367,25 @@ export function deepCopy(data: NeedToTyped, hash = new WeakMap()): NeedToTyped {
 export function isStyleMatched(matchedSelector: NeedToTyped, element: HippyElement): boolean {
   if (!element || !matchedSelector) return false;
   return matchedSelector.match(element);
+}
+
+/**
+ * set whitespace handler mode for text node.
+ *
+ * @param isTrim - whether to trim
+ */
+export function setTrimWhitespace(isTrim = true): void {
+  isNeedTrimWhitespace = isTrim;
+}
+
+export function whitespaceFilter(str: string | any): string {
+  if (typeof str !== 'string') return str;
+  // Adjusts template whitespace handling behavior.
+  // "trimWhitespace": default behavior is true.
+  // It will trim leading / ending whitespace including all special unicode such as \xA0(&nbsp;).
+  if (typeof isNeedTrimWhitespace === 'undefined' || isNeedTrimWhitespace) {
+    return str.trim();
+  }
+  return str;
 }
 

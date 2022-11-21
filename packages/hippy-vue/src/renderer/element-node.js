@@ -32,6 +32,7 @@ import {
   warn,
   isDev,
   isEmpty,
+  whitespaceFilter,
 } from '../util';
 import Native from '../runtime/native';
 import { updateChild, updateWithChildren } from './native';
@@ -288,7 +289,8 @@ class ElementNode extends ViewNode {
             }
           }
           if (!options || !options.textUpdate) {
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            // white space handler
+            value = whitespaceFilter(value);
           }
           value = unicodeToChar(value);
           break;

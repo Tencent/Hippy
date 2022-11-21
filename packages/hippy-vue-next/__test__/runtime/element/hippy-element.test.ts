@@ -23,6 +23,7 @@ import { HippyElement } from '../../../src/runtime/element/hippy-element';
 import { Native } from '../../../src/runtime/native/index';
 import * as Render from '../../../src/runtime/render';
 import { setHippyCachedInstance } from '../../../src/util/instance';
+import { setTrimWhitespace } from '../../../src/util';
 
 describe('runtime/element/hippy-element', () => {
   beforeAll(() => {
@@ -180,9 +181,12 @@ describe('runtime/element/hippy-element', () => {
 
     it('should convert the empty character.', () => {
       const hippyElement = new HippyElement('div');
-      hippyElement.setAttribute('value', 'hello&nbsp;world');
-
-      expect(hippyElement.getAttribute('value')).toBe('hello world');
+      setTrimWhitespace(true);
+      hippyElement.setAttribute('value', ' hello&nbsp;world ');
+      expect(hippyElement.getAttribute('value')).toBe('hello&nbsp;world');
+      setTrimWhitespace(false);
+      hippyElement.setAttribute('value', ' hello&nbsp;world ');
+      expect(hippyElement.getAttribute('value')).toBe(' hello&nbsp;world ');
     });
 
     it('should not take effect if set the numberOfRows attribute on ios.', () => {
