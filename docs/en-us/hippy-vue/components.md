@@ -445,6 +445,38 @@ Display text, but because there is no `display: Inline` display mode, the defaul
   * `high_quality`: strategy indicating high quality line breaking, including automatic hyphenation and doing whole-paragraph optimization of line breaks;
   * `balanced`: strategy indicating balanced line breaking, the breaks are chosen to make all lines as close to the same length as possible, including automatic hyphenation.
 
+## whitespace handler
+
+Before `2.15.3`, Hippy default whitespace handling is to `trim`, which will remove leading / ending whitespace characters(including special `&nbsp;`).
+
+After `2.15.3`, setting `Vue.config.trimWhitespace` to `false` will disable `trim`. Other handling depends on [Vue-Loader compilerOptions](https://cn.vuejs.org/api/application.html#app-config-compileroptions-whitespace) setting.
+
+!> P.S.：Vue2.x compilerOptions.whitespace default value is `preserve`
+
+```javascript
+// entry file
+// trimWhitespace default is  true
+Vue.config.trimWhitespace = false; // close trim handler
+
+// webpack script
+rules: [
+  {
+    test: /\.vue$/,
+    use: [
+      {
+        loader: vueLoader,
+        options: {
+          compilerOptions: {
+            // whitespace handler, default is 'preserve'
+            whitespace: 'condense',
+          },
+        },
+      },
+    ],
+  },
+]
+```
+
 ---
 
 # span
