@@ -65,7 +65,15 @@ module.exports = {
       {
         test: /\.vue$/,
         use: [
-          vueLoader,
+          {
+            loader: vueLoader,
+            options: {
+              compilerOptions: {
+                // whitespace handler, default is 'preserve'
+                whitespace: 'condense',
+              },
+            },
+          },
           'scope-loader',
         ],
       },
