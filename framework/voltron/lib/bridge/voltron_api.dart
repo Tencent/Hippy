@@ -66,6 +66,10 @@ class _BridgeFFIManager {
   // 链接rootView和jsRuntime
   late ConnectRootViewAndRuntimeDartType connectRootViewAndRuntime;
 
+  // devtools 请求拦截
+  late OnNetworkRequestInvokeDartType onNetworkRequestInvoke;
+  late OnNetworkResponseInvokeDartType onNetworkResponseInvoke;
+
   // 销毁
   late DestroyFfiDartType destroy;
 
@@ -121,6 +125,13 @@ class _BridgeFFIManager {
 
     destroy = _library
         .lookupFunction<DestroyFfiNativeType, DestroyFfiDartType>("DestroyFFI");
+
+    onNetworkRequestInvoke = _library.lookupFunction<
+        OnNetworkRequestInvokeNativeType,
+        OnNetworkRequestInvokeDartType>('OnNetworkRequestInvoke');
+    onNetworkResponseInvoke = _library.lookupFunction<
+        OnNetworkResponseInvokeNativeType,
+        OnNetworkResponseInvokeDartType>('OnNetworkResponseInvoke');
   }
 }
 
@@ -156,16 +167,6 @@ class VoltronApi {
     }), dataDir.toNativeUtf16(), wsUrl.toNativeUtf16());
     free(globalConfigPtr);
     return result;
-  }
-
-  static void removeRoot(
-    int domId,
-    int rootId,
-  ) {
-    _BridgeFFIManager.instance.removeRoot(
-      domId,
-      rootId,
-    );
   }
 
   static void bindDomAndRender(
@@ -396,11 +397,6 @@ class VoltronApi {
         AddCallFuncDartType<ReportJsonException>>(
         FfiManager().registerFuncName);
     var reportJsonExceptionFunc =
-        Pointer.fromFunction<ReportJsonExceptionNativeType>(reportJsonException);
-    _BridgeFFIManager.instance.registerReportJson(
-      LoaderFuncType.reportJsonException.index + kRenderFuncTypeSize,
-      reportJsonExceptionFunc,
-    );
         Pointer.fromFunction<ReportJsonException>(reportJsonException);
     FfiManager().addRegisterFunc(_BridgeFFIManager._kVoltronCoreRegisterHeader,
         LoaderFuncType.reportJsonException.index, reportJsonExceptionFunc, reportJsonExceptionRegisterFunc);

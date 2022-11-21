@@ -32,11 +32,16 @@
 #include "render/bridge/render_bridge_ffi_impl.h"
 #include "render/queue/voltron_render_manager.h"
 #include "standard_message_codec.h"
+#include "wrapper.h"
 
 #if defined(__ANDROID__) || defined(_WIN32)
 #  include "bridge_impl.h"
 #else
 #  include "bridge_impl_ios.h"
+#endif
+
+#ifdef ENABLE_INSPECTOR
+#include "integrations/devtools_handler.h"
 #endif
 
 #ifdef __cplusplus
@@ -326,6 +331,141 @@ EXTERN_C void DoConnectRootViewAndRuntime(int32_t engine_id, uint32_t root_id) {
   float density = render_manager->GetDensity();
   auto layout_node = root_node->GetLayoutNode();
   layout_node->SetScaleFactor(density);
+}
+
+EXTERN_C void OnNetworkRequestInvoke(int32_t engine_id,
+                                     const char16_t* request_id,
+                                     const uint8_t *rep_meta_data,
+                                     int32_t rep_meta_data_length) {
+#ifdef ENABLE_INSPECTOR
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: engine_id invalid";
+    return;
+  }
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: engine runtime unbind";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  auto scope = BridgeImpl::GetScope(runtime_id);
+  if (!scope) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: runtime_id invalid";
+    return;
+  }
+
+  auto req_ptr = voltron::VfsWrapper::DecodeBytes(rep_meta_data,
+                                      footstone::checked_numeric_cast<int32_t, size_t>(
+                                          rep_meta_data_length));
+  auto req_map = std::get_if<voltron::EncodableMap>(req_ptr.get());
+  if (!req_map) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: req map is nil";
+    return;
+  }
+
+  auto request_id_str = voltron::C16CharToString(request_id);
+  auto d_uri_iter = req_map->find(voltron::EncodableValue(voltron::kUriKey));
+  if (d_uri_iter == req_map->end()) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: uri value invalid";
+    return;
+  }
+  auto uri = std::get<std::string>(d_uri_iter->second);
+  auto req_meta = voltron::VfsWrapper::ParseHeaders(req_map, voltron::kReqHeadersKey);
+
+  auto devtools_data_source = scope->GetDevtoolsDataSource();
+  if (!devtools_data_source) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: devtools not init";
+    return;
+  }
+
+  hippy::devtools::SentRequest(devtools_data_source->GetNotificationCenter()->network_notification,
+                               request_id_str,
+                               uri,
+                               req_meta);
+#endif
+}
+
+EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
+                                      const char16_t* request_id,
+                                      const uint8_t *rsp_meta_data,
+                                      int32_t rsp_meta_data_length) {
+#ifdef ENABLE_INSPECTOR
+  auto bridge_manager = BridgeManager::Find(engine_id);
+  if (!bridge_manager) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: engine_id invalid";
+    return;
+  }
+
+  auto runtime = std::static_pointer_cast<FFIJSBridgeRuntime>(bridge_manager->GetRuntime());
+  if (!runtime) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: engine runtime unbind";
+    return;
+  }
+
+  auto runtime_id = runtime->GetRuntimeId();
+  auto scope = BridgeImpl::GetScope(runtime_id);
+  if (!scope) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: runtime_id invalid";
+    return;
+  }
+
+  auto rsp_ptr = voltron::VfsWrapper::DecodeBytes(rsp_meta_data,
+                                                  footstone::checked_numeric_cast<int32_t, size_t>(
+                                                      rsp_meta_data_length));
+  auto rsp_map = std::get_if<voltron::EncodableMap>(rsp_ptr.get());
+  if (!rsp_map) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: rsp map is nil";
+    return;
+  }
+
+  auto request_id_str = voltron::C16CharToString(request_id);
+  auto d_uri_iter = rsp_map->find(voltron::EncodableValue(voltron::kUriKey));
+  if (d_uri_iter == rsp_map->end()) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: uri value invalid";
+    return;
+  }
+  auto uri = std::get<std::string>(d_uri_iter->second);
+  auto req_meta = voltron::VfsWrapper::ParseHeaders(rsp_map, voltron::kReqHeadersKey);
+  auto result_code = hippy::UriLoader::RetCode::Failed;
+  auto result_code_iter = rsp_map->find(EncodableValue(voltron::kResultCodeKey));
+  if (result_code_iter != rsp_map->end()) {
+    result_code = voltron::VfsWrapper::ParseResultCode(std::get<int32_t>(result_code_iter->second));
+  }
+
+  auto devtools_data_source = scope->GetDevtoolsDataSource();
+  if (!devtools_data_source) {
+    FOOTSTONE_DLOG(WARNING) << "OnNetworkRequestInvoke: devtools not init";
+    return;
+  }
+
+  if (result_code == hippy::UriLoader::RetCode::Success) {
+    auto rsp_meta = voltron::VfsWrapper::ParseHeaders(rsp_map, voltron::kRspHeadersKey);
+    auto buffer_iter = rsp_map->find(EncodableValue(voltron::kBufferKey));
+    if (buffer_iter != rsp_map->end()) {
+      auto buffer = std::get<std::vector<uint8_t>>(buffer_iter->second);
+      char* buffer_address = reinterpret_cast<char*>(buffer.data());
+      auto content = std::string(buffer_address, buffer.size());
+      hippy::devtools::ReceivedResponse(devtools_data_source->GetNotificationCenter()->network_notification,
+                                        request_id_str,
+                                        static_cast<int>(result_code),
+                                        content,
+                                        rsp_meta,
+                                        req_meta);
+    } else {
+      FOOTSTONE_UNREACHABLE();
+    }
+  } else {
+    hippy::devtools::ReceivedResponse(devtools_data_source->GetNotificationCenter()->network_notification,
+                                      request_id_str,
+                                      static_cast<int>(result_code),
+                                      hippy::UriHandler::bytes(),
+                                      {},
+                                      req_meta);
+  }
+#endif
 }
 
 #ifdef __cplusplus

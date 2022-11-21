@@ -25,6 +25,7 @@ name: voltron_renderer
 description: A flutter plugin project to render hippy page.
 version: 0.1.0
 homepage:
+publish_to: none
 
 environment:
   sdk: ">=2.17.0 <3.0.0"

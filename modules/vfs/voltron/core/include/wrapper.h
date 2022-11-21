@@ -52,9 +52,23 @@ enum class FetchResultCode {
   ERR_INVALID_RESULT
 };
 
+constexpr char kFileSchema[] = "file";
+constexpr char kUriKey[] = "url";
+constexpr char kBufferKey[] = "buffer";
+constexpr char kReqHeadersKey[] = "req_headers";
+constexpr char kRspHeadersKey[] = "rsp_headers";
+constexpr char kResultCodeKey[] = "result_code";
+constexpr char kVfsFileRunnerName[] = "vfs_file";
+
 class VfsWrapper {
  public:
   static std::shared_ptr<VfsWrapper> GetWrapper(uint32_t id);
+  static std::unordered_map<std::string,
+                            std::string> ParseHeaders(voltron::EncodableMap *meta_map, const char* header_key);
+  static EncodableMap UnorderedMapToEncodableMap(const std::unordered_map<std::string, std::string>& map);
+  static hippy::UriLoader::RetCode ParseResultCode(int32_t code);
+  static std::unique_ptr<EncodableValue> DecodeBytes(const uint8_t *source_bytes, size_t length);
+  static std::unique_ptr<std::vector<uint8_t>> EncodeValue(const EncodableValue &value);
 
   VfsWrapper(uint32_t worker_manager_id);
   virtual ~VfsWrapper();
@@ -72,11 +86,6 @@ class VfsWrapper {
 
   uint32_t GetId() const;
   std::shared_ptr<hippy::UriLoader> GetLoader();
- private:
-  static std::unordered_map<std::string,
-                     std::string> ParseHeaders(voltron::EncodableMap *meta_map, const char* header_key);
-  static EncodableMap UnorderedMapToEncodableMap(const std::unordered_map<std::string, std::string>& map);
-  static hippy::UriLoader::RetCode ParseResultCode(int32_t code);
  private:
   std::shared_ptr<hippy::UriLoader> loader_;
   uint32_t id_;

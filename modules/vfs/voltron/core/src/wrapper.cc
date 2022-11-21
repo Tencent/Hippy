@@ -33,23 +33,14 @@
 
 namespace voltron {
 
-constexpr char kFileSchema[] = "file";
-constexpr char kUriKey[] = "url";
-constexpr char kBufferKey[] = "buffer";
-constexpr char kReqHeadersKey[] = "req_headers";
-constexpr char kRspHeadersKey[] = "rsp_headers";
-constexpr char kResultCodeKey[] = "result_code";
-
-constexpr char kVfsFileRunnerName[] = "vfs_file";
-
 std::atomic<uint32_t> global_data_holder_key{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::any> global_data_holder;
 
-std::unique_ptr<EncodableValue> DecodeBytes(const uint8_t *source_bytes, size_t length) {
+std::unique_ptr<EncodableValue> VfsWrapper::DecodeBytes(const uint8_t *source_bytes, size_t length) {
   return StandardMessageCodec::GetInstance().DecodeMessage(source_bytes, length);
 }
 
-std::unique_ptr<std::vector<uint8_t>> EncodeValue(const EncodableValue &value) {
+std::unique_ptr<std::vector<uint8_t>> VfsWrapper::EncodeValue(const EncodableValue &value) {
   return StandardMessageCodec::GetInstance().EncodeMessage(value);
 }
 
@@ -255,7 +246,7 @@ EXTERN_C void OnDartInvoke(uint32_t id,
                            int32_t req_meta_data_length,
                            int32_t callback_id) {
   auto wrapper = voltron::VfsWrapper::GetWrapper(id);
-  auto params_value_ptr = voltron::DecodeBytes(req_meta_data,
+  auto params_value_ptr = voltron::VfsWrapper::DecodeBytes(req_meta_data,
                                                footstone::checked_numeric_cast<int32_t, size_t>(
                                                    req_meta_data_length));
   auto holder_map = std::get_if<voltron::EncodableMap>(params_value_ptr.get());
@@ -269,7 +260,7 @@ EXTERN_C void OnInvokeDartCallback(uint32_t id,
                                    const uint8_t *rsp_meta_data,
                                    int32_t rsp_meta_data_length) {
   auto wrapper = voltron::VfsWrapper::GetWrapper(id);
-  auto rsp_ptr = voltron::DecodeBytes(rsp_meta_data,
+  auto rsp_ptr = voltron::VfsWrapper::DecodeBytes(rsp_meta_data,
                                       footstone::checked_numeric_cast<int32_t, size_t>(
                                           rsp_meta_data_length));
   auto rsp_map = std::get_if<voltron::EncodableMap>(rsp_ptr.get());

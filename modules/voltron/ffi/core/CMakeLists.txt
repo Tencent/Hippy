@@ -46,12 +46,18 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
+# region codec
+InfraPackage_Add(codec
+        REMOTE "modules/voltron/ffi/third_party/3.0.5/codec.tgz"
+        LOCAL "third_party/codec")
+target_link_libraries(${PROJECT_NAME} PUBLIC codec)
+# endregion
+
 # region source set
 set(FFI_SOURCE_SET
         src/ffi_define.cc
         src/callback_manager.cc
-        src/string_convert.cc
-        ${CODEC_SRC_DIR}/standard_codec.cc)
+        src/string_convert.cc)
 
 target_sources(${PROJECT_NAME} PRIVATE ${FFI_SOURCE_SET})
 # endregion

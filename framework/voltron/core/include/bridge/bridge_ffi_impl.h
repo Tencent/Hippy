@@ -78,6 +78,16 @@ EXTERN_C void DoBindDomAndRender(uint32_t dom_manager_id, int32_t engine_id, uin
 
 EXTERN_C void DoConnectRootViewAndRuntime(int32_t engine_id, uint32_t root_id);
 
+EXTERN_C void OnNetworkRequestInvoke(int32_t engine_id,
+                                     const char16_t *request_id,
+                                     const uint8_t *rep_meta_data,
+                                     int32_t rep_meta_data_length);
+
+EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
+                                      const char16_t *request_id,
+                                      const uint8_t *rsp_meta_data,
+                                      int32_t rsp_meta_data_length);
+
 #ifdef __cplusplus
 }
 #endif

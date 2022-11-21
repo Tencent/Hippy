@@ -92,6 +92,8 @@ CMakeLists.txt @medns
 # voltron related
 /renderer/voltron/ @lvfen @skindhu
 /framework/voltron/ @lvfen @skindhu
+/modules/voltron/ @lvfen @skindhu
+/modules/vfs/voltron/ @lvfen @skindhu
 
 # devtools related
 /devtools/ @churchill-zhang @medns

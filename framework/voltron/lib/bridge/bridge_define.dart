@@ -163,6 +163,16 @@ typedef CallNativeEventFfiDartType = void Function(
   int paramsLen,
 );
 
+typedef OnNetworkRequestInvokeNativeType = Void Function(Int32 engineId,
+    Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, Int32 length);
+typedef OnNetworkRequestInvokeDartType = void Function(
+    int engineId, Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, int length);
+
+typedef OnNetworkResponseInvokeNativeType = Void Function(Int32 engineId,
+    Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, Int32 length);
+typedef OnNetworkResponseInvokeDartType = void Function(int engineId,
+    Pointer<Utf16> requestId, Pointer<Uint8> rsqMeta, int length);
+
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef BindDomAndRenderNativeType = Void Function(

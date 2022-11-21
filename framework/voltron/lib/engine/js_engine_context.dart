@@ -148,7 +148,7 @@ class EngineContext with RenderContextProxy {
   }
 
   void _initVfsManager() {
-    _vfsManager = VfsManager(_renderContext.workerId);
+    _vfsManager = VfsManager(_renderContext.workerManagerId);
     DefaultProcessor processor = DefaultProcessor(VoltronResourceLoader(_globalConfigs.httpAdapter));
     _vfsManager.addProcessor(processor);
   }
