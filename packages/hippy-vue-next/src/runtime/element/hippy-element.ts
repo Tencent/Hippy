@@ -39,7 +39,6 @@ import {
   deepCopy,
   isStyleMatched,
   whitespaceFilter,
-  getBeforeRenderToNative,
 } from '../../util';
 import { isRTL } from '../../util/i18n';
 import { getHippyCachedInstance } from '../../util/instance';
@@ -717,17 +716,7 @@ export class HippyElement extends HippyNode {
     }
 
     // get styles
-    let style: NativeNodeProps = this.getNativeStyles();
-
-    getBeforeRenderToNative()(this, style);
-
-    /*
-     * append defaultNativeStyle later to avoid incorrect compute style from
-     * inherit node in beforeRenderToNative hook
-     */
-    if (this.component.defaultNativeStyle) {
-      style = { ...this.component.defaultNativeStyle, ...style };
-    }
+    const style: NativeNodeProps = this.getNativeStyles();
 
     const elementExtraAttributes: Partial<NativeNode> = {
       name: this.component.name,
@@ -830,12 +819,17 @@ export class HippyElement extends HippyNode {
   }
 
   /**
-   * get the style attribute of the node according to the global style sheet
+   * get the style attribute of the node according to the node attribute and the global style sheet
    */
   private getNativeStyles(): NativeNodeProps {
     let style: NativeNodeProps = {};
 
-    // get the styles from the global CSS stylesheet
+    // first add default style
+    if (this.component.defaultNativeStyle) {
+      style = { ...this.component.defaultNativeStyle };
+    }
+
+    // then get the styles from the global CSS stylesheet
     // rem needs to be processed here
     const matchedSelectors = getCssMap().query(this);
     matchedSelectors.selectors.forEach((matchedSelector) => {
