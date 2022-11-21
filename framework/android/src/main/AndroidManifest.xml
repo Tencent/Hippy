@@ -1,6 +1,4 @@
-<manifest
-
-  package="com.tencent.mtt.hippy">
-    <application/>
+<?xml version="1.0" encoding="utf-8"?>
+<manifest package="com.openhippy.framework">
 
 </manifest>
