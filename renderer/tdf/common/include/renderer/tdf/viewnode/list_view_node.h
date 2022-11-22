@@ -86,7 +86,7 @@ class ListViewItemNode : public ViewNode {
 
  private:
   bool is_sticky_ = false;
-  int64_t view_type_;
+  int64_t view_type_ = -1;
 };
 
 class ListViewNode;

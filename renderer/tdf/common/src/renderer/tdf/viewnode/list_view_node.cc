@@ -57,10 +57,22 @@ void ListViewNode::OnAttach() {
           node->Attach(item);
         } else {
           FOOTSTONE_DCHECK(new_index >= 0);
+          bool found = false;
           if (new_index < self->GetChildren().size()) {
             auto node = self->GetChildren()[new_index];
-            FOOTSTONE_DCHECK(node->IsAttached());
-            node->Detach(false);
+            if (node->IsAttached() && node->GetView() == item) {
+              node->Detach(false);
+              found = true;
+            }
+          }
+          if (!found) {
+            for (uint32_t i = 0; i < self->GetChildren().size(); i++) {
+              auto node = self->GetChildren()[i];
+              if (node->IsAttached() && node->GetView() == item) {
+                node->Detach(false);
+                break;
+              }
+            }
           }
         }
       });
