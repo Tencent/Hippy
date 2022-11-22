@@ -282,11 +282,8 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
   private void smoothScrollToPage() {
     int height = getHeight();
-    if (height <= 0) {
-      return;
-    }
     View view = getChildAt(0);
-    if (view == null) {
+    if (height <= 0 || view == null) {
       return;
     }
     int maxPage = view.getHeight()/height;
