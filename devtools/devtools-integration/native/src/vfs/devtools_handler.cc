@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  */
-#include "integrations/devtools_handler.h"
+#include "devtools/vfs/devtools_handler.h"
 
 #include <utility>
 

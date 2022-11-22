@@ -73,6 +73,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:vfs,INTERFA
 if (ENABLE_INSPECTOR)
   GlobalPackages_Add(devtools_backend)
   target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
+  GlobalPackages_Add(devtools_integration)
+  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_integration)
 endif ()
 # endregion
 
@@ -97,7 +99,7 @@ if (ENABLE_INSPECTOR)
       src/devtools/adapter/impl/hippy_dom_tree_adapter.cc
       src/devtools/adapter/impl/hippy_screen_adapter.cc
       src/devtools/adapter/impl/hippy_tracing_adapter.cc
-      src/devtools/devtools_data_source.cc
+      src/devtools/hippy_devtools_source.cc
       src/devtools/devtools_utils.cc)
 endif ()
 if ("${JS_ENGINE}" STREQUAL "V8")

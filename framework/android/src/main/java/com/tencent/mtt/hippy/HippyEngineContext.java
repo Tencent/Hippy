@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.devtools.DevtoolsManager;
 import com.tencent.mtt.hippy.bridge.HippyBridgeManager;
 import com.tencent.mtt.hippy.common.ThreadExecutor;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
@@ -46,6 +47,8 @@ public interface HippyEngineContext {
 
     DevSupportManager getDevSupportManager();
 
+    DevtoolsManager getDevtoolsManager();
+
     ThreadExecutor getThreadExecutor();
 
     ViewGroup getRootView();
@@ -63,6 +66,8 @@ public interface HippyEngineContext {
     int getDomManagerId();
 
     int getVfsId();
+
+    int getDevtoolsId();
 
     void onRuntimeInitialized(long runtimeId);
 

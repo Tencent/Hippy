@@ -88,6 +88,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 if (ENABLE_INSPECTOR)
   GlobalPackages_Add(devtools_backend)
   target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
+  GlobalPackages_Add(devtools_integration)
+  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_integration)
 endif ()
 # endregion
 
