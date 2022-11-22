@@ -64,7 +64,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.vfs.DefaultProcessor;
-import com.tencent.devtools.DevtoolsProcessor;
+import com.tencent.devtools.vfs.DevtoolsProcessor;
 import com.tencent.vfs.VfsManager;
 import java.io.InputStream;
 import java.util.HashMap;

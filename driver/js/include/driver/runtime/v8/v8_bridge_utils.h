@@ -98,10 +98,12 @@ class V8BridgeUtils {
   static void LoadInstance(int32_t runtime_id, byte_string&& buffer_data);
   static void UnloadInstance(int32_t runtime_id, byte_string&& buffer_data);
 
+#ifdef ENABLE_INSPECTOR
   static std::shared_ptr<hippy::devtools::DevtoolsDataSource> CreateDevtools(
       const std::shared_ptr<footstone::WorkerManager> &worker_manager,
       const string_view &data_dir,
       const string_view &ws_url);
+#endif
 
  private:
   static std::function<void(std::shared_ptr<Runtime>,

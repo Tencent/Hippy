@@ -613,15 +613,18 @@ jint OnCreateDevtools(JNIEnv *j_env,
                       jint j_worker_manager_id,
                       jstring j_data_dir,
                       jstring j_ws_url) {
+  uint32_t id = 0;
+#ifdef ENABLE_INSPECTOR
   const string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
   const string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
   std::shared_ptr<WorkerManager> worker_manager;
   auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
   FOOTSTONE_DCHECK(flag);
   auto devtools_data_source = V8BridgeUtils::CreateDevtools(worker_manager, data_dir, ws_url);
-  auto id = devtools::HippyDevtoolsSource::Insert(devtools_data_source);
+  id = devtools::HippyDevtoolsSource::Insert(devtools_data_source);
   JNIEnvironment::ClearJEnvException(j_env);
   FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
+#endif
   return footstone::checked_numeric_cast<uint32_t, jint>(id);
 }
 
@@ -629,6 +632,7 @@ void OnDestroyDevtools(JNIEnv *j_env,
                        __unused jobject j_object,
                        jint j_devtools_id,
                        jboolean j_is_reload) {
+#ifdef ENABLE_INSPECTOR
   auto devtools_id = static_cast<uint32_t>(j_devtools_id);
   auto devtools_data_source = devtools::HippyDevtoolsSource::Find(devtools_id);
   devtools_data_source->Destroy(static_cast<bool>(j_is_reload));
@@ -636,6 +640,7 @@ void OnDestroyDevtools(JNIEnv *j_env,
   FOOTSTONE_DLOG(INFO)<< "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
   JNIEnvironment::ClearJEnvException(j_env);
+#endif
 }
 
 } // namespace bridge

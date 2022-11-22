@@ -38,12 +38,12 @@ namespace hippy::devtools {
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using WorkerManager = footstone::runner::WorkerManager;
 
-REGISTER_JNI("com/tencent/devtools/DevToolsProcessor", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
              "onNetworkRequest",
              "(Ijava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkRequestInvoke)
 
-REGISTER_JNI("com/tencent/devtools/DevToolsProcessor", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
              "onNetworkResponse",
              "(Ijava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkResponseInvoke)

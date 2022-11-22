@@ -688,6 +688,7 @@ void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data
     runner->PostTask(std::move(callback));
 }
 
+#ifdef ENABLE_INSPECTOR
 std::shared_ptr<hippy::devtools::DevtoolsDataSource> V8BridgeUtils::CreateDevtools(
     const std::shared_ptr<footstone::WorkerManager> &worker_manager,
     const string_view &data_dir,
@@ -700,6 +701,7 @@ std::shared_ptr<hippy::devtools::DevtoolsDataSource> V8BridgeUtils::CreateDevtoo
           worker_manager);
   return devtools_data_source;
 }
+#endif
 
 }
 }

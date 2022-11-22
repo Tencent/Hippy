@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.tencent.devtools;
+package com.tencent.devtools.vfs;
 
 import androidx.annotation.NonNull;
 import com.tencent.vfs.Processor;
