@@ -242,10 +242,11 @@ public class HippyHorizontalScrollView extends HorizontalScrollView implements H
 
     private void smoothScrollToPage() {
         int width = getWidth();
-        if (width <= 0) {
+        View view = getChildAt(0);
+        if (width <= 0 || view == null) {
             return;
         }
-        int maxPage = getChildAt(0).getWidth() / width;
+        int maxPage = view.getWidth()/width;
         int page = startScrollX / width;
         int offset = getScrollX() - startScrollX;
         if (offset == 0) {
