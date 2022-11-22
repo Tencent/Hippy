@@ -18,6 +18,7 @@ package com.tencent.mtt.hippy.views.scroll;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ScrollView;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.uimanager.HippyViewBase;
@@ -230,10 +231,11 @@ public class HippyVerticalScrollView extends ScrollView implements HippyViewBase
 
     private void smoothScrollToPage() {
         int height = getHeight();
-        if (height <= 0) {
+        View view = getChildAt(0);
+        if (height <= 0 || view == null) {
             return;
         }
-        int maxPage = getChildAt(0).getHeight() / height;
+        int maxPage = view.getHeight()/height;
         int page = startScrollY / height;
         int offset = getScrollY() - startScrollY;
         if (offset == 0) {
