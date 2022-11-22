@@ -22,7 +22,7 @@
 
 #include <variant>
 
-#include "render/ffi/bridge_define.h"
+#include "render/bridge/bridge_define.h"
 #include "render/queue/voltron_render_manager.h"
 
 namespace voltron {

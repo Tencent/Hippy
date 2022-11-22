@@ -315,7 +315,7 @@ class VoltronHttpRequest {
   Map<String, Object> headerMap = {};
 
   VoltronHttpRequest({
-    required this.method,
+    this.method = 'GET',
     required this.url,
     this.body = '',
     connectTimeout = kDefaultTimeoutMs,

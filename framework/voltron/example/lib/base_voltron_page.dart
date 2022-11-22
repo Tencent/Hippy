@@ -135,7 +135,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     var loadParams = ModuleLoadParams();
     loadParams.componentName = "Demo";
     loadParams.codeCacheTag = "Demo";
-    if (_indexBundle.startsWith('http://') || _indexBundle.startsWith('https://')) {
+    if (isWebUrl(_indexBundle)) {
       loadParams.jsHttpPath = _indexBundle;
     } else {
       loadParams.jsAssetsPath = _indexBundle;

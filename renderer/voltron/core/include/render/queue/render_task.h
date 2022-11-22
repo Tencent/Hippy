@@ -22,9 +22,9 @@
 
 #pragma once
 
-#include "footstone/hippy_value.h"
+#include "common_header.h"
 #include "encodable_value.h"
-#include "render/ffi/common_header.h"
+#include "footstone/hippy_value.h"
 #include "render_op.h"
 
 namespace voltron {

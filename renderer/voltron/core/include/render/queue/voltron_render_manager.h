@@ -21,11 +21,11 @@
  */
 #pragma once
 
+#include "common_header.h"
 #include "dom/node_props.h"
 #include "dom/render_manager.h"
 #include "dom/layout_node.h"
 #include "dom/root_node.h"
-#include "render/ffi/common_header.h"
 #include "render_task_runner.h"
 
 namespace voltron {

@@ -23,8 +23,7 @@
 #include "vfs/handler/uri_handler.h"
 #include "footstone/task_runner.h"
 
-namespace hippy {
-inline namespace vfs {
+namespace voltron {
 
 class FileHandler : public hippy::UriHandler {
  public:
@@ -33,7 +32,7 @@ class FileHandler : public hippy::UriHandler {
   FileHandler() = default;
   virtual ~FileHandler() = default;
 
-  inline void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
+  void SetWorkerTaskRunner(std::weak_ptr<TaskRunner> runner) {
     runner_ = runner;
   }
 
@@ -51,5 +50,4 @@ class FileHandler : public hippy::UriHandler {
   std::weak_ptr<TaskRunner> runner_;
 };
 
-}
 }

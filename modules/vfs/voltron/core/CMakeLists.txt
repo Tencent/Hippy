@@ -29,10 +29,10 @@ get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../..
 set(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
+include(${PROJECT_ROOT_DIR}/framework/voltron/cmake/compile_option.cmake)
 
 add_compile_options(-fexceptions)
 
-message("voltron vfs target add")
 # region library
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
@@ -49,9 +49,18 @@ add_subdirectory(${PROJECT_ROOT_DIR}/modules/vfs/native ${CMAKE_CURRENT_BINARY_D
 target_link_libraries(${PROJECT_NAME} PUBLIC vfs_native)
 # endregion
 
+# region voltron_ffi
+if (NOT TARGET voltron_ffi)
+  add_subdirectory(${PROJECT_ROOT_DIR}/modules/voltron/ffi/core ${CMAKE_CURRENT_BINARY_DIR}/voltron/ffi)
+endif ()
+target_link_libraries(${PROJECT_NAME} PRIVATE voltron_ffi)
+# endregion
+
 # region source set
 set(VFS_SOURCE_SET src/url.cc
-        src/handler/file_handler.cc)
+        src/handler/file_handler.cc
+        src/handler/ffi_delegate_handler.cc
+        src/wrapper.cc)
 
 target_sources(${PROJECT_NAME} PRIVATE ${VFS_SOURCE_SET})
 # endregion

@@ -33,15 +33,13 @@ cmake_policy(VERSION 3.0)
 project("voltron_core")
 
 add_definitions("-DVOLTRON")
-set(VOLTRON true)
+set(VOLTRON TRUE)
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
 
 set(SOURCE_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(FRAMEWORK_DIR ${PROJECT_ROOT_DIR}/framework/)
 set(RENDER_DIR ${PROJECT_ROOT_DIR}/renderer/voltron/core)
-
-message("PROJECT_ROOT_DIR: ${PROJECT_ROOT_DIR}")
 
 include("${PROJECT_ROOT_DIR}/buildconfig/cmake/GlobalPackagesModule.cmake")
 include(${CMAKE_CURRENT_SOURCE_DIR}/../cmake/compile_option.cmake)
@@ -75,9 +73,7 @@ endif ()
 # endregion
 
 # region voltron renderer
-add_subdirectory(${RENDER_DIR} render_core)
-include_directories(${RENDER_DIR}/include)
-include_directories(${RENDER_DIR}/third_party/codec/include)
+add_subdirectory(${RENDER_DIR} ${CMAKE_CURRENT_BINARY_DIR}/render_core)
 # endregion
 
 # region library
@@ -86,7 +82,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/include
 # endregion
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
-  target_compile_options(${PROJECT_NAME} PRIVATE ${ABI_COMPILE_OPTIONS})
+  target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 
   # region stl
   if (${ANDROID_STL} STREQUAL "c++_static")
@@ -109,10 +105,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
 
   # region framework_core
   target_link_libraries(${PROJECT_NAME} PRIVATE ${FRAMEWORK_CORE_DEPS})
-  # endregion
-
-  # region framework_android
-  target_link_libraries(${PROJECT_NAME} PRIVATE ${FRAMEWORK_ANDROID_DEPS})
   # endregion
 
   # region voltron renderer
