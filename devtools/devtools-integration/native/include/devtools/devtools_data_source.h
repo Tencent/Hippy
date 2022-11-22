@@ -47,16 +47,16 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   DevtoolsDataSource() = default;
   virtual ~DevtoolsDataSource() = default;
 
-  virtual void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id);
-  virtual void Destroy(bool is_reload);
-  virtual void SetContextName(const std::string& context_name);
-  virtual void SetRootNode(std::weak_ptr<RootNode> weak_root_node);
-  virtual void SetVmRequestHandler(VmRequestHandler request_handler);
-  virtual std::shared_ptr<NotificationCenter> GetNotificationCenter();
+  virtual void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) = 0;
+  virtual void Destroy(bool is_reload) = 0;
+  virtual void SetContextName(const std::string& context_name) = 0;
+  virtual void SetRootNode(std::weak_ptr<RootNode> weak_root_node) = 0;
+  virtual void SetVmRequestHandler(VmRequestHandler request_handler) = 0;
+  virtual std::shared_ptr<NotificationCenter> GetNotificationCenter() = 0;
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  virtual void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message);
-  virtual void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message);
+  virtual void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) = 0;
+  virtual void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) = 0;
 #endif
 
 };

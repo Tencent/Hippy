@@ -28,12 +28,13 @@ namespace hippy::devtools {
 class HippyDevtoolsSource : public DevtoolsDataSource {
  public:
   HippyDevtoolsSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
-  ~HippyDevtoolsSource() = default;
-  void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id);
-  void Destroy(bool is_reload);
-  void SetContextName(const std::string& context_name);
-  void SetRootNode(std::weak_ptr<RootNode> weak_root_node);
-  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() {
+  virtual ~HippyDevtoolsSource() = default;
+  void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) override;
+  void Destroy(bool is_reload) override;
+  void SetContextName(const std::string &context_name) override;
+  void SetRootNode(std::weak_ptr<RootNode> weak_root_node) override;
+  void SetVmRequestHandler(VmRequestHandler request_handler) override;
+  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() override {
     return devtools_service_->GetNotificationCenter();
   }
 
@@ -42,9 +43,8 @@ class HippyDevtoolsSource : public DevtoolsDataSource {
   static bool Erase(uint32_t id);
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  void SetVmRequestHandler(VmRequestHandler request_handler);
-  void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message);
-  void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message);
+  void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) override;
+  void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) override;
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
 #endif

@@ -61,7 +61,7 @@
 #include "VFSUriHandler.h"
 
 #ifdef ENABLE_INSPECTOR
-#include "integrations/devtools_handler.h"
+#include "devtools/vfs/devtools_handler.h"
 #endif
 
 NSString *const HippyReloadNotification = @"HippyReloadNotification";

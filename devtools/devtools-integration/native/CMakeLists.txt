@@ -33,9 +33,6 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-if (ENABLE_INSPECTOR)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "ENABLE_INSPECTOR")
-endif ()
 if (V8_WITHOUT_INSPECTOR)
     target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
 endif()
@@ -57,11 +54,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # region vfs
 GlobalPackages_Add(vfs)
 target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
-# endregion
-
-# region dom
-GlobalPackages_Add(dom)
-target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # endregion
 
 # region devtools

@@ -22,10 +22,15 @@ cmake_minimum_required(VERSION 3.14)
 
 project("devtools_integration")
 
+get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
+
 set(CMAKE_CXX_STANDARD 17)
 
-if (ANDROID)
-    add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/android/src/main/cpp)
-elseif (IOS)
-    add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/ios)
-endif ()
+# region library
+add_library(${PROJECT_NAME} INTERFACE)
+# endregion
+
+# region devtools_integration
+add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/native ${CMAKE_CURRENT_BINARY_DIR}/devtools-integration/native)
+target_link_libraries(${PROJECT_NAME} INTERFACE devtools_integration_native)
+# endregion
