@@ -43,7 +43,7 @@ constexpr size_t KB = 1024;
 constexpr size_t MB = 1024 * KB;
 
 #ifndef DEFAULT_MAX_HEAP_SIZE_IN_BYTES
-constexpr size_t kdefaultMaxHeapSize = 10 * MB;
+constexpr size_t kdefaultMaxHeapSize = 80 * MB;
 #else
 constexpr size_t kdefaultMaxHeapSize = DEFAULT_MAX_HEAP_SIZE_IN_BYTES;
 #endif
