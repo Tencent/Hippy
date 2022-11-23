@@ -79,7 +79,7 @@ class ListViewItemNode : public ViewNode {
    */
   std::shared_ptr<tdfcore::View> CreateView() override;
 
-  int64_t GetViewType(const DomStyleMap& dom_style);
+  void UpdateViewType(const DomStyleMap& dom_style);
 
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
@@ -134,17 +134,11 @@ class ListViewNode : public ScrollViewNode {
 
  private:
   void HandleEndReachedEvent();
-  int64_t GetItemViewType(int64_t index);
-  void SetItemViewTypeToCaches(int64_t index, int64_t type);
-  int64_t GetItemViewTypeFromCaches(int64_t index);
-  uint64_t GetItemViewTypeCachesSize();
   int64_t NextUniqueItemViewType() { return --unique_item_type_; }
-  int64_t GetChildIndex(ListViewItemNode *child);
   bool should_reload_ = false;
   uint64_t on_reach_end_listener_id_;
   uint64_t batch_end_listener_id_;
   bool has_reached_end_ = false;
-  std::vector<int64_t> item_type_caches_;
   int64_t unique_item_type_ = kDefaultItemViewType;
 
   friend class ListViewDataSource;
