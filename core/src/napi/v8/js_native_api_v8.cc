@@ -39,40 +39,6 @@ using JSValueWrapper = hippy::base::JSValueWrapper;
 std::unique_ptr<v8::Platform> V8VM::platform_ = nullptr;
 std::mutex V8VM::mutex_;
 
-constexpr size_t KB = 1024;
-constexpr size_t MB = 1024 * KB;
-
-#ifndef DEFAULT_MAX_HEAP_SIZE_IN_BYTES
-constexpr size_t kdefaultMaxHeapSize = 10 * MB;
-#else
-constexpr size_t kdefaultMaxHeapSize = DEFAULT_MAX_HEAP_SIZE_IN_BYTES;
-#endif
-
-constexpr char kOldSpace[] = "old_space";
-constexpr char kCodeSpace[] = "code_space";
-constexpr char kMapSpace[] = "map_space";
-constexpr char kLOSpace[] = "large_object_space";
-constexpr char kCodeLOSpace[] = "code_large_object_space";
-
-constexpr auto DefaultNearHeapLimitCallback = [](void* data, size_t current_heap_limit,
-                                          size_t initial_heap_limit) -> size_t {
-  // The heap limit must be larger than the old generation capacity,
-  // but its size cannot be obtained directly, so use the old space size for simulation
-  auto isolate = v8::Isolate::GetCurrent();
-  size_t capacity = 0;
-  v8::HeapSpaceStatistics heap_space_statistics;
-  for (size_t i = 0; i < isolate->NumberOfHeapSpaces(); i++) {
-    isolate->GetHeapSpaceStatistics(&heap_space_statistics, i);
-    std::string space_name(heap_space_statistics.space_name());
-    if (space_name == kOldSpace || space_name == kCodeSpace || space_name == kMapSpace) {
-      capacity += heap_space_statistics.space_size();
-    } else if (space_name == kLOSpace || space_name == kCodeLOSpace) {
-      capacity += heap_space_statistics.space_used_size();
-    }
-  }
-  return std::clamp(std::max(current_heap_limit * 2, capacity), std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max());
-};
-
 void JsCallbackFunc(const v8::FunctionCallbackInfo<v8::Value>& info) {
   TDF_BASE_DLOG(INFO) << "JsCallbackFunc begin";
 
@@ -280,21 +246,17 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
     }
   }
 
-  size_t initial_heap_size_in_bytes = 0;
-  size_t maximum_heap_size_in_bytes = kdefaultMaxHeapSize;
-  if (param) {
-    initial_heap_size_in_bytes = param->initial_heap_size_in_bytes;
-    maximum_heap_size_in_bytes = param->maximum_heap_size_in_bytes;
-  }
   create_params_.array_buffer_allocator =
       v8::ArrayBuffer::Allocator::NewDefaultAllocator();
-  create_params_.constraints.ConfigureDefaultsFromHeapSize(initial_heap_size_in_bytes,
-                                                           maximum_heap_size_in_bytes);
+  if (param) {
+    create_params_.constraints.ConfigureDefaultsFromHeapSize(param->initial_heap_size_in_bytes,
+                                                             param->maximum_heap_size_in_bytes);
+  }
   isolate_ = v8::Isolate::New(create_params_);
   isolate_->Enter();
   isolate_->SetCaptureStackTraceForUncaughtExceptions(true);
-  if (!param) {
-    isolate_->AddNearHeapLimitCallback(DefaultNearHeapLimitCallback, nullptr);
+  if (param && param->near_heap_limit_callback) {
+    isolate_->AddNearHeapLimitCallback(param->near_heap_limit_callback, param->near_heap_limit_callback_data);
   }
   TDF_BASE_DLOG(INFO) << "V8VM end";
 }
