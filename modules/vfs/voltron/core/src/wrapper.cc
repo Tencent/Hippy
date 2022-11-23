@@ -64,6 +64,7 @@ std::unordered_map<std::string,
       auto key = std::get<std::string>(headers_iter->first);
       auto value = std::get<std::string>(headers_iter->second);
       ret_map[key] = value;
+      headers_iter++;
     }
     return ret_map;
   } else {
