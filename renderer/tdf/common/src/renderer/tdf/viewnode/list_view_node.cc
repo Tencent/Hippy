@@ -167,10 +167,10 @@ void ListViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { shoul
 int64_t ListViewNode::GetItemViewType(int64_t index) {
   auto new_index = static_cast<uint64_t>(index);
   FOOTSTONE_DCHECK(new_index >= 0 && new_index < GetChildren().size());
-  auto node = GetChildren()[new_index];
+  auto node = std::static_pointer_cast<ListViewItemNode>(GetChildren()[new_index]);
   auto dom_node = node->GetDomNode();
   auto dom_style = GenerateStyleInfo(dom_node);
-  int64_t view_type = ListViewItemNode::GetViewType(dom_style);
+  int64_t view_type = node->GetViewType(dom_style);
   return view_type;
 }
 
@@ -211,17 +211,27 @@ std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() {
 
 int64_t ListViewItemNode::GetViewType(const DomStyleMap& dom_style) {
   int64_t view_type = 0;
+  bool found = false;
   if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
     if (it->second->IsString()) {
       view_type = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
+      found = true;
     } else if (it->second->IsNumber()) {
       view_type = static_cast<int64_t>(it->second->ToDoubleChecked());
+      found = true;
     }
   }
   if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
     FOOTSTONE_DCHECK(it->second->IsInt32());
     view_type = it->second->ToInt32Checked();
+    found = true;
   }
+
+  if (!found) {
+    auto list_view_node = std::static_pointer_cast<ListViewNode>(GetParent());
+    view_type = list_view_node->NextUniqueItemViewType();
+  }
+
   return view_type;
 }
 
