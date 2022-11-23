@@ -52,8 +52,7 @@ class BridgeImpl {
                               size_t initial_heap_size,
                               size_t maximum_heap_size,
                               const std::function<void(int64_t)> &callback,
-                              const char16_t* char_data_dir,
-                              const char16_t* char_ws_url);
+                              uint32_t devtools_id);
 
   static bool RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_use_code_cache, bool is_local_file, const char16_t* uri,
                                   const char16_t* code_cache_dir_str, std::function<void(int64_t)> callback);

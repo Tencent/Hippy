@@ -24,8 +24,10 @@ project("devtools_integration")
 
 set(CMAKE_CXX_STANDARD 17)
 
-if (ANDROID)
+if (VOLTRON)
+    add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/voltron)
+elseif (ANDROID)
     add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/android/src/main/cpp)
 elseif (IOS)
     add_subdirectory(${PROJECT_ROOT_DIR}/devtools/devtools-integration/ios)
-endif ()
+endif()

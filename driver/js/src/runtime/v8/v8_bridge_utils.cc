@@ -687,22 +687,6 @@ void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data
     };
     runner->PostTask(std::move(callback));
 }
-
-#ifdef ENABLE_INSPECTOR
-std::shared_ptr<hippy::devtools::DevtoolsDataSource> V8BridgeUtils::CreateDevtools(
-    const std::shared_ptr<footstone::WorkerManager> &worker_manager,
-    const string_view &data_dir,
-    const string_view &ws_url) {
-  DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      data_dir, string_view::Encoding::Utf8).utf8_value()));
-  auto devtools_data_source = std::make_shared<hippy::devtools::HippyDevtoolsSource>(
-          StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-              ws_url, string_view::Encoding::Utf8).utf8_value()),
-          worker_manager);
-  return devtools_data_source;
-}
-#endif
-
 }
 }
 }

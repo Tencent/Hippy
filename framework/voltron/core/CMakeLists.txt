@@ -69,6 +69,8 @@ set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} vfs)
 if (ENABLE_INSPECTOR)
   GlobalPackages_Add(devtools_backend)
   set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} devtools_backend)
+  GlobalPackages_Add(devtools_integration)
+  set(FRAMEWORK_CORE_DEPS ${FRAMEWORK_CORE_DEPS} devtools_integration)
 endif ()
 # endregion
 
