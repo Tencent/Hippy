@@ -54,6 +54,33 @@ void GetInternalBinding(const v8::FunctionCallbackInfo<v8::Value>& info);
 struct V8VMInitParam: public VMInitParam {
   size_t initial_heap_size_in_bytes;
   size_t maximum_heap_size_in_bytes;
+  v8::NearHeapLimitCallback near_heap_limit_callback;
+  void* near_heap_limit_callback_data;
+
+  static size_t HeapLimitSlowGrowthStrategy(void* data, size_t current_heap_limit,
+                                            size_t initial_heap_limit) {
+    // The heap limit must be larger than the old generation capacity,
+    // but its size cannot be obtained directly, so use the old space size for simulation
+    constexpr char kOldSpace[] = "old_space";
+    constexpr char kCodeSpace[] = "code_space";
+    constexpr char kMapSpace[] = "map_space";
+    constexpr char kLOSpace[] = "large_object_space";
+    constexpr char kCodeLOSpace[] = "code_large_object_space";
+    auto isolate = v8::Isolate::GetCurrent();
+    size_t capacity = 0;
+    v8::HeapSpaceStatistics heap_space_statistics;
+    for (size_t i = 0; i < isolate->NumberOfHeapSpaces(); i++) {
+      isolate->GetHeapSpaceStatistics(&heap_space_statistics, i);
+      std::string space_name(heap_space_statistics.space_name());
+      if (space_name == kOldSpace || space_name == kCodeSpace || space_name == kMapSpace) {
+        capacity += heap_space_statistics.space_size();
+      } else if (space_name == kLOSpace || space_name == kCodeLOSpace) {
+        capacity += heap_space_statistics.space_used_size();
+      }
+    }
+    const size_t kHeapSizeFactor = 2;
+    return std::clamp(std::max(current_heap_limit * kHeapSizeFactor, capacity), std::numeric_limits<size_t>::min(), std::numeric_limits<size_t>::max());
+  }
 };
 
 class V8VM : public VM {

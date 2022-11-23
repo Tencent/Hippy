@@ -94,6 +94,13 @@ using V8VMInitParam = hippy::napi::V8VMInitParam;
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
 #endif
 
+#ifndef DEFAULT_INITIAL_HEAP_SIZE_IN_BYTES
+#define DEFAULT_INITIAL_HEAP_SIZE_IN_BYTES 0
+#endif
+#ifndef DEFAULT_MAX_HEAP_SIZE_IN_BYTES
+#define DEFAULT_MAX_HEAP_SIZE_IN_BYTES (10 * hippy::base::MB);
+#endif
+
 constexpr char kLogTag[] = "native";
 
 static std::unordered_map<int64_t, std::pair<std::shared_ptr<Engine>, uint32_t>>
@@ -516,19 +523,39 @@ jlong InitInstance(JNIEnv* j_env,
       std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
 
   std::shared_ptr<V8VMInitParam> param;
-  if (j_vm_init_param) {
-    param = std::make_shared<V8VMInitParam>();
-    jclass cls = j_env->GetObjectClass(j_vm_init_param);
-    jfieldID init_field = j_env->GetFieldID(cls,"initialHeapSize","J");
-    param->initial_heap_size_in_bytes =
-        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
-                                                                             init_field));
-    jfieldID max_field = j_env->GetFieldID(cls,"maximumHeapSize","J");
-    param->maximum_heap_size_in_bytes =
-        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
-                                                                             max_field));
-    TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
-  }
+  do {
+    if (j_vm_init_param) {
+      jclass cls = j_env->GetObjectClass(j_vm_init_param);
+      jfieldID init_field = j_env->GetFieldID(cls, "initialHeapSize", "J");
+      auto initial_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, init_field);
+      if (initial_heap_size_in_bytes < 0) {
+        break;
+      }
+      jfieldID max_field = j_env->GetFieldID(cls, "maximumHeapSize", "J");
+      auto maximum_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, max_field);
+      if (maximum_heap_size_in_bytes < 0) {
+        break;
+      }
+      param = std::make_shared<V8VMInitParam>();
+      param->initial_heap_size_in_bytes =
+              hippy::base::checked_numeric_cast<jlong, size_t>(initial_heap_size_in_bytes);
+      param->maximum_heap_size_in_bytes =
+              hippy::base::checked_numeric_cast<jlong, size_t>(maximum_heap_size_in_bytes);
+      TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
+#ifndef V8_WITHOUT_INSPECTOR
+    } else if (!runtime->IsDebug()) {
+      // When V8 inspector enable the js debugger, `near_heap_limit_callback` will be overridden,
+      // so if in debug mode, should not set heap limit via `V8VMInitParam`
+#else
+    } else {
+#endif
+      param = std::make_shared<V8VMInitParam>();
+      param->initial_heap_size_in_bytes = DEFAULT_INITIAL_HEAP_SIZE_IN_BYTES;
+      param->maximum_heap_size_in_bytes = DEFAULT_MAX_HEAP_SIZE_IN_BYTES;
+      param->near_heap_limit_callback = V8VMInitParam::HeapLimitSlowGrowthStrategy;
+    }
+  } while (false);
+
   std::shared_ptr<Engine> engine;
   if (j_is_dev_module) {
     std::lock_guard<std::mutex> lock(engine_mutex);
