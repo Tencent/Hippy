@@ -139,7 +139,9 @@ class DomNode : public std::enable_shared_from_this<DomNode> {
   void DoLayout();
   void DoLayout(std::vector<std::shared_ptr<DomNode>>& changed_nodes);
   void ParseLayoutStyleInfo();
-  /**
+  void UpdateLayoutStyleInfo(std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>>& style_map);
+
+    /**
    * this method should run in dom taskrunner
    * */
   LayoutResult GetLayoutInfoFromRoot();
