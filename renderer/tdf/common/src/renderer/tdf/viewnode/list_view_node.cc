@@ -159,49 +159,16 @@ void ListViewItemNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
 
 void ListViewNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   should_reload_ = true;
-  SetItemViewTypeToCaches(index, GetItemViewType(index));
-}
 
-void ListViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { should_reload_ = true; }
-
-int64_t ListViewNode::GetItemViewType(int64_t index) {
   auto new_index = static_cast<uint64_t>(index);
   FOOTSTONE_DCHECK(new_index >= 0 && new_index < GetChildren().size());
   auto node = std::static_pointer_cast<ListViewItemNode>(GetChildren()[new_index]);
   auto dom_node = node->GetDomNode();
   auto dom_style = GenerateStyleInfo(dom_node);
-  int64_t view_type = node->GetViewType(dom_style);
-  return view_type;
+  node->UpdateViewType(dom_style);
 }
 
-void ListViewNode::SetItemViewTypeToCaches(int64_t index, int64_t type) {
-  auto new_index = static_cast<uint64_t>(index);
-  auto len = item_type_caches_.size();
-  if(new_index >= len) {
-    auto inc_len = new_index + 1 - len;
-    std::vector<int64_t> inc_caches(inc_len, 0);
-    item_type_caches_.insert(item_type_caches_.end(), inc_caches.begin(), inc_caches.end());
-  }
-  item_type_caches_[new_index] = type;
-}
-
-int64_t ListViewNode::GetItemViewTypeFromCaches(int64_t index) {
-  return item_type_caches_[static_cast<uint64_t>(index)];
-}
-
-uint64_t ListViewNode::GetItemViewTypeCachesSize() {
-  return item_type_caches_.size();
-}
-
-int64_t ListViewNode::GetChildIndex(ListViewItemNode *child) {
-  auto children_nodes = GetChildren();
-  for (uint64_t i = 0; i < children_nodes.size(); i++) {
-    if (children_nodes[i].get() == child) {
-      return static_cast<int64_t>(i);
-    }
-  }
-  return 0;
-}
+void ListViewNode::OnChildRemove(const std::shared_ptr<ViewNode>& child) { should_reload_ = true; }
 
 std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() {
   auto view = TDF_MAKE_SHARED(tdfcore::View);
@@ -209,30 +176,27 @@ std::shared_ptr<tdfcore::View> ListViewItemNode::CreateView() {
   return view;
 }
 
-int64_t ListViewItemNode::GetViewType(const DomStyleMap& dom_style) {
-  int64_t view_type = 0;
+void ListViewItemNode::UpdateViewType(const DomStyleMap& dom_style) {
   bool found = false;
   if (auto it = dom_style.find(listviewitem::kViewType); it != dom_style.cend()) {
     if (it->second->IsString()) {
-      view_type = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
+      view_type_ = static_cast<int64_t>(std::hash<std::string>{}(it->second->ToStringChecked()));
       found = true;
     } else if (it->second->IsNumber()) {
-      view_type = static_cast<int64_t>(it->second->ToDoubleChecked());
+      view_type_ = static_cast<int64_t>(it->second->ToDoubleChecked());
       found = true;
     }
   }
   if (auto it = dom_style.find(listviewitem::kViewTypeNew); it != dom_style.cend()) {
     FOOTSTONE_DCHECK(it->second->IsInt32());
-    view_type = it->second->ToInt32Checked();
+    view_type_ = it->second->ToInt32Checked();
     found = true;
   }
 
   if (!found) {
     auto list_view_node = std::static_pointer_cast<ListViewNode>(GetParent());
-    view_type = list_view_node->NextUniqueItemViewType();
+    view_type_ = list_view_node->NextUniqueItemViewType();
   }
-
-  return view_type;
 }
 
 void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
@@ -240,11 +204,7 @@ void ListViewItemNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   if (auto it = dom_style.find(listviewitem::kSticky); it != dom_style.cend()) {
     is_sticky_ = it->second->ToBooleanChecked();
   }
-  view_type_ = GetViewType(dom_style);
-
-  auto list_view_node = std::static_pointer_cast<ListViewNode>(GetParent());
-  auto index = list_view_node->GetChildIndex(this);
-  list_view_node->SetItemViewTypeToCaches(static_cast<int64_t>(index), view_type_);
+  UpdateViewType(dom_style);
 }
 
 std::shared_ptr<tdfcore::View> ListViewDataSource::GetItem(
@@ -268,9 +228,10 @@ void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
-  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetItemViewTypeCachesSize());
-  auto type = list_view_node_.lock()->GetItemViewTypeFromCaches(index);
-  return type;
+  FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildCount());
+  auto node =
+      std::static_pointer_cast<ListViewItemNode>(list_view_node_.lock()->GetChildren()[static_cast<uint32_t>(index)]);
+  return node->GetViewType();
 }
 
 bool ListViewDataSource::IsItemSticky(int64_t index) {
