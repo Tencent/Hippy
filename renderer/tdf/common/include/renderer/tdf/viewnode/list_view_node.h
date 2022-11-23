@@ -63,6 +63,8 @@ constexpr const char kLoadmore[] = "loadmore";
 constexpr const char kScrollToIndex[] = "scrollToIndex";
 constexpr const char kScrollToContentOffset[] = "scrollToContentOffset";
 
+const int64_t kDefaultItemViewType = -1;
+
 }  // namespace listview
 
 class ListViewItemNode : public ViewNode {
@@ -77,7 +79,7 @@ class ListViewItemNode : public ViewNode {
    */
   std::shared_ptr<tdfcore::View> CreateView() override;
 
-  static int64_t GetViewType(const DomStyleMap& dom_style);
+  int64_t GetViewType(const DomStyleMap& dom_style);
 
  protected:
   void HandleStyleUpdate(const DomStyleMap& dom_style) override;
@@ -86,7 +88,7 @@ class ListViewItemNode : public ViewNode {
 
  private:
   bool is_sticky_ = false;
-  int64_t view_type_ = -1;
+  int64_t view_type_ = kDefaultItemViewType;
 };
 
 class ListViewNode;
@@ -136,12 +138,14 @@ class ListViewNode : public ScrollViewNode {
   void SetItemViewTypeToCaches(int64_t index, int64_t type);
   int64_t GetItemViewTypeFromCaches(int64_t index);
   uint64_t GetItemViewTypeCachesSize();
+  int64_t NextUniqueItemViewType() { return --unique_item_type_; }
   int64_t GetChildIndex(ListViewItemNode *child);
   bool should_reload_ = false;
   uint64_t on_reach_end_listener_id_;
   uint64_t batch_end_listener_id_;
   bool has_reached_end_ = false;
   std::vector<int64_t> item_type_caches_;
+  int64_t unique_item_type_ = kDefaultItemViewType;
 
   friend class ListViewDataSource;
   friend class ListViewItemNode;
