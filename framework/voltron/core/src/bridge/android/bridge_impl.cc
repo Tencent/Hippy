@@ -140,7 +140,7 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_
   size_t len = StringViewUtils::GetLength(uri);
   string_view script_name = StringViewUtils::SubStr(uri, pos + 1, len);
   string_view base_path = StringViewUtils::SubStr(uri, 0, pos + 1);
-  FOOTSTONE_DLOG(INFO) << "runScriptFromUri uri = " << uri
+  FOOTSTONE_DLOG(INFO) << "runScriptFromUri uri = " << uri_view
                        << ", script_name = " << script_name
                        << ", base_path = " << base_path
                        << ", code_cache_dir = " << code_cache_dir;
@@ -166,17 +166,17 @@ bool BridgeImpl::RunScriptFromUri(int64_t runtime_id, uint32_t vfs_id, bool can_
   }
 #endif
   auto func = [runtime, callback_ = std::move(callback), script_name,
-      can_use_code_cache, is_local_file, code_cache_dir, uri,
+      can_use_code_cache, is_local_file, code_cache_dir, uri_view,
       time_begin] {
     FOOTSTONE_DLOG(INFO) << "runScriptFromUri enter";
     bool flag = V8BridgeUtils::RunScript(runtime, script_name, can_use_code_cache,
-                                         code_cache_dir, uri, is_local_file);
+                                         code_cache_dir, uri_view, is_local_file);
     auto time_end = std::chrono::time_point_cast<std::chrono::microseconds>(
         std::chrono::system_clock::now())
         .time_since_epoch()
         .count();
 
-    FOOTSTONE_DLOG(INFO) << "runScriptFromUri time = " << (time_end - time_begin) << ", uri = " << uri;
+    FOOTSTONE_DLOG(INFO) << "runScriptFromUri time = " << (time_end - time_begin) << ", uri = " << uri_view;
     int64_t value = !flag ? 0 : 1;
     callback_(value);
     return flag;
