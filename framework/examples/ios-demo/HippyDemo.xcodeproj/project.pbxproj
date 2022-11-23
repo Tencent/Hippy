@@ -17,9 +17,9 @@
 		41AD023B04DC30E3D93C3AB7 /* TypeConverter.mm in Sources */ = {isa = PBXBuildFile; fileRef = 41AD0893629285DF331A0011 /* TypeConverter.mm */; };
 		9252AE8B2809532F00B27E50 /* root_node.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9252AE8A2809532F00B27E50 /* root_node.cc */; };
 		9B1836CD292CE8B000913C75 /* hippy_devtools_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B1836CC292CE8B000913C75 /* hippy_devtools_source.cc */; };
-		9B1836E6292CED0500913C75 /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B1836DF292CE91300913C75 /* libdevtools_backend.a */; };
-		9B1836E7292CED0900913C75 /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B1836DB292CE91300913C75 /* libbase64.a */; };
-		9B1836E8292CED6D00913C75 /* libdevtools_integration_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B1836E1292CE91300913C75 /* libdevtools_integration_native.a */; };
+		9B183709292E46B400913C75 /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B1836FE292E46A100913C75 /* libbase64.a */; };
+		9B18370A292E46B500913C75 /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B183702292E46A100913C75 /* libdevtools_backend.a */; };
+		9B18370B292E46B700913C75 /* libdevtools_integration_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B183704292E46A100913C75 /* libdevtools_integration_native.a */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		D42D2C7B2833C84D0079B47B /* dom_listener.cc in Sources */ = {isa = PBXBuildFile; fileRef = D42D2C7A2833C84D0079B47B /* dom_listener.cc */; };
 		D4B5A080281663F400ABBD9C /* scene_builder.cc in Sources */ = {isa = PBXBuildFile; fileRef = D4B5A07E281663F400ABBD9C /* scene_builder.cc */; };
@@ -236,46 +236,46 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		9B1836DA292CE91300913C75 /* PBXContainerItemProxy */ = {
+		9B1836FD292E46A100913C75 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */;
+			containerPortal = 9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 227C18AECAD54EF4A4E5A355;
+			remoteGlobalIDString = AFF75B54CF5B45F48B719E3B;
 			remoteInfo = base64;
 		};
-		9B1836DC292CE91300913C75 /* PBXContainerItemProxy */ = {
+		9B1836FF292E46A100913C75 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */;
+			containerPortal = 9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 715767AAAE374273A97AA1A6;
+			remoteGlobalIDString = 10466104A2654772AB5E1708;
 			remoteInfo = "base64-bin";
 		};
-		9B1836DE292CE91300913C75 /* PBXContainerItemProxy */ = {
+		9B183701292E46A100913C75 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */;
+			containerPortal = 9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 946C49144DD342AC927969B4;
+			remoteGlobalIDString = 440A6A46A5BD4BAC81012A2D;
 			remoteInfo = devtools_backend;
 		};
-		9B1836E0292CE91300913C75 /* PBXContainerItemProxy */ = {
+		9B183703292E46A100913C75 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */;
+			containerPortal = 9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 8694B8F26F1D4000B239DE04;
+			remoteGlobalIDString = 28B14EF4EDE04B57AE3086AA;
 			remoteInfo = devtools_integration_native;
 		};
-		9B1836E2292CE91300913C75 /* PBXContainerItemProxy */ = {
+		9B183705292E46A100913C75 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */;
+			containerPortal = 9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = D73B58D0CE3E45D38ABF7258;
+			remoteGlobalIDString = 1BB0E0446CF748F2BF0DB4D9;
 			remoteInfo = footstone;
 		};
-		9B1836E4292CE91300913C75 /* PBXContainerItemProxy */ = {
+		9B183707292E46A100913C75 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */;
+			containerPortal = 9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = 0A559585BC4F473892E72C24;
+			remoteGlobalIDString = AF570966AB084F26A158F7D1;
 			remoteInfo = vfs_native;
 		};
 /* End PBXContainerItemProxy section */
@@ -301,7 +301,7 @@
 		9252AE8C2809534100B27E50 /* root_node.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = root_node.h; sourceTree = "<group>"; };
 		9B1836CB292CE8A200913C75 /* hippy_devtools_source.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hippy_devtools_source.h; sourceTree = "<group>"; };
 		9B1836CC292CE8B000913C75 /* hippy_devtools_source.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_devtools_source.cc; sourceTree = "<group>"; };
-		9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = devtools_integration.xcodeproj; path = devtools_backend/devtools_integration.xcodeproj; sourceTree = "<group>"; };
+		9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevtoolsIntegration.xcodeproj; path = DevtoolsBackend/DevtoolsIntegration.xcodeproj; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		D42D2C7A2833C84D0079B47B /* dom_listener.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dom_listener.cc; sourceTree = "<group>"; };
@@ -779,9 +779,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9B1836E6292CED0500913C75 /* libdevtools_backend.a in Frameworks */,
-				9B1836E7292CED0900913C75 /* libbase64.a in Frameworks */,
-				9B1836E8292CED6D00913C75 /* libdevtools_integration_native.a in Frameworks */,
+				9B183709292E46B400913C75 /* libbase64.a in Frameworks */,
+				9B18370A292E46B500913C75 /* libdevtools_backend.a in Frameworks */,
+				9B18370B292E46B700913C75 /* libdevtools_integration_native.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -793,7 +793,7 @@
 			children = (
 				F4E9B52928FEAAC200881750 /* modules */,
 				F4E9645028FEA9D700881750 /* framework */,
-				9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */,
+				9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */,
 				F48D387A289BA6E2007BD6FE /* engine */,
 				F48D379C289BA643007BD6FE /* driver */,
 				D84AB8D6273A5AAD00987D03 /* dom */,
@@ -844,15 +844,15 @@
 			path = myview;
 			sourceTree = "<group>";
 		};
-		9B1836CF292CE91300913C75 /* Products */ = {
+		9B1836F2292E46A100913C75 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9B1836DB292CE91300913C75 /* libbase64.a */,
-				9B1836DD292CE91300913C75 /* base64 */,
-				9B1836DF292CE91300913C75 /* libdevtools_backend.a */,
-				9B1836E1292CE91300913C75 /* libdevtools_integration_native.a */,
-				9B1836E3292CE91300913C75 /* libfootstone.a */,
-				9B1836E5292CE91300913C75 /* libvfs_native.a */,
+				9B1836FE292E46A100913C75 /* libbase64.a */,
+				9B183700292E46A100913C75 /* base64 */,
+				9B183702292E46A100913C75 /* libdevtools_backend.a */,
+				9B183704292E46A100913C75 /* libdevtools_integration_native.a */,
+				9B183706292E46A100913C75 /* libfootstone.a */,
+				9B183708292E46A100913C75 /* libvfs_native.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2137,8 +2137,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 9B1836CF292CE91300913C75 /* Products */;
-					ProjectRef = 9B1836CE292CE91300913C75 /* devtools_integration.xcodeproj */;
+					ProductGroup = 9B1836F2292E46A100913C75 /* Products */;
+					ProjectRef = 9B1836F1292E46A100913C75 /* DevtoolsIntegration.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -2149,47 +2149,47 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		9B1836DB292CE91300913C75 /* libbase64.a */ = {
+		9B1836FE292E46A100913C75 /* libbase64.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libbase64.a;
-			remoteRef = 9B1836DA292CE91300913C75 /* PBXContainerItemProxy */;
+			remoteRef = 9B1836FD292E46A100913C75 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		9B1836DD292CE91300913C75 /* base64 */ = {
+		9B183700292E46A100913C75 /* base64 */ = {
 			isa = PBXReferenceProxy;
 			fileType = "compiled.mach-o.executable";
 			name = base64;
 			path = base64.app;
-			remoteRef = 9B1836DC292CE91300913C75 /* PBXContainerItemProxy */;
+			remoteRef = 9B1836FF292E46A100913C75 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		9B1836DF292CE91300913C75 /* libdevtools_backend.a */ = {
+		9B183702292E46A100913C75 /* libdevtools_backend.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libdevtools_backend.a;
-			remoteRef = 9B1836DE292CE91300913C75 /* PBXContainerItemProxy */;
+			remoteRef = 9B183701292E46A100913C75 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		9B1836E1292CE91300913C75 /* libdevtools_integration_native.a */ = {
+		9B183704292E46A100913C75 /* libdevtools_integration_native.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libdevtools_integration_native.a;
-			remoteRef = 9B1836E0292CE91300913C75 /* PBXContainerItemProxy */;
+			remoteRef = 9B183703292E46A100913C75 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		9B1836E3292CE91300913C75 /* libfootstone.a */ = {
+		9B183706292E46A100913C75 /* libfootstone.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libfootstone.a;
-			remoteRef = 9B1836E2292CE91300913C75 /* PBXContainerItemProxy */;
+			remoteRef = 9B183705292E46A100913C75 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		9B1836E5292CE91300913C75 /* libvfs_native.a */ = {
+		9B183708292E46A100913C75 /* libvfs_native.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
 			path = libvfs_native.a;
-			remoteRef = 9B1836E4292CE91300913C75 /* PBXContainerItemProxy */;
+			remoteRef = 9B183707292E46A100913C75 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -2572,11 +2572,10 @@
 					"$(SRCROOT)/../../../driver/js/include",
 					"$(SRCROOT)/../../../layout",
 					"$(SRCROOT)/../../../dom/include",
-					"$(SRCROOT)/../../../devtools/devtools-backend",
 					"$(SRCROOT)/../../../devtools/devtools-backend/include",
-					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
-					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
-					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
+					"$(SRCROOT)/DevtoolsBackend/_deps/websocketpp-src",
+					"$(SRCROOT)/DevtoolsBackend/_deps/asio-src/asio/include",
+					"$(SRCROOT)/DevtoolsBackend/_deps/json-src/single_include",
 					"$(SRCROOT)/../../../modules/vfs/native/include",
 					"$(SRCROOT)/../../../devtools/devtools-integration/native/include",
 				);
@@ -2616,11 +2615,10 @@
 					"$(SRCROOT)/../../../driver/js/include",
 					"$(SRCROOT)/../../../layout",
 					"$(SRCROOT)/../../../dom/include",
-					"$(SRCROOT)/../../../devtools/devtools-backend",
 					"$(SRCROOT)/../../../devtools/devtools-backend/include",
-					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
-					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
-					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
+					"$(SRCROOT)/DevtoolsBackend/_deps/websocketpp-src",
+					"$(SRCROOT)/DevtoolsBackend/_deps/asio-src/asio/include",
+					"$(SRCROOT)/DevtoolsBackend/_deps/json-src/single_include",
 					"$(SRCROOT)/../../../modules/vfs/native/include",
 					"$(SRCROOT)/../../../devtools/devtools-integration/native/include",
 				);

@@ -20,7 +20,8 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project("devtools_integration")
+# iOS project name require
+project("DevtoolsIntegration")
 
 get_filename_component(PROJECT_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../.." REALPATH)
 

@@ -44,7 +44,7 @@ framework/examples/ios-demo/HippyDemo.xcodeproj/xcshareddata/*
 framework/examples/ios-demo/HippyDemo.xcworkspace/*
 framework/examples/ios-demo/Pods/*
 framework/examples/ios-demo/Podfile.lock
-framework/examples/ios-demo/devtools_backend/*
+framework/examples/ios-demo/DevtoolsBackend/*
 
 driver/js/packages/hippy-vue-loader/remote-debug-profile/*
 
