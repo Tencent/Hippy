@@ -31,7 +31,7 @@
 #include "footstone/logging.h"
 #include "footstone/task_runner.h"
 
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "driver/runtime/v8/inspector/v8_inspector_client_impl.h"
 #endif
 
@@ -68,7 +68,7 @@ class Engine {
   inline std::shared_ptr<TaskRunner> GetWorkerTaskRunner() {
     return worker_task_runner_;
   }
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   inline void SetInspectorClient(std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client) {
     inspector_client_ = inspector_client;
   }
@@ -87,7 +87,7 @@ class Engine {
   std::unique_ptr<RegisterMap> map_;
   std::mutex cnt_mutex_;
   uint32_t scope_cnt_;
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+#if defined(ENABLE_INSPECTOR) && defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   std::shared_ptr<hippy::inspector::V8InspectorClientImpl> inspector_client_;
 #endif
 };
