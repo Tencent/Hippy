@@ -21,6 +21,7 @@
 #pragma once
 
 #include "renderer/tdf/viewnode/view_node.h"
+#include "renderer/tdf/viewnode/view_names.h"
 
 namespace hippy {
 inline namespace render {
@@ -34,6 +35,8 @@ class ImageViewNode : public ViewNode {
   void SetSrc(const std::string &src);
   void SetScaleType(const std::string &type);
   void LoadImage(std::string url);
+
+  std::string GetViewName() const override { return kImageViewName; }
 
  protected:
   void HandleStyleUpdate(const DomStyleMap &dom_style) override;

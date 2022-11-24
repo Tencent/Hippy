@@ -336,6 +336,7 @@ class ViewNode : public tdfcore::Object, public std::enable_shared_from_this<Vie
   float GetDensity();
 
  private:
+  void CheckAttachView(const std::shared_ptr<tdfcore::View>& view);
   void RegisterClickEvent();
   void RegisterLongClickEvent();
   void RegisterTouchEvent();
