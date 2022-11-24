@@ -213,7 +213,6 @@
 		0612F01523A8BE320079E622 = {
 			isa = PBXGroup;
 			children = (
-				9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */,
 				F48D379C289BA643007BD6FE /* driver */,
 				AC63515223F922E5007FABA5 /* fonts */,
 				064C5AEF23AB1A70001E80DD /* res */,

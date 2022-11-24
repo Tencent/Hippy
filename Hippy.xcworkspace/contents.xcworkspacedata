@@ -19,4 +19,7 @@
    <FileRef
       location = "group:renderer/native/ios/NativeRender.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:devtools/devtools-integration/ios/DevtoolsBackend/DevtoolsIntegration.xcodeproj">
+   </FileRef>
 </Workspace>
