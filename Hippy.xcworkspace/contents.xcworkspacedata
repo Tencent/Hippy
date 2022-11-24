@@ -11,9 +11,6 @@
       location = "group:modules/ios/base/Base.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:framework/examples/ios-demo/devtools_backend/devtools_backend.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:modules/vfs/ios/VFS.xcodeproj">
    </FileRef>
    <FileRef
