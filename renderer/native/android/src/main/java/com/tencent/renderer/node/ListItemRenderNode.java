@@ -75,6 +75,8 @@ public class ListItemRenderNode extends RenderNode {
         if (mShouldSticky) {
             view = mControllerManager.findView(mRootId, mId);
             if (view != null && view.getParent() != null) {
+                // If the sticky item is mounted to an external container, we should not
+                // repeatedly create a child view of the item, and directly return null.
                 return null;
             }
         }

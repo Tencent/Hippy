@@ -146,17 +146,17 @@ dependencies {
   compileOnly project(path: ':vfs')
   compileOnly project(path: ':devtools-integration')
   //noinspection GradleDependency
-  implementation 'androidx.annotation:annotation:1.0.0'
+  implementation deps.annotation
 
-  testImplementation "junit:junit:4.13.2"
-  testImplementation "org.mockito:mockito-core:2.8.9"
-  testImplementation "org.mockito:mockito-android:2.8.9"
-  testImplementation "org.powermock:powermock-module-junit4:2.0.7"
-  testImplementation "org.powermock:powermock-api-mockito2:2.0.7"
-  testImplementation 'org.powermock:powermock-core:2.0.7'
-  testImplementation "org.powermock:powermock-module-junit4-rule:2.0.7"
-  testImplementation "org.powermock:powermock-classloading-xstream:2.0.7"
-  testImplementation "org.robolectric:robolectric:4.4"
+  testImplementation deps.junit
+  testImplementation deps.mockito_core
+  testImplementation deps.mockito_android
+  testImplementation deps.powermock_module_junit
+  testImplementation deps.powermock_api_mockito2
+  testImplementation deps.powermock_core
+  testImplementation deps.powermock_module_junit4_rule
+  testImplementation deps.powermock_classloading_xstream
+  testImplementation deps.robolectric
 }
 
 project.tasks.whenTaskAdded { task ->

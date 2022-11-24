@@ -38,11 +38,21 @@ public class UIPromise implements Promise {
         mInstanceId = instanceId;
     }
 
+    /**
+     * Return the results of UI function call to js.
+     *
+     * @param params the params callback to js
+     */
     @Override
     public void resolve(Object params) {
         doCallback(PROMISE_CODE_RESOLVE, params);
     }
 
+    /**
+     * Reject UI function call due to illegal state.
+     *
+     * @param params the params callback to js
+     */
     @Override
     public void reject(Object params) {
         doCallback(PROMISE_CODE_REJECT, params);

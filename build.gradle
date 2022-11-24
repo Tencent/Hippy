@@ -26,3 +26,16 @@ allprojects {
         resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
     }
 }
+
+ext.deps = [
+        annotation: 'androidx.annotation:annotation:1.0.0',
+        junit: 'junit:junit:4.13.2',
+        mockito_core: 'org.mockito:mockito-core:2.28.2',
+        mockito_android: 'org.mockito:mockito-android:2.18.3',
+        powermock_module_junit: 'org.powermock:powermock-module-junit4:2.0.9',
+        powermock_api_mockito2: 'org.powermock:powermock-api-mockito2:2.0.9',
+        powermock_core: 'org.powermock:powermock-core:2.0.9',
+        powermock_module_junit4_rule: 'org.powermock:powermock-module-junit4-rule:2.0.9',
+        powermock_classloading_xstream: 'org.powermock:powermock-classloading-xstream:2.0.9',
+        robolectric: 'org.robolectric:robolectric:4.4'
+]
