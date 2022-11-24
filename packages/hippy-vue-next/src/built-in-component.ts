@@ -430,8 +430,8 @@ const iframe: ElementComponent = {
       evtData: EventsUnionType,
       nativeEventParams: {
         url: string;
-        success: boolean;
-        error: string;
+        success?: boolean;
+        error?: string;
       },
     ) {
       const { handler: event, __evt: nativeEventName } = evtData;
