@@ -145,6 +145,8 @@ export class HippyLayoutEvent extends HippyEvent {
 export class HippyLoadResourceEvent extends HippyEvent {
   // url load event url
   public url?: string;
+  public success?: boolean;
+  public error?: string;
 }
 
 export class HippyKeyboardEvent extends HippyEvent {

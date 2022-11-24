@@ -556,12 +556,12 @@ WebView component.
 
 ## Attributes
 
-| Props       | Description                                                    | Type                               | Supported Platforms           |
-|-------------|----------------------------------------------------------------|------------------------------------|-------------------------------|
-| source      | Webview embedded address.                                      | `{ uri: string }`                  | `Android、iOS、hippy-react-web、Web-Renderer` |
-| userAgent   | Webview userAgent.                                             | `string`                           | `Android、iOS`                 |
-| method      | Request method: `get`,`post`.                                  | `string`                           | `Android、iOS`                 |
-| onLoadStart | This callback function is called when the page starts to load. | `(object: { url:string }) => void` | `Android、iOS、Web-Renderer`                 |
-| onLoad      | This callback function is called when the webpage is loading.  | `(object: { url:string }) => void` | `Android、iOS、Web-Renderer`                 |
-| onLoadEnd   | This callback function is called when the web page is loaded.  | `(object: { url:string }) => void` | `Android、iOS、hippy-react-web、Web-Renderer` |
-| style       | Webview container style.                                       | `Object`                           | `Android、iOS、hippy-react-web、Web-Renderer` |
+| Props       | Description                                                  | Type                                                         | Supported Platforms                           |
+| ----------- | ------------------------------------------------------------ | ------------------------------------------------------------ | --------------------------------------------- |
+| source      | Webview embedded address.                                    | `{ uri: string }`                                            | `Android、iOS、hippy-react-web、Web-Renderer` |
+| userAgent   | Webview userAgent.                                           | `string`                                                     | `Android、iOS`                                |
+| method      | Request method: `get`,`post`.                                | `string`                                                     | `Android、iOS`                                |
+| onLoadStart | This callback function is called when the page starts to load. | `(object: { url: string }) => void`                           | `Android、iOS、Web-Renderer`                  |
+| onLoad      | This callback function is called when the webpage is loading. | `(object: { url: string }) => void`                           | `Android、iOS、Web-Renderer`                  |
+| onLoadEnd   | This callback function is called when the web page is loaded. (The `success` and `error` parameters are only available on `Android` and `iOS` since version `2.15.3`) | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、hippy-react-web、Web-Renderer` |
+| style       | Webview container style.                                     | `Object`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
