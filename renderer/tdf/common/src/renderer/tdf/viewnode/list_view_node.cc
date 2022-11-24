@@ -224,6 +224,17 @@ void ListViewDataSource::UpdateItem(int64_t index, const std::shared_ptr<tdfcore
                                     const std::shared_ptr<tdfcore::CustomLayoutView>& custom_layout_view) {
   FOOTSTONE_DCHECK(!list_view_node_.expired());
   FOOTSTONE_DCHECK(index >= 0 && static_cast<uint32_t>(index) < list_view_node_.lock()->GetChildren().size());
+
+  auto new_index = static_cast<uint64_t>(index);
+  auto node = list_view_node_.lock()->GetChildren()[new_index];
+  auto dom_node = node->GetDomNode();
+  FOOTSTONE_DCHECK(dom_node);
+  auto layout_result = dom_node->GetRenderLayoutResult();
+  auto origin_left = item->GetFrame().left;
+  auto origin_top = item->GetFrame().top;
+  auto new_frame =
+      tdfcore::TRect::MakeXYWH(origin_left, origin_top, layout_result.width, layout_result.height);
+  item->SetFrame(new_frame);
 }
 
 int64_t ListViewDataSource::GetItemType(int64_t index) {
