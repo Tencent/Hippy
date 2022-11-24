@@ -22,7 +22,7 @@
 
 #include <variant>
 
-#include "render/ffi/bridge_define.h"
+#include "render/bridge/bridge_define.h"
 #include "render/queue/voltron_render_manager.h"
 
 namespace voltron {
@@ -157,18 +157,9 @@ void VoltronRenderManager::BeforeLayout(std::weak_ptr<RootNode> root_node) {
   auto root_id = root_node_ptr->GetId();
   RunLayoutBefore(root_id);
   FOOTSTONE_DLOG(INFO) << "RunLayoutBefore";
-  Lock(root_id);
 }
 
-void VoltronRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {
-  auto root_node_ptr = root_node.lock();
-  if (!root_node_ptr) {
-    return;
-  }
-  auto root_id = root_node_ptr->GetId();
-  RunLayoutFinish(root_id);
-  FOOTSTONE_DLOG(INFO) << "RunLayoutFinish";
-}
+void VoltronRenderManager::AfterLayout(std::weak_ptr<RootNode> root_node) {}
 
 void VoltronRenderManager::CallFunction(std::weak_ptr<RootNode> root_node,
                                         std::weak_ptr<DomNode> dom_node,
@@ -216,10 +207,6 @@ void VoltronRenderManager::RemoveEventListener(std::weak_ptr<RootNode> root_node
   if (dom_node_p) {
     RunRemoveEventListener(root_id, dom_node_p->GetId(), name);
   }
-}
-
-void VoltronRenderManager::Notify() {
-  UnlockAll();
 }
 
 void VoltronRenderManager::MoveRenderNode(std::weak_ptr<RootNode> root_node,

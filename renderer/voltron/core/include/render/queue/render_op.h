@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "render/ffi/common_header.h"
+#include "common_header.h"
 
 namespace voltron {
 
@@ -32,8 +32,6 @@ enum VoltronRenderOpType {
   MOVE_NODE,
   UPDATE_NODE,
   UPDATE_LAYOUT,
-  LAYOUT_BEFORE,
-  LAYOUT_FINISH,
   BATCH,
   DISPATCH_UI_FUNC,
   ADD_EVENT,

@@ -41,6 +41,7 @@
 @class HippyPerformanceLogger;
 @class HippyJSExecutor;
 @class HippyModuleData;
+@class HPUriLoader;
 
 class VFSUriLoader;
 
@@ -122,7 +123,6 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  */
 - (void)loadBundleURLs:(NSArray<NSURL *> *)bundleURLs;
 
-@property (nonatomic, weak) id<HPRenderFrameworkProxy> frameworkProxy;
 @property (nonatomic, weak) id<HPRenderContext> renderContext;
 
 /**
@@ -141,12 +141,6 @@ HP_EXTERN NSString *HippyBridgeModuleNameForClass(Class bridgeModuleClass);
  *  @param props Initial parameters for instance.
  */
 - (void)loadInstanceForRootView:(NSNumber *)rootTag withProperties:(NSDictionary *)props;
-
-/**
- * Set URI loader for Hippy instance
- * Default handler is HippyDefaultUriHandler
- */
-@property(nonatomic, assign)std::shared_ptr<VFSUriLoader> uriLoader;
 
 /**
  * Access the underlying JavaScript executor. You can use this in unit tests to detect

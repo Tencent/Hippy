@@ -18,12 +18,15 @@
  * limitations under the License.
  */
 
+#import "MacroDefines.h"
 #import "VFSUriHandler.h"
 #import "VFSUriLoader.h"
 
+@class HippyBridge;
+
+HP_EXTERN void RegisterVFSLoaderForBridge(HippyBridge *bridge);
+
 class HippyDemoLoader : public VFSUriLoader {
-  public:
-    HippyDemoLoader();
 };
 
 

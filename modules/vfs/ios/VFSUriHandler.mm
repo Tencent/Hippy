@@ -25,14 +25,34 @@
 #import "VFSUriHandler.h"
 #import "NSURLResponse+ToUnorderedMap.h"
 #import "TypeConverter.h"
+#import "HPUriLoader.h"
 
-static NSMutableSet *set() {
-    static NSMutableSet *set = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        set = [NSMutableSet setWithCapacity:3];
-    });
-    return set;
+#include "VFSDefines.h"
+
+static bool CheckRequestFromCPP(const std::unordered_map<std::string, std::string> &headers) {
+    auto find = headers.find(kRequestOrigin);
+    if (headers.end() != find) {
+        if (0 == std::strcmp(kRequestFromCPP, find->second.c_str())) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static NSDictionary<NSString *, NSString *> *HttpHeadersFromMap(const std::unordered_map<std::string, std::string> &headers) {
+    NSMutableDictionary<NSString *, NSString *> *headersMap = [NSMutableDictionary dictionaryWithCapacity:headers.size()];
+    for (const auto &it : headers) {
+        if (0 == strcasecmp(kHeaderMethod, it.first.c_str())) {
+            continue;
+        }
+        else if (0 == strcasecmp(kHeaderBody, it.first.c_str())) {
+            continue;
+        }
+        NSString *headerKey = [NSString stringWithUTF8String:it.first.c_str()];
+        NSString *headerValue = [NSString stringWithUTF8String:it.second.c_str()];
+        [headersMap setObject:headerValue forKey:headerKey];
+    }
+    return [headersMap copy];
 }
 
 static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri,
@@ -42,26 +62,11 @@ static NSURLRequest *RequestFromUriWithHeaders(const footstone::string_view &uri
         return nil;
     }
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10];
-    for (const auto &it : headers) {
-        if (0 == strcasecmp("method", it.first.c_str())) {
-            NSString *method = [NSString stringWithUTF8String:it.second.c_str()];
-            [request setHTTPMethod:method];
-            continue;
-        }
-        else if (0 == strcasecmp("body", it.first.c_str())) {
-            const void *data = reinterpret_cast<const void *>(it.second.c_str());
-            NSData *body = [NSData dataWithBytes:data length:it.second.length()];
-            [request setHTTPBody:body];
-            continue;
-        }
-        NSString *headerKey = [NSString stringWithUTF8String:it.first.c_str()];
-        NSString *headerValue = [NSString stringWithUTF8String:it.second.c_str()];
-        [request setValue:headerValue forHTTPHeaderField:headerKey];
-    }
+    [request setAllHTTPHeaderFields:HttpHeadersFromMap(headers)];
     return [request copy];
 }
 
-static hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
+hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
     hippy::vfs::UriHandler::RetCode retCode = hippy::vfs::UriHandler::RetCode::Failed;
     if ([[error domain] isEqualToString:NSURLErrorDomain]) {
         switch ([error code]) {
@@ -101,9 +106,26 @@ static hippy::vfs::UriHandler::RetCode RetCodeFromNSError(NSError *error) {
 
 void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx,
                                                std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
+    if (CheckRequestFromCPP(ctx->req_meta)) {
+        ctx->code = hippy::vfs::UriHandler::RetCode::SchemeNotRegister;
+        return;
+    }
     NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
     if (!request) {
-        ctx->code = hippy::vfs::UriHandler::RetCode::UriError;
+        auto nextHandler = next();
+        if (nextHandler) {
+            nextHandler->RequestUntrustedContent(ctx, next);
+        }
+        else {
+            //try to get next loader
+            HPUriLoader *loader = GetLoader();
+            if (loader) {
+                ForwardToHPUriLoader(std::move(ctx));
+            }
+            else {
+                ctx->code = hippy::vfs::UriHandler::RetCode::UriError;
+            }
+        }
         return;
     }
     typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
@@ -128,19 +150,37 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandl
 
 void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx,
                                                std::function<std::shared_ptr<hippy::vfs::UriHandler>()> next) {
-    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
-    if (!request) {
+    if (CheckRequestFromCPP(ctx->req_meta)) {
         std::unordered_map<std::string, std::string> map;
         bytes contents = "";
-        ctx->cb(hippy::vfs::UriHandler::RetCode::UriError, map, contents);
+        ctx->cb(hippy::vfs::UriHandler::RetCode::SchemeNotRegister, map, contents);
+        return;
+    }
+    NSURLRequest *request = RequestFromUriWithHeaders(ctx->uri, ctx->req_meta);
+    if (!request) {
+        auto nextHandler = next();
+        if (nextHandler) {
+            nextHandler->RequestUntrustedContent(ctx, next);
+        }
+        else {
+            //try to get next loader
+            HPUriLoader *loader = GetLoader();
+            if (loader) {
+                ForwardToHPUriLoader(std::move(ctx));
+            }
+            else {
+                std::unordered_map<std::string, std::string> map;
+                bytes contents = "";
+                ctx->cb(hippy::vfs::UriHandler::RetCode::UriError, map, contents);
+            }
+        }
         return;
     }
     typedef void (^DataTaskResponse)(NSData * data, NSURLResponse *response, NSError *error);
     DataTaskResponse response = ^(NSData * data, NSURLResponse *response, NSError *error){
         if (error) {
             std::unordered_map<std::string, std::string> map;
-            map["key"] = "value";
-            bytes contents = "123";
+            bytes contents;
             ctx->cb(RetCodeFromNSError(error), map, contents);
         }
         else {
@@ -151,5 +191,70 @@ void VFSUriHandler::RequestUntrustedContent(std::shared_ptr<hippy::vfs::UriHandl
     };
     NSURLSessionDataTask *dataTask = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:response];
     [dataTask resume];
-    [set() addObject:dataTask];
+}
+
+void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::ASyncContext> ctx) {
+    HPUriLoader *loader = GetLoader();
+    if (!loader) {
+        return;
+    }
+    NSString *urlString = StringViewToNSString(ctx->uri);
+    auto &map = ctx->req_meta;
+    auto search = map.find(kHeaderBody);
+    NSData *body = nil;
+    if (map.end() != search) {
+        const auto &data = search->second;
+        body = [NSData dataWithBytes:reinterpret_cast<const void *>(data.c_str()) length:data.length()];
+    }
+    search = map.find(kHeaderMethod);
+    NSString *method = @"get";
+    if (map.end() != search) {
+        method = [NSString stringWithUTF8String:search->second.c_str()];
+    }
+    else {
+        method = body?@"post":@"get";
+    }
+    map[kRequestOrigin] = kRequestFromCPP;
+    NSDictionary<NSString *, NSString *> *headers = HttpHeadersFromMap(map);
+    auto cb = ctx->cb;
+    [loader requestContentAsync:urlString method:method headers:headers body:body result:^(NSData *data, NSURLResponse *response, NSError *error) {
+        auto code = RetCodeFromNSError(error);
+        auto res_map = [response toUnorderedMap];
+        std::string contents(reinterpret_cast<const char *>([data bytes]), [data length]);
+        cb(code, res_map, contents);
+    }];
+}
+
+void VFSUriHandler::ForwardToHPUriLoader(std::shared_ptr<hippy::vfs::UriHandler::SyncContext> ctx) {
+    HPUriLoader *loader = GetLoader();
+    if (!loader) {
+        return;
+    }
+    NSString *urlString = StringViewToNSString(ctx->uri);
+    auto &map = ctx->req_meta;
+    auto search = map.find(kHeaderBody);
+    NSData *body = nil;
+    if (map.end() != search) {
+        const auto &data = search->second;
+        body = [NSData dataWithBytes:reinterpret_cast<const void *>(data.c_str()) length:data.length()];
+    }
+    search = map.find(kHeaderMethod);
+    NSString *method = @"get";
+    if (map.end() != search) {
+        method = [NSString stringWithUTF8String:search->second.c_str()];
+    }
+    else {
+        method = body?@"post":@"get";
+    }
+    map[kRequestOrigin] = kRequestFromCPP;
+    NSDictionary<NSString *, NSString *> *headers = HttpHeadersFromMap(map);
+    NSURLResponse *response = nil;
+    NSError *error = nil;
+    NSData *responseData = [loader requestContentSync:urlString method:method headers:headers body:body response:&response error:&error];
+    auto code = RetCodeFromNSError(error);
+    auto res_map = [response toUnorderedMap];
+    std::string contents(reinterpret_cast<const char *>([responseData bytes]), [responseData length]);
+    ctx->rsp_meta = std::move(res_map);
+    ctx->code = code;
+    ctx->content = contents;
 }

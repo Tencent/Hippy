@@ -28,6 +28,7 @@
 #import "HippyDeviceBaseInfo.h"
 #import "HippyDisplayLink.h"
 #import "HippyEventDispatcher.h"
+#import "HippyFileHandler.h"
 #import "HippyInstanceLoadBlock.h"
 #import "HippyJSEnginesMapper.h"
 #import "HippyJSExecutor.h"
@@ -48,6 +49,7 @@
 #import "HPInvalidating.h"
 #import "HPLog.h"
 #import "HPToolUtils.h"
+#import "HPUriLoader.h"
 
 #import "TypeConverter.h"
 #import "VFSUriLoader.h"
@@ -57,6 +59,7 @@
 
 #include "dom/scene.h"
 #include "driver/scope.h"
+#include "VFSUriHandler.h"
 
 #ifdef ENABLE_INSPECTOR
 #include "integrations/devtools_handler.h"
@@ -92,6 +95,7 @@ typedef NS_ENUM(NSUInteger, HippyBridgeFields) {
     NSMutableArray<dispatch_block_t> *_nativeSetupBlocks;
     NSURL *_sandboxDirectory;
     std::shared_ptr<VFSUriLoader> _uriLoader;
+    HPUriLoader *_hpLoader;
 }
 
 @property(readwrite, assign) NSUInteger currentIndexOfBundleExecuted;
@@ -199,10 +203,6 @@ dispatch_queue_t HippyBridgeQueue() {
     return _imageProviders;
 }
 
-- (id<HPRenderFrameworkProxy>)frameworkProxy {
-    return _frameworkProxy ?: self;
-}
-
 - (NSArray *)modulesConformingToProtocol:(Protocol *)protocol {
     NSMutableArray *modules = [NSMutableArray new];
     for (Class moduleClass in self.moduleClasses) {
@@ -266,9 +266,6 @@ dispatch_queue_t HippyBridgeQueue() {
         });
     } @catch (NSException *exception) {
         HippyBridgeHandleException(exception, self);
-    }
-    if (nil == self.renderContext.frameworkProxy) {
-        self.renderContext.frameworkProxy = self;
     }
 }
 
@@ -387,9 +384,11 @@ dispatch_queue_t HippyBridgeQueue() {
     self.javaScriptExecutor.pScope->LoadInstance(domValue);
 }
 
-- (void)setUriLoader:(std::shared_ptr<VFSUriLoader>)uriLoader {
-    if (_uriLoader != uriLoader) {
-        _uriLoader = uriLoader;
+- (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)uriLoader {
+    auto loader = uriLoader.lock();
+    if (_uriLoader != loader) {
+        _uriLoader = loader;
+        self.renderContext.VFSUriLoader = uriLoader;
         [_javaScriptExecutor setUriLoader:uriLoader];
     }
 #ifdef ENABLE_INSPECTOR
@@ -403,10 +402,26 @@ dispatch_queue_t HippyBridgeQueue() {
 #endif
 }
 
-- (std::shared_ptr<VFSUriLoader>)uriLoader {
-    if (!_uriLoader) {
-        self.uriLoader = std::make_shared<VFSUriLoader>();
+- (void)setHPUriLoader:(HPUriLoader *)hploader {
+    if (_hpLoader != hploader) {
+        _hpLoader = hploader;
+        self.renderContext.HPUriLoader = hploader;
     }
+}
+
+- (void)setImageProviderClass:(Class<HPImageProviderProtocol>)cls {
+    
+}
+
+- (Class<HPImageProviderProtocol>)imageProviderClass {
+    return [[self imageProviders] anyObject];
+}
+
+- (HPUriLoader *)HPUriLoader {
+    return _hpLoader;
+}
+
+- (std::weak_ptr<VFSUriLoader>)VFSUriLoader {
     return _uriLoader;
 }
 
@@ -916,25 +931,6 @@ dispatch_queue_t HippyBridgeQueue() {
     // getTurboModule
     HippyOCTurboModule *turboModule = [self.turboModuleManager turboModuleWithName:name];
     return turboModule;
-}
-
-#pragma mark HPRenderFrameworkProxy Delegate Implementation
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(nonnull id<HPRenderContext>)renderContext {
-    if ([HippyBridge isHippyLocalFileURLString:UrlString]) {
-        return [self absoluteStringFromHippyLocalFileURLString:UrlString];
-    }
-    return UrlString;
-}
-
-- (Class<HPImageProviderProtocol>)imageProviderClassForRenderContext:(id<HPRenderContext>)renderContext {
-    if (self.frameworkProxy != self && [self.frameworkProxy respondsToSelector:@selector(imageProviderClassForRenderContext:)]) {
-        return [self.frameworkProxy imageProviderClassForRenderContext:renderContext];
-    }
-    return [HPDefaultImageProvider class];
-}
-
-- (std::shared_ptr<VFSUriLoader>)URILoader { 
-    return [self uriLoader];
 }
 
 - (void)immediatelyCallTimer:(NSNumber *)timer {

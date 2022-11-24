@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "render/ffi/common_header.h"
+#include "common_header.h"
 #include "render_task.h"
 
 namespace voltron {
@@ -32,13 +32,8 @@ public:
   ~VoltronRenderQueue();
   void ProduceRenderOp(const Sp<RenderTask> &task);
   std::unique_ptr<std::vector<uint8_t>> ConsumeRenderOp();
-  void Lock();
-  void Unlock();
 
 private:
   List<Sp<RenderTask>> queue_;
-  std::mutex mutex_;
-  std::condition_variable cv_;
-  bool notified_ = false;
 };
 } // namespace voltron

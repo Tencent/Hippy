@@ -58,6 +58,8 @@ dependencies:
   uuid: ^3.0.6
   voltron_renderer:
     path: ../../renderer/voltron/
+  voltron_vfs:
+    path: ../../modules/vfs/voltron/
 
 dev_dependencies:
   flutter_test:

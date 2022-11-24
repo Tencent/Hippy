@@ -19,18 +19,19 @@
 # limitations under the License.
 #
 
-# region ABI_COMPILE_OPTIONS
+# region COMPILE_OPTIONS
 if (CMAKE_SYSTEM_NAME STREQUAL "Android")
   add_definitions("-DJS_V8")
   set(JS_ENGINE "V8")
   set(FRAMEWORK_ANDROID_DEPS android log)
-  set(ABI_COMPILE_OPTIONS
+  set(COMPILE_OPTIONS
           -fomit-frame-pointer
           -fno-threadsafe-statics
           -fno-strict-aliasing
           -fno-short-enums
           -fno-unique-section-names
           -fno-trigraphs
+          -fexceptions
           -Werror
           -Wall
           -Wextra
@@ -55,17 +56,17 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Android")
           -Os)
   message("ANDROID_ABI: ${ANDROID_ABI}")
   if (${ANDROID_ABI} STREQUAL "armeabi-v7a")
-    set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
+    set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
             -mfloat-abi=softfp)
   elseif (${ANDROID_ABI} STREQUAL "arm64-v8a")
     # (Empty)
   elseif (${ANDROID_ABI} STREQUAL "x86")
-    set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
+    set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
             -m32
             -mssse3
             -mfpmath=sse)
   elseif (${ANDROID_ABI} STREQUAL "x86_64")
-    set(ABI_COMPILE_OPTIONS ${ABI_COMPILE_OPTIONS}
+    set(COMPILE_OPTIONS ${COMPILE_OPTIONS}
             -m64
             -mpopcnt
             -msse4.2)

@@ -18,9 +18,28 @@
  * limitations under the License.
  */
 
-
+#import "HippyBridge.h"
 #import "HippyDemoLoader.h"
+#import "HPUriLoader.h"
+#import "HPUriHandler.h"
+#import "HippyFileHandler.h"
 
-HippyDemoLoader::HippyDemoLoader() {
-    PushDefaultHandler(std::make_shared<VFSUriHandler>());
+void RegisterVFSLoaderForBridge(HippyBridge *bridge) {
+    auto cpp_handler = std::make_shared<HippyDemoHandler>();
+    auto cpp_loader = std::make_shared<HippyDemoLoader>();
+    cpp_loader->PushDefaultHandler(cpp_handler);
+    
+    HPUriHandler *oc_handler = [[HPUriHandler alloc] init];
+    HPUriLoader *oc_loader = [[HPUriLoader alloc] initWithDefaultHandler:oc_handler];
+    
+    HippyFileHandler *fileHandler = [[HippyFileHandler alloc] init];
+    fileHandler.bridge = bridge;
+    [oc_loader registerHandler:fileHandler forScheme:@"hpfile"];
+    
+    cpp_handler->SetLoader(oc_loader);
+    [oc_handler setUriLoader:cpp_loader];
+    [fileHandler setUriLoader:cpp_loader];
+    
+    [bridge setHPUriLoader:oc_loader];
+    [bridge setVFSUriLoader:cpp_loader];
 }

@@ -23,6 +23,7 @@
 #import <Foundation/Foundation.h>
 #import "HPImageProviderProtocol.h"
 #import "VFSUriLoader.h"
+#import "HPUriLoader.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,13 +34,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @protocol HPRenderFrameworkProxy <NSObject>
 
-@optional
-- (NSString *)standardizeAssetUrlString:(NSString *)UrlString forRenderContext:(id<HPRenderContext>)renderContext;
-
-- (Class<HPImageProviderProtocol>)imageProviderClassForRenderContext:(id<HPRenderContext>)renderContext;
-
 @required
-- (std::shared_ptr<VFSUriLoader>)URILoader;
+- (void)setImageProviderClass:(Class<HPImageProviderProtocol>)cls;
+- (Class<HPImageProviderProtocol>)imageProviderClass;
+
+- (void)setHPUriLoader:(HPUriLoader *)loader;
+- (HPUriLoader *)HPUriLoader;
+
+- (void)setVFSUriLoader:(std::weak_ptr<VFSUriLoader>)loader;
+- (std::weak_ptr<VFSUriLoader>)VFSUriLoader;
 
 @end
 

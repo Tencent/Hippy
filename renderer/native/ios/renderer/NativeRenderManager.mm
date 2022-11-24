@@ -20,12 +20,13 @@
  * limitations under the License.
  */
 
+#import "NativeRenderImpl.h"
 #import "NativeRenderManager.h"
 #import "NativeRenderObjectText.h"
-#import "NativeRenderImpl.h"
-#import "dom/layout_node.h"
-#import "dom/dom_manager.h"
 #import "RenderVsyncManager.h"
+
+#include "dom/dom_manager.h"
+#include "dom/layout_node.h"
 
 using HippyValue = footstone::value::HippyValue;
 using RenderManager = hippy::RenderManager;
@@ -162,14 +163,6 @@ void NativeRenderManager::SetDomManager(std::weak_ptr<DomManager> dom_manager) {
     @autoreleasepool {
         [renderImpl_ setDomManager:dom_manager];
     }
-}
-
-void NativeRenderManager::SetFrameworkProxy(id<HPRenderFrameworkProxy> proxy) {
-    renderImpl_.frameworkProxy = proxy;
-}
-
-id<HPRenderFrameworkProxy> NativeRenderManager::GetFrameworkProxy() {
-    return renderImpl_.frameworkProxy;
 }
 
 void NativeRenderManager::SetUICreationLazilyEnabled(bool enabled) {

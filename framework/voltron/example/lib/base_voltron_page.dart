@@ -22,6 +22,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:voltron/voltron.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
 
@@ -46,12 +47,14 @@ class Monitor extends EngineMonitor {
 }
 
 class BaseVoltronPage extends StatefulWidget {
+  final bool isHome;
   final bool debugMode;
   final String coreBundle;
   final String indexBundle;
   final String remoteServerUrl;
 
   BaseVoltronPage({
+    this.isHome = false,
     this.debugMode = false,
     this.coreBundle = '',
     this.indexBundle = '',
@@ -112,7 +115,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     initParams.engineMonitor = Monitor();
     _loaderManager = VoltronJSLoaderManager.createLoaderManager(
       initParams,
-          (statusCode, msg) {
+      (statusCode, msg) {
         LogUtils.i(
           'loadEngine',
           'code($statusCode), msg($msg)',
@@ -132,7 +135,7 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
     var loadParams = ModuleLoadParams();
     loadParams.componentName = "Demo";
     loadParams.codeCacheTag = "Demo";
-    if (_indexBundle.startsWith('http://') || _indexBundle.startsWith('https://')) {
+    if (isWebUrl(_indexBundle)) {
       loadParams.jsHttpPath = _indexBundle;
     } else {
       loadParams.jsAssetsPath = _indexBundle;
@@ -189,7 +192,15 @@ class _BaseVoltronPageState extends State<BaseVoltronPage> {
         child: child,
       );
     }
-    return Material(
+    return WillPopScope(
+      onWillPop: () async {
+        return !(_jsLoader.back(() {
+          Navigator.of(context).pop();
+          if (!widget.isHome) {
+            SystemNavigator.pop();
+          }
+        }));
+      },
       child: child,
     );
   }

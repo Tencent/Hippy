@@ -16,6 +16,8 @@
 package com.tencent.mtt.hippy.devsupport;
 
 import android.content.Context;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import com.tencent.mtt.hippy.HippyGlobalConfigs;
 import com.tencent.mtt.hippy.HippyRootView;
 import java.io.InputStream;
@@ -40,23 +42,10 @@ public class DevServerImplDisable implements DevServerInterface {
   }
 
   @Override
-  public void loadRemoteResource(String url, final DevServerCallBack serverCallBack) {
-    mFetchHelper.fetchBundleFromURL(new BundleFetchCallBack() {
-      @Override
-      public void onSuccess(InputStream inputStream) {
-        if (serverCallBack != null) {
-          serverCallBack.onDevBundleLoadReady(inputStream);
-        }
-      }
+  public void onLoadResourceSucceeded() {}
 
-      @Override
-      public void onFail(Exception exception) {
-        if (serverCallBack != null) {
-          serverCallBack.onInitDevError(exception);
-        }
-      }
-    }, url);
-  }
+  @Override
+  public void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage) {}
 
   @Override
   public String createDebugUrl(String host, String componentName, String debugClientId) {

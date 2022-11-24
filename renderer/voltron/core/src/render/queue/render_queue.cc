@@ -22,6 +22,7 @@
 
 #include "render/queue/render_queue.h"
 #include "standard_message_codec.h"
+#include "footstone/logging.h"
 
 namespace voltron {
 
@@ -37,36 +38,16 @@ std::unique_ptr<std::vector<uint8_t>> VoltronRenderQueue::ConsumeRenderOp() {
   if (op_list.empty()) {
     return nullptr;
   }
-  return std::move(StandardMessageCodec::GetInstance().EncodeMessage(
-      EncodableValue(op_list)));
+  return StandardMessageCodec::GetInstance().EncodeMessage(
+      EncodableValue(op_list));
 }
 
 VoltronRenderQueue::~VoltronRenderQueue() {
   queue_.clear();
-  Unlock();
 }
 
 void VoltronRenderQueue::ProduceRenderOp(const Sp<RenderTask> &task) {
   queue_.push_back(task);
-}
-
-void VoltronRenderQueue::Lock() {
-  // 在dom的css layout开始前，要保证dom
-  // op全部执行完成，否则自定义测量的节点测量数据会不准确
-  notified_ = false;
-  std::unique_lock<std::mutex> lock(mutex_);
-  while (!notified_) {
-    FOOTSTONE_DLOG(INFO) << "RunLayoutWait";
-    cv_.wait(lock);
-  }
-}
-
-void VoltronRenderQueue::Unlock() {
-  if (!notified_) {
-    notified_ = true;
-    cv_.notify_one();
-    FOOTSTONE_DLOG(INFO) << "RunLayoutNotify";
-  }
 }
 
 } // namespace voltron

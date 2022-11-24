@@ -20,28 +20,25 @@
 
 import 'dart:convert';
 import 'dart:ffi';
-import 'dart:isolate';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
+import 'package:voltron_ffi/voltron_ffi.dart';
 
 import '../style.dart';
 import '../util.dart';
-import 'global_callback.dart';
 import 'render_bridge.dart';
 import 'render_bridge_define.dart';
 
 /// 管理dart to c++方法调用以及c++ to dart方法注册逻辑
 class _RenderBridgeFFIManager {
-  static _RenderBridgeFFIManager? _instance;
+  static final _RenderBridgeFFIManager _instance = _RenderBridgeFFIManager._internal();
+  static const String _kRenderRegisterHeader = 'voltron_renderer_register';
+  factory _RenderBridgeFFIManager() => _instance;
 
-  factory _RenderBridgeFFIManager() => _getInstance();
+  static _RenderBridgeFFIManager get instance => _instance;
 
-  static _RenderBridgeFFIManager get instance => _getInstance();
-
-  final DynamicLibrary _library = loadLibrary("voltron_core", isStatic: false);
-
-  final _interactiveCppRequests = ReceivePort()..listen(requestExecuteCallback);
+  final _library = FfiManager().library;
 
   // 调用c++ dom相关方法
   late CallNativeFunctionFfiDartType callNativeFunction;
@@ -51,9 +48,6 @@ class _RenderBridgeFFIManager {
 
   // 更新节点宽高
   late UpdateNodeSizeFfiDartType updateNodeSize;
-
-  // 通知native的renderManager text layout完成
-  late NotifyRenderDartType notifyRender;
 
   // 创建voltron native render manager
   late CreateVoltronRenderDartType createNativeRender;
@@ -70,105 +64,51 @@ class _RenderBridgeFFIManager {
   late CreateWorkerFfiDartType createWorker;
   late DestroyWorkerFfiDartType destroyWorker;
 
-  // 向c侧注册dart方法
-  late RegisterCallbackFfiDartType registerCallback;
-  late RegisterPostRenderOpFfiDartType registerPostRenderOp;
-  late RegisterCalculateNodeLayoutFfiDartType registerCalculateNode;
-
-  // 注册回调port和post指针
-  late RegisterDartPostCObjectDartType registerDartPostCObject;
-
-  // 执行回调任务
-  late ExecuteCallbackDartType executeCallback;
-
-  static _RenderBridgeFFIManager _getInstance() {
-    // 只能有一个实例
-    _instance ??= _RenderBridgeFFIManager._internal();
-    return _instance!;
-  }
-
   _RenderBridgeFFIManager._internal() {
-    registerDartPostCObject =
-        _library.lookupFunction<RegisterDartPostCObjectNativeType, RegisterDartPostCObjectDartType>(
-      "VoltronRegisterDartPostCObject",
-    );
+    createNativeRender = _library.lookupFunction<CreateVoltronRenderNativeType,
+        CreateVoltronRenderDartType>('CreateVoltronRenderProvider');
 
-    executeCallback = _library.lookupFunction<ExecuteCallbackNativeType, ExecuteCallbackDartType>(
-      'VoltronExecuteCallback',
-    );
+    destroyNativeRender = _library.lookupFunction<
+        DestroyVoltronRenderNativeType,
+        DestroyVoltronRenderDartType>('DestroyVoltronRenderProvider');
 
-    createNativeRender =
-        _library.lookupFunction<CreateVoltronRenderNativeType, CreateVoltronRenderDartType>(
-      'CreateVoltronRenderProvider',
-    );
+    createDom =
+        _library.lookupFunction<CreateDomFfiNativeType, CreateDomFfiDartType>(
+            'CreateDomInstance');
 
-    destroyNativeRender =
-        _library.lookupFunction<DestroyVoltronRenderNativeType, DestroyVoltronRenderDartType>(
-      'DestroyVoltronRenderProvider',
-    );
+    destroyDom =
+        _library.lookupFunction<DestroyDomFfiNativeType, DestroyDomFfiDartType>(
+            'DestroyDomInstance');
 
-    createDom = _library.lookupFunction<CreateDomFfiNativeType, CreateDomFfiDartType>(
-      'CreateDomInstance',
-    );
+    createWorker = _library.lookupFunction<CreateWorkerFfiNativeType,
+        CreateWorkerFfiDartType>('CreateWorkerManager');
 
-    destroyDom = _library.lookupFunction<DestroyDomFfiNativeType, DestroyDomFfiDartType>(
-      'DestroyDomInstance',
-    );
+    destroyWorker = _library.lookupFunction<DestroyWorkerFfiNativeType,
+        DestroyWorkerFfiDartType>('DestroyWorkerManager');
 
-    createWorker = _library.lookupFunction<CreateWorkerFfiNativeType, CreateWorkerFfiDartType>(
-      'CreateWorkerManager',
-    );
+    addRoot = _library
+        .lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>('AddRoot');
+    removeRoot =
+        _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>(
+            'RemoveRoot');
 
-    destroyWorker = _library.lookupFunction<DestroyWorkerFfiNativeType, DestroyWorkerFfiDartType>(
-      'DestroyWorkerManager',
-    );
+    callNativeFunction = _library.lookupFunction<
+        CallNativeFunctionFfiNativeType,
+        CallNativeFunctionFfiDartType>("CallNativeFunctionFFI");
 
-    addRoot = _library.lookupFunction<AddRootFfiNativeType, AddRootFfiDartType>(
-      'AddRoot',
-    );
-    removeRoot = _library.lookupFunction<RemoveRootFfiNativeType, RemoveRootFfiDartType>(
-      'RemoveRoot',
-    );
+    callNativeEvent = _library.lookupFunction<CallNativeEventFfiNativeType,
+        CallNativeEventFfiDartType>("CallNativeEventFFI");
 
-    callNativeFunction =
-        _library.lookupFunction<CallNativeFunctionFfiNativeType, CallNativeFunctionFfiDartType>(
-      "CallNativeFunctionFFI",
-    );
-
-    callNativeEvent =
-        _library.lookupFunction<CallNativeEventFfiNativeType, CallNativeEventFfiDartType>(
-      "CallNativeEventFFI",
-    );
-
-    updateNodeSize =
-        _library.lookupFunction<UpdateNodeSizeFfiNativeType, UpdateNodeSizeFfiDartType>(
-      'UpdateNodeSize',
-    );
-
-    notifyRender = _library.lookupFunction<NotifyRenderNativeType, NotifyRenderDartType>(
-      'Notify',
-    );
-
-    registerCallback =
-        _library.lookupFunction<RegisterCallbackFfiNativeType, RegisterCallbackFfiDartType>(
-      "RegisterCallFunc",
-    );
-    registerPostRenderOp =
-        _library.lookupFunction<RegisterPostRenderOpFfiNativeType, RegisterPostRenderOpFfiDartType>(
-      "RegisterCallFunc",
-    );
-    registerCalculateNode = _library.lookupFunction<RegisterCalculateNodeLayoutFfiNativeType,
-        RegisterCalculateNodeLayoutFfiDartType>(
-      "RegisterCallFunc",
-    );
+    updateNodeSize = _library.lookupFunction<UpdateNodeSizeFfiNativeType,
+        UpdateNodeSizeFfiDartType>('UpdateNodeSize');
   }
 }
 
 /// 封装dart to c++的api调用，处理各种中间数据
 class VoltronRenderApi {
   static Future init() async {
-    _RenderBridgeFFIManager._getInstance();
-    await initBridge();
+    _RenderBridgeFFIManager();
+    initBridge();
   }
 
   static int createNativeRender() {
@@ -203,22 +143,13 @@ class VoltronRenderApi {
     _RenderBridgeFFIManager.instance.removeRoot(domInstanceId, rootId);
   }
 
-  static Future updateNodeSize(
-    int renderManagerId,
-    int rootId,
-    int nodeId,
-    double width,
-    double height,
-  ) async {
+  static Future updateNodeSize(int renderManagerId, int rootId, int nodeId,
+      double width, double height) async {
     var stopwatch = Stopwatch();
+
     stopwatch.start();
-    _RenderBridgeFFIManager.instance.updateNodeSize(
-      renderManagerId,
-      rootId,
-      nodeId,
-      width,
-      height,
-    );
+    _RenderBridgeFFIManager.instance
+        .updateNodeSize(renderManagerId, rootId, nodeId, width, height);
     stopwatch.stop();
     LogUtils.profile("update node size cost", stopwatch.elapsedMilliseconds);
   }
@@ -227,13 +158,6 @@ class VoltronRenderApi {
     var units = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
     var result = utf8.decode(units);
     return result.toNativeUtf16();
-  }
-
-  static Future notifyRender(
-    int engineId,
-    int renderManagerId,
-  ) async {
-    _RenderBridgeFFIManager.instance.notifyRender(engineId, renderManagerId);
   }
 
   static Future<dynamic> callNativeFunction(
@@ -246,7 +170,8 @@ class VoltronRenderApi {
     var stopwatch = Stopwatch();
     stopwatch.start();
     var callIdU16 = callId.toNativeUtf16();
-    var encodeParamsByteData = const StandardMessageCodec().encodeMessage(params);
+    var encodeParamsByteData =
+        const StandardMessageCodec().encodeMessage(params);
     if (encodeParamsByteData != null) {
       var length = encodeParamsByteData.lengthInBytes;
       final result = malloc<Uint8>(length);
@@ -290,7 +215,8 @@ class VoltronRenderApi {
     stopwatch.start();
     var eventU16 = eventName.toNativeUtf16();
     LogUtils.i('Voltron::Bridge', 'ID:$nodeId, call native event $eventName');
-    var encodeParamsByteData = const StandardMessageCodec().encodeMessage(params);
+    var encodeParamsByteData =
+        const StandardMessageCodec().encodeMessage(params);
     if (encodeParamsByteData != null) {
       var length = encodeParamsByteData.lengthInBytes;
       final result = malloc<Uint8>(length);
@@ -323,56 +249,45 @@ class VoltronRenderApi {
 // ------------------ dart call native方法 end ---------------------
 
   // 初始化bridge层
-  static Future<dynamic> initBridge() async {
-    // 先注册回调的post指针和port端口号
-    final nativePort = _RenderBridgeFFIManager.instance._interactiveCppRequests.sendPort.nativePort;
-    _RenderBridgeFFIManager.instance.registerDartPostCObject(
-      NativeApi.postCObject,
-      nativePort,
-    );
+  static void initBridge() async {
+    // 添加自定义c++ call dart方法注册器
+    FfiManager().addFuncExRegister(_RenderBridgeFFIManager._kRenderRegisterHeader, 'RegisterRenderCallFunc');
 
-    // 注册全局回调
-    var globalCallbackFunc = Pointer.fromFunction<GlobalCallback>(globalCallback);
-    _RenderBridgeFFIManager.instance.registerCallback(
-      RenderFuncType.globalCallback.index,
-      globalCallbackFunc,
-    );
+    // 添加postRenderOp回调
+    var postRenderRegisterFunc = FfiManager().library.lookupFunction<
+            AddCallFuncNativeType<PostRenderOpNativeType>,
+            AddCallFuncDartType<PostRenderOpNativeType>>(
+        FfiManager().registerFuncName);
+    var postRenderOpFunc =
+        Pointer.fromFunction<PostRenderOpNativeType>(postRenderOp);
+    FfiManager().addRegisterFunc(
+        _RenderBridgeFFIManager._kRenderRegisterHeader,
+        RenderFuncType.postRenderOp.index,
+        postRenderOpFunc,
+        postRenderRegisterFunc);
 
-    // 注册postRenderOp回调
-    var postRenderOpFunc = Pointer.fromFunction<PostRenderOpNativeType>(postRenderOp);
-    _RenderBridgeFFIManager.instance.registerPostRenderOp(
-      RenderFuncType.postRenderOp.index,
-      postRenderOpFunc,
-    );
-
-    // 注册layout回调
+    // 添加layout回调
+    var calculateNodeLayoutRegisterFunc = FfiManager().library.lookupFunction<
+        AddCallFuncNativeType<CalculateNodeLayoutNativeType>,
+        AddCallFuncDartType<CalculateNodeLayoutNativeType>>(
+        FfiManager().registerFuncName);
     var calculateNodeLayoutFunc =
-        Pointer.fromFunction<CalculateNodeLayoutNativeType>(calculateNodeLayout);
-    _RenderBridgeFFIManager.instance.registerCalculateNode(
-      RenderFuncType.calculateNodeLayout.index,
-      calculateNodeLayoutFunc,
-    );
+    Pointer.fromFunction<CalculateNodeLayoutNativeType>(calculateNodeLayout);
+    FfiManager().addRegisterFunc(
+        _RenderBridgeFFIManager._kRenderRegisterHeader,
+        RenderFuncType.calculateNodeLayout.index,
+        calculateNodeLayoutFunc,
+        calculateNodeLayoutRegisterFunc);
   }
 }
 
 // ------------------ native call dart方法 start ---------------------
 
-// 提供全局listen port，从c ffi侧传入work方法指针后，直接调用executeCallback执行
-void requestExecuteCallback(dynamic message) {
-  final int workAddress = message;
-  final work = Pointer<Work>.fromAddress(workAddress);
-  _RenderBridgeFFIManager.instance.executeCallback(work);
-}
-
-void postRenderOp(
-  int engineId,
-  int rootId,
-  Pointer<Void> data,
-  int len,
-) {
+void postRenderOp(int engineId, int rootId, Pointer<Void> data, int len) {
   var dataList = data.cast<Uint8>().asTypedList(len);
   if (dataList.isNotEmpty) {
-    var renderOpList = const StandardMessageCodec().decodeMessage(dataList.buffer.asByteData());
+    var renderOpList = const StandardMessageCodec()
+        .decodeMessage(dataList.buffer.asByteData());
     final bridge = VoltronRenderBridgeManager.bridgeMap[engineId];
     if (bridge != null) {
       bridge.postRenderOp(rootId, renderOpList);

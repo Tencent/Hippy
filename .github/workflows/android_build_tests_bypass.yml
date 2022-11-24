@@ -32,6 +32,7 @@ jobs:
     strategy:
       matrix:
         type: [debug, release]
+        v8: [v8_min, v8_target]
     steps:
     - name: Build Test Bypass
       run: |

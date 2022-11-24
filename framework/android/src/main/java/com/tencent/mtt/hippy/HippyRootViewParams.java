@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import com.tencent.mtt.hippy.bridge.bundleloader.HippyBundleLoader;
 import com.tencent.mtt.hippy.common.HippyMap;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"deprecation", "unused", "rawtypes"})
@@ -36,13 +37,13 @@ public class HippyRootViewParams {
   private final HippyMap mLaunchParams;
 
   // 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
-  private final Map mNativeParams;
+  private final HashMap<String, Object> mNativeParams;
 
   private HippyInstanceContext mHippyInstanceContext;
 
 
   private HippyRootViewParams(String name, HippyBundleLoader bundleLoader, Activity activity,
-      HippyMap launchParams, Map nativeParams,
+      HippyMap launchParams, HashMap<String, Object> nativeParams,
       HippyInstanceContext hippyInstanceContext) {
     this.mName = name;
     this.mBundleLoader = bundleLoader;
@@ -72,7 +73,7 @@ public class HippyRootViewParams {
     return mLaunchParams;
   }
 
-  public Map getNativeParams() {
+  public HashMap<String, Object> getNativeParams() {
     return mNativeParams;
   }
 
@@ -90,7 +91,7 @@ public class HippyRootViewParams {
 
     private HippyMap mLaunchParams;
 
-    private Map mNativeParams;
+    private HashMap<String, Object> mNativeParams;
 
     private HippyInstanceContext mHippyInstanceContext;
 
@@ -122,7 +123,7 @@ public class HippyRootViewParams {
       return this;
     }
 
-    public HippyRootViewParams.Builder setNativeParams(Map params) {
+    public HippyRootViewParams.Builder setNativeParams(HashMap<String, Object> params) {
       this.mNativeParams = params;
       return this;
     }

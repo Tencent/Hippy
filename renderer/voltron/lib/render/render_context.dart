@@ -20,95 +20,167 @@
 
 import 'dart:collection';
 
-import '../bridge.dart';
-import '../common.dart';
-import '../controller.dart';
-import '../engine.dart';
-import '../render.dart';
-import '../style.dart';
-import '../widget.dart';
-import 'dom_holder.dart';
+import '../voltron_renderer.dart';
 
-abstract class RenderContext<T extends LoadInstanceContext> with Destroyable {
-  late VoltronRenderBridgeManager _bridgeManager;
+abstract class RenderContext<T extends LoadInstanceContext> with RenderContextProxy {
+  final RenderContextProxy _proxy;
+
+  // the unique id of native (C++) worker manager
+  late int _workerManagerId;
+
+  int get workerManagerId => _workerManagerId;
+
+  // VoltronRenderBridgeManager 主要负责 renderer 侧 c++ 方法处理，注意区分于 framework 中的 VoltronBridgeManager
+  late VoltronRenderBridgeManager _renderBridgeManager;
+
+  VoltronRenderBridgeManager get renderBridgeManager => _renderBridgeManager;
+
+  // RenderManager 负责所有的元素创建，更新，销毁，事件处理等
   late RenderManager _renderManager;
+
+  RenderManager get renderManager => _renderManager;
+
+  // Virtual Node Manager, text, inline image ...
   late VirtualNodeManager _virtualNodeManager;
-  late DomHolder _domHolder;
-  final EngineMonitor _engineMonitor;
-  final HashMap<int, RootWidgetViewModel> _instanceMap = HashMap();
-  final HashMap<int, T> _loadContextMap = HashMap();
 
-  double get fontScale;
-  DimensionChecker get dimensionChecker;
-
-  int get workerId => _bridgeManager.workerId;
-  int get domId => _domHolder.id;
-  int get renderId => renderManager.getNativeId();
-
-  // UI Manager
   VirtualNodeManager get virtualNodeManager => _virtualNodeManager;
 
-  // UI Manager
-  RenderManager get renderManager => _renderManager;
+  // DomHolder 用于链接c++ DomManager
+  late DomHolder _domHolder;
+
+  DomHolder get domHolder => _domHolder;
+
+  /// for performance
+  final EngineMonitor _engineMonitor;
 
   EngineMonitor get engineMonitor => _engineMonitor;
 
-  VoltronRenderBridgeManager get bridgeManager => _bridgeManager;
+  /// record framework JSLoadInstanceContext
+  final HashMap<int, T> _loadContextMap = HashMap();
 
+  final HashMap<int, RootWidgetViewModel> _rootViewModelMap = HashMap();
+
+  HashMap<int, RootWidgetViewModel> get rootViewModelMap => _rootViewModelMap;
+
+  @override
+  double get fontScale => _proxy.fontScale;
+
+  DimensionChecker get dimensionChecker => _proxy.dimensionChecker;
+
+  /// voltron engine id
+  late int _engineId;
+
+  int get engineId => _engineId;
+
+  RenderContext(
+    int id,
+    List<ViewControllerGenerator>? generators,
+    EngineMonitor engineMonitor,
+    bool debugMode,
+    int initWorkerManagerId,
+    VoltronRenderBridgeManager? initRenderBridgeManager,
+    DomHolder? initDomHolder,
+    HashMap<int, RootWidgetViewModel>? initRootViewModelMap,
+    RenderContextProxy this._proxy,
+  )   : _engineMonitor = engineMonitor,
+        _engineId = id {
+    /// step 1, create renderBridgeManager for ffi
+    _renderBridgeManager = initRenderBridgeManager ?? VoltronRenderBridgeManager(id);
+
+    /// don't forget to bind current renderContext
+    _renderBridgeManager.bindRenderContext(this);
+
+    /// step 2, make sure workerManagerId is valid, use old value when reload
+    if (!debugMode || initWorkerManagerId == -1) {
+      _renderBridgeManager.initRenderApi();
+      _workerManagerId = _renderBridgeManager.createWorkerManager();
+    } else {
+      _workerManagerId = initWorkerManagerId;
+    }
+
+    /// step 3, make sure dom holder is valid, use old value when reload
+    if (debugMode && initDomHolder != null) {
+      _domHolder = initDomHolder;
+    } else {
+      var domInstanceId = _renderBridgeManager.createDomInstance(_workerManagerId);
+      _domHolder = DomHolder(domInstanceId);
+    }
+
+    /// don't forget to bind current renderContext
+    _domHolder.bindRenderContext(this);
+
+    /// step 4, create renderManager and virtualNodeManager
+    _renderManager = RenderManager(this, generators);
+    _virtualNodeManager = VirtualNodeManager(this);
+
+    /// step 5, is reload, add all old rootViewModel
+    if (initRootViewModelMap != null && initRootViewModelMap.isNotEmpty) {
+      _rootViewModelMap.addAll(initRootViewModelMap);
+    }
+  }
+
+  String convertRelativePath(int rootId, String path);
+
+  @override
+  void removeInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) =>
+      _proxy.removeInstanceLifecycleEventListener(listener);
+
+  @override
+  void addEngineLifecycleEventListener(EngineLifecycleEventListener listener) =>
+      _proxy.addEngineLifecycleEventListener(listener);
+
+  @override
+  void removeEngineLifecycleEventListener(EngineLifecycleEventListener listener) =>
+      _proxy.removeEngineLifecycleEventListener(listener);
+
+  @override
+  void addInstanceLifecycleEventListener(InstanceLifecycleEventListener listener) =>
+      _proxy.addInstanceLifecycleEventListener(listener);
+
+  @override
+  void handleNativeException(Error error, bool haveCaught) =>
+      _proxy.handleNativeException(error, haveCaught);
+
+  /// framework JSLoadInstanceContext
   T? getLoadContext(int rootId) {
     return _loadContextMap[rootId];
   }
 
   void forEachInstance(Function(RootWidgetViewModel) call) {
-    _instanceMap.values.forEach(call);
+    _rootViewModelMap.values.forEach(call);
   }
 
-  RenderContext(int id, List<ViewControllerGenerator>? generators, EngineMonitor engineMonitor, {
-    VoltronRenderBridgeManager? bridgetManager,
-  })
-      : _engineMonitor = engineMonitor {
-    _bridgeManager = bridgetManager ?? VoltronRenderBridgeManager(id, this);
-    _domHolder = DomHolder(this);
-    _renderManager = RenderManager(this, generators);
-    _virtualNodeManager = VirtualNodeManager(this);
+  void addRootViewModel(RootWidgetViewModel rootWidgetViewModel) {
+    _rootViewModelMap[rootWidgetViewModel.id] = rootWidgetViewModel;
   }
-
-  String convertRelativePath(int rootId, String path);
-
-  void removeInstanceLifecycleEventListener(InstanceLifecycleEventListener listener);
-
-  void addEngineLifecycleEventListener(EngineLifecycleEventListener listener);
-
-  void removeEngineLifecycleEventListener(EngineLifecycleEventListener listener);
-
-  void addInstanceLifecycleEventListener(InstanceLifecycleEventListener listener);
-
-  void handleNativeException(Error error, bool haveCaught);
 
   RootWidgetViewModel? getInstance(int id) {
-    return _instanceMap[id];
+    return _rootViewModelMap[id];
   }
 
-  void destroyInstance(int id) {
-    var removeViewModel = _instanceMap[id];
+  void destroyRootView(int id, bool isReload) {
+    var removeViewModel = _rootViewModelMap[id];
     if (removeViewModel != null) {
-      _instanceMap.remove(id);
       _loadContextMap.remove(id);
-      _bridgeManager.removeRoot(_domHolder.id, id);
+      _renderManager.onInstanceDestroy(id);
+      _renderManager.deleteNode(id, id);
+      _domHolder.removeRoot(_domHolder.id, id);
     }
+    if (!isReload) _rootViewModelMap.remove(id);
   }
 
-  void createInstance(T loadContext, RootWidgetViewModel viewModel) {
-    _instanceMap[viewModel.id] = viewModel;
+  void createRootView(T loadContext, RootWidgetViewModel viewModel) {
     _loadContextMap[viewModel.id] = loadContext;
-    _bridgeManager.addRoot(_domHolder.id, viewModel.id);
+    _domHolder.addRoot(_domHolder.id, viewModel.id);
   }
 
-  @override
-  void destroy() {
+  void destroy(bool isReload) {
     _renderManager.destroy();
-    _domHolder.destroy();
-    _bridgeManager.destroy();
-    _instanceMap.clear();
+    _virtualNodeManager.destroy();
+    if (!isReload) {
+      _renderBridgeManager.destroyWorkerManager(workerManagerId);
+      _domHolder.destroy();
+      _renderBridgeManager.destroy();
+    }
   }
 }

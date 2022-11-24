@@ -28,18 +28,22 @@ import 'util/render_op_util.dart';
 
 void main() {
   RenderContext renderContext;
-  RenderOperatorRunner renderOpRuner;
+  RenderOperatorRunner renderOpRunner;
   RootWidgetViewModel rootWidgetViewModel;
-
   RenderOpUtil renderOpUtil;
+
   setUp(() {
+    WidgetsFlutterBinding.ensureInitialized();
     renderContext = getRenderContext();
-    renderOpRuner = RenderOperatorRunner(renderContext);
+    renderOpRunner = RenderOperatorRunner();
+    renderOpRunner.bindRenderContext(renderContext);
     rootWidgetViewModel = RootWidgetViewModel();
+    renderContext.rootViewModelMap[rootWidgetViewModel.id] = rootWidgetViewModel;
     renderOpUtil = RenderOpUtil(
-        rootWidgetViewModel: rootWidgetViewModel,
-        renderOpRuner: renderOpRuner,
-        renderContext: renderContext);
+      rootWidgetViewModel: rootWidgetViewModel,
+      renderOpRunner: renderOpRunner,
+      renderContext: renderContext,
+    );
     renderOpUtil.init();
   });
 
@@ -56,11 +60,7 @@ void main() {
             "props": {
               "attributes": {"class": "item", "id": 0}
             },
-            "styles": {
-              "backgroundColor": 4292129211.0,
-              "height": 30.0,
-              "width": 20.0
-            }
+            "styles": {"backgroundColor": 4292129211.0, "height": 30.0, "width": 20.0}
           })
         ];
 
@@ -117,23 +117,17 @@ void main() {
         renderOpUtil.runRenderOp(ops);
 
         var rootNode = rootWidgetViewModel.renderTree.rootNode;
-        expect(rootNode.children, hasLength(1),
-            reason: 'rootNode has only one child');
+        expect(rootNode.children, hasLength(1), reason: 'rootNode has only one child');
         var node = rootNode.children[0];
         expect(node.id, 1, reason: 'child of rootNode is node1');
-        expect(node.children, hasLength(2),
-            reason: 'node1 should have two children');
-        expect(node.children[0].id, 2,
-            reason: 'first child of node1 should be node2');
+        expect(node.children, hasLength(2), reason: 'node1 should have two children');
+        expect(node.children[0].id, 2, reason: 'first child of node1 should be node2');
         expect(node.children[1], isA<RenderNode>());
-        expect(node.children[1].id, 3,
-            reason: 'second child of node1 should be node3');
+        expect(node.children[1].id, 3, reason: 'second child of node1 should be node3');
         var node3 = node.children[1];
         expect(node3.childCount, 2, reason: 'node3 should have two children');
-        expect(node3.children[0].id, 5,
-            reason: 'first child of node3 shoule be node5');
-        expect(node3.children[1].id, 4,
-            reason: 'second child of node3 shoule be node4');
+        expect(node3.children[0].id, 5, reason: 'first child of node3 shoule be node5');
+        expect(node3.children[1].id, 4, reason: 'second child of node3 shoule be node4');
       });
 
       test('should add node to exiting tree', () {
@@ -145,11 +139,7 @@ void main() {
             "props": {
               "attributes": {"class": "item", "id": 0}
             },
-            "styles": {
-              "backgroundColor": 4292129211.0,
-              "height": 30.0,
-              "width": 20.0
-            }
+            "styles": {"backgroundColor": 4292129211.0, "height": 30.0, "width": 20.0}
           })
         ]);
         var node = rootWidgetViewModel.renderTree.getRenderNode(1);
@@ -226,8 +216,7 @@ void main() {
           RenderOp(type: RenderOpType.deleteNode, nodeId: 5),
         ]);
 
-        expect(node3.childCount, 1,
-            reason: 'node3 should have 1 child after deleted');
+        expect(node3.childCount, 1, reason: 'node3 should have 1 child after deleted');
 
         expect(node5.isDelete, isTrue);
 
@@ -291,8 +280,7 @@ void main() {
       var node4 = rootWidgetViewModel.renderTree.getRenderNode(4);
       var node5 = rootWidgetViewModel.renderTree.getRenderNode(5);
 
-      expect(node5.parent.id, 3,
-          reason: 'parent of node5 is node3 before move');
+      expect(node5.parent.id, 3, reason: 'parent of node5 is node3 before move');
 
       renderOpUtil.runRenderOp([
         RenderOp(type: RenderOpType.moveNode, nodeId: 2, props: {
@@ -316,11 +304,7 @@ void main() {
             "props": {
               "attributes": {"class": "item", "id": 0}
             },
-            "styles": {
-              "backgroundColor": 4292129211.0,
-              "height": 30.0,
-              "width": 20.0
-            }
+            "styles": {"backgroundColor": 4292129211.0, "height": 30.0, "width": 20.0}
           })
         ]);
       });
@@ -373,11 +357,7 @@ void main() {
           "props": {
             "attributes": {"class": "item", "id": 0}
           },
-          "styles": {
-            "backgroundColor": 4292129211.0,
-            "height": 30.0,
-            "width": 20.0
-          }
+          "styles": {"backgroundColor": 4292129211.0, "height": 30.0, "width": 20.0}
         })
       ];
 

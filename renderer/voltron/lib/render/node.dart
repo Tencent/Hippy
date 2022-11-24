@@ -29,13 +29,37 @@ import '../viewmodel.dart';
 import '../widget.dart';
 
 class RootRenderNode extends RenderNode {
-  RootRenderNode(int id, String className, RenderTree root, ControllerManager controllerManager,
-      VoltronMap? props)
-      : super(id, className, root, controllerManager, props);
+  RootRenderNode(
+    int id,
+    String className,
+    RenderTree root,
+    ControllerManager controllerManager,
+    VoltronMap? props,
+  ) : super(id, className, root, controllerManager, props);
 
   @override
   RenderViewModel createRenderViewModel(RenderContext context) {
     return RootRenderViewModel(id, rootId, name, context, context.getInstance(id));
+  }
+
+  @override
+  void addEvent(Set<String> eventNameList) {
+    super.addEvent(eventNameList);
+    for (var event in eventNameList) {
+      if (event == ChoreographerUtil.kDoFrame.toLowerCase()) {
+        ChoreographerUtil.registerDoFrameListener(renderContext.engineId, rootId);
+      }
+    }
+  }
+
+  @override
+  void removeEvent(Set<String> eventNameList) {
+    super.removeEvent(eventNameList);
+    for (var event in eventNameList) {
+      if (event == ChoreographerUtil.kDoFrame.toLowerCase()) {
+        ChoreographerUtil.unregisterDoFrameListener(renderContext.engineId, rootId);
+      }
+    }
   }
 }
 
@@ -43,8 +67,12 @@ class RootRenderViewModel extends GroupViewModel {
   final RootWidgetViewModel? _rootWidgetViewModel;
 
   RootRenderViewModel(
-      int id, int instanceId, String className, RenderContext context, this._rootWidgetViewModel)
-      : super(id, instanceId, className, context);
+    int id,
+    int instanceId,
+    String className,
+    RenderContext context,
+    this._rootWidgetViewModel,
+  ) : super(id, instanceId, className, context);
 
   @override
   void update() {
@@ -159,16 +187,15 @@ class RenderNode extends StyleNode {
 
   bool get isRoot => name == NodeProps.kRootNode;
 
-  RenderNode(this._id, this._className, this._root, this._controllerManager, this._props,
-      [this._isLazyLoad = false, this._parent])
-      : super(_className);
-
-  int calculateLayout(FlexLayoutParams layoutParams) {
-    return FlexOutput.makeMeasureResult(
-      layoutParams.width,
-      layoutParams.height,
-    );
-  }
+  RenderNode(
+    this._id,
+    this._className,
+    this._root,
+    this._controllerManager,
+    this._props, [
+    this._isLazyLoad = false,
+    this._parent,
+  ]) : super(_className);
 
   @override
   String toString() {

@@ -29,7 +29,7 @@ class LogUtils {
   static LogListener? _kLogListener;
 
   static bool kDebugLogDomEnable = true;
-  static bool kDebugLogWidgetEnable = true;
+  static bool kDebugLogWidgetEnable = false;
   static bool kDebugLogOperateEnable = true;
   static bool kDebugLogRenderEnable = true;
   static bool kDebugLogRenderNodeEnable = true;

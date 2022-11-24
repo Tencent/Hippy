@@ -30,18 +30,22 @@ const _testBgUrl =
 
 void main() {
   RenderContext renderContext;
-  RenderOperatorRunner renderOpRuner;
+  RenderOperatorRunner renderOpRunner;
   RootWidgetViewModel rootWidgetViewModel;
 
   RenderOpUtil renderOpUtil;
   setUp(() {
+    WidgetsFlutterBinding.ensureInitialized();
     renderContext = getRenderContext();
-    renderOpRuner = RenderOperatorRunner(renderContext);
+    renderOpRunner = RenderOperatorRunner();
+    renderOpRunner.bindRenderContext(renderContext);
     rootWidgetViewModel = RootWidgetViewModel();
+    renderContext.rootViewModelMap[rootWidgetViewModel.id] = rootWidgetViewModel;
     renderOpUtil = RenderOpUtil(
-        rootWidgetViewModel: rootWidgetViewModel,
-        renderOpRuner: renderOpRuner,
-        renderContext: renderContext);
+      rootWidgetViewModel: rootWidgetViewModel,
+      renderOpRunner: renderOpRunner,
+      renderContext: renderContext,
+    );
     renderOpUtil.init();
   });
 
@@ -131,16 +135,15 @@ void main() {
           "height": 30.0,
           "backgroundColor": const Color.fromARGB(100, 255, 200, 0).value
         });
-        expect(
-            vm.backgroundColor, equals(const Color.fromARGB(100, 255, 200, 0)));
+        expect(vm.backgroundColor, equals(const Color.fromARGB(100, 255, 200, 0)));
       });
     });
 
     group('[background-image]', () {
       test('use URL', () {
         const url = _testBgUrl;
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"width": 20.0, "height": 30.0, "backgroundImage": url});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"width": 20.0, "height": 30.0, "backgroundImage": url});
         expect(vm.backgroundImage, url);
       });
 
@@ -174,9 +177,7 @@ void main() {
         var gradient = decoration.gradient;
         expect(gradient, isNotNull, reason: 'decoration has gradient');
         expect(
-            gradient.colors,
-            equals(
-                [Color(Colors.green.value), Color(Colors.deepOrange.value)]));
+            gradient.colors, equals([Color(Colors.green.value), Color(Colors.deepOrange.value)]));
       });
     });
 
@@ -297,8 +298,8 @@ void main() {
       const url = _testBgUrl;
 
       test('== "no-repeat"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundRepeat": "no-repeat"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundRepeat": "no-repeat"});
         expect(vm.backgroundImgRepeat, "no-repeat");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImage = decoration.image;
@@ -306,8 +307,8 @@ void main() {
       });
 
       test('== "repeat"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundRepeat": "repeat"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundRepeat": "repeat"});
         expect(vm.backgroundImgRepeat, "repeat");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImage = decoration.image;
@@ -315,8 +316,8 @@ void main() {
       });
 
       test('== "repeat-x"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundRepeat": "repeat-x"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundRepeat": "repeat-x"});
         expect(vm.backgroundImgRepeat, "repeat-x");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImage = decoration.image;
@@ -324,8 +325,8 @@ void main() {
       });
 
       test('== "repeat-y"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundRepeat": "repeat-y"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundRepeat": "repeat-y"});
         expect(vm.backgroundImgRepeat, "repeat-y");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImage = decoration.image;
@@ -348,8 +349,8 @@ void main() {
     group('[background-positon-x]', () {
       const url = _testBgUrl;
       test('== "left"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundPositionX": "left"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundPositionX": "left"});
         expect(vm.backgroundPositionX, "left");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImageAlignment = decoration.image.alignment as Alignment;
@@ -357,8 +358,8 @@ void main() {
       });
 
       test('== "center"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundPositionX": "center"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundPositionX": "center"});
         expect(vm.backgroundPositionX, "center");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImageAlignment = decoration.image.alignment as Alignment;
@@ -366,8 +367,8 @@ void main() {
       });
 
       test('== "right"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundPositionX": "right"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundPositionX": "right"});
         expect(vm.backgroundPositionX, "right");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImageAlignment = decoration.image.alignment as Alignment;
@@ -386,8 +387,8 @@ void main() {
     group('[background-positon-y]', () {
       const url = _testBgUrl;
       test('== "top"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundPositionY": "top"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundPositionY": "top"});
         expect(vm.backgroundPositionY, "top");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImageAlignment = decoration.image.alignment as Alignment;
@@ -395,8 +396,8 @@ void main() {
       });
 
       test('== "center"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundPositionY": "center"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundPositionY": "center"});
         expect(vm.backgroundPositionY, "center");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImageAlignment = decoration.image.alignment as Alignment;
@@ -404,8 +405,8 @@ void main() {
       });
 
       test('== "bottom"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"backgroundImage": url, "backgroundPositionY": "bottom"});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"backgroundImage": url, "backgroundPositionY": "bottom"});
         expect(vm.backgroundPositionY, "bottom");
         var decoration = vm.getDecoration() as BoxDecoration;
         var decorationImageAlignment = decoration.image.alignment as Alignment;
@@ -447,8 +448,7 @@ void main() {
 
       group('[border-top-right-radius]', () {
         test('== 10', () {
-          var vm = renderOpUtil
-              .getViewModelFromStyles({"borderTopRightRadius": 10.0});
+          var vm = renderOpUtil.getViewModelFromStyles({"borderTopRightRadius": 10.0});
           expect(vm.topRightBorderRadius, 10.0);
           var borderRadius = vm.getBorderRadius();
           expect(borderRadius.bottomLeft, Radius.zero);
@@ -460,8 +460,7 @@ void main() {
 
       group('[border-bottom-right-radius]', () {
         test('== 10', () {
-          var vm = renderOpUtil
-              .getViewModelFromStyles({"borderBottomRightRadius": 10.0});
+          var vm = renderOpUtil.getViewModelFromStyles({"borderBottomRightRadius": 10.0});
           expect(vm.bottomRightBorderRadius, 10.0);
           var borderRadius = vm.getBorderRadius();
           expect(borderRadius.bottomLeft, Radius.zero);
@@ -473,8 +472,7 @@ void main() {
 
       group('[border-top-left-radius]', () {
         test('== 10', () {
-          var vm = renderOpUtil
-              .getViewModelFromStyles({"borderTopLeftRadius": 10.0});
+          var vm = renderOpUtil.getViewModelFromStyles({"borderTopLeftRadius": 10.0});
           expect(vm.topLeftBorderRadius, 10.0);
           var borderRadius = vm.getBorderRadius();
           expect(borderRadius.bottomLeft, Radius.zero);
@@ -486,8 +484,7 @@ void main() {
 
       group('[border-bottom-left-radius]', () {
         test('== 10', () {
-          var vm = renderOpUtil
-              .getViewModelFromStyles({"borderBottomLeftRadius": 10.0});
+          var vm = renderOpUtil.getViewModelFromStyles({"borderBottomLeftRadius": 10.0});
           expect(vm.bottomLeftBorderRadius, 10.0);
           var borderRadius = vm.getBorderRadius();
           expect(borderRadius.bottomLeft, const Radius.circular(10.0));
@@ -551,8 +548,8 @@ void main() {
 
     group('border-color', () {
       test('[border-color] == pink', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"borderColor": Colors.pink.value, "borderWidth": 1.0});
+        var vm = renderOpUtil
+            .getViewModelFromStyles({"borderColor": Colors.pink.value, "borderWidth": 1.0});
         expect(vm.borderColor, Colors.pink.value);
         var border = vm.getBorder();
         expect(border.left.color, Colors.pink.shade500);
@@ -561,8 +558,7 @@ void main() {
         expect(border.bottom.color, Colors.pink.shade500);
       });
 
-      test('[border-left/top/right/bottom-color] == [yellow,blue,red,pink]',
-          () {
+      test('[border-left/top/right/bottom-color] == [yellow,blue,red,pink]', () {
         var vm = renderOpUtil.getViewModelFromStyles({
           "borderLeftColor": Colors.yellow.value,
           "borderTopColor": Colors.blue.value,
@@ -585,8 +581,7 @@ void main() {
 
     group('[border-style]', () {
       test('== "solid"', () {
-        var vm = renderOpUtil.getViewModelFromStyles(
-            {"borderStyle": "solid", "borderWidth": 1.0});
+        var vm = renderOpUtil.getViewModelFromStyles({"borderStyle": "solid", "borderWidth": 1.0});
         expect(vm.borderStyle, "solid");
         var border = vm.getBorder();
         expect(border.left.style, BorderStyle.solid);

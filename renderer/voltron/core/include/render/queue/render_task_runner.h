@@ -58,9 +58,6 @@ public:
   void RunAddEventListener(uint32_t root_id, const uint32_t &node_id, const String &event_name);
   void RunRemoveEventListener(uint32_t root_id, const uint32_t &node_id, const String &event_name);
 
-  void Lock(uint32_t root_id);
-  void UnlockAll();
-
   void SetDomManager(const Sp<DomManager>& dom_manager);
   Sp<DomManager> GetDomManager();
 

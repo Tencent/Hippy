@@ -60,15 +60,16 @@ class RenderOp {
 class RenderOpUtil {
   RenderContext renderContext;
   RootWidgetViewModel rootWidgetViewModel;
-  RenderOperatorRunner renderOpRuner;
+  RenderOperatorRunner renderOpRunner;
 
-  RenderOpUtil(
-      {required this.rootWidgetViewModel,
-      required this.renderOpRuner,
-      required this.renderContext});
+  RenderOpUtil({
+    required this.rootWidgetViewModel,
+    required this.renderOpRunner,
+    required this.renderContext,
+  });
 
   void init() {
-    renderContext.createInstance(
+    renderContext.createRootView(
       MockLoadInstanceContext(),
       rootWidgetViewModel,
     );
@@ -78,12 +79,13 @@ class RenderOpUtil {
 
   void doFrame() {
     renderContext.renderManager.renderBatchEnd();
-    renderContext.renderManager.doFrame(Duration.zero);
   }
 
   void runRenderOp(List<RenderOp> ops, {bool immediately = true}) {
-    renderOpRuner.consumeRenderOp(
-        rootWidgetViewModel.id, ops.map((e) => e.format()).toList());
+    renderOpRunner.consumeRenderOp(
+      rootWidgetViewModel.id,
+      ops.map((e) => e.format()).toList(),
+    );
     if (immediately) {
       doFrame();
     }
@@ -110,7 +112,7 @@ class RenderOpUtil {
   }
 
   RenderViewModel getViewModelFromRenderOp(RenderOp op) {
-    renderOpRuner.consumeRenderOp(rootWidgetViewModel.id, [op.format()]);
+    renderOpRunner.consumeRenderOp(rootWidgetViewModel.id, [op.format()]);
     doFrame();
     var node = rootWidgetViewModel.renderTree?.getRenderNode(op.nodeId);
     assert(node != null);
@@ -126,7 +128,7 @@ class RenderOpUtil {
       "pid": 0,
       "styles": styles,
     });
-    renderOpRuner.consumeRenderOp(rootWidgetViewModel.id, [op.format()]);
+    renderOpRunner.consumeRenderOp(rootWidgetViewModel.id, [op.format()]);
     doFrame();
     var node = rootWidgetViewModel.renderTree?.getRenderNode(op.nodeId);
     assert(node != null);
@@ -135,11 +137,9 @@ class RenderOpUtil {
 
   void updateNodeStyles(RenderNode node, Map<String, dynamic> styles) {
     var op = RenderOp(type: RenderOpType.updateNode, nodeId: node.id, props: {
-      "props": {
-        "style": styles
-      }
+      "props": {"style": styles}
     });
-    renderOpRuner.consumeRenderOp(rootWidgetViewModel.id, [op.format()]);
+    renderOpRunner.consumeRenderOp(rootWidgetViewModel.id, [op.format()]);
     doFrame();
   }
 

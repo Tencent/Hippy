@@ -18,8 +18,8 @@
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| playing        | 控制动画是否播放 | boolean                                | `Android、iOS、Web-Renderer`    |
-| actions*        | 动画方案，其实是一个样式值跟上它的动画方案，详情请参考范例。 | Object                                | `Android、iOS、Web-Renderer`    |
+| playing        | 控制动画是否播放 | boolean                                | `Android、iOS、Web-Renderer、Voltron`    |
+| actions*        | 动画方案，其实是一个样式值跟上它的动画方案，详情请参考范例。 | Object                                | `Android、iOS、Web-Renderer、Voltron`    |
 
 * actions 详解
   
@@ -113,10 +113,10 @@ export default {
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| start              | 动画开始时触发，最低支持版本 `2.5.2`      | `Function`                                                    | `Android、iOS、Web-Renderer`    |
-| end         | 动画结束时触发，最低支持版本 `2.5.2`             | `Function`| `Android、iOS、Web-Renderer`    |
-| repeat | 每次循环播放时触发，最低支持版本 `2.5.2`               | `Function` | `Android`   |
-| actionsDidUpdate | 替换 actions 且动画对象创建成功后触发，可以在这个时机重新启动动画，最低支持版本 `2.14.0`  | `Function` | `Android、iOS`   |
+| start              | 动画开始时触发，最低支持版本 `2.5.2`      | `Function`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
+| end         | 动画结束时触发，最低支持版本 `2.5.2`             | `Function`| `Android、iOS、Web-Renderer、Voltron`    |
+| repeat | 每次循环播放时触发，最低支持版本 `2.5.2`               | `Function` | `Android、Voltron`   |
+| actionsDidUpdate | 替换 actions 且动画对象创建成功后触发，可以在这个时机重新启动动画，最低支持版本 `2.14.0`  | `Function` | `Android、iOS、Voltron`   |
 
 ## 方法
 
@@ -158,19 +158,19 @@ export default {
 
 | 参数          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS、Web-Renderer`    |
+| animationType         | 动画效果                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS、Web-Renderer、Voltron`    |
 | supportedOrientations | 支持屏幕翻转方向                                                       | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
-| immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                         | `boolean`                                                    | `Android`    |
-| darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS`    |
-| transparent | 背景是否是透明的。`default: true` | `boolean`                                                    | `Android、iOS、Web-Renderer`    |
+| immersionStatusBar    | 是否是沉浸式状态栏。`default: true`                                         | `boolean`                                                    | `Android、Voltron`    |
+| darkStatusBarText     | 是否是亮色主体文字，默认字体是黑色的，改成 true 后会认为 Modal 背景为暗色调，字体就会改成白色。 | `boolean`                                                    | `Android、iOS、Voltron`    |
+| transparent | 背景是否是透明的。`default: true` | `boolean`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| show                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| show                | 在`Modal`显示时会执行此回调函数。                            | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | orientationChange   | 屏幕旋转方向改变                                           | `Function`                                                   | `Android、iOS`    |
-| requestClose        | 在 `Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android`    |
+| requestClose        | 在 `Modal`请求关闭时会执行此回调函数，一般时在 Android 系统里按下硬件返回按钮时触发，一般要在里面处理关闭弹窗。 | `Function`                                                   | `Android、Voltron`    |
 
 ---
 
@@ -184,20 +184,20 @@ export default {
 
 | 参数                     | 描述                                                         | 类型                                         | 支持平台 |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
-| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS`    |
-| current              | 实时改变当前所处页码 | `number`                                     | `Android、iOS、Web-Renderer`    |
-| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `Android、iOS、Web-Renderer`    |
-| needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `Android、iOS`    |
-| scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `Android、iOS、Web-Renderer`    |
-| direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `string`                                    | `Android`    |
+| bounces | 是否开启回弹效果，默认 `true` | `boolean`                                                  | `iOS、Voltron`    |
+| current              | 实时改变当前所处页码 | `number`                                     | `Android、iOS、Web-Renderer、Voltron`    |
+| initialPage              | 指定一个数字，用于决定初始化后默认显示的页面index，默认不指定的时候是0 | `number`                                     | `Android、iOS、Web-Renderer、Voltron`    |
+| needAnimation            | 切换页面时是否需要动画。                        | `boolean`                                    | `Android、iOS、Voltron`    |
+| scrollEnabled            | 指定ViewPager是否可以滑动，默认为true                        | `boolean`                                    | `Android、iOS、Web-Renderer、Voltron`    |
+| direction            | 设置viewPager滚动方向，不设置默认横向滚动，设置 `vertical` 为竖向滚动                       | `string`                                    | `Android、Voltron`    |
 
 ## 事件
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| dragging                | 拖动时触发。                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| dropped   | 拖拽松手时触发，就是确定了滚动的页面时触发。                                                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| stateChanged*   | 手指行为发生改变时触发，包含了 idle、dragging、settling 三种状态，通过 state 参数返回                                                             | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| dragging                | 拖动时触发。                            | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| dropped   | 拖拽松手时触发，就是确定了滚动的页面时触发。                                                            | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| stateChanged*   | 手指行为发生改变时触发，包含了 idle、dragging、settling 三种状态，通过 state 参数返回                                                             | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 
 * stateChanged 三种值的意思：
   * idle 空闲状态
@@ -224,9 +224,9 @@ export default {
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS`    |
-| pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `Android、iOS`    |
-| released   | 滑动超出距离，松手后触发一次          | `Function`   | `Android、iOS`    |
+| idle                | 滑动距离在 pull-header 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS、Voltron`    |
+| pulling   | 滑动距离超出 pull-header 后触发一次，参数 contentOffset                                                        | `Function`   | `Android、iOS、Voltron`    |
+| released   | 滑动超出距离，松手后触发一次          | `Function`   | `Android、iOS、Voltron`    |
 
 ## 方法
 
@@ -250,9 +250,9 @@ export default {
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS`    |
-| pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `Android、iOS`    |
-| released   | 滑动超出距离松手后触发一次          | `Function`   | `Android、iOS`    |
+| idle                | 滑动距离在 pull-footer 区域内触发一次，参数 contentOffset                            | `Function`                                                   | `Android、iOS、Voltron`    |
+| pulling   | 滑动距离超出 pull-footer 后触发一次，参数 contentOffset      | `Function`   | `Android、iOS、Voltron`    |
+| released   | 滑动超出距离松手后触发一次          | `Function`   | `Android、iOS、Voltron`    |
 
 ## 方法
 
@@ -274,21 +274,21 @@ export default {
 
 | 参数              | 描述                                                  | 类型       | 支持平台 |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
-| columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `Android、iOS`    |
-| interItemSpacing  | item 间的垂直间距                                        | `number`   | `Android、iOS`    |
-| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`    |
-| containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS`    |
-| containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS`    |
-| containPullFooter | 是否包含 `pull-footer` | `boolean`  | `Android、iOS` |
-| numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `Android、iOS`    |
-| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `Android、iOS`    |
+| columnSpacing     | 瀑布流每列之前的水平间距                                      | `number`   | `Android、iOS、Voltron`    |
+| interItemSpacing  | item 间的垂直间距                                        | `number`   | `Android、iOS、Voltron`    |
+| contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS、Voltron`    |
+| containBannerView | 是否包含`bannerView`，只能有一个bannerView，`Android` 暂不支持  | `boolean`  | `iOS、Voltron`    |
+| containPullHeader | 是否包含`pull-header`；`Android` 暂不支持，可以用 `ul-refresh` 组件替代  | `boolean`  | `iOS、Voltron`    |
+| containPullFooter | 是否包含 `pull-footer` | `boolean`  | `Android、iOS、Voltron` |
+| numberOfColumns   | 瀑布流列数量，Default: 2                                               | `number`   | `Android、iOS、Voltron`    |
+| preloadItemNumber | 滑动到瀑布流底部前提前预加载的 item 数量       | `number`   | `Android、iOS、Voltron`    |
 
 ## 事件
 
 | 事件名称              | 描述           | `类型`     | 支持平台 |
 | --------------------- | -------------- | ---------- | -------- |
-| endReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                           | `Function` | `Android、iOS`    |
-| scroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS`    |
+| endReached      | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `onEndReached` 回调。                                           | `Function` | `Android、iOS、Voltron`    |
+| scroll          | 当触发 `WaterFall` 的滑动事件时回调。`startEdgePos`表示距离 List 顶部边缘滚动偏移量；`endEdgePos`表示距离 List 底部边缘滚动偏移量；`firstVisibleRowIndex`表示当前可见区域内第一个元素的索引；`lastVisibleRowIndex`表示当前可见区域内最后一个元素的索引；`visibleRowFrames`表示当前可见区域内所有 item 的信息(x，y，width，height)    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS、Voltron`    |
 
 ## 方法
 
@@ -317,5 +317,5 @@ export default {
 
 | 参数                  | 描述                                                         | 类型                                                        | 支持平台 |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS`    |
-| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
+| type            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升 List 性能。 | `number`              | `Android、iOS、Voltron`    |
+| key             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [Vue 官文](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`    |

@@ -29,32 +29,42 @@ import 'render_api.dart';
 /// voltron外层业务逻辑对c++调用逻辑的bridge封装
 class VoltronRenderBridgeManager implements Destroyable {
   final int _engineId;
-  final RenderContext _context;
   final RenderOperatorRunner _operatorRunner;
 
-  bool _isBridgeInit = false;
-  int _workerManagerId = 0;
+  late RenderContext _renderContext;
 
-  int get workerId => _workerManagerId;
+  bool _isBridgeInit = false;
+
   static HashMap<int, VoltronRenderBridgeManager> bridgeMap = HashMap();
 
   VoltronRenderBridgeManager(
     this._engineId,
-    this._context,
-  )   : _operatorRunner = RenderOperatorRunner(_context),
-        _workerManagerId = VoltronRenderApi.createWorkerManager();
+  ) : _operatorRunner = RenderOperatorRunner();
 
   void init() {
-    VoltronRenderApi.init();
     _isBridgeInit = true;
     bridgeMap[_engineId] = this;
   }
 
-  int createDomInstance() {
-    if (_workerManagerId == 0) {
-      return 0;
-    }
-    return VoltronRenderApi.createDomInstance(_workerManagerId);
+  void bindRenderContext(RenderContext renderContext) {
+    _renderContext = renderContext;
+    _operatorRunner.bindRenderContext(renderContext);
+  }
+
+  void initRenderApi() {
+    VoltronRenderApi.init();
+  }
+
+  int createWorkerManager() {
+    return VoltronRenderApi.createWorkerManager();
+  }
+
+  void destroyWorkerManager (int workerManagerId) {
+    return VoltronRenderApi.destroyWorkerManager(workerManagerId);
+  }
+
+  int createDomInstance(int workerManagerId) {
+    return VoltronRenderApi.createDomInstance(workerManagerId);
   }
 
   void destroyDomInstance(int domInstanceId) {
@@ -75,7 +85,7 @@ class VoltronRenderBridgeManager implements Destroyable {
 
   Future destroyNativeRenderManager() async {
     await VoltronRenderApi.destroyNativeRender(
-      _context.renderManager.getNativeId(),
+      _renderContext.renderManager.nativeRenderManagerId,
     );
   }
 
@@ -89,19 +99,12 @@ class VoltronRenderBridgeManager implements Destroyable {
       return false;
     }
     await VoltronRenderApi.updateNodeSize(
-      _context.renderManager.getNativeId(),
+      _renderContext.renderManager.nativeRenderManagerId,
       rootId,
       nodeId,
       width,
       height,
     );
-  }
-
-  Future notifyRender(int renderManagerId) async {
-    if (!_isBridgeInit) {
-      return;
-    }
-    await VoltronRenderApi.notifyRender(_engineId, renderManagerId);
   }
 
   Future<dynamic> callNativeFunction(
@@ -113,7 +116,7 @@ class VoltronRenderBridgeManager implements Destroyable {
     }
     VoltronRenderApi.callNativeFunction(
       _engineId,
-      _context.renderManager.getNativeId(),
+      _renderContext.renderManager.nativeRenderManagerId,
       callbackId,
       params.toOriginObject(),
       true,
@@ -131,7 +134,7 @@ class VoltronRenderBridgeManager implements Destroyable {
       return false;
     }
     await VoltronRenderApi.callNativeEvent(
-      _context.renderManager.getNativeId(),
+      _renderContext.renderManager.nativeRenderManagerId,
       rootId,
       id,
       event,
@@ -152,7 +155,7 @@ class VoltronRenderBridgeManager implements Destroyable {
       return false;
     }
     await VoltronRenderApi.callNativeEvent(
-      _context.renderManager.getNativeId(),
+      _renderContext.renderManager.nativeRenderManagerId,
       rootId,
       id,
       event.toLowerCase(),
@@ -173,7 +176,7 @@ class VoltronRenderBridgeManager implements Destroyable {
       return false;
     }
     await VoltronRenderApi.callNativeEvent(
-      _context.renderManager.getNativeId(),
+      _renderContext.renderManager.nativeRenderManagerId,
       rootId,
       id,
       event.toLowerCase(),
@@ -185,10 +188,6 @@ class VoltronRenderBridgeManager implements Destroyable {
 
   @override
   void destroy() {
-    if (_workerManagerId != 0) {
-      VoltronRenderApi.destroyWorkerManager(_workerManagerId);
-      _workerManagerId = 0;
-    }
     _isBridgeInit = false;
     bridgeMap.remove(_engineId);
   }
@@ -211,7 +210,7 @@ class VoltronRenderBridgeManager implements Destroyable {
       'ID:$nodeId, call calculate node layout, page:$instanceId, parent layout:$layoutParams',
     );
     if (_isBridgeInit) {
-      return _context.renderManager.calculateLayout(
+      return _renderContext.virtualNodeManager.measure(
         instanceId,
         nodeId,
         layoutParams,

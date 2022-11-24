@@ -23,7 +23,14 @@
 #import "bridge_impl_ios.h"
 #import "VoltronFlutterBridge.h"
 #import "VoltronJSEnginesMapper.h"
-#import "footstone/task_runner.h"
+#import <UIKit/UIKit.h>
+
+#ifdef ENABLE_INSPECTOR
+#include "integrations/devtools_handler.h"
+#endif
+#include "footstone/task_runner.h"
+#include "string_convert.h"
+#include "wrapper.h"
 
 #define Addr2Str(addr) (addr?[NSString stringWithFormat:@"%ld", (long)addr]:@"0")
 
@@ -36,8 +43,24 @@ static NSMutableDictionary *getKeepContainer() {
     return dict;
 }
 
+dispatch_queue_t HippyBridgeQueue() {
+    static dispatch_once_t onceToken;
+    static dispatch_queue_t queue;
+    dispatch_once(&onceToken, ^{
+        dispatch_queue_attr_t attr =
+            dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);
+        queue = dispatch_queue_create("com.hippy.bridge", attr);
+    });
+    return queue;
+}
+
+
 NSString* U16ToNSString(const char16_t *source) {
-  return [[NSString alloc] initWithCharacters:(const unichar*)source length:std::char_traits<char16_t>::length(source)];
+    return [[NSString alloc] initWithCharacters:(const unichar*)source length:std::char_traits<char16_t>::length(source)];
+}
+
+NSString* CStringToNSString(const std::string& source) {
+    return [NSString stringWithCString:source.c_str() encoding:[NSString defaultCStringEncoding]];
 }
 
 footstone::value::HippyValue OCTypeToDomValue(id value) {
@@ -91,35 +114,41 @@ footstone::value::HippyValue OCTypeToDomValue(id value) {
 }
 
 void BridgeImpl::LoadInstance(int64_t runtime_id, std::string&& params) {
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+    
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
-                                                encoding:[NSString defaultCStringEncoding]];
-    NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *jsonError;
-    NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
-                                          options:NSJSONReadingMutableContainers
-                                            error:&jsonError];
-    if (jsonError == nil) {
-        footstone::value::HippyValue value = OCTypeToDomValue(paramDict);
-        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
-        bridge.jscExecutor.pScope->LoadInstance(domValue);
-    }
+                                             encoding:[NSString defaultCStringEncoding]];
+    dispatch_async(HippyBridgeQueue(), ^{
+        VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+        NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *jsonError;
+        NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
+                                                                  options:NSJSONReadingMutableContainers
+                                                                    error:&jsonError];
+        if (jsonError == nil) {
+            footstone::value::HippyValue value = OCTypeToDomValue(paramDict);
+            std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
+            bridge.jscExecutor.pScope->LoadInstance(domValue);
+        }
+    });
 }
 
 void BridgeImpl::UnloadInstance(int64_t runtime_id, std::string&& params) {
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
                                              encoding:[NSString defaultCStringEncoding]];
-    NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *jsonError;
-    NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
-                                                              options:NSJSONReadingMutableContainers
-                                                                error:&jsonError];
-    if (jsonError == nil) {
-        footstone::value::HippyValue value = OCTypeToDomValue(paramDict);
-        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
-        bridge.jscExecutor.pScope->UnloadInstance(domValue);
-    }
+    
+    dispatch_async(HippyBridgeQueue(), ^{
+        VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+        NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *jsonError;
+        NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
+                                                                  options:NSJSONReadingMutableContainers
+                                                                    error:&jsonError];
+        if (jsonError == nil) {
+            footstone::value::HippyValue value = OCTypeToDomValue(paramDict);
+            std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
+            bridge.jscExecutor.pScope->UnloadInstance(domValue);
+        }
+    });
 }
 
 int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platform_runtime,
@@ -142,93 +171,74 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
     NSString *wsURL = U16ToNSString(char_ws_url);
     BOOL debugMode = is_dev_module ? YES : NO;
     int64_t bridge_id = (int64_t)bridge;
-    NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%lld", bridge_id];
-
-    std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
-    FOOTSTONE_DCHECK(dom_manager);
-    std::shared_ptr<footstone::TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
-    FOOTSTONE_DCHECK(dom_task_runner);
-    std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(dom_task_runner, nullptr);
-    [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
-
-    [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_manager wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
-        callback(succ ? 1 : 0);
-    }];
+    auto worker_sp = worker_manager;
+    
+    dispatch_async(HippyBridgeQueue(), ^{
+        NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%lld", bridge_id];
+        std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
+        FOOTSTONE_DCHECK(dom_manager);
+        std::shared_ptr<footstone::TaskRunner> dom_task_runner = dom_manager->GetTaskRunner();
+        FOOTSTONE_DCHECK(dom_task_runner);
+        std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(dom_task_runner, nullptr);
+        [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
+        
+        [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_sp wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
+            callback(succ ? 1 : 0);
+        }];
+    });
 
     return bridge_id;
 }
 
-bool BridgeImpl::RunScript(int64_t runtime_id,
-                           const char16_t *script,
-                           const char16_t *script_name,
-                           bool can_use_code_cache,
-                           const char16_t *code_cache_dir) {
-    if (script == nullptr || script_name == nullptr) {
-      return false;
+bool BridgeImpl::RunScriptFromUri(int64_t runtime_id,
+                                  uint32_t vfs_id,
+                                  bool can_use_code_cache,
+                                  bool is_local_file,
+                                  const char16_t *uri,
+                                  const char16_t *code_cache_dir_str,
+                                  std::function<void(int64_t)> callback) {
+    if (uri == nullptr) {
+        return false;
     }
+    auto uri_str = voltron::C16CharToString(uri);
+    dispatch_async(HippyBridgeQueue(), ^{
+        VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+        auto wrapper = voltron::VfsWrapper::GetWrapper(vfs_id);
+        FOOTSTONE_CHECK(wrapper != nullptr);
+        auto scope = bridge.jscExecutor.pScope;
+        FOOTSTONE_CHECK(scope != nullptr);
+        scope->SetUriLoader(wrapper->GetLoader());
 
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    NSData *data = [NSData dataWithBytes:script length:std::char_traits<char16_t>::length(script)];
-    NSString *scriptName = U16ToNSString(script_name);
-    [bridge executeScript:data url:[NSURL URLWithString:scriptName] completion:^(NSError * _Nonnull) {
-
-    }];
-    return true;
-}
-
-bool BridgeImpl::RunScriptFromFile(int64_t runtime_id,
-                                   const char16_t *file_path,
-                                   const char16_t *script_nmae,
-                                   const char16_t *code_cache_dir,
-                                   bool can_use_code_cache,
-                                   std::function<void(int64_t)> callback) {
-    if (file_path == nullptr) {
-      return false;
-    }
-
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    NSData *data = [NSData dataWithContentsOfFile:U16ToNSString(file_path)];
-    NSString *scriptName = [U16ToNSString(script_nmae) lastPathComponent];
-    [bridge executeScript:data url:[NSURL URLWithString:scriptName] completion:^(NSError * _Nonnull error) {
-        BOOL succ = (error == nil);
-        callback(succ ? 1 : 0);
-    }];
-    return true;
-}
-
-bool BridgeImpl::RunScriptFromAssets(int64_t runtime_id, bool can_use_code_cache, const char16_t *asset_name,
-                                     const char16_t *code_cache_dir, std::function<void(int64_t)> callback,
-                                     const char16_t *asset_content) {
-    if (asset_name == nullptr) {
-      return false;
-    }
-
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    NSString *assetName = U16ToNSString(asset_name);
-    NSString *bundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:assetName];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:bundlePath]) {
-#if TARGET_OS_IPHONE
-      bundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:[NSString stringWithFormat:@"Frameworks/App.framework/flutter_assets/%@", assetName]];
-#elif TARGET_OS_MAC
-      bundlePath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:[NSString stringWithFormat:@"Contents/Frameworks/App.framework/Resources/flutter_assets/%@", assetName]];
+#ifdef ENABLE_INSPECTOR
+        auto devtools_data_source = scope->GetDevtoolsDataSource();
+        if (devtools_data_source) {
+            auto network_notification = devtools_data_source->GetNotificationCenter()->network_notification;
+            auto devtools_handler = std::make_shared<hippy::devtools::DevtoolsHandler>();
+            devtools_handler->SetNetworkNotification(network_notification);
+            wrapper->GetLoader()->RegisterUriInterceptor(devtools_handler);
+        }
 #endif
 
-    }
-    NSData *data = [NSData dataWithContentsOfFile:bundlePath];
-    if (data) {
-        [bridge executeScript:data url:[NSURL URLWithString:[bundlePath lastPathComponent]] completion:^(NSError * _Nonnull error) {
+        auto loader = wrapper->GetLoader();
+        hippy::UriLoader::bytes content;
+        FOOTSTONE_CHECK(loader != nullptr);
+        hippy::UriLoader::RetCode code;
+        std::unordered_map<std::string, std::string> meta;
+        loader->RequestUntrustedContent(uri_str.data(), {}, code, meta, content);
+
+        NSData *data = [NSData dataWithBytes: content.c_str() length: content.size()];
+        NSString *scriptName = [CStringToNSString(uri_str) lastPathComponent];
+        [bridge executeScript:data url:[NSURL URLWithString:scriptName] completion:^(NSError * _Nonnull error) {
             BOOL succ = (error == nil);
             callback(succ ? 1 : 0);
         }];
-    }
+    });
     return true;
 }
 
 void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload) {
-
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
-    bridge.platformRuntime->Destroy();
     [getKeepContainer() removeObjectForKey:[NSString stringWithFormat:@"%lld", runtime_id]];
+    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
 #if ENABLE_INSPECTOR
     // destory devtools
     auto scope = bridge.jscExecutor.pScope;
@@ -245,22 +255,26 @@ void BridgeImpl::Destroy(int64_t runtime_id, std::function<void(int64_t)> callba
 void BridgeImpl::CallFunction(int64_t runtime_id, const char16_t* action, std::string params,
                               std::function<void(int64_t)> callback) {
     if (action == nullptr) {
-      return;
+        return;
     }
-
-    VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+    
+    
     NSString *actionName = U16ToNSString(action);
     NSString *paramsStr = [NSString stringWithCString:params.c_str()
-                                                encoding:[NSString defaultCStringEncoding]];
+                                             encoding:[NSString defaultCStringEncoding]];
     NSData *objectData = [paramsStr dataUsingEncoding:NSUTF8StringEncoding];
     NSError *jsonError;
     NSDictionary *paramDict = [NSJSONSerialization JSONObjectWithData:objectData
-                                          options:NSJSONReadingMutableContainers
-                                            error:&jsonError];
-    [bridge callFunctionOnAction:actionName arguments:paramDict callback:^(id result, NSError *error) {
-        BOOL succ = (error == nil);
-        callback(succ ? 1 : 0);
-    }];
+                                                              options:NSJSONReadingMutableContainers
+                                                                error:&jsonError];
+    
+    dispatch_async(HippyBridgeQueue(), ^{
+        VoltronFlutterBridge *bridge = (__bridge VoltronFlutterBridge *)((void *)runtime_id);
+        [bridge callFunctionOnAction:actionName arguments:paramDict callback:^(id result, NSError *error) {
+            BOOL succ = (error == nil);
+            callback(succ ? 1 : 0);
+        }];
+    });
 }
 
 std::shared_ptr<hippy::Scope> BridgeImpl::GetScope(int64_t runtime_id) {

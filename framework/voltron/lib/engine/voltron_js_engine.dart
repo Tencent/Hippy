@@ -35,14 +35,13 @@ class VoltronJSEngine
 
   // flutter的engine ID从100000开始
   static int sIdCounter = 100000;
+
   static bool _sHasInitBridge = false;
 
   final List<EngineListener> _eventListenerList = [];
-  final HashMap<int, RootWidgetViewModel> _rootWidgetViewModelMap = HashMap();
+
   final HashMap<int, ModuleLoadParams> _moduleLoadParamsMap = HashMap();
 
-  // late RootWidgetViewModel _rootWidgetViewModel;
-  // late ModuleLoadParams _moduleLoadParams;
   ModuleListener? _moduleListener;
   EngineState _currentState = EngineState.unInit;
 
@@ -80,9 +79,12 @@ class VoltronJSEngine
   // Hippy Server url using remote debug in no usb，only take effect in debugMode = true
   late String _remoteServerUrl;
 
-  bool _devManagerInited = false;
+  bool _devManagerInitFlag = false;
+
   bool _hasReportEngineLoadResult = false;
+
   late int _groupId;
+
   VoltronThirdPartyAdapter? _thirdPartyAdapter;
 
   late TimeMonitor _startTimeMonitor;
@@ -126,8 +128,8 @@ class VoltronJSEngine
       }
     }
 
-    CookieManager.getInstance().setCookieDelegate(params.cookieDelegateType,
-        originDelegate: params.originDelegate);
+    CookieManager.getInstance()
+        .setCookieDelegate(params.cookieDelegateType, originDelegate: params.originDelegate);
 
     var configs = GlobalConfigs(params);
     _globalConfigs = configs;
@@ -191,7 +193,7 @@ class VoltronJSEngine
         (_coreBundleLoader as HttpBundleLoader).setIsDebugMode(_debugMode);
       }
       LogUtils.d(_kTag, "start restartEngineInBackground...");
-      await _restartEngineInBackground();
+      await _restartEngineInBackground(false);
     } catch (e) {
       _currentState = EngineState.initError;
       if (e is Error) {
@@ -269,7 +271,7 @@ class VoltronJSEngine
     }
   }
 
-  Future<void> _restartEngineInBackground() async {
+  Future<void> _restartEngineInBackground(bool isReload) async {
     if (_currentState == EngineState.destroyed) {
       var errorMsg = "restartEngineInBackground... error STATUS_WRONG_STATE, state=$_currentState";
       LogUtils.e(_kTag, errorMsg);
@@ -283,7 +285,7 @@ class VoltronJSEngine
       _currentState = EngineState.onRestart;
     }
 
-    _engineContext?.destroy();
+    _engineContext?.destroy(isReload);
 
     _engineContext = EngineContext(
       _apiProviders,
@@ -298,6 +300,10 @@ class VoltronJSEngine
       _startTimeMonitor,
       _engineMonitor,
       _devSupportManager,
+      _engineContext?.renderContext.workerManagerId ?? -1,
+      _engineContext?.renderContext.renderBridgeManager,
+      _engineContext?.renderContext.domHolder,
+      _engineContext?.renderContext.rootViewModelMap,
     );
     await _engineContext!.bridgeManager.initBridge((param, e) {
       if (_currentState != EngineState.onInit && _currentState != EngineState.onRestart) {
@@ -311,8 +317,7 @@ class VoltronJSEngine
       _startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventNotifyEngineInited);
 
       if (_currentState == EngineState.onRestart) {
-        _rootWidgetViewModelMap.forEach((id, viewModel) {
-          viewModel.restart();
+        _engineContext!.renderContext.rootViewModelMap.forEach((id, viewModel) {
           _loadJSInstance(viewModel);
         });
       }
@@ -331,13 +336,9 @@ class VoltronJSEngine
 
   int get bridgeType => VoltronBridgeManager.kBridgeTypeNormal;
 
-  void resetEngine() {
-    _engineContext?.destroy();
-  }
-
   Future<dynamic> _loadJSInstance(RootWidgetViewModel rootWidgetViewModel) async {
     var loadContext = JSLoadInstanceContext(_moduleLoadParamsMap[rootWidgetViewModel.id]!);
-    _engineContext?.renderContext.createInstance(
+    _engineContext?.renderContext.createRootView(
       loadContext,
       rootWidgetViewModel,
     );
@@ -411,7 +412,7 @@ class VoltronJSEngine
     } else if (!isEmpty(loadParams.jsHttpPath)) {
       loadParams.jsParams!.push("sourcePath", loadParams.jsHttpPath);
     }
-    _rootWidgetViewModelMap[viewModel.id] = viewModel;
+    _engineContext!.renderContext.addRootViewModel(viewModel);
     _moduleLoadParamsMap[viewModel.id] = loadParams;
     _moduleListener = listener;
     _engineContext?.engineMonitor.initLoadParams(loadParams.jsParams!);
@@ -425,8 +426,8 @@ class VoltronJSEngine
     viewModel.onResumeAndPauseListener = this;
     viewModel.onSizeChangedListener = this;
     _devSupportManager.attachToHost(viewModel);
-    if (!_devManagerInited && _debugMode) {
-      _devManagerInited = true;
+    if (!_devManagerInitFlag && _debugMode) {
+      _devManagerInitFlag = true;
     }
     LogUtils.d(_kTag, "internalLoadInstance start...");
     if (_currentState == EngineState.inited) {
@@ -470,7 +471,7 @@ class VoltronJSEngine
     double oldWidth,
     double oldHeight,
   ) async {
-    await _engineContext?.renderContext.bridgeManager.updateNodeSize(
+    await _engineContext?.renderContext.renderBridgeManager.updateNodeSize(
       rootId,
       width: width,
       height: height,
@@ -479,10 +480,9 @@ class VoltronJSEngine
 
   void destroyEngine() {
     _currentState = EngineState.destroyed;
-
     _engineContext?.renderContext.forEachInstance(destroyInstance);
     _eventListenerList.clear();
-    resetEngine();
+    _engineContext?.destroy(false);
     _globalConfigs.destroy();
   }
 
@@ -499,7 +499,7 @@ class VoltronJSEngine
     listeners?.forEach((element) {
       element.onInstanceDestroy(rootWidget.id);
     });
-    engineContext?.renderContext.destroyInstance(id);
+    engineContext?.renderContext.destroyRootView(id, false);
     rootWidget.destroy();
   }
 
@@ -531,7 +531,7 @@ class VoltronJSEngine
   @override
   void onDevBundleReload() {
     _engineContext?.destroyBridge((res) {
-      _restartEngineInBackground();
+      _restartEngineInBackground(true);
     }, true);
   }
 }

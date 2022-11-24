@@ -63,7 +63,6 @@ mixin InstanceLifeCycleDelegate {
 mixin RenderExecutorDelegate {
   bool _isDestroyed = false;
   bool _isDispatchUiFrameEnqueued = false;
-  bool _layoutBeforeFlag = false;
 
   final List<IRenderExecutor> _uiTasks = [];
   final List<IRenderExecutor> _paddingNullUiTasks = [];
@@ -81,13 +80,6 @@ mixin RenderExecutorDelegate {
     _paddingNullUiTasks.clear();
 
     _isDispatchUiFrameEnqueued = false;
-  }
-
-  void doFrame(Duration timeStamp) {
-    if (!_isDestroyed) {
-      updatePage();
-      flushPendingBatches();
-    }
   }
 
   void updatePage() {
@@ -118,24 +110,7 @@ mixin RenderExecutorDelegate {
     }
   }
 
-  void postFrameCallback() {
-    WidgetsFlutterBinding.ensureInitialized();
-    if (_dispatchRunnable.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback(doFrame);
-      WidgetsBinding.instance.scheduleFrame();
-    }
-  }
-
-  void layoutBefore() {
-    _layoutBeforeFlag = true;
-    _batch();
-  }
-
   void renderBatchEnd() {
-    _batch();
-  }
-
-  void _batch() {
     for (final task in _uiTasks) {
       addDispatchTask(task);
     }
@@ -147,49 +122,33 @@ mixin RenderExecutorDelegate {
     _uiTasks.clear();
 
     if (_dispatchRunnable.isNotEmpty) {
-      postFrameCallback();
+      if (!_isDestroyed) {
+        updatePage();
+        executeUITask();
+      }
     }
   }
 
-  void notifyDom();
-
-  void flushPendingBatches() {
-    var iterator = _dispatchRunnable.iterator;
-    var shouldBatch = _dispatchRunnable.isNotEmpty;
-    var startTime = currentTimeMillis();
-    var deleteList = <IRenderExecutor>[];
-    while (iterator.moveNext()) {
-      var iRenderExecutor = iterator.current;
-      if (!_isDestroyed) {
-        try {
-          iRenderExecutor();
-        } catch (e) {
-          LogUtils.e(_kTag, "exec render executor error:$e");
-        }
+  void executeUITask() {
+    var start = DateTime.now().millisecondsSinceEpoch;
+    var size = _dispatchRunnable.length;
+    var count = 0;
+    while (count < size) {
+      var task = _dispatchRunnable[count];
+      try {
+        task();
+      } catch (e) {
+        LogUtils.e(_kTag, "exec render executor error:$e");
       }
-      deleteList.add(iRenderExecutor);
-      if (_isDispatchUiFrameEnqueued) {
-        if (currentTimeMillis() - startTime > 500) {
-          break;
-        }
-      }
+      count++;
     }
-
-    if (deleteList.isNotEmpty) {
-      deleteList.forEach(_dispatchRunnable.remove);
-    }
-
-    if (isPause) {
-      _isDispatchUiFrameEnqueued = false;
-    } else {
-      postFrameCallback();
-    }
-
-    if (shouldBatch) {
+    _dispatchRunnable.clear();
+    LogUtils.dRender(
+      "executeUITask: size: ${size}, time: ${(DateTime.now().millisecondsSinceEpoch - start)}ms",
+    );
+    if (size > 0) {
       doRenderBatch();
     }
-
-    notifyDom();
   }
 }
 
@@ -202,22 +161,23 @@ class RenderManager
     implements Destroyable, InstanceLifecycleEventListener, EngineLifecycleEventListener {
   final List<RenderNode> _uiUpdateNodes = [];
   final List<RenderNode> _nullUiUpdateNodes = [];
-  final List<int> _animationNodeIds = [];
   final Set<RenderNode> _updateRenderNodes = {};
 
   final ControllerManager _controllerManager;
-  final RenderContext context;
+  final RenderContext renderContext;
   final int _nativeRenderManagerId;
+
+  int get nativeRenderManagerId => _nativeRenderManagerId;
 
   ControllerManager get controllerManager => _controllerManager;
 
   RenderManager(
-    this.context,
+    this.renderContext,
     List<ViewControllerGenerator>? generators,
-  )   : _controllerManager = ControllerManager(context, generators),
-        _nativeRenderManagerId = context.bridgeManager.createNativeRenderManager() {
-    context.addEngineLifecycleEventListener(this);
-    context.addInstanceLifecycleEventListener(this);
+  )   : _controllerManager = ControllerManager(renderContext, generators),
+        _nativeRenderManagerId = renderContext.renderBridgeManager.createNativeRenderManager() {
+    renderContext.addEngineLifecycleEventListener(this);
+    renderContext.addInstanceLifecycleEventListener(this);
   }
 
   @override
@@ -226,13 +186,9 @@ class RenderManager
     createInstance(instanceId);
   }
 
-  int getNativeId() {
-    return _nativeRenderManagerId;
-  }
-
   @override
   void createRootNode(int instanceId) async {
-    var viewModel = context.getInstance(instanceId);
+    var viewModel = renderContext.getInstance(instanceId);
     if (viewModel != null) {
       controllerManager.createRootNode(instanceId);
       var executor = viewModel.executor;
@@ -305,16 +261,6 @@ class RenderManager
     }
   }
 
-  @override
-  void notifyDom() {
-    if (!_isDestroyed) {
-      _layoutBeforeFlag = false;
-      context.bridgeManager.notifyRender(_nativeRenderManagerId);
-    }
-  }
-
-  void layoutAfter() {}
-
   void updateRender() {
     LogUtils.d(_kTag, "update render size: ${_updateRenderNodes.length}");
     if (_updateRenderNodes.isNotEmpty) {
@@ -347,14 +293,6 @@ class RenderManager
       uiNode.updateLayout(x, y, w, h);
       addUpdateNodeIfNeeded(uiNode);
     }
-  }
-
-  int calculateLayout(int instanceId, int id, FlexLayoutParams layoutParams) {
-    var node = getNode(instanceId, id);
-    if (node != null) {
-      return node.calculateLayout(layoutParams);
-    }
-    return layoutParams.defaultOutput();
   }
 
   RenderNode? getNode(int? instanceId, int? nodeId) {
@@ -457,18 +395,6 @@ class RenderManager
     }
   }
 
-  void addAnimationNodeId(int id) {
-    if (!_animationNodeIds.contains(id)) {
-      _animationNodeIds.add(id);
-    }
-  }
-
-  void removeAnimationNodeId(int id) {
-    if (_animationNodeIds.contains(id)) {
-      _animationNodeIds.remove(id);
-    }
-  }
-
   void deleteNode(int instanceId, int id) {
     var uiNode = controllerManager.findNode(instanceId, id);
     if (uiNode != null) {
@@ -525,9 +451,10 @@ class RenderManager
   @override
   void destroy() {
     super.destroy();
+    renderContext.renderBridgeManager.destroyNativeRenderManager();
     controllerManager.destroy();
-    context.removeInstanceLifecycleEventListener(this);
-    context.removeEngineLifecycleEventListener(this);
+    renderContext.removeInstanceLifecycleEventListener(this);
+    renderContext.removeEngineLifecycleEventListener(this);
   }
 
   @override
@@ -553,6 +480,7 @@ class RenderManager
     }
 
     _uiUpdateNodes.clear();
+
     // measureInWindow and dispatch ui function
     for (var renderNode in _nullUiUpdateNodes) {
       renderNode.createViewModel();
@@ -568,23 +496,12 @@ class RenderManager
 
     _nullUiUpdateNodes.clear();
 
-    if (!_layoutBeforeFlag) {
-      updateRender();
-    }
-
-    for (final id in _animationNodeIds) {
-      context.bridgeManager.sendRootEvent(
-        id,
-        id,
-        RootNodeController.kDoFrame,
-        {},
-      );
-    }
+    updateRender();
   }
 
   @override
   void onInstanceDestroy(int instanceId) {
-    var viewModel = context.getInstance(instanceId);
+    var viewModel = renderContext.getInstance(instanceId);
     if (viewModel != null) {
       if (viewModel.executor != null) {
         _pageUpdateTasks.remove(viewModel.executor);

@@ -20,5 +20,6 @@
 
 library bridge;
 
+export 'bridge/bridge_define.dart';
 export 'bridge/voltron_api.dart';
 export 'bridge/voltron_bridge.dart';

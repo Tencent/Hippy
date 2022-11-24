@@ -16,15 +16,34 @@
 
 package com.tencent.mtt.hippy.modules.nativemodules.network;
 
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpRequest.HTTP_HEADERS;
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpRequest.HTTP_HEADERS_SEPARATOR;
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpRequest.HTTP_URL;
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpResponse.HTTP_RESPONSE_RESPONSE_MESSAGE;
+import static com.tencent.mtt.hippy.adapter.http.HippyHttpResponse.HTTP_RESPONSE_STATUS_CODE;
+
+import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.adapter.http.HippyHttpAdapter;
 import com.tencent.mtt.hippy.annotation.HippyMethod;
 import com.tencent.mtt.hippy.annotation.HippyNativeModule;
+import com.tencent.mtt.hippy.common.HippyArray;
 import com.tencent.mtt.hippy.common.HippyMap;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.nativemodules.HippyNativeModuleBase;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
+import com.tencent.vfs.ResourceDataHolder;
+import com.tencent.vfs.ResourceDataHolder.TransferType;
+import com.tencent.vfs.VfsManager;
+import com.tencent.vfs.VfsManager.FetchResourceCallback;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
-@SuppressWarnings({"deprecation", "unused"})
 @HippyNativeModule(name = "network")
 public class NetworkModule extends HippyNativeModuleBase {
 
@@ -34,12 +53,134 @@ public class NetworkModule extends HippyNativeModuleBase {
         super(context);
     }
 
+    @SuppressWarnings("deprecation")
+    private void normalizeRequestHeaders(@NonNull HippyMap headers,
+            @NonNull HashMap<String, String> requestHeaders) {
+        Set<Entry<String, Object>> entrySet = headers.entrySet();
+        for (Entry<String, Object> entry : entrySet) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (key == null || value == null) {
+                continue;
+            }
+            if (value instanceof String) {
+                requestHeaders.put(key, value.toString());
+            } else if (value instanceof HippyArray) {
+                HippyArray header = (HippyArray) value;
+                if (header.size() == 1) {
+                    requestHeaders.put(key, header.get(0).toString());
+                } else if (header.size() > 1) {
+                    List<Object> listObject = header.getInternalArray();
+                    List<String> listString = new ArrayList<>();
+                    for (Object obj : listObject) {
+                        listString.add(obj.toString());
+                    }
+                    requestHeaders.put(key, String.join(HTTP_HEADERS_SEPARATOR, listString));
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void normalizeRequest(@NonNull HippyMap request,
+            @NonNull HashMap<String, String> requestHeaders,
+            @NonNull HashMap<String, String> requestParams) throws IllegalStateException {
+        Set<Entry<String, Object>> entrySet = request.entrySet();
+        if (entrySet == null) {
+            throw new IllegalStateException("Init request is empty!");
+        }
+        for (Entry<String, Object> entry : entrySet) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (key == null || value == null) {
+                continue;
+            }
+            if (key.equals(HTTP_HEADERS) && value instanceof HippyMap) {
+                normalizeRequestHeaders((HippyMap) value, requestHeaders);
+                continue;
+            }
+            requestParams.put(key, value.toString());
+        }
+    }
+
+    private void handleFetchResponse(@NonNull ResourceDataHolder dataHolder, Promise promise)
+            throws IllegalStateException {
+        JSObject responseObject = new JSObject();
+        int statusCode = 0;
+        String responseMessage = "";
+        JSObject headerObject = new JSObject();
+        if (dataHolder.responseHeaders != null) {
+            try {
+                statusCode = Integer.parseInt(
+                        dataHolder.responseHeaders.get(HTTP_RESPONSE_STATUS_CODE));
+            } catch (NumberFormatException e) {
+                throw new IllegalStateException(e.getMessage());
+            }
+            responseMessage = dataHolder.responseHeaders.get(HTTP_RESPONSE_RESPONSE_MESSAGE);
+            for (Entry<String, String> entry : dataHolder.responseHeaders.entrySet()) {
+                String key = entry.getKey();
+                Object value = entry.getValue();
+                if (key == null || value == null) {
+                    continue;
+                }
+                headerObject.set(key, value);
+            }
+        }
+        responseObject.set(HTTP_RESPONSE_STATUS_CODE, statusCode);
+        responseObject.set("statusLine", responseMessage);
+        responseObject.set("respHeaders", headerObject);
+        String body = "";
+        try {
+            if (dataHolder.transferType == TransferType.NORMAL && dataHolder.bytes != null) {
+                body = new String(dataHolder.bytes, StandardCharsets.UTF_8);
+            } else if (dataHolder.buffer != null) {
+                dataHolder.buffer.flip();
+                byte[] bytes = new byte[dataHolder.buffer.remaining()];
+                dataHolder.buffer.get(bytes);
+                body = new String(bytes, StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage());
+        }
+        responseObject.set("respBody", body);
+        promise.resolve(responseObject);
+    }
+
+    @SuppressWarnings("deprecation")
     @HippyMethod(name = "fetch")
     public void fetch(final HippyMap request, final Promise promise) {
-        HippyHttpAdapter adapter = mContext.getGlobalConfigs().getHttpAdapter();
-        if (adapter != null) {
-            adapter.fetch(request, promise, mContext.getNativeParams());
+        VfsManager vfsManager = mContext.getVfsManager();
+        HashMap<String, String> requestHeaders = new HashMap<>();
+        HashMap<String, String> requestParams = new HashMap<>();
+        try {
+            normalizeRequest(request, requestHeaders, requestParams);
+        } catch (Exception e) {
+            promise.resolve(e.getMessage());
+            return;
         }
+        final String uri = requestParams.get(HTTP_URL);
+        if (TextUtils.isEmpty(uri)) {
+            promise.resolve("Get url parameter failed!");
+            return;
+        }
+        vfsManager.fetchResourceAsync(uri, requestHeaders, requestParams,
+                new FetchResourceCallback() {
+                    @Override
+                    public void onFetchCompleted(@NonNull ResourceDataHolder dataHolder) {
+                        if (dataHolder.resultCode
+                                == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE) {
+                            try {
+                                handleFetchResponse(dataHolder, promise);
+                            } catch (IllegalStateException e) {
+                                promise.resolve(
+                                        "Handle response failed: " + dataHolder.errorMessage);
+                            }
+                        } else {
+                            promise.resolve(
+                                    "Load remote resource failed: " + dataHolder.errorMessage);
+                        }
+                    }
+                });
     }
 
     @HippyMethod(name = "getCookie")

@@ -65,6 +65,6 @@ class NativePromise extends Promise {
     if (!isCallback()) {
       return;
     }
-    _context.bridgeManager.callNativeFunction(_callId, value ?? 'unknown');
+    _context.renderBridgeManager.callNativeFunction(_callId, value ?? 'unknown');
   }
 }

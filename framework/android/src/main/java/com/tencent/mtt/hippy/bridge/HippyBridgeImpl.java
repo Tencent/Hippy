@@ -16,6 +16,7 @@
 
 package com.tencent.mtt.hippy.bridge;
 
+import androidx.annotation.NonNull;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.V8InitParams;
 import com.tencent.mtt.hippy.HippyEngineContext;
@@ -23,6 +24,9 @@ import com.tencent.mtt.hippy.devsupport.DevServerCallBack;
 import com.tencent.mtt.hippy.devsupport.DevSupportManager;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 
+import com.tencent.vfs.ResourceDataHolder;
+import com.tencent.vfs.VfsManager;
+import com.tencent.vfs.VfsManager.FetchResourceCallback;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -40,13 +44,16 @@ import com.tencent.mtt.hippy.utils.FileUtils;
 import com.tencent.mtt.hippy.utils.LogUtils;
 
 import java.nio.ByteOrder;
+import java.util.HashMap;
 
 @SuppressWarnings({"unused", "JavaJniMissingFunction"})
 public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnReceiveDataListener {
+
     private static final String TAG = "HippyBridgeImpl";
     private static final Object sBridgeSyncLock;
     private static final String DEFAULT_LOCAL_HOST = "localhost:38989";
     private static final String DEBUG_WEBSOCKET_URL = "ws://%s/debugger-proxy?role=android_client&clientId=%s";
+
     static {
         sBridgeSyncLock = new Object();
     }
@@ -100,7 +107,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
     private void initJSEngine(int groupId) {
         synchronized (HippyBridgeImpl.class) {
             try {
-                String localCachePath = mContext.getGlobalConfigs().getContext().getCacheDir().getAbsolutePath();
+                String localCachePath = mContext.getGlobalConfigs().getContext().getCacheDir()
+                        .getAbsolutePath();
                 byte[] globalConfig = mDebugGlobalConfig.getBytes(StandardCharsets.UTF_16LE);
                 mV8RuntimeId = initJSFramework(
                         globalConfig,
@@ -150,7 +158,7 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             }
 
             return runScriptFromUri(uri, assetManager, canUseCodeCache, codeCacheDir, mV8RuntimeId,
-              mContext.getVfsId(), callback);
+                    mContext.getVfsId(), callback);
         } else {
             boolean ret = false;
             LogUtils.d("HippyEngineMonitor", "runScriptFromAssets codeCacheTag is null");
@@ -285,7 +293,8 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
             boolean canUseCodeCache, String codeCacheDir, long V8RuntimeId, int vfsId,
             NativeCallback callback);
 
-    public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload, NativeCallback callback);
+    public native void destroy(long runtimeId, boolean useLowMemoryMode, boolean isReload,
+            NativeCallback callback);
 
     public native void callFunction(String action, long V8RuntimeId, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
@@ -329,50 +338,35 @@ public class HippyBridgeImpl implements HippyBridge, DevRemoteDebugProxy.OnRecei
 
     @SuppressWarnings("unused")
     public void fetchResourceWithUri(final String uri, final long resId) {
+        if (TextUtils.isEmpty(uri) || !isWebUrl(uri)) {
+            return;
+        }
         UIThreadUtils.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                DevSupportManager devManager = mContext.getDevSupportManager();
-                if (TextUtils.isEmpty(uri) || !isWebUrl(uri) || devManager == null) {
-                    LogUtils.e("HippyBridgeImpl",
-                            "fetchResourceWithUri: can not call loadRemoteResource with " + uri);
-                    return;
-                }
-
-                devManager.loadRemoteResource(uri, new DevServerCallBack() {
-                    @Override
-                    public void onDevBundleReLoad() {
-                    }
-
-                    @Override
-                    public void onDevBundleLoadReady(InputStream inputStream) {
-                        try {
-                            ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-                            byte[] b = new byte[2048];
-                            int size;
-                            while ((size = inputStream.read(b)) > 0) {
-                                output.write(b, 0, size);
+                mContext.getVfsManager().fetchResourceAsync(uri, null, null,
+                        new FetchResourceCallback() {
+                            @Override
+                            public void onFetchCompleted(@NonNull ResourceDataHolder holder) {
+                                DevSupportManager devManager = mContext.getDevSupportManager();
+                                if (holder.resultCode
+                                        == ResourceDataHolder.RESOURCE_LOAD_SUCCESS_CODE
+                                        && holder.bytes != null) {
+                                    final ByteBuffer buffer = ByteBuffer.allocateDirect(
+                                            holder.bytes.length);
+                                    buffer.put(holder.bytes);
+                                    onResourceReady(buffer, mV8RuntimeId, resId);
+                                    if (devManager != null) {
+                                        devManager.onLoadResourceSucceeded();
+                                    }
+                                } else {
+                                    onResourceReady(null, mV8RuntimeId, resId);
+                                    if (devManager != null) {
+                                        devManager.onLoadResourceFailed(uri, holder.errorMessage);
+                                    }
+                                }
                             }
-
-                            byte[] resBytes = output.toByteArray();
-                            final ByteBuffer buffer = ByteBuffer.allocateDirect(resBytes.length);
-                            buffer.put(resBytes);
-                            onResourceReady(buffer, mV8RuntimeId, resId);
-                        } catch (Throwable e) {
-                            if (mBridgeCallback != null) {
-                                mBridgeCallback.reportException(e);
-                            }
-                            onResourceReady(null, mV8RuntimeId, resId);
-                        }
-                    }
-
-                    @Override
-                    public void onInitDevError(Throwable e) {
-                        LogUtils.e("hippy", "requireSubResource: " + e.getMessage());
-                        onResourceReady(null, mV8RuntimeId, resId);
-                    }
-                });
+                        });
             }
         });
     }

@@ -57,6 +57,7 @@ import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.adapter.thirdparty.HippyThirdPartyAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -353,7 +354,7 @@ public abstract class HippyEngine {
     // 可选参数 传递给前端的rootview：比如：Hippy.entryPage: class App extends Component
     public HippyMap jsParams;
     // 可选参数 目前只有一个用处：映射："CustomViewCreator" <==> 宿主自定义的一个HippyCustomViewCreator(这个creator还得通过ModuleParams.Builder.setCustomViewCreator来指定才行)
-    public Map nativeParams;
+    public HashMap<String, Object> nativeParams;
     // 可选参数 Bundle加载器，老式用法，不建议使用（若一定要使用，则会覆盖jsAssetsPath，jsFilePath的值）。参见jsAssetsPath，jsFilePath
     // 可选参数 code cache的名字，如果设置为空，则不启用code cache，默认为 ""
     public String codeCacheTag = "";

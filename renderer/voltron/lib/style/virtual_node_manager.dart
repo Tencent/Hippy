@@ -18,12 +18,9 @@
 // limitations under the License.
 //
 
-import 'package:voltron_renderer/common.dart';
-import 'package:voltron_renderer/gesture.dart';
-import 'package:voltron_renderer/render.dart';
-import 'package:voltron_renderer/style.dart';
+import 'package:flutter/material.dart';
 
-import '../controller/text.dart';
+import '../voltron_renderer.dart';
 
 abstract class VirtualNode with StyleMethodPropConsumer {
   final int rootId;
@@ -278,5 +275,39 @@ class VirtualNodeManager {
       return;
     }
     node.updateEvent(EventHolder(eventName, isAdd: false));
+  }
+
+  int measure(int instanceId, int nodeId, FlexLayoutParams layoutParams) {
+    TextPainter? painter;
+    var exception = false;
+
+    var virtualNode = mVirtualNodes[nodeId];
+    if (virtualNode is TextVirtualNode) {
+      try {
+        painter = virtualNode.createPainter(
+          layoutParams.width,
+          layoutParams.widthMode,
+        );
+      } catch (e) {
+        LogUtils.dRenderNode('ID:$nodeId, calculate layout error, error:${e.toString()}');
+        exception = true;
+      }
+    }
+
+    if (exception || painter == null) {
+      return FlexOutput.makeMeasureResult(
+        layoutParams.width,
+        layoutParams.height,
+      );
+    } else {
+      LogUtils.dRenderNode(
+        'ID:$nodeId, calculate layout success, width:${painter.width}, height:${painter.height}',
+      );
+      return FlexOutput.makeMeasureResult(painter.width, painter.height);
+    }
+  }
+
+  void destroy() {
+    ///
   }
 }

@@ -142,7 +142,7 @@ class ImageVirtualNode extends VirtualNode {
     String type,
     VoltronMap params,
   ) {
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       type,

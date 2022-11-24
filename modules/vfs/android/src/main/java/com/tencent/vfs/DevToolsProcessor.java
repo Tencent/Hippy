@@ -54,7 +54,6 @@ public class DevToolsProcessor extends Processor {
 
     private void onNetworkRequest(ResourceDataHolder holder) {
         if (holder.requestFrom == RequestFrom.NATIVE) {
-            // native 的 request 由 native 的 DevToolsProcessor 处理
             return;
         }
         holder.requestId = String.valueOf(System.currentTimeMillis());
@@ -63,7 +62,6 @@ public class DevToolsProcessor extends Processor {
 
     private void onNetworkResponse(ResourceDataHolder holder) {
         if (holder.requestFrom == RequestFrom.NATIVE) {
-            // native 的 response 由 native 的 DevToolsProcessor 处理
             return;
         }
         onNetworkResponse(mRuntimeId, holder.requestId, holder);

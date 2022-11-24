@@ -31,10 +31,13 @@ static jfieldID j_holder_uri_field_id;
 static jfieldID j_holder_buffer_field_id;
 static jfieldID j_holder_bytes_field_id;
 static jfieldID j_holder_req_header_field_id;
+static jfieldID j_holder_req_param_field_id;
 static jfieldID j_holder_rsp_header_field_id;
 static jfieldID j_holder_transfer_type_field_id;
 static jfieldID j_holder_ret_code_field_id;
 static jfieldID j_holder_native_id_field_id;
+static jfieldID j_holder_error_message_field_id;
+static jfieldID j_holder_processor_tag_field_id;
 
 static jclass j_util_map_clazz;
 static jmethodID j_map_init_method_id;
@@ -70,9 +73,10 @@ std::shared_ptr<ResourceHolder> ResourceHolder::Create(jobject j_holder) {
 std::shared_ptr<ResourceHolder> ResourceHolder::CreateNewHolder(jobject j_holder) {
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   auto j_uri = reinterpret_cast<jstring>(j_env->GetObjectField(j_holder, j_holder_uri_field_id));
-  auto j_req_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
+  auto j_headers_map = j_env->GetObjectField(j_holder, j_holder_req_header_field_id);
+  auto j_params_map = j_env->GetObjectField(j_holder, j_holder_req_param_field_id);
   auto j_new_holder = j_env->NewObject(j_resource_data_holder_clazz, j_resource_data_holder_init_method_id,
-                                       j_uri, j_req_map, j_request_from_native_value);
+                                       j_uri, j_headers_map, j_params_map, j_request_from_native_value);
   return ResourceHolder::Create(j_new_holder);
 }
 
@@ -84,16 +88,20 @@ bool ResourceHolder::Init() {
   j_resource_data_holder_init_method_id =
       j_env->GetMethodID(j_resource_data_holder_clazz,
                          "<init>",
-                         "(Ljava/lang/String;Ljava/util/HashMap;Lcom/tencent/vfs/ResourceDataHolder$RequestFrom;)V");
+                         "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;Lcom/tencent/vfs/ResourceDataHolder$RequestFrom;)V");
   j_holder_uri_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "uri", "Ljava/lang/String;");
   j_holder_buffer_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "buffer", "Ljava/nio/ByteBuffer;");
   j_holder_bytes_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "bytes", "[B");
   j_holder_transfer_type_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "transferType",
                                                       "Lcom/tencent/vfs/ResourceDataHolder$TransferType;");
-  j_holder_req_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestHeader", "Ljava/util/HashMap;");
-  j_holder_rsp_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "responseHeader", "Ljava/util/HashMap;");
+  j_holder_req_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestHeaders", "Ljava/util/HashMap;");
+  j_holder_req_param_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "requestParams", "Ljava/util/HashMap;");
+  j_holder_rsp_header_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "responseHeaders", "Ljava/util/HashMap;");
   j_holder_ret_code_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "resultCode", "I");
   j_holder_native_id_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "nativeId", "I");
+  j_holder_error_message_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "errorMessage", "Ljava/lang/String;");
+  j_holder_processor_tag_field_id = j_env->GetFieldID(j_resource_data_holder_clazz, "processorTag", "Ljava/lang/String;");
+
   auto j_request_from_clazz = reinterpret_cast<jclass>(
       j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/ResourceDataHolder$RequestFrom")));
   auto j_request_from_native_field_id = j_env->GetStaticFieldID(j_request_from_clazz, "NATIVE",
@@ -165,55 +173,8 @@ ResourceHolder::~ResourceHolder() {
   }
 }
 
-enum class FetchResultCode {
-  OK,
-  ERR_OPEN_LOCAL_FILE,
-  ERR_UNKNOWN_SCHEME,
-  ERR_REMOTE_REQUEST_FAILED
-};
-
 UriHandler::RetCode CovertToUriHandlerRetCode(jint code) {
-  switch (static_cast<int>(code)) {
-    case static_cast<int>(FetchResultCode::OK): {
-      return UriHandler::RetCode::Success;
-    }
-    case static_cast<int>(FetchResultCode::ERR_OPEN_LOCAL_FILE): {
-      return UriHandler::RetCode::Failed;
-    }
-    case static_cast<int>(FetchResultCode::ERR_UNKNOWN_SCHEME): {
-      return UriHandler::RetCode::SchemeError;
-    }
-    case static_cast<int>(FetchResultCode::ERR_REMOTE_REQUEST_FAILED): {
-      return UriHandler::RetCode::Failed;
-    }
-    default: {
-      FOOTSTONE_UNREACHABLE();
-    }
-  }
-}
-
-FetchResultCode CovertToFetchResultCode(UriHandler::RetCode code) {
-  switch (code) {
-    case UriHandler::RetCode::Success: {
-      return FetchResultCode::OK;
-    }
-    case UriHandler::RetCode::SchemeError:
-    case UriHandler::RetCode::SchemeNotRegister: {
-      return FetchResultCode::ERR_UNKNOWN_SCHEME;
-    }
-    case UriHandler::RetCode::DelegateError:
-    case UriHandler::RetCode::PathError:
-    case UriHandler::RetCode::PathNotMatch:
-    case UriHandler::RetCode::ResourceNotFound:
-    case UriHandler::RetCode::Timeout:
-    case UriHandler::RetCode::UriError:
-    case UriHandler::RetCode::Failed: {
-      return FetchResultCode::ERR_REMOTE_REQUEST_FAILED;
-    }
-    default: {
-      FOOTSTONE_UNREACHABLE();
-    }
-  }
+  return (code == 0) ? UriHandler::RetCode::Success : UriHandler::RetCode::Failed;
 }
 
 std::unordered_map<std::string, std::string> JavaMapToUnorderedMap(JNIEnv* j_env, jobject j_map) {
@@ -282,7 +243,7 @@ RetCode ResourceHolder::GetCode(JNIEnv* j_env) {
 
 void ResourceHolder::SetCode(JNIEnv* j_env, RetCode code) {
   FOOTSTONE_DCHECK(j_holder_);
-  j_env->SetIntField(j_holder_, j_holder_ret_code_field_id, static_cast<jint>(CovertToFetchResultCode(code)));
+  j_env->SetIntField(j_holder_, j_holder_ret_code_field_id, static_cast<jint>(code));
 }
 
 std::unordered_map<std::string, std::string> ResourceHolder::GetReqMeta(JNIEnv* j_env) {

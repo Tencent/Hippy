@@ -194,14 +194,14 @@ class ModalRenderViewModel extends GroupViewModel
         transitionBuilder: (context, anim1, anim2, child) {
           return _animation(
             aniType: animationType,
-            child: _dialogRoot(
-              child: ModalContainerWidget(this),
-            ),
+            child: child,
             animation: anim1,
           );
         },
         pageBuilder: (context, animation, secondaryAnimation) {
-          return Container();
+          return _dialogRoot(
+            child: ModalContainerWidget(this),
+          );
         },
       ).then((value) {
         isShowDialog = false;
@@ -239,7 +239,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void onRequestClose() {
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       "requestClose",
@@ -248,7 +248,7 @@ class ModalRenderViewModel extends GroupViewModel
   }
 
   void onShow() {
-    context.bridgeManager.sendComponentEvent(
+    context.renderBridgeManager.sendComponentEvent(
       rootId,
       id,
       "show",
@@ -380,6 +380,7 @@ class ModalRenderViewModel extends GroupViewModel
     LogUtils.dWidget("ID:$id, node:$idDesc, fire modal dismiss");
     var buildContext = context.getInstance(rootId)?.rootKey.currentContext;
     if (isShowDialog && buildContext != null) {
+      isShowDialog = false;
       removeFrameCallback();
       Navigator.of(buildContext).pop();
     }

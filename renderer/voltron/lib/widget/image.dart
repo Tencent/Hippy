@@ -198,6 +198,6 @@ class ImageEventDispatcher {
   }
 
   void _handleEvent(String type, VoltronMap params) {
-    _context.bridgeManager.sendComponentEvent(_rootId, _id, type, params);
+    _context.renderBridgeManager.sendComponentEvent(_rootId, _id, type, params);
   }
 }

@@ -18,8 +18,8 @@ It should note is that an animation itself is a View, it will drive all the chil
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| playing        | Controls whether the animation plays | boolean                                | `Android、iOS、Web-Renderer`    |
-| actions*        | Animation scheme, it is actually a style value followed by its animation scheme, please refer to the example for details. | Object                                | `Android、iOS、Web-Renderer`    |
+| playing        | Controls whether the animation plays | boolean                                | `Android、iOS、Web-Renderer、Voltron`    |
+| actions*        | Animation scheme, it is actually a style value followed by its animation scheme, please refer to the example for details. | Object                                | `Android、iOS、Web-Renderer、Voltron`    |
 
 * actions detailed explanation
   
@@ -156,19 +156,19 @@ Used for modal pop-up window, the default background is transparent, needs to ad
 
 | Props          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| animationType         | Animation effects                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS、Web-Renderer`    |
+| animationType         | Animation effects                                                            | `enum(none, slide, fade, slide_fade)` | `Android、iOS、Web-Renderer、Voltron`    |
 | supportedOrientations | Supports screen orientation reversal                            | `enum(portrait, portrait-upside-down, landscape, landscape-left, landscape-right)[]` | `iOS`    |
-| immersionStatusBar    | Whether it is an immersive status bar. `default: true`                                         | `boolean`                                                    | `Android`    |
-| darkStatusBarText     | Whether main body text is bright color, the default font color is black. The Modal background will be dark after changing it to true, the font color will be changed to white. | `boolean`                                                    | `Android、iOS`    |
-| transparent | Whether the background is transparent. `default: true` | `boolean`                                                    | `Android、iOS、Web-Renderer`    |
+| immersionStatusBar    | Whether it is an immersive status bar. `default: true`                                         | `boolean`                                                    | `Android、Voltron`    |
+| darkStatusBarText     | Whether main body text is bright color, the default font color is black. The Modal background will be dark after changing it to true, the font color will be changed to white. | `boolean`                                                    | `Android、iOS、Voltron`    |
+| transparent | Whether the background is transparent. `default: true` | `boolean`                                                    | `Android、iOS、Web-Renderer、Voltron`    |
 
 ## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| show                | This callback function is called when `Modal` is displayed.                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| show                | This callback function is called when `Modal` is displayed.                            | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 | orientationChange   | Screen rotation direction changes                                           | `Function`                                                   | `Android、iOS`    |
-| requestClose        | Called when the `Modal` requires to close, generally called in the Android system hardware when the return button is triggered, generally to close the popup window inside processing. | `Function`                                                   | `Android`    |
+| requestClose        | Called when the `Modal` requires to close, generally called in the Android system hardware when the return button is triggered, generally to close the popup window inside processing. | `Function`                                                   | `Android、Voltron`    |
 
 ---
 
@@ -182,20 +182,20 @@ A container that supports paging, its each child container component will be reg
 
 | Props                     | Description                                                         | Type                                         | Supported Platforms |
 | ------------------------ | ------------------------------------------------------------ | -------------------------------------------- | -------- |
-| bounces | Whether to open the springback effect, the default is `true` | `boolean`                                                  | `iOS`    |
-| current              | Change the current page number in real time | `number`                                     | `Android、iOS、Web-Renderer`    |
-| initialPage              | Specify a number, it will be used to determine the default display page index after initialization, the default is 0 when it is not specified | `number`                                     | `Android、iOS、Web-Renderer`    |
-| needAnimation            | Whether animation is required when switching pages.                    | `boolean`                                    | `Android、iOS`    |
-| scrollEnabled            | Specify whether ViewPager can slide, the default is true                        | `boolean`                                    | `Android、iOS、Web-Renderer`    |
-| direction            | Set viewPager scroll direction, the default is horizontal scroll, use `vertical` for vertical scroll                       | `string`                                    | `Android`    |
+| bounces | Whether to open the springback effect, the default is `true` | `boolean`                                                  | `iOS、Voltron`    |
+| current              | Change the current page number in real time | `number`                                     | `Android、iOS、Web-Renderer、Voltron`    |
+| initialPage              | Specify a number, it will be used to determine the default display page index after initialization, the default is 0 when it is not specified | `number`                                     | `Android、iOS、Web-Renderer、Voltron`    |
+| needAnimation            | Whether animation is required when switching pages.                    | `boolean`                                    | `Android、iOS、Voltron`    |
+| scrollEnabled            | Specify whether ViewPager can slide, the default is true                        | `boolean`                                    | `Android、iOS、Web-Renderer、Voltron`    |
+| direction            | Set viewPager scroll direction, the default is horizontal scroll, use `vertical` for vertical scroll                       | `string`                                    | `Android、Voltron`    |
 
 ## Events
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| dragging                | Called when dragged.                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| dropped   | Called when the drag is done. Called when a scrolling page action is detected.                                            | `Function`                                                   | `Android、iOS、Web-Renderer`    |
-| stateChanged*   | Called when finger behavior changes, including idle, dragging and settling states, returned through state parameter                       | `Function`                                                   | `Android、iOS、Web-Renderer`    |
+| dragging                | Called when dragged.                            | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| dropped   | Called when the drag is done. Called when a scrolling page action is detected.                                            | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
+| stateChanged*   | Called when finger behavior changes, including idle, dragging and settling states, returned through state parameter                       | `Function`                                                   | `Android、iOS、Web-Renderer、Voltron`    |
 
 * stateChanged The meaning of the three values:
   * idle idle state
@@ -222,9 +222,9 @@ Dropdown refresh component, nested in `ul` as first child element
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset            | `Function`                                                   | `Android、iOS`    |
-| pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset                                         | `Function`   | `Android、iOS`    |
-| released   | Called once after the sliding beyond the distance.         | `Function`   | `Android、iOS`    |
+| idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset            | `Function`                                                   | `Android、iOS、Voltron`    |
+| pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset                                         | `Function`   | `Android、iOS、Voltron`    |
+| released   | Called once after the sliding beyond the distance.         | `Function`   | `Android、iOS、Voltron`    |
 
 ## Methods
 
@@ -248,9 +248,9 @@ Pull-up refresh component, nested in `ul` as last child element
 
 | Event name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset                           | `Function`                                                   | `Android、iOS`    |
-| pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset     | `Function`   | `Android、iOS`    |
-| refresh   | Called once after the sliding beyond the distance.          | `Function`   | `Android、iOS`    |
+| idle                | Called once when the sliding distance is in the pull-header area. The parameter is contentOffset                           | `Function`                                                   | `Android、iOS、Voltron`    |
+| pulling   | Called once after the sliding distance exceeds pull-header area. The parameter is contentOffset     | `Function`   | `Android、iOS、Voltron`    |
+| refresh   | Called once after the sliding beyond the distance.          | `Function`   | `Android、iOS、Voltron`    |
 
 
 ## Methods
@@ -273,21 +273,21 @@ Waterfall flow component, the child element must be `waterfall-item`, waterfall 
 
 | Props              | Description                                                  | Type       | Supported Platforms |
 | ----------------- | ----------------------------------------------------- | ---------- | -------- |
-| columnSpacing     | Horizontal spacing before each column of waterfall                                      | `number`   | `Android、iOS`    |
-| interItemSpacing  | Vertical space between items                                        | `number`   | `Android、iOS`    |
-| contentInset      | Content indentation, default `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`    |
-| containBannerView | Whether to include `bannerView`, there can be only one bannerView, `Android` is not supported  | `boolean`  | `iOS`    |
-| containPullHeader | Whether to include `pull-header`; `Android` is not supported, can use `ul-refresh` component instead  | `boolean`  | `iOS`    |
-| containPullFooter | Whether to include `pull-footer` | `boolean`  | `Android、iOS` |
-| numberOfColumns   | Number of waterfall columns, Default: 2                                               | `number`   | `Android、iOS`    |
-| preloadItemNumber | Number of items preloaded in advance before sliding to the bottom of waterfall       | `number`   | `Android、iOS`    |
+| columnSpacing     | Horizontal spacing before each column of waterfall                                      | `number`   | `Android、iOS、Voltron`    |
+| interItemSpacing  | Vertical space between items                                        | `number`   | `Android、iOS、Voltron`    |
+| contentInset      | Content indentation, default `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS、Voltron`    |
+| containBannerView | Whether to include `bannerView`, there can be only one bannerView, `Android` is not supported  | `boolean`  | `iOS、Voltron`    |
+| containPullHeader | Whether to include `pull-header`; `Android` is not supported, can use `ul-refresh` component instead  | `boolean`  | `iOS、Voltron`    |
+| containPullFooter | Whether to include `pull-footer` | `boolean`  | `Android、iOS、Voltron` |
+| numberOfColumns   | Number of waterfall columns, Default: 2                                               | `number`   | `Android、iOS、Voltron`    |
+| preloadItemNumber | Number of items preloaded in advance before sliding to the bottom of waterfall       | `number`   | `Android、iOS、Voltron`    |
 
 ## Events
 
 | Event name              | Description           | `type`     | Supported Platforms |
 | --------------------- | -------------- | ---------- | -------- |
-| endReached      | When all the data has been rendered, and the list is scrolled to the last one, `onEndReached` will be called.            | `Function` | `Android、iOS`    |
-| scroll          | Called when the sliding event of `WaterFall` is called. `startEdgePos` is that scroll offset from the top edge of the List; `endEdgePos` is the scroll offset from the bottom edge of the List; `firstVisibleRowIndex` is the index of the first element in the currently visible area; `lastVisibleRowIndex` is the index of the last element in the currently visible area; `visibleRowFrames` is the information (x, y, width, height) of all items in the currently visible area    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS`    |
+| endReached      | When all the data has been rendered, and the list is scrolled to the last one, `onEndReached` will be called.            | `Function` | `Android、iOS、Voltron`    |
+| scroll          | Called when the sliding event of `WaterFall` is called. `startEdgePos` is that scroll offset from the top edge of the List; `endEdgePos` is the scroll offset from the bottom edge of the List; `firstVisibleRowIndex` is the index of the first element in the currently visible area; `lastVisibleRowIndex` is the index of the last element in the currently visible area; `visibleRowFrames` is the information (x, y, width, height) of all items in the currently visible area    | `{ nativeEvent: { startEdgePos: number, endEdgePos: number, firstVisibleRowIndex: number, lastVisibleRowIndex: number, visibleRowFrames: Object[] } }` | `Android、iOS、Voltron`    |
 
 ## Methods
 
@@ -316,5 +316,5 @@ Cell container of the waterfall component, waterfall child element
 
 | Props                  | Description                                                         | Type                                                        | Supported Platforms |
 | --------------------- | ------------------------------------------------------------ | ----------------------------------------------------------- | -------- |
-| type            | Specify a function, in which the type of the corresponding entry is returned (returns the natural number of the Number type, the default is 0), the List will reuse the same type of entry, so the reasonable type split can improve the performance of the List. | `number`              | `Android、iOS`    |
-| key             | Specifies a function that returns the Key value of the corresponding entry, as described in [Vue official documentation](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS`    |
+| type            | Specify a function, in which the type of the corresponding entry is returned (returns the natural number of the Number type, the default is 0), the List will reuse the same type of entry, so the reasonable type split can improve the performance of the List. | `number`              | `Android、iOS、Voltron`    |
+| key             | Specifies a function that returns the Key value of the corresponding entry, as described in [Vue official documentation](//cn.vuejs.org/v2/guide/list.html) | `string`                                    | `Android、iOS、Voltron`    |

@@ -34,8 +34,10 @@ class ControllerManager implements InstanceLifecycleEventListener {
   final RenderContext _context;
   final ControllerRegistry _controllerRegistry;
 
-  ControllerManager(this._context, List<ViewControllerGenerator>? generators)
-      : _controllerRegistry = ControllerRegistry() {
+  ControllerManager(
+    this._context,
+    List<ViewControllerGenerator>? generators,
+  ) : _controllerRegistry = ControllerRegistry() {
     _context.addInstanceLifecycleEventListener(this);
     processControllers(generators);
   }

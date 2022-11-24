@@ -22,16 +22,6 @@ import 'dart:ffi';
 
 import 'package:ffi/ffi.dart';
 
-class Work extends Opaque {}
-
-typedef GlobalCallback = Void Function(
-  Int32 callbackId,
-  Int64 value,
-);
-typedef CommonCallback = void Function(
-  int value,
-);
-
 typedef CreateVoltronRenderNativeType = Uint32 Function();
 typedef CreateVoltronRenderDartType = int Function();
 
@@ -135,63 +125,10 @@ typedef UpdateNodeSizeFfiDartType = void Function(
   double height,
 );
 
-typedef NotifyRenderNativeType = Void Function(
-  Int32 engineId,
-  Uint32 renderManagerId,
-);
-typedef NotifyRenderDartType = void Function(
-  int engineId,
-  int renderManagerId,
-);
-
-typedef RegisterCallbackFfiNativeType = Int32 Function(
-  Int32 type,
-  Pointer<NativeFunction<GlobalCallbackNativeType>> func,
-);
-typedef RegisterCallbackFfiDartType = int Function(
-  int type,
-  Pointer<NativeFunction<GlobalCallbackNativeType>> func,
-);
-
-typedef RegisterPostRenderOpFfiNativeType = Int32 Function(
-  Int32 type,
-  Pointer<NativeFunction<PostRenderOpNativeType>> func,
-);
-typedef RegisterPostRenderOpFfiDartType = int Function(
-  int type,
-  Pointer<NativeFunction<PostRenderOpNativeType>> func,
-);
-
-typedef RegisterCalculateNodeLayoutFfiNativeType = Int32 Function(
-  Int32 type,
-  Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func,
-);
-typedef RegisterCalculateNodeLayoutFfiDartType = int Function(
-  int type,
-  Pointer<NativeFunction<CalculateNodeLayoutNativeType>> func,
-);
-
-typedef RegisterDartPostCObjectNativeType = Void Function(
-  Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>
-      functionPointer,
-  Int64 port,
-);
-typedef RegisterDartPostCObjectDartType = void Function(
-  Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>>
-      functionPointer,
-  int port,
-);
-
-typedef ExecuteCallbackNativeType = Void Function(Pointer<Work>);
-typedef ExecuteCallbackDartType = void Function(Pointer<Work>);
-
 enum RenderFuncType {
-  globalCallback,
   postRenderOp,
   calculateNodeLayout,
 }
-
-const int kRenderFuncTypeSize = 3;
 
 typedef PostRenderOpNativeType = Void Function(
   Int32 engindId,
@@ -213,9 +150,4 @@ typedef CalculateNodeLayoutNativeType = Pointer<Int64> Function(
   Int32 widthMode,
   Double height,
   Int32 heightMode,
-);
-
-typedef GlobalCallbackNativeType = Void Function(
-  Int32 callbackId,
-  Int64 value,
 );

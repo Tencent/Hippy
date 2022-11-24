@@ -23,17 +23,21 @@
 #import <UIKit/UIKit.h>
 
 #import "HPInvalidating.h"
+#import "NativeRenderContext.h"
 #import "NativeRenderViewManager.h"
+#import "TypeConverter.h"
+
 #include <memory>
 #include <unordered_map>
-#import "TypeConverter.h"
+
 #include "footstone/hippy_value.h"
 #include "dom/dom_listener.h"
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
-#import "NativeRenderContext.h"
 
 @class NativeRenderAnimationViewParams, NativeRenderObjectView;
+
+@protocol HPImageProviderProtocol;
 
 /**
  * Posted whenever a new root view is registered with NativeRenderUIManager. The userInfo property
