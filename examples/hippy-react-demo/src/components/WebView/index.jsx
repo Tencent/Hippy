@@ -44,7 +44,7 @@ export default function WebViewExample() {
         style={styles.webViewStyle}
         onLoad={({ url }) => console.log('webview onload', url)}
         onLoadStart={({ url }) => console.log('webview onLoadStart', url)}
-        onLoadEnd={({ url }) => console.log('webview onLoadEnd', url)}
+        onLoadEnd={({ url, success, error }) => console.log('webview onLoadEnd', url, success, error)}
       />
     </View>
   );
