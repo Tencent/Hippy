@@ -31,6 +31,7 @@
 #include "footstone/logging.h"
 #include "renderer/tdf/viewnode/node_attributes_parser.h"
 #include "renderer/tdf/viewnode/root_view_node.h"
+#include "renderer/tdf/viewnode/view_names.h"
 
 namespace hippy {
 inline namespace render {
@@ -532,6 +533,16 @@ std::shared_ptr<ViewNode> ViewNode::RemoveChildAt(int32_t index) {
   return child;
 }
 
+void ViewNode::CheckAttachView(const std::shared_ptr<tdfcore::View>& view) {
+  auto view_type = view->GetType().GetName();
+  auto node_type = GetViewName();
+  if (node_type == kTextViewName) {
+    FOOTSTONE_DCHECK(std::string(view_type ? view_type : "") == "tdfcore::TextView");
+  } else if (node_type == kImageViewName) {
+    FOOTSTONE_DCHECK(std::string(view_type ? view_type : "") == "tdfcore::ImageView");
+  }
+}
+
 void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
   FOOTSTONE_DCHECK(!is_attached_);
   FOOTSTONE_DCHECK(!parent_.expired());
@@ -547,6 +558,7 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     if (parent_.lock()->GetInterceptTouchEventFlag()) {
       view->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
     }
+    CheckAttachView(view);
     attached_view_ = view;
   } else {
     // this should be the only caller of CreateView.
