@@ -997,4 +997,9 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
         }
         return true;
     }
+
+    public interface UITaskExecutor {
+
+        void exec();
+    }
 }
