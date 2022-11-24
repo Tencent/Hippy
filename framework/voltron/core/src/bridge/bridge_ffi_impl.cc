@@ -41,7 +41,8 @@
 #endif
 
 #ifdef ENABLE_INSPECTOR
-#include "integrations/devtools_handler.h"
+#include "devtools/vfs/devtools_handler.h"
+#include "devtools/devtools_macro.h"
 #endif
 
 #ifdef __cplusplus
@@ -102,8 +103,7 @@ EXTERN_C void UnloadInstanceFFI(int32_t engine_id, const char* params, int32_t p
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
                                     uint32_t work_manager_id, uint32_t dom_manager_id,
-                                    int32_t engine_id, int32_t callback_id, const char16_t* char_data_dir,
-                                    const char16_t* char_ws_url) {
+                                    int32_t engine_id, int32_t callback_id, uint32_t devtools_id) {
   auto ffi_runtime = std::make_shared<FFIJSBridgeRuntime>(engine_id);
   BridgeManager::Create(engine_id, ffi_runtime);
 
@@ -113,7 +113,7 @@ EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t singl
 
   auto result = BridgeImpl::InitJsEngine(ffi_runtime, single_thread_mode, bridge_param_json, is_dev_module, group_id,
                                          worker_manager, dom_manager_id, global_config, 0, 0,
-                                         [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, char_data_dir, char_ws_url);
+                                         [callback_id](int64_t value) { CallGlobalCallback(callback_id, value); }, devtools_id);
   ffi_runtime->SetRuntimeId(result);
 
   return result;
@@ -467,6 +467,32 @@ EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
   }
 #endif
 }
+
+EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id, const char16_t* char_data_dir, const char16_t* char_ws_url) {
+  uint32_t id = 0;
+#ifdef ENABLE_INSPECTOR
+  auto data_dir = voltron::C16CharToString(char_data_dir);
+  auto ws_url = voltron::C16CharToString(char_ws_url);
+  std::shared_ptr<WorkerManager> worker_manager = voltron::BridgeManager::FindWorkerManager(work_manager_id);
+  FOOTSTONE_DCHECK(worker_manager != nullptr);
+  DEVTOOLS_INIT_VM_TRACING_CACHE(data_dir);
+  auto devtools_data_source = std::make_shared<hippy::devtools::HippyDevtoolsSource>(ws_url, worker_manager);
+  id = hippy::devtools::HippyDevtoolsSource::Insert(devtools_data_source);
+  FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
+#endif
+  return id;
+}
+
+EXTERN_C void DestroyDevtoolsFFI(uint32_t devtools_id, int32_t is_reload) {
+#ifdef ENABLE_INSPECTOR
+  auto devtools_data_source = hippy::devtools::HippyDevtoolsSource::Find(devtools_id);
+  devtools_data_source->Destroy(is_reload);
+  bool flag = hippy::devtools::HippyDevtoolsSource::Erase(devtools_id);
+  FOOTSTONE_DLOG(INFO)<< "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
+  FOOTSTONE_DCHECK(flag);
+#endif
+}
+
 
 #ifdef __cplusplus
 }

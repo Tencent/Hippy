@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import com.tencent.devtools.DevtoolsManager;
 import com.tencent.link_supplier.LinkHelper;
 import com.tencent.link_supplier.Linker;
 import com.tencent.link_supplier.proxy.framework.FontAdapter;
@@ -63,7 +64,7 @@ import com.tencent.mtt.hippy.utils.LogUtils;
 import com.tencent.mtt.hippy.utils.TimeMonitor;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.vfs.DefaultProcessor;
-import com.tencent.vfs.DevToolsProcessor;
+import com.tencent.devtools.vfs.DevtoolsProcessor;
 import com.tencent.vfs.VfsManager;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -728,6 +729,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         private final HippyBridgeManager mBridgeManager;
         private final VfsManager mVfsManager;
         private final LinkHelper mLinkHelper;
+        private final DevtoolsManager mDevtoolsManager;
         volatile CopyOnWriteArrayList<HippyEngineLifecycleEventListener> mEngineLifecycleEventListeners;
 
         public HippyEngineContextImpl() throws RuntimeException {
@@ -765,6 +767,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mLinkHelper.getRenderer().init(controllers, mRootView);
             mVfsManager = new VfsManager();
             initVfsManager();
+            mDevtoolsManager = new DevtoolsManager();
+            if (mDebugMode) {
+                initDevtoolsManager();
+            }
         }
 
         private void initVfsManager() {
@@ -772,6 +778,13 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mVfsManager.setId(onCreateVfs(mVfsManager));
             DefaultProcessor processor = new DefaultProcessor(new HippyResourceLoader(this));
             mVfsManager.addProcessor(processor);
+        }
+
+        private void initDevtoolsManager() {
+            String localCachePath = getGlobalConfigs().getContext().getCacheDir()
+                    .getAbsolutePath();
+            mDevtoolsManager.create(mWorkerManagerId, localCachePath,
+                    getDevSupportManager().createDebugUrl(mServerHost));
         }
 
         @Override
@@ -787,7 +800,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                     ((NativeRenderProxy) renderProxy).onRuntimeInitialized(mRootView.getId());
                 }
                 // add network processor for waiting runtime id
-                mVfsManager.addProcessorAtFirst(new DevToolsProcessor(mRuntimeId));
+                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
             }
         }
 
@@ -837,6 +850,11 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Override
         public DevSupportManager getDevSupportManager() {
             return mDevSupportManager;
+        }
+
+        @Override
+        public DevtoolsManager getDevtoolsManager() {
+            return mDevtoolsManager;
         }
 
         @Override
@@ -938,6 +956,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return mVfsManager.getId();
         }
 
+        public int getDevtoolsId() {
+            return mDevtoolsManager.getId();
+        }
+
         @Override
         public ViewGroup getRootView() {
             return mRootView;
@@ -984,6 +1006,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             if (mVfsManager != null) {
                 mVfsManager.destroy();
                 onDestroyVfs(mVfsManager.getId());
+            }
+            if (mDevtoolsManager != null) {
+                mDevtoolsManager.destroy(onReLoad);
             }
             if (mNativeParams != null) {
                 mNativeParams.clear();

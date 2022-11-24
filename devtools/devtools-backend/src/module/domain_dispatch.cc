@@ -145,11 +145,6 @@ bool DomainDispatch::ReceiveDataFromFrontend(const std::string& data_string) {
 void DomainDispatch::DispatchToVm(const std::string& data) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   FOOTSTONE_DLOG(INFO) << "JSDebugger, params=" << data.c_str();
-  // if not in debug mode, then not send msg to v8
-  if (!data_channel_->GetProvider()->runtime_adapter->IsDebug()) {
-    FOOTSTONE_DLOG(ERROR) << "not in debug mode, return.";
-    return;
-  }
   auto vm_request = data_channel_->GetProvider()->vm_request_adapter;
   if (vm_request) {
     vm_request->SendMsgToVm(data);

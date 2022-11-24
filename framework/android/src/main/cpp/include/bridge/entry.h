@@ -45,8 +45,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jint j_worker_manager_id,
                    jint j_dom_manager_id,
                    jobject j_vm_init_param,
-                   jstring j_data_dir,
-                   jstring j_ws_url);
+                   jint j_devtools_id);
 
 void DestroyInstance(JNIEnv* j_env,
                      jobject j_object,
@@ -128,16 +127,16 @@ void UnloadInstance(JNIEnv* j_env,
 jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager);
 void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id);
 
-void OnNetworkRequestInvoke(JNIEnv *j_env,
-                            __unused jobject j_object,
-                            jlong j_runtime_id,
-                            jstring j_request_id,
-                            jobject j_holder);
-void OnNetworkResponseInvoke(JNIEnv *j_env,
-                             __unused jobject j_object,
-                             jlong j_runtime_id,
-                             jstring j_request_id,
-                             jobject j_holder);
+jint OnCreateDevtools(JNIEnv *j_env,
+                      __unused jobject j_object,
+                      jint j_worker_manager_id,
+                      jstring j_data_dir,
+                      jstring j_ws_url);
+
+void OnDestroyDevtools(JNIEnv *j_env,
+                       __unused jobject j_object,
+                       jint j_id,
+                       jboolean j_is_reload);
 
 } // namespace bridge
 } // namespace framework

@@ -14,16 +14,17 @@
 		067AB96F23B5EEF4009D5EE2 /* TestModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = 067AB96D23B5EEF3009D5EE2 /* TestModule.mm */; };
 		067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97123B5F309009D5EE2 /* MyViewManager.mm */; };
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
+		9B3546F8292F725F00FED361 /* hippy_devtools_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B3546F7292F725F00FED361 /* hippy_devtools_source.cc */; };
+		9B354711292F737000FED361 /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B354706292F727300FED361 /* libbase64.a */; };
+		9B354712292F737300FED361 /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B35470A292F727300FED361 /* libdevtools_backend.a */; };
+		9B354713292F737400FED361 /* libdevtools_integration_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B35470C292F727300FED361 /* libdevtools_integration_native.a */; };
 		AC63515623F92C99007FABA5 /* TTTGB-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */; };
 		F42EA79A277C354C007874A2 /* TurboConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = F42EA796277C354C007874A2 /* TurboConfig.m */; };
 		F42EA79B277C354C007874A2 /* TurboBaseModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = F42EA799277C354C007874A2 /* TurboBaseModule.mm */; };
-		F44E1CA8292493ED0091BCA4 /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F44E1CA7292493ED0091BCA4 /* libdevtools_backend.a */; };
 		F47914E62924D37000B2DBB6 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F47914E52924D37000B2DBB6 /* CoreServices.framework */; };
-		F47914E82924D52200B2DBB6 /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F47914E72924D52200B2DBB6 /* libbase64.a */; };
 		F48D3802289BA662007BD6FE /* scope.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D379E289BA661007BD6FE /* scope.cc */; };
 		F48D3803289BA662007BD6FE /* engine.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D379F289BA661007BD6FE /* engine.cc */; };
 		F48D3809289BA662007BD6FE /* trace_control.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37A9289BA661007BD6FE /* trace_control.cc */; };
-		F48D380A289BA662007BD6FE /* devtools_data_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37AA289BA661007BD6FE /* devtools_data_source.cc */; };
 		F48D380B289BA662007BD6FE /* hippy_screen_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37AD289BA661007BD6FE /* hippy_screen_adapter.cc */; };
 		F48D380C289BA662007BD6FE /* hippy_dom_tree_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37AE289BA661007BD6FE /* hippy_dom_tree_adapter.cc */; };
 		F48D380D289BA662007BD6FE /* hippy_tracing_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37AF289BA661007BD6FE /* hippy_tracing_adapter.cc */; };
@@ -51,6 +52,51 @@
 		F49817C628E18DC200000889 /* HippyDemoLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = F49817C428E18DC200000889 /* HippyDemoLoader.mm */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		9B354705292F727300FED361 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A3651BBCE0824BD88B0A30BA;
+			remoteInfo = base64;
+		};
+		9B354707292F727300FED361 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2825CB925E6F40DDA3D754C5;
+			remoteInfo = "base64-bin";
+		};
+		9B354709292F727300FED361 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = CBF64F112FB640BB9A9408F1;
+			remoteInfo = devtools_backend;
+		};
+		9B35470B292F727300FED361 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D99FB76FF5D8450A90FA981D;
+			remoteInfo = devtools_integration_native;
+		};
+		9B35470D292F727300FED361 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = A3185C435B5C4AA49FF2CB02;
+			remoteInfo = footstone;
+		};
+		9B35470F292F727300FED361 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2E8C07E1EF1F42E39A802A9D;
+			remoteInfo = vfs_native;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		0612F01E23A8BE320079E622 /* HippyDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HippyDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0612F02123A8BE320079E622 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -66,6 +112,9 @@
 		067AB97223B5F309009D5EE2 /* MyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyView.h; sourceTree = "<group>"; };
 		067AB97323B5F309009D5EE2 /* MyViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyViewManager.h; sourceTree = "<group>"; };
 		067AB97423B5F309009D5EE2 /* MyView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
+		9B3546F6292F725200FED361 /* hippy_devtools_source.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hippy_devtools_source.h; sourceTree = "<group>"; };
+		9B3546F7292F725F00FED361 /* hippy_devtools_source.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_devtools_source.cc; sourceTree = "<group>"; };
+		9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevtoolsIntegration.xcodeproj; path = "../../../devtools/devtools-integration/ios/DevtoolsBackend/DevtoolsIntegration.xcodeproj"; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
 		F42EA796277C354C007874A2 /* TurboConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TurboConfig.m; sourceTree = "<group>"; };
@@ -82,7 +131,6 @@
 		F48D379E289BA661007BD6FE /* scope.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scope.cc; sourceTree = "<group>"; };
 		F48D379F289BA661007BD6FE /* engine.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cc; sourceTree = "<group>"; };
 		F48D37A9289BA661007BD6FE /* trace_control.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trace_control.cc; sourceTree = "<group>"; };
-		F48D37AA289BA661007BD6FE /* devtools_data_source.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_data_source.cc; sourceTree = "<group>"; };
 		F48D37AD289BA661007BD6FE /* hippy_screen_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_screen_adapter.cc; sourceTree = "<group>"; };
 		F48D37AE289BA661007BD6FE /* hippy_dom_tree_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_dom_tree_adapter.cc; sourceTree = "<group>"; };
 		F48D37AF289BA661007BD6FE /* hippy_tracing_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_tracing_adapter.cc; sourceTree = "<group>"; };
@@ -124,12 +172,10 @@
 		F48D37F4289BA662007BD6FE /* js_native_jsc_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_jsc_helper.h; sourceTree = "<group>"; };
 		F48D37F5289BA662007BD6FE /* js_native_api_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_jsc.h; sourceTree = "<group>"; };
 		F48D37F7289BA662007BD6FE /* trace_control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace_control.h; sourceTree = "<group>"; };
-		F48D37F8289BA662007BD6FE /* devtools_data_source.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_data_source.h; sourceTree = "<group>"; };
 		F48D37FA289BA662007BD6FE /* hippy_dom_tree_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_tree_adapter.h; sourceTree = "<group>"; };
 		F48D37FB289BA662007BD6FE /* hippy_vm_request_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_vm_request_adapter.h; sourceTree = "<group>"; };
 		F48D37FC289BA662007BD6FE /* hippy_tracing_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_tracing_adapter.h; sourceTree = "<group>"; };
 		F48D37FD289BA662007BD6FE /* hippy_screen_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_screen_adapter.h; sourceTree = "<group>"; };
-		F48D37FE289BA662007BD6FE /* hippy_runtime_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_runtime_adapter.h; sourceTree = "<group>"; };
 		F48D37FF289BA662007BD6FE /* devtools_macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_macro.h; sourceTree = "<group>"; };
 		F48D3800289BA662007BD6FE /* hippy_dom_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_data.h; sourceTree = "<group>"; };
 		F48D3801289BA662007BD6FE /* devtools_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_utils.h; sourceTree = "<group>"; };
@@ -154,9 +200,10 @@
 				F4922265292E202D006C4E01 /* libImage.a in Frameworks */,
 				F4922267292E202D006C4E01 /* libNativeRender.a in Frameworks */,
 				F4922269292E202D006C4E01 /* libVFS.a in Frameworks */,
-				F47914E82924D52200B2DBB6 /* libbase64.a in Frameworks */,
 				F47914E62924D37000B2DBB6 /* CoreServices.framework in Frameworks */,
-				F44E1CA8292493ED0091BCA4 /* libdevtools_backend.a in Frameworks */,
+				9B354711292F737000FED361 /* libbase64.a in Frameworks */,
+				9B354712292F737300FED361 /* libdevtools_backend.a in Frameworks */,
+				9B354713292F737400FED361 /* libdevtools_integration_native.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,6 +213,7 @@
 		0612F01523A8BE320079E622 = {
 			isa = PBXGroup;
 			children = (
+				9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */,
 				F48D379C289BA643007BD6FE /* driver */,
 				AC63515223F922E5007FABA5 /* fonts */,
 				064C5AEF23AB1A70001E80DD /* res */,
@@ -211,6 +259,19 @@
 				067AB97423B5F309009D5EE2 /* MyView.m */,
 			);
 			path = myview;
+			sourceTree = "<group>";
+		};
+		9B3546FA292F727300FED361 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9B354706292F727300FED361 /* libbase64.a */,
+				9B354708292F727300FED361 /* base64 */,
+				9B35470A292F727300FED361 /* libdevtools_backend.a */,
+				9B35470C292F727300FED361 /* libdevtools_integration_native.a */,
+				9B35470E292F727300FED361 /* libfootstone.a */,
+				9B354710292F727300FED361 /* libvfs_native.a */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		9B8769FC2914F1BA000B2EBE /* Frameworks */ = {
@@ -280,7 +341,7 @@
 			isa = PBXGroup;
 			children = (
 				F48D37A9289BA661007BD6FE /* trace_control.cc */,
-				F48D37AA289BA661007BD6FE /* devtools_data_source.cc */,
+				9B3546F7292F725F00FED361 /* hippy_devtools_source.cc */,
 				F48D37AB289BA661007BD6FE /* adapter */,
 				F48D37B0289BA661007BD6FE /* devtools_utils.cc */,
 			);
@@ -423,7 +484,7 @@
 			isa = PBXGroup;
 			children = (
 				F48D37F7289BA662007BD6FE /* trace_control.h */,
-				F48D37F8289BA662007BD6FE /* devtools_data_source.h */,
+				9B3546F6292F725200FED361 /* hippy_devtools_source.h */,
 				F48D37F9289BA662007BD6FE /* adapter */,
 				F48D37FF289BA662007BD6FE /* devtools_macro.h */,
 				F48D3800289BA662007BD6FE /* hippy_dom_data.h */,
@@ -439,7 +500,6 @@
 				F48D37FB289BA662007BD6FE /* hippy_vm_request_adapter.h */,
 				F48D37FC289BA662007BD6FE /* hippy_tracing_adapter.h */,
 				F48D37FD289BA662007BD6FE /* hippy_screen_adapter.h */,
-				F48D37FE289BA662007BD6FE /* hippy_runtime_adapter.h */,
 			);
 			path = adapter;
 			sourceTree = "<group>";
@@ -498,12 +558,64 @@
 			mainGroup = 0612F01523A8BE320079E622;
 			productRefGroup = 0612F01F23A8BE320079E622 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 9B3546FA292F727300FED361 /* Products */;
+					ProjectRef = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				0612F01D23A8BE320079E622 /* HippyDemo */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		9B354706292F727300FED361 /* libbase64.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libbase64.a;
+			remoteRef = 9B354705292F727300FED361 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9B354708292F727300FED361 /* base64 */ = {
+			isa = PBXReferenceProxy;
+			fileType = "compiled.mach-o.executable";
+			name = base64;
+			path = base64.app;
+			remoteRef = 9B354707292F727300FED361 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9B35470A292F727300FED361 /* libdevtools_backend.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdevtools_backend.a;
+			remoteRef = 9B354709292F727300FED361 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9B35470C292F727300FED361 /* libdevtools_integration_native.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdevtools_integration_native.a;
+			remoteRef = 9B35470B292F727300FED361 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9B35470E292F727300FED361 /* libfootstone.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libfootstone.a;
+			remoteRef = 9B35470D292F727300FED361 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9B354710292F727300FED361 /* libvfs_native.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libvfs_native.a;
+			remoteRef = 9B35470F292F727300FED361 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		0612F01C23A8BE320079E622 /* Resources */ = {
@@ -522,7 +634,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F48D380A289BA662007BD6FE /* devtools_data_source.cc in Sources */,
 				067AB97623B5F309009D5EE2 /* MyView.m in Sources */,
 				0612F02923A8BE320079E622 /* ViewController.mm in Sources */,
 				0612F02323A8BE320079E622 /* AppDelegate.m in Sources */,
@@ -544,6 +655,7 @@
 				F48D381C289BA662007BD6FE /* callback_info.cc in Sources */,
 				0612F03423A8BE330079E622 /* main.m in Sources */,
 				F48D3812289BA662007BD6FE /* console_module.cc in Sources */,
+				9B3546F8292F725F00FED361 /* hippy_devtools_source.cc in Sources */,
 				F48D3815289BA662007BD6FE /* contextify_module.cc in Sources */,
 				F48D380B289BA662007BD6FE /* hippy_screen_adapter.cc in Sources */,
 				F48D3809289BA662007BD6FE /* trace_control.cc in Sources */,
@@ -694,11 +806,12 @@
 					"$(SRCROOT)/../../../driver/js/include",
 					"$(SRCROOT)/../../../layout",
 					"$(SRCROOT)/../../../dom/include",
-					"$(SRCROOT)/../../../devtools/devtools-backend",
 					"$(SRCROOT)/../../../devtools/devtools-backend/include",
-					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
-					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
-					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/native/include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/single_include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include",
 					"$(SRCROOT)/../../../modules/vfs/native/include",
 					"$(SRCROOT)/../../ios/**",
 					"$(SRCROOT)/../../../modules/ios/**",
@@ -744,11 +857,12 @@
 					"$(SRCROOT)/../../../driver/js/include",
 					"$(SRCROOT)/../../../layout",
 					"$(SRCROOT)/../../../dom/include",
-					"$(SRCROOT)/../../../devtools/devtools-backend",
 					"$(SRCROOT)/../../../devtools/devtools-backend/include",
-					"$(SRCROOT)/devtools_backend/_deps/websocketpp-src",
-					"$(SRCROOT)/devtools_backend/_deps/asio-src/asio/include",
-					"$(SRCROOT)/devtools_backend/_deps/json-src/single_include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/native/include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/websocketpp-src",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/asio-src/asio/include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/json-src/single_include",
+					"$(SRCROOT)/../../../devtools/devtools-integration/ios/DevtoolsBackend/_deps/base64-src/include",
 					"$(SRCROOT)/../../../modules/vfs/native/include",
 					"$(SRCROOT)/../../ios/**",
 					"$(SRCROOT)/../../../modules/ios/**",

@@ -69,6 +69,8 @@ class VoltronBridgeManager implements Destroyable {
   int _v8RuntimeId = 0;
   final int _engineId;
 
+  int _devtoolsId = 0;
+
   ModuleListener? _loadModuleListener;
 
   VoltronBundleLoader? get coreBundleLoader => _coreBundleLoader;
@@ -93,8 +95,13 @@ class VoltronBridgeManager implements Destroyable {
     initCodeCacheDir();
   }
 
-  void _handleVoltronInspectorInit() {
+  Future<void> _handleVoltronInspectorInit() async {
     if (_isDevModule) {
+      var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
+      _devtoolsId = await VoltronApi.createDevtools(
+        workerManagerId: _context.renderContext.workerManagerId,
+        dataDir: tracingDataDir,
+        wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost));
       final networkModule = _context.moduleManager.nativeModule[NetworkModule.kNetworkModuleName];
       if (networkModule is NetworkModule) {
         networkModule.requestWillBeSentHook = NetworkInspector().onRequestWillBeSent;
@@ -129,7 +136,6 @@ class VoltronBridgeManager implements Destroyable {
     try {
       _handleVoltronInspectorInit();
       _context.startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitBridge);
-      var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
         globalConfig: getGlobalConfigs(),
         singleThreadMode: _isSingleThread,
@@ -176,8 +182,7 @@ class VoltronBridgeManager implements Destroyable {
             callback(_isFrameWorkInit, null);
           }
         },
-        dataDir: tracingDataDir,
-        wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost),
+        devtoolsId: _devtoolsId,
       );
     } catch (e) {
       _isFrameWorkInit = false;

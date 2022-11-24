@@ -29,7 +29,7 @@
 
 namespace hippy::devtools {
 DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_config, std::shared_ptr<footstone::WorkerManager> worker_manager) {
-  FOOTSTONE_DLOG(INFO) << "DevtoolsBackendService create framework:%d,tunnel:%d" << devtools_config.framework << devtools_config.tunnel;
+  FOOTSTONE_DLOG(INFO) << "DevtoolsBackendService create framework:" << devtools_config.framework << ",tunnel:" << devtools_config.tunnel;
   auto data_provider = std::make_shared<DataProvider>();
   auto notification_center = std::make_shared<NotificationCenter>();
   data_channel_ = std::make_shared<DataChannel>(data_provider, notification_center);

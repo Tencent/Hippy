@@ -33,7 +33,7 @@
 #include "voltron_bridge.h"
 #include "exception_handler.h"
 #include "js2dart.h"
-#include "integrations/devtools_handler.h"
+#include "devtools/vfs/devtools_handler.h"
 #include "footstone/worker_manager.h"
 #include "wrapper.h"
 
@@ -62,8 +62,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
                                  size_t initial_heap_size,
                                  size_t maximum_heap_size,
                                  const std::function<void(int64_t)> &callback,
-                                 const char16_t *char_data_dir,
-                                 const char16_t *char_ws_url) {
+                                 uint32_t devtools_id) {
   FOOTSTONE_LOG(INFO) << "LoadInstance begin, single_thread_mode = "
                       << single_thread_mode
                       << ", bridge_param_json = "
@@ -93,8 +92,6 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
   });
   std::shared_ptr<VoltronBridge> bridge = std::make_shared<VoltronBridge>(platform_runtime);
   string_view global_config = string_view(char_globalConfig);
-  string_view data_dir = string_view(char_data_dir);
-  string_view ws_url = string_view(char_ws_url);
   auto dom_manager = DomManager::Find(dom_manager_id);
   FOOTSTONE_DCHECK(dom_manager);
   auto dom_task_runner = dom_manager->GetTaskRunner();
@@ -109,8 +106,7 @@ int64_t BridgeImpl::InitJsEngine(const std::shared_ptr<JSBridgeRuntime> &platfor
       bridge,
       scope_cb,
       call_native_cb,
-      data_dir,
-      ws_url);
+      devtools_id);
   return static_cast<int64_t>(runtime_id);
 }
 

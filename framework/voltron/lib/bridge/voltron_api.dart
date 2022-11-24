@@ -73,6 +73,10 @@ class _BridgeFFIManager {
   // 销毁
   late DestroyFfiDartType destroy;
 
+  late CreateDevtoolsDartType createDevtools;
+
+  late DestroyDevtoolsDartType destroyDevtools;
+
   late NotifyNetworkEventFfiDartType notifyNetworkEvent;
 
   // 执行回调任务
@@ -132,6 +136,13 @@ class _BridgeFFIManager {
     onNetworkResponseInvoke = _library.lookupFunction<
         OnNetworkResponseInvokeNativeType,
         OnNetworkResponseInvokeDartType>('OnNetworkResponseInvoke');
+
+    createDevtools = _library.lookupFunction<CreateDevtoolsFfiNativeType, CreateDevtoolsDartType>(
+      "CreateDevtoolsFFI",
+    );
+    destroyDevtools = _library.lookupFunction<DestroyDevtoolsFfiNativeType, DestroyDevtoolsDartType>(
+      "DestroyDevtoolsFFI",
+    );
   }
 }
 
@@ -150,8 +161,7 @@ class VoltronApi {
       required int workerManagerId,
       required int domId,
       required CommonCallback callback,
-      String dataDir = '',
-      String wsUrl = ''}) async {
+      required int devtoolsId}) async {
     var globalConfigPtr = globalConfig.toNativeUtf16();
     globalConfig.toNativeUtf16();
     var result = _BridgeFFIManager.instance.initJsFramework(
@@ -164,7 +174,7 @@ class VoltronApi {
         domId,
         engineId, generateCallback((value) {
       callback(value);
-    }), dataDir.toNativeUtf16(), wsUrl.toNativeUtf16());
+    }), devtoolsId);
     free(globalConfigPtr);
     return result;
   }
@@ -370,6 +380,24 @@ class VoltronApi {
       generateCallback((value) {
         callback(value);
       }),
+      isReload ? 1 : 0,
+    );
+  }
+
+  static Future<int> createDevtools(
+      {required int workerManagerId,
+      String dataDir = '',
+      String wsUrl = ''}) async {
+    return _BridgeFFIManager.instance.createDevtools(
+      workerManagerId,
+      dataDir.toNativeUtf16(),
+      wsUrl.toNativeUtf16(),
+    );
+  }
+
+  static Future<dynamic> destroyDevtools(int devtoolsId, bool isReload) async {
+    _BridgeFFIManager.instance.destroyDevtools(
+      devtoolsId,
       isReload ? 1 : 0,
     );
   }

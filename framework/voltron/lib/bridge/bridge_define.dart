@@ -41,8 +41,7 @@ typedef InitJsFrameworkFfiNativeType = Int64 Function(
   Uint32 domManagerId,
   Int32 engineId,
   Int32 callbackId,
-  Pointer<Utf16> dataDir,
-  Pointer<Utf16> wsUrl,
+  Uint32 devtoolsId,
 );
 typedef InitJsFrameworkFfiDartType = int Function(
   Pointer<Utf16> globalConfig,
@@ -54,8 +53,7 @@ typedef InitJsFrameworkFfiDartType = int Function(
   int domManagerId,
   int engineId,
   int callbackId,
-  Pointer<Utf16> dataDir,
-  Pointer<Utf16> wsUrl,
+  int devtoolsId,
 );
 
 typedef RunScriptFromUriFfiNativeType = Int32 Function(
@@ -220,3 +218,25 @@ typedef ReportJsonException = Void Function(
 
 typedef ReportJsException = Void Function(Int32 engineId,
     Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream);
+
+typedef CreateDevtoolsDartType = int Function(
+    int workerManagerId,
+    Pointer<Utf16> dataDir,
+    Pointer<Utf16> wsUrl
+);
+
+typedef CreateDevtoolsFfiNativeType = Uint32 Function(
+  Uint32 workManagerId,
+  Pointer<Utf16> dataDir,
+  Pointer<Utf16> wsUrl,
+);
+
+typedef DestroyDevtoolsDartType = void Function(
+    int devtoolsId,
+    int isReload
+);
+
+typedef DestroyDevtoolsFfiNativeType = Void Function(
+    Uint32 devtoolsId,
+    Int32 isReload
+);

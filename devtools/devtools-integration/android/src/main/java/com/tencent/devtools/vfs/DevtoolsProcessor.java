@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.tencent.vfs;
+package com.tencent.devtools.vfs;
 
 import androidx.annotation.NonNull;
+import com.tencent.vfs.Processor;
+import com.tencent.vfs.ResourceDataHolder;
 import com.tencent.vfs.ResourceDataHolder.RequestFrom;
 import com.tencent.vfs.VfsManager.ProcessorCallback;
 
-public class DevToolsProcessor extends Processor {
+public class DevtoolsProcessor extends Processor {
 
-    private final long mRuntimeId;
+    private final int mDevtoolsId;
 
-    public DevToolsProcessor(long runtimeId) {
-        mRuntimeId = runtimeId;
+    public DevtoolsProcessor(int devtoolsId) {
+        mDevtoolsId = devtoolsId;
     }
 
     @Override
@@ -57,25 +59,25 @@ public class DevToolsProcessor extends Processor {
             return;
         }
         holder.requestId = String.valueOf(System.currentTimeMillis());
-        onNetworkRequest(mRuntimeId, holder.requestId, holder);
+        onNetworkRequest(mDevtoolsId, holder.requestId, holder);
     }
 
     private void onNetworkResponse(ResourceDataHolder holder) {
         if (holder.requestFrom == RequestFrom.NATIVE) {
             return;
         }
-        onNetworkResponse(mRuntimeId, holder.requestId, holder);
+        onNetworkResponse(mDevtoolsId, holder.requestId, holder);
     }
 
     /**
      * Network Request notification for devtools
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    public native void onNetworkRequest(long id, String requestId, ResourceDataHolder holder);
+    public native void onNetworkRequest(int id, String requestId, ResourceDataHolder holder);
 
     /**
      * Network Response notification for devtools
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    public native void onNetworkResponse(long id, String requestId, ResourceDataHolder holder);
+    public native void onNetworkResponse(int id, String requestId, ResourceDataHolder holder);
 }

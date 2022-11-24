@@ -20,49 +20,33 @@
 #ifdef ENABLE_INSPECTOR
 #pragma once
 
-#include <memory>
-#include <string>
+#include "devtools/devtools_data_source.h"
 
-#include "footstone/task_runner.h"
-#include "api/devtools_backend_service.h"
-#include "api/devtools_config.h"
-#include "dom/root_node.h"
-#include "devtools/adapter/hippy_runtime_adapter.h"
-#include "devtools/adapter/hippy_vm_request_adapter.h"
 #include "devtools/hippy_dom_data.h"
 
-#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-#include "v8/libplatform/v8-tracing.h"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wconversion"
-#include "v8/v8-inspector.h"
-#pragma clang diagnostic pop
-#endif
-
 namespace hippy::devtools {
-
-/**
- * @brief Hippy debug data source, collect debug data by adapter implement and notification
- */
-class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::DevtoolsDataSource> {
+class HippyDevtoolsSource : public DevtoolsDataSource {
  public:
-  DevtoolsDataSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
-  ~DevtoolsDataSource() = default;
-  void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id);
-  void Destroy(bool is_reload);
-  void SetRuntimeDebugMode(bool debug_mode);
-  void SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler);
-  void SetContextName(const std::string& context_name);
-  void SetRootNode(std::weak_ptr<RootNode> weak_root_node);
-  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() {
+  HippyDevtoolsSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
+  virtual ~HippyDevtoolsSource() = default;
+  void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) override;
+  void Destroy(bool is_reload) override;
+  void SetContextName(const std::string &context_name) override;
+  void SetRootNode(std::weak_ptr<RootNode> weak_root_node) override;
+  void SetVmRequestHandler(VmRequestHandler request_handler) override;
+  inline std::shared_ptr<NotificationCenter> GetNotificationCenter() override {
     return devtools_service_->GetNotificationCenter();
   }
 
+  static uint32_t Insert(const std::shared_ptr<DevtoolsDataSource>& devtools_data_source);
+  static std::shared_ptr<DevtoolsDataSource> Find(uint32_t id);
+  static bool Erase(uint32_t id);
+
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
+  void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) override;
+  void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) override;
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
   static void SetFileCacheDir(const std::string& file_dir);
-  void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message);
-  void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message);
 #endif
 
  private:
@@ -74,8 +58,8 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
 
   std::shared_ptr<HippyDomData> hippy_dom_;
   uint64_t listener_id_;
-  std::shared_ptr<HippyRuntimeAdapter> runtime_adapter_;
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
 };
+
 }  // namespace hippy::devtools
 #endif

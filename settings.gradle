@@ -21,5 +21,9 @@ project(':link_supplier').projectDir = new File('modules/android/link_supplier')
 include 'vfs'
 project(':vfs').projectDir = new File('modules/vfs/android')
 
+include 'devtools-integration'
+project(':devtools-integration').projectDir = new File('devtools/devtools-integration/android')
+
 include 'example'
 project(':example').projectDir = new File('framework/examples/android-demo')
+include ':android'

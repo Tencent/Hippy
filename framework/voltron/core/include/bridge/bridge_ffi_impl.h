@@ -42,8 +42,7 @@ enum class NetworkEventType {
 EXTERN_C int64_t InitJSFrameworkFFI(const char16_t* global_config, int32_t single_thread_mode,
                                     int32_t bridge_param_json, int32_t is_dev_module, int64_t group_id,
                                     uint32_t work_manager_id, uint32_t dom_manager_id,
-                                    int32_t engine_id, int32_t callback_id, const char16_t* char_data_dir,
-                                    const char16_t* char_ws_url);
+                                    int32_t engine_id, int32_t callback_id, uint32_t devtools_id);
 
 EXTERN_C int32_t RunScriptFromFileFFI(int32_t engine_id, const char16_t* file_path, const char16_t* script_name,
                                       const char16_t* code_cache_dir, int32_t can_use_code_cache, int32_t callback_id);
@@ -87,6 +86,10 @@ EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
                                       const char16_t *request_id,
                                       const uint8_t *rsp_meta_data,
                                       int32_t rsp_meta_data_length);
+
+EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id, const char16_t* char_data_dir, const char16_t* char_ws_url);
+
+EXTERN_C void DestroyDevtoolsFFI(uint32_t devtools_id, int32_t is_reload);
 
 #ifdef __cplusplus
 }

@@ -43,7 +43,7 @@
 #include "vfs/uri_loader.h"
 
 #ifdef ENABLE_INSPECTOR
-#include "devtools/devtools_data_source.h"
+#include "devtools/hippy_devtools_source.h"
 #endif
 
 namespace hippy {

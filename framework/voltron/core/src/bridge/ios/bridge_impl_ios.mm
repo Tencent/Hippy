@@ -26,7 +26,7 @@
 #import <UIKit/UIKit.h>
 
 #ifdef ENABLE_INSPECTOR
-#include "integrations/devtools_handler.h"
+#include "devtools/vfs/devtools_handler.h"
 #endif
 #include "footstone/task_runner.h"
 #include "string_convert.h"
@@ -162,17 +162,16 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
                                     size_t initial_heap_size,
                                     size_t maximum_heap_size,
                                     std::function<void(int64_t)> callback,
-                                    const char16_t* char_data_dir,
-                                    const char16_t* char_ws_url) {
+                                    uint32_t devtools_id) {
     VoltronFlutterBridge *bridge = [VoltronFlutterBridge new];
     bridge.platformRuntime = platform_runtime;
     [getKeepContainer() setValue:bridge forKey:Addr2Str(bridge)];
     NSString *globalConfig = U16ToNSString(char_globalConfig);
-    NSString *wsURL = U16ToNSString(char_ws_url);
     BOOL debugMode = is_dev_module ? YES : NO;
     int64_t bridge_id = (int64_t)bridge;
     auto worker_sp = worker_manager;
-    
+    NSNumber *devtoolsId = [NSNumber numberWithInt:devtools_id];
+
     dispatch_async(HippyBridgeQueue(), ^{
         NSString *executorKey = [[NSString alloc] initWithFormat:@"VoltronExecutor_%lld", bridge_id];
         std::shared_ptr<DomManager> dom_manager = DomManager::Find(dom_manager_id);
@@ -182,7 +181,7 @@ int64_t BridgeImpl::InitJsEngine(std::shared_ptr<voltron::JSBridgeRuntime> platf
         std::shared_ptr<hippy::Engine> engine = std::make_shared<hippy::Engine>(dom_task_runner, nullptr);
         [[VoltronJSEnginesMapper defaultInstance] setEngine:engine forKey: executorKey];
         
-        [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_sp wsURL:wsURL debugMode:debugMode completion:^(BOOL succ) {
+        [bridge initJSFramework:globalConfig execurotKey:executorKey workerManager:worker_sp devtoolsId:devtoolsId debugMode:debugMode completion:^(BOOL succ) {
             callback(succ ? 1 : 0);
         }];
     });

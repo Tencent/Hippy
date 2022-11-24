@@ -25,7 +25,7 @@
 #include <memory>
 
 #ifdef ENABLE_INSPECTOR
-#include "devtools/devtools_data_source.h"
+#include "devtools/hippy_devtools_source.h"
 #endif
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconversion"

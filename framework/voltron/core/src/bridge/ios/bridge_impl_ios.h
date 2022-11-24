@@ -40,7 +40,7 @@ class BridgeImpl {
                               const std::shared_ptr<WorkerManager> &worker_manager,
                               uint32_t dom_manager_id,
                               const char16_t* char_globalConfig, size_t initial_heap_size, size_t maximum_heap_size,
-                              std::function<void(int64_t)> callback, const char16_t* char_data_dir, const char16_t* char_ws_url);
+                              std::function<void(int64_t)> callback, uint32_t devtools_id);
 
   static bool RunScriptFromUri(int64_t runtime_id,
                                uint32_t vfs_id,
