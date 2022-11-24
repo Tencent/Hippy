@@ -533,14 +533,18 @@ std::shared_ptr<ViewNode> ViewNode::RemoveChildAt(int32_t index) {
   return child;
 }
 
-void ViewNode::CheckAttachView(const std::shared_ptr<tdfcore::View>& view) {
+bool ViewNode::IsAttachViewMatch(const std::shared_ptr<ViewNode>& node, const std::shared_ptr<tdfcore::View>& view) {
+  auto node_type = node->GetViewName();
   auto view_type = view->GetType().GetName();
-  auto node_type = GetViewName();
-  if (node_type == kTextViewName) {
-    FOOTSTONE_DCHECK(std::string(view_type ? view_type : "") == "tdfcore::TextView");
-  } else if (node_type == kImageViewName) {
-    FOOTSTONE_DCHECK(std::string(view_type ? view_type : "") == "tdfcore::ImageView");
+  if (!view_type) {
+    view_type = "";
   }
+  if ((node_type == kTextViewName && std::string(view_type) != "tdfcore::TextView")
+   || (node_type == kImageViewName && std::string(view_type) != "tdfcore::ImageView")) {
+    return false;
+  }
+  // TODO(etkmao): maybe to check other node type
+  return true;
 }
 
 void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
@@ -558,7 +562,6 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     if (parent_.lock()->GetInterceptTouchEventFlag()) {
       view->SetHitTestBehavior(tdfcore::HitTestBehavior::kIgnore);
     }
-    CheckAttachView(view);
     attached_view_ = view;
   } else {
     // this should be the only caller of CreateView.
@@ -583,8 +586,17 @@ void ViewNode::Attach(const std::shared_ptr<tdfcore::View>& view) {
     auto child_index = static_cast<uint32_t >(child->GetRenderInfo().index);
     if (child_index < GetView()->GetChildren().size()) {
       child_view = GetView()->GetChildren()[child_index];
+      // must check match
+      if (!IsAttachViewMatch(child, child_view)) {
+        GetView()->RemoveView(child_view);
+        child_view = nullptr;
+      }
     }
     child->Attach(child_view);
+  }
+  // must delete not matched subviews
+  while (GetView()->GetChildren().size() > children_.size()) {
+    GetView()->RemoveView(GetView()->GetChildren().back());
   }
 
   OnAttach();  // notify the ViewNode
