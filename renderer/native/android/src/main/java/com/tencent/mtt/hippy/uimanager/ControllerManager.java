@@ -82,6 +82,8 @@ public class ControllerManager {
     private final Map<Integer, Pool<Integer, View>> mPreCreateViewPools = new HashMap<>();
     @NonNull
     private final Map<Integer, Pool<String, View>> mRecycleViewPools = new HashMap<>();
+    @Nullable
+    private static List<Class<?>> sDefaultControllers;
 
     public ControllerManager(@NonNull Renderer renderer) {
         mRenderer = renderer;
@@ -105,36 +107,38 @@ public class ControllerManager {
     }
 
     @NonNull
-    private List<Class<?>> getDefaultControllers() {
-        List<Class<?>> controllers = new ArrayList<>();
-        controllers.add(HippyTextViewController.class);
-        controllers.add(HippyViewGroupController.class);
-        controllers.add(HippyImageViewController.class);
-        controllers.add(HippyRecyclerViewController.class);
-        controllers.add(HippyListItemViewController.class);
-        controllers.add(HippyTextInputController.class);
-        controllers.add(HippyScrollViewController.class);
-        controllers.add(HippyViewPagerController.class);
-        controllers.add(HippyViewPagerItemController.class);
-        controllers.add(HippyModalHostManager.class);
-        controllers.add(RefreshWrapperController.class);
-        controllers.add(RefreshWrapperItemController.class);
-        controllers.add(HippyPullHeaderViewController.class);
-        controllers.add(HippyPullFooterViewController.class);
-        controllers.add(HippyWebViewController.class);
-        controllers.add(HippyCustomPropsController.class);
-        controllers.add(HippyWaterfallViewController.class);
-        controllers.add(HippyWaterfallItemViewController.class);
-        return controllers;
+    private synchronized void checkDefaultControllers() {
+        if (sDefaultControllers != null) {
+            return;
+        }
+        sDefaultControllers = new ArrayList<>();
+        sDefaultControllers.add(HippyTextViewController.class);
+        sDefaultControllers.add(HippyViewGroupController.class);
+        sDefaultControllers.add(HippyImageViewController.class);
+        sDefaultControllers.add(HippyRecyclerViewController.class);
+        sDefaultControllers.add(HippyListItemViewController.class);
+        sDefaultControllers.add(HippyTextInputController.class);
+        sDefaultControllers.add(HippyScrollViewController.class);
+        sDefaultControllers.add(HippyViewPagerController.class);
+        sDefaultControllers.add(HippyViewPagerItemController.class);
+        sDefaultControllers.add(HippyModalHostManager.class);
+        sDefaultControllers.add(RefreshWrapperController.class);
+        sDefaultControllers.add(RefreshWrapperItemController.class);
+        sDefaultControllers.add(HippyPullHeaderViewController.class);
+        sDefaultControllers.add(HippyPullFooterViewController.class);
+        sDefaultControllers.add(HippyWebViewController.class);
+        sDefaultControllers.add(HippyCustomPropsController.class);
+        sDefaultControllers.add(HippyWaterfallViewController.class);
+        sDefaultControllers.add(HippyWaterfallItemViewController.class);
     }
 
     @SuppressWarnings("rawtypes")
     private void processControllers(@Nullable List<Class<?>> controllers) {
-        List<Class<?>> defaultControllers = getDefaultControllers();
+        checkDefaultControllers();
         if (controllers != null) {
-            controllers.addAll(0, defaultControllers);
+            controllers.addAll(0, sDefaultControllers);
         } else {
-            controllers = defaultControllers;
+            controllers = sDefaultControllers;
         }
         for (Class cls : controllers) {
             if (!HippyViewController.class.isAssignableFrom(cls)) {

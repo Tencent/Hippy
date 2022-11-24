@@ -21,6 +21,11 @@ import android.content.ContextWrapper;
 import android.view.ViewGroup;
 import java.util.List;
 
+/**
+ * Native render context derives from {@link ContextWrapper} of android system,
+ * all Hippy views will hold this context, and the current renderer id and root view id
+ * can be obtained through this context
+ */
 public final class NativeRenderContext extends ContextWrapper {
 
     private int mInstanceId;

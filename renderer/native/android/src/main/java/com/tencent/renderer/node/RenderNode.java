@@ -50,13 +50,21 @@ import java.util.Map;
 public class RenderNode {
 
     private static final String TAG = "RenderNode";
+    /** Mark the layout information of the node to be updated. */
     public static final int FLAG_UPDATE_LAYOUT = 0x00000001;
+    /** Mark has new extra props of the text node, such as {@link android.text.Layout} */
     public static final int FLAG_UPDATE_EXTRA = 0x00000002;
+    /** Mark there are new events registered of the node. */
     public static final int FLAG_UPDATE_EVENT = 0x00000004;
+    /** Mark node need to update node attributes. */
     public static final int FLAG_UPDATE_TOTAL_PROPS = 0x00000008;
+    /** Mark node has been deleted. */
     public static final int FLAG_ALREADY_DELETED = 0x00000010;
+    /** Mark node attributes has been updated. */
     public static final int FLAG_ALREADY_UPDATED = 0x00000020;
+    /** Mark node lazy create host view, such as recycle view item sub views. */
     public static final int FLAG_LAZY_LOAD = 0x00000040;
+    /** Mark node has attach to host view. */
     public static final int FLAG_HAS_ATTACHED = 0x00000080;
     private int mNodeFlags = 0;
     private PoolType mPoolInUse = PoolType.NONE;

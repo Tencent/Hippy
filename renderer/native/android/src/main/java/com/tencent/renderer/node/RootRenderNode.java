@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 public class RootRenderNode extends RenderNode {
+
     private final int mRendererId;
     private final SparseArray<RenderNode> mNodes = new SparseArray<>(80);
     private final SparseArray<VirtualNode> mVirtualNodes = new SparseArray<>(40);
@@ -76,6 +77,7 @@ public class RootRenderNode extends RenderNode {
             String key = entry.getKey();
             Object value = entry.getValue();
             if (key != null && value instanceof Boolean) {
+                // Need to check and register for animation events
                 handleRootEvent(key, (Boolean) value);
             }
         }
