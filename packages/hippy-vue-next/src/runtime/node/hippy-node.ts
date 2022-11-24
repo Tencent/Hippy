@@ -109,7 +109,6 @@ export class HippyNode extends HippyEventTarget {
    */
   public get lastChild(): HippyNode | null {
     const len = this.childNodes.length;
-
     return len ? this.childNodes[len - 1] : null;
   }
 
@@ -155,6 +154,8 @@ export class HippyNode extends HippyEventTarget {
       throw new Error('No child to append');
     }
 
+    // if childNode is the same as the last child, skip appending
+    if (this.lastChild === child) return;
     // If the node to be added has a parent node and
     // the parent node is not the current node, remove it from the container first
     // In the case of keep-alive, the node still exists and will be moved to the virtual container
