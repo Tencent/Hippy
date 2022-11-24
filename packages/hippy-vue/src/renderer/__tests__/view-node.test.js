@@ -54,6 +54,10 @@ test('append exist child test', (t) => {
   parentNode.appendChild(childNode2);
   parentNode.appendChild(childNode);
   t.is(parentNode.lastChild, childNode);
+  parentNode.appendChild(childNode);
+  parentNode.appendChild(childNode);
+  t.is(parentNode.lastChild, childNode);
+  t.is(parentNode.childNodes.length, 3);
 });
 
 test('findChild test', (t) => {
