@@ -17,28 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef ENABLE_INSPECTOR
 #pragma once
 
-#include <string>
+#include "api/adapter/devtools_tracing_adapter.h"
 
-#include "api/adapter/devtools_vm_request_adapter.h"
-
-namespace hippy {
-namespace devtools {
-class HippyVmRequestAdapter : public hippy::devtools::VmRequestAdapter {
- public:
-  using VmRequestHandler = std::function<void(std::string)>;
-  explicit HippyVmRequestAdapter(VmRequestHandler request_handler) : request_handler_(std::move(request_handler)) {}
-  inline void SendMsgToVm(std::string msg) override {
-    if (request_handler_) {
-      request_handler_(msg);
-    }
-  }
-
- private:
-  VmRequestHandler request_handler_;
+namespace hippy::devtools {
+class HippyTracingAdapter : public hippy::devtools::TracingAdapter {
+  void StartTracing() override;
+  void StopTracing(const std::string& params_key, TracingDataCallback callback) override;
 };
-}  // namespace devtools
-}  // namespace hippy
-#endif
+}  // namespace hippy::devtools

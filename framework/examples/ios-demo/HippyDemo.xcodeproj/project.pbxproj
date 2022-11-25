@@ -14,7 +14,6 @@
 		067AB96F23B5EEF4009D5EE2 /* TestModule.mm in Sources */ = {isa = PBXBuildFile; fileRef = 067AB96D23B5EEF3009D5EE2 /* TestModule.mm */; };
 		067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97123B5F309009D5EE2 /* MyViewManager.mm */; };
 		067AB97623B5F309009D5EE2 /* MyView.m in Sources */ = {isa = PBXBuildFile; fileRef = 067AB97423B5F309009D5EE2 /* MyView.m */; };
-		9B3546F8292F725F00FED361 /* hippy_devtools_source.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9B3546F7292F725F00FED361 /* hippy_devtools_source.cc */; };
 		9B354711292F737000FED361 /* libbase64.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B354706292F727300FED361 /* libbase64.a */; };
 		9B354712292F737300FED361 /* libdevtools_backend.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B35470A292F727300FED361 /* libdevtools_backend.a */; };
 		9B354713292F737400FED361 /* libdevtools_integration_native.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9B35470C292F727300FED361 /* libdevtools_integration_native.a */; };
@@ -24,11 +23,6 @@
 		F47914E62924D37000B2DBB6 /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F47914E52924D37000B2DBB6 /* CoreServices.framework */; };
 		F48D3802289BA662007BD6FE /* scope.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D379E289BA661007BD6FE /* scope.cc */; };
 		F48D3803289BA662007BD6FE /* engine.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D379F289BA661007BD6FE /* engine.cc */; };
-		F48D3809289BA662007BD6FE /* trace_control.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37A9289BA661007BD6FE /* trace_control.cc */; };
-		F48D380B289BA662007BD6FE /* hippy_screen_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37AD289BA661007BD6FE /* hippy_screen_adapter.cc */; };
-		F48D380C289BA662007BD6FE /* hippy_dom_tree_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37AE289BA661007BD6FE /* hippy_dom_tree_adapter.cc */; };
-		F48D380D289BA662007BD6FE /* hippy_tracing_adapter.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37AF289BA661007BD6FE /* hippy_tracing_adapter.cc */; };
-		F48D380E289BA662007BD6FE /* devtools_utils.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37B0289BA661007BD6FE /* devtools_utils.cc */; };
 		F48D380F289BA662007BD6FE /* module_register.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37B2289BA661007BD6FE /* module_register.cc */; };
 		F48D3810289BA662007BD6FE /* ui_manager_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37B3289BA661007BD6FE /* ui_manager_module.cc */; };
 		F48D3811289BA662007BD6FE /* animation_module.cc in Sources */ = {isa = PBXBuildFile; fileRef = F48D37B4289BA661007BD6FE /* animation_module.cc */; };
@@ -95,6 +89,20 @@
 			remoteGlobalIDString = 2E8C07E1EF1F42E39A802A9D;
 			remoteInfo = vfs_native;
 		};
+		9B3629BF2930B1F0002019D2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D0AE481F81394D58A90147E7;
+			remoteInfo = dom;
+		};
+		9B3629C12930B1F0002019D2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 183DF67331914B5AA49F75C0;
+			remoteInfo = taitank;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -112,8 +120,6 @@
 		067AB97223B5F309009D5EE2 /* MyView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyView.h; sourceTree = "<group>"; };
 		067AB97323B5F309009D5EE2 /* MyViewManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyViewManager.h; sourceTree = "<group>"; };
 		067AB97423B5F309009D5EE2 /* MyView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyView.m; sourceTree = "<group>"; };
-		9B3546F6292F725200FED361 /* hippy_devtools_source.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hippy_devtools_source.h; sourceTree = "<group>"; };
-		9B3546F7292F725F00FED361 /* hippy_devtools_source.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_devtools_source.cc; sourceTree = "<group>"; };
 		9B3546F9292F727300FED361 /* DevtoolsIntegration.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = DevtoolsIntegration.xcodeproj; path = "../../../devtools/devtools-integration/ios/DevtoolsBackend/DevtoolsIntegration.xcodeproj"; sourceTree = "<group>"; };
 		AC63515523F92C99007FABA5 /* TTTGB-Medium.otf */ = {isa = PBXFileReference; lastKnownFileType = text; path = "TTTGB-Medium.otf"; sourceTree = "<group>"; };
 		B2C1237A278C0C140081B8AF /* DemoConfigs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoConfigs.h; sourceTree = "<group>"; };
@@ -130,11 +136,6 @@
 		F47914E72924D52200B2DBB6 /* libbase64.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libbase64.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F48D379E289BA661007BD6FE /* scope.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scope.cc; sourceTree = "<group>"; };
 		F48D379F289BA661007BD6FE /* engine.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cc; sourceTree = "<group>"; };
-		F48D37A9289BA661007BD6FE /* trace_control.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trace_control.cc; sourceTree = "<group>"; };
-		F48D37AD289BA661007BD6FE /* hippy_screen_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_screen_adapter.cc; sourceTree = "<group>"; };
-		F48D37AE289BA661007BD6FE /* hippy_dom_tree_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_dom_tree_adapter.cc; sourceTree = "<group>"; };
-		F48D37AF289BA661007BD6FE /* hippy_tracing_adapter.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hippy_tracing_adapter.cc; sourceTree = "<group>"; };
-		F48D37B0289BA661007BD6FE /* devtools_utils.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = devtools_utils.cc; sourceTree = "<group>"; };
 		F48D37B2289BA661007BD6FE /* module_register.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = module_register.cc; sourceTree = "<group>"; };
 		F48D37B3289BA661007BD6FE /* ui_manager_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ui_manager_module.cc; sourceTree = "<group>"; };
 		F48D37B4289BA661007BD6FE /* animation_module.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animation_module.cc; sourceTree = "<group>"; };
@@ -171,14 +172,6 @@
 		F48D37F3289BA662007BD6FE /* js_native_turbo_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_turbo_jsc.h; sourceTree = "<group>"; };
 		F48D37F4289BA662007BD6FE /* js_native_jsc_helper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_jsc_helper.h; sourceTree = "<group>"; };
 		F48D37F5289BA662007BD6FE /* js_native_api_jsc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = js_native_api_jsc.h; sourceTree = "<group>"; };
-		F48D37F7289BA662007BD6FE /* trace_control.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trace_control.h; sourceTree = "<group>"; };
-		F48D37FA289BA662007BD6FE /* hippy_dom_tree_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_tree_adapter.h; sourceTree = "<group>"; };
-		F48D37FB289BA662007BD6FE /* hippy_vm_request_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_vm_request_adapter.h; sourceTree = "<group>"; };
-		F48D37FC289BA662007BD6FE /* hippy_tracing_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_tracing_adapter.h; sourceTree = "<group>"; };
-		F48D37FD289BA662007BD6FE /* hippy_screen_adapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_screen_adapter.h; sourceTree = "<group>"; };
-		F48D37FF289BA662007BD6FE /* devtools_macro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_macro.h; sourceTree = "<group>"; };
-		F48D3800289BA662007BD6FE /* hippy_dom_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hippy_dom_data.h; sourceTree = "<group>"; };
-		F48D3801289BA662007BD6FE /* devtools_utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = devtools_utils.h; sourceTree = "<group>"; };
 		F4922260292E202D006C4E01 /* libBase.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libBase.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4922262292E202D006C4E01 /* libFramework.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFramework.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4922264292E202D006C4E01 /* libImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libImage.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -267,7 +260,9 @@
 				9B354708292F727300FED361 /* base64 */,
 				9B35470A292F727300FED361 /* libdevtools_backend.a */,
 				9B35470C292F727300FED361 /* libdevtools_integration_native.a */,
+				9B3629C02930B1F0002019D2 /* libdom.a */,
 				9B35470E292F727300FED361 /* libfootstone.a */,
+				9B3629C22930B1F0002019D2 /* libtaitank.a */,
 				9B354710292F727300FED361 /* libvfs_native.a */,
 			);
 			name = Products;
@@ -327,42 +322,12 @@
 			children = (
 				F48D379E289BA661007BD6FE /* scope.cc */,
 				F48D379F289BA661007BD6FE /* engine.cc */,
-				F48D37A8289BA661007BD6FE /* devtools */,
 				F48D37B1289BA661007BD6FE /* modules */,
 				F48D37BA289BA661007BD6FE /* base */,
 				F48D37BD289BA661007BD6FE /* napi */,
 			);
 			name = src;
 			path = ../../../driver/js/src;
-			sourceTree = "<group>";
-		};
-		F48D37A8289BA661007BD6FE /* devtools */ = {
-			isa = PBXGroup;
-			children = (
-				F48D37A9289BA661007BD6FE /* trace_control.cc */,
-				9B3546F7292F725F00FED361 /* hippy_devtools_source.cc */,
-				F48D37AB289BA661007BD6FE /* adapter */,
-				F48D37B0289BA661007BD6FE /* devtools_utils.cc */,
-			);
-			path = devtools;
-			sourceTree = "<group>";
-		};
-		F48D37AB289BA661007BD6FE /* adapter */ = {
-			isa = PBXGroup;
-			children = (
-				F48D37AC289BA661007BD6FE /* impl */,
-			);
-			path = adapter;
-			sourceTree = "<group>";
-		};
-		F48D37AC289BA661007BD6FE /* impl */ = {
-			isa = PBXGroup;
-			children = (
-				F48D37AD289BA661007BD6FE /* hippy_screen_adapter.cc */,
-				F48D37AE289BA661007BD6FE /* hippy_dom_tree_adapter.cc */,
-				F48D37AF289BA661007BD6FE /* hippy_tracing_adapter.cc */,
-			);
-			path = impl;
 			sourceTree = "<group>";
 		};
 		F48D37B1289BA661007BD6FE /* modules */ = {
@@ -413,7 +378,6 @@
 			isa = PBXGroup;
 			children = (
 				F48D37CA289BA661007BD6FE /* driver */,
-				F48D37F6289BA662007BD6FE /* devtools */,
 			);
 			name = include;
 			path = ../../../driver/js/include;
@@ -477,30 +441,6 @@
 				F48D37F5289BA662007BD6FE /* js_native_api_jsc.h */,
 			);
 			path = jsc;
-			sourceTree = "<group>";
-		};
-		F48D37F6289BA662007BD6FE /* devtools */ = {
-			isa = PBXGroup;
-			children = (
-				F48D37F7289BA662007BD6FE /* trace_control.h */,
-				9B3546F6292F725200FED361 /* hippy_devtools_source.h */,
-				F48D37F9289BA662007BD6FE /* adapter */,
-				F48D37FF289BA662007BD6FE /* devtools_macro.h */,
-				F48D3800289BA662007BD6FE /* hippy_dom_data.h */,
-				F48D3801289BA662007BD6FE /* devtools_utils.h */,
-			);
-			path = devtools;
-			sourceTree = "<group>";
-		};
-		F48D37F9289BA662007BD6FE /* adapter */ = {
-			isa = PBXGroup;
-			children = (
-				F48D37FA289BA662007BD6FE /* hippy_dom_tree_adapter.h */,
-				F48D37FB289BA662007BD6FE /* hippy_vm_request_adapter.h */,
-				F48D37FC289BA662007BD6FE /* hippy_tracing_adapter.h */,
-				F48D37FD289BA662007BD6FE /* hippy_screen_adapter.h */,
-			);
-			path = adapter;
 			sourceTree = "<group>";
 		};
 		F49817C328E18D1A00000889 /* vfsloader */ = {
@@ -614,6 +554,20 @@
 			remoteRef = 9B35470F292F727300FED361 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		9B3629C02930B1F0002019D2 /* libdom.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libdom.a;
+			remoteRef = 9B3629BF2930B1F0002019D2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		9B3629C22930B1F0002019D2 /* libtaitank.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libtaitank.a;
+			remoteRef = 9B3629C12930B1F0002019D2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -637,7 +591,6 @@
 				0612F02923A8BE320079E622 /* ViewController.mm in Sources */,
 				0612F02323A8BE320079E622 /* AppDelegate.m in Sources */,
 				F48D3811289BA662007BD6FE /* animation_module.cc in Sources */,
-				F48D380E289BA662007BD6FE /* devtools_utils.cc in Sources */,
 				F48D3810289BA662007BD6FE /* ui_manager_module.cc in Sources */,
 				F48D3813289BA662007BD6FE /* scene_builder.cc in Sources */,
 				F48D3802289BA662007BD6FE /* scope.cc in Sources */,
@@ -645,19 +598,14 @@
 				F48D380F289BA662007BD6FE /* module_register.cc in Sources */,
 				067AB97523B5F309009D5EE2 /* MyViewManager.mm in Sources */,
 				F48D3821289BA662007BD6FE /* js_native_api_jsc.cc in Sources */,
-				F48D380C289BA662007BD6FE /* hippy_dom_tree_adapter.cc in Sources */,
 				F48D3816289BA662007BD6FE /* event_module.cc in Sources */,
 				F48D3817289BA662007BD6FE /* js_value_wrapper.cc in Sources */,
 				F42EA79B277C354C007874A2 /* TurboBaseModule.mm in Sources */,
 				F49817C628E18DC200000889 /* HippyDemoLoader.mm in Sources */,
-				F48D380D289BA662007BD6FE /* hippy_tracing_adapter.cc in Sources */,
 				F48D381C289BA662007BD6FE /* callback_info.cc in Sources */,
 				0612F03423A8BE330079E622 /* main.m in Sources */,
 				F48D3812289BA662007BD6FE /* console_module.cc in Sources */,
-				9B3546F8292F725F00FED361 /* hippy_devtools_source.cc in Sources */,
 				F48D3815289BA662007BD6FE /* contextify_module.cc in Sources */,
-				F48D380B289BA662007BD6FE /* hippy_screen_adapter.cc in Sources */,
-				F48D3809289BA662007BD6FE /* trace_control.cc in Sources */,
 				F48D381E289BA662007BD6FE /* js_native_jsc_helper.cc in Sources */,
 				F42EA79A277C354C007874A2 /* TurboConfig.m in Sources */,
 				F48D3820289BA662007BD6FE /* js_native_api_value_jsc.cc in Sources */,

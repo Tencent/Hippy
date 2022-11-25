@@ -54,7 +54,7 @@
 #include "driver/scope.h"
 #include "driver/engine.h"
 #ifdef ENABLE_INSPECTOR
-#include "devtools/hippy_devtools_source.h"
+#include "devtools/devtools_data_source.h"
 #endif
 
 NSString *const HippyJSCThreadName = @"com.tencent.Voltron.JavaScript";
@@ -122,7 +122,7 @@ struct RandomAccessBundleData {
         // create devtools
         if (debugMode) {
             auto devtools_id = [devtoolsId intValue];
-            auto devtools_data_source = hippy::devtools::HippyDevtoolsSource::Find(devtools_id);
+            auto devtools_data_source = hippy::devtools::DevtoolsDataSource::Find(devtools_id);
             self.pScope->SetDevtoolsDataSource(devtools_data_source);
         }
     #endif

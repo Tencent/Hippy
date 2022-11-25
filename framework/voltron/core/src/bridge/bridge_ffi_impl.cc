@@ -41,8 +41,8 @@
 #endif
 
 #ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
 #include "devtools/vfs/devtools_handler.h"
-#include "devtools/devtools_macro.h"
 #endif
 
 #ifdef __cplusplus
@@ -475,9 +475,9 @@ EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id, const char16_t* ch
   auto ws_url = voltron::C16CharToString(char_ws_url);
   std::shared_ptr<WorkerManager> worker_manager = voltron::BridgeManager::FindWorkerManager(work_manager_id);
   FOOTSTONE_DCHECK(worker_manager != nullptr);
-  DEVTOOLS_INIT_VM_TRACING_CACHE(data_dir);
-  auto devtools_data_source = std::make_shared<hippy::devtools::HippyDevtoolsSource>(ws_url, worker_manager);
-  id = hippy::devtools::HippyDevtoolsSource::Insert(devtools_data_source);
+  hippy::devtools::DevtoolsDataSource::SetFileCacheDir(data_dir);
+  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(ws_url, worker_manager);
+  id = hippy::devtools::DevtoolsDataSource::Insert(devtools_data_source);
   FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
 #endif
   return id;
@@ -485,9 +485,9 @@ EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id, const char16_t* ch
 
 EXTERN_C void DestroyDevtoolsFFI(uint32_t devtools_id, int32_t is_reload) {
 #ifdef ENABLE_INSPECTOR
-  auto devtools_data_source = hippy::devtools::HippyDevtoolsSource::Find(devtools_id);
+  auto devtools_data_source = hippy::devtools::DevtoolsDataSource::Find(devtools_id);
   devtools_data_source->Destroy(is_reload);
-  bool flag = hippy::devtools::HippyDevtoolsSource::Erase(devtools_id);
+  bool flag = hippy::devtools::DevtoolsDataSource::Erase(devtools_id);
   FOOTSTONE_DLOG(INFO)<< "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
 #endif

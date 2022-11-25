@@ -17,10 +17,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifdef JS_V8
 
-#include "devtools/trace_control.h"
+#include "devtools/v8/trace_control.h"
 
 #include <fstream>
 #include <sstream>
@@ -98,5 +97,4 @@ void TraceControl::StopTracing() {
   }
 }
 }  // namespace hippy::devtools
-
 #endif

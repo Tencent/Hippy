@@ -17,26 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef ENABLE_INSPECTOR
 #pragma once
 
-#include <string>
-
-#include "api/adapter/devtools_dom_tree_adapter.h"
-#include "devtools/hippy_dom_data.h"
+#include "dom/root_node.h"
 
 namespace hippy::devtools {
-class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
- public:
-  explicit HippyDomTreeAdapter(std::shared_ptr<HippyDomData> hippy_dom) : hippy_dom_(hippy_dom) {}
-  void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
-  void GetDomTree(DumpDomTreeCallback callback) override;
-  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
-  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
-  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
-
- private:
-  std::shared_ptr<HippyDomData> hippy_dom_;
+struct HippyDomData {
+  uint32_t dom_id;
+  std::weak_ptr<RootNode> root_node;
 };
 }  // namespace hippy::devtools
-#endif
