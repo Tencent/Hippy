@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.3](https://github.com/Tencent/Hippy/compare/2.15.2...2.15.3) (2022-11-25)
+
+
+### Bug Fixes
+
+* **react,vue:** change measureInAppWindow error return value ([2a96aaf](https://github.com/Tencent/Hippy/commit/2a96aaf43cd4fdc274bb7be8fb79d2f4d1f76835))
+* **react,vue:** fix getBoundingClientRect errMsg syntax ([8348fef](https://github.com/Tencent/Hippy/commit/8348fef6fd01a8682eba7c219a3c321895d6b0f6))
+
+
+### Features
+
+* **android,ios,js:** add getBoundingClientRect method ([#2651](https://github.com/Tencent/Hippy/issues/2651)) ([92ab25b](https://github.com/Tencent/Hippy/commit/92ab25bb2f9d77851f34f24077223ba0a16d1cae)), closes [#4](https://github.com/Tencent/Hippy/issues/4)
+
+
+
+
+
 ## [2.15.2](https://github.com/Tencent/Hippy/compare/2.15.1...2.15.2) (2022-11-07)
 
 **Note:** Version bump only for package @hippy/react

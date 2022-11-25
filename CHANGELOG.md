@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.3](https://github.com/Tencent/Hippy/compare/2.15.2...2.15.3) (2022-11-25)
+
+
+### Bug Fixes
+
+* **android:** edit `getBoundingClientRect` callback format ([080afd4](https://github.com/Tencent/Hippy/commit/080afd466d70edfb8606e2cdb96cb3f520662664))
+* **android:** horizontal scroll view smoothScrollToPage crash ([e965de7](https://github.com/Tencent/Hippy/commit/e965de7001b9ad39638f21f9b953dc33cbf38db2))
+* **android:** waterfall banner not affected by parent honrizon padding; ([f6d6f30](https://github.com/Tencent/Hippy/commit/f6d6f3094ede711322fb29c4f45a21488422b606))
+* **ios:** correct hittest when view has animation ([779d813](https://github.com/Tencent/Hippy/commit/779d813f5e34f16e3109783117aa86ad15b8057c))
+* **iOS:** delete tmp log ([9174cad](https://github.com/Tencent/Hippy/commit/9174cad8c03a6db57f2a6cc093e205fd56efe65f))
+* **ios:** edit `getBoundingClientRect` callback format ([60e5d98](https://github.com/Tencent/Hippy/commit/60e5d98ab0ccd334682547682f4d356e3cb1cf7f))
+* **ios:** need to extern as C if cpp is defined ([3c8b4dc](https://github.com/Tencent/Hippy/commit/3c8b4dc75bbf1f55a6c17ee2915fe7dfad699c59))
+* **iOS:** refresh header not rebound automatically ([9815a23](https://github.com/Tencent/Hippy/commit/9815a230191d528cd757b3eaf927993fad025212))
+* **ios:** subviews of animated view cannot be clicked ([99379c3](https://github.com/Tencent/Hippy/commit/99379c3d81513319e4095187302bcb82afd3cf20))
+* **react,vue:** change measureInAppWindow error return value ([2a96aaf](https://github.com/Tencent/Hippy/commit/2a96aaf43cd4fdc274bb7be8fb79d2f4d1f76835))
+* **react,vue:** fix getBoundingClientRect errMsg syntax ([8348fef](https://github.com/Tencent/Hippy/commit/8348fef6fd01a8682eba7c219a3c321895d6b0f6))
+* **v8:** fix `V8` OOM crash when inspector enable the js debugger ([f052977](https://github.com/Tencent/Hippy/commit/f05297725840dd073b236805654849393a3cef42))
+* **vue-css-loader:** update loader-utils to safe version ([aca8175](https://github.com/Tencent/Hippy/commit/aca81753c1f3401c9c8aeb24b860adb3757ee79a))
+* **workflow:** fix CodeQL exception when default run ([615600b](https://github.com/Tencent/Hippy/commit/615600bed81ffb2b390777c5e6069c1ed9514eda))
+* **workflows:** fix backtrace parsing incorrect problem in crash report ([af4b1cc](https://github.com/Tencent/Hippy/commit/af4b1ccc24b0c9b84a4320d298ab83af33919328))
+* **workflows:** fix CodeQL languages detection bug on PR request ([fe2446d](https://github.com/Tencent/Hippy/commit/fe2446dd57ca44a0d4500c60e441d0aae8c2724f))
+
+
+### Features
+
+* **android,ios,js:** add getBoundingClientRect method ([#2651](https://github.com/Tencent/Hippy/issues/2651)) ([92ab25b](https://github.com/Tencent/Hippy/commit/92ab25bb2f9d77851f34f24077223ba0a16d1cae)), closes [#4](https://github.com/Tencent/Hippy/issues/4)
+* **ci:** implement iOS project artifact compare ([bb2c868](https://github.com/Tencent/Hippy/commit/bb2c868f2ca2a19ddcd610c43968360d975b796b))
+* **core:** adapt to different v8 versions ([5a9723f](https://github.com/Tencent/Hippy/commit/5a9723f87680f90d9e137071b6718dd20310185b))
+* **core:** add performance api for new x5 v8 ([991f4fe](https://github.com/Tencent/Hippy/commit/991f4fe4de2a4d557f1cf874d8869670d9ab680f))
+* **ios,android,vue:** add load result param for webView's onLoadEnd api ([#2667](https://github.com/Tencent/Hippy/issues/2667)) ([bbdd9ae](https://github.com/Tencent/Hippy/commit/bbdd9ae60cc6eafff57332288822e57fc4cf46a7))
+* **v8:** heap limit increases considering the old generation capacity ([6ddecf8](https://github.com/Tencent/Hippy/commit/6ddecf8c994dd4cde0727a33b76355efd62acbb2))
+* **vue:** add whitespace handler config ([8a65d23](https://github.com/Tencent/Hippy/commit/8a65d2391d67131b6e18dfea0e0b74cdf37958c0))
+* **workflows:** `XCode` project adaptation ([219b532](https://github.com/Tencent/Hippy/commit/219b532feb4c80696c78bd56948a55429864e88a))
+* **workflows:** add project code line exclude files support ([d104760](https://github.com/Tencent/Hippy/commit/d1047603c0c880019245bb0d0582f1764a1416aa))
+* **workflows:** change `XCode` project scheme name ([1100b8d](https://github.com/Tencent/Hippy/commit/1100b8da829c29cf9290b594db0618407c991bd2))
+* **workflows:** iOS build tests add different configurations ([36f624b](https://github.com/Tencent/Hippy/commit/36f624b4b0f0d46fede713038b58ced89dea206d))
+* **workflows:** remove unnecessary `Cocoapods` installation step ([4682c3c](https://github.com/Tencent/Hippy/commit/4682c3ca66a44fa8053092bb22cd7384f9d96695))
+
+
+### Performance Improvements
+
+* **vue:** ignore to append existed node to improve router performance ([cc24c27](https://github.com/Tencent/Hippy/commit/cc24c27bc4995f7b13051b4939339725ed2f86b2))
+
+
+
+
+
 ## [2.15.2](https://github.com/Tencent/Hippy/compare/2.15.1...2.15.2) (2022-11-07)
 
 
