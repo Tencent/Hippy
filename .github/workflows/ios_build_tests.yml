@@ -39,6 +39,9 @@ jobs:
           lfs: true
       - name: Build
         run: |
+          pushd framework/examples/ios-demo
+          ./cmakebuild.sh
+          popd
           xcodebuild -workspace 'Hippy.xcworkspace' -list | \
           sed -n '/Schemes/,/^$/p' | \
           grep -v "Schemes:" | \
