@@ -56,7 +56,6 @@ export function trace(...context: NeedToTyped[]): void {
   if (IS_PROD || isSilent) {
     return;
   }
-
   console.log(...context);
 }
 
