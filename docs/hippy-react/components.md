@@ -248,7 +248,7 @@ import icon from './qb_icon_new.png';
 | scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
 | scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                        | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android\、hippy-react-web` |
+| showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android、hippy-react-web` |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS`    |
 
