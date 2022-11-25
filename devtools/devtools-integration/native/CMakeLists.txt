@@ -40,13 +40,13 @@ if ("${JS_ENGINE}" STREQUAL "V8")
     target_link_libraries(${PROJECT_NAME} PRIVATE v8)
 
     # The following definitions are used by PUBLIC header files
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_V8")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_V8")
     get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
     if (V8_WITHOUT_INSPECTOR)
-        target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
+        target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
     endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSC")
 endif ()
 # endregion
 
