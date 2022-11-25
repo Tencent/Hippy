@@ -51,11 +51,12 @@ test('ElementNode API', async (t) => {
     t.true(util.isFunction(node.insertBefore));
     t.true(util.isFunction(node.moveChild));
     t.true(util.isFunction(node.removeChild));
+    t.true(util.isFunction(node.getBoundingClientRect));
 
     t.true(node.classList instanceof Set);
     t.true(node.style instanceof Object);
     t.true(node.attributes instanceof Object);
-  }, 'ElementNode APIs have breaking changes, please update const variable \'BEFORE_RENDER_TO_NATIVE_HOOK_VERSION\' to disable this hook');
+  }, 'ElementNode APIs have breaking changes, please update const variable \'BEFORE_RENDER_TO_NATIVE_HOOK_VERSION\'');
 });
 
 test('ViewNode API', async (t) => {
@@ -73,5 +74,5 @@ test('ViewNode API', async (t) => {
     node.appendChild(childNode2);
     t.true(node.firstChild === childNode1);
     t.true(node.lastChild === childNode2);
-  }, 'ViewNode APIs have breaking changes, please update const variable \'BEFORE_RENDER_TO_NATIVE_HOOK_VERSION\' to disable this hook');
+  }, 'ViewNode APIs have breaking changes, please update const variable \'BEFORE_RENDER_TO_NATIVE_HOOK_VERSION\'');
 });

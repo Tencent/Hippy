@@ -42,6 +42,7 @@ let _Vue;
  * @returns {Object} decl - Processed declaration, original declaration by default.
  */
 let _beforeLoadStyle = decl => decl;
+let _beforeRenderToNative = () => {};
 
 /**
  * before render ElementNode hook
