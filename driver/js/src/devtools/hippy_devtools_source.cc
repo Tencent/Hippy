@@ -49,8 +49,12 @@ HippyDevtoolsSource::HippyDevtoolsSource(
     std::shared_ptr<footstone::WorkerManager> worker_manager) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
-  devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
-  devtools_config.ws_url = ws_url;
+  if (!ws_url.empty()) {  // if hava websocket url, then use websocket tunnel first
+    devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
+    devtools_config.ws_url = ws_url;
+  } else {  // empty websocket url, then use tcp tunnel by usb channel
+    devtools_config.tunnel = hippy::devtools::Tunnel::kTcp;
+  }
   devtools_service_ = std::make_shared<hippy::devtools::DevtoolsBackendService>(devtools_config, worker_manager);
   devtools_service_->Create();
 }

@@ -41,14 +41,12 @@ class TdfInspectorDomain : public BaseDomain, public std::enable_shared_from_thi
   explicit TdfInspectorDomain(std::weak_ptr<DomainDispatch> dispatch);
   std::string GetDomainName() override;
   void RegisterMethods() override;
-  void RegisterCallback() override;
+  void RegisterCallback() override {}
 
  private:
   std::shared_ptr<TDFInspectorModel> tdf_inspector_model_;
   std::shared_ptr<FramePollModel> frame_poll_model_;
   std::shared_ptr<ScreenShotModel> screen_shot_model_;
-
-  void DumpDomTree(const BaseRequest& request);
 
   /**
    * @brief get dom tree

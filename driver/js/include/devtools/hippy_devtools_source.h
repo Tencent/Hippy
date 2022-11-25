@@ -24,8 +24,16 @@
 #include "devtools/hippy_dom_data.h"
 
 namespace hippy::devtools {
+/**
+ * @brief devtools data source implement by hippy
+ */
 class HippyDevtoolsSource : public DevtoolsDataSource {
  public:
+  /**
+   * create devtools data source instance
+   * @param ws_url websocket url, if empty then use other tunnel
+   * @param worker_manager worker thread for devtools
+   */
   HippyDevtoolsSource(const std::string& ws_url,
                       std::shared_ptr<footstone::WorkerManager> worker_manager);
   virtual ~HippyDevtoolsSource() = default;
@@ -38,6 +46,9 @@ class HippyDevtoolsSource : public DevtoolsDataSource {
     return devtools_service_->GetNotificationCenter();
   }
 
+  /**
+   * manage devtools_data_source instance by global data map
+   */
   static uint32_t Insert(const std::shared_ptr<DevtoolsDataSource>& devtools_data_source);
   static std::shared_ptr<DevtoolsDataSource> Find(uint32_t id);
   static bool Erase(uint32_t id);
@@ -57,7 +68,7 @@ class HippyDevtoolsSource : public DevtoolsDataSource {
 #endif
 
   std::shared_ptr<HippyDomData> hippy_dom_;
-  uint64_t listener_id_;
+  uint64_t listener_id_{};
   std::shared_ptr<hippy::devtools::DevtoolsBackendService> devtools_service_;
 };
 

@@ -21,8 +21,8 @@
 #include "module/domain/tdf_inspector_domain.h"
 #include <utility>
 #include "api/devtools_backend_service.h"
-#include "footstone/macros.h"
 #include "footstone/logging.h"
+#include "footstone/macros.h"
 #include "module/domain_register.h"
 
 namespace hippy::devtools {
@@ -33,10 +33,10 @@ constexpr char kRenderTreeUpdated[] = "TDFInspector.renderTreeUpdated";
 TdfInspectorDomain::TdfInspectorDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(std::move(dispatch)) {
   tdf_inspector_model_ = std::make_shared<TDFInspectorModel>();
   frame_poll_model_ = std::make_shared<FramePollModel>(GetWorkerManager());
-  screen_shot_model_ = std::make_shared<ScreenShotModel>();
   frame_poll_model_->InitTask();
-  screen_shot_model_->SetDataProvider(GetDataProvider());
   frame_poll_model_->SetDataProvider(GetDataProvider());
+  screen_shot_model_ = std::make_shared<ScreenShotModel>();
+  screen_shot_model_->SetDataProvider(GetDataProvider());
   HandleScreenShotUpdatedNotification();
   HandleFramePollModelRefreshNotification();
 }
@@ -52,8 +52,6 @@ void TdfInspectorDomain::RegisterMethods() {
   REGISTER_DOMAIN(TdfInspectorDomain, EnableUpdateNotification, BaseRequest);
   REGISTER_DOMAIN(TdfInspectorDomain, DisableUpdateNotification, BaseRequest);
 }
-
-void TdfInspectorDomain::RegisterCallback() {}
 
 void TdfInspectorDomain::GetDomTree(const BaseRequest& request) {
   auto dom_tree_adapter = GetDataProvider()->dom_tree_adapter;
