@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import android.text.TextUtils;
+import java.util.ArrayList;
 import java.util.HashMap;
 import org.junit.After;
 import org.junit.Before;
@@ -30,7 +31,7 @@ public class DiffUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        //System.setProperty("org.mockito.mock.android", "true");
+        System.setProperty("org.mockito.mock.android", "true");
     }
 
     @After
@@ -58,17 +59,34 @@ public class DiffUtilsTest {
                 return args[0].toString().equals(args[1].toString());
             }
         });
+        // Compare the same key with different values.
         HashMap<String, Object> diffMap = (HashMap) DiffUtils.diffMap(fromMap, toMap);
         assertEquals(diffMap.containsKey("K3"), true);
         assertEquals(diffMap.containsKey("K2"), true);
         assertEquals(diffMap.containsKey("K1"), true);
         assertEquals(diffMap.containsKey("K4"), true);
+        assertEquals(diffMap.get("K1"), "T1");
+        assertEquals(diffMap.get("K2"), "T2");
         toMap.put("K1", "F1");
         toMap.put("K2", "F2");
+        ArrayList<String> fromList = new ArrayList<>();
+        ArrayList<String> toList = new ArrayList<>();
+        fromList.add("L1");
+        fromMap.put("K5", fromList);
+        toList.add("L1");
+        toMap.put("K5", toList);
+        // Compare the same key with same values, and same array size with same array elements.
         diffMap = (HashMap) DiffUtils.diffMap(fromMap, toMap);
         assertEquals(diffMap.containsKey("K4"), true);
         assertEquals(diffMap.containsKey("K3"), true);
         assertEquals(diffMap.containsKey("K2"), false);
         assertEquals(diffMap.containsKey("K1"), false);
+        assertEquals(diffMap.containsKey("K5"), false);
+        toList.clear();
+        toList.add("L2");
+        // Compare the same array size with different array elements.
+        diffMap = (HashMap) DiffUtils.diffMap(fromMap, toMap);
+        assertEquals(diffMap.containsKey("K5"), true);
+        assertEquals(diffMap.get("K5"), toList);
     }
 }

@@ -45,6 +45,7 @@ dependencies {
 
     androidTestImplementation deps.mockito_android
     testImplementation project(path: ':hippy-support')
+    testImplementation project(path: ':serialization')
     testImplementation deps.junit
     testImplementation deps.mockito_core
     testImplementation deps.mockito_android
