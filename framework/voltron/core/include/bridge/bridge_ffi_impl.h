@@ -87,7 +87,9 @@ EXTERN_C void OnNetworkResponseInvoke(int32_t engine_id,
                                       const uint8_t *rsp_meta_data,
                                       int32_t rsp_meta_data_length);
 
-EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id, const char16_t* char_data_dir, const char16_t* char_ws_url);
+EXTERN_C uint32_t CreateDevtoolsFFI(uint32_t work_manager_id,
+                                    const char16_t* char_data_dir,
+                                    const char16_t* char_ws_url);
 
 EXTERN_C void DestroyDevtoolsFFI(uint32_t devtools_id, int32_t is_reload);
 

@@ -39,8 +39,6 @@ void TracingDomain::RegisterMethods() {
   REGISTER_DOMAIN(TracingDomain, End, BaseRequest)
 }
 
-void TracingDomain::RegisterCallback() {}
-
 void TracingDomain::Start(const BaseRequest &request) {
   ResponseResultToFrontend(request.GetId(), "{}");
   auto tracing_adapter = GetDataProvider()->tracing_adapter;

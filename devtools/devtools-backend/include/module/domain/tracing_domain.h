@@ -30,7 +30,7 @@ class TracingDomain: public BaseDomain , public std::enable_shared_from_this<Tra
   explicit TracingDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
-  void RegisterCallback() override;
+  void RegisterCallback() override {}
 
  private:
   void Start(const BaseRequest& request);
