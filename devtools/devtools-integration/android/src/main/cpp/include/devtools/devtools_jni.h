@@ -35,4 +35,4 @@ void OnNetworkResponseInvoke(JNIEnv *j_env,
                              jint j_devtools_id,
                              jstring j_request_id,
                              jobject j_holder);
-} // namespace hippy::devtools
+}  // namespace hippy::devtools

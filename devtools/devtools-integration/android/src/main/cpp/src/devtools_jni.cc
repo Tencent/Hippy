@@ -22,28 +22,28 @@
 
 #include "devtools/devtools_jni.h"
 
-#include "jni/jni_register.h"
-#include "jni/jni_utils.h"
-#include "jni/jni_env.h"
-#include "jni/data_holder.h"
+#include "api/devtools_backend_service.h"
+#include "devtools/devtools_data_source.h"
+#include "devtools/vfs/devtools_handler.h"
+#include "footstone/check.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/worker_manager.h"
-#include "footstone/check.h"
+#include "jni/data_holder.h"
+#include "jni/jni_env.h"
+#include "jni/jni_register.h"
+#include "jni/jni_utils.h"
 #include "vfs/vfs_resource_holder.h"
-#include "api/devtools_backend_service.h"
-#include "devtools/vfs/devtools_handler.h"
-#include "devtools/devtools_data_source.h"
 
 namespace hippy::devtools {
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using WorkerManager = footstone::runner::WorkerManager;
 
-REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor",  // NOLINT(cert-err58-cpp)
              "onNetworkRequest",
              "(Ijava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkRequestInvoke)
 
-REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor",  // NOLINT(cert-err58-cpp)
              "onNetworkResponse",
              "(Ijava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkResponseInvoke)
@@ -109,4 +109,4 @@ void OnNetworkResponseInvoke(JNIEnv *j_env,
   JNIEnvironment::ClearJEnvException(j_env);
 }
 
-} // namespace hippy::devtools
+}  // namespace hippy::devtools

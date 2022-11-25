@@ -53,7 +53,7 @@ Request::Request(std::string url, const std::unordered_map<std::string, std::str
     std::move(url)), method_(kDefaultMethod) {
   headers_ = "{";
   auto has_header = false;
-  for(auto &meta: req_meta) {
+  for (auto& meta : req_meta) {
     if (meta.first == kHttpRequestMethod) {
       method_ = meta.second;
       continue;

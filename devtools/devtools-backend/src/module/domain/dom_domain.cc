@@ -24,9 +24,9 @@
 #include "api/devtools_backend_service.h"
 #include "api/notification/default/default_dom_tree_notification.h"
 #include "footstone/macros.h"
-#include "module/util/parse_json_util.h"
 #include "footstone/string_utils.h"
 #include "module/domain_register.h"
+#include "module/util/parse_json_util.h"
 
 namespace hippy::devtools {
 
@@ -184,10 +184,8 @@ void DomDomain::GetNodeForLocation(const DomNodeForLocationRequest& request) {
     ResponseErrorToFrontend(request.GetId(), kErrorNotSupport, "screenAdapter is null");
     return;
   }
-  int32_t x =
-      static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX()));
-  int32_t y =
-      static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY()));
+  int32_t x = static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetX()));
+  int32_t y = static_cast<int32_t>(RemoveScreenScaleFactor(GetDataProvider()->screen_adapter, request.GetY()));
   location_for_node_call_back_(x, y, [WEAK_THIS, request](const DomModel& model) {
     DEFINE_AND_CHECK_SELF(DomDomain)
     auto node_id = self->SearchNearlyCacheNode(model.GetRelationTree());
@@ -229,7 +227,8 @@ void DomDomain::PushNodesByBackendIdsToFrontend(DomPushNodesRequest& request) {
 
 void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
   if (request.GetNodePath().empty()) {
-    ResponseErrorToFrontend(request.GetId(), kErrorParams, "DOMDomain, PushNodesByBackendIdsToFrontend, without node path");
+    ResponseErrorToFrontend(request.GetId(), kErrorParams,
+                            "DOMDomain, PushNodesByBackendIdsToFrontend, without node path");
     return;
   }
   auto path_string = request.GetNodePath();
@@ -243,7 +242,7 @@ void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
     node_path.emplace_back(node_tag_name_id_map);
   }
   dom_push_node_by_path_call_back_(node_path, [WEAK_THIS, request](int32_t hit_node_id,
-                                                                            std::vector<int32_t> relation_nodes) {
+                                                                   std::vector<int32_t> relation_nodes) {
     DEFINE_AND_CHECK_SELF(DomDomain)
     auto temp_relation_nodes = relation_nodes;
     std::vector<int32_t> no_need_replenish_nodes;
@@ -254,15 +253,15 @@ void DomDomain::PushNodeByPathToFrontend(DomPushNodeByPathRequest& request) {
       no_need_replenish_nodes.emplace_back(node_id);
     }
     if (no_need_replenish_nodes.size() == temp_relation_nodes.size()) {
-      self->ResponseResultToFrontend(request.GetId(),
-                                     DomModel::BuildPushHitNode(hit_node_id).dump());
+      self->ResponseResultToFrontend(request.GetId(), DomModel::BuildPushHitNode(hit_node_id).dump());
     } else {
       auto depth = static_cast<unsigned int>(temp_relation_nodes.size() - no_need_replenish_nodes.size() + 1);
       self->dom_data_call_back_(no_need_replenish_nodes[no_need_replenish_nodes.size() - 1], false, depth,
                                 [self, request, hit_node_id](DomModel model) {
                                   self->SetChildNodesEvent(model);
                                   self->CacheEntireDocumentTree(model);
-                                  self->ResponseResultToFrontend(request.GetId(), DomModel::BuildPushHitNode(hit_node_id).dump());
+                                  self->ResponseResultToFrontend(request.GetId(),
+                                                                 DomModel::BuildPushHitNode(hit_node_id).dump());
                                 });
     }
   });

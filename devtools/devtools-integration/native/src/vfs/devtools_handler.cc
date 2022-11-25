@@ -23,16 +23,16 @@
 
 #include <utility>
 
-#include "vfs/uri_loader.h"
-#include "footstone/string_view_utils.h"
 #include "footstone/string_view.h"
+#include "footstone/string_view_utils.h"
+#include "vfs/uri_loader.h"
 
 namespace hippy::devtools {
 constexpr char kCallFromKey[] = "__Hippy_call_from";
 constexpr char kCallFromJavaValue[] = "java";
 
 void DevtoolsHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
-                                          std::function<std::shared_ptr<UriHandler>()> next) {
+                                              std::function<std::shared_ptr<UriHandler>()> next) {
   auto handle_next = [](std::shared_ptr<SyncContext> ctx, const std::function<std::shared_ptr<UriHandler>()>& next) {
     auto next_handler = next();
     if (next_handler) {
@@ -51,12 +51,12 @@ void DevtoolsHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
                   ctx->uri, footstone::string_view::Encoding::Utf8).utf8_value()),
               ctx->req_meta);
   handle_next(ctx, next);
-  ReceivedResponse(network_notification_, request_id, static_cast<int>(ctx->code), ctx->content, ctx->rsp_meta, ctx->req_meta);
+  ReceivedResponse(network_notification_, request_id, static_cast<int>(ctx->code), ctx->content, ctx->rsp_meta,
+                   ctx->req_meta);
 }
 
-void DevtoolsHandler::RequestUntrustedContent(
-    std::shared_ptr<ASyncContext> ctx,
-    std::function<std::shared_ptr<UriHandler>()> next) {
+void DevtoolsHandler::RequestUntrustedContent(std::shared_ptr<ASyncContext> ctx,
+                                              std::function<std::shared_ptr<UriHandler>()> next) {
   auto handle_next = [](std::shared_ptr<ASyncContext> ctx, const std::function<std::shared_ptr<UriHandler>()>& next) {
     auto next_handler = next();
     if (next_handler) {
@@ -76,7 +76,7 @@ void DevtoolsHandler::RequestUntrustedContent(
               ctx->req_meta);
   std::weak_ptr<NetworkNotification> weak_network_notification = network_notification_;
   auto new_cb = [orig_cb = ctx->cb, weak_network_notification, request_id, req_mata = ctx->req_meta](
-      RetCode code, std::unordered_map<std::string, std::string> meta, bytes content) {
+                    RetCode code, std::unordered_map<std::string, std::string> meta, bytes content) {
     auto network_notification = weak_network_notification.lock();
     ReceivedResponse(network_notification, request_id, static_cast<int>(code), content, meta, req_mata);
     orig_cb(code, std::move(meta), std::move(content));
@@ -86,11 +86,12 @@ void DevtoolsHandler::RequestUntrustedContent(
 }
 
 void SentRequest(const std::shared_ptr<hippy::devtools::NetworkNotification>& notification,
-                       const std::string& request_id,
-                       std::string uri,
-                       const std::unordered_map<std::string, std::string> &req_meta){
+                 const std::string& request_id,
+                 std::string uri,
+                 const std::unordered_map<std::string, std::string>& req_meta) {
   if (notification) {
-    notification->RequestWillBeSent(request_id, hippy::devtools::DevtoolsHttpRequest(request_id, hippy::devtools::Request(std::move(uri), req_meta)));
+    notification->RequestWillBeSent(request_id, hippy::devtools::DevtoolsHttpRequest(
+                                                    request_id, hippy::devtools::Request(std::move(uri), req_meta)));
   }
 }
 
@@ -98,14 +99,15 @@ void ReceivedResponse(const std::shared_ptr<hippy::devtools::NetworkNotification
                       const std::string& request_id,
                       int32_t code,
                       UriLoader::bytes content,
-                      const std::unordered_map<std::string, std::string> &rsp_meta,
-                      const std::unordered_map<std::string, std::string> &req_meta) {
+                      const std::unordered_map<std::string, std::string>& rsp_meta,
+                      const std::unordered_map<std::string, std::string>& req_meta) {
   if (notification) {
     auto data_length = content.length();
-    auto devtools_http_response = hippy::devtools::DevtoolsHttpResponse(request_id, hippy::devtools::Response(code, data_length, rsp_meta, req_meta));
+    auto devtools_http_response = hippy::devtools::DevtoolsHttpResponse(
+        request_id, hippy::devtools::Response(code, data_length, rsp_meta, req_meta));
     devtools_http_response.SetBodyData(std::move(content));
     notification->ResponseReceived(request_id, devtools_http_response);
     notification->LoadingFinished(request_id, hippy::devtools::DevtoolsLoadingFinished(request_id, data_length));
   }
 }
-} // namespace hippy::devtools
+}  // namespace hippy::devtools

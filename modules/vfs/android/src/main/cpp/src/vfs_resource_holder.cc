@@ -128,7 +128,9 @@ bool ResourceHolder::Init() {
   j_util_map_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("java/util/HashMap")));
   j_map_init_method_id = j_env->GetMethodID(j_util_map_clazz, "<init>", "()V");
   j_map_get_method_id = j_env->GetMethodID(j_util_map_clazz, "get", "(Ljava/lang/Object;)Ljava/lang/Object;");
-  j_map_put_method_id = j_env->GetMethodID(j_util_map_clazz, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+  j_map_put_method_id = j_env->GetMethodID(j_util_map_clazz,
+                                           "put",
+                                           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
   j_map_size_method_id = j_env->GetMethodID(j_util_map_clazz, "size", "()I");
   j_map_entry_set_method_id = j_env->GetMethodID(j_util_map_clazz, "entrySet", "()Ljava/util/Set;");
 
@@ -144,7 +146,10 @@ bool ResourceHolder::Init() {
   j_set_iterator_next_method_id = j_env->GetMethodID(j_set_iterator_clazz, "next", "()Ljava/lang/Object;");
 
   j_fetch_resource_cb_interface_clazz = j_env->FindClass("com/tencent/vfs/VfsManager$FetchResourceCallback");
-  j_interface_cb_method_id = j_env->GetMethodID(j_fetch_resource_cb_interface_clazz, "onFetchCompleted", "(Lcom/tencent/vfs/ResourceDataHolder;)V");
+  j_interface_cb_method_id = j_env->GetMethodID(
+      j_fetch_resource_cb_interface_clazz,
+      "onFetchCompleted",
+      "(Lcom/tencent/vfs/ResourceDataHolder;)V");
 
   return true;
 }
@@ -213,10 +218,10 @@ std::unordered_map<std::string, std::string> JavaMapToUnorderedMap(JNIEnv* j_env
 jobject UnorderedMapToJavaMap(JNIEnv* j_env, const std::unordered_map<std::string, std::string>& map) {
   auto j_map = j_env->NewObject(j_util_map_clazz,
                                 j_map_init_method_id);
-  for (const auto& p: map) {
-    auto j_key = JniUtils::StrViewToJString(j_env,footstone::string_view::new_from_utf8(
+  for (const auto &p: map) {
+    auto j_key = JniUtils::StrViewToJString(j_env, footstone::string_view::new_from_utf8(
         p.first.c_str(), p.first.length()));
-    auto j_value = JniUtils::StrViewToJString(j_env,footstone::string_view::new_from_utf8(
+    auto j_value = JniUtils::StrViewToJString(j_env, footstone::string_view::new_from_utf8(
         p.second.c_str(), p.second.length()));
     j_env->CallObjectMethod(j_map, j_map_put_method_id, j_key, j_value);
   }
@@ -252,7 +257,7 @@ std::unordered_map<std::string, std::string> ResourceHolder::GetReqMeta(JNIEnv* 
   return JavaMapToUnorderedMap(j_env, j_req_map);
 }
 
-std::unordered_map<std::string, std::string> ResourceHolder::GetRspMeta(JNIEnv* j_env){
+std::unordered_map<std::string, std::string> ResourceHolder::GetRspMeta(JNIEnv* j_env) {
   FOOTSTONE_DCHECK(j_holder_);
   auto j_rsp_map = j_env->GetObjectField(j_holder_, j_holder_rsp_header_field_id);
   return JavaMapToUnorderedMap(j_env, j_rsp_map);
@@ -265,7 +270,7 @@ void ResourceHolder::SetRspMeta(JNIEnv* j_env, std::unordered_map<std::string, s
   j_env->DeleteLocalRef(j_map);
 }
 
-byte_string ResourceHolder::GetContent(JNIEnv* j_env){
+byte_string ResourceHolder::GetContent(JNIEnv* j_env) {
   FOOTSTONE_DCHECK(j_holder_);
   byte_string content;
   auto j_type = j_env->GetObjectField(j_holder_, j_holder_transfer_type_field_id);
@@ -313,6 +318,5 @@ void ResourceHolder::FetchComplete(JNIEnv* j_env, jobject obj) {
   FOOTSTONE_DCHECK(j_holder_);
   j_env->CallVoidMethod(obj, j_interface_cb_method_id, j_holder_);
 }
-
 }
-}
+} // namespace hippy

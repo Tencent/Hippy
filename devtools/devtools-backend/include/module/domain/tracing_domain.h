@@ -35,7 +35,6 @@ class TracingDomain: public BaseDomain , public std::enable_shared_from_this<Tra
  private:
   void Start(const BaseRequest& request);
   void End(const BaseRequest& request);
-
 };
 
 }  // namespace hippy::devtools

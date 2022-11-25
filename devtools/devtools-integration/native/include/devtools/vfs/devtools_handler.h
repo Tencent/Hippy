@@ -21,13 +21,14 @@
  */
 #pragma once
 
-#include "vfs/handler/uri_handler.h"
 #include "api/notification/devtools_network_notification.h"
+#include "vfs/handler/uri_handler.h"
 
 namespace hippy::devtools {
 
-class DevtoolsHandler: public UriHandler {
+class DevtoolsHandler : public UriHandler {
   using NetworkNotification = hippy::devtools::NetworkNotification;
+
  public:
   DevtoolsHandler() = default;
   virtual ~DevtoolsHandler() = default;
@@ -50,12 +51,12 @@ class DevtoolsHandler: public UriHandler {
 void SentRequest(const std::shared_ptr<hippy::devtools::NetworkNotification>&,
                  const std::string& request_id,
                  std::string uri,
-                 const std::unordered_map<std::string, std::string> &req_meta);
+                 const std::unordered_map<std::string, std::string>& req_meta);
 
 void ReceivedResponse(const std::shared_ptr<hippy::devtools::NetworkNotification>&,
                       const std::string& request_id,
                       int32_t code,
                       std::string content,
-                      const std::unordered_map<std::string, std::string> &rsp_meta,
-                      const std::unordered_map<std::string, std::string> &req_meta);
-} // namespace hippy::devtools
+                      const std::unordered_map<std::string, std::string>& rsp_meta,
+                      const std::unordered_map<std::string, std::string>& req_meta);
+}  // namespace hippy::devtools

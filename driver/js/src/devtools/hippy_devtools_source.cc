@@ -26,10 +26,10 @@
 #include "devtools/adapter/hippy_screen_adapter.h"
 #include "devtools/adapter/hippy_tracing_adapter.h"
 #include "devtools/adapter/hippy_vm_request_adapter.h"
+#include "devtools/devtools_utils.h"
+#include "dom/dom_manager.h"
 #include "footstone/macros.h"
 #include "footstone/string_view_utils.h"
-#include "dom/dom_manager.h"
-#include "devtools/devtools_utils.h"
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "devtools/trace_control.h"
@@ -44,7 +44,9 @@ using StringViewUtils = footstone::stringview::StringViewUtils;
 static std::atomic<uint32_t> global_devtools_data_key{1};
 footstone::utils::PersistentObjectMap<uint32_t, std::shared_ptr<DevtoolsDataSource>> devtools_data_map;
 
-HippyDevtoolsSource::HippyDevtoolsSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager) {
+HippyDevtoolsSource::HippyDevtoolsSource(
+    const std::string& ws_url,
+    std::shared_ptr<footstone::WorkerManager> worker_manager) {
   hippy::devtools::DevtoolsConfig devtools_config;
   devtools_config.framework = hippy::devtools::Framework::kHippy;
   devtools_config.tunnel = hippy::devtools::Tunnel::kWebSocket;
