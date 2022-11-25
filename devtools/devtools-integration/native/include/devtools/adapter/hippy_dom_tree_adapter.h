@@ -17,30 +17,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef ENABLE_INSPECTOR
-#include "devtools/adapter/hippy_tracing_adapter.h"
-#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-#include "devtools/trace_control.h"
-#endif
+#pragma once
+
+#include <string>
+
+#include "api/adapter/devtools_dom_tree_adapter.h"
+#include "devtools/hippy_dom_data.h"
 
 namespace hippy::devtools {
-void HippyTracingAdapter::StartTracing() {
-#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  TraceControl::GetInstance().StartTracing();
-#endif
-}
+class HippyDomTreeAdapter : public hippy::devtools::DomTreeAdapter {
+ public:
+  explicit HippyDomTreeAdapter(std::shared_ptr<HippyDomData> hippy_dom) : hippy_dom_(hippy_dom) {}
+  void UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) override;
+  void GetDomTree(DumpDomTreeCallback callback) override;
+  void GetDomainData(int32_t node_id, bool is_root, uint32_t depth, DomainDataCallback callback) override;
+  void GetNodeIdByLocation(double x, double y, NodeLocationCallback callback) override;
+  void GetPushNodeByPath(PushNodePath path, PushNodeByPathCallback callback) override;
 
-void HippyTracingAdapter::StopTracing(const std::string& params_key, TracingDataCallback callback) {
-#if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  TraceControl::GetInstance().StopTracing();
-  if (callback) {
-    callback(TraceControl::GetInstance().GetTracingContent(params_key));
-  }
-#else
-  if (callback) {
-    callback("{}");
-  }
-#endif
-}
+ private:
+  std::shared_ptr<HippyDomData> hippy_dom_;
+};
 }  // namespace hippy::devtools
-#endif

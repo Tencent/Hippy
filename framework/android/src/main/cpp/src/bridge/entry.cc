@@ -67,8 +67,8 @@
 #include "renderer/tdf/tdf_render_manager.h"
 #endif
 #ifdef ENABLE_INSPECTOR
+#include "devtools/devtools_data_source.h"
 #include "devtools/vfs/devtools_handler.h"
-#include "devtools/devtools_macro.h"
 #endif
 
 namespace hippy {
@@ -621,13 +621,13 @@ jint OnCreateDevtools(JNIEnv *j_env,
   std::shared_ptr<WorkerManager> worker_manager;
   auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
   FOOTSTONE_DCHECK(flag);
-  DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+  devtools::DevtoolsDataSource::SetFileCacheDir(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
       data_dir, string_view::Encoding::Utf8).utf8_value()));
-  auto devtools_data_source = std::make_shared<hippy::devtools::HippyDevtoolsSource>(
+  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(
       StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
           ws_url, string_view::Encoding::Utf8).utf8_value()),
       worker_manager);
-  id = devtools::HippyDevtoolsSource::Insert(devtools_data_source);
+  id = devtools::DevtoolsDataSource::Insert(devtools_data_source);
   JNIEnvironment::ClearJEnvException(j_env);
   FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
 #endif
@@ -640,9 +640,9 @@ void OnDestroyDevtools(JNIEnv *j_env,
                        jboolean j_is_reload) {
 #ifdef ENABLE_INSPECTOR
   auto devtools_id = static_cast<uint32_t>(j_devtools_id);
-  auto devtools_data_source = devtools::HippyDevtoolsSource::Find(devtools_id);
+  auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
   devtools_data_source->Destroy(static_cast<bool>(j_is_reload));
-  bool flag = devtools::HippyDevtoolsSource::Erase(devtools_id);
+  bool flag = devtools::DevtoolsDataSource::Erase(devtools_id);
   FOOTSTONE_DLOG(INFO)<< "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
   JNIEnvironment::ClearJEnvException(j_env);

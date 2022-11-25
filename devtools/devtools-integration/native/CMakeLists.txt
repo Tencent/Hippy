@@ -33,16 +33,20 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(${PROJECT_NAME} STATIC)
 target_include_directories(${PROJECT_NAME} PUBLIC include)
 target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
-if (V8_WITHOUT_INSPECTOR)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
-endif()
-# endregion
 
 # region vm
 if ("${JS_ENGINE}" STREQUAL "V8")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_V8")
+    GlobalPackages_Add(v8)
+    target_link_libraries(${PROJECT_NAME} PRIVATE v8)
+
+    # The following definitions are used by PUBLIC header files
+    target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_V8")
+    get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
+    if (V8_WITHOUT_INSPECTOR)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC "V8_WITHOUT_INSPECTOR")
+    endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_JSC")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC "JS_JSC")
 endif ()
 # endregion
 
@@ -56,6 +60,11 @@ GlobalPackages_Add(vfs)
 target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 # endregion
 
+# region dom
+GlobalPackages_Add(dom)
+target_link_libraries(${PROJECT_NAME} PRIVATE dom)
+# endregion
+
 # region devtools
 GlobalPackages_Add(devtools_backend)
 target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
@@ -63,6 +72,12 @@ target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
 
 # region source set
 set(SOURCE_SET
-    src/vfs/devtools_handler.cc)
+    src/adapter/impl/hippy_dom_tree_adapter.cc
+    src/adapter/impl/hippy_screen_adapter.cc
+    src/adapter/impl/hippy_tracing_adapter.cc
+    src/vfs/devtools_handler.cc
+    src/devtools_utils.cc
+    src/devtools_data_source.cc
+    src/v8/trace_control.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # endregion

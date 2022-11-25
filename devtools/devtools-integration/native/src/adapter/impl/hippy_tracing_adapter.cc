@@ -17,41 +17,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef ENABLE_INSPECTOR
-#pragma once
-
-#include <string>
+#include "devtools/adapter/hippy_tracing_adapter.h"
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-#include "v8/libplatform/v8-tracing.h"
+#include "devtools/v8/trace_control.h"
 #endif
 
 namespace hippy::devtools {
-class TraceControl {
- public:
-  static TraceControl &GetInstance() {
-    static TraceControl trace_control;
-    return trace_control;
-  }
-  void StartTracing();
-  void StopTracing();
+void HippyTracingAdapter::StartTracing() {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  void SetGlobalTracingController(v8::platform::tracing::TracingController *tracing_control);
+  TraceControl::GetInstance().StartTracing();
 #endif
-  std::string GetTracingContent(const std::string& params_key);
-  inline void SetFileCacheDir(std::string file_cache_dir) { cache_file_dir_ = std::move(file_cache_dir); }
+}
 
- private:
-  TraceControl() = default;
-  TraceControl(const TraceControl &) = delete;
-  void operator=(const TraceControl &) = delete;
+void HippyTracingAdapter::StopTracing(const std::string& params_key, TracingDataCallback callback) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  v8::platform::tracing::TracingController *v8_trace_control_ = nullptr;
+  TraceControl::GetInstance().StopTracing();
+  if (callback) {
+    callback(TraceControl::GetInstance().GetTracingContent(params_key));
+  }
+#else
+  if (callback) {
+    callback("{}");
+  }
 #endif
-  std::ofstream trace_file_;
-  bool OpenCacheFile();
-  std::string cache_file_dir_;
-  std::string cache_file_path_;
-  bool tracing_has_start_ = false;
-};
+}
 }  // namespace hippy::devtools
-#endif

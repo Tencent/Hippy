@@ -27,7 +27,6 @@
 #include <future>
 #include <utility>
 
-#include "devtools/devtools_macro.h"
 #include "driver/napi/v8/js_native_api_v8.h"
 #include "driver/napi/v8/serializer.h"
 #include "footstone/deserializer.h"
@@ -118,7 +117,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   if (is_dev_module) {
-    auto devtools_data_source = devtools::HippyDevtoolsSource::Find(devtools_id);
+    auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
     runtime->SetDevtoolsDataSource(devtools_data_source);
   }
 #endif

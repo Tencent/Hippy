@@ -100,7 +100,7 @@ using WeakCtxValuePtr = std::weak_ptr<hippy::napi::CtxValue>;
     if (bridge && bridge.debugMode) {
         NSString *wsURL = [self completeWSURLWithBridge:bridge];
         auto workerManager = std::make_shared<footstone::WorkerManager>(1);
-        auto devtools_data_source = std::make_shared<hippy::devtools::HippyDevtoolsSource>([wsURL UTF8String], workerManager);
+        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], workerManager);
         self.pScope->SetDevtoolsDataSource(devtools_data_source);
     }
 #endif

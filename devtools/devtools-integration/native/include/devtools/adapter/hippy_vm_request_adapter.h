@@ -17,15 +17,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef ENABLE_INSPECTOR
 #pragma once
 
-#include "dom/root_node.h"
+#include <string>
 
-namespace hippy::devtools {
-struct HippyDomData {
-  uint32_t dom_id;
-  std::weak_ptr<RootNode> root_node;
+#include "api/adapter/devtools_vm_request_adapter.h"
+
+namespace hippy {
+namespace devtools {
+class HippyVmRequestAdapter : public hippy::devtools::VmRequestAdapter {
+ public:
+  using VmRequestHandler = std::function<void(std::string)>;
+  explicit HippyVmRequestAdapter(VmRequestHandler request_handler) : request_handler_(std::move(request_handler)) {}
+  inline void SendMsgToVm(std::string msg) override {
+    if (request_handler_) {
+      request_handler_(msg);
+    }
+  }
+
+ private:
+  VmRequestHandler request_handler_;
 };
-}  // namespace hippy::devtools
-#endif
+}  // namespace devtools
+}  // namespace hippy

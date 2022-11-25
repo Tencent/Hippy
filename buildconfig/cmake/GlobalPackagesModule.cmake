@@ -64,7 +64,7 @@ endfunction()
 
 function(GlobalPackages_Add_footstone)
   if (NOT TARGET footstone)
-    InfraPackage_Add(DOM
+    InfraPackage_Add(FOOTSTONE
         LOCAL "${PROJECT_ROOT_DIR}/modules/footstone")
   endif()
 endfunction()
