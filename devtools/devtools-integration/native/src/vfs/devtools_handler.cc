@@ -39,18 +39,18 @@ void DevtoolsHandler::RequestUntrustedContent(std::shared_ptr<SyncContext> ctx,
       next_handler->RequestUntrustedContent(std::move(ctx), next);
     }
   };
-  if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java
+  if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java should return because have DevtoolsProcessor in java
     handle_next(ctx, next);
     return;
   }
-  // call devtools
+  // call devtools for network request
   auto request_id = std::to_string(static_cast<uint64_t>(std::chrono::time_point_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now()).time_since_epoch().count()));
-  SentRequest(network_notification_, request_id,
-              footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-                  ctx->uri, footstone::string_view::Encoding::Utf8).utf8_value()),
-              ctx->req_meta);
+      std::chrono::system_clock::now()).time_since_epoch().count()));  // generate request_id for once network request
+  auto uri = footstone::StringViewUtils::ToStdString(
+      footstone::StringViewUtils::ConvertEncoding(ctx->uri, footstone::string_view::Encoding::Utf8).utf8_value());
+  SentRequest(network_notification_, request_id, uri, ctx->req_meta);
   handle_next(ctx, next);
+  // sync request, then call devtools for network response
   ReceivedResponse(network_notification_, request_id, static_cast<int>(ctx->code), ctx->content, ctx->rsp_meta,
                    ctx->req_meta);
 }
@@ -63,17 +63,17 @@ void DevtoolsHandler::RequestUntrustedContent(std::shared_ptr<ASyncContext> ctx,
       next_handler->RequestUntrustedContent(std::move(ctx), next);
     }
   };
-  if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java
+  if (ctx->req_meta[kCallFromKey] == kCallFromJavaValue) {  // call from java should return because have DevtoolsProcessor in java
     handle_next(ctx, next);
     return;
   }
-  // call devtools
+  // call devtools for network request
   auto request_id = std::to_string(static_cast<uint64_t>(std::chrono::time_point_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now()).time_since_epoch().count()));
-  SentRequest(network_notification_, request_id,
-              footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-                  ctx->uri, footstone::string_view::Encoding::Utf8).utf8_value()),
-              ctx->req_meta);
+      std::chrono::system_clock::now()).time_since_epoch().count()));  // generate request_id for once network request
+  auto uri = footstone::StringViewUtils::ToStdString(
+      footstone::StringViewUtils::ConvertEncoding(ctx->uri, footstone::string_view::Encoding::Utf8).utf8_value());
+  SentRequest(network_notification_, request_id, uri, ctx->req_meta);
+  // async request, call devtools for network response in callback
   std::weak_ptr<NetworkNotification> weak_network_notification = network_notification_;
   auto new_cb = [orig_cb = ctx->cb, weak_network_notification, request_id, req_mata = ctx->req_meta](
                     RetCode code, std::unordered_map<std::string, std::string> meta, bytes content) {
