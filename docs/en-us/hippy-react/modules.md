@@ -481,5 +481,5 @@ Measure the size and position of a component within the scope of the App Contain
 `(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
 
 > - instance: reference of the element of component.
-> - options: optional，`relToContainer` indicates whether to be measured relative to the App Container(RootView), default is `false`, meaning relative to App Window(Screen).
+> - options: optional，`relToContainer` indicates whether to be measured relative to the App Container(RootView), default is `false`, meaning relative to App Window(Screen). When measured relative to the App Container(RootView), status bar is included in `iOS`, but `Android` not.
 > - DOMRect: same with [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) introduction, which can get the size and position of a component. If something goes wrong or [the node is optimized (Android only)](style/layout?id=collapsable), `Promise.reject` error will be thrown.

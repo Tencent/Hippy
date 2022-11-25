@@ -481,5 +481,5 @@ AsyncStorage 是一个简单的、异步的、持久化的 Key-Value 存储系�
 `(instance: ref, options: { relToContainer: boolean }) => Promise<DOMRect: { x: number, y: number, width: number, height: number, bottom: number, right: number, left: number, top: number }>`
 
 > - instance: 元素或组件的引用 Ref。
-> - options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。
+> - options: 可选参数，`relToContainer` 表示是否相对宿主容器（RootView）进行测量，默认 `false` 相对 App 窗口或屏幕进行测量。当对宿主容器（RootView）进行测量时，`iOS` 包含顶部状态栏高度，`Android` 不包含。
 > - DOMRect: 与 [MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/Element/getBoundingClientRect) 一致的返回参数, 可以获取元素相应的位置信息和尺寸，如果出错或者 [节点被优化（仅在Android）](style/layout?id=collapsable)，会触发 `Promise.reject`。
