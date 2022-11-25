@@ -450,27 +450,25 @@ function parseCSS(css, options) {
         break;
       }
       case 'transform': {
-        const keyReg = /((\w+)\s*\()/;
-        const valueReg = /(?:\(['"]?)(.*?)(?:['"]?\))/;
+        const regex = /(\w+\s*)(?:\(['"]?)(.*?)(?:['"]?\))/g;
         const oldValue = value;
         value = [];
-        oldValue.split(' ').forEach((transformKeyValue) => {
-          if (keyReg.test(transformKeyValue)) {
-            const key = keyReg.exec(transformKeyValue)[2];
-            let v = valueReg.exec(transformKeyValue)[1];
-            if (v.indexOf('.') === 0) {
-              v = `0${v}`;
-            }
-            if (parseFloat(v).toString() === v) {
-              v = parseFloat(v);
-            }
-            const transform = {};
-            transform[key] = v;
-            value.push(transform);
-          } else {
-            error('missing \'(\'');
+        let group;
+        while (group = regex.exec(oldValue)) {
+          const key = group[1];
+          let v = group[2];
+          if (v.indexOf('.') === 0) {
+            v = `0${v}`;
           }
-        });
+
+          if (parseFloat(v).toString() === v) {
+            v = parseFloat(v);
+          }
+
+          const transform = {};
+          transform[key] = v;
+          value.push(transform);
+        };
         break;
       }
       case 'fontWeight':
