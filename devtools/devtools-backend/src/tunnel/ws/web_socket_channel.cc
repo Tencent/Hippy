@@ -25,8 +25,8 @@
 #include <thread>
 #include <utility>
 
-#include "footstone/macros.h"
 #include "footstone/logging.h"
+#include "footstone/macros.h"
 
 typedef WSClient::connection_ptr WSConnectionPtr;
 
@@ -120,9 +120,12 @@ void WebSocketChannel::HandleSocketConnectFail(const websocketpp::connection_hdl
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  FOOTSTONE_DLOG(INFO) << "websocket connect fail, state: " << con->get_state() << ", error message:" << con->get_ec().message().c_str()
-  << ", local close code:" << con->get_local_close_code() << ", local close reason: " << con->get_local_close_reason().c_str()
-  << ", remote close code:" << con->get_remote_close_code() << ", remote close reason:" << con->get_remote_close_reason().c_str();
+  FOOTSTONE_DLOG(INFO) << "websocket connect fail, state: " << con->get_state()
+                       << ", error message:" << con->get_ec().message().c_str()
+                       << ", local close code:" << con->get_local_close_code()
+                       << ", local close reason: " << con->get_local_close_reason().c_str()
+                       << ", remote close code:" << con->get_remote_close_code()
+                       << ", remote close reason:" << con->get_remote_close_reason().c_str();
 }
 
 void WebSocketChannel::HandleSocketConnectOpen(const websocketpp::connection_hdl& handle) {
@@ -153,8 +156,11 @@ void WebSocketChannel::HandleSocketConnectClose(const websocketpp::connection_hd
   // set handle nullptr when connect fail
   data_handler_ = nullptr;
   unset_messages_.clear();
-  FOOTSTONE_DLOG(INFO) << "websocket connect close, state: " << con->get_state() << ", error message:" << con->get_ec().message().c_str()
-                        << ", local close code:" << con->get_local_close_code() << ", local close reason: " << con->get_local_close_reason().c_str()
-                        << ", remote close code:" << con->get_remote_close_code() << ", remote close reason:" << con->get_remote_close_reason().c_str();
+  FOOTSTONE_DLOG(INFO) << "websocket connect close, state: " << con->get_state()
+                       << ", error message:" << con->get_ec().message().c_str()
+                       << ", local close code:" << con->get_local_close_code()
+                       << ", local close reason: " << con->get_local_close_reason().c_str()
+                       << ", remote close code:" << con->get_remote_close_code()
+                       << ", remote close reason:" << con->get_remote_close_reason().c_str();
 }
 }  // namespace hippy::devtools

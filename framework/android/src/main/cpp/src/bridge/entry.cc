@@ -648,7 +648,6 @@ void OnDestroyDevtools(JNIEnv *j_env,
   JNIEnvironment::ClearJEnvException(j_env);
 #endif
 }
-
 } // namespace bridge
 } // namespace framework
 } // namespace hippy

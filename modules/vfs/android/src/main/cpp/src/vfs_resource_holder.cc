@@ -218,7 +218,7 @@ std::unordered_map<std::string, std::string> JavaMapToUnorderedMap(JNIEnv* j_env
 jobject UnorderedMapToJavaMap(JNIEnv* j_env, const std::unordered_map<std::string, std::string>& map) {
   auto j_map = j_env->NewObject(j_util_map_clazz,
                                 j_map_init_method_id);
-  for (const auto &p: map) {
+  for (const auto &p : map) {
     auto j_key = JniUtils::StrViewToJString(j_env, footstone::string_view::new_from_utf8(
         p.first.c_str(), p.first.length()));
     auto j_value = JniUtils::StrViewToJString(j_env, footstone::string_view::new_from_utf8(
@@ -319,4 +319,4 @@ void ResourceHolder::FetchComplete(JNIEnv* j_env, jobject obj) {
   j_env->CallVoidMethod(obj, j_interface_cb_method_id, j_holder_);
 }
 }
-} // namespace hippy
+}  // namespace hippy
