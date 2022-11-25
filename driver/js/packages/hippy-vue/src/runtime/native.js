@@ -25,11 +25,7 @@ import {
   warn,
   trace,
 } from '../util';
-import {
-  getCssMap,
-} from '../renderer/native/index';
-
-import { isStyleMatched } from '../util/node';
+import { getElemCss } from '../renderer/native/index';
 import BackAndroid from './backAndroid';
 import * as NetInfo from './netInfo';
 
@@ -86,26 +82,6 @@ const measureInWindowByMethod = function measureInWindowByMethod(el, method) {
       right: x + width,
     });
   }));
-};
-
-/**
- * getElemCss
- * @param {ElementNode} element
- * @returns {{}}
- */
-const getElemCss = function getElemCss(element) {
-  const style = Object.create(null);
-  try {
-    getCssMap().query(element).selectors.forEach((matchedSelector) => {
-      if (!isStyleMatched(matchedSelector, element)) return;
-      matchedSelector.ruleSet.declarations.forEach((cssStyle) => {
-        style[cssStyle.property] = cssStyle.value;
-      });
-    });
-  } catch (err) {
-    console.error('getDomCss Error:', err);
-  }
-  return style;
 };
 
 /**
