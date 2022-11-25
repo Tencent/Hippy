@@ -157,12 +157,12 @@ REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err5
              "(I)V",
              OnDestroyVfs)
 
-REGISTER_JNI("com/tencent/devtools/DevtoolsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
              "onCreateDevtools",
              "(ILjava/lang/String;Ljava/lang/String;)I",
              OnCreateDevtools)
 
-REGISTER_JNI("com/tencent/devtools/DevtoolsManager", // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
              "onDestroyDevtools",
              "(IZ)V",
              OnDestroyDevtools)

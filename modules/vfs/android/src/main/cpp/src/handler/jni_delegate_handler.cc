@@ -201,7 +201,9 @@ void OnJniDelegateInvokeAsync(JNIEnv* j_env, __unused jobject j_object, jint j_i
   req_meta[kCallFromKey] = kCallFromJavaValue;
   auto java_cb = std::make_shared<JavaRef>(j_env, j_cb);
   auto cb = [java_cb, j_holder](
-      UriLoader::RetCode code, const std::unordered_map<std::string, std::string>& rsp_meta, const UriLoader::bytes& content) {
+                UriLoader::RetCode code,
+                const std::unordered_map<std::string, std::string> &rsp_meta,
+                const UriLoader::bytes &content) {
     auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
     auto resource_holder = ResourceHolder::Create(j_holder);
     resource_holder->SetContent(j_env, content);

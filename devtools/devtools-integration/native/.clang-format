@@ -1,0 +1,16 @@
+Language: Cpp
+BasedOnStyle: Google
+ColumnLimit: 120
+
+# Automatically recognizes pointer alignment in code, if want to unify, then can change to false
+DerivePointerAlignment: false
+
+# Align to the type name
+PointerAlignment: Left
+
+# Hippy override
+AllowAllParametersOfDeclarationOnNextLine: false
+BinPackParameters: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false

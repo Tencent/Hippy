@@ -65,7 +65,7 @@ struct TrustTokenParams : public Serializable {
  */
 struct Request : public Serializable {
   std::string Serialize() const override;
-  explicit Request() {}
+  Request() {}
   explicit Request(std::string url, const std::unordered_map<std::string, std::string>& req_meta);
   std::string url_;
   std::string url_fragment_;

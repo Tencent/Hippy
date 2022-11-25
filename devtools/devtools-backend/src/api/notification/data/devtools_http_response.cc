@@ -54,14 +54,13 @@ constexpr char kMimeTypeBase64Text[] = "text";
 constexpr char kMimeTypeBase64Json[] = "application/json";
 
 namespace hippy::devtools {
-Response::Response(int32_t code,
-                   uint64_t encoded_data_length,
+Response::Response(int32_t code, uint64_t encoded_data_length,
                    const std::unordered_map<std::string, std::string>& rsp_meta,
                    const std::unordered_map<std::string, std::string>& req_meta)
     : status_(code), encoded_data_length_(encoded_data_length) {
   headers_ = "{";
   auto has_header = false;
-  for(auto &meta: rsp_meta) {
+  for (auto& meta : rsp_meta) {
     if (meta.first == kRspMetaStatusCode) {
       status_ = std::stoi(meta.second);
       continue;
@@ -69,7 +68,7 @@ Response::Response(int32_t code,
     if (TransformStringUtil::ToLower(meta.first) == kRspMetaContentType) {
       std::size_t pos = meta.second.find_first_of(";");
       if (pos != std::string::npos) {
-        mime_type_ = {reinterpret_cast<const char *>(meta.second.c_str()), pos};
+        mime_type_ = {reinterpret_cast<const char*>(meta.second.c_str()), pos};
       } else {
         mime_type_ = meta.second;
       }
@@ -88,7 +87,7 @@ Response::Response(int32_t code,
 
   request_headers_ = "{";
   auto has_request_header = false;
-  for (auto &meta: req_meta) {
+  for (auto& meta : req_meta) {
     request_headers_ += "\"";
     request_headers_ += meta.first;
     request_headers_ += "\":\"";
@@ -199,7 +198,7 @@ std::string DevtoolsHttpResponse::Serialize() const {
   result += "\",\"";
   result += kHttpResponseTimestamp;
   result += "\":";
-  result += std::to_string(static_cast<double>(timestamp_)/1000);
+  result += std::to_string(static_cast<double>(timestamp_) / 1000);
   result += ",\"";
   result += kHttpResponseType;
   result += "\":\"";

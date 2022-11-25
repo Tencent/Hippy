@@ -21,17 +21,17 @@
 #pragma once
 
 #include "devtools/devtools_data_source.h"
-
 #include "devtools/hippy_dom_data.h"
 
 namespace hippy::devtools {
 class HippyDevtoolsSource : public DevtoolsDataSource {
  public:
-  HippyDevtoolsSource(const std::string& ws_url, std::shared_ptr<footstone::WorkerManager> worker_manager);
+  HippyDevtoolsSource(const std::string& ws_url,
+                      std::shared_ptr<footstone::WorkerManager> worker_manager);
   virtual ~HippyDevtoolsSource() = default;
   void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) override;
   void Destroy(bool is_reload) override;
-  void SetContextName(const std::string &context_name) override;
+  void SetContextName(const std::string& context_name) override;
   void SetRootNode(std::weak_ptr<RootNode> weak_root_node) override;
   void SetVmRequestHandler(VmRequestHandler request_handler) override;
   inline std::shared_ptr<NotificationCenter> GetNotificationCenter() override {

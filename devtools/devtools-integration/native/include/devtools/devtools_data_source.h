@@ -22,10 +22,10 @@
 #include <memory>
 #include <string>
 
-#include "footstone/task_runner.h"
 #include "api/devtools_backend_service.h"
 #include "api/devtools_config.h"
 #include "dom/root_node.h"
+#include "footstone/task_runner.h"
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 #include "v8/libplatform/v8-tracing.h"
@@ -58,6 +58,5 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   virtual void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) = 0;
   virtual void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) = 0;
 #endif
-
 };
 }  // namespace hippy::devtools

@@ -23,9 +23,8 @@
 #include <string>
 
 #include "devtools/devtools_utils.h"
-#include "footstone/hippy_value.h"
 #include "dom/node_props.h"
-#include "devtools/devtools_utils.h"
+#include "footstone/hippy_value.h"
 
 namespace hippy::devtools {
 void HippyDomTreeAdapter::UpdateDomTree(hippy::devtools::UpdateDomNodeMetas metas, UpdateDomTreeCallback callback) {
