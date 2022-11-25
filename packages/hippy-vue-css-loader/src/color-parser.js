@@ -20,7 +20,7 @@
 
 /* eslint-disable no-mixed-operators */
 
-const names = {
+export const names = {
   transparent: 0x00000000,
   aliceblue: 0xf0f8ffff,
   antiquewhite: 0xfaebd7ff,
@@ -346,6 +346,8 @@ function baseColor(color) {
  * Translate the color to make sure native understood.
  */
 function translateColor(color, options = {}) {
+  if (typeof color === 'string' && color.indexOf('var(') !== -1) return color;
+
   let int32Color = baseColor(color);
   if (int32Color === null) {
     throw new Error(`Bad color value: ${color}`);
