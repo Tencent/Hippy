@@ -38,8 +38,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE ${COMPILE_OPTIONS})
 if ("${JS_ENGINE}" STREQUAL "V8")
     GlobalPackages_Add(v8)
     target_link_libraries(${PROJECT_NAME} PRIVATE v8)
-
-    # The following definitions are used by PUBLIC header files
     target_compile_definitions(${PROJECT_NAME} PRIVATE "JS_V8")
     get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
     if (V8_WITHOUT_INSPECTOR)
