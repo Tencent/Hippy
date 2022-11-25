@@ -148,9 +148,9 @@
 
 | 事件名称          | 描述                                                         | 类型                                      | 支持平台 |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| load           | 网页加载成功后会触发 | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
-| loadStart           | 网页开始加载时触发 | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
-| loadEnd           | 网页加载结束时触发 | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
+| load           | 网页加载成功后会触发 | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
+| loadStart           | 网页开始加载时触发 | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
+| loadEnd           | 网页加载结束时触发 (`success`与`error`参数仅`Android`、`iOS`上可用，最低支持版本`2.15.3`)  | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、Web-Renderer、Voltron`     |
 
 ---
 
