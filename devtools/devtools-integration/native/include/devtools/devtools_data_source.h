@@ -47,11 +47,33 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   DevtoolsDataSource() = default;
   virtual ~DevtoolsDataSource() = default;
 
+  /**
+   * @brief bind framework runtime, dom and render id, so that devtools can access and collect data
+   */
   virtual void Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) = 0;
+  /**
+   * @brief destroy devtools, need notify is_reload
+   * @param is_reload create a new instance or just reload bundle, if true, the devtools frontend will reuse and not
+   * close
+   */
   virtual void Destroy(bool is_reload) = 0;
+  /**
+   * @brief set context name when load bundle. devtools create earlier in engine create and then load bundle, it can't
+   * obtain context name.
+   * @param context_name current context name
+   */
   virtual void SetContextName(const std::string& context_name) = 0;
+  /**
+   * @brief set root node for listening the update event of dom tree
+   */
   virtual void SetRootNode(std::weak_ptr<RootNode> weak_root_node) = 0;
+  /**
+   * @brief set handler and receive message for vm engine
+   */
   virtual void SetVmRequestHandler(VmRequestHandler request_handler) = 0;
+  /**
+   * @brief get devtools notification center, then can notify events to devtools frontend
+   */
   virtual std::shared_ptr<NotificationCenter> GetNotificationCenter() = 0;
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)

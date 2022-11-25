@@ -29,14 +29,12 @@ std::string TdfCommonProtocolDomain::GetDomainName() { return kFrontendKeyDomain
 
 void TdfCommonProtocolDomain::RegisterMethods() {}
 
-void TdfCommonProtocolDomain::RegisterCallback() {}
-
-bool TdfCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params) {
+bool TdfCommonProtocolDomain::ReceiveFromFrontend(int32_t id, const std::string& method, const std::string& params) {
   auto common_protocol_adapter = GetDataProvider()->common_protocol_adapter;
   if (common_protocol_adapter) {
     // if has common adapter, then handle all the left Domain.Method
     common_protocol_adapter->HandleCommonProtocol(
-        id, method, params, [WEAK_THIS, id](bool is_success, const nlohmann::json &data) {
+        id, method, params, [WEAK_THIS, id](bool is_success, const nlohmann::json& data) {
           DEFINE_AND_CHECK_SELF(TdfCommonProtocolDomain)
           if (is_success) {
             self->ResponseResultToFrontend(id, data);

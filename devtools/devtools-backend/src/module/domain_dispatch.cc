@@ -19,21 +19,22 @@
  */
 
 #include "module/domain_dispatch.h"
+
 #include "api/devtools_backend_service.h"
 #include "api/notification/default/default_network_notification.h"
-#include "module/domain_propos.h"
 #include "footstone/logging.h"
 #include "footstone/string_utils.h"
 #include "module/domain/css_domain.h"
 #include "module/domain/dom_domain.h"
 #include "module/domain/network_domain.h"
 #include "module/domain/page_domain.h"
-#include "module/domain/tracing_domain.h"
 #include "module/domain/tdf_common_protocol_domain.h"
 #include "module/domain/tdf_inspector_domain.h"
 #include "module/domain/tdf_memory_domain.h"
 #include "module/domain/tdf_performance_domain.h"
 #include "module/domain/tdf_runtime_domain.h"
+#include "module/domain/tracing_domain.h"
+#include "module/domain_propos.h"
 #include "module/domain_register.h"
 #include "module/inspect_props.h"
 #include "nlohmann/json.hpp"
@@ -70,7 +71,8 @@ void DomainDispatch::RegisterDefaultDomainListener() {
   RegisterDomainHandler(tdf_runtime_domain);
   RegisterDomainHandler(tdf_common_protocol_domain);
   RegisterDomainHandler(network_domain);
-  data_channel_->GetNotificationCenter()->network_notification = std::make_shared<DefaultNetworkNotification>(network_domain);
+  data_channel_->GetNotificationCenter()->network_notification =
+      std::make_shared<DefaultNetworkNotification>(network_domain);
 }
 
 void DomainDispatch::RegisterDomainHandler(const std::shared_ptr<BaseDomain>& base_domain) {
