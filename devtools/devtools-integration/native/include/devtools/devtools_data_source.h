@@ -24,6 +24,9 @@
 
 #include "api/devtools_backend_service.h"
 #include "api/devtools_config.h"
+#include "devtools/adapter/hippy_vm_request_adapter.h"
+#include "devtools/devtools_data_source.h"
+#include "devtools/hippy_dom_data.h"
 #include "dom/root_node.h"
 #include "footstone/task_runner.h"
 
@@ -34,9 +37,6 @@
 #include "v8/v8-inspector.h"
 #pragma clang diagnostic pop
 #endif
-#include "devtools/adapter/hippy_vm_request_adapter.h"
-#include "devtools/devtools_data_source.h"
-#include "devtools/hippy_dom_data.h"
 
 namespace hippy::devtools {
 /**
@@ -70,7 +70,7 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   /**
    * @brief set root node for listening the update event of dom tree
    */
-  void SetRootNode(std::weak_ptr<RootNode> weak_root_node);
+  void SetRootNode(const std::weak_ptr<RootNode>& weak_root_node);
   /**
    * @brief set handler and receive message for vm engine
    */
@@ -81,6 +81,10 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   inline std::shared_ptr<NotificationCenter> GetNotificationCenter() {
     return devtools_service_->GetNotificationCenter();
   }
+  /**
+   * @brief get devtools data provider, then can set adapter implement by your data source
+   */
+  inline std::shared_ptr<DataProvider> GetDataProvider() { return devtools_service_->GetDataProvider(); }
 
   /**
    * manage devtools_data_source instance by global data map
@@ -97,8 +101,8 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
 #endif
 
  private:
-  void AddRootNodeListener(std::weak_ptr<RootNode> weak_root_node);
-  void RemoveRootNodeListener(std::weak_ptr<RootNode> weak_root_node);
+  void AddRootNodeListener(const std::weak_ptr<RootNode>& weak_root_node);
+  void RemoveRootNodeListener(const std::weak_ptr<RootNode>& weak_root_node);
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   void SendVmData(v8_inspector::StringView string_view);
 #endif
