@@ -35,6 +35,7 @@
 #include "vfs/vfs_resource_holder.h"
 
 namespace hippy::devtools {
+using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using WorkerManager = footstone::runner::WorkerManager;
 
@@ -48,6 +49,9 @@ REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor",  // NOLINT(cert-err58
              "(Ijava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkResponseInvoke)
 
+/**
+ * @brief get DevtoolsDataSource instance for related devtools_id
+ */
 std::shared_ptr<DevtoolsDataSource> GetDevtoolsDataSource(jint j_devtools_id) {
   std::any devtools_instance;
   bool flag = hippy::global_data_holder.Find(
@@ -57,20 +61,17 @@ std::shared_ptr<DevtoolsDataSource> GetDevtoolsDataSource(jint j_devtools_id) {
   return std::any_cast<std::shared_ptr<DevtoolsDataSource>>(devtools_instance);
 }
 
+// call from java for network start request
 void OnNetworkRequestInvoke(JNIEnv *j_env,
                             __unused jobject j_object,
                             jint j_devtools_id,
                             jstring j_request_id,
                             jobject j_holder) {
-  auto request_id =
-      footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-          JniUtils::ToStrView(j_env, j_request_id),
-          footstone::string_view::Encoding::Utf8).utf8_value());
+  auto request_id = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   auto resource_holder = ResourceHolder::Create(j_holder);
-  auto uri =
-      footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-          resource_holder->GetUri(j_env),
-          footstone::string_view::Encoding::Utf8).utf8_value());
+  auto uri = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+          resource_holder->GetUri(j_env),string_view::Encoding::Utf8).utf8_value());
   auto req_meta = resource_holder->GetReqMeta(j_env);
   // call devtools
   std::shared_ptr<DevtoolsDataSource> devtools_data_source = GetDevtoolsDataSource(j_devtools_id);
@@ -83,15 +84,14 @@ void OnNetworkRequestInvoke(JNIEnv *j_env,
   JNIEnvironment::ClearJEnvException(j_env);
 }
 
+// call from java for network end response
 void OnNetworkResponseInvoke(JNIEnv *j_env,
                              __unused jobject j_object,
                              jint j_devtools_id,
                              jstring j_request_id,
                              jobject j_holder) {
-  auto request_id =
-      footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-          JniUtils::ToStrView(j_env, j_request_id),
-          footstone::string_view::Encoding::Utf8).utf8_value());
+  auto request_id = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
+    JniUtils::ToStrView(j_env, j_request_id), string_view::Encoding::Utf8).utf8_value());
   auto resource_holder = ResourceHolder::Create(j_holder);
   auto code = static_cast<int>(resource_holder->GetCode(j_env));
   auto req_meta = resource_holder->GetReqMeta(j_env);

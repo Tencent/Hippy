@@ -25,7 +25,10 @@
 #include "vfs/handler/uri_handler.h"
 
 namespace hippy::devtools {
-
+/**
+ * @brief devtools implement vfs handler for network chain, record network request first and response last as the chain
+ * head from c++, then send to frontend and debugging network.
+ */
 class DevtoolsHandler : public UriHandler {
   using NetworkNotification = hippy::devtools::NetworkNotification;
 
@@ -48,11 +51,17 @@ class DevtoolsHandler : public UriHandler {
   std::shared_ptr<NetworkNotification> network_notification_;
 };
 
+/**
+ * @brief call devtools SentRequest when network start request
+ */
 void SentRequest(const std::shared_ptr<hippy::devtools::NetworkNotification>&,
                  const std::string& request_id,
                  std::string uri,
                  const std::unordered_map<std::string, std::string>& req_meta);
 
+/**
+ * @brief call devtools ReceivedResponse when network end response
+ */
 void ReceivedResponse(const std::shared_ptr<hippy::devtools::NetworkNotification>&,
                       const std::string& request_id,
                       int32_t code,

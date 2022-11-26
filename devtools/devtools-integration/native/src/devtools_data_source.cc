@@ -58,9 +58,12 @@ DevtoolsDataSource::DevtoolsDataSource(const std::string& ws_url,
 }
 
 void DevtoolsDataSource::Bind(int32_t runtime_id, uint32_t dom_id, int32_t render_id) {
+  // bind hippy runtime, dom and render
   hippy_dom_ = std::make_shared<HippyDomData>();
   hippy_dom_->dom_id = dom_id;
-  auto data_provider = devtools_service_->GetDataProvider();
+  // TODO: runtime_id, render_id will use to collect data when they are ready
+
+  auto data_provider = GetDataProvider();
   data_provider->dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(hippy_dom_);
   data_provider->screen_adapter = std::make_shared<HippyScreenAdapter>(hippy_dom_);
   data_provider->tracing_adapter = std::make_shared<HippyTracingAdapter>();
@@ -78,24 +81,25 @@ void DevtoolsDataSource::Destroy(bool is_reload) {
 }
 
 void DevtoolsDataSource::SetContextName(const std::string& context_name) {
-  devtools_service_->GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
+  GetNotificationCenter()->runtime_notification->UpdateContextName(context_name);
 }
 
 void DevtoolsDataSource::SetVmRequestHandler(HippyVmRequestAdapter::VmRequestHandler request_handler) {
-  devtools_service_->GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
+  GetDataProvider()->vm_request_adapter = std::make_shared<HippyVmRequestAdapter>(request_handler);
 }
 
-void DevtoolsDataSource::SetRootNode(std::weak_ptr<RootNode> weak_root_node) {
+void DevtoolsDataSource::SetRootNode(const std::weak_ptr<RootNode>& weak_root_node) {
   hippy_dom_->root_node = weak_root_node;
 
   auto func = [weak_root_node, WEAK_THIS] {
     DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
+    // add root node listen for dom tree update
     self->AddRootNodeListener(weak_root_node);
   };
   DevToolsUtil::PostDomTask(hippy_dom_->dom_id, func);
 }
 
-void DevtoolsDataSource::AddRootNodeListener(std::weak_ptr<RootNode> weak_root_node) {
+void DevtoolsDataSource::AddRootNodeListener(const std::weak_ptr<RootNode>& weak_root_node) {
   listener_id_ = hippy::dom::FetchListenerId();
   auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
   auto root_node = weak_root_node.lock();
@@ -104,12 +108,12 @@ void DevtoolsDataSource::AddRootNodeListener(std::weak_ptr<RootNode> weak_root_n
         weak_root_node, hippy_dom_->dom_id, kDomTreeUpdated, listener_id_, true,
         [WEAK_THIS](const std::shared_ptr<DomEvent>& event) {
           DEFINE_AND_CHECK_SELF(DevtoolsDataSource)
-          self->devtools_service_->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
+          self->GetNotificationCenter()->dom_tree_notification->NotifyDocumentUpdate();
         });
   }
 }
 
-void DevtoolsDataSource::RemoveRootNodeListener(std::weak_ptr<RootNode> weak_root_node) {
+void DevtoolsDataSource::RemoveRootNodeListener(const std::weak_ptr<RootNode>& weak_root_node) {
   auto dom_manager = DomManager::Find(hippy_dom_->dom_id);
   auto root_node = weak_root_node.lock();
   if (dom_manager && root_node) {
@@ -149,10 +153,12 @@ void DevtoolsDataSource::SetFileCacheDir(const std::string& file_dir) {
 }
 
 void DevtoolsDataSource::SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
+  // receive vm method response to frontend
   SendVmData(message->string());
 }
 
 void DevtoolsDataSource::SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message) {
+  // receive vm event notification to frontend
   SendVmData(message->string());
 }
 
@@ -163,7 +169,7 @@ void DevtoolsDataSource::SendVmData(v8_inspector::StringView string_view) {
       StringViewUtils::ConvertEncoding(footstone::string_view(data_chars, string_view.length()),
                                        string_view::Encoding::Utf8)
           .utf8_value());
-  devtools_service_->GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
+  GetNotificationCenter()->vm_response_notification->ResponseToFrontend(result);
 }
 #endif
 }  // namespace hippy::devtools
