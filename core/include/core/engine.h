@@ -38,18 +38,18 @@
 
 class Scope;
 
-class Engine {
+class Engine: public std::enable_shared_from_this<Engine> {
  public:
   using RegisterMap = hippy::base::RegisterMap;
   using VM = hippy::napi::VM;
   using VMInitParam = hippy::napi::VMInitParam;
   using RegisterFunction = hippy::base::RegisterFunction;
 
-  Engine(
-      std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>(),
-      const std::shared_ptr<VMInitParam>& param = nullptr);
+  Engine();
   virtual ~Engine();
 
+  void AsyncInit(const std::shared_ptr<VMInitParam>& param = nullptr,
+                 std::unique_ptr<RegisterMap> map = std::make_unique<RegisterMap>());
   void Enter();
   void Exit();
   std::shared_ptr<Scope> CreateScope(
