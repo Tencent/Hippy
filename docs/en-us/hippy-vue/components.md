@@ -67,15 +67,19 @@ This component is mapped to the View component, and the container can be used to
 | showsHorizontalScrollIndicator | When set to `false`, `ScrollView` hides the horizontal scroll bar.  `default: true` `(only applies to overflow-y/x: scroll)`| `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | When set to `false`, 'ScrollView' hides the vertical scroll bar.  `default: true` `(only applicable to overflow-y/x: scroll)`| `boolean`  | `iOS`   |
 | nativeBackgroundAndroid        | Configure water ripple effect, `minimum supported version 2.13.1`; The configuration item is  `{borderless: Boolean, color: color, rippleRadius: number}`; `Borderless` indicates whether the ripple has borders. Default is false; `color` ripple color; `rippleRadius` ripple radius, if not set, the container border is the border by default;  ` note:  The water ripple is not displayed by default. You need to call setPressed and setHotspot methods in the corresponding touch event to display the water ripple.  Details refer to the relevant `[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
-| nestedScrollPriority* | Nested scroll event processing priority, supports setting `nestedScrollLeftPriority`, `nestedScrollTopPriority`, `nestedScrollRightPriority`, `nestedScrollBottomPriority` respectively. `default:self` | `enum(self,parent,none)` | `Android(minimum supported version 2.14.7)` |
+| nestedScrollPriority*          | Nested scroll event processing priority, `default:self`. Equivalent to setting `nestedScrollLeftPriority`, `nestedScrollTopPriority`, `nestedScrollRightPriority` and  `nestedScrollBottomPriority` at the same time. | `enum(self,parent,none)`         | `Android(minimum supported version 2.15.4)` |
+| nestedScrollLeftPriority | Nested scroll event that **from right to left** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollTopPriority | Nested scroll event that **from bottom to top** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollRightPriority | Nested scroll event that **from left to right** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollBottomPriority | Nested scroll event that **from top to bottom** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
 
 * Attributes meaning of nestedScrollPriority: 
 
   * `self`(default value): the current component takes priority, the scroll event will be consumed by the current component first, and the rest will be passed to the parent component for consumption;
 
-  *`parent`: the parent component takes priority, the scroll event will be consumed by the parent component first, and the rest will be consumed by the current component;
+  * `parent`: the parent component takes priority, the scroll event will be consumed by the parent component first, and the rest will be consumed by the current component;
 
-  *`none`: nested scrolling is not allowed, scroll events will not be dispatched to the parent component.
+  * `none`: nested scrolling is not allowed, scroll events will not be dispatched to the parent component.
 
 ---
 
@@ -364,15 +368,19 @@ Hippy's key features, high performance reusable list components, on the native s
 | endReached | When all the data has been rendered and the list is scrolled to the last one, the `endReached` callback is called. | `Function`                                                  | `Android、iOS、Web-Renderer`    |
 | editable | Whether it is editable or not, set to `true` when sideslip deletion is enabled. ` minimum support version 2.9.0 `| `boolean`                                                  | `iOS`    |
 | delText | Sideslip to delete text. `minimum support version 2.9.0` | `string`                                                  | `iOS`    |
-| nestedScrollPriority* | Nested scroll event processing priority, supports setting `nestedScrollLeftPriority`, `nestedScrollTopPriority`, `nestedScrollRightPriority`, `nestedScrollBottomPriority` respectively. `default:self` | `enum(self,parent,none)` | `Android(minimum supported version 2.14.7)` |
+| nestedScrollPriority*      | Nested scroll event processing priority, `default:self`. Equivalent to setting `nestedScrollLeftPriority`, `nestedScrollTopPriority`, `nestedScrollRightPriority` and  `nestedScrollBottomPriority` at the same time. | `enum(self,parent,none)`  | `Android(minimum supported version 2.15.4)` |
+| nestedScrollLeftPriority   | Nested scroll event that **from right to left** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)`  | `Android(版本 2.15.4以上)`                  |
+| nestedScrollTopPriority    | Nested scroll event that **from bottom to top** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)`  | `Android(版本 2.15.4以上)`                  |
+| nestedScrollRightPriority  | Nested scroll event that **from left to right** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)`  | `Android(版本 2.15.4以上)`                  |
+| nestedScrollBottomPriority | Nested scroll event that **from top to bottom** processing priority, Attributes meaning is the same as `nestedScrollPriority`, this attribute has higher priority. | `enum(self,parent,none)`  | `Android(版本 2.15.4以上)` |
 
 * Attributes meaning of nestedScrollPriority: 
 
-  *`self`(default value): the current component takes priority, the scroll event will be consumed by the current component first, and the rest will be passed to the parent component for consumption;
+  * `self`(default value): the current component takes priority, the scroll event will be consumed by the current component first, and the rest will be passed to the parent component for consumption;
 
-  *`parent`: the parent component takes priority, the scroll event will be consumed by the parent component first, and the rest will be consumed by the current component;
+  * `parent`: the parent component takes priority, the scroll event will be consumed by the parent component first, and the rest will be consumed by the current component;
 
-  *`none`: nested scrolling is not allowed, scroll events will not be dispatched to the parent component.
+  * `none`: nested scrolling is not allowed, scroll events will not be dispatched to the parent component.
 
 ## Events
 

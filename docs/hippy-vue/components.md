@@ -67,15 +67,19 @@
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` `（仅在 overflow-y/x: scroll 时适用）`| `boolean`  | `iOS`   |
 | nativeBackgroundAndroid        | 配置水波纹效果，`最低支持版本 2.13.1`；配置项为 `{ borderless: boolean, color: Color, rippleRadius: number }`； `borderless` 表示波纹是否有边界，默认false；`color` 波纹颜色；`rippleRadius` 波纹半径，若不设置，默认容器边框为边界； `注意：设置水波纹后默认不显示，需要在对应触摸事件中调用 setPressed 和 setHotspot 方法进行水波纹展示，详情参考相关`[demo](//github.com/Tencent/Hippy/tree/master/examples/hippy-vue-demo/src/components/demos/demo-div.vue) | `Object`| `Android`    |
-| nestedScrollPriority* | 嵌套滚动事件处理优先级，支持分别设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `default:self` | `enum(self,parent,none)` | `Android(版本 2.14.7以上)` |
+| nestedScrollPriority*          | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 | `enum(self,parent,none)`         | `Android(版本 2.15.4以上)`   |
+| nestedScrollLeftPriority       | **从右往左**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)`         | `Android(版本 2.15.4以上)`   |
+| nestedScrollTopPriority        | **从下往上**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollRightPriority | **从左往右**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollBottomPriority | **从上往下**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
 
 * nestedScrollPriority 的参数含义：
 
-  *`self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+  * `self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
 
-  *`parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
 
-  *`none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
+  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
 
 ---
 
@@ -364,15 +368,19 @@ Hippy 的重点功能，高性能的可复用列表组件，在终端侧会被�
 | endReached | 当所有的数据都已经渲染过，并且列表被滚动到最后一条时，将触发 `endReached` 回调。 | `Function`                                                  | `Android、iOS、Web-Renderer`    |
 | editable | 是否可编辑，开启侧滑删除时需要设置为 `true`。`最低支持版本2.9.0` | `boolean`                                                  | `iOS`    |
 | delText | 侧滑删除文本。`最低支持版本2.9.0` | `string`                                                  | `iOS`    |
-| nestedScrollPriority* | 嵌套滚动事件处理优先级，支持分别设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 `default:self` | `enum(self,parent,none)` | `Android(版本 2.14.7以上)` |
+| nestedScrollPriority*      | 嵌套滚动事件处理优先级，`default:self`。相当于同时设置 `nestedScrollLeftPriority`、 `nestedScrollTopPriority`、 `nestedScrollRightPriority`、 `nestedScrollBottomPriority`。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)`   |
+| nestedScrollLeftPriority   | **从右往左**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollTopPriority | **从下往上**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollRightPriority | **从左往右**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
+| nestedScrollBottomPriority | **从上往下**的嵌套滚动事件的处理优先级，参数含义同`nestedScrollPriority`，此参数优先级更高。 | `enum(self,parent,none)` | `Android(版本 2.15.4以上)` |
 
 * nestedScrollPriority 的参数含义：
 
-  *`self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
+  * `self`（默认值）：当前组件优先，滚动事件将先由当前组件消费，剩余部分传递给父组件消费；
 
-  *`parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
+  * `parent`：父组件优先，滚动事件将先由父组件消费，剩余部分再由当前组件消费；
 
-  *`none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
+  * `none`：不允许嵌套滚动，滚动事件将不会传递给父组件。
 
 ## 事件
 
