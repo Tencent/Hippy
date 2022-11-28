@@ -59,7 +59,7 @@ For iOS, we recommend to use iOS simulator when first try. However, you can chan
    > `npm run build`: Build each front-end sdk package.  
 
 2. Choose a demo to build with `npm run buildexample [hippy-react-demo|hippy-vue-demo|hippy-vue-next-demo]` at root directory.
-3. Start the Xcode and build the iOS app with `open examples/ios-demo/HippyDemo.xcodeproj`.
+3. Start the Xcode and build the iOS app with open `Hippy.xcworkspace` at root directory.
 
 > If `Step 2` throw error, you can `cd` to `examples` hippy-react-demo or hippy-vue-demo or hippy-vue-next-demo, and run `npm install --legacy-peer-deps` to install demo dependencies first.
 >
