@@ -39,15 +39,64 @@ using string_view = footstone::stringview::string_view;
 using StringViewUtils = footstone::stringview::StringViewUtils;
 using WorkerManager = footstone::runner::WorkerManager;
 
-REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor",  // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
+             "onCreateDevtools",
+             "(ILjava/lang/String;Ljava/lang/String;)I",
+             OnCreateDevtools)
+
+REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
+             "onDestroyDevtools",
+             "(IZ)V",
+             OnDestroyDevtools)
+
+REGISTER_JNI("com/tencent/devtools/vfs/DevtoolsProcessor",  // NOLINT(cert-err58-cpp)
              "onNetworkRequest",
-             "(Ijava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
+             "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkRequestInvoke)
 
-REGISTER_JNI("com/tencent/devtools/vfs/DevToolsProcessor",  // NOLINT(cert-err58-cpp)
+REGISTER_JNI("com/tencent/devtools/vfs/DevtoolsProcessor",  // NOLINT(cert-err58-cpp)
              "onNetworkResponse",
-             "(Ijava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
+             "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkResponseInvoke)
+
+// needs to call by JNI_OnLoad
+void DevtoolsJni::Init() {}
+
+// needs to call by JNI_OnUnload
+void DevtoolsJni::Destroy() {}
+
+jint OnCreateDevtools(JNIEnv* j_env,
+                      __unused jobject j_object,
+                      jint j_worker_manager_id,
+                      jstring j_data_dir,
+                      jstring j_ws_url) {
+  const string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
+  const string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
+  auto worker_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_worker_manager_id);
+  std::any worker_manager_instance;
+  auto flag = hippy::global_data_holder.Find(worker_manager_id, worker_manager_instance);
+  FOOTSTONE_CHECK(flag);
+  auto worker_manager = std::any_cast<std::shared_ptr<WorkerManager>>(worker_manager_instance);
+  DevtoolsDataSource::SetFileCacheDir(StringViewUtils::ToStdString(
+      StringViewUtils::ConvertEncoding(data_dir, string_view::Encoding::Utf8).utf8_value()));
+  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(
+      StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(ws_url, string_view::Encoding::Utf8).utf8_value()),
+      worker_manager);
+  uint32_t id = devtools::DevtoolsDataSource::Insert(devtools_data_source);
+  JNIEnvironment::ClearJEnvException(j_env);
+  FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
+  return footstone::checked_numeric_cast<uint32_t, jint>(id);
+}
+
+void OnDestroyDevtools(JNIEnv* j_env, __unused jobject j_object, jint j_devtools_id, jboolean j_is_reload) {
+  auto devtools_id = static_cast<uint32_t>(j_devtools_id);
+  auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
+  devtools_data_source->Destroy(static_cast<bool>(j_is_reload));
+  bool flag = devtools::DevtoolsDataSource::Erase(devtools_id);
+  FOOTSTONE_DLOG(INFO) << "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
+  FOOTSTONE_DCHECK(flag);
+  JNIEnvironment::ClearJEnvException(j_env);
+}
 
 /**
  * @brief get DevtoolsDataSource instance for related devtools_id
@@ -62,7 +111,7 @@ std::shared_ptr<DevtoolsDataSource> GetDevtoolsDataSource(jint j_devtools_id) {
 }
 
 // call from java for network start request
-void OnNetworkRequestInvoke(JNIEnv *j_env,
+void OnNetworkRequestInvoke(JNIEnv* j_env,
                             __unused jobject j_object,
                             jint j_devtools_id,
                             jstring j_request_id,
@@ -71,7 +120,7 @@ void OnNetworkRequestInvoke(JNIEnv *j_env,
       JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
   auto resource_holder = ResourceHolder::Create(j_holder);
   auto uri = StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          resource_holder->GetUri(j_env),string_view::Encoding::Utf8).utf8_value());
+          resource_holder->GetUri(j_env), string_view::Encoding::Utf8).utf8_value());
   auto req_meta = resource_holder->GetReqMeta(j_env);
   // call devtools
   std::shared_ptr<DevtoolsDataSource> devtools_data_source = GetDevtoolsDataSource(j_devtools_id);
@@ -85,7 +134,7 @@ void OnNetworkRequestInvoke(JNIEnv *j_env,
 }
 
 // call from java for network end response
-void OnNetworkResponseInvoke(JNIEnv *j_env,
+void OnNetworkResponseInvoke(JNIEnv* j_env,
                              __unused jobject j_object,
                              jint j_devtools_id,
                              jstring j_request_id,
@@ -108,5 +157,4 @@ void OnNetworkResponseInvoke(JNIEnv *j_env,
   }
   JNIEnvironment::ClearJEnvException(j_env);
 }
-
 }  // namespace hippy::devtools

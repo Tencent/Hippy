@@ -767,7 +767,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mLinkHelper.getRenderer().init(controllers, mRootView);
             mVfsManager = new VfsManager();
             initVfsManager();
-            mDevtoolsManager = new DevtoolsManager();
+            mDevtoolsManager = new DevtoolsManager(mDebugMode);
             if (mDebugMode) {
                 initDevtoolsManager();
             }

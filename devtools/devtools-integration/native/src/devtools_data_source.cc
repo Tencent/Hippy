@@ -61,7 +61,7 @@ void DevtoolsDataSource::Bind(int32_t runtime_id, uint32_t dom_id, int32_t rende
   // bind hippy runtime, dom and render
   hippy_dom_ = std::make_shared<HippyDomData>();
   hippy_dom_->dom_id = dom_id;
-  // TODO: runtime_id, render_id will use to collect data when they are ready
+  // runtime_id, render_id will use to collect data when they are ready
 
   auto data_provider = GetDataProvider();
   data_provider->dom_tree_adapter = std::make_shared<HippyDomTreeAdapter>(hippy_dom_);

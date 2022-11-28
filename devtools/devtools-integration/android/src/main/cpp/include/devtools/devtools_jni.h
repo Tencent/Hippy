@@ -25,12 +25,31 @@
 
 namespace hippy::devtools {
 
-void OnNetworkRequestInvoke(JNIEnv *j_env,
+class DevtoolsJni {
+ public:
+  static void Init();
+
+  static void Destroy();
+};
+
+jint OnCreateDevtools(JNIEnv* j_env,
+                      __unused jobject j_object,
+                      jint j_worker_manager_id,
+                      jstring j_data_dir,
+                      jstring j_ws_url);
+
+void OnDestroyDevtools(JNIEnv* j_env,
+                       __unused jobject j_object,
+                       jint j_id,
+                       jboolean j_is_reload);
+
+void OnNetworkRequestInvoke(JNIEnv* j_env,
                             __unused jobject j_object,
                             jint j_devtools_id,
                             jstring j_request_id,
                             jobject j_holder);
-void OnNetworkResponseInvoke(JNIEnv *j_env,
+
+void OnNetworkResponseInvoke(JNIEnv* j_env,
                              __unused jobject j_object,
                              jint j_devtools_id,
                              jstring j_request_id,
