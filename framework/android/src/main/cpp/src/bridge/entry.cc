@@ -69,6 +69,7 @@
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #include "devtools/vfs/devtools_handler.h"
+#include "devtools/devtools_jni.h"
 #endif
 
 namespace hippy {
@@ -156,16 +157,6 @@ REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err5
              "onDestroyVfs",
              "(I)V",
              OnDestroyVfs)
-
-REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
-             "onCreateDevtools",
-             "(ILjava/lang/String;Ljava/lang/String;)I",
-             OnCreateDevtools)
-
-REGISTER_JNI("com/tencent/devtools/DevtoolsManager",  // NOLINT(cert-err58-cpp)
-             "onDestroyDevtools",
-             "(IZ)V",
-             OnDestroyDevtools)
 
 using string_view = footstone::stringview::string_view;
 using TaskRunner = footstone::runner::TaskRunner;
@@ -608,46 +599,6 @@ void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) 
   bool flag = hippy::global_data_holder.Erase(id);
   FOOTSTONE_DCHECK(flag);
 }
-
-jint OnCreateDevtools(JNIEnv *j_env,
-                      __unused jobject j_object,
-                      jint j_worker_manager_id,
-                      jstring j_data_dir,
-                      jstring j_ws_url) {
-  uint32_t id = 0;
-#ifdef ENABLE_INSPECTOR
-  const string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
-  const string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
-  std::shared_ptr<WorkerManager> worker_manager;
-  auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
-  FOOTSTONE_DCHECK(flag);
-  devtools::DevtoolsDataSource::SetFileCacheDir(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-      data_dir, string_view::Encoding::Utf8).utf8_value()));
-  auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(
-      StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-          ws_url, string_view::Encoding::Utf8).utf8_value()),
-      worker_manager);
-  id = devtools::DevtoolsDataSource::Insert(devtools_data_source);
-  JNIEnvironment::ClearJEnvException(j_env);
-  FOOTSTONE_DLOG(INFO) << "OnCreateDevtools id=" << id;
-#endif
-  return footstone::checked_numeric_cast<uint32_t, jint>(id);
-}
-
-void OnDestroyDevtools(JNIEnv *j_env,
-                       __unused jobject j_object,
-                       jint j_devtools_id,
-                       jboolean j_is_reload) {
-#ifdef ENABLE_INSPECTOR
-  auto devtools_id = static_cast<uint32_t>(j_devtools_id);
-  auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
-  devtools_data_source->Destroy(static_cast<bool>(j_is_reload));
-  bool flag = devtools::DevtoolsDataSource::Erase(devtools_id);
-  FOOTSTONE_DLOG(INFO)<< "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
-  FOOTSTONE_DCHECK(flag);
-  JNIEnvironment::ClearJEnvException(j_env);
-#endif
-}
 } // namespace bridge
 } // namespace framework
 } // namespace hippy
@@ -685,6 +636,10 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   TDFRenderBridge::Init(j_vm, reserved);
 #endif
 
+#ifdef ENABLE_INSPECTOR
+  hippy::devtools::DevtoolsJni::Init();
+#endif
+
   return JNI_VERSION_1_4;
 }
 
@@ -697,6 +652,10 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
 
 #ifdef ENABLE_TDF_RENDER
   TDFRenderBridge::Destroy();
+#endif
+
+#ifdef ENABLE_INSPECTOR
+  hippy::devtools::DevtoolsJni::Destroy();
 #endif
 
   hippy::JniDelegateHandler::Destroy();

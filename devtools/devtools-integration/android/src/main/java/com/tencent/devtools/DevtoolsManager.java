@@ -18,29 +18,38 @@ package com.tencent.devtools;
 
 public class DevtoolsManager {
 
+    private final boolean mDebugMode;
     private int mId;
 
     public int getId() {
         return mId;
     }
 
+    public DevtoolsManager(boolean debugMode) {
+        mDebugMode = debugMode;
+    }
+
     public void create(int workerManagerId, String dataDir, String wsUrl) {
-        mId = onCreateDevtools(workerManagerId, dataDir, wsUrl);
+        if (mDebugMode) {
+            mId = onCreateDevtools(workerManagerId, dataDir, wsUrl);
+        }
     }
 
     public void destroy(boolean isReload) {
-        onDestroyDevtools(getId(), isReload);
+        if (mDebugMode) {
+            onDestroyDevtools(getId(), isReload);
+        }
     }
 
     /**
      * create devtools jni
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    public native int onCreateDevtools(int workerManagerId, String dataDir, String wsUrl);
+    private native int onCreateDevtools(int workerManagerId, String dataDir, String wsUrl);
 
     /**
      * destroy devtools jni
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    public native void onDestroyDevtools(int devtoolsId, boolean isReload);
+    private native void onDestroyDevtools(int devtoolsId, boolean isReload);
 }

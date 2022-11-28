@@ -127,17 +127,6 @@ void UnloadInstance(JNIEnv* j_env,
 jint OnCreateVfs(JNIEnv* j_env, __unused jobject j_object, jobject j_vfs_manager);
 void OnDestroyVfs(JNIEnv* j_env, __unused jobject j_object, jint j_id);
 
-jint OnCreateDevtools(JNIEnv *j_env,
-                      __unused jobject j_object,
-                      jint j_worker_manager_id,
-                      jstring j_data_dir,
-                      jstring j_ws_url);
-
-void OnDestroyDevtools(JNIEnv *j_env,
-                       __unused jobject j_object,
-                       jint j_id,
-                       jboolean j_is_reload);
-
 } // namespace bridge
 } // namespace framework
 } // namespace hippy

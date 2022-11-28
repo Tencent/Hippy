@@ -73,11 +73,11 @@ public class DevtoolsProcessor extends Processor {
      * Network Request notification for devtools
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    public native void onNetworkRequest(int id, String requestId, ResourceDataHolder holder);
+    private native void onNetworkRequest(int id, String requestId, ResourceDataHolder holder);
 
     /**
      * Network Response notification for devtools
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    public native void onNetworkResponse(int id, String requestId, ResourceDataHolder holder);
+    private native void onNetworkResponse(int id, String requestId, ResourceDataHolder holder);
 }
