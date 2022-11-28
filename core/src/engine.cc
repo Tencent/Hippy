@@ -27,14 +27,7 @@
 
 constexpr uint32_t Engine::kDefaultWorkerPoolSize = 1;
 
-Engine::Engine(std::unique_ptr<RegisterMap> map, const std::shared_ptr<VMInitParam>& init_param)
-    : vm_(nullptr), map_(std::move(map)), scope_cnt_(0) {
-  SetupThreads();
-
-  std::shared_ptr<JavaScriptTask> task = std::make_shared<JavaScriptTask>();
-  task->callback = [=] { CreateVM(init_param); };
-  js_runner_->PostTask(task);
-}
+Engine::Engine() : vm_(nullptr), scope_cnt_(0) {}
 
 Engine::~Engine() {
   TDF_BASE_DLOG(INFO) << "~Engine";
@@ -78,8 +71,7 @@ void Engine::SetupThreads() {
 void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
   TDF_BASE_DLOG(INFO) << "Engine CreateVM";
   vm_ = hippy::napi::CreateVM(param);
-
-  RegisterMap::const_iterator it = map_->find(hippy::base::kVMCreateCBKey);
+  auto it = map_->find(hippy::base::kVMCreateCBKey);
   if (it != map_->end()) {
     RegisterFunction f = it->second;
     if (f) {
@@ -89,6 +81,23 @@ void Engine::CreateVM(const std::shared_ptr<VMInitParam>& param) {
       map_->erase(it);
     }
   }
+}
+
+void Engine::AsyncInit(const std::shared_ptr<VMInitParam>& param, std::unique_ptr<RegisterMap> map) {
+  SetupThreads();
+
+  map_ = std::move(map);
+  auto weak_engine = weak_from_this();
+  auto task = std::make_shared<JavaScriptTask>();
+  task->callback = [weak_engine, param] {
+    auto engine = weak_engine.lock();
+    TDF_BASE_DCHECK(engine);
+    if (!engine) {
+      return;
+    }
+    engine->CreateVM(param);
+  };
+  js_runner_->PostTask(task);
 }
 
 void Engine::Enter() {
