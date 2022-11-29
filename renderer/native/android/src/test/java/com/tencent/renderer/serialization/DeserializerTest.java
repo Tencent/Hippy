@@ -19,34 +19,26 @@ package com.tencent.renderer.serialization;
 import static org.junit.Assert.*;
 
 import android.graphics.Color;
+import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
+import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
-import com.tencent.renderer.NativeRenderException;
+import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class SerializerTest {
+public class DeserializerTest {
 
     private final SafeHeapWriter mSafeHeapWriter = new SafeHeapWriter();
     private final Serializer mSerializer = new Serializer();
+    private final Deserializer mDeserializer = new Deserializer(null, new InternalizedStringTable());
+    private final BinaryReader mSafeHeapReader = new SafeHeapReader();
 
-    @Before
-    public void setUp() throws Exception {
+    private ByteBuffer generateTestBuffer() {
         mSerializer.setWriter(mSafeHeapWriter);
         mSerializer.reset();
         mSerializer.writeHeader();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-
-    @Test
-    public void writeValue() {
         HashMap<String, Object> params = new HashMap<>();
         params.put("id", 1);
         params.put("pid", 0);
@@ -61,13 +53,31 @@ public class SerializerTest {
         colorList.add(Color.BLACK);
         style.put("colors", colorList);
         params.put("style", style);
-        assertTrue(mSerializer.writeValue(params));
+        mSerializer.writeValue(params);
+        return mSafeHeapWriter.chunked();
     }
 
-    @Test(expected = NativeRenderException.class)
-    public void writeValueException() {
-        HashMap<String, Object> params = new HashMap<>();
-        params.put("customObj", ByteBuffer.allocate(10));
-        mSerializer.writeValue(params);
+    @Test
+    public void readValue() {
+        ByteBuffer buffer = generateTestBuffer();
+        mSafeHeapReader.reset(buffer);
+        mDeserializer.setReader(mSafeHeapReader);
+        mDeserializer.reset();
+        mDeserializer.readHeader();
+        Object paramsObj = mDeserializer.readValue();
+        assertTrue(paramsObj instanceof HashMap);
+        HashMap<String, Object> params = (HashMap<String, Object>) paramsObj;
+        assertEquals(params.get("id"), 1);
+        assertEquals(params.get("name"), "text");
+        assertEquals(params.get("class"), null);
+        assertTrue(params.get("style") instanceof HashMap);
+        HashMap<String, Object> style = (HashMap<String, Object>) params.get("style");
+        assertEquals(style.get("width"), 100);
+        assertTrue(style.get("colors") instanceof ArrayList);
+        ArrayList<Integer> colorList = (ArrayList<Integer>) style.get("colors");
+        assertEquals(colorList.size(), 3);
+        assertEquals((int) colorList.get(0), Color.BLUE);
+        assertEquals((int) colorList.get(1), Color.RED);
+        assertEquals((int) colorList.get(2), Color.BLACK);
     }
 }

@@ -53,6 +53,12 @@ public class ChoreographerUtils {
         Choreographer.getInstance().postFrameCallback(frameCallback);
     }
 
+    /**
+     * Register frame callback listener, should call in ui thread.
+     *
+     * @param rendererId renderer id
+     * @param rootId root node id
+     */
     @MainThread
     public static void registerDoFrameListener(Integer rendererId, Integer rootId) {
         if (sListeners == null) {
@@ -72,6 +78,12 @@ public class ChoreographerUtils {
         }
     }
 
+    /**
+     * Unregister frame callback listener, should call in ui thread.
+     *
+     * @param rendererId renderer id
+     * @param rootId root node id
+     */
     @MainThread
     public static void unregisterDoFrameListener(Integer rendererId, Integer rootId) {
         if (sListeners == null) {

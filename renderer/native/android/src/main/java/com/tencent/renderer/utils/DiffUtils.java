@@ -60,6 +60,18 @@ public class DiffUtils {
         return diffStyles;
     }
 
+    /**
+     * Find the attribute that exists in the from node but does not exist in the to node.
+     *
+     * <p>
+     * When the list scrolls and the view is reused, the reused view must set the attributes
+     * that do not exist in the corresponding new node to the default values
+     * <p/>
+     *
+     * @param fromProps the props of from node
+     * @param toProps the props of to node
+     * @return the diff result {@link HashMap} of deserialize
+     */
     @Nullable
     public static Map<String, Object> findResetProps(@Nullable Map<String, Object> fromProps,
             @Nullable Map<String, Object> toProps) {
@@ -100,6 +112,13 @@ public class DiffUtils {
         return false;
     }
 
+    /**
+     * Compare the two nodes whether has same layout size.
+     *
+     * @param fromNode from node
+     * @param toNode to node
+     * @return @return {@code true} if it's equal, {@code false} otherwise
+     */
     public static boolean diffLayout(@NonNull RenderNode fromNode,
             @NonNull RenderNode toNode) {
         return fromNode.getX() != toNode.getX() || fromNode.getY() != toNode.getY()
