@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 public class ChoreographerUtils {
+
     public static final String DO_FRAME = "frameUpdate";
     private static boolean sEnablePostFrame = false;
     private static HashMap<Integer, ArrayList<Integer>> sListeners = null;

@@ -16,7 +16,6 @@
 
 package com.tencent.renderer;
 
-import android.content.Context;
 import androidx.annotation.Nullable;
 
 import com.tencent.mtt.hippy.modules.Promise;

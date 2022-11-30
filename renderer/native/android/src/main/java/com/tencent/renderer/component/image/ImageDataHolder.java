@@ -40,8 +40,11 @@ import java.nio.ByteBuffer;
 public class ImageDataHolder implements ImageDataSupplier {
 
     private static final int MAX_SOURCE_KEY_LEN = 32;
+    /** Mark that the image data has been cached. */
     private static final int FLAG_CACHED = 0x00000001;
+    /** Mark that the image data has been attached to the view. */
     private static final int FLAG_ATTACHED = 0x00000002;
+    /** Mark that image data is decoded internally and needs to recycle. */
     private static final int FLAG_RECYCLABLE = 0x00000004;
     private static final String PREFIX_IMAGE_SOURCE_DATA = "data:";
     private static final String PREFIX_IMAGE_SOURCE_FILE = "file://";
@@ -71,6 +74,17 @@ public class ImageDataHolder implements ImageDataSupplier {
         mHeight = height;
     }
 
+    /**
+     * Generate image source entry key for cache image data.
+     *
+     * <p>
+     * To prevent the time consuming of hash code for long base64 data, if the source length is
+     * greater than 32, the last 32 characters are truncated to calculate the hash code,
+     * <p/>
+     *
+     * @param source image uri
+     * @return source hash code
+     */
     public static int generateSourceKey(@NonNull String source) {
         if (source.length() > MAX_SOURCE_KEY_LEN) {
             source = source.substring(source.length() - MAX_SOURCE_KEY_LEN);
@@ -286,6 +300,9 @@ public class ImageDataHolder implements ImageDataSupplier {
                 mGifMovie = Movie.decodeByteArray(data, 0, data.length);
                 mBitmap = null;
             } else {
+                // When using the BitmapFactory decoding provided by the old version of Android system,
+                // we need to sample the image to scale in order to prevent the decoding memory
+                // growth caused by large images.
                 final BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeByteArray(data, 0, data.length, options);

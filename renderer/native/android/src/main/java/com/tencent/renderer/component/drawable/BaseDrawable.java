@@ -82,6 +82,11 @@ public abstract class BaseDrawable extends Drawable {
 
     }
 
+    /**
+     * If has set the attributes of box shadow, we need to call this function to
+     * update the rendering region of content, the final actual content rendering area size
+     * will be smaller than the initial size.
+     */
     public void updateContentRegion() {
         if (mShadowPaint == null){
             mRect.set(getBounds());

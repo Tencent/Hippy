@@ -23,6 +23,10 @@ import android.view.ViewGroup;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.renderer.node.RenderNode;
 
+/**
+ * FlatViewGroup designed for base class of Hippy image view, Hippy view and Hippy text view,
+ * this base class is mainly responsible for the flattening rendering of child nodes.
+ */
 public class FlatViewGroup extends ViewGroup {
 
     private final DispatchDrawHelper mDispatchDrawHelper = new DispatchDrawHelper();
@@ -74,6 +78,7 @@ public class FlatViewGroup extends ViewGroup {
     protected int getChildDrawingOrder(int childCount, int i) {
         int index = -1;
         if (mDispatchDrawHelper.isActive()) {
+            // Go through the children nodes here for flattening rendering
             index = mDispatchDrawHelper.drawNext(this);
         }
         return (index < 0 || index >= getChildCount()) ? i : index;
@@ -99,6 +104,7 @@ public class FlatViewGroup extends ViewGroup {
         mDispatchDrawHelper.onDispatchDrawStart(canvas, node);
         super.dispatchDraw(canvas);
         if (mDispatchDrawHelper.isActive()) {
+            // Check the remaining non rendered sub nodes, behind the last sub node with host view
             mDispatchDrawHelper.drawNext(this);
         }
         mDispatchDrawHelper.onDispatchDrawEnd();

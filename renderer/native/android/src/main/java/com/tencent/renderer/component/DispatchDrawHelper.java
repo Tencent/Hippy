@@ -32,6 +32,7 @@ public class DispatchDrawHelper {
     private Canvas mCanvas;
     @Nullable
     private RenderNode mNode;
+    /** Render order of nodes from new order according to zIndex attribute. */
     private final ArrayList<RenderNode> mDrawingOrder = new ArrayList<>();
 
     public void onDispatchDrawStart(Canvas canvas, @NonNull RenderNode node) {
@@ -41,6 +42,7 @@ public class DispatchDrawHelper {
         for (int i = 0; i < node.getChildCount(); i++) {
             mDrawingOrder.add(node.getChildAt(i));
         }
+        // Re sort the rendering order of children before each drawing.
         Collections.sort(mDrawingOrder, new Comparator<RenderNode>() {
             @Override
             public int compare(RenderNode n1, RenderNode n2) {
@@ -69,6 +71,7 @@ public class DispatchDrawHelper {
             if (child == null) {
                 continue;
             }
+            // If child has host view, just record draw index and return index of child.
             if (child.getHostView() != null) {
                 mDrawIndex = i + 1;
                 return parent.indexOfChild(child.getHostView());
@@ -76,6 +79,8 @@ public class DispatchDrawHelper {
             Component component = child.getComponent();
             if (component != null) {
                 mCanvas.save();
+                // The coordinate origin needs to be translated to the upper left corner of
+                // the sub view before drawing.
                 mCanvas.translate(child.getX(), child.getY());
                 component.onDraw(mCanvas, 0, 0, child.getWidth(), child.getHeight());
                 mCanvas.restore();

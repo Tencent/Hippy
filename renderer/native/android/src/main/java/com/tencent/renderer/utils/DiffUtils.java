@@ -70,7 +70,7 @@ public class DiffUtils {
      *
      * @param fromProps the props of from node
      * @param toProps the props of to node
-     * @return the diff result {@link HashMap} of deserialize
+     * @return the diff result {@link HashMap}
      */
     @Nullable
     public static Map<String, Object> findResetProps(@Nullable Map<String, Object> fromProps,
@@ -117,7 +117,7 @@ public class DiffUtils {
      *
      * @param fromNode from node
      * @param toNode to node
-     * @return @return {@code true} if it's equal, {@code false} otherwise
+     * @return {@code true} if it's equal, {@code false} otherwise
      */
     public static boolean diffLayout(@NonNull RenderNode fromNode,
             @NonNull RenderNode toNode) {
@@ -176,6 +176,16 @@ public class DiffUtils {
         return diffMap(fromMap, toMap, 0, null, null);
     }
 
+    /**
+     * Compare different attributes between from node and to node.
+     *
+     * @param fromMap the props of from node
+     * @param toMap the props of to node
+     * @param diffLevel nesting depth compared
+     * @param controllerManager {@link ControllerManager}
+     * @param componentProps used to record attributes belonging to component
+     * @return the diff result {@link HashMap}
+     */
     @NonNull
     public static Map<String, Object> diffMap(@NonNull Map<String, Object> fromMap,
             @NonNull Map<String, Object> toMap, int diffLevel,
