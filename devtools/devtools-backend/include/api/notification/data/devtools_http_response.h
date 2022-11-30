@@ -58,7 +58,7 @@ struct ResourceTiming {
  */
 struct Response : public Serializable {
   std::string Serialize() const override;
-  explicit Response() {}
+  Response() {}
   explicit Response(int32_t code,
                     uint64_t encoded_data_length,
                     const std::unordered_map<std::string, std::string>& rsp_meta,
@@ -106,7 +106,7 @@ class DevtoolsHttpResponse : public Serializable {
         response_(std::move(response)),
         has_extra_info_(false),
         frame_id_(response.url_) {}
-  DevtoolsHttpResponse(){}
+  DevtoolsHttpResponse() {}
   explicit DevtoolsHttpResponse(std::string content) : content_(std::move(content)) {}
   inline void SetTimestamp(uint64_t timestamp) { timestamp_ = timestamp; }
   inline void SetHasExtraInfo(bool has_extra_info) { has_extra_info_ = has_extra_info; }

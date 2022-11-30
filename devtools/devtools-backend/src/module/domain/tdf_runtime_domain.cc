@@ -37,10 +37,6 @@ void TdfRuntimeDomain::RegisterCallback() {}
 
 void TdfRuntimeDomain::Resume(const BaseRequest& request) {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
-  if (!GetDataProvider()->runtime_adapter->IsDebug()) {
-    FOOTSTONE_DLOG(ERROR) << "not in debug mode, return.";
-    return;  // don't send msg to v8 if not debug mode
-  }
   auto vm_request = GetDataProvider()->vm_request_adapter;
   if (vm_request) {
     vm_request->SendMsgToVm(kCmdChromeSocketClose);
@@ -49,9 +45,8 @@ void TdfRuntimeDomain::Resume(const BaseRequest& request) {
 }
 
 void TdfRuntimeDomain::IsDebugMode(const BaseRequest& request) {
-  bool is_debug = GetDataProvider()->runtime_adapter->IsDebug();
   nlohmann::json result_json = nlohmann::json::object();
-  result_json["isDebugMode"] = is_debug ? 1 : 0;
+  result_json["isDebugMode"] = 1;
   ResponseResultToFrontend(request.GetId(), result_json.dump());
 }
 }  // namespace hippy::devtools

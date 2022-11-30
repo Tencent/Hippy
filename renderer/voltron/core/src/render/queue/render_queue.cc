@@ -22,6 +22,7 @@
 
 #include "render/queue/render_queue.h"
 #include "standard_message_codec.h"
+#include "footstone/logging.h"
 
 namespace voltron {
 
@@ -37,8 +38,8 @@ std::unique_ptr<std::vector<uint8_t>> VoltronRenderQueue::ConsumeRenderOp() {
   if (op_list.empty()) {
     return nullptr;
   }
-  return std::move(StandardMessageCodec::GetInstance().EncodeMessage(
-      EncodableValue(op_list)));
+  return StandardMessageCodec::GetInstance().EncodeMessage(
+      EncodableValue(op_list));
 }
 
 VoltronRenderQueue::~VoltronRenderQueue() {

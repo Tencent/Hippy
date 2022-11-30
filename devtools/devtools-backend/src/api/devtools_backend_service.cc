@@ -22,14 +22,16 @@
 #include "api/notification/default/default_network_notification.h"
 #include "api/notification/default/default_runtime_notification.h"
 #include "api/notification/default/default_vm_response_notification.h"
-#include "footstone/macros.h"
 #include "footstone/logging.h"
+#include "footstone/macros.h"
 #include "module/domain_dispatch.h"
 #include "tunnel/tunnel_service.h"
 
 namespace hippy::devtools {
-DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_config, std::shared_ptr<footstone::WorkerManager> worker_manager) {
-  FOOTSTONE_DLOG(INFO) << "DevtoolsBackendService create framework:%d,tunnel:%d" << devtools_config.framework << devtools_config.tunnel;
+DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig& devtools_config,
+                                               std::shared_ptr<footstone::WorkerManager> worker_manager) {
+  FOOTSTONE_DLOG(INFO) << "DevtoolsBackendService create framework:" << devtools_config.framework
+                       << ",tunnel:" << devtools_config.tunnel;
   auto data_provider = std::make_shared<DataProvider>();
   auto notification_center = std::make_shared<NotificationCenter>();
   data_channel_ = std::make_shared<DataChannel>(data_provider, notification_center);
@@ -44,14 +46,12 @@ DevtoolsBackendService::DevtoolsBackendService(const DevtoolsConfig &devtools_co
   }
 }
 
-DevtoolsBackendService::~DevtoolsBackendService() {
-  FOOTSTONE_DLOG(INFO) << "~DevtoolsBackendService";
-}
+DevtoolsBackendService::~DevtoolsBackendService() { FOOTSTONE_DLOG(INFO) << "~DevtoolsBackendService"; }
 
 void DevtoolsBackendService::Create() {
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   data_channel_->GetNotificationCenter()->vm_response_notification =
-      std::make_shared<DefaultVmResponseAdapter>([WEAK_THIS](const std::string &data) {
+      std::make_shared<DefaultVmResponseAdapter>([WEAK_THIS](const std::string& data) {
         DEFINE_AND_CHECK_SELF(DevtoolsBackendService)
         self->tunnel_service_->SendDataToFrontend(data);
       });

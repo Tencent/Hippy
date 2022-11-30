@@ -22,7 +22,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "HPComponentTag.h"
 #import "NativeRenderComponentProtocol.h"
 
 #include "dom/dom_node.h"

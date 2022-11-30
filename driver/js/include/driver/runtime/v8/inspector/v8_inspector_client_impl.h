@@ -46,8 +46,12 @@ class V8InspectorClientImpl : public v8_inspector::V8InspectorClient,
 
   void CreateInspector(const std::shared_ptr<Scope>& scope);
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  std::shared_ptr<V8InspectorContext> CreateInspectorContext(const std::shared_ptr<Scope>& scope, std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
-  void DestroyInspectorContext(bool is_reload, const std::shared_ptr<V8InspectorContext> &inspector_context);
+  std::shared_ptr<V8InspectorContext> CreateInspectorContext(
+      const std::shared_ptr<Scope>& scope,
+      std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source);
+  void DestroyInspectorContext(
+      bool is_reload,
+      const std::shared_ptr<V8InspectorContext>& inspector_context);
 #endif
   void SendMessageToV8(const std::shared_ptr<V8InspectorContext>& inspector_context, string_view&& params);
 

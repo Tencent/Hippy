@@ -67,7 +67,9 @@
 #include "renderer/tdf/tdf_render_manager.h"
 #endif
 #ifdef ENABLE_INSPECTOR
-#include "integrations/devtools_handler.h"
+#include "devtools/devtools_data_source.h"
+#include "devtools/vfs/devtools_handler.h"
+#include "devtools/devtools_jni.h"
 #endif
 
 namespace hippy {
@@ -92,7 +94,7 @@ REGISTER_JNI("com/tencent/link_supplier/Linker", // NOLINT(cert-err58-cpp)
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
              "initJSFramework",
              "([BZZZLcom/tencent/mtt/hippy/bridge/NativeCallback;"
-             "JIILcom/tencent/mtt/hippy/HippyEngine$V8InitParams;Ljava/lang/String;Ljava/lang/String;)J",
+             "JIILcom/tencent/mtt/hippy/HippyEngine$V8InitParams;I)J",
              InitInstance)
 
 REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
@@ -155,16 +157,6 @@ REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err5
              "onDestroyVfs",
              "(I)V",
              OnDestroyVfs)
-
-REGISTER_JNI("com/tencent/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
-             "onNetworkRequest",
-             "(JLjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
-             OnNetworkRequestInvoke)
-
-REGISTER_JNI("com/tencent/vfs/DevToolsProcessor", // NOLINT(cert-err58-cpp)
-             "onNetworkResponse",
-             "(JLjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
-             OnNetworkResponseInvoke)
 
 using string_view = footstone::stringview::string_view;
 using TaskRunner = footstone::runner::TaskRunner;
@@ -492,8 +484,7 @@ jlong InitInstance(JNIEnv* j_env,
                    jint j_worker_manager_id,
                    jint j_dom_manager_id,
                    jobject j_vm_init_param,
-                   jstring j_data_dir,
-                   jstring j_ws_url) {
+                   jint j_devtools_id) {
   FOOTSTONE_LOG(INFO) << "InitInstance begin, j_single_thread_mode = "
                      << static_cast<uint32_t>(j_single_thread_mode)
                      << ", j_bridge_param_json = "
@@ -530,8 +521,6 @@ jlong InitInstance(JNIEnv* j_env,
                                     const string_view& stack) {
     ExceptionHandler::ReportJsException(runtime, desc, stack);
   });
-  const string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
-  const string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
   std::shared_ptr<WorkerManager> worker_manager;
   auto flag = worker_manager_map.Find(static_cast<uint32_t>(j_worker_manager_id), worker_manager);
   FOOTSTONE_DCHECK(flag);
@@ -550,8 +539,7 @@ jlong InitInstance(JNIEnv* j_env,
       std::make_shared<Bridge>(j_env, j_object),
       scope_cb,
       call_native_cb,
-      data_dir,
-      ws_url);
+      static_cast<uint32_t>(j_devtools_id));
   return static_cast<jlong>(runtime_id);
 }
 
@@ -611,69 +599,6 @@ void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) 
   bool flag = hippy::global_data_holder.Erase(id);
   FOOTSTONE_DCHECK(flag);
 }
-
-void OnNetworkRequestInvoke(JNIEnv *j_env,
-                            __unused jobject j_object,
-                            jlong j_runtime_id,
-                            jstring j_request_id,
-                            jobject j_holder) {
-#ifdef ENABLE_INSPECTOR
-  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
-  auto resource_holder = ResourceHolder::Create(j_holder);
-  auto uri = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-      resource_holder->GetUri(j_env), footstone::string_view::Encoding::Utf8).utf8_value());
-  auto req_meta = resource_holder->GetReqMeta(j_env);
-  // call devtools
-  std::shared_ptr<Runtime> runtime = Runtime::Find(
-      footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
-  if (!runtime) {
-    FOOTSTONE_DLOG(WARNING)<< "DevToolsProcessor OnNetworkResponseInvoke, j_runtime_id invalid";
-    return;
-  }
-  auto devtools_data_source = runtime->GetDevtoolsDataSource();
-  if (devtools_data_source) {
-    hippy::devtools::SentRequest(devtools_data_source->GetNotificationCenter()->network_notification,
-                                 request_id,
-                                 uri,
-                                 req_meta);
-  }
-  JNIEnvironment::ClearJEnvException(j_env);
-#endif
-}
-
-void OnNetworkResponseInvoke(JNIEnv *j_env,
-                             __unused jobject j_object,
-                             jlong j_runtime_id,
-                             jstring j_request_id,
-                             jobject j_holder) {
-#ifdef ENABLE_INSPECTOR
-  auto request_id = footstone::StringViewUtils::ToStdString(footstone::StringViewUtils::ConvertEncoding(
-      JniUtils::ToStrView(j_env, j_request_id), footstone::string_view::Encoding::Utf8).utf8_value());
-  auto resource_holder = ResourceHolder::Create(j_holder);
-  auto code = static_cast<int>(resource_holder->GetCode(j_env));
-  auto req_meta = resource_holder->GetReqMeta(j_env);
-  auto rsp_meta = resource_holder->GetRspMeta(j_env);
-  auto content = resource_holder->GetContent(j_env);
-  std::shared_ptr<Runtime> runtime = Runtime::Find(
-      footstone::check::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
-  if (!runtime) {
-    FOOTSTONE_DLOG(WARNING)<< "DevToolsProcessor OnNetworkResponseInvoke, j_runtime_id invalid";
-    return;
-  }
-  auto devtools_data_source = runtime->GetDevtoolsDataSource();
-  if (devtools_data_source) {
-    hippy::devtools::ReceivedResponse(devtools_data_source->GetNotificationCenter()->network_notification,
-                                      request_id,
-                                      code,
-                                      content,
-                                      rsp_meta,
-                                      req_meta);
-  }
-  JNIEnvironment::ClearJEnvException(j_env);
-#endif
-}
-
 } // namespace bridge
 } // namespace framework
 } // namespace hippy
@@ -711,6 +636,10 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   TDFRenderBridge::Init(j_vm, reserved);
 #endif
 
+#ifdef ENABLE_INSPECTOR
+  hippy::devtools::DevtoolsJni::Init();
+#endif
+
   return JNI_VERSION_1_4;
 }
 
@@ -723,6 +652,10 @@ void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
 
 #ifdef ENABLE_TDF_RENDER
   TDFRenderBridge::Destroy();
+#endif
+
+#ifdef ENABLE_INSPECTOR
+  hippy::devtools::DevtoolsJni::Destroy();
 #endif
 
   hippy::JniDelegateHandler::Destroy();

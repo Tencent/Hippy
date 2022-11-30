@@ -25,12 +25,13 @@
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
 #import "NativeRenderCollectionViewFlowLayout.h"
-#import "NativeRenderContext.h"
 #import "NativeRenderFooterRefresh.h"
 #import "NativeRenderHeaderRefresh.h"
+#import "NativeRenderImpl.h"
 #import "NativeRenderObjectView.h"
 #import "UIView+DirectionalLayout.h"
 #import "UIView+NativeRender.h"
+#import "UIView+Render.h"
 
 static NSString *const kCellIdentifier = @"cellIdentifier";
 static NSString *const kSupplementaryIdentifier = @"SupplementaryIdentifier";
@@ -242,9 +243,9 @@ referenceSizeForHeaderInSection:(NSInteger)section {
                                                                                forIndexPath:indexPath];
     NativeRenderObjectView *headerRenderObject = [self.dataSource headerForSection:section];
     if (headerRenderObject && [headerRenderObject isKindOfClass:[NativeRenderObjectView class]]) {
-        UIView *headerView = [self.renderContext viewFromRenderViewTag:headerRenderObject.componentTag onRootTag:headerRenderObject.rootTag];
+        UIView *headerView = [self.renderImpl viewFromRenderViewTag:headerRenderObject.componentTag onRootTag:headerRenderObject.rootTag];
         if (!headerView) {
-            headerView = [self.renderContext createViewRecursivelyFromRenderObject:headerRenderObject];
+            headerView = [self.renderImpl createViewRecursivelyFromRenderObject:headerRenderObject];
         }
         CGRect frame = headerView.frame;
         frame.origin = CGPointZero;
@@ -302,18 +303,18 @@ referenceSizeForHeaderInSection:(NSInteger)section {
 }
 
 - (void)itemViewForCollectionViewCell:(UICollectionViewCell *)cell indexPath:(NSIndexPath *)indexPath {
-    HPAssert(self.renderContext, @"no rendercontext detected");
-    if (!self.renderContext) {
+    HPAssert(self.renderImpl, @"no rendercontext detected");
+    if (!self.renderImpl) {
         return;
     }
     NativeRenderObjectView *cellRenderObject = [self.dataSource cellForIndexPath:indexPath];
     NativeRenderBaseListViewCell *hpCell = (NativeRenderBaseListViewCell *)cell;
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:cellRenderObject.componentTag  onRootTag:cellRenderObject.rootTag];
+    UIView *cellView = [self.renderImpl viewFromRenderViewTag:cellRenderObject.componentTag  onRootTag:cellRenderObject.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
     else {
-        cellView = [self.renderContext createViewRecursivelyFromRenderObject:cellRenderObject];
+        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:cellRenderObject];
     }
     HPAssert([cellView conformsToProtocol:@protocol(ViewAppearStateProtocol)],
         @"subviews of NativeRenderBaseListViewCell must conform to protocol ViewAppearStateProtocol");

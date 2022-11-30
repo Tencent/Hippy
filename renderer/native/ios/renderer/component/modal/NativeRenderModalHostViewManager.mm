@@ -20,11 +20,12 @@
  * limitations under the License.
  */
 
-#import "NativeRenderModalHostViewManager.h"
-#import "NativeRenderModalHostViewController.h"
-#import "NativeRenderObjectView.h"
 #import "HPToolUtils.h"
+#import "NativeRenderModalHostViewController.h"
+#import "NativeRenderModalHostViewManager.h"
 #import "NativeRenderModalTransitioningDelegate.h"
+#import "NativeRenderObjectView.h"
+#import "NativeRenderUtils.h"
 
 @interface NativeRenderObjectModalHost : NativeRenderObjectView
 
@@ -32,9 +33,9 @@
 
 @implementation NativeRenderObjectModalHost
 
-- (void)setDomManager:(const std::weak_ptr<hippy::DomManager>)domManager {
+- (void)setDomManager:(std::weak_ptr<hippy::DomManager>)domManager {
     [super setDomManager:domManager];
-    CGRect frame = { .origin = CGPointZero, .size = HPScreenSize() };
+    CGRect frame = { .origin = CGPointZero, .size = NativeRenderScreenSize() };
     [self setLayoutFrame:frame];
 }
 

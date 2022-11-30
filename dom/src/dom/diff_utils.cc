@@ -1,7 +1,22 @@
-//
-// Copyright (c) 2021 Tencent. All rights reserved.
-// Created by omegaxiao on 2021/11/26.
-//
+/*
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include "dom/diff_utils.h"
 #include "footstone/logging.h"
@@ -20,6 +35,7 @@ DiffValue DiffUtils::DiffProps(const DomValueMap& old_props_map, const DomValueM
     auto iter = new_props_map.find(kv.first);
     if (iter == new_props_map.end()) {
       delete_props->push_back(kv.first);
+      update_props->insert(std::make_pair(kv.first, nullptr));
     }
   }
 

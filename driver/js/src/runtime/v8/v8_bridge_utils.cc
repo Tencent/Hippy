@@ -27,7 +27,6 @@
 #include <future>
 #include <utility>
 
-#include "devtools/devtools_macro.h"
 #include "driver/napi/v8/js_native_api_v8.h"
 #include "driver/napi/v8/serializer.h"
 #include "footstone/deserializer.h"
@@ -92,8 +91,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const std::any& bridge,
                                     const RegisterFunction& scope_cb,
                                     const RegisterFunction& call_native_cb,
-                                    const string_view& data_dir,
-                                    const string_view& ws_url) {
+                                    uint32_t devtools_id) {
   std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
                                                                is_dev_module);
   runtime->SetData(kBridgeSlot, std::move(bridge));
@@ -119,10 +117,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
   if (is_dev_module) {
-    auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(
-        StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-            ws_url, string_view::Encoding::Utf8).utf8_value()), worker_manager);
-    devtools_data_source->SetRuntimeDebugMode(is_dev_module);
+    auto devtools_data_source = devtools::DevtoolsDataSource::Find(devtools_id);
     runtime->SetDevtoolsDataSource(devtools_data_source);
   }
 #endif
@@ -205,8 +200,6 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
 
 #ifdef ENABLE_INSPECTOR
   if (is_dev_module) {
-    DEVTOOLS_INIT_VM_TRACING_CACHE(StringViewUtils::ToStdString(StringViewUtils::ConvertEncoding(
-        data_dir, string_view::Encoding::Utf8).utf8_value()));
     scope->SetDevtoolsDataSource(runtime->GetDevtoolsDataSource());
 #ifndef V8_WITHOUT_INSPECTOR
     scope->GetDevtoolsDataSource()->SetVmRequestHandler([runtime_id](std::string data) {
@@ -407,12 +400,6 @@ void V8BridgeUtils::DestroyInstance(int64_t runtime_id, const std::function<void
     }
 #else
     runtime->GetScope()->WillExit();
-#endif
-#ifdef ENABLE_INSPECTOR
-    auto devtools_data_source = runtime->GetScope()->GetDevtoolsDataSource();
-    if (devtools_data_source) {
-      devtools_data_source->Destroy(is_reload);
-    }
 #endif
     FOOTSTONE_LOG(INFO) << "SetScope nullptr";
     runtime->SetScope(nullptr);
@@ -699,7 +686,6 @@ void V8BridgeUtils::UnloadInstance(int32_t runtime_id, byte_string&& buffer_data
     };
     runner->PostTask(std::move(callback));
 }
-
 }
 }
 }

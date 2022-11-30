@@ -26,7 +26,9 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:path_provider/path_provider.dart';
+import 'package:voltron_ffi/voltron_ffi.dart';
 import 'package:voltron_renderer/voltron_renderer.dart';
+import 'package:voltron_vfs/voltron_vfs.dart';
 
 import '../adapter.dart';
 import '../bridge.dart';
@@ -67,6 +69,8 @@ class VoltronBridgeManager implements Destroyable {
   int _v8RuntimeId = 0;
   final int _engineId;
 
+  int _devtoolsId = 0;
+
   ModuleListener? _loadModuleListener;
 
   VoltronBundleLoader? get coreBundleLoader => _coreBundleLoader;
@@ -91,8 +95,13 @@ class VoltronBridgeManager implements Destroyable {
     initCodeCacheDir();
   }
 
-  void _handleVoltronInspectorInit() {
+  Future<void> _handleVoltronInspectorInit() async {
     if (_isDevModule) {
+      var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
+      _devtoolsId = await VoltronApi.createDevtools(
+        workerManagerId: _context.renderContext.workerManagerId,
+        dataDir: tracingDataDir,
+        wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost));
       final networkModule = _context.moduleManager.nativeModule[NetworkModule.kNetworkModuleName];
       if (networkModule is NetworkModule) {
         networkModule.requestWillBeSentHook = NetworkInspector().onRequestWillBeSent;
@@ -127,7 +136,6 @@ class VoltronBridgeManager implements Destroyable {
     try {
       _handleVoltronInspectorInit();
       _context.startTimeMonitor.startEvent(EngineMonitorEventKey.engineLoadEventInitBridge);
-      var tracingDataDir = await _context.devSupportManager.getTracingDataDir();
       _v8RuntimeId = await VoltronApi.initJsFrameWork(
         globalConfig: getGlobalConfigs(),
         singleThreadMode: _isSingleThread,
@@ -174,8 +182,7 @@ class VoltronBridgeManager implements Destroyable {
             callback(_isFrameWorkInit, null);
           }
         },
-        dataDir: tracingDataDir,
-        wsUrl: _context.devSupportManager.createDebugUrl(_debugServerHost),
+        devtoolsId: _devtoolsId,
       );
     } catch (e) {
       _isFrameWorkInit = false;
@@ -415,91 +422,26 @@ class VoltronBridgeManager implements Destroyable {
     }
   }
 
-  Future<bool> runScriptFromAssets(
-    String fileName,
-    bool canUseCodeCache,
-    String codeCacheTag,
-    CommonCallback callback,
-  ) async {
-    if (!_isFrameWorkInit) {
-      return false;
-    }
-
-    if (!isEmpty(codeCacheTag) && !isEmpty(sCodeCacheRootDir)) {
-      LogUtils.i(
-        _kTag,
-        "runScriptFromAssets ======core====== $codeCacheTag${", canUseCodeCache == $canUseCodeCache"}",
-      );
-      var codeCacheDir = sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
-      await VoltronApi.runScriptFromAsset(
-        _engineId,
-        fileName,
-        codeCacheDir,
-        canUseCodeCache,
-        (value) {
-          callback(value);
-        },
-      );
-    } else {
-      LogUtils.i(_kTag, "runScriptFromAssets codeCacheTag is null");
-      await VoltronApi.runScriptFromAsset(
-        _engineId,
-        fileName,
-        "$codeCacheTag${Platform.pathSeparator}",
-        false,
-        (value) {
-          callback(value);
-        },
-      );
-    }
-    return true;
-  }
-
-  Future<bool> runScriptFromAssetsWithData(String fileName, bool canUseCodeCache,
-      String codeCacheTag, ByteData assetsData, CommonCallback callback) async {
-    if (!_isFrameWorkInit) {
-      return false;
-    }
-
-    if (!isEmpty(codeCacheTag) && !isEmpty(sCodeCacheRootDir)) {
-      LogUtils.i(_kTag,
-          "runScriptFromAssetsWithData ======core====== $codeCacheTag${", canUseCodeCache == $canUseCodeCache"}");
-      var codeCacheDir = sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
-      await VoltronApi.runScriptFromAssetWithData(
-          _engineId, fileName, codeCacheDir, canUseCodeCache, assetsData, (value) {
-        callback(value);
-      });
-    } else {
-      LogUtils.i(_kTag, "runScriptFromAssetsWithData codeCacheTag is null");
-      await VoltronApi.runScriptFromAssetWithData(
-          _engineId, fileName, "$codeCacheTag${Platform.pathSeparator}", false, assetsData,
-          (value) {
-        callback(value);
-      });
-    }
-    return true;
-  }
-
-  Future<bool> runScriptFromFile(String filePath, String scriptName, bool canUseCodeCache,
+  Future<bool> runScriptFromUri(String uri, bool canUseCodeCache,
       String codeCacheTag, CommonCallback callback) async {
     if (!_isFrameWorkInit) {
       return false;
     }
     if (!isEmpty(codeCacheTag) && !isEmpty(sCodeCacheRootDir)) {
       LogUtils.i(_kTag,
-          "runScriptFromFile ======core====== $codeCacheTag${", canUseCodeCache == $canUseCodeCache"}");
+          "runScriptFromUri ======core====== $codeCacheTag${", canUseCodeCache == $canUseCodeCache"}");
       var codeCacheDir = sCodeCacheRootDir! + codeCacheTag + Platform.pathSeparator;
 
-      await VoltronApi.runScriptFromFile(
-          _engineId, filePath, scriptName, codeCacheDir, canUseCodeCache, (value) {
+      await VoltronApi.runScriptFromUri(
+          _engineId, _context.vfsManager.id, uri, codeCacheDir, canUseCodeCache, isAssetsUrl(uri), (value) {
         callback(value);
       });
     } else {
-      LogUtils.i(_kTag, 'runScriptFromFile codeCacheTag is null');
+      LogUtils.i(_kTag, 'runScriptFromUri codeCacheTag is null');
 
       var codeCacheDir = '$codeCacheTag${Platform.pathSeparator}';
-      await VoltronApi.runScriptFromFile(_engineId, filePath, scriptName, codeCacheDir, false,
-          (value) {
+      await VoltronApi.runScriptFromUri(
+          _engineId, _context.vfsManager.id, uri, codeCacheDir, false, isAssetsUrl(uri), (value) {
         callback(value);
       });
     }

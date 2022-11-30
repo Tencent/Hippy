@@ -25,8 +25,7 @@ import 'package:ffi/ffi.dart';
 enum LoaderFuncType {
   callNative,
   reportJsonException,
-  reportJsException,
-  destroy,
+  reportJsException
 }
 
 typedef InitBridgeFfiNativeType = Void Function();
@@ -42,8 +41,7 @@ typedef InitJsFrameworkFfiNativeType = Int64 Function(
   Uint32 domManagerId,
   Int32 engineId,
   Int32 callbackId,
-  Pointer<Utf16> dataDir,
-  Pointer<Utf16> wsUrl,
+  Uint32 devtoolsId,
 );
 typedef InitJsFrameworkFfiDartType = int Function(
   Pointer<Utf16> globalConfig,
@@ -55,9 +53,25 @@ typedef InitJsFrameworkFfiDartType = int Function(
   int domManagerId,
   int engineId,
   int callbackId,
-  Pointer<Utf16> dataDir,
-  Pointer<Utf16> wsUrl,
+  int devtoolsId,
 );
+
+typedef RunScriptFromUriFfiNativeType = Int32 Function(
+    Int32 engineId,
+    Uint32 vfsId,
+    Pointer<Utf16> uri,
+    Pointer<Utf16> codeCacheDir,
+    Int32 canUseCodeCache,
+    Int32 isLocalFile,
+    Int32 callbackId);
+typedef RunScriptFromUriFfiDartType = int Function(
+    int engineId,
+    int vfsId,
+    Pointer<Utf16> uri,
+    Pointer<Utf16> codeCacheDir,
+    int canUseCodeCache,
+    int isLocalFile,
+    int callbackId);
 
 typedef LoadInstanceFfiNativeType = Int64 Function(
   Int32 engineId,
@@ -81,28 +95,7 @@ typedef UnloadInstanceFfiDartType = int Function(
   int paramsLength,
 );
 
-typedef RunScriptFromFileFfiNativeType = Int32 Function(
-  Int32 engineId,
-  Pointer<Utf16> filePath,
-  Pointer<Utf16> scriptName,
-  Pointer<Utf16> codeCacheDir,
-  Int32 canUseCodeCache,
-  Int32 callbackId,
-);
-typedef RunScriptFromFileFfiDartType = int Function(
-  int engineId,
-  Pointer<Utf16> filePath,
-  Pointer<Utf16> scriptName,
-  Pointer<Utf16> codeCacheDir,
-  int canUseCodeCache,
-  int callbackId,
-);
-
-enum NetworkEventType {
-  requestWillBeSent,
-  responseReceived,
-  loadingFinished,
-}
+enum NetworkEventType { requestWillBeSent, responseReceived, loadingFinished }
 
 typedef NotifyNetworkEventFfiNativeType = Void Function(
   Int32 engineId,
@@ -117,23 +110,6 @@ typedef NotifyNetworkEventFfiDartType = void Function(
   int eventType,
   Pointer<Utf16> response,
   Pointer<Utf16> extra,
-);
-
-typedef RunScriptFromAssetsFfiNativeType = Int32 Function(
-  Int32 engineId,
-  Pointer<Utf16> assetName,
-  Pointer<Utf16> codeCacheDir,
-  Int32 canUseCodeCache,
-  Pointer<Utf16> assetStr,
-  Int32 callbackId,
-);
-typedef RunScriptFromAssetsFfiDartType = int Function(
-  int engineId,
-  Pointer<Utf16> assetName,
-  Pointer<Utf16> codeCacheDir,
-  int canUseCodeCache,
-  Pointer<Utf16> assetStr,
-  int callbackId,
 );
 
 typedef CallFunctionFfiNativeType = Void Function(
@@ -185,6 +161,16 @@ typedef CallNativeEventFfiDartType = void Function(
   int paramsLen,
 );
 
+typedef OnNetworkRequestInvokeNativeType = Void Function(Int32 engineId,
+    Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, Int32 length);
+typedef OnNetworkRequestInvokeDartType = void Function(
+    int engineId, Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, int length);
+
+typedef OnNetworkResponseInvokeNativeType = Void Function(Int32 engineId,
+    Pointer<Utf16> requestId, Pointer<Uint8> reqMeta, Int32 length);
+typedef OnNetworkResponseInvokeDartType = void Function(int engineId,
+    Pointer<Utf16> requestId, Pointer<Uint8> rsqMeta, int length);
+
 typedef GetCrashMessageFfiType = Pointer<Utf8> Function();
 
 typedef BindDomAndRenderNativeType = Void Function(
@@ -218,74 +204,39 @@ typedef DestroyFfiDartType = void Function(
   int isReload,
 );
 
-typedef RegisterCallNativeFfiNativeType = Int32 Function(
-  Int32 type,
-  Pointer<NativeFunction<CallNativeFfiNativeType>> func,
-);
-typedef RegisterCallNativeFfiDartType = int Function(
-  int type,
-  Pointer<NativeFunction<CallNativeFfiNativeType>> func,
+typedef CallNativeFfi = Void Function(
+    Int32 engineId,
+    Pointer<Utf16> moduleName,
+    Pointer<Utf16> moduleFunc,
+    Pointer<Utf16> callId,
+    Pointer<Void> paramsData,
+    Uint32 paramsLen,
+    Int32 bridgeParamJson);
+
+typedef ReportJsonException = Void Function(
+    Int32 engineId, Pointer<Utf8> jsonValue);
+
+typedef ReportJsException = Void Function(Int32 engineId,
+    Pointer<Utf16> descriptionStream, Pointer<Utf16> stackStream);
+
+typedef CreateDevtoolsDartType = int Function(
+    int workerManagerId,
+    Pointer<Utf16> dataDir,
+    Pointer<Utf16> wsUrl
 );
 
-typedef RegisterReportJsonFfiNativeType = Int32 Function(
-  Int32 type,
-  Pointer<NativeFunction<ReportJsonExceptionNativeType>> func,
-);
-typedef RegisterReportJsonFfiDartType = int Function(
-  int type,
-  Pointer<NativeFunction<ReportJsonExceptionNativeType>> func,
+typedef CreateDevtoolsFfiNativeType = Uint32 Function(
+  Uint32 workManagerId,
+  Pointer<Utf16> dataDir,
+  Pointer<Utf16> wsUrl,
 );
 
-typedef RegisterReportJsFfiNativeType = Int32 Function(
-  Int32 type,
-  Pointer<NativeFunction<ReportJsExceptionNativeType>> func,
-);
-typedef RegisterReportJsFfiDartType = int Function(
-  int type,
-  Pointer<NativeFunction<ReportJsExceptionNativeType>> func,
+typedef DestroyDevtoolsDartType = void Function(
+    int devtoolsId,
+    int isReload
 );
 
-/// destroy
-typedef RegisterDestroyFfiNativeType = Int32 Function(
-  Int32 type,
-  Pointer<NativeFunction<DestroyFunctionNativeType>> func,
-);
-typedef RegisterDestroyFfiDartType = int Function(
-  int type,
-  Pointer<NativeFunction<DestroyFunctionNativeType>> func,
-);
-
-/// removeRoot
-typedef RegisterRemoveRootFfiNativeType = Int32 Function(
-  Int32 domId,
-  Int32 rootId,
-);
-typedef RegisterRemoveRootFfiDartType = int Function(
-  int domId,
-  int rootId,
-);
-
-typedef CallNativeFfiNativeType = Void Function(
-  Int32 engineId,
-  Pointer<Utf16> moduleName,
-  Pointer<Utf16> moduleFunc,
-  Pointer<Utf16> callId,
-  Pointer<Void> paramsData,
-  Uint32 paramsLen,
-  Int32 bridgeParamJson,
-);
-
-typedef ReportJsonExceptionNativeType = Void Function(
-  Int32 engineId,
-  Pointer<Utf8> jsonValue,
-);
-
-typedef ReportJsExceptionNativeType = Void Function(
-  Int32 engineId,
-  Pointer<Utf16> descriptionStream,
-  Pointer<Utf16> stackStream,
-);
-
-typedef DestroyFunctionNativeType = Void Function(
-  Int32 engineId,
+typedef DestroyDevtoolsFfiNativeType = Void Function(
+    Uint32 devtoolsId,
+    Int32 isReload
 );

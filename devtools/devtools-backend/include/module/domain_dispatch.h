@@ -37,8 +37,8 @@ class BaseDomain;
  */
 class DomainDispatch : public std::enable_shared_from_this<DomainDispatch> {
  public:
-  DomainDispatch(std::shared_ptr<DataChannel> data_channel, std::shared_ptr<footstone::WorkerManager> worker_manager) :
-      data_channel_(data_channel), worker_manager_(worker_manager) {}
+  DomainDispatch(std::shared_ptr<DataChannel> data_channel, std::shared_ptr<footstone::WorkerManager> worker_manager)
+      : data_channel_(data_channel), worker_manager_(worker_manager) {}
 
   inline std::shared_ptr<DataChannel> GetDataChannel() { return data_channel_; }
 

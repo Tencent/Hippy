@@ -23,6 +23,7 @@
 #import "HippyBridge.h"
 #import "HippyErrorInfo.h"
 #import "HippyRedBox.h"
+#import "HippyUtils.h"
 
 #import "HPAsserts.h"
 #import "HPConvert.h"
@@ -423,7 +424,7 @@ HIPPY_EXPORT_METHOD(dismiss) {
         return;
     }
 
-    NSData *stackFrameJSON = [HPJSONStringify([stackFrame toDictionary], NULL) dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *stackFrameJSON = [HippyJSONStringify([stackFrame toDictionary], NULL) dataUsingEncoding:NSUTF8StringEncoding];
     NSString *postLength = [NSString stringWithFormat:@"%tu", stackFrameJSON.length];
     NSMutableURLRequest *request = [NSMutableURLRequest new];
     request.URL = [NSURL URLWithString:@"/open-stack-frame" relativeToURL:_bridge.bundleURL];

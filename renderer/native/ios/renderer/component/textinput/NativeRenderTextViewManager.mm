@@ -20,14 +20,14 @@
  * limitations under the License.
  */
 
-#import "NativeRenderTextViewManager.h"
-#import "NativeRenderObjectView.h"
-#import "NativeRenderTextView.h"
-#import "NativeRenderTextField.h"
 #import "NativeRenderBaseTextInput.h"
-#import "NativeRenderObjectTextView.h"
 #import "NativeRenderFont.h"
-#import "NativeRenderContext.h"
+#import "NativeRenderImpl.h"
+#import "NativeRenderObjectTextView.h"
+#import "NativeRenderObjectView.h"
+#import "NativeRenderTextField.h"
+#import "NativeRenderTextView.h"
+#import "NativeRenderTextViewManager.h"
 
 @implementation NativeRenderTextViewManager
 
@@ -72,7 +72,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(isNightMode, BOOL)
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)componentTag) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -85,7 +85,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(focusTextInput:(nonnull NSNumber *)compone
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag callback:(RenderUIResponseSenderBlock)callback) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -99,7 +99,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(isFocused:(nonnull NSNumber *)componentTag
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componentTag) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
          NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
          if (view == nil) return ;
          if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -112,7 +112,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(blurTextInput:(nonnull NSNumber *)componen
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -126,7 +126,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(clear:(nonnull NSNumber *)componentTag) {
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
                   text:(NSString *)text ) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         if (view == nil) return ;
         if (![view isKindOfClass:[NativeRenderBaseTextInput class]]) {
@@ -140,7 +140,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(setValue:(nonnull NSNumber *)componentTag
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(getValue:(nonnull NSNumber *)componentTag
                   callback:(RenderUIResponseSenderBlock)callback ) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *,UIView *> *viewRegistry) {
         NativeRenderBaseTextInput *view = (NativeRenderBaseTextInput *)viewRegistry[componentTag];
         NSString *stringValue = [view value];
         if (nil == stringValue) {
@@ -213,7 +213,7 @@ NATIVE_RENDER_CUSTOM_VIEW_PROPERTY(fontFamily, NSString, NativeRenderBaseTextInp
 - (NativeRenderRenderUIBlock)uiBlockToAmendWithNativeRenderObjectView:(NativeRenderObjectView *)nativeRenderObjectView {
     NSNumber *componentTag = nativeRenderObjectView.componentTag;
     UIEdgeInsets padding = nativeRenderObjectView.paddingAsInsets;
-    return ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {
+    return ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, NativeRenderBaseTextInput *> *viewRegistry) {
         viewRegistry[componentTag].contentInset = padding;
     };
 }

@@ -22,6 +22,7 @@
 
 #import "NativeRenderFooterRefreshManager.h"
 #import "NativeRenderFooterRefresh.h"
+#import "NativeRenderImpl.h"
 
 @implementation NativeRenderFooterRefreshManager
 
@@ -31,7 +32,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onFooterPulling, NativeRenderDirectEventBlock
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)reactTag) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
     }];
@@ -40,7 +41,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooter:(nonnull NSNumber *)rea
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];
     }];
@@ -49,7 +50,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullFooterWithOptions:(nonnull NSN
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullFooter:(nonnull NSNumber *)reactTag) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];

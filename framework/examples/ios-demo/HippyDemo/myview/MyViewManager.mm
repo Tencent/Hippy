@@ -31,7 +31,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(text, NSString)
 
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(changeColor:(nonnull NSNumber *)reactTag
                                color:(NSString *)color) {
-    [self.renderContext addUIBlock:^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+    [self.renderImpl addUIBlock:^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
         UIView *view = viewRegistry[reactTag];
         if (view == nil || ![view isKindOfClass:[MyView class]]) {
             HPLogError(@"tried to setPage: on an error viewPager %@ "

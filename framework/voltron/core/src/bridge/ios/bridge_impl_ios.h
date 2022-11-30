@@ -40,15 +40,15 @@ class BridgeImpl {
                               const std::shared_ptr<WorkerManager> &worker_manager,
                               uint32_t dom_manager_id,
                               const char16_t* char_globalConfig, size_t initial_heap_size, size_t maximum_heap_size,
-                              std::function<void(int64_t)> callback, const char16_t* char_data_dir, const char16_t* char_ws_url);
+                              std::function<void(int64_t)> callback, uint32_t devtools_id);
 
-  static bool RunScriptFromFile(int64_t runtime_id, const char16_t* file_path, const char16_t* script_nmae,
-                                const char16_t* code_cache_dir, bool can_use_code_cache,
-                                std::function<void(int64_t)> callback);
-
-  static bool RunScriptFromAssets(int64_t runtime_id, bool can_use_code_cache, const char16_t* asset_name,
-                                  const char16_t* code_cache_dir, std::function<void(int64_t)> callback,
-                                  const char16_t* asset_content);
+  static bool RunScriptFromUri(int64_t runtime_id,
+                               uint32_t vfs_id,
+                               bool can_use_code_cache,
+                               bool is_local_file,
+                               const char16_t *uri,
+                               const char16_t *code_cache_dir_str,
+                               std::function<void(int64_t)> callback);
 
   static void Destroy(int64_t runtime_id, std::function<void(int64_t)> callback, bool is_reload);
 
@@ -59,10 +59,6 @@ class BridgeImpl {
   static void UnloadInstance(int64_t runtime_id, std::string&& params);
 
   static std::shared_ptr<hippy::Scope> GetScope(int64_t runtime_id);
-
- private:
-  static bool RunScript(int64_t runtime_id, const char16_t* script, const char16_t* script_name,
-                        bool can_use_code_cache, const char16_t* code_cache_dir);
 };
 
 #endif /* bridge_impl_ios_h */

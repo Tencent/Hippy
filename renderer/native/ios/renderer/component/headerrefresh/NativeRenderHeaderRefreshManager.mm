@@ -22,6 +22,7 @@
 
 #import "NativeRenderHeaderRefreshManager.h"
 #import "NativeRenderHeaderRefresh.h"
+#import "NativeRenderImpl.h"
 
 @implementation NativeRenderHeaderRefreshManager
 
@@ -30,7 +31,7 @@ NATIVE_RENDER_EXPORT_VIEW_PROPERTY(onHeaderPulling, NativeRenderDirectEventBlock
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullHeader:(nonnull NSNumber *)reactTag) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refresh];
     }];
@@ -39,7 +40,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(expandPullHeader:(nonnull NSNumber *)react
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeader:(nonnull NSNumber *)reactTag) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinish];
     }];
@@ -48,7 +49,7 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeader:(nonnull NSNumber *)rea
 
 // clang-format off
 NATIVE_RENDER_COMPONENT_EXPORT_METHOD(collapsePullHeaderWithOptions:(nonnull NSNumber *)reactTag options:(NSDictionary *)options) {
-    [self.renderContext addUIBlock:^(id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
+    [self.renderImpl addUIBlock:^(NativeRenderImpl *renderContext, NSDictionary<NSNumber *, __kindof UIView *> *viewRegistry) {
         NativeRenderRefresh *refreshView = viewRegistry[reactTag];
         [refreshView refreshFinishWithOption:options];
     }];

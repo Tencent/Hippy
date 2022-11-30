@@ -144,6 +144,7 @@ dependencies {
   compileOnly project(path: ':serialization')
   compileOnly project(path: ':link_supplier')
   compileOnly project(path: ':vfs')
+  compileOnly project(path: ':devtools-integration')
   //noinspection GradleDependency
   implementation deps.annotation
 

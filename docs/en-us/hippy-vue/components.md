@@ -148,9 +148,9 @@ Embedded web page container.
 
 | Event Name          | Description                                                         | Type                                      | Supported Platforms |
 | ------------- | ------------------------------------------------------------ | ----------------------------------------- | -------- |
-| load           | Called when the web page is successfully loaded | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
-| loadStart           | Called when the web page starts loading | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
-| loadEnd           | Called when the page ends loading | `(object: { url:string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
+| load           | Called when the web page is successfully loaded | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
+| loadStart           | Called when the web page starts loading | `(object: { url: string }) => void`    | `Android、iOS、Web-Renderer、Voltron`     |
+| loadEnd           | Called when the page ends loading (`success` and `error` parameters are available only on `Android` and `iOS` since version `2.15.3`) | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、Web-Renderer、Voltron`     |
 
 ---
 

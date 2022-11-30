@@ -30,23 +30,33 @@ class Scope;
 
 inline namespace runtime {
 inline namespace inspector {
-
+/**
+ * @brief inspector context to inspect v8 different context and relate to devtools frontend, so can debug different
+ * hippy pages for multi context in one isolate, or multi isolate
+ */
 class V8InspectorContext {
  public:
-  explicit V8InspectorContext(int32_t group_id,
-                              std::unique_ptr<V8ChannelImpl> channel,
-                              std::unique_ptr<v8_inspector::V8InspectorSession> session)
-      : context_group_id_(group_id), channel_(std::move(channel)),
+  explicit V8InspectorContext(
+      int32_t group_id,
+      std::unique_ptr<V8ChannelImpl> channel,
+      std::unique_ptr<v8_inspector::V8InspectorSession> session)
+      : context_group_id_(group_id),
+        channel_(std::move(channel)),
         session_(std::move(session)) {}
 
   inline void SetSession(std::unique_ptr<v8_inspector::V8InspectorSession> session) { session_ = std::move(session); }
-#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-  inline void SetDevtoolsDataSource(std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) { if (channel_) { channel_->SetDevtoolsDataSource(std::move(devtools_data_source));} }
-#endif
   inline void SetScope(std::shared_ptr<Scope> scope) { scope_ = std::move(scope); }
   inline std::shared_ptr<Scope> GetScope() { return scope_; }
   inline V8ChannelImpl* GetV8Channel() { return channel_.get(); }
   inline int32_t GetContextGroupId() { return context_group_id_; }
+#if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
+  inline void SetDevtoolsDataSource(
+      std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+    if (channel_) {
+      channel_->SetDevtoolsDataSource(std::move(devtools_data_source));
+    }
+  }
+#endif
 
   inline void SendMessageToV8(const v8_inspector::StringView message_view) {
     if (channel_) {
@@ -61,7 +71,7 @@ class V8InspectorContext {
   std::shared_ptr<Scope> scope_;
 };
 
-} // namespace inspector
-} // namespace runtime
+}  // namespace inspector
+}  // namespace runtime
 } // namespace driver
 } // namespace hippy

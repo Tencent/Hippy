@@ -125,6 +125,7 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     std::shared_ptr<std::vector<std::string>> delete_value = std::make_shared<std::vector<std::string>>();
     if (style_delete) {
       delete_value->insert(delete_value->end(), style_delete->begin(), style_delete->end());
+      FOOTSTONE_DLOG(INFO) << "UpdateDomNodes : id: " << dom_node->GetId() << ", delete size:" << style_delete->size();
     }
     if (ext_delete) {
       delete_value->insert(delete_value->end(), ext_delete->begin(), ext_delete->end());
@@ -132,7 +133,7 @@ void RootNode::UpdateDomNodes(std::vector<std::shared_ptr<DomInfo>>&& nodes) {
     dom_node->SetDeleteProps(delete_value);
     node_info->dom_node->SetDiffStyle(diff_value);
     node_info->dom_node->SetDeleteProps(delete_value);
-    dom_node->ParseLayoutStyleInfo();
+    dom_node->UpdateLayoutStyleInfo(*style_update);
     auto event = std::make_shared<DomEvent>(kDomUpdated, dom_node, nullptr);
     dom_node->HandleEvent(event);
   }

@@ -34,9 +34,9 @@ class TdfCommonProtocolDomain : public BaseDomain, public std::enable_shared_fro
   explicit TdfCommonProtocolDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
-  void RegisterCallback() override;
+  void RegisterCallback() override {}
 
-  bool ReceiveFromFrontend(int32_t id, const std::string &method, const std::string &params);
+  bool ReceiveFromFrontend(int32_t id, const std::string& method, const std::string& params);
 };
 
 }  // namespace hippy::devtools

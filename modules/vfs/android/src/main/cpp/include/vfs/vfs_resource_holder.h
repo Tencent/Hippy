@@ -60,6 +60,5 @@ class ResourceHolder {
  private:
   jobject j_holder_;
 };
-
 }
-}
+}  // namespace hippy

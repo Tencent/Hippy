@@ -24,11 +24,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol NativeRenderContext;
+@class NativeRenderImpl;
 
 @interface UIView (Render)
 
-@property(nonatomic, weak)id<NativeRenderContext> renderContext;
+@property(nonatomic, weak)NativeRenderImpl *renderImpl;
 
 @end
 

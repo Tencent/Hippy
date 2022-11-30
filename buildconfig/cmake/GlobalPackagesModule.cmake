@@ -64,7 +64,7 @@ endfunction()
 
 function(GlobalPackages_Add_footstone)
   if (NOT TARGET footstone)
-    InfraPackage_Add(DOM
+    InfraPackage_Add(FOOTSTONE
         LOCAL "${PROJECT_ROOT_DIR}/modules/footstone")
   endif()
 endfunction()
@@ -88,6 +88,13 @@ function(GlobalPackages_Add_devtools_backend)
     InfraPackage_Add(DEVTOOLS_BACKEND
             LOCAL "${PROJECT_ROOT_DIR}/devtools/devtools-backend")
   endif ()
+endfunction()
+
+function(GlobalPackages_Add_devtools_integration)
+  if (NOT TARGET devtools_integration)
+    InfraPackage_Add(DEVTOOLS_INTEGRATION
+            LOCAL "${PROJECT_ROOT_DIR}/devtools/devtools-integration")
+  endif()
 endfunction()
 
 function(GlobalPackages_Add)

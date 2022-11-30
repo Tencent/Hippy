@@ -557,7 +557,7 @@ WebView component.
 | source      | Webview embedded address.                                      | `{ uri: string }`                  | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | userAgent   | Webview userAgent.                                             | `string`                           | `Android、iOS、Voltron`                 |
 | method      | Request method: `get`,`post`.                                  | `string`                           | `Android、iOS`                 |
-| onLoadStart | This callback function is called when the page starts to load. | `(object: { url:string }) => void` | `Android、iOS、Web-Renderer、Voltron`                 |
-| onLoad      | This callback function is called when the webpage is loading.  | `(object: { url:string }) => void` | `Android、iOS、Web-Renderer、Voltron`                 |
-| onLoadEnd   | This callback function is called when the web page is loaded.  | `(object: { url:string }) => void` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
+| onLoadStart | This callback function is called when the page starts to load. | `(object: { url: string }) => void` | `Android、iOS、Web-Renderer、Voltron`                 |
+| onLoad      | This callback function is called when the webpage is loading.  | `(object: { url: string }) => void` | `Android、iOS、Web-Renderer、Voltron`                 |
+| onLoadEnd   | This callback function is called when the web page is loaded. (The `success` and `error` parameters are only available on `Android` and `iOS` since version `2.15.3`) | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |
 | style       | Webview container style.                                       | `Object`                           | `Android、iOS、hippy-react-web、Web-Renderer、Voltron` |

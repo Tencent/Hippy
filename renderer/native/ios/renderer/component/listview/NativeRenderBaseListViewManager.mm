@@ -22,6 +22,7 @@
 
 #import "NativeRenderBaseListViewManager.h"
 #import "NativeRenderBaseListView.h"
+#import "NativeRenderImpl.h"
 
 @implementation NativeRenderBaseListViewManager
 
@@ -52,8 +53,8 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToIndex:(nonnull NSNumber *)componen
 									xIndex:(__unused NSNumber *)xIndex
 									yIndex:(NSNumber *)yIndex
 									animation:(nonnull NSNumber *)animation) {
-	[self.renderContext addUIBlock:
-	 ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+	[self.renderImpl addUIBlock:
+	 ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {
@@ -69,8 +70,8 @@ NATIVE_RENDER_COMPONENT_EXPORT_METHOD(scrollToContentOffset:(nonnull NSNumber *)
                                x:(nonnull NSNumber *)x
                                y:(nonnull NSNumber *)y
                                animation:(nonnull NSNumber *)animation) {
-	[self.renderContext addUIBlock:
-	 ^(__unused id<NativeRenderContext> renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
+	[self.renderImpl addUIBlock:
+	 ^(__unused NativeRenderImpl *renderContext, NSDictionary<NSNumber *, UIView *> *viewRegistry){
 		 NativeRenderBaseListView *view = (NativeRenderBaseListView *)viewRegistry[componentTag];
 		 if (view == nil) return ;
 		 if (![view isKindOfClass:[NativeRenderBaseListView class]]) {

@@ -73,6 +73,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE $<TARGET_PROPERTY:vfs,INTERFA
 if (ENABLE_INSPECTOR)
   GlobalPackages_Add(devtools_backend)
   target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
+  GlobalPackages_Add(devtools_integration)
+  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_integration)
 endif ()
 # endregion
 
@@ -92,14 +94,6 @@ set(SOURCE_SET
     src/napi/callback_info.cc
     src/napi/js_native_turbo.cc
     src/scope.cc)
-if (ENABLE_INSPECTOR)
-  list(APPEND SOURCE_SET
-      src/devtools/adapter/impl/hippy_dom_tree_adapter.cc
-      src/devtools/adapter/impl/hippy_screen_adapter.cc
-      src/devtools/adapter/impl/hippy_tracing_adapter.cc
-      src/devtools/devtools_data_source.cc
-      src/devtools/devtools_utils.cc)
-endif ()
 if ("${JS_ENGINE}" STREQUAL "V8")
   list(APPEND SOURCE_SET
       src/napi/v8/js_native_api_v8.cc
@@ -112,10 +106,6 @@ if ("${JS_ENGINE}" STREQUAL "V8")
     list(APPEND SOURCE_SET
         src/runtime/v8/inspector/v8_channel_impl.cc
         src/runtime/v8/inspector/v8_inspector_client_impl.cc)
-    if (ENABLE_INSPECTOR)
-      list(APPEND SOURCE_SET
-          src/devtools/trace_control.cc)
-    endif ()
   endif ()
 elseif ("${JS_ENGINE}" STREQUAL "JSC")
   list(APPEND SOURCE_SET

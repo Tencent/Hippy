@@ -25,7 +25,7 @@
 #import "HippyBridge.h"
 #import "HippyOCTurboModule.h"
 
-#include "js_native_api.h"
+#include "driver/napi/js_native_api.h"
 
 /**
  * The HippyTurboModuleManager is the module responsible for manager the tuoboModules.

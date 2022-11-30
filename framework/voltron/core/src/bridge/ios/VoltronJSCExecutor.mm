@@ -102,7 +102,7 @@ struct RandomAccessBundleData {
 - (instancetype)initWithExecurotKey:(NSString *)execurotkey
                        globalConfig:(NSString *)globalConfig
                       workerManager:(const std::shared_ptr<footstone::WorkerManager>&)workerManager
-                              wsURL:(NSString *)wsURL
+                         devtoolsId:(NSNumber *)devtoolsId
                           debugMode:(BOOL)debugMode
                          completion:(VoltronFrameworkInitCallback)completion{
     if (self = [super init]) {
@@ -120,9 +120,11 @@ struct RandomAccessBundleData {
         self.pScope = scope;
     #if ENABLE_INSPECTOR
         // create devtools
-        auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>([wsURL UTF8String], workerManager);
-        devtools_data_source->SetRuntimeDebugMode(debugMode);
-        self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        if (debugMode) {
+            auto devtools_id = [devtoolsId intValue];
+            auto devtools_data_source = hippy::devtools::DevtoolsDataSource::Find(devtools_id);
+            self.pScope->SetDevtoolsDataSource(devtools_data_source);
+        }
     #endif
         VoltronLogInfo(@"[Hippy_OC_Log][Life_Circle],VoltronJSCExecutor Init %p, execurotkey:%@", self, execurotkey);
     }

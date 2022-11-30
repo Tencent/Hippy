@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:framework/examples/ios-demo/HippyDemo.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:modules/ios/image/Image.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:modules/ios/base/Base.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:modules/vfs/ios/VFS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:framework/ios/Framework.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:renderer/native/ios/NativeRender.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:devtools/devtools-integration/ios/DevtoolsBackend/DevtoolsIntegration.xcodeproj">
+   </FileRef>
+</Workspace>

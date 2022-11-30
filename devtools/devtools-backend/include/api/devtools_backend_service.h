@@ -40,7 +40,8 @@ namespace hippy::devtools {
  */
 class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBackendService> {
  public:
-  DevtoolsBackendService(const DevtoolsConfig& devtools_config, std::shared_ptr<footstone::WorkerManager> worker_manager);
+  DevtoolsBackendService(const DevtoolsConfig& devtools_config,
+                         std::shared_ptr<footstone::WorkerManager> worker_manager);
 
   ~DevtoolsBackendService();
 
@@ -66,8 +67,8 @@ class DevtoolsBackendService : public std::enable_shared_from_this<DevtoolsBacke
    * @return NotificationCenter
    */
   std::shared_ptr<NotificationCenter> GetNotificationCenter() { return data_channel_->GetNotificationCenter(); }
- private:
 
+ private:
   std::shared_ptr<DataChannel> data_channel_;
   std::shared_ptr<TunnelService> tunnel_service_;
   std::shared_ptr<DomainDispatch> domain_dispatch_;

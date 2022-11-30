@@ -25,6 +25,7 @@ name: voltron_renderer
 description: A flutter plugin project to render hippy page.
 version: 0.1.0
 homepage:
+publish_to: none
 
 environment:
   sdk: ">=2.17.0 <3.0.0"
@@ -34,7 +35,6 @@ dependencies:
   flutter:
     sdk: flutter
   path_provider: ^2.0.10
-  ffi: ^1.0.0
   sprintf: ^6.0.0
   provider: ^6.0.0
   pull_to_refresh: ^2.0.0
@@ -47,6 +47,8 @@ dependencies:
   webview_flutter: ^3.0.2
   waterfall_flow: ^3.0.2
   charset: ^1.1.0
+  voltron_ffi:
+    path: ../../modules/voltron/ffi
 
 dev_dependencies:
   flutter_test:

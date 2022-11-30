@@ -24,6 +24,14 @@ on:
 jobs:
   ios_build_tests:
     runs-on: macos-latest
+    strategy:
+      matrix:
+        type: [debug, release]
+        include:
+          - type: debug
+            configuration: Debug
+          - type: release
+            configuration: Release
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -31,4 +39,21 @@ jobs:
           lfs: true
       - name: Build
         run: |
-          pushd framework/examples/ios-demo && ./cmakebuild.sh && xcodebuild build -destination 'name=iPhone 13' -scheme 'HippyDemo' -configuration 'Release' -project HippyDemo.xcodeproj && popd
+          pushd framework/examples/ios-demo
+          ./cmakebuild.sh
+          popd
+          xcodebuild -workspace 'Hippy.xcworkspace' -list | \
+          sed -n '/Schemes/,/^$/p' | \
+          grep -v "Schemes:" | \
+          grep -v '^\s*$' | \
+          while read scheme; do
+            echo "Building ${scheme}…"
+            xcodebuild build \
+              -destination "generic/platform=iOS" \
+              -workspace "Hippy.xcworkspace" \
+              -scheme "${scheme}" \
+              -configuration "${{ matrix.configuration }}" \
+              CODE_SIGN_IDENTITY="" \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGNING_ALLOWED=NO
+          done

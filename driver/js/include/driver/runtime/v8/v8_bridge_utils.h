@@ -62,8 +62,7 @@ class V8BridgeUtils {
                               const std::any& bridge,
                               const RegisterFunction& scope_cb,
                               const RegisterFunction& call_native_cb,
-                              const string_view& data_dir,
-                              const string_view& ws_url);
+                              uint32_t devtools_id);
   static void DestroyInstance(int64_t runtime_id,  const std::function<void(bool)>& callback, bool is_reload);
   static bool RunScript(const std::shared_ptr<Runtime>& runtime,
                         const string_view& file_name,
@@ -98,6 +97,7 @@ class V8BridgeUtils {
                                                   byte_string)>& cb);
   static void LoadInstance(int32_t runtime_id, byte_string&& buffer_data);
   static void UnloadInstance(int32_t runtime_id, byte_string&& buffer_data);
+
  private:
   static std::function<void(std::shared_ptr<Runtime>,
                             string_view,

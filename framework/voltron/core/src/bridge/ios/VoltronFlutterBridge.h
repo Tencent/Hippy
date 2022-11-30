@@ -37,7 +37,7 @@ typedef void (^VoltronFlutterCallback)(id _Nullable result, NSError * _Nullable 
 - (void)initJSFramework:(NSString *)globalConfig
             execurotKey:(NSString *)execurotKey
           workerManager:(const std::shared_ptr<footstone::WorkerManager>&)workerManager
-                  wsURL:(NSString *)wsURL
+             devtoolsId: (NSNumber *)devtoolsId
               debugMode:(BOOL)debugMode
              completion:(void (^)(BOOL) _Nullable)completion;
 

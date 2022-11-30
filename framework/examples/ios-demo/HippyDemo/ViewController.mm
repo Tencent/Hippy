@@ -24,12 +24,13 @@
 #import "HippyBundleURLProvider.h"
 #import "HippyDemoLoader.h"
 #import "HippyJSEnginesMapper.h"
+#import "HippyJSExecutor.h"
 #import "HippyRedBox.h"
 #import "HPAsserts.h"
 #import "HPDefaultImageProvider.h"
 #import "HPLog.h"
-#import "HPRenderFrameworkProxy.h"
 #import "TypeConverter.h"
+#import "NativeRenderImpl.h"
 #import "NativeRenderManager.h"
 #import "NativeRenderRootView.h"
 #import "UIView+NativeRender.h"
@@ -37,11 +38,12 @@
 
 #include "dom/dom_manager.h"
 #include "dom/dom_node.h"
+#include "driver/scope.h"
 #include "footstone/hippy_value.h"
 
 static NSString *const engineKey = @"Demo";
 
-@interface ViewController ()<HippyBridgeDelegate, HPRenderFrameworkProxy, HippyMethodInterceptorProtocol> {
+@interface ViewController ()<HippyBridgeDelegate, HippyMethodInterceptorProtocol> {
     std::shared_ptr<hippy::DomManager> _domManager;
     std::shared_ptr<NativeRenderManager> _nativeRenderManager;
     std::shared_ptr<hippy::RootNode> _rootNode;
@@ -105,7 +107,6 @@ static NSString *const engineKey = @"Demo";
 
     [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
     //set custom vfs loader
-    RegisterVFSLoaderForBridge(bridge);
     bridge.sandboxDirectory = sandboxDirectory;
     bridge.contextName = @"Demo";
     bridge.moduleName = @"Demo";
@@ -135,15 +136,15 @@ static NSString *const engineKey = @"Demo";
     _nativeRenderManager = std::make_shared<NativeRenderManager>();
     //set dom manager
     _nativeRenderManager->SetDomManager(domManager);
-    
+    //set vfs for bridge & native render manager
+    RegisterVFSLoaderForBridge(bridge, _nativeRenderManager);
     //set rendermanager for dommanager
     domManager->SetRenderManager(_nativeRenderManager);
     //bind rootview and root node
     _nativeRenderManager->RegisterRootView(rootView, rootNode);
-    id<HPRenderContext> renderContext = _nativeRenderManager->GetRenderContext();
     
     //setup necessary params for bridge
-    [bridge setupDomManager:domManager rootNode:rootNode renderContext:renderContext];
+    [bridge setupDomManager:domManager rootNode:rootNode];
     [bridge loadBundleURLs:bundleURLs];
     [bridge loadInstanceForRootView:rootTag withProperties:props];
     
@@ -157,7 +158,7 @@ static NSString *const engineKey = @"Demo";
     //1.remove root view from UI hierarchy
     [[[self.view subviews] firstObject] removeFromSuperview];
     //2.unregister root node from render context by id.
-    [_bridge.renderContext unregisterRootViewFromTag:@(_rootNode->GetId())];
+    _nativeRenderManager->UnregisterRootView(_rootNode->GetId());
     //3.set elements holding by user to nil
     _rootNode = nil;
 }
@@ -183,6 +184,22 @@ static NSString *const engineKey = @"Demo";
     [self setupBridge:bridge rootView:rootView bundleURLs:bundleURLs props:@{@"isSimulator": @(isSimulator)}];
     rootView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:rootView];
+}
+
+- (void)invalidateForReason:(HPInvalidateReason)reason bridge:(HippyBridge *)bridge {
+    [_nativeRenderManager->rootViews() enumerateObjectsUsingBlock:^(UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj respondsToSelector:@selector(invalidate)]) {
+            [obj performSelector:@selector(invalidate)];
+        }
+        NSDictionary *param = @{@"id": [obj componentTag]};
+        footstone::value::HippyValue value = OCTypeToDomValue(param);
+        std::shared_ptr<footstone::value::HippyValue> domValue = std::make_shared<footstone::value::HippyValue>(value);
+        bridge.javaScriptExecutor.pScope->UnloadInstance(domValue);
+    }];
+}
+
+- (void)removeRootNode:(NSNumber *)rootTag bridge:(HippyBridge *)bridge {
+    _nativeRenderManager->UnregisterRootView([rootTag intValue]);
 }
 
 #define StatusBarOffset 20
@@ -362,8 +379,6 @@ std::string mock;
 - (BOOL)shouldStartInspector:(HippyBridge *)bridge {
     return bridge.debugMode;
 }
-
-#pragma mark HPRenderFrameworkProxy Delegate Implementation
 
 - (BOOL)shouldInvokeWithModuleName:(NSString *)moduleName methodName:(NSString *)methodName arguments:(NSArray<id<HippyBridgeArgument>> *)arguments argumentsValues:(NSArray *)argumentsValue containCallback:(BOOL)containCallback {
     HPAssert(moduleName, @"module name must not be null");

@@ -377,8 +377,12 @@ const iframe = {
       switch (nativeEventName) {
         case 'onLoad':
         case 'onLoadStart':
+          event.url = nativeEventParams.url;
+          break;
         case 'onLoadEnd':
           event.url = nativeEventParams.url;
+          event.success = nativeEventParams.success;
+          event.error = nativeEventParams.error;
           break;
 
         default:

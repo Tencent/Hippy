@@ -24,7 +24,7 @@
 
 #include <functional>
 
-#include "render/ffi/bridge_manager.h"
+#include "render/bridge/bridge_manager.h"
 
 namespace voltron {
 class EXPORT JSBridgeRuntime : public BridgeRuntime {
@@ -38,9 +38,6 @@ class EXPORT JSBridgeRuntime : public BridgeRuntime {
                                 std::function<void()> callback) = 0;
   EXPORT virtual void ReportJSONException(const char* jsonValue) = 0;
   EXPORT virtual void ReportJSException(std::u16string &description_stream, std::u16string &stack_stream) = 0;
-  EXPORT virtual void SendResponse(const uint16_t* source, int len) = 0;
-  EXPORT virtual void SendNotification(const uint16_t* source, int len) = 0;
-  EXPORT virtual void Destroy() = 0;
   virtual void SetRuntimeId(int64_t runtime_id) = 0;
   virtual int64_t GetRuntimeId() = 0;
 };

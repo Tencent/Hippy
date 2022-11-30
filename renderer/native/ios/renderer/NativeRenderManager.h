@@ -23,9 +23,6 @@
 #ifndef NativeRenderManager_h
 #define NativeRenderManager_h
 
-#import "HPRenderFrameworkProxy.h"
-#import "NativeRenderContext.h"
-
 #include <memory>
 #include <vector>
 
@@ -122,7 +119,7 @@ public:
     void RemoveEventListener(std::weak_ptr<hippy::RootNode> root_node, std::weak_ptr<hippy::DomNode> dom_node, const std::string &name) override;
 
     /**
-     * call function of view
+     * invoke function of view
      *
      * @param dom_node A dom node whose function to be invoked
      * @param name function name
@@ -135,16 +132,72 @@ public:
                       const DomArgument& param,
                       uint32_t cb) override;
     
+    /**
+     * Register custom ui component
+     *
+     * @param extraComponent a map of custom ui components
+     */
     void RegisterExtraComponent(NSDictionary<NSString *, Class> *extraComponent);
         
+    /**
+     * Regitster a root view
+     *
+     * @param view a specitified view as root view
+     * @param root_node root node for root view
+     */
     void RegisterRootView(UIView *view, std::weak_ptr<hippy::RootNode> root_node);
     
+    /**
+     * Unregister a root view
+     *
+     * @param id root view id
+     */
+    void UnregisterRootView(uint32_t id);
+    
+    /**
+     * Get all registered root views
+     *
+     * @return a copy array of root views
+     */
+    NSArray<UIView *> *rootViews();
+    
+    /**
+     * set dom manager for render manager
+     *
+     * @param dom_manager weak pointer of dom manager
+     */
     void SetDomManager(std::weak_ptr<hippy::DomManager> dom_manager);
         
+    /**
+     * Specify whether ui hierarchy should be created instantly
+     *
+     * @param enabled true means ui will not be created until it is required
+     * @discussion when true, ui hierarchy will not be created automatically, default is false
+     */
     void SetUICreationLazilyEnabled(bool enabled);
-        
-    id<NativeRenderContext> GetRenderContext();
-            
+
+    /**
+     * Set image provider class
+     *
+     * @param cls image provider class
+     * @discussion image provider is responsible to create image instance, if image data is unrecognizable by default.
+     */
+    void SetImageProviderClass(Class<HPImageProviderProtocol> cls);
+    
+    /**
+     * Set vfs uri loader of OC version
+     *
+     *@param loader vfs uri loader instance
+     */
+    void SetHPUriLoader(HPUriLoader *loader);
+    
+    /**
+     * Set vfs uri loader of CPP version
+     *
+     *@param loader vfs url loader instance
+     */
+    void SetVFSUriLoader(std::shared_ptr<VFSUriLoader> loader);
+    
 private:
     NativeRenderImpl *renderImpl_;
 };

@@ -48,8 +48,10 @@ void V8InspectorClientImpl::CreateInspector(const std::shared_ptr<Scope>& scope)
 }
 
 #if defined(ENABLE_INSPECTOR) && !defined(V8_WITHOUT_INSPECTOR)
-std::shared_ptr<V8InspectorContext> V8InspectorClientImpl::CreateInspectorContext(const std::shared_ptr<Scope>& scope,
-                                                   std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
+std::shared_ptr<V8InspectorContext>
+V8InspectorClientImpl::CreateInspectorContext(
+    const std::shared_ptr<Scope>& scope,
+    std::shared_ptr<hippy::devtools::DevtoolsDataSource> devtools_data_source) {
   auto inspector_context = reload_inspector_context_;
   if (inspector_context) {
     FOOTSTONE_DLOG(INFO) << "reload need inspector reuse context, session and change bridge";

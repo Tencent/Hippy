@@ -19,11 +19,11 @@
  */
 
 #include "module/domain/tracing_domain.h"
+
 #include "module/domain_register.h"
 #include "module/inspect_event.h"
 
 namespace hippy::devtools {
-
 constexpr char kParamsValue[] = "value";
 constexpr char kParamsDataLossOccurred[] = "dataLossOccurred";
 
@@ -39,8 +39,6 @@ void TracingDomain::RegisterMethods() {
   REGISTER_DOMAIN(TracingDomain, End, BaseRequest)
 }
 
-void TracingDomain::RegisterCallback() {}
-
 void TracingDomain::Start(const BaseRequest &request) {
   ResponseResultToFrontend(request.GetId(), "{}");
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
@@ -50,6 +48,7 @@ void TracingDomain::Start(const BaseRequest &request) {
 }
 
 void TracingDomain::End(const BaseRequest &request) {
+  // reply to frontend right now, and then notify data when collected
   ResponseResultToFrontend(request.GetId(), "{}");
   auto tracing_adapter = GetDataProvider()->tracing_adapter;
   if (tracing_adapter) {
@@ -62,5 +61,4 @@ void TracingDomain::End(const BaseRequest &request) {
     });
   }
 }
-
 }  // namespace hippy::devtools

@@ -20,18 +20,19 @@
  * limitations under the License.
  */
 
-#import "NativeRenderSmartViewPagerView.h"
-#import "UIView+NativeRender.h"
-#import "NativeRenderScrollProtocol.h"
-#import "NativeRenderHeaderRefresh.h"
-#import "NativeRenderFooterRefresh.h"
-#import "UIView+MountEvent.h"
 #import "NativeRenderBaseListViewCell.h"
 #import "NativeRenderBaseListViewDataSource.h"
-#import "UIView+Render.h"
-#import "objc/runtime.h"
-#import "NativeRenderContext.h"
+#import "NativeRenderFooterRefresh.h"
+#import "NativeRenderHeaderRefresh.h"
+#import "NativeRenderImpl.h"
 #import "NativeRenderObjectView.h"
+#import "NativeRenderSmartViewPagerView.h"
+#import "NativeRenderScrollProtocol.h"
+#import "UIView+MountEvent.h"
+#import "UIView+Render.h"
+#import "UIView+NativeRender.h"
+
+#include <objc/runtime.h>
 
 static NSInteger kInfiniteLoopBegin = 2;
 static NSString *const kCellIdentifier = @"cellIdentifier";
@@ -372,12 +373,12 @@ static NSString *const kListViewItem = @"ListViewItem";
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObject = [_dataSource cellForIndexPath:adjustIndexPath];
     [renderObject recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObject.componentTag onRootTag:renderObject.rootTag];
+    UIView *cellView = [self.renderImpl viewFromRenderViewTag:renderObject.componentTag onRootTag:renderObject.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:adjustIndexPath];
     }
     else {
-        cellView = [self.renderContext createViewRecursivelyFromRenderObject:renderObject];
+        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObject];
     }
     hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];

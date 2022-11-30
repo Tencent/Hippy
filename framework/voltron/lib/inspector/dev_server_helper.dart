@@ -75,7 +75,6 @@ class DevServerHelper {
 
   Future<VoltronHttpResponse> fetchBundleFromURL(final String url) {
     VoltronHttpRequest request = new VoltronHttpRequest(
-      method: "GET",
       url: url,
     );
     var httpAdapter = _globalConfigs.httpAdapter;

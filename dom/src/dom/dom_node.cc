@@ -295,6 +295,10 @@ std::vector<std::shared_ptr<DomEventListenerInfo>> DomNode::GetEventListener(con
 
 void DomNode::ParseLayoutStyleInfo() { layout_node_->SetLayoutStyles(*style_map_); }
 
+void DomNode::UpdateLayoutStyleInfo(
+  std::unordered_map<std::string, std::shared_ptr<footstone::value::HippyValue>> &style_map) {
+  layout_node_->SetLayoutStyles(style_map);
+}
 LayoutResult DomNode::GetLayoutInfoFromRoot() {
   LayoutResult result = layout_;
   auto parent = parent_.lock();

@@ -24,18 +24,25 @@
 #include "module/request/base_request.h"
 
 namespace hippy::devtools {
-
+/**
+ * @brief js engine tracing collected, which records the activities for a period of time
+ */
 class TracingDomain: public BaseDomain , public std::enable_shared_from_this<TracingDomain> {
  public:
   explicit TracingDomain(std::weak_ptr<DomainDispatch> dispatch) : BaseDomain(dispatch) {}
   std::string GetDomainName() override;
   void RegisterMethods() override;
-  void RegisterCallback() override;
+  void RegisterCallback() override {}
 
  private:
+  /**
+   * @brief start records tracing
+   */
   void Start(const BaseRequest& request);
+  /**
+   * @brief end records tracing
+   */
   void End(const BaseRequest& request);
-
 };
 
 }  // namespace hippy::devtools

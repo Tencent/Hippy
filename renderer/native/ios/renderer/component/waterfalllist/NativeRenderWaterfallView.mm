@@ -228,7 +228,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     NSArray<NSIndexPath *> *furthestIndexPaths = [self findFurthestIndexPathsFromScreen];
     //purge view
     NSArray<NSNumber *> *objects = [_cachedItems objectsForKeys:furthestIndexPaths notFoundMarker:@(-1)];
-    [self.renderContext purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
+    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
     //purge cache
     [_cachedItems removeObjectsForKeys:furthestIndexPaths];
 }
@@ -361,12 +361,12 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
     NativeRenderWaterfallViewCell *hpCell = (NativeRenderWaterfallViewCell *)cell;
     NativeRenderObjectView *renderObjectView = [_dataSource cellForIndexPath:indexPath];
     [renderObjectView recusivelySetCreationTypeToInstant];
-    UIView *cellView = [self.renderContext viewFromRenderViewTag:renderObjectView.componentTag onRootTag:renderObjectView.rootTag];
+    UIView *cellView = [self.renderImpl viewFromRenderViewTag:renderObjectView.componentTag onRootTag:renderObjectView.rootTag];
     if (cellView) {
         [_cachedItems removeObjectForKey:indexPath];
     }
     else {
-        cellView = [self.renderContext createViewRecursivelyFromRenderObject:renderObjectView];
+        cellView = [self.renderImpl createViewRecursivelyFromRenderObject:renderObjectView];
     }
     hpCell.cellView = cellView;
     [_weakItemMap setObject:cellView forKey:[cellView componentTag]];
@@ -633,7 +633,7 @@ static NSString *kWaterfallItemName = @"WaterfallItem";
 - (void)cleanUpCachedItems {
     //purge view
     NSArray<NSNumber *> *objects = [_cachedItems allValues];
-    [self.renderContext purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
+    [self.renderImpl purgeViewsFromComponentTags:objects onRootTag:self.rootTag];
     //purge cache
     [_cachedItems removeAllObjects];
 }
