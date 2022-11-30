@@ -422,7 +422,10 @@ void ViewNode::RegisterTouchEvent() {
 
 void ViewNode::RemoveGestureEvent(std::string&& event_type) {
   if (gestures_map_.find(event_type) != gestures_map_.end()) {
-    GetView()->RemoveGesture(gestures_map_.find(event_type)->second);
+    auto view = attached_view_.lock();
+    if (view) {
+      view->RemoveGesture(gestures_map_.find(event_type)->second);
+    }
     gestures_map_.erase(event_type);
   }
 }
