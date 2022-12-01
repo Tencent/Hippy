@@ -54,8 +54,6 @@ class JniDelegateHandler : public UriHandler, public std::enable_shared_from_thi
       std::shared_ptr<ASyncContext> ctx,
       std::function<std::shared_ptr<UriHandler>()> next) override;
 
-  static bool Init(JNIEnv* j_env);
-  static bool Destroy();
   static inline AsyncWrapperMap& GetAsyncWrapperMap() {
     return wrapper_map_;
   }

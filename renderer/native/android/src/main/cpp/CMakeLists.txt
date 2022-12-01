@@ -51,10 +51,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
 # region source set
-set(SOURCE_SET)
+set(SOURCE_SET src/renderer/native_render_manager.cc)
 set(SOURCE_SET_STANDALONE
-    src/renderer/native_render_jni.cc
-    src/renderer/native_render_manager.cc)
+    src/renderer/native_render_jni.cc)
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE_SET})
 # The linker treats `.a` and `.o` files are different:
 #   * `.o` files from `.a` file only referenced `.o` object files are linked.

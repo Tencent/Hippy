@@ -113,7 +113,7 @@ class NativeRenderManager : public RenderManager, public std::enable_shared_from
  private:
   uint32_t id_;
   std::shared_ptr<JavaRef> j_render_manager_;
-  std::shared_ptr<JavaRef> render_delegate_;
+  std::shared_ptr<JavaRef> j_render_delegate_;
   std::shared_ptr<footstone::value::Serializer> serializer_;
   std::map<uint32_t, std::vector<ListenerOp>> event_listener_ops_;
 

@@ -41,8 +41,6 @@ class Uri {
   string_view GetPath();
   string_view GetScheme();
   string_view Normalize();
-  static bool Init();
-  static bool Destroy();
 
  private:
   jobject j_obj_uri_;

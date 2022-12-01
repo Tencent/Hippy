@@ -24,16 +24,13 @@
 
 #include <jni.h>
 
+#include <memory>
+
+#include "jni/scoped_java_ref.h"
+
 namespace hippy {
 inline namespace render {
 inline namespace native {
-
-class NativeRenderJni {
- public:
-  static void Init();
-
-  static void Destroy();
-};
 
 void OnCreateNativeRenderProvider(JNIEnv* j_env,
                                   jobject j_obj,
@@ -62,6 +59,11 @@ void OnReceivedEvent(JNIEnv *j_env, jobject j_object,
 void DoCallBack(JNIEnv *j_env, jobject j_object,
                 jint j_render_manager_id, jint j_result, jstring j_func_name, jint j_root_id, jint j_node_id,
                 jlong j_cb_id, jbyteArray j_buffer, jint j_offset, jint j_length);
+
+bool CreateJavaRenderManager(uint32_t id, std::shared_ptr<JavaRef>&j_render_manager,
+                             std::shared_ptr<JavaRef>&render_delegate);
+
+float GetDensity(std::shared_ptr<JavaRef>&j_render_manager);
 
 } // namespace native
 } // namespace render

@@ -25,6 +25,7 @@
 #include "footstone/check.h"
 #include "footstone/logging.h"
 #include "include/jni/jni_env.h"
+#include "include/jni/jni_invocation.h"
 
 namespace hippy {
 inline namespace framework {
@@ -39,21 +40,27 @@ std::unique_ptr<JNIRegister>& JNIRegister::GetInstance() {
   return instance;
 }
 
-bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
-  const std::unordered_map<std::string, std::vector<JNIRegisterData>>&
-      jni_modules = JNIRegister::GetInstance()->GetJniModules();
+JNIRegisterData::JNIRegisterData(const char* name,
+                                 const char* sign,
+                                 void* pointer,
+                                 bool is_static)
+    : name_(name), sign_(sign), pointer_(pointer), is_static_(is_static) {}
 
+JNINativeMethod JNIRegisterData::ToJNINativeMethod() {
+  return {name_.c_str(), sign_.c_str(), pointer_};
+}
+
+jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  const auto& jni_modules = JNIRegister::GetInstance()->GetJniModules();
   for (const auto & jni_module : jni_modules) {
     std::vector<JNINativeMethod> methods;
     jclass j_class;
     const char* class_name = jni_module.first.c_str();
     j_class = j_env->FindClass(class_name);
     if (!j_class) {
-      FOOTSTONE_DLOG(ERROR)
-          << "NativeAccess class "
-          << class_name
-          << "not found";
-      return false;
+      FOOTSTONE_CHECK(false) << "NativeAccess class " << class_name << "not found";
+      return JNI_VERSION_1_4;
     }
     std::vector<JNIRegisterData> jni_register_data = jni_module.second;
     for (auto & data : jni_register_data) {
@@ -69,7 +76,7 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
         if (j_env->ExceptionCheck()) {
           j_env->ExceptionDescribe();
         }
-        FOOTSTONE_DLOG(ERROR)
+        FOOTSTONE_CHECK(false)
             << "Cannot find method name = "
             << method.name
             << " signature = "
@@ -83,18 +90,10 @@ bool JNIRegister::RegisterMethods(JNIEnv* j_env) {
     j_env->RegisterNatives(j_class, methods.data(),
                            footstone::check::checked_numeric_cast<size_t, jint>(methods.size()));
   }
-  return true;
+  return JNI_VERSION_1_4;
 }
 
-JNIRegisterData::JNIRegisterData(const char* name,
-                                 const char* sign,
-                                 void* pointer,
-                                 bool is_static)
-    : name_(name), sign_(sign), pointer_(pointer), is_static_(is_static) {}
-
-JNINativeMethod JNIRegisterData::ToJNINativeMethod() {
-  return {name_.c_str(), sign_.c_str(), pointer_};
-}
+REGISTER_JNI_ONLOAD(hippy::JNI_OnLoad)
 
 }
 }

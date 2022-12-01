@@ -31,7 +31,6 @@
 #include <string>
 #include <unordered_map>
 
-#include "connector/js_driver_jni.h"
 #include "footstone/check.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
@@ -40,7 +39,7 @@
 #include "footstone/worker_manager.h"
 #include "jni/data_holder.h"
 #include "jni/jni_env.h"
-#include "jni/jni_load.h"
+#include "jni/jni_invocation.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "vfs/handler/asset_handler.h"
@@ -145,42 +144,8 @@ void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) 
   bool flag = hippy::global_data_holder.Erase(id);
   FOOTSTONE_DCHECK(flag);
 }
+
 } // namespace bridge
 } // namespace framework
 } // namespace hippy
 
-jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
-  JNIEnv* j_env;
-  jint onLoad_err = -1;
-  if ((j_vm)->GetEnv(reinterpret_cast<void**>(&j_env), JNI_VERSION_1_4) != JNI_OK) {
-    return onLoad_err;
-  }
-  if (!j_env) {
-    return onLoad_err;
-  }
-
-  bool ret = hippy::JNIRegister::RegisterMethods(j_env);
-  if (!ret) {
-    return onLoad_err;
-  }
-
-  hippy::JNIEnvironment::GetInstance()->init(j_vm, j_env);
-  hippy::Uri::Init();
-  hippy::JniDelegateHandler::Init(j_env);
-  hippy::ResourceHolder::Init();
-
-  hippy::JniLoad::Instance()->Onload(j_vm, reserved, j_env);
-
-  return JNI_VERSION_1_4;
-}
-
-void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
-  auto j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
-
-  hippy::JniLoad::Instance()->Onunload(j_vm, reserved, j_env);
-  hippy::JniDelegateHandler::Destroy();
-  hippy::ResourceHolder::Destroy();
-  hippy::Uri::Destroy();
-
-  hippy::JNIEnvironment::DestroyInstance();
-}

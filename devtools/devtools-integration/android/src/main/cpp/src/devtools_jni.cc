@@ -62,10 +62,10 @@ REGISTER_JNI("com/tencent/devtools/vfs/DevtoolsProcessor",  // NOLINT(cert-err58
 
 
 // needs to call by JNI_OnLoad
-void DevtoolsJni::Init(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
+void DevtoolsJni::Init(JavaVM* j_vm, void* reserved) {}
 
 // needs to call by JNI_OnUnload
-void DevtoolsJni::Destroy(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
+void DevtoolsJni::Destroy(JavaVM* j_vm, void* reserved) {}
 
 constexpr uint32_t kPoolSize = 1;
 std::make_shared<WorkerManager> worker_manager;

@@ -29,6 +29,8 @@
 #include "dom/scene.h"
 #include "jni/jni_register.h"
 #include "jni/data_holder.h"
+#include "jni/jni_invocation.h"
+#include "jni/jni_env.h"
 #include "renderer/native_render_manager.h"
 
 
@@ -45,6 +47,11 @@ namespace hippy {
 inline namespace render {
 inline namespace native {
 
+static jclass j_render_manager_clazz;
+static jmethodID j_render_manager_init_method_id;
+static jmethodID j_render_manager_set_id_method_id;
+static jmethodID j_render_manager_get_density_method_id;
+static jmethodID j_render_manager_get_provider_method_id;
 
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "updateNodeSize",
@@ -61,31 +68,32 @@ REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "(IILjava/lang/String;IIJ[BII)V",
              DoCallBack)
 
-//REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
-//             "onCreateNativeRenderProvider",
-//             "(IF)V",
-//             OnCreateNativeRenderProvider)
-//
 REGISTER_JNI("com/tencent/renderer/NativeRenderProvider",
              "updateRootSize",
              "(IIFF)V",
              UpdateRootSize)
 
-void NativeRenderJni::Init() {
+static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+
+  j_render_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(
+      j_env->FindClass("com/tencent/renderer/NativeRenderer")));
+  j_render_manager_init_method_id = j_env->GetMethodID(j_render_manager_clazz, "<init>", "()V");
+  j_render_manager_set_id_method_id = j_env->GetMethodID(j_render_manager_clazz, "setId", "(I)V");
+  j_render_manager_get_density_method_id = j_env->GetMethodID(j_render_manager_clazz, "getDensity", "()F");
+  j_render_manager_get_provider_method_id = j_env->GetMethodID(j_render_manager_clazz,
+                                                               "getRenderProvider",
+                                                               "()Lcom/tencent/renderer/NativeRenderProvider;");
+  return JNI_VERSION_1_4;;
 }
 
-void NativeRenderJni::Destroy() {
+static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+  j_env->DeleteGlobalRef(j_render_manager_clazz);
 }
 
-//void OnCreateNativeRenderProvider(JNIEnv* j_env, jobject j_object, jint j_render_manager_id, jfloat j_density) {
-//  auto render_manager_id = footstone::checked_numeric_cast<jint, uint32_t>(j_render_manager_id);
-//  auto& map = NativeRenderManager::PersistentMap();
-//  std::shared_ptr<NativeRenderManager> render_manager;
-//  bool ret = map.Find(render_manager_id, render_manager);
-//  FOOTSTONE_CHECK(ret);
-//  render_manager->SetRenderProvider(std::make_shared<JavaRef>(j_env, j_object));
-//  render_manager->SetDensity(static_cast<float>(j_density));
-//}
+REGISTER_JNI_ONLOAD(JNI_OnLoad)
+REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
 
 void DestroyNativeRenderManager(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {
   auto& map = NativeRenderManager::PersistentMap();
@@ -93,6 +101,31 @@ void DestroyNativeRenderManager(JNIEnv* j_env, jobject j_object, jint j_render_m
   if (!ret) {
     FOOTSTONE_DLOG(WARNING) << "DestroyNativeRenderManager delete render manager invalid";
   }
+}
+
+bool CreateJavaRenderManager(uint32_t id, std::shared_ptr<JavaRef>&j_render_manager,
+                             std::shared_ptr<JavaRef>&render_delegate) {
+  auto instance = JNIEnvironment::GetInstance();
+  auto j_env = instance->AttachCurrentThread();
+  auto j_manager = j_env->NewObject(j_render_manager_clazz,
+                                    j_render_manager_init_method_id);
+  j_render_manager = std::make_shared<JavaRef>(j_env, j_manager);
+  j_env->CallVoidMethod(j_manager,
+                        j_render_manager_set_id_method_id,
+                        footstone::checked_numeric_cast<uint32_t, jint>(id));
+  render_delegate = std::make_shared<JavaRef>(j_env,
+                                              j_env->CallObjectMethod(j_manager,
+                                                                      j_render_manager_get_provider_method_id));
+  instance->ClearJEnvException(j_env);
+  return true;
+}
+
+float GetDensity(std::shared_ptr<JavaRef>&j_render_manager) {
+  auto instance = JNIEnvironment::GetInstance();
+  auto j_env = instance->AttachCurrentThread();
+  auto j_float = j_env->CallFloatMethod(j_render_manager->GetObj(), j_render_manager_get_density_method_id);
+  instance->ClearJEnvException(j_env);
+  return static_cast<float>(j_float);
 }
 
 jobject GetNativeRendererInstance(JNIEnv* j_env, jobject j_object, jint j_render_manager_id) {

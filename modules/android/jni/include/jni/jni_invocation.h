@@ -33,24 +33,24 @@ inline namespace framework {
 inline namespace jni {
 
 
-class JniLoad {
+class JniInvocation {
  public:
-  using JniOnloadFunc = std::function<bool(JavaVM* j_vm, void* reserved, JNIEnv* j_env)>;
-  using JniOnunloadFunc = std::function<void(JavaVM* j_vm, void* reserved, JNIEnv* j_env)>;
+  using JniOnloadFunc = std::function<jint(JavaVM* j_vm, void* reserved)>;
+  using JniOnunloadFunc = std::function<void(JavaVM* j_vm, void* reserved)>;
 
-  JniLoad()  = default;
+  JniInvocation()  = default;
 
-  inline void PushOnload(JniOnloadFunc f) {
+  inline void PushJniOnLoad(JniOnloadFunc f) {
     jni_onload_.emplace_back(f);
   }
-  inline void PushOnunload(JniOnunloadFunc f) {
+  inline void PushJniOnUnload(JniOnunloadFunc f) {
     jni_onunload_.emplace_back(f);
   }
 
-  bool Onload(JavaVM* j_vm, void* reserved, JNIEnv* j_env);
-  void Onunload(JavaVM* j_vm, void* reserved, JNIEnv* j_env);
+  jint JNI_OnLoad(JavaVM* j_vm, void* reserved);
+  void JNI_OnUnload(JavaVM* j_vm, void* reserved);
 
-  static std::shared_ptr<JniLoad> Instance();
+  static std::shared_ptr<JniInvocation> Instance();
 
  private:
   std::vector<JniOnloadFunc> jni_onload_;
@@ -61,14 +61,17 @@ class JniLoad {
 }
 }
 
-#define REGISTER_JNI_ONLOAD(FUNC_NAME)                                  \
-  auto __REGISTER_JNI_ONLOAD_##FUNC_NAME = []() {                       \
-    JniLoad::Instance()->PushOnload(FUNC_NAME);                         \
-    return 0;                                                           \
+jint JNI_OnLoad(JavaVM* j_vm, void* reserved);
+void JNI_OnUnload(JavaVM* j_vm, void* reserved);
+
+#define REGISTER_JNI_ONLOAD(FUNC_NAME)                      \
+  auto onload = []() {                                      \
+    JniInvocation::Instance()->PushJniOnLoad(FUNC_NAME);    \
+    return 0;                                               \
   }();
 
-#define REGISTER_JNI_ONUNLOAD(FUNC_NAME)                                \
-  auto __REGISTER_JNI_ONUNLOAD_##FUNC_NAME = []() {                     \
-     JniLoad::Instance()->PushOnunload(FUNC_NAME);                      \
-    return 0;                                                           \
+#define REGISTER_JNI_ONUNLOAD(FUNC_NAME)                    \
+  auto onunload = []() {                                    \
+     JniInvocation::Instance()->PushJniOnUnload(FUNC_NAME); \
+    return 0;                                               \
   }();

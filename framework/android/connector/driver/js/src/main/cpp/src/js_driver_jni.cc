@@ -40,7 +40,7 @@
 #include "footstone/worker_manager.h"
 #include "jni/data_holder.h"
 #include "jni/jni_env.h"
-#include "jni/jni_load.h"
+#include "jni/jni_invocation.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
 #include "jni/scoped_java_ref.h"
@@ -362,24 +362,26 @@ void SetDomManager(JNIEnv* j_env,
   runtime->GetScope()->SetDomManager(dom_manager_object);
 }
 
-bool JsDriverOnLoad(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
+static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   hippy::ExceptionHandler::Init(j_env);
   hippy::ConvertUtils::Init(j_env);
   hippy::JavaTurboModule::Init(j_env);
   hippy::TurboModuleManager::Init(j_env);
   hippy::InitBridge(j_env);
-  return true;
+  return JNI_VERSION_1_4;
 }
 
-void JsDriverOnUnLoad(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
+static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   hippy::napi::V8VM::PlatformDestroy();
   hippy::ConvertUtils::Destroy(j_env);
   hippy::JavaTurboModule::Destroy(j_env);
   hippy::TurboModuleManager::Destroy(j_env);
 }
 
-REGISTER_JNI_ONLOAD(JsDriverOnLoad)
-REGISTER_JNI_ONUNLOAD(JsDriverOnUnLoad)
+REGISTER_JNI_ONLOAD(JNI_OnLoad)
+REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
 
 }
 }
