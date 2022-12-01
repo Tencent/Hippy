@@ -24,6 +24,7 @@
 #include "footstone/logging.h"
 #include "footstone/string_view_utils.h"
 #include "jni/data_holder.h"
+#include "jni/jni_invocation.h"
 #include "jni/jni_env.h"
 #include "jni/jni_register.h"
 #include "jni/jni_utils.h"
@@ -72,27 +73,40 @@ std::atomic<uint32_t> g_delegate_id = 1;
 constexpr char kCallFromKey[] = "__Hippy_call_from";
 constexpr char kCallFromJavaValue[] = "java";
 
-bool JniDelegateHandler::Init(JNIEnv* j_env) {
-  j_util_map_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("java/util/HashMap")));
+namespace {
+
+static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+
+  j_util_map_clazz =
+      reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("java/util/HashMap")));
   j_map_init_method_id = j_env->GetMethodID(j_util_map_clazz, "<init>", "()V");
-  j_map_put_method_id = j_env->GetMethodID(j_util_map_clazz, "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+  j_map_put_method_id = j_env->GetMethodID(j_util_map_clazz,
+                                           "put",
+                                           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
 
-  j_vfs_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/VfsManager")));
-  j_call_jni_delegate_sync_method_id = j_env->GetMethodID(j_vfs_manager_clazz,"doLocalTraversalsSync",
-    "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;)Lcom/tencent/vfs/ResourceDataHolder;");
-  j_call_jni_delegate_async_method_id = j_env->GetMethodID(j_vfs_manager_clazz, "doLocalTraversalsAsync",
-    "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;I)V");
+  j_vfs_manager_clazz =
+      reinterpret_cast<jclass>(j_env->NewGlobalRef(j_env->FindClass("com/tencent/vfs/VfsManager")));
+  j_call_jni_delegate_sync_method_id =
+      j_env->GetMethodID(j_vfs_manager_clazz, "doLocalTraversalsSync",
+                         "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;)Lcom/tencent/vfs/ResourceDataHolder;");
+  j_call_jni_delegate_async_method_id =
+      j_env->GetMethodID(j_vfs_manager_clazz, "doLocalTraversalsAsync",
+                         "(Ljava/lang/String;Ljava/util/HashMap;Ljava/util/HashMap;I)V");
 
-  return true;
+  return JNI_VERSION_1_4;
 }
 
-bool JniDelegateHandler::Destroy() {
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   j_env->DeleteGlobalRef(j_vfs_manager_clazz);
   j_env->DeleteGlobalRef(j_util_map_clazz);
+}
 
-  return true;
+REGISTER_JNI_ONLOAD(JNI_OnLoad)
+REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
+
 }
 
 JniDelegateHandler::JniDelegateHandler(JNIEnv* j_env, jobject j_delegate) {

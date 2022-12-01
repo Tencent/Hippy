@@ -22,6 +22,7 @@
 
 #include "footstone/check.h"
 #include "jni/jni_env.h"
+#include "jni/jni_invocation.h"
 
 namespace hippy {
 inline namespace vfs {
@@ -80,7 +81,7 @@ std::shared_ptr<ResourceHolder> ResourceHolder::CreateNewHolder(jobject j_holder
   return ResourceHolder::Create(j_new_holder);
 }
 
-bool ResourceHolder::Init() {
+static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   j_resource_data_holder_clazz = reinterpret_cast<jclass>(
@@ -151,10 +152,10 @@ bool ResourceHolder::Init() {
       "onFetchCompleted",
       "(Lcom/tencent/vfs/ResourceDataHolder;)V");
 
-  return true;
+  return JNI_VERSION_1_4;
 }
 
-bool ResourceHolder::Destroy() {
+static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
   JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   j_env->DeleteGlobalRef(j_util_map_clazz);
@@ -167,9 +168,10 @@ bool ResourceHolder::Destroy() {
   j_env->DeleteGlobalRef(j_request_from_local_value);
   j_env->DeleteGlobalRef(j_transfer_type_normal_value);
   j_env->DeleteGlobalRef(j_transfer_type_nio_value);
-
-  return true;
 }
+
+REGISTER_JNI_ONLOAD(JNI_OnLoad)
+REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
 
 ResourceHolder::~ResourceHolder() {
   if (j_holder_) {

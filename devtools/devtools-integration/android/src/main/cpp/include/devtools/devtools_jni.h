@@ -27,9 +27,9 @@ namespace hippy::devtools {
 
 class DevtoolsJni {
  public:
-  static void Init(JavaVM* j_vm, void* reserved, JNIEnv* j_env);
+  static void Init(JavaVM* j_vm, void* reserved);
 
-  static void Destroy(JavaVM* j_vm, void* reserved, JNIEnv* j_env);
+  static void Destroy(JavaVM* j_vm, void* reserved);
 };
 
 jint OnCreateDevtools(JNIEnv* j_env,

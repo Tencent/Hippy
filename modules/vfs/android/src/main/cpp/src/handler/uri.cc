@@ -25,6 +25,7 @@
 #include "footstone/string_view_utils.h"
 #include "jni/jni_env.h"
 #include "jni/jni_utils.h"
+#include "jni/jni_invocation.h"
 
 namespace hippy {
 inline namespace framework {
@@ -47,8 +48,8 @@ std::shared_ptr<Uri> Uri::Create(const string_view& uri) {
   return ret;
 }
 
-bool Uri::Init() {
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+static jint JNI_OnLoad(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
   jclass j_local_clazz = j_env->FindClass("java/net/URI");
   j_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(j_local_clazz));
   j_create_method_id = j_env->GetStaticMethodID(j_clazz, "create", "(Ljava/lang/String;)Ljava/net/URI;");
@@ -56,11 +57,11 @@ bool Uri::Init() {
   j_to_string_method_id = j_env->GetMethodID(j_clazz, "toString", "()Ljava/lang/String;");
   j_get_scheme_method_id = j_env->GetMethodID(j_clazz, "getScheme", "()Ljava/lang/String;");
   j_get_path_method_id = j_env->GetMethodID(j_clazz, "getPath", "()Ljava/lang/String;");
-  return true;
+  return JNI_VERSION_1_4;
 }
 
-bool Uri::Destroy() {
-  JNIEnv* j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+static void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
+  auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
 
   j_get_path_method_id = nullptr;
   j_get_scheme_method_id = nullptr;
@@ -69,9 +70,10 @@ bool Uri::Destroy() {
   j_create_method_id = nullptr;
 
   j_env->DeleteGlobalRef(j_clazz);
-
-  return true;
 }
+
+REGISTER_JNI_ONLOAD(JNI_OnLoad)
+REGISTER_JNI_ONUNLOAD(JNI_OnUnload)
 
 Uri::Uri(const string_view& uri) {
   FOOTSTONE_DCHECK(uri.encoding() != string_view::Encoding::Unknown);

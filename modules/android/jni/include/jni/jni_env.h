@@ -40,7 +40,7 @@ class JNIEnvironment {
   JNIEnvironment() = default;
   ~JNIEnvironment() = default;
 
-  void init(JavaVM* vm, JNIEnv* env);
+  jint JNI_OnLoad(JavaVM* vm, __unused void* reserved);
   JNIEnv* AttachCurrentThread();
 
  private:

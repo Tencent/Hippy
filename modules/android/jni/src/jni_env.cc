@@ -44,12 +44,15 @@ struct JNIEnvAutoRelease {
   }
 };
 
-void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
+jint JNIEnvironment::JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   j_vm_ = j_vm;
 
+  JNIEnv* j_env;
+  FOOTSTONE_CHECK((j_vm)->GetEnv(reinterpret_cast<void**>(&j_env), JNI_VERSION_1_4) == JNI_OK);
   if (j_env->ExceptionCheck()) {
     j_env->ExceptionClear();
   }
+  return JNI_VERSION_1_4;
 }
 
 std::shared_ptr<JNIEnvironment> JNIEnvironment::GetInstance() {

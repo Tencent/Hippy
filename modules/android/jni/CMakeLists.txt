@@ -45,7 +45,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 set(SOURCE_SET
     src/data_holder.cc
     src/jni_env.cc
-    src/jni_load.cc
+    src/jni_invocation.cc
     src/jni_register.cc
     src/jni_utils.cc
     src/scoped_java_ref.cc)
