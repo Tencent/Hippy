@@ -262,6 +262,13 @@ void ViewNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
     layout_result.top = origin_top;
   }
 
+  if (layout_result.width < 0) {
+    layout_result.width = 0;
+  }
+  if (layout_result.height < 0) {
+    layout_result.height = 0;
+  }
+
   auto new_frame =
       tdfcore::TRect::MakeXYWH(layout_result.left, layout_result.top, layout_result.width, layout_result.height);
   GetView()->SetFrame(new_frame);
