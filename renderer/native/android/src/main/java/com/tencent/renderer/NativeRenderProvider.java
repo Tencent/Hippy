@@ -50,13 +50,17 @@ public class NativeRenderProvider {
     private BinaryReader mSafeHeapReader;
     @Nullable
     private SafeHeapWriter mSafeHeapWriter;
-    private final int mInstanceId;
+    private int mInstanceId;
 
     public NativeRenderProvider(@NonNull NativeRenderDelegate renderDelegate) {
         mRenderDelegate = renderDelegate;
         mSerializer = new Serializer();
         mDeserializer = new Deserializer(null, new InternalizedStringTable());
-        mInstanceId = onCreateNativeRenderProvider(PixelUtil.getDensity());
+    }
+
+    public void setInstanceId(int instanceId) {
+        NativeRendererManager.addNativeRendererInstance(instanceId, (NativeRender)mRenderDelegate);
+        mInstanceId = instanceId;
     }
 
     public int getInstanceId() {
@@ -120,7 +124,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void createNode(int rootId, byte[] buffer) {
+    public void createNode(int rootId, byte[] buffer) {
         // Replay snapshots are executed in the UI thread, which may generate multithreaded problem with
         // the create node of the dom thread, so synchronized with native renderer object here.
         synchronized(mRenderDelegate) {
@@ -141,7 +145,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void updateNode(int rootId, byte[] buffer) {
+    public void updateNode(int rootId, byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateNode(rootId, list);
@@ -158,7 +162,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void deleteNode(int rootId, int[] ids) {
+    public void deleteNode(int rootId, int[] ids) {
         try {
             mRenderDelegate.deleteNode(rootId, ids);
         } catch (NativeRenderException e) {
@@ -176,7 +180,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void moveNode(int rootId, int[] ids, int newPid, int oldPid) {
+    public void moveNode(int rootId, int[] ids, int newPid, int oldPid) {
         try {
             mRenderDelegate.moveNode(rootId, ids, newPid, oldPid);
         } catch (NativeRenderException e) {
@@ -192,7 +196,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void updateLayout(int rootId, byte[] buffer) {
+    public void updateLayout(int rootId, byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateLayout(rootId, list);
@@ -209,7 +213,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void updateEventListener(int rootId, byte[] buffer) {
+    public void updateEventListener(int rootId, byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
             mRenderDelegate.updateEventListener(rootId, list);
@@ -231,7 +235,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private long measure(int rootId, int nodeId, float width, int widthMode, float height,
+    public long measure(int rootId, int nodeId, float width, int widthMode, float height,
             int heightMode) {
         return mRenderDelegate.measure(rootId, nodeId, width, widthMode, height, heightMode);
     }
@@ -247,7 +251,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void callUIFunction(int rootId, int nodeId, long callbackId, String functionName,
+    public void callUIFunction(int rootId, int nodeId, long callbackId, String functionName,
             byte[] buffer) {
         try {
             final List<Object> list = bytesToArgument(ByteBuffer.wrap(buffer));
@@ -264,7 +268,7 @@ public class NativeRenderProvider {
      */
     @CalledByNative
     @SuppressWarnings("unused")
-    private void endBatch(int rootId) {
+    public void endBatch(int rootId) {
         try {
             mRenderDelegate.endBatch(rootId);
         } catch (NativeRenderException e) {
@@ -340,7 +344,7 @@ public class NativeRenderProvider {
      * @return the unique id of native (C++) render manager
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    private native int onCreateNativeRenderProvider(float density);
+    private native void onCreateNativeRenderProvider(int instanceId, float density);
 
     /**
      * Call back from Android system when size changed, just like horizontal and vertical screen

@@ -47,24 +47,6 @@ struct JNIEnvAutoRelease {
 void JNIEnvironment::init(JavaVM* j_vm, JNIEnv* j_env) {
   j_vm_ = j_vm;
 
-  jclass j_hippy_bridge_cls = j_env->FindClass("com/tencent/mtt/hippy/bridge/HippyBridgeImpl");
-  wrapper_.j_call_natives_direct_method_id =
-      j_env->GetMethodID(j_hippy_bridge_cls, "callNatives",
-                         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/"
-                         "String;Ljava/nio/ByteBuffer;)V");
-  wrapper_.j_call_natives_method_id = j_env->GetMethodID(
-      j_hippy_bridge_cls, "callNatives",
-      "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[B)V");
-  wrapper_.j_report_exception_method_id =
-      j_env->GetMethodID(j_hippy_bridge_cls, "reportException",
-                         "(Ljava/lang/String;Ljava/lang/String;)V");
-  wrapper_.j_inspector_channel_method_id =
-      j_env->GetMethodID(j_hippy_bridge_cls, "InspectorChannel", "([B)V");
-
-  wrapper_.j_fetch_resource_method_id = j_env->GetMethodID(j_hippy_bridge_cls, "fetchResourceWithUri",
-                                                           "(Ljava/lang/String;J)V");
-  j_env->DeleteLocalRef(j_hippy_bridge_cls);
-
   if (j_env->ExceptionCheck()) {
     j_env->ExceptionClear();
   }

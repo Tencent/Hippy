@@ -36,7 +36,7 @@ public class NativeRenderer implements Connector {
     private NativeRenderProxy mRenderer;
 
     public NativeRenderer() {
-        mInstanceId = createNativeRendererInstance();
+        mInstanceId = createNativeRenderManager();
         Object obj = getNativeRendererInstance(mInstanceId);
         if (obj instanceof NativeRenderProxy) {
             mRenderer = (NativeRenderProxy) obj;
@@ -109,9 +109,13 @@ public class NativeRenderer implements Connector {
         }
     }
 
+    public void attachToDom(@NonNull Connector rendererConnector) {
+        attachToDom(mInstanceId, rendererConnector.getInstanceId());
+    }
+
     @Override
     public void destroy() {
-        destroyNativeRendererInstance(mInstanceId);
+        destroyNativeRenderManager(mInstanceId);
     }
 
     @Override
@@ -120,22 +124,27 @@ public class NativeRenderer implements Connector {
     }
 
     /**
+     * Create native (C++) render manager instance.
+     *
+     * @return the unique id of native (C++) render manager
+     */
+    private native int createNativeRenderManager();
+
+    /**
+     * Destroy native (C++) render manager instance.
+     */
+    private native void destroyNativeRenderManager(int instanceId);
+
+    /**
      * Get renderer instance that create by native (C++) render manager.
      *
      * @return instance of {@link com.tencent.renderer.NativeRender}
      */
     private native Object getNativeRendererInstance(int instanceId);
 
-    /**
-     * Destroy native (C++) render manager instance.
-     */
-    private native int destroyNativeRendererInstance(int instanceId);
+    public native void attachToDom(int mInstanceId, int domId);
+    public native void createRoot(int rootId);
+    public native void destroyRoot(int rootId);
 
-    /**
-     * Create native (C++) render manager instance.
-     *
-     * @return the unique id of native (C++) render manager
-     */
-    private native int createNativeRendererInstance();
 
 }

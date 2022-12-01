@@ -70,6 +70,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   using TaskRunner = footstone::runner::TaskRunner;
   using Task = footstone::Task;
   using BaseTimer = footstone::timer::BaseTimer;
+  using WorkerManager = footstone::WorkerManager;
 
   DomManager();
   ~DomManager();
@@ -82,6 +83,12 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   inline std::shared_ptr<TaskRunner> GetTaskRunner() { return dom_task_runner_; }
   inline void SetTaskRunner(std::shared_ptr<TaskRunner> runner) {
     dom_task_runner_ =  runner;
+  }
+  inline void SetWorkerManager(std::shared_ptr<WorkerManager> worker_manager) {
+    worker_manager_ = worker_manager;
+  }
+  inline std::shared_ptr<WorkerManager> GetWorkerManager() {
+    return worker_manager_;
   }
 
   void SetRenderManager(const std::weak_ptr<RenderManager>& render_manager);
@@ -137,6 +144,7 @@ class DomManager : public std::enable_shared_from_this<DomManager> {
   std::weak_ptr<RenderManager> render_manager_;
   std::unordered_map<uint32_t, std::shared_ptr<BaseTimer>> timer_map_;
   std::shared_ptr<TaskRunner> dom_task_runner_;
+  std::shared_ptr<WorkerManager> worker_manager_;
 };
 
 }  // namespace dom

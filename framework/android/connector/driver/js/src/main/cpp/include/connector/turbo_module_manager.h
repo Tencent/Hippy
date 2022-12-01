@@ -24,31 +24,18 @@
 
 #include <jni.h>
 
-#include <memory>
-#include <mutex>
-
 namespace hippy {
 inline namespace framework {
-inline namespace jni {
+inline namespace turbo {
 
-class JNIEnvironment {
+class TurboModuleManager {
  public:
-  static std::shared_ptr<JNIEnvironment> GetInstance();
-  static bool ClearJEnvException(JNIEnv* env);
-  static void DestroyInstance();
+  static void Init(JNIEnv* j_env);
 
-  JNIEnvironment() = default;
-  ~JNIEnvironment() = default;
-
-  void init(JavaVM* vm, JNIEnv* env);
-  JNIEnv* AttachCurrentThread();
-
- private:
-  static std::shared_ptr<JNIEnvironment> instance_;
-  static std::mutex mutex_;
-
-  JavaVM* j_vm_;
+  static void Destroy(JNIEnv* j_env);
 };
+
+int Install(JNIEnv *, jobject, jlong);
 
 }
 }

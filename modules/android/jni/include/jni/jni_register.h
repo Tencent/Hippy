@@ -84,11 +84,11 @@ class JNIRegister {
 }
 }
 
-#define REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, is_static, key) \
-  auto __REGISTER_JNI_##key = []() {                                           \
+#define REGISTER_JNI_INTERNAL(clazz, name, signature, pointer, is_static, key)        \
+  auto __REGISTER_JNI_##key = []() {                                                  \
     hippy::JNIRegister::GetInstance()->RegisterJNIModule(                             \
-        clazz, name, signature, reinterpret_cast<void *>(pointer), is_static); \
-    return 0;                                                                  \
+        clazz, name, signature, reinterpret_cast<void *>(pointer), is_static);        \
+    return 0;                                                                         \
   }();
 
 #define REGISTER_JNI_TEMP(clazz, name, signature, pointer, is_static, key) \

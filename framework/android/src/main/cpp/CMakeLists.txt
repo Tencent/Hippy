@@ -48,15 +48,9 @@ if (${ANDROID_STL} STREQUAL "c++_static")
 endif ()
 # endregion
 
-# region v8
-if ("${JS_ENGINE}" STREQUAL "V8")
-  GlobalPackages_Add(v8)
-  target_link_libraries(${PROJECT_NAME} PRIVATE v8)
-  get_target_property(V8_WITHOUT_INSPECTOR v8 INTERFACE_V8_WITHOUT_INSPECTOR)
-  if (V8_WITHOUT_INSPECTOR)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE "V8_WITHOUT_INSPECTOR")
-  endif ()
-endif ()
+# region vfs
+GlobalPackages_Add(vfs)
+target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
 # endregion
 
 # region footstone
@@ -64,57 +58,32 @@ GlobalPackages_Add(footstone)
 target_link_libraries(${PROJECT_NAME} PRIVATE footstone)
 # endregion
 
-# region js_driver
-add_subdirectory(${PROJECT_ROOT_DIR}/driver/js ${CMAKE_CURRENT_BINARY_DIR}/driver/js)
-target_link_libraries(${PROJECT_NAME} PRIVATE js_driver)
-# endregion
-
-# region dom
-GlobalPackages_Add(dom)
-target_link_libraries(${PROJECT_NAME} PRIVATE dom)
-# endregion
-
 # region jni
 GlobalPackages_Add(jni)
 target_link_libraries(${PROJECT_NAME} PRIVATE jni)
 # endregion
 
-# region vfs
-GlobalPackages_Add(vfs)
-target_link_libraries(${PROJECT_NAME} PRIVATE vfs)
+# region dom delegate
+add_subdirectory(${PROJECT_ROOT_DIR}/framework/android/connector/dom/src/main/cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/connector/dom/native)
+target_link_libraries(${PROJECT_NAME} PUBLIC dom_connector)
 # endregion
 
-# region devtools
-if (ENABLE_INSPECTOR)
-  GlobalPackages_Add(devtools_backend)
-  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
-  GlobalPackages_Add(devtools_integration)
-  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_integration)
-endif ()
+# region js driver delegate
+add_subdirectory(${PROJECT_ROOT_DIR}/framework/android/connector/driver/js/src/main/cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/connector/driver/js)
+target_link_libraries(${PROJECT_NAME} PUBLIC js_driver_connector)
 # endregion
 
-# region native renderer
-add_subdirectory(${PROJECT_ROOT_DIR}/renderer/native/android/src/main/jni ${CMAKE_CURRENT_BINARY_DIR}/renderer/native)
-target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer)
+# region native renderer delegate
+add_subdirectory(${PROJECT_ROOT_DIR}/framework/android/connector/renderer/native/src/main/cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/connector/renderer/native)
+target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer_connector)
 # endregion
-
-# region tdf render
-if ("${ENABLE_TDF_RENDER}" STREQUAL "true")
-  add_subdirectory(${PROJECT_ROOT_DIR}/renderer/tdf/android/src/main/cpp ${CMAKE_CURRENT_BINARY_DIR}/renderer/tdf)
-  target_link_libraries(${PROJECT_NAME} PUBLIC tdf_renderer)
-endif()
-# region end
 
 # region source set
 set(SOURCE_SET
-    src/bridge/entry.cc
-    src/bridge/java2js.cc
-    src/bridge/js2java.cc
-    src/bridge/native_source_code_android.cc
-    src/jni/exception_handler.cc
-    src/jni/convert_utils.cc
-    src/jni/turbo_module_manager.cc
-    src/jni/java_turbo_module.cc)
+    src/jni/entry.cc)
 
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE

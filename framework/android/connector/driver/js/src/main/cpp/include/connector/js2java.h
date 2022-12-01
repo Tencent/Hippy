@@ -24,32 +24,15 @@
 
 #include <jni.h>
 
-#include <memory>
-#include <mutex>
+#include "driver/napi/v8/js_native_api_v8.h"
 
 namespace hippy {
 inline namespace framework {
-inline namespace jni {
+inline namespace bridge {
 
-class JNIEnvironment {
- public:
-  static std::shared_ptr<JNIEnvironment> GetInstance();
-  static bool ClearJEnvException(JNIEnv* env);
-  static void DestroyInstance();
+void InitBridge(JNIEnv* j_env);
+void CallNative(hippy::napi::CBDataTuple* data);
 
-  JNIEnvironment() = default;
-  ~JNIEnvironment() = default;
-
-  void init(JavaVM* vm, JNIEnv* env);
-  JNIEnv* AttachCurrentThread();
-
- private:
-  static std::shared_ptr<JNIEnvironment> instance_;
-  static std::mutex mutex_;
-
-  JavaVM* j_vm_;
-};
-
-}
-}
-}
+} // namespace bridge
+} // namespace framework
+} // namespace hippy

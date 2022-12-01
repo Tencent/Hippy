@@ -7,4 +7,7 @@ public interface JSBridgeProxy {
     void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer);
 
     void callNatives(String moduleName, String moduleFunc, String callId, ByteBuffer buffer);
+
+    void reportException(String message, String stackTrace);
+
 }
