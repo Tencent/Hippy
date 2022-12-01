@@ -29,9 +29,9 @@ public class DevtoolsManager {
         mDebugMode = debugMode;
     }
 
-    public void create(int workerManagerId, String dataDir, String wsUrl) {
+    public void create(String dataDir, String wsUrl) {
         if (mDebugMode) {
-            mId = onCreateDevtools(workerManagerId, dataDir, wsUrl);
+            mId = onCreateDevtools(dataDir, wsUrl);
         }
     }
 
@@ -45,7 +45,7 @@ public class DevtoolsManager {
      * create devtools jni
      */
     @SuppressWarnings("JavaJniMissingFunction")
-    private native int onCreateDevtools(int workerManagerId, String dataDir, String wsUrl);
+    private native int onCreateDevtools(String dataDir, String wsUrl);
 
     /**
      * destroy devtools jni

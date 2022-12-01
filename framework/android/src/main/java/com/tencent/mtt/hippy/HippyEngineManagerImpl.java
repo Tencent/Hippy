@@ -28,6 +28,7 @@ import androidx.annotation.Nullable;
 import com.openhippy.connector.DomManager;
 import com.openhippy.connector.JsDriver;
 import com.openhippy.connector.NativeRenderer;
+import com.tencent.devtools.DevtoolsManager;
 import com.tencent.mtt.hippy.adapter.device.HippyDeviceAdapter;
 import com.tencent.mtt.hippy.adapter.executor.HippyExecutorSupplierAdapter;
 import com.tencent.mtt.hippy.adapter.monitor.HippyEngineMonitorAdapter;
@@ -119,6 +120,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
     private final HippyThirdPartyAdapter mThirdPartyAdapter;
     private final V8InitParams v8InitParams;
     private int mDomInstanceId = -1;
+    private DevtoolsManager mDevtoolsManager;
 
     final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -745,7 +747,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mNativeRenderer.init(controllers, mRootView);
             mVfsManager = new VfsManager();
             initVfsManager();
-//            mDevtoolsManager = new DevtoolsManager();
+            mDevtoolsManager = new DevtoolsManager(mDebugMode);
             if (mDebugMode) {
                 initDevtoolsManager();
             }
@@ -761,8 +763,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         private void initDevtoolsManager() {
             String localCachePath = getGlobalConfigs().getContext().getCacheDir()
                     .getAbsolutePath();
-//            mDevtoolsManager.create(mWorkerManagerId, localCachePath,
-//                    getDevSupportManager().createDebugUrl(mServerHost));
+            mDevtoolsManager.create(localCachePath, getDevSupportManager().createDebugUrl(mServerHost));
         }
 
         @Override
@@ -832,10 +833,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return mDevSupportManager;
         }
 
-//        @Override
-//        public DevtoolsManager getDevtoolsManager() {
-//            return mDevtoolsManager;
-//        }
+        @Override
+        public DevtoolsManager getDevtoolsManager() {
+            return mDevtoolsManager;
+        }
 
         @Override
         public ThreadExecutor getThreadExecutor() {
@@ -926,7 +927,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         public int getDevtoolsId() {
-            return 0; // mDevtoolsManager.getId();
+            return mDevtoolsManager.getId();
         }
 
         @Override
@@ -981,9 +982,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mVfsManager.destroy();
                 onDestroyVfs(mVfsManager.getId());
             }
-//            if (mDevtoolsManager != null) {
-//                mDevtoolsManager.destroy(onReLoad);
-//            }
+            if (mDevtoolsManager != null) {
+                mDevtoolsManager.destroy(onReLoad);
+            }
 
             if (mNativeParams != null) {
                 mNativeParams.clear();
