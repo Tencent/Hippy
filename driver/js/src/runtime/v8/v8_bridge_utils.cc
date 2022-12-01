@@ -92,7 +92,7 @@ int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const RegisterFunction& scope_cb,
                                     const RegisterFunction& call_native_cb,
                                     uint32_t devtools_id) {
-  auto runtime = std::make_shared<Runtime>(enable_v8_serialization,is_dev_module);
+  auto runtime = std::make_shared<Runtime>(enable_v8_serialization, is_dev_module);
   runtime->SetData(kBridgeSlot, std::move(bridge));
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);

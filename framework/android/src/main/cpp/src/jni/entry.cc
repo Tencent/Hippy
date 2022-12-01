@@ -32,9 +32,10 @@
 #include <unordered_map>
 
 #include "connector/js_driver_jni.h"
-#include "footstone/persistent_object_map.h"
+#include "footstone/check.h"
 #include "footstone/deserializer.h"
 #include "footstone/hippy_value.h"
+#include "footstone/persistent_object_map.h"
 #include "footstone/string_view_utils.h"
 #include "footstone/worker_manager.h"
 #include "jni/data_holder.h"
@@ -48,20 +49,6 @@
 #include "vfs/uri_loader.h"
 #include "vfs/uri.h"
 #include "vfs/vfs_resource_holder.h"
-
-#ifdef ANDROID_NATIVE_RENDER
-#include "renderer/native_render_manager.h"
-#include "renderer/native_render_jni.h"
-#endif
-#ifdef ENABLE_TDF_RENDER
-#include "render/tdf_render_bridge.h"
-#include "renderer/tdf/tdf_render_manager.h"
-#endif
-#ifdef ENABLE_INSPECTOR
-#include "devtools/devtools_data_source.h"
-#include "devtools/vfs/devtools_handler.h"
-#include "devtools/devtools_jni.h"
-#endif
 
 namespace hippy {
 inline namespace framework {
@@ -182,32 +169,15 @@ jint JNI_OnLoad(JavaVM* j_vm, __unused void* reserved) {
   hippy::JniDelegateHandler::Init(j_env);
   hippy::ResourceHolder::Init();
 
-  hippy::JniLoad::Instance()->Onload(j_env);
-
-#ifdef ENABLE_TDF_RENDER
-  TDFRenderBridge::Init(j_vm, reserved);
-#endif
-
-#ifdef ENABLE_INSPECTOR
-  hippy::devtools::DevtoolsJni::Init();
-#endif
+  hippy::JniLoad::Instance()->Onload(j_vm, reserved, j_env);
 
   return JNI_VERSION_1_4;
 }
 
 void JNI_OnUnload(__unused JavaVM* j_vm, __unused void* reserved) {
-
-#ifdef ENABLE_INSPECTOR
-  hippy::devtools::DevtoolsJni::Destroy();
-#endif
-
-#ifdef ENABLE_TDF_RENDER
-  TDFRenderBridge::Destroy();
-#endif
-
   auto j_env = hippy::JNIEnvironment::GetInstance()->AttachCurrentThread();
 
-  hippy::JniLoad::Instance()->Onunload(j_env);
+  hippy::JniLoad::Instance()->Onunload(j_vm, reserved, j_env);
   hippy::JniDelegateHandler::Destroy();
   hippy::ResourceHolder::Destroy();
   hippy::Uri::Destroy();

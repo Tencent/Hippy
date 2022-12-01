@@ -29,9 +29,5 @@ class Scope;
 
 class TDFRenderBridge {
  public:
-  static void Init(JavaVM* j_vm, __unused void* reserved);
-
-  static void Destroy();
-
   static void RegisterScopeForUriLoader(uint32_t render_id, const std::shared_ptr<hippy::driver::Scope>& scope);
 };
