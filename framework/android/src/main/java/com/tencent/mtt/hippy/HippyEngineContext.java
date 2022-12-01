@@ -47,7 +47,7 @@ public interface HippyEngineContext {
 
     DevSupportManager getDevSupportManager();
 
-    DevtoolsManager getDevtoolsManager();
+    // DevtoolsManager getDevtoolsManager();
 
     ThreadExecutor getThreadExecutor();
 

@@ -24,32 +24,23 @@
 
 #include <jni.h>
 
-#include <memory>
-#include <mutex>
-
 namespace hippy {
 inline namespace framework {
-inline namespace jni {
+inline namespace connector {
+inline namespace dom {
 
-class JNIEnvironment {
- public:
-  static std::shared_ptr<JNIEnvironment> GetInstance();
-  static bool ClearJEnvException(JNIEnv* env);
-  static void DestroyInstance();
+jint CreateDomManager(JNIEnv* j_env, __unused jobject j_obj);
 
-  JNIEnvironment() = default;
-  ~JNIEnvironment() = default;
+void DestroyDomManager(JNIEnv* j_env,
+                       __unused jobject j_obj,
+                       jint j_dom_id);
 
-  void init(JavaVM* vm, JNIEnv* env);
-  JNIEnv* AttachCurrentThread();
+void SetRenderManager(JNIEnv* j_env,
+                      __unused jobject j_obj,
+                      jint j_dom_manager_id,
+                      jint j_render_id);
 
- private:
-  static std::shared_ptr<JNIEnvironment> instance_;
-  static std::mutex mutex_;
-
-  JavaVM* j_vm_;
-};
-
+}
 }
 }
 }

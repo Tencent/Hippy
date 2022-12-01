@@ -81,7 +81,7 @@ std::function<void(std::shared_ptr<Runtime>,
     const string_view&,
     const string_view&) {};
 
-int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
+int32_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     bool is_dev_module,
                                     const string_view& global_config,
                                     int64_t group,
@@ -92,8 +92,7 @@ int64_t V8BridgeUtils::InitInstance(bool enable_v8_serialization,
                                     const RegisterFunction& scope_cb,
                                     const RegisterFunction& call_native_cb,
                                     uint32_t devtools_id) {
-  std::shared_ptr<Runtime> runtime = std::make_shared<Runtime>(enable_v8_serialization,
-                                                               is_dev_module);
+  auto runtime = std::make_shared<Runtime>(enable_v8_serialization,is_dev_module);
   runtime->SetData(kBridgeSlot, std::move(bridge));
   int32_t runtime_id = runtime->GetId();
   Runtime::Insert(runtime);

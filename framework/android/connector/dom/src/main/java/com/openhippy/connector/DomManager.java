@@ -24,7 +24,7 @@ public class DomManager implements Connector {
     private final int mInstanceId;
 
     public DomManager() {
-        mInstanceId = createDomInstance();
+        mInstanceId = createDomManager();
     }
 
     public DomManager(int instanceId, int rootId) {
@@ -34,7 +34,7 @@ public class DomManager implements Connector {
 
     @Override
     public void destroy() {
-        destroyDomInstance(mInstanceId);
+        destroyDomManager(mInstanceId);
     }
 
     @Override
@@ -43,15 +43,15 @@ public class DomManager implements Connector {
     }
 
     public void attachToRenderer(@NonNull Connector rendererConnector) {
-        onAttachToRenderer(rendererConnector.getInstanceId());
+        onAttachToRenderer(mInstanceId, rendererConnector.getInstanceId());
     }
 
     public void attachToRoot(int rootId) {
-        onAttachToRoot(mInstanceId, rootId);
+
     }
 
     public void detachFromRoot(int rootId) {
-        onDetachFromRoot(mInstanceId, rootId);
+
     }
 
     /**
@@ -59,36 +59,20 @@ public class DomManager implements Connector {
      *
      * @param rendererId the unique id of renderer
      */
-    private native void onAttachToRenderer(int rendererId);
-
-    /**
-     * Attach the specified root id to native (C++) dom manager.
-     *
-     * @param domId the unique id of native (C++) dom manager
-     * @param rootId the root node id
-     */
-    private native void onAttachToRoot(int domId, int rootId);
-
-    /**
-     * Detach the specified root id from native (C++) dom manager.
-     *
-     * @param domId the unique id of native (C++) dom manager
-     * @param rootId the root node id
-     */
-    private native void onDetachFromRoot(int domId, int rootId);
+    private native void onAttachToRenderer(int domId, int rendererId);
 
     /**
      * Create native (C++) dom manager instance.
      *
      * @return the unique id of native (C++) dom manager
      */
-    private native int createDomInstance();
+    private native int createDomManager();
 
     /**
      * Release native (C++) dom manager instance.
      *
      * @param domManagerId the unique id of native (C++) dom manager
      */
-    private native void destroyDomInstance(int domManagerId);
+    private native void destroyDomManager(int domManagerId);
 
 }

@@ -728,9 +728,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mDomManager = new DomManager();
                 mDomInstanceId = mDomManager.getInstanceId();
             }
-            mJsDriver.attachToDom(mDomManager);
             mNativeRenderer = new NativeRenderer();
             mDomManager.attachToRenderer(mNativeRenderer);
+            mNativeRenderer.attachToDom(mDomManager);
             mNativeRenderer.setFrameworkProxy(HippyEngineManagerImpl.this);
             List<Class<?>> controllers = null;
             if (mControllerProviders != null) {
@@ -745,7 +745,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             mNativeRenderer.init(controllers, mRootView);
             mVfsManager = new VfsManager();
             initVfsManager();
-            mDevtoolsManager = new DevtoolsManager(mDebugMode);
+//            mDevtoolsManager = new DevtoolsManager();
             if (mDebugMode) {
                 initDevtoolsManager();
             }
@@ -761,13 +761,14 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         private void initDevtoolsManager() {
             String localCachePath = getGlobalConfigs().getContext().getCacheDir()
                     .getAbsolutePath();
-            mDevtoolsManager.create(mWorkerManagerId, localCachePath,
-                    getDevSupportManager().createDebugUrl(mServerHost));
+//            mDevtoolsManager.create(mWorkerManagerId, localCachePath,
+//                    getDevSupportManager().createDebugUrl(mServerHost));
         }
 
         @Override
         public void onRuntimeInitialized(long runtimeId) {
             mJsDriver.setInstanceId((int) runtimeId);
+            mJsDriver.attachToDom(mDomManager);
             // Call linker to bind framework until get v8 runtime id after js bridge initialized,
             // and use v8 runtime id to represent framework id.
             if (mDebugMode && mRootView != null) {
@@ -831,10 +832,10 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
             return mDevSupportManager;
         }
 
-        @Override
-        public DevtoolsManager getDevtoolsManager() {
-            return mDevtoolsManager;
-        }
+//        @Override
+//        public DevtoolsManager getDevtoolsManager() {
+//            return mDevtoolsManager;
+//        }
 
         @Override
         public ThreadExecutor getThreadExecutor() {
@@ -925,7 +926,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         public int getDevtoolsId() {
-            return mDevtoolsManager.getId();
+            return 0; // mDevtoolsManager.getId();
         }
 
         @Override
@@ -936,6 +937,7 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Nullable
         public View createRootView(@NonNull Context context) {
             View rootView = mNativeRenderer.createRootView(context);
+            mNativeRenderer.createRoot(rootView.getId());
             mDomManager.attachToRoot(rootView.getId());
             mJsDriver.attachToRoot(rootView.getId());
             return rootView;
@@ -979,9 +981,9 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
                 mVfsManager.destroy();
                 onDestroyVfs(mVfsManager.getId());
             }
-            if (mDevtoolsManager != null) {
-                mDevtoolsManager.destroy(onReLoad);
-            }
+//            if (mDevtoolsManager != null) {
+//                mDevtoolsManager.destroy(onReLoad);
+//            }
 
             if (mNativeParams != null) {
                 mNativeParams.clear();

@@ -1,0 +1,99 @@
+/*
+ *
+ * Tencent is pleased to support the open source community by making
+ * Hippy available.
+ *
+ * Copyright (C) 2022 THL A29 Limited, a Tencent company.
+ * All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+#include "connector/dom_jni.h"
+
+#include "dom/dom_manager.h"
+#include "dom/root_node.h"
+#include "footstone/check.h"
+#include "footstone/logging.h"
+#include "footstone/persistent_object_map.h"
+#include "footstone/worker_manager.h"
+#include "jni/jni_register.h"
+#include "jni/data_holder.h"
+
+namespace hippy {
+inline namespace framework {
+inline namespace connector {
+inline namespace dom {
+
+REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
+             "createDomManager",
+             "()I",
+             CreateDomManager)
+
+REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
+             "destroyDomManager",
+             "(I)V",
+             DestroyDomManager)
+
+REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
+             "onAttachToRenderer",
+             "(II)V",
+             SetRenderManager)
+
+using WorkerManager = footstone::WorkerManager;
+
+constexpr uint32_t kPoolSize = 2;
+constexpr char kDomRunnerName[] = "hippy_dom";
+
+jint CreateDomManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
+  auto worker_manager = std::make_shared<WorkerManager>(kPoolSize);
+  auto dom_manager = std::make_shared<DomManager>();
+  auto dom_id = hippy::global_data_holder_key.fetch_add(1);
+  hippy::global_data_holder.Insert(dom_id, dom_manager);
+  auto runner = worker_manager->CreateTaskRunner(kDomRunnerName);
+  dom_manager->SetTaskRunner(runner);
+  dom_manager->SetWorkerManager(worker_manager);
+  return footstone::checked_numeric_cast<uint32_t, jint>(dom_id);
+}
+
+void DestroyDomManager(__unused JNIEnv* j_env, __unused jobject j_obj, jint j_dom_id) {
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_id);
+  auto flag = hippy::global_data_holder.Erase(dom_manager_id);
+  FOOTSTONE_DCHECK(flag);
+}
+
+void SetRenderManager(JNIEnv* j_env,
+                      __unused jobject j_obj,
+                      jint j_dom_manager_id,
+                      jint j_render_id) {
+  auto render_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_render_id);
+  std::any render_manager;
+  auto flag = hippy::global_data_holder.Find(render_id, render_manager);
+  FOOTSTONE_CHECK(flag);
+  auto render_manager_object = std::any_cast<std::shared_ptr<RenderManager>>(render_manager);
+
+  auto dom_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_dom_manager_id);
+  std::any dom_manager;
+  flag = hippy::global_data_holder.Find(dom_manager_id, dom_manager);
+  FOOTSTONE_CHECK(flag);
+  auto dom_manager_object = std::any_cast<std::shared_ptr<DomManager>>(dom_manager);
+  dom_manager_object->SetRenderManager(render_manager_object);
+}
+
+}
+}
+}
+}
+
+

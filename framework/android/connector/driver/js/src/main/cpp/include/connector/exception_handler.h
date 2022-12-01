@@ -24,32 +24,27 @@
 
 #include <jni.h>
 
-#include <memory>
-#include <mutex>
+#include <iostream>
+#include <sstream>
+
+#include "driver/runtime/v8/runtime.h"
+#include "footstone/string_view.h"
 
 namespace hippy {
 inline namespace framework {
-inline namespace jni {
 
-class JNIEnvironment {
+class ExceptionHandler {
  public:
-  static std::shared_ptr<JNIEnvironment> GetInstance();
-  static bool ClearJEnvException(JNIEnv* env);
-  static void DestroyInstance();
+  using string_view = footstone::stringview::string_view;
 
-  JNIEnvironment() = default;
-  ~JNIEnvironment() = default;
+  ExceptionHandler() = default;
+  ~ExceptionHandler() = default;
 
-  void init(JavaVM* vm, JNIEnv* env);
-  JNIEnv* AttachCurrentThread();
-
- private:
-  static std::shared_ptr<JNIEnvironment> instance_;
-  static std::mutex mutex_;
-
-  JavaVM* j_vm_;
+  static void Init(JNIEnv* j_env);
+  static void ReportJsException(const std::shared_ptr<hippy::Runtime>& runtime,
+                                const string_view& desc,
+                                const string_view& stack);
 };
 
-}
 }
 }

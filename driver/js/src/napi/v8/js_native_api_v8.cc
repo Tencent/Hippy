@@ -700,7 +700,6 @@ bool V8Ctx::SetProperty(const std::shared_ptr<CtxValue>& object,
 std::shared_ptr<CtxValue> V8Ctx::GetProperty(
     const std::shared_ptr<CtxValue>& object,
     const string_view& name) {
-  FOOTSTONE_DLOG(INFO) << "GetGlobalStrVar name = " << name;
   std::shared_ptr<V8CtxValue> ctx_value =
       std::static_pointer_cast<V8CtxValue>(object);
   v8::HandleScope handle_scope(isolate_);

@@ -52,7 +52,7 @@ class V8BridgeUtils {
                                                const string_view& desc,
                                                const string_view& stack)>;
 
-  static int64_t InitInstance(bool enable_v8_serialization,
+  static int32_t InitInstance(bool enable_v8_serialization,
                               bool is_dev_module,
                               const string_view& global_config,
                               int64_t group,

@@ -39,6 +39,7 @@ import com.tencent.mtt.hippy.serialization.nio.reader.BinaryReader;
 import com.tencent.mtt.hippy.serialization.nio.reader.SafeHeapReader;
 import com.tencent.mtt.hippy.serialization.nio.writer.SafeHeapWriter;
 import com.tencent.mtt.hippy.serialization.string.InternalizedStringTable;
+import com.tencent.mtt.hippy.utils.PixelUtil;
 import com.tencent.mtt.hippy.utils.UIThreadUtils;
 import com.tencent.mtt.hippy.views.image.HippyImageViewController;
 import com.tencent.mtt.hippy.views.text.HippyTextViewController;
@@ -117,12 +118,24 @@ public class NativeRenderer extends Renderer implements NativeRender, NativeRend
 
     public NativeRenderer() {
         mRenderProvider = new NativeRenderProvider(this);
-        NativeRendererManager.addNativeRendererInstance(mRenderProvider.getInstanceId(), this);
+//        NativeRendererManager.addNativeRendererInstance(mRenderProvider.getInstanceId(), this);
         // Should restrictions the capacity of ui task queue, to avoid js make huge amount of
         // node operation cause OOM.
         mUITaskQueue = new LinkedBlockingQueue<>(MAX_UI_TASK_QUEUE_CAPACITY);
         mRenderManager = new RenderManager(this);
         mVirtualNodeManager = new VirtualNodeManager(this);
+    }
+
+    public float getDensity() {
+        return PixelUtil.getDensity();
+    }
+
+    public NativeRenderProvider getRenderProvider() {
+        return mRenderProvider;
+    }
+
+    public void setId(int instanceId) {
+        mRenderProvider.setInstanceId(instanceId);
     }
 
     @Override

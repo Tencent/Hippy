@@ -20,35 +20,37 @@
  *
  */
 
-#pragma once
+#include "jni/jni_load.h"
 
-#include <jni.h>
-
-#include <memory>
+#include <algorithm>
 #include <mutex>
+
+#include "footstone/logging.h"
 
 namespace hippy {
 inline namespace framework {
 inline namespace jni {
 
-class JNIEnvironment {
- public:
-  static std::shared_ptr<JNIEnvironment> GetInstance();
-  static bool ClearJEnvException(JNIEnv* env);
-  static void DestroyInstance();
+std::shared_ptr<JniLoad> JniLoad::Instance() {
+  static std::shared_ptr<JniLoad> instance = nullptr;
+  static std::once_flag flag;
 
-  JNIEnvironment() = default;
-  ~JNIEnvironment() = default;
+  std::call_once(flag, [] { instance = std::make_shared<JniLoad>(); });
 
-  void init(JavaVM* vm, JNIEnv* env);
-  JNIEnv* AttachCurrentThread();
+  return instance;
+}
 
- private:
-  static std::shared_ptr<JNIEnvironment> instance_;
-  static std::mutex mutex_;
+bool JniLoad::Onload(JNIEnv* j_env) {
+  return std::all_of(jni_onload_.begin(), jni_onload_.end(), [j_env](auto func) {
+    return func(j_env);
+  });
+}
 
-  JavaVM* j_vm_;
-};
+void JniLoad::Onunload(JNIEnv* j_env) {
+  for (const auto& func: jni_onunload_) {
+    func(j_env);
+  }
+}
 
 }
 }
