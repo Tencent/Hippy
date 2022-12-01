@@ -34,7 +34,6 @@ class DevtoolsJni {
 
 jint OnCreateDevtools(JNIEnv* j_env,
                       __unused jobject j_object,
-                      jint j_worker_manager_id,
                       jstring j_data_dir,
                       jstring j_ws_url);
 

@@ -67,18 +67,16 @@ void DevtoolsJni::Init(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
 // needs to call by JNI_OnUnload
 void DevtoolsJni::Destroy(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
 
+constexpr uint32_t kPoolSize = 1;
+std::make_shared<WorkerManager> worker_manager;
+
 jint OnCreateDevtools(JNIEnv* j_env,
                       __unused jobject j_object,
-                      jint j_worker_manager_id,
                       jstring j_data_dir,
                       jstring j_ws_url) {
+  worker_manager = std::make_shared<WorkerManager>(kPoolSize);
   const string_view data_dir = JniUtils::ToStrView(j_env, j_data_dir);
   const string_view ws_url = JniUtils::ToStrView(j_env, j_ws_url);
-  auto worker_manager_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_worker_manager_id);
-  std::any worker_manager_instance;
-  auto flag = hippy::global_data_holder.Find(worker_manager_id, worker_manager_instance);
-  FOOTSTONE_CHECK(flag);
-  auto worker_manager = std::any_cast<std::shared_ptr<WorkerManager>>(worker_manager_instance);
   DevtoolsDataSource::SetFileCacheDir(StringViewUtils::ToStdString(
       StringViewUtils::ConvertEncoding(data_dir, string_view::Encoding::Utf8).utf8_value()));
   auto devtools_data_source = std::make_shared<hippy::devtools::DevtoolsDataSource>(
@@ -98,6 +96,7 @@ void OnDestroyDevtools(JNIEnv* j_env, __unused jobject j_object, jint j_devtools
   FOOTSTONE_DLOG(INFO) << "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
   JNIEnvironment::ClearJEnvException(j_env);
+  worker_manager_->Terminate();
 }
 
 /**
