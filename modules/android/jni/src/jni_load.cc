@@ -40,15 +40,16 @@ std::shared_ptr<JniLoad> JniLoad::Instance() {
   return instance;
 }
 
-bool JniLoad::Onload(JNIEnv* j_env) {
-  return std::all_of(jni_onload_.begin(), jni_onload_.end(), [j_env](auto func) {
-    return func(j_env);
+bool JniLoad::Onload(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
+  return std::all_of(jni_onload_.begin(), jni_onload_.end(),
+                     [j_vm, reserved, j_env](auto func) {
+    return func(j_vm, reserved, j_env);
   });
 }
 
-void JniLoad::Onunload(JNIEnv* j_env) {
+void JniLoad::Onunload(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
   for (const auto& func: jni_onunload_) {
-    func(j_env);
+    func(j_vm, reserved, j_env);
   }
 }
 

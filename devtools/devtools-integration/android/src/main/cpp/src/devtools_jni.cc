@@ -59,11 +59,13 @@ REGISTER_JNI("com/tencent/devtools/vfs/DevtoolsProcessor",  // NOLINT(cert-err58
              "(ILjava/lang/String;Lcom/tencent/vfs/ResourceDataHolder;)V",
              OnNetworkResponseInvoke)
 
+
+
 // needs to call by JNI_OnLoad
-void DevtoolsJni::Init() {}
+void DevtoolsJni::Init(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
 
 // needs to call by JNI_OnUnload
-void DevtoolsJni::Destroy() {}
+void DevtoolsJni::Destroy(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
 
 jint OnCreateDevtools(JNIEnv* j_env,
                       __unused jobject j_object,

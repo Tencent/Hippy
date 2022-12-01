@@ -362,7 +362,7 @@ void SetDomManager(JNIEnv* j_env,
   runtime->GetScope()->SetDomManager(dom_manager_object);
 }
 
-bool JsDriverOnLoad(JNIEnv* j_env) {
+bool JsDriverOnLoad(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
   hippy::ExceptionHandler::Init(j_env);
   hippy::ConvertUtils::Init(j_env);
   hippy::JavaTurboModule::Init(j_env);
@@ -371,7 +371,7 @@ bool JsDriverOnLoad(JNIEnv* j_env) {
   return true;
 }
 
-void JsDriverOnUnLoad(JNIEnv* j_env) {
+void JsDriverOnUnLoad(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
   hippy::napi::V8VM::PlatformDestroy();
   hippy::ConvertUtils::Destroy(j_env);
   hippy::JavaTurboModule::Destroy(j_env);

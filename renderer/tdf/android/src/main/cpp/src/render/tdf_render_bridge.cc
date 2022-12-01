@@ -21,18 +21,23 @@
 #include "render/tdf_render_bridge.h"
 #include "core/platform/android/jni/jni_platform_android.h"
 #include "jni/jni_register.h"
+#include "jni/jni_load.h"
 #include "renderer/tdf/tdf_render_manager.h"
 #include "vfs/uri_loader.h"
 
 using string_view = footstone::stringview::string_view;
 using UriLoader = hippy::vfs::UriLoader;
 
-void TDFRenderBridge::Init(JavaVM *j_vm, __unused void *reserved) {
+void Init(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
   // Init TDF Core: TDF Core was a static library for Hippy, so we need to do
   // initialization manually. Init Node Creator
   hippy::dom::InitNodeCreator();
   tdfcore::InitWithJavaVM(j_vm);
 }
+void Destroy(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {}
+
+REGISTER_JNI_ONLOAD(Init)
+REGISTER_JNI_ONUNLOAD(Destroy)
 
 void TDFRenderBridge::RegisterScopeForUriLoader(
     uint32_t render_id, const std::shared_ptr<hippy::driver::Scope> &scope) {
@@ -50,8 +55,6 @@ void TDFRenderBridge::RegisterScopeForUriLoader(
           cb(string_view.utf8_value());
         });
 }
-
-void TDFRenderBridge::Destroy() {}
 
 jint OnCreateTDFRender(JNIEnv *j_env, jobject j_obj, jfloat j_density) {
   auto render = std::make_shared<hippy::TDFRenderManager>();

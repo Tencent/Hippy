@@ -601,7 +601,7 @@ void NativeRenderManager::MarkTextDirty(std::weak_ptr<RootNode> weak_root_node, 
   }
 }
 
-bool NativeRenderManagerOnLoad(JNIEnv* j_env) {
+bool NativeRenderManagerOnLoad(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
   j_render_manager_clazz = reinterpret_cast<jclass>(j_env->NewGlobalRef(
       j_env->FindClass("com/tencent/renderer/NativeRenderer")));
   j_render_manager_init_method_id = j_env->GetMethodID(j_render_manager_clazz, "<init>", "()V");
@@ -613,7 +613,7 @@ bool NativeRenderManagerOnLoad(JNIEnv* j_env) {
   return true;
 }
 
-void NativeRenderManagerOnUnload(JNIEnv* j_env) {
+void NativeRenderManagerOnUnload(JavaVM* j_vm, void* reserved, JNIEnv* j_env) {
   j_env->DeleteGlobalRef(j_render_manager_clazz);
 }
 

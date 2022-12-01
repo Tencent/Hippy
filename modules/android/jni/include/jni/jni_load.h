@@ -35,8 +35,8 @@ inline namespace jni {
 
 class JniLoad {
  public:
-  using JniOnloadFunc = std::function<bool(JNIEnv* j_env)>;
-  using JniOnunloadFunc = std::function<void(JNIEnv* j_env)>;
+  using JniOnloadFunc = std::function<bool(JavaVM* j_vm, void* reserved, JNIEnv* j_env)>;
+  using JniOnunloadFunc = std::function<void(JavaVM* j_vm, void* reserved, JNIEnv* j_env)>;
 
   JniLoad()  = default;
 
@@ -47,8 +47,8 @@ class JniLoad {
     jni_onunload_.emplace_back(f);
   }
 
-  bool Onload(JNIEnv* j_env);
-  void Onunload(JNIEnv* j_env);
+  bool Onload(JavaVM* j_vm, void* reserved, JNIEnv* j_env);
+  void Onunload(JavaVM* j_vm, void* reserved, JNIEnv* j_env);
 
   static std::shared_ptr<JniLoad> Instance();
 
