@@ -62,6 +62,9 @@ class ViewPagerNode : public ScrollViewNode {
 
  protected:
   void HandleEventInfoUpdate() override;
+  void HandleLayoutUpdate(hippy::LayoutResult layout_result) override;
+  void OnAttach() override;
+  void OnDetach() override;
 
  private:
   void InitialPage(const DomStyleMap& dom_style, std::shared_ptr<ViewPager> view_pager);
@@ -79,6 +82,9 @@ class ViewPagerNode : public ScrollViewNode {
   bool has_on_page_scroll_event_ = false;
   bool has_on_page_selected_event_ = false;
   bool has_on_page_scroll_state_changed_event_ = false;
+
+  uint64_t batch_end_listener_id_ = 0;
+  bool has_layout_ = false;
 };
 
 }  // namespace tdf
