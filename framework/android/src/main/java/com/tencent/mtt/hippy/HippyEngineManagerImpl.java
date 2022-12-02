@@ -767,21 +767,12 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         }
 
         @Override
-        public void onRuntimeInitialized(long runtimeId) {
-            mJsDriver.setInstanceId((int) runtimeId);
+        public void onRuntimeInitialized() {
             mJsDriver.attachToDom(mDomManager);
-            // Call linker to bind framework until get v8 runtime id after js bridge initialized,
-            // and use v8 runtime id to represent framework id.
             if (mDebugMode && mRootView != null) {
-//                mLinkHelper.connect((int) runtimeId, mRootView.getId());
-//                RenderProxy renderProxy = mLinkHelper.getRenderer();
-//                if (renderProxy instanceof NativeRenderProxy) {
-//                    ((NativeRenderProxy) renderProxy).onRuntimeInitialized(mRootView.getId());
-//                }
-//                // add network processor for waiting runtime id
-//                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
                 mJsDriver.attachToRoot(mRootView.getId());
                 mNativeRenderer.onRuntimeInitialized(mRootView.getId());
+                mVfsManager.addProcessorAtFirst(new DevtoolsProcessor(getDevtoolsId()));
             }
         }
 
@@ -938,7 +929,6 @@ public abstract class HippyEngineManagerImpl extends HippyEngineManager implemen
         @Nullable
         public View createRootView(@NonNull Context context) {
             View rootView = mNativeRenderer.createRootView(context);
-            mNativeRenderer.createRoot(rootView.getId());
             mDomManager.attachToRoot(rootView.getId());
             mJsDriver.attachToRoot(rootView.getId());
             return rootView;

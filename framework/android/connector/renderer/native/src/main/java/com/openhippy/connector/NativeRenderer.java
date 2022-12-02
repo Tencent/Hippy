@@ -16,7 +16,6 @@
 
 package com.openhippy.connector;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -86,7 +85,10 @@ public class NativeRenderer implements Connector {
     @Nullable
     public View createRootView(@NonNull Context context) {
         if (mRenderer != null) {
-            return mRenderer.createRootView(context);
+            View view = mRenderer.createRootView(context);
+            if (view != null) {
+                createRoot(view.getId());
+            }
         }
         return null;
     }
@@ -142,9 +144,9 @@ public class NativeRenderer implements Connector {
      */
     private native Object getNativeRendererInstance(int instanceId);
 
-    public native void attachToDom(int mInstanceId, int domId);
-    public native void createRoot(int rootId);
-    public native void destroyRoot(int rootId);
+    private native void attachToDom(int mInstanceId, int domId);
+    private native void createRoot(int rootId);
+    private native void destroyRoot(int rootId);
 
 
 }

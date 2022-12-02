@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 @SuppressWarnings("JavaJniMissingFunction")
 public class JsDriver implements Connector {
 
-    private int mJsDriverId;
+    private int mInstanceId = -1;
     @Nullable
     private WeakReference<JSBridgeProxy> mBridgeProxy;
 
@@ -46,19 +46,7 @@ public class JsDriver implements Connector {
 
     @Override
     public int getInstanceId() {
-        return mJsDriverId;
-    }
-
-    public void setInstanceId(int runtimeId) {
-        mJsDriverId = runtimeId;
-    }
-
-    public void attachToDom(@NonNull Connector domConnector) {
-        onAttachToDom(mJsDriverId, domConnector.getInstanceId());
-    }
-
-    public void attachToRoot(int rootId) {
-        onAttachToRoot(mJsDriverId, rootId);
+        return mInstanceId;
     }
 
     public void callNatives(String moduleName, String moduleFunc, String callId, byte[] buffer) {
@@ -68,7 +56,7 @@ public class JsDriver implements Connector {
     }
 
     public void callNatives(String moduleName, String moduleFunc, String callId,
-                            ByteBuffer buffer) {
+            ByteBuffer buffer) {
         if (mBridgeProxy != null && mBridgeProxy.get() != null) {
             mBridgeProxy.get().callNatives(moduleName, moduleFunc, callId, buffer);
         }
@@ -79,37 +67,84 @@ public class JsDriver implements Connector {
             mBridgeProxy.get().reportException(message, stackTrace);
         }
     }
+
+    public void onResourceReady(ByteBuffer output, long resId) {
+        onResourceReady(mInstanceId, output, resId);
+    }
+
+    public void initialize(byte[] globalConfig, boolean useLowMemoryMode,
+            boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
+            long groupId, int domManagerId, V8InitParams v8InitParams, int devtoolsId) {
+        mInstanceId = onCreate(globalConfig, useLowMemoryMode, enableV8Serialization,
+                isDevModule, callback, groupId, domManagerId, v8InitParams, devtoolsId);
+    }
+
+    public void onDestroy(boolean useLowMemoryMode, boolean isReload,
+            NativeCallback callback) {
+        onDestroy(mInstanceId, useLowMemoryMode, isReload, callback);
+    }
+
+    public void callFunction(String action, NativeCallback callback,
+            ByteBuffer buffer, int offset, int length) {
+        callFunction(mInstanceId, action, callback, buffer, offset, length);
+    }
+
+    public void callFunction(String action, NativeCallback callback,
+            byte[] buffer, int offset, int length) {
+        callFunction(mInstanceId, action, callback, buffer, offset, length);
+    }
+
+    public boolean runScriptFromUri(String uri, AssetManager assetManager, boolean canUseCodeCache,
+            String codeCacheDir, int vfsId, NativeCallback callback) {
+        return runScriptFromUri(mInstanceId, uri, assetManager, canUseCodeCache, codeCacheDir, vfsId,
+                callback);
+    }
+
+    public void loadInstance(byte[] buffer, int offset, int length) {
+        loadInstance(mInstanceId, buffer, offset, length);
+    }
+
+    public void unloadInstance(byte[] buffer, int offset, int length) {
+        unloadInstance(mInstanceId, buffer, offset, length);
+    }
+
+    public void attachToDom(@NonNull Connector domConnector) {
+        attachToDom(mInstanceId, domConnector.getInstanceId());
+    }
+
+    public void attachToRoot(int rootId) {
+        attachToRoot(mInstanceId, rootId);
+    }
+
     /**
      * Will call native jni to connect driver runtime with root node.
      *
-     * @param jsDriverId driver runtime id
+     * @param instanceId driver runtime id
      * @param rootId root node id
      */
-    private native void onAttachToRoot(int jsDriverId, int rootId);
+    private native void attachToRoot(int instanceId, int rootId);
 
-    private native void onAttachToDom(int jsDriverId, int domId);
+    private native void attachToDom(int instanceId, int domId);
 
-    public native int createJsDriver(byte[] globalConfig, boolean useLowMemoryMode,
-                                     boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
-                                     long groupId, int domManagerId, V8InitParams v8InitParams, int j_devtools_id);
+    private native int onCreate(byte[] globalConfig, boolean useLowMemoryMode,
+            boolean enableV8Serialization, boolean isDevModule, NativeCallback callback,
+            long groupId, int domManagerId, V8InitParams v8InitParams, int devtoolsId);
 
-    public native void destroyJsDriver(int jsDriverId, boolean useLowMemoryMode, boolean isReload,
-                                       NativeCallback callback);
+    private native void onDestroy(int instanceId, boolean useLowMemoryMode, boolean isReload,
+            NativeCallback callback);
 
-    public native void loadInstance(int jsDriverId, byte[] buffer, int offset, int length);
+    private native void loadInstance(int instanceId, byte[] buffer, int offset, int length);
 
-    public native void unloadInstance(int jsDriverId, byte[] buffer, int offset, int length);
+    private native void unloadInstance(int instanceId, byte[] buffer, int offset, int length);
 
-    public native boolean runScriptFromUri(int jsDriverId, String uri, AssetManager assetManager,
-                                           boolean canUseCodeCache, String codeCacheDir, int vfsId,
-                                           NativeCallback callback);
+    private native boolean runScriptFromUri(int instanceId, String uri, AssetManager assetManager,
+            boolean canUseCodeCache, String codeCacheDir, int vfsId, NativeCallback callback);
 
-    public native void callFunction(int jsDriverId, String action, NativeCallback callback,
+    private native void callFunction(int instanceId, String action, NativeCallback callback,
             ByteBuffer buffer, int offset, int length);
 
-    public native void callFunction(int jsDriverId, String action, NativeCallback callback,
+    private native void callFunction(int instanceId, String action, NativeCallback callback,
             byte[] buffer, int offset, int length);
 
-    public native void onResourceReady(int jsDriverId, ByteBuffer output, long resId);
-
+    private native void onResourceReady(int instanceId, ByteBuffer output, long resId);
 }
