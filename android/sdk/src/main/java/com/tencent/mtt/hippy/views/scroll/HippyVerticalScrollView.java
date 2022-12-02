@@ -512,6 +512,7 @@ public class HippyVerticalScrollView extends NestedScrollView implements HippyVi
      */
     removeCallbacks(mComputeScrollRunnable);
     removeCallbacks(mDoPageScrollRunnable);
-
+    // a hacky way to abort animated scroll
+    smoothScrollBy(0, 0);
   }
 }
