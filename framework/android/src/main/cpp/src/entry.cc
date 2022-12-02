@@ -20,8 +20,6 @@
  *
  */
 
-#include "jni/entry.h"
-
 #include <sys/stat.h>
 
 #include <any>
@@ -52,21 +50,6 @@
 namespace hippy {
 inline namespace framework {
 inline namespace bridge {
-
-REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cpp)
-                    "setNativeLogHandler",
-                    "(Lcom/tencent/mtt/hippy/adapter/HippyLogAdapter;)V",
-                    setNativeLogHandler)
-
-REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err58-cpp)
-             "onCreateVfs",
-             "(Lcom/tencent/vfs/VfsManager;)I",
-             OnCreateVfs)
-
-REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err58-cpp)
-             "onDestroyVfs",
-             "(I)V",
-             OnDestroyVfs)
 
 using string_view = footstone::stringview::string_view;
 using TaskRunner = footstone::runner::TaskRunner;
@@ -144,6 +127,21 @@ void OnDestroyVfs(__unused JNIEnv* j_env, __unused jobject j_object, jint j_id) 
   bool flag = hippy::global_data_holder.Erase(id);
   FOOTSTONE_DCHECK(flag);
 }
+
+REGISTER_STATIC_JNI("com/tencent/mtt/hippy/HippyEngine", // NOLINT(cert-err58-cpp)
+                    "setNativeLogHandler",
+                    "(Lcom/tencent/mtt/hippy/adapter/HippyLogAdapter;)V",
+                    setNativeLogHandler)
+
+REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err58-cpp)
+             "onCreateVfs",
+             "(Lcom/tencent/vfs/VfsManager;)I",
+             OnCreateVfs)
+
+REGISTER_JNI("com/tencent/mtt/hippy/HippyEngineManagerImpl", // NOLINT(cert-err58-cpp)
+             "onDestroyVfs",
+             "(I)V",
+             OnDestroyVfs)
 
 } // namespace bridge
 } // namespace framework

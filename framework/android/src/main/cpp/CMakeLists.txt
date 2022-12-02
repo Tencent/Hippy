@@ -83,7 +83,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC native_renderer_connector)
 
 # region source set
 set(SOURCE_SET
-    src/jni/entry.cc)
+    src/entry.cc)
 
 # This is a top-level shared library,
 # so the source code visibility is always PRIVATE
