@@ -234,7 +234,7 @@ jobs:
       id: release_package
       working-directory: ./v8
       run: |
-        echo "::set-output name=head_full::$(git rev-parse HEAD)"
+        echo "head_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
         cd out
         tar -zcvf android-${{ matrix.arch }}.tgz -C artifact .
     - name: Install Requirement
@@ -298,7 +298,7 @@ jobs:
       id: release_package
       working-directory: ./v8
       run: |
-        Write-Output "::set-output name=head_full::$(git rev-parse HEAD)"
+        Write-Output "head_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
         cd out
         Compress-Archive -Path artifact\* -DestinationPath windows-${{ matrix.arch }}.zip
     - name: Install Requirement
@@ -310,7 +310,7 @@ jobs:
       env:
         local_file: ./v8/out/windows-${{ matrix.arch }}.zip
         cos_key: hippy/${{ github.event.inputs.hip_v8_root }}/v8/${{ github.event.inputs.package_tag }}/windows-${{ matrix.arch }}.zip
-        v8_head: ${{ steps.release_package.outputs.head_full
+        v8_head: ${{ steps.release_package.outputs.head_full }}
       run: ${{ env.publish_package_script }}
 
   macos_prebuilt:
@@ -359,7 +359,7 @@ jobs:
       id: release_package
       working-directory: ./v8
       run: |
-        echo "::set-output name=head_full::$(git rev-parse HEAD)"
+        echo "head_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
         cd out
         tar -zcvf macos-${{ matrix.arch }}.tgz -C artifact .
     - name: Install Requirement
@@ -421,7 +421,7 @@ jobs:
       id: release_package
       working-directory: ./v8
       run: |
-        echo "::set-output name=head_full::$(git rev-parse HEAD)"
+        echo "head_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
         cd out
         tar -zcvf linux-${{ matrix.arch }}.tgz -C artifact .
     - name: Install Requirement
@@ -493,7 +493,7 @@ jobs:
       id: release_package
       working-directory: ./v8
       run: |
-        echo "::set-output name=head_full::$(git rev-parse HEAD)"
+        echo "head_full=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
         cd out
         tar -zcvf ios-${{ matrix.arch }}.tgz -C artifact .
     - name: Install Requirement

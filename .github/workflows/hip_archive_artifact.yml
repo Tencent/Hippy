@@ -57,7 +57,7 @@ jobs:
         git clone ${{ github.event.inputs.source_url }} artifact
         pushd artifact
         git checkout ${{ github.event.inputs.git_revision }}
-        echo "::set-output name=git-head::$(git rev-parse HEAD)"
+        echo "git-head=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
         rm -rf .git
         popd
         tar -zcvf $name -C artifact .

@@ -1,0 +1,27 @@
+{
+  "name": "@hippy/hippy-vue-next-style-parser",
+  "version": "unspecified",
+  "description": "A css subset parser for hippy-vue-next",
+  "author": "OpenHippy Team",
+  "homepage": "https://hippyjs.org",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "keywords": [
+    "hippy",
+    "style",
+    "parser"
+  ],
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "README.md"
+  ],
+  "repository": "https://github.com/Tencent/Hippy",
+  "bugs": {
+    "url": "https://github.com/Tencent/Hippy/issues"
+  },
+  "dependencies": {
+    "@vue/shared": "^3.2.21"
+  },
+  "entry": "./src/index.ts"
+}

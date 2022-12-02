@@ -76,6 +76,11 @@ REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err5
              "(JLjava/lang/String;)V",
              RunScript)
 
+REGISTER_JNI("com/tencent/mtt/hippy/bridge/HippyBridgeImpl", // NOLINT(cert-err58-cpp)
+             "runInJsThread",
+             "(JLcom/tencent/mtt/hippy/common/Callback;)V",
+             RunInJsThread)
+
 using unicode_string_view = tdf::base::unicode_string_view;
 using u8string = unicode_string_view::u8string;
 using RegisterMap = hippy::base::RegisterMap;
@@ -87,6 +92,13 @@ using V8VM = hippy::napi::V8VM;
 using V8VMInitParam = hippy::napi::V8VMInitParam;
 #ifndef V8_WITHOUT_INSPECTOR
 using V8InspectorClientImpl = hippy::inspector::V8InspectorClientImpl;
+#endif
+
+#ifndef DEFAULT_INITIAL_HEAP_SIZE_IN_BYTES
+#define DEFAULT_INITIAL_HEAP_SIZE_IN_BYTES 0
+#endif
+#ifndef DEFAULT_MAX_HEAP_SIZE_IN_BYTES
+#define DEFAULT_MAX_HEAP_SIZE_IN_BYTES (10 * hippy::base::MB);
 #endif
 
 constexpr char kLogTag[] = "native";
@@ -442,8 +454,13 @@ jlong InitInstance(JNIEnv* j_env,
       isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(kReuseRuntimeId));
     }
     isolate->AddMessageListener(HandleUncaughtJsError);
+    auto runtime = Runtime::Find(runtime_id);
+    auto interrupt_queue = std::make_shared<hippy::InterruptQueue>(isolate);
+    interrupt_queue->SetTaskRunner(runtime->GetEngine()->GetJSRunner());
+    runtime->SetInterruptQueue(interrupt_queue);
+    auto& map = InterruptQueue::GetPersistentMap();
+    map.Insert(interrupt_queue->GetId(), interrupt_queue);
 #ifndef V8_WITHOUT_INSPECTOR
-    std::shared_ptr<Runtime> runtime = Runtime::Find(runtime_id);
     if (runtime->IsDebug()) {
       auto inspector = std::make_shared<V8InspectorClientImpl>(runtime->GetEngine()->GetJSRunner());
       runtime->GetEngine()->SetInspectorClient(inspector);
@@ -506,19 +523,39 @@ jlong InitInstance(JNIEnv* j_env,
       std::make_pair(hippy::base::KScopeInitializedCBKey, scope_cb));
 
   std::shared_ptr<V8VMInitParam> param;
-  if (j_vm_init_param) {
-    param = std::make_shared<V8VMInitParam>();
-    jclass cls = j_env->GetObjectClass(j_vm_init_param);
-    jfieldID init_field = j_env->GetFieldID(cls,"initialHeapSize","J");
-    param->initial_heap_size_in_bytes =
-        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
-                                                                             init_field));
-    jfieldID max_field = j_env->GetFieldID(cls,"maximumHeapSize","J");
-    param->maximum_heap_size_in_bytes =
-        hippy::base::checked_numeric_cast<jlong, size_t>(j_env->GetLongField(j_vm_init_param,
-                                                                             max_field));
-    TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
-  }
+  do {
+    if (j_vm_init_param) {
+      jclass cls = j_env->GetObjectClass(j_vm_init_param);
+      jfieldID init_field = j_env->GetFieldID(cls, "initialHeapSize", "J");
+      auto initial_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, init_field);
+      if (initial_heap_size_in_bytes < 0) {
+        break;
+      }
+      jfieldID max_field = j_env->GetFieldID(cls, "maximumHeapSize", "J");
+      auto maximum_heap_size_in_bytes = j_env->GetLongField(j_vm_init_param, max_field);
+      if (maximum_heap_size_in_bytes < 0) {
+        break;
+      }
+      param = std::make_shared<V8VMInitParam>();
+      param->initial_heap_size_in_bytes =
+              hippy::base::checked_numeric_cast<jlong, size_t>(initial_heap_size_in_bytes);
+      param->maximum_heap_size_in_bytes =
+              hippy::base::checked_numeric_cast<jlong, size_t>(maximum_heap_size_in_bytes);
+      TDF_BASE_CHECK(param->initial_heap_size_in_bytes <= param->maximum_heap_size_in_bytes);
+#ifndef V8_WITHOUT_INSPECTOR
+    } else if (!runtime->IsDebug()) {
+      // When V8 inspector enable the js debugger, `near_heap_limit_callback` will be overridden,
+      // so if in debug mode, should not set heap limit via `V8VMInitParam`
+#else
+    } else {
+#endif
+      param = std::make_shared<V8VMInitParam>();
+      param->initial_heap_size_in_bytes = DEFAULT_INITIAL_HEAP_SIZE_IN_BYTES;
+      param->maximum_heap_size_in_bytes = DEFAULT_MAX_HEAP_SIZE_IN_BYTES;
+      param->near_heap_limit_callback = V8VMInitParam::HeapLimitSlowGrowthStrategy;
+    }
+  } while (false);
+
   std::shared_ptr<Engine> engine;
   if (j_is_dev_module) {
     std::lock_guard<std::mutex> lock(engine_mutex);
@@ -534,8 +571,8 @@ jlong InitInstance(JNIEnv* j_env,
       isolate->SetData(kRuntimeSlotIndex, reinterpret_cast<void*>(runtime_id));
     } else {
       engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
-      runtime->SetEngine(engine);
       reuse_engine_map[group] = std::make_pair(engine, 1);
+      runtime->SetEngine(engine);
     }
   } else if (group != kDefaultEngineId) {
     std::lock_guard<std::mutex> lock(engine_mutex);
@@ -558,8 +595,7 @@ jlong InitInstance(JNIEnv* j_env,
     engine = std::make_shared<Engine>(std::move(engine_cb_map), param);
     runtime->SetEngine(engine);
   }
-  runtime->SetScope(
-      runtime->GetEngine()->CreateScope("", std::move(scope_cb_map)));
+  runtime->SetScope(engine->CreateScope("", std::move(scope_cb_map)));
   TDF_BASE_DLOG(INFO) << "group = " << group;
   runtime->SetGroupId(group);
   TDF_BASE_LOG(INFO) << "InitInstance end, runtime_id = " << runtime_id;
@@ -632,6 +668,28 @@ void DestroyInstance(__unused JNIEnv* j_env,
     }
   }
   TDF_BASE_DLOG(INFO) << "destroy end";
+}
+
+void RunInJsThread(JNIEnv *j_env,
+                   jobject j_object,
+                   jlong j_runtime_id,
+                   jobject j_callback) {
+  auto runtime = Runtime::Find(hippy::base::checked_numeric_cast<jlong, int32_t>(j_runtime_id));
+  TDF_BASE_CHECK(runtime);
+  auto cb = std::make_shared<JavaRef>(j_env, j_callback);
+  auto task_runner = runtime->GetEngine()->GetJSRunner();
+  TDF_BASE_CHECK(task_runner);
+  auto task = std::make_unique<JavaScriptTask>();
+  task->callback = [cb]() {
+    auto j_env = JNIEnvironment::GetInstance()->AttachCurrentThread();
+    auto j_callback = cb->GetObj();
+    auto j_cb_class = j_env->GetObjectClass(j_callback);
+    auto j_cb_method_id = j_env->GetMethodID(j_cb_class, "callback",
+                                             "(Ljava/lang/Object;Ljava/lang/Throwable;)V");
+    j_env->CallVoidMethod(j_callback, j_cb_method_id, nullptr, nullptr);
+    JNIEnvironment::ClearJEnvException(j_env);
+  };
+  task_runner->PostTask(std::move(task));
 }
 
 }  // namespace bridge

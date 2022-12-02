@@ -7,7 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const pkg = require('../package.json');
 
 let cssLoader = '@hippy/vue-css-loader';
-const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/index.js');
+const hippyVueCssLoaderPath = path.resolve(__dirname, '../../../packages/hippy-vue-css-loader/dist/css-loader.js');
 if (fs.existsSync(hippyVueCssLoaderPath)) {
   console.warn(`* Using the @hippy/vue-css-loader in ${hippyVueCssLoaderPath}`);
   cssLoader = hippyVueCssLoaderPath;
@@ -29,29 +29,21 @@ if (fs.existsSync(hippyVueLoaderPath)) {
 const platform = 'web';
 module.exports = {
   mode: 'development',
-  devtool: 'eval-source-map',
-  watch: true,
-  watchOptions: {
-    aggregateTimeout: 1500,
-  },
+  bail: true,
   devServer: {
     port: 3000,
     hot: true,
     liveReload: true,
-    client: {
-      overlay: false,
-    },
-    devMiddleware: {
-      writeToDisk: true,
-    },
   },
+  devtool: 'source-map',
   entry: {
     index: ['regenerator-runtime', path.resolve(pkg.webMain)],
   },
   output: {
+    // filename: `[name].${platform}.js`,
     filename: 'index.bundle.js',
-    strictModuleExceptionHandling: true,
     path: path.resolve(`./dist/${platform}/`),
+    strictModuleExceptionHandling: true,
     globalObject: '(0, eval)("this")',
   },
   plugins: [
@@ -62,12 +54,8 @@ module.exports = {
       template: path.resolve('./public/web-renderer.html'),
     }),
     new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: JSON.stringify('development'),
-        HOST: JSON.stringify(process.env.DEV_HOST || '127.0.0.1'),
-        PORT: JSON.stringify(process.env.DEV_PORT || 3000),
-      },
-      __PLATFORM__: null,
+      'process.env.NODE_ENV': JSON.stringify('development'),
+      __PLATFORM__: JSON.stringify(platform),
     }),
     new HippyDynamicImportPlugin(),
     new CleanWebpackPlugin(),
@@ -77,7 +65,15 @@ module.exports = {
       {
         test: /\.vue$/,
         use: [
-          vueLoader,
+          {
+            loader: vueLoader,
+            options: {
+              compilerOptions: {
+                // whitespace handler, default is 'preserve'
+                whitespace: 'condense',
+              },
+            },
+          },
           'scope-loader',
         ],
       },

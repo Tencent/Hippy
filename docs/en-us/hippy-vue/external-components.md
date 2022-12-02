@@ -236,6 +236,10 @@ Dropdown refresh component, nested in `ul` as first child element
 >
 >* time: number: specify how much delay collapsing the pull-header, the unit is ms.
 
+### expandPullHeader
+
+`() => void` Expand the refresh bar `<pull-header>`. When the refresh ends, you need to actively call `collapsePullHeader` to put away the pull-header.
+
 ---
 
 # pull-footer
@@ -276,7 +280,7 @@ Waterfall flow component, the child element must be `waterfall-item`, waterfall 
 | columnSpacing     | Horizontal spacing before each column of waterfall                                      | `number`   | `Android、iOS`    |
 | interItemSpacing  | Vertical space between items                                        | `number`   | `Android、iOS`    |
 | contentInset      | Content indentation, default `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`    |
-| containBannerView | Whether to include `bannerView`, there can be only one bannerView, `Android` is not supported  | `boolean`  | `iOS`    |
+| containBannerView | Whether to include `bannerView`, there can be only one bannerView, `Android` support after version `2.15.0`  | `boolean`  | `Android、iOS`    |
 | containPullHeader | Whether to include `pull-header`; `Android` is not supported, can use `ul-refresh` component instead  | `boolean`  | `iOS`    |
 | containPullFooter | Whether to include `pull-footer` | `boolean`  | `Android、iOS` |
 | numberOfColumns   | Number of waterfall columns, Default: 2                                               | `number`   | `Android、iOS`    |

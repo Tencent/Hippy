@@ -87,8 +87,7 @@ export default {
   },
 };
 </script>
-
-<style scoped>
+<style>
   #root {
     flex: 1;
     background-color: white;
@@ -131,21 +130,6 @@ export default {
   }
   .fullscreen {
     flex: 1;
-  }
-  .toolbar {
-    display: flex;
-    height: 40px;
-    flex-direction: row;
-  }
-  .toolbar .toolbar-btn {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
-    margin: 3px;
-    border-style: solid;
-    border-color: blue;
-    border-width: 1px;
   }
   .row {
     flex-direction: row;
@@ -215,11 +199,6 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-  }
-  .bottom-tab:not(:last-child) {
-    border-right-width: 1px;
-    border-right-color: #eee;
-    border-style: solid;
   }
   .bottom-tab.activated .bottom-tab-text {
     color: #4c9afa;

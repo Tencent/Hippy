@@ -14,7 +14,7 @@
         ref="gridView"
         :content-inset="contentInset"
         :column-spacing="columnSpacing"
-        :contain-banner-view="isIos"
+        :contain-banner-view="true"
         :contain-pull-footer="true"
         :inter-item-spacing="interItemSpacing"
         :number-of-columns="numberOfColumns"
@@ -24,9 +24,7 @@
         @scroll="onScroll"
       >
         <div
-          v-if="isIos"
           class="banner-view"
-          :type="1"
         >
           <span>BannerView</span>
         </div>
@@ -35,7 +33,7 @@
           :key="index"
           :style="{width: itemWidth}"
           :type="ui.style"
-          @click="() => onItemClick(index)"
+          @click.stop="() => onItemClick(index)"
         >
           <style-one
             v-if="ui.style === 1"
@@ -77,7 +75,6 @@ export default {
       STYLE_LOADING,
       loadingState: '正在加载...',
       isLoading: false,
-      isIos: Vue.Native.Platform === 'ios',
     };
   },
   computed: {
@@ -179,69 +176,69 @@ export default {
   align-items: center;
 }
 
-#demo-waterfall .list-view-item {
-  background-color: #eeeeee;
-}
-
-#demo-waterfall .article-title {
-  font-size: 12px;
-  line-height: 16px;
-  color: #242424;
-}
-
-#demo-waterfall .normal-text {
-  font-size: 10px;
-  color: #aaa;
-  align-self: center;
-}
-
-#demo-waterfall .image {
-  flex: 1;
-  height: 120px;
-  resize: both;
-}
-
-#demo-waterfall .style-one-image-container {
-  flex-direction: row;
-  justify-content: center;
-  margin-top: 8px;
-  flex: 1;
-}
-
-#demo-waterfall .style-one-image {
-  height: 60px;
-}
-
-#demo-waterfall .style-two {
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-#demo-waterfall .style-two-left-container {
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  margin-right: 8px;
-}
-
-#demo-waterfall .style-two-image-container {
-  flex: 1;
-}
-
-#demo-waterfall .style-two-image {
-  height: 80px;
-}
-
-#demo-waterfall .refresh {
-  background-color: #40b883;
-}
-
 #demo-waterfall .pull-footer {
   flex: 1;
   height: 40px;
   background-color: #40b883;
   justify-content: center;
   align-items: center;
+}
+
+#demo-waterfall >>> .list-view-item {
+  background-color: #eeeeee;
+}
+
+#demo-waterfall >>> .article-title {
+  font-size: 12px;
+  line-height: 16px;
+  color: #242424;
+}
+
+#demo-waterfall >>> .normal-text {
+  font-size: 10px;
+  color: #aaa;
+  align-self: center;
+}
+
+#demo-waterfall >>> .image {
+  flex: 1;
+  height: 120px;
+  resize: both;
+}
+
+#demo-waterfall >>> .style-one-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
+
+#demo-waterfall >>> .style-one-image {
+  height: 60px;
+}
+
+#demo-waterfall >>> .style-two {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#demo-waterfall >>> .style-two-left-container {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+#demo-waterfall >>> .style-two-image-container {
+  flex: 1;
+}
+
+#demo-waterfall >>> .style-two-image {
+  height: 80px;
+}
+
+#demo-waterfall >>> .refresh {
+  background-color: #40b883;
 }
 
 </style>

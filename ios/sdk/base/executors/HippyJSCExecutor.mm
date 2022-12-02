@@ -95,6 +95,8 @@ static bool defaultDynamicLoadAction(const unicode_string_view& uri, std::functi
         [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
             if (error) {
                 HippyLogInfo(@"[Hippy_OC_Log][Dynamic_Load], error:%@", [error description]);
+                u8string content(reinterpret_cast<const unicode_string_view::char8_t_*>(""));
+                cb(content);
             }
             else {
                 NSString *result = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -170,18 +172,6 @@ HIPPY_EXPORT_MODULE()
 - (void)initURILoader {
     std::shared_ptr<IOSLoader> loader = std::make_shared<IOSLoader>(loadFunc, (__bridge void *)_bridge);
     self.pScope->SetUriLoader(loader);
-}
-
-static std::u16string NSStringToU16(NSString* str) {
-  if (!str) {
-    return u"";
-  }
-  unsigned long len = str.length;
-  std::u16string ret;
-  ret.resize(len);
-  unichar *p = reinterpret_cast<unichar*>(const_cast<char16_t*>(&ret[0]));
-  [str getCharacters:p range:NSRange{0, len}];
-  return ret;
 }
 
 static unicode_string_view NSStringToU8(NSString* str) {

@@ -28,6 +28,7 @@ let currentNodeId = 0;
 if (global.__GLOBAL__ && Number.isInteger(global.__GLOBAL__.nodeId)) {
   currentNodeId = global.__GLOBAL__.nodeId;
 }
+
 function getNodeId() {
   currentNodeId += 1;
   if (currentNodeId % 10 === 0) {
@@ -47,7 +48,7 @@ class ViewNode {
     this._meta = null;
     // Will change to be true after insert into Native dom.
     this._isMounted = false;
-    // Virtual DOM node id, will used in native to identify.
+    // Virtual DOM node id, will be used in native to identify.
     this.nodeId = getNodeId();
     // Index number in children, will update at traverseChildren method.
     this.index = 0;
@@ -68,9 +69,8 @@ class ViewNode {
   }
 
   get lastChild() {
-    return this.childNodes.length
-      ? this.childNodes[this.childNodes.length - 1]
-      : null;
+    const len = this.childNodes.length;
+    return len ? this.childNodes[len - 1] : null;
   }
 
   get meta() {
@@ -102,7 +102,6 @@ class ViewNode {
   }
 
   set isMounted(isMounted) {
-    // TODO: Maybe need validation, maybe not.
     this._isMounted = isMounted;
   }
 
@@ -182,6 +181,8 @@ class ViewNode {
     if (childNode.parentNode && childNode.parentNode !== this) {
       throw new Error('Can\'t append child, because it already has a different parent.');
     }
+    // if childNode is the same as the last child, skip appending
+    if (this.lastChild === childNode) return;
     // remove childNode if exist
     if (childNode.isMounted) {
       this.removeChild(childNode);

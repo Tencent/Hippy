@@ -50,7 +50,7 @@ function removeListener(event, callback) {
   // remove specific listener for this event
   const eventInfo = globalEventListeners[event];
   if (!eventInfo) {
-    return warn(`Event [${event}] has not been registered yet in HippyEvent`);
+    return warn(`Event [${event}] has not been registered yet in EventBus`);
   }
   const { eventListener, eventMap } = eventInfo;
   // remove all listeners for this event
@@ -73,10 +73,10 @@ function removeListener(event, callback) {
   }
 }
 
-const HippyEvent = {
+const EventBus = {
   on: (events: string | string[] | undefined, callback: (data?: any) => void, context?: any) => {
     if ((typeof events !== 'string' && !Array.isArray(events)) || typeof callback !== 'function') {
-      throw new TypeError('Invalid arguments for HippyEvent.on()');
+      throw new TypeError('Invalid arguments for EventBus.on()');
     }
     if (Array.isArray(events)) {
       events.forEach((event) => {
@@ -85,11 +85,11 @@ const HippyEvent = {
     } else {
       addListener(events, callback, context);
     }
-    return HippyEvent;
+    return EventBus;
   },
   off: (events: string | string[] | undefined, callback?: (data?: any) => void) => {
     if (typeof events !== 'string' && !Array.isArray(events)) {
-      throw new TypeError('The event argument is not string or array for HippyEvent.off()');
+      throw new TypeError('The event argument is not string or array for EventBus.off()');
     }
     if (Array.isArray(events)) {
       events.forEach((event) => {
@@ -98,11 +98,11 @@ const HippyEvent = {
     } else {
       removeListener(events, callback);
     }
-    return HippyEvent;
+    return EventBus;
   },
   sizeOf(event: string | undefined) {
     if (typeof event !== 'string') {
-      throw new TypeError('The event argument is not string for HippyEvent.sizeOf()');
+      throw new TypeError('The event argument is not string for EventBus.sizeOf()');
     }
     const eventInfo = globalEventListeners[event];
     if (eventInfo?.eventMap) {
@@ -112,16 +112,16 @@ const HippyEvent = {
   },
   emit(event: string | undefined, ...param: any) {
     if (typeof event !== 'string') {
-      throw new TypeError('The event argument is not string for HippyEvent.emit()');
+      throw new TypeError('The event argument is not string for EventBus.emit()');
     }
     const eventHub = EventDispatcher.getHippyEventHub(event);
     if (!eventHub) {
-      warn(`Event [${event}] has not been registered yet in HippyEvent`);
-      return HippyEvent;
+      warn(`Event [${event}] has not been registered yet in EventBus`);
+      return EventBus;
     }
     eventHub.notifyEvent(...param);
-    return HippyEvent;
+    return EventBus;
   },
 };
 
-export default HippyEvent;
+export default EventBus;

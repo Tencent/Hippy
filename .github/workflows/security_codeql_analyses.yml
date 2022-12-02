@@ -29,16 +29,18 @@ jobs:
     steps:
     - name: Detect Languages
       id: detect_languages
-      uses: actions/github-script@v6.1.0
+      uses: actions/github-script@v6.3.3
       with:
         script: |
           const { owner, repo } = context.repo;
           const { pull_request } = context.payload;
           const { pulls } = github.rest;
           const path = require('path');
+          const fs = require('fs');
+          const os = require('os');
 
           if (pull_request === undefined) { // Push
-            console.log("::set-output name=language::${{ matrix.language }}");
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `language=${{ matrix.language }}${os.EOL}`, { encoding: 'utf8' });
             return;
           }
 
@@ -52,10 +54,11 @@ jobs:
           const all_exts = Object.values(languages).flat();
           const cur_exts = languages["${{ matrix.language }}"];
 
+          let match_all = false;
           let has_hit = false;
 
           try {
-            await github.paginate(pulls.listFiles, {
+            const count = (await github.paginate(pulls.listFiles, {
               owner,
               repo,
               per_page: 100,
@@ -64,22 +67,28 @@ jobs:
               for (const { filename } of files) {
                 const ext = path.extname(filename);
                 if (cur_exts.includes(ext)) {
-                  console.log("::set-output name=language::${{ matrix.language }}");
+                  has_hit = true;
                   done();
+                  break;
                 } else {
-                  has_hit |= all_exts.includes(ext);
+                  match_all |= all_exts.includes(ext);
                 }
-                return [];
               }
-            });
+              return [files.length];
+            })).reduce((a, b) => a + b, 0);
+
+            if (count === 3_000) { // The paginated response include a maximum of 3000 files
+              has_hit = true;
+            }
           } catch (e) {
             console.error(e);
-            console.log("::set-output name=language::${{ matrix.language }}"); // Fallback to all language
-            return;
+            has_hit = true;
           }
 
-          if (!has_hit && "${{ matrix.language }}" === "typescript") { // Default Run
-            console.log("::set-output name=default-run::1");
+          if (has_hit) {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `language=${{ matrix.language }}${os.EOL}`, { encoding: 'utf8' });
+          } else if (!match_all && "${{ matrix.language }}" === "typescript") { // Default Run
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `default-run=1${os.EOL}`, { encoding: 'utf8' });
           }
     - name: Checkout
       if: steps.detect_languages.outputs.language
@@ -101,11 +110,11 @@ jobs:
       env:
         skipCmakeAndNinja: 1
       run: |
-        ./gradlew example::assembleDebug
+        ./gradlew assembleDebug
     - name: Build C++
       if: steps.detect_languages.outputs.language == 'cpp'
       run: |
-        ./gradlew android-sdk::buildCMakeRelease
+        ./gradlew buildCMakeDebug -PINCLUDE_ABI_X86=true -PINCLUDE_ABI_X86_64=true
     - name: Perform CodeQL Analysis
       if: steps.detect_languages.outputs.language
       uses: github/codeql-action/analyze@v2

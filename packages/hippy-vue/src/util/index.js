@@ -34,7 +34,7 @@ let _Vue;
  * Style pre-process hook
  *
  * Use for hack the style processing, update the property
- * or value mannuly.
+ * or value manually.
  *
  * @param {Object} decl - Style declaration.
  * @param {string} decl.property - Style property name.
@@ -232,6 +232,25 @@ function isEmpty(any) {
   return Object.keys(any).length === 0;
 }
 
+function isNullOrUndefined(value) {
+  return typeof value === 'undefined' || value === null;
+}
+
+function isScopedEnabled() {
+  return !!(_Vue && _Vue.config.scoped);
+}
+
+function whitespaceFilter(str) {
+  if (typeof str !== 'string') return str;
+  // Adjusts template whitespace handling behavior.
+  // "trimWhitespace": default behavior is true.
+  // It will trim leading / ending whitespace including all special unicode such as \xA0(&nbsp;).
+  if (!_Vue || typeof _Vue.config.trimWhitespace === 'undefined' || _Vue.config.trimWhitespace) {
+    return str.trim().replace(/Â/g, ' ');
+  }
+  return str.replace(/Â/g, ' ');
+}
+
 export {
   VUE_VERSION,
   HIPPY_VUE_VERSION,
@@ -244,8 +263,10 @@ export {
   setBeforeLoadStyle,
   getBeforeLoadStyle,
   trace,
-  isTraceEnabled,
   warn,
+  isTraceEnabled,
+  isScopedEnabled,
+  isNullOrUndefined,
   capitalizeFirstLetter,
   tryConvertNumber,
   unicodeToChar,
@@ -255,4 +276,5 @@ export {
   endsWith,
   convertImageLocalPath,
   deepCopy,
+  whitespaceFilter,
 };

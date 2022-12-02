@@ -132,10 +132,9 @@ A few npm scripts with `hippy:` are provided in [package.json](//github.com/Tenc
 
 ```json
   "scripts": {
-    "hippy:debug": "hippy-debug",
-    "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev --config ./scripts/hippy-webpack.dev.js",
-    "hippy:vendor": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
-    "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
+    "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev --config ./scripts/hippy-webpack.dev.js",
+    "hippy:vendor": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
+    "hippy:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   }
 ```
 
@@ -298,10 +297,9 @@ A few npm scripts with `hippy:` are provided in [package.json](//github.com/Tenc
 
 ```json
   "scripts": {
-    "hippy:debug": "hippy-debug",
-    "hippy:dev": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider hippy-dev --config ./scripts/hippy-webpack.dev.js",
-    "hippy:vendor": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
-    "hippy:build": "cross-env-os os=\"Windows_NT,Linux\" minVersion=17 NODE_OPTIONS=--openssl-legacy-provider webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
+    "hippy:dev": "node ./scripts/env-polyfill.js hippy-dev --config ./scripts/hippy-webpack.dev.js",
+    "hippy:vendor": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios-vendor.js --config ./scripts/hippy-webpack.android-vendor.js",
+    "hippy:build": "node ./scripts/env-polyfill.js webpack --config ./scripts/hippy-webpack.ios.js --config ./scripts/hippy-webpack.android.js"
   },
 ```
 

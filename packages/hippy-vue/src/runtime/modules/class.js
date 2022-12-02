@@ -46,6 +46,32 @@ function updateClass(oldVNode, vNode) {
   }
 }
 
+export function setClass(vNode, customElem, options = {}) {
+  if (!vNode || !vNode.data) {
+    return;
+  }
+  const { data } = vNode;
+  if (!data.staticClass && !data.class) {
+    return;
+  }
+  let { elm } = vNode;
+  if (customElem) {
+    elm = customElem;
+  }
+  if (!elm) return;
+  let cls = genClassForVnode(vNode);
+  // handle transition classes
+  const transitionClass = elm._transitionClasses;
+  if (transitionClass) {
+    cls = concat(cls, stringifyClass(transitionClass));
+  }
+  // set the class
+  if (cls !== elm._prevClass) {
+    elm.setAttribute('class', cls, { notToNative: !!options.notToNative });
+    elm._prevClass = cls;
+  }
+}
+
 export default {
   create: updateClass,
   update: updateClass,

@@ -221,8 +221,8 @@ public class HippyTextView extends View implements CommonBorder, HippyViewBase, 
   }
 
   protected void setTextColor(int textColor) {
-    if (mLayout != null && mLayout.getText() instanceof SpannableStringBuilder) {
-      SpannableStringBuilder textSpan = (SpannableStringBuilder) mLayout.getText();
+    if (mLayout != null && mLayout.getText() instanceof Spannable) {
+      Spannable textSpan = (Spannable) mLayout.getText();
       HippyForegroundColorSpan[] spans = textSpan
         .getSpans(0, mLayout.getText().length(), HippyForegroundColorSpan.class);
       boolean hasSpans = false;

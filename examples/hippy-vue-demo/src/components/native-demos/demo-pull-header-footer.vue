@@ -1,5 +1,8 @@
 <template>
-  <div id="demo-pull-header-footer">
+  <div
+    id="demo-pull-header-footer"
+    specital-attr="pull-header-footer"
+  >
     <div class="toolbar">
       <button
         class="toolbar-btn"
@@ -21,6 +24,7 @@
       id="list"
       ref="list"
       :numberOfRows="dataSource.length"
+      :rowShouldSticky="true"
       @scroll="onScroll"
     >
       /**
@@ -47,6 +51,7 @@
         :key="index"
         class="item-style"
         :type="'row-' + ui.style"
+        :sticky="index === 0"
       >
         <style-one
           v-if="ui.style === 1"
@@ -217,20 +222,6 @@ export default {
   padding: 12px;
 }
 
-#demo-pull-header-footer #loading {
-  font-size: 11px;
-  color: #aaa;
-  align-self: center;
-  height: 30px;
-  line-height: 30px;
-}
-
-#demo-pull-header-footer #toolbar {
-  display: flex;
-  height: 40px;
-  flex-direction: row;
-}
-
 #demo-pull-header-footer .ul-refresh {
   background-color: #40b883;
 }
@@ -258,62 +249,6 @@ export default {
   background-color: white;
 }
 
-#demo-pull-header-footer .article-title {
-  font-size: 17px;
-  line-height: 24px;
-  color: #242424;
-}
-
-#demo-pull-header-footer .normal-text {
-  font-size: 11px;
-  color: #aaa;
-  align-self: center;
-}
-
-#demo-pull-header-footer .image {
-  flex: 1;
-  height: 160px;
-  resize-mode: cover;
-}
-
-#demo-pull-header-footer .style-one-image-container {
-  flex-direction: row;
-  justify-content: center;
-  margin-top: 8px;
-  flex: 1;
-}
-
-#demo-pull-header-footer .style-one-image {
-  height: 120px;
-}
-
-#demo-pull-header-footer .style-two {
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-#demo-pull-header-footer .style-two-left-container {
-  flex: 1;
-  flex-direction: column;
-  justify-content: center;
-  margin-right: 8px;
-}
-
-#demo-pull-header-footer .style-two-image-container {
-  flex: 1;
-}
-
-#demo-pull-header-footer .style-two-image {
-  height: 140px;
-}
-
-#demo-pull-header-footer .style-five-image-container {
-  flex-direction: row;
-  justify-content: center;
-  margin-top: 8px;
-  flex: 1;
-}
-
 #demo-pull-header-footer .item-style {
   background-color: white;
   padding-top: 12px;
@@ -321,6 +256,62 @@ export default {
   border-bottom-width: 1px;
   border-bottom-color: #e5e5e5;
   border-style: solid;
+}
+
+[specital-attr='pull-header-footer'] >>> .article-title {
+  font-size: 17px;
+  line-height: 24px;
+  color: #242424;
+}
+
+[specital-attr='pull-header-footer'] >>> .normal-text {
+  font-size: 11px;
+  color: #aaa;
+  align-self: center;
+}
+
+[specital-attr='pull-header-footer'] >>> .image {
+  flex: 1;
+  height: 160px;
+  resize-mode: cover;
+}
+
+[specital-attr='pull-header-footer'] >>> .style-one-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
+}
+
+[specital-attr='pull-header-footer'] >>> .style-one-image {
+  height: 120px;
+}
+
+[specital-attr='pull-header-footer'] >>> .style-two {
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+[specital-attr='pull-header-footer'] >>> .style-two-left-container {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+[specital-attr='pull-header-footer'] >>> .style-two-image-container {
+  flex: 1;
+}
+
+[specital-attr='pull-header-footer'] >>> .style-two-image {
+  height: 140px;
+}
+
+[specital-attr='pull-header-footer'] >>> .style-five-image-container {
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 8px;
+  flex: 1;
 }
 
 </style>

@@ -375,7 +375,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
       int index = renderState.mCurrentPosition;
       int firstItemWidth = itemWidth;
       if (mHasContainBannerView && index == 0) {
-        firstItemWidth = (getWidth() - getPaddingLeft() - getPaddingRight());
+        firstItemWidth = getWidth();
       }
       //            int currentRenderState = renderState.hasMore(state);
       View view = getNextView(recycler, renderState, state);
@@ -414,7 +414,9 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
         if (params instanceof LayoutParams) {
           int targetColumn = ((WaterFallRenderState) mRenderState).targetColumn;
           ((LayoutParams) params).mLocateAtColumn = targetColumn;
-          if (!isFooterView(view)) {
+          if (mHasContainBannerView && index == 0) {
+            setChildPadding(0, index, view, targetColumn);
+          } else if (!isFooterView(view)) {
             setChildPadding(itemGapH, index, view, targetColumn);
           }
         }
@@ -436,7 +438,7 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
               contentLayout = new ViewGroup.LayoutParams(params);
             }
             if (!mHasContainBannerView || index != 0 || !mBannerViewMatch) {
-              if (!isFooterView(view)) {
+              if (!isFooterView(view) && !(mHasContainBannerView && index == 0)) {
                 if (contentLayout.width > 0) {
                   contentLayout.width -= itemGapH;
                 }
@@ -518,8 +520,12 @@ public class HippyWaterfallLayoutManager extends BaseLayoutManager {
         } else {
           // the layout derection of waterfall will not care about
           // left-hander.
-          left = ((WaterFallRenderState) mRenderState).targetColumn * itemWidth
-            + getPaddingLeft();
+          if (mHasContainBannerView && index == 0) {
+              left = 0;
+          } else {
+              left = ((WaterFallRenderState) mRenderState).targetColumn * itemWidth
+                  + getPaddingLeft();
+          }
           right = left + mOrientationHelper.getDecoratedMeasurementInOther(view);
           if (renderState.mLayoutDirection == RenderState.LAYOUT_START) {
             // renderState.mOffset = a;

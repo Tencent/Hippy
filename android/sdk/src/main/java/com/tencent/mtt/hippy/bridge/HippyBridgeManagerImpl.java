@@ -25,6 +25,8 @@ import android.os.Message;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
+
+import com.tencent.mtt.hippy.BuildConfig;
 import com.tencent.mtt.hippy.HippyEngine;
 import com.tencent.mtt.hippy.HippyEngine.BridgeTransferType;
 import com.tencent.mtt.hippy.HippyEngine.ModuleLoadStatus;
@@ -423,7 +425,11 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         mHandler.sendMessage(message);
     }
 
-  @Override
+    public void runInJsThread(Callback<Void> callback) {
+      mHippyBridge.runInJsThread(callback);
+    }
+
+    @Override
     public void runBundle(int id, HippyBundleLoader loader, HippyEngine.ModuleListener listener,
             HippyRootView hippyRootView) {
         if (!mIsInit) {
@@ -659,6 +665,7 @@ public class HippyBridgeManagerImpl implements HippyBridgeManager, HippyBridge.B
         platformParams.pushString("VersionName", (versionName == null) ? "" : versionName);
         platformParams.pushInt("APILevel", Build.VERSION.SDK_INT);
         platformParams.pushBoolean("NightMode", getNightMode());
+        platformParams.pushString("SDKVersion", BuildConfig.LIBRARY_VERSION);
 
         HippyMap Localization = new HippyMap();
         Localization.pushString("language", I18nUtil.getLanguage());

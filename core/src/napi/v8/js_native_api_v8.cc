@@ -255,6 +255,9 @@ V8VM::V8VM(const std::shared_ptr<V8VMInitParam>& param): VM(param) {
   isolate_ = v8::Isolate::New(create_params_);
   isolate_->Enter();
   isolate_->SetCaptureStackTraceForUncaughtExceptions(true);
+  if (param && param->near_heap_limit_callback) {
+    isolate_->AddNearHeapLimitCallback(param->near_heap_limit_callback, param->near_heap_limit_callback_data);
+  }
   TDF_BASE_DLOG(INFO) << "V8VM end";
 }
 
@@ -346,7 +349,7 @@ std::shared_ptr<CtxValue> V8TryCatch::Exception() {
 
 unicode_string_view V8TryCatch::GetExceptionMsg() {
   if (!try_catch_) {
-    return unicode_string_view();
+    return {};
   }
 
   std::shared_ptr<V8Ctx> v8_ctx = std::static_pointer_cast<V8Ctx>(ctx_);
@@ -477,16 +480,7 @@ unicode_string_view V8Ctx::GetMsgDesc(v8::Local<v8::Message> message) {
   return desc;
 }
 
-unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
-  if (message.IsEmpty()) {
-    return "";
-  }
-
-  v8::HandleScope handle_scope(isolate_);
-  v8::Local<v8::Context> context = context_persistent_.Get(isolate_);
-  v8::Context::Scope context_scope(context);
-
-  v8::Local<v8::StackTrace> trace = message->GetStackTrace();
+unicode_string_view V8Ctx::GetStackTrace(v8::Local<v8::StackTrace> trace) const {
   if (trace.IsEmpty()) {
     return "";
   }
@@ -516,10 +510,16 @@ unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) {
                  << frame->GetColumn() << ":" << function_name;
   }
   std::string u8_str = stack_stream.str();
-  unicode_string_view stack_str(
-      reinterpret_cast<const uint8_t*>(u8_str.c_str()));
-  TDF_BASE_DLOG(INFO) << "stack = " << stack_str;
-  return stack_str;
+  return unicode_string_view::new_from_utf8(u8_str.c_str(), u8_str.length());
+}
+
+unicode_string_view V8Ctx::GetStackInfo(v8::Local<v8::Message> message) const {
+  if (message.IsEmpty()) {
+    return "";
+  }
+
+  auto trace = message->GetStackTrace();
+  return GetStackTrace(trace);
 }
 
 bool V8Ctx::RegisterGlobalInJs() {
@@ -1687,7 +1687,7 @@ bool V8Ctx::IsFunction(const std::shared_ptr<CtxValue>& value) {
 unicode_string_view V8Ctx::CopyFunctionName(
     const std::shared_ptr<CtxValue>& function) {
   if (!function) {
-    return unicode_string_view();
+    return {};
   }
   v8::HandleScope handle_scope(isolate_);
   v8::Local<v8::Context> context = context_persistent_.Get(isolate_);

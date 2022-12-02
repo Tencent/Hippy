@@ -38,21 +38,16 @@ extern  NSString *const HippyNetworkCellType5G;
 
 @interface HippyNetworkTypeObject : NSObject
 
-/**
- * indicate network type
- * value:HippyNetworkTypeUnknown,HippyNetworkTypeNone,HippyNetworkTypeWifi,HippyNetworkTypeCell
- */
+/// value: HippyNetworkTypeUnknown,HippyNetworkTypeNone,HippyNetworkTypeWifi,HippyNetworkTypeCell
 @property(nonatomic, readonly) NSString *networkType;
 
-/**
- * indicate cell type
- */
+/// cell type
 @property(nonatomic, readonly) NSString *cellType;
 
+/// init
 - (instancetype)initWithNetworkType:(NSString *)networkType cellType:(NSString *)cellType;
 
-- (BOOL)isEqual:(id)object;
-
+/// isEqual's imp
 - (BOOL)isEqualToNetowrkTypeObject:(HippyNetworkTypeObject *)object;
 
 @end
@@ -65,16 +60,23 @@ extern  NSString *const HippyNetworkCellType5G;
 
 @interface HippyNetInfoIntenal : NSObject
 
+/// Singleton
 + (instancetype)sharedInstance;
 
+/// Get network type
 - (HippyNetworkTypeObject *)currentNetworkType;
 
-/**
- * set an observer for network changed event.
- * return current network info immediately
- */
+/// Get cell type
+- (NSString *)currentCellType;
+
+/// Set an observer for network changed event.
+/// and return current network info immediately
+///
+/// - Parameter observer: observer
 - (HippyNetworkTypeObject *)addNetworkTypeChangeObserver:(id<HippyNetworkTypeChangedDelegate>)observer;
 
+/// Remove an observer for network changed event.
+/// - Parameter observer: observer
 - (void)removeNetworkTypeChangeObserver:(id<HippyNetworkTypeChangedDelegate>)observer;
 
 @end

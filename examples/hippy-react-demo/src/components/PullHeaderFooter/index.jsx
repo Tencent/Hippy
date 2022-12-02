@@ -363,6 +363,7 @@ export default class PullHeaderFooterExample extends React.Component {
           onHeaderPulling={this.onHeaderPulling}
           onFooterReleased={this.onEndReached}
           onFooterPulling={this.onFooterPulling}
+          rowShouldSticky={index => (index === 0)}  // 第0行 stick
         />
         {Platform.OS === 'android'
           ? <View

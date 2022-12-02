@@ -158,6 +158,10 @@ import icon from './qb_icon_new.png';
 >
 >* time: number: 可指定延迟多久后收起 PullHeader，单位ms
 
+### expandPullHeader
+
+`() => void` 展开刷新条 PullHeader。刷新结束后需要主动调用`collapsePullHeader`方法收起 PullHeader。
+
 ### collapsePullFooter
 
 > 最低支持版本 `2.14.0`
@@ -244,7 +248,7 @@ import icon from './qb_icon_new.png';
 | scrollEventThrottle            | 指定滑动事件的回调频率，传入数值指定了多少毫秒(ms)组件会调用一次 `onScroll` 回调事件。 | `number`                                                     | `Android、iOS、hippy-react-web、Web-Renderer` |
 | scrollIndicatorInsets          | 决定滚动条距离视图边缘的坐标。这个值应该和contentInset一样。 | `{ top: number, left: number, bottom: number, right: number }` | `Android、iOS`    |
 | scrollEnabled                  | 当值为 `false` 的时候，内容不能滚动。`default: true`                        | `boolean`                                                    | `Android、iOS、hippy-react-web、Web-Renderer` |
-| showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android\、hippy-react-web` |
+| showScrollIndicator            | 是否显示滚动条。 `default: false` | `boolean`  | `Android、hippy-react-web` |
 | showsHorizontalScrollIndicator | 当此值设为 `false` 的时候，`ScrollView` 会隐藏水平的滚动条。`default: true` | `boolean`                                                    | `iOS`    |
 | showsVerticalScrollIndicator   | 当此值设为 `false` 的时候，`ScrollView` 会隐藏垂直的滚动条。 `default: true` | `boolean`                                                    | `iOS`    |
 
@@ -517,7 +521,7 @@ import icon from './qb_icon_new.png';
 | interItemSpacing  | item 间的垂直间距  | `number`   | `Android、iOS`  |
 | contentInset      | 内容缩进 ，默认值 `{ top:0, left:0, bottom:0, right:0 }`  | `Object`   | `Android、iOS`   |
 | renderItem             | 这里的入参是当前 item 的 index，在这里可以凭借 index 获取到瀑布流一个具体单元格的数据，从而决定如何渲染这个单元格。 | `(index: number) => React.ReactElement`                                   | `Android、iOS`    |
-| renderBanner | 如何渲染 Banner。 | `() => React.ReactElement` |  `iOS`
+| renderBanner | 如何渲染 Banner。（`Android` 最低支持版本 `2.15.0`） | `() => React.ReactElement` |  `Android、iOS`
 | getItemStyle           | 设置`WaterfallItem`容器的样式。  | `(index: number) => styleObject`                                    | `Android、iOS`    |
 | getItemType            | 指定一个函数，在其中返回对应条目的类型（返回Number类型的自然数，默认是0），List 将对同类型条目进行复用，所以合理的类型拆分，可以很好地提升list 性能。 | `(index: number) => number`                                    | `Android、iOS`    |
 | getItemKey             | 指定一个函数，在其中返回对应条目的 Key 值，详见 [React 官文](//reactjs.org/docs/lists-and-keys.html) | `(index: number) => any`                                    | `Android、iOS`    |
@@ -561,7 +565,7 @@ WebView组件。
 | source | Webview 内嵌地址 | `{ uri: string }` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | userAgent | Webview userAgent | `string` | `Android、iOS`|
 | method     | 请求方式， `get`、`post` | `string`   | `Android、iOS`    |
-| onLoadStart  | 网页开始加载时触发 | `(object: { url:string }) => void`   | `Android、iOS、Web-Renderer`  |
-| onLoad  | 网页加载时触发  | `(object: { url:string }) => void`   | `Android、iOS、Web-Renderer`  |
-| onLoadEnd  | 网页加载结束时触发 | `(object: { url:string }) => void`   | `Android、iOS、hippy-react-web、Web-Renderer` |
+| onLoadStart  | 网页开始加载时触发 | `(object: { url: string }) => void`   | `Android、iOS、Web-Renderer`  |
+| onLoad  | 网页加载时触发  | `(object: { url: string }) => void`   | `Android、iOS、Web-Renderer`  |
+| onLoadEnd  | 网页加载结束时触发 (`success`与`error`参数仅`Android`、`iOS`上可用，最低支持版本`2.15.3`) | `(object: { url: string, success: boolean, error: string }) => void` | `Android、iOS、hippy-react-web、Web-Renderer` |
 | style  | Webview 容器样式  | `Object`   | `Android、iOS、hippy-react-web、Web-Renderer` |

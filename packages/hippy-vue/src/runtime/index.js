@@ -106,7 +106,6 @@ Vue.prototype.$mount = function $mount(el, hydrating) {
       options.staticRenderFns = staticRenderFns;
     }
   }
-
   return mountComponent(this, el, hydrating);
 };
 
@@ -131,7 +130,7 @@ Vue.prototype.$start = function $start(afterCallback, beforeCallback) {
   });
 
   // Register the entry point into Hippy
-  // The callback will be execute when Native trigger loadInstance
+  // The callback will be executed when Native trigger loadInstance
   // or runApplication event.
   HippyRegister.regist(this.$options.appName, (superProps) => {
     const { __instanceId__: rootViewId } = superProps;
@@ -261,14 +260,18 @@ if (config.devtools && devtools) {
 }
 
 // proxy Vue constructor to add Hippy Vue instance to global.__VUE_ROOT_INSTANCES__
-const ProxyedVue = new Proxy(Vue, {
+const VueProxy = new Proxy(Vue, {
   construct(Target, args) {
     const vm = new Target(...args);
     if (isDev()) {
-      if (!global.__VUE_ROOT_INSTANCES__) global.__VUE_ROOT_INSTANCES__ = [];
-      if (args && args.length && args[0].appName) global.__VUE_ROOT_INSTANCES__.push(vm);
+      if (!global.__VUE_ROOT_INSTANCES__) {
+        global.__VUE_ROOT_INSTANCES__ = [];
+      }
+      if (args && args.length && args[0].appName) {
+        global.__VUE_ROOT_INSTANCES__.push(vm);
+      }
     }
     return vm;
   },
 });
-export default ProxyedVue;
+export default VueProxy;

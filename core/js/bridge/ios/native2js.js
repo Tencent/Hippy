@@ -88,6 +88,11 @@ __fbBatchedBridge.callFunctionReturnFlushedQueue = (module, method, args) => {
       Hippy.bridge.callNative('UIManagerModule', 'startBatch');
       Hippy.bridge.callNative('UIManagerModule', 'removeRootView', rootViewId);
       Hippy.bridge.callNative('UIManagerModule', 'endBatch');
+      // compatible for hippy1.x
+      delete __GLOBAL__.nodeIdCache[rootViewId];
+      delete __GLOBAL__.nodeTreeCache[rootViewId];
+      delete __GLOBAL__.nodeParamCache[rootViewId];
+      __GLOBAL__.destroyInstanceList[rootViewId] = true;
     }
   } else if (module === 'EventDispatcher' || module === 'Dimensions') {
     const targetModule = __GLOBAL__.jsModuleList[module];

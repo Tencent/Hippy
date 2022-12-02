@@ -145,7 +145,7 @@ void HippyVerifyAllModulesExported(NSArray *extraModules) {
     id<HippyCustomTouchHandlerProtocol> _customTouchHandler;
     NSSet<Class<HippyImageProviderProtocol>> *_imageProviders;
     BOOL _isInitImageLoader;
-    id<HippyMethodInterceptorProtocol> _methodInterceptor;
+    __weak id<HippyMethodInterceptorProtocol> _methodInterceptor;
 }
 
 dispatch_queue_t HippyJSThread;
@@ -230,7 +230,7 @@ HIPPY_NOT_IMPLEMENTED(-(instancetype)init)
     HippyKeyCommands *commands = [HippyKeyCommands sharedInstance];
 
     // reload in current mode
-    __weak typeof(self) weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     [commands registerKeyCommandWithInput:@"r" modifierFlags:UIKeyModifierCommand action:^(__unused UIKeyCommand *command) {
         // 暂时屏蔽掉RN的调试
         [weakSelf requestReload];

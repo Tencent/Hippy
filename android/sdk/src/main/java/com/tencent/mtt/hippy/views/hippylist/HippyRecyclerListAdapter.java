@@ -18,8 +18,6 @@ package com.tencent.mtt.hippy.views.hippylist;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
-import android.view.MotionEvent;
-import android.view.View.OnTouchListener;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.HippyItemTypeHelper;
 import androidx.recyclerview.widget.ItemLayoutParams;
@@ -27,7 +25,6 @@ import androidx.recyclerview.widget.RecyclerView.Adapter;
 import androidx.recyclerview.widget.RecyclerView.LayoutParams;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import com.tencent.mtt.hippy.HippyEngineContext;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.DiffUtils.PatchType;
@@ -47,7 +44,7 @@ import java.util.ArrayList;
  * 对于特殊的renderNode，比如header和sticky的节点，我们进行了不同的处理。
  */
 public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Adapter<HippyRecyclerViewHolder>
-        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams, OnTouchListener {
+        implements IRecycleItemTypeChange, IStickyItemsProvider, ItemLayoutParams {
 
     private static final int STICK_ITEM_VIEW_TYPE_BASE = -100000;
     protected final HippyEngineContext hpContext;
@@ -56,13 +53,11 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
     protected int positionToCreateHolder;
     protected PullFooterRefreshHelper footerRefreshHelper;
     protected PullHeaderRefreshHelper headerRefreshHelper;
-    protected PreloadHelper preloadHelper;
 
     public HippyRecyclerListAdapter(HRCV hippyRecyclerView, HippyEngineContext hpContext) {
         this.hpContext = hpContext;
         this.hippyRecyclerView = hippyRecyclerView;
         hippyItemTypeHelper = new HippyItemTypeHelper(hippyRecyclerView);
-        preloadHelper = new PreloadHelper(hippyRecyclerView);
     }
 
     /**
@@ -88,7 +83,8 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             initFooterRefreshHelper(renderView, renderNode);
             return new HippyRecyclerViewHolder(footerRefreshHelper.getView(), renderNode);
         } else if (isStickyPosition(positionToCreateHolder)) {
-            return new HippyRecyclerViewHolder(getStickyContainer(parent, renderView), renderNode);
+            View stickyView = hippyRecyclerView.getStickyContainer(parent.getContext(), renderView);
+            return new HippyRecyclerViewHolder(stickyView, renderNode);
         } else {
             if (renderView == null) {
                 throw new IllegalArgumentException("createRenderView error!"
@@ -158,14 +154,6 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
             hpContext.getRenderManager().getControllerManager().removeViewFromRegistry(renderNode.getId());
         }
         renderNode.setRecycleItemTypeChangeListener(null);
-    }
-
-    private FrameLayout getStickyContainer(ViewGroup parent, View renderView) {
-        FrameLayout container = new FrameLayout(parent.getContext());
-        if (renderView != null) {
-            container.addView(renderView, new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT));
-        }
-        return container;
     }
 
     @Override
@@ -471,30 +459,11 @@ public class HippyRecyclerListAdapter<HRCV extends HippyRecyclerView> extends Ad
         return false;
     }
 
-    public PreloadHelper getPreloadHelper() {
-        return preloadHelper;
-    }
-
-    public void setPreloadItemNumber(int preloadItemNumber) {
-        preloadHelper.setPreloadItemNumber(preloadItemNumber);
-    }
-
     @Override
     public void getItemLayoutParams(int position, LayoutParams lp) {
         if (lp == null) {
             return;
         }
         lp.height = getItemHeight(position);
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (headerRefreshHelper != null) {
-            headerRefreshHelper.onTouch(v, event);
-        }
-        if (footerRefreshHelper != null) {
-            footerRefreshHelper.onTouch(v, event);
-        }
-        return false;
     }
 }

@@ -30,6 +30,7 @@ import com.tencent.mtt.hippy.dom.flex.FlexSpacing;
 import com.tencent.mtt.hippy.dom.node.*;
 import com.tencent.mtt.hippy.modules.Promise;
 import com.tencent.mtt.hippy.modules.javascriptmodules.EventDispatcher;
+import com.tencent.mtt.hippy.runtime.builtins.JSObject;
 import com.tencent.mtt.hippy.uimanager.DiffUtils;
 import com.tencent.mtt.hippy.uimanager.RenderManager;
 import com.tencent.mtt.hippy.utils.LogUtils;
@@ -917,11 +918,11 @@ public class DomManager implements HippyInstanceLifecycleEventListener,
     });
   }
 
-  public void measureInWindow(final int id, final Promise promise) {
+  public void measureInWindow(final int id, final JSObject options, final Promise promise) {
     addNulUITask(new IDomExecutor() {
       @Override
       public void exec() {
-        mRenderManager.measureInWindow(id, promise);
+        mRenderManager.measureInWindow(id, options, promise);
       }
     });
   }

@@ -21,7 +21,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
 
-import colorParser from '@css-loader/color-parser';
 import { PROPERTIES_MAP } from '@css-loader/css-parser';
 import { getViewMeta, normalizeElementName } from '../elements';
 import {
@@ -33,6 +32,7 @@ import {
   warn,
   isDev,
   isEmpty,
+  whitespaceFilter,
 } from '../util';
 import Native from '../runtime/native';
 import { updateChild, updateWithChildren } from './native';
@@ -116,14 +116,14 @@ function getLinearGradientColorStop(value) {
   const percentageCheckReg = /^([+-]?\d+\.?\d*)%$/g;
   if (color && !percentageCheckReg.exec(color) && !percentage) {
     return {
-      color: colorParser(color),
+      color: Native.parseColor(color),
     };
   }
   if (color && percentageCheckReg.exec(percentage)) {
     return {
       // color stop ratio
       ratio: parseFloat(percentage.split('%')[0]) / 100,
-      color: colorParser(color),
+      color: Native.parseColor(color),
     };
   }
   warn('linear-gradient color stop is invalid');
@@ -200,8 +200,8 @@ class ElementNode extends ViewNode {
     this.id = '';
     // style attribute in template.
     this.style = {};
-    // Vue style scope id.
-    this._styleScopeId = null;
+    // Vue style scope id list.
+    this.scopeIdList = [];
     // Class attribute in template.
     this.classList = new Set(); // Fake DOMTokenLis
     // Other attributes in template.
@@ -289,7 +289,8 @@ class ElementNode extends ViewNode {
             }
           }
           if (!options || !options.textUpdate) {
-            value = value.trim().replace(/(&nbsp;|Â)/g, ' ');
+            // white space handler
+            value = whitespaceFilter(value);
           }
           value = unicodeToChar(value);
           break;
@@ -402,7 +403,7 @@ class ElementNode extends ViewNode {
           value = value.trim();
           // Convert inline color style to int
           if (key.toLowerCase().indexOf('color') >= 0) {
-            value = colorParser(value, Native.Platform);
+            value = Native.parseColor(value);
             // Convert inline length style, drop the px unit
           } else if (endsWith(value, 'px')) {
             value = parseFloat(value.slice(0, value.length - 2));
@@ -442,7 +443,13 @@ class ElementNode extends ViewNode {
     if (typeof styleScopeId !== 'string') {
       styleScopeId = styleScopeId.toString();
     }
-    this._styleScopeId = styleScopeId;
+    if (styleScopeId && !this.scopeIdList.includes(styleScopeId)) {
+      this.scopeIdList.push(styleScopeId);
+    }
+  }
+
+  get styleScopeId() {
+    return this.scopeIdList;
   }
 
   appendChild(childNode) {
@@ -537,12 +544,13 @@ class ElementNode extends ViewNode {
 
   /**
    * getBoundingClientRect
-   *
+   * @deprecated
    * Get the position and size of element
    * Because it's a async function, need await prefix.
    *
    * And if the element is out of visible area, result will be none.
    */
+
   getBoundingClientRect() {
     return Native.measureInWindow(this);
   }
