@@ -19,12 +19,26 @@
  */
 
 #include "renderer/tdf/viewnode/view_pager_node.h"
-
+#include "renderer/tdf/viewnode/root_view_node.h"
 #include "footstone/logging.h"
 
 namespace hippy {
 inline namespace render {
 inline namespace tdf {
+
+void ViewPagerNode::OnAttach() {
+  batch_end_listener_id_ = GetRootNode()->AddEndBatchListener([WEAK_THIS]() {
+    DEFINE_AND_CHECK_SELF(ViewPagerNode)
+    if (self->has_layout_) {
+      self->GetView<ViewPager>()->Layout();
+      self->has_layout_ = false;
+    }
+  });
+}
+
+void ViewPagerNode::OnDetach() {
+  GetRootNode()->RemoveEndBatchListener(batch_end_listener_id_);
+}
 
 void ViewPagerNode::OnChildAdd(const std::shared_ptr<ViewNode>& child, int64_t index) {
   ViewNode::OnChildAdd(child, index);
@@ -39,6 +53,12 @@ void ViewPagerNode::HandleStyleUpdate(const DomStyleMap& dom_style) {
   SetScrollEnable(dom_style, view_pager);
   SetPageMargin(dom_style, view_pager);
   SetDirection(dom_style, view_pager);
+}
+
+void ViewPagerNode::HandleLayoutUpdate(hippy::LayoutResult layout_result) {
+  TDF_RENDER_CHECK_ATTACH
+  ViewNode::HandleLayoutUpdate(layout_result);
+  has_layout_ = true;
 }
 
 std::shared_ptr<tdfcore::View> ViewPagerNode::CreateView() {
