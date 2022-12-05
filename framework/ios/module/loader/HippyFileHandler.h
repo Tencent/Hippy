@@ -20,6 +20,8 @@
  *
  */
 
+#pragma once
+
 #include "VFSUriHandler.h"
 
 @class HippyBridge;

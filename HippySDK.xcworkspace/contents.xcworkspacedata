@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:framework/examples/ios-demo/HippyDemo.xcodeproj">
-   </FileRef>
-   <FileRef
       location = "group:modules/ios/image/Image.xcodeproj">
    </FileRef>
    <FileRef

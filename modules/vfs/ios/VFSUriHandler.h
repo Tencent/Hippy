@@ -20,10 +20,10 @@
  *
  */
 
+#pragma once
+
 #include "VFSDefines.h"
 #include "vfs/handler/uri_handler.h"
-
-@class NSError;
 
 class VFSUriLoader;
 
@@ -38,7 +38,9 @@ class VFSUriHandler : public hippy::vfs::UriHandler {
         std::function<void(std::shared_ptr<hippy::JobResponse>)> cb,
         std::function<std::shared_ptr<UriHandler>()> next) override;
 
-    virtual void RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress, VFSHandlerCompletionBlock completion, VFSGetNextHandlerBlock next);
+    virtual void RequestUntrustedContent(NSURLRequest *request, VFSHandlerProgressBlock progress,
+                                         VFSHandlerCompletionBlock completion,
+                                         VFSGetNextHandlerBlock next);
     inline void SetLoader(const std::shared_ptr<VFSUriLoader> &loader){weakLoader_ = loader;}
     inline std::weak_ptr<VFSUriLoader> GetLoader() const {return weakLoader_;}
         

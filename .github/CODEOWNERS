@@ -14,6 +14,7 @@
 # cmake related
 *.cmake @medns
 CMakeLists.txt @medns
+xcodeinitscript.sh @ozonelmy
 
 # driver: js
 /driver/js/ @churchill-zhang @ilikethese
@@ -106,8 +107,9 @@ CMakeLists.txt @medns
 /gradle/ @siguangli
 
 # build: xcode
-/hippy.podspec
-/Hippy.xcworkspace/ @ozonelmy
+HippySDK.xcworkspace @ozonelmy
+HippySDK.xcodeproj @ozonelmy
+*.podspec @ozonelmy
 
 # build: config
 /buildconfig/ @medns

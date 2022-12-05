@@ -24,6 +24,8 @@
 #import "HippyBridge+VFSLoader.h"
 #import "HippyPerformanceLogger.h"
 
+#include <mutex>
+
 @interface HippyBundleLoadOperation () {
     HippyBridge *_bridge;
     NSURL *_bundleURL;

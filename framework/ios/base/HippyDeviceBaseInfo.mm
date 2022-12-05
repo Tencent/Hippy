@@ -20,11 +20,14 @@
  * limitations under the License.
  */
 
-#import "HippyDeviceBaseInfo.h"
 #import <UIKit/UIApplication.h>
-#import "HippyEventDispatcher.h"
+
 #import "HPAsserts.h"
 #import "HPToolUtils.h"
+#import "HippyDeviceBaseInfo.h"
+#import "HippyEventDispatcher.h"
+
+#include <mutex>
 
 static BOOL isiPhoneX() {
     if (@available(iOS 11.0, *)) {

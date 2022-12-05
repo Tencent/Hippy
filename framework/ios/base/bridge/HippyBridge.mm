@@ -55,8 +55,14 @@
 #include <objc/runtime.h>
 #include <sys/utsname.h>
 
+#include "dom/animation/animation_manager.h"
+#include "dom/dom_manager.h"
 #include "dom/scene.h"
+#include "dom/render_manager.h"
 #include "driver/scope.h"
+#include "footstone/worker_manager.h"
+#include "vfs/uri_loader.h"
+#include "VFSUriHandler.h"
 
 #ifdef ENABLE_INSPECTOR
 #include "devtools/vfs/devtools_handler.h"
