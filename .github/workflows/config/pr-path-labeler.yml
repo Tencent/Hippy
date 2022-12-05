@@ -5,10 +5,6 @@
 "driver: js":
   - core/**/*
   - packages/**/*
-  - .eslintignore
-  - .eslintrc.js
-  - .nycrc
-  - ava.config.js
 "dom: layout":
   - layout/**/*
 "doc: example":
@@ -34,8 +30,3 @@
   - hippy.podspec
 "build: cmake":
   - buildconfig/cmake/**/*
-"build: js":
-  - scripts/**/*
-  - tsdoc.json
-  - tsconfig.json
-  - lerna.json
