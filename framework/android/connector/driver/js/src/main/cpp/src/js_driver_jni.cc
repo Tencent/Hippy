@@ -50,11 +50,6 @@
 #include "vfs/uri_loader.h"
 #include "vfs/uri.h"
 #include "vfs/vfs_resource_holder.h"
-
-#ifdef ENABLE_TDF_RENDER
-#include "render/tdf_render_bridge.h"
-#include "renderer/tdf/tdf_render_manager.h"
-#endif
 #ifdef ENABLE_INSPECTOR
 #include "devtools/devtools_data_source.h"
 #include "devtools/vfs/devtools_handler.h"

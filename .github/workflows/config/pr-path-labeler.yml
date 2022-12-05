@@ -1,0 +1,58 @@
+"framework: android":
+  - framework/android/**/*
+"framework: ios":
+  - framework/ios/**/*
+"framework: voltron":
+  - framework/voltron/**/*
+"driver: js":
+  - driver/js/**/*
+"driver: vl":
+  - driver/vl/**/*
+"dom: tree":
+  - any: ["dom/**/*", "!dom/include/dom/animation/**/*", "!dom/src/dom/animation/**/*"]
+"dom: animation":
+  - dom/include/dom/animation/**/*
+  - dom/src/dom/animation/**/*
+"dom: layout":
+  - layout/**/*
+"renderer: native":
+  - renderer/native/**/*
+"renderer: tdf":
+  - renderer/tdf/**/*
+"renderer: voltron":
+  - renderer/voltron/**/*
+"module: vfs":
+  - modules/vfs/**/*
+"module: footstone":
+  - modules/footstone/**/*
+"module: android":
+  - modules/android/**/*
+"module: ios":
+  - modules/ios/**/*
+"module: voltron":
+  - modules/voltron/**/*
+"doc: example":
+  - framework/examples/**/*
+"doc: pages":
+  - docs/**/*
+"devtools: backend":
+  - devtools/**/*
+"gh: workflow":
+  - .github/workflows/**/*
+"gh: template":
+  - .github/ISSUE_TEMPLATE/**/*
+  - .github/PULL_REQUEST_TEMPLATE.md
+"gh: owner":
+  - .github/CODEOWNERS
+"build: gradle":
+  - gradle/**/*
+  - build.gradle
+  - gradle.properties
+  - gradlew
+  - gradlew.bat
+  - settings.gradle
+"build: xcode":
+  - Hippy.xcworkspace/**/*
+  - hippy.podspec
+"build: cmake":
+  - buildconfig/cmake/**/*
