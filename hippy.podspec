@@ -40,7 +40,10 @@ Pod::Spec.new do |s|
     cores.exclude_files = ['core/include/core/napi/v8','core/src/napi/v8','core/js','core/third_party/base/src/platform/adr', 'core/include/core/inspector', 'core/src/inspector']
     #this setting causes 'There are header files outside of the header_mappings_dir'
     # cores.header_mappings_dir = 'core/include/'
-    cores.xcconfig = {'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/'}
+    cores.xcconfig = {
+      'HEADER_SEARCH_PATHS' => '${PODS_ROOT}/hippy/core/third_party/base/include/ ${PODS_ROOT}/hippy/core/include/',
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++17'
+    }
     puts 'hippy subspec \'core\' read end'
   end 
 end
