@@ -54,5 +54,5 @@
 "build: xcode":
   - Hippy.xcworkspace/**/*
   - hippy.podspec
-"build: cmake"
+"build: cmake":
   - buildconfig/cmake/**/*
