@@ -10,28 +10,19 @@ on:
 
 jobs:
   pull_request_labeler:
-    if: github.repository == 'Tencent/Hippy'
     permissions:
       contents: read
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-    - name: Label with labeler
+    - name: Path
       uses: actions/labeler@v4
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
-    - name: Label enhancement if feat
-      uses: actions-ecosystem/action-add-labels@v1
-      if: ${{ startsWith(github.event.pull_request.title, 'feat') }}
+        configuration-path: ".github/workflows/config/pr-path-labeler.yml"
+        sync-labels: true
+    - name: Size
+      uses: julrocas/pr-size-labeler@v1.0
       with:
-        labels: enhancement
-    - name: Label bug if fix
-      uses: actions-ecosystem/action-add-labels@v1
-      if: ${{ startsWith(github.event.pull_request.title, 'fix') }}
-      with:
-        labels: bug
-    - name: Label ci if related to continuous integration
-      uses: actions-ecosystem/action-add-labels@v1
-      if: ${{ startsWith(github.event.pull_request.title, 'ci') }}
-      with:
-        labels: ci
+        repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        configuration-path: ".github/workflows/config/pr-size-labeler.yml"
