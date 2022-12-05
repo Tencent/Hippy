@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.15.4](https://github.com/Tencent/Hippy/compare/2.15.3...2.15.4) (2022-12-05)
+
+
+### Bug Fixes
+
+* **android:** fix JSI cause JNI local reference table overflow ([53fe87d](https://github.com/Tencent/Hippy/commit/53fe87d1bb703ca8e90817772a28d1afce126e3b))
+* **android:** nested scroll conflict ([537c5a1](https://github.com/Tencent/Hippy/commit/537c5a1ab3116fcf9c196ac816f86fd86583f884))
+* **android:** nested scroll conflicts with pull refresh ([fdd9667](https://github.com/Tencent/Hippy/commit/fdd96671b282bbbee0e221620714894f34263953))
+* **core:** fix the problem of multi-threading at startup time ([b6b6fef](https://github.com/Tencent/Hippy/commit/b6b6fef22849438f5b527dd963d575eb6daad75f))
+
+
+### Features
+
+* **vue:** add beforeRenderToNative hook to support computed style ([294e55e](https://github.com/Tencent/Hippy/commit/294e55e3cd89f7985eecfd10269dd376cc1c7713))
+
+
+
+
+
 ## [2.15.3](https://github.com/Tencent/Hippy/compare/2.15.2...2.15.3) (2022-11-25)
 
 
