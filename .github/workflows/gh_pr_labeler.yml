@@ -7,13 +7,20 @@ on:
       - main
       - v3.0-dev
       - v3.0
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - auto_merge_enabled
+      - auto_merge_disabled
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
-  pull_request_labeler:
-    if: github.repository == 'Tencent/Hippy'
-    permissions:
-      contents: read
-      pull-requests: write
+  basic_info_labeler:
+    if: github.repository == 'Tencent/Hippy' && contains(fromJSON('[''opened'', ''reopened'', ''synchronize'']'), github.event.action)
     runs-on: ubuntu-latest
     steps:
     - name: Path
@@ -27,3 +34,96 @@ jobs:
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: ".github/workflows/config/pr-size-labeler.yml"
+
+  auto_merge_labeler:
+    if: github.repository == 'Tencent/Hippy' && contains(fromJSON('[''auto_merge_enabled'', ''auto_merge_disabled'']'), github.event.action)
+    runs-on: ubuntu-latest
+    steps:
+    - name: Merge
+      uses: actions/github-script@v6.3.3
+      with:
+        script: |
+          const { action, pull_request } = context.payload;
+          const { issues } = github.rest;
+
+          const kLabel = {
+            'Failed': 'merge: failed',
+            'Rebase': 'merge: rebase',
+            'Squash': 'merge: squash'
+          };
+
+          let labelToAdd;
+          const LabelsToRemove = [];
+
+          switch (action) {
+            case 'auto_merge_enabled': {
+              const { merge_method } = pull_request.auto_merge;
+              switch (merge_method) {
+                case 'rebase': {
+                  labelToAdd = kLabel.Rebase;
+                  break;
+                }
+                case 'squash': {
+                  labelToAdd = kLabel.Squash;
+                  break;
+                }
+                default: {
+                  throw new Error(`unexpected merge method(${merge_method})`);
+                }
+              }
+
+              for (const { name } of pull_request.labels) {
+                if (name === kLabel.Failed) {
+                  LabelsToRemove.push(kLabel.Failed);
+                } else if (name === kLabel.Rebase) {
+                  if (labelToAdd !== kLabel.Rebase) {
+                    LabelsToRemove.push(kLabel.Rebase);
+                  } else {
+                    labelToAdd = undefined;
+                  }
+                } else if (name === kLabel.Squash) {
+                  if (labelToAdd !== kLabel.Squash) {
+                    LabelsToRemove.push(kLabel.Squash);
+                  } else {
+                    labelToAdd = null;
+                  }
+                }
+              }
+
+              break;
+            }
+            case 'auto_merge_disabled': {
+              labelToAdd = kLabel.Failed;
+
+              for (const { name } of pull_request.labels) {
+                if (name === kLabel.Rebase || name === kLabel.Squash) {
+                  LabelsToRemove.push(name);
+                } else if (name === kLabel.Failed) {
+                  labelToAdd = undefined;
+                }
+              }
+
+              break;
+            }
+            default: {
+              throw new Error(`unexpected action(${action})`);
+            }
+          }
+
+          await Promise.all(
+            LabelsToRemove.map((label) =>
+              issues.removeLabel({
+                issue_number: pull_request.number,
+                name: label,
+                ...context.repo,
+              })
+            )
+          );
+
+          if (labelToAdd) {
+            await issues.addLabels({
+              issue_number: pull_request.number,
+              labels: [labelToAdd],
+              ...context.repo,
+            });
+          }
