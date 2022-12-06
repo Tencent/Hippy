@@ -92,12 +92,12 @@ class DevtoolsDataSource : public std::enable_shared_from_this<hippy::devtools::
   static uint32_t Insert(const std::shared_ptr<DevtoolsDataSource>& devtools_data_source);
   static std::shared_ptr<DevtoolsDataSource> Find(uint32_t id);
   static bool Erase(uint32_t id);
+  static void SetFileCacheDir(const std::string& file_dir);
 
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
   void SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message);
   void SendVmNotification(std::unique_ptr<v8_inspector::StringBuffer> message);
   static void OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl);
-  static void SetFileCacheDir(const std::string& file_dir);
 #endif
 
  private:

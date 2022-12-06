@@ -68,7 +68,7 @@ void DevtoolsJni::Init(JavaVM* j_vm, void* reserved) {}
 void DevtoolsJni::Destroy(JavaVM* j_vm, void* reserved) {}
 
 constexpr uint32_t kPoolSize = 1;
-std::make_shared<WorkerManager> worker_manager;
+std::shared_ptr<WorkerManager> worker_manager;
 
 jint OnCreateDevtools(JNIEnv* j_env,
                       __unused jobject j_object,
@@ -96,7 +96,7 @@ void OnDestroyDevtools(JNIEnv* j_env, __unused jobject j_object, jint j_devtools
   FOOTSTONE_DLOG(INFO) << "OnDestroyDevtools devtools_id=" << devtools_id << ",flag=" << flag;
   FOOTSTONE_DCHECK(flag);
   JNIEnvironment::ClearJEnvException(j_env);
-  worker_manager_->Terminate();
+  worker_manager->Terminate();
 }
 
 /**
