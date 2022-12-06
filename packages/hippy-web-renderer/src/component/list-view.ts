@@ -227,11 +227,15 @@ export class ListView extends HippyWebView<HTMLDivElement> {
     super.destroy();
   }
 
-  public insertChild(component: ListViewItem) {
+  public insertChild(component: ListViewItem, position: number) {
     if (component?.props.sticky) {
       this.stickyListViewItem = component;
     }
-    this.childData.push(component);
+    if (position >= this.childData.length) {
+      this.childData.push(component);
+    } else {
+      this.childData.splice(position, 0, component);
+    }
     component.addDirtyListener(this.handleListItemDirty.bind(this));
   }
 
