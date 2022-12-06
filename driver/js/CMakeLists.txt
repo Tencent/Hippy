@@ -77,9 +77,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE dom)
 # region devtools
 if (ENABLE_INSPECTOR)
   GlobalPackages_Add(devtools_backend)
-  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_backend)
+  target_link_libraries(${PROJECT_NAME} PUBLIC devtools_backend)
   GlobalPackages_Add(devtools_integration)
-  target_link_libraries(${PROJECT_NAME} PRIVATE devtools_integration)
+  target_link_libraries(${PROJECT_NAME} PUBLIC devtools_integration)
 endif ()
 # endregion
 
