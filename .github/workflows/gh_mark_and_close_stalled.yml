@@ -3,8 +3,8 @@ name: '[gh] mark and close stale issues and PRs'
 on:
   workflow_dispatch:
   schedule:
-    # Run every day at 23:00 UTC.
-    - cron: '0 23 * * *'
+    # Run every day at 19:00 UTC(03:00 UTC+08:00).
+    - cron: '0 19 * * *'
 
 env:
   CLOSE_PR_MESSAGE: |
@@ -36,7 +36,7 @@ jobs:
         with:
           private-key: ${{ secrets.BOT_APP_KEY }}
           app-id: ${{ secrets.BOT_APP_ID }}
-      - uses: actions/stale@v5
+      - uses: actions/stale@v6.0.1
         with:
           repo-token: ${{ steps.get-token.outputs.token }}
           # pr related
@@ -44,13 +44,16 @@ jobs:
           days-before-pr-close: 60
           stale-pr-message: ${{ env.STALE_PR_MESSAGE }}
           close-pr-message: ${{ env.CLOSE_PR_MESSAGE }}
-          stale-pr-label: stale
+          stale-pr-label: 'stale: 60d'
+          close-pr-label: 'stale: closed'
+          exempt-pr-labels: 'stale: never'
           # issue related
           days-before-issue-stale: 60
           days-before-issue-close: 30
           stale-issue-message: ${{ env.STALE_ISSUE_MESSAGE }}
           close-issue-message: ${{ env.CLOSE_ISSUE_MESSAGE }}
-          stale-issue-label: stale
+          stale-issue-label: 'stale: 30d'
+          close-issue-label: 'stale: closed'
+          exempt-issue-labels: 'stale: never'
           # max requests it will send per run to the GitHub API before it deliberately exits to avoid hitting API rate limits
           operations-per-run: 500
-          remove-stale-when-updated: true
