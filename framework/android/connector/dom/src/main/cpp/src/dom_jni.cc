@@ -51,10 +51,39 @@ REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
              "(II)V",
              SetRenderManager)
 
+REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
+             "createRootNode",
+             "(I)V",
+             CreateRoot)
+
+REGISTER_JNI("com/openhippy/connector/DomManager", // NOLINT(cert-err58-cpp)
+             "destroyRootNode",
+             "(I)V",
+             DestroyRoot)
+
 using WorkerManager = footstone::WorkerManager;
 
 constexpr uint32_t kPoolSize = 2;
 constexpr char kDomRunnerName[] = "hippy_dom";
+
+void CreateRoot(JNIEnv* j_env,
+                __unused jobject j_obj,
+                jint j_root_id) {
+  auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  auto root_node = std::make_shared<hippy::RootNode>(root_id);
+  auto& persistent_map = RootNode::PersistentMap();
+  auto flag = persistent_map.Insert(root_id, root_node);
+  FOOTSTONE_DCHECK(flag);
+}
+
+void DestroyRoot(JNIEnv* j_env,
+                 __unused jobject j_obj,
+                 jint j_root_id) {
+  auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
+  auto& persistent_map = RootNode::PersistentMap();
+  auto flag = persistent_map.Erase(root_id);
+  FOOTSTONE_DCHECK(flag);
+}
 
 jint CreateDomManager(__unused JNIEnv* j_env, __unused jobject j_obj) {
   auto worker_manager = std::make_shared<WorkerManager>(kPoolSize);

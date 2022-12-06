@@ -60,16 +60,6 @@ REGISTER_JNI("com/openhippy/connector/NativeRenderer",
              GetNativeRendererInstance)
 
 REGISTER_JNI("com/openhippy/connector/NativeRenderer", // NOLINT(cert-err58-cpp)
-             "createRoot",
-             "(I)V",
-             CreateRoot)
-
-REGISTER_JNI("com/openhippy/connector/NativeRenderer", // NOLINT(cert-err58-cpp)
-             "destroyRoot",
-             "(I)V",
-             DestroyRoot)
-
-REGISTER_JNI("com/openhippy/connector/NativeRenderer", // NOLINT(cert-err58-cpp)
              "attachToDom",
              "(II)V",
              SetDomManager)
@@ -99,25 +89,6 @@ jobject GetNativeRendererInstance(JNIEnv* j_env, jobject j_object, jint j_render
   auto render_manager_object = std::static_pointer_cast<NativeRenderManager>(
       std::any_cast<std::shared_ptr<RenderManager>>(render_manager));
   return render_manager_object->GetRenderProxy()->GetObj();
-}
-
-void CreateRoot(JNIEnv* j_env,
-                __unused jobject j_obj,
-                jint j_root_id) {
-  auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
-  auto root_node = std::make_shared<hippy::RootNode>(root_id);
-  auto& persistent_map = RootNode::PersistentMap();
-  auto flag = persistent_map.Insert(root_id, root_node);
-  FOOTSTONE_DCHECK(flag);
-}
-
-void DestroyRoot(JNIEnv* j_env,
-                 __unused jobject j_obj,
-                 jint j_root_id) {
-  auto root_id = footstone::check::checked_numeric_cast<jint, uint32_t>(j_root_id);
-  auto& persistent_map = RootNode::PersistentMap();
-  auto flag = persistent_map.Erase(root_id);
-  FOOTSTONE_DCHECK(flag);
 }
 
 void SetDomManager(JNIEnv* j_env,

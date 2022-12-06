@@ -39,7 +39,6 @@ public class MyActivityDeprecated extends Activity implements HippyEngine.Engine
 	@Override
 	protected void onDestroy()
 	{
-		mEngineManager.destroyInstance(mInstance);
 		mEngineManager.removeEngineEventListener(this);
 		mEngineManager.destroyEngine();
 		super.onDestroy();

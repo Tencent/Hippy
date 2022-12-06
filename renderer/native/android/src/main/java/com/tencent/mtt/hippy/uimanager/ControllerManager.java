@@ -107,7 +107,7 @@ public class ControllerManager {
     }
 
     @NonNull
-    private synchronized void checkDefaultControllers() {
+    private synchronized static void checkDefaultControllers() {
         if (sDefaultControllers != null) {
             return;
         }

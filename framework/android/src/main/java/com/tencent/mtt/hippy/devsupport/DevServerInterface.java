@@ -22,21 +22,19 @@ import androidx.annotation.Nullable;
 @SuppressWarnings("unused")
 public interface DevServerInterface {
 
-  void reload();
+    void reload();
 
-  String createResourceUrl(String resName);
+    String createResourceUrl(String resName);
 
-  void onLoadResourceSucceeded();
+    void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage);
 
-  void onLoadResourceFailed(@NonNull String url, @Nullable String errorMessage);
+    String createDebugUrl(String host, String componentName, String debugClientId);
 
-  String createDebugUrl(String host, String componentName, String debugClientId);
+    void setDevServerCallback(DevServerCallBack devServerCallback);
 
-  void setDevServerCallback(DevServerCallBack devServerCallback);
+    void attachToHost(Context context, int rootId);
 
-  void attachToHost(Context context);
+    void detachFromHost(Context context, int rootId);
 
-  void detachFromHost(Context context);
-
-  void handleException(Throwable throwable);
+    void handleException(Throwable throwable);
 }
