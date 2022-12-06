@@ -51,7 +51,7 @@ jobs:
       - name: Check License or Date from github PR files
         uses: zoomchan-cxj/actions-license@v0.1.0
         with:
-          config-path: .github/license-check.json
+          config-path: .github/workflows/config/license-check.json
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           FORCE_COLOR: 3
