@@ -143,13 +143,15 @@ bool DevtoolsDataSource::Erase(uint32_t id) {
   return flag;
 }
 
+void DevtoolsDataSource::SetFileCacheDir(const std::string &file_dir) {
+#ifdef JS_V8
+  TraceControl::GetInstance().SetFileCacheDir(file_dir);
+#endif
+}
+
 #if defined(JS_V8) && !defined(V8_WITHOUT_INSPECTOR)
 void DevtoolsDataSource::OnGlobalTracingControlGenerate(v8::platform::tracing::TracingController* tracingControl) {
   TraceControl::GetInstance().SetGlobalTracingController(tracingControl);
-}
-
-void DevtoolsDataSource::SetFileCacheDir(const std::string& file_dir) {
-  TraceControl::GetInstance().SetFileCacheDir(file_dir);
 }
 
 void DevtoolsDataSource::SendVmResponse(std::unique_ptr<v8_inspector::StringBuffer> message) {
